@@ -18,6 +18,10 @@
     order by cq.created_at asc, cq.id asc
   </sql>
 
+  <sql id="orderByDescDateAndId">
+    order by cq.created_at desc, cq.id asc
+  </sql>
+
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
     select
     <include refid="columns"/>
@@ -47,6 +51,42 @@
     from ce_queue cq
     <include refid="orderByDateAndId"/>
   </select>
+
+  <select id="selectByQueryInDescOrder" resultType="org.sonar.db.ce.CeQueueDto">
+    select
+    <include refid="columns"/>
+    <include refid="sqlSelectByQuery"/>
+    <include refid="orderByDescDateAndId"/>
+  </select>
+
+  <select id="countByQuery" resultType="int">
+    select count(id)
+    <include refid="sqlSelectByQuery"/>
+  </select>
+
+  <sql id="sqlSelectByQuery">
+    from ce_queue cq
+    <where>
+      <if test="query.componentUuids != null and query.componentUuids.size()>0">
+        and cq.component_uuid in
+        <foreach collection="query.componentUuids" open="(" close=")" item="cUuid" separator=",">
+          #{cUuid}
+        </foreach>
+      </if>
+      <if test="query.statuses != null">
+        and cq.status in
+        <foreach collection="query.statuses" open="(" close=")" item="status" separator=",">
+          #{status}
+        </foreach>
+      </if>
+      <if test="query.type != null">
+        and cq.task_type=#{query.type}
+      </if>
+      <if test="query.minSubmittedAt != null">
+        and cq.created_at &gt;= #{query.minSubmittedAt}
+      </if>
+    </where>
+  </sql>
 
   <select id="selectEligibleForPeek" resultType="String">
     select cq.uuid

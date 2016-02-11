@@ -32,7 +32,7 @@ public class CeActivityQuery {
 
   private boolean onlyCurrents = false;
   private List<String> componentUuids;
-  private CeActivityDto.Status status;
+  private List<String> statuses;
   private String type;
   private Long minSubmittedAt;
   private Long maxExecutedAt;
@@ -70,12 +70,12 @@ public class CeActivityQuery {
   }
 
   @CheckForNull
-  public CeActivityDto.Status getStatus() {
-    return status;
+  public List<String> getStatuses() {
+    return statuses;
   }
 
-  public CeActivityQuery setStatus(@Nullable CeActivityDto.Status status) {
-    this.status = status;
+  public CeActivityQuery setStatuses(@Nullable List<String> statuses) {
+    this.statuses = statuses;
     return this;
   }
 

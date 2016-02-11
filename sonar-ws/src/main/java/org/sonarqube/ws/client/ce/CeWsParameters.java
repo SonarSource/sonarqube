@@ -17,27 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+package org.sonarqube.ws.client.ce;
 
-public class CeQueueTesting {
-  private CeQueueTesting() {
-    // static methods only
+public class CeWsParameters {
+  public static final String PARAM_COMPONENT_ID = "componentId";
+  public static final String PARAM_COMPONENT_QUERY = "componentQuery";
+  public static final String PARAM_TYPE = "type";
+  public static final String PARAM_STATUS = "status";
+  public static final String PARAM_ONLY_CURRENTS = "onlyCurrents";
+  public static final String PARAM_MIN_SUBMITTED_AT = "minSubmittedAt";
+  public static final String PARAM_MAX_EXECUTED_AT = "maxExecutedAt";
+
+  private CeWsParameters() {
+    // prevent instantiation
   }
-
-  public static CeQueueDto newCeQueueDto(String uuid) {
-    return new CeQueueDto()
-      .setUuid(uuid)
-      .setComponentUuid(randomAlphanumeric(40))
-      .setStatus(CeQueueDto.Status.PENDING)
-      .setTaskType(CeTaskTypes.REPORT)
-      .setSubmitterLogin(randomAlphanumeric(255))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong())
-      .setStartedAt(nextLong());
-  }
-
-
 }

@@ -19,6 +19,7 @@
  */
 package org.sonarqube.ws.client;
 
+import org.sonarqube.ws.client.ce.CeService;
 import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.measure.MeasuresService;
@@ -47,6 +48,8 @@ public interface WsClient {
   MeasuresService measures();
 
   SystemService system();
+
+  CeService ce();
 
   WsConnector wsConnector();
 }

@@ -47,7 +47,7 @@
     select
     <include refid="columns"/>
     <include refid="sqlSelectByQuery" />
-    order by ca.id desc
+    order by ca.submitted_at desc, ca.id desc
   </select>
 
   <select id="countByQuery" parameterType="map" resultType="int">
@@ -67,8 +67,11 @@
           #{cUuid}
         </foreach>
       </if>
-      <if test="query.status != null">
-        and ca.status=#{query.status}
+      <if test="query.statuses != null and !query.statuses.isEmpty()">
+        and ca.status in
+        <foreach collection="query.statuses" open="(" close=")" item="status" separator=",">
+          #{status}
+        </foreach>
       </if>
       <if test="query.type != null">
         and ca.task_type=#{query.type}

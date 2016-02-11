@@ -17,19 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.ws;
 
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-import org.apache.ibatis.session.RowBounds;
+import java.util.Set;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
@@ -37,124 +41,141 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeActivityQuery;
+import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.db.component.ComponentQuery;
-import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.computation.taskprocessor.CeTaskProcessor;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.WsCe.ActivityResponse;
+import org.sonarqube.ws.client.ce.ActivityWsRequest;
 
 import static java.lang.String.format;
+import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
+import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
 public class ActivityAction implements CeWsAction {
-
-  private static final String PARAM_COMPONENT_UUID = "componentId";
-  private static final String PARAM_COMPONENT_QUERY = "componentQuery";
-  private static final String PARAM_TYPE = "type";
-  private static final String PARAM_STATUS = "status";
-  private static final String PARAM_ONLY_CURRENTS = "onlyCurrents";
-  private static final String PARAM_MIN_SUBMITTED_AT = "minSubmittedAt";
-  private static final String PARAM_MAX_EXECUTED_AT = "maxExecutedAt";
-
   private final UserSession userSession;
   private final DbClient dbClient;
   private final TaskFormatter formatter;
+  private final Set<String> taskTypes;
 
-  public ActivityAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter) {
+  public ActivityAction(UserSession userSession, DbClient dbClient, TaskFormatter formatter, CeTaskProcessor[] taskProcessors) {
     this.userSession = userSession;
     this.dbClient = dbClient;
     this.formatter = formatter;
+
+    this.taskTypes = new LinkedHashSet<>();
+    for (CeTaskProcessor taskProcessor : taskProcessors) {
+      taskTypes.addAll(taskProcessor.getHandledCeTaskTypes());
+    }
   }
 
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("activity")
-      .setDescription(format("Search for past task executions. Requires the system administration permission, " +
-        "or project administration permission if %s is set.", PARAM_COMPONENT_UUID))
+      .setDescription(format("Search for tasks.<br> " +
+        "Requires the system administration permission, " +
+        "or project administration permission if %s is set.", PARAM_COMPONENT_ID))
       .setResponseExample(getClass().getResource("activity-example.json"))
       .setHandler(this)
       .setSince("5.2");
-    action.createParam(PARAM_COMPONENT_UUID)
-      .setDescription("Optional id of the component (project) to filter on")
+
+    action.createParam(PARAM_COMPONENT_ID)
+      .setDescription("Id of the component (project) to filter on")
       .setExampleValue(Uuids.UUID_EXAMPLE_03);
     action.createParam(PARAM_COMPONENT_QUERY)
-      .setDescription(format("Optional search by component name or key. Must not be set together with %s.", PARAM_COMPONENT_UUID))
+      .setDescription(format("Limit search to: <ul>" +
+        "<li>component names that contain the supplied string</li>" +
+        "<li>component keys that are exactly the same as the supplied string</li>" +
+        "</ul>" +
+        "Must not be set together with %s", PARAM_COMPONENT_ID))
       .setExampleValue("Apache");
     action.createParam(PARAM_STATUS)
-      .setDescription("Optional filter on task status")
-      .setPossibleValues(CeActivityDto.Status.values());
+      .setDescription("Comma separated list of task statuses")
+      .setPossibleValues(ImmutableList.builder()
+        .add(CeActivityDto.Status.values())
+        .add(CeQueueDto.Status.values()).build())
+      .setExampleValue(Joiner.on(",").join(CeQueueDto.Status.IN_PROGRESS, CeActivityDto.Status.SUCCESS))
+      // activity statuses by default to be backward compatible
+      // queued tasks have been added in 5.5
+      .setDefaultValue(Joiner.on(",").join(CeActivityDto.Status.values()));
     action.createParam(PARAM_ONLY_CURRENTS)
-      .setDescription("Optional filter on the current activities (only the most recent task by project)")
+      .setDescription("Filter on the last tasks (only the most recent finished task by project)")
       .setBooleanPossibleValues()
       .setDefaultValue("false");
     action.createParam(PARAM_TYPE)
-      .setDescription("Optional filter on task type")
-      .setExampleValue(CeTaskTypes.REPORT);
+      .setDescription("Task type")
+      .setExampleValue(CeTaskTypes.REPORT)
+      .setPossibleValues(taskTypes);
     action.createParam(PARAM_MIN_SUBMITTED_AT)
-      .setDescription("Optional filter on minimum date of task submission")
+      .setDescription("Minimum date of task submission")
       .setExampleValue(DateUtils.formatDateTime(new Date()));
     action.createParam(PARAM_MAX_EXECUTED_AT)
-      .setDescription("Optional filter on the maximum date of end of task processing")
+      .setDescription("Maximum date of end of task processing")
       .setExampleValue(DateUtils.formatDateTime(new Date()));
-    action.addPagingParams(10);
+    action.addPagingParams(100);
   }
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
+    ActivityResponse activityResponse = doHandle(toSearchWsRequest(wsRequest));
+    writeProtobuf(activityResponse, wsRequest, wsResponse);
+  }
+
+  private ActivityResponse doHandle(ActivityWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      CeActivityQuery query = buildQuery(dbSession, wsRequest);
+      CeActivityQuery query = buildQuery(dbSession, request);
       checkPermissions(query);
+      TaskResult queuedTasks = loadQueuedTasks(dbSession, request, query);
+      TaskResult pastTasks = loadPastTasks(dbSession, request, query, queuedTasks.total);
 
-      RowBounds rowBounds = readMyBatisRowBounds(wsRequest);
-      List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, rowBounds);
-      int total = dbClient.ceActivityDao().countByQuery(dbSession, query);
-
-      WsCe.ActivityResponse.Builder wsResponseBuilder = WsCe.ActivityResponse.newBuilder();
-      wsResponseBuilder.addAllTasks(formatter.formatActivity(dbSession, dtos));
-      wsResponseBuilder.setPaging(Common.Paging.newBuilder()
-        .setPageIndex(wsRequest.mandatoryParamAsInt(WebService.Param.PAGE))
-        .setPageSize(wsRequest.mandatoryParamAsInt(WebService.Param.PAGE_SIZE))
-        .setTotal(total));
-      WsUtils.writeProtobuf(wsResponseBuilder.build(), wsRequest, wsResponse);
+      return buildResponse(
+        queuedTasks.tasks,
+        pastTasks.tasks,
+        Paging.forPageIndex(request.getPage())
+          .withPageSize(request.getPageSize())
+          .andTotal(queuedTasks.total + pastTasks.total));
 
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private CeActivityQuery buildQuery(DbSession dbSession, Request wsRequest) {
-    String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
-    String componentQuery = wsRequest.param(PARAM_COMPONENT_QUERY);
-    checkRequest(componentUuid == null || componentQuery == null,
-      format("Only one of following parameters is accepted: %s or %s", PARAM_COMPONENT_UUID, PARAM_COMPONENT_QUERY));
-
+  private CeActivityQuery buildQuery(DbSession dbSession, ActivityWsRequest request) {
     CeActivityQuery query = new CeActivityQuery();
-    query.setType(wsRequest.param(PARAM_TYPE));
-    query.setOnlyCurrents(wsRequest.mandatoryParamAsBoolean(PARAM_ONLY_CURRENTS));
-    query.setMinSubmittedAt(toTime(wsRequest.paramAsDateTime(PARAM_MIN_SUBMITTED_AT)));
-    query.setMaxExecutedAt(toTime(wsRequest.paramAsDateTime(PARAM_MAX_EXECUTED_AT)));
+    query.setType(request.getType());
+    query.setOnlyCurrents(request.getOnlyCurrents());
+    query.setMinSubmittedAt(dateToLong(parseDateTimeQuietly(request.getMinSubmittedAt())));
+    query.setMaxExecutedAt(dateToLong(parseDateTimeQuietly(request.getMaxExecutedAt())));
 
-    String status = wsRequest.param(PARAM_STATUS);
-    if (status != null) {
-      query.setStatus(CeActivityDto.Status.valueOf(status));
+    List<String> statuses = request.getStatus();
+    if (statuses != null && !statuses.isEmpty()) {
+      query.setStatuses(request.getStatus());
     }
 
-    loadComponentUuids(dbSession, wsRequest, query);
+    loadComponentUuids(dbSession, request, query);
     return query;
   }
 
-  private void loadComponentUuids(DbSession dbSession, Request wsRequest, CeActivityQuery query) {
-    String componentUuid = wsRequest.param(PARAM_COMPONENT_UUID);
-    String componentQuery = wsRequest.param(PARAM_COMPONENT_QUERY);
-    if (componentUuid != null && componentQuery != null) {
-      throw new BadRequestException(format("Only one of parameters must be set: %s or %s", PARAM_COMPONENT_UUID, PARAM_COMPONENT_QUERY));
-    }
+  private void loadComponentUuids(DbSession dbSession, ActivityWsRequest request, CeActivityQuery query) {
+    String componentUuid = request.getComponentId();
+    String componentQuery = request.getComponentQuery();
 
     if (componentUuid != null) {
       query.setComponentUuid(componentUuid);
@@ -164,6 +185,26 @@ public class ActivityAction implements CeWsAction {
       List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeActivityQuery.MAX_COMPONENT_UUIDS);
       query.setComponentUuids(Lists.transform(componentDtos, ComponentDtoFunctions.toUuid()));
     }
+  }
+
+  private TaskResult loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeActivityQuery query) {
+    int total = dbClient.ceQueueDao().countByQuery(dbSession, query);
+    List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query,
+      Paging.forPageIndex(request.getPage())
+        .withPageSize(request.getPageSize())
+        .andTotal(total));
+    Iterable<WsCe.Task> tasks = formatter.formatQueue(dbSession, dtos);
+    return new TaskResult(tasks, total);
+  }
+
+  private TaskResult loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeActivityQuery query, int totalQueuedTasks) {
+    int total = dbClient.ceActivityDao().countByQuery(dbSession, query);
+    // we have to take into account the total number of queue tasks found
+    int offset = Math.max(0, offset(request.getPage(), request.getPageSize()) - totalQueuedTasks);
+    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, offset, request.getPageSize());
+    Iterable<WsCe.Task> ceTasks = formatter.formatActivity(dbSession, dtos);
+
+    return new TaskResult(ceTasks, total);
   }
 
   private void checkPermissions(CeActivityQuery query) {
@@ -177,18 +218,61 @@ public class ActivityAction implements CeWsAction {
     }
   }
 
-  private static RowBounds readMyBatisRowBounds(Request wsRequest) {
-    int pageIndex = wsRequest.mandatoryParamAsInt(WebService.Param.PAGE);
-    int pageSize = wsRequest.mandatoryParamAsInt(WebService.Param.PAGE_SIZE);
-    return new RowBounds((pageIndex - 1) * pageSize, pageSize);
-  }
-
-  @CheckForNull
-  private static Long toTime(@Nullable Date date) {
-    return date == null ? null : date.getTime();
-  }
-
   public static boolean isAllowedOnComponentUuid(UserSession userSession, String componentUuid) {
     return userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid);
+  }
+
+  private static ActivityResponse buildResponse(Iterable<WsCe.Task> queuedTasks, Iterable<WsCe.Task> pastTasks, Paging paging) {
+    WsCe.ActivityResponse.Builder wsResponseBuilder = WsCe.ActivityResponse.newBuilder();
+
+    int nbInsertedTasks = 0;
+    for (WsCe.Task queuedTask : queuedTasks) {
+      if (nbInsertedTasks < paging.pageSize()) {
+        wsResponseBuilder.addTasks(queuedTask);
+        nbInsertedTasks++;
+      }
+    }
+
+    for (WsCe.Task pastTask : pastTasks) {
+      if (nbInsertedTasks < paging.pageSize()) {
+        wsResponseBuilder.addTasks(pastTask);
+        nbInsertedTasks++;
+      }
+    }
+
+    wsResponseBuilder.setPaging(Common.Paging.newBuilder()
+      .setPageIndex(paging.pageIndex())
+      .setPageSize(paging.pageSize())
+      .setTotal(paging.total()));
+
+    return wsResponseBuilder.build();
+  }
+
+  private static ActivityWsRequest toSearchWsRequest(Request request) {
+    ActivityWsRequest activityWsRequest = new ActivityWsRequest()
+      .setComponentId(request.param(PARAM_COMPONENT_ID))
+      .setComponentQuery(request.param(PARAM_COMPONENT_QUERY))
+      .setStatus(request.paramAsStrings(PARAM_STATUS))
+      .setType(request.param(PARAM_TYPE))
+      .setMaxExecutedAt(request.param(PARAM_MAX_EXECUTED_AT))
+      .setMinSubmittedAt(request.param(PARAM_MIN_SUBMITTED_AT))
+      .setOnlyCurrents(request.paramAsBoolean(PARAM_ONLY_CURRENTS))
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
+
+    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getComponentQuery() == null, "%s and %s must not be set at the same time",
+      PARAM_COMPONENT_ID, PARAM_COMPONENT_QUERY);
+
+    return activityWsRequest;
+  }
+
+  private static class TaskResult {
+    private final Iterable<WsCe.Task> tasks;
+    private final int total;
+
+    private TaskResult(Iterable<WsCe.Task> tasks, int total) {
+      this.tasks = tasks;
+      this.total = total;
+    }
   }
 }

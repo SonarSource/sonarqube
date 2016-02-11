@@ -21,12 +21,15 @@ package org.sonar.db.ce;
 
 import com.google.common.base.Optional;
 import java.util.List;
+import org.apache.ibatis.session.RowBounds;
+import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
-import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
+import static java.util.Collections.emptyList;
 import static org.sonar.db.ce.CeQueueDto.Status.IN_PROGRESS;
+import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
 public class CeQueueDao implements Dao {
 
@@ -43,6 +46,26 @@ public class CeQueueDao implements Dao {
     return mapper(session).selectAllInAscOrder();
   }
 
+  public List<CeQueueDto> selectByQueryInDescOrder(DbSession dbSession, CeActivityQuery query, Paging paging) {
+    if (query.isShortCircuitedByComponentUuids()
+      || query.isOnlyCurrents()
+      || query.getMaxExecutedAt() != null) {
+      return emptyList();
+    }
+
+    return mapper(dbSession).selectByQueryInDescOrder(query, new RowBounds(paging.offset(), paging.pageSize()));
+  }
+
+  public int countByQuery(DbSession dbSession, CeActivityQuery query) {
+    if (query.isShortCircuitedByComponentUuids()
+      || query.isOnlyCurrents()
+      || query.getMaxExecutedAt() != null) {
+      return 0;
+    }
+
+    return mapper(dbSession).countByQuery(query);
+  }
+
   /**
    * Ordered by ascending id: oldest to newest
    */
@@ -55,8 +78,11 @@ public class CeQueueDao implements Dao {
   }
 
   public CeQueueDto insert(DbSession session, CeQueueDto dto) {
-    dto.setCreatedAt(system2.now());
-    dto.setUpdatedAt(system2.now());
+    if (dto.getCreatedAt() == 0L || dto.getUpdatedAt() == 0L) {
+      dto.setCreatedAt(system2.now());
+      dto.setUpdatedAt(system2.now());
+    }
+
     mapper(session).insert(dto);
     return dto;
   }

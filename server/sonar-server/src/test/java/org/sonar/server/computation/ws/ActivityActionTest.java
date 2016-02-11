@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.computation.ws;
 
 import com.google.common.base.Optional;
@@ -39,12 +40,13 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.computation.log.LogFileRef;
+import org.sonar.server.computation.taskprocessor.CeTaskProcessor;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonarqube.ws.MediaTypes;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
+import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
 
 import static java.util.Arrays.asList;
@@ -53,6 +55,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
 
 public class ActivityActionTest {
 
@@ -69,8 +72,8 @@ public class ActivityActionTest {
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
-  ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter);
-  WsActionTester tester = new WsActionTester(underTest);
+  ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
+  WsActionTester ws = new WsActionTester(underTest);
 
   @Before
   public void setUp() {
@@ -80,15 +83,15 @@ public class ActivityActionTest {
   @Test
   public void get_all_past_activity() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
-    insert("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insert("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
     // verify the protobuf response
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
+    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getTasksCount()).isEqualTo(2);
 
     // chronological order, from newest to oldest
@@ -107,32 +110,35 @@ public class ActivityActionTest {
   @Test
   public void filter_by_status() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
-    insert("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insert("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
-    TestResponse wsResponse = tester.newRequest()
-      .setParam("status", "FAILED")
+    TestResponse wsResponse = ws.newRequest()
+      .setParam("status", "FAILED,IN_PROGRESS")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
-    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
-    assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
+    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
+    assertThat(activityResponse.getTasksCount()).isEqualTo(2);
+    assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T3");
+    assertThat(activityResponse.getTasks(1).getId()).isEqualTo("T2");
   }
 
   @Test
   public void filter_on_current_activities() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
     // T2 is the current activity (the most recent one)
-    insert("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insert("T2", "PROJECT_1", CeActivityDto.Status.FAILED);
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", "PROJECT_1", CeActivityDto.Status.FAILED);
+    insertQueue("T3", "PROJECT_1", CeQueueDto.Status.PENDING);
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setParam("onlyCurrents", "true")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
+    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getTasksCount()).isEqualTo(1);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
   }
@@ -140,23 +146,25 @@ public class ActivityActionTest {
   @Test
   public void paginate_results() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
-    insert("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insert("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
-    assertPage(1, 1, 2, asList("T2"));
-    assertPage(2, 1, 2, asList("T1"));
-    assertPage(1, 10, 2, asList("T2", "T1"));
-    assertPage(2, 10, 2, Collections.<String>emptyList());
+    assertPage(1, 1, 3, asList("T3"));
+    assertPage(2, 1, 3, asList("T2"));
+    assertPage(1, 10, 3, asList("T3", "T2", "T1"));
+    assertPage(2, 10, 3, Collections.<String>emptyList());
   }
 
   private void assertPage(int pageIndex, int pageSize, int expectedTotal, List<String> expectedOrderedTaskIds) {
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .setParam(WebService.Param.PAGE, Integer.toString(pageIndex))
       .setParam(WebService.Param.PAGE_SIZE, Integer.toString(pageSize))
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING")
       .execute();
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
+    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getPaging().getPageIndex()).isEqualTo(pageIndex);
     assertThat(activityResponse.getPaging().getPageSize()).isEqualTo(pageSize);
     assertThat(activityResponse.getPaging().getTotal()).isEqualTo(expectedTotal);
@@ -172,15 +180,15 @@ public class ActivityActionTest {
   public void project_administrator_can_access_his_project_activity() {
     // no need to be a system admin
     userSession.addComponentUuidPermission(UserRole.ADMIN, "PROJECT_1", "PROJECT_1");
-    insert("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
-    insert("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setParam("componentId", "PROJECT_1")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.PARSER);
+    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getTasksCount()).isEqualTo(1);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
@@ -195,11 +203,11 @@ public class ActivityActionTest {
     dbTester.commit();
     componentDb.indexProjects();
     userSession.setGlobalPermissions(UserRole.ADMIN);
-    insert("T1", "P1", CeActivityDto.Status.SUCCESS);
-    insert("T2", "P2", CeActivityDto.Status.SUCCESS);
-    insert("T3", "P3", CeActivityDto.Status.SUCCESS);
+    insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
+    insertActivity("T3", "P3", CeActivityDto.Status.SUCCESS);
 
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setParam("componentQuery", "apac")
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
@@ -211,9 +219,9 @@ public class ActivityActionTest {
   @Test
   public void fail_if_both_filters_on_component_id_and_name() {
     expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("Only one of following parameters is accepted: componentId or componentQuery");
+    expectedException.expectMessage("componentId and componentQuery must not be set at the same time");
 
-    tester.newRequest()
+    ws.newRequest()
       .setParam("componentId", "ID1")
       .setParam("componentQuery", "apache")
       .setMediaType(MediaTypes.PROTOBUF)
@@ -223,14 +231,25 @@ public class ActivityActionTest {
   @Test
   public void support_json_response() {
     userSession.setGlobalPermissions(UserRole.ADMIN);
-    TestResponse wsResponse = tester.newRequest()
+    TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .execute();
 
     JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[]}");
   }
 
-  private CeActivityDto insert(String taskUuid, String componentUuid, CeActivityDto.Status status) {
+  private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {
+    CeQueueDto queueDto = new CeQueueDto();
+    queueDto.setTaskType(CeTaskTypes.REPORT);
+    queueDto.setComponentUuid(componentUuid);
+    queueDto.setUuid(taskUuid);
+    queueDto.setStatus(status);
+    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
+    dbTester.commit();
+    return queueDto;
+  }
+
+  private CeActivityDto insertActivity(String taskUuid, String componentUuid, CeActivityDto.Status status) {
     CeQueueDto queueDto = new CeQueueDto();
     queueDto.setTaskType(CeTaskTypes.REPORT);
     queueDto.setComponentUuid(componentUuid);

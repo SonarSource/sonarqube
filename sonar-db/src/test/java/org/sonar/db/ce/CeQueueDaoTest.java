@@ -20,15 +20,20 @@
 package org.sonar.db.ce;
 
 import com.google.common.base.Optional;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.ce.CeQueueTesting.newCeQueueDto;
 
 @Category(DbTests.class)
 public class CeQueueDaoTest {
@@ -169,6 +174,61 @@ public class CeQueueDaoTest {
     assertThat(peek.get().getUuid()).isEqualTo("TASK_2");
   }
 
+  @Test
+  public void select_by_query() {
+    // task status not in query
+    insert(newCeQueueDto("TASK_1")
+      .setComponentUuid("PROJECT_1")
+      .setStatus(CeQueueDto.Status.IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+
+    // too early
+    insert(newCeQueueDto("TASK_3")
+      .setComponentUuid("PROJECT_1")
+      .setStatus(CeQueueDto.Status.PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(90_000L));
+
+    // task type not in query
+    insert(newCeQueueDto("TASK_4")
+      .setComponentUuid("PROJECT_2")
+      .setStatus(CeQueueDto.Status.PENDING)
+      .setTaskType("ANOTHER_TYPE")
+      .setCreatedAt(100_000L));
+
+    // correct
+    insert(newCeQueueDto("TASK_2")
+      .setComponentUuid("PROJECT_1")
+      .setStatus(CeQueueDto.Status.PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+
+    // correct submitted later
+    insert(newCeQueueDto("TASK_5")
+      .setComponentUuid("PROJECT_1")
+      .setStatus(CeQueueDto.Status.PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(120_000L));
+
+    CeActivityQuery query = new CeActivityQuery()
+      .setComponentUuids(newArrayList("PROJECT_1", "PROJECT_2"))
+      .setStatuses(singletonList(CeQueueDto.Status.PENDING.name()))
+      .setType(CeTaskTypes.REPORT)
+      .setMinSubmittedAt(100_000L);
+
+    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
+    int total = underTest.countByQuery(db.getSession(), query);
+
+    assertThat(result).extracting("uuid").containsExactly("TASK_5", "TASK_2");
+    assertThat(total).isEqualTo(2);
+  }
+
+  private void insert(CeQueueDto dto) {
+    underTest.insert(db.getSession(), dto);
+    db.commit();
+  }
+
   private void insert(String uuid, String componentUuid, CeQueueDto.Status status) {
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid(uuid);
@@ -177,6 +237,6 @@ public class CeQueueDaoTest {
     dto.setStatus(status);
     dto.setSubmitterLogin("henri");
     underTest.insert(db.getSession(), dto);
-    db.getSession().commit();
+    db.commit();
   }
 }
