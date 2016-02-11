@@ -21,12 +21,18 @@ package org.sonar.application;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.FileSystem;
 
-import static org.apache.commons.io.FileUtils.cleanDirectory;
+import static java.nio.file.Files.delete;
+import static java.nio.file.Files.walkFileTree;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
@@ -111,9 +117,36 @@ public class AppFileSystem implements FileSystem {
 
   private static void createOrCleanDirectory(Props props, String propKey) throws IOException {
     File dir = props.nonNullValueAsFile(propKey);
-    LOG.info("Cleaning and/or creating temp directory {}", dir.getAbsolutePath());
+    LOG.info("Cleaning or creating temp directory {}", dir.getAbsolutePath());
     if (!createDirectory(props, propKey)) {
       cleanDirectory(dir);
+    }
+  }
+
+  private static void cleanDirectory(File dir) throws IOException {
+    Path path = Paths.get(dir.toURI());
+    walkFileTree(path, new CleanRecursivelyFileVisitor(path));
+  }
+
+  private static class CleanRecursivelyFileVisitor extends SimpleFileVisitor<Path> {
+    private final Path path;
+
+    public CleanRecursivelyFileVisitor(Path path) {
+      this.path = path;
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+      delete(file);
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+      if (!dir.equals(path)) {
+        delete(dir);
+      }
+      return FileVisitResult.CONTINUE;
     }
   }
 }
