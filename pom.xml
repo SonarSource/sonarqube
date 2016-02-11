@@ -1513,7 +1513,6 @@
       <id>tests</id>
       <modules>
         <module>it</module>
-        <module>tests/perf</module>
       </modules>
     </profile>
   </profiles>
