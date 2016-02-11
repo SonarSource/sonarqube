@@ -100,7 +100,7 @@ public abstract class PlatformLevel {
    */
   public PlatformLevel destroy() {
     if (parent != null) {
-      parent.container.removeChild();
+      parent.container.removeChild(container);
     }
     return this;
   }

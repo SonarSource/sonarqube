@@ -21,6 +21,7 @@ package org.sonar.core.platform;
 
 import com.google.common.collect.Iterables;
 import java.lang.annotation.Annotation;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.picocontainer.Characteristics;
@@ -71,12 +72,11 @@ public class ComponentContainer implements ContainerPopulator.Container {
     }
   }
 
-  // no need for multiple children
-  ComponentContainer parent;
-  ComponentContainer child;
-  MutablePicoContainer pico;
-  PropertyDefinitions propertyDefinitions;
-  ComponentKeys componentKeys;
+  private ComponentContainer parent;
+  private final List<ComponentContainer> children = new ArrayList<>();
+  private MutablePicoContainer pico;
+  private PropertyDefinitions propertyDefinitions;
+  private ComponentKeys componentKeys;
 
   /**
    * Create root container
@@ -87,7 +87,6 @@ public class ComponentContainer implements ContainerPopulator.Container {
 
   protected ComponentContainer(MutablePicoContainer picoContainer) {
     this.parent = null;
-    this.child = null;
     this.pico = picoContainer;
     this.componentKeys = new ComponentKeys();
     propertyDefinitions = new PropertyDefinitions();
@@ -101,7 +100,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
   protected ComponentContainer(ComponentContainer parent) {
     this.parent = parent;
     this.pico = parent.pico.makeChildContainer();
-    this.parent.child = this;
+    this.parent.children.add(this);
     this.propertyDefinitions = parent.propertyDefinitions;
     this.componentKeys = new ComponentKeys();
     addSingleton(this);
@@ -168,9 +167,9 @@ public class ComponentContainer implements ContainerPopulator.Container {
         throw PicoUtils.propagate(e);
       }
     } finally {
-      removeChild();
+      removeChildren();
       if (parent != null) {
-        parent.removeChild();
+        parent.removeChild(this);
       }
     }
     return this;
@@ -270,11 +269,22 @@ public class ComponentContainer implements ContainerPopulator.Container {
     return pico.getComponents(tClass);
   }
 
-  public ComponentContainer removeChild() {
-    if (child != null) {
-      pico.removeChildContainer(child.pico);
-      child = null;
+  public ComponentContainer removeChild(ComponentContainer childToBeRemoved) {
+    for (ComponentContainer child : children) {
+      if (child == childToBeRemoved) {
+        pico.removeChildContainer(child.pico);
+        children.remove(child);
+        break;
+      }
     }
+    return this;
+  }
+
+  private ComponentContainer removeChildren() {
+    for (ComponentContainer child : children) {
+      pico.removeChildContainer(child.pico);
+    }
+    children.clear();
     return this;
   }
 
@@ -299,8 +309,8 @@ public class ComponentContainer implements ContainerPopulator.Container {
     return parent;
   }
 
-  public ComponentContainer getChild() {
-    return child;
+  public List<ComponentContainer> getChildren() {
+    return children;
   }
 
   public MutablePicoContainer getPicoContainer() {
