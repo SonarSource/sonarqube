@@ -67,7 +67,7 @@ WEB)
 IT)
   start_xvfb
   ./quick-build.sh
-  ./run-integration-tests.sh "$IT_CATEGORY" ""
+  ./run-integration-tests.sh "$IT_CATEGORY" "" -Dmaven.test.redirectTestOutputToFile=false
   ;;
 
 *)
