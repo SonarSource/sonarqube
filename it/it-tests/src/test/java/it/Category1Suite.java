@@ -41,6 +41,7 @@ import com.sonar.orchestrator.Orchestrator;
 import it.actionPlan.ActionPlanTest;
 import it.actionPlan.ActionPlanUiTest;
 import it.administration.UsersPageTest;
+import it.authorisation.DashboardSharingPermissionTest;
 import it.authorisation.ExecuteAnalysisPermissionTest;
 import it.authorisation.IssuePermissionTest;
 import it.authorisation.PermissionSearchTest;
@@ -101,6 +102,7 @@ import static util.ItUtils.xooPlugin;
   PermissionSearchTest.class,
   IssuePermissionTest.class,
   ExecuteAnalysisPermissionTest.class,
+  DashboardSharingPermissionTest.class,
   // measure history
   DifferentialPeriodsTest.class,
   HistoryUiTest.class,

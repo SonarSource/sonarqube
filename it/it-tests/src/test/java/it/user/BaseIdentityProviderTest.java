@@ -160,7 +160,7 @@ public class BaseIdentityProviderTest {
     assertThat(user).isPresent();
 
     // Disable user
-    userRule.deactivateUsers(user.get());
+    userRule.deactivateUsers(USER_LOGIN);
 
     // Second connection, user is reactivated
     authenticateWithFakeAuthProvider();

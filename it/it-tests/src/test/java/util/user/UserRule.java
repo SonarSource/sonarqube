@@ -52,7 +52,16 @@ public class UserRule extends ExternalResource {
     return new UserRule(requireNonNull(orchestrator, "Orchestrator instance can not be null"));
   }
 
-  private WsClient adminWsClient(){
+  public void resetUsers() {
+    for (Users.User user : getUsers().getUsers()) {
+      String userLogin = user.getLogin();
+      if (!userLogin.equals("admin")) {
+        deactivateUsers(userLogin);
+      }
+    }
+  }
+
+  private WsClient adminWsClient() {
     if (adminWsClient == null) {
       adminWsClient = newAdminWsClient(orchestrator);
     }
@@ -70,7 +79,6 @@ public class UserRule extends ExternalResource {
   public void verifyUserDoesNotExist(String login) {
     assertThat(getUserByLogin(login)).as("Unexpected user with login '%s' has been found", login).isAbsent();
   }
-
 
   public void createUser(String login, String name, String password) {
     adminWsClient().wsConnector().call(
@@ -95,25 +103,18 @@ public class UserRule extends ExternalResource {
     return Users.parse(response.content());
   }
 
-  public void deactivateUsers(List<Users.User> users) {
-    for (Users.User user : users) {
-      adminWsClient().wsConnector().call(
-        new PostRequest("api/users/deactivate")
-          .setParam("login", user.getLogin()));
+  public void deactivateUsers(List<String> userLogins) {
+    for (String userLogin : userLogins) {
+      if (getUserByLogin(userLogin).isPresent()) {
+        adminWsClient().wsConnector().call(
+          new PostRequest("api/users/deactivate")
+            .setParam("login", userLogin));
+      }
     }
-  }
-
-  public void deactivateUsers(Users.User... users) {
-    deactivateUsers(asList(users));
   }
 
   public void deactivateUsers(String... userLogins) {
-    for (String userLogin : userLogins) {
-      Optional<Users.User> user = getUserByLogin(userLogin);
-      if (user.isPresent()) {
-        deactivateUsers(user.get());
-      }
-    }
+    deactivateUsers(asList(userLogins));
   }
 
   private class MatchUserLogin implements Predicate<Users.User> {
