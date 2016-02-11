@@ -20,7 +20,6 @@
 package org.sonar.server.computation.ws;
 
 import java.util.List;
-import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -75,7 +74,7 @@ public class ComponentAction implements CeWsAction {
       CeActivityQuery activityQuery = new CeActivityQuery()
         .setComponentUuid(componentUuid)
         .setOnlyCurrents(true);
-      List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, new RowBounds(0, 1));
+      List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, 0, 1);
 
       ProjectResponse.Builder wsResponseBuilder = ProjectResponse.newBuilder();
       wsResponseBuilder.addAllQueue(formatter.formatQueue(dbSession, queueDtos));

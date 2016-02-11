@@ -23,12 +23,17 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.session.RowBounds;
 
 public interface CeQueueMapper {
 
   List<CeQueueDto> selectByComponentUuid(@Param("componentUuid") String componentUuid);
 
   List<CeQueueDto> selectAllInAscOrder();
+
+  List<CeQueueDto> selectByQueryInDescOrder(@Param("query") CeActivityQuery query, RowBounds rowBounds);
+
+  int countByQuery(@Param("query") CeActivityQuery query);
 
   List<String> selectEligibleForPeek();
 

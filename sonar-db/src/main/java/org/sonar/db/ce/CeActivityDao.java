@@ -64,11 +64,12 @@ public class CeActivityDao implements Dao {
   /**
    * Ordered by id desc -> newest to oldest
    */
-  public List<CeActivityDto> selectByQuery(DbSession dbSession, CeActivityQuery query, RowBounds rowBounds) {
+  public List<CeActivityDto> selectByQuery(DbSession dbSession, CeActivityQuery query, int offset, int pageSize) {
     if (query.isShortCircuitedByComponentUuids()) {
       return Collections.emptyList();
     }
-    return mapper(dbSession).selectByQuery(query, rowBounds);
+
+    return mapper(dbSession).selectByQuery(query, new RowBounds(offset, pageSize));
   }
 
   public int countByQuery(DbSession dbSession, CeActivityQuery query) {

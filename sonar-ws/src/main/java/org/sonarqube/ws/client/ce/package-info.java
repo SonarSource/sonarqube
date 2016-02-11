@@ -17,27 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.ce;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
+@ParametersAreNonnullByDefault
+package org.sonarqube.ws.client.ce;
 
-public class CeQueueTesting {
-  private CeQueueTesting() {
-    // static methods only
-  }
+import javax.annotation.ParametersAreNonnullByDefault;
 
-  public static CeQueueDto newCeQueueDto(String uuid) {
-    return new CeQueueDto()
-      .setUuid(uuid)
-      .setComponentUuid(randomAlphanumeric(40))
-      .setStatus(CeQueueDto.Status.PENDING)
-      .setTaskType(CeTaskTypes.REPORT)
-      .setSubmitterLogin(randomAlphanumeric(255))
-      .setCreatedAt(nextLong())
-      .setUpdatedAt(nextLong())
-      .setStartedAt(nextLong());
-  }
-
-
-}

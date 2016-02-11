@@ -22,7 +22,6 @@ package org.sonar.db.ce;
 import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
-import org.apache.ibatis.session.RowBounds;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
@@ -30,6 +29,7 @@ import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
 
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
@@ -97,30 +97,30 @@ public class CeActivityDaoTest {
 
     // no filters
     CeActivityQuery query = new CeActivityQuery();
-    List<CeActivityDto> dtos = underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10));
+    List<CeActivityDto> dtos = underTest.selectByQuery(db.getSession(), query, 0, 10);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4", "TASK_3", "TASK_2", "TASK_1");
 
     // select by component uuid
     query = new CeActivityQuery().setComponentUuid("PROJECT_1");
-    dtos = underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10));
+    dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_2", "TASK_1");
 
     // select by status
-    query = new CeActivityQuery().setStatus(CeActivityDto.Status.SUCCESS);
-    dtos = underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10));
+    query = new CeActivityQuery().setStatuses(singletonList(CeActivityDto.Status.SUCCESS.name()));
+    dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4", "TASK_3", "TASK_1");
 
     // select by type
     query = new CeActivityQuery().setType(REPORT);
-    dtos = underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10));
+    dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_3", "TASK_2", "TASK_1");
     query = new CeActivityQuery().setType("views");
-    dtos = underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10));
+    dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4");
 
     // select by multiple conditions
     query = new CeActivityQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
-    dtos = underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10));
+    dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_2");
   }
 
@@ -140,7 +140,7 @@ public class CeActivityDaoTest {
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(2);
 
     // select by status
-    query = new CeActivityQuery().setStatus(CeActivityDto.Status.SUCCESS);
+    query = new CeActivityQuery().setStatuses(singletonList(CeActivityDto.Status.SUCCESS.name()));
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(3);
 
     // select by type
@@ -160,7 +160,7 @@ public class CeActivityDaoTest {
 
     CeActivityQuery query = new CeActivityQuery();
     query.setComponentUuids(Collections.<String>emptyList());
-    assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).isEmpty();
+    assertThat(underTest.selectByQuery(db.getSession(), query, 0, 0)).isEmpty();
   }
 
   @Test
@@ -179,19 +179,19 @@ public class CeActivityDaoTest {
 
     // search by min submitted date
     CeActivityQuery query = new CeActivityQuery().setMinSubmittedAt(1_455_000_000_000L);
-    assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID2");
+    assertThat(underTest.selectByQuery(db.getSession(), query, 0, 5)).extracting("uuid").containsOnly("UUID2");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
     // search by max executed date
     query = new CeActivityQuery().setMaxExecutedAt(1_475_000_000_000L);
-    assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID1");
+    assertThat(underTest.selectByQuery(db.getSession(), query, 0, 5)).extracting("uuid").containsOnly("UUID1");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
     // search by both dates
     query = new CeActivityQuery()
       .setMinSubmittedAt(1_400_000_000_000L)
       .setMaxExecutedAt(1_475_000_000_000L);
-    assertThat(underTest.selectByQuery(db.getSession(), query, new RowBounds(0, 10))).extracting("uuid").containsOnly("UUID1");
+    assertThat(underTest.selectByQuery(db.getSession(), query, 0, 5)).extracting("uuid").containsOnly("UUID1");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
   }
