@@ -23,11 +23,9 @@ import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.locator.FileLocation;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
-import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
@@ -170,17 +168,8 @@ public class IssueTrackingTest extends AbstractIssueTest {
     });
   }
 
-  private void assertSameDate(Date date1, String date2Text) throws ParseException {
-    Date date2 = new SimpleDateFormat("yyyy-MM-dd").parse(date2Text);
-    assertThat(DateUtils.isSameDay(date1, date2)).describedAs("Expected '" + date2Text + " ' but got '" + new SimpleDateFormat("yyyy-MM-dd").format(date1) + "'").isTrue();
-  }
-
   private List<Issue> searchUnresolvedIssuesByComponent(String componentKey) {
     return search(IssueQuery.create().components(componentKey).resolved(false)).list();
-  }
-
-  private List<Issue> searchIssuesByProject(String projectKey) {
-    return search(IssueQuery.create().componentRoots(projectKey)).list();
   }
 
 }

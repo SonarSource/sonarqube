@@ -85,4 +85,8 @@ public abstract class AbstractIssueTest {
   static List<Issue> searchIssues(IssueQuery issueQuery) {
     return issueClient().find(issueQuery).list();
   }
+
+  static List<Issue> searchIssuesByProject(String projectKey) {
+    return search(IssueQuery.create().componentRoots(projectKey)).list();
+  }
 }
