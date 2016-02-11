@@ -66,7 +66,7 @@ WEB)
 
 IT)
   start_xvfb
-  mvn install -Pit,dev -DskipTests -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -B -V -e -Dsource.skip=true
+  mvn install -Ptests,dev -DskipTests -Dcategory=$IT_CATEGORY -Dmaven.test.redirectTestOutputToFile=false -B -V -e -Dsource.skip=true
   ;;
 
 *)
