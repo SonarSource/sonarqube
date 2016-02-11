@@ -12,7 +12,7 @@ case "$RUN_ACTIVITY" in
     ;;
 
   run-it-released-plugins)
-    ./run-integration-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-h2.properties" "Plugins"
+    ./run-integration-tests.sh "Plugins" "http://infra.internal.sonarsource.com/jenkins/orch-h2.properties"
     ;;
 
   run-perf-tests)

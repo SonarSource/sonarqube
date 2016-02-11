@@ -38,7 +38,5 @@ echo ''
 echo ''
 echo ''
 
-# Parallel executions of maven modules and tests.
-# Half of CPU core are used in to keep other half for OS and other programs.
 ./stop.sh
-mvn clean install -T0.5C -B -e -DskipTests=true -Pdev $*
+mvn install -B -e -V -DskipTests=true -Dsource.skip=true -Denforcer.skip=true $*
