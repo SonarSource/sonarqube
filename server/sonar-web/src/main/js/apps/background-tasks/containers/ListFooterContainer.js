@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import { translate } from '../../helpers/l10n';
+import { connect } from 'react-redux';
 
-export default React.createClass({
-  render() {
-    return (
-        <header className="page-header">
-          <h1 className="page-title">{translate('background_tasks.page')}</h1>
-          <p className="page-description">{translate('background_tasks.page.description')}</p>
-        </header>
-    );
-  }
-});
+import ListFooter from '../../../components/shared/list-footer';
+
+function mapStateToProps (state) {
+  return {
+    ready: !state.fetching,
+    total: state.total,
+    count: state.tasks.length
+  };
+}
+
+export default connect(
+    mapStateToProps
+)(ListFooter);

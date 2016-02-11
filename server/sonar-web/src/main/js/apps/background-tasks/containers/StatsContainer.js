@@ -17,41 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const STATUSES = {
-  ALL: '__ALL__',
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED'
-};
+import { connect } from 'react-redux';
 
+import Stats from '../components/Stats';
+import { filterTasks, cancelAllPending } from '../store/actions';
+import { STATUSES, CURRENTS, DEFAULT_FILTERS } from '../constants';
 
-export const ALL_TYPES = 'ALL_TYPES';
+function mapStateToProps (state) {
+  return {
+    pendingCount: state.pendingCount,
+    failingCount: state.failingCount,
+    inProgressDuration: state.inProgressDuration
+  };
+}
 
+function mapDispatchToProps (dispatch) {
+  return {
+    onShowFailing: () => dispatch(filterTasks({
+      ...DEFAULT_FILTERS,
+      status: STATUSES.FAILED,
+      currents: CURRENTS.ONLY_CURRENTS
+    })),
+    onCancelAllPending: () => dispatch(cancelAllPending())
+  };
+}
 
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
-
-
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  date: {},
-  query: ''
-};
-
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-
-export const DEBOUNCE_DELAY = 250;
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Stats);

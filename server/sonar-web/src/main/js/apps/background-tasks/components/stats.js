@@ -17,42 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import React, { Component } from 'react';
 
-import { formatDuration } from './helpers';
-import { TooltipsMixin } from '../../components/mixins/tooltips-mixin';
-import { translate } from '../../helpers/l10n';
+import { formatDuration } from './../helpers';
+import { translate } from '../../../helpers/l10n';
 
 
-export default React.createClass({
-  mixins: [TooltipsMixin],
-
-  onPendingCanceled(e) {
+export default class Stats extends Component {
+  handleCancelAllPending (e) {
     e.preventDefault();
-    this.props.cancelPending();
-  },
+    this.props.onCancelAllPending();
+  }
 
-  onFailuresClick(e) {
+  handleShowFailing (e) {
     e.preventDefault();
-    this.props.showFailures();
-  },
+    this.props.onShowFailing();
+  }
 
-  renderInProgressDuration() {
+  renderInProgressDuration () {
     if (!this.props.inProgressDuration) {
       return null;
     }
     return (
-        <span className="huge-spacer-left" title={translate('background_tasks.in_progress_duration')}
-              data-toggle="tooltip">
-          <i className="spinner spacer-right" style={{ verticalAlign: 'text-top' }}/>
-          <span ref="inProgressDuration" className="emphasised-measure">
+        <span
+            className="huge-spacer-left"
+            title={translate('background_tasks.in_progress_duration')}
+            data-toggle="tooltip">
+          <i
+              className="spinner spacer-right"
+              style={{ verticalAlign: 'text-top' }}/>
+          <span
+              ref="inProgressDuration"
+              className="emphasised-measure">
             {formatDuration(this.props.inProgressDuration)}
           </span>
         </span>
     );
-  },
+  }
 
-  renderPending() {
+  renderPending () {
     if (this.props.pendingCount == null) {
       return null;
     }
@@ -62,8 +65,13 @@ export default React.createClass({
             <span ref="pendingCount" className="emphasised-measure">{this.props.pendingCount}</span>
             &nbsp;
             {translate('background_tasks.pending')}
-            <a ref="cancelPending" onClick={this.onPendingCanceled} className="icon-delete spacer-left"
-               title={translate('background_tasks.cancel_all_tasks')} data-toggle="tooltip" href="#"></a>
+            <a
+                ref="cancelPending"
+                onClick={this.handleCancelAllPending.bind(this)}
+                className="icon-delete spacer-left"
+                title={translate('background_tasks.cancel_all_tasks')}
+                data-toggle="tooltip"
+                href="#"/>
           </span>
       );
     } else {
@@ -75,10 +83,10 @@ export default React.createClass({
           </span>
       );
     }
-  },
+  }
 
-  renderFailures() {
-    if (this.props.failuresCount == null) {
+  renderFailures () {
+    if (this.props.failingCount == null) {
       return null;
     }
 
@@ -86,15 +94,15 @@ export default React.createClass({
       return null;
     }
 
-    if (this.props.failuresCount > 0) {
+    if (this.props.failingCount > 0) {
       return (
           <span>
             <a ref="failureCount"
-               onClick={this.onFailuresClick}
+               onClick={this.handleShowFailing.bind(this)}
                className="emphasised-measure"
                data-toggle="tooltip"
                title="Count of projects where processing of most recent analysis report failed"
-               href="#">{this.props.failuresCount}</a>
+               href="#">{this.props.failingCount}</a>
             &nbsp;
             {translate('background_tasks.failures')}
           </span>
@@ -104,16 +112,16 @@ export default React.createClass({
           <span>
             <span ref="failureCount" className="emphasised-measure" data-toggle="tooltip"
                   title="Count of projects where processing of most recent analysis report failed">
-              {this.props.failuresCount}
+              {this.props.failingCount}
             </span>
             &nbsp;
             {translate('background_tasks.failures')}
           </span>
       );
     }
-  },
+  }
 
-  render() {
+  render () {
     return (
         <section className="big-spacer-top big-spacer-bottom">
           <span>
@@ -127,4 +135,4 @@ export default React.createClass({
 
     );
   }
-});
+}

@@ -19,9 +19,22 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import Main from './main';
+import { Provider } from 'react-redux';
+
+import BackgroundTasksAppContainer from './containers/BackgroundTasksAppContainer';
+import rootReducer from './store/reducers';
+import configureStore from '../../components/store/configureStore';
+
+import './styles/background-tasks.css';
 
 window.sonarqube.appStarted.then(options => {
-  let el = document.querySelector(options.el);
-  ReactDOM.render(<Main options={options}/>, el);
+  const el = document.querySelector(options.el);
+
+  const store = configureStore(rootReducer);
+
+  ReactDOM.render((
+      <Provider store={store}>
+        <BackgroundTasksAppContainer options={options}/>
+      </Provider>
+  ), el);
 });

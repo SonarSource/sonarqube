@@ -17,41 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const STATUSES = {
-  ALL: '__ALL__',
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED'
-};
+import React from 'react';
 
+import Checkbox from '../../../components/shared/checkbox';
+import { CURRENTS } from '../constants';
 
-export const ALL_TYPES = 'ALL_TYPES';
+export default function CurrentsFilter ({ value, onChange }) {
+  function handleChange (value) {
+    const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
+    onChange(newValue);
+  }
 
+  const checked = value === CURRENTS.ONLY_CURRENTS;
 
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
-
-
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  date: {},
-  query: ''
-};
-
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-
-export const DEBOUNCE_DELAY = 250;
+  return (
+      <div className="bt-search-form-field">
+        <Checkbox
+            initiallyChecked={checked}
+            onCheck={handleChange}/>
+        &nbsp;
+        <label>Yes</label>
+      </div>
+  );
+}

@@ -17,41 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const STATUSES = {
-  ALL: '__ALL__',
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED'
-};
+import React from 'react';
+import Select from 'react-select';
 
+import { ALL_TYPES } from '../constants';
+import { translate } from '../../../helpers/l10n';
 
-export const ALL_TYPES = 'ALL_TYPES';
+export default function TypesFilter ({ value, onChange, types }) {
+  const options = types.map(t => {
+    return {
+      value: t,
+      label: translate('background_task.type', t)
+    };
+  });
 
+  const allOptions = [
+    { value: ALL_TYPES, label: translate('background_task.type.ALL') },
+    ...options
+  ];
 
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
-
-
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  date: {},
-  query: ''
-};
-
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-
-export const DEBOUNCE_DELAY = 250;
+  return (
+      <Select
+          value={value}
+          onChange={option => onChange(option.value)}
+          className="input-medium"
+          options={allOptions}
+          clearable={false}
+          searchable={false}/>
+  );
+}

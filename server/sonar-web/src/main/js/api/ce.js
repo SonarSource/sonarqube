@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import $ from 'jquery';
+import { getJSON, post } from '../helpers/request.js';
 
 export function getQueue (data) {
   const url = baseUrl + '/api/ce/queue';
@@ -30,22 +31,30 @@ export function getActivity (data) {
 }
 
 export function getTask (id) {
-  const url = baseUrl + '/api/ce/task';
-  return $.get(url, { id });
+  const url = window.baseUrl + '/api/ce/task';
+  return getJSON(url, { id }).then(r => r.task);
 }
 
 export function cancelTask (id) {
-  const url = baseUrl + '/api/ce/cancel';
-  return $.post(url, { id }).then(getTask.bind(null, id));
+  const url = window.baseUrl + '/api/ce/cancel';
+  return post(url, { id }).then(
+      getTask.bind(null, id),
+      getTask.bind(null, id)
+  );
 }
 
 export function cancelAllTasks () {
-  const url = baseUrl + '/api/ce/cancel_all';
-  return $.post(url);
+  const url = window.baseUrl + '/api/ce/cancel_all';
+  return post(url);
 }
 
-export function getTasksForComponent(componentId) {
+export function getTasksForComponent (componentId) {
   const url = baseUrl + '/api/ce/component';
   const data = { componentId };
   return new Promise((resolve) => $.get(url, data).done(resolve));
+}
+
+export function getTypes () {
+  const url = window.baseUrl + '/api/ce/task_types';
+  return getJSON(url).then(r => r.taskTypes);
 }

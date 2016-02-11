@@ -17,41 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const STATUSES = {
-  ALL: '__ALL__',
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED'
-};
+import { createStore, applyMiddleware } from 'redux';
+import thunk from 'redux-thunk';
 
+const middlewares = [thunk];
 
-export const ALL_TYPES = 'ALL_TYPES';
+if (process.env.NODE_ENV !== 'production') {
+  const createLogger = require('redux-logger');
+  middlewares.push(createLogger());
+}
 
+const createStoreWithMiddleware = applyMiddleware(...middlewares)(createStore);
 
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
-
-
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  date: {},
-  query: ''
-};
-
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-
-export const DEBOUNCE_DELAY = 250;
+export default function configureStore (rootReducer) {
+  return createStoreWithMiddleware(rootReducer);
+}

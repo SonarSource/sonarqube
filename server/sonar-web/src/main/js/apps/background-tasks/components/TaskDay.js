@@ -17,41 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const STATUSES = {
-  ALL: '__ALL__',
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED'
-};
+import moment from 'moment';
+import React from 'react';
 
+function isAnotherDay (a, b) {
+  return !moment(a).isSame(moment(b), 'day');
+}
 
-export const ALL_TYPES = 'ALL_TYPES';
+export default function TaskDay ({ task, prevTask }) {
+  const shouldDisplay = !prevTask || isAnotherDay(task.submittedAt, prevTask.submittedAt);
 
-
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
-
-
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  date: {},
-  query: ''
-};
-
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-
-export const DEBOUNCE_DELAY = 250;
+  return (
+      <td className="thin nowrap text-right">
+        {shouldDisplay ? moment(task.submittedAt).format('LL') : ''}
+      </td>
+  );
+}

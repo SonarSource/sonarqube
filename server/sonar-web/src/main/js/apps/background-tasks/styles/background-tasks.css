@@ -1,0 +1,20 @@
+.bt-search-form {
+  display: flex;
+  align-items: flex-start;
+}
+
+.bt-search-form > li + li {
+  margin-left: 40px;
+}
+
+.bt-search-form-label {
+  margin-bottom: 4px;
+}
+
+.bt-search-form-field {
+  padding: 4px 0;
+}
+
+.bt-search-form-right {
+  margin-left: auto !important;
+}

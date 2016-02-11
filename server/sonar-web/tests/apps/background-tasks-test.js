@@ -3,10 +3,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import TestUtils from 'react-addons-test-utils';
 
-import Header from '../../src/main/js/apps/background-tasks/header';
-import Stats from '../../src/main/js/apps/background-tasks/stats';
-import Search from '../../src/main/js/apps/background-tasks/search';
-import Tasks from '../../src/main/js/apps/background-tasks/tasks';
+import Header from '../../src/main/js/apps/background-tasks/components/Header';
+import Stats from '../../src/main/js/apps/background-tasks/components/Stats';
+import Search from '../../src/main/js/apps/background-tasks/components/Search';
+import Tasks from '../../src/main/js/apps/background-tasks/components/Tasks';
 import {STATUSES, CURRENTS, DEBOUNCE_DELAY} from '../../src/main/js/apps/background-tasks/constants';
 import {formatDuration} from '../../src/main/js/apps/background-tasks/helpers';
 

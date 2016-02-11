@@ -17,41 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-export const STATUSES = {
-  ALL: '__ALL__',
-  PENDING: 'PENDING',
-  IN_PROGRESS: 'IN_PROGRESS',
-  SUCCESS: 'SUCCESS',
-  FAILED: 'FAILED',
-  CANCELED: 'CANCELED'
-};
+import React from 'react';
 
+import { getComponentUrl } from '../../../helpers/urls';
+import QualifierIcon from '../../../components/shared/qualifier-icon';
 
-export const ALL_TYPES = 'ALL_TYPES';
+export default function TaskComponent ({ task }) {
+  if (!task.componentKey) {
+    return (
+        <td>
+          <span className="note">{task.id}</span>
+        </td>
+    );
+  }
 
-
-export const CURRENTS = {
-  ALL: '__ALL__',
-  ONLY_CURRENTS: 'CURRENTS'
-};
-
-
-export const DATE = {
-  ANY: 'ANY',
-  TODAY: 'TODAY',
-  CUSTOM: 'CUSTOM'
-};
-
-export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL,
-  taskType: ALL_TYPES,
-  currents: CURRENTS.ALL,
-  date: {},
-  query: ''
-};
-
-
-export const DATE_FORMAT = 'YYYY-MM-DD';
-
-
-export const DEBOUNCE_DELAY = 250;
+  return (
+      <td>
+        <a className="link-with-icon" href={getComponentUrl(task.componentKey)}>
+          <span className="little-spacer-right">
+            <QualifierIcon qualifier={task.componentQualifier}/>
+          </span>
+          <span>{task.componentName}</span>
+        </a>
+      </td>
+  );
+}
