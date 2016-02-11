@@ -19,19 +19,6 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.picocontainer.ComponentLifecycle;
-
-import org.picocontainer.PicoContainer;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.utils.System2;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.apache.commons.io.FileUtils;
-import org.sonar.api.utils.TempFolder;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.utils.internal.DefaultTempFolder;
-
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -39,6 +26,18 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
+import org.apache.commons.lang.StringUtils;
+import org.picocontainer.ComponentLifecycle;
+import org.picocontainer.PicoContainer;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.api.utils.internal.DefaultTempFolder;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 public class GlobalTempFolderProvider extends ProviderAdapter implements ComponentLifecycle<TempFolder> {
   private static final Logger LOG = Loggers.get(GlobalTempFolderProvider.class);
@@ -113,7 +112,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
     if (Files.exists(path)) {
       try (DirectoryStream<Path> stream = Files.newDirectoryStream(path, new CleanFilter())) {
         for (Path p : stream) {
-          FileUtils.deleteQuietly(p.toFile());
+          deleteQuietly(p.toFile());
         }
       }
     }

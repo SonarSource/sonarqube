@@ -31,6 +31,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+import static org.sonar.core.util.FileUtils.deleteQuietly;
+
 @BatchSide
 public class BatchPluginJarExploder extends PluginJarExploder {
 
@@ -70,7 +72,7 @@ public class BatchPluginJarExploder extends PluginJarExploder {
         }
       } finally {
         out.close();
-        FileUtils.deleteQuietly(lockFile);
+        deleteQuietly(lockFile);
       }
     }
     return destDir;

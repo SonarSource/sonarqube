@@ -24,10 +24,11 @@ import java.io.File;
 import org.apache.catalina.LifecycleException;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 class EmbeddedTomcat {
 
@@ -97,7 +98,7 @@ class EmbeddedTomcat {
         Loggers.get(EmbeddedTomcat.class).error("Fail to stop web server", e);
       }
     }
-    FileUtils.deleteQuietly(tomcatBasedir());
+    deleteQuietly(tomcatBasedir());
   }
 
   void awaitTermination() {

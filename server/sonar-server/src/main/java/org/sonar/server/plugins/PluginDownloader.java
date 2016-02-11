@@ -42,14 +42,13 @@ import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
-import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.apache.commons.io.FileUtils.copyFile;
 import static org.apache.commons.io.FileUtils.copyFileToDirectory;
-import static org.apache.commons.io.FileUtils.deleteQuietly;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 import static org.apache.commons.io.FileUtils.toFile;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 /**
  * Downloads plugins from update center. Files are copied in the directory extensions/downloads and then
@@ -95,7 +94,7 @@ public class PluginDownloader implements Startable {
   public void cancelDownloads() {
     try {
       if (downloadDir.exists()) {
-        cleanDirectory(downloadDir);
+        org.sonar.core.util.FileUtils.cleanDirectory(downloadDir);
       }
     } catch (IOException e) {
       throw new IllegalStateException("Fail to clean the plugin downloads directory: " + downloadDir, e);

@@ -53,7 +53,7 @@ import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.apache.commons.io.FileUtils.copyFile;
-import static org.apache.commons.io.FileUtils.deleteQuietly;
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 import static org.apache.commons.io.FileUtils.moveFile;
 import static org.apache.commons.io.FileUtils.moveFileToDirectory;
 import static org.sonar.core.platform.PluginInfo.jarToPluginInfo;
@@ -159,7 +159,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   private void registerPluginInfo(PluginInfo info) {
     if (blacklistedPluginKeys.contains(info.getKey())) {
       LOG.warn("Plugin {} [{}] is blacklisted and is being uninstalled.", info.getName(), info.getKey());
-      deleteQuietly(info.getNonNullJarFile());
+      org.sonar.core.util.FileUtils.deleteQuietly(info.getNonNullJarFile());
       return;
     }
     PluginInfo existing = pluginInfosByKeys.put(info.getKey(), info);

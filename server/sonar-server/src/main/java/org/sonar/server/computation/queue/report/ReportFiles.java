@@ -49,21 +49,21 @@ public class ReportFiles {
     try {
       FileUtils.copyInputStreamToFile(reportInput, file);
     } catch (Exception e) {
-      FileUtils.deleteQuietly(file);
+      org.sonar.core.util.FileUtils.deleteQuietly(file);
       IOUtils.closeQuietly(reportInput);
       throw new IllegalStateException(format("Fail to copy report to file: %s", file.getAbsolutePath()), e);
     }
   }
 
   public void deleteIfExists(String taskUuid) {
-    FileUtils.deleteQuietly(fileForUuid(taskUuid));
+    org.sonar.core.util.FileUtils.deleteQuietly(fileForUuid(taskUuid));
   }
 
   public void deleteAll() {
     File dir = reportDir();
     if (dir.exists()) {
       try {
-        FileUtils.cleanDirectory(dir);
+        org.sonar.core.util.FileUtils.cleanDirectory(dir);
       } catch (Exception e) {
         throw new IllegalStateException(format("Fail to clean directory: %s", dir.getAbsolutePath()), e);
       }

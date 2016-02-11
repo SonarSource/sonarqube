@@ -74,7 +74,7 @@ public class DefaultServerFileSystem implements ServerFileSystem, Startable {
     File deprecated = getDeprecatedPluginsDir();
     try {
       FileUtils.forceMkdir(deprecated);
-      FileUtils.cleanDirectory(deprecated);
+      org.sonar.core.util.FileUtils.cleanDirectory(deprecated);
     } catch (IOException e) {
       throw new IllegalStateException("The following directory can not be created: " + deprecated.getAbsolutePath(), e);
     }

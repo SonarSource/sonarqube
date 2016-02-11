@@ -136,7 +136,7 @@ public class TomcatContexts {
   static class Fs {
     void createOrCleanupDir(File dir) throws IOException {
       FileUtils.forceMkdir(dir);
-      FileUtils.cleanDirectory(dir);
+      org.sonar.core.util.FileUtils.cleanDirectory(dir);
     }
   }
 }
