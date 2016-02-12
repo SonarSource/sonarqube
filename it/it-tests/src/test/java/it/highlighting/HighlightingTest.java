@@ -20,13 +20,13 @@
 package it.highlighting;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import util.ItUtils;
+
+import static util.ItUtils.runProjectAnalysis;
 
 public class HighlightingTest {
 
@@ -38,18 +38,29 @@ public class HighlightingTest {
     orchestrator.resetData();
   }
 
+  @Test
+  public void highlight_source_code_and_symbols_usage() throws Exception {
+    runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v2");
+
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("highlight_source_code_and_symbols_usage",
+      // SONAR-3893 & SONAR-4247
+      "/highlighting/HighlightingTest/syntax-highlighting.html",
+      // SONAR-4249 & SONAR-4250
+      "/highlighting/HighlightingTest/symbol-usages-highlighting.html"
+      ).build();
+    orchestrator.executeSelenese(selenese);
+  }
+
   // Check that E/S index is updated when file content is unchanged but plugin generates different syntax/symbol highlighting
   @Test
-  public void updateHighlightingEvenWhenCodeUnchanged() throws Exception {
-    SonarScanner runner = SonarScanner.create(ItUtils.projectDir("highlighting/xoo-sample-with-highlighting-v1"));
-    orchestrator.executeBuild(runner);
+  public void update_highlighting_even_when_code_unchanged() throws Exception {
+    runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v1");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("syntax-highlighting-v1",
       "/highlighting/HighlightingTest/syntax-highlighting-v1.html").build();
     orchestrator.executeSelenese(selenese);
 
-    runner = SonarScanner.create(ItUtils.projectDir("highlighting/xoo-sample-with-highlighting-v2"));
-    orchestrator.executeBuild(runner);
+    runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v2");
 
     selenese = Selenese.builder().setHtmlTestsInClasspath("syntax-highlighting-v2",
       "/highlighting/HighlightingTest/syntax-highlighting-v2.html",
