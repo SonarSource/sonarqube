@@ -17,42 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.permissions;
+package it.authorisation;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
-import it.Category4Suite;
+import it.Category1Suite;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonarqube.ws.client.PostRequest;
-import org.sonarqube.ws.client.WsClient;
-import util.ItUtils;
+import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import org.sonarqube.ws.client.permission.PermissionsService;
+import util.user.UserRule;
+
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.runProjectAnalysis;
 
 public class SystemAdminPermissionTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  @ClassRule
+  public static UserRule userRule = UserRule.from(orchestrator);
 
   @BeforeClass
   public static void setUpUsers() {
     orchestrator.resetData();
 
-    WsClient client = ItUtils.newAdminWsClient(orchestrator);
+    PermissionsService permissionsWsClient = newAdminWsClient(orchestrator).permissions();
 
-    createUser(client, "can_share", "password");
-    addPermission("can_share", "shareDashboard");
+    userRule.createUser("can_share", "password");
+    permissionsWsClient.addUser(new AddUserWsRequest().setLogin("can_share").setPermission("shareDashboard"));
 
-    createUser(client, "cannot_share", "password");
+    userRule.createUser("cannot_share", "password");
   }
 
   @AfterClass
   public static void reset() {
-    WsClient client = ItUtils.newAdminWsClient(orchestrator);
-    deactivateUser(client, "can_share");
-    deactivateUser(client, "cannot_share");
+    userRule.resetUsers();
   }
 
   /**
@@ -64,9 +67,9 @@ public class SystemAdminPermissionTest {
     // 1 - as admin, create measure filter, shared with every one
     // 2 - as admin, edit filter and set owner to can_share
     seleniumSuite("change-measure-filter-ownership",
-      "/permissions/SystemAdminPermissionTest/change-own-measure-filter-owner.html",
-      "/permissions/SystemAdminPermissionTest/change-other-measure-filter-owner.html",
-      "/permissions/SystemAdminPermissionTest/change-system-measure-filter-owner.html");
+      "/authorisation/SystemAdminPermissionTest/change-own-measure-filter-owner.html",
+      "/authorisation/SystemAdminPermissionTest/change-other-measure-filter-owner.html",
+      "/authorisation/SystemAdminPermissionTest/change-system-measure-filter-owner.html");
   }
 
   /**
@@ -75,8 +78,8 @@ public class SystemAdminPermissionTest {
   @Test
   public void should_change_ownership_of_shared_global_dashboard() throws Exception {
     seleniumSuite("change-global-dashboard-ownership",
-      "/permissions/SystemAdminPermissionTest/change-shared-global-dashboard-owner.html",
-      "/permissions/SystemAdminPermissionTest/change-shared-global-dashboard-owner-failure.html");
+      "/authorisation/SystemAdminPermissionTest/change-shared-global-dashboard-owner.html",
+      "/authorisation/SystemAdminPermissionTest/change-shared-global-dashboard-owner-failure.html");
   }
 
   /**
@@ -84,11 +87,11 @@ public class SystemAdminPermissionTest {
    */
   @Test
   public void should_change_ownership_of_shared_project_dashboard() throws Exception {
-    orchestrator.executeBuild(SonarScanner.create(ItUtils.projectDir("shared/xoo-sample")));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     seleniumSuite("change-project-dashboard-ownership",
-      "/permissions/SystemAdminPermissionTest/change-shared-project-dashboard-owner.html",
-      "/permissions/SystemAdminPermissionTest/change-shared-project-dashboard-owner-failure.html");
+      "/authorisation/SystemAdminPermissionTest/change-shared-project-dashboard-owner.html",
+      "/authorisation/SystemAdminPermissionTest/change-shared-project-dashboard-owner-failure.html");
   }
 
   private void seleniumSuite(String suiteName, String... tests) {
@@ -96,25 +99,4 @@ public class SystemAdminPermissionTest {
     orchestrator.executeSelenese(selenese);
   }
 
-  private static void addPermission(String login, String permission) {
-    orchestrator.getServer().adminWsClient().post("api/permissions/add_user",
-      "login", login,
-      "permission", permission);
-  }
-
-  private static void createUser(WsClient client, String login, String password) {
-    client.wsConnector().call(
-      new PostRequest("api/users/create")
-        .setParam("login", login)
-        .setParam("name", login)
-        .setParam("password", password)
-      );
-  }
-
-  private static void deactivateUser(WsClient client, String login) {
-    client.wsConnector().call(
-      new PostRequest("/api/users/deactivate")
-        .setParam("login", login)
-      );
-  }
 }

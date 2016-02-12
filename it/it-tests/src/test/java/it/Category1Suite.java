@@ -47,6 +47,7 @@ import it.authorisation.IssuePermissionTest;
 import it.authorisation.PermissionSearchTest;
 import it.authorisation.ProvisioningPermissionTest;
 import it.authorisation.QualityProfileAdminPermissionTest;
+import it.authorisation.SystemAdminPermissionTest;
 import it.i18n.I18nTest;
 import it.measureHistory.DifferentialPeriodsTest;
 import it.measureHistory.HistoryUiTest;
@@ -100,13 +101,14 @@ import static util.ItUtils.xooPlugin;
   QualityGateTest.class,
   QualityGateUiTest.class,
   QualityGateNotificationTest.class,
-  // permission
+  // authorisation
   DashboardSharingPermissionTest.class,
   ExecuteAnalysisPermissionTest.class,
   IssuePermissionTest.class,
   PermissionSearchTest.class,
   ProvisioningPermissionTest.class,
   QualityProfileAdminPermissionTest.class,
+  SystemAdminPermissionTest.class,
   // measure history
   DifferentialPeriodsTest.class,
   HistoryUiTest.class,
