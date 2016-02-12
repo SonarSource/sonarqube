@@ -116,7 +116,7 @@ public class ComponentContainerTest {
     child.startComponents();
 
     assertThat(child.getParent()).isSameAs(parent);
-    assertThat(parent.getChild()).isSameAs(child);
+    assertThat(parent.getChildren()).containsOnly(child);
     assertThat(child.getComponentByType(ComponentContainer.class)).isSameAs(child);
     assertThat(parent.getComponentByType(ComponentContainer.class)).isSameAs(parent);
     assertThat(child.getComponentByType(StartableComponent.class)).isNotNull();
@@ -131,11 +131,29 @@ public class ComponentContainerTest {
     parent.startComponents();
 
     ComponentContainer child = parent.createChild();
-    assertThat(parent.getChild()).isSameAs(child);
+    assertThat(parent.getChildren()).containsOnly(child);
 
-    parent.removeChild();
-    assertThat(parent.getChild()).isNull();
+    parent.removeChild(child);
+    assertThat(parent.getChildren()).isEmpty();
   }
+
+  @Test
+  public void support_multiple_children() {
+    ComponentContainer parent = new ComponentContainer();
+    parent.startComponents();
+    ComponentContainer child1 = parent.createChild();
+    child1.startComponents();
+    ComponentContainer child2 = parent.createChild();
+    child2.startComponents();
+    assertThat(parent.getChildren()).containsOnly(child1, child2);
+
+    child1.stopComponents();
+    assertThat(parent.getChildren()).containsOnly(child2);
+
+    parent.stopComponents();
+    assertThat(parent.getChildren()).isEmpty();
+  }
+
 
   @Test
   public void shouldForwardStartAndStopToDescendants() {

@@ -54,7 +54,7 @@ public class ComputeEngineContainerImplTest {
     ContainerPopulator populator = mock(ContainerPopulator.class);
     ComputeEngineContainerImpl ceContainer = new ComputeEngineContainerImpl(parent, populator);
 
-    assertThat(parent.getChild()).isNull();
+    assertThat(parent.getChildren()).isEmpty();
     verify(populator).populateContainer(ceContainer);
   }
 

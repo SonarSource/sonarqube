@@ -177,12 +177,12 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
       for (Period period : periodsHolder.getPeriods()) {
         if (isLineInPeriod(changeset.getDate(), period)) {
           devCostCounter.incrementDevCost(period, lineDevCost);
-          hasDevCost[period.getIndex()] = true;
+          hasDevCost[period.getIndex() - 1] = true;
         }
       }
     }
     for (Period period : periodsHolder.getPeriods()) {
-      if (hasDevCost[period.getIndex()]) {
+      if (hasDevCost[period.getIndex() - 1]) {
         long newDebt = getLongValue(measureRepository.getRawMeasure(file, this.newDebtMetric), period);
         devCostCounter.incrementNewDebt(period, newDebt);
       }
