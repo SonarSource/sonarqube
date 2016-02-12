@@ -38,7 +38,7 @@ var App = new Marionette.Application(),
             viewer.filterLinesByDate(window.drilldown.period, window.drilldown.periodName);
           });
         }
-      });
+      }).addClass('js-ready');
     };
 
 App.on('start', function (options) {
