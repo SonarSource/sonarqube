@@ -20,7 +20,6 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.customMeasure.CustomMeasuresTest;
 import it.debt.SqaleRatingMeasureTest;
 import it.debt.TechnicalDebtInIssueChangelogTest;
 import it.debt.TechnicalDebtMeasureTest;
@@ -42,9 +41,6 @@ import it.issue.IssueWorkflowTest;
 import it.issue.ManualIssueRelocationTest;
 import it.issue.ManualIssueTest;
 import it.issue.NewIssuesMeasureTest;
-import it.measure.NewDebtRatioMeasureTest;
-import it.measure.TechnicalDebtMeasureVariationTest;
-import it.measureFilter.MeasureFiltersTest;
 import it.rule.ManualRulesTest;
 import it.test.CoverageTest;
 import it.test.CoverageTrackingTest;
@@ -59,12 +55,6 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // custom measure
-  CustomMeasuresTest.class,
-  // measure
-  TechnicalDebtMeasureVariationTest.class,
-  NewDebtRatioMeasureTest.class,
-  MeasureFiltersTest.class,
   // test
   CoverageTrackingTest.class,
   CoverageTest.class,

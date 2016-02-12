@@ -21,7 +21,7 @@ package it.customMeasure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
-import it.Category2Suite;
+import it.Category4Suite;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.junit.Before;
@@ -38,7 +38,7 @@ public class CustomMeasuresTest {
 
   public static final String PROJECT_KEY = "sample";
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @Before
   public void deleteProjects() {

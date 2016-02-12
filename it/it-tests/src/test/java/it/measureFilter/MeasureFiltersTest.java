@@ -22,7 +22,7 @@ package it.measureFilter;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
-import it.Category2Suite;
+import it.Category4Suite;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -39,7 +39,7 @@ import static util.ItUtils.projectDir;
 public class MeasureFiltersTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
   public static WsClient adminWsClient;
 
   @BeforeClass
