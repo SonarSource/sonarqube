@@ -46,6 +46,7 @@ import it.authorisation.ExecuteAnalysisPermissionTest;
 import it.authorisation.IssuePermissionTest;
 import it.authorisation.PermissionSearchTest;
 import it.authorisation.ProvisioningPermissionTest;
+import it.authorisation.QualityProfileAdminPermissionTest;
 import it.i18n.I18nTest;
 import it.measureHistory.DifferentialPeriodsTest;
 import it.measureHistory.HistoryUiTest;
@@ -105,6 +106,7 @@ import static util.ItUtils.xooPlugin;
   IssuePermissionTest.class,
   PermissionSearchTest.class,
   ProvisioningPermissionTest.class,
+  QualityProfileAdminPermissionTest.class,
   // measure history
   DifferentialPeriodsTest.class,
   HistoryUiTest.class,

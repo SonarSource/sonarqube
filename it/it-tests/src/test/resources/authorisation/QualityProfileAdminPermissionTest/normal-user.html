@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>user-cannot-administrate-profile</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+  <tbody>
+  <tr>
+    <td>open</td>
+    <td>/sessions/logout</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>open</td>
+    <td>/sessions/new</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>id=login</td>
+    <td>not_profileadm</td>
+  </tr>
+  <tr>
+    <td>type</td>
+    <td>id=password</td>
+    <td>userpwd</td>
+  </tr>
+  <tr>
+    <td>clickAndWait</td>
+    <td>name=commit</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>open</td>
+    <td>/profiles</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>css=.quality-profiles-results</td>
+    <td>*Basic*</td>
+  </tr>
+  <tr>
+    <td>assertNotText</td>
+    <td>css=.search-navigator-filters</td>
+    <td>*Create*</td>
+  </tr>
+  <tr>
+    <td>assertNotText</td>
+    <td>css=.search-navigator-filters</td>
+    <td>*Restore Profile*</td>
+  </tr>
+  <tr>
+    <td>assertNotText</td>
+    <td>css=.search-navigator-filters</td>
+    <td>*Restore Built-in Profiles*</td>
+  </tr>
+  <tr>
+    <td>open</td>
+    <td>/project/profile/sample</td>
+    <td></td>
+  </tr>
+  <tr>
+    <td>waitForText</td>
+    <td>id=content</td>
+    <td>*Log In to SonarQube*</td>
+  </tr>
+  <tr>
+    <td>assertText</td>
+    <td>id=login_form</td>
+    <td>glob:*You are not authorized to access this page*</td>
+  </tr>
+  </tbody>
+</table>
+</body>
+</html>
