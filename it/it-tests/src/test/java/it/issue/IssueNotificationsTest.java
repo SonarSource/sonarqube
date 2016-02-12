@@ -33,7 +33,6 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
-import org.sonar.wsclient.user.UserParameters;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.NetworkUtils;
@@ -67,13 +66,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
     setServerProperty(ORCHESTRATOR, "email.smtp_port.secured", Integer.toString(smtpServer.getServer().getPort()));
 
     // Create test user
-    ORCHESTRATOR.getServer().adminWsClient().userClient()
-      .create(UserParameters.create()
-        .login(USER_LOGIN)
-        .password(USER_LOGIN)
-        .passwordConfirmation(USER_LOGIN)
-        .email("tester@example.org")
-        .name("Tester"));
+    userRule.createUser(USER_LOGIN, "Tester", "tester@example.org", USER_LOGIN);
 
     // 1. Check that SMTP server was turned on and able to send test email
     // 2. Create user, which will receive notifications for new violations

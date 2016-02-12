@@ -87,7 +87,7 @@ public class LocalAuthenticationTest {
 
   @AfterClass
   public static void deleteAndRestoreData() {
-    userRule.deactivateUsers(LOGIN, "signuplogin");
+    userRule.resetUsers();
     addGroupPermission("anyone", "scan");
   }
 
@@ -103,7 +103,7 @@ public class LocalAuthenticationTest {
     String login = format("login-%s", userId);
     String name = format("name-%s", userId);
     String password = "!ascii-only:-)@";
-    userRule.createUser(login, name, password);
+    userRule.createUser(login, name, null, password);
 
     // authenticate
     WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
@@ -177,7 +177,7 @@ public class LocalAuthenticationTest {
     String password = "κόσμε";
 
     // create user with a UTF-8 password
-    userRule.createUser(login, LOGIN, password);
+    userRule.createUser(login, LOGIN, null, password);
 
     // authenticate
     assertThat(checkAuthenticationThroughWebService(login, password)).isFalse();

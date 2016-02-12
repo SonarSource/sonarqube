@@ -68,6 +68,11 @@ public class OAuth2IdentityProviderTest {
     adminWsClient = newAdminWsClient(ORCHESTRATOR);
   }
 
+  @After
+  public void resetUsers() throws Exception {
+    userRule.resetUsers();
+  }
+
   @Before
   public void setUp() throws Exception {
     fakeServerAuthProvider = new MockWebServer();

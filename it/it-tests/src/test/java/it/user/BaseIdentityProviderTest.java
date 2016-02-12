@@ -27,7 +27,6 @@ import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
@@ -50,8 +49,8 @@ public class BaseIdentityProviderTest {
   @ClassRule
   public static Orchestrator ORCHESTRATOR = Category4Suite.ORCHESTRATOR;
 
-  @Rule
-  public UserRule userRule = UserRule.from(ORCHESTRATOR);
+  @ClassRule
+  public static UserRule userRule = UserRule.from(ORCHESTRATOR);
 
   static String FAKE_PROVIDER_KEY = "fake-base-id-provider";
 

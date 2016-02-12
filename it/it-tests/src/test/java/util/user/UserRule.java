@@ -80,16 +80,17 @@ public class UserRule extends ExternalResource {
     assertThat(getUserByLogin(login)).as("Unexpected user with login '%s' has been found", login).isAbsent();
   }
 
-  public void createUser(String login, String name, String password) {
+  public void createUser(String login, String name, @Nullable String email, String password) {
     adminWsClient().wsConnector().call(
       new PostRequest("api/users/create")
         .setParam("login", login)
         .setParam("name", name)
+        .setParam("email", email)
         .setParam("password", password));
   }
 
   public void createUser(String login, String password) {
-    createUser(login, login, password);
+    createUser(login, login, null, password);
   }
 
   public Optional<Users.User> getUserByLogin(String login) {
