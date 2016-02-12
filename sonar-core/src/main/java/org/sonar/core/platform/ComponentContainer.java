@@ -289,10 +289,13 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   private ComponentContainer removeChildren() {
-    for (ComponentContainer child : children) {
-      pico.removeChildContainer(child.pico);
+    Iterator<ComponentContainer> childrenIterator = children.iterator();
+    while (childrenIterator.hasNext()) {
+      ComponentContainer child = childrenIterator.next();
+      if (pico.removeChildContainer(child.pico)) {
+        childrenIterator.remove();
+      }
     }
-    children.clear();
     return this;
   }
 
