@@ -21,6 +21,7 @@ package it.duplication;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
+import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
@@ -32,6 +33,7 @@ import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
@@ -130,6 +132,15 @@ public class DuplicationsTest {
   public void verify_duplications_show_ws() throws Exception {
     verifyWsResultOnDuplicateFile(DUPLICATIONS + ":src/main/xoo/duplicated_lines_within_same_file/DuplicatedLinesInSameFile.xoo",
       "api/duplications/show", "duplications_show-expected.json");
+  }
+
+  @Test
+  public void duplications_widget() throws Exception {
+    new SeleneseTest(
+      Selenese.builder().setHtmlTestsInClasspath("duplications_widget",
+        // SONAR-4347
+        "/duplication/DuplicationsTest/duplications_widget.html").build())
+    .runOn(orchestrator);
   }
 
   private static Resource getComponent(String key) {

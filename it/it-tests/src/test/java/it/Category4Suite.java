@@ -24,6 +24,7 @@ import it.analysisExclusion.FileExclusionsTest;
 import it.analysisExclusion.IssueExclusionsTest;
 import it.component.ComponentsWsTest;
 import it.component.ProjectSearchTest;
+import it.componentDashboard.DashboardTest;
 import it.customMeasure.CustomMeasuresTest;
 import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
@@ -81,7 +82,8 @@ import static util.ItUtils.xooPlugin;
   // project event
   EventTest.class,
   // highlighting
-  HighlightingTest.class
+  HighlightingTest.class,
+  DashboardTest.class
 })
 public class Category4Suite {
 
@@ -94,6 +96,9 @@ public class Category4Suite {
 
     // Used in OAuth2IdentityProviderTest
     .addPlugin(pluginArtifact("oauth2-auth-plugin"))
+
+    // Used in DashboardTest
+    .addPlugin(pluginArtifact("dashboard-plugin"))
 
     .build();
 }

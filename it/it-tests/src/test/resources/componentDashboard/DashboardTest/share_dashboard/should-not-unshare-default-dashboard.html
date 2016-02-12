@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+    <tbody>
+    <tr>
+	<td>open</td>
+	<td>/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/dashboards/index?resource=sample</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>create-link-dashboard</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=div.modal-head &gt; h2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>name=name</td>
+	<td>IsDefault</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>name=shared</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>save-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/admin_dashboards/index</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=add-IsDefault</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>activeProject</td>
+	<td>glob:*IsDefault*</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/dashboards/index?resource=sample</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>edit-IsDefault</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=div.modal-head &gt; h2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>name=shared</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>save-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=div.modal-body &gt; p.error</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.modal-body &gt; p.error</td>
+	<td>glob:*This dashboard can't be unshared*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>save-cancel</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=delete-IsDefault</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=div.modal-head &gt; h2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.modal-body</td>
+	<td>Do you want to delete this dashboard?</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>confirm-submit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=div.modal-body .alert-danger</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.modal-body .alert-danger</td>
+	<td>glob:*This dashboard can't be deleted*</td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/admin_dashboards/index</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=remove-IsDefault</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertConfirmation</td>
+	<td>Are you sure to remove it from default dashboards?</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/dashboards/index?resource=sample</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>id=delete-IsDefault</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForVisible</td>
+	<td>css=div.modal-head &gt; h2</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=div.modal-body</td>
+	<td>Do you want to delete this dashboard?</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>confirm-submit</td>
+	<td></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>
