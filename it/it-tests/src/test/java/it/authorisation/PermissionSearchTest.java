@@ -47,7 +47,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
-public class PermissionTest {
+public class PermissionSearchTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
   private static WsClient adminWsClient;
