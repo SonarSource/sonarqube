@@ -66,8 +66,10 @@ public class ViewerApplication {
   private JScrollPane treeScrollPane;
   private JScrollPane componentDetailsTab;
   private JScrollPane highlightingTab;
+  private JScrollPane symbolTab;
   private JEditorPane componentEditor;
   private JEditorPane highlightingEditor;
+  private JEditorPane symbolEditor;
   private JScrollPane sourceTab;
   private JEditorPane sourceEditor;
   private JScrollPane coverageTab;
@@ -183,6 +185,7 @@ public class ViewerApplication {
   private void updateDetails(Component component) {
     componentEditor.setText(component.toString());
     updateHighlighting(component);
+    updateSymbols(component);
     updateSource(component);
     updateCoverage(component);
     updateDuplications(component);
@@ -243,6 +246,18 @@ public class ViewerApplication {
     }
   }
 
+  private void updateSymbols(Component component) {
+    symbolEditor.setText("");
+    try (CloseableIterator<BatchReport.Symbol> it = reader.readComponentSymbols(component.getRef())) {
+      while (it.hasNext()) {
+        BatchReport.Symbol symbol = it.next();
+        symbolEditor.getDocument().insertString(symbolEditor.getDocument().getEndPosition().getOffset(), symbol.toString() + "\n", null);
+      }
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read symbol references for " + getNodeName(component), e);
+    }
+  }
+
   /**
    * Initialize the contents of the frame.
    */
@@ -288,6 +303,12 @@ public class ViewerApplication {
 
     highlightingEditor = new JEditorPane();
     highlightingTab.setViewportView(highlightingEditor);
+
+    symbolTab = new JScrollPane();
+    tabbedPane.addTab("Symbol references", null, symbolTab, null);
+
+    symbolEditor = new JEditorPane();
+    symbolTab.setViewportView(symbolEditor);
 
     coverageTab = new JScrollPane();
     tabbedPane.addTab("Coverage", null, coverageTab, null);
