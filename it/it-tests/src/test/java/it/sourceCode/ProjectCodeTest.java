@@ -17,46 +17,49 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.projectServices;
+package it.sourceCode;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 
-public class ProjectComparisonTest {
+public class ProjectCodeTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  @BeforeClass
-  public static void inspectProject() {
-    orchestrator.executeBuild(
-      SonarRunner.create(projectDir("shared/xoo-sample"))
-        .setProjectKey("project-comparison-test-project")
-        .setProjectName("ProjectComparisonTest Project")
-    );
+  @Test
+  public void test_project_code_page() throws Exception {
+    executeBuild("shared/xoo-sample", "project-for-code", "Project For Code");
+
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_code_page",
+      "/sourceCode/ProjectCodeTest/test_project_code_page.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
   @Test
-  @Ignore("need to find a way to type into invisible input fields")
-  public void test_project_comparison_service() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_comparison_service",
-      "/projectServices/ProjectComparisonTest/should-display-basic-set-of-metrics.html",
-      "/projectServices/ProjectComparisonTest/should-add-projects.html",
-      "/projectServices/ProjectComparisonTest/should-move-and-remove-projects.html",
-      "/projectServices/ProjectComparisonTest/should-add-metrics.html",
-      "/projectServices/ProjectComparisonTest/should-not-add-differential-metrics.html",
-      "/projectServices/ProjectComparisonTest/should-move-and-remove-metrics.html"
+  public void code_page_should_expand_root_dir() throws Exception {
+    executeBuild("shared/xoo-sample-with-root-dir", "project-for-code-root-dir", "Project For Code");
+
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("code_page_should_expand_root_dir",
+      "/sourceCode/ProjectCodeTest/code_page_should_expand_root_dir.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
+  private void executeBuild(String projectLocation, String projectKey, String projectName) {
+    orchestrator.executeBuild(
+      SonarRunner.create(projectDir(projectLocation))
+        .setProjectKey(projectKey)
+        .setProjectName(projectName)
+    );
   }
 
 }

@@ -17,42 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.projectServices;
+package it.componentSearch;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
-import it.Category1Suite;
+import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.sonar.wsclient.Sonar;
-import org.sonar.wsclient.services.Resource;
-import org.sonar.wsclient.services.ResourceQuery;
 import util.selenium.SeleneseTest;
-
-import java.util.List;
 
 import static util.ItUtils.projectDir;
 
-public class ProjectDrilldownTest {
+public class AllProjectsTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
 
   @BeforeClass
   public static void inspectProject() {
     orchestrator.executeBuild(
       SonarRunner.create(projectDir("shared/xoo-sample"))
-        .setProjectKey("project-drilldown-test-project")
-        .setProjectName("ProjectDrilldownTest Project")
+        .setProjectKey("all-project-test-project")
+        .setProjectName("AllProjectsTest Project")
     );
   }
 
   @Test
-  public void should_display_measure_drilldown() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_measure_drilldown",
-      "/projectServices/ProjectDrilldownTest/should_display_measure_drilldown.html"
+  public void test_all_projects_page() {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_all_projects_page",
+      "/componentSearch/AllProjectsTest/test_all_projects_page.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }

@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.projectServices;
+package it.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
+import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import util.selenium.SeleneseTest;
@@ -34,12 +35,17 @@ public class ProjectOverviewTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
+  @Before
+  public void resetData() throws Exception {
+    orchestrator.resetData();
+  }
+
   @Test
   public void test_project_overview_after_first_analysis() throws Exception {
     executeBuild("shared/xoo-sample", "project-for-overview", "Project For Overview");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_overview_after_first_analysis",
-      "/projectServices/ProjectOverviewTest/test_project_overview_after_first_analysis.html"
+      "/measure/ProjectOverviewTest/test_project_overview_after_first_analysis.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -49,7 +55,7 @@ public class ProjectOverviewTest {
     executeBuild("testing/xoo-sample-ut-coverage", "project-for-overview-ut-coverage", "Project For Overview UT");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_ut_coverage_on_project_overview",
-      "/projectServices/ProjectOverviewTest/test_ut_coverage_on_project_overview.html"
+      "/measure/ProjectOverviewTest/test_ut_coverage_on_project_overview.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -59,7 +65,7 @@ public class ProjectOverviewTest {
     executeBuild("testing/xoo-sample-it-coverage", "project-for-overview-it-coverage", "Project For Overview IT");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_it_coverage_onfi_project_overview",
-      "/projectServices/ProjectOverviewTest/test_it_coverage_on_project_overview.html"
+      "/measure/ProjectOverviewTest/test_it_coverage_on_project_overview.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -69,7 +75,7 @@ public class ProjectOverviewTest {
     executeBuild("testing/xoo-sample-overall-coverage", "project-for-overview-overall-coverage", "Project For Overview Overall");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_overall_coverage_on_project_overview",
-      "/projectServices/ProjectOverviewTest/test_overall_coverage_on_project_overview.html"
+      "/measure/ProjectOverviewTest/test_overall_coverage_on_project_overview.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -77,7 +83,7 @@ public class ProjectOverviewTest {
   @Test
   public void should_display_a_nice_error_when_requesting_unknown_project() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_a_nice_error_when_requesting_unknown_project",
-      "/projectServices/ProjectOverviewTest/should-display-nice-error-on-unknown-project.html").build();
+      "/measure/ProjectOverviewTest/should-display-nice-error-on-unknown-project.html").build();
     orchestrator.executeSelenese(selenese);
   }
 

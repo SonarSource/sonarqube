@@ -17,11 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.highlighting;
+package it.sourceCode;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
-import it.Category4Suite;
+import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -31,7 +31,7 @@ import static util.ItUtils.runProjectAnalysis;
 public class HighlightingTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
   @Before
   public void deleteData() {
@@ -44,9 +44,9 @@ public class HighlightingTest {
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("highlight_source_code_and_symbols_usage",
       // SONAR-3893 & SONAR-4247
-      "/highlighting/HighlightingTest/syntax-highlighting.html",
+      "/sourceCode/HighlightingTest/syntax-highlighting.html",
       // SONAR-4249 & SONAR-4250
-      "/highlighting/HighlightingTest/symbol-usages-highlighting.html"
+      "/sourceCode/HighlightingTest/symbol-usages-highlighting.html"
       ).build();
     orchestrator.executeSelenese(selenese);
   }
@@ -57,14 +57,14 @@ public class HighlightingTest {
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v1");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("syntax-highlighting-v1",
-      "/highlighting/HighlightingTest/syntax-highlighting-v1.html").build();
+      "/sourceCode/HighlightingTest/syntax-highlighting-v1.html").build();
     orchestrator.executeSelenese(selenese);
 
     runProjectAnalysis(orchestrator, "highlighting/xoo-sample-with-highlighting-v2");
 
     selenese = Selenese.builder().setHtmlTestsInClasspath("syntax-highlighting-v2",
-      "/highlighting/HighlightingTest/syntax-highlighting-v2.html",
-      "/highlighting/HighlightingTest/symbol-usages-highlighting.html").build();
+      "/sourceCode/HighlightingTest/syntax-highlighting-v2.html",
+      "/sourceCode/HighlightingTest/symbol-usages-highlighting.html").build();
     orchestrator.executeSelenese(selenese);
   }
 }

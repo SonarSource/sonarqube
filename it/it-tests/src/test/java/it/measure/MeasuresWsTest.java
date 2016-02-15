@@ -21,7 +21,7 @@ package it.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
-import it.Category4Suite;
+import it.Category1Suite;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -44,7 +44,7 @@ import static util.ItUtils.setServerProperty;
 
 public class MeasuresWsTest {
   @ClassRule
-  public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
+  public static final Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
   private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";
   WsClient wsClient;
 

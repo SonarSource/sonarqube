@@ -48,7 +48,15 @@ import it.authorisation.PermissionSearchTest;
 import it.authorisation.ProvisioningPermissionTest;
 import it.authorisation.QualityProfileAdminPermissionTest;
 import it.authorisation.SystemAdminPermissionTest;
+import it.customMeasure.CustomMeasuresTest;
 import it.i18n.I18nTest;
+import it.measure.MeasuresWsTest;
+import it.measure.NewDebtRatioMeasureTest;
+import it.measure.ProjectDrilldownTest;
+import it.measure.ProjectOverviewTest;
+import it.measure.ProjectWidgetsTest;
+import it.measure.TechnicalDebtMeasureVariationTest;
+import it.measureFilter.MeasureFiltersTest;
 import it.measureHistory.DifferentialPeriodsTest;
 import it.measureHistory.HistoryUiTest;
 import it.measureHistory.SincePreviousVersionHistoryTest;
@@ -57,12 +65,6 @@ import it.measureHistory.TimeMachineTest;
 import it.projectAdministration.BackgroundTasksTest;
 import it.projectAdministration.BulkDeletionTest;
 import it.projectAdministration.ProjectAdministrationTest;
-import it.projectServices.AllProjectsTest;
-import it.projectServices.ProjectCodeTest;
-import it.projectServices.ProjectComparisonTest;
-import it.projectServices.ProjectDrilldownTest;
-import it.projectServices.ProjectOverviewTest;
-import it.projectServices.ProjectWidgetsTest;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;
@@ -70,6 +72,8 @@ import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
 import it.settings.SubCategoriesTest;
 import it.sourceCode.EncodingTest;
+import it.sourceCode.HighlightingTest;
+import it.sourceCode.ProjectCodeTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -85,14 +89,6 @@ import static util.ItUtils.xooPlugin;
   BulkDeletionTest.class,
   ProjectAdministrationTest.class,
   BackgroundTasksTest.class,
-  // project pages
-  ProjectOverviewTest.class,
-  ProjectCodeTest.class,
-  ProjectDrilldownTest.class,
-  ProjectComparisonTest.class,
-  AllProjectsTest.class,
-  ProjectWidgetsTest.class,
-  EncodingTest.class,
   // settings
   PropertySetsTest.class,
   SubCategoriesTest.class,
@@ -111,6 +107,16 @@ import static util.ItUtils.xooPlugin;
   ProvisioningPermissionTest.class,
   QualityProfileAdminPermissionTest.class,
   SystemAdminPermissionTest.class,
+  // custom measure
+  CustomMeasuresTest.class,
+  // measure
+  NewDebtRatioMeasureTest.class,
+  ProjectDrilldownTest.class,
+  ProjectOverviewTest.class,
+  ProjectWidgetsTest.class,
+  MeasureFiltersTest.class,
+  MeasuresWsTest.class,
+  TechnicalDebtMeasureVariationTest.class,
   // measure history
   DifferentialPeriodsTest.class,
   HistoryUiTest.class,
@@ -119,7 +125,12 @@ import static util.ItUtils.xooPlugin;
   TimeMachineTest.class,
   // action plan
   ActionPlanTest.class,
-  ActionPlanUiTest.class
+  ActionPlanUiTest.class,
+  // source code
+  EncodingTest.class,
+  HighlightingTest.class,
+  ProjectCodeTest.class
+
 })
 public class Category1Suite {
 

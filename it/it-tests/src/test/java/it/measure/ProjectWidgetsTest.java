@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.projectServices;
+package it.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -49,8 +49,8 @@ public class ProjectWidgetsTest {
   @Test
   public void hotspots() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("hotspots",
-      "/projectServices/ProjectWidgetsTest/hotspots/hotspot-metric-widget.html",
-      "/projectServices/ProjectWidgetsTest/hotspots/hide-if-no-measures.html"
+      "/measure/ProjectWidgetsTest/hotspots/hotspot-metric-widget.html",
+      "/measure/ProjectWidgetsTest/hotspots/hide-if-no-measures.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -58,7 +58,7 @@ public class ProjectWidgetsTest {
   @Test
   public void complexity() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("complexity",
-      "/projectServices/ProjectWidgetsTest/complexity/complexity-widget.html"
+      "/measure/ProjectWidgetsTest/complexity/complexity-widget.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -71,7 +71,7 @@ public class ProjectWidgetsTest {
     orchestrator.getServer().adminWsClient().qualityGateClient().selectProject(qualityGateId, projectId);
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("description",
-      "/projectServices/ProjectWidgetsTest/description/description-widget.html"
+      "/measure/ProjectWidgetsTest/description/description-widget.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
@@ -80,7 +80,7 @@ public class ProjectWidgetsTest {
   @Ignore
   public void custom_measures() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("custom_measures",
-      "/projectServices/ProjectWidgetsTest/custom_measures/should-exclude-new-metrics.html"
+      "/measure/ProjectWidgetsTest/custom_measures/should-exclude-new-metrics.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }

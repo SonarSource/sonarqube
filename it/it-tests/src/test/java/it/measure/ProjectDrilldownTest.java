@@ -17,49 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.projectServices;
+package it.measure;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
+import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 
-public class ProjectCodeTest {
+public class ProjectDrilldownTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  @Test
-  public void test_project_code_page() throws Exception {
-    executeBuild("shared/xoo-sample", "project-for-code", "Project For Code");
-
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_code_page",
-      "/projectServices/ProjectCodeTest/test_project_code_page.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  @Test
-  public void code_page_should_expand_root_dir() throws Exception {
-    executeBuild("shared/xoo-sample-with-root-dir", "project-for-code-root-dir", "Project For Code");
-
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("code_page_should_expand_root_dir",
-      "/projectServices/ProjectCodeTest/code_page_should_expand_root_dir.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  private void executeBuild(String projectLocation, String projectKey, String projectName) {
+  @BeforeClass
+  public static void inspectProject() {
     orchestrator.executeBuild(
-      SonarRunner.create(projectDir(projectLocation))
-        .setProjectKey(projectKey)
-        .setProjectName(projectName)
+      SonarRunner.create(projectDir("shared/xoo-sample"))
+        .setProjectKey("project-drilldown-test-project")
+        .setProjectName("ProjectDrilldownTest Project")
     );
+  }
+
+  @Test
+  public void should_display_measure_drilldown() {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_measure_drilldown",
+      "/measure/ProjectDrilldownTest/should_display_measure_drilldown.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
 
 }

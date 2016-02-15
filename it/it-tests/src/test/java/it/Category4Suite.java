@@ -25,15 +25,12 @@ import it.analysisExclusion.IssueExclusionsTest;
 import it.component.ComponentsWsTest;
 import it.component.ProjectSearchTest;
 import it.componentDashboard.DashboardTest;
-import it.customMeasure.CustomMeasuresTest;
+import it.componentSearch.AllProjectsTest;
 import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
-import it.highlighting.HighlightingTest;
-import it.measure.NewDebtRatioMeasureTest;
-import it.measure.TechnicalDebtMeasureVariationTest;
-import it.measureFilter.MeasureFiltersTest;
+import it.projectComparison.ProjectComparisonTest;
 import it.projectEvent.EventTest;
 import it.serverSystem.ServerSystemTest;
 import it.user.BaseIdentityProviderTest;
@@ -51,12 +48,6 @@ import static util.ItUtils.xooPlugin;
 
 @RunWith(Suite.class)
 @Suite.SuiteClasses({
-  // custom measure
-  CustomMeasuresTest.class,
-  // measure
-  TechnicalDebtMeasureVariationTest.class,
-  NewDebtRatioMeasureTest.class,
-  MeasureFiltersTest.class,
   // server system
   ServerSystemTest.class,
   // user
@@ -81,9 +72,12 @@ import static util.ItUtils.xooPlugin;
   PurgeTest.class,
   // project event
   EventTest.class,
-  // highlighting
-  HighlightingTest.class,
-  DashboardTest.class
+  // component dashboard
+  DashboardTest.class,
+  // project comparison
+  ProjectComparisonTest.class,
+  // component search
+  AllProjectsTest.class
 })
 public class Category4Suite {
 
