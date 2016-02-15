@@ -111,7 +111,7 @@ public class RailsAppsDeployer implements Startable {
   private void prepareDir(File appsDir) {
     if (appsDir.exists() && appsDir.isDirectory()) {
       try {
-        FileUtils.deleteDirectory(appsDir);
+        org.sonar.core.util.FileUtils.deleteDirectory(appsDir);
       } catch (IOException e) {
         throw new IllegalStateException("Fail to delete temp directory: " + appsDir, e);
       }

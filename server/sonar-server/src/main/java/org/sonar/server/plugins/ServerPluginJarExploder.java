@@ -19,17 +19,15 @@
  */
 package org.sonar.server.plugins;
 
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
-import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.core.platform.PluginJarExploder;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
-import java.io.File;
-
-import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 
 @ServerSide
@@ -51,7 +49,7 @@ public class ServerPluginJarExploder extends PluginJarExploder {
     File toDir = new File(fs.getDeployedPluginsDir(), pluginInfo.getKey());
     try {
       forceMkdir(toDir);
-      cleanDirectory(toDir);
+      org.sonar.core.util.FileUtils.cleanDirectory(toDir);
 
       File jarSource = pluginInfo.getNonNullJarFile();
       File jarTarget = new File(toDir, jarSource.getName());

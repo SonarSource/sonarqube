@@ -19,10 +19,6 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.text.StrSubstitutor;
-
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
@@ -31,6 +27,10 @@ import java.nio.charset.StandardCharsets;
 import java.util.Enumeration;
 import java.util.Map;
 import java.util.Properties;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.text.StrSubstitutor;
+
+import static org.apache.commons.io.FileUtils.deleteQuietly;
 
 public final class ConfigurationUtils {
 
@@ -66,7 +66,7 @@ public final class ConfigurationUtils {
       throw new IllegalStateException("Could not read properties from file: " + args[0], e);
     } finally {
       IOUtils.closeQuietly(reader);
-      FileUtils.deleteQuietly(propertyFile);
+      deleteQuietly(propertyFile);
     }
     return new Props(properties);
   }

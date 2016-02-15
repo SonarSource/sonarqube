@@ -19,10 +19,6 @@
  */
 package org.sonar.batch.cache;
 
-import org.apache.commons.io.FileUtils;
-
-import org.sonar.home.cache.PersistentCache;
-
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -31,6 +27,9 @@ import java.io.ObjectOutputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Date;
+import org.sonar.home.cache.PersistentCache;
+
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 public class DefaultProjectCacheStatus implements ProjectCacheStatus {
   private static final String STATUS_FILENAME = "cache-sync-status";
@@ -56,7 +55,7 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
   @Override
   public void delete() {
     cache.clear();
-    FileUtils.deleteQuietly(getStatusFilePath().toFile());
+    deleteQuietly(getStatusFilePath().toFile());
   }
 
   @Override
@@ -70,7 +69,7 @@ public class DefaultProjectCacheStatus implements ProjectCacheStatus {
         return (Date) objInput.readObject();
       }
     } catch (IOException | ClassNotFoundException e) {
-      FileUtils.deleteQuietly(p.toFile());
+      deleteQuietly(p.toFile());
       throw new IllegalStateException("Failed to read cache sync status", e);
     }
   }

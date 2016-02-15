@@ -19,6 +19,9 @@
  */
 package org.sonar.api.utils.internal;
 
+import java.nio.file.FileVisitResult;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.utils.TempFolder;
 
@@ -28,8 +31,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public class DefaultTempFolder implements TempFolder {
+  private static final Logger LOG = Loggers.get(DefaultTempFolder.class);
 
   private final File tempDir;
   private final boolean deleteOnExit;
@@ -86,12 +92,32 @@ public class DefaultTempFolder implements TempFolder {
   }
 
   public void clean() {
-    FileUtils.deleteQuietly(tempDir);
+    try {
+      Files.walkFileTree(tempDir.toPath(), DeleteRecursivelyFileVisitor.INSTANCE);
+    } catch (IOException e) {
+      LOG.trace("Failed to delete temp folder", e);
+    }
   }
 
   public void stop() {
     if (deleteOnExit) {
       clean();
+    }
+  }
+
+  private static final class DeleteRecursivelyFileVisitor extends SimpleFileVisitor<Path> {
+    public static final DeleteRecursivelyFileVisitor INSTANCE = new DeleteRecursivelyFileVisitor();
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+      Files.delete(file);
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+      Files.delete(dir);
+      return FileVisitResult.CONTINUE;
     }
   }
 

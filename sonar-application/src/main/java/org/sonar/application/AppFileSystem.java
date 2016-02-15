@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.FileSystem;
 
-import static org.apache.commons.io.FileUtils.cleanDirectory;
 import static org.apache.commons.io.FileUtils.forceMkdir;
+import static org.sonar.process.FileUtils.cleanDirectory;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
 import static org.sonar.process.ProcessProperties.PATH_LOGS;
@@ -111,9 +111,10 @@ public class AppFileSystem implements FileSystem {
 
   private static void createOrCleanDirectory(Props props, String propKey) throws IOException {
     File dir = props.nonNullValueAsFile(propKey);
-    LOG.info("Cleaning and/or creating temp directory {}", dir.getAbsolutePath());
+    LOG.info("Cleaning or creating temp directory {}", dir.getAbsolutePath());
     if (!createDirectory(props, propKey)) {
       cleanDirectory(dir);
     }
   }
+
 }

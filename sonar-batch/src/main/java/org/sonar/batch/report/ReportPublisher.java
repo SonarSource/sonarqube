@@ -23,6 +23,15 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Throwables;
 import com.google.common.io.Files;
 import com.squareup.okhttp.HttpUrl;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.Writer;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
@@ -42,15 +51,7 @@ import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
-import javax.annotation.Nullable;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.Writer;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedHashMap;
-import java.util.Map;
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 @BatchSide
 public class ReportPublisher implements Startable {
@@ -73,7 +74,7 @@ public class ReportPublisher implements Startable {
   private BatchReportWriter writer;
 
   public ReportPublisher(Settings settings, BatchWsClient wsClient, AnalysisContextReportPublisher contextPublisher,
-                         ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
+    ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.settings = settings;
     this.wsClient = wsClient;
     this.contextPublisher = contextPublisher;
@@ -93,7 +94,7 @@ public class ReportPublisher implements Startable {
   @Override
   public void stop() {
     if (!settings.getBoolean(KEEP_REPORT_PROP_KEY) && !settings.getBoolean(VERBOSE_KEY)) {
-      FileUtils.deleteQuietly(reportDir);
+      deleteQuietly(reportDir);
     } else {
       LOG.info("Analysis report generated in " + reportDir);
     }
@@ -174,7 +175,7 @@ public class ReportPublisher implements Startable {
       String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl());
-      
+
       URL dashboardUrl = HttpUrl.parse(publicUrl()).newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
         .build()

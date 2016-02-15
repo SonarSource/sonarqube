@@ -19,18 +19,17 @@
  */
 package org.sonar.batch.index;
 
-import org.sonar.api.utils.TempFolder;
-
 import com.persistit.Persistit;
 import com.persistit.exception.PersistitException;
 import com.persistit.logging.Slf4jAdapter;
-import org.apache.commons.io.FileUtils;
+import java.io.File;
+import java.util.Properties;
 import org.picocontainer.Startable;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.utils.TempFolder;
 
-import java.io.File;
-import java.util.Properties;
+import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 /**
  * Factory of caches
@@ -85,7 +84,7 @@ public class CachesManager implements Startable {
         throw new IllegalStateException("Fail to close caches", e);
       }
     }
-    FileUtils.deleteQuietly(tempDir);
+    deleteQuietly(tempDir);
     tempDir = null;
   }
 

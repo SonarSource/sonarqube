@@ -19,15 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.TempFolder;
-import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.DbClient;
-
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -35,6 +26,14 @@ import java.io.OutputStreamWriter;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.TempFolder;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
 @ServerSide
 public class QProfileCopier {
@@ -59,7 +58,7 @@ public class QProfileCopier {
       restore(backupFile, QProfileName.createFor(to.getLanguage(), to.getName()));
       return to;
     } finally {
-      FileUtils.deleteQuietly(backupFile);
+      org.sonar.core.util.FileUtils.deleteQuietly(backupFile);
     }
   }
 

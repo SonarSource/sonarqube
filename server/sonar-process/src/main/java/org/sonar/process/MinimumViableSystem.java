@@ -19,7 +19,6 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 
 import java.io.File;
@@ -27,6 +26,7 @@ import java.io.IOException;
 import java.util.Map;
 
 import static java.lang.String.format;
+import static org.sonar.process.FileUtils.deleteQuietly;
 
 public class MinimumViableSystem {
 
@@ -42,7 +42,7 @@ public class MinimumViableSystem {
   void checkWritableDir(String tempPath) {
     try {
       File tempFile = File.createTempFile("check", "tmp", new File(tempPath));
-      FileUtils.deleteQuietly(tempFile);
+      deleteQuietly(tempFile);
     } catch (IOException e) {
       throw new IllegalStateException(format("Temp directory is not writable: %s", tempPath), e);
     }

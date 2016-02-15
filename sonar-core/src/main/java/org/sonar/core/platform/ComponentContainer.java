@@ -22,6 +22,7 @@ package org.sonar.core.platform;
 import com.google.common.collect.Iterables;
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.picocontainer.Characteristics;
@@ -40,6 +41,9 @@ import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+
+import static com.google.common.collect.ImmutableList.copyOf;
+import static java.util.Objects.requireNonNull;
 
 @BatchSide
 @ServerSide
@@ -270,10 +274,14 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   public ComponentContainer removeChild(ComponentContainer childToBeRemoved) {
-    for (ComponentContainer child : children) {
+    requireNonNull(childToBeRemoved);
+    Iterator<ComponentContainer> childrenIterator = children.iterator();
+    while (childrenIterator.hasNext()) {
+      ComponentContainer child = childrenIterator.next();
       if (child == childToBeRemoved) {
-        pico.removeChildContainer(child.pico);
-        children.remove(child);
+        if (pico.removeChildContainer(child.pico)) {
+          childrenIterator.remove();
+        }
         break;
       }
     }
@@ -281,10 +289,13 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   private ComponentContainer removeChildren() {
-    for (ComponentContainer child : children) {
-      pico.removeChildContainer(child.pico);
+    Iterator<ComponentContainer> childrenIterator = children.iterator();
+    while (childrenIterator.hasNext()) {
+      ComponentContainer child = childrenIterator.next();
+      if (pico.removeChildContainer(child.pico)) {
+        childrenIterator.remove();
+      }
     }
-    children.clear();
     return this;
   }
 
@@ -310,7 +321,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   public List<ComponentContainer> getChildren() {
-    return children;
+    return copyOf(children);
   }
 
   public MutablePicoContainer getPicoContainer() {
