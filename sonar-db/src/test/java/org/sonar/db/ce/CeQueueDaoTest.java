@@ -20,6 +20,7 @@
 package org.sonar.db.ce;
 
 import com.google.common.base.Optional;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -211,6 +212,7 @@ public class CeQueueDaoTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(120_000L));
 
+    // select by component uuid, status, task type and minimum submitted at
     CeActivityQuery query = new CeActivityQuery()
       .setComponentUuids(newArrayList("PROJECT_1", "PROJECT_2"))
       .setStatuses(singletonList(CeQueueDto.Status.PENDING.name()))
@@ -222,6 +224,57 @@ public class CeQueueDaoTest {
 
     assertThat(result).extracting("uuid").containsExactly("TASK_5", "TASK_2");
     assertThat(total).isEqualTo(2);
+  }
+
+  @Test
+  public void select_by_query_returns_empty_list_when_only_current() {
+    insert(newCeQueueDto("TASK_1")
+      .setComponentUuid("PROJECT_1")
+      .setStatus(CeQueueDto.Status.IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+
+    CeActivityQuery query = new CeActivityQuery().setOnlyCurrents(true);
+
+    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
+    int total = underTest.countByQuery(db.getSession(), query);
+
+    assertThat(result).isEmpty();
+    assertThat(total).isEqualTo(0);
+  }
+
+  @Test
+  public void select_by_query_returns_empty_list_when_max_submitted_at() {
+    insert(newCeQueueDto("TASK_1")
+      .setComponentUuid("PROJECT_1")
+      .setStatus(CeQueueDto.Status.IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+
+    CeActivityQuery query = new CeActivityQuery().setMaxExecutedAt(1_000_000_000_000L);
+
+    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
+    int total = underTest.countByQuery(db.getSession(), query);
+
+    assertThat(result).isEmpty();
+    assertThat(total).isEqualTo(0);
+  }
+
+  @Test
+  public void select_by_query_returns_empty_list_when_empty_list_of_component_uuid() {
+    insert(newCeQueueDto("TASK_1")
+      .setComponentUuid("PROJECT_1")
+      .setStatus(CeQueueDto.Status.IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+
+    CeActivityQuery query = new CeActivityQuery().setComponentUuids(Collections.<String>emptyList());
+
+    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
+    int total = underTest.countByQuery(db.getSession(), query);
+
+    assertThat(result).isEmpty();
+    assertThat(total).isEqualTo(0);
   }
 
   private void insert(CeQueueDto dto) {
