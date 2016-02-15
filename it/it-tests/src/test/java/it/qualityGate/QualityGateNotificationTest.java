@@ -25,8 +25,11 @@ import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.util.Iterator;
 import javax.mail.internet.MimeMessage;
-
-import org.junit.*;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.ClassRule;
+import org.junit.Test;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
@@ -47,6 +50,8 @@ import static util.ItUtils.setServerProperty;
 
 public class QualityGateNotificationTest {
 
+  private static long DEFAULT_QUALITY_GATE;
+
   private static final String PROJECT_KEY = "sample";
 
   @ClassRule
@@ -57,11 +62,13 @@ public class QualityGateNotificationTest {
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
     setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
     setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
+    DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
   }
 
   @AfterClass
-  public static void resetPeriods() throws Exception {
+  public static void resetData() throws Exception {
     ItUtils.resetPeriods(orchestrator);
+    qgClient().setDefault(DEFAULT_QUALITY_GATE);
   }
 
   @Before

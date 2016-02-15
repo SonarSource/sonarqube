@@ -45,16 +45,20 @@ public class QualityGateUiTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
+  private static long DEFAULT_QUALITY_GATE;
+
   @BeforeClass
   public static void initPeriods() throws Exception {
     setServerProperty(orchestrator, "sonar.timemachine.period1", "previous_analysis");
     setServerProperty(orchestrator, "sonar.timemachine.period2", "30");
     setServerProperty(orchestrator, "sonar.timemachine.period3", "previous_version");
+    DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
   }
 
   @AfterClass
-  public static void resetPeriods() throws Exception {
+  public static void resetData() throws Exception {
     ItUtils.resetPeriods(orchestrator);
+    qgClient().setDefault(DEFAULT_QUALITY_GATE);
   }
 
   @Before
@@ -67,7 +71,7 @@ public class QualityGateUiTest {
    */
   @Test
   public void display_alerts_correctly_in_history_page() {
-    QualityGateClient qgClient = orchestrator.getServer().adminWsClient().qualityGateClient();
+    QualityGateClient qgClient = qgClient();
     QualityGate qGate = qgClient.create("AlertsForHistory");
     qgClient.setDefault(qGate.id());
 
@@ -139,6 +143,10 @@ public class QualityGateUiTest {
       scan.setProfile(profile);
     }
     orchestrator.executeBuild(scan);
+  }
+
+  private static QualityGateClient qgClient() {
+    return orchestrator.getServer().adminWsClient().qualityGateClient();
   }
 
 }

@@ -28,6 +28,7 @@ import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -53,9 +54,11 @@ import static util.ItUtils.projectDir;
 
 public class QualityGateTest {
 
-  private static final String PROJECT_KEY = "sample";
+  private static long DEFAULT_QUALITY_GATE;
 
   private long provisionedProjectId = -1L;
+
+  private static final String PROJECT_KEY = "sample";
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
@@ -64,6 +67,12 @@ public class QualityGateTest {
   @BeforeClass
   public static void startOrchestrator() {
     wsClient = newAdminWsClient(orchestrator);
+    DEFAULT_QUALITY_GATE = qgClient().list().defaultGate().id();
+  }
+
+  @AfterClass
+  public static void restoreDefaultQualitGate() throws Exception {
+    qgClient().setDefault(DEFAULT_QUALITY_GATE);
   }
 
   @Before
