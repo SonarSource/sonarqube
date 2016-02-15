@@ -29,7 +29,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Protobuf;
@@ -72,7 +72,7 @@ public class ActivityActionTest {
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
-  ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
+  ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[]{mock(CeTaskProcessor.class)});
   WsActionTester ws = new WsActionTester(underTest);
 
   @Before
@@ -159,8 +159,8 @@ public class ActivityActionTest {
   private void assertPage(int pageIndex, int pageSize, int expectedTotal, List<String> expectedOrderedTaskIds) {
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
-      .setParam(WebService.Param.PAGE, Integer.toString(pageIndex))
-      .setParam(WebService.Param.PAGE_SIZE, Integer.toString(pageSize))
+      .setParam(Param.PAGE, Integer.toString(pageIndex))
+      .setParam(Param.PAGE_SIZE, Integer.toString(pageSize))
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING")
       .execute();
 
@@ -225,6 +225,16 @@ public class ActivityActionTest {
       .setParam("componentId", "ID1")
       .setParam("componentQuery", "apache")
       .setMediaType(MediaTypes.PROTOBUF)
+      .execute();
+  }
+
+  @Test
+  public void fail_if_page_size_greater_than_1000() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The 'ps' parameter must be less than 1000");
+
+    ws.newRequest()
+      .setParam(Param.PAGE_SIZE, "1001")
       .execute();
   }
 

@@ -69,6 +69,8 @@ import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
 public class ActivityAction implements CeWsAction {
+  private static final int MAX_PAGE_SIZE = 1000;
+
   private final UserSession userSession;
   private final DbClient dbClient;
   private final TaskFormatter formatter;
@@ -128,7 +130,7 @@ public class ActivityAction implements CeWsAction {
     action.createParam(PARAM_MAX_EXECUTED_AT)
       .setDescription("Maximum date of end of task processing")
       .setExampleValue(DateUtils.formatDateTime(new Date()));
-    action.addPagingParams(100);
+    action.addPagingParams(100, MAX_PAGE_SIZE);
   }
 
   @Override
@@ -262,6 +264,7 @@ public class ActivityAction implements CeWsAction {
 
     checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getComponentQuery() == null, "%s and %s must not be set at the same time",
       PARAM_COMPONENT_ID, PARAM_COMPONENT_QUERY);
+    checkRequest(activityWsRequest.getPageSize() <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_PAGE_SIZE);
 
     return activityWsRequest;
   }
