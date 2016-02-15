@@ -65,7 +65,9 @@ public final class Changeset {
     }
 
     public Builder setAuthor(@Nullable String author) {
-      this.author = author;
+      // SONAR-7316
+      // String.intern() is used in order for same authors to use the same object.
+      this.author = author != null ? author.intern() : null;
       return this;
     }
 
