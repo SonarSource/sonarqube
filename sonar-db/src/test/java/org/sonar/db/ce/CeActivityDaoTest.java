@@ -96,30 +96,30 @@ public class CeActivityDaoTest {
     insert("TASK_4", "views", null, CeActivityDto.Status.SUCCESS);
 
     // no filters
-    CeActivityQuery query = new CeActivityQuery().setStatuses(Collections.<String>emptyList());
+    CeTaskQuery query = new CeTaskQuery().setStatuses(Collections.<String>emptyList());
     List<CeActivityDto> dtos = underTest.selectByQuery(db.getSession(), query, 0, 10);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4", "TASK_3", "TASK_2", "TASK_1");
 
     // select by component uuid
-    query = new CeActivityQuery().setComponentUuid("PROJECT_1");
+    query = new CeTaskQuery().setComponentUuid("PROJECT_1");
     dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_2", "TASK_1");
 
     // select by status
-    query = new CeActivityQuery().setStatuses(singletonList(CeActivityDto.Status.SUCCESS.name()));
+    query = new CeTaskQuery().setStatuses(singletonList(CeActivityDto.Status.SUCCESS.name()));
     dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4", "TASK_3", "TASK_1");
 
     // select by type
-    query = new CeActivityQuery().setType(REPORT);
+    query = new CeTaskQuery().setType(REPORT);
     dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_3", "TASK_2", "TASK_1");
-    query = new CeActivityQuery().setType("views");
+    query = new CeTaskQuery().setType("views");
     dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_4");
 
     // select by multiple conditions
-    query = new CeActivityQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
+    query = new CeTaskQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
     dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_2");
   }
@@ -132,25 +132,25 @@ public class CeActivityDaoTest {
     insert("TASK_4", "views", null, CeActivityDto.Status.SUCCESS);
 
     // no filters
-    CeActivityQuery query = new CeActivityQuery();
+    CeTaskQuery query = new CeTaskQuery();
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(4);
 
     // select by component uuid
-    query = new CeActivityQuery().setComponentUuid("PROJECT_1");
+    query = new CeTaskQuery().setComponentUuid("PROJECT_1");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(2);
 
     // select by status
-    query = new CeActivityQuery().setStatuses(singletonList(CeActivityDto.Status.SUCCESS.name()));
+    query = new CeTaskQuery().setStatuses(singletonList(CeActivityDto.Status.SUCCESS.name()));
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(3);
 
     // select by type
-    query = new CeActivityQuery().setType(REPORT);
+    query = new CeTaskQuery().setType(REPORT);
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(3);
-    query = new CeActivityQuery().setType("views");
+    query = new CeTaskQuery().setType("views");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
     // select by multiple conditions
-    query = new CeActivityQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
+    query = new CeTaskQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
   }
 
@@ -158,7 +158,7 @@ public class CeActivityDaoTest {
   public void selectByQuery_no_results_if_shortcircuited_by_component_uuids() {
     insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
 
-    CeActivityQuery query = new CeActivityQuery();
+    CeTaskQuery query = new CeTaskQuery();
     query.setComponentUuids(Collections.<String>emptyList());
     assertThat(underTest.selectByQuery(db.getSession(), query, 0, 0)).isEmpty();
   }
@@ -167,7 +167,7 @@ public class CeActivityDaoTest {
   public void countByQuery_no_results_if_shortcircuited_by_component_uuids() {
     insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
 
-    CeActivityQuery query = new CeActivityQuery();
+    CeTaskQuery query = new CeTaskQuery();
     query.setComponentUuids(Collections.<String>emptyList());
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(0);
   }
@@ -178,17 +178,17 @@ public class CeActivityDaoTest {
     insertWithDates("UUID2", 1_460_000_000_000L, 1_480_000_000_000L);
 
     // search by min submitted date
-    CeActivityQuery query = new CeActivityQuery().setMinSubmittedAt(1_455_000_000_000L);
+    CeTaskQuery query = new CeTaskQuery().setMinSubmittedAt(1_455_000_000_000L);
     assertThat(underTest.selectByQuery(db.getSession(), query, 0, 5)).extracting("uuid").containsOnly("UUID2");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
     // search by max executed date
-    query = new CeActivityQuery().setMaxExecutedAt(1_475_000_000_000L);
+    query = new CeTaskQuery().setMaxExecutedAt(1_475_000_000_000L);
     assertThat(underTest.selectByQuery(db.getSession(), query, 0, 5)).extracting("uuid").containsOnly("UUID1");
     assertThat(underTest.countByQuery(db.getSession(), query)).isEqualTo(1);
 
     // search by both dates
-    query = new CeActivityQuery()
+    query = new CeTaskQuery()
       .setMinSubmittedAt(1_400_000_000_000L)
       .setMaxExecutedAt(1_475_000_000_000L);
     assertThat(underTest.selectByQuery(db.getSession(), query, 0, 5)).extracting("uuid").containsOnly("UUID1");

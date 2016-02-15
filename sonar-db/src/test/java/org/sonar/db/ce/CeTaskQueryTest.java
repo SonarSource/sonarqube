@@ -27,9 +27,9 @@ import org.junit.Test;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CeActivityQueryTest {
+public class CeTaskQueryTest {
 
-  CeActivityQuery underTest = new CeActivityQuery();
+  CeTaskQuery underTest = new CeTaskQuery();
 
   @Test
   public void no_filter_on_component_uuids_by_default() {
@@ -69,11 +69,11 @@ public class CeActivityQueryTest {
   @Test
   public void short_circuited_if_too_many_component_uuid_filters() {
     List<String> uuids = new ArrayList<>();
-    for (int i = 0; i < CeActivityQuery.MAX_COMPONENT_UUIDS + 2; i++) {
+    for (int i = 0; i < CeTaskQuery.MAX_COMPONENT_UUIDS + 2; i++) {
       uuids.add(String.valueOf(i));
     }
     underTest.setComponentUuids(uuids);
-    assertThat(underTest.getComponentUuids()).hasSize(CeActivityQuery.MAX_COMPONENT_UUIDS + 2);
+    assertThat(underTest.getComponentUuids()).hasSize(CeTaskQuery.MAX_COMPONENT_UUIDS + 2);
     assertThat(underTest.isShortCircuitedByComponentUuids()).isTrue();
   }
 }

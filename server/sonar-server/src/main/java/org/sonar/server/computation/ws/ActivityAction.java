@@ -40,7 +40,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.db.ce.CeActivityQuery;
+import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
@@ -142,7 +142,7 @@ public class ActivityAction implements CeWsAction {
   private ActivityResponse doHandle(ActivityWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      CeActivityQuery query = buildQuery(dbSession, request);
+      CeTaskQuery query = buildQuery(dbSession, request);
       checkPermissions(query);
       TaskResult queuedTasks = loadQueuedTasks(dbSession, request, query);
       TaskResult pastTasks = loadPastTasks(dbSession, request, query, queuedTasks.total);
@@ -159,8 +159,8 @@ public class ActivityAction implements CeWsAction {
     }
   }
 
-  private CeActivityQuery buildQuery(DbSession dbSession, ActivityWsRequest request) {
-    CeActivityQuery query = new CeActivityQuery();
+  private CeTaskQuery buildQuery(DbSession dbSession, ActivityWsRequest request) {
+    CeTaskQuery query = new CeTaskQuery();
     query.setType(request.getType());
     query.setOnlyCurrents(request.getOnlyCurrents());
     query.setMinSubmittedAt(dateToLong(parseDateTimeQuietly(request.getMinSubmittedAt())));
@@ -175,7 +175,7 @@ public class ActivityAction implements CeWsAction {
     return query;
   }
 
-  private void loadComponentUuids(DbSession dbSession, ActivityWsRequest request, CeActivityQuery query) {
+  private void loadComponentUuids(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
     String componentUuid = request.getComponentId();
     String componentQuery = request.getComponentQuery();
 
@@ -184,12 +184,12 @@ public class ActivityAction implements CeWsAction {
     }
     if (componentQuery != null) {
       ComponentQuery componentDtoQuery = ComponentQuery.builder().setNameOrKeyQuery(componentQuery).setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW).build();
-      List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeActivityQuery.MAX_COMPONENT_UUIDS);
+      List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
       query.setComponentUuids(Lists.transform(componentDtos, ComponentDtoFunctions.toUuid()));
     }
   }
 
-  private TaskResult loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeActivityQuery query) {
+  private TaskResult loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
     int total = dbClient.ceQueueDao().countByQuery(dbSession, query);
     List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query,
       Paging.forPageIndex(request.getPage())
@@ -199,7 +199,7 @@ public class ActivityAction implements CeWsAction {
     return new TaskResult(tasks, total);
   }
 
-  private TaskResult loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeActivityQuery query, int totalQueuedTasks) {
+  private TaskResult loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query, int totalQueuedTasks) {
     int total = dbClient.ceActivityDao().countByQuery(dbSession, query);
     // we have to take into account the total number of queue tasks found
     int offset = Math.max(0, offset(request.getPage(), request.getPageSize()) - totalQueuedTasks);
@@ -209,7 +209,7 @@ public class ActivityAction implements CeWsAction {
     return new TaskResult(ceTasks, total);
   }
 
-  private void checkPermissions(CeActivityQuery query) {
+  private void checkPermissions(CeTaskQuery query) {
     List<String> componentUuids = query.getComponentUuids();
     if (componentUuids != null && componentUuids.size() == 1) {
       if (!isAllowedOnComponentUuid(userSession, componentUuids.get(0))) {

@@ -28,7 +28,7 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.db.ce.CeActivityQuery;
+import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsUtils;
@@ -71,7 +71,7 @@ public class ComponentAction implements CeWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       List<CeQueueDto> queueDtos = dbClient.ceQueueDao().selectByComponentUuid(dbSession, componentUuid);
-      CeActivityQuery activityQuery = new CeActivityQuery()
+      CeTaskQuery activityQuery = new CeTaskQuery()
         .setComponentUuid(componentUuid)
         .setOnlyCurrents(true);
       List<CeActivityDto> activityDtos = dbClient.ceActivityDao().selectByQuery(dbSession, activityQuery, 0, 1);

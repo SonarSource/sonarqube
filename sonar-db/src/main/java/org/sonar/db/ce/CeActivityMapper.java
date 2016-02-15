@@ -33,11 +33,11 @@ public interface CeActivityMapper {
 
   List<CeActivityDto> selectByComponentUuid(@Param("componentUuid") String componentUuid);
 
-  List<CeActivityDto> selectByQuery(@Param("query") CeActivityQuery query, RowBounds rowBounds);
+  List<CeActivityDto> selectByQuery(@Param("query") CeTaskQuery query, RowBounds rowBounds);
 
   List<CeActivityDto> selectOlderThan(@Param("beforeDate") long beforeDate);
 
-  int countByQuery(@Param("query") CeActivityQuery query);
+  int countByQuery(@Param("query") CeTaskQuery query);
 
   void insert(CeActivityDto dto);
 

@@ -26,7 +26,10 @@ import org.sonar.db.DatabaseUtils;
 
 import static java.util.Collections.singletonList;
 
-public class CeActivityQuery {
+/**
+ * Db Query used for CE_QUEUE and CE_ACTIVITY tables
+ */
+public class CeTaskQuery {
 
   public static final int MAX_COMPONENT_UUIDS = DatabaseUtils.PARTITION_SIZE_FOR_ORACLE;
 
@@ -42,7 +45,7 @@ public class CeActivityQuery {
     return componentUuids;
   }
 
-  public CeActivityQuery setComponentUuids(@Nullable List<String> l) {
+  public CeTaskQuery setComponentUuids(@Nullable List<String> l) {
     this.componentUuids = l;
     return this;
   }
@@ -51,7 +54,7 @@ public class CeActivityQuery {
     return componentUuids != null && (componentUuids.isEmpty() || componentUuids.size() > MAX_COMPONENT_UUIDS);
   }
 
-  public CeActivityQuery setComponentUuid(@Nullable String s) {
+  public CeTaskQuery setComponentUuid(@Nullable String s) {
     if (s == null) {
       this.componentUuids = null;
     } else {
@@ -64,7 +67,7 @@ public class CeActivityQuery {
     return onlyCurrents;
   }
 
-  public CeActivityQuery setOnlyCurrents(boolean onlyCurrents) {
+  public CeTaskQuery setOnlyCurrents(boolean onlyCurrents) {
     this.onlyCurrents = onlyCurrents;
     return this;
   }
@@ -74,7 +77,7 @@ public class CeActivityQuery {
     return statuses;
   }
 
-  public CeActivityQuery setStatuses(@Nullable List<String> statuses) {
+  public CeTaskQuery setStatuses(@Nullable List<String> statuses) {
     this.statuses = statuses;
     return this;
   }
@@ -84,7 +87,7 @@ public class CeActivityQuery {
     return type;
   }
 
-  public CeActivityQuery setType(@Nullable String type) {
+  public CeTaskQuery setType(@Nullable String type) {
     this.type = type;
     return this;
   }
@@ -94,7 +97,7 @@ public class CeActivityQuery {
     return maxExecutedAt;
   }
 
-  public CeActivityQuery setMaxExecutedAt(@Nullable Long l) {
+  public CeTaskQuery setMaxExecutedAt(@Nullable Long l) {
     this.maxExecutedAt = l;
     return this;
   }
@@ -104,7 +107,7 @@ public class CeActivityQuery {
     return minSubmittedAt;
   }
 
-  public CeActivityQuery setMinSubmittedAt(@Nullable Long l) {
+  public CeTaskQuery setMinSubmittedAt(@Nullable Long l) {
     this.minSubmittedAt = l;
     return this;
   }

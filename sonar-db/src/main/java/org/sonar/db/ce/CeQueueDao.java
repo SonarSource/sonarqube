@@ -46,7 +46,7 @@ public class CeQueueDao implements Dao {
     return mapper(session).selectAllInAscOrder();
   }
 
-  public List<CeQueueDto> selectByQueryInDescOrder(DbSession dbSession, CeActivityQuery query, Paging paging) {
+  public List<CeQueueDto> selectByQueryInDescOrder(DbSession dbSession, CeTaskQuery query, Paging paging) {
     if (query.isShortCircuitedByComponentUuids()
       || query.isOnlyCurrents()
       || query.getMaxExecutedAt() != null) {
@@ -56,7 +56,7 @@ public class CeQueueDao implements Dao {
     return mapper(dbSession).selectByQueryInDescOrder(query, new RowBounds(paging.offset(), paging.pageSize()));
   }
 
-  public int countByQuery(DbSession dbSession, CeActivityQuery query) {
+  public int countByQuery(DbSession dbSession, CeTaskQuery query) {
     if (query.isShortCircuitedByComponentUuids()
       || query.isOnlyCurrents()
       || query.getMaxExecutedAt() != null) {

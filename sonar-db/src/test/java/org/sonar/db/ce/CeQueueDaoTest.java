@@ -213,7 +213,7 @@ public class CeQueueDaoTest {
       .setCreatedAt(120_000L));
 
     // select by component uuid, status, task type and minimum submitted at
-    CeActivityQuery query = new CeActivityQuery()
+    CeTaskQuery query = new CeTaskQuery()
       .setComponentUuids(newArrayList("PROJECT_1", "PROJECT_2"))
       .setStatuses(singletonList(CeQueueDto.Status.PENDING.name()))
       .setType(CeTaskTypes.REPORT)
@@ -234,7 +234,7 @@ public class CeQueueDaoTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
-    CeActivityQuery query = new CeActivityQuery().setOnlyCurrents(true);
+    CeTaskQuery query = new CeTaskQuery().setOnlyCurrents(true);
 
     List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
     int total = underTest.countByQuery(db.getSession(), query);
@@ -251,7 +251,7 @@ public class CeQueueDaoTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
-    CeActivityQuery query = new CeActivityQuery().setMaxExecutedAt(1_000_000_000_000L);
+    CeTaskQuery query = new CeTaskQuery().setMaxExecutedAt(1_000_000_000_000L);
 
     List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
     int total = underTest.countByQuery(db.getSession(), query);
@@ -268,7 +268,7 @@ public class CeQueueDaoTest {
       .setTaskType(CeTaskTypes.REPORT)
       .setCreatedAt(100_000L));
 
-    CeActivityQuery query = new CeActivityQuery().setComponentUuids(Collections.<String>emptyList());
+    CeTaskQuery query = new CeTaskQuery().setComponentUuids(Collections.<String>emptyList());
 
     List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
     int total = underTest.countByQuery(db.getSession(), query);

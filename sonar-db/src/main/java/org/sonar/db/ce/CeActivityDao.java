@@ -64,7 +64,7 @@ public class CeActivityDao implements Dao {
   /**
    * Ordered by id desc -> newest to oldest
    */
-  public List<CeActivityDto> selectByQuery(DbSession dbSession, CeActivityQuery query, int offset, int pageSize) {
+  public List<CeActivityDto> selectByQuery(DbSession dbSession, CeTaskQuery query, int offset, int pageSize) {
     if (query.isShortCircuitedByComponentUuids()) {
       return Collections.emptyList();
     }
@@ -72,7 +72,7 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).selectByQuery(query, new RowBounds(offset, pageSize));
   }
 
-  public int countByQuery(DbSession dbSession, CeActivityQuery query) {
+  public int countByQuery(DbSession dbSession, CeTaskQuery query) {
     if (query.isShortCircuitedByComponentUuids()) {
       return 0;
     }

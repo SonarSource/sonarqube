@@ -31,9 +31,9 @@ public interface CeQueueMapper {
 
   List<CeQueueDto> selectAllInAscOrder();
 
-  List<CeQueueDto> selectByQueryInDescOrder(@Param("query") CeActivityQuery query, RowBounds rowBounds);
+  List<CeQueueDto> selectByQueryInDescOrder(@Param("query") CeTaskQuery query, RowBounds rowBounds);
 
-  int countByQuery(@Param("query") CeActivityQuery query);
+  int countByQuery(@Param("query") CeTaskQuery query);
 
   List<String> selectEligibleForPeek();
 
