@@ -47,6 +47,8 @@ public class DashboardTest {
     seleniumSuite("dashboard_extension",
       "/componentDashboard/DashboardTest/dashboard_extension/dashboard-should-be-registered.html",
       "/componentDashboard/DashboardTest/dashboard_extension/test-location-of-widgets.html",
+      // SONAR-3323
+      "/componentDashboard/DashboardTest/dashboard_extension/display-widgets-according-to-required-measures.html",
 
       // SSF-19
       "/componentDashboard/DashboardTest/dashboard_extension/xss.html");

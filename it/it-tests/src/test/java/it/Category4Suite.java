@@ -33,6 +33,8 @@ import it.duplication.DuplicationsTest;
 import it.projectComparison.ProjectComparisonTest;
 import it.projectEvent.EventTest;
 import it.serverSystem.ServerSystemTest;
+import it.ui.UiTest;
+import it.uiExtension.UiExtensionsTest;
 import it.user.BaseIdentityProviderTest;
 import it.user.FavouriteTest;
 import it.user.ForceAuthenticationTest;
@@ -77,7 +79,11 @@ import static util.ItUtils.xooPlugin;
   // project comparison
   ProjectComparisonTest.class,
   // component search
-  AllProjectsTest.class
+  AllProjectsTest.class,
+  // ui
+  UiTest.class,
+  // ui extensions
+  UiExtensionsTest.class
 })
 public class Category4Suite {
 
@@ -93,6 +99,10 @@ public class Category4Suite {
 
     // Used in DashboardTest
     .addPlugin(pluginArtifact("dashboard-plugin"))
+    .addPlugin(pluginArtifact("required-measures-widgets-plugin"))
+
+    // Used in UiExtensionsTest
+    .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
     .build();
 }

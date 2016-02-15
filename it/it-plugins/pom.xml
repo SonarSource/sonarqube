@@ -43,12 +43,14 @@
     <module>project-builder-plugin</module>
     <module>property-relocation-plugin</module>
     <module>property-sets-plugin</module>
+    <module>required-measures-widgets-plugin</module>
     <module>security-plugin</module>
     <module>server-plugin</module>
     <module>settings-encryption-plugin</module>
     <module>settings-plugin</module>
     <module>sonar-fake-plugin</module>
     <module>sonar-subcategories-plugin</module>
+    <module>ui-extensions-plugin</module>
     <module>issue-filter-plugin</module>
   </modules>
 </project>

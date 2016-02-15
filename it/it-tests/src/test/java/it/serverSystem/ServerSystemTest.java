@@ -108,6 +108,28 @@ public class ServerSystemTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
+  @Test
+  public void http_response_should_be_gzipped() throws IOException {
+    HttpClient httpclient = new DefaultHttpClient();
+    try {
+      HttpGet get = new HttpGet(orchestrator.getServer().getUrl());
+      HttpResponse response = httpclient.execute(get);
+
+      assertThat(response.getStatusLine().getStatusCode()).isEqualTo(200);
+      assertThat(response.getLastHeader("Content-Encoding")).isNull();
+      EntityUtils.consume(response.getEntity());
+
+      get = new HttpGet(orchestrator.getServer().getUrl());
+      get.addHeader("Accept-Encoding", "gzip, deflate");
+      response = httpclient.execute(get);
+      assertThat(response.getLastHeader("Content-Encoding").getValue()).isEqualTo("gzip");
+      EntityUtils.consume(response.getEntity());
+
+    } finally {
+      httpclient.getConnectionManager().shutdown();
+    }
+  }
+
   /**
    * SONAR-3962
    */
