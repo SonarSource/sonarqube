@@ -26,6 +26,7 @@ public class CeWsModule extends Module {
   protected void configureModule() {
     add(
       CeWs.class,
+      ActivityAction.class,
       CancelAction.class,
       CancelAllAction.class,
       QueueAction.class,
@@ -35,6 +36,6 @@ public class CeWsModule extends Module {
       SubmitAction.class,
       TaskFormatter.class,
       TaskAction.class,
-      ActivityAction.class);
+      TaskTypesAction.class);
   }
 }

@@ -1,0 +1,8 @@
+{
+  "taskTypes": [
+    "REPORT",
+    "DEV_REFRESH",
+    "DEV_PURGE",
+    "VIEW_REFRESH"
+  ]
+}

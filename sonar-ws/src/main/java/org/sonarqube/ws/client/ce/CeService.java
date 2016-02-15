@@ -21,6 +21,7 @@
 package org.sonarqube.ws.client.ce;
 
 import org.sonarqube.ws.WsCe.ActivityResponse;
+import org.sonarqube.ws.WsCe.TaskTypesWsResponse;
 import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
@@ -52,6 +53,10 @@ public class CeService extends BaseService {
         .setParam("p", request.getPage())
         .setParam("ps", request.getPageSize()),
       ActivityResponse.parser());
+  }
+
+  public TaskTypesWsResponse taskTypes() {
+    return call(new GetRequest(path("task_types")), TaskTypesWsResponse.parser());
   }
 
 }
