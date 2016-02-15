@@ -69,6 +69,7 @@ import it.qualityGate.QualityGateUiTest;
 import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
 import it.settings.SubCategoriesTest;
+import it.sourceCode.EncodingTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -91,6 +92,7 @@ import static util.ItUtils.xooPlugin;
   ProjectComparisonTest.class,
   AllProjectsTest.class,
   ProjectWidgetsTest.class,
+  EncodingTest.class,
   // settings
   PropertySetsTest.class,
   SubCategoriesTest.class,
