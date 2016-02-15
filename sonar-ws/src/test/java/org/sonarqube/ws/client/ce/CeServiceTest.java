@@ -23,6 +23,7 @@ package org.sonarqube.ws.client.ce;
 import com.google.common.collect.ImmutableList;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.ServiceTester;
@@ -56,7 +57,7 @@ public class CeServiceTest {
   CeService underTest = serviceTester.getInstanceUnderTest();
 
   @Test
-  public void search() {
+  public void activity() {
     ActivityWsRequest request = new ActivityWsRequest()
       .setComponentId(VALUE_COMPONENT_ID)
       .setComponentQuery(VALUE_COMPONENT_QUERY)
@@ -86,5 +87,12 @@ public class CeServiceTest {
       .hasParam("p", 1)
       .hasParam("ps", 1)
       .andNoOtherParam();
+  }
+
+  @Test
+  public void task_types() {
+    underTest.taskTypes();
+
+    assertThat(serviceTester.getGetParser()).isSameAs(WsCe.TaskTypesWsResponse.parser());
   }
 }

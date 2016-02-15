@@ -54,6 +54,11 @@ message ProjectResponse {
   optional Task current = 2;
 }
 
+// GET api/ce/task_types
+message TaskTypesWsResponse {
+  repeated string taskTypes = 1;
+}
+
 message Task {
   optional string id = 1;
   optional string type = 2;
