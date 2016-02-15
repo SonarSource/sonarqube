@@ -63,4 +63,12 @@ public class CeWsTest {
     WsCe.Task firstTask = response.getTasks(0);
     assertThat(firstTask.getId()).isNotEmpty();
   }
+
+  @Test
+  public void task_types() {
+    WsCe.TaskTypesWsResponse response = wsClient.ce().taskTypes();
+
+    assertThat(response).isNotNull();
+    assertThat(response.getTaskTypesCount()).isGreaterThan(0);
+  }
 }
