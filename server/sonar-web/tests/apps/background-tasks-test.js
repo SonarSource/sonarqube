@@ -42,7 +42,7 @@ describe('Background Tasks', function () {
     it('should not render search form', () => {
       let component = TestUtils.renderIntoDocument(
           <Search
-              options={{ component: { id: 'ABCD' } }}
+              component={{ id: 'ABCD' }}
               types={[]}
               date={{}}/>
           ),
