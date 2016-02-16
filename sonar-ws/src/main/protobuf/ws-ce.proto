@@ -37,11 +37,6 @@ message TaskResponse {
   optional Task task = 1;
 }
 
-// GET api/ce/queue
-message QueueResponse {
-  repeated Task tasks = 1;
-}
-
 // GET api/ce/activity
 message ActivityResponse {
   optional sonarqube.ws.commons.Paging paging = 1;
