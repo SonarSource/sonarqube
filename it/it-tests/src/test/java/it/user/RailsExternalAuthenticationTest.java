@@ -31,6 +31,7 @@ import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.Host;
 import org.sonar.wsclient.Sonar;
@@ -42,6 +43,7 @@ import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.UserPropertyCreateQuery;
 import org.sonar.wsclient.services.UserPropertyQuery;
 import org.sonar.wsclient.user.UserParameters;
+import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,6 +56,7 @@ import static util.ItUtils.setServerProperty;
  *
  * It starts its own server as it's using a different authentication system
  */
+@Category(QaOnly.class)
 public class RailsExternalAuthenticationTest {
 
   @Rule

@@ -27,12 +27,15 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
+import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.newAdminWsClient;
 
+@Category(QaOnly.class)
 public class MyAccountPageTest {
 
   @ClassRule

@@ -29,12 +29,15 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Category(QaOnly.class)
 public class ForceAuthenticationTest {
 
   @ClassRule

@@ -28,10 +28,12 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,6 +48,7 @@ public class MavenTest {
   }
 
   @Test
+  @Category(QaOnly.class)
   public void shouldSupportJarWithoutSources() {
     MavenBuild build = MavenBuild.create(ItUtils.projectPom("maven/project-with-module-without-sources"))
       .setCleanSonarGoals();
@@ -63,6 +66,7 @@ public class MavenTest {
    * See SONAR-594
    */
   @Test
+  @Category(QaOnly.class)
   public void shouldSupportJeeProjects() {
     MavenBuild build = MavenBuild.create(ItUtils.projectPom("maven/jee"))
       .setGoals("clean install", "sonar:sonar");
@@ -79,6 +83,7 @@ public class MavenTest {
    * See SONAR-222
    */
   @Test
+  @Category(QaOnly.class)
   public void shouldSupportMavenExtensions() {
     MavenBuild build = MavenBuild.create(ItUtils.projectPom("maven/maven-extensions"))
       .setCleanSonarGoals();
@@ -154,6 +159,7 @@ public class MavenTest {
    * See SONAR-3843
    */
   @Test
+  @Category(QaOnly.class)
   public void should_support_shade_with_dependency_reduced_pom_with_clean_install_sonar_goals() {
     MavenBuild build = MavenBuild.create(ItUtils.projectPom("maven/shade-with-dependency-reduced-pom"))
       .setProperty("sonar.dynamicAnalysis", "false")
@@ -231,6 +237,7 @@ public class MavenTest {
    * The property sonar.sources has a typo -> fail, like in sonar-runner
    */
   @Test
+  @Category(QaOnly.class)
   public void fail_if_bad_value_of_sonar_sources_property() {
     MavenBuild build = MavenBuild.create(ItUtils.projectPom("maven/maven-bad-sources-property")).setGoals("sonar:sonar");
     BuildResult result = orchestrator.executeBuildQuietly(build);

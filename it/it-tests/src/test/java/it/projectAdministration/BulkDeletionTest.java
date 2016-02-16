@@ -26,10 +26,13 @@ import it.Category1Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 
+@Category(QaOnly.class)
 public class BulkDeletionTest {
 
   @ClassRule

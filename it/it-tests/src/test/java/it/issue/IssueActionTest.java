@@ -24,6 +24,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.ActionPlan;
 import org.sonar.wsclient.issue.ActionPlanClient;
@@ -34,12 +35,14 @@ import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.issue.NewActionPlan;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.toDate;
 import static util.ItUtils.verifyHttpException;
 
+@Category(QaOnly.class)
 public class IssueActionTest extends AbstractIssueTest {
 
   @Rule

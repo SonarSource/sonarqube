@@ -28,11 +28,13 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueChange;
 import org.sonar.wsclient.issue.IssueChangeDiff;
 import org.sonar.wsclient.issue.IssueClient;
 import org.sonar.wsclient.issue.IssueQuery;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
@@ -40,6 +42,7 @@ import static util.ItUtils.projectDir;
 /**
  * SONAR-4834
  */
+@Category(QaOnly.class)
 public class TechnicalDebtInIssueChangelogTest {
 
   @ClassRule

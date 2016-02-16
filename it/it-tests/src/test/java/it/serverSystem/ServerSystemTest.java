@@ -37,14 +37,17 @@ import org.json.simple.JSONValue;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
 import util.ItUtils;
+import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+@Category(QaOnly.class)
 public class ServerSystemTest {
 
   @ClassRule
