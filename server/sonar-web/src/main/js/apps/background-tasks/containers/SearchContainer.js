@@ -30,7 +30,8 @@ function mapStateToProps (state) {
     date: state.date,
     query: state.query,
     taskType: state.taskType,
-    types: state.types
+    types: state.types,
+    component: state.component
   };
 }
 

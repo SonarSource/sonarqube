@@ -53,6 +53,7 @@ export default function (state = initialState, action) {
     case INIT:
       return {
         ...state,
+        component: action.component,
         types: action.types
       };
     case REQUEST_TASKS:

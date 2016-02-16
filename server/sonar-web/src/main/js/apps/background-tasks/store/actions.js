@@ -33,9 +33,10 @@ export const CANCEL_ALL_PENDING = 'CANCEL_ALL_PENDING';
 export const CANCEL_TASK = 'CANCEL_TASK';
 export const FINISH_CANCEL_TASK = 'FINISH_CANCEL_TASK';
 
-export function init (types) {
+export function init (component, types) {
   return {
     type: INIT,
+    component,
     types
   };
 }
@@ -138,9 +139,15 @@ function getInProgressDuration (tasks) {
 }
 
 function fetchTasks (filters) {
-  return dispatch => {
+  return (dispatch, getState) => {
+    const { component } = getState();
     const parameters = mapFiltersToParameters(filters);
+
     parameters.ps = PAGE_SIZE;
+
+    if (component) {
+      parameters.componentId = component.id;
+    }
 
     dispatch(requestTasks(filters));
 
@@ -200,10 +207,10 @@ export function cancelTask (task) {
   };
 }
 
-export function initApp () {
+export function initApp (component) {
   return dispatch => {
     getTypes().then(types => {
-      dispatch(init(types));
+      dispatch(init(component, types));
       dispatch(filterTasks());
     });
   };

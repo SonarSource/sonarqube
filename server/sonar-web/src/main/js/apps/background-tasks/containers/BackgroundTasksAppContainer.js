@@ -28,7 +28,7 @@ function mapStateToProps () {
 
 function mapDispatchToProps (dispatch) {
   return {
-    initApp: () => dispatch(initApp())
+    initApp: (component) => dispatch(initApp(component))
   };
 }
 

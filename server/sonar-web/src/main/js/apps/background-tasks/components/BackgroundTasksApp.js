@@ -30,7 +30,7 @@ import ListFooterContainer from '../containers/ListFooterContainer';
 
 export default class BackgroundTasksApp extends Component {
   componentDidMount () {
-    this.props.initApp();
+    this.props.initApp(this.props.options.component);
   }
 
   getComponentFilter () {

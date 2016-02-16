@@ -39,17 +39,23 @@ export default React.createClass({
   },
 
   renderSearchBox() {
-    if (this.props.options && this.props.options.component) {
+    if (this.props.component) {
       // do not render search form on the project-level page
       return null;
     }
     return (
-        <input onChange={this.onSearch}
-               value={this.props.query}
-               ref="searchInput"
-               className="input-large"
-               type="search"
-               placeholder="Search"/>
+        <li>
+          <h6 className="bt-search-form-label">
+            Component
+          </h6>
+
+          <input onChange={this.onSearch}
+                 value={this.props.query}
+                 ref="searchInput"
+                 className="js-search input-large"
+                 type="search"
+                 placeholder="Search"/>
+        </li>
     );
   },
 
@@ -97,12 +103,9 @@ export default React.createClass({
                   value={this.props.date}
                   onChange={this.props.onDateChange}/>
             </li>
-            <li>
-              <h6 className="bt-search-form-label">
-                Component
-              </h6>
-              {this.renderSearchBox()}
-            </li>
+
+            {this.renderSearchBox()}
+
             <li className="bt-search-form-right">
               <button
                   ref="reloadButton"

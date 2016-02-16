@@ -22,7 +22,7 @@ import React from 'react';
 import Task from './Task';
 import { translate } from '../../../helpers/l10n';
 
-export default function Tasks ({ tasks, onCancelTask, onFilterTask }) {
+export default function Tasks ({ tasks, component, onCancelTask, onFilterTask }) {
   return (
       <table className="data zebra zebra-hover background-tasks">
         <thead>
@@ -44,6 +44,7 @@ export default function Tasks ({ tasks, onCancelTask, onFilterTask }) {
                   task={task}
                   index={index}
                   tasks={tasks}
+                  component={component}
                   onCancelTask={onCancelTask}
                   onFilterTask={onFilterTask}/>
           ))}

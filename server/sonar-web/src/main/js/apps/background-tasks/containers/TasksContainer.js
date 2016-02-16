@@ -25,7 +25,8 @@ import { cancelTask, filterTasks } from '../store/actions';
 function mapStateToProps (state) {
   return {
     fetching: state.fetching,
-    tasks: state.tasks
+    tasks: state.tasks,
+    component: state.component
   };
 }
 

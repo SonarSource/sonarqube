@@ -26,21 +26,9 @@ import TaskDate from './TaskDate';
 import TaskExecutionTime from './TaskExecutionTime';
 import TaskCancelButton from './TaskCancelButton';
 import TaskLogsLink from './TaskLogsLink';
-
 import { STATUSES } from './../constants';
 
-
-function renderFilter (task) {
-  // if (this.props.options && this.props.options.component) {
-  //   return null;
-  // }
-  return <td className="thin nowrap">
-    <a onClick={this.handleFilter.bind(this, task)} className="icon-filter icon-half-transparent spacer-left" href="#"
-       title={`Show only "${task.componentName}" tasks`} data-toggle="tooltip"/>
-  </td>;
-}
-
-export default function Task ({ task, index, tasks, onCancelTask, onFilterTask }) {
+export default function Task ({ task, index, tasks, component, onCancelTask, onFilterTask }) {
   function handleFilterTask (task, e) {
     e.preventDefault();
     onFilterTask(task);
@@ -68,12 +56,14 @@ export default function Task ({ task, index, tasks, onCancelTask, onFilterTask }
         </td>
 
         <td className="thin nowrap">
-          <a
-              onClick={handleFilterTask.bind(this, task)}
-              className="icon-filter icon-half-transparent spacer-left"
-              href="#"
-              title={`Show only "${task.componentName}" tasks`}
-              data-toggle="tooltip"/>
+          {!component && (
+              <a
+                  onClick={handleFilterTask.bind(this, task)}
+                  className="icon-filter icon-half-transparent spacer-left"
+                  href="#"
+                  title={`Show only "${task.componentName}" tasks`}
+                  data-toggle="tooltip"/>
+          )}
         </td>
       </tr>
   );
