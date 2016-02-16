@@ -32,6 +32,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -48,23 +49,24 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.client.ce.CeWsParameters;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
 
 public class ActivityActionTest {
 
+  private static final long EXECUTED_AT = System2.INSTANCE.now();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
@@ -72,7 +74,7 @@ public class ActivityActionTest {
 
   CeLogging ceLogging = mock(CeLogging.class);
   TaskFormatter formatter = new TaskFormatter(dbTester.getDbClient(), ceLogging, System2.INSTANCE);
-  ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[]{mock(CeTaskProcessor.class)});
+  ActivityAction underTest = new ActivityAction(userSession, dbTester.getDbClient(), formatter, new CeTaskProcessor[] {mock(CeTaskProcessor.class)});
   WsActionTester ws = new WsActionTester(underTest);
 
   @Before
@@ -82,11 +84,12 @@ public class ActivityActionTest {
 
   @Test
   public void get_all_past_activity() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
     TestResponse wsResponse = ws.newRequest()
+      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000))
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
 
@@ -109,7 +112,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_status() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -126,8 +129,25 @@ public class ActivityActionTest {
   }
 
   @Test
+  public void filter_by_max_executed_at() {
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
+    insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
+
+    TestResponse wsResponse = ws.newRequest()
+      .setParam("status", "FAILED,IN_PROGRESS,SUCCESS")
+      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, "2016-02-15")
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute();
+
+    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
+    assertThat(activityResponse.getTasksCount()).isEqualTo(0);
+  }
+
+  @Test
   public void filter_on_current_activities() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     // T2 is the current activity (the most recent one)
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_1", CeActivityDto.Status.FAILED);
@@ -145,7 +165,7 @@ public class ActivityActionTest {
 
   @Test
   public void paginate_results() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -202,7 +222,7 @@ public class ActivityActionTest {
     componentDb.insertProjectAndSnapshot(newProjectDto().setName("eclipse").setUuid("P3"));
     dbTester.commit();
     componentDb.indexProjects();
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
     insertActivity("T3", "P3", CeActivityDto.Status.SUCCESS);
@@ -239,8 +259,18 @@ public class ActivityActionTest {
   }
 
   @Test
+  public void fail_if_date_is_not_well_formatted() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Date 'ill-formatted-date' cannot be parsed as either a date or date+time");
+
+    ws.newRequest()
+      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, "ill-formatted-date")
+      .execute();
+  }
+
+  @Test
   public void support_json_response() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .execute();
@@ -267,6 +297,7 @@ public class ActivityActionTest {
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(status);
     activityDto.setExecutionTimeMs(500L);
+    activityDto.setExecutedAt(EXECUTED_AT);
     activityDto.setSnapshotId(123_456L);
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();

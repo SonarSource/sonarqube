@@ -27,6 +27,8 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -40,8 +42,8 @@ import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.CeQueueDto;
+import org.sonar.db.ce.CeTaskQuery;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoFunctions;
@@ -55,7 +57,7 @@ import org.sonarqube.ws.WsCe.ActivityResponse;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;
 
 import static java.lang.String.format;
-import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.api.utils.DateUtils.parseDateQuietly;
 import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -163,8 +165,8 @@ public class ActivityAction implements CeWsAction {
     CeTaskQuery query = new CeTaskQuery();
     query.setType(request.getType());
     query.setOnlyCurrents(request.getOnlyCurrents());
-    query.setMinSubmittedAt(dateToLong(parseDateTimeQuietly(request.getMinSubmittedAt())));
-    query.setMaxExecutedAt(dateToLong(parseDateTimeQuietly(request.getMaxExecutedAt())));
+    query.setMinSubmittedAt(parseDateTimeAsLong(request.getMinSubmittedAt()));
+    query.setMaxExecutedAt(parseDateTimeAsLong(request.getMaxExecutedAt()));
 
     List<String> statuses = request.getStatus();
     if (statuses != null && !statuses.isEmpty()) {
@@ -220,6 +222,22 @@ public class ActivityAction implements CeWsAction {
     }
   }
 
+  @CheckForNull
+  private static Long parseDateTimeAsLong(@Nullable String dateAsString) {
+    if (dateAsString == null) {
+      return null;
+    }
+
+    Date date = parseDateTimeQuietly(dateAsString);
+    if (date == null) {
+      date = parseDateQuietly(dateAsString);
+    }
+
+    checkRequest(date != null, "Date '%s' cannot be parsed as either a date or date+time", dateAsString);
+
+    return date.getTime();
+  }
+
   public static boolean isAllowedOnComponentUuid(UserSession userSession, String componentUuid) {
     return userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid);
   }
@@ -256,8 +274,8 @@ public class ActivityAction implements CeWsAction {
       .setComponentQuery(request.param(PARAM_COMPONENT_QUERY))
       .setStatus(request.paramAsStrings(PARAM_STATUS))
       .setType(request.param(PARAM_TYPE))
-      .setMaxExecutedAt(request.param(PARAM_MAX_EXECUTED_AT))
       .setMinSubmittedAt(request.param(PARAM_MIN_SUBMITTED_AT))
+      .setMaxExecutedAt(request.param(PARAM_MAX_EXECUTED_AT))
       .setOnlyCurrents(request.paramAsBoolean(PARAM_ONLY_CURRENTS))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
