@@ -27,6 +27,7 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.client.PostRequest;
@@ -42,11 +43,13 @@ import org.sonarqube.ws.client.permission.RemoveGroupFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
+@Category(QaOnly.class)
 public class PermissionSearchTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;

@@ -27,15 +27,18 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
+import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
+@Category(QaOnly.class)
 public class MeasureFiltersTest {
 
   @ClassRule

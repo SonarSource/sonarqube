@@ -17,29 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it;/*
- * SonarQube, open source software quality management tool.
- * Copyright (C) 2008-2014 SonarSource
- * mailto:contact AT sonarsource DOT com
- *
- * SonarQube is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either
- * version 3 of the License, or (at your option) any later version.
- *
- * SonarQube is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Lesser General Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public License
- * along with this program; if not, write to the Free Software Foundation,
- * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- */
+package it;
 
 import com.sonar.orchestrator.Orchestrator;
 import it.actionPlan.ActionPlanTest;
-import it.actionPlan.ActionPlanUiTest;
 import it.administration.UsersPageTest;
 import it.authorisation.DashboardSharingPermissionTest;
 import it.authorisation.ExecuteAnalysisPermissionTest;
@@ -125,12 +106,10 @@ import static util.ItUtils.xooPlugin;
   TimeMachineTest.class,
   // action plan
   ActionPlanTest.class,
-  ActionPlanUiTest.class,
   // source code
   EncodingTest.class,
   HighlightingTest.class,
   ProjectCodeTest.class
-
 })
 public class Category1Suite {
 

@@ -26,19 +26,21 @@ import it.Category4Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;
 import util.ItUtils;
+import util.QaOnly;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
+@Category(QaOnly.class)
 public class CeWsTest {
   @ClassRule
   public static final Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
-  private static final String FILE_KEY = "sample:src/main/xoo/sample/Sample.xoo";
   WsClient wsClient;
 
   @Before

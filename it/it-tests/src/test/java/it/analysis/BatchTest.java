@@ -27,6 +27,7 @@ import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
 import org.apache.commons.io.FileUtils;
 import org.junit.*;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.wsclient.Sonar;
@@ -39,6 +40,7 @@ import util.ItUtils;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -63,6 +65,7 @@ public class BatchTest {
    * SONAR-3718
    */
   @Test
+  @Category(QaOnly.class)
   public void should_scan_branch_with_forward_slash() {
     scan("shared/xoo-multi-modules-sample");
     scan("shared/xoo-multi-modules-sample", "sonar.branch", "branch/0.x");
@@ -173,6 +176,7 @@ public class BatchTest {
    * SONAR-3116
    */
   @Test
+  @Category(QaOnly.class)
   public void should_not_exclude_root_module() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
@@ -186,6 +190,7 @@ public class BatchTest {
    * SONAR-3024
    */
   @Test
+  @Category(QaOnly.class)
   public void should_support_source_files_with_same_deprecated_key() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.projects.batch:duplicate-source", "exclusions");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.projects.batch:duplicate-source", "xoo", "one-issue-per-line");
@@ -282,6 +287,7 @@ public class BatchTest {
    * SONAR-4211 Test Sonar Runner when server requires authentication
    */
   @Test
+  @Category(QaOnly.class)
   public void sonar_runner_with_secured_server() {
     try {
       orchestrator.getServer().provisionProject("sample", "xoo-sample");
@@ -350,6 +356,7 @@ public class BatchTest {
    * SONAR-4239
    */
   @Test
+  @Category(QaOnly.class)
   public void should_display_project_url_after_analysis() throws IOException {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
@@ -377,6 +384,7 @@ public class BatchTest {
    * SONAR-4188, SONAR-5178, SONAR-5915
    */
   @Test
+  @Category(QaOnly.class)
   public void should_display_explicit_message_when_invalid_project_key_or_branch() {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
@@ -422,6 +430,7 @@ public class BatchTest {
    * SONAR-4751
    */
   @Test
+  @Category(QaOnly.class)
   public void file_extensions_are_case_insensitive() throws Exception {
     orchestrator.getServer().provisionProject("case-sensitive-file-extensions", "Case Sensitive");
     orchestrator.getServer().associateProjectToQualityProfile("case-sensitive-file-extensions", "xoo", "one-issue-per-line");
@@ -436,6 +445,7 @@ public class BatchTest {
    * SONAR-4876
    */
   @Test
+  @Category(QaOnly.class)
   public void custom_module_key() {
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");

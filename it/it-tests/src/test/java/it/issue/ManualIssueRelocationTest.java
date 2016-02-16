@@ -26,13 +26,16 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Ignore;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.NewIssue;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
 
+@Category(QaOnly.class)
 public class ManualIssueRelocationTest extends AbstractIssueTest {
 
   private final static String COMPONENT_KEY = "sample:src/main/xoo/sample/Sample.xoo";

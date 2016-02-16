@@ -17,29 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.ui;
+package util;
 
-import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.selenium.Selenese;
-import it.Category4Suite;
-import org.junit.ClassRule;
-import org.junit.Test;
-import org.junit.experimental.categories.Category;
-import util.QaOnly;
-import util.selenium.SeleneseTest;
-
-@Category(QaOnly.class)
-public class UiTest {
-
-  @ClassRule
-  public static Orchestrator orchestrator = Category4Suite.ORCHESTRATOR;
-
-  @Test
-  public void test_footer() {
-    new SeleneseTest(
-      Selenese.builder().setHtmlTestsInClasspath("ui-footer",
-        "/ui/UiTest/footer.html"
-      ).build()).runOn(orchestrator);
-  }
-
+public interface QaOnly {
 }

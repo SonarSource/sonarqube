@@ -25,9 +25,12 @@ import it.Category4Suite;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import util.QaOnly;
 
 import static util.ItUtils.runProjectAnalysis;
 
+@Category(QaOnly.class)
 public class DashboardTest {
 
   @ClassRule

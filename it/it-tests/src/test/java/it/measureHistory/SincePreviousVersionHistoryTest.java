@@ -31,15 +31,18 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Measure;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
+@Category(QaOnly.class)
 public class SincePreviousVersionHistoryTest {
 
   private static final String PROJECT = "com.sonarsource.it.samples:multi-modules-sample";

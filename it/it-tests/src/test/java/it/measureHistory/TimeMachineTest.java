@@ -29,17 +29,20 @@ import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import org.sonar.wsclient.services.TimeMachine;
 import org.sonar.wsclient.services.TimeMachineCell;
 import org.sonar.wsclient.services.TimeMachineQuery;
 import util.ItUtils;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
+@Category(QaOnly.class)
 public class TimeMachineTest {
 
   private static final String PROJECT = "sample";

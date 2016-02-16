@@ -25,6 +25,7 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.ActionPlan;
 import org.sonar.wsclient.issue.ActionPlanClient;
@@ -35,12 +36,14 @@ import org.sonar.wsclient.issue.NewActionPlan;
 import util.ItUtils;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * SONAR-4421
  */
+@Category(QaOnly.class)
 public class IssueBulkChangeTest extends AbstractIssueTest {
 
   private static final int BULK_EDITED_ISSUE_COUNT = 3;

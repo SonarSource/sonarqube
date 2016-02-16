@@ -28,11 +28,13 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.services.Favourite;
 import org.sonar.wsclient.services.FavouriteCreateQuery;
 import org.sonar.wsclient.services.FavouriteDeleteQuery;
 import org.sonar.wsclient.services.FavouriteQuery;
+import util.QaOnly;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -41,6 +43,7 @@ import static util.ItUtils.projectDir;
 /**
  * TODO This test should not require an analysis, only provisioning the project should be enough
  */
+@Category(QaOnly.class)
 public class FavouriteTest {
 
   @ClassRule

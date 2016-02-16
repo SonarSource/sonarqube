@@ -23,11 +23,13 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueComment;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.issue.NewIssue;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -37,6 +39,7 @@ import static util.ItUtils.verifyHttpException;
 /**
  * SONAR-4304
  */
+@Category(QaOnly.class)
 public class ManualIssueTest extends AbstractIssueTest {
 
   private final static String COMPONENT_KEY = "sample:src/main/xoo/sample/Sample.xoo";

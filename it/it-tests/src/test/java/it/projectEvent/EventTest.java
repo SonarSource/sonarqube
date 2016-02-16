@@ -28,8 +28,10 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Event;
 import org.sonar.wsclient.services.EventQuery;
+import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.hamcrest.Matchers.hasItems;
@@ -37,6 +39,7 @@ import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.assertThat;
 import static util.ItUtils.projectDir;
 
+@Category(QaOnly.class)
 public class EventTest {
 
   @ClassRule

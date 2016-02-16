@@ -26,8 +26,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -36,6 +38,7 @@ import static util.ItUtils.runProjectAnalysis;
 /**
  * SONAR-4397
  */
+@Category(QaOnly.class)
 public class ExecuteAnalysisPermissionTest {
 
   @ClassRule

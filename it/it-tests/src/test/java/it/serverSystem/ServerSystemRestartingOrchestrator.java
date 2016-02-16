@@ -26,10 +26,12 @@ import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
 import util.ItUtils;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -37,6 +39,7 @@ import static org.junit.Assert.fail;
 /**
  * This class start a new orchestrator on each test case
  */
+@Category(QaOnly.class)
 public class ServerSystemRestartingOrchestrator {
 
   Orchestrator orchestrator;

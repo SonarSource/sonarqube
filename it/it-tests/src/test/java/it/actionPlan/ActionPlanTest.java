@@ -27,6 +27,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.issue.ActionPlan;
@@ -48,6 +49,9 @@ import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.toDate;
 import static util.ItUtils.verifyHttpException;
 
+import util.QaOnly;
+
+@Category(QaOnly.class)
 public class ActionPlanTest {
 
   @ClassRule

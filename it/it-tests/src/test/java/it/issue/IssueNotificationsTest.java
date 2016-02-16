@@ -28,6 +28,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueClient;
@@ -36,6 +37,7 @@ import org.sonar.wsclient.issue.Issues;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.NetworkUtils;
+import util.QaOnly;
 import util.selenium.SeleneseTest;
 import util.user.UserRule;
 
@@ -43,6 +45,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
+@Category(QaOnly.class)
 public class IssueNotificationsTest extends AbstractIssueTest {
 
   private final static String PROJECT_KEY = "sample";

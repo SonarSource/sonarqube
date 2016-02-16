@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.qualitygate.NewCondition;
 import org.sonar.wsclient.qualitygate.QualityGate;
@@ -42,12 +43,14 @@ import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.ItUtils;
 import util.NetworkUtils;
+import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
+@Category(QaOnly.class)
 public class QualityGateNotificationTest {
 
   private static long DEFAULT_QUALITY_GATE;

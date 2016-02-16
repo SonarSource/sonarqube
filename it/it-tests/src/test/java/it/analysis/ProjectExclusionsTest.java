@@ -25,13 +25,16 @@ import it.Category3Suite;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
+import util.QaOnly;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 
+@Category(QaOnly.class)
 public class ProjectExclusionsTest {
   @ClassRule
   public static Orchestrator orchestrator = Category3Suite.ORCHESTRATOR;

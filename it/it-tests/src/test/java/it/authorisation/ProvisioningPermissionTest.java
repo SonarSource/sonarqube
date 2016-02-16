@@ -27,6 +27,7 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.base.HttpException;
@@ -37,11 +38,13 @@ import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserWsRequest;
+import util.QaOnly;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.newAdminWsClient;
 
+@Category(QaOnly.class)
 public class ProvisioningPermissionTest {
 
   @Rule

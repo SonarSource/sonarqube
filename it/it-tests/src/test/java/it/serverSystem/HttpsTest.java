@@ -41,8 +41,10 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import util.NetworkUtils;
+import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -50,6 +52,7 @@ import static org.junit.Assert.fail;
 /**
  * This class start a new orchestrator on each test case
  */
+@Category(QaOnly.class)
 public class HttpsTest {
 
   public static final String HTTPS_PROTOCOLS = "https.protocols";

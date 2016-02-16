@@ -30,9 +30,11 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
+import util.QaOnly;
 import util.user.UserRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,6 +44,7 @@ import static util.ItUtils.setServerProperty;
 /**
  * There's only tests specific to OAuth2 in this class
  */
+@Category(QaOnly.class)
 public class OAuth2IdentityProviderTest {
 
   @ClassRule
