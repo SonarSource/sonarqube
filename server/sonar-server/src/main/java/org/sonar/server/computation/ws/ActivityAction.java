@@ -21,8 +21,10 @@
 package org.sonar.server.computation.ws;
 
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import java.util.Collections;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -57,6 +59,8 @@ import org.sonarqube.ws.WsCe.ActivityResponse;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;
 
 import static java.lang.String.format;
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.utils.DateUtils.parseDateQuietly;
 import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
 import static org.sonar.api.utils.Paging.offset;
@@ -107,8 +111,19 @@ public class ActivityAction implements CeWsAction {
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
         "</ul>" +
+        "Must not be set together with %s.<br />" +
+        "Deprecated and replaced by '%s'", PARAM_COMPONENT_ID, Param.TEXT_QUERY))
+      .setExampleValue("Apache")
+      .setDeprecatedSince("5.5");
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription(format("Limit search to: <ul>" +
+        "<li>component names that contain the supplied string</li>" +
+        "<li>component keys that are exactly the same as the supplied string</li>" +
+        "<li>task ids that are exactly the same as the supplied string</li>" +
+        "</ul>" +
         "Must not be set together with %s", PARAM_COMPONENT_ID))
-      .setExampleValue("Apache");
+      .setExampleValue("Apache")
+      .setSince("5.5");
     action.createParam(PARAM_STATUS)
       .setDescription("Comma separated list of task statuses")
       .setPossibleValues(ImmutableList.builder()
@@ -144,6 +159,15 @@ public class ActivityAction implements CeWsAction {
   private ActivityResponse doHandle(ActivityWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
+      // if a task searched by uuid is found all other parameters are ignored
+      Optional<WsCe.Task> taskSearchedById = searchTaskByUuid(dbSession, request);
+      if (taskSearchedById.isPresent()) {
+        return buildResponse(
+          singletonList(taskSearchedById.get()),
+          Collections.<WsCe.Task>emptyList(),
+          Paging.forPageIndex(1).withPageSize(request.getPageSize()).andTotal(1));
+      }
+
       CeTaskQuery query = buildQuery(dbSession, request);
       checkPermissions(query);
       TaskResult queuedTasks = loadQueuedTasks(dbSession, request, query);
@@ -159,6 +183,25 @@ public class ActivityAction implements CeWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private Optional<WsCe.Task> searchTaskByUuid(DbSession dbSession, ActivityWsRequest request) {
+    String textQuery = request.getQuery();
+    if (textQuery == null) {
+      return Optional.absent();
+    }
+
+    Optional<CeQueueDto> queue = dbClient.ceQueueDao().selectByUuid(dbSession, textQuery);
+    if (queue.isPresent()) {
+      return Optional.of(formatter.formatQueue(dbSession, queue.get()));
+    }
+
+    Optional<CeActivityDto> activity = dbClient.ceActivityDao().selectByUuid(dbSession, textQuery);
+    if (activity.isPresent()) {
+      return Optional.of(formatter.formatActivity(dbSession, activity.get()));
+    }
+
+    return Optional.absent();
   }
 
   private CeTaskQuery buildQuery(DbSession dbSession, ActivityWsRequest request) {
@@ -179,7 +222,7 @@ public class ActivityAction implements CeWsAction {
 
   private void loadComponentUuids(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
     String componentUuid = request.getComponentId();
-    String componentQuery = request.getComponentQuery();
+    String componentQuery = request.getQuery();
 
     if (componentUuid != null) {
       query.setComponentUuid(componentUuid);
@@ -271,7 +314,7 @@ public class ActivityAction implements CeWsAction {
   private static ActivityWsRequest toSearchWsRequest(Request request) {
     ActivityWsRequest activityWsRequest = new ActivityWsRequest()
       .setComponentId(request.param(PARAM_COMPONENT_ID))
-      .setComponentQuery(request.param(PARAM_COMPONENT_QUERY))
+      .setQuery(defaultString(request.param(Param.TEXT_QUERY), request.param(PARAM_COMPONENT_QUERY)))
       .setStatus(request.paramAsStrings(PARAM_STATUS))
       .setType(request.param(PARAM_TYPE))
       .setMinSubmittedAt(request.param(PARAM_MIN_SUBMITTED_AT))
@@ -280,7 +323,7 @@ public class ActivityAction implements CeWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
 
-    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getComponentQuery() == null, "%s and %s must not be set at the same time",
+    checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQuery() == null, "%s and %s must not be set at the same time",
       PARAM_COMPONENT_ID, PARAM_COMPONENT_QUERY);
     checkRequest(activityWsRequest.getPageSize() <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_PAGE_SIZE);
 

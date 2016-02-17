@@ -26,7 +26,7 @@ import javax.annotation.Nullable;
 
 public class ActivityWsRequest {
   private String componentId;
-  private String componentQuery;
+  private String query;
   private List<String> status;
   private String type;
   private Boolean onlyCurrents;
@@ -46,12 +46,12 @@ public class ActivityWsRequest {
   }
 
   @CheckForNull
-  public String getComponentQuery() {
-    return componentQuery;
+  public String getQuery() {
+    return query;
   }
 
-  public ActivityWsRequest setComponentQuery(@Nullable String componentQuery) {
-    this.componentQuery = componentQuery;
+  public ActivityWsRequest setQuery(@Nullable String query) {
+    this.query = query;
     return this;
   }
 

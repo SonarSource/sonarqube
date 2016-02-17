@@ -27,7 +27,6 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
@@ -44,7 +43,7 @@ public class CeService extends BaseService {
     return call(
       new GetRequest(path("activity"))
         .setParam(PARAM_COMPONENT_ID, request.getComponentId())
-        .setParam(PARAM_COMPONENT_QUERY, request.getComponentQuery())
+        .setParam("q", request.getQuery())
         .setParam(PARAM_STATUS, inlineMultipleParamValue(request.getStatus()))
         .setParam(PARAM_TYPE, request.getType())
         .setParam(PARAM_MAX_EXECUTED_AT, request.getMaxExecutedAt())

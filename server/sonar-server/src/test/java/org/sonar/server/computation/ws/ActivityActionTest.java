@@ -21,6 +21,7 @@
 package org.sonar.server.computation.ws;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Throwables;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
@@ -33,7 +34,6 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
@@ -44,11 +44,13 @@ import org.sonar.server.computation.log.LogFileRef;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessor;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsCe;
+import org.sonarqube.ws.WsCe.ActivityResponse;
 import org.sonarqube.ws.client.ce.CeWsParameters;
 
 import static java.util.Arrays.asList;
@@ -58,6 +60,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
 
 public class ActivityActionTest {
@@ -88,15 +91,10 @@ public class ActivityActionTest {
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000))
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, formatDateTime(EXECUTED_AT + 2_000)));
 
-    // verify the protobuf response
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getTasksCount()).isEqualTo(2);
-
     // chronological order, from newest to oldest
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
@@ -117,12 +115,9 @@ public class ActivityActionTest {
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setParam("status", "FAILED,IN_PROGRESS")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam("status", "FAILED,IN_PROGRESS"));
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getTasksCount()).isEqualTo(2);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T3");
     assertThat(activityResponse.getTasks(1).getId()).isEqualTo("T2");
@@ -135,13 +130,10 @@ public class ActivityActionTest {
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
-    TestResponse wsResponse = ws.newRequest()
+    ActivityResponse activityResponse = call(ws.newRequest()
       .setParam("status", "FAILED,IN_PROGRESS,SUCCESS")
-      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, "2016-02-15")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, "2016-02-15"));
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getTasksCount()).isEqualTo(0);
   }
 
@@ -153,12 +145,10 @@ public class ActivityActionTest {
     insertActivity("T2", "PROJECT_1", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.PENDING);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setParam("onlyCurrents", "true")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+    ActivityResponse activityResponse = call(
+      ws.newRequest()
+        .setParam("onlyCurrents", "true"));
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getTasksCount()).isEqualTo(1);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
   }
@@ -177,14 +167,11 @@ public class ActivityActionTest {
   }
 
   private void assertPage(int pageIndex, int pageSize, int expectedTotal, List<String> expectedOrderedTaskIds) {
-    TestResponse wsResponse = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    ActivityResponse activityResponse = call(ws.newRequest()
       .setParam(Param.PAGE, Integer.toString(pageIndex))
       .setParam(Param.PAGE_SIZE, Integer.toString(pageSize))
-      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING")
-      .execute();
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getPaging().getPageIndex()).isEqualTo(pageIndex);
     assertThat(activityResponse.getPaging().getPageSize()).isEqualTo(pageSize);
     assertThat(activityResponse.getPaging().getTotal()).isEqualTo(expectedTotal);
@@ -203,12 +190,8 @@ public class ActivityActionTest {
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setParam("componentId", "PROJECT_1")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+    ActivityResponse activityResponse = call(ws.newRequest().setParam("componentId", "PROJECT_1"));
 
-    WsCe.ActivityResponse activityResponse = Protobuf.read(wsResponse.getInputStream(), WsCe.ActivityResponse.parser());
     assertThat(activityResponse.getTasksCount()).isEqualTo(1);
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T1");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.SUCCESS);
@@ -227,13 +210,32 @@ public class ActivityActionTest {
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
     insertActivity("T3", "P3", CeActivityDto.Status.SUCCESS);
 
-    TestResponse wsResponse = ws.newRequest()
-      .setParam("componentQuery", "apac")
-      .setMediaType(MediaTypes.PROTOBUF)
-      .execute();
+    ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 
-    WsCe.ActivityResponse activityResponse = WsCe.ActivityResponse.parseFrom(wsResponse.getInputStream());
     assertThat(activityResponse.getTasksList()).extracting("id").containsOnly("T1", "T2");
+  }
+
+  @Test
+  public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
+    insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
+
+    ActivityResponse result = call(
+      ws.newRequest()
+        .setParam(Param.TEXT_QUERY, "T1")
+        .setParam(PARAM_STATUS, CeQueueDto.Status.PENDING.name()));
+
+    assertThat(result.getTasksCount()).isEqualTo(1);
+    assertThat(result.getTasks(0).getId()).isEqualTo("T1");
+  }
+
+  @Test
+  public void search_task_id_in_activity() {
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+
+    ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
+
+    assertThat(result.getTasksCount()).isEqualTo(1);
+    assertThat(result.getTasks(0).getId()).isEqualTo("T1");
   }
 
   @Test
@@ -302,5 +304,16 @@ public class ActivityActionTest {
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();
     return activityDto;
+  }
+
+  private static ActivityResponse call(TestRequest request) {
+    try {
+      return ActivityResponse.parseFrom(
+        request
+          .setMediaType(MediaTypes.PROTOBUF)
+          .execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 }
