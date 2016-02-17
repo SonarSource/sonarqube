@@ -90,7 +90,7 @@ export default class Stats extends Component {
       return null;
     }
 
-    if (this.props.options && this.props.options.component) {
+    if (this.props.component) {
       return null;
     }
 
