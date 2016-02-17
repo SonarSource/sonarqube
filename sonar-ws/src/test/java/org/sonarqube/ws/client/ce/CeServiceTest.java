@@ -32,7 +32,6 @@ import org.sonarqube.ws.client.WsConnector;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
@@ -41,7 +40,7 @@ import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
 public class CeServiceTest {
   private static final String VALUE_COMPONENT_ID = "component-uuid";
-  private static final String VALUE_COMPONENT_QUERY = "component-query";
+  private static final String VALUE_QUERY = "component-query";
   private static final String VALUE_TASK_STATUS_1 = "task-status";
   private static final String VALUE_TASK_STATUS_2 = "task-status-2";
   private static final String VALUE_TASK_TYPE = "task-type";
@@ -60,7 +59,7 @@ public class CeServiceTest {
   public void activity() {
     ActivityWsRequest request = new ActivityWsRequest()
       .setComponentId(VALUE_COMPONENT_ID)
-      .setComponentQuery(VALUE_COMPONENT_QUERY)
+      .setQuery(VALUE_QUERY)
       .setStatus(ImmutableList.of(VALUE_TASK_STATUS_1, VALUE_TASK_STATUS_2))
       .setType(VALUE_TASK_TYPE)
       .setPage(VALUE_PAGE)
@@ -78,7 +77,7 @@ public class CeServiceTest {
     serviceTester.assertThat(result)
       .hasPath("activity")
       .hasParam(PARAM_COMPONENT_ID, VALUE_COMPONENT_ID)
-      .hasParam(PARAM_COMPONENT_QUERY, VALUE_COMPONENT_QUERY)
+      .hasParam("q", VALUE_QUERY)
       .hasParam(PARAM_STATUS, VALUE_TASK_STATUS_1 + "," + VALUE_TASK_STATUS_2)
       .hasParam(PARAM_TYPE, VALUE_TASK_TYPE)
       .hasParam(PARAM_MAX_EXECUTED_AT, VALUE_MAX_EXECUTED_AT)
