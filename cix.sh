@@ -11,6 +11,13 @@ case "$RUN_ACTIVITY" in
     ./run-db-unit-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
     ;;
 
+  run-db-integration-tests-*)
+    DB_ENGINE=`echo $RUN_ACTIVITY | sed "s/run-db-integration-tests-//g" | cut -d \- -f 1`
+    CATEGORY=`echo $RUN_ACTIVITY | sed "s/run-db-integration-tests-//g" | cut -d \- -f 2`
+
+    ./run-integration-tests.sh "${CATEGORY}" "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
+    ;;
+
   run-it-released-plugins)
     ./run-integration-tests.sh "Plugins" "http://infra.internal.sonarsource.com/jenkins/orch-h2.properties"
     ;;
