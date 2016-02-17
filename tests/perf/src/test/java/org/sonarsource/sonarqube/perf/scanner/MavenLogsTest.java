@@ -28,8 +28,8 @@ import static org.fest.assertions.Assertions.assertThat;
 public class MavenLogsTest {
   @Test
   public void testExtractTotalTime() throws Exception {
-    assertThat(MavenLogs.extractTotalTime("  Total time: 6.015s  ")).isEqualTo(6015);
-    assertThat(MavenLogs.extractTotalTime("  Total time: 3:14.025s  ")).isEqualTo(194025);
+    assertThat(MavenLogs.extractTotalTime(" \n  Total time: 6.015s \n ")).isEqualTo(6015);
+    assertThat(MavenLogs.extractTotalTime(" \n  Total time: 3:14.025s\n  ")).isEqualTo(194025);
   }
 
   @Test

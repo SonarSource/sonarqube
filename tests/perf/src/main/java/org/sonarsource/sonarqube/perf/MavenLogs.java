@@ -32,7 +32,7 @@ public class MavenLogs {
    * Total time: 3:14.025s
    */
   public static Long extractTotalTime(String logs) {
-    Pattern pattern = Pattern.compile(".*Total time: (\\d*:)?(\\d+).(\\d+)s.*");
+    Pattern pattern = Pattern.compile("^.*Total time: (\\d*:)?(\\d+).(\\d+)s.*$", Pattern.DOTALL);
     Matcher matcher = pattern.matcher(logs);
     if (matcher.matches()) {
       String minutes = StringUtils.defaultIfBlank(StringUtils.removeEnd(matcher.group(1), ":"), "0");
@@ -41,7 +41,7 @@ public class MavenLogs {
 
       return (Long.parseLong(minutes) * 60000) + (Long.parseLong(seconds) * 1000) + Long.parseLong(millis);
     }
-    return null;
+    throw new IllegalStateException("Maven logs do not contain \"Total time\"");
   }
 
   /**
