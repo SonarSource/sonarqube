@@ -22,7 +22,6 @@ package org.sonar.api.component;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.InputPath;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.issue.Issuable;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Highlightable;
@@ -57,9 +56,7 @@ import org.sonar.api.test.Testable;
  * @see Testable
  * @see TestPlan
  * @since 3.5
- * @deprecated since 5.2. Use appropriate methods on {@link SensorContext}.
  */
-@Deprecated
 public interface ResourcePerspectives {
 
   @CheckForNull
