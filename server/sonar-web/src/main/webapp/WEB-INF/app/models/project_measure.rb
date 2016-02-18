@@ -28,7 +28,6 @@ class ProjectMeasure < ActiveRecord::Base
   belongs_to :snapshot
   belongs_to :rule
   belongs_to :project
-  belongs_to :characteristic
   belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
 
   def metric
@@ -245,8 +244,6 @@ class ProjectMeasure < ActiveRecord::Base
     if rule_measure?
       if rule_id
         "#{metric_key}_rule_#{rule_id}"
-      elsif characteristic_id
-        "#{metric_key}_c_#{characteristic_id}"
       end
     else
       metric_key

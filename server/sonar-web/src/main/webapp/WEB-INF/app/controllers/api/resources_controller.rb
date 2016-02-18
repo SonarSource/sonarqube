@@ -185,7 +185,6 @@ class Api::ResourcesController < Api::ApiController
 
         measures_conditions << 'project_measures.person_id IS NULL'
         add_rule_filters(measures_conditions, measures_values)
-        add_characteristic_filters(measures_conditions, measures_values)
 
         measures=ProjectMeasure.all(:joins => :snapshot,
                                      :select => select_columns_for_measures,
@@ -281,7 +280,7 @@ class Api::ResourcesController < Api::ApiController
   end
 
   def select_columns_for_measures
-    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.text_value,project_measures.characteristic_id,project_measures.measure_data'
+    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.text_value,project_measures.measure_data'
     if params[:includetrends]=='true'
       select_columns+=',project_measures.variation_value_1,project_measures.variation_value_2,project_measures.variation_value_3,project_measures.variation_value_4,project_measures.variation_value_5'
     end
@@ -309,24 +308,6 @@ class Api::ResourcesController < Api::ApiController
       measures_values[:rule_ids]=rule_ids.compact
     end
 
-  end
-
-  def add_characteristic_filters(measures_conditions, measures_values)
-    @characteristics=[]
-    @characteristic_by_id={}
-    if params[:characteristics].present?
-      @characteristics=Characteristic.all(:select => 'characteristics.id,characteristics.kee,characteristics.name',
-                                           :conditions => ['characteristics.kee IN (?)', params[:characteristics].split(',')])
-      if @characteristics.empty?
-        measures_conditions<<'project_measures.characteristic_id=-1'
-      else
-        @characteristics.each { |c| @characteristic_by_id[c.id]=c }
-        measures_conditions<<'project_measures.characteristic_id IN (:characteristics)'
-        measures_values[:characteristics]=@characteristic_by_id.keys
-      end
-    else
-      measures_conditions<<'project_measures.characteristic_id IS NULL'
-    end
   end
 
   def to_json(objects)
@@ -439,11 +420,6 @@ class Api::ResourcesController < Api::ApiController
           json_measure[:rule_key] = rule.key if rule
           json_measure[:rule_name] = rule.name if rule
         end
-        if measure.characteristic_id
-          characteristic=@characteristic_by_id[measure.characteristic_id]
-          json_measure[:ctic_key]=(characteristic ? characteristic.kee : '')
-          json_measure[:ctic_name]=(characteristic ? characteristic.name : '')
-        end
       end
     end
     json
@@ -522,11 +498,6 @@ class Api::ResourcesController < Api::ApiController
               rule = rules_by_id[measure.rule_id]
               xml.rule_key(rule.key) if rule
               xml.rule_name(rule.name) if rule
-            end
-            if measure.characteristic_id
-              characteristic=@characteristic_by_id[measure.characteristic_id]
-              xml.ctic_key(characteristic ? characteristic.kee : '')
-              xml.ctic_name(characteristic ? characteristic.name : '')
             end
           end
         end
