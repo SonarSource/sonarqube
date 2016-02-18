@@ -19,8 +19,8 @@
  */
 import React from 'react';
 import { render } from 'react-dom';
-import { Router, Route, IndexRoute, Redirect } from 'react-router';
-import { createHistory, useBasename } from 'history';
+import { Router, Route, IndexRoute, Redirect, useRouterHistory } from 'react-router';
+import { createHistory } from 'history';
 import { Provider } from 'react-redux';
 
 import configureStore from './store/configureStore';
@@ -35,7 +35,7 @@ import './styles/account.css';
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
 
-  const history = useBasename(createHistory)({
+  const history = useRouterHistory(createHistory)({
     basename: window.baseUrl + '/account'
   });
 
