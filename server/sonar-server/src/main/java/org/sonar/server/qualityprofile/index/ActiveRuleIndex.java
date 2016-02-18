@@ -21,6 +21,11 @@ package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Multimap;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -36,18 +41,12 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.BaseIndex;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.SearchClient;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, ActiveRuleKey> {
 
@@ -139,7 +138,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.boolFilter()
         .must(FilterBuilders.termFilter(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), key))
         .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
-          FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
+          FilterBuilders.termFilter(RuleIndexDefinition.FIELD_STATUS, RuleStatus.REMOVED.name())))))
       .setRouting(key);
 
     SearchResponse response = request.get();
@@ -154,14 +153,14 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
     return countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY,
       FilterBuilders.hasParentFilter(IndexDefinition.RULE.getIndexType(),
         FilterBuilders.notFilter(
-          FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), "REMOVED")))).get(key);
+          FilterBuilders.termFilter(RuleIndexDefinition.FIELD_STATUS, "REMOVED")))).get(key);
   }
 
   public Map<String, Long> countAllByQualityProfileKey() {
     return countByField(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY,
       FilterBuilders.hasParentFilter(IndexDefinition.RULE.getIndexType(),
         FilterBuilders.notFilter(
-          FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), "REMOVED"))));
+          FilterBuilders.termFilter(RuleIndexDefinition.FIELD_STATUS, "REMOVED"))));
   }
 
   public Multimap<String, FacetValue> getStatsByProfileKey(String key) {
@@ -174,7 +173,7 @@ public class ActiveRuleIndex extends BaseIndex<ActiveRule, ActiveRuleDto, Active
         QueryBuilders.termsQuery(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), keys),
         FilterBuilders.boolFilter()
           .mustNot(FilterBuilders.hasParentFilter(this.getParentType(),
-            FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(), RuleStatus.REMOVED.name())))))
+            FilterBuilders.termFilter(RuleIndexDefinition.FIELD_STATUS, RuleStatus.REMOVED.name())))))
       .addAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field())
         .field(ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field()).size(0)
         .subAggregation(AggregationBuilders.terms(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field())

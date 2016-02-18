@@ -54,7 +54,7 @@ public class NewIndex {
       // defaults
       attributes.put("dynamic", false);
       attributes.put("_all", ImmutableSortedMap.of("enabled", false));
-
+      attributes.put("_source", ImmutableSortedMap.of("enabled", true));
       attributes.put("properties", properties);
     }
 
@@ -75,6 +75,11 @@ public class NewIndex {
      */
     public NewIndexType setProperty(String key, Object value) {
       properties.put(key, value);
+      return this;
+    }
+
+    public NewIndexType setEnableSource(boolean enableSource) {
+      attributes.put("_source", ImmutableSortedMap.of("enabled", enableSource));
       return this;
     }
 
@@ -250,7 +255,13 @@ public class NewIndex {
     public void build() {
       validate();
       Map<String, Object> hash = new TreeMap<>();
-      if (!subFields.isEmpty()) {
+      if (subFields.isEmpty()) {
+        hash.putAll(ImmutableMap.of(
+          "type", "string",
+          "index", disableSearch ? "no" : "not_analyzed",
+          "omit_norms", "true",
+          "doc_values", docValues));
+      } else {
         hash.put("type", "multi_field");
         Map<String, Object> multiFields = new TreeMap<>(subFields);
         multiFields.put(fieldName, ImmutableMap.of(
@@ -259,12 +270,6 @@ public class NewIndex {
           "omit_norms", "true",
           "doc_values", docValues));
         hash.put("fields", multiFields);
-      } else {
-        hash.putAll(ImmutableMap.of(
-          "type", "string",
-          "index", disableSearch ? "no" : "not_analyzed",
-          "omit_norms", "true",
-          "doc_values", docValues));
       }
 
       indexType.setProperty(fieldName, hash);
