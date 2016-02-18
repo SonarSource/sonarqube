@@ -71,6 +71,20 @@ describe('Source Viewer', function () {
           result = helper(code, []);
       expect(result).to.equal('<span class="j">#include &lt;stdio.h&gt;</span>');
     });
+
+    // TODO SONAR-7365
+    it.skip('should parse syntax and usage highlighting', function () {
+      var code = '<span class="k"><span class="sym-3 sym">this</span></span>',
+          result = helper(code, []);
+      expect(result).to.equal(code);
+    });
+
+    // TODO SONAR-7365
+    it.skip('should parse nested tags', function () {
+      var code = '<span class="k"><span class="sym-3 sym">this</span> is</span>',
+          result = helper(code, []);
+      expect(result).to.equal(code);
+    });
   });
 });
 
