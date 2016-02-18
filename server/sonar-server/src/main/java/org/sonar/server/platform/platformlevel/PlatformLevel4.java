@@ -89,7 +89,6 @@ import org.sonar.server.dashboard.widget.MeasureFilterListWidget;
 import org.sonar.server.dashboard.widget.ProjectFileCloudWidget;
 import org.sonar.server.dashboard.widget.ProjectIssueFilterWidget;
 import org.sonar.server.dashboard.widget.SizeWidget;
-import org.sonar.server.dashboard.widget.TechnicalDebtPyramidWidget;
 import org.sonar.server.dashboard.widget.TimeMachineWidget;
 import org.sonar.server.dashboard.widget.TimelineWidget;
 import org.sonar.server.dashboard.widget.TreemapWidget;
@@ -369,7 +368,6 @@ public class PlatformLevel4 extends PlatformLevel {
       WelcomeWidget.class,
       DocumentationCommentsWidget.class,
       DuplicationsWidget.class,
-      TechnicalDebtPyramidWidget.class,
       MeasureFilterAsPieChartWidget.class,
       MeasureFilterAsCloudWidget.class,
       MeasureFilterAsHistogramWidget.class,
