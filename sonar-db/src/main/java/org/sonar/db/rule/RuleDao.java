@@ -29,6 +29,7 @@ import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {
@@ -70,12 +71,20 @@ public class RuleDao implements Dao {
     mapper(session).selectEnabledAndNonManual(resultHandler);
   }
 
+  public List<RuleDto> selectByNonManual(DbSession session) {
+    return mapper(session).selectNonManual();
+  }
+
   public List<RuleDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
   }
 
   public void insert(DbSession session, RuleDto dto) {
     mapper(session).insert(dto);
+  }
+
+  public void update(DbSession session, RuleDto dto) {
+    mapper(session).update(dto);
   }
 
   private RuleMapper mapper(DbSession session) {
@@ -93,6 +102,32 @@ public class RuleDao implements Dao {
     public List<RuleDto> apply(@Nonnull List<RuleKey> partitionOfKeys) {
       return mapper.selectByKeys(partitionOfKeys);
     }
+  }
+
+  /**
+   * RuleParams
+   */
+
+  public void insertRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+    checkNotNull(rule.getId(), "Rule id must be set");
+    param.setRuleId(rule.getId());
+    mapper(session).insertParameter(param);
+  }
+
+  public RuleParamDto updateRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+    checkNotNull(rule.getId(), "Rule id must be set");
+    checkNotNull(param.getId(), "Rule parameter is not yet persisted must be set");
+    param.setRuleId(rule.getId());
+    mapper(session).updateParameter(param);
+    return param;
+  }
+
+  public void deleteRuleParam(DbSession session, int ruleParameterId) {
+    mapper(session).deleteParameter(ruleParameterId);
+  }
+
+  public List<RuleParamDto> selectRuleParamsByRuleKey(DbSession session, RuleKey key) {
+    return mapper(session).selectParamsByRuleKey(key);
   }
 
 }

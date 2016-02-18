@@ -27,7 +27,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Ignore;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
@@ -35,7 +34,6 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.tester.UserSessionRule;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
@@ -55,9 +53,6 @@ public class RuleIndex2Test {
 
   @ClassRule
   public static EsTester tester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
-
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   RuleIndex2 index;
 
@@ -300,7 +295,7 @@ public class RuleIndex2Test {
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
 
     // null list => no filter
-    query = new RuleQuery().setSeverities(null);
+    query = new RuleQuery().setSeverities();
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
   }
 
@@ -651,7 +646,7 @@ public class RuleIndex2Test {
     // descending
     query = new RuleQuery().setSortField(RuleNormalizer.RuleField.NAME).setAscendingSort(false);
     results = index.search(query, new SearchOptions());
-    assertThat(results.getIds()).containsExactly(RuleKey.of("java", "S003"),RuleKey.of("java", "S001"), RuleKey.of("java", "S002"));
+    assertThat(results.getIds()).containsExactly(RuleKey.of("java", "S003"), RuleKey.of("java", "S001"), RuleKey.of("java", "S002"));
   }
 
   @Test

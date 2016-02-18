@@ -37,6 +37,7 @@ import org.sonar.db.Dto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
+// TODO remove extends Dto
 public class RuleDto extends Dto<RuleKey> {
 
   public static final int DISABLED_CHARACTERISTIC_ID = -1;
@@ -74,6 +75,9 @@ public class RuleDto extends Dto<RuleKey> {
   private String systemTags;
 
   private RuleKey key;
+
+  private long createdAtInMs;
+  private long updatedAtInMs;
 
   @Override
   public RuleKey getKey() {
@@ -374,6 +378,24 @@ public class RuleDto extends Dto<RuleKey> {
 
   public RuleDto setSystemTags(Set<String> tags) {
     this.systemTags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
+    return this;
+  }
+
+  public long getCreatedAtInMs() {
+    return createdAtInMs;
+  }
+
+  public RuleDto setCreatedAtInMs(long createdAt) {
+    this.createdAtInMs = createdAt;
+    return this;
+  }
+
+  public long getUpdatedAtInMs() {
+    return updatedAtInMs;
+  }
+
+  public RuleDto setUpdatedAtInMs(long updatedAt) {
+    this.updatedAtInMs = updatedAt;
     return this;
   }
 

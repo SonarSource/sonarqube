@@ -20,6 +20,8 @@
 package org.sonar.server.rule.db;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
@@ -28,10 +30,6 @@ import org.sonar.db.rule.RuleMapper;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.db.BaseDao;
 import org.sonar.server.search.IndexDefinition;
-
-import javax.annotation.CheckForNull;
-
-import java.util.List;
 
 public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
 
@@ -65,11 +63,7 @@ public class RuleDao extends BaseDao<RuleMapper, RuleDto, RuleKey> {
     throw new UnsupportedOperationException("Rules cannot be deleted");
   }
 
-  /**
-   * @deprecated use keys.
-   */
   @CheckForNull
-  @Deprecated
   public RuleDto selectById(DbSession session, int id) {
     return mapper(session).selectById(id);
   }
