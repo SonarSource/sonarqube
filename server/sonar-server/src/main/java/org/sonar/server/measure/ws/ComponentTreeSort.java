@@ -87,13 +87,12 @@ class ComponentTreeSort {
   }
 
   private static Ordering<ComponentDtoWithSnapshotId> stringOrdering(boolean isAscending, Function<ComponentDtoWithSnapshotId, String> function) {
-    Ordering<String> ordering = Ordering.from(CASE_INSENSITIVE_ORDER)
-      .nullsLast();
+    Ordering<String> ordering = Ordering.from(CASE_INSENSITIVE_ORDER);
     if (!isAscending) {
       ordering = ordering.reverse();
     }
 
-    return ordering.onResultOf(function);
+    return ordering.nullsLast().onResultOf(function);
   }
 
   /**
@@ -129,14 +128,13 @@ class ComponentTreeSort {
 
   private static Ordering<ComponentDtoWithSnapshotId> numericalMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
-    Ordering<Double> ordering = Ordering.natural()
-      .nullsLast();
+    Ordering<Double> ordering = Ordering.natural();
 
     if (!isAscending) {
       ordering = ordering.reverse();
     }
 
-    return ordering.onResultOf(new ComponentDtoWithSnapshotIdToNumericalMeasureValue(metric, measuresByComponentUuidAndMetric));
+    return ordering.nullsLast().onResultOf(new ComponentDtoWithSnapshotIdToNumericalMeasureValue(metric, measuresByComponentUuidAndMetric));
   }
 
   private static class ComponentDtoWithSnapshotIdToNumericalMeasureValue implements Function<ComponentDtoWithSnapshotId, Double> {
