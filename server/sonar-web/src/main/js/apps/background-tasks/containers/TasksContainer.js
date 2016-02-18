@@ -21,6 +21,7 @@ import { connect } from 'react-redux';
 
 import Tasks from '../components/Tasks';
 import { cancelTask, filterTasks } from '../store/actions';
+import { DEFAULT_FILTERS } from '../constants';
 
 function mapStateToProps (state) {
   return {
@@ -33,7 +34,7 @@ function mapStateToProps (state) {
 function mapDispatchToProps (dispatch) {
   return {
     onCancelTask: (task) => dispatch(cancelTask(task)),
-    onFilterTask: (task) => dispatch(filterTasks({ query: task.componentKey }))
+    onFilterTask: (task) => dispatch(filterTasks(Object.assign({}, DEFAULT_FILTERS, { query: task.componentKey })))
   };
 }
 
