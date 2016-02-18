@@ -102,9 +102,8 @@ public class CoveragePublisher implements ReportPublisherStep {
   }
 
   void applyLineMeasure(String inputFileKey, int lineCount, String metricKey, Map<Integer, Coverage.Builder> coveragePerLine, MeasureOperation op) {
-    Iterable<Measure> measures = measureCache.byMetric(inputFileKey, metricKey);
-    if (measures.iterator().hasNext()) {
-      Measure measure = measures.iterator().next();
+    Measure measure = measureCache.byMetric(inputFileKey, metricKey);
+    if (measure != null) {
       Map<Integer, String> lineMeasures = KeyValueFormat.parseIntString((String) measure.value());
       for (Map.Entry<Integer, String> lineMeasure : lineMeasures.entrySet()) {
         int lineIdx = lineMeasure.getKey();

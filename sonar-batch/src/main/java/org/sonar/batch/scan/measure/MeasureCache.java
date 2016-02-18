@@ -20,6 +20,7 @@
 package org.sonar.batch.scan.measure;
 
 import com.google.common.base.Preconditions;
+import javax.annotation.CheckForNull;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.Measure;
@@ -53,38 +54,27 @@ public class MeasureCache {
     return cache.values(r.getEffectiveKey());
   }
 
-  public Iterable<Measure> byMetric(Resource r, String metricKey) {
+  @CheckForNull
+  public Measure byMetric(Resource r, String metricKey) {
     return byMetric(r.getEffectiveKey(), metricKey);
   }
 
-  public Iterable<Measure> byMetric(String resourceKey, String metricKey) {
-    return cache.values(resourceKey, metricKey);
+  @CheckForNull
+  public Measure byMetric(String resourceKey, String metricKey) {
+    return cache.get(resourceKey, metricKey);
   }
 
   public MeasureCache put(Resource resource, Measure measure) {
     Preconditions.checkNotNull(resource.getEffectiveKey());
     Preconditions.checkNotNull(measure.getMetricKey());
-    cache.put(resource.getEffectiveKey(), measure.getMetricKey(), computeMeasureKey(measure), measure);
+    cache.put(resource.getEffectiveKey(), measure.getMetricKey(), measure);
     return this;
   }
 
   public boolean contains(Resource resource, Measure measure) {
     Preconditions.checkNotNull(resource.getEffectiveKey());
     Preconditions.checkNotNull(measure.getMetricKey());
-    return cache.containsKey(resource.getEffectiveKey(), measure.getMetricKey(), computeMeasureKey(measure));
-  }
-
-  private static String computeMeasureKey(Measure m) {
-    StringBuilder sb = new StringBuilder();
-    if (m.getMetricKey() != null) {
-      sb.append(m.getMetricKey());
-    }
-    sb.append("|");
-    Integer personId = m.getPersonId();
-    if (personId != null) {
-      sb.append(personId);
-    }
-    return sb.toString();
+    return cache.containsKey(resource.getEffectiveKey(), measure.getMetricKey());
   }
 
 }

@@ -151,20 +151,19 @@ public class DefaultIndex extends SonarIndex {
     if (indexedResource == null) {
       return null;
     }
-    Iterable<Measure> unfiltered;
+    Collection<Measure> unfiltered = new ArrayList<>();
     if (filter instanceof MeasuresFilters.MetricFilter) {
       // optimization
-      unfiltered = measureCache.byMetric(indexedResource, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+      Measure byMetric = measureCache.byMetric(indexedResource, ((MeasuresFilters.MetricFilter<M>) filter).filterOnMetricKey());
+      if (byMetric != null) {
+        unfiltered.add(byMetric);
+      }
     } else {
-      unfiltered = measureCache.byResource(indexedResource);
-    }
-    Collection<Measure> all = new ArrayList<>();
-    if (unfiltered != null) {
-      for (Measure measure : unfiltered) {
-        all.add(measure);
+      for (Measure measure : measureCache.byResource(indexedResource)) {
+        unfiltered.add(measure);
       }
     }
-    return filter.filter(all);
+    return filter.filter(unfiltered);
   }
 
   @Override

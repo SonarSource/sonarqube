@@ -20,8 +20,6 @@
 package org.sonar.batch.report;
 
 import java.io.File;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
@@ -62,7 +60,7 @@ public class CoveragePublisherTest {
     resourceCache.add(p, null).setInputComponent(new DefaultInputModule("foo"));
     resourceCache.add(sampleFile, null).setInputComponent(new DefaultInputFile("foo", "src/Foo.php").setLines(5));
     measureCache = mock(MeasureCache.class);
-    when(measureCache.byMetric(anyString(), anyString())).thenReturn(Collections.<Measure>emptyList());
+    when(measureCache.byMetric(anyString(), anyString())).thenReturn(null);
     publisher = new CoveragePublisher(resourceCache, measureCache);
   }
 
@@ -70,22 +68,22 @@ public class CoveragePublisherTest {
   public void publishCoverage() throws Exception {
 
     Measure utLineHits = new Measure<>(CoreMetrics.COVERAGE_LINE_HITS_DATA).setData("2=1;3=1;5=0;6=3");
-    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)).thenReturn(Arrays.asList(utLineHits));
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)).thenReturn(utLineHits);
 
     Measure conditionsByLine = new Measure<>(CoreMetrics.CONDITIONS_BY_LINE).setData("3=4");
-    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.CONDITIONS_BY_LINE_KEY)).thenReturn(Arrays.asList(conditionsByLine));
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.CONDITIONS_BY_LINE_KEY)).thenReturn(conditionsByLine);
 
     Measure coveredConditionsByUts = new Measure<>(CoreMetrics.COVERED_CONDITIONS_BY_LINE).setData("3=2");
-    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY)).thenReturn(Arrays.asList(coveredConditionsByUts));
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY)).thenReturn(coveredConditionsByUts);
 
     Measure itLineHits = new Measure<>(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA).setData("2=0;3=0;5=1");
-    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY)).thenReturn(Arrays.asList(itLineHits));
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY)).thenReturn(itLineHits);
 
     Measure coveredConditionsByIts = new Measure<>(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE).setData("3=1");
-    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY)).thenReturn(Arrays.asList(coveredConditionsByIts));
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY)).thenReturn(coveredConditionsByIts);
 
     Measure overallCoveredConditions = new Measure<>(CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE).setData("3=2");
-    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY)).thenReturn(Arrays.asList(overallCoveredConditions));
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY)).thenReturn(overallCoveredConditions);
 
     File outputDir = temp.newFolder();
     BatchReportWriter writer = new BatchReportWriter(outputDir);
