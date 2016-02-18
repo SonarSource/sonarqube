@@ -21,6 +21,7 @@ import { connect } from 'react-redux';
 
 import Search from '../components/Search';
 import { filterTasks, search } from '../store/actions';
+import { STATUSES, CURRENTS } from '../constants';
 
 function mapStateToProps (state) {
   return {
@@ -35,10 +36,18 @@ function mapStateToProps (state) {
   };
 }
 
+function updateStatusQuery (status) {
+  if (status === STATUSES.PENDING) {
+    return { status, currents: CURRENTS.ALL };
+  } else {
+    return { status };
+  }
+}
+
 function mapDispatchToProps (dispatch) {
   return {
     onRefresh: () => dispatch(filterTasks()),
-    onStatusChange: (status) => dispatch(filterTasks({ status })),
+    onStatusChange: (status) => dispatch(filterTasks(updateStatusQuery(status))),
     onTypeChange: (taskType) => dispatch(filterTasks({ taskType })),
     onCurrentsChange: (currents) => dispatch(filterTasks({ currents })),
     onDateChange: (date) => dispatch(filterTasks({ date })),
