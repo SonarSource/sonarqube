@@ -111,23 +111,47 @@ public class ComponentTreeSortTest {
   }
 
   @Test
-  public void sort_by_numerical_metric_key() {
+  public void sort_by_numerical_metric_key_ascending() {
+    components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, NUM_METRIC_KEY);
 
     List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
-      .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9");
+      .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9", "path-without-measure");
   }
 
   @Test
-  public void sort_by_textual_metric_key() {
+  public void sort_by_numerical_metric_key_descending() {
+    components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
+    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY);
+
+    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("path")
+      .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
+  }
+
+  @Test
+  public void sort_by_textual_metric_key_ascending() {
+    components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, TEXT_METRIC_KEY);
 
     List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
-      .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9");
+      .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9", "path-without-measure");
+  }
+
+  @Test
+  public void sort_by_textual_metric_key_descending() {
+    components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
+    ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, TEXT_METRIC_KEY);
+
+    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("path")
+      .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
   }
 
   @Test
