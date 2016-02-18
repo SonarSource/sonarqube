@@ -76,10 +76,10 @@ public class PurgeTest {
     collector.checkThat("Wrong number of files", count("projects where qualifier in ('FIL')"), equalTo(4));
     collector.checkThat("Wrong number of unit test files", count("projects where qualifier in ('UTS')"), equalTo(0));
 
-    int measuresOnTrk = 47;
-    int measuresOnBrc = 234;
-    int measuresOnDir = 117;
-    int measuresOnFil = 69;
+    int measuresOnTrk = 37;
+    int measuresOnBrc = 174;
+    int measuresOnDir = 109;
+    int measuresOnFil = 61;
 
     // count measures 
     assertMeasuresCountForQualifier("TRK", measuresOnTrk);
@@ -105,8 +105,8 @@ public class PurgeTest {
     // must be a different date, else a single snapshot is kept per day
     scan(PROJECT_SAMPLE_PATH, DateFormatUtils.ISO_DATE_FORMAT.format(today));
 
-    int newMeasuresOnTrk = 53;
-    int newMeasuresOnBrc = 274;
+    int newMeasuresOnTrk = 43;
+    int newMeasuresOnBrc = 214;
     int newMeasuresOnDir = 32;
     int newMeasuresOnFil = 0;
 
@@ -280,7 +280,7 @@ public class PurgeTest {
   }
 
   private void logMeasures(String title, String qualifier) {
-    String sql = "SELECT m.name as metricName, pm.value as value, pm.text_value as textValue, pm.variation_value_1, pm.variation_value_2, pm.variation_value_3, pm.rule_id, pm.characteristic_id "
+    String sql = "SELECT m.name as metricName, pm.value as value, pm.text_value as textValue, pm.variation_value_1, pm.variation_value_2, pm.variation_value_3, pm.rule_id "
       +
       "FROM project_measures pm, snapshots s, metrics m " +
       "WHERE pm.snapshot_id=s.id and pm.metric_id=m.id and s.qualifier='"

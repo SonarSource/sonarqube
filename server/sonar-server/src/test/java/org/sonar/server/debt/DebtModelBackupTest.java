@@ -629,7 +629,7 @@ public class DebtModelBackupTest {
 
     underTest.restoreFromXml("<xml/>");
 
-    verify(ruleOperations).updateRule(ruleCaptor.capture(), eq(compiler), eq("LINEAR"), eq("2h"), isNull(String.class), eq(session));
+    verify(ruleOperations).updateRule(ruleCaptor.capture(), eq("LINEAR"), eq("2h"), isNull(String.class), eq(session));
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
@@ -653,7 +653,7 @@ public class DebtModelBackupTest {
 
     underTest.restoreFromXml("<xml/>");
 
-    verify(ruleOperations).updateRule(ruleCaptor.capture(), isNull(CharacteristicDto.class), isNull(String.class), isNull(String.class), isNull(String.class), eq(session));
+    verify(ruleOperations).updateRule(ruleCaptor.capture(), isNull(String.class), isNull(String.class), isNull(String.class), eq(session));
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
@@ -687,7 +687,7 @@ public class DebtModelBackupTest {
 
     underTest.restoreFromXml("<xml/>", "java");
 
-    verify(ruleOperations).updateRule(ruleCaptor.capture(), eq(compiler), eq("LINEAR"), eq("2h"), isNull(String.class), eq(session));
+    verify(ruleOperations).updateRule(ruleCaptor.capture(), eq("LINEAR"), eq("2h"), isNull(String.class), eq(session));
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
@@ -733,7 +733,7 @@ public class DebtModelBackupTest {
 
     underTest.restoreFromXml("<xml/>", "java");
 
-    verify(ruleOperations).updateRule(ruleCaptor.capture(), isNull(CharacteristicDto.class), isNull(String.class), isNull(String.class), isNull(String.class), eq(session));
+    verify(ruleOperations).updateRule(ruleCaptor.capture(),isNull(String.class), isNull(String.class), isNull(String.class), eq(session));
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
@@ -781,7 +781,7 @@ public class DebtModelBackupTest {
       // .setCreatedAt(oldDate).setUpdatedAt(oldDate)
       ));
 
-    when(ruleOperations.updateRule(any(RuleDto.class), any(CharacteristicDto.class), anyString(), anyString(), anyString(), eq(session))).thenThrow(IllegalArgumentException.class);
+    when(ruleOperations.updateRule(any(RuleDto.class), anyString(), anyString(), anyString(), eq(session))).thenThrow(IllegalArgumentException.class);
 
     assertThat(underTest.restoreFromXml("<xml/>").getErrors()).hasSize(1);
 

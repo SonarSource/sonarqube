@@ -234,7 +234,7 @@ public class DebtModelBackup {
       RuleDebt ruleDebt = ruleDebt(rule.getRepositoryKey(), rule.getRuleKey(), ruleDebts);
       String subCharacteristicKey = ruleDebt != null ? ruleDebt.subCharacteristicKey() : null;
       CharacteristicDto subCharacteristicDto = subCharacteristicKey != null ? characteristicByKey(ruleDebt.subCharacteristicKey(), allCharacteristicDtos, true) : null;
-      ruleOperations.updateRule(rule, subCharacteristicDto,
+      ruleOperations.updateRule(rule,
         ruleDebt != null ? ruleDebt.function() : null,
         ruleDebt != null ? ruleDebt.coefficient() : null,
         ruleDebt != null ? ruleDebt.offset() : null, session);

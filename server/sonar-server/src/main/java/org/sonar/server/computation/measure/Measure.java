@@ -70,8 +70,6 @@ public final class Measure {
   @CheckForNull
   private final Integer ruleId;
   @CheckForNull
-  private final Integer characteristicId;
-  @CheckForNull
   private final Developer developer;
   @CheckForNull
   private final Double value;
@@ -86,12 +84,11 @@ public final class Measure {
   @CheckForNull
   private final MeasureVariations variations;
 
-  private Measure(ValueType valueType, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer,
+  private Measure(ValueType valueType, @Nullable Integer ruleId, @Nullable Developer developer,
     @Nullable Double value, @Nullable String data, @Nullable Level dataLevel,
     @Nullable String description, @Nullable QualityGateStatus qualityGateStatus, @Nullable MeasureVariations variations) {
     this.valueType = valueType;
     this.ruleId = ruleId;
-    this.characteristicId = characteristicId;
     this.developer = developer;
     this.value = value;
     this.data = data;
@@ -110,10 +107,7 @@ public final class Measure {
   }
 
   public static final class NewMeasureBuilder {
-    private static final String RULE_AND_CHARACTERISTIC_ERROR_MSG = "A measure can not be associated to both a Characteristic and a Rule";
-
     private Integer ruleId;
-    private Integer characteristicId;
     private Developer developer;
     private String description;
     private QualityGateStatus qualityGateStatus;
@@ -123,29 +117,9 @@ public final class Measure {
      * Sets the rule this measure is associated to.
      *
      * @throws UnsupportedOperationException if the characteristicId has already been set
-     *
-     * @see #forCharacteristic(int)
      */
     public NewMeasureBuilder forRule(int ruleId) {
-      if (characteristicId != null) {
-        throw new UnsupportedOperationException(RULE_AND_CHARACTERISTIC_ERROR_MSG);
-      }
       this.ruleId = ruleId;
-      return this;
-    }
-
-    /**
-     * Sets the characteristic this measure is associated to.
-     *
-     * @throws UnsupportedOperationException if the ruleId has already been set
-     *
-     * @see #forCharacteristic(int)
-     */
-    public NewMeasureBuilder forCharacteristic(int characteristicId) {
-      if (ruleId != null) {
-        throw new UnsupportedOperationException(RULE_AND_CHARACTERISTIC_ERROR_MSG);
-      }
-      this.characteristicId = characteristicId;
       return this;
     }
 
@@ -179,7 +153,7 @@ public final class Measure {
     }
 
     public Measure create(boolean value, @Nullable String data) {
-      return new Measure(ValueType.BOOLEAN, ruleId, characteristicId, developer, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.BOOLEAN, ruleId, developer, value ? 1.0d : 0.0d, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(boolean value) {
@@ -187,7 +161,7 @@ public final class Measure {
     }
 
     public Measure create(int value, @Nullable String data) {
-      return new Measure(ValueType.INT, ruleId, characteristicId, developer, (double) value, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.INT, ruleId, developer, (double) value, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(int value) {
@@ -195,7 +169,7 @@ public final class Measure {
     }
 
     public Measure create(long value, @Nullable String data) {
-      return new Measure(ValueType.LONG, ruleId, characteristicId, developer, (double) value, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.LONG, ruleId, developer, (double) value, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(long value) {
@@ -205,7 +179,7 @@ public final class Measure {
     public Measure create(double value, int decimalScale, @Nullable String data) {
       checkArgument(!Double.isNaN(value), "NaN is not allowed as a Measure value");
       double scaledValue = scale(value, decimalScale);
-      return new Measure(ValueType.DOUBLE, ruleId, characteristicId, developer, scaledValue, data, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.DOUBLE, ruleId, developer, scaledValue, data, null, description, qualityGateStatus, variations);
     }
 
     public Measure create(double value, int decimalScale) {
@@ -213,15 +187,15 @@ public final class Measure {
     }
 
     public Measure create(String value) {
-      return new Measure(ValueType.STRING, ruleId, characteristicId, developer, null, requireNonNull(value), null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.STRING, ruleId, developer, null, requireNonNull(value), null, description, qualityGateStatus, variations);
     }
 
     public Measure create(Level level) {
-      return new Measure(ValueType.LEVEL, ruleId, characteristicId, developer, null, null, requireNonNull(level), description, qualityGateStatus, variations);
+      return new Measure(ValueType.LEVEL, ruleId, developer, null, null, requireNonNull(level), description, qualityGateStatus, variations);
     }
 
     public Measure createNoValue() {
-      return new Measure(ValueType.NO_VALUE, ruleId, characteristicId, developer, null, null, null, description, qualityGateStatus, variations);
+      return new Measure(ValueType.NO_VALUE, ruleId, developer, null, null, null, description, qualityGateStatus, variations);
     }
 
     private static double scale(double value, int decimalScale) {
@@ -268,7 +242,7 @@ public final class Measure {
     }
 
     public Measure create() {
-      return new Measure(source.valueType, source.ruleId, source.characteristicId, source.developer,
+      return new Measure(source.valueType, source.ruleId, source.developer,
         source.value, source.data, source.dataLevel,
         source.description,
         source.qualityGateStatus == null ? qualityGateStatus : source.qualityGateStatus,
@@ -279,11 +253,6 @@ public final class Measure {
   @CheckForNull
   public Integer getRuleId() {
     return ruleId;
-  }
-
-  @CheckForNull
-  public Integer getCharacteristicId() {
-    return characteristicId;
   }
 
   @CheckForNull
@@ -436,13 +405,12 @@ public final class Measure {
     }
     Measure measure = (Measure) o;
     return Objects.equals(ruleId, measure.ruleId) &&
-      Objects.equals(characteristicId, measure.characteristicId) &&
       Objects.equals(developer, measure.developer);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(ruleId, characteristicId, developer);
+    return Objects.hash(ruleId, developer);
   }
 
   @Override
@@ -450,7 +418,6 @@ public final class Measure {
     return com.google.common.base.Objects.toStringHelper(this)
       .add("valueType", valueType)
       .add("ruleId", ruleId)
-      .add("characteristicId", characteristicId)
       .add("developer", developer)
       .add("value", value)
       .add("data", data)

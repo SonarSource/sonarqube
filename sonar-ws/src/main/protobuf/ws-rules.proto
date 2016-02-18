@@ -86,13 +86,14 @@ message Rule {
   optional string lang = 19;
   optional string langName = 20;
   optional Params params = 21;
-  // debt fields
-  optional string defaultDebtChar = 23;
-  optional string defaultDebtSubChar = 24;
-  optional string debtChar = 25;
-  optional string debtSubChar = 26;
-  optional string debtCharName = 27;
-  optional string debtSubCharName = 28;
+  // debt fields, unsupported since 5.5
+  optional string unusedDefaultDebtChar = 23;
+  optional string unusedDefaultDebtSubChar = 24;
+  optional string unusedDebtChar = 25;
+  optional string unusedDebtSubChar = 26;
+  optional string unusedDebtCharName = 27;
+  optional string unusedDebtSubCharName = 28;
+
   optional string defaultDebtRemFnType = 29;
   optional string defaultDebtRemFnCoeff = 30;
   optional string defaultDebtRemFnOffset = 31;

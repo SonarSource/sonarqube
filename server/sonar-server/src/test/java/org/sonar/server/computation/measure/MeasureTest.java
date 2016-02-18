@@ -107,42 +107,15 @@ public class MeasureTest {
       .toArray(Object[].class);
   }
 
-  @Test
-  public void forRule_throw_UOE_if_characteristicId_is_already_set() {
-    expectedException.expect(UnsupportedOperationException.class);
-    expectedException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
-
-    newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC_ID).forRule(SOME_RULE_ID);
-  }
-
-  @Test
-  public void forCharacteristic_throw_UOE_if_ruleKey_is_already_set() {
-    expectedException.expect(UnsupportedOperationException.class);
-    expectedException.expectMessage("A measure can not be associated to both a Characteristic and a Rule");
-
-    newMeasureBuilder().forRule(SOME_RULE_ID).forCharacteristic(SOME_CHARACTERISTIC_ID);
-  }
 
   @Test
   public void getRuleId_returns_null_when_ruleKey_has_not_been_set() {
     assertThat(newMeasureBuilder().createNoValue().getRuleId()).isNull();
-    assertThat(newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getRuleId()).isNull();
   }
 
   @Test
   public void getRuleId_returns_key_set_in_builder() {
     assertThat(newMeasureBuilder().forRule(SOME_RULE_ID).createNoValue().getRuleId()).isEqualTo(SOME_RULE_ID);
-  }
-
-  @Test
-  public void getCharacteristicId_returns_null_when_ruleKey_has_not_been_set() {
-    assertThat(newMeasureBuilder().createNoValue().getCharacteristicId()).isNull();
-    assertThat(newMeasureBuilder().forRule(SOME_RULE_ID).createNoValue().getCharacteristicId()).isNull();
-  }
-
-  @Test
-  public void getCharacteristicId_returns_id_set_in_builder() {
-    assertThat(newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC_ID).createNoValue().getCharacteristicId()).isEqualTo(SOME_CHARACTERISTIC_ID);
   }
 
   @Test
@@ -158,18 +131,6 @@ public class MeasureTest {
       .createNoValue();
     assertThat(measure.getDeveloper()).isEqualTo(SOME_DEVELOPER);
     assertThat(measure.getRuleId()).isEqualTo(SOME_RULE_ID);
-    assertThat(measure.getCharacteristicId()).isNull();
-  }
-
-  @Test
-  public void create_measure_for_dev_and_characteristic() {
-    Measure measure = newMeasureBuilder()
-      .forDeveloper(SOME_DEVELOPER)
-      .forCharacteristic(SOME_CHARACTERISTIC_ID)
-      .createNoValue();
-    assertThat(measure.getDeveloper()).isEqualTo(SOME_DEVELOPER);
-    assertThat(measure.getCharacteristicId()).isEqualTo(SOME_CHARACTERISTIC_ID);
-    assertThat(measure.getRuleId()).isNull();
   }
 
   @Test(expected = NullPointerException.class)
@@ -347,7 +308,6 @@ public class MeasureTest {
 
     assertThat(newMeasure.getValueType()).isEqualTo(measure.getValueType());
     assertThat(newMeasure.getRuleId()).isEqualTo(measure.getRuleId());
-    assertThat(newMeasure.getCharacteristicId()).isEqualTo(measure.getCharacteristicId());
     assertThat(newMeasure.getDescription()).isEqualTo(measure.getDescription());
     assertThat(newMeasure.hasQualityGateStatus()).isEqualTo(measure.hasQualityGateStatus());
     assertThat(newMeasure.hasVariations()).isEqualTo(measure.hasVariations());

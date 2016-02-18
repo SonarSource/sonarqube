@@ -46,8 +46,6 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.Developer;
 import org.sonar.server.computation.component.DumbDeveloper;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.server.computation.debt.Characteristic;
-import org.sonar.server.computation.debt.CharacteristicImpl;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -83,7 +81,6 @@ public class MapBasedRawMeasureRepositoryTest {
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
 
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
-  private static final Characteristic SOME_CHARACTERISTIC = new CharacteristicImpl(741, "key", null);
   private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
@@ -249,17 +246,6 @@ public class MapBasedRawMeasureRepositoryTest {
   }
 
   @Test
-  public void update_updates_the_stored_value_for_characteristic() {
-    Measure initialMeasure = Measure.newMeasureBuilder().forCharacteristic(952).createNoValue();
-    Measure newMeasure = Measure.updatedMeasureBuilder(initialMeasure).create();
-
-    underTest.add(FILE_COMPONENT, metric1, initialMeasure);
-    underTest.update(FILE_COMPONENT, metric1, newMeasure);
-
-    assertThat(underTest.getRawMeasures(FILE_COMPONENT).get(metric1.getKey()).iterator().next()).isSameAs(newMeasure);
-  }
-
-  @Test
   public void getRawMeasure_throws_NPE_without_reading_batch_report_if_component_arg_is_null() {
     try {
       underTestWithMock.getRawMeasure(null, metric1);
@@ -320,18 +306,6 @@ public class MapBasedRawMeasureRepositoryTest {
   }
 
   @Test
-  public void getRawMeasures_for_metric_returns_characteristic_measure() {
-    when(reportMetricValidator.validate(metric1.getKey())).thenReturn(true);
-    Measure characteristicMeasure = Measure.newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
-
-    underTest.add(FILE_COMPONENT, metric1, characteristicMeasure);
-
-    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
-    assertThat(measures).hasSize(1);
-    assertThat(measures.iterator().next()).isSameAs(characteristicMeasure);
-  }
-
-  @Test
   public void getRawMeasures_for_metric_returns_developer_measure() {
     Measure devMeasure = Measure.newMeasureBuilder().forDeveloper(SOME_DEVELOPER).createNoValue();
 
@@ -355,19 +329,4 @@ public class MapBasedRawMeasureRepositoryTest {
     assertThat(measures).hasSize(1);
     assertThat(measures.iterator().next()).isSameAs(devMeasure);
   }
-
-  @Test
-  public void getRawMeasures_for_metric_returns_developer_with_characteristic_measure() {
-    Measure devMeasure = Measure.newMeasureBuilder()
-      .forDeveloper(SOME_DEVELOPER)
-      .forCharacteristic(SOME_CHARACTERISTIC.getId())
-      .createNoValue();
-
-    underTest.add(FILE_COMPONENT, metric1, devMeasure);
-
-    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
-    assertThat(measures).hasSize(1);
-    assertThat(measures.iterator().next()).isSameAs(devMeasure);
-  }
-
 }

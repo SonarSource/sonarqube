@@ -28,44 +28,11 @@ import org.junit.rules.ExpectedException;
 
 import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.db.rule.RuleDto.DISABLED_CHARACTERISTIC_ID;
 
 public class RuleDtoTest {
 
-  public static final int FAKE_SUB_CHAR_1 = 27;
-  public static final int FAKE_SUB_CHAR_2 = 42;
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void effective_sub_characteristic_id() {
-    RuleDto dto = new RuleDto();
-
-    // characteristic is not set
-    dto.setSubCharacteristicId(null).setDefaultSubCharacteristicId(null);
-    assertThat(dto.getEffectiveSubCharacteristicId()).isNull();
-
-    // default characteristic is set
-    dto.setSubCharacteristicId(null).setDefaultSubCharacteristicId(FAKE_SUB_CHAR_2);
-    assertThat(dto.getEffectiveSubCharacteristicId()).isEqualTo(FAKE_SUB_CHAR_2);
-
-    // default characteristic is set to "none"
-    dto.setSubCharacteristicId(null).setDefaultSubCharacteristicId(DISABLED_CHARACTERISTIC_ID);
-    assertThat(dto.getEffectiveSubCharacteristicId()).isNull();
-
-    // characteristic is overridden
-    dto.setSubCharacteristicId(FAKE_SUB_CHAR_1).setDefaultSubCharacteristicId(FAKE_SUB_CHAR_2);
-    assertThat(dto.getEffectiveSubCharacteristicId()).isEqualTo(FAKE_SUB_CHAR_1);
-
-    // characteristic is set, no defaults
-    dto.setSubCharacteristicId(FAKE_SUB_CHAR_1).setDefaultSubCharacteristicId(null);
-    assertThat(dto.getEffectiveSubCharacteristicId()).isEqualTo(FAKE_SUB_CHAR_1);
-
-    // characteristic is set to "none"
-    dto.setSubCharacteristicId(DISABLED_CHARACTERISTIC_ID).setDefaultSubCharacteristicId(FAKE_SUB_CHAR_2);
-    assertThat(dto.getEffectiveSubCharacteristicId()).isNull();
-  }
 
   @Test
   public void fail_if_key_is_too_long() {

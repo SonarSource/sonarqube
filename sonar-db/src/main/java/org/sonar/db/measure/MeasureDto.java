@@ -45,7 +45,6 @@ public class MeasureDto {
   private Long snapshotId;
   private Integer metricId;
   private Integer ruleId;
-  private Integer characteristicId;
   private Long developerId;
 
   // TODO to delete – not in db
@@ -202,16 +201,6 @@ public class MeasureDto {
   }
 
   @CheckForNull
-  public Integer getCharacteristicId() {
-    return characteristicId;
-  }
-
-  public MeasureDto setCharacteristicId(@Nullable Integer characteristicId) {
-    this.characteristicId = characteristicId;
-    return this;
-  }
-
-  @CheckForNull
   public Long getDeveloperId() {
     return developerId;
   }
@@ -249,7 +238,6 @@ public class MeasureDto {
       .add("snapshotId", snapshotId)
       .add("metricId", metricId)
       .add("ruleId", ruleId)
-      .add("characteristicId", characteristicId)
       .add("developerId", developerId)
       .add("metricKey", metricKey)
       .toString();

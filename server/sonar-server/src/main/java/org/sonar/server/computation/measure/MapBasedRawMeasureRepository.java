@@ -114,9 +114,6 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (measure.getRuleId() != null) {
       return " and rule (id=" + measure.getRuleId() + ")";
     }
-    if (measure.getCharacteristicId() != null) {
-      return " and Characteristic (id=" + measure.getCharacteristicId() + ")";
-    }
     return "";
   }
 
@@ -153,7 +150,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (measuresPerMetric == null) {
       return Optional.absent();
     }
-    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), (Integer) null, null, null)));
+    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), null, null)));
   }
 
   private Optional<Measure> find(Component component, Metric metric, Measure measure) {
@@ -162,7 +159,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (measuresPerMetric == null) {
       return Optional.absent();
     }
-    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId(), measure.getDeveloper())));
+    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getDeveloper())));
   }
 
   public void add(Component component, Metric metric, Measure measure, OverridePolicy overridePolicy) {
@@ -177,7 +174,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
       measuresPerMetric = new HashMap<>();
       measures.put(componentKey, measuresPerMetric);
     }
-    MeasureKey key = new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getCharacteristicId(), measure.getDeveloper());
+    MeasureKey key = new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getDeveloper());
     if (!measuresPerMetric.containsKey(key) || overridePolicy == OverridePolicy.OVERRIDE) {
       measuresPerMetric.put(key, measure);
     }
@@ -200,12 +197,12 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     }
   }
 
-  private enum ToMeasure implements Function<Map.Entry<MeasureKey,Measure>, Measure> {
+  private enum ToMeasure implements Function<Map.Entry<MeasureKey, Measure>, Measure> {
     INSTANCE;
 
     @Nullable
     @Override
-    public Measure apply(@Nonnull Map.Entry<MeasureKey,Measure> input) {
+    public Measure apply(@Nonnull Map.Entry<MeasureKey, Measure> input) {
       return input.getValue();
     }
   }

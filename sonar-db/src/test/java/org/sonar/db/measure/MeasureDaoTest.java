@@ -184,7 +184,6 @@ public class MeasureDaoTest {
     assertThat(fileMeasure1.getValue()).isEqualTo(5d);
     assertThat(fileMeasure1.getMetricId()).isEqualTo(1);
     assertThat(fileMeasure1.getRuleId()).isNull();
-    assertThat(fileMeasure1.getCharacteristicId()).isNull();
     assertThat(fileMeasure1.getPersonId()).isNull();
 
     PastMeasureDto fileMeasure2 = fileMeasures.get(6L);
@@ -221,21 +220,18 @@ public class MeasureDaoTest {
     assertThat(measure1.getValue()).isEqualTo(60d);
     assertThat(measure1.getMetricId()).isEqualTo(1);
     assertThat(measure1.getRuleId()).isNull();
-    assertThat(measure1.getCharacteristicId()).isNull();
     assertThat(measure1.getPersonId()).isNull();
 
     PastMeasureDto measure2 = pastMeasuresById.get(2L);
     assertThat(measure2.getValue()).isEqualTo(20d);
     assertThat(measure2.getMetricId()).isEqualTo(1);
     assertThat(measure2.getRuleId()).isEqualTo(30);
-    assertThat(measure2.getCharacteristicId()).isNull();
     assertThat(measure2.getPersonId()).isNull();
 
     PastMeasureDto measure3 = pastMeasuresById.get(3L);
     assertThat(measure3.getValue()).isEqualTo(40d);
     assertThat(measure3.getMetricId()).isEqualTo(1);
     assertThat(measure3.getRuleId()).isEqualTo(31);
-    assertThat(measure3.getCharacteristicId()).isNull();
     assertThat(measure3.getPersonId()).isNull();
   }
 
@@ -252,21 +248,18 @@ public class MeasureDaoTest {
     assertThat(measure1.getValue()).isEqualTo(60d);
     assertThat(measure1.getMetricId()).isEqualTo(1);
     assertThat(measure1.getRuleId()).isNull();
-    assertThat(measure1.getCharacteristicId()).isNull();
     assertThat(measure1.getPersonId()).isNull();
 
     PastMeasureDto measure2 = pastMeasuresById.get(2L);
     assertThat(measure2.getValue()).isEqualTo(20d);
     assertThat(measure2.getMetricId()).isEqualTo(1);
     assertThat(measure2.getRuleId()).isNull();
-    assertThat(measure2.getCharacteristicId()).isEqualTo(10);
     assertThat(measure2.getPersonId()).isNull();
 
     PastMeasureDto measure3 = pastMeasuresById.get(3L);
     assertThat(measure3.getValue()).isEqualTo(40d);
     assertThat(measure3.getMetricId()).isEqualTo(1);
     assertThat(measure3.getRuleId()).isNull();
-    assertThat(measure3.getCharacteristicId()).isEqualTo(11);
     assertThat(measure3.getPersonId()).isNull();
   }
 
@@ -317,19 +310,6 @@ public class MeasureDaoTest {
     assertThat(measuresById.get(1L).getRuleId()).isNull();
     assertThat(measuresById.get(2L).getRuleId()).isEqualTo(30);
     assertThat(measuresById.get(3L).getRuleId()).isEqualTo(31);
-  }
-
-  @Test
-  public void select_by_snapshot_and_metric_keys_return_measures_with_characteristic_id() throws Exception {
-    db.prepareDbUnit(getClass(), "select_by_snapshot_and_metric_keys_with_characteristic_id.xml");
-
-    List<MeasureDto> results = underTest.selectBySnapshotIdAndMetricKeys(SNAPSHOT_ID, newHashSet("ncloc"), dbSession);
-    assertThat(results).hasSize(3);
-
-    Map<Long, MeasureDto> measuresById = measuresById(results);
-    assertThat(measuresById.get(1L).getCharacteristicId()).isNull();
-    assertThat(measuresById.get(2L).getCharacteristicId()).isEqualTo(10);
-    assertThat(measuresById.get(3L).getCharacteristicId()).isEqualTo(11);
   }
 
   @Test
@@ -516,7 +496,6 @@ public class MeasureDaoTest {
     underTest.insert(dbSession, new MeasureDto()
       .setSnapshotId(2L)
       .setMetricId(3)
-      .setCharacteristicId(4)
       .setDeveloperId(23L)
       .setRuleId(5)
       .setComponentId(6L)

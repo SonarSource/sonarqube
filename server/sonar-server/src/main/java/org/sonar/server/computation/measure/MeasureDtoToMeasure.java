@@ -123,11 +123,6 @@ public class MeasureDtoToMeasure {
     if (ruleId != null) {
       builder.forRule(ruleId);
     }
-    Integer characteristicId = measureDto.getCharacteristicId();
-    if (characteristicId != null) {
-      builder.forCharacteristic(characteristicId);
-    }
-
     return builder;
   }
 

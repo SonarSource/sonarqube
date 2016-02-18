@@ -43,14 +43,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.db.DbSession;
-import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.rule.Rule;
@@ -305,142 +303,6 @@ public class RuleIndexMediumTest {
   }
 
   @Test
-  public void search_by_has_debt_characteristic() {
-    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
-      .setEnabled(true)
-      .setName("char1");
-    db.debtCharacteristicDao().insert(dbSession, char1);
-    dbSession.commit();
-
-    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
-      .setEnabled(true)
-      .setName("char11")
-      .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(dbSession, char11);
-
-    // Rule with default characteristic
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001"))
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null)
-      .setDefaultSubCharacteristicId(char11.getId())
-      .setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h"));
-    // Rule with overridden characteristic
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002"))
-      .setSubCharacteristicId(char11.getId())
-      .setRemediationFunction("LINEAR").setRemediationCoefficient("2h")
-      .setDefaultSubCharacteristicId(null)
-      .setDefaultRemediationFunction(null));
-    // Rule without debt characteristic
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "S001"))
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null).setRemediationCoefficient(null)
-      .setDefaultSubCharacteristicId(null)
-      .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
-    // Rule with disabled debt characteristic
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "S002"))
-      .setSubCharacteristicId(-1)
-      .setRemediationFunction(null).setRemediationCoefficient(null)
-      .setDefaultSubCharacteristicId(null)
-      .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
-    dbSession.commit();
-
-    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(null), new QueryContext(userSessionRule)).getTotal()).isEqualTo(4);
-    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(true), new QueryContext(userSessionRule)).getTotal()).isEqualTo(2);
-    assertThat(index.search(new RuleQuery().setHasDebtCharacteristic(false), new QueryContext(userSessionRule)).getTotal()).isEqualTo(2);
-  }
-
-  @Test
-  public void facet_on_debt_characteristic() {
-    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1")
-      .setEnabled(true)
-      .setName("char1");
-    db.debtCharacteristicDao().insert(dbSession, char1);
-    dbSession.commit();
-
-    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
-      .setEnabled(true)
-      .setName("char11")
-      .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(dbSession, char11);
-
-    // Rule with default characteristic
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001"))
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null)
-      .setDefaultSubCharacteristicId(char11.getId())
-      .setDefaultRemediationFunction("LINEAR").setDefaultRemediationCoefficient("2h"));
-    // Rule with overridden characteristic
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002"))
-      .setSubCharacteristicId(char11.getId())
-      .setRemediationFunction("LINEAR").setRemediationCoefficient("2h")
-      .setDefaultSubCharacteristicId(null)
-      .setDefaultRemediationFunction(null));
-    // Rule without debt characteristic
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "S001"))
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null).setRemediationCoefficient(null)
-      .setDefaultSubCharacteristicId(null)
-      .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
-    // Rule with disabled debt characteristic
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "S002"))
-      .setSubCharacteristicId(-1)
-      .setRemediationFunction(null).setRemediationCoefficient(null)
-      .setDefaultSubCharacteristicId(null)
-      .setDefaultRemediationFunction(null).setDefaultRemediationCoefficient(null));
-    dbSession.commit();
-
-    QueryContext withDebtCharFacet = new QueryContext(userSessionRule).addFacets(Arrays.asList(RuleIndex.FACET_DEBT_CHARACTERISTICS));
-
-    // Facet show results on characs, subcharacs and uncharacterized rules 
-    Result<Rule> result1 = index.search(new RuleQuery(), withDebtCharFacet);
-    assertThat(result1.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
-      new FacetValue("c1", 2L),
-      new FacetValue("c11", 2L),
-      new FacetValue("", 1L),
-      new FacetValue("NONE", 1L)
-    );
-
-    // Facet is sticky when using a charac filter
-    Result<Rule> result2 = index.search(new RuleQuery().setDebtCharacteristics(Arrays.asList("c1")), withDebtCharFacet);
-    assertThat(result2.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
-      new FacetValue("c1", 2L),
-      new FacetValue("c11", 2L),
-      new FacetValue("", 1L),
-      new FacetValue("NONE", 1L)
-    );
-
-    // Facet is sticky when using a sub-charac filter
-    Result<Rule> result3 = index.search(new RuleQuery().setDebtCharacteristics(Arrays.asList("c11")), withDebtCharFacet);
-    assertThat(result3.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
-      new FacetValue("c1", 2L),
-      new FacetValue("c11", 2L),
-      new FacetValue("", 1L),
-      new FacetValue("NONE", 1L)
-    );
-
-    // Facet is sticky when using hasCharac filter
-    Result<Rule> result4 = index.search(new RuleQuery().setHasDebtCharacteristic(false), withDebtCharFacet);
-    assertThat(result4.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
-      new FacetValue("c1", 2L),
-      new FacetValue("c11", 2L),
-      new FacetValue("", 1L),
-      new FacetValue("NONE", 1L)
-    );
-
-    // Facet applies other filters
-    Result<Rule> result5 = index.search(new RuleQuery().setRepositories(Arrays.asList("xoo")), withDebtCharFacet);
-    assertThat(result5.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
-      new FacetValue("", 1L),
-      new FacetValue("NONE", 1L)
-    );
-    Result<Rule> result6 = index.search(new RuleQuery().setRepositories(Arrays.asList("findbugs")), withDebtCharFacet);
-    assertThat(result6.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS)).containsOnly(
-      new FacetValue("c1", 1L),
-      new FacetValue("c11", 1L)
-    );
-  }
-
-  @Test
   public void search_by_any_of_repositories() {
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("findbugs", "S001")));
     dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("pmd", "S002")));
@@ -484,128 +346,6 @@ public class RuleIndexMediumTest {
     // null list => no filter
     query = new RuleQuery().setLanguages(null);
     assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(2);
-  }
-
-  @Test
-  public void search_by_characteristics() {
-    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
-    db.debtCharacteristicDao().insert(dbSession, char1);
-
-    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
-      .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(dbSession, char11);
-    dbSession.commit();
-
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001"))
-      .setSubCharacteristicId(char11.getId()));
-
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("javascript", "S002")));
-
-    dbSession.commit();
-    dbSession.clearCache();
-
-    RuleQuery query;
-    Result<Rule> results;
-
-    // 0. we have 2 rules in index
-    results = index.search(new RuleQuery(), new QueryContext(userSessionRule));
-    assertThat(results.getHits()).hasSize(2);
-
-    // filter by non-subChar
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of("toto"));
-    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).isEmpty();
-
-    // filter by subChar
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey()));
-    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
-
-    // filter by Char
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char1.getKey()));
-    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
-
-    // filter by Char and SubChar
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey(), char1.getKey()));
-    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
-
-    // match by Char
-    query = new RuleQuery().setQueryText(char1.getKey());
-    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
-
-    // match by SubChar
-    query = new RuleQuery().setQueryText(char11.getKey());
-    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
-
-    // match by SubChar & Char
-    query = new RuleQuery().setQueryText(char11.getKey() + " " + char1.getKey());
-    assertThat(index.search(query, new QueryContext(userSessionRule)).getHits()).hasSize(1);
-  }
-
-  @Test
-  public void search_by_characteristics_with_default_and_overridden_char() {
-    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("RELIABILITY");
-    db.debtCharacteristicDao().insert(dbSession, char1);
-
-    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
-      .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(dbSession, char11);
-    dbSession.commit();
-
-    CharacteristicDto char2 = DebtTesting.newCharacteristicDto("TESTABILITY");
-    db.debtCharacteristicDao().insert(dbSession, char2);
-
-    CharacteristicDto char21 = DebtTesting.newCharacteristicDto("UNIT_TESTABILITY")
-      .setParentId(char2.getId());
-    db.debtCharacteristicDao().insert(dbSession, char21);
-    dbSession.commit();
-
-    // Rule with only default sub characteristic -> should be find by char11 and char1
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S001"))
-      .setSubCharacteristicId(char11.getId())
-      .setDefaultSubCharacteristicId(null));
-
-    // Rule with only sub characteristic -> should be find by char11 and char1
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S002"))
-      .setSubCharacteristicId(null)
-      .setDefaultSubCharacteristicId(char11.getId()));
-
-    // Rule with both default sub characteristic and overridden sub characteristic -> should only be find by char21 and char2
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S003"))
-      .setSubCharacteristicId(char21.getId()))
-      .setDefaultSubCharacteristicId(char11.getId());
-
-    // Rule with both default sub characteristic and overridden sub characteristic and with same values -> should be find by char11 and
-    // char1
-    dao.insert(dbSession, RuleTesting.newDto(RuleKey.of("java", "S004"))
-      .setSubCharacteristicId(char11.getId()))
-      .setDefaultSubCharacteristicId(char11.getId());
-
-    dbSession.commit();
-    dbSession.clearCache();
-
-    RuleQuery query;
-    Result<Rule> results;
-
-    // 0. we have 4 rules in index
-    results = index.search(new RuleQuery(), new QueryContext(userSessionRule));
-    assertThat(results.getHits()).hasSize(4);
-
-    // filter by subChar
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S001", "S002", "S004");
-
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char21.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S003");
-
-    // filter by Char
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char1.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S001", "S002", "S004");
-
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char2.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S003");
-
-    // filter by Char and SubChar
-    query = new RuleQuery().setDebtCharacteristics(ImmutableSet.of(char11.getKey(), char1.getKey(), char2.getKey(), char21.getKey()));
-    assertThat(ruleKeys(index.search(query, new QueryContext(userSessionRule)).getHits())).containsOnly("S001", "S002", "S003", "S004");
   }
 
   @Test
@@ -727,7 +467,7 @@ public class RuleIndexMediumTest {
 
     // 4. get all active rules on profile
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto2.getKey()),
+      .setQProfileKey(qualityProfileDto2.getKey()),
       new QueryContext(userSessionRule));
     assertThat(result.getHits()).hasSize(1);
     assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
@@ -764,7 +504,7 @@ public class RuleIndexMediumTest {
       ActiveRuleDto.createFor(qualityProfileDto2, rule3)
         .setSeverity("BLOCKER")
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
-    );
+      );
 
     dbSession.commit();
 
@@ -786,52 +526,52 @@ public class RuleIndexMediumTest {
 
     // 3. get Inherited Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto1.getKey())
-        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+      .setQProfileKey(qualityProfileDto1.getKey())
+      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryContext(userSessionRule)
-    );
+      );
     assertThat(result.getHits()).hasSize(0);
 
     // 4. get Inherited Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto2.getKey())
-        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
+      .setQProfileKey(qualityProfileDto2.getKey())
+      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
       new QueryContext(userSessionRule)
-    );
+      );
     assertThat(result.getHits()).hasSize(2);
 
     // 5. get Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto1.getKey())
-        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+      .setQProfileKey(qualityProfileDto1.getKey())
+      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryContext(userSessionRule)
-    );
+      );
     assertThat(result.getHits()).hasSize(0);
 
     // 6. get Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto2.getKey())
-        .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
+      .setQProfileKey(qualityProfileDto2.getKey())
+      .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryContext(userSessionRule)
-    );
+      );
     assertThat(result.getHits()).hasSize(1);
 
     // 7. get Inherited AND Overridden Rules on profile1
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto1.getKey())
-        .setInheritance(ImmutableSet.of(
-          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+      .setQProfileKey(qualityProfileDto1.getKey())
+      .setInheritance(ImmutableSet.of(
+        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryContext(userSessionRule)
-    );
+      );
     assertThat(result.getHits()).hasSize(0);
 
     // 8. get Inherited AND Overridden Rules on profile2
     result = index.search(new RuleQuery().setActivation(true)
-        .setQProfileKey(qualityProfileDto2.getKey())
-        .setInheritance(ImmutableSet.of(
-          ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
+      .setQProfileKey(qualityProfileDto2.getKey())
+      .setInheritance(ImmutableSet.of(
+        ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
       new QueryContext(userSessionRule)
-    );
+      );
     assertThat(result.getHits()).hasSize(3);
   }
 
@@ -1139,7 +879,8 @@ public class RuleIndexMediumTest {
     assertThat(index.search(new RuleQuery(), new QueryContext(userSessionRule)).getHits()).hasSize(9);
 
     // 1 Facet with no filters at all
-    Map<String, Collection<FacetValue>> facets = index.search(new RuleQuery(), new QueryContext(userSessionRule).addFacets(Arrays.asList("languages", "repositories", "tags"))).getFacets();
+    Map<String, Collection<FacetValue>> facets = index.search(new RuleQuery(), new QueryContext(userSessionRule).addFacets(Arrays.asList("languages", "repositories", "tags")))
+      .getFacets();
     assertThat(facets.keySet()).hasSize(3);
     assertThat(facets.get(RuleIndex.FACET_LANGUAGES)).extracting("key").containsOnly("cpp", "java", "cobol");
     assertThat(facets.get(RuleIndex.FACET_REPOSITORIES)).extracting("key").containsOnly("xoo", "foo");

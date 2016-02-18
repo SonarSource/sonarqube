@@ -26,7 +26,6 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
-import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.rule.RuleStatus;
@@ -39,7 +38,6 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 
@@ -90,21 +88,6 @@ public class RuleUpdater {
       if (RuleStatus.REMOVED == context.rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
-      String subCharacteristicKey = change.getDebtSubCharacteristicKey();
-      if (subCharacteristicKey != null &&
-        !subCharacteristicKey.equals(RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC)) {
-        CharacteristicDto characteristicDto = dbClient.debtCharacteristicDao().selectByKey(subCharacteristicKey, dbSession);
-        if (characteristicDto == null) {
-          throw new IllegalArgumentException("Unknown debt sub-characteristic: " + subCharacteristicKey);
-        }
-        if (!characteristicDto.isEnabled()) {
-          throw new IllegalArgumentException("Debt sub-characteristic is disabled: " + subCharacteristicKey);
-        }
-        if (characteristicDto.getParentId() == null) {
-          throw new IllegalArgumentException("Not a sub-characteristic: " + subCharacteristicKey);
-        }
-        context.newCharacteristic = characteristicDto;
-      }
       return context;
 
     } finally {
@@ -130,9 +113,6 @@ public class RuleUpdater {
     }
     if (update.isChangeTags()) {
       updateTags(update, context);
-    }
-    if (update.isChangeDebtSubCharacteristic()) {
-      updateDebtSubCharacteristic(update, context);
     }
     // order is important -> sub-characteristic must be set
     if (update.isChangeDebtRemediationFunction()) {
@@ -185,44 +165,9 @@ public class RuleUpdater {
     }
   }
 
-  private static void updateDebtSubCharacteristic(RuleUpdate update, Context context) {
-    if (update.getDebtSubCharacteristicKey() == null) {
-      // set to "none"
-      Integer id = context.rule.getDefaultSubCharacteristicId() != null ? RuleDto.DISABLED_CHARACTERISTIC_ID : null;
-      context.rule.setSubCharacteristicId(id);
-      context.rule.setRemediationFunction(null);
-      context.rule.setRemediationCoefficient(null);
-      context.rule.setRemediationOffset(null);
-
-    } else if (StringUtils.equals(update.getDebtSubCharacteristicKey(), RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC)) {
-      // reset to default
-      context.rule.setSubCharacteristicId(null);
-      context.rule.setRemediationFunction(null);
-      context.rule.setRemediationCoefficient(null);
-      context.rule.setRemediationOffset(null);
-
-    } else {
-      if (ObjectUtils.equals(context.newCharacteristic.getId(), context.rule.getDefaultSubCharacteristicId())) {
-        // reset to default -> compatibility with SQALE
-        context.rule.setSubCharacteristicId(null);
-        context.rule.setRemediationFunction(null);
-        context.rule.setRemediationCoefficient(null);
-        context.rule.setRemediationOffset(null);
-      } else {
-        // override default
-        context.rule.setSubCharacteristicId(context.newCharacteristic.getId());
-      }
-    }
-  }
-
   private static void updateDebtRemediationFunction(RuleUpdate update, Context context) {
-    Integer subChar = context.rule.getSubCharacteristicId();
-    boolean noChar =
-      (context.rule.getDefaultSubCharacteristicId() == null && subChar == null) ||
-        (subChar != null && subChar.intValue() == RuleDto.DISABLED_CHARACTERISTIC_ID);
-
     DebtRemediationFunction function = update.getDebtRemediationFunction();
-    if (noChar || function == null) {
+    if (function == null) {
       context.rule.setRemediationFunction(null);
       context.rule.setRemediationCoefficient(null);
       context.rule.setRemediationOffset(null);
@@ -328,7 +273,6 @@ public class RuleUpdater {
    */
   private static class Context {
     private RuleDto rule;
-    private CharacteristicDto newCharacteristic;
   }
 
 }

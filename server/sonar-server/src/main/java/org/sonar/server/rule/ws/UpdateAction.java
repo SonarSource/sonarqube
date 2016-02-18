@@ -87,9 +87,8 @@ public class UpdateAction implements RulesWsAction {
       .setExampleValue("my *note*");
 
     action.createParam(PARAM_DEBT_SUB_CHARACTERISTIC)
-      .setDescription("Optional key of the debt sub-characteristic. Use empty value to unset (-> none) or '" +
-        RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC + "' to revert to default sub-characteristic.")
-      .setExampleValue("FAULT_TOLERANCE");
+      .setDescription("Debt characteristics are no more supported. This parameter is ignored.")
+      .setDeprecatedSince("5.5");
 
     action.createParam(PARAM_DEBT_REMEDIATION_FN_TYPE)
       .setPossibleValues(DebtRemediationFunction.Type.values());
@@ -198,11 +197,7 @@ public class UpdateAction implements RulesWsAction {
   }
 
   private void readDebt(Request request, RuleUpdate update) {
-    String value = request.param(PARAM_DEBT_SUB_CHARACTERISTIC);
-    if (value != null) {
-      update.setDebtSubCharacteristic(value);
-    }
-    value = request.param(PARAM_DEBT_REMEDIATION_FN_TYPE);
+    String value = request.param(PARAM_DEBT_REMEDIATION_FN_TYPE);
     if (value != null) {
       if (StringUtils.isBlank(value)) {
         update.setDebtRemediationFunction(null);

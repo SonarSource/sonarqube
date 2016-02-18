@@ -71,14 +71,13 @@ public class ShowAction implements IssuesWsAction {
   private final IssueActionsWriter actionsWriter;
   private final ActionPlanService actionPlanService;
   private final UserFinder userFinder;
-  private final DebtModelService debtModel;
   private final RuleService ruleService;
   private final I18n i18n;
   private final Durations durations;
   private final UserSession userSession;
 
   public ShowAction(DbClient dbClient, IssueService issueService, IssueChangelogService issueChangelogService, IssueCommentService commentService,
-                    IssueActionsWriter actionsWriter, ActionPlanService actionPlanService, UserFinder userFinder, DebtModelService debtModel, RuleService ruleService,
+                    IssueActionsWriter actionsWriter, ActionPlanService actionPlanService, UserFinder userFinder, RuleService ruleService,
                     I18n i18n, Durations durations, UserSession userSession) {
     this.dbClient = dbClient;
     this.issueService = issueService;
@@ -87,7 +86,6 @@ public class ShowAction implements IssuesWsAction {
     this.actionsWriter = actionsWriter;
     this.actionPlanService = actionPlanService;
     this.userFinder = userFinder;
-    this.debtModel = debtModel;
     this.ruleService = ruleService;
     this.i18n = i18n;
     this.durations = durations;
@@ -165,7 +163,6 @@ public class ShowAction implements IssuesWsAction {
     addComponents(session, issue, json);
     addUserWithLabel(issue.assignee(), "assignee", json);
     addUserWithLabel(issue.reporter(), "reporter", json);
-    addCharacteristics(rule, json);
   }
 
   private void addComponents(DbSession session, Issue issue, JsonWriter json) {
@@ -275,32 +272,6 @@ public class ShowAction implements IssuesWsAction {
   private String formatAgeDate(@Nullable Date date) {
     if (date != null) {
       return i18n.ageFromNow(userSession.locale(), date);
-    }
-    return null;
-  }
-
-  private void addCharacteristics(Rule rule, JsonWriter json) {
-    String subCharacteristicKey = rule.debtCharacteristicKey();
-    DebtCharacteristic subCharacteristic = characteristicByKey(subCharacteristicKey);
-    if (subCharacteristic != null) {
-      json.prop("subCharacteristic", subCharacteristic.name());
-      DebtCharacteristic characteristic = characteristicById(((DefaultDebtCharacteristic) subCharacteristic).parentId());
-      json.prop("characteristic", characteristic != null ? characteristic.name() : null);
-    }
-  }
-
-  @CheckForNull
-  private DebtCharacteristic characteristicById(@Nullable Integer id) {
-    if (id != null) {
-      return debtModel.characteristicById(id);
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private DebtCharacteristic characteristicByKey(@Nullable String key) {
-    if (key != null) {
-      return debtModel.characteristicByKey(key);
     }
     return null;
   }

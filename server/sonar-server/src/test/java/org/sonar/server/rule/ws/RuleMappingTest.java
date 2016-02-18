@@ -22,7 +22,6 @@ package org.sonar.server.rule.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.server.rule.index.RuleNormalizer;
@@ -40,11 +39,10 @@ public class RuleMappingTest {
 
   Languages languages = new Languages();
   MacroInterpreter macroInterpreter = mock(MacroInterpreter.class);
-  DebtModel debtModel = mock(DebtModel.class);
 
   @Test
   public void toQueryOptions_load_all_fields() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam(Param.PAGE, "1");
     request.setParam(Param.PAGE_SIZE, "10");
@@ -55,7 +53,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_load_only_few_simple_fields() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam(Param.PAGE, "1");
     request.setParam(Param.PAGE_SIZE, "10");
@@ -70,7 +68,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_langName_requires_lang() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam(Param.PAGE, "1");
     request.setParam(Param.PAGE_SIZE, "10");
@@ -82,7 +80,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_debt_requires_group_of_fields() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam(Param.PAGE, "1");
     request.setParam(Param.PAGE_SIZE, "10");
@@ -97,7 +95,7 @@ public class RuleMappingTest {
 
   @Test
   public void toQueryOptions_html_note_requires_markdown_note() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam(Param.PAGE, "1");
     request.setParam(Param.PAGE_SIZE, "10");
@@ -108,21 +106,8 @@ public class RuleMappingTest {
   }
 
   @Test
-  public void toQueryOptions_debt_characteristics() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
-    SimpleGetRequest request = new SimpleGetRequest();
-    request.setParam(Param.PAGE, "1");
-    request.setParam(Param.PAGE_SIZE, "10");
-    request.setParam(Param.FIELDS, "debtChar");
-    QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
-
-    assertThat(queryContext.getFieldsToReturn()).containsOnly(
-      RuleNormalizer.RuleField.CHARACTERISTIC.field());
-  }
-
-  @Test
-  public void toQueryOptions_debt_overloaded() {
-    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, debtModel, userSessionRule);
+  public void toQueryOptions_remediation_function_overloaded() {
+    RuleMapping mapping = new RuleMapping(languages, macroInterpreter, userSessionRule);
     SimpleGetRequest request = new SimpleGetRequest();
     request.setParam(Param.PAGE, "1");
     request.setParam(Param.PAGE_SIZE, "10");
@@ -130,8 +115,6 @@ public class RuleMappingTest {
     QueryContext queryContext = mapping.newQueryOptions(SearchOptions.create(request));
 
     assertThat(queryContext.getFieldsToReturn()).containsOnly(
-      RuleNormalizer.RuleField.CHARACTERISTIC_OVERLOADED.field(),
-      RuleNormalizer.RuleField.SUB_CHARACTERISTIC_OVERLOADED.field(),
       RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field());
   }
 }

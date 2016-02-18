@@ -87,7 +87,7 @@ public class DeprecatedRulesDefinitionLoader {
         newRepository = context.createRepository(repository.getKey(), repository.getLanguage());
         newRepository.setName(repository.getName());
       } else {
-        newRepository = (RulesDefinition.NewRepository) context.extendRepository(repository.getKey(), repository.getLanguage());
+        newRepository = context.extendRepository(repository.getKey(), repository.getLanguage());
       }
       for (org.sonar.api.rules.Rule rule : repository.createRules()) {
         RulesDefinition.NewRule newRule = newRepository.createRule(rule.getKey());

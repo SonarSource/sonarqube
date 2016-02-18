@@ -61,12 +61,12 @@ public class TechnicalDebtPurgeTest {
     scanProject("2012-01-01");
     int onCharacteristicsCount = orchestrator.getDatabase().countSql(SQL_COUNT_MEASURES_ON_CHARACTERISTICS);
     int onRequirementsCount = orchestrator.getDatabase().countSql(SQL_COUNT_MEASURES_ON_DEBT_MEASURES_WITH_RULES);
-    assertThat(onCharacteristicsCount).isGreaterThan(0);
     assertThat(onRequirementsCount).isGreaterThan(0);
+    // no more characteristics since 5.5
+    assertThat(onCharacteristicsCount).isEqualTo(0);
 
     scanProject("2012-02-02");
-    // past measures on characteristics are not purged
-    assertThat(orchestrator.getDatabase().countSql(SQL_COUNT_MEASURES_ON_CHARACTERISTICS)).isGreaterThan(onCharacteristicsCount);
+    assertThat(orchestrator.getDatabase().countSql(SQL_COUNT_MEASURES_ON_CHARACTERISTICS)).isEqualTo(0);
 
     // past measures on debt with rules are purged
     assertThat(orchestrator.getDatabase().countSql(SQL_COUNT_MEASURES_ON_DEBT_MEASURES_WITH_RULES)).isEqualTo(onRequirementsCount);

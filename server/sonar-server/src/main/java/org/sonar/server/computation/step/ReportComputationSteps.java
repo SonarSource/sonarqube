@@ -42,7 +42,6 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     BuildComponentTreeStep.class,
     ValidateProjectStep.class,
 
-    LoadDebtModelStep.class,
     LoadQualityProfilesStep.class,
 
     // load project related stuffs

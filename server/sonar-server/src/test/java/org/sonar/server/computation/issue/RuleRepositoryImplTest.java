@@ -224,7 +224,6 @@ public class RuleRepositoryImplTest {
     assertThat(rule.getId()).isEqualTo(AB_RULE.getId());
     assertThat(rule.getKey()).isEqualTo(AB_RULE.getKey());
     assertThat(rule.getRemediationFunction()).isNull();
-    assertThat(rule.getSubCharacteristicId()).isNull();
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.REMOVED);
   }
 

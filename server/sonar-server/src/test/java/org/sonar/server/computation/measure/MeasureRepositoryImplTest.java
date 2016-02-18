@@ -47,8 +47,6 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.server.computation.debt.Characteristic;
-import org.sonar.server.computation.debt.CharacteristicImpl;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
@@ -90,7 +88,6 @@ public class MeasureRepositoryImplTest {
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
   private static final String SOME_DATA = "some data";
   private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
-  private static final Characteristic SOME_CHARACTERISTIC = new CharacteristicImpl(741, "key", null);
 
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
 
@@ -166,15 +163,6 @@ public class MeasureRepositoryImplTest {
   public void getBaseMeasure_does_not_return_measure_with_rule() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, LAST_SNAPSHOT_ID).setRuleId(10));
-    dbSession.commit();
-
-    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metric1)).isAbsent();
-  }
-
-  @Test
-  public void getBaseMeasure_does_not_return_measure_with_characteristic() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, LAST_SNAPSHOT_ID).setCharacteristicId(100));
     dbSession.commit();
 
     assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metric1)).isAbsent();
@@ -326,17 +314,6 @@ public class MeasureRepositoryImplTest {
   }
 
   @Test
-  public void update_updates_the_stored_value_for_characteristic() {
-    Measure initialMeasure = Measure.newMeasureBuilder().forCharacteristic(952).createNoValue();
-    Measure newMeasure = Measure.updatedMeasureBuilder(initialMeasure).create();
-
-    underTest.add(FILE_COMPONENT, metric1, initialMeasure);
-    underTest.update(FILE_COMPONENT, metric1, newMeasure);
-
-    assertThat(underTest.getRawMeasures(FILE_COMPONENT).get(metric1.getKey()).iterator().next()).isSameAs(newMeasure);
-  }
-
-  @Test
   public void getRawMeasure_throws_NPE_without_reading_batch_report_if_component_arg_is_null() {
     try {
       underTestWithMock.getRawMeasure(null, metric1);
@@ -461,18 +438,6 @@ public class MeasureRepositoryImplTest {
   }
 
   @Test
-  public void getRawMeasures_for_measures_returns_characteristic_measure() {
-    when(reportMetricValidator.validate(metric1.getKey())).thenReturn(true);
-    Measure measure = Measure.newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
-
-    underTest.add(FILE_COMPONENT, metric1, measure);
-
-    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
-    assertThat(measures).hasSize(1);
-    assertThat(measures.iterator().next()).isSameAs(measure);
-  }
-
-  @Test
   public void getRawMeasures_returns_added_measures_over_batch_measures() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(true);
@@ -482,7 +447,7 @@ public class MeasureRepositoryImplTest {
 
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
-    Measure addedMeasure2 = Measure.newMeasureBuilder().forCharacteristic(SOME_CHARACTERISTIC.getId()).createNoValue();
+    Measure addedMeasure2 = Measure.newMeasureBuilder().forRule(SOME_RULE.getId()).createNoValue();
     underTest.add(FILE_COMPONENT, metric1, addedMeasure2);
 
     SetMultimap<String, Measure> rawMeasures = underTest.getRawMeasures(FILE_COMPONENT);

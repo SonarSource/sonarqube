@@ -70,8 +70,6 @@ public class SearchActionMediumTest {
   RulesWs ws;
   RuleDao ruleDao;
   DbSession dbSession;
-  int softReliabilityId;
-  int hardReliabilityId;
 
   @Before
   public void setUp() {
@@ -181,40 +179,11 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void search_debt_rules() throws Exception {
-    insertDebtCharacteristics(dbSession);
-
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
-
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null)
-      );
-    dbSession.commit();
-
-    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
-    request.setParam(WebService.Param.FACETS, "debt_characteristics");
-    WsTester.Result result = request.execute();
-    result.assertJson(this.getClass(), "search_debt_rule.json");
-  }
-
-  @Test
   public void search_debt_rules_with_default_and_overridden_debt_values() throws Exception {
-    insertDebtCharacteristics(dbSession);
-
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationCoefficient("1h")
       .setDefaultRemediationOffset("15min")
-
-      .setSubCharacteristicId(softReliabilityId)
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setRemediationCoefficient("2h")
       .setRemediationOffset("25min")
@@ -222,22 +191,17 @@ public class SearchActionMediumTest {
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
+    request.setParam(WebService.Param.FIELDS, "debtRemFn,debtOverloaded,defaultDebtRemFn");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rules_with_default_and_overridden_debt_values.json");
   }
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
-    insertDebtCharacteristics(dbSession);
-
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationCoefficient("1h")
       .setDefaultRemediationOffset("15min")
-
-      .setSubCharacteristicId(softReliabilityId)
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationCoefficient(null)
       .setRemediationOffset("5min")
@@ -245,22 +209,17 @@ public class SearchActionMediumTest {
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
+    request.setParam(WebService.Param.FIELDS, "debtRemFn,debtOverloaded,defaultDebtRemFn");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rules_with_default_linear_offset_and_overridden_constant_debt.json");
   }
 
   @Test
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
-    insertDebtCharacteristics(dbSession);
-
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationCoefficient("1h")
       .setDefaultRemediationOffset("15min")
-
-      .setSubCharacteristicId(softReliabilityId)
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setRemediationCoefficient("1h")
       .setRemediationOffset(null)
@@ -268,67 +227,9 @@ public class SearchActionMediumTest {
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn");
+    request.setParam(WebService.Param.FIELDS, "debtRemFn,debtOverloaded,defaultDebtRemFn");
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "search_debt_rules_with_default_linear_offset_and_overridden_linear_debt.json");
-  }
-
-  @Test
-  public void debt_characteristics_is_sticky_facet() throws Exception {
-    insertDebtCharacteristics(dbSession);
-
-    ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
-
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null)
-      );
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
-
-      .setSubCharacteristicId(softReliabilityId)
-      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setRemediationCoefficient("30min")
-      .setRemediationOffset("5min")
-      );
-    ruleDao.insert(dbSession, RuleTesting.newXooX3()
-      .setDefaultSubCharacteristicId(null)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("2min")
-      .setDefaultRemediationOffset("1min")
-
-      .setSubCharacteristicId(null)
-      .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null)
-      );
-    ruleDao.insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "x4")).setLanguage("xoo")
-      .setDefaultSubCharacteristicId(softReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("2min")
-      .setDefaultRemediationOffset("1min")
-
-      .setSubCharacteristicId(-1)
-      .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null)
-      );
-    dbSession.commit();
-
-    WsTester.Result result = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
-      .setParam(WebService.Param.FIELDS, "debtChar,debtCharName,debtSubChar,debtSubCharName,debtRemFn,debtOverloaded,defaultDebtChar,defaultDebtSubChar,defaultDebtRemFn")
-      .setParam("debt_characteristics", "SOFT_RELIABILITY")
-      .setParam(WebService.Param.FACETS, "debt_characteristics")
-      .execute();
-    result.assertJson(this.getClass(), "search_debt_rules_sticky.json");
   }
 
   @Test
@@ -641,21 +542,6 @@ public class SearchActionMediumTest {
     return ActiveRuleDto.createFor(profile, rule)
       .setInheritance(null)
       .setSeverity("BLOCKER");
-  }
-
-  private void insertDebtCharacteristics(DbSession dbSession) {
-    CharacteristicDto reliability = DebtTesting.newCharacteristicDto("RELIABILITY").setName("Reliability");
-    db.debtCharacteristicDao().insert(dbSession, reliability);
-
-    CharacteristicDto softReliability = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY").setName("Soft Reliability")
-      .setParentId(reliability.getId());
-    db.debtCharacteristicDao().insert(dbSession, softReliability);
-    softReliabilityId = softReliability.getId();
-
-    CharacteristicDto hardReliability = DebtTesting.newCharacteristicDto("HARD_RELIABILITY").setName("Hard Reliability")
-      .setParentId(reliability.getId());
-    db.debtCharacteristicDao().insert(dbSession, hardReliability);
-    hardReliabilityId = hardReliability.getId();
   }
 
 }

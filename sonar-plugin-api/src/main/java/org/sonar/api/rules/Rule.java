@@ -82,15 +82,9 @@ public class Rule {
   private String status = STATUS_READY;
   private String language;
   private Rule template = null;
-  private Integer characteristicId;
-  private Integer defaultCharacteristicId;
   private List<RuleParam> params = new ArrayList<>();
   private Date createdAt;
   private Date updatedAt;
-  private String defaultCharacteristicKey;
-  private String defaultSubCharacteristicKey;
-  private String characteristicKey;
-  private String subCharacteristicKey;
   private String tags;
   private String systemTags;
 
@@ -413,7 +407,7 @@ public class Rule {
   @CheckForNull
   @Deprecated
   public Integer getCharacteristicId() {
-    return characteristicId;
+    return null;
   }
 
   /**
@@ -424,7 +418,6 @@ public class Rule {
    */
   @Deprecated
   public Rule setCharacteristicId(@Nullable Integer characteristicId) {
-    this.characteristicId = characteristicId;
     return this;
   }
 
@@ -437,7 +430,7 @@ public class Rule {
   @CheckForNull
   @Deprecated
   public Integer getDefaultCharacteristicId() {
-    return defaultCharacteristicId;
+    return null;
   }
 
   /**
@@ -448,7 +441,6 @@ public class Rule {
    */
   @Deprecated
   public Rule setDefaultCharacteristicId(@Nullable Integer defaultCharacteristicId) {
-    this.defaultCharacteristicId = defaultCharacteristicId;
     return this;
   }
 
@@ -530,65 +522,76 @@ public class Rule {
 
   /**
    * @since 4.4
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
   @CheckForNull
+  @Deprecated
   public String getDefaultCharacteristicKey() {
-    return defaultCharacteristicKey;
+    return null;
   }
 
   /**
    * @since 4.4
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
+  @Deprecated
   public Rule setDefaultCharacteristicKey(@Nullable String defaultCharacteristicKey) {
-    this.defaultCharacteristicKey = defaultCharacteristicKey;
     return this;
   }
 
   /**
    * @since 4.4
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
   @CheckForNull
+  @Deprecated
   public String getDefaultSubCharacteristicKey() {
-    return defaultSubCharacteristicKey;
+    return null;
   }
 
   /**
    * @since 4.4
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
+  @Deprecated
   public Rule setDefaultSubCharacteristicKey(@Nullable String defaultSubCharacteristicKey) {
-    this.defaultSubCharacteristicKey = defaultSubCharacteristicKey;
     return this;
   }
 
   /**
    * @since 4.4
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
   @CheckForNull
+  @Deprecated
   public String getCharacteristicKey() {
-    return characteristicKey;
+    return null;
   }
 
   /**
    * @since 4.4
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
+  @Deprecated
   public Rule setCharacteristicKey(@Nullable String characteristicKey) {
-    this.characteristicKey = characteristicKey;
     return this;
   }
 
   /**
    * @since 4.4
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
   @CheckForNull
+  @Deprecated
   public String getSubCharacteristicKey() {
-    return subCharacteristicKey;
+    return null;
   }
 
   /**
    * @since 4.4
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
   public Rule setSubCharacteristicKey(@Nullable String subCharacteristicKey) {
-    this.subCharacteristicKey = subCharacteristicKey;
     return this;
   }
 }
