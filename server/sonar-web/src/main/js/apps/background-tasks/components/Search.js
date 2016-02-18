@@ -81,7 +81,7 @@ export default React.createClass({
                   value={this.props.status}
                   onChange={this.props.onStatusChange}/>
             </li>
-            {this.props.types.length > 1 && (
+            {this.props.types.length > 1 && !this.props.component && (
                 <li>
                   <h6 className="bt-search-form-label">
                     Type
@@ -92,14 +92,16 @@ export default React.createClass({
                       types={this.props.types}/>
                 </li>
             )}
-            <li>
-              <h6 className="bt-search-form-label">
-                Only Latest Analysis
-              </h6>
-              <CurrentsFilter
-                  value={this.props.currents}
-                  onChange={this.props.onCurrentsChange}/>
-            </li>
+            {!this.props.component && (
+                <li>
+                  <h6 className="bt-search-form-label">
+                    Only Latest Analysis
+                  </h6>
+                  <CurrentsFilter
+                      value={this.props.currents}
+                      onChange={this.props.onCurrentsChange}/>
+                </li>
+            )}
             <li>
               <h6 className="bt-search-form-label">
                 Date
