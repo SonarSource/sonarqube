@@ -17,18 +17,40 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v55;
 
+import java.util.List;
+import java.util.Map;
+import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbTester;
+import org.sonar.db.version.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(54);
+public class DeleteMeasuresWithCharacteristicIdTest {
+
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, DeleteMeasuresWithCharacteristicIdTest.class, "schema.sql");
+
+  MigrationStep migration;
+
+  @Before
+  public void setUp() {
+    migration = new DeleteMeasuresWithCharacteristicId(db.database());
   }
+
+  @Test
+  public void delete_measures_with_characteristic_id() throws Exception {
+    db.prepareDbUnit(getClass(), "before.xml");
+
+    migration.execute();
+
+    List<Map<String, Object>> rows = db.select("select id from project_measures");
+    assertThat(rows).hasSize(1);
+    assertThat(rows.get(0).get("ID")).isEqualTo(10L);
+  }
+
 }

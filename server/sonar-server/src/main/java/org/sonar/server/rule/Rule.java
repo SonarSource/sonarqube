@@ -82,18 +82,6 @@ public interface Rule {
   boolean debtOverloaded();
 
   @CheckForNull
-  String debtCharacteristicKey();
-
-  @CheckForNull
-  String defaultDebtCharacteristicKey();
-
-  @CheckForNull
-  String debtSubCharacteristicKey();
-
-  @CheckForNull
-  String defaultDebtSubCharacteristicKey();
-
-  @CheckForNull
   DebtRemediationFunction debtRemediationFunction();
 
   @CheckForNull

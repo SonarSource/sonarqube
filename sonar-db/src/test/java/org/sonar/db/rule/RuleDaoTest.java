@@ -117,8 +117,6 @@ public class RuleDaoTest {
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
-    assertThat(ruleDto.getSubCharacteristicId()).isEqualTo(100);
-    assertThat(ruleDto.getDefaultSubCharacteristicId()).isEqualTo(101);
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");

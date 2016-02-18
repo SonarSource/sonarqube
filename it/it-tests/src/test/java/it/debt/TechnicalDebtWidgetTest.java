@@ -81,19 +81,6 @@ public class TechnicalDebtWidgetTest {
   }
 
   /**
-   * SONAR-4718
-   */
-  @Test
-  public void technical_debt_pyramid_widget() {
-    new SeleneseTest(Selenese.builder()
-      .setHtmlTestsInClasspath("technical-debt-pyramid-widget",
-        "/debt/TechnicalDebtWidgetTest/technical-debt-pyramid/should-have-correct-values.html",
-        "/debt/TechnicalDebtWidgetTest/technical-debt-pyramid/should-open-links-on-drilldown-service.html",
-        "/debt/TechnicalDebtWidgetTest/technical-debt-pyramid/display-differential-values.html"
-      ).build()).runOn(orchestrator);
-  }
-
-  /**
    * SONAR-5450
    */
   @Test

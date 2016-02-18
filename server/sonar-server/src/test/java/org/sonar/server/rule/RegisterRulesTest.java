@@ -34,7 +34,6 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.db.debt.CharacteristicDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -71,7 +70,7 @@ public class RegisterRulesTest {
     RuleDao ruleDao = new RuleDao(system);
     ActiveRuleDao activeRuleDao = new ActiveRuleDao(new QualityProfileDao(dbTester.myBatis(), system), ruleDao, system);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), ruleDao, activeRuleDao,
-      new QualityProfileDao(dbTester.myBatis(), system), new CharacteristicDao(dbTester.myBatis()));
+      new QualityProfileDao(dbTester.myBatis(), system));
   }
 
   @Test

@@ -81,7 +81,6 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  *     .setSeverity(Severity.MINOR);
  *
  *     x1Rule
- *       .setDebtSubCharacteristic("INTEGRATION_TESTABILITY")
  *       .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
  *
  *     x1Rule.createParam("acceptWhitespace")
@@ -149,7 +148,10 @@ public interface RulesDefinition {
 
   /**
    * Default sub-characteristics of technical debt model. See http://www.sqale.org
+   * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
+   *             See https://jira.sonarsource.com/browse/MMF-184
    */
+  @Deprecated
   final class SubCharacteristics {
     /**
      * Related to characteristic REUSABILITY
@@ -661,7 +663,6 @@ public interface RulesDefinition {
     private String severity = Severity.MAJOR;
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
-    private String debtSubCharacteristic;
     private DebtRemediationFunction debtRemediationFunction;
     private String effortToFixDescription;
     private final Set<String> tags = Sets.newTreeSet();
@@ -764,9 +765,10 @@ public interface RulesDefinition {
      * SQALE sub-characteristic. See http://www.sqale.org
      *
      * @see org.sonar.api.server.rule.RulesDefinition.SubCharacteristics for constant values
+     * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model. This method does nothing.
+     *             See https://jira.sonarsource.com/browse/MMF-184
      */
     public NewRule setDebtSubCharacteristic(@Nullable String s) {
-      this.debtSubCharacteristic = s;
       return this;
     }
 
@@ -855,9 +857,6 @@ public interface RulesDefinition {
       if (Strings.isNullOrEmpty(htmlDescription) && Strings.isNullOrEmpty(markdownDescription)) {
         throw new IllegalStateException(format("One of HTML description or Markdown description must be defined for rule %s", this));
       }
-      if ((Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction == null)) {
-        throw new IllegalStateException(format("Both debt sub-characteristic and debt remediation function should be defined on rule '%s'", this));
-      }
     }
 
     @Override
@@ -877,7 +876,6 @@ public interface RulesDefinition {
     private final String internalKey;
     private final String severity;
     private final boolean template;
-    private final String debtSubCharacteristic;
     private final DebtRemediationFunction debtRemediationFunction;
     private final String effortToFixDescription;
     private final Set<String> tags;
@@ -895,7 +893,6 @@ public interface RulesDefinition {
       this.severity = newRule.severity;
       this.template = newRule.template;
       this.status = newRule.status;
-      this.debtSubCharacteristic = newRule.debtSubCharacteristic;
       this.debtRemediationFunction = newRule.debtRemediationFunction;
       this.effortToFixDescription = newRule.effortToFixDescription;
       this.tags = ImmutableSortedSet.copyOf(newRule.tags);
@@ -940,9 +937,14 @@ public interface RulesDefinition {
       return status;
     }
 
+    /**
+     * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model. {@code null} is
+     * always returned. See https://jira.sonarsource.com/browse/MMF-184
+     */
     @CheckForNull
+    @Deprecated
     public String debtSubCharacteristic() {
-      return debtSubCharacteristic;
+      return null;
     }
 
     @CheckForNull

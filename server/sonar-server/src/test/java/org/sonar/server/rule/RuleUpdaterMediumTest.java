@@ -37,10 +37,8 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
@@ -69,8 +67,6 @@ public class RuleUpdaterMediumTest {
   DbSession dbSession;
   BaseIndex<Rule, RuleDto, RuleKey> ruleIndex = tester.get(RuleIndex.class);
   RuleUpdater updater = tester.get(RuleUpdater.class);
-  int softReliabilityId;
-  int hardReliabilityId;
 
   @Before
   public void before() {
@@ -104,7 +100,6 @@ public class RuleUpdaterMediumTest {
       .setNoteData("my *note*")
       .setNoteUserLogin("me")
       .setTags(ImmutableSet.of("tag1"))
-      .setSubCharacteristicId(33)
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationCoefficient("1d")
       .setRemediationOffset("5min"));
@@ -119,7 +114,6 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getTags()).containsOnly("tag1");
-    assertThat(rule.getSubCharacteristicId()).isEqualTo(33);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationCoefficient()).isEqualTo("1d");
     assertThat(rule.getRemediationOffset()).isEqualTo("5min");
@@ -135,7 +129,6 @@ public class RuleUpdaterMediumTest {
 
       // the following fields are not supposed to be updated
       .setTags(ImmutableSet.of("tag1"))
-      .setSubCharacteristicId(33)
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationCoefficient("1d")
       .setRemediationOffset("5min"));
@@ -153,7 +146,6 @@ public class RuleUpdaterMediumTest {
     assertThat(rule.getNoteUpdatedAt()).isNotNull();
     // no other changes
     assertThat(rule.getTags()).containsOnly("tag1");
-    assertThat(rule.getSubCharacteristicId()).isEqualTo(33);
     assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(rule.getRemediationCoefficient()).isEqualTo("1d");
     assertThat(rule.getRemediationOffset()).isEqualTo("5min");
@@ -221,13 +213,10 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void override_debt() {
-    insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
-      .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationCoefficient("1d")
       .setDefaultRemediationOffset("5min")
-      .setSubCharacteristicId(null)
       .setRemediationFunction(null)
       .setRemediationCoefficient(null)
       .setRemediationOffset(null));
@@ -235,22 +224,17 @@ public class RuleUpdaterMediumTest {
 
     DefaultDebtRemediationFunction fn = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "1min");
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
-      .setDebtSubCharacteristic("SOFT_RELIABILITY")
       .setDebtRemediationFunction(fn);
     updater.update(update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
     Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtCharacteristicKey()).isEqualTo("RELIABILITY");
-    assertThat(indexedRule.debtSubCharacteristicKey()).isEqualTo("SOFT_RELIABILITY");
     assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
     assertThat(indexedRule.debtRemediationFunction().coefficient()).isNull();
     assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("1min");
 
     assertThat(indexedRule.debtOverloaded()).isTrue();
-    assertThat(indexedRule.defaultDebtCharacteristicKey()).isEqualTo("RELIABILITY");
-    assertThat(indexedRule.defaultDebtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
     assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
     assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
@@ -258,9 +242,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void override_debt_only_offset() {
-    insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
-      .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationCoefficient("1d")
       .setDefaultRemediationOffset(null)
@@ -276,15 +258,11 @@ public class RuleUpdaterMediumTest {
 
     // verify debt is overridden
     Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtCharacteristicKey()).isEqualTo("RELIABILITY");
-    assertThat(indexedRule.debtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
     assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(indexedRule.debtRemediationFunction().coefficient()).isEqualTo("2d");
     assertThat(indexedRule.debtRemediationFunction().offset()).isNull();
 
     assertThat(indexedRule.debtOverloaded()).isTrue();
-    assertThat(indexedRule.defaultDebtCharacteristicKey()).isEqualTo("RELIABILITY");
-    assertThat(indexedRule.defaultDebtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
     assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
     assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isNull();
@@ -292,9 +270,7 @@ public class RuleUpdaterMediumTest {
 
   @Test
   public void override_debt_from_linear_with_offset_to_constant() {
-    insertDebtCharacteristics(dbSession);
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
-      .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationCoefficient("1d")
       .setDefaultRemediationOffset("5min")
@@ -310,92 +286,41 @@ public class RuleUpdaterMediumTest {
 
     // verify debt is overridden
     Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtCharacteristicKey()).isEqualTo("RELIABILITY");
-    assertThat(indexedRule.debtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
     assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
     assertThat(indexedRule.debtRemediationFunction().coefficient()).isNull();
     assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("10min");
 
     assertThat(indexedRule.debtOverloaded()).isTrue();
-    assertThat(indexedRule.defaultDebtCharacteristicKey()).isEqualTo("RELIABILITY");
-    assertThat(indexedRule.defaultDebtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
     assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
     assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
   }
 
   @Test
-  public void reset_debt() {
-    insertDebtCharacteristics(dbSession);
+  public void reset_remediation_function() {
     ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
-      .setDefaultSubCharacteristicId(hardReliabilityId)
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setDefaultRemediationCoefficient("1d")
       .setDefaultRemediationOffset("5min")
-      .setSubCharacteristicId(softReliabilityId)
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationCoefficient(null)
       .setRemediationOffset("1min"));
     dbSession.commit();
 
-    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
-      .setDebtSubCharacteristic(RuleUpdate.DEFAULT_DEBT_CHARACTERISTIC);
+    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setDebtRemediationFunction(null);
     updater.update(update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is coming from default values
     Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtCharacteristicKey()).isEqualTo("RELIABILITY");
-    assertThat(indexedRule.debtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
     assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(indexedRule.debtRemediationFunction().coefficient()).isEqualTo("1d");
     assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("5min");
 
     assertThat(indexedRule.debtOverloaded()).isFalse();
-    assertThat(indexedRule.defaultDebtCharacteristicKey()).isEqualTo("RELIABILITY");
-    assertThat(indexedRule.defaultDebtSubCharacteristicKey()).isEqualTo("HARD_RELIABILITY");
     assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
     assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
-  }
-
-  @Test
-  public void unset_debt() {
-    insertDebtCharacteristics(dbSession);
-    ruleDao.insert(dbSession, RuleTesting.newDto(RULE_KEY)
-      .setDefaultSubCharacteristicId(hardReliabilityId)
-      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
-      .setDefaultRemediationCoefficient("1d")
-      .setDefaultRemediationOffset("5min")
-      .setSubCharacteristicId(softReliabilityId)
-      .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
-      .setRemediationCoefficient(null)
-      .setRemediationOffset("1min"));
-    dbSession.commit();
-
-    RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
-      .setDebtSubCharacteristic(null);
-    updater.update(update, userSessionRule);
-
-    // verify db
-    dbSession.clearCache();
-    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
-    assertThat(rule.getSubCharacteristicId()).isEqualTo(-1);
-    assertThat(rule.getRemediationFunction()).isNull();
-    assertThat(rule.getRemediationCoefficient()).isNull();
-    assertThat(rule.getRemediationOffset()).isNull();
-
-    assertThat(rule.getDefaultSubCharacteristicId()).isNotNull();
-    assertThat(rule.getDefaultRemediationFunction()).isNotNull();
-    assertThat(rule.getDefaultRemediationCoefficient()).isNotNull();
-    assertThat(rule.getDefaultRemediationOffset()).isNotNull();
-
-    // verify index
-    Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtCharacteristicKey()).isEqualTo("NONE");
-    assertThat(indexedRule.debtSubCharacteristicKey()).isEqualTo("NONE");
-    assertThat(indexedRule.debtRemediationFunction()).isNull();
-    assertThat(indexedRule.debtOverloaded()).isTrue();
   }
 
   @Test
@@ -705,20 +630,5 @@ public class RuleUpdaterMediumTest {
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");
     }
-  }
-
-  private void insertDebtCharacteristics(DbSession dbSession) {
-    CharacteristicDto reliability = DebtTesting.newCharacteristicDto("RELIABILITY");
-    db.debtCharacteristicDao().insert(dbSession, reliability);
-
-    CharacteristicDto softReliability = DebtTesting.newCharacteristicDto("SOFT_RELIABILITY")
-      .setParentId(reliability.getId());
-    db.debtCharacteristicDao().insert(dbSession, softReliability);
-    softReliabilityId = softReliability.getId();
-
-    CharacteristicDto hardReliability = DebtTesting.newCharacteristicDto("HARD_RELIABILITY")
-      .setParentId(reliability.getId());
-    db.debtCharacteristicDao().insert(dbSession, hardReliability);
-    hardReliabilityId = hardReliability.getId();
   }
 }

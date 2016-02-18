@@ -41,8 +41,5 @@ public interface Rule {
   Set<String> getTags();
 
   @CheckForNull
-  Integer getSubCharacteristicId();
-
-  @CheckForNull
   DebtRemediationFunction getRemediationFunction();
 }

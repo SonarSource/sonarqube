@@ -81,8 +81,6 @@ public class RubyRuleService implements Startable {
     query.setSeverities(RubyUtils.toStrings(params.get("severities")));
     query.setStatuses(RubyUtils.toEnums(params.get("statuses"), RuleStatus.class));
     query.setTags(RubyUtils.toStrings(params.get("tags")));
-    query.setDebtCharacteristics(RubyUtils.toStrings(params.get("debtCharacteristics")));
-    query.setHasDebtCharacteristic(RubyUtils.toBoolean(params.get("hasDebtCharacteristic")));
     query.setSortField(RuleNormalizer.RuleField.NAME);
     String profile = Strings.emptyToNull((String) params.get("profile"));
     if (profile != null) {
@@ -116,7 +114,6 @@ public class RubyRuleService implements Startable {
   // sqale
   public void updateRule(Map<String, Object> params) {
     RuleUpdate update = RuleUpdate.createForPluginRule(RuleKey.parse((String) params.get("ruleKey")));
-    update.setDebtSubCharacteristic(Strings.emptyToNull((String) params.get("debtCharacteristicKey")));
     String fn = (String) params.get("debtRemediationFunction");
     if (fn == null) {
       update.setDebtRemediationFunction(null);

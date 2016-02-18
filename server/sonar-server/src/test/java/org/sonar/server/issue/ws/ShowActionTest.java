@@ -106,9 +106,6 @@ public class ShowActionTest {
   UserFinder userFinder;
 
   @Mock
-  DebtModelService debtModel;
-
-  @Mock
   RuleService ruleService;
 
   @Mock
@@ -146,7 +143,7 @@ public class ShowActionTest {
       new ShowAction(
         dbClient, issueService, issueChangelogService, commentService,
         new IssueActionsWriter(issueService, actionService, userSessionRule),
-        actionPlanService, userFinder, debtModel, ruleService, i18n, durations, userSessionRule)));
+        actionPlanService, userFinder, ruleService, i18n, durations, userSessionRule)));
   }
 
   @Test
@@ -356,34 +353,6 @@ public class ShowActionTest {
 
     WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
     request.execute().assertJson(getClass(), "show_issue_with_technical_debt.json");
-  }
-
-  @Test
-  public void show_issue_with_user_characteristics() throws Exception {
-    DefaultIssue issue = createStandardIssue().setDebt(Duration.create(7260L));
-    when(issueService.getByKey(issue.key())).thenReturn(issue);
-
-    when(rule.debtCharacteristicKey()).thenReturn("K2");
-    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
-    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
-    when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
-
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
-  }
-
-  @Test
-  public void show_issue_with_default_characteristics() throws Exception {
-    DefaultIssue issue = createStandardIssue().setDebt(Duration.create(7260L));
-    when(issueService.getByKey(issue.key())).thenReturn(issue);
-
-    when(rule.debtCharacteristicKey()).thenReturn("K2");
-    when(debtModel.characteristicById(1)).thenReturn(new DefaultDebtCharacteristic().setKey("K1").setId(1).setName("Maintainability"));
-    when(debtModel.characteristicById(2)).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
-    when(debtModel.characteristicByKey("K2")).thenReturn(new DefaultDebtCharacteristic().setKey("K2").setId(2).setName("Readability").setParentId(1));
-
-    WsTester.TestRequest request = tester.newGetRequest("api/issues", "show").setParam("key", issue.key());
-    request.execute().assertJson(getClass(), "show_issue_with_characteristics.json");
   }
 
   @Test

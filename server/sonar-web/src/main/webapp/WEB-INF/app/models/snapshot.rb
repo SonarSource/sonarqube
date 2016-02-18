@@ -25,12 +25,10 @@ class Snapshot < ActiveRecord::Base
   belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_project_id'
   belongs_to :parent_snapshot, :class_name => 'Snapshot', :foreign_key => 'parent_snapshot_id'
   belongs_to :root_snapshot, :class_name => 'Snapshot', :foreign_key => 'root_snapshot_id'
-  belongs_to :characteristic
 
-  has_many :measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NULL AND person_id IS NULL'
-  has_many :rulemeasures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NOT NULL AND characteristic_id IS NULL AND person_id IS NULL', :include => 'rule'
-  has_many :characteristic_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NOT NULL AND person_id IS NULL'
-  has_many :person_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND characteristic_id IS NULL AND person_id IS NOT NULL'
+  has_many :measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND person_id IS NULL'
+  has_many :rulemeasures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NOT NULL AND person_id IS NULL', :include => 'rule'
+  has_many :person_measures, :class_name => 'ProjectMeasure', :conditions => 'rule_id IS NULL AND person_id IS NOT NULL'
 
   has_many :events, :dependent => :destroy, :order => 'event_date DESC'
 
@@ -180,13 +178,6 @@ class Snapshot < ActiveRecord::Base
   def person_measure(metric, person_id)
     person_measures.each do |m|
       return m if m.metric_id==metric.id && m.person_id==person_id
-    end
-    nil
-  end
-
-  def characteristic_measure(metric, characteristic)
-    characteristic_measures.each do |m|
-      return m if m.metric_id==metric.id && m.characteristic==characteristic
     end
     nil
   end

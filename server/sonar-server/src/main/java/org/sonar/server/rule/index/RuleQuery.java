@@ -39,8 +39,6 @@ public class RuleQuery {
   private Collection<String> severities;
   private Collection<RuleStatus> statuses;
   private Collection<String> tags;
-  private Collection<String> debtCharacteristics;
-  private Boolean hasDebtCharacteristic;
   private Boolean activation;
   private String qProfileKey;
   private Collection<String> inheritance;
@@ -157,26 +155,6 @@ public class RuleQuery {
 
   public RuleQuery setTags(@Nullable Collection<String> tags) {
     this.tags = tags;
-    return this;
-  }
-
-  @CheckForNull
-  public Collection<String> getDebtCharacteristics() {
-    return debtCharacteristics;
-  }
-
-  public RuleQuery setDebtCharacteristics(@Nullable Collection<String> debtCharacteristics) {
-    this.debtCharacteristics = debtCharacteristics;
-    return this;
-  }
-
-  @CheckForNull
-  public Boolean getHasDebtCharacteristic() {
-    return hasDebtCharacteristic;
-  }
-
-  public RuleQuery setHasDebtCharacteristic(@Nullable Boolean b) {
-    this.hasDebtCharacteristic = b;
     return this;
   }
 

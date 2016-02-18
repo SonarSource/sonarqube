@@ -46,7 +46,6 @@ public class XooRulesDefinitionTest {
 
     RulesDefinition.Rule rule = repo.rule(OneIssuePerLineSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();
-    assertThat(rule.debtSubCharacteristic()).isEqualTo(RulesDefinition.SubCharacteristics.MEMORY_EFFICIENCY);
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1min");
     assertThat(rule.debtRemediationFunction().offset()).isNull();

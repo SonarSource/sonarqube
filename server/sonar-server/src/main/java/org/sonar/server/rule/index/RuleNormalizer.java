@@ -23,26 +23,23 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
 
@@ -189,62 +186,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         }
       }
       update.put(RuleField.TEMPLATE_KEY.field(), templateKeyFieldValue);
-
-      // TODO Legacy ID in DTO should be Key
-      update.put(RuleField.CHARACTERISTIC.field(), null);
-      update.put(RuleField.SUB_CHARACTERISTIC.field(), null);
-      update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
-      update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
-
-      update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), null);
-      update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), null);
-
-      String defaultCharacteristicKey = null;
-      String defaultSubCharacteristicKey = null;
-
-      Integer defaultSubCharacteristicId = rule.getDefaultSubCharacteristicId();
-      if (defaultSubCharacteristicId != null) {
-        CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(session, defaultSubCharacteristicId);
-        if (subCharacteristic != null) {
-          Integer characteristicId = subCharacteristic.getParentId();
-          if (characteristicId != null) {
-            CharacteristicDto characteristic = db.debtCharacteristicDao().selectById(characteristicId);
-            if (characteristic != null) {
-              defaultCharacteristicKey = characteristic.getKey();
-              update.put(RuleField.DEFAULT_CHARACTERISTIC.field(), defaultCharacteristicKey);
-              defaultSubCharacteristicKey = subCharacteristic.getKey();
-              update.put(RuleField.DEFAULT_SUB_CHARACTERISTIC.field(), defaultSubCharacteristicKey);
-            }
-          }
-        }
-      }
-
-      Integer subCharacteristicId = rule.getSubCharacteristicId();
-      if (subCharacteristicId != null) {
-        if (subCharacteristicId.equals(-1)) {
-          update.put(RuleField.CHARACTERISTIC.field(), DebtCharacteristic.NONE);
-          update.put(RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE);
-        } else {
-          CharacteristicDto subCharacteristic = db.debtCharacteristicDao().selectById(session, subCharacteristicId);
-          if (subCharacteristic != null) {
-            Integer characteristicId = subCharacteristic.getParentId();
-            if (characteristicId != null) {
-              CharacteristicDto characteristic = db.debtCharacteristicDao().selectById(characteristicId);
-              if (characteristic != null) {
-                update.put(RuleField.CHARACTERISTIC.field(), characteristic.getKey());
-                update.put(RuleField.SUB_CHARACTERISTIC.field(), subCharacteristic.getKey());
-              }
-            }
-          }
-        }
-        update.put(RuleField.CHARACTERISTIC_OVERLOADED.field(), true);
-        update.put(RuleField.SUB_CHARACTERISTIC_OVERLOADED.field(), true);
-      } else {
-        update.put(RuleField.CHARACTERISTIC.field(), defaultCharacteristicKey);
-        update.put(RuleField.SUB_CHARACTERISTIC.field(), defaultSubCharacteristicKey);
-        update.put(RuleField.CHARACTERISTIC_OVERLOADED.field(), false);
-        update.put(RuleField.SUB_CHARACTERISTIC_OVERLOADED.field(), false);
-      }
 
       if (rule.getDefaultRemediationFunction() != null) {
         update.put(RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field(), rule.getDefaultRemediationFunction());

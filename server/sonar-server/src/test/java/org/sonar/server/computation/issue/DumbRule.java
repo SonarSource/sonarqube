@@ -34,7 +34,6 @@ public class DumbRule implements Rule {
   private String name;
   private RuleStatus status = RuleStatus.READY;
   private Set<String> tags = new HashSet<>();
-  private Integer subCharacteristicId;
   private DebtRemediationFunction function;
 
   public DumbRule(RuleKey key) {
@@ -68,11 +67,6 @@ public class DumbRule implements Rule {
   }
 
   @Override
-  public Integer getSubCharacteristicId() {
-    return subCharacteristicId;
-  }
-
-  @Override
   public DebtRemediationFunction getRemediationFunction() {
     return function;
   }
@@ -89,11 +83,6 @@ public class DumbRule implements Rule {
 
   public DumbRule setStatus(RuleStatus status) {
     this.status = status;
-    return this;
-  }
-
-  public DumbRule setSubCharacteristicId(@Nullable Integer subCharacteristicId) {
-    this.subCharacteristicId = subCharacteristicId;
     return this;
   }
 

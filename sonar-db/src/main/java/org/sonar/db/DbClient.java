@@ -35,7 +35,6 @@ import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.WidgetDao;
 import org.sonar.db.dashboard.WidgetPropertyDao;
-import org.sonar.db.debt.CharacteristicDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.ActionPlanDao;
@@ -75,7 +74,6 @@ public class DbClient {
   private final Database database;
   private final MyBatis myBatis;
   private final QualityProfileDao qualityProfileDao;
-  private final CharacteristicDao debtCharacteristicDao;
   private final LoadedTemplateDao loadedTemplateDao;
   private final PropertiesDao propertiesDao;
   private final SnapshotDao snapshotDao;
@@ -130,7 +128,6 @@ public class DbClient {
     for (Dao dao : daos) {
       map.put(dao.getClass(), dao);
     }
-    debtCharacteristicDao = getDao(map, CharacteristicDao.class);
     qualityProfileDao = getDao(map, QualityProfileDao.class);
     loadedTemplateDao = getDao(map, LoadedTemplateDao.class);
     propertiesDao = getDao(map, PropertiesDao.class);
@@ -215,10 +212,6 @@ public class DbClient {
 
   public QualityProfileDao qualityProfileDao() {
     return qualityProfileDao;
-  }
-
-  public CharacteristicDao debtCharacteristicDao() {
-    return debtCharacteristicDao;
   }
 
   public LoadedTemplateDao loadedTemplateDao() {

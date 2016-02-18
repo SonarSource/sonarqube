@@ -98,7 +98,6 @@ public class RuleCreatorMediumTest {
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(rule.getLanguage()).isEqualTo("java");
     assertThat(rule.getConfigKey()).isEqualTo("S001");
-    assertThat(rule.getDefaultSubCharacteristicId()).isEqualTo(1);
     assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("1h");
     assertThat(rule.getDefaultRemediationOffset()).isEqualTo("5min");
@@ -504,7 +503,6 @@ public class RuleCreatorMediumTest {
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.language()).isNull();
     assertThat(rule.internalKey()).isNull();
-    assertThat(rule.debtSubCharacteristicKey()).isNull();
     assertThat(rule.debtRemediationFunction()).isNull();
     assertThat(rule.tags()).isEmpty();
     assertThat(rule.systemTags()).isEmpty();
@@ -530,7 +528,6 @@ public class RuleCreatorMediumTest {
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.language()).isNull();
     assertThat(rule.internalKey()).isNull();
-    assertThat(rule.debtSubCharacteristicKey()).isNull();
     assertThat(rule.debtRemediationFunction()).isNull();
     assertThat(rule.tags()).isEmpty();
     assertThat(rule.systemTags()).isEmpty();
@@ -674,7 +671,6 @@ public class RuleCreatorMediumTest {
         .setIsTemplate(true)
         .setLanguage("java")
         .setConfigKey("S001")
-        .setDefaultSubCharacteristicId(1)
         .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setDefaultRemediationCoefficient("1h")
         .setDefaultRemediationOffset("5min")
@@ -694,7 +690,6 @@ public class RuleCreatorMediumTest {
         .setIsTemplate(true)
         .setLanguage("java")
         .setConfigKey("S002")
-        .setDefaultSubCharacteristicId(1)
         .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setDefaultRemediationCoefficient("1h")
         .setDefaultRemediationOffset("5min")
@@ -713,7 +708,6 @@ public class RuleCreatorMediumTest {
         .setIsTemplate(true)
         .setLanguage("java")
         .setConfigKey("S003")
-        .setDefaultSubCharacteristicId(1)
         .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setDefaultRemediationCoefficient("1h")
         .setDefaultRemediationOffset("5min")

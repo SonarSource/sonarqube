@@ -151,7 +151,6 @@ public class RegisterRulesMediumTest {
     assertThat(rule.param("min").type()).isEqualTo(RuleParamType.INTEGER);
     assertThat(rule.param("min").defaultValue()).isNull();
     assertThat(rule.param("min").description()).isNull();
-    assertThat(rule.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
     assertThat(rule.debtRemediationFunction().offset()).isEqualTo("30min");
@@ -245,7 +244,6 @@ public class RegisterRulesMediumTest {
     assertThat(rule.param("format").type()).isEqualTo(RuleParamType.TEXT);
     assertThat(rule.param("format").defaultValue()).isNull();
     assertThat(rule.param("format").description()).isNull();
-    assertThat(rule.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INSTRUCTION_RELIABILITY);
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("2h");
     assertThat(rule.debtRemediationFunction().offset()).isNull();
@@ -482,24 +480,6 @@ public class RegisterRulesMediumTest {
   }
 
   @Test
-  public void fail_if_debt_characteristic_is_root() {
-    try {
-      register(new Rules() {
-        @Override
-        public void init(RulesDefinition.NewRepository repository) {
-          RulesDefinition.NewRule rule = repository.createRule("x1").setName("x1 name").setHtmlDescription("x1 desc");
-          rule
-            .setDebtSubCharacteristic("REUSABILITY")
-            .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
-        }
-      });
-      fail();
-    } catch (MessageException e) {
-      assertThat(e).hasMessage("Rule 'xoo:x1' cannot be linked on the root characteristic 'REUSABILITY'");
-    }
-  }
-
-  @Test
   public void update_custom_rule_on_template_change() {
     register(new Rules() {
       @Override
@@ -549,7 +529,6 @@ public class RegisterRulesMediumTest {
     assertThat(customRule.internalKey()).isEqualTo("new_internal");
     assertThat(customRule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(customRule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(customRule.debtSubCharacteristicKey()).isEqualTo(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY);
     assertThat(customRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(customRule.effortToFixDescription()).isEqualTo("Effort");
   }

@@ -66,13 +66,6 @@ public class MeasureDtoToMeasureTest {
     assertThat(measure.get().getRuleId()).isEqualTo(10);
   }
 
-  @Test
-  public void toMeasure_returns_characteristic_measure() {
-    Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setCharacteristicId(30), SOME_INT_METRIC);
-    assertThat(measure).isPresent();
-    assertThat(measure.get().getCharacteristicId()).isEqualTo(30);
-  }
-
   @Test(expected = NullPointerException.class)
   public void toMeasure_throws_NPE_if_metric_argument_is_null() {
     underTest.toMeasure(EMPTY_MEASURE_DTO, null);

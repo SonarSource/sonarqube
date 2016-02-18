@@ -3,7 +3,7 @@
       id="1"
       snapshot_id="2"
       metric_id="3"
-      characteristic_id="4"
+      characteristic_id="[null]"
       rule_id="5"
       project_id="6"
       person_id="23"

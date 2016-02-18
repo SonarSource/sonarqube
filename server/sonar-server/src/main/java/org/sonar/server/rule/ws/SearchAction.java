@@ -164,7 +164,6 @@ public class SearchAction implements RulesWsAction {
       RuleIndex.FACET_LANGUAGES,
       RuleIndex.FACET_REPOSITORIES,
       RuleIndex.FACET_TAGS,
-      RuleIndex.FACET_DEBT_CHARACTERISTICS,
       RuleIndex.FACET_SEVERITIES,
       RuleIndex.FACET_ACTIVE_SEVERITIES,
       RuleIndex.FACET_STATUSES,
@@ -289,8 +288,6 @@ public class SearchAction implements RulesWsAction {
     query.setAvailableSince(request.paramAsDate(PARAM_AVAILABLE_SINCE));
     query.setStatuses(request.paramAsEnums(PARAM_STATUSES, RuleStatus.class));
     query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
-    query.setDebtCharacteristics(request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
-    query.setHasDebtCharacteristic(request.paramAsBoolean(PARAM_HAS_DEBT_CHARACTERISTIC));
     query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
     query.setQProfileKey(request.param(PARAM_QPROFILE));
     query.setTags(request.paramAsStrings(PARAM_TAGS));
@@ -378,15 +375,12 @@ public class SearchAction implements RulesWsAction {
   }
 
   protected void writeFacets(SearchResponse.Builder response, Request request, QueryContext context, Result<?> results) {
-    addMandatoryFacetValues(results, RuleIndex.FACET_DEBT_CHARACTERISTICS, request.paramAsStrings(PARAM_DEBT_CHARACTERISTICS));
     addMandatoryFacetValues(results, RuleIndex.FACET_LANGUAGES, request.paramAsStrings(PARAM_LANGUAGES));
     addMandatoryFacetValues(results, RuleIndex.FACET_REPOSITORIES, request.paramAsStrings(PARAM_REPOSITORIES));
     addMandatoryFacetValues(results, RuleIndex.FACET_STATUSES, RuleIndex.ALL_STATUSES_EXCEPT_REMOVED);
     addMandatoryFacetValues(results, RuleIndex.FACET_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, RuleIndex.FACET_ACTIVE_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, RuleIndex.FACET_TAGS, request.paramAsStrings(PARAM_TAGS));
-
-    mergeNoneAndEmptyBucketOnCharacteristics(results);
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
@@ -404,28 +398,6 @@ public class SearchAction implements RulesWsAction {
         addZeroFacetsForSelectedItems(facet, request, facetName, itemsFromFacets);
       }
       response.getFacetsBuilder().addFacets(facet);
-    }
-  }
-
-  protected void mergeNoneAndEmptyBucketOnCharacteristics(Result<?> results) {
-    if (results.getFacets().containsKey(RuleIndex.FACET_DEBT_CHARACTERISTICS)) {
-      Collection<FacetValue> characValues = results.getFacetValues(RuleIndex.FACET_DEBT_CHARACTERISTICS);
-      if (characValues == null) {
-        return;
-      }
-
-      long mergedCount = 0L;
-      Iterator<FacetValue> characIterator = characValues.iterator();
-      while (characIterator.hasNext()) {
-        FacetValue characValue = characIterator.next();
-        if ("".equals(characValue.getKey()) || DebtCharacteristic.NONE.equals(characValue.getKey())) {
-          mergedCount += characValue.getValue();
-          characIterator.remove();
-        }
-      }
-
-      FacetValue mergedNoneValue = new FacetValue(DebtCharacteristic.NONE, mergedCount);
-      characValues.add(mergedNoneValue);
     }
   }
 

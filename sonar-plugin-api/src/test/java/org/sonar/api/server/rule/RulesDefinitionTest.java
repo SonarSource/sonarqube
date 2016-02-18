@@ -19,13 +19,12 @@
  */
 package org.sonar.api.server.rule;
 
+import java.net.URL;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-
-import java.net.URL;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
@@ -110,13 +109,12 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void define_rules_with_technical_debt() {
+  public void define_rules_with_remediation_function() {
     RulesDefinition.NewRepository newRepo = context.createRepository("common-java", "java");
     RulesDefinition.NewRule newRule = newRepo.createRule("InsufficientBranchCoverage")
       .setName("Insufficient condition coverage")
       .setHtmlDescription("Insufficient condition coverage by unit tests")
       .setSeverity(Severity.MAJOR)
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTS)
       .setEffortToFixDescription("Effort to test one uncovered branch");
     newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
     newRepo.done();
@@ -125,7 +123,6 @@ public class RulesDefinitionTest {
     assertThat(repo.rules()).hasSize(1);
 
     RulesDefinition.Rule rule = repo.rule("InsufficientBranchCoverage");
-    assertThat(rule.debtSubCharacteristic()).isEqualTo("UNIT_TESTS");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
     assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
@@ -145,7 +142,6 @@ public class RulesDefinitionTest {
     assertThat(rule.internalKey()).isNull();
     assertThat(rule.status()).isEqualTo(RuleStatus.defaultStatus());
     assertThat(rule.tags()).isEmpty();
-    assertThat(rule.debtSubCharacteristic()).isNull();
     assertThat(rule.debtRemediationFunction()).isNull();
   }
 
@@ -405,30 +401,13 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void fail_if_define_characteristic_without_function() {
+  public void sqale_characteristic_is_deprecated_and_is_ignored() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-      .setDebtSubCharacteristic("COMPILER");
-    try {
-      newRepository.done();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Both debt sub-characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
-    }
-  }
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("desc")
+      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.API_ABUSE);
+    newRepository.done();
 
-  @Test
-  public void fail_if_define_function_without_characteristic() {
-    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
-    RulesDefinition.NewRule newRule = newRepository.createRule("NPE").setName("NPE").setHtmlDescription("Detect <code>java.lang.NullPointerException</code>")
-      .setDebtSubCharacteristic("");
-    newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
-    try {
-      newRepository.done();
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Both debt sub-characteristic and debt remediation function should be defined on rule '[repository=findbugs, key=NPE]'");
-    }
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
+    assertThat(rule.debtSubCharacteristic()).isNull();
   }
-
 }

@@ -42,12 +42,6 @@ class DrilldownController < ApplicationController
 
     # options
     options={}
-    if params[:characteristic_id]
-      @characteristic=Characteristic.find(params[:characteristic_id])
-    elsif params[:characteristic]
-      @characteristic=Characteristic.find(:first, :conditions => ['characteristics.kee=? AND characteristics.enabled=?', params[:characteristic], true])
-    end
-    options[:characteristic]=@characteristic
     if params[:period] && Api::Utils.valid_period_index?(params[:period])
       @period=params[:period].to_i
       options[:period]=@period

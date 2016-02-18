@@ -34,24 +34,18 @@ public final class MeasureKey {
 
   private final String metricKey;
   private final int ruleId;
-  private final int characteristicId;
   @CheckForNull
   private final Developer developer;
 
-  public MeasureKey(String metricKey, @Nullable Integer ruleId, @Nullable Integer characteristicId, @Nullable Developer developer) {
+  public MeasureKey(String metricKey, @Nullable Integer ruleId, @Nullable Developer developer) {
     // defensive code in case we badly chose the default value, we want to know it right away!
     checkArgument(ruleId == null || ruleId != DEFAULT_INT_VALUE, "Unsupported rule id");
-    checkArgument(characteristicId == null || characteristicId != DEFAULT_INT_VALUE, "Unsupported characteristic id");
 
     this.metricKey = requireNonNull(metricKey, "MetricKey can not be null");
     this.ruleId = ruleId == null ? DEFAULT_INT_VALUE : ruleId;
-    this.characteristicId = characteristicId == null ? DEFAULT_INT_VALUE : characteristicId;
     this.developer = developer;
   }
 
-  public int getCharacteristicId() {
-    return characteristicId;
-  }
 
   public String getMetricKey() {
     return metricKey;
@@ -77,13 +71,12 @@ public final class MeasureKey {
     MeasureKey that = (MeasureKey) o;
     return metricKey.equals(that.metricKey)
       && ruleId == that.ruleId
-      && characteristicId == that.characteristicId
       && developer == that.developer;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(metricKey, ruleId, characteristicId);
+    return Objects.hash(metricKey, ruleId);
   }
 
   @Override
@@ -91,7 +84,6 @@ public final class MeasureKey {
     return "MeasureKey{" +
       "metricKey='" + metricKey + '\'' +
       ", ruleId=" + ruleId +
-      ", characteristicId=" + characteristicId +
       ", developer=" + developer +
       '}';
   }

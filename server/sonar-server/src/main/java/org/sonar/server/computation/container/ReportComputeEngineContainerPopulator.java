@@ -30,7 +30,6 @@ import org.sonar.server.computation.batch.BatchReportReaderImpl;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.SettingsRepositoryImpl;
 import org.sonar.server.computation.component.TreeRootHolderImpl;
-import org.sonar.server.computation.debt.DebtModelHolderImpl;
 import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHolderImpl;
 import org.sonar.server.computation.duplication.DuplicationRepositoryImpl;
 import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplications;
@@ -132,7 +131,6 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       TreeRootHolderImpl.class,
       PeriodsHolderImpl.class,
       QualityGateHolderImpl.class,
-      DebtModelHolderImpl.class,
       SqaleRatingSettings.class,
       ActiveRulesHolderImpl.class,
       MeasureComputersHolderImpl.class,

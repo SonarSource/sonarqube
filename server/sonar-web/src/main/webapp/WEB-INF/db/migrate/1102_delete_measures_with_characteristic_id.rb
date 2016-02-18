@@ -17,40 +17,15 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
-class Characteristic < ActiveRecord::Base
 
-  NAME_MAX_SIZE=100
+#
+# SonarQube 5.5
+# SONAR-7364
+#
+class DeleteMeasuresWithCharacteristicId < ActiveRecord::Migration
 
-  FUNCTION_CONSTANT_ISSUE = "constant_issue";
-  FUNCTION_LINEAR = "linear";
-  FUNCTION_LINEAR_WITH_OFFSET = "linear_offset";
-
-  DAY = "d"
-  HOUR = "h"
-  MINUTE = "mn"
-
-  belongs_to :parent, :class_name => 'Characteristic', :foreign_key => 'parent_id'
-
-  # Needed for Views Plugin. Remove it when the plugin will not used it anymore
-  belongs_to :rule
-
-  validates_uniqueness_of :name, :scope => [:enabled], :case_sensitive => false, :if => Proc.new { |c| c.enabled }
-  validates_length_of :name, :in => 1..NAME_MAX_SIZE, :allow_blank => false
-
-  def root?
-    parent_id.nil?
-  end
-
-  def requirement?
-    rule_id.nil?
-  end
-
-  def key
-    kee
-  end
-
-  def name(rule_name_if_empty=false)
-    read_attribute(:name)
+  def self.up
+    execute_java_migration('org.sonar.db.version.v55.DeleteMeasuresWithCharacteristicId')
   end
 
 end

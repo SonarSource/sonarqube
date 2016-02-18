@@ -242,7 +242,6 @@ public class RulesDefinitionXmlLoader {
     RuleStatus status = RuleStatus.defaultStatus();
     boolean template = false;
     String effortToFixDescription = null;
-    String debtSubCharacteristic = null;
     String debtRemediationFunction = null;
     String debtRemediationFunctionOffset = null;
     String debtRemediationFunctionCoeff = null;
@@ -304,9 +303,6 @@ public class RulesDefinitionXmlLoader {
       } else if (equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
         debtRemediationFunctionCoeff = nodeValue(cursor);
 
-      } else if (equalsIgnoreCase("debtSubCharacteristic", nodeName)) {
-        debtSubCharacteristic = nodeValue(cursor);
-
       } else if (equalsIgnoreCase("status", nodeName)) {
         String s = nodeValue(cursor);
         if (s != null) {
@@ -329,8 +325,7 @@ public class RulesDefinitionXmlLoader {
         .setTags(tags.toArray(new String[tags.size()]))
         .setTemplate(template)
         .setStatus(status)
-        .setEffortToFixDescription(effortToFixDescription)
-        .setDebtSubCharacteristic(debtSubCharacteristic);
+        .setEffortToFixDescription(effortToFixDescription);
       fillDescription(rule, descriptionFormat, description);
       fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionOffset, debtRemediationFunctionCoeff);
       fillParams(rule, params);

@@ -31,7 +31,6 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.server.rule.Rule;
@@ -179,51 +178,12 @@ public class RuleDoc extends BaseDoc implements Rule {
 
   @Override
   public boolean debtOverloaded() {
-    return BooleanUtils.isTrue(isDebtCharacteristicOverridden()) ||
-      BooleanUtils.isTrue(isDebtSubCharacteristicOverridden()) ||
-      BooleanUtils.isTrue(isDebtRemediationFunctionOverridden());
-  }
-
-  @Override
-  @CheckForNull
-  public String defaultDebtCharacteristicKey() {
-    return (String) getNullableField(RuleNormalizer.RuleField.DEFAULT_CHARACTERISTIC.field());
-  }
-
-  @Override
-  @CheckForNull
-  public String defaultDebtSubCharacteristicKey() {
-    return (String) getNullableField(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field());
-  }
-
-  @Override
-  @CheckForNull
-  public String debtCharacteristicKey() {
-    return (String) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC.field());
-  }
-
-  @Override
-  @CheckForNull
-  public String debtSubCharacteristicKey() {
-    return (String) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field());
-  }
-
-  @CheckForNull
-  public Boolean isDebtCharacteristicOverridden() {
-    return (Boolean) getNullableField(RuleNormalizer.RuleField.CHARACTERISTIC_OVERLOADED.field());
-  }
-
-  @CheckForNull
-  public Boolean isDebtSubCharacteristicOverridden() {
-    return (Boolean) getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC_OVERLOADED.field());
+    return BooleanUtils.isTrue(isDebtRemediationFunctionOverridden());
   }
 
   @Override
   @CheckForNull
   public DebtRemediationFunction debtRemediationFunction() {
-    if (DebtCharacteristic.NONE.equals(getNullableField(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))) {
-      return null;
-    }
     final String function = getNullableField(RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field());
     if (function == null || function.isEmpty()) {
       return null;

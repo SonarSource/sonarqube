@@ -87,7 +87,7 @@ public class DeprecatedRulesDefinitionLoader {
         newRepository = context.createRepository(repository.getKey(), repository.getLanguage());
         newRepository.setName(repository.getName());
       } else {
-        newRepository = (RulesDefinition.NewRepository) context.extendRepository(repository.getKey(), repository.getLanguage());
+        newRepository = context.extendRepository(repository.getKey(), repository.getLanguage());
       }
       for (org.sonar.api.rules.Rule rule : repository.createRules()) {
         RulesDefinition.NewRule newRule = newRepository.createRule(rule.getKey());
@@ -113,7 +113,6 @@ public class DeprecatedRulesDefinitionLoader {
   private void updateRuleDebtDefinitions(RulesDefinition.NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
     RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
-      newRule.setDebtSubCharacteristic(ruleDebt.subCharacteristicKey());
       newRule.setDebtRemediationFunction(remediationFunction(DebtRemediationFunction.Type.valueOf(ruleDebt.function()),
         ruleDebt.coefficient(),
         ruleDebt.offset(),

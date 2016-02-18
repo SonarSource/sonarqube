@@ -122,13 +122,6 @@ class DrilldownColumn
       conditions += ' AND project_measures.rule_id IS NULL '
     end
 
-    if options[:characteristic]
-      conditions += ' AND project_measures.characteristic_id=:characteristic_id'
-      condition_values[:characteristic_id]=options[:characteristic].id
-    else
-      conditions += ' AND project_measures.characteristic_id IS NULL'
-    end
-
     if @person_id
       conditions += ' AND project_measures.person_id=:person_id'
       condition_values[:person_id]=@person_id

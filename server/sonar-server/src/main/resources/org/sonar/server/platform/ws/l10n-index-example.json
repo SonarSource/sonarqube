@@ -78,7 +78,6 @@
   "rules.not_found": "The rule \"{0}\" does not exist",
   "coding_rules.create": "Create",
   "days": "Days",
-  "widget.technical_debt_pyramid.total": "Total",
   "email_configuration.test.send": "Send Test Email",
   "update_key.replace": "Replace",
   "views.invalid.criteria": "Only one criteria can be used (regexp, language or manual measure)",

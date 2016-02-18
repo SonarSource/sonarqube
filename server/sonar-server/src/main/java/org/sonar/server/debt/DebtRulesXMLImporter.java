@@ -53,9 +53,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.CONSTANT_ISSUE;
 import static org.sonar.api.server.debt.DebtRemediationFunction.Type.LINEAR;
 import static org.sonar.api.utils.Duration.MINUTE;
-import static org.sonar.server.debt.DebtCharacteristicsXMLImporter.convertKey;
 import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC;
-import static org.sonar.server.debt.DebtModelXMLExporter.CHARACTERISTIC_KEY;
 import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY;
 import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_COEFFICIENT;
 import static org.sonar.server.debt.DebtModelXMLExporter.PROPERTY_FUNCTION;
@@ -86,7 +84,7 @@ public class DebtRulesXMLImporter {
       cursor.advance();
       SMInputCursor rootCursor = cursor.childElementCursor(CHARACTERISTIC);
       while (rootCursor.getNext() != null) {
-        process(ruleDebts, null, null, validationMessages, rootCursor);
+        process(ruleDebts, validationMessages, rootCursor);
       }
 
       cursor.getStreamReader().closeCompletely();
@@ -105,25 +103,17 @@ public class DebtRulesXMLImporter {
     return new SMInputFactory(xmlFactory);
   }
 
-  private void process(List<RuleDebt> ruleDebts, @Nullable String rootKey, @Nullable String parentKey,
+  private void process(List<RuleDebt> ruleDebts,
     ValidationMessages validationMessages, SMInputCursor chcCursor) throws XMLStreamException {
-    String currentCharacteristicKey = null;
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {
       String node = cursor.getLocalName();
-      if (StringUtils.equals(node, CHARACTERISTIC_KEY)) {
-        currentCharacteristicKey = cursor.collectDescendantText().trim();
-      } else if (StringUtils.equals(node, CHARACTERISTIC)) {
-        process(ruleDebts, parentKey, currentCharacteristicKey, validationMessages, cursor);
+      if (StringUtils.equals(node, CHARACTERISTIC)) {
+        process(ruleDebts, validationMessages, cursor);
       } else if (StringUtils.equals(node, REPOSITORY_KEY)) {
         RuleDebt ruleDebt = processRule(validationMessages, cursor);
-        if (ruleDebt != null && parentKey != null) {
-          if (rootKey != null) {
-            ruleDebt.setSubCharacteristicKey(convertKey(parentKey));
-            ruleDebts.add(ruleDebt);
-          } else {
-            validationMessages.addWarningText("Rule '" + ruleDebt.ruleKey() + "' is ignored because it's defined directly under a root characteristic.");
-          }
+        if (ruleDebt != null) {
+          ruleDebts.add(ruleDebt);
         }
       }
     }
@@ -131,7 +121,6 @@ public class DebtRulesXMLImporter {
 
   @CheckForNull
   private RuleDebt processRule(ValidationMessages validationMessages, SMInputCursor cursor) throws XMLStreamException {
-
     String ruleRepositoryKey = cursor.collectDescendantText().trim();
     String ruleKey = null;
     Properties properties = new Properties();

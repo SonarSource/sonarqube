@@ -20,26 +20,21 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.Maps;
+import java.util.Map;
+import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Map;
-import java.util.Set;
-
 public class RuleUpdate {
-
-  public static final String DEFAULT_DEBT_CHARACTERISTIC = "_default";
 
   private final RuleKey ruleKey;
 
   private boolean changeTags = false;
   private boolean changeMarkdownNote = false;
-  private boolean changeDebtSubCharacteristic = false;
   private boolean changeDebtRemediationFunction = false;
   private boolean changeName = false;
   private boolean changeDescription = false;
@@ -50,7 +45,6 @@ public class RuleUpdate {
   private boolean isManual;
   private Set<String> tags;
   private String markdownNote;
-  private String debtSubCharacteristicKey;
   private DebtRemediationFunction debtRemediationFunction;
 
   private String name;
@@ -92,21 +86,6 @@ public class RuleUpdate {
   public RuleUpdate setMarkdownNote(@Nullable String s) {
     this.markdownNote = s == null ? null : StringUtils.defaultIfBlank(s, null);
     this.changeMarkdownNote = true;
-    return this;
-  }
-
-  @CheckForNull
-  public String getDebtSubCharacteristicKey() {
-    return debtSubCharacteristicKey;
-  }
-
-  /**
-   * Set to <code>null</code> or blank to force the characteristic "NONE". Set to value of {@link #DEFAULT_DEBT_CHARACTERISTIC}
-   * to reset to default characteristic.
-   */
-  public RuleUpdate setDebtSubCharacteristic(@Nullable String c) {
-    this.debtSubCharacteristicKey = c == null ? null : StringUtils.defaultIfBlank(c, null);
-    this.changeDebtSubCharacteristic = true;
     return this;
   }
 
@@ -201,10 +180,6 @@ public class RuleUpdate {
     return changeMarkdownNote;
   }
 
-  public boolean isChangeDebtSubCharacteristic() {
-    return changeDebtSubCharacteristic;
-  }
-
   public boolean isChangeDebtRemediationFunction() {
     return changeDebtRemediationFunction;
   }
@@ -230,20 +205,20 @@ public class RuleUpdate {
   }
 
   public boolean isEmpty() {
-    return !changeMarkdownNote && !changeTags && !changeDebtSubCharacteristic && !changeDebtRemediationFunction && isCustomRuleFieldsEmpty();
+    return !changeMarkdownNote && !changeTags && !changeDebtRemediationFunction && isCustomRuleFieldsEmpty();
   }
 
-  private boolean isCustomRuleFieldsEmpty(){
+  private boolean isCustomRuleFieldsEmpty() {
     return !changeName && !changeDescription && !changeSeverity && !changeStatus && !changeParameters;
   }
 
-  private void checkCustomRule(){
+  private void checkCustomRule() {
     if (!isCustomRule) {
       throw new IllegalStateException("Not a custom rule");
     }
   }
 
-  private void checkCustomOrManualRule(){
+  private void checkCustomOrManualRule() {
     if (!isCustomRule && !isManual) {
       throw new IllegalStateException("Not a custom or a manual rule");
     }

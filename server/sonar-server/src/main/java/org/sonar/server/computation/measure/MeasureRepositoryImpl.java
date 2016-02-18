@@ -68,7 +68,6 @@ public class MeasureRepositoryImpl implements MeasureRepository {
       MeasureDto measureDto = dbClient.measureDao().selectByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey());
       Optional<Measure> measureOptional = underTest.toMeasure(measureDto, metric);
       if (measureOptional.isPresent()) {
-        checkArgument(measureOptional.get().getCharacteristicId() == null, "Measures with characteristicId are not supported");
         checkArgument(measureOptional.get().getRuleId() == null, "Measures with ruleId are not supported");
       }
       return measureOptional;

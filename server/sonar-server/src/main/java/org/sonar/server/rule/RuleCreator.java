@@ -202,7 +202,6 @@ public class RuleCreator {
       .setSeverity(newRule.severity())
       .setStatus(newRule.status())
       .setLanguage(templateRuleDto.getLanguage())
-      .setDefaultSubCharacteristicId(templateRuleDto.getDefaultSubCharacteristicId())
       .setDefaultRemediationFunction(templateRuleDto.getDefaultRemediationFunction())
       .setDefaultRemediationCoefficient(templateRuleDto.getDefaultRemediationCoefficient())
       .setDefaultRemediationOffset(templateRuleDto.getDefaultRemediationOffset())

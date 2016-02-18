@@ -22,6 +22,12 @@ package org.sonar.server.debt;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Resources;
+import java.io.FileInputStream;
+import java.io.InputStream;
+import java.io.Reader;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
 import org.mockito.invocation.InvocationOnMock;
@@ -29,13 +35,6 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.SonarPlugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
-
-import java.io.FileInputStream;
-import java.io.InputStream;
-import java.io.Reader;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;

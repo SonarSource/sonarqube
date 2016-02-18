@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.debt;
 
+import javax.annotation.CheckForNull;
 import org.sonar.api.server.ServerSide;
 
 import java.util.List;
@@ -32,18 +33,19 @@ import java.util.List;
 public interface DebtModel {
 
   /**
-   * @return all characteristics
+   * @return an empty list since 5.5.
    */
   List<DebtCharacteristic> allCharacteristics();
 
   /**
-   * @return only characteristics of highest level
+   * @return an empty list since 5.5.
    */
   List<DebtCharacteristic> characteristics();
 
   /**
-   * Return a characteristic or a sub-characteristic by its key
+   * @return null since 5.5.
    */
+  @CheckForNull
   DebtCharacteristic characteristicByKey(String key);
 
 }

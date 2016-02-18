@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
@@ -31,7 +30,6 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -41,7 +39,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -51,11 +48,8 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.db.debt.CharacteristicDao;
-import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.startup.RegisterDebtModel;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -70,23 +64,12 @@ public class RegisterRules implements Startable {
   private final RuleActivator ruleActivator;
   private final DbClient dbClient;
   private final Languages languages;
-  private final CharacteristicDao characteristicDao;
 
-  /**
-   * @param registerDebtModel used only to be started after init of the technical debt model
-   */
-  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, Languages languages, RegisterDebtModel registerDebtModel) {
-    this(defLoader, ruleActivator, dbClient, languages);
-  }
-
-  @VisibleForTesting
-  RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator,
-    DbClient dbClient, Languages languages) {
+  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, Languages languages) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
     this.languages = languages;
-    this.characteristicDao = dbClient.debtCharacteristicDao();
   }
 
   @Override
@@ -95,13 +78,12 @@ public class RegisterRules implements Startable {
     DbSession session = dbClient.openSession(false);
     try {
       Map<RuleKey, RuleDto> allRules = loadRules(session);
-      Map<String, CharacteristicDto> allCharacteristics = loadCharacteristics(session);
 
       RulesDefinition.Context context = defLoader.load();
       for (RulesDefinition.ExtendedRepository repoDef : getRepositories(context)) {
         if (languages.get(repoDef.language()) != null) {
           for (RulesDefinition.Rule ruleDef : repoDef.rules()) {
-            registerRule(ruleDef, allRules, allCharacteristics, session);
+            registerRule(ruleDef, allRules, session);
           }
           session.commit();
         }
@@ -120,7 +102,7 @@ public class RegisterRules implements Startable {
     // nothing
   }
 
-  private void registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDto> allRules, Map<String, CharacteristicDto> allCharacteristics, DbSession session) {
+  private void registerRule(RulesDefinition.Rule ruleDef, Map<RuleKey, RuleDto> allRules, DbSession session) {
     RuleKey ruleKey = RuleKey.of(ruleDef.repository().key(), ruleDef.key());
 
     RuleDto rule = allRules.containsKey(ruleKey) ? allRules.remove(ruleKey) : createRuleDto(ruleDef, session);
@@ -130,8 +112,7 @@ public class RegisterRules implements Startable {
       executeUpdate = true;
     }
 
-    CharacteristicDto subCharacteristic = characteristic(ruleDef, rule.getSubCharacteristicId(), allCharacteristics);
-    if (mergeDebtDefinitions(ruleDef, rule, subCharacteristic)) {
+    if (mergeDebtDefinitions(ruleDef, rule)) {
       executeUpdate = true;
     }
 
@@ -152,36 +133,6 @@ public class RegisterRules implements Startable {
       rules.put(rule.getKey(), rule);
     }
     return rules;
-  }
-
-  private Map<String, CharacteristicDto> loadCharacteristics(DbSession session) {
-    Map<String, CharacteristicDto> characteristics = new HashMap<>();
-    for (CharacteristicDto characteristicDto : characteristicDao.selectEnabledCharacteristics(session)) {
-      characteristics.put(characteristicDto.getKey(), characteristicDto);
-    }
-    return characteristics;
-  }
-
-  @CheckForNull
-  private static CharacteristicDto characteristic(RulesDefinition.Rule ruleDef, @Nullable Integer overridingCharacteristicId, Map<String, CharacteristicDto> allCharacteristics) {
-    String subCharacteristic = ruleDef.debtSubCharacteristic();
-    String repo = ruleDef.repository().key();
-    String ruleKey = ruleDef.key();
-
-    // Rule is not linked to a default characteristic or characteristic has been disabled by user
-    if (subCharacteristic == null) {
-      return null;
-    }
-    CharacteristicDto characteristicDto = allCharacteristics.get(subCharacteristic);
-    if (characteristicDto == null) {
-      // Log a warning only if rule has not been overridden by user
-      if (overridingCharacteristicId == null) {
-        LOG.warn(String.format("Unknown Characteristic '%s' was found on rule '%s:%s'", subCharacteristic, repo, ruleKey));
-      }
-    } else if (characteristicDto.getParentId() == null) {
-      throw MessageException.of(String.format("Rule '%s:%s' cannot be linked on the root characteristic '%s'", repo, ruleKey, subCharacteristic));
-    }
-    return characteristicDto;
   }
 
   private List<RulesDefinition.ExtendedRepository> getRepositories(RulesDefinition.Context context) {
@@ -228,7 +179,7 @@ public class RegisterRules implements Startable {
       changed = true;
     }
     if (mergeDescription(def, dto)) {
-      changed= true;
+      changed = true;
     }
     if (!dto.getSystemTags().containsAll(def.tags())) {
       dto.setSystemTags(def.tags());
@@ -273,29 +224,24 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable CharacteristicDto subCharacteristic) {
+  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto) {
     // Debt definitions are set to null if the sub-characteristic and the remediation function are null
-    DebtRemediationFunction debtRemediationFunction = subCharacteristic != null ? def.debtRemediationFunction() : null;
-    boolean hasDebt = subCharacteristic != null && debtRemediationFunction != null;
+    DebtRemediationFunction debtRemediationFunction = def.debtRemediationFunction();
+    boolean hasDebt = debtRemediationFunction != null;
     if (hasDebt) {
-      return mergeDebtDefinitions(def, dto,
-        subCharacteristic.getId(),
+      return mergeDebtDefinitions(dto,
         debtRemediationFunction.type().name(),
         debtRemediationFunction.coefficient(),
         debtRemediationFunction.offset(),
         def.effortToFixDescription());
     }
-    return mergeDebtDefinitions(def, dto, null, null, null, null, null);
+    return mergeDebtDefinitions(dto, null, null, null, null);
   }
 
-  private boolean mergeDebtDefinitions(RulesDefinition.Rule def, RuleDto dto, @Nullable Integer characteristicId, @Nullable String remediationFunction,
+  private boolean mergeDebtDefinitions(RuleDto dto, @Nullable String remediationFunction,
     @Nullable String remediationCoefficient, @Nullable String remediationOffset, @Nullable String effortToFixDescription) {
     boolean changed = false;
 
-    if (!ObjectUtils.equals(dto.getDefaultSubCharacteristicId(), characteristicId)) {
-      dto.setDefaultSubCharacteristicId(characteristicId);
-      changed = true;
-    }
     if (!StringUtils.equals(dto.getDefaultRemediationFunction(), remediationFunction)) {
       dto.setDefaultRemediationFunction(remediationFunction);
       changed = true;
@@ -434,10 +380,6 @@ public class RegisterRules implements Startable {
     }
     if (!StringUtils.equals(customRule.getConfigKey(), templateRule.getConfigKey())) {
       customRule.setConfigKey(templateRule.getConfigKey());
-      changed = true;
-    }
-    if (!ObjectUtils.equals(customRule.getDefaultSubCharacteristicId(), templateRule.getDefaultSubCharacteristicId())) {
-      customRule.setDefaultSubCharacteristicId(templateRule.getDefaultSubCharacteristicId());
       changed = true;
     }
     if (!StringUtils.equals(customRule.getDefaultRemediationFunction(), templateRule.getDefaultRemediationFunction())) {

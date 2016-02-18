@@ -315,35 +315,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   @Test
-  public void insert_characteristic_measure_from_report() {
-    setupReportComponents();
-
-    insertCharacteristicMeasure();
-  }
-
-  @Test
-  public void insert_characteristic__measure_from_view() {
-    setupViewsComponents();
-
-    insertCharacteristicMeasure();
-  }
-
-  private void insertCharacteristicMeasure() {
-    metricRepository.add(1, INT_METRIC);
-
-    measureRepository.addRawMeasure(ROOT_REF, INT_METRIC_KEY, newMeasureBuilder().forCharacteristic(10).create(1));
-
-    underTest.execute();
-
-    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
-    List<Map<String, Object>> dtos = selectSnapshots();
-    Map<String, Object> dto = dtos.get(0);
-
-    assertValue(dto, 1d);
-    assertThat(dto.get("characteristicId")).isEqualTo(10L);
-  }
-
-  @Test
   public void bestValue_measure_of_bestValueOptimized_metrics_are_not_persisted() {
     setupReportComponents();
 

@@ -34,15 +34,26 @@ import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 public class DebtRulesXMLImporterTest {
 
   ValidationMessages validationMessages = ValidationMessages.create();
-  DebtRulesXMLImporter importer = new DebtRulesXMLImporter();
+  DebtRulesXMLImporter underTest = new DebtRulesXMLImporter();
 
   @Test
   public void import_rules() throws Exception {
     String xml = getFileContent("import_rules.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
 
-    assertThat(results).hasSize(2);
+    assertThat(results).extracting("ruleKey").containsOnly(RuleKey.of("javasquid", "rule1"), RuleKey.of("javasquid", "rule2"));
+    assertThat(validationMessages.getErrors()).isEmpty();
+    assertThat(validationMessages.getWarnings()).isEmpty();
+  }
+
+  @Test
+  public void import_rules_with_deprecated_quality_model_format() throws Exception {
+    String xml = getFileContent("import_rules_with_deprecated_quality_model_format.xml");
+
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
+
+    assertThat(results).extracting("ruleKey").containsOnly(RuleKey.of("javasquid", "rule1"), RuleKey.of("javasquid", "rule2"));
     assertThat(validationMessages.getErrors()).isEmpty();
     assertThat(validationMessages.getWarnings()).isEmpty();
   }
@@ -51,11 +62,10 @@ public class DebtRulesXMLImporterTest {
   public void import_linear() throws Exception {
     String xml = getFileContent("import_linear.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
@@ -66,11 +76,10 @@ public class DebtRulesXMLImporterTest {
   public void import_linear_having_offset_to_zero() throws Exception {
     String xml = getFileContent("import_linear_having_offset_to_zero.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
@@ -81,11 +90,10 @@ public class DebtRulesXMLImporterTest {
   public void import_linear_with_offset() throws Exception {
     String xml = getFileContent("import_linear_with_offset.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isEqualTo("1min");
@@ -95,11 +103,10 @@ public class DebtRulesXMLImporterTest {
   public void import_constant_issue() throws Exception {
     String xml = getFileContent("import_constant_issue.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(ruleDebt.coefficient()).isNull();
     assertThat(ruleDebt.offset()).isEqualTo("3d");
@@ -109,11 +116,10 @@ public class DebtRulesXMLImporterTest {
   public void use_default_unit_when_no_unit() throws Exception {
     String xml = getFileContent("use_default_unit_when_no_unit.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3d");
     assertThat(ruleDebt.offset()).isEqualTo("1d");
@@ -123,11 +129,10 @@ public class DebtRulesXMLImporterTest {
   public void replace_mn_by_min() throws Exception {
     String xml = getFileContent("replace_mn_by_min.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3min");
     assertThat(ruleDebt.offset()).isNull();
@@ -137,11 +142,10 @@ public class DebtRulesXMLImporterTest {
   public void read_integer() throws Exception {
     String xml = getFileContent("read_integer.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
@@ -152,11 +156,10 @@ public class DebtRulesXMLImporterTest {
   public void convert_deprecated_linear_with_threshold_function_by_linear_function() throws Exception {
     String xml = getFileContent("convert_deprecated_linear_with_threshold_function_by_linear_function.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
     assertThat(ruleDebt.offset()).isNull();
@@ -168,11 +171,10 @@ public class DebtRulesXMLImporterTest {
   public void convert_constant_per_issue_with_coefficient_by_constant_per_issue_with_offset() throws Exception {
     String xml = getFileContent("convert_constant_per_issue_with_coefficient_by_constant_per_issue_with_offset.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
     assertThat(ruleDebt.coefficient()).isNull();
     assertThat(ruleDebt.offset()).isEqualTo("3h");
@@ -182,7 +184,7 @@ public class DebtRulesXMLImporterTest {
   public void ignore_remediation_cost_having_zero_value() throws Exception {
     String xml = getFileContent("ignore_remediation_cost_having_zero_value.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).isEmpty();
   }
 
@@ -190,17 +192,7 @@ public class DebtRulesXMLImporterTest {
   public void ignore_deprecated_constant_per_file_function() throws Exception {
     String xml = getFileContent("ignore_deprecated_constant_per_file_function.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
-    assertThat(results).isEmpty();
-
-    assertThat(validationMessages.getWarnings()).isNotEmpty();
-  }
-
-  @Test
-  public void ignore_rule_on_root_characteristics() throws Exception {
-    String xml = getFileContent("ignore_rule_on_root_characteristics.xml");
-
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).isEmpty();
 
     assertThat(validationMessages.getWarnings()).isNotEmpty();
@@ -210,11 +202,10 @@ public class DebtRulesXMLImporterTest {
   public void import_badly_formatted_xml() throws Exception {
     String xml = getFileContent("import_badly_formatted_xml.xml");
 
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).hasSize(1);
 
     RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(ruleDebt.ruleKey()).isEqualTo(RuleKey.of("checkstyle", "Regexp"));
     assertThat(ruleDebt.function()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
     assertThat(ruleDebt.coefficient()).isEqualTo("3h");
@@ -224,25 +215,10 @@ public class DebtRulesXMLImporterTest {
   @Test
   public void ignore_invalid_value() throws Exception {
     String xml = getFileContent("ignore_invalid_value.xml");
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
+    List<RuleDebt> results = underTest.importXML(xml, validationMessages);
     assertThat(results).isEmpty();
 
     assertThat(validationMessages.getErrors()).isNotEmpty();
-  }
-
-  /**
-   * SONAR-5180
-   */
-  @Test
-  public void convert_network_use_key() throws Exception {
-    // Rule is linked to sub characteristic key NETWORK_USE_EFFICIENCY
-    String xml = getFileContent("convert_network_use_key.xml");
-
-    List<RuleDebt> results = importer.importXML(xml, validationMessages);
-    assertThat(results).hasSize(1);
-
-    RuleDebt ruleDebt = results.get(0);
-    assertThat(ruleDebt.subCharacteristicKey()).isEqualTo("NETWORK_USE");
   }
 
   @Test
@@ -250,7 +226,7 @@ public class DebtRulesXMLImporterTest {
     String xml = getFileContent("fail_on_bad_xml.xml");
 
     try {
-      new DebtCharacteristicsXMLImporter().importXML(xml);
+      underTest.importXML(xml, validationMessages);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class);

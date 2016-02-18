@@ -56,8 +56,6 @@ import org.sonar.db.dashboard.WidgetDto;
 import org.sonar.db.dashboard.WidgetMapper;
 import org.sonar.db.dashboard.WidgetPropertyDto;
 import org.sonar.db.dashboard.WidgetPropertyMapper;
-import org.sonar.db.debt.CharacteristicDto;
-import org.sonar.db.debt.CharacteristicMapper;
 import org.sonar.db.debt.RequirementMigrationDto;
 import org.sonar.db.deprecated.WorkQueue;
 import org.sonar.db.duplication.DuplicationMapper;
@@ -205,7 +203,6 @@ public class MyBatis {
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
     confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
-    confBuilder.loadAlias("Characteristic", CharacteristicDto.class);
     confBuilder.loadAlias("UserWithPermission", UserWithPermissionDto.class);
     confBuilder.loadAlias("GroupWithPermission", GroupWithPermissionDto.class);
     confBuilder.loadAlias("QualityProfile", QualityProfileDto.class);
@@ -237,7 +234,7 @@ public class MyBatis {
       SchemaMigrationMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       UserMapper.class, GroupMapper.class, UserGroupMapper.class, UserTokenMapper.class,
       FileSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
-      NotificationQueueMapper.class, CharacteristicMapper.class,
+      NotificationQueueMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
       MeasureMapper.class, MetricMapper.class, CustomMeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,
       ProjectQgateAssociationMapper.class, EventMapper.class,

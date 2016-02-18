@@ -19,21 +19,11 @@
  */
 package org.sonar.server.rule.ws;
 
-import com.google.common.collect.LinkedListMultimap;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Multimap;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.List;
 import java.util.Locale;
-import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.DebtModel;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -53,16 +43,14 @@ public class AppAction implements RulesWsAction {
   private final Languages languages;
   private final RuleRepositories ruleRepositories;
   private final I18n i18n;
-  private final DebtModel debtModel;
   private final QProfileLoader profileLoader;
   private final UserSession userSession;
 
   public AppAction(Languages languages, RuleRepositories ruleRepositories, I18n i18n,
-    DebtModel debtModel, QProfileLoader profileLoader, UserSession userSession) {
+    QProfileLoader profileLoader, UserSession userSession) {
     this.languages = languages;
     this.ruleRepositories = ruleRepositories;
     this.i18n = i18n;
-    this.debtModel = debtModel;
     this.profileLoader = profileLoader;
     this.userSession = userSession;
   }
@@ -86,7 +74,6 @@ public class AppAction implements RulesWsAction {
     addLanguages(json);
     addRuleRepositories(json);
     addStatuses(json);
-    addCharacteristics(json);
     json.endObject().close();
   }
 
@@ -144,61 +131,4 @@ public class AppAction implements RulesWsAction {
     json.endObject();
   }
 
-  private void addCharacteristics(JsonWriter json) {
-
-    List<DebtCharacteristic> rootCharacs = sortRootCaracs();
-
-    Multimap<Integer, DefaultDebtCharacteristic> subByCaracId = ventilateSubCaracs(rootCharacs);
-
-    json.name("characteristics").beginArray();
-    for (DebtCharacteristic rootCarac : rootCharacs) {
-      json.beginObject()
-        .prop("key", rootCarac.key())
-        .prop("name", rootCarac.name())
-        .endObject();
-      for (DefaultDebtCharacteristic child : sortSubCaracs(subByCaracId, rootCarac)) {
-        json.beginObject()
-          .prop("key", child.key())
-          .prop("name", child.name())
-          .prop("parent", rootCarac.key())
-          .endObject();
-      }
-    }
-    json.endArray();
-  }
-
-  private List<DebtCharacteristic> sortRootCaracs() {
-    List<DebtCharacteristic> rootCharacs = Lists.newArrayList(debtModel.characteristics());
-    Collections.sort(rootCharacs, new Comparator<DebtCharacteristic>() {
-      @Override
-      public int compare(DebtCharacteristic o1, DebtCharacteristic o2) {
-        return new CompareToBuilder().append(o1.order(), o2.order()).toComparison();
-      }
-    });
-    return rootCharacs;
-
-  }
-
-  private Multimap<Integer, DefaultDebtCharacteristic> ventilateSubCaracs(List<DebtCharacteristic> rootCharacs) {
-    Multimap<Integer, DefaultDebtCharacteristic> subByCaracId = LinkedListMultimap.create(rootCharacs.size());
-
-    for (DebtCharacteristic carac : debtModel.allCharacteristics()) {
-      DefaultDebtCharacteristic fullCarac = (DefaultDebtCharacteristic) carac;
-      if (carac.isSub()) {
-        subByCaracId.put(fullCarac.parentId(), fullCarac);
-      }
-    }
-    return subByCaracId;
-  }
-
-  private List<DefaultDebtCharacteristic> sortSubCaracs(Multimap<Integer, DefaultDebtCharacteristic> subByCaracId, DebtCharacteristic rootCarac) {
-    List<DefaultDebtCharacteristic> subCaracs = Lists.newArrayList(subByCaracId.get(((DefaultDebtCharacteristic) rootCarac).id()));
-    Collections.sort(subCaracs, new Comparator<DefaultDebtCharacteristic>() {
-      @Override
-      public int compare(DefaultDebtCharacteristic o1, DefaultDebtCharacteristic o2) {
-        return o1.name().compareTo(o2.name());
-      }
-    });
-    return subCaracs;
-  }
 }

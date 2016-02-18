@@ -20,12 +20,13 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.base.Function;
-import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.Set;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.markdown.Markdown;
@@ -41,14 +42,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
-import java.util.Collections;
-import java.util.Map;
-import java.util.Set;
-
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
@@ -57,13 +50,11 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
  */
 public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
-  private final DebtModel debtModel;
   private final Languages languages;
   private final MacroInterpreter macroInterpreter;
 
-  public RuleMapping(final Languages languages, final MacroInterpreter macroInterpreter, final DebtModel debtModel, UserSession userSession) {
+  public RuleMapping(final Languages languages, final MacroInterpreter macroInterpreter, UserSession userSession) {
     super(userSession);
-    this.debtModel = debtModel;
     this.languages = languages;
     this.macroInterpreter = macroInterpreter;
 
@@ -110,8 +101,6 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     map("defaultDebtRemFn", new IndexStringMapper("defaultDebtRemFnOffset", RuleNormalizer.RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field()));
     map("effortToFixDescription", RuleNormalizer.RuleField.FIX_DESCRIPTION.field());
     map("debtOverloaded", new SimpleMapper(
-      RuleNormalizer.RuleField.CHARACTERISTIC_OVERLOADED.field(),
-      RuleNormalizer.RuleField.SUB_CHARACTERISTIC_OVERLOADED.field(),
       RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field()));
 
     map("debtRemFn", new IndexStringMapper("debtRemFnType", RuleNormalizer.RuleField.DEBT_FUNCTION_TYPE.field()));
@@ -131,8 +120,6 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
     ruleResponse.setKey(ruleDoc.key().toString());
     setRepository(ruleResponse, ruleDoc, fieldsToReturn);
-    setDebtCharacteristicNames(ruleResponse, ruleDoc, queryContext, context);
-    setDebtSubCharacteristicNames(ruleResponse, ruleDoc, queryContext, context);
     setName(ruleResponse, ruleDoc, fieldsToReturn);
     setStatus(ruleResponse, ruleDoc, fieldsToReturn);
     setTags(ruleResponse, ruleDoc, fieldsToReturn);
@@ -150,8 +137,6 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     setDebtRemediationFunctionFields(ruleResponse, ruleDoc, fieldsToReturn);
     setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDoc, fieldsToReturn);
     setIsDebtOverloaded(ruleResponse, ruleDoc, fieldsToReturn);
-    setDefaultDebtChar(ruleResponse, ruleDoc, fieldsToReturn);
-    setDefaultDebtSubChar(ruleResponse, ruleDoc, fieldsToReturn);
     setEffortToFixDescription(ruleResponse, ruleDoc, fieldsToReturn);
 
     return ruleResponse.build();
@@ -166,18 +151,6 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
   private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.FIX_DESCRIPTION) && ruleDoc.effortToFixDescription() != null) {
       ruleResponse.setEffortToFixDescription(ruleDoc.effortToFixDescription());
-    }
-  }
-
-  private static void setDefaultDebtSubChar(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, "defaultDebtSubChar") && ruleDoc.defaultDebtSubCharacteristicKey() != null) {
-      ruleResponse.setDefaultDebtSubChar(ruleDoc.defaultDebtSubCharacteristicKey());
-    }
-  }
-
-  private static void setDefaultDebtChar(Rules.Rule.Builder ruleResponse, Rule ruleDoc, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, "defaultDebtChar") && ruleDoc.defaultDebtCharacteristicKey() != null) {
-      ruleResponse.setDefaultDebtChar(ruleDoc.defaultDebtCharacteristicKey());
     }
   }
 
@@ -217,27 +190,6 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
         if (debtRemediationFunction.offset() != null) {
           ruleResponse.setDebtRemFnOffset(debtRemediationFunction.offset());
         }
-      }
-    }
-  }
-
-  private void setDebtCharacteristicNames(Rules.Rule.Builder ruleResponse, Rule ruleDoc, @Nullable QueryContext queryContext, RuleMappingContext context) {
-    if (needDebtCharacteristicNames(queryContext)) {
-      String debtCharacteristicKey = ruleDoc.debtCharacteristicKey();
-      if (debtCharacteristicKey != null) {
-        // load debt characteristics if requested
-        context.add(debtModel.characteristicByKey(debtCharacteristicKey));
-        buildCharacteristicRuleResponse(ruleResponse, ruleDoc, context);
-      }
-    }
-  }
-
-  private void setDebtSubCharacteristicNames(Rules.Rule.Builder ruleResponse, Rule ruleDoc, @Nullable QueryContext queryContext, RuleMappingContext context) {
-    if (needDebtSubCharacteristicNames(queryContext)) {
-      String debtSubCharacteristicKey = ruleDoc.debtSubCharacteristicKey();
-      if (debtSubCharacteristicKey != null) {
-        context.add(debtModel.characteristicByKey(debtSubCharacteristicKey));
-        buildDebtSubCharacteristicRuleResponse(ruleResponse, ruleDoc, context);
       }
     }
   }
@@ -358,63 +310,6 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
     return fieldsToReturn.isEmpty() || fieldsToReturn.contains(fieldName);
   }
 
-  private static void buildCharacteristicRuleResponse(Rules.Rule.Builder ruleResponse, Rule ruleDoc, RuleMappingContext context) {
-    String ruleCharacteristic = ruleToCharacteristic(ruleDoc);
-    if (ruleCharacteristic != null) {
-      ruleResponse.setDebtChar(ruleCharacteristic);
-      String ruleCharacteristicName = ruleToCharacteristicName(ruleDoc, context);
-      if (ruleCharacteristicName != null) {
-        ruleResponse.setDebtCharName(ruleCharacteristicName);
-      }
-    }
-  }
-
-  private static void buildDebtSubCharacteristicRuleResponse(Rules.Rule.Builder ruleResponse, Rule ruleDoc, RuleMappingContext context) {
-    String ruleSubCharacteristic = ruleToSubCharacteristic(ruleDoc);
-    if (ruleSubCharacteristic != null) {
-      ruleResponse.setDebtSubChar(ruleSubCharacteristic);
-      String ruleSubCharacteristicName = ruleToSubCharacteristicName(ruleDoc, context);
-      if (ruleSubCharacteristicName != null) {
-        ruleResponse.setDebtSubCharName(ruleSubCharacteristicName);
-      }
-    }
-  }
-
-  private static boolean needDebtCharacteristicNames(@Nullable QueryContext context) {
-    return context == null || context.getFieldsToReturn().contains("debtCharName");
-  }
-
-  private static boolean needDebtSubCharacteristicNames(@Nullable QueryContext context) {
-    return context == null || context.getFieldsToReturn().contains("debtSubCharName");
-  }
-
-  @CheckForNull
-  private static String ruleToCharacteristic(Rule rule) {
-    String debtCharacteristicKey = rule.debtCharacteristicKey();
-    if (debtCharacteristicKey != null && !DebtCharacteristic.NONE.equals(debtCharacteristicKey)) {
-      return debtCharacteristicKey;
-    }
-    return null;
-  }
-
-  @CheckForNull
-  private static String ruleToSubCharacteristic(Rule rule) {
-    String debtSubCharacteristicKey = rule.debtSubCharacteristicKey();
-    if (debtSubCharacteristicKey != null && !DebtCharacteristic.NONE.equals(debtSubCharacteristicKey)) {
-      return debtSubCharacteristicKey;
-    }
-
-    return null;
-  }
-
-  private static String ruleToCharacteristicName(Rule rule, RuleMappingContext context) {
-    return context.debtCharacteristicName(rule.debtCharacteristicKey());
-  }
-
-  private static String ruleToSubCharacteristicName(Rule rule, RuleMappingContext context) {
-    return context.debtCharacteristicName(rule.debtSubCharacteristicKey());
-  }
-
   private static boolean ruleToOverloaded(Rule rule) {
     return rule.debtOverloaded();
   }
@@ -453,16 +348,4 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 }
 
 class RuleMappingContext {
-  private final Map<String, String> debtCharacteristicNamesByKey = Maps.newHashMap();
-
-  @CheckForNull
-  public String debtCharacteristicName(@Nullable String key) {
-    return debtCharacteristicNamesByKey.get(key);
-  }
-
-  void add(@Nullable DebtCharacteristic c) {
-    if (c != null) {
-      debtCharacteristicNamesByKey.put(c.key(), c.name());
-    }
-  }
 }

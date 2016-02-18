@@ -22,22 +22,19 @@ require 'fastercsv'
 class Api::TimemachineController < Api::ApiController
   MAX_IN_ELEMENTS=990
 
-  class MetadataId < Struct.new(:metric_id, :characteristic_id)
+  class MetadataId < Struct.new(:metric_id)
   end
 
-  class Metadata < Struct.new(:metric, :characteristic)
+  class Metadata < Struct.new(:metric)
     def to_id
       @id ||=
         begin
-          MetadataId.new(self.metric.id, self.characteristic && self.characteristic.id)
+          MetadataId.new(self.metric.id)
         end
     end
 
     def to_s
       label=self.metric.key
-      if self.characteristic
-        label+="(#{characteristic.key})"
-      end
       label
     end
   end
@@ -53,8 +50,6 @@ class Api::TimemachineController < Api::ApiController
   # Optional parameters :
   # - fromDateTime
   # - toDateTime
-  # - model
-  # - characteristics
   #
   def index
     begin
@@ -95,16 +90,9 @@ class Api::TimemachineController < Api::ApiController
         sql_conditions << 'project_measures.metric_id IN (:metrics)'
         sql_values[:metrics] = @metrics.select{|m| m.id}
 
-        if @characteristics.empty?
-          sql_conditions<<'project_measures.characteristic_id IS NULL'
-        else
-          sql_conditions<<'project_measures.characteristic_id IN (:characteristics)'
-          sql_values[:characteristics]=@characteristics.select{|c| c.id}
-        end
-
         measures = ProjectMeasure.find(:all,
           :joins => :snapshot,
-          :select => 'project_measures.id,project_measures.value,project_measures.text_value,project_measures.metric_id,project_measures.snapshot_id,project_measures.characteristic_id,snapshots.created_at',
+          :select => 'project_measures.id,project_measures.value,project_measures.text_value,project_measures.metric_id,project_measures.snapshot_id,snapshots.created_at',
           :conditions => [sql_conditions.join(' AND '), sql_values],
           :order => 'snapshots.created_at')
 
@@ -118,7 +106,7 @@ class Api::TimemachineController < Api::ApiController
           @sids<<m.snapshot_id
           @dates_by_sid[m.snapshot_id]=date_column.type_cast(m.attributes['created_at'])
           @measures_by_sid[m.snapshot_id]||={}
-          @measures_by_sid[m.snapshot_id][MetadataId.new(m.metric_id, m.characteristic_id)]=m
+          @measures_by_sid[m.snapshot_id][MetadataId.new(m.metric_id)]=m
         end
         @sids.uniq!
       end
@@ -148,30 +136,12 @@ class Api::TimemachineController < Api::ApiController
     end
   end
 
-  def load_characteristics
-    if params[:model].present? && params[:characteristics].present?
-      @characteristics=Characteristic.find(:all,
-        :select => 'characteristics.id,characteristics.kee,characteristics.name',
-        :joins => :quality_model,
-        :conditions => ['quality_models.name=? AND characteristics.kee IN (?)', params[:model], params[:characteristics].split(',')])
-    else
-      @characteristics=[]
-    end
-  end
-
   def load_metadata
     load_metrics
-    load_characteristics
 
     @metadata=[]
     @metrics.each do |metric|
-      if @characteristics.empty?
-        @metadata<<Metadata.new(metric, nil)
-      else
-        @characteristics.each do |characteristic|
-          @metadata<<Metadata.new(metric, characteristic)
-        end
-      end
+      @metadata<<Metadata.new(metric)
     end
     @metadata
   end
@@ -183,10 +153,6 @@ class Api::TimemachineController < Api::ApiController
 
     @metadata.each do |metadata|
       col={:metric => metadata.metric.key}
-      if metadata.characteristic
-        col[:model]=characteristic.model.name
-        col[:characteristic]=characteristic.kee
-      end
       cols<<col
     end
 

@@ -144,19 +144,6 @@ public class MeasureToMeasureDtoTest {
 
   @Test
   @UseDataProvider("all_types_Measures")
-  public void toMeasureDto_does_no_set_characteristicId_if_not_set_in_Measure(Measure measure, Metric metric) {
-    assertThat(underTest.toMeasureDto(measure, metric, SOME_COMPONENT).getCharacteristicId()).isNull();
-  }
-
-  @Test
-  public void toMeasureDto_sets_characteristicId_if_set_in_Measure() {
-    Measure measure = Measure.newMeasureBuilder().forCharacteristic(42).createNoValue();
-
-    assertThat(underTest.toMeasureDto(measure, SOME_BOOLEAN_METRIC, SOME_COMPONENT).getCharacteristicId()).isEqualTo(42);
-  }
-
-  @Test
-  @UseDataProvider("all_types_Measures")
   public void toMeasureDto_set_componentId_and_snapshotId_from_method_arguments(Measure measure, Metric metric) {
     MeasureDto measureDto = underTest.toMeasureDto(measure, metric, SOME_COMPONENT);
 

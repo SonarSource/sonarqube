@@ -90,8 +90,6 @@ public class RubyRuleServiceTest {
     params.put("severities", "MAJOR,MINOR");
     params.put("statuses", "BETA,READY");
     params.put("tags", "tag1,tag2");
-    params.put("debtCharacteristics", "char1,char2");
-    params.put("hasDebtCharacteristic", "true");
     params.put(Param.PAGE, "1");
     params.put("pageSize", "40");
     service.find(params);
@@ -106,8 +104,6 @@ public class RubyRuleServiceTest {
     assertThat(ruleQueryCaptor.getValue().getSeverities()).containsOnly("MAJOR", "MINOR");
     assertThat(ruleQueryCaptor.getValue().getStatuses()).containsOnly(RuleStatus.BETA, RuleStatus.READY);
     assertThat(ruleQueryCaptor.getValue().getTags()).containsOnly("tag1", "tag2");
-    assertThat(ruleQueryCaptor.getValue().getDebtCharacteristics()).containsOnly("char1", "char2");
-    assertThat(ruleQueryCaptor.getValue().getHasDebtCharacteristic()).isTrue();
     assertThat(ruleQueryCaptor.getValue().getQProfileKey()).isNull();
     assertThat(ruleQueryCaptor.getValue().getActivation()).isNull();
 

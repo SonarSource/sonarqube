@@ -30,12 +30,10 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.db.DbSession;
-import org.sonar.db.debt.CharacteristicDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
-import org.sonar.server.debt.DebtTesting;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleDoc;
@@ -317,66 +315,6 @@ public class RuleBackendMediumTest {
     dbSession.commit();
 
     assertThat(((RuleDoc) index.getByKey(RuleTesting.XOO_X1)).id()).isEqualTo(ruleDto.getId());
-  }
-
-  @Test
-  public void insert_update_characteristics() {
-
-    CharacteristicDto char1 = DebtTesting.newCharacteristicDto("c1");
-    db.debtCharacteristicDao().insert(dbSession, char1);
-    dbSession.commit();
-
-    CharacteristicDto char11 = DebtTesting.newCharacteristicDto("c11")
-      .setParentId(char1.getId());
-    db.debtCharacteristicDao().insert(dbSession, char11);
-
-    dao.insert(dbSession,
-      RuleTesting.newXooX1()
-        .setDefaultSubCharacteristicId(char11.getId())
-        .setRemediationFunction(null)
-        .setRemediationCoefficient(null)
-        .setRemediationOffset(null));
-    dbSession.commit();
-
-    // 0. assert chars in DB
-    assertThat(db.debtCharacteristicDao().selectByKey("c1", dbSession)).isNotNull();
-    assertThat(db.debtCharacteristicDao().selectByKey("c1", dbSession).getParentId()).isNull();
-    assertThat(db.debtCharacteristicDao().selectByKey("c11", dbSession)).isNotNull();
-    assertThat(db.debtCharacteristicDao().selectByKey("c11", dbSession).getParentId()).isEqualTo(char1.getId());
-
-    // 1. find char and subChar from rule
-    Rule rule = index.getByKey(RuleTesting.XOO_X1);
-    assertThat(rule.debtCharacteristicKey()).isEqualTo(char1.getKey());
-    assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char11.getKey());
-    assertThat(rule.debtOverloaded()).isFalse();
-
-    // 3. set Non-default characteristics
-    RuleDto ruleDto = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
-    CharacteristicDto char2 = DebtTesting.newCharacteristicDto("c2");
-    db.debtCharacteristicDao().insert(dbSession, char2);
-
-    CharacteristicDto char21 = DebtTesting.newCharacteristicDto("c21")
-      .setParentId(char2.getId());
-    db.debtCharacteristicDao().insert(dbSession, char21);
-
-    ruleDto.setSubCharacteristicId(char21.getId());
-    dao.update(dbSession, ruleDto);
-    dbSession.commit();
-
-    rule = index.getByKey(RuleTesting.XOO_X1);
-
-    // Assert rule has debt Overloaded Char
-    assertThat(rule.debtOverloaded()).isTrue();
-
-    // 4. Get non-default chars from Rule
-    assertThat(rule.debtCharacteristicKey()).isEqualTo(char2.getKey());
-    assertThat(rule.debtSubCharacteristicKey()).isEqualTo(char21.getKey());
-
-    // 5 Assert still get the default one
-    assertThat(rule.debtOverloaded()).isTrue();
-    assertThat(rule.defaultDebtCharacteristicKey()).isEqualTo(char1.getKey());
-    assertThat(rule.defaultDebtSubCharacteristicKey()).isEqualTo(char11.getKey());
-
   }
 
   @Test

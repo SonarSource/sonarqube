@@ -54,7 +54,6 @@ import org.elasticsearch.index.query.SimpleQueryStringBuilder;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 import org.elasticsearch.search.sort.FieldSortBuilder;
@@ -63,7 +62,6 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.rule.Rule;
@@ -79,15 +77,12 @@ import static com.google.common.collect.Lists.newArrayList;
 
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
-  private static final String FILTER_DEBT_CHARACTERISTICS = "debtCharacteristics";
-  private static final String FILTER_HAS_DEBT_CHARACTERISTICS = "hasDebtCharacteristic";
   public static final String FACET_LANGUAGES = "languages";
   public static final String FACET_TAGS = "tags";
   public static final String FACET_REPOSITORIES = "repositories";
   public static final String FACET_SEVERITIES = "severities";
   public static final String FACET_ACTIVE_SEVERITIES = "active_severities";
   public static final String FACET_STATUSES = "statuses";
-  public static final String FACET_DEBT_CHARACTERISTICS = "debt_characteristics";
   public static final String FACET_OLD_DEFAULT = "true";
 
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = ImmutableList.copyOf(
@@ -216,11 +211,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
     qb.should(this.termQuery(RuleNormalizer.RuleField._KEY, queryString, 35f));
     qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
-    qb.should(this.termQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 5f));
-    qb.should(this.termQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 5f));
     qb.should(this.termQuery(RuleNormalizer.RuleField.ALL_TAGS, queryString, 10f));
-    qb.should(this.termAnyQuery(RuleNormalizer.RuleField.CHARACTERISTIC, queryString, 1f));
-    qb.should(this.termAnyQuery(RuleNormalizer.RuleField.SUB_CHARACTERISTIC, queryString, 1f));
     qb.should(this.termAnyQuery(RuleNormalizer.RuleField.ALL_TAGS, queryString, 1f));
 
     return qb;
@@ -270,46 +261,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     if (!CollectionUtils.isEmpty(query.getTags())) {
       filters.put(RuleNormalizer.RuleField.ALL_TAGS.field(),
         FilterBuilders.termsFilter(RuleNormalizer.RuleField.ALL_TAGS.field(), query.getTags()));
-    }
-
-    // Construct the debt filter on effective char and subChar
-    Collection<String> debtCharacteristics = query.getDebtCharacteristics();
-    if (debtCharacteristics != null && !debtCharacteristics.isEmpty()) {
-      filters.put(FILTER_DEBT_CHARACTERISTICS,
-        FilterBuilders.boolFilter().must(
-          FilterBuilders.orFilter(
-            // Match only when NONE (overridden)
-            FilterBuilders.andFilter(
-              FilterBuilders.notFilter(
-                FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE)),
-              FilterBuilders.orFilter(
-                FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), debtCharacteristics),
-                FilterBuilders.termsFilter(RuleNormalizer.RuleField.CHARACTERISTIC.field(), debtCharacteristics))
-              ))
-          ));
-    }
-
-    // Debt char exist filter
-    Boolean hasDebtCharacteristic = query.getHasDebtCharacteristic();
-    if (hasDebtCharacteristic != null) {
-      if (hasDebtCharacteristic) {
-        filters.put(FILTER_HAS_DEBT_CHARACTERISTICS,
-          // Match either characteristic is not disabled, either characteristic or default characteristic is defined on the rule
-          FilterBuilders.boolFilter()
-            .mustNot(FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE))
-            .should(FilterBuilders.existsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()))
-            .should(FilterBuilders.existsFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field())));
-      } else {
-        filters.put(FILTER_HAS_DEBT_CHARACTERISTICS,
-          // Match either characteristic is disabled, either no characteristic or default characteristic is defined on the rule
-          FilterBuilders.orFilter(
-            FilterBuilders.termsFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field(), DebtCharacteristic.NONE),
-            FilterBuilders.andFilter(
-              FilterBuilders.missingFilter(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field()),
-              FilterBuilders.missingFilter(RuleNormalizer.RuleField.DEFAULT_SUB_CHARACTERISTIC.field())
-              )
-            ));
-      }
     }
 
     if (query.getAvailableSince() != null) {
@@ -374,7 +325,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     addDefaultFacets(query, options, queryBuilder, filters, aggregations, stickyFacetBuilder);
 
-    addStatusFacetIfNeeded(query, options, aggregations, stickyFacetBuilder);
+    addStatusFacetIfNeeded(options, aggregations, stickyFacetBuilder);
 
     if (options.facets().contains(FACET_SEVERITIES)) {
       aggregations.put(FACET_SEVERITIES,
@@ -382,14 +333,11 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
 
     addActiveSeverityFacetIfNeeded(query, options, aggregations, stickyFacetBuilder);
-
-    addCharacteristicsFacetIfNeeded(query, options, aggregations, stickyFacetBuilder);
-
     return aggregations;
 
   }
 
-  private void addStatusFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+  private void addStatusFacetIfNeeded(QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
     if (options.facets().contains(FACET_STATUSES)) {
       BoolFilterBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.STATUS.field());
       AggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter")
@@ -438,59 +386,6 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
               .size(Severity.ALL.size())));
 
       aggregations.put(FACET_ACTIVE_SEVERITIES, AggregationBuilders.global(FACET_ACTIVE_SEVERITIES).subAggregation(activeSeverities));
-    }
-  }
-
-  private void addCharacteristicsFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
-
-    if (options.facets().contains(FACET_DEBT_CHARACTERISTICS)) {
-      /*
-       * Since this facet concerns 2 fields, we're using an aggregation structure like this:
-       * global aggregation
-       * |- sub-aggregation on characteristics: filter
-       * | |- classic sub-aggregation with top-n terms, excluding NONE
-       * | |- classic sub-aggregation with selected terms
-       * | |- terms aggregation on "NONE"
-       * | |- missing aggregation
-       * |- sub-aggregation on sub-characteristics: filter, excluding NONE
-       * |- classic sub-aggregation with top-n terms
-       * |- classic sub-aggregation with selected terms
-       */
-      int characsSize = 10;
-      int subCharacsSize = 300;
-      Collection<String> characsFromQuery = query.getDebtCharacteristics();
-      Object[] selectedChars = characsFromQuery == null ? new Object[0] : characsFromQuery.toArray();
-      BoolFilterBuilder stickyFacetFilter = stickyFacetBuilder.getStickyFacetFilter(FILTER_DEBT_CHARACTERISTICS, FILTER_HAS_DEBT_CHARACTERISTICS);
-      AggregationBuilder debtChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__chars")
-        .filter(stickyFacetFilter)
-        .subAggregation(
-          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_top").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
-            .exclude(DebtCharacteristic.NONE)
-            .size(characsSize))
-        .subAggregation(
-          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_selected").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
-            .include(Joiner.on('|').join(selectedChars))
-            .size(characsSize))
-        .subAggregation(
-          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_none").field(RuleNormalizer.RuleField.CHARACTERISTIC.field())
-            .include(DebtCharacteristic.NONE)
-            .size(characsSize))
-        .subAggregation(
-          AggregationBuilders.missing(FACET_DEBT_CHARACTERISTICS + "__chars_missing").field(RuleNormalizer.RuleField.CHARACTERISTIC.field()));
-      AggregationBuilder debtSubChar = AggregationBuilders.filter(FACET_DEBT_CHARACTERISTICS + "__subchars")
-        .filter(stickyFacetFilter)
-        .subAggregation(
-          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__subchars_top").field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
-            .exclude(DebtCharacteristic.NONE)
-            .size(subCharacsSize))
-        .subAggregation(
-          AggregationBuilders.terms(FACET_DEBT_CHARACTERISTICS + "__chars_selected").field(RuleNormalizer.RuleField.SUB_CHARACTERISTIC.field())
-            .include(Joiner.on('|').join(selectedChars))
-            .size(subCharacsSize));
-      GlobalBuilder debtCharTopLevel = AggregationBuilders.global(FACET_DEBT_CHARACTERISTICS)
-        .subAggregation(debtChar)
-        .subAggregation(debtSubChar);
-      aggregations.put(FACET_DEBT_CHARACTERISTICS, debtCharTopLevel);
     }
   }
 

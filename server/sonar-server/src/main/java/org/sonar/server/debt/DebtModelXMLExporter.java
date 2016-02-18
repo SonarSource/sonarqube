@@ -19,20 +19,14 @@
  */
 package org.sonar.server.debt;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 import com.google.common.collect.Ordering;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.Collections;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.xml.transform.OutputKeys;
 import javax.xml.transform.Source;
@@ -46,11 +40,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.server.debt.DebtPredicates.DebtCharacteristicMatchId;
-import org.sonar.server.debt.DebtPredicates.DebtCharacteristicMatchKey;
 import org.xml.sax.InputSource;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Export characteristics and rule debt definitions to XML
@@ -62,8 +52,6 @@ public class DebtModelXMLExporter {
   private static final String DEFAULT_INDENT = "2";
 
   public static final String CHARACTERISTIC = "chc";
-  public static final String CHARACTERISTIC_KEY = "key";
-  public static final String CHARACTERISTIC_NAME = "name";
   public static final String PROPERTY = "prop";
   public static final String PROPERTY_KEY = "key";
   public static final String PROPERTY_VALUE = "val";
@@ -76,39 +64,16 @@ public class DebtModelXMLExporter {
   public static final String PROPERTY_COEFFICIENT = "remediationFactor";
   public static final String PROPERTY_OFFSET = "offset";
 
-  protected String export(DebtModel debtModel, List<RuleDebt> allRules) {
+  protected String export(List<RuleDebt> allRules) {
     StringBuilder sb = new StringBuilder();
     sb.append("<" + ROOT + ">");
-    for (DebtCharacteristic characteristic : debtModel.rootCharacteristics()) {
-      processCharacteristic(debtModel, characteristic, allRules, sb);
+    for (RuleDebt rule : allRules) {
+      processRule(rule, sb);
     }
     sb.append("</" + ROOT + ">");
     String xml = sb.toString();
     xml = prettyFormatXml(xml);
     return xml;
-  }
-
-  private void processCharacteristic(DebtModel debtModel, DebtCharacteristic characteristic, List<RuleDebt> allRules, StringBuilder xml) {
-    xml.append("<" + CHARACTERISTIC + ">");
-    if (StringUtils.isNotBlank(characteristic.key())) {
-      xml.append("<" + CHARACTERISTIC_KEY + ">");
-      xml.append(StringEscapeUtils.escapeXml(characteristic.key()));
-      xml.append("</" + CHARACTERISTIC_KEY + "><" + CHARACTERISTIC_NAME + ">");
-      xml.append(StringEscapeUtils.escapeXml(characteristic.name()));
-      xml.append("</" + CHARACTERISTIC_NAME + ">");
-    }
-
-    if (characteristic.isSub()) {
-      List<RuleDebt> rules = rules(allRules, characteristic.key());
-      for (RuleDebt ruleDto : rules) {
-        processRule(ruleDto, xml);
-      }
-    } else {
-      for (DebtCharacteristic child : debtModel.subCharacteristics(characteristic.key())) {
-        processCharacteristic(debtModel, child, allRules, xml);
-      }
-    }
-    xml.append("</" + CHARACTERISTIC + ">");
   }
 
   private static void processRule(RuleDebt rule, StringBuilder xml) {
@@ -180,65 +145,8 @@ public class DebtModelXMLExporter {
     return xml;
   }
 
-  private List<RuleDebt> rules(List<RuleDebt> rules, String parentKey) {
-    return newArrayList(Iterables.filter(rules, new RuleDebtSubCharKeyMatchKey(parentKey)));
-  }
-
-  public static class DebtModel {
-
-    private Multimap<String, DebtCharacteristic> characteristicsByKey;
-
-    public DebtModel() {
-      characteristicsByKey = ArrayListMultimap.create();
-    }
-
-    public DebtModel addRootCharacteristic(DebtCharacteristic characteristic) {
-      characteristicsByKey.put(null, characteristic);
-      return this;
-    }
-
-    public DebtModel addSubCharacteristic(DebtCharacteristic subCharacteristic, String characteristicKey) {
-      characteristicsByKey.put(characteristicKey, subCharacteristic);
-      return this;
-    }
-
-    /**
-     * @return root characteristics sorted by order
-     */
-    public List<DebtCharacteristic> rootCharacteristics() {
-      return sortByOrder(newArrayList(characteristicsByKey.get(null)));
-    }
-
-    /**
-     * @return root characteristics sorted by name
-     */
-    public List<DebtCharacteristic> subCharacteristics(String characteristicKey) {
-      return sortByName(newArrayList(characteristicsByKey.get(characteristicKey)));
-    }
-
-    @CheckForNull
-    public DebtCharacteristic characteristicByKey(String key) {
-      return Iterables.find(characteristicsByKey.values(), new DebtCharacteristicMatchKey(key), null);
-    }
-
-    public DebtCharacteristic characteristicById(int id) {
-      return Iterables.find(characteristicsByKey.values(), new DebtCharacteristicMatchId(id));
-    }
-
-    private static List<DebtCharacteristic> sortByOrder(List<DebtCharacteristic> characteristics) {
-      Collections.sort(characteristics, new SortByOrder());
-      return characteristics;
-    }
-
-    private static List<DebtCharacteristic> sortByName(List<DebtCharacteristic> characteristics) {
-      Collections.sort(characteristics, new SortByName());
-      return characteristics;
-    }
-  }
-
   public static class RuleDebt {
     private RuleKey ruleKey;
-    private String subCharacteristicKey;
     private String function;
     private String coefficient;
     private String offset;
@@ -249,15 +157,6 @@ public class DebtModelXMLExporter {
 
     public RuleDebt setRuleKey(RuleKey ruleKey) {
       this.ruleKey = ruleKey;
-      return this;
-    }
-
-    public String subCharacteristicKey() {
-      return subCharacteristicKey;
-    }
-
-    public RuleDebt setSubCharacteristicKey(String subCharacteristicKey) {
-      this.subCharacteristicKey = subCharacteristicKey;
       return this;
     }
 
@@ -294,24 +193,10 @@ public class DebtModelXMLExporter {
     public String toString() {
       return "RuleDebt{" +
         "ruleKey=" + ruleKey +
-        ", subCharacteristicKey='" + subCharacteristicKey + '\'' +
         ", function=" + function +
         ", coefficient='" + coefficient + '\'' +
         ", offset='" + offset + '\'' +
         '}';
-    }
-  }
-
-  private static class RuleDebtSubCharKeyMatchKey implements Predicate<RuleDebt> {
-    private final String key;
-
-    public RuleDebtSubCharKeyMatchKey(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(@Nonnull RuleDebt input) {
-      return key.equals(input.subCharacteristicKey());
     }
   }
 

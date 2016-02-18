@@ -134,10 +134,6 @@ public class DefaultRuleFinder implements RuleFinder {
       .setRepositoryKey(rule.key().repository())
       .setSeverity(rule.severity() != null ? RulePriority.valueOf(rule.severity()) : null)
       .setStatus(rule.status().name())
-      .setDefaultCharacteristicKey(rule.defaultDebtCharacteristicKey())
-      .setDefaultSubCharacteristicKey(rule.defaultDebtSubCharacteristicKey())
-      .setCharacteristicKey(rule.debtCharacteristicKey())
-      .setSubCharacteristicKey(rule.debtSubCharacteristicKey())
       .setTags(rule.tags().toArray(new String[rule.tags().size()]))
       .setId(((RuleDoc) rule).id());
 

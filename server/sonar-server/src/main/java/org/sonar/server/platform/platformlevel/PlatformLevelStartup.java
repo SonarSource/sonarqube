@@ -31,7 +31,6 @@ import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.startup.RegisterDashboards;
-import org.sonar.server.startup.RegisterDebtModel;
 import org.sonar.server.startup.RegisterMetrics;
 import org.sonar.server.startup.RegisterNewMeasureFilters;
 import org.sonar.server.startup.RegisterPermissionTemplates;
@@ -54,7 +53,6 @@ public class PlatformLevelStartup extends PlatformLevel {
       RegisterQualityGates.class,
       RegisterRules.class,
       RegisterQualityProfiles.class,
-      RegisterDebtModel.class,
       GeneratePluginIndex.class,
       RegisterNewMeasureFilters.class,
       RegisterDashboards.class,
