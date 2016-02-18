@@ -35,6 +35,7 @@ import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.deprecated.DeprecatedSensorContext;
 import org.sonar.batch.deprecated.perspectives.BatchPerspectives;
 import org.sonar.batch.events.EventBus;
+import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.issue.IssuableFactory;
 import org.sonar.batch.issue.IssueFilters;
@@ -68,7 +69,6 @@ import org.sonar.batch.scan.filesystem.ModuleFileSystemInitializer;
 import org.sonar.batch.scan.filesystem.ModuleInputFileCache;
 import org.sonar.batch.scan.filesystem.StatusDetectionFactory;
 import org.sonar.batch.scan.report.IssuesReports;
-import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 import org.sonar.batch.sensor.SensorOptimizer;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -97,6 +97,7 @@ public class ModuleScanContainer extends ComponentContainer {
     add(
       moduleDefinition,
       module,
+      getComponentByType(BatchComponentCache.class).get(module).inputComponent(),
       ModuleSettings.class);
 
     // hack to initialize settings before ExtensionProviders
@@ -132,7 +133,6 @@ public class ModuleScanContainer extends ComponentContainer {
       SensorOptimizer.class,
       PostJobOptimizer.class,
 
-      DefaultSensorContext.class,
       DefaultPostJobContext.class,
       DefaultSensorStorage.class,
       DeprecatedSensorContext.class,

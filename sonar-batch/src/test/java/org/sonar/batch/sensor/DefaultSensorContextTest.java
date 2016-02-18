@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -62,7 +63,7 @@ public class DefaultSensorContextTest {
     settings = new Settings();
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
-    adaptor = new DefaultSensorContext(settings, fs, activeRules, analysisMode, sensorStorage);
+    adaptor = new DefaultSensorContext(mock(InputModule.class), settings, fs, activeRules, analysisMode, sensorStorage);
   }
 
   @Test

@@ -33,7 +33,9 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
+import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -71,6 +73,7 @@ public class SensorContextTester implements SensorContext {
   private ActiveRules activeRules;
   private MockAnalysisMode analysisMode;
   private InMemorySensorStorage sensorStorage;
+  private InputModule module;
 
   private SensorContextTester(File moduleBaseDir) {
     this.settings = new Settings();
@@ -78,6 +81,7 @@ public class SensorContextTester implements SensorContext {
     this.activeRules = new ActiveRulesBuilder().build();
     this.analysisMode = new MockAnalysisMode();
     this.sensorStorage = new InMemorySensorStorage();
+    this.module = new DefaultInputModule("projectKey");
   }
 
   public static SensorContextTester create(File moduleBaseDir) {
@@ -114,6 +118,11 @@ public class SensorContextTester implements SensorContext {
   @Override
   public MockAnalysisMode analysisMode() {
     return analysisMode;
+  }
+
+  @Override
+  public InputModule module() {
+    return module;
   }
 
   @Override

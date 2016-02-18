@@ -19,13 +19,10 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.api.batch.Sensor;
-import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.component.ResourcePerspectives;
-import org.sonar.api.issue.Issuable;
-import org.sonar.api.resources.Project;
+import org.sonar.api.batch.sensor.Sensor;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.batch.sensor.SensorDescriptor;
+import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
 
@@ -33,27 +30,28 @@ public class OneIssuePerModuleSensor implements Sensor {
 
   public static final String RULE_KEY = "OneIssuePerModule";
 
-  private final ResourcePerspectives perspectives;
-  private final FileSystem fs;
-  private final ActiveRules activeRules;
-
-  public OneIssuePerModuleSensor(ResourcePerspectives perspectives, FileSystem fs, ActiveRules activeRules) {
-    this.perspectives = perspectives;
-    this.fs = fs;
-    this.activeRules = activeRules;
+  @Override
+  public void describe(SensorDescriptor descriptor) {
+    descriptor
+      .name("One Issue Per Module")
+      .onlyOnLanguages(Xoo.KEY)
+      .createIssuesForRuleRepositories(XooRulesDefinition.XOO_REPOSITORY);
   }
 
   @Override
-  public void analyse(Project project, SensorContext context) {
-    Issuable issuable = perspectives.as(Issuable.class, project);
-    issuable.addIssue(issuable.newIssueBuilder()
-      .ruleKey(RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY))
-      .message("This issue is generated on each module")
-      .build());
+  public void execute(SensorContext context) {
+    analyse(context, Xoo.KEY, XooRulesDefinition.XOO_REPOSITORY);
   }
 
-  @Override
-  public boolean shouldExecuteOnProject(Project project) {
-    return fs.hasFiles(fs.predicates().hasLanguages(Xoo.KEY)) && (activeRules.find(RuleKey.of(XooRulesDefinition.XOO_REPOSITORY, RULE_KEY)) != null);
+  private void analyse(SensorContext context, String language, String repo) {
+    RuleKey ruleKey = RuleKey.of(repo, RULE_KEY);
+    NewIssue newIssue = context.newIssue();
+    newIssue
+      .forRule(ruleKey)
+      .at(newIssue.newLocation()
+        .on(context.module())
+        .message("This issue is generated on each module"))
+      .save();
   }
+
 }

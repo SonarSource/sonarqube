@@ -34,12 +34,11 @@ import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.AnalysisMode;
+import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.batch.fs.TextPointer;
 import org.sonar.api.batch.fs.TextRange;
-import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.batch.issue.IssueCache;
@@ -119,21 +118,24 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     return reportComponents.get(key);
   }
 
-  public List<BatchReport.Issue> issuesFor(InputPath inputPath) {
+  public List<BatchReport.Issue> issuesFor(InputComponent inputComponent) {
+    int ref = reportComponents.get(inputComponent.key()).getRef();
+    return issuesFor(ref);
+  }
+
+  public List<BatchReport.Issue> issuesFor(Component reportComponent) {
+    int ref = reportComponent.getRef();
+    return issuesFor(ref);
+  }
+
+  private List<BatchReport.Issue> issuesFor(int ref) {
     List<BatchReport.Issue> result = Lists.newArrayList();
-    int ref = reportComponents.get(key(inputPath)).getRef();
     try (CloseableIterator<BatchReport.Issue> it = reader.readComponentIssues(ref)) {
       while (it.hasNext()) {
         result.add(it.next());
       }
-    } catch (Exception e) {
-      throw new IllegalStateException("Can't read issues for " + inputPath.absolutePath(), e);
     }
     return result;
-  }
-
-  private static String key(InputPath inputPath) {
-    return inputPath instanceof InputFile ? ((DefaultInputFile) inputPath).key() : ((DefaultInputDir) inputPath).key();
   }
 
   public Collection<InputFile> inputFiles() {

@@ -23,6 +23,7 @@ import java.io.Serializable;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
@@ -65,8 +66,10 @@ public class DefaultSensorContext implements SensorContext {
   private final ActiveRules activeRules;
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
+  private final InputModule module;
 
-  public DefaultSensorContext(Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage) {
+  public DefaultSensorContext(InputModule module, Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage) {
+    this.module = module;
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
@@ -92,6 +95,11 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public AnalysisMode analysisMode() {
     return analysisMode;
+  }
+
+  @Override
+  public InputModule module() {
+    return module;
   }
 
   @Override

@@ -23,6 +23,7 @@ import com.google.common.annotations.Beta;
 import java.io.Serializable;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
@@ -60,6 +61,11 @@ public interface SensorContext {
    * Get analysis mode.
    */
   AnalysisMode analysisMode();
+
+  /**
+   * @since 5.5
+   */
+  InputModule module();
 
   // ----------- MEASURES --------------
 

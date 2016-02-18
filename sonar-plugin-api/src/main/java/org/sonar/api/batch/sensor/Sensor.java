@@ -20,12 +20,12 @@
 package org.sonar.api.batch.sensor;
 
 import com.google.common.annotations.Beta;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.BatchSide;
 
 /**
  * <p>
- * A sensor is invoked once during the analysis of a project. The sensor can parse a flat file, connect to a web server... Sensors are
+ * A sensor is invoked once for each module of a project, starting from leaf modules. The sensor can parse a flat file, connect to a web server... Sensors are
  * used to add measure and issues at file level.
  * </p>
  *
