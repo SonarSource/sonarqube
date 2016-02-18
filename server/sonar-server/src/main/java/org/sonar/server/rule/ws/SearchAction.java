@@ -55,8 +55,8 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.Facets;
@@ -70,6 +70,15 @@ import org.sonarqube.ws.Rules.SearchResponse;
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.search.QueryContext.MAX_LIMIT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+
+import static org.sonar.server.rule.index.RuleIndex2.ALL_STATUSES_EXCEPT_REMOVED;
+import static org.sonar.server.rule.index.RuleIndex2.FACET_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.index.RuleIndex2.FACET_LANGUAGES;
+import static org.sonar.server.rule.index.RuleIndex2.FACET_OLD_DEFAULT;
+import static org.sonar.server.rule.index.RuleIndex2.FACET_REPOSITORIES;
+import static org.sonar.server.rule.index.RuleIndex2.FACET_SEVERITIES;
+import static org.sonar.server.rule.index.RuleIndex2.FACET_STATUSES;
+import static org.sonar.server.rule.index.RuleIndex2.FACET_TAGS;
 
 /**
  * @since 4.4
@@ -97,12 +106,12 @@ public class SearchAction implements RulesWsAction {
 
   private final UserSession userSession;
   private final DbClient dbClient;
-  private final RuleIndex ruleIndex;
+  private final RuleIndex2 ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapping mapping;
   private final RuleMapper mapper;
 
-  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, UserSession userSession, DbClient dbClient, RuleMapper mapper) {
+  public SearchAction(RuleIndex2 ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, UserSession userSession, DbClient dbClient, RuleMapper mapper) {
     this.userSession = userSession;
     this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
@@ -181,13 +190,14 @@ public class SearchAction implements RulesWsAction {
   @CheckForNull
   protected Collection<String> possibleFacets() {
     return Arrays.asList(
-      RuleIndex.FACET_LANGUAGES,
-      RuleIndex.FACET_REPOSITORIES,
-      RuleIndex.FACET_TAGS,
-      RuleIndex.FACET_SEVERITIES,
-      RuleIndex.FACET_ACTIVE_SEVERITIES,
-      RuleIndex.FACET_STATUSES,
-      RuleIndex.FACET_OLD_DEFAULT);
+      FACET_LANGUAGES,
+      FACET_REPOSITORIES,
+      FACET_TAGS,
+      FACET_SEVERITIES,
+      FACET_ACTIVE_SEVERITIES,
+      FACET_STATUSES,
+      FACET_OLD_DEFAULT
+    );
   }
 
   /**
@@ -287,11 +297,9 @@ public class SearchAction implements RulesWsAction {
     action
       .createParam(Param.SORT)
       .setDescription("Sort field")
-      .setPossibleValues(RuleNormalizer.RuleField.NAME.field(),
-        RuleNormalizer.RuleField.UPDATED_AT.field(),
-        RuleNormalizer.RuleField.CREATED_AT.field(),
-        RuleNormalizer.RuleField.KEY.field())
-      .setExampleValue(RuleNormalizer.RuleField.NAME.field());
+      .setPossibleValues(RuleIndexDefinition.SORT_FIELDS)
+      .setExampleValue(RuleIndexDefinition.SORT_FIELDS.iterator().next());
+
 
     action
       .createParam(Param.ASCENDING)
@@ -318,7 +326,7 @@ public class SearchAction implements RulesWsAction {
 
     String sortParam = request.param(Param.SORT);
     if (sortParam != null) {
-      query.setSortField(RuleNormalizer.RuleField.of(sortParam));
+      query.setSortField(sortParam);
       query.setAscendingSort(request.mandatoryParamAsBoolean(Param.ASCENDING));
     }
     return query;
@@ -337,7 +345,7 @@ public class SearchAction implements RulesWsAction {
       .setLimit(context.getLimit())
       .setOffset(context.getOffset())
       .setScroll(context.isScroll());
-    if (context.facets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
+    if (context.facets().contains(RuleIndex2.FACET_OLD_DEFAULT)) {
       searchQueryContext.addFacets(DEFAULT_FACETS);
     } else {
       searchQueryContext.addFacets(context.facets());
@@ -424,12 +432,12 @@ public class SearchAction implements RulesWsAction {
   }
 
   protected void writeFacets(SearchResponse.Builder response, Request request, QueryContext context, SearchResult results) {
-    addMandatoryFacetValues(results, RuleIndex.FACET_LANGUAGES, request.paramAsStrings(PARAM_LANGUAGES));
-    addMandatoryFacetValues(results, RuleIndex.FACET_REPOSITORIES, request.paramAsStrings(PARAM_REPOSITORIES));
-    addMandatoryFacetValues(results, RuleIndex.FACET_STATUSES, RuleIndex.ALL_STATUSES_EXCEPT_REMOVED);
-    addMandatoryFacetValues(results, RuleIndex.FACET_SEVERITIES, Severity.ALL);
-    addMandatoryFacetValues(results, RuleIndex.FACET_ACTIVE_SEVERITIES, Severity.ALL);
-    addMandatoryFacetValues(results, RuleIndex.FACET_TAGS, request.paramAsStrings(PARAM_TAGS));
+    addMandatoryFacetValues(results, FACET_LANGUAGES, request.paramAsStrings(PARAM_LANGUAGES));
+    addMandatoryFacetValues(results, FACET_REPOSITORIES, request.paramAsStrings(PARAM_REPOSITORIES));
+    addMandatoryFacetValues(results, FACET_STATUSES, ALL_STATUSES_EXCEPT_REMOVED);
+    addMandatoryFacetValues(results, FACET_SEVERITIES, Severity.ALL);
+    addMandatoryFacetValues(results, FACET_ACTIVE_SEVERITIES, Severity.ALL);
+    addMandatoryFacetValues(results, FACET_TAGS, request.paramAsStrings(PARAM_TAGS));
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();

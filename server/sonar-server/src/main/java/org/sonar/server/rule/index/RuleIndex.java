@@ -151,7 +151,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     /* integrate Query Sort */
     String queryText = query.getQueryText();
     if (query.getSortField() != null) {
-      FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField().sortField());
+      FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField());
       if (query.isAscendingSort()) {
         sort.order(SortOrder.ASC);
       } else {

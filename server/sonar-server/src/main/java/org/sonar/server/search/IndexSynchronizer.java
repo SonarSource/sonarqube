@@ -30,7 +30,6 @@ import org.sonar.server.db.DeprecatedDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.view.index.ViewIndexer;
@@ -56,7 +55,8 @@ public class IndexSynchronizer {
    */
   public IndexSynchronizer(DbClient db, IndexClient index,
     TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
-    UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer, Settings settings) {
+    UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer,
+    Settings settings) {
     this.db = db;
     this.index = index;
     this.testIndexer = testIndexer;
@@ -71,7 +71,7 @@ public class IndexSynchronizer {
   public void executeDeprecated() {
     DbSession session = db.openSession(false);
     try {
-      synchronize(session, db.deprecatedRuleDao(), index.get(RuleIndex.class));
+      // synchronize(session, db.deprecatedRuleDao(), index.get(RuleIndex.class));
       synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
       session.commit();
     } finally {

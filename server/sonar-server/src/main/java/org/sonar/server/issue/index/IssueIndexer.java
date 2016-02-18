@@ -106,7 +106,7 @@ public class IssueIndexer extends BaseIndexer {
     bulk.stop();
   }
 
-  BulkIndexer createBulkIndexer(boolean large) {
+  private BulkIndexer createBulkIndexer(boolean large) {
     BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
     bulk.setLarge(large);
     return bulk;

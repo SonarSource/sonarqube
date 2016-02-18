@@ -23,6 +23,11 @@ import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
+import java.io.File;
+import java.io.FileInputStream;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
@@ -46,12 +51,6 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.SearchClient;
 import org.sonar.test.TestUtils;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;

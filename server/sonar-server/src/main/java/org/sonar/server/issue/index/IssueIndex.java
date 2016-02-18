@@ -76,12 +76,12 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.es.Sorting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -652,7 +652,7 @@ public class IssueIndex extends BaseIndex {
       issueTags.include(String.format(SUBSTRING_MATCH_REGEXP, textQuery));
     }
     TermsBuilder ruleTags = AggregationBuilders.terms(tagsOnRulesSubAggregation)
-      .field(RuleNormalizer.RuleField.ALL_TAGS.field())
+      .field(RuleIndexDefinition.FIELD_RULE_ALL_TAGS)
       .size(maxNumberOfTags)
       .order(Terms.Order.term(true))
       .minDocCount(1L);

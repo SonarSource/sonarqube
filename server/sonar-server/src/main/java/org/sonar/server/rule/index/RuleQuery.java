@@ -20,15 +20,12 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
-import org.sonar.server.search.IndexField;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 
 public class RuleQuery {
 
@@ -45,8 +42,8 @@ public class RuleQuery {
   private Collection<String> activeSeverities;
   private String templateKey;
   private Boolean isTemplate;
-  private Date availableSince;
-  private IndexField sortField;
+  private Long availableSince;
+  private String sortField;
   private boolean ascendingSort = true;
   private String internalKey;
   private String ruleKey;
@@ -203,15 +200,15 @@ public class RuleQuery {
     return this;
   }
 
-  public IndexField getSortField() {
+  public String getSortField() {
     return this.sortField;
   }
 
-  public RuleQuery setSortField(@Nullable IndexField sf) {
-    if (sf != null && !sf.isSortable()) {
-      throw new IllegalStateException(String.format("Field '%s' is not sortable", sf.field()));
+  public RuleQuery setSortField(@Nullable String field) {
+    if (field != null && !RuleIndexDefinition.SORT_FIELDS.contains(field)) {
+      throw new IllegalStateException(String.format("Field '%s' is not sortable", field));
     }
-    this.sortField = sf;
+    this.sortField = field;
     return this;
   }
 
@@ -224,12 +221,23 @@ public class RuleQuery {
     return this;
   }
 
+  @Deprecated
   public RuleQuery setAvailableSince(@Nullable Date d) {
-    this.availableSince = d;
+    this.availableSince = d.getTime();
     return this;
   }
 
+  @Deprecated
   public Date getAvailableSince() {
+    return new Date(this.availableSince);
+  }
+
+  public RuleQuery setAvailableSince(@Nullable Long l) {
+    this.availableSince = l;
+    return this;
+  }
+
+  public Long getAvailableSinceLong() {
     return this.availableSince;
   }
 

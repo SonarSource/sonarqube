@@ -27,9 +27,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
@@ -41,13 +40,13 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class RuleService {
 
-  private final RuleIndex index;
+  private final RuleIndex2 index;
   private final RuleUpdater ruleUpdater;
   private final RuleCreator ruleCreator;
   private final RuleDeleter ruleDeleter;
   private final UserSession userSession;
 
-  public RuleService(RuleIndex index, RuleUpdater ruleUpdater, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
+  public RuleService(RuleIndex2 index, RuleUpdater ruleUpdater, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
     this.index = index;
     this.ruleUpdater = ruleUpdater;
     this.ruleCreator = ruleCreator;
@@ -56,20 +55,19 @@ public class RuleService {
   }
 
   @CheckForNull
+  @Deprecated
   public Rule getByKey(RuleKey key) {
-    return index.getNullableByKey(key);
+    throw new UnsupportedOperationException("Please use RuleDao");
   }
 
+  @Deprecated
   public List<Rule> getByKeys(Collection<RuleKey> keys) {
-    return index.getByKeys(keys);
+    throw new UnsupportedOperationException("Please use RuleDao");
   }
 
+  @Deprecated
   public Rule getNonNullByKey(RuleKey key) {
-    Rule rule = index.getNullableByKey(key);
-    if (rule == null) {
-      throw new NotFoundException("Rule not found: " + key);
-    }
-    return rule;
+    throw new UnsupportedOperationException("Please use RuleDao");
   }
 
   public RuleQuery newRuleQuery() {
@@ -85,7 +83,7 @@ public class RuleService {
    */
   public Set<String> listTags() {
     /** using combined ALL_TAGS field of ES until ES update that has multiTerms aggregation */
-    return index.terms(RuleNormalizer.RuleField.ALL_TAGS.field());
+    return index.terms(RuleIndexDefinition.FIELD_RULE_ALL_TAGS);
   }
 
   /**
@@ -93,7 +91,7 @@ public class RuleService {
    */
   public Set<String> listTags(@Nullable String query, int size) {
     /** using combined ALL_TAGS field of ES until ES update that has multiTerms aggregation */
-    return index.terms(RuleNormalizer.RuleField.ALL_TAGS.field(), query, size);
+    return index.terms(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, query, size);
   }
 
   public RuleKey create(NewRule newRule) {

@@ -256,6 +256,8 @@ import org.sonar.server.rule.RuleOperations;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdater;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.ws.ActiveRuleCompleter;
 import org.sonar.server.rule.ws.RepositoriesAction;
 import org.sonar.server.rule.ws.RuleMapper;
@@ -430,6 +432,8 @@ public class PlatformLevel4 extends PlatformLevel {
       RubyQProfileActivityService.class,
 
       // rule
+      RuleIndexDefinition.class,
+      RuleIndexer.class,
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,
