@@ -46,7 +46,7 @@ export default React.createClass({
     return (
         <li>
           <h6 className="bt-search-form-label">
-            Component
+            Search by Task or Component
           </h6>
 
           <input onChange={this.onSearch}
