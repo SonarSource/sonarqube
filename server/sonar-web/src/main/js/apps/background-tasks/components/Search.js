@@ -64,6 +64,11 @@ export default React.createClass({
     this.props.onRefresh();
   },
 
+  handleReset(e) {
+    e.preventDefault();
+    this.props.onReset();
+  },
+
   render() {
     return (
         <section className="big-spacer-top big-spacer-bottom">
@@ -112,6 +117,13 @@ export default React.createClass({
                   onClick={this.refresh}
                   disabled={this.props.fetching}>
                 {translate('reload')}
+              </button>
+              {' '}
+              <button
+                  ref="resetButton"
+                  onClick={this.handleReset}
+                  disabled={this.props.fetching}>
+                {translate('reset_verb')}
               </button>
             </li>
           </ul>

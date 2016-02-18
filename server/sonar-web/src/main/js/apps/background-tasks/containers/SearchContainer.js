@@ -21,7 +21,7 @@ import { connect } from 'react-redux';
 
 import Search from '../components/Search';
 import { filterTasks, search } from '../store/actions';
-import { STATUSES, CURRENTS } from '../constants';
+import { STATUSES, CURRENTS, DEFAULT_FILTERS } from '../constants';
 
 function mapStateToProps (state) {
   return {
@@ -47,6 +47,7 @@ function updateStatusQuery (status) {
 function mapDispatchToProps (dispatch) {
   return {
     onRefresh: () => dispatch(filterTasks()),
+    onReset: () => dispatch(filterTasks(DEFAULT_FILTERS)),
     onStatusChange: (status) => dispatch(filterTasks(updateStatusQuery(status))),
     onTypeChange: (taskType) => dispatch(filterTasks({ taskType })),
     onCurrentsChange: (currents) => dispatch(filterTasks({ currents })),
