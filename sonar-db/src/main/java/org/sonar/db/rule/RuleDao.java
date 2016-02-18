@@ -32,6 +32,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static java.util.Collections.emptyList;
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {
@@ -85,27 +86,23 @@ public class RuleDao implements Dao {
     mapper(session).selectEnabledAndNonManual(resultHandler);
   }
 
-  public List<RuleDto> selectAll(DbSession session) {
-    return mapper(session).selectAll();
+  public List<RuleDto> selectByNonManual(DbSession session) {
+    return mapper(session).selectNonManual();
   }
 
-  public List<RuleParamDto> selectRuleParamsByRuleIds(final DbSession dbSession, List<Integer> ruleIds) {
-    if (ruleIds.isEmpty()) {
-      return emptyList();
-    }
-    return DatabaseUtils.executeLargeInputs(ruleIds, new Function<List<Integer>, List<RuleParamDto>>() {
-      @Override
-      public List<RuleParamDto> apply(@Nonnull List<Integer> input) {
-        return mapper(dbSession).selectParamsByRuleIds(input);
-      }
-    });
+  public List<RuleDto> selectAll(DbSession session) {
+    return mapper(session).selectAll();
   }
 
   public void insert(DbSession session, RuleDto dto) {
     mapper(session).insert(dto);
   }
 
-  private static RuleMapper mapper(DbSession session) {
+  public void update(DbSession session, RuleDto dto) {
+    mapper(session).update(dto);
+  }
+
+  private RuleMapper mapper(DbSession session) {
     return session.getMapper(RuleMapper.class);
   }
 
@@ -120,6 +117,44 @@ public class RuleDao implements Dao {
     public List<RuleDto> apply(@Nonnull List<RuleKey> partitionOfKeys) {
       return mapper.selectByKeys(partitionOfKeys);
     }
+  }
+
+  /**
+   * RuleParams
+   */
+
+  public List<RuleParamDto> selectRuleParamsByRuleKey(DbSession session, RuleKey key) {
+    return mapper(session).selectParamsByRuleKey(key);
+  }
+
+  public List<RuleParamDto> selectRuleParamsByRuleIds(final DbSession dbSession, List<Integer> ruleIds) {
+    if (ruleIds.isEmpty()) {
+      return emptyList();
+    }
+    return DatabaseUtils.executeLargeInputs(ruleIds, new Function<List<Integer>, List<RuleParamDto>>() {
+      @Override
+      public List<RuleParamDto> apply(@Nonnull List<Integer> input) {
+        return mapper(dbSession).selectParamsByRuleIds(input);
+      }
+    });
+  }
+
+  public void insertRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+    checkNotNull(rule.getId(), "Rule id must be set");
+    param.setRuleId(rule.getId());
+    mapper(session).insertParameter(param);
+  }
+
+  public RuleParamDto updateRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
+    checkNotNull(rule.getId(), "Rule id must be set");
+    checkNotNull(param.getId(), "Rule parameter is not yet persisted must be set");
+    param.setRuleId(rule.getId());
+    mapper(session).updateParameter(param);
+    return param;
+  }
+
+  public void deleteRuleParam(DbSession session, int ruleParameterId) {
+    mapper(session).deleteParameter(ruleParameterId);
   }
 
 }

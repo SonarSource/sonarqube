@@ -29,7 +29,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
@@ -79,7 +78,7 @@ public class RuleIndexerTest {
   }
 
   @Test
-  public void removed_rule_is_removed_from_index() {
+  public void removed_rule_is_not_removed_from_index() {
     RuleIndexer indexer = createIndexer();
 
     // Create and Index rule
@@ -97,11 +96,11 @@ public class RuleIndexerTest {
     dbTester.getSession().commit();
     indexer.index();
 
-    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isZero();
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(1);
   }
 
   private RuleIndexer createIndexer() {
-    RuleIndexer indexer = new RuleIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
+    RuleIndexer indexer = new RuleIndexer(dbTester.getDbClient(), esTester.client());
     indexer.setEnabled(true);
     return indexer;
   }

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Iterator;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
@@ -45,7 +46,8 @@ public class RuleIndexer extends BaseIndexer {
     return doIndex(createBulkIndexer(false), lastUpdatedAt);
   }
 
-  public void index(Iterator<RuleDoc> rules) {
+  @VisibleForTesting
+  void index(Iterator<RuleDoc> rules) {
     doIndex(createBulkIndexer(false), rules);
   }
 

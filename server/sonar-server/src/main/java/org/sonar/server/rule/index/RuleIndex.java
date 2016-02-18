@@ -75,6 +75,7 @@ import org.sonar.server.search.StickyFacetBuilder;
 
 import static com.google.common.collect.Lists.newArrayList;
 
+@Deprecated
 public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
   public static final String FACET_LANGUAGES = "languages";

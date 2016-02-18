@@ -27,6 +27,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 
+import static java.util.Arrays.asList;
+
 public class RuleQuery {
 
   private String key;
@@ -132,6 +134,13 @@ public class RuleQuery {
       }
     }
     this.severities = severities;
+    return this;
+  }
+
+  public RuleQuery setSeverities(@Nullable String... severities) {
+    if (severities != null) {
+      return setSeverities(asList(severities));
+    }
     return this;
   }
 

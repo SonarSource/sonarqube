@@ -22,12 +22,14 @@ package org.sonar.server.es;
 import com.google.common.base.Function;
 import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
@@ -220,12 +222,25 @@ public class EsTester extends ExternalResource {
     }));
   }
 
+  public List<String> getIds(String indexName, String typeName){
+    return FluentIterable.from(getDocuments(indexName, typeName)).transform(SearchHitToId.INSTANCE).toList();
+  }
+
   public Node node() {
     return node;
   }
 
   public EsClient client() {
     return client;
+  }
+
+  private enum SearchHitToId implements Function<SearchHit, String>{
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull org.elasticsearch.search.SearchHit input) {
+      return input.id();
+    }
   }
 
 }
