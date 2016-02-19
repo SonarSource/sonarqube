@@ -142,10 +142,10 @@ public class ActivityAction implements CeWsAction {
       .setExampleValue(CeTaskTypes.REPORT)
       .setPossibleValues(taskTypes);
     action.createParam(PARAM_MIN_SUBMITTED_AT)
-      .setDescription("Minimum date of task submission")
+      .setDescription("Minimum date of task submission (inclusive)")
       .setExampleValue(DateUtils.formatDateTime(new Date()));
     action.createParam(PARAM_MAX_EXECUTED_AT)
-      .setDescription("Maximum date of end of task processing")
+      .setDescription("Maximum date of end of task processing (inclusive)")
       .setExampleValue(DateUtils.formatDateTime(new Date()));
     action.addPagingParams(100, MAX_PAGE_SIZE);
   }
@@ -274,9 +274,9 @@ public class ActivityAction implements CeWsAction {
     Date date = parseDateTimeQuietly(dateAsString);
     if (date == null) {
       date = parseDateQuietly(dateAsString);
+      checkRequest(date != null, "Date '%s' cannot be parsed as either a date or date+time", dateAsString);
+      date = DateUtils.addDays(date, 1);
     }
-
-    checkRequest(date != null, "Date '%s' cannot be parsed as either a date or date+time", dateAsString);
 
     return date.getTime();
   }

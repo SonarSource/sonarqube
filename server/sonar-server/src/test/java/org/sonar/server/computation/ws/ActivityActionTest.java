@@ -25,6 +25,7 @@ import com.google.common.base.Throwables;
 import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -58,6 +59,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
@@ -124,7 +126,7 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void filter_by_max_executed_at() {
+  public void filter_by_max_executed_at_exclude() {
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
@@ -135,6 +137,19 @@ public class ActivityActionTest {
       .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, "2016-02-15"));
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void filter_by_max_executed_at_include_day_filled() {
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    String today = formatDate(new Date(EXECUTED_AT));
+    System.out.println(EXECUTED_AT + " - " + today);
+
+    ActivityResponse activityResponse = call(ws.newRequest()
+      .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, today));
+
+    assertThat(activityResponse.getTasksCount()).isEqualTo(1);
   }
 
   @Test

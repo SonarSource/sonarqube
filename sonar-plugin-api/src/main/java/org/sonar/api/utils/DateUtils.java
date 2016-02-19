@@ -142,6 +142,14 @@ public final class DateUtils {
     return datetime;
   }
 
+  /**
+   * Adds a number of days to a date returning a new object.
+   * The original date object is unchanged.
+   *
+   * @param date  the date, not null
+   * @param numberOfDays  the amount to add, may be negative
+   * @return the new date object with the amount added
+   */
   public static Date addDays(Date date, int numberOfDays) {
     return org.apache.commons.lang.time.DateUtils.addDays(date, numberOfDays);
   }
