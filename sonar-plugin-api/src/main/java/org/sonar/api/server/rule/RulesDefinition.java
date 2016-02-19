@@ -855,9 +855,6 @@ public interface RulesDefinition {
       if (Strings.isNullOrEmpty(htmlDescription) && Strings.isNullOrEmpty(markdownDescription)) {
         throw new IllegalStateException(format("One of HTML description or Markdown description must be defined for rule %s", this));
       }
-      if ((Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction != null) || (!Strings.isNullOrEmpty(debtSubCharacteristic) && debtRemediationFunction == null)) {
-        throw new IllegalStateException(format("Both debt sub-characteristic and debt remediation function should be defined on rule '%s'", this));
-      }
     }
 
     @Override

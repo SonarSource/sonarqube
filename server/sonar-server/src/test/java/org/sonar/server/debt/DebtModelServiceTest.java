@@ -31,102 +31,42 @@ import static org.mockito.Mockito.verify;
 public class DebtModelServiceTest {
 
   @Mock
-  DebtModelOperations debtModelOperations;
-
-  @Mock
-  DebtModelLookup debtModelLookup;
-
-  @Mock
   DebtModelBackup debtModelBackup;
 
-  DebtModelService service;
+  DebtModelService underTest;
 
   @Before
   public void setUp() {
-    service = new DebtModelService(debtModelOperations, debtModelLookup, debtModelBackup);
-  }
-
-  @Test
-  public void find_root_characteristics() {
-    service.characteristics();
-    verify(debtModelLookup).rootCharacteristics();
-  }
-
-  @Test
-  public void find_all_characteristics() {
-    service.allCharacteristics();
-    verify(debtModelLookup).allCharacteristics();
-  }
-
-  @Test
-  public void find_characteristic_by_id() {
-    service.characteristicById(111);
-    verify(debtModelLookup).characteristicById(111);
-  }
-
-  @Test
-  public void find_characteristic_by_key() {
-    service.characteristicByKey("MEMORY_EFFICIENCY");
-    verify(debtModelLookup).characteristicByKey("MEMORY_EFFICIENCY");
-  }
-
-  @Test
-  public void create_characteristic() {
-    service.create("Compilation name", 1);
-    verify(debtModelOperations).create("Compilation name", 1);
-  }
-
-  @Test
-  public void rename_characteristic() {
-    service.rename(10, "New Efficiency");
-    verify(debtModelOperations).rename(10, "New Efficiency");
-  }
-
-  @Test
-  public void move_up() {
-    service.moveUp(10);
-    verify(debtModelOperations).moveUp(10);
-  }
-
-  @Test
-  public void move_down() {
-    service.moveDown(10);
-    verify(debtModelOperations).moveDown(10);
-  }
-
-  @Test
-  public void delete_characteristic() {
-    service.delete(2);
-    verify(debtModelOperations).delete(2);
+    underTest = new DebtModelService(debtModelBackup);
   }
 
   @Test
   public void reset_model() {
-    service.reset();
+    underTest.reset();
     verify(debtModelBackup).reset();
   }
 
   @Test
   public void restore_xml() {
-    service.restoreFromXml("<xml/>");
+    underTest.restoreFromXml("<xml/>");
     verify(debtModelBackup).restoreFromXml("<xml/>");
   }
 
   @Test
   public void restore_from_xml_and_language() {
-    service.restoreFromXmlAndLanguage("<xml/>", "xoo");
+    underTest.restoreFromXmlAndLanguage("<xml/>", "xoo");
     verify(debtModelBackup).restoreFromXml("<xml/>", "xoo");
   }
 
   @Test
   public void backup() {
-    service.backup();
+    underTest.backup();
     verify(debtModelBackup).backup();
   }
 
   @Test
   public void backup_fom_language() {
-    service.backupFromLanguage("xoo");
+    underTest.backupFromLanguage("xoo");
     verify(debtModelBackup).backup("xoo");
   }
 }

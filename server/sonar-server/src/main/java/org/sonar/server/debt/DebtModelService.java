@@ -19,14 +19,12 @@
  */
 package org.sonar.server.debt;
 
+import java.util.Collections;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.debt.DebtModel;
 import org.sonar.api.utils.ValidationMessages;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.List;
 
 /**
  * Used through ruby code <pre>Internal.debt</pre>
@@ -34,61 +32,26 @@ import java.util.List;
  */
 public class DebtModelService implements DebtModel {
 
-  private final DebtModelOperations debtModelOperations;
-  private final DebtModelLookup debtModelLookup;
   private final DebtModelBackup debtModelBackup;
 
-  public DebtModelService(DebtModelOperations debtModelOperations, DebtModelLookup debtModelLookup, DebtModelBackup debtModelBackup) {
-    this.debtModelOperations = debtModelOperations;
-    this.debtModelLookup = debtModelLookup;
+  public DebtModelService(DebtModelBackup debtModelBackup) {
     this.debtModelBackup = debtModelBackup;
   }
 
   @Override
   public List<DebtCharacteristic> characteristics() {
-    return debtModelLookup.rootCharacteristics();
+    return Collections.emptyList();
   }
 
   @Override
   public List<DebtCharacteristic> allCharacteristics() {
-    return debtModelLookup.allCharacteristics();
-  }
-
-  @CheckForNull
-  public DebtCharacteristic characteristicById(int id) {
-    return debtModelLookup.characteristicById(id);
+    return Collections.emptyList();
   }
 
   @Override
   @CheckForNull
   public DebtCharacteristic characteristicByKey(String key) {
-    return debtModelLookup.characteristicByKey(key);
-  }
-
-  public DebtCharacteristic create(String name, @Nullable Integer parentId) {
-    return debtModelOperations.create(name, parentId);
-  }
-
-  public DebtCharacteristic rename(int characteristicId, String newName) {
-    return debtModelOperations.rename(characteristicId, newName);
-  }
-
-  public DebtCharacteristic moveUp(int characteristicId) {
-    return debtModelOperations.moveUp(characteristicId);
-  }
-
-  public DebtCharacteristic moveDown(int characteristicId) {
-    return debtModelOperations.moveDown(characteristicId);
-  }
-
-  /**
-   * Delete a characteristic or a sub characteristic.
-   * <br/>
-   * If a characteristic is selected, all its sub characteristics will also be deleted.
-   * Every rules linked to sub characteristics will have their debt definitions reset.
-   */
-  public void delete(int characteristicId) {
-    debtModelOperations.delete(characteristicId);
+    return null;
   }
 
   /**

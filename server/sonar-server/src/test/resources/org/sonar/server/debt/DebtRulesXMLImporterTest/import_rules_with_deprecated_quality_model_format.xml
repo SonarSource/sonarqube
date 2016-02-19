@@ -1,0 +1,58 @@
+<sqale>
+  <chc>
+    <key>USABILITY</key>
+    <name>Usability</name>
+    <desc>Estimate usability</desc>
+  </chc>
+  <chc>
+    <key>EFFICIENCY</key>
+    <name>Efficiency</name>
+    <chc>
+      <key>MEMORY_EFFICIENCY</key>
+      <name>Memory use</name>
+      <chc>
+        <rule-repo>javasquid</rule-repo>
+        <rule-key>rule1</rule-key>
+        <prop>
+          <key>remediationFactor</key>
+          <val>3.0</val>
+          <txt>h</txt>
+        </prop>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>linear</txt>
+        </prop>
+      </chc>
+    </chc>
+  </chc>
+  <chc>
+    <key>PORTABILITY</key>
+    <name>Portability</name>
+    <chc>
+      <key>COMPILER_RELATED_PORTABILITY</key>
+      <name>Compiler related portability</name>
+    </chc>
+    <chc>
+      <key>HARDWARE_RELATED_PORTABILITY</key>
+      <name>Hardware related portability</name>
+      <chc>
+        <rule-repo>javasquid</rule-repo>
+        <rule-key>rule2</rule-key>
+        <prop>
+          <key>remediationFactor</key>
+          <val>3.0</val>
+          <txt>h</txt>
+        </prop>
+        <prop>
+          <key>remediationFunction</key>
+          <txt>linear_offset</txt>
+        </prop>
+        <prop>
+          <key>offset</key>
+          <val>1.0</val>
+          <txt>h</txt>
+        </prop>
+      </chc>
+    </chc>
+  </chc>
+</sqale>

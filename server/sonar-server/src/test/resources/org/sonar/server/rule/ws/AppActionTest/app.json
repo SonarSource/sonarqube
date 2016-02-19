@@ -33,13 +33,6 @@
     "BETA": "rules.status.beta",
     "DEPRECATED": "rules.status.deprecated",
     "READY": "rules.status.ready"
-  },
-  "characteristics": [
-    {"key": "REUSABILITY", "name": "Reusability"},
-    {"key": "MODULARITY", "name": "Modularity", "parent": "REUSABILITY"},
-    {"key": "PORTABILITY", "name": "Portability"},
-    {"key": "COMPILER", "name": "Compiler", "parent": "PORTABILITY"},
-    {"key": "HARDWARE", "name": "Hardware", "parent": "PORTABILITY"},
-    {"key": "LANGUAGE", "name": "Language", "parent": "PORTABILITY"}
-  ]}
+  }
+}
 

@@ -45,19 +45,6 @@ public class DebtPredicates {
     }
   }
 
-  public static class CharacteristicDtoParentIdMatchId implements Predicate<CharacteristicDto> {
-    private final Integer id;
-
-    public CharacteristicDtoParentIdMatchId(Integer id) {
-      this.id = id;
-    }
-
-    @Override
-    public boolean apply(@Nonnull CharacteristicDto input) {
-      return id.equals(input.getParentId());
-    }
-  }
-
   public static class DebtCharacteristicMatchKey implements Predicate<DebtCharacteristic> {
     private final String key;
 

@@ -113,7 +113,6 @@ public class DeprecatedRulesDefinitionLoader {
   private void updateRuleDebtDefinitions(RulesDefinition.NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
     RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
-      newRule.setDebtSubCharacteristic(ruleDebt.subCharacteristicKey());
       newRule.setDebtRemediationFunction(remediationFunction(DebtRemediationFunction.Type.valueOf(ruleDebt.function()),
         ruleDebt.coefficient(),
         ruleDebt.offset(),

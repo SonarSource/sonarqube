@@ -31,9 +31,6 @@ import org.mockito.stubbing.Answer;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.server.debt.DebtCharacteristic;
-import org.sonar.api.server.debt.DebtModel;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileLoader;
@@ -62,14 +59,11 @@ public class AppActionTest {
   I18n i18n;
 
   @Mock
-  DebtModel debtModel;
-
-  @Mock
   QProfileLoader profileLoader;
 
   @Test
   public void should_generate_app_init_info() throws Exception {
-    AppAction app = new AppAction(languages, ruleRepositories, i18n, debtModel, profileLoader, userSessionRule);
+    AppAction app = new AppAction(languages, ruleRepositories, i18n, profileLoader, userSessionRule);
     WsTester tester = new WsTester(new RulesWs(app));
 
     userSessionRule.setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
@@ -85,7 +79,7 @@ public class AppActionTest {
     when(whitespace.getKey()).thenReturn("ws");
     when(whitespace.getName()).thenReturn("Whitespace");
     when(languages.get("xoo")).thenReturn(xoo);
-    when(languages.all()).thenReturn(new Language[]{xoo, whitespace});
+    when(languages.all()).thenReturn(new Language[] {xoo, whitespace});
 
     RuleRepositories.Repository repo1 = mock(RuleRepositories.Repository.class);
     when(repo1.key()).thenReturn("xoo");
@@ -103,23 +97,6 @@ public class AppActionTest {
         return (String) invocation.getArguments()[1];
       }
     });
-
-    DefaultDebtCharacteristic char1 = new DefaultDebtCharacteristic()
-      .setId(1).setKey("PORTABILITY").setName("Portability").setOrder(2);
-    DefaultDebtCharacteristic char1sub1 = new DefaultDebtCharacteristic()
-      .setId(11).setKey("LANGUAGE").setName("Language").setParentId(1);
-    DefaultDebtCharacteristic char1sub2 = new DefaultDebtCharacteristic()
-      .setId(12).setKey("COMPILER").setName("Compiler").setParentId(1);
-    DefaultDebtCharacteristic char1sub3 = new DefaultDebtCharacteristic()
-      .setId(13).setKey("HARDWARE").setName("Hardware").setParentId(1);
-
-    DefaultDebtCharacteristic char2 = new DefaultDebtCharacteristic()
-      .setId(2).setKey("REUSABILITY").setName("Reusability").setOrder(1);
-    DefaultDebtCharacteristic char2sub1 = new DefaultDebtCharacteristic()
-      .setId(21).setKey("MODULARITY").setName("Modularity").setParentId(2);
-
-    when(debtModel.characteristics()).thenReturn(ImmutableList.<DebtCharacteristic>of(char1, char2));
-    when(debtModel.allCharacteristics()).thenReturn(ImmutableList.<DebtCharacteristic>of(char1sub1, char1sub2, char1sub3, char1, char2sub1, char2));
 
     tester.newGetRequest("api/rules", "app").execute().assertJson(this.getClass(), "app.json");
   }

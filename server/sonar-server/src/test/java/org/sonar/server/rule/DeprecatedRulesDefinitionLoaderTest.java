@@ -160,7 +160,6 @@ public class DeprecatedRulesDefinitionLoaderTest {
 
     List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(
       new DebtModelXMLExporter.RuleDebt()
-        .setSubCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setCoefficient("1d")
@@ -181,7 +180,6 @@ public class DeprecatedRulesDefinitionLoaderTest {
     RulesDefinition.Rule rule = checkstyle.rule("ConstantName");
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo("ConstantName");
-    assertThat(rule.debtSubCharacteristic()).isEqualTo("MEMORY_EFFICIENCY");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
     assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1d");
     assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
@@ -193,7 +191,6 @@ public class DeprecatedRulesDefinitionLoaderTest {
 
     List<DebtModelXMLExporter.RuleDebt> ruleDebts = newArrayList(
       new DebtModelXMLExporter.RuleDebt()
-        .setSubCharacteristicKey("MEMORY_EFFICIENCY")
         .setRuleKey(RuleKey.of("checkstyle", "ConstantName"))
         .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
         .setCoefficient("1d")

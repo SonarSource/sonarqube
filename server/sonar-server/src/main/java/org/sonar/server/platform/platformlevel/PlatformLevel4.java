@@ -94,10 +94,7 @@ import org.sonar.server.dashboard.widget.TimelineWidget;
 import org.sonar.server.dashboard.widget.TreemapWidget;
 import org.sonar.server.dashboard.widget.WelcomeWidget;
 import org.sonar.server.dashboard.ws.DashboardsWs;
-import org.sonar.server.debt.DebtCharacteristicsXMLImporter;
 import org.sonar.server.debt.DebtModelBackup;
-import org.sonar.server.debt.DebtModelLookup;
-import org.sonar.server.debt.DebtModelOperations;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.debt.DebtModelXMLExporter;
@@ -617,13 +614,10 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // technical debt
       DebtModelService.class,
-      DebtModelOperations.class,
-      DebtModelLookup.class,
       DebtModelBackup.class,
       DebtModelPluginRepository.class,
       DebtModelXMLExporter.class,
       DebtRulesXMLImporter.class,
-      DebtCharacteristicsXMLImporter.class,
 
       // source
       HtmlSourceDecorator.class,

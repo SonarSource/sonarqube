@@ -23,50 +23,61 @@ import com.google.common.io.Resources;
 import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.List;
-import java.util.regex.Pattern;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.SystemUtils;
 import org.custommonkey.xmlunit.Diff;
 import org.custommonkey.xmlunit.XMLUnit;
-import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.api.server.debt.internal.DefaultDebtCharacteristic;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertTrue;
-import static org.sonar.server.debt.DebtModelXMLExporter.DebtModel;
 import static org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 
 public class DebtModelXMLExporterTest {
 
-  private DebtModelXMLExporter xmlExporter;
-
-  @Before
-  public void setup() {
-    xmlExporter = new DebtModelXMLExporter();
-  }
+  DebtModelXMLExporter underTest = new DebtModelXMLExporter();
 
   @Test
   public void export_empty() {
-    assertThat(xmlExporter.export(new DebtModel(), Collections.<RuleDebt>emptyList())).isEqualTo("<sqale/>" + SystemUtils.LINE_SEPARATOR);
+    assertThat(underTest.export(Collections.<RuleDebt>emptyList())).isEqualTo("<sqale/>" + SystemUtils.LINE_SEPARATOR);
   }
 
   @Test
   public void export_xml() throws Exception {
-    DebtModel debtModel = new DebtModel()
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setId(1).setKey("USABILITY").setName("Usability").setOrder(1))
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setId(2).setKey("EFFICIENCY").setName("Efficiency").setOrder(2))
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setId(3).setKey("MEMORY_USE").setName("Memory use").setParentId(2), "EFFICIENCY");
-
     List<RuleDebt> rules = newArrayList(
       new RuleDebt().setRuleKey(RuleKey.of("checkstyle", "Regexp"))
-        .setSubCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name()).setCoefficient("3d").setOffset("15min")
+        .setFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name()).setCoefficient("3d").setOffset("15min")
       );
 
-    assertSimilarXml(getFileContent("export_xml.xml"), xmlExporter.export(debtModel, rules));
+    assertSimilarXml(getFileContent("export_xml.xml"), underTest.export(rules));
+  }
+
+  @Test
+  public void pretty_print_exported_xml() {
+    List<RuleDebt> rules = newArrayList(
+      new RuleDebt().setRuleKey(RuleKey.of("checkstyle", "Regexp"))
+        .setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("3d")
+      );
+    assertThat(underTest.export(rules)).isEqualTo(
+      "<sqale>" + SystemUtils.LINE_SEPARATOR +
+        "  <chc>" + SystemUtils.LINE_SEPARATOR +
+        "    <rule-repo>checkstyle</rule-repo>" + SystemUtils.LINE_SEPARATOR +
+        "    <rule-key>Regexp</rule-key>" + SystemUtils.LINE_SEPARATOR +
+        "    <prop>" + SystemUtils.LINE_SEPARATOR +
+        "      <key>remediationFunction</key>" + SystemUtils.LINE_SEPARATOR +
+        "      <txt>LINEAR</txt>" + SystemUtils.LINE_SEPARATOR +
+        "    </prop>" + SystemUtils.LINE_SEPARATOR +
+        "    <prop>" + SystemUtils.LINE_SEPARATOR +
+        "      <key>remediationFactor</key>" + SystemUtils.LINE_SEPARATOR +
+        "      <val>3</val>" + SystemUtils.LINE_SEPARATOR +
+        "      <txt>d</txt>" + SystemUtils.LINE_SEPARATOR +
+        "    </prop>" + SystemUtils.LINE_SEPARATOR +
+        "  </chc>" + SystemUtils.LINE_SEPARATOR +
+        "</sqale>" + SystemUtils.LINE_SEPARATOR
+      );
   }
 
   public static void assertSimilarXml(String expectedXml, String xml) throws Exception {
@@ -76,71 +87,7 @@ public class DebtModelXMLExporterTest {
     assertTrue(message, diff.similar());
   }
 
-  @Test
-  public void sort_root_characteristics_by_order_and_sub_characteristics_by_name() {
-    DebtModel debtModel = new DebtModel()
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("EFFICIENCY").setName("Efficiency").setOrder(4))
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("USABILITY").setName("Usability").setOrder(3))
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setKey("PORTABILITY").setName("Portability").setOrder(2))
-
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("RAM_EFFICIENCY").setName("RAM Efficiency"), "EFFICIENCY")
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("CPU_EFFICIENCY").setName("CPU Efficiency"), "EFFICIENCY")
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setKey("OTHER_EFFICIENCY").setName("Other Efficiency"), "EFFICIENCY");
-
-    String xml = xmlExporter.export(debtModel, Collections.<RuleDebt>emptyList());
-
-    // root characteristics are sorted by the column "characteristic_order"
-    assertThat(Pattern.compile(".*PORTABILITY.*USABILITY.*EFFICIENCY.*", Pattern.DOTALL).matcher(xml).matches()).isTrue();
-    assertThat(Pattern.compile(".*USABILITY.*PORTABILITY.*EFFICIENCY.*", Pattern.DOTALL).matcher(xml).matches()).isFalse();
-
-    // sub characteristics are sorted by name
-    assertThat(Pattern.compile(".*CPU Efficiency.*Other Efficiency.*RAM Efficiency.*", Pattern.DOTALL).matcher(xml).matches()).isTrue();
-    assertThat(Pattern.compile(".*CPU Efficiency.*RAM Efficiency.*Other Efficiency.*", Pattern.DOTALL).matcher(xml).matches()).isFalse();
-  }
-
-  @Test
-  public void pretty_print_exported_xml() {
-    DebtModel debtModel = new DebtModel()
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setId(1).setKey("USABILITY").setName("Usability").setOrder(1))
-      .addRootCharacteristic(new DefaultDebtCharacteristic().setId(2).setKey("EFFICIENCY").setName("Efficiency").setOrder(2))
-      .addSubCharacteristic(new DefaultDebtCharacteristic().setId(3).setKey("MEMORY_USE").setName("Memory use").setParentId(2), "EFFICIENCY");
-
-    List<RuleDebt> rules = newArrayList(
-      new RuleDebt().setRuleKey(RuleKey.of("checkstyle", "Regexp"))
-        .setSubCharacteristicKey("MEMORY_USE").setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("3d")
-      );
-    assertThat(xmlExporter.export(debtModel, rules)).isEqualTo(
-      "<sqale>" + SystemUtils.LINE_SEPARATOR +
-        "  <chc>" + SystemUtils.LINE_SEPARATOR +
-        "    <key>USABILITY</key>" + SystemUtils.LINE_SEPARATOR +
-        "    <name>Usability</name>" + SystemUtils.LINE_SEPARATOR +
-        "  </chc>" + SystemUtils.LINE_SEPARATOR +
-        "  <chc>" + SystemUtils.LINE_SEPARATOR +
-        "    <key>EFFICIENCY</key>" + SystemUtils.LINE_SEPARATOR +
-        "    <name>Efficiency</name>" + SystemUtils.LINE_SEPARATOR +
-        "    <chc>" + SystemUtils.LINE_SEPARATOR +
-        "      <key>MEMORY_USE</key>" + SystemUtils.LINE_SEPARATOR +
-        "      <name>Memory use</name>" + SystemUtils.LINE_SEPARATOR +
-        "      <chc>" + SystemUtils.LINE_SEPARATOR +
-        "        <rule-repo>checkstyle</rule-repo>" + SystemUtils.LINE_SEPARATOR +
-        "        <rule-key>Regexp</rule-key>" + SystemUtils.LINE_SEPARATOR +
-        "        <prop>" + SystemUtils.LINE_SEPARATOR +
-        "          <key>remediationFunction</key>" + SystemUtils.LINE_SEPARATOR +
-        "          <txt>LINEAR</txt>" + SystemUtils.LINE_SEPARATOR +
-        "        </prop>" + SystemUtils.LINE_SEPARATOR +
-        "        <prop>" + SystemUtils.LINE_SEPARATOR +
-        "          <key>remediationFactor</key>" + SystemUtils.LINE_SEPARATOR +
-        "          <val>3</val>" + SystemUtils.LINE_SEPARATOR +
-        "          <txt>d</txt>" + SystemUtils.LINE_SEPARATOR +
-        "        </prop>" + SystemUtils.LINE_SEPARATOR +
-        "      </chc>" + SystemUtils.LINE_SEPARATOR +
-        "    </chc>" + SystemUtils.LINE_SEPARATOR +
-        "  </chc>" + SystemUtils.LINE_SEPARATOR +
-        "</sqale>" + SystemUtils.LINE_SEPARATOR
-      );
-  }
-
-  private String getFileContent(String file) throws Exception {
-    return Resources.toString(Resources.getResource(getClass(), "DebtModelXMLExporterTest/" + file), StandardCharsets.UTF_8);
+  private static String getFileContent(String file) throws Exception {
+    return Resources.toString(Resources.getResource(DebtModelXMLExporterTest.class, "DebtModelXMLExporterTest/" + file), StandardCharsets.UTF_8);
   }
 }
