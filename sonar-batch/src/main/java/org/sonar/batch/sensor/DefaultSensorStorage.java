@@ -67,10 +67,6 @@ public class DefaultSensorStorage implements SensorStorage {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultSensorStorage.class);
 
   private static final List<Metric> INTERNAL_METRICS = Arrays.<Metric>asList(
-    // Computed by CpdSensor
-    CoreMetrics.DUPLICATED_FILES,
-    CoreMetrics.DUPLICATED_LINES,
-    CoreMetrics.DUPLICATED_BLOCKS,
     // Computed by LinesSensor
     CoreMetrics.LINES);
 

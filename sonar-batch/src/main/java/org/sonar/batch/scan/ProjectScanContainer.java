@@ -92,6 +92,7 @@ import org.sonar.batch.source.CodeColorizers;
 import org.sonar.batch.test.TestPlanBuilder;
 import org.sonar.batch.test.TestableBuilder;
 import org.sonar.core.issue.workflow.FunctionExecutor;
+import org.sonar.core.metric.BatchMetrics;
 import org.sonar.core.platform.ComponentContainer;
 
 public class ProjectScanContainer extends ComponentContainer {
@@ -197,6 +198,7 @@ public class ProjectScanContainer extends ComponentContainer {
       ProjectSettings.class,
 
       // Report
+      BatchMetrics.class,
       ReportPublisher.class,
       AnalysisContextReportPublisher.class,
       MetadataPublisher.class,
@@ -206,7 +208,7 @@ public class ProjectScanContainer extends ComponentContainer {
       CoveragePublisher.class,
       SourcePublisher.class,
       TestExecutionAndCoveragePublisher.class,
-      
+
       // Cpd
       CpdExecutor.class,
       SonarDuplicationsIndex.class,

@@ -54,49 +54,49 @@ public class CoveragePublisher implements ReportPublisherStep {
       }
       Map<Integer, Coverage.Builder> coveragePerLine = new LinkedHashMap<>();
 
-      applyLineMeasure(resource.key(), ((InputFile) resource.inputComponent()).lines(), CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
+      int lineCount = ((InputFile) resource.inputComponent()).lines();
+      applyLineMeasure(resource.key(), lineCount, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
           public void apply(String value, Coverage.Builder builder) {
             builder.setUtHits(Integer.parseInt(value) > 0);
           }
         });
-      applyLineMeasure(resource.key(), ((InputFile) resource.inputComponent()).lines(), CoreMetrics.CONDITIONS_BY_LINE_KEY, coveragePerLine,
+      applyLineMeasure(resource.key(), lineCount, CoreMetrics.CONDITIONS_BY_LINE_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
           public void apply(String value, Coverage.Builder builder) {
             builder.setConditions(Integer.parseInt(value));
           }
         });
-      applyLineMeasure(resource.key(), ((InputFile) resource.inputComponent()).lines(), CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
+      applyLineMeasure(resource.key(), lineCount, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
           public void apply(String value, Coverage.Builder builder) {
             builder.setUtCoveredConditions(Integer.parseInt(value));
           }
         });
-      applyLineMeasure(resource.key(), ((InputFile) resource.inputComponent()).lines(), CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
+      applyLineMeasure(resource.key(), lineCount, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
           public void apply(String value, Coverage.Builder builder) {
             builder.setItHits(Integer.parseInt(value) > 0);
           }
         });
-      applyLineMeasure(resource.key(), ((InputFile) resource.inputComponent()).lines(), CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
+      applyLineMeasure(resource.key(), lineCount, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
           public void apply(String value, Coverage.Builder builder) {
             builder.setItCoveredConditions(Integer.parseInt(value));
           }
         });
-      applyLineMeasure(resource.key(), ((InputFile) resource.inputComponent()).lines(), CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
+      applyLineMeasure(resource.key(), lineCount, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
           public void apply(String value, Coverage.Builder builder) {
             builder.setOverallCoveredConditions(Integer.parseInt(value));
           }
         });
-
       writer.writeComponentCoverage(resource.batchId(), Iterables.transform(coveragePerLine.values(), BuildCoverage.INSTANCE));
     }
   }

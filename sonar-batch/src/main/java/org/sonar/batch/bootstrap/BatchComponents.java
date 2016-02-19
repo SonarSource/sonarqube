@@ -35,6 +35,7 @@ import org.sonar.batch.scm.ScmConfiguration;
 import org.sonar.batch.scm.ScmSensor;
 import org.sonar.batch.source.CodeColorizerSensor;
 import org.sonar.batch.source.LinesSensor;
+import org.sonar.batch.source.ZeroCoverageSensor;
 import org.sonar.batch.task.ListTask;
 import org.sonar.batch.task.ScanTask;
 import org.sonar.batch.task.Tasks;
@@ -55,6 +56,7 @@ public class BatchComponents {
       ScmSensor.class,
 
       LinesSensor.class,
+      ZeroCoverageSensor.class,
       CodeColorizerSensor.class,
 
       // Issues tracking

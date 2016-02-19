@@ -21,17 +21,15 @@ package org.sonar.api.batch.sensor.coverage.internal;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.SortedMap;
+import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.internal.DefaultStorable;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
-
-import javax.annotation.Nullable;
-
-import java.util.Collections;
-import java.util.SortedMap;
 
 public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
@@ -64,7 +62,6 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
 
   @Override
   public NewCoverage ofType(CoverageType type) {
-    validateFile();
     Preconditions.checkNotNull(type, "type can't be null");
     this.type = type;
     return this;
@@ -91,20 +88,6 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   private void validateLine(int line) {
     Preconditions.checkState(line <= inputFile.lines(), String.format("Line %d is out of range in the file %s (lines: %d)", line, inputFile.relativePath(), inputFile.lines()));
     Preconditions.checkState(line > 0, "Line number must be strictly positive: " + line);
-  }
-
-  private void validateLines() {
-    for (int l : hitsByLine.keySet()) {
-      validateLine(l);
-    }
-
-    for (int l : conditionsByLine.keySet()) {
-      validateLine(l);
-    }
-
-    for (int l : coveredConditionsByLine.keySet()) {
-      validateLine(l);
-    }
   }
 
   private void validateFile() {
@@ -157,7 +140,6 @@ public class DefaultCoverage extends DefaultStorable implements NewCoverage {
   public void doSave() {
     validateFile();
     Preconditions.checkNotNull(type, "Call ofType() first");
-    validateLines();
     storage.store(this);
   }
 

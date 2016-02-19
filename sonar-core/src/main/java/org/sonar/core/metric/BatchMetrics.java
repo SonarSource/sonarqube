@@ -20,10 +20,8 @@
 package org.sonar.core.metric;
 
 import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
@@ -32,6 +30,8 @@ import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
 import org.sonar.api.server.ServerSide;
 
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
 import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES;
@@ -45,9 +45,6 @@ import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
 import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA;
 import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE;
 import static org.sonar.api.measures.CoreMetrics.DIRECTORIES;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_BLOCKS;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_FILES;
-import static org.sonar.api.measures.CoreMetrics.DUPLICATED_LINES;
 import static org.sonar.api.measures.CoreMetrics.FILES;
 import static org.sonar.api.measures.CoreMetrics.FILE_COMPLEXITY_DISTRIBUTION;
 import static org.sonar.api.measures.CoreMetrics.FUNCTIONS;
@@ -115,10 +112,6 @@ public class BatchMetrics {
     STATEMENTS,
     ACCESSORS,
 
-    DUPLICATED_LINES,
-    DUPLICATED_BLOCKS,
-    DUPLICATED_FILES,
-
     COMPLEXITY,
     COMPLEXITY_IN_CLASSES,
     COMPLEXITY_IN_FUNCTIONS,
@@ -155,10 +148,13 @@ public class BatchMetrics {
     OVERALL_COVERED_CONDITIONS_BY_LINE,
     OVERALL_CONDITIONS_BY_LINE,
 
-    QUALITY_PROFILES
-    );
+    QUALITY_PROFILES);
 
   private final Set<Metric> metrics;
+
+  public BatchMetrics() {
+    this.metrics = ALLOWED_CORE_METRICS;
+  }
 
   public BatchMetrics(Metrics[] metricsRepositories) {
     this.metrics = ImmutableSet.copyOf(Iterables.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS));
@@ -169,8 +165,7 @@ public class BatchMetrics {
   }
 
   private static Iterable<Metric> getPluginMetrics(Metrics[] metricsRepositories) {
-    return FluentIterable.from(Arrays.asList(metricsRepositories))
-      .transformAndConcat(FlattenMetrics.INSTANCE);
+    return from(asList(metricsRepositories)).transformAndConcat(FlattenMetrics.INSTANCE);
   }
 
   private enum FlattenMetrics implements Function<Metrics, List<Metric>> {

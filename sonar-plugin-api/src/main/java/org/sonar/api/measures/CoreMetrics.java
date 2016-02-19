@@ -19,7 +19,6 @@
  */
 package org.sonar.api.measures;
 
-import com.google.common.annotations.Beta;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.lang.reflect.Field;
@@ -2123,7 +2122,6 @@ public final class CoreMetrics {
   /**
    * @since 2.14
    */
-  @Beta
   public static final String NCLOC_DATA_KEY = "ncloc_data";
 
   /**
@@ -2133,7 +2131,6 @@ public final class CoreMetrics {
    * @see org.sonar.api.measures.FileLinesContext
    * @since 2.14
    */
-  @Beta
   public static final Metric<String> NCLOC_DATA = new Metric.Builder(NCLOC_DATA_KEY, "ncloc_data", Metric.ValueType.DATA)
     .setHidden(true)
     .setDomain(DOMAIN_SIZE)
@@ -2142,7 +2139,6 @@ public final class CoreMetrics {
   /**
    * @since 2.14
    */
-  @Beta
   public static final String COMMENT_LINES_DATA_KEY = "comment_lines_data";
 
   /**
@@ -2152,10 +2148,26 @@ public final class CoreMetrics {
    * @see org.sonar.api.measures.FileLinesContext
    * @since 2.14
    */
-  @Beta
   public static final Metric<String> COMMENT_LINES_DATA = new Metric.Builder(COMMENT_LINES_DATA_KEY, "comment_lines_data", Metric.ValueType.DATA)
     .setHidden(true)
     .setDomain(DOMAIN_DOCUMENTATION)
+    .create();
+
+  /**
+   * @since 5.5
+   */
+  public static final String EXECUTABLE_LINES_DATA_KEY = "executable_lines_data";
+
+  /**
+   * Information about executable lines of code in file.
+   * Key-value pairs, where key - is a number of line, and value - is an indicator of whether line contains executable code (1) or not (0).
+   *
+   * @see org.sonar.api.measures.FileLinesContext
+   * @since 5.5
+   */
+  public static final Metric<String> EXECUTABLE_LINES_DATA = new Metric.Builder(EXECUTABLE_LINES_DATA_KEY, "executable_lines_data", Metric.ValueType.DATA)
+    .setHidden(true)
+    .setDomain(DOMAIN_TESTS)
     .create();
 
   // --------------------------------------------------------------------------------------------------------------------

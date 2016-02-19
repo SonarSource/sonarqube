@@ -91,11 +91,11 @@ public class CoverageMediumTest {
     assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
 
     Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue", "stringValue")
-      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2, ""),
-        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0, ""),
-        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2, ""),
-        tuple(CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, 0, "2=1"));
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue")
+      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
+        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 0),
+        tuple(CoreMetrics.CONDITIONS_TO_COVER_KEY, 2),
+        tuple(CoreMetrics.UNCOVERED_CONDITIONS_KEY, 1));
   }
 
   @Test
@@ -130,6 +130,51 @@ public class CoverageMediumTest {
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey")
       .doesNotContain(CoreMetrics.LINES_TO_COVER_KEY, CoreMetrics.UNCOVERED_LINES_KEY, CoreMetrics.CONDITIONS_TO_COVER_KEY,
         CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY);
+  }
+
+  @Test
+  public void fallbackOnExecutableLines() throws IOException {
+
+    File baseDir = temp.getRoot();
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    File measuresFile = new File(srcDir, "sample.xoo.measures");
+    FileUtils.write(xooFile, "function foo() {\n  if (a && b) {\nalert('hello');\n}\n}");
+    FileUtils.write(measuresFile, "executable_lines_data:2=1;3=1;4=0");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    InputFile file = result.inputFile("src/sample.xoo");
+    assertThat(result.coverageFor(file, 1)).isNull();
+
+    assertThat(result.coverageFor(file, 2).getUtHits()).isFalse();
+    assertThat(result.coverageFor(file, 2).getItHits()).isFalse();
+    assertThat(result.coverageFor(file, 2).getConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file, 2).getUtCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file, 2).getItCoveredConditions()).isEqualTo(0);
+    assertThat(result.coverageFor(file, 2).getOverallCoveredConditions()).isEqualTo(0);
+
+    assertThat(result.coverageFor(file, 3).getUtHits()).isFalse();
+    assertThat(result.coverageFor(file, 4)).isNull();
+
+    Map<String, List<org.sonar.batch.protocol.output.BatchReport.Measure>> allMeasures = result.allMeasures();
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue")
+      .contains(tuple(CoreMetrics.LINES_TO_COVER_KEY, 2),
+        tuple(CoreMetrics.UNCOVERED_LINES_KEY, 2));
+
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey").doesNotContain(CoreMetrics.CONDITIONS_TO_COVER_KEY, CoreMetrics.UNCOVERED_CONDITIONS_KEY);
   }
 
 }

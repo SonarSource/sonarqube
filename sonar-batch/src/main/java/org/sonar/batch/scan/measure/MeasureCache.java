@@ -51,7 +51,11 @@ public class MeasureCache {
   }
 
   public Iterable<Measure> byResource(Resource r) {
-    return cache.values(r.getEffectiveKey());
+    return byComponentKey(r.getEffectiveKey());
+  }
+
+  public Iterable<Measure> byComponentKey(String effectiveKey) {
+    return cache.values(effectiveKey);
   }
 
   @CheckForNull

@@ -20,9 +20,31 @@
 package org.sonar.api.batch.sensor.coverage;
 
 import com.google.common.annotations.Beta;
+import com.google.common.collect.ImmutableSet;
+import java.util.Set;
 import org.sonar.api.measures.Metric;
 
-import static org.sonar.api.measures.CoreMetrics.*;
+import static org.sonar.api.measures.CoreMetrics.CONDITIONS_BY_LINE;
+import static org.sonar.api.measures.CoreMetrics.CONDITIONS_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.COVERAGE_LINE_HITS_DATA;
+import static org.sonar.api.measures.CoreMetrics.COVERED_CONDITIONS_BY_LINE;
+import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_BY_LINE;
+import static org.sonar.api.measures.CoreMetrics.IT_CONDITIONS_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.IT_COVERAGE_LINE_HITS_DATA;
+import static org.sonar.api.measures.CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE;
+import static org.sonar.api.measures.CoreMetrics.IT_LINES_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_CONDITIONS;
+import static org.sonar.api.measures.CoreMetrics.IT_UNCOVERED_LINES;
+import static org.sonar.api.measures.CoreMetrics.LINES_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_CONDITIONS_BY_LINE;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_CONDITIONS_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERAGE_LINE_HITS_DATA;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_LINES_TO_COVER;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_CONDITIONS;
+import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_LINES;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
+import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 
 /**
  * Different coverage categories.
@@ -43,6 +65,7 @@ public enum CoverageType {
   private final Metric uncoveredConditions;
   private final Metric coveredConditionsByLine;
   private final Metric conditionsByLine;
+  private final Set<Metric> all;
 
   private CoverageType(Metric linesToCover, Metric uncoveredLines, Metric lineHitsData, Metric conditionsToCover, Metric uncoveredConditions, Metric coveredConditionsByLine,
     Metric conditionsByLine) {
@@ -53,6 +76,11 @@ public enum CoverageType {
     this.uncoveredConditions = uncoveredConditions;
     this.coveredConditionsByLine = coveredConditionsByLine;
     this.conditionsByLine = conditionsByLine;
+    this.all = ImmutableSet.of(linesToCover, uncoveredLines, lineHitsData, conditionsToCover, uncoveredConditions, coveredConditionsByLine, conditionsByLine);
+  }
+
+  public Set<Metric> allMetrics() {
+    return all;
   }
 
   public Metric linesToCover() {

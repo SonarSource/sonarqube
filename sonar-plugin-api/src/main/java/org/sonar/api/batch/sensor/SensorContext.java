@@ -96,7 +96,7 @@ public interface SensorContext {
 
   /**
    * Builder to define coverage in a file.
-   * Don't forget to call {@link NewDuplication#save()}.
+   * Don't forget to call {@link NewCoverage#save()}.
    */
   NewCoverage newCoverage();
 

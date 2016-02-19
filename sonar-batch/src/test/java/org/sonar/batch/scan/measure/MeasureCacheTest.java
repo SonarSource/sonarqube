@@ -166,22 +166,6 @@ public class MeasureCacheTest extends AbstractCachesTest {
   }
 
   @Test
-  public void should_add_measure_with_same_metric() {
-    Project p = new Project("struts");
-
-    assertThat(measureCache.entries()).hasSize(0);
-    assertThat(measureCache.byResource(p)).hasSize(0);
-
-    Measure m1 = new Measure(CoreMetrics.NCLOC, 1.0);
-    Measure m2 = new Measure(CoreMetrics.NCLOC, 1.0).setPersonId(2);
-    measureCache.put(p, m1);
-    measureCache.put(p, m2);
-
-    assertThat(measureCache.entries()).hasSize(2);
-    assertThat(measureCache.byResource(p)).hasSize(2);
-  }
-
-  @Test
   public void should_get_measures() {
     Project p = new Project("struts");
     Resource dir = Directory.create("foo/bar").setEffectiveKey("struts:foo/bar");

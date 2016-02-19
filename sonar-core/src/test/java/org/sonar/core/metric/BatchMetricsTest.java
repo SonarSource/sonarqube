@@ -31,12 +31,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BatchMetricsTest {
 
-  static final BatchMetrics SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = new BatchMetrics(new Metrics[]{});
-  static final BatchMetrics SENSOR_METRICS_WITH_PLUGIN = new BatchMetrics(new Metrics[]{new FakeMetrics()});
+  static final BatchMetrics SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = new BatchMetrics(new Metrics[] {});
+  static final BatchMetrics SENSOR_METRICS_WITH_PLUGIN = new BatchMetrics(new Metrics[] {new FakeMetrics()});
 
   @Test
   public void check_number_of_allowed_core_metrics() throws Exception {
-    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN.getMetrics()).hasSize(52);
+    assertThat(SENSOR_METRICS_WITHOUT_METRIC_PLUGIN.getMetrics()).hasSize(49);
   }
 
   @Test
@@ -52,8 +52,7 @@ public class BatchMetricsTest {
     public List<Metric> getMetrics() {
       return ImmutableList.<Metric>of(
         new Metric.Builder("key1", "name1", Metric.ValueType.INT).create(),
-        new Metric.Builder("key2", "name2", Metric.ValueType.FLOAT).create()
-      );
+        new Metric.Builder("key2", "name2", Metric.ValueType.FLOAT).create());
     }
   }
 }
