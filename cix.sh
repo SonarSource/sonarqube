@@ -18,6 +18,12 @@ case "$RUN_ACTIVITY" in
     ./run-integration-tests.sh "${CATEGORY}" "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
     ;;
 
+  run-integration-tests-*)
+      CATEGORY=`echo $RUN_ACTIVITY | sed "s/run-integration-tests-//g"`
+
+      ./run-integration-tests.sh "${CATEGORY}" "http://infra.internal.sonarsource.com/jenkins/orch-embedded.properties"
+      ;;
+
   run-it-released-plugins)
     ./run-integration-tests.sh "Plugins" "http://infra.internal.sonarsource.com/jenkins/orch-h2.properties"
     ;;
