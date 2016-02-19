@@ -11,6 +11,7 @@ RUN_ACTIVITY:
   - run-db-unit-tests-oracle12c
   - run-db-unit-tests-postgresql93
   - run-db-integration-tests-mssql2014-Category1
+  - run-db-integration-tests-mssql2014-Category2
   - run-it-released-plugins
   - run-perf-tests
 
@@ -28,6 +29,12 @@ exclude:
   - RUN_ACTIVITY: run-db-unit-tests-postgresql93
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category1
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category2
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category3
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category4
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-it-released-plugins
     SLAVE_TYPE: performance
