@@ -19,7 +19,7 @@ describe('Background Tasks', function () {
   describe('Constants', () => {
     it('should have STATUSES', () => {
       expect(STATUSES).to.be.a('object');
-      expect(Object.keys(STATUSES).length).to.equal(6);
+      expect(Object.keys(STATUSES).length).to.equal(7);
     });
 
     it('should have CURRENTS', () => {

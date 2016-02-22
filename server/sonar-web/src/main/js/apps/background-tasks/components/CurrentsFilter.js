@@ -28,6 +28,13 @@ export default function CurrentsFilter ({ value, onChange }) {
     onChange(newValue);
   }
 
+  function handleLabelClick (e) {
+    const newValue = value === CURRENTS.ALL ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
+
+    e.preventDefault();
+    onChange(newValue);
+  }
+
   const checked = value === CURRENTS.ONLY_CURRENTS;
 
   return (
@@ -36,7 +43,9 @@ export default function CurrentsFilter ({ value, onChange }) {
             initiallyChecked={checked}
             onCheck={handleChange}/>
         &nbsp;
-        <label>Yes</label>
+        <label
+            onClick={handleLabelClick}
+            style={{ cursor: 'pointer' }}>Yes</label>
       </div>
   );
 }

@@ -19,6 +19,7 @@
  */
 export const STATUSES = {
   ALL: '__ALL__',
+  ALL_EXCEPT_PENDING: '__ALL_EXCEPT_PENDING__',
   PENDING: 'PENDING',
   IN_PROGRESS: 'IN_PROGRESS',
   SUCCESS: 'SUCCESS',
@@ -43,7 +44,7 @@ export const DATE = {
 };
 
 export const DEFAULT_FILTERS = {
-  status: STATUSES.ALL,
+  status: STATUSES.ALL_EXCEPT_PENDING,
   taskType: ALL_TYPES,
   currents: CURRENTS.ALL,
   date: {},

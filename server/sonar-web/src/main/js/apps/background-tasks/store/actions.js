@@ -95,9 +95,7 @@ export function finishCancelTaskAction (task) {
 function mapFiltersToParameters (filters = {}) {
   const parameters = {};
 
-  if (filters.status !== STATUSES.ALL) {
-    parameters.status = filters.status;
-  } else {
+  if (filters.status === STATUSES.ALL) {
     parameters.status = [
       STATUSES.PENDING,
       STATUSES.IN_PROGRESS,
@@ -105,6 +103,15 @@ function mapFiltersToParameters (filters = {}) {
       STATUSES.FAILED,
       STATUSES.CANCELED
     ].join();
+  } else if (filters.status === STATUSES.ALL_EXCEPT_PENDING) {
+    parameters.status = [
+      STATUSES.IN_PROGRESS,
+      STATUSES.SUCCESS,
+      STATUSES.FAILED,
+      STATUSES.CANCELED
+    ].join();
+  } else {
+    parameters.status = filters.status;
   }
 
   if (filters.taskType !== ALL_TYPES) {

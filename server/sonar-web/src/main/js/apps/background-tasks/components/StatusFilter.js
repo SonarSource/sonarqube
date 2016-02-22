@@ -26,6 +26,7 @@ import { translate } from '../../../helpers/l10n';
 export default function StatusFilter ({ value, onChange }) {
   const options = [
     { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
+    { value: STATUSES.ALL_EXCEPT_PENDING, label: translate('background_task.status.ALL_EXCEPT_PENDING') },
     { value: STATUSES.PENDING, label: translate('background_task.status.PENDING') },
     { value: STATUSES.IN_PROGRESS, label: translate('background_task.status.IN_PROGRESS') },
     { value: STATUSES.SUCCESS, label: translate('background_task.status.SUCCESS') },
@@ -37,7 +38,7 @@ export default function StatusFilter ({ value, onChange }) {
       <Select
           value={value}
           onChange={option => onChange(option.value)}
-          className="input-small"
+          className="input-medium"
           options={options}
           clearable={false}
           searchable={false}/>
