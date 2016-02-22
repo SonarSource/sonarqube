@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleQuery;
 
 public interface RuleMapper {
 
@@ -42,13 +43,15 @@ public interface RuleMapper {
 
   RuleDto selectById(long id);
 
-  List<RuleDto> selectByIds(@Param("ruleIds") List<Integer> ids);
+  List<RuleDto> selectByIds(@Param("ids") List<Integer> ids);
 
   RuleDto selectByKey(RuleKey ruleKey);
 
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);
 
   RuleDto selectByName(String name);
+
+  List<RuleDto> selectByQuery(@Param("query") RuleQuery ruleQuery);
 
   void update(RuleDto rule);
 
@@ -61,6 +64,8 @@ public interface RuleMapper {
   List<RuleParamDto> selectParamsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
 
   List<RuleParamDto> selectParamsByRuleKey(RuleKey ruleKey);
+
+  List<RuleParamDto> selectParamsByRuleKeys(@Param("ruleKeys") List<RuleKey> ruleKeys);
 
   RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Integer ruleId, @Param("key") String key);
 

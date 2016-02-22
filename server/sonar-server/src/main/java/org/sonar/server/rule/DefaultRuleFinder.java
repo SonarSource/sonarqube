@@ -19,23 +19,27 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableList;
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ImmutableListMultimap;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
-import org.sonar.server.rule.index.RuleDoc;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-
-import javax.annotation.CheckForNull;
-
-import java.util.Collection;
-import java.util.List;
-import org.sonar.server.user.UserSession;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
+import org.sonar.markdown.Markdown;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -44,22 +48,27 @@ import static com.google.common.collect.Lists.newArrayList;
  */
 public class DefaultRuleFinder implements RuleFinder {
 
-  private final RuleIndex index;
-  private final UserSession userSession;
+  private final DbClient dbClient;
+  private final RuleDao ruleDao;
 
-  public DefaultRuleFinder(IndexClient indexes, UserSession userSession) {
-    this.userSession = userSession;
-    this.index = indexes.get(RuleIndex.class);
+  public DefaultRuleFinder(DbClient dbClient) {
+    this.dbClient = dbClient;
+    this.ruleDao = dbClient.ruleDao();
   }
 
   @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findById(int ruleId) {
-    Rule rule = index.getById(ruleId);
-    if (rule != null && rule.status() != RuleStatus.REMOVED) {
-      return toRule(rule);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Optional<RuleDto> rule = ruleDao.selectById(ruleId, dbSession);
+      if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
+        return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
+      }
+      return null;
+    } finally {
+      dbClient.closeSession(dbSession);
     }
-    return null;
   }
 
   public Collection<org.sonar.api.rules.Rule> findByIds(Collection<Integer> ruleIds) {
@@ -67,10 +76,14 @@ public class DefaultRuleFinder implements RuleFinder {
     if (ruleIds.isEmpty()) {
       return rules;
     }
-    for (Rule rule : index.getByIds(ruleIds)) {
-      rules.add(toRule(rule));
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      List<RuleDto> ruleDtos = ruleDao.selectByIds(dbSession, new ArrayList<>(ruleIds));
+      return convertToRuleApi(dbSession, ruleDtos);
+    } finally {
+      dbClient.closeSession(dbSession);
     }
-    return rules;
   }
 
   public Collection<org.sonar.api.rules.Rule> findByKeys(Collection<RuleKey> ruleKeys) {
@@ -78,20 +91,29 @@ public class DefaultRuleFinder implements RuleFinder {
     if (ruleKeys.isEmpty()) {
       return rules;
     }
-    for (Rule rule : index.getByKeys(ruleKeys)) {
-      rules.add(toRule(rule));
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      List<RuleDto> ruleDtos = ruleDao.selectByKeys(dbSession, new ArrayList<>(ruleKeys));
+      return convertToRuleApi(dbSession, ruleDtos);
+    } finally {
+      dbClient.closeSession(dbSession);
     }
-    return rules;
   }
 
   @Override
   @CheckForNull
   public org.sonar.api.rules.Rule findByKey(RuleKey key) {
-    Rule rule = index.getNullableByKey(key);
-    if (rule != null && rule.status() != RuleStatus.REMOVED) {
-      return toRule(rule);
-    } else {
-      return null;
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Optional<RuleDto> rule = ruleDao.selectByKey(dbSession, key);
+      if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
+        return toRule(rule.get(), ruleDao.selectRuleParamsByRuleKey(dbSession, rule.get().getKey()));
+      } else {
+        return null;
+      }
+    } finally {
+      dbClient.closeSession(dbSession);
     }
   }
 
@@ -103,61 +125,97 @@ public class DefaultRuleFinder implements RuleFinder {
 
   @Override
   public final org.sonar.api.rules.Rule find(org.sonar.api.rules.RuleQuery query) {
-    Result<Rule> result = index.search(toQuery(query), new QueryContext(userSession));
-    if (!result.getHits().isEmpty()) {
-      return toRule(result.getHits().get(0));
-    } else {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, query);
+      if (!rules.isEmpty()) {
+        RuleDto rule = rules.get(0);
+        return toRule(rule, ruleDao.selectRuleParamsByRuleKey(dbSession, rule.getKey()));
+      }
       return null;
+    } finally {
+      dbClient.closeSession(dbSession);
     }
   }
 
   @Override
   public final Collection<org.sonar.api.rules.Rule> findAll(org.sonar.api.rules.RuleQuery query) {
-    List<org.sonar.api.rules.Rule> rules = newArrayList();
-    for (Rule rule : index.search(toQuery(query), new QueryContext(userSession)).getHits()) {
-      rules.add(toRule(rule));
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      List<RuleDto> rules = ruleDao.selectByQuery(dbSession, query);
+      if (rules.isEmpty()) {
+        return Collections.emptyList();
+      }
+      return convertToRuleApi(dbSession, rules);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  private Collection<org.sonar.api.rules.Rule> convertToRuleApi(DbSession dbSession, List<RuleDto> ruleDtos) {
+    List<org.sonar.api.rules.Rule> rules = new ArrayList<>();
+    List<RuleKey> ruleKeys = FluentIterable.from(ruleDtos).transform(RuleDtoToKey.INSTANCE).toList();
+    List<RuleParamDto> ruleParamDtos = ruleDao.selectRuleParamsByRuleKeys(dbSession, ruleKeys);
+    ImmutableListMultimap<Integer, RuleParamDto> ruleParamByRuleId = FluentIterable.from(ruleParamDtos).index(RuleParamDtoToRuleId.INSTANCE);
+    for (RuleDto rule : ruleDtos) {
+      rules.add(toRule(rule, ruleParamByRuleId.get(rule.getId())));
     }
     return rules;
   }
 
-  private org.sonar.api.rules.Rule toRule(Rule rule) {
+  private org.sonar.api.rules.Rule toRule(RuleDto rule, List<RuleParamDto> params) {
+    String severity = rule.getSeverityString();
+    String description = rule.getDescription();
+    RuleDto.Format descriptionFormat = rule.getDescriptionFormat();
+
     org.sonar.api.rules.Rule apiRule = new org.sonar.api.rules.Rule();
     apiRule
-      .setName(rule.name())
-      .setLanguage(rule.language())
-      .setKey(rule.key().rule())
-      .setConfigKey(rule.internalKey())
+      .setName(rule.getName())
+      .setLanguage(rule.getLanguage())
+      .setKey(rule.getRuleKey())
+      .setConfigKey(rule.getConfigKey())
       .setIsTemplate(rule.isTemplate())
-      .setCreatedAt(rule.createdAt())
-      .setUpdatedAt(rule.updatedAt())
-      .setDescription(rule.htmlDescription())
-      .setRepositoryKey(rule.key().repository())
-      .setSeverity(rule.severity() != null ? RulePriority.valueOf(rule.severity()) : null)
-      .setStatus(rule.status().name())
-      .setTags(rule.tags().toArray(new String[rule.tags().size()]))
-      .setId(((RuleDoc) rule).id());
+      .setCreatedAt(new Date(rule.getCreatedAtInMs()))
+      .setUpdatedAt(new Date(rule.getUpdatedAtInMs()))
+      .setRepositoryKey(rule.getRepositoryKey())
+      .setSeverity(severity != null ? RulePriority.valueOf(severity) : null)
+      .setStatus(rule.getStatus().name())
+      .setTags(rule.getTags().toArray(new String[rule.getTags().size()]))
+      .setId((rule.getId()));
+    if (description != null && descriptionFormat != null) {
+      if (RuleDto.Format.HTML.equals(descriptionFormat)) {
+        apiRule.setDescription(description);
+      } else {
+        apiRule.setDescription(Markdown.convertToHtml(description));
+      }
+    }
 
     List<org.sonar.api.rules.RuleParam> apiParams = newArrayList();
-    for (RuleParam param : rule.params()) {
-      apiParams.add(new org.sonar.api.rules.RuleParam(apiRule, param.key(), param.description(), param.type().type())
-        .setDefaultValue(param.defaultValue()));
+    for (RuleParamDto param : params) {
+      apiParams.add(new org.sonar.api.rules.RuleParam(apiRule, param.getName(), param.getDescription(), param.getType())
+        .setDefaultValue(param.getDefaultValue()));
     }
     apiRule.setParams(apiParams);
 
     return apiRule;
   }
 
-  private RuleQuery toQuery(org.sonar.api.rules.RuleQuery apiQuery) {
-    RuleQuery query = new RuleQuery();
-    if (apiQuery.getConfigKey() != null) {
-      query.setInternalKey(apiQuery.getConfigKey());
+  private enum RuleDtoToKey implements Function<RuleDto, RuleKey> {
+    INSTANCE;
+
+    @Override
+    public RuleKey apply(@Nonnull RuleDto input) {
+      return input.getKey();
     }
-    if (apiQuery.getKey() != null) {
-      query.setRuleKey(apiQuery.getKey());
-    }
-    if (apiQuery.getRepositoryKey() != null) {
-      query.setRepositories(ImmutableList.of(apiQuery.getRepositoryKey()));
-    }
-    return query;
   }
+
+  private enum RuleParamDtoToRuleId implements Function<RuleParamDto, Integer> {
+    INSTANCE;
+
+    @Override
+    public Integer apply(@Nonnull RuleParamDto input) {
+      return input.getRuleId();
+    }
+  }
+
 }
