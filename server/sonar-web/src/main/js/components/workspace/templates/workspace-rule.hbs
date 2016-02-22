@@ -27,6 +27,17 @@
 
       <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
 
+      {{#if debtRemFnType}}
+        <li class="coding-rules-detail-property"
+            data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function'}}">
+          {{t 'coding_rules.remediation_function' debtRemFnType}}:
+
+          {{#if debtRemFnOffset}}{{debtRemFnOffset}}{{/if}}
+          {{#if debtRemFnCoeff}}{{#if debtRemFnOffset}}+{{/if}}{{debtRemFnCoeff}}{{/if}}
+          {{#if effortToFixDescription}}{{effortToFixDescription}}{{/if}}
+        </li>
+      {{/if}}
+
       <li class="pull-right spacer-left">
         <a class="icon-link" target="_blank" href="{{rulePermalink key}}"></a>
       </li>
@@ -35,26 +46,6 @@
         <span class="note">{{key}}</span>
       </li>
     </ul>
-
-    {{#if debtCharName}}
-      <ul class="coding-rules-detail-properties">
-        <li class="coding-rules-detail-property"
-            data-toggle="tooltip" data-placement="bottom" title="Rule characteristic">
-          {{debtCharName}}{{#if debtSubCharName}} > {{debtSubCharName}}{{/if}}
-        </li>
-
-        {{#if debtRemFnType}}
-          <li class="coding-rules-detail-property"
-              data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function'}}">
-            {{t 'coding_rules.remediation_function' debtRemFnType}}:
-
-            {{#if debtRemFnOffset}}{{debtRemFnOffset}}{{/if}}
-            {{#if debtRemFnCoeff}}{{#if debtRemFnOffset}}+{{/if}}{{debtRemFnCoeff}}{{/if}}
-            {{#if effortToFixDescription}}{{effortToFixDescription}}{{/if}}
-          </li>
-        {{/if}}
-      </ul>
-    {{/if}}
 
     <div class="coding-rules-detail-description rule-desc markdown">{{{htmlDesc}}}</div>
 

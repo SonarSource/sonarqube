@@ -86,16 +86,6 @@ App.manualRepository = function () {
   };
 };
 
-App.getSubCharacteristicName = function (key) {
-  if (key != null) {
-    const ch = _.findWhere(App.characteristics, { key });
-    const parent = _.findWhere(App.characteristics, { key: ch.parent });
-    return [parent.name, ch.name].join(' > ');
-  } else {
-    return null;
-  }
-};
-
 const appXHR = $.get('/api/rules/app').done(function (r) {
   App.canWrite = r.canWrite;
   App.qualityProfiles = _.sortBy(r.qualityprofiles, ['name', 'lang']);
@@ -108,9 +98,6 @@ const appXHR = $.get('/api/rules/app').done(function (r) {
   App.repositories = r.repositories;
   App.repositories.push(App.manualRepository());
   App.statuses = r.statuses;
-  App.characteristics = r.characteristics.map(function (item, index) {
-    return _.extend(item, { index });
-  });
 });
 
 App.on('start', function (options) {

@@ -26,15 +26,13 @@ export default State.extend({
     query: {},
     facets: ['languages', 'tags'],
     allFacets: [
-      'q', 'rule_key', 'languages', 'tags', 'repositories', 'debt_characteristics', 'severities',
+      'q', 'rule_key', 'languages', 'tags', 'repositories', 'severities',
       'statuses', 'available_since', 'is_template', 'qprofile', 'inheritance', 'active_severities'
     ],
     facetsFromServer: [
-      'languages', 'repositories', 'tags', 'severities', 'statuses', 'debt_characteristics',
+      'languages', 'repositories', 'tags', 'severities', 'statuses',
       'active_severities'
     ],
-    transform: {
-      'has_debt_characteristic': 'debt_characteristics'
-    }
+    transform: {}
   }
 });

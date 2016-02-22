@@ -26,8 +26,7 @@ import RuleDetailsView from './rule-details-view';
 export default Controller.extend({
   pageSize: 200,
   ruleFields: [
-    'name', 'lang', 'langName', 'sysTags', 'tags', 'status', 'severity',
-    'debtChar', 'debtCharName', 'debtSubChar', 'debtSubCharName'
+    'name', 'lang', 'langName', 'sysTags', 'tags', 'status', 'severity'
   ],
 
 

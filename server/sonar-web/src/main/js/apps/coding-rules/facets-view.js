@@ -25,7 +25,6 @@ import LanguageFacet from './facets/language-facet';
 import RepositoryFacet from './facets/repository-facet';
 import TagFacet from './facets/tag-facet';
 import QualityProfileFacet from './facets/quality-profile-facet';
-import CharacteristicFacet from './facets/characteristic-facet';
 import SeverityFacet from './facets/severity-facet';
 import StatusFacet from './facets/status-facet';
 import AvailableSinceFacet from './facets/available-since-facet';
@@ -40,7 +39,6 @@ const viewsMapping = {
   repositories: RepositoryFacet,
   tags: TagFacet,
   qprofile: QualityProfileFacet,
-  debt_characteristics: CharacteristicFacet,
   severities: SeverityFacet,
   statuses: StatusFacet,
   available_since: AvailableSinceFacet,

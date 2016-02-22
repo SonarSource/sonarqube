@@ -17,24 +17,6 @@
     </li>
   {{/if}}
 
-  {{#if debtChar}}
-    <li class="divider"></li>
-
-    <li>
-      <a href="#" class="issue-action-option" data-property="debt_characteristics" data-value="{{debtChar}}">
-        {{debtCharName}}
-      </a>
-    </li>
-
-    {{#if debtSubChar}}
-      <li>
-        <a href="#" class="issue-action-option" data-property="debt_characteristics" data-value="{{debtSubChar}}">
-          {{debtSubCharName}}
-        </a>
-      </li>
-    {{/if}}
-  {{/if}}
-
   {{#notEmpty tags}}
     <li class="divider"></li>
     {{#each tags}}

@@ -64,24 +64,15 @@
       (<a href="#rule_key={{templateKey}}">{{t 'coding_rules.show_template'}}</a>)
     </li>
   {{/if}}
-</ul>
 
-{{#if subCharacteristic}}
-  <ul class="coding-rules-detail-properties">
+  {{#if debtRemFnType}}
     <li class="coding-rules-detail-property"
-        data-toggle="tooltip" data-placement="bottom" title="Rule characteristic">
-      {{subCharacteristic}}
+        data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function'}}">
+      {{t 'coding_rules.remediation_function' debtRemFnType}}:
+
+      {{#if debtRemFnOffset}}{{debtRemFnOffset}}{{/if}}
+      {{#if debtRemFnCoeff}}{{#if debtRemFnOffset}}+{{/if}}{{debtRemFnCoeff}}{{/if}}
+      {{#if effortToFixDescription}}{{effortToFixDescription}}{{/if}}
     </li>
-
-    {{#if debtRemFnType}}
-      <li class="coding-rules-detail-property"
-          data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.remediation_function'}}">
-        {{t 'coding_rules.remediation_function' debtRemFnType}}:
-
-        {{#if debtRemFnOffset}}{{debtRemFnOffset}}{{/if}}
-        {{#if debtRemFnCoeff}}{{#if debtRemFnOffset}}+{{/if}}{{debtRemFnCoeff}}{{/if}}
-        {{#if effortToFixDescription}}{{effortToFixDescription}}{{/if}}
-      </li>
-    {{/if}}
-  </ul>
-{{/if}}
+  {{/if}}
+</ul>

@@ -106,7 +106,6 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
   serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canWrite: this.options.app.canWrite,
-      subCharacteristic: this.options.app.getSubCharacteristicName(this.model.get('debtSubChar')),
       allTags: _.union(this.model.get('sysTags'), this.model.get('tags')),
       permalink: '/coding_rules#rule_key=' + encodeURIComponent(this.model.id)
     });
