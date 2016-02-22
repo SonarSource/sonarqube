@@ -85,7 +85,7 @@ public class IssueJsonReportTest {
       assertThat(jsonIssue.get("startOffset")).isNotNull();
     }
 
-    List<Long> lineNumbers = new ArrayList<Long>(16);
+    List<Long> lineNumbers = new ArrayList<>(16);
     for (long i = 1L; i < 18; i++) {
       lineNumbers.add(i);
     }
@@ -276,7 +276,10 @@ public class IssueJsonReportTest {
 
   @Test
   public void sanityCheck() {
-    assertThat(sanitize("5.0.0-5868-SILVER-SNAPSHOT")).isEqualTo("<SONAR_VERSION>");
+    assertThat(sanitize("5.0-SNAPSHOT")).isEqualTo("<SONAR_VERSION>");
+    assertThat(sanitize("5.0.0-5868-SNAPSHOT")).isEqualTo("<SONAR_VERSION>");
+    assertThat(sanitize("5.0-build1234")).isEqualTo("<SONAR_VERSION>");
+    assertThat(sanitize("5.0.1-build1234")).isEqualTo("<SONAR_VERSION>");
   }
 
   @Test
@@ -285,8 +288,9 @@ public class IssueJsonReportTest {
   }
 
   private static String sanitize(String s) {
-    // sanitize sonar version. Note that "-SILVER-SNAPSHOT" is used by Goldeneye jobs
+    // sanitize sonarqube version: "5.4-SNAPSHOT" or "5.4-build1234"
     s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-SNAPSHOT", "<SONAR_VERSION>");
+    s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-build.*", "<SONAR_VERSION>");
 
     // sanitize issue uuid keys
     s = s.replaceAll("\"[a-zA-Z_0-9\\-]{15,20}\"", "<ISSUE_KEY>");
