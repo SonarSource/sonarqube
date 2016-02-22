@@ -67,6 +67,16 @@
     from rules r WHERE r.id=#{id}
   </select>
 
+  <select id="selectByIds" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r
+    WHERE
+    <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
+      r.id=#{id}
+    </foreach>
+  </select>
+
   <select id="selectByKey" parameterType="map" resultType="Rule">
     SELECT
     <include refid="selectColumns"/>
@@ -101,6 +111,25 @@
     <include refid="selectColumns"/>
     from rules r
     where (r.characteristic_id=#{subCharacteristicId} or r.default_characteristic_id=#{subCharacteristicId})
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r
+    <where>
+      AND r.status != 'REMOVED'
+      <if test="query.repositoryKey!=null">
+        AND r.plugin_name = #{query.repositoryKey}
+      </if>
+      <if test="query.key!=null">
+        AND r.plugin_rule_key = #{query.key}
+      </if>
+      <if test="query.configKey!=null">
+        AND r.plugin_config_key = #{query.configKey}
+      </if>
+    </where>
+    ORDER BY r.updated_at_ms DESC
   </select>
 
   <update id="update" parameterType="Rule">
@@ -206,6 +235,17 @@
     FROM rules_parameters p, rules r
     WHERE p.rule_id=r.id
     AND r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+  </select>
+
+  <select id="selectParamsByRuleKeys" resultType="RuleParam" parameterType="map">
+    SELECT
+    <include refid="paramColumns"/>
+    FROM rules_parameters p
+    INNER JOIN rules r ON r.id=p.rule_id
+    WHERE
+    <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+      (r.plugin_name=#{ruleKey.repository} AND r.plugin_rule_key=#{ruleKey.rule})
+    </foreach>
   </select>
 
   <select id="selectParamByRuleAndKey" resultType="RuleParam">

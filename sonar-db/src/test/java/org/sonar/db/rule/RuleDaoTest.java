@@ -22,6 +22,7 @@ package org.sonar.db.rule;
 import com.google.common.base.Optional;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import org.apache.ibatis.session.ResultContext;
@@ -33,6 +34,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
@@ -41,6 +43,7 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
@@ -74,6 +77,17 @@ public class RuleDaoTest {
     Optional<RuleDto> ruleDtoOptional = underTest.selectById(1l, dbTester.getSession());
     assertThat(ruleDtoOptional).isPresent();
     assertThat(ruleDtoOptional.get().getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectByIds() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1))).hasSize(1);
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1,2))).hasSize(2);
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1,2,3))).hasSize(2);
+
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(123))).isEmpty();
   }
 
   @Test
@@ -135,7 +149,7 @@ public class RuleDaoTest {
 
     List<RuleDto> ruleDtos = underTest.selectAll(dbTester.getSession());
 
-    assertThat(ruleDtos).extracting("id").containsOnly(1, 2);
+    assertThat(ruleDtos).extracting("id").containsOnly(1, 2, 10);
   }
 
   @Test
@@ -169,6 +183,19 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
     assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+  }
+
+
+  @Test
+  public void select_by_query() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create())).hasSize(2);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withKey("S001"))).hasSize(1);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withConfigKey("S1"))).hasSize(1);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withRepositoryKey("java"))).hasSize(2);
+    assertThat(underTest.selectByQuery(dbTester.getSession(),
+      RuleQuery.create().withKey("S001").withConfigKey("S1").withRepositoryKey("java"))).hasSize(1);
   }
 
   @Test
@@ -301,6 +328,19 @@ public class RuleDaoTest {
     assertThat(ruleDto.getDescription()).isEqualTo("My Parameter");
     assertThat(ruleDto.getType()).isEqualTo("plop");
     assertThat(ruleDto.getRuleId()).isEqualTo(1);
+  }
+
+  @Test
+  public void select_parameters_by_rule_keys() {
+    dbTester.prepareDbUnit(getClass(), "select_parameters_by_rule_key.xml");
+
+    assertThat(underTest.selectRuleParamsByRuleKeys(dbTester.getSession(),
+      Arrays.asList(RuleKey.of("checkstyle", "AvoidNull"), RuleKey.of("unused", "Unused"))
+    )).hasSize(2);
+
+    assertThat(underTest.selectRuleParamsByRuleKeys(dbTester.getSession(),
+      singletonList(RuleKey.of("unknown", "Unknown"))
+    )).isEmpty();
   }
 
   @Test
