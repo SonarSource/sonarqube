@@ -32,9 +32,8 @@ import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
@@ -53,18 +52,16 @@ public class NewIssuesNotification extends Notification {
   private static final String DOT = ".";
 
   private final transient UserIndex userIndex;
-  private final transient RuleIndex ruleIndex;
   private final transient DbClient dbClient;
   private final transient Durations durations;
 
-  NewIssuesNotification(UserIndex userIndex, RuleIndex ruleIndex, DbClient dbClient, Durations durations) {
-    this(TYPE, userIndex, ruleIndex, dbClient, durations);
+  NewIssuesNotification(UserIndex userIndex, DbClient dbClient, Durations durations) {
+    this(TYPE, userIndex, dbClient, durations);
   }
 
-  protected NewIssuesNotification(String type, UserIndex userIndex, RuleIndex ruleIndex, DbClient dbClient, Durations durations) {
+  protected NewIssuesNotification(String type, UserIndex userIndex, DbClient dbClient, Durations durations) {
     super(type);
     this.userIndex = userIndex;
-    this.ruleIndex = ruleIndex;
     this.dbClient = dbClient;
     this.durations = durations;
   }
@@ -84,40 +81,40 @@ public class NewIssuesNotification extends Notification {
   public NewIssuesNotification setStatistics(String projectName, NewIssuesStatistics.Stats stats) {
     setDefaultMessage(stats.countForMetric(SEVERITY) + " new issues on " + projectName + ".\n");
 
-    setSeverityStatistics(stats);
-    setAssigneesStatistics(stats);
-    setTagsStatistics(stats);
-    setComponentsStatistics(stats);
-    setRuleStatistics(stats);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      setSeverityStatistics(stats);
+      setAssigneesStatistics(stats);
+      setTagsStatistics(stats);
+      setComponentsStatistics(dbSession, stats);
+      setRuleStatistics(dbSession, stats);
+    } finally {
+      MyBatis.closeQuietly(dbSession);
+    }
 
     return this;
   }
 
-  protected void setRuleStatistics(NewIssuesStatistics.Stats stats) {
+  protected void setRuleStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.RULE;
     List<Multiset.Entry<String>> metricStats = stats.statsForMetric(metric);
     for (int i = 0; i < 5 && i < metricStats.size(); i++) {
       String ruleKey = metricStats.get(i).getElement();
-      Rule rule = ruleIndex.getByKey(RuleKey.parse(ruleKey));
-      String name = rule.name() + " (" + rule.language() + ")";
+      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, RuleKey.parse(ruleKey));
+      String name = rule.getName() + " (" + rule.getLanguage() + ")";
       setFieldValue(metric + DOT + (i + 1) + LABEL, name);
       setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(metricStats.get(i).getCount()));
     }
   }
 
-  protected void setComponentsStatistics(NewIssuesStatistics.Stats stats) {
+  protected void setComponentsStatistics(DbSession dbSession, NewIssuesStatistics.Stats stats) {
     Metric metric = Metric.COMPONENT;
     List<Multiset.Entry<String>> componentStats = stats.statsForMetric(metric);
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      for (int i = 0; i < 5 && i < componentStats.size(); i++) {
-        String uuid = componentStats.get(i).getElement();
-        String componentName = dbClient.componentDao().selectOrFailByUuid(dbSession, uuid).name();
-        setFieldValue(metric + DOT + (i + 1) + LABEL, componentName);
-        setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
-      }
-    } finally {
-      MyBatis.closeQuietly(dbSession);
+    for (int i = 0; i < 5 && i < componentStats.size(); i++) {
+      String uuid = componentStats.get(i).getElement();
+      String componentName = dbClient.componentDao().selectOrFailByUuid(dbSession, uuid).name();
+      setFieldValue(metric + DOT + (i + 1) + LABEL, componentName);
+      setFieldValue(metric + DOT + (i + 1) + COUNT, String.valueOf(componentStats.get(i).getCount()));
     }
   }
 
