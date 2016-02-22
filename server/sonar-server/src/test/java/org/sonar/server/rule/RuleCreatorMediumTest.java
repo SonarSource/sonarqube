@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import java.util.List;
 import org.assertj.core.api.Fail;
 import org.junit.After;
 import org.junit.Before;
@@ -30,24 +31,24 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.search.BaseIndex;
+import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
-
-import java.util.List;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+// TODO replace ServerTester by EsTester / DbTester
 public class RuleCreatorMediumTest {
 
   @ClassRule
@@ -59,7 +60,7 @@ public class RuleCreatorMediumTest {
   DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleCreator creator = tester.get(RuleCreator.class);
-  BaseIndex<Rule, RuleDto, RuleKey> ruleIndex = tester.get(RuleIndex.class);
+  RuleIndex2 ruleIndex = tester.get(RuleIndex2.class);
 
   @Before
   public void before() {
@@ -88,7 +89,7 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    RuleDto rule = db.deprecatedRuleDao().getNullableByKey(dbSession, customRuleKey);
+    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, customRuleKey);
     assertThat(rule).isNotNull();
     assertThat(rule.getKey()).isEqualTo(RuleKey.of("java", "CUSTOM_RULE"));
     assertThat(rule.getTemplateId()).isEqualTo(templateRule.getId());
@@ -105,7 +106,7 @@ public class RuleCreatorMediumTest {
     assertThat(rule.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag4");
 
-    List<RuleParamDto> params = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -115,6 +116,8 @@ public class RuleCreatorMediumTest {
     assertThat(param.getType()).isEqualTo("STRING");
     // From user
     assertThat(param.getDefaultValue()).isEqualTo("a.*");
+
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(customRuleKey, templateRule.getKey());
   }
 
   @Test
@@ -132,7 +135,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -156,7 +159,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -181,7 +184,7 @@ public class RuleCreatorMediumTest {
     RuleKey customRuleKey = creator.create(newRule);
     dbSession.clearCache();
 
-    List<RuleParamDto> params = db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
     assertThat(params).hasSize(1);
 
     RuleParamDto param = params.get(0);
@@ -235,7 +238,6 @@ public class RuleCreatorMediumTest {
     dbSession.clearCache();
   }
 
-
   @Test
   public void reactivate_custom_rule_if_already_exists_in_removed_status() {
     String key = "CUSTOM_RULE";
@@ -244,13 +246,14 @@ public class RuleCreatorMediumTest {
     RuleDto templateRule = createTemplateRule();
 
     // insert a removed rule
-    RuleDto rule = dao.insert(dbSession, RuleTesting.newCustomRule(templateRule)
+    RuleDto rule = RuleTesting.newCustomRule(templateRule)
       .setRuleKey(key)
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
       .setDescription("Old description")
       .setDescriptionFormat(Format.MARKDOWN)
-      .setSeverity(Severity.INFO));
+      .setSeverity(Severity.INFO);
+    dao.insert(dbSession, rule);
     dao.insertRuleParam(dbSession, rule, dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
     dbSession.clearCache();
@@ -266,18 +269,18 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    Rule result = ruleIndex.getByKey(customRuleKey);
-    assertThat(result.key()).isEqualTo(RuleKey.of("java", key));
-    assertThat(result.status()).isEqualTo(RuleStatus.READY);
+    RuleDto result = db.ruleDao().selectOrFailByKey(dbSession, customRuleKey);
+    assertThat(result.getKey()).isEqualTo(RuleKey.of("java", key));
+    assertThat(result.getStatus()).isEqualTo(RuleStatus.READY);
 
     // These values should be the same than before
-    assertThat(result.name()).isEqualTo("Old name");
-    assertThat(result.markdownDescription()).isEqualTo("Old description");
-    assertThat(result.severity()).isEqualTo(Severity.INFO);
-    assertThat(result.param("regex").defaultValue()).isEqualTo("a.*");
+    assertThat(result.getName()).isEqualTo("Old name");
+    assertThat(result.getDescription()).isEqualTo("Old description");
+    assertThat(result.getSeverityString()).isEqualTo(Severity.INFO);
 
-    // Check that the id is the same
-    assertThat(db.deprecatedRuleDao().getByKey(dbSession, result.key()).getId()).isEqualTo(rule.getId());
+    List<RuleParamDto> params = db.ruleDao().selectRuleParamsByRuleKey(dbSession, customRuleKey);
+    assertThat(params).hasSize(1);
+    assertThat(params.get(0).getDefaultValue()).isEqualTo("a.*");
   }
 
   @Test
@@ -288,12 +291,13 @@ public class RuleCreatorMediumTest {
     RuleDto templateRule = createTemplateRule();
 
     // insert a removed rule
-    RuleDto rule = dao.insert(dbSession, RuleTesting.newCustomRule(templateRule)
+    RuleDto rule = RuleTesting.newCustomRule(templateRule)
       .setRuleKey(key)
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
       .setDescription("Old description")
-      .setSeverity(Severity.INFO));
+      .setSeverity(Severity.INFO);
+    dao.insert(dbSession, rule);
     dao.insertRuleParam(dbSession, rule, dao.selectRuleParamsByRuleKey(dbSession, templateRule.getKey()).get(0).setDefaultValue("a.*"));
     dbSession.commit();
     dbSession.clearCache();
@@ -465,8 +469,8 @@ public class RuleCreatorMediumTest {
   @Test
   public void fail_to_create_custom_rule_when_wrong_rule_template() {
     // insert rule
-    RuleDto rule = dao.insert(dbSession,
-      RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false));
+    RuleDto rule = RuleTesting.newDto(RuleKey.of("java", "S001")).setIsTemplate(false);
+    dao.insert(dbSession, rule);
     dbSession.commit();
 
     // Create custom rule with unknown template rule
@@ -494,19 +498,22 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    Rule rule = ruleIndex.getByKey(ruleKey);
+    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, ruleKey);
     assertThat(rule).isNotNull();
-    assertThat(rule.key()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
-    assertThat(rule.name()).isEqualTo("My manual");
-    assertThat(rule.markdownDescription()).isEqualTo("Some description");
-    assertThat(rule.severity()).isNull();
-    assertThat(rule.status()).isEqualTo(RuleStatus.READY);
-    assertThat(rule.language()).isNull();
-    assertThat(rule.internalKey()).isNull();
-    assertThat(rule.debtRemediationFunction()).isNull();
-    assertThat(rule.tags()).isEmpty();
-    assertThat(rule.systemTags()).isEmpty();
-    assertThat(rule.params()).isEmpty();
+    assertThat(rule.getKey()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
+    assertThat(rule.getName()).isEqualTo("My manual");
+    assertThat(rule.getDescription()).isEqualTo("Some description");
+    assertThat(rule.getSeverityString()).isNull();
+    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(rule.getLanguage()).isNull();
+    assertThat(rule.getConfigKey()).isNull();
+    assertThat(rule.getDefaultRemediationOffset()).isNull();
+    assertThat(rule.getTags()).isEmpty();
+    assertThat(rule.getSystemTags()).isEmpty();
+
+    assertThat(db.ruleDao().selectRuleParamsByRuleKey(dbSession, ruleKey)).isEmpty();
+
+    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(ruleKey);
   }
 
   @Test
@@ -519,19 +526,20 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    Rule rule = ruleIndex.getByKey(ruleKey);
+    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, ruleKey);
     assertThat(rule).isNotNull();
-    assertThat(rule.key()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
-    assertThat(rule.name()).isEqualTo("My manual");
-    assertThat(rule.markdownDescription()).isEqualTo("Some description");
-    assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(rule.status()).isEqualTo(RuleStatus.READY);
-    assertThat(rule.language()).isNull();
-    assertThat(rule.internalKey()).isNull();
-    assertThat(rule.debtRemediationFunction()).isNull();
-    assertThat(rule.tags()).isEmpty();
-    assertThat(rule.systemTags()).isEmpty();
-    assertThat(rule.params()).isEmpty();
+    assertThat(rule.getKey()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
+    assertThat(rule.getName()).isEqualTo("My manual");
+    assertThat(rule.getDescription()).isEqualTo("Some description");
+    assertThat(rule.getSeverityString()).isEqualTo(Severity.BLOCKER);
+    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(rule.getLanguage()).isNull();
+    assertThat(rule.getConfigKey()).isNull();
+    assertThat(rule.getDefaultRemediationFunction()).isNull();
+    assertThat(rule.getTags()).isEmpty();
+    assertThat(rule.getSystemTags()).isEmpty();
+
+    assertThat(db.ruleDao().selectRuleParamsByRuleKey(dbSession, ruleKey)).isEmpty();
   }
 
   @Test
@@ -539,11 +547,12 @@ public class RuleCreatorMediumTest {
     String key = "MANUAL_RULE";
 
     // insert a removed rule
-    RuleDto rule = dao.insert(dbSession, RuleTesting.newManualRule(key)
+    RuleDto rule = RuleTesting.newManualRule(key)
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
       .setDescription("Old description")
-      .setSeverity(Severity.INFO));
+      .setSeverity(Severity.INFO);
+    dao.insert(dbSession, rule);
     dbSession.commit();
     dbSession.clearCache();
 
@@ -555,17 +564,14 @@ public class RuleCreatorMediumTest {
 
     dbSession.clearCache();
 
-    Rule result = ruleIndex.getByKey(ruleKey);
-    assertThat(result.key()).isEqualTo(RuleKey.of("manual", key));
-    assertThat(result.status()).isEqualTo(RuleStatus.READY);
+    RuleDto result = db.ruleDao().selectOrFailByKey(dbSession, ruleKey);
+    assertThat(result.getKey()).isEqualTo(RuleKey.of("manual", key));
+    assertThat(result.getStatus()).isEqualTo(RuleStatus.READY);
 
     // Name, description and severity should be the same than before
-    assertThat(result.name()).isEqualTo("Old name");
-    assertThat(result.markdownDescription()).isEqualTo("Old description");
-    assertThat(result.severity()).isEqualTo(Severity.INFO);
-
-    // Check that the id is the same
-    assertThat(db.deprecatedRuleDao().getByKey(dbSession, result.key()).getId()).isEqualTo(rule.getId());
+    assertThat(result.getName()).isEqualTo("Old name");
+    assertThat(result.getDescription()).isEqualTo("Old description");
+    assertThat(result.getSeverityString()).isEqualTo(Severity.INFO);
   }
 
   @Test
@@ -666,18 +672,17 @@ public class RuleCreatorMediumTest {
   }
 
   private RuleDto createTemplateRule() {
-    RuleDto templateRule = dao.insert(dbSession,
-      RuleTesting.newDto(RuleKey.of("java", "S001"))
-        .setIsTemplate(true)
-        .setLanguage("java")
-        .setConfigKey("S001")
-        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefaultRemediationCoefficient("1h")
-        .setDefaultRemediationOffset("5min")
-        .setEffortToFixDescription("desc")
-        .setTags(Sets.newHashSet("usertag1", "usertag2"))
-        .setSystemTags(Sets.newHashSet("tag1", "tag4"))
-      );
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S001"))
+      .setIsTemplate(true)
+      .setLanguage("java")
+      .setConfigKey("S001")
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("5min")
+      .setEffortToFixDescription("desc")
+      .setTags(Sets.newHashSet("usertag1", "usertag2"))
+      .setSystemTags(Sets.newHashSet("tag1", "tag4"));
+    dao.insert(dbSession, templateRule);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
     dbSession.commit();
@@ -685,16 +690,15 @@ public class RuleCreatorMediumTest {
   }
 
   private RuleDto createTemplateRuleWithIntArrayParam() {
-    RuleDto templateRule = dao.insert(dbSession,
-      RuleTesting.newDto(RuleKey.of("java", "S002"))
-        .setIsTemplate(true)
-        .setLanguage("java")
-        .setConfigKey("S002")
-        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefaultRemediationCoefficient("1h")
-        .setDefaultRemediationOffset("5min")
-        .setEffortToFixDescription("desc")
-      );
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S002"))
+      .setIsTemplate(true)
+      .setLanguage("java")
+      .setConfigKey("S002")
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("5min")
+      .setEffortToFixDescription("desc");
+    dao.insert(dbSession, templateRule);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule)
       .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
     dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
@@ -703,16 +707,15 @@ public class RuleCreatorMediumTest {
   }
 
   private RuleDto createTemplateRuleWithTwoIntParams() {
-    RuleDto templateRule = dao.insert(dbSession,
-      RuleTesting.newDto(RuleKey.of("java", "S003"))
-        .setIsTemplate(true)
-        .setLanguage("java")
-        .setConfigKey("S003")
-        .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-        .setDefaultRemediationCoefficient("1h")
-        .setDefaultRemediationOffset("5min")
-        .setEffortToFixDescription("desc")
-      );
+    RuleDto templateRule = RuleTesting.newDto(RuleKey.of("java", "S003"))
+      .setIsTemplate(true)
+      .setLanguage("java")
+      .setConfigKey("S003")
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationCoefficient("1h")
+      .setDefaultRemediationOffset("5min")
+      .setEffortToFixDescription("desc");
+    dao.insert(dbSession, templateRule);
     RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule)
       .setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0");
     dao.insertRuleParam(dbSession, templateRule, ruleParam1Dto);
