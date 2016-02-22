@@ -43,7 +43,7 @@ public class DeleteMeasuresWithCharacteristicIdTest {
   }
 
   @Test
-  public void update_columns() throws Exception {
+  public void delete_measures_with_characteristic_id() throws Exception {
     db.prepareDbUnit(getClass(), "before.xml");
 
     migration.execute();
