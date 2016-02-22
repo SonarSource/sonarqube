@@ -399,4 +399,15 @@ public class RulesDefinitionTest {
       assertThat(e).hasMessage("Status 'REMOVED' is not accepted on rule '[repository=findbugs, key=NPE]'");
     }
   }
+
+  @Test
+  public void sqale_characteristic_is_deprecated_and_is_ignored() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("desc")
+      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.API_ABUSE);
+    newRepository.done();
+
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
+    assertThat(rule.debtSubCharacteristic()).isNull();
+  }
 }

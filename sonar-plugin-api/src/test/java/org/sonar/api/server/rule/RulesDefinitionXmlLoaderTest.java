@@ -137,13 +137,11 @@ public class RulesDefinitionXmlLoaderTest {
       "    <description>Desc</description>" +
 
       "    <effortToFixDescription>lines</effortToFixDescription>" +
-      "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
       "    <debtRemediationFunction>LINEAR</debtRemediationFunction>" +
       "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
       "  </rule>" +
       "</rules>";
     RulesDefinition.Rule rule = load(xml).rule("1");
-    assertThat(rule.debtSubCharacteristic()).isEqualTo("BUG");
     assertThat(rule.effortToFixDescription()).isEqualTo("lines");
     DebtRemediationFunction function = rule.debtRemediationFunction();
     assertThat(function).isNotNull();
@@ -162,7 +160,6 @@ public class RulesDefinitionXmlLoaderTest {
       "    <description>Desc</description>" +
 
       "    <effortToFixDescription>lines</effortToFixDescription>" +
-      "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
       "    <debtRemediationFunction>LINEAR_OFFSET</debtRemediationFunction>" +
       "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
       "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
@@ -170,7 +167,6 @@ public class RulesDefinitionXmlLoaderTest {
       "</rules>";
     RulesDefinition.Rule rule = load(xml).rule("1");
     assertThat(rule.effortToFixDescription()).isEqualTo("lines");
-    assertThat(rule.debtSubCharacteristic()).isEqualTo("BUG");
     DebtRemediationFunction function = rule.debtRemediationFunction();
     assertThat(function).isNotNull();
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
@@ -186,13 +182,11 @@ public class RulesDefinitionXmlLoaderTest {
       "    <key>1</key>" +
       "    <name>One</name>" +
       "    <description>Desc</description>" +
-      "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
       "    <debtRemediationFunction>CONSTANT_ISSUE</debtRemediationFunction>" +
       "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
       "  </rule>" +
       "</rules>";
     RulesDefinition.Rule rule = load(xml).rule("1");
-    assertThat(rule.debtSubCharacteristic()).isEqualTo("BUG");
     DebtRemediationFunction function = rule.debtRemediationFunction();
     assertThat(function).isNotNull();
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
@@ -209,7 +203,6 @@ public class RulesDefinitionXmlLoaderTest {
         "    <key>1</key>" +
         "    <name>One</name>" +
         "    <description>Desc</description>" +
-        "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
         "    <debtRemediationFunction>UNKNOWN</debtRemediationFunction>" +
         "  </rule>" +
         "</rules>");
@@ -221,20 +214,22 @@ public class RulesDefinitionXmlLoaderTest {
   }
 
   @Test
-  public void fail_if_sub_characteristic_is_missing() {
-    try {
-      load("<rules>" +
-        "  <rule>" +
-        "    <key>1</key>" +
-        "    <name>One</name>" +
-        "    <description>Desc</description>" +
-        "    <debtRemediationFunction>LINEAR</debtRemediationFunction>" +
-        "    <debtRemediationFunctionCoefficient>1min</debtRemediationFunctionCoefficient>" +
-        "  </rule>" +
-        "</rules>");
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessageContaining("Both debt sub-characteristic and debt remediation function should be defined on rule '[repository=squid, key=1]");
-    }
+  public void ignore_deprecated_sqale_characteristic() {
+    String xml = "" +
+      "<rules>" +
+      "  <rule>" +
+      "    <key>1</key>" +
+      "    <name>One</name>" +
+      "    <description>Desc</description>" +
+      "    <effortToFixDescription>lines</effortToFixDescription>" +
+      "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
+      "    <debtRemediationFunction>LINEAR_OFFSET</debtRemediationFunction>" +
+      "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
+      "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
+      "  </rule>" +
+      "</rules>";
+    RulesDefinition.Rule rule = load(xml).rule("1");
+    assertThat(rule.debtSubCharacteristic()).isNull();
   }
 
   @Test

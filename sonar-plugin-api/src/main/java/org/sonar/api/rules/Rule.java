@@ -591,6 +591,7 @@ public class Rule {
    * @since 4.4
    * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
    */
+  @Deprecated
   public Rule setSubCharacteristicKey(@Nullable String subCharacteristicKey) {
     return this;
   }
