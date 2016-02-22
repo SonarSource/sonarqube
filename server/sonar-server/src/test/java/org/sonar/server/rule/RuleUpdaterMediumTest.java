@@ -19,10 +19,15 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Sets;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -32,46 +37,49 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.search.BaseIndex;
+import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
+// TODO remove ServerTester usage when ActiveRule Daov2 is removed
 public class RuleUpdaterMediumTest {
 
-  private static final RuleKey RULE_KEY = RuleKey.of("squid", "S001");
+  static final RuleKey RULE_KEY = RuleKey.of("squid", "S001");
 
   @ClassRule
   public static ServerTester tester = new ServerTester();
+
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db = tester.get(DbClient.class);
   RuleDao ruleDao = tester.get(RuleDao.class);
-  DbSession dbSession;
-  BaseIndex<Rule, RuleDto, RuleKey> ruleIndex = tester.get(RuleIndex.class);
-  RuleUpdater updater = tester.get(RuleUpdater.class);
+  DbSession dbSession = db.openSession(false);
+  RuleIndex2 ruleIndex = tester.get(RuleIndex2.class);
+
+  RuleUpdater underTest = tester.get(RuleUpdater.class);
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    dbSession = db.openSession(false);
   }
 
   @After
@@ -86,7 +94,7 @@ public class RuleUpdaterMediumTest {
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(Sets.newHashSet("java9"));
     try {
-      updater.update(update, userSessionRule);
+      underTest.update(update, userSessionRule);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Rule with REMOVED status cannot be updated: squid:S001");
@@ -107,10 +115,10 @@ public class RuleUpdaterMediumTest {
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
     assertThat(update.isEmpty()).isTrue();
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getTags()).containsOnly("tag1");
@@ -136,10 +144,10 @@ public class RuleUpdaterMediumTest {
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY);
     update.setMarkdownNote("my *note*");
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isEqualTo("my *note*");
     assertThat(rule.getNoteUserLogin()).isEqualTo("me");
     assertThat(rule.getNoteCreatedAt()).isNotNull();
@@ -159,10 +167,10 @@ public class RuleUpdaterMediumTest {
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setMarkdownNote(null);
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
     assertThat(rule.getNoteData()).isNull();
     assertThat(rule.getNoteUserLogin()).isNull();
     assertThat(rule.getNoteCreatedAt()).isNull();
@@ -179,10 +187,10 @@ public class RuleUpdaterMediumTest {
 
     // java8 is a system tag -> ignore
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(Sets.newHashSet("bug", "java8"));
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
     assertThat(rule.getTags()).containsOnly("bug");
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -199,10 +207,10 @@ public class RuleUpdaterMediumTest {
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setTags(null);
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
-    RuleDto rule = ruleDao.getNullableByKey(dbSession, RULE_KEY);
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
     assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getSystemTags()).containsOnly("java8", "javadoc");
 
@@ -225,19 +233,18 @@ public class RuleUpdaterMediumTest {
     DefaultDebtRemediationFunction fn = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "1min");
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(fn);
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
-    assertThat(indexedRule.debtRemediationFunction().coefficient()).isNull();
-    assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("1min");
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
+    assertThat(rule.getRemediationCoefficient()).isNull();
+    assertThat(rule.getRemediationOffset()).isEqualTo("1min");
 
-    assertThat(indexedRule.debtOverloaded()).isTrue();
-    assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
-    assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
+    assertThat(rule.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
+    assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("1d");
+    assertThat(rule.getDefaultRemediationOffset()).isEqualTo("5min");
   }
 
   @Test
@@ -253,19 +260,18 @@ public class RuleUpdaterMediumTest {
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "2d", null));
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
-    assertThat(indexedRule.debtRemediationFunction().coefficient()).isEqualTo("2d");
-    assertThat(indexedRule.debtRemediationFunction().offset()).isNull();
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
+    assertThat(rule.getRemediationCoefficient()).isEqualTo("2d");
+    assertThat(rule.getRemediationOffset()).isNull();
 
-    assertThat(indexedRule.debtOverloaded()).isTrue();
-    assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
-    assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
-    assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isNull();
+    assertThat(rule.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
+    assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("1d");
+    assertThat(rule.getDefaultRemediationOffset()).isNull();
   }
 
   @Test
@@ -281,19 +287,18 @@ public class RuleUpdaterMediumTest {
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY)
       .setDebtRemediationFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10min"));
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is overridden
-    Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
-    assertThat(indexedRule.debtRemediationFunction().coefficient()).isNull();
-    assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("10min");
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    assertThat(rule.getRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE.name());
+    assertThat(rule.getRemediationCoefficient()).isNull();
+    assertThat(rule.getRemediationOffset()).isEqualTo("10min");
 
-    assertThat(indexedRule.debtOverloaded()).isTrue();
-    assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
-    assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
+    assertThat(rule.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
+    assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("1d");
+    assertThat(rule.getDefaultRemediationOffset()).isEqualTo("5min");
   }
 
   @Test
@@ -308,19 +313,18 @@ public class RuleUpdaterMediumTest {
     dbSession.commit();
 
     RuleUpdate update = RuleUpdate.createForPluginRule(RULE_KEY).setDebtRemediationFunction(null);
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
     dbSession.clearCache();
 
     // verify debt is coming from default values
-    Rule indexedRule = tester.get(RuleIndex.class).getByKey(RULE_KEY);
-    assertThat(indexedRule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
-    assertThat(indexedRule.debtRemediationFunction().coefficient()).isEqualTo("1d");
-    assertThat(indexedRule.debtRemediationFunction().offset()).isEqualTo("5min");
+    RuleDto rule = ruleDao.selectOrFailByKey(dbSession, RULE_KEY);
+    assertThat(rule.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR.name());
+    assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("1d");
+    assertThat(rule.getDefaultRemediationOffset()).isEqualTo("5min");
 
-    assertThat(indexedRule.debtOverloaded()).isFalse();
-    assertThat(indexedRule.defaultDebtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
-    assertThat(indexedRule.defaultDebtRemediationFunction().coefficient()).isEqualTo("1d");
-    assertThat(indexedRule.defaultDebtRemediationFunction().offset()).isEqualTo("5min");
+    assertThat(rule.getRemediationFunction()).isNull();
+    assertThat(rule.getRemediationCoefficient()).isNull();
+    assertThat(rule.getRemediationOffset()).isNull();
   }
 
   @Test
@@ -352,21 +356,29 @@ public class RuleUpdaterMediumTest {
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("regex", "b.*"));
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
 
     // Verify custom rule is updated
-    Rule customRuleReloaded = ruleIndex.getByKey(customRule.getKey());
+    RuleDto customRuleReloaded = ruleDao.selectOrFailByKey(dbSession, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
-    assertThat(customRuleReloaded.name()).isEqualTo("New name");
-    assertThat(customRuleReloaded.htmlDescription()).isEqualTo("New description");
-    assertThat(customRuleReloaded.severity()).isEqualTo("MAJOR");
-    assertThat(customRuleReloaded.status()).isEqualTo(RuleStatus.READY);
-    assertThat(customRuleReloaded.params()).hasSize(2);
+    assertThat(customRuleReloaded.getName()).isEqualTo("New name");
+    assertThat(customRuleReloaded.getDescription()).isEqualTo("New description");
+    assertThat(customRuleReloaded.getSeverityString()).isEqualTo("MAJOR");
+    assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.READY);
 
-    assertThat(customRuleReloaded.params().get(0).defaultValue()).isEqualTo("b.*");
-    assertThat(customRuleReloaded.params().get(1).defaultValue()).isNull();
+    List<RuleParamDto> params = ruleDao.selectRuleParamsByRuleKey(dbSession, customRuleReloaded.getKey());
+    assertThat(params).hasSize(2);
+    assertThat(params.get(0).getDefaultValue()).isEqualTo("b.*");
+    assertThat(params.get(1).getDefaultValue()).isNull();
+
+    // Verify in index
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New name"), new SearchOptions()).getIds()).containsOnly(customRule.getKey());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New description"), new SearchOptions()).getIds()).containsOnly(customRule.getKey());
+
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old name"), new SearchOptions()).getTotal()).isZero();
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old description"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -394,14 +406,13 @@ public class RuleUpdaterMediumTest {
       .setMarkdownDescription("New description")
       .setSeverity("MAJOR")
       .setStatus(RuleStatus.READY);
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
 
     // Verify custom rule is updated
-    Rule customRuleReloaded = ruleIndex.getByKey(customRule.getKey());
-    RuleParam param = customRuleReloaded.params().get(0);
-    assertThat(param.defaultValue()).isNull();
+    List<RuleParamDto> params = ruleDao.selectRuleParamsByRuleKey(dbSession, customRule.getKey());
+    assertThat(params.get(0).getDefaultValue()).isNull();
   }
 
   @Test
@@ -437,22 +448,21 @@ public class RuleUpdaterMediumTest {
     // Update custom rule parameter 'regex', add 'message' and remove 'format'
     RuleUpdate update = RuleUpdate.createForCustomRule(customRule.getKey())
       .setParameters(ImmutableMap.of("regex", "b.*", "message", "a message"));
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
 
     // Verify custom rule parameters has been updated
-    Rule customRuleReloaded = ruleIndex.getByKey(customRule.getKey());
-    assertThat(customRuleReloaded.params()).hasSize(3);
-    assertThat(customRuleReloaded.param("regex")).isNotNull();
-    assertThat(customRuleReloaded.param("regex").defaultValue()).isEqualTo("b.*");
-    assertThat(customRuleReloaded.param("message")).isNotNull();
-    assertThat(customRuleReloaded.param("message").defaultValue()).isEqualTo("a message");
-    assertThat(customRuleReloaded.param("format")).isNotNull();
-    assertThat(customRuleReloaded.param("format").defaultValue()).isNull();
+    List<RuleParamDto> params = ruleDao.selectRuleParamsByRuleKey(dbSession, customRule.getKey());
+    assertThat(params).hasSize(3);
 
-    RuleParam param = customRuleReloaded.params().get(0);
-    assertThat(param.defaultValue()).isEqualTo("b.*");
+    Map<String, RuleParamDto> paramsByKey = paramsByKey(params);
+    assertThat(paramsByKey.get("regex")).isNotNull();
+    assertThat(paramsByKey.get("regex").getDefaultValue()).isEqualTo("b.*");
+    assertThat(paramsByKey.get("message")).isNotNull();
+    assertThat(paramsByKey.get("message").getDefaultValue()).isEqualTo("a message");
+    assertThat(paramsByKey.get("format")).isNotNull();
+    assertThat(paramsByKey.get("format").getDefaultValue()).isNull();
 
     // Verify active rule parameters has been updated
     ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getByKey(ActiveRuleKey.of(profileDto.getKey(), customRule.getKey()));
@@ -482,7 +492,7 @@ public class RuleUpdaterMediumTest {
       .setName("")
       .setMarkdownDescription("New desc");
     try {
-      updater.update(update, userSessionRule);
+      underTest.update(update, userSessionRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The name is missing");
@@ -506,7 +516,7 @@ public class RuleUpdaterMediumTest {
       .setName("New name")
       .setMarkdownDescription("");
     try {
-      updater.update(update, userSessionRule);
+      underTest.update(update, userSessionRule);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("The description is missing");
@@ -529,16 +539,23 @@ public class RuleUpdaterMediumTest {
       .setName("New name")
       .setMarkdownDescription("New description")
       .setSeverity(Severity.CRITICAL);
-    updater.update(update, userSessionRule);
+    underTest.update(update, userSessionRule);
 
     dbSession.clearCache();
 
     // Verify manual rule is updated
-    Rule manualRuleReloaded = ruleIndex.getByKey(manualRule.getKey());
+    RuleDto manualRuleReloaded = ruleDao.selectOrFailByKey(dbSession, manualRule.getKey());
     assertThat(manualRuleReloaded).isNotNull();
-    assertThat(manualRuleReloaded.name()).isEqualTo("New name");
-    assertThat(manualRuleReloaded.htmlDescription()).isEqualTo("New description");
-    assertThat(manualRuleReloaded.severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(manualRuleReloaded.getName()).isEqualTo("New name");
+    assertThat(manualRuleReloaded.getDescription()).isEqualTo("New description");
+    assertThat(manualRuleReloaded.getSeverityString()).isEqualTo(Severity.CRITICAL);
+
+    // Verify in index
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New name"), new SearchOptions()).getIds()).containsOnly(manualRule.getKey());
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New description"), new SearchOptions()).getIds()).containsOnly(manualRule.getKey());
+
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old name"), new SearchOptions()).getTotal()).isZero();
+    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old description"), new SearchOptions()).getTotal()).isZero();
   }
 
   @Test
@@ -629,6 +646,19 @@ public class RuleUpdaterMediumTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");
+    }
+  }
+
+  private static Map<String, RuleParamDto> paramsByKey(List<RuleParamDto> params) {
+    return FluentIterable.from(params).uniqueIndex(RuleParamToKey.INSTANCE);
+  }
+
+  private enum RuleParamToKey implements Function<RuleParamDto, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull RuleParamDto input) {
+      return input.getName();
     }
   }
 }
