@@ -73,12 +73,6 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void find_by_key() {
-    service.findByKey("squid:S001");
-    verify(ruleService).getByKey(RuleKey.of("squid", "S001"));
-  }
-
-  @Test
   public void search_rules() {
     when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
 
