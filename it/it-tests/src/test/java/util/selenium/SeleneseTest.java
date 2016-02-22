@@ -33,6 +33,7 @@ import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
 import org.openqa.selenium.By;
+import org.openqa.selenium.Dimension;
 import org.openqa.selenium.NotFoundException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.logging.LogEntries;
@@ -62,6 +63,7 @@ public class SeleneseTest {
     this.driver = Browser.FIREFOX.getDriverForThread();
 
     driver.manage().deleteAllCookies();
+    driver.manage().window().setSize(new Dimension(1280,1024));
 
     for (File file : suite.getHtmlTests()) {
       System.out.println();

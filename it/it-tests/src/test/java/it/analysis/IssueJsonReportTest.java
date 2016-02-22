@@ -280,6 +280,7 @@ public class IssueJsonReportTest {
     assertThat(sanitize("5.0.0-5868-SNAPSHOT")).isEqualTo("<SONAR_VERSION>");
     assertThat(sanitize("5.0-build1234")).isEqualTo("<SONAR_VERSION>");
     assertThat(sanitize("5.0.1-build1234")).isEqualTo("<SONAR_VERSION>");
+    assertThat(sanitize("\"5.0.1-build1234\"")).isEqualTo("\"<SONAR_VERSION>\"");
   }
 
   @Test
@@ -290,7 +291,7 @@ public class IssueJsonReportTest {
   private static String sanitize(String s) {
     // sanitize sonarqube version: "5.4-SNAPSHOT" or "5.4-build1234"
     s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-SNAPSHOT", "<SONAR_VERSION>");
-    s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-build.*", "<SONAR_VERSION>");
+    s = s.replaceAll("\\d\\.\\d(.\\d)?(\\-.*)?\\-build(\\d)+", "<SONAR_VERSION>");
 
     // sanitize issue uuid keys
     s = s.replaceAll("\"[a-zA-Z_0-9\\-]{15,20}\"", "<ISSUE_KEY>");

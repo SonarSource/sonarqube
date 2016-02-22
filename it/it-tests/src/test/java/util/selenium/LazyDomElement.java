@@ -30,6 +30,7 @@ import javax.annotation.Nullable;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebElement;
+import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.ui.Select;
 
 class LazyDomElement {
@@ -115,6 +116,7 @@ class LazyDomElement {
     execute("click", new Consumer<WebElement>() {
       @Override
       public void accept(WebElement element) {
+        new Actions(driver).moveToElement(element);
         element.click();
       }
     });
