@@ -66,12 +66,6 @@ public class TechnicalDebtMeasureTest {
     assertThat(getMeasure(FILE, TECHNICAL_DEBT_MEASURE).getValue()).isEqualTo(28);
   }
 
-  @Test
-  public void not_save_zero_value_on_non_top_characteristics() throws Exception {
-    String sqlRequest = "SELECT count(*) FROM project_measures WHERE characteristic_id IN (select id from characteristics where parent_id IS NOT NULL) AND value = 0";
-    assertThat(orchestrator.getDatabase().countSql(sqlRequest)).isEqualTo(0);
-  }
-
   private Measure getMeasure(String resource, String metricKey) {
     Resource res = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(resource, metricKey));
     if (res == null) {
