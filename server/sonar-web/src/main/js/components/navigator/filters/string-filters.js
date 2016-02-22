@@ -55,7 +55,7 @@ export default BaseFilters.BaseFilterView.extend({
 
   initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-      detailsView: DetailsStringFilterView
+      projectsView: DetailsStringFilterView
     });
   },
 
@@ -90,7 +90,7 @@ export default BaseFilters.BaseFilterView.extend({
 
   clear () {
     this.model.unset('value');
-    this.detailsView.render();
+    this.projectsView.render();
   }
 
 });

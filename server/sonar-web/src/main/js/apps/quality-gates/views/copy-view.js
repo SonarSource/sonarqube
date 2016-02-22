@@ -17,8 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ModalForm from '../../components/common/modal-form';
-import Template from './templates/quality-gates-delete.hbs';
+import ModalForm from '../../../components/common/modal-form';
+import Template from '../templates/quality-gate-form.hbs';
+import { copyQualityGate } from '../../../api/quality-gates';
 
 export default ModalForm.extend({
   template: Template,
@@ -30,20 +31,17 @@ export default ModalForm.extend({
   },
 
   sendRequest () {
-    const that = this;
-    const options = {
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    };
-    return this.model.destroy(options)
-        .done(function () {
-          that.destroy();
-        }).fail(function (jqXHR) {
-          that.enableForm();
-          that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-        });
+    const { id } = this.options.qualityGate;
+    const name = this.$('#quality-gate-form-name').val();
+
+    copyQualityGate(id, name).then(qualityGate => {
+      this.destroy();
+      this.options.onCopy(qualityGate);
+    });
+  },
+
+  serializeData () {
+    return { method: 'copy', ...this.options.qualityGate };
   }
 });
 

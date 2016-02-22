@@ -17,24 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import FormView from './form-view';
+import ModalForm from '../../../components/common/modal-form';
+import Template from '../templates/quality-gates-condition-delete.hbs';
+import { deleteCondition } from '../../../api/quality-gates';
 
-export default FormView.extend({
-  method: 'create',
+export default ModalForm.extend({
+  template: Template,
 
-  prepareRequest () {
-    const that = this;
-    const url = '/api/qualitygates/create';
-    const name = this.$('#quality-gate-form-name').val();
-    const options = {
-      url,
-      data: { name }
-    };
-    return this.sendRequest(options)
-        .done(function (r) {
-          const gate = that.addGate(r);
-          gate.trigger('select', gate);
+  onFormSubmit () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    this.disableForm();
+    this.sendRequest();
+  },
+
+  sendRequest () {
+    return deleteCondition(this.options.condition.id)
+        .then(() => {
+          this.destroy();
+          this.options.onDelete();
         });
+  },
+
+  serializeData () {
+    return {
+      metric: this.options.metric
+    };
   }
 });
 

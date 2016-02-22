@@ -24,6 +24,7 @@
   display: inline-block;
   vertical-align: middle;
   font-size: @smallFontSize;
+  text-align: left;
 }
 
 .Select,
@@ -52,6 +53,7 @@
   width: 100%;
   height: @formControlHeight;
   border: 1px solid @darkGrey;
+  border-collapse: separate;
   border-radius: 2px;
   background-color: #fff;
   color: @baseFontColor;
@@ -258,7 +260,7 @@
   position: absolute;
   top: 100%;
   width: 100%;
-  z-index: 1;
+  z-index: @dropdown-menu-z-index;
   -webkit-overflow-scrolling: touch;
   box-shadow: @defaultShadow;
 }

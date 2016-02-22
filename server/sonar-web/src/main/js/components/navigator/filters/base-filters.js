@@ -87,8 +87,8 @@ const BaseFilterView = Marionette.ItemView.extend({
   initialize (options) {
     Marionette.ItemView.prototype.initialize.apply(this, arguments);
 
-    const detailsView = (options && options.detailsView) || DetailsFilterView;
-    this.detailsView = new detailsView({
+    const detailsView = (options && options.projectsView) || DetailsFilterView;
+    this.projectsView = new detailsView({
       model: this.model,
       filterView: this
     });
@@ -98,7 +98,7 @@ const BaseFilterView = Marionette.ItemView.extend({
 
 
   attachDetailsView () {
-    this.detailsView.$el.detach().appendTo($('body'));
+    this.projectsView.$el.detach().appendTo($('body'));
   },
 
 
@@ -106,7 +106,7 @@ const BaseFilterView = Marionette.ItemView.extend({
     this.renderBase();
 
     this.attachDetailsView();
-    this.detailsView.render();
+    this.projectsView.render();
 
     this.$el.toggleClass(
         'navigator-filter-disabled',
@@ -156,9 +156,9 @@ const BaseFilterView = Marionette.ItemView.extend({
     const top = this.$el.offset().top + this.$el.outerHeight() - 1;
     const left = this.$el.offset().left;
 
-    this.detailsView.$el.css({ top, left }).addClass('active');
+    this.projectsView.$el.css({ top, left }).addClass('active');
     this.$el.addClass('active');
-    this.detailsView.onShow();
+    this.projectsView.onShow();
   },
 
 
@@ -169,9 +169,9 @@ const BaseFilterView = Marionette.ItemView.extend({
 
 
   hideDetails () {
-    this.detailsView.$el.removeClass('active');
+    this.projectsView.$el.removeClass('active');
     this.$el.removeClass('active');
-    this.detailsView.onHide();
+    this.projectsView.onHide();
   },
 
 

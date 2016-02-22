@@ -17,25 +17,47 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import FormView from './form-view';
+import React, { Component } from 'react';
 
-export default FormView.extend({
-  method: 'copy',
+import ProjectsView from '../views/gate-projects-view';
 
-  prepareRequest () {
-    const that = this;
-    const url = '/api/qualitygates/copy';
-    const name = this.$('#quality-gate-form-name').val();
-    const options = {
-      url,
-      data: { id: this.model.id, name }
-    };
-    return this.sendRequest(options)
-        .done(function (r) {
-          const gate = that.addGate(r);
-          gate.trigger('select', gate);
-        });
+export default class Projects extends Component {
+  componentDidMount () {
+    this.renderView();
   }
-});
 
+  componentWillUpdate () {
+    this.destroyView();
+  }
 
+  componentDidUpdate () {
+    this.renderView();
+  }
+
+  componentWillUnmount () {
+    this.destroyView();
+  }
+
+  renderView () {
+    const { qualityGate, edit } = this.props;
+
+    this.projectsView = new ProjectsView({
+      qualityGate,
+      edit,
+      container: this.refs.container
+    });
+    this.projectsView.render();
+  }
+
+  destroyView () {
+    if (this.projectsView) {
+      this.projectsView.destroy();
+    }
+  }
+
+  render () {
+    return (
+        <div ref="container"></div>
+    );
+  }
+}

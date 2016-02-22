@@ -17,31 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import Template from './templates/quality-gates-gate.hbs';
+import { connect } from 'react-redux';
 
-export default Marionette.ItemView.extend({
-  tagName: 'a',
-  className: 'list-group-item',
-  template: Template,
+import { setState, addQualityGate, deleteQualityGate } from '../store/actions';
+import QualityGateApp from '../components/QualityGatesApp';
 
-  modelEvents: {
-    'change': 'render'
-  },
+function mapStateToProps (state) {
+  return state.rootReducer;
+}
 
-  events: {
-    'click': 'onClick'
-  },
+function mapDispatchToProps (dispatch) {
+  return {
+    updateStore: (nextState) => dispatch(setState(nextState)),
+    addQualityGate: (qualityGate) => dispatch(addQualityGate(qualityGate)),
+    deleteQualityGate: (qualityGate) => dispatch(deleteQualityGate(qualityGate))
+  };
+}
 
-  onRender () {
-    this.$el.toggleClass('active', this.options.highlighted);
-    this.$el.attr('data-id', this.model.id);
-  },
-
-  onClick (e) {
-    e.preventDefault();
-    this.model.trigger('select', this.model);
-  }
-});
-
-
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(QualityGateApp);

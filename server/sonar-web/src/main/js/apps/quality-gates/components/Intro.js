@@ -17,30 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-import Marionette from 'backbone.marionette';
-import CreateView from './create-view';
-import Template from './templates/quality-gate-actions.hbs';
+import React from 'react';
 
-export default Marionette.ItemView.extend({
-  template: Template,
+import { translate } from '../../../helpers/l10n';
 
-  events: {
-    'click #quality-gate-add': 'add'
-  },
-
-  add (e) {
-    e.preventDefault();
-    new CreateView({
-      collection: this.collection
-    }).render();
-  },
-
-  serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      canEdit: this.options.canEdit
-    });
-  }
-});
-
-
+export default function Intro () {
+  return (
+      <div className="search-navigator-workspace">
+        <div className="search-navigator-intro markdown">
+          <p>{translate('quality_gates.intro.1')}</p>
+          <p>{translate('quality_gates.intro.2')}</p>
+        </div>
+      </div>
+  );
+}

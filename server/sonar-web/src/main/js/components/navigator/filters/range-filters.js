@@ -72,7 +72,7 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
 
   initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-      detailsView: DetailsRangeFilterView
+      projectsView: DetailsRangeFilterView
     });
   },
 
@@ -140,7 +140,7 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
         enabled: true
       });
 
-      this.detailsView.populateInputs();
+      this.projectsView.populateInputs();
     }
   },
 
@@ -160,7 +160,7 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
         }
       });
 
-      this.detailsView.updateLists();
+      this.projectsView.updateLists();
 
       this.model.set({
         value,
@@ -177,7 +177,7 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
 
   clear () {
     this.model.unset('value');
-    this.detailsView.render();
+    this.projectsView.render();
   }
 
 });
@@ -187,7 +187,7 @@ const DateRangeFilterView = RangeFilterView.extend({
 
   render () {
     RangeFilterView.prototype.render.apply(this, arguments);
-    this.detailsView.$('input')
+    this.projectsView.$('input')
         .prop('placeholder', '1970-01-31')
         .datepicker({
           dateFormat: 'yy-mm-dd',

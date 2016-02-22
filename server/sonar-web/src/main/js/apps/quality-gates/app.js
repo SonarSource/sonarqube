@@ -17,66 +17,45 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import Backbone from 'backbone';
-import Marionette from 'backbone.marionette';
-import Gates from './gates';
-import GatesView from './gates-view';
-import ActionsView from './actions-view';
-import Router from './router';
-import Layout from './layout';
-import Controller from './controller';
+import React from 'react';
+import { render } from 'react-dom';
+import { Router, Route, IndexRoute, Redirect, useRouterHistory } from 'react-router';
+import { createHistory } from 'history';
+import { combineReducers } from 'redux';
+import { Provider } from 'react-redux';
+import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
 
-const App = new Marionette.Application();
+import QualityGatesAppContainer from './containers/QualityGatesAppContainer';
+import Intro from './components/Intro';
+import DetailsContainer from './containers/DetailsContainer';
+import rootReducer from './store/reducers';
+import configureStore from '../../components/store/configureStore';
 
-const init = function () {
-  const options = window.sonarqube;
-  // Layout
-  this.layout = new Layout({ el: options.el });
-  this.layout.render();
-  $('#footer').addClass('search-navigator-footer');
+window.sonarqube.appStarted.then(options => {
+  const el = document.querySelector(options.el);
 
-  // Gates List
-  this.gates = new Gates();
-
-  // Controller
-  this.controller = new Controller({ app: this });
-
-  // Header
-  this.actionsView = new ActionsView({
-    canEdit: this.canEdit,
-    collection: this.gates
+  const history = useRouterHistory(createHistory)({
+    basename: '/quality_gates'
   });
-  this.layout.actionsRegion.show(this.actionsView);
 
-  // List
-  this.gatesView = new GatesView({
-    canEdit: this.canEdit,
-    collection: this.gates
+  const finalReducer = combineReducers({
+    rootReducer,
+    routing: routerReducer
   });
-  this.layout.resultsRegion.show(this.gatesView);
 
-  // Router
-  this.router = new Router({ app: this });
-  Backbone.history.start({
-    pushState: true,
-    root: options.urlRoot
-  });
-};
+  const store = configureStore(finalReducer, [routerMiddleware(history)]);
 
-const appXHR = $.get('/api/qualitygates/app')
-    .done(function (r) {
-      App.canEdit = r.edit;
-      App.periods = r.periods;
-      App.metrics = r.metrics;
-    });
+  const finalHistory = syncHistoryWithStore(history, store);
 
-App.on('start', function (options) {
-  appXHR.done(function () {
-    init.call(App, options);
-  });
+  render((
+      <Provider store={store}>
+        <Router history={finalHistory}>
+          <Route path="/" component={QualityGatesAppContainer}>
+            <IndexRoute component={Intro}/>
+            <Route path="show/:id" component={DetailsContainer}/>
+            <Redirect from="/index" to="/"/>
+          </Route>
+        </Router>
+      </Provider>
+  ), el);
 });
-
-window.sonarqube.appStarted.then(options => App.start(options));
-
-

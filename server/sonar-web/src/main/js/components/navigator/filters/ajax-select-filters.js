@@ -234,7 +234,7 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
   initialize (options) {
     ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
-      detailsView: (options && options.detailsView) ? options.detailsView : AjaxSelectDetailsFilterView
+      projectsView: (options && options.projectsView) ? options.projectsView : AjaxSelectDetailsFilterView
     });
   },
 
@@ -343,7 +343,7 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
 
   onRestore () {
-    this.detailsView.updateLists();
+    this.projectsView.updateLists();
     this.renderBase();
   },
 
@@ -367,7 +367,7 @@ const ComponentFilterView = AjaxSelectFilterView.extend({
 
   initialize () {
     AjaxSelectFilterView.prototype.initialize.call(this, {
-      detailsView: AjaxSelectDetailsFilterView
+      projectsView: AjaxSelectDetailsFilterView
     });
     this.choices = new ComponentSuggestions();
   },
@@ -396,7 +396,7 @@ const ProjectFilterView = AjaxSelectFilterView.extend({
 
   initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-      detailsView: AjaxSelectDetailsFilterView
+      projectsView: AjaxSelectDetailsFilterView
     });
 
     this.choices = new ProjectSuggestions();
@@ -427,7 +427,7 @@ const AssigneeFilterView = AjaxSelectFilterView.extend({
 
   initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-      detailsView: AjaxSelectDetailsFilterView
+      projectsView: AjaxSelectDetailsFilterView
     });
 
     this.choices = new UserSuggestions();
@@ -457,7 +457,7 @@ const ReporterFilterView = AjaxSelectFilterView.extend({
 
   initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-      detailsView: AjaxSelectDetailsFilterView
+      projectsView: AjaxSelectDetailsFilterView
     });
 
     this.selection = new UserSuggestions();

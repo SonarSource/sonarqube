@@ -216,7 +216,7 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
 
   initialize (options) {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-      detailsView: (options && options.detailsView) ? options.detailsView : DetailsChoiceFilterView
+      projectsView: (options && options.projectsView) ? options.projectsView : DetailsChoiceFilterView
     });
 
     let index = 0;
@@ -367,9 +367,9 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
       });
     }
     this.model.unset('value');
-    this.detailsView.render();
-    if (this.detailsView.updateCurrent) {
-      this.detailsView.updateCurrent(0);
+    this.projectsView.render();
+    if (this.projectsView.updateCurrent) {
+      this.projectsView.updateCurrent(0);
     }
   },
 

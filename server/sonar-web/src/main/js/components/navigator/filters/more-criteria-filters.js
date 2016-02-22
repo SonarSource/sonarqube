@@ -82,7 +82,7 @@ const MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
   initialize () {
     ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
-      detailsView: DetailsMoreCriteriaFilterView
+      projectsView: DetailsMoreCriteriaFilterView
     });
   },
 

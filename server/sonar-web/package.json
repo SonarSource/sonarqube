@@ -57,6 +57,7 @@
     "react-dom": "0.14.2",
     "react-redux": "4.0.1",
     "react-router": "2.0.0",
+    "react-router-redux": "^4.0.0",
     "react-select": "1.0.0-beta6",
     "redux": "3.0.5",
     "redux-logger": "2.2.1",

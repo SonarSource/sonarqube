@@ -17,26 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import ItemView from './gate-view';
-import Template from './templates/quality-gates-gates.hbs';
+import ModalForm from '../../../components/common/modal-form';
+import Template from '../templates/quality-gates-delete.hbs';
+import { deleteQualityGate } from '../../../api/quality-gates';
 
-export default Marionette.CompositeView.extend({
-  className: 'list-group',
+export default ModalForm.extend({
   template: Template,
-  childView: ItemView,
-  childViewContainer: '.js-list',
 
-  childViewOptions (model) {
-    return {
-      collectionView: this,
-      highlighted: model.id === this.highlighted
-    };
+  onFormSubmit () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    this.disableForm();
+    this.sendRequest();
   },
 
-  highlight (id) {
-    this.highlighted = id;
-    this.render();
+  sendRequest () {
+    const { id } = this.options.qualityGate;
+
+    deleteQualityGate(id).then(() => {
+      this.destroy();
+      this.options.onDelete(this.options.qualityGate);
+    });
+  },
+
+  serializeData () {
+    return this.options.qualityGate;
   }
 });
 

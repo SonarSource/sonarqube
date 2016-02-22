@@ -17,29 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import IntroView from './intro-view';
-import Template from './templates/quality-gates-layout.hbs';
+import ModalForm from '../../../components/common/modal-form';
+import Template from '../templates/quality-gate-form.hbs';
+import { createQualityGate } from '../../../api/quality-gates';
 
-export default Marionette.LayoutView.extend({
+export default ModalForm.extend({
   template: Template,
 
-  regions: {
-    headerRegion: '.search-navigator-workspace-header',
-    actionsRegion: '.search-navigator-filters',
-    resultsRegion: '.quality-gates-results',
-    detailsRegion: '.search-navigator-workspace-details'
+  onFormSubmit () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    this.disableForm();
+    this.sendRequest();
   },
 
-  onRender () {
-    const top = this.$('.search-navigator').offset().top;
-    this.$('.search-navigator-workspace-header').css({ top });
-    this.$('.search-navigator-side').css({ top }).isolatedScroll();
-    this.renderIntro();
+  sendRequest () {
+    const name = this.$('#quality-gate-form-name').val();
+
+    createQualityGate(name).then(qualityGate => {
+      this.destroy();
+      this.options.onAdd(qualityGate);
+    });
   },
 
-  renderIntro () {
-    this.detailsRegion.show(new IntroView());
+  serializeData () {
+    return { method: 'create' };
   }
 });
 

@@ -125,7 +125,7 @@ export default BaseFilters.BaseFilterView.extend({
 
   initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-      detailsView: DetailsMetricFilterView
+      projectsView: DetailsMetricFilterView
     });
 
     this.groupMetrics();

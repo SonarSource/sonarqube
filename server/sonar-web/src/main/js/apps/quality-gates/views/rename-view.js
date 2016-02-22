@@ -17,49 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
+import ModalForm from '../../../components/common/modal-form';
+import Template from '../templates/quality-gate-form.hbs';
+import { renameQualityGate } from '../../../api/quality-gates';
 
-export default Backbone.Model.extend({
+export default ModalForm.extend({
+  template: Template,
 
-  defaults: {
-    period: 0
+  onFormSubmit () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    this.disableForm();
+    this.sendRequest();
   },
 
-  url () {
-    return '/api/qualitygates';
+  sendRequest () {
+    const { id } = this.options.qualityGate;
+    const name = this.$('#quality-gate-form-name').val();
+
+    renameQualityGate(id, name).then(() => {
+      this.destroy();
+      this.options.onRename(this.options.qualityGate, name);
+    });
   },
 
-  createUrl () {
-    return this.url() + '/create_condition';
-  },
-
-  updateUrl () {
-    return this.url() + '/update_condition';
-  },
-
-  deleteUrl () {
-    return this.url() + '/delete_condition';
-  },
-
-  sync (method, model, options) {
-    const opts = options || {};
-    opts.type = 'POST';
-    if (method === 'create') {
-      opts.url = this.createUrl();
-      opts.data = model.toJSON();
-    }
-    if (method === 'update') {
-      opts.url = this.updateUrl();
-      opts.data = model.toJSON();
-    }
-    if (method === 'delete') {
-      opts.url = this.deleteUrl();
-      opts.data = { id: model.id };
-    }
-    if (opts.data.period === '0') {
-      delete opts.data.period;
-    }
-    return Backbone.ajax(opts);
+  serializeData () {
+    return { method: 'rename', ...this.options.qualityGate };
   }
 });
 
