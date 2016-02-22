@@ -27,12 +27,13 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -42,9 +43,11 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class RuleOperations {
 
+  private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
 
-  public RuleOperations(DbClient dbClient) {
+  public RuleOperations(RuleIndexer ruleIndexer, DbClient dbClient) {
+    this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
   }
 
@@ -52,15 +55,12 @@ public class RuleOperations {
     checkPermission(userSession);
     DbSession session = dbClient.openSession(false);
     try {
-      RuleDto ruleDto = dbClient.deprecatedRuleDao().getNullableByKey(session, ruleChange.ruleKey());
-      if (ruleDto == null) {
-        throw new NotFoundException(String.format("Unknown rule '%s'", ruleChange.ruleKey()));
-      }
-
+      RuleDto ruleDto = dbClient.ruleDao().selectOrFailByKey(session, ruleChange.ruleKey());
       boolean needUpdate = updateRule(ruleDto, ruleChange.debtRemediationFunction(), ruleChange.debtRemediationCoefficient(),
         ruleChange.debtRemediationOffset(),
         session);
       if (needUpdate) {
+        ruleIndexer.index();
         session.commit();
       }
     } catch (IllegalArgumentException e) {
@@ -102,7 +102,7 @@ public class RuleOperations {
     }
 
     if (needUpdate) {
-      dbClient.deprecatedRuleDao().update(session, ruleDto);
+      dbClient.ruleDao().update(session, ruleDto);
     }
     return needUpdate;
   }
