@@ -52,8 +52,8 @@ export default ModalFormView.extend({
     const options = { language: lang };
     this.selectedLanguage = _.findWhere(this.options.languages, { key: lang }).name;
     return $.ajax({
-      type: 'POST',
       url,
+      type: 'POST',
       data: options,
       statusCode: {
         // do not show global error

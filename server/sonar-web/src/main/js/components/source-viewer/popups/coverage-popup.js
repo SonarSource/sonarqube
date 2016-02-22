@@ -61,8 +61,8 @@ export default Popup.extend({
     });
     return {
       testFiles,
-      tests: this.options.tests,
-      row
+      row,
+      tests: this.options.tests
     };
   }
 });

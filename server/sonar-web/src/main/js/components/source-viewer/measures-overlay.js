@@ -205,9 +205,9 @@ export default ModalView.extend({
       });
       that.model.set({
         issuesFacets,
-        issuesCount: data.total,
         maxCountBySeverity,
-        maxCountByTag
+        maxCountByTag,
+        issuesCount: data.total
       });
     });
   },

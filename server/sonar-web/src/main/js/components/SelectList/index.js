@@ -337,9 +337,9 @@ const SelectListView = Backbone.View.extend({
       data[this.settings.queryParam] = query;
       data.selected = 'all';
       this.collection.fetch({
+        data,
         url: this.settings.searchUrl,
         reset: true,
-        data,
         success () {
           that.hideFetchSpinner();
         },

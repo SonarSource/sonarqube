@@ -30,6 +30,7 @@ export default Modal.extend({
     const searchUrl = '/api/permissions/template_users?ps=100&permission=' + this.options.permission.key +
         '&templateId=' + this.options.permissionTemplate.id;
     new window.SelectList({
+      searchUrl,
       el: this.$('#permission-templates-users'),
       width: '100%',
       readOnly: false,
@@ -38,7 +39,6 @@ export default Modal.extend({
         return item.name + '<br><span class="note">' + item.login + '</span>';
       },
       queryParam: 'q',
-      searchUrl,
       selectUrl: '/api/permissions/add_user_to_template',
       deselectUrl: '/api/permissions/remove_user_from_template',
       extra: {

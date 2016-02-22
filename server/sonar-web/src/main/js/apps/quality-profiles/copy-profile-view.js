@@ -40,8 +40,8 @@ export default ModalFormView.extend({
       toName: name
     };
     return $.ajax({
-      type: 'POST',
       url,
+      type: 'POST',
       data: options,
       statusCode: {
         // do not show global error

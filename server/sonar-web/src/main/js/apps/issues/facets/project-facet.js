@@ -61,7 +61,12 @@ export default CustomValuesFacet.extend({
         quietMillis: 300,
         url: this.getUrl(),
         data (term, page) {
-          return { q: term, componentId, p: page, ps: 25 };
+          return {
+            componentId,
+            q: term,
+            p: page,
+            ps: 25
+          };
         },
         results (data) {
           return {

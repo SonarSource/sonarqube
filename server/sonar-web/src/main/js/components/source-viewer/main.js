@@ -152,9 +152,9 @@ export default Marionette.LayoutView.extend({
     const url = '/api/components/app';
     const data = { uuid: this.model.id };
     return $.ajax({
-      type: 'GET',
       url,
       data,
+      type: 'GET',
       statusCode: {
         404 () {
           that.model.set({ exist: false });
@@ -425,8 +425,8 @@ export default Marionette.LayoutView.extend({
     };
     return $.get(url, options).done(function (data) {
       const popup = new CoveragePopupView({
-        collection: new Backbone.Collection(data.tests),
         row,
+        collection: new Backbone.Collection(data.tests),
         tests: $(e.currentTarget).data('tests'),
         triggerEl: $(e.currentTarget)
       });
@@ -474,9 +474,9 @@ export default Marionette.LayoutView.extend({
       return isOk;
     });
     const popup = new DuplicationPopupView({
+      inRemovedComponent,
       triggerEl: $(e.currentTarget),
       model: this.model,
-      inRemovedComponent,
       collection: new Backbone.Collection(blocks)
     });
     popup.render();
@@ -503,9 +503,9 @@ export default Marionette.LayoutView.extend({
     const that = this;
     const line = $(e.currentTarget).data('line-number');
     const popup = new LineActionsPopupView({
+      line,
       triggerEl: $(e.currentTarget),
       model: this.model,
-      line,
       row: $(e.currentTarget).closest('.source-line')
     });
     popup.on('onManualIssueAdded', function (issue) {

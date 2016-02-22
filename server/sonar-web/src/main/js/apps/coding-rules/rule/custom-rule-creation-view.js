@@ -200,10 +200,10 @@ export default ModalFormView.extend({
     });
 
     return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
-      change: this.model && this.model.has('key'),
       params,
-      severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
-      statuses
+      statuses,
+      change: this.model && this.model.has('key'),
+      severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO']
     });
   }
 });

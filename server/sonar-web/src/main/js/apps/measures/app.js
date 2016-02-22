@@ -31,6 +31,7 @@ import MetricFilterView from '../../components/navigator/filters/metric-filters'
 import { translate } from '../../helpers/l10n';
 
 const NavigatorApp = new Marionette.Application();
+
 const newLastAnalysisFilter = function () {
   return new BaseFilters.Filter({
     name: translate('measure_filter.criteria.last_analysis'),
@@ -42,10 +43,11 @@ const newLastAnalysisFilter = function () {
     optional: true
   });
 };
+
 const newMetricFilter = function (property) {
   return new BaseFilters.Filter({
-    name: translate('measure_filter.criteria.metric'),
     property,
+    name: translate('measure_filter.criteria.metric'),
     type: MetricFilterView,
     metrics: window.SS.metrics,
     periods: window.SS.metricPeriods,
@@ -54,6 +56,7 @@ const newMetricFilter = function (property) {
     optional: true
   });
 };
+
 const newNameFilter = function () {
   return new BaseFilters.Filter({
     name: translate('measure_filter.name_contains'),
@@ -63,6 +66,7 @@ const newNameFilter = function () {
     optional: true
   });
 };
+
 const newAlertFilter = function () {
   return new BaseFilters.Filter({
     name: translate('measure_filter.criteria.alert'),
@@ -77,6 +81,7 @@ const newAlertFilter = function () {
     }
   });
 };
+
 const init = function () {
   NavigatorApp.addRegions({ filtersRegion: '.navigator-filters' });
 

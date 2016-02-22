@@ -40,8 +40,8 @@ export default CustomValuesFacet.extend({
       },
       width: '100%',
       ajax: {
-        quietMillis: 300,
         url,
+        quietMillis: 300,
         data (term) {
           return { q: term, ps: 10 };
         },

@@ -32,17 +32,21 @@ import StatusesTemplate from './templates/widget-issue-filter-statuses.hbs';
 
 
 const FACET_LIMIT = 15;
+
 const defaultComparator = function (item) {
   return -item.count;
 };
+
 const defaultFilter = function (item) {
   const items = this.query[this.property];
   return items == null ||
       (items != null && items.split(',').indexOf(item.val) !== -1);
 };
+
 const defaultLabel = function (item) {
   return item.val;
 };
+
 const defaultLink = function (item, property, query, index, items, mode) {
   const criterion = {};
   criterion[property] = item.val;
@@ -57,6 +61,7 @@ const defaultLink = function (item, property, query, index, items, mode) {
     return '/issues/search#' + getQuery(r);
   }
 };
+
 const byDistributionConf = {
   'severities': {
     template: SeveritiesTemplate,
@@ -300,9 +305,9 @@ export default Marionette.ItemView.extend({
     const facetMode = this.options.displayMode;
     const url = '/api/issues/search';
     const options = _.extend({}, this.query, {
+      facetMode,
       ps: 1,
       facets: this.options.distributionAxis,
-      facetMode,
       additionalFields: '_all'
     });
     if (this.options.componentUuid != null) {

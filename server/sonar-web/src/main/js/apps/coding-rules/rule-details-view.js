@@ -185,8 +185,8 @@ export default Marionette.LayoutView.extend({
 
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       isEditable,
-      canWrite: this.options.app.canWrite,
       qualityProfilesVisible,
+      canWrite: this.options.app.canWrite,
       allTags: _.union(this.model.get('sysTags'), this.model.get('tags'))
     });
   }

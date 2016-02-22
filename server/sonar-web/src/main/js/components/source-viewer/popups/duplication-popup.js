@@ -54,8 +54,8 @@ export default Popup.extend({
       return '' + a + b + c;
     });
     return {
-      component: this.model.toJSON(),
       duplications,
+      component: this.model.toJSON(),
       inRemovedComponent: this.options.inRemovedComponent
     };
   }

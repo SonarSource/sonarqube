@@ -101,9 +101,9 @@ export default ModalForm.extend({
       type: 'POST',
       url: '/api/qualityprofiles/activate_rule',
       data: {
+        severity,
         profile_key: profileKey,
         rule_key: ruleKey,
-        severity,
         params: paramsHash
       },
       statusCode: {
@@ -148,10 +148,10 @@ export default ModalForm.extend({
     const contextProfile = this.options.app.state.get('query').qprofile;
 
     return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
-      change: this.model && this.model.has('severity'),
       params,
-      qualityProfiles: availableProfiles,
       contextProfile,
+      change: this.model && this.model.has('severity'),
+      qualityProfiles: availableProfiles,
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
       saveEnabled: !_.isEmpty(availableProfiles) || (this.model && this.model.get('qProfile')),
       isCustomRule: (this.model && this.model.has('templateKey')) || this.options.rule.has('templateKey')

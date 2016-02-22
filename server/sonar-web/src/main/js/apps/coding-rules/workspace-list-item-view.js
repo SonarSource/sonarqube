@@ -68,8 +68,8 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     activationView.on('profileActivated', function (severity, params, profile) {
       const activation = {
         severity,
-        inherit: 'NONE',
         params,
+        inherit: 'NONE',
         qProfile: profile
       };
       that.model.set({ activation });

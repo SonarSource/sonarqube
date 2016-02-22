@@ -71,8 +71,8 @@ export default Marionette.CompositeView.extend({
       if (that.options.app.state.get('query').qprofile === profile) {
         const activation = {
           severity,
-          inherit: 'NONE',
           params,
+          inherit: 'NONE',
           qProfile: profile
         };
         that.model.set({ activation });

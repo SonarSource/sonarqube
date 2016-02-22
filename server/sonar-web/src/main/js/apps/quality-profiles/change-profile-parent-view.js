@@ -49,8 +49,8 @@ export default ModalFormView.extend({
       parentKey: parent
     };
     return $.ajax({
-      type: 'POST',
       url,
+      type: 'POST',
       data: options,
       statusCode: {
         // do not show global error
