@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import com.google.common.collect.Lists;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,26 +28,26 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.search.BaseIndex;
+import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
-
-import java.util.List;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO replace ServerTester by EsTester / DbTester
 public class RuleDeleterMediumTest {
 
   @ClassRule
@@ -56,14 +57,13 @@ public class RuleDeleterMediumTest {
 
   DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);
-  BaseIndex<Rule, RuleDto, RuleKey> index = tester.get(RuleIndex.class);
+  RuleIndex2 index = tester.get(RuleIndex2.class);
   RuleDeleter deleter = tester.get(RuleDeleter.class);
-  DbSession dbSession;
+  DbSession dbSession = tester.get(DbClient.class).openSession(false);
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    dbSession = tester.get(DbClient.class).openSession(false);
   }
 
   @After
@@ -94,13 +94,16 @@ public class RuleDeleterMediumTest {
     deleter.delete(customRule.getKey());
 
     // Verify custom rule have status REMOVED
-    Rule customRuleReloaded = index.getByKey(customRule.getKey());
+    RuleDto customRuleReloaded = dao.selectOrFailByKey(dbSession, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
-    assertThat(customRuleReloaded.status()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.REMOVED);
 
     // Verify there's no more active rule from custom rule
     List<ActiveRule> activeRules = Lists.newArrayList(tester.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey()));
     assertThat(activeRules).isEmpty();
+
+    // Verify in index
+    assertThat(index.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(templateRule.getKey());
   }
 
   @Test
@@ -115,9 +118,12 @@ public class RuleDeleterMediumTest {
     deleter.delete(manualRule.getKey());
 
     // Verify custom rule have status REMOVED
-    Rule result = index.getByKey(manualRule.getKey());
+    RuleDto result = dao.selectOrFailByKey(dbSession, manualRule.getKey());
     assertThat(result).isNotNull();
-    assertThat(result.status()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(result.getStatus()).isEqualTo(RuleStatus.REMOVED);
+
+    // Verify in index
+    assertThat(index.search(new RuleQuery(), new SearchOptions()).getIds()).isEmpty();
   }
 
   @Test
