@@ -19,6 +19,9 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Optional;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
@@ -39,6 +42,7 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -47,10 +51,12 @@ import static com.google.common.collect.Lists.newArrayList;
 public class RuleUpdater {
 
   private final DbClient dbClient;
+  private final RuleIndexer ruleIndexer;
   private final System2 system;
 
-  public RuleUpdater(DbClient dbClient, System2 system) {
+  public RuleUpdater(DbClient dbClient, RuleIndexer ruleIndexer, System2 system) {
     this.dbClient = dbClient;
+    this.ruleIndexer = ruleIndexer;
     this.system = system;
   }
 
@@ -81,10 +87,21 @@ public class RuleUpdater {
     Context context = newContext(update);
     // validate only the changes, not all the rule fields
     apply(update, context, userSession);
-    dbClient.deprecatedRuleDao().update(dbSession, context.rule);
+    update(dbSession, context.rule);
     updateParameters(dbSession, update, context);
     dbSession.commit();
+    ruleIndexer.setEnabled(true).index();
     return true;
+  }
+
+  @VisibleForTesting
+  boolean update(RuleUpdate update, UserSession userSession) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return update(dbSession, update, userSession);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   /**
@@ -94,7 +111,7 @@ public class RuleUpdater {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Context context = new Context();
-      context.rule = dbClient.deprecatedRuleDao().getByKey(dbSession, change.getRuleKey());
+      context.rule = dbClient.ruleDao().selectOrFailByKey(dbSession, change.getRuleKey());
       if (RuleStatus.REMOVED == context.rule.getStatus()) {
         throw new IllegalArgumentException("Rule with REMOVED status cannot be updated: " + change.getRuleKey());
       }
@@ -145,6 +162,7 @@ public class RuleUpdater {
       throw new IllegalArgumentException("The description is missing");
     } else {
       context.rule.setDescription(description);
+      context.rule.setDescriptionFormat(RuleDto.Format.MARKDOWN);
     }
   }
 
@@ -221,8 +239,10 @@ public class RuleUpdater {
   private void updateParameters(DbSession dbSession, RuleUpdate update, Context context) {
     if (update.isChangeParameters() && update.isCustomRule()) {
       RuleDto customRule = context.rule;
-      RuleDto templateRule = dbClient.deprecatedRuleDao().selectTemplate(customRule, dbSession);
-      if (templateRule == null) {
+      Integer templateId = customRule.getTemplateId();
+      Preconditions.checkNotNull(templateId, "Rule '%s' has no persisted template!", customRule);
+      Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(templateId, dbSession);
+      if (!templateRule.isPresent()) {
         throw new IllegalStateException(String.format("Template %s of rule %s does not exist",
           customRule.getTemplateId(), customRule.getKey()));
       }
@@ -245,13 +265,13 @@ public class RuleUpdater {
 
   private void deleteOrUpdateParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<String> paramKeys,
     Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams) {
-    for (RuleParamDto ruleParamDto : dbClient.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
+    for (RuleParamDto ruleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
       String key = ruleParamDto.getName();
       String value = Strings.emptyToNull(update.parameter(key));
 
       // Update rule param
       ruleParamDto.setDefaultValue(value);
-      dbClient.deprecatedRuleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
+      dbClient.ruleDao().updateRuleParam(dbSession, customRule, ruleParamDto);
 
       if (value != null) {
         // Update linked active rule params or create new one
@@ -283,6 +303,12 @@ public class RuleUpdater {
    */
   private static class Context {
     private RuleDto rule;
+  }
+
+  private void update(DbSession session, RuleDto rule) {
+    rule.setUpdatedAtInMs(system.now());
+    rule.setUpdatedAt(new Date(system.now()));
+    dbClient.ruleDao().update(session, rule);
   }
 
 }

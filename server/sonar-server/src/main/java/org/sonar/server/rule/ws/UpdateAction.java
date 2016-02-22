@@ -143,7 +143,7 @@ public class UpdateAction implements RulesWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       RuleUpdate update = readRequest(dbSession, request);
-      ruleUpdater.update(dbSession, update, userSession);
+      ruleUpdater.update(update, userSession);
       UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey());
 
       writeProtobuf(updateResponse, request, response);
