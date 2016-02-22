@@ -19,22 +19,25 @@
  */
 package org.sonar.server.rule;
 
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ServerSide;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.rule.index.RuleDoc;
+import org.sonar.server.rule.index.RuleIndexer;
 
 @ServerSide
 public class RuleDeleter {
 
+  private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
   private final RuleActivator ruleActivator;
 
-  public RuleDeleter(DbClient dbClient, RuleActivator ruleActivator) {
+  public RuleDeleter(RuleIndexer ruleIndexer, DbClient dbClient, RuleActivator ruleActivator) {
+    this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
   }
@@ -42,7 +45,7 @@ public class RuleDeleter {
   public void delete(RuleKey ruleKey) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      RuleDto rule = dbClient.deprecatedRuleDao().getByKey(dbSession, ruleKey);
+      RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, ruleKey);
       if (rule.getTemplateId() == null && !rule.getRepositoryKey().equals(RuleDoc.MANUAL_REPOSITORY)) {
         throw new IllegalStateException("Only custom rules and manual rules can be deleted");
       }
@@ -53,9 +56,11 @@ public class RuleDeleter {
       }
 
       rule.setStatus(RuleStatus.REMOVED);
-      dbClient.deprecatedRuleDao().update(dbSession, rule);
+      dbClient.ruleDao().update(dbSession, rule);
 
       dbSession.commit();
+      ruleIndexer.setEnabled(true).index();
+
     } finally {
       dbSession.close();
     }
