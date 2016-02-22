@@ -107,6 +107,8 @@ import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.event.NewAlerts;
+import org.sonar.server.governance.bridge.GovernanceBootstrap;
+import org.sonar.server.governance.bridge.GovernanceStopper;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -698,6 +700,10 @@ public class PlatformLevel4 extends PlatformLevel {
       // Developer Cockpit plugin
       DevCockpitBootstrap.class,
       DevCockpitStopper.class,
+
+      // Governance plugin
+      GovernanceBootstrap.class,
+      GovernanceStopper.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
       CeModule.class,
