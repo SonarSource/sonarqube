@@ -21,7 +21,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
-  defaults: function () {
+  defaults () {
     return {
       page: 1,
       maxResultsReached: false,
@@ -30,13 +30,13 @@ export default Backbone.Model.extend({
     };
   },
 
-  nextPage: function () {
-    var page = this.get('page');
+  nextPage () {
+    const page = this.get('page');
     this.set({ page: page + 1 });
   },
 
-  clearQuery: function (query) {
-    var q = {};
+  clearQuery (query) {
+    const q = {};
     Object.keys(query).forEach(function (key) {
       if (query[key]) {
         q[key] = query[key];
@@ -45,26 +45,26 @@ export default Backbone.Model.extend({
     return q;
   },
 
-  _areQueriesEqual: function (a, b) {
-    var equal = Object.keys(a).length === Object.keys(b).length;
+  _areQueriesEqual (a, b) {
+    let equal = Object.keys(a).length === Object.keys(b).length;
     Object.keys(a).forEach(function (key) {
       equal = equal && a[key] === b[key];
     });
     return equal;
   },
 
-  updateFilter: function (obj, options) {
-    var oldQuery = this.get('query'),
-        query = _.extend({}, oldQuery, obj),
-        opts = _.defaults(options || {}, { force: false });
+  updateFilter (obj, options) {
+    const oldQuery = this.get('query');
+    let query = _.extend({}, oldQuery, obj);
+    const opts = _.defaults(options || {}, { force: false });
     query = this.clearQuery(query);
     if (opts.force || !this._areQueriesEqual(oldQuery, query)) {
       this.setQuery(query);
     }
   },
 
-  setQuery: function (query) {
-    this.set({ query: query }, { silent: true });
+  setQuery (query) {
+    this.set({ query }, { silent: true });
     this.set({ changed: true });
     this.trigger('change:query');
   }

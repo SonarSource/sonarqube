@@ -23,14 +23,14 @@ import Template from './templates/metrics-delete.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest: function () {
-    var that = this,
-        collection = this.model.collection;
+  sendRequest () {
+    const that = this;
+    const collection = this.model.collection;
     return this.model.destroy({
       wait: true,
       statusCode: {

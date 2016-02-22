@@ -29,14 +29,14 @@ function getSearchUrl (permission, project) {
 export default Modal.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     Modal.prototype.onRender.apply(this, arguments);
     new window.SelectList({
       el: this.$('#project-permissions-groups'),
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format: function (item) {
+      format (item) {
         return item.name;
       },
       queryParam: 'q',
@@ -49,21 +49,21 @@ export default Modal.extend({
       },
       selectParameter: 'groupName',
       selectParameterValue: 'name',
-      parse: function (r) {
+      parse (r) {
         this.more = false;
         return r.groups;
       }
     });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     if (this.options.refresh) {
       this.options.refresh();
     }
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
       projectName: this.options.projectName
     });

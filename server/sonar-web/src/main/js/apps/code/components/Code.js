@@ -26,7 +26,6 @@ import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './SourceViewer';
 import Search from './Search';
 import { initComponent, browse } from '../actions';
-import { translate } from '../../../helpers/l10n';
 
 
 class Code extends Component {

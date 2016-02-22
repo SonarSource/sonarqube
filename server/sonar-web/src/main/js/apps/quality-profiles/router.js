@@ -28,25 +28,25 @@ export default Backbone.Router.extend({
     'compare*': 'compare'
   },
 
-  initialize: function (options) {
+  initialize (options) {
     this.app = options.app;
   },
 
-  index: function () {
+  index () {
     this.app.controller.index();
   },
 
-  show: function (key) {
+  show (key) {
     this.app.controller.show(key);
   },
 
-  changelog: function () {
-    var params = window.getQueryParams();
+  changelog () {
+    const params = window.getQueryParams();
     this.app.controller.changelog(params.key, params.since, params.to);
   },
 
-  compare: function () {
-    var params = window.getQueryParams();
+  compare () {
+    const params = window.getQueryParams();
     if (params.key && params.withKey) {
       this.app.controller.compare(params.key, params.withKey);
     }

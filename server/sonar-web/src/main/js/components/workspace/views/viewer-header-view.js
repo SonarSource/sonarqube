@@ -38,72 +38,72 @@ export default Marionette.ItemView.extend({
     'click .js-close': 'onCloseClick'
   },
 
-  onRender: function () {
+  onRender () {
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
     this.$('.js-normal-size').addClass('hidden');
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
     $('.tooltip').remove();
   },
 
-  onResizeClick: function (e) {
+  onResizeClick (e) {
     e.preventDefault();
     this.startResizing(e);
   },
 
-  onMinimizeClick: function (e) {
+  onMinimizeClick (e) {
     e.preventDefault();
     this.trigger('viewerMinimize');
   },
 
-  onFullScreenClick: function (e) {
+  onFullScreenClick (e) {
     e.preventDefault();
     this.toFullScreen();
   },
 
-  onNormalSizeClick: function (e) {
+  onNormalSizeClick (e) {
     e.preventDefault();
     this.toNormalSize();
   },
 
-  onCloseClick: function (e) {
+  onCloseClick (e) {
     e.preventDefault();
     this.trigger('viewerClose');
   },
 
-  startResizing: function (e) {
+  startResizing (e) {
     this.initialResizePosition = e.clientY;
     this.initialResizeHeight = $('.workspace-viewer-container').height();
-    var processResizing = _.bind(this.processResizing, this),
-        stopResizing = _.bind(this.stopResizing, this);
+    const processResizing = _.bind(this.processResizing, this);
+    const stopResizing = _.bind(this.stopResizing, this);
     $('body')
         .on('mousemove.workspace', processResizing)
         .on('mouseup.workspace', stopResizing);
   },
 
-  processResizing: function (e) {
-    var currentResizePosition = e.clientY,
-        resizeDelta = this.initialResizePosition - currentResizePosition,
-        height = this.initialResizeHeight + resizeDelta;
+  processResizing (e) {
+    const currentResizePosition = e.clientY;
+    const resizeDelta = this.initialResizePosition - currentResizePosition;
+    const height = this.initialResizeHeight + resizeDelta;
     $('.workspace-viewer-container').height(height);
   },
 
-  stopResizing: function () {
+  stopResizing () {
     $('body')
         .off('mousemove.workspace')
         .off('mouseup.workspace');
   },
 
-  toFullScreen: function () {
+  toFullScreen () {
     this.$('.js-normal-size').removeClass('hidden');
     this.$('.js-full-screen').addClass('hidden');
     this.initialResizeHeight = $('.workspace-viewer-container').height();
     $('.workspace-viewer-container').height('9999px');
   },
 
-  toNormalSize: function () {
+  toNormalSize () {
     this.$('.js-normal-size').addClass('hidden');
     this.$('.js-full-screen').removeClass('hidden');
     $('.workspace-viewer-container').height(this.initialResizeHeight);

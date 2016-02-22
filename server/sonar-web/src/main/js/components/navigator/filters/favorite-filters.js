@@ -24,7 +24,7 @@ import ChoiceFilters from './choice-filters';
 import Template from '../templates/favorite-filter.hbs';
 import DetailsTemplate from '../templates/favorite-details-filter.hbs';
 
-var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
+const DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
   template: DetailsTemplate,
 
 
@@ -34,56 +34,56 @@ var DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
   },
 
 
-  applyFavorite: function (e) {
-    var id = $(e.target).data('id');
+  applyFavorite (e) {
+    const id = $(e.target).data('id');
     window.location = this.model.get('favoriteUrl') + '/' + id;
   },
 
 
-  manage: function () {
+  manage () {
     window.location = this.model.get('manageUrl');
   },
 
 
-  serializeData: function () {
-    var choices = this.model.get('choices'),
-        choicesArray =
-            _.sortBy(
-                _.map(choices, function (v, k) {
-                  return { v: v, k: k };
-                }),
-                'v');
+  serializeData () {
+    const choices = this.model.get('choices');
+    const choicesArray =
+        _.sortBy(
+            _.map(choices, function (v, k) {
+              return { v, k };
+            }),
+            'v');
 
     return _.extend({}, this.model.toJSON(), {
-      choicesArray: choicesArray
+      choicesArray
     });
   }
 
 });
 
 
-var FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
+const FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
   template: Template,
   className: 'navigator-filter navigator-filter-favorite',
 
 
-  initialize: function () {
+  initialize () {
     ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
       detailsView: DetailsFavoriteFilterView
     });
   },
 
 
-  renderValue: function () {
+  renderValue () {
     return '';
   },
 
 
-  renderInput: function () {
+  renderInput () {
   },
 
 
-  isDefaultValue: function () {
+  isDefaultValue () {
     return false;
   }
 
@@ -95,8 +95,8 @@ var FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
  */
 
 export default {
-  DetailsFavoriteFilterView: DetailsFavoriteFilterView,
-  FavoriteFilterView: FavoriteFilterView
+  DetailsFavoriteFilterView,
+  FavoriteFilterView
 };
 
 

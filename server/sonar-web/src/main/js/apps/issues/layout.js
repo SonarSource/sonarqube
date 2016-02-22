@@ -34,39 +34,39 @@ export default Marionette.LayoutView.extend({
     workspaceHomeRegion: '.issues-workspace-home'
   },
 
-  onRender: function () {
+  onRender () {
     if (this.options.app.state.get('isContext')) {
       this.$(this.filtersRegion.el).addClass('hidden');
     }
     this.$('.search-navigator').addClass('sticky');
-    var top = this.$('.search-navigator').offset().top;
-    this.$('.search-navigator-workspace-header').css({ top: top });
-    this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
+    const top = this.$('.search-navigator').offset().top;
+    this.$('.search-navigator-workspace-header').css({ top });
+    this.$('.search-navigator-side').css({ top }).isolatedScroll();
   },
 
-  showSpinner: function (region) {
+  showSpinner (region) {
     return this[region].show(new Marionette.ItemView({
       template: _.template('<i class="spinner"></i>')
     }));
   },
 
-  showComponentViewer: function () {
+  showComponentViewer () {
     this.scroll = $(window).scrollTop();
     this.$('.issues').addClass('issues-extended-view');
   },
 
-  hideComponentViewer: function () {
+  hideComponentViewer () {
     this.$('.issues').removeClass('issues-extended-view');
     if (this.scroll != null) {
       $(window).scrollTop(this.scroll);
     }
   },
 
-  showHomePage: function () {
+  showHomePage () {
     this.$('.issues').addClass('issues-home-view');
   },
 
-  hideHomePage: function () {
+  hideHomePage () {
     this.$('.issues').removeClass('issues-home-view');
   }
 });

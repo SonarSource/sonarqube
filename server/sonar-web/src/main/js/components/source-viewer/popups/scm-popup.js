@@ -27,12 +27,12 @@ export default Popup.extend({
     'click': 'onClick'
   },
 
-  onRender: function () {
+  onRender () {
     Popup.prototype.onRender.apply(this, arguments);
     this.$('.bubble-popup-container').isolatedScroll();
   },
 
-  onClick: function (e) {
+  onClick (e) {
     e.stopPropagation();
   }
 });

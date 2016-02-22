@@ -45,7 +45,7 @@ export default Marionette.LayoutView.extend({
     'click #quality-profile-change-parent': 'onChangeParentClick'
   },
 
-  onRender: function () {
+  onRender () {
     if (!this.model.get('isDefault')) {
       this.initProjectsSelect();
     }
@@ -66,22 +66,22 @@ export default Marionette.LayoutView.extend({
         });
   },
 
-  onChange: function () {
-    var changed = Object.keys(this.model.changedAttributes());
+  onChange () {
+    const changed = Object.keys(this.model.changedAttributes());
     if (!(changed.length === 1 && changed[0] === 'projectCount')) {
       this.render();
     }
   },
 
-  initProjectsSelect: function () {
-    var key = this.model.get('key');
+  initProjectsSelect () {
+    const key = this.model.get('key');
     this.projectsSelectList = new window.SelectList({
       el: this.$('#quality-profile-projects-list'),
       width: '100%',
       height: 200,
       readOnly: !this.options.canWrite,
       focusSearch: false,
-      format: function (item) {
+      format (item) {
         return item.name;
       },
       searchUrl: '/api/qualityprofiles/projects?key=' + encodeURIComponent(key),
@@ -106,72 +106,72 @@ export default Marionette.LayoutView.extend({
     this.listenTo(this.projectsSelectList.collection, 'change:selected', this.onProjectsChange);
   },
 
-  onProfileClick: function (e) {
-    var key = $(e.currentTarget).data('key'),
-        profile = this.model.collection.get(key);
+  onProfileClick (e) {
+    const key = $(e.currentTarget).data('key');
+    const profile = this.model.collection.get(key);
     if (profile != null) {
       e.preventDefault();
       this.model.collection.trigger('select', profile);
     }
   },
 
-  onChangeParentClick: function (e) {
+  onChangeParentClick (e) {
     e.preventDefault();
     this.changeParent();
   },
 
-  onProjectsChange: function () {
+  onProjectsChange () {
     this.model.collection.updateForLanguage(this.model.get('language'));
   },
 
-  changeParent: function () {
+  changeParent () {
     new ChangeProfileParentView({
       model: this.model
     }).render();
   },
 
-  scrollTo: function (selector) {
-    var el = this.$(selector),
-        parent = el.scrollParent();
-    var elOffset = el.offset(),
-        parentOffset = parent.offset();
+  scrollTo (selector) {
+    const el = this.$(selector);
+    const parent = el.scrollParent();
+    const elOffset = el.offset();
+    let parentOffset = parent.offset();
     if (parent.is(document)) {
       parentOffset = { top: 0 };
     }
     if (elOffset != null && parentOffset != null) {
-      var scrollTop = elOffset.top - parentOffset.top - 53;
+      const scrollTop = elOffset.top - parentOffset.top - 53;
       parent.scrollTop(scrollTop);
     }
   },
 
-  scrollToChangelog: function () {
+  scrollToChangelog () {
     this.scrollTo('#quality-profile-changelog');
   },
 
-  scrollToComparison: function () {
+  scrollToComparison () {
     this.scrollTo('#quality-profile-comparison');
   },
 
-  getExporters: function () {
-    var language = this.model.get('language');
+  getExporters () {
+    const language = this.model.get('language');
     return this.options.exporters.filter(function (exporter) {
       return exporter.languages.indexOf(language) !== -1;
     });
   },
 
-  flashChangelog: function () {
-    var changelogEl = this.$(this.changelogRegion.el);
+  flashChangelog () {
+    const changelogEl = this.$(this.changelogRegion.el);
     changelogEl.addClass('flash in');
     setTimeout(function () {
       changelogEl.removeClass('in');
     }, 2000);
   },
 
-  serializeData: function () {
-    var key = this.model.get('key'),
-        rulesSearchUrl = '/coding_rules#qprofile=' + encodeURIComponent(key) + '|activation=true';
+  serializeData () {
+    const key = this.model.get('key');
+    const rulesSearchUrl = '/coding_rules#qprofile=' + encodeURIComponent(key) + '|activation=true';
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      rulesSearchUrl: rulesSearchUrl,
+      rulesSearchUrl,
       canWrite: this.options.canWrite,
       exporters: this.getExporters()
     });

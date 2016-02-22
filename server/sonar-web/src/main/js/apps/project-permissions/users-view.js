@@ -25,20 +25,20 @@ import Template from './templates/project-permissions-users.hbs';
 export default Modal.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     Modal.prototype.onRender.apply(this, arguments);
-    var searchUrl = '/api/permissions/users?ps=100&permission=' + this.options.permission +
+    const searchUrl = '/api/permissions/users?ps=100&permission=' + this.options.permission +
         '&projectId=' + this.options.project;
     new window.SelectList({
       el: this.$('#project-permissions-users'),
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format: function (item) {
+      format (item) {
         return item.name + '<br><span class="note">' + item.login + '</span>';
       },
       queryParam: 'q',
-      searchUrl: searchUrl,
+      searchUrl,
       selectUrl: '/api/permissions/add_user',
       deselectUrl: '/api/permissions/remove_user',
       extra: {
@@ -47,21 +47,21 @@ export default Modal.extend({
       },
       selectParameter: 'login',
       selectParameterValue: 'login',
-      parse: function (r) {
+      parse (r) {
         this.more = false;
         return r.users;
       }
     });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     if (this.options.refresh) {
       this.options.refresh();
     }
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
       projectName: this.options.projectName
     });

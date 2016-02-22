@@ -40,7 +40,7 @@ export default Marionette.CompositeView.extend({
     'change @ui.metricSelect': 'addCondition'
   },
 
-  childViewOptions: function () {
+  childViewOptions () {
     return {
       canEdit: this.options.canEdit,
       gate: this.model,
@@ -50,7 +50,7 @@ export default Marionette.CompositeView.extend({
     };
   },
 
-  onRender: function () {
+  onRender () {
     this.ui.metricSelect.select2({
       allowClear: false,
       width: '250px',
@@ -58,33 +58,33 @@ export default Marionette.CompositeView.extend({
     });
   },
 
-  showMoreIntroduction: function () {
+  showMoreIntroduction () {
     this.$('.js-show-more').addClass('hidden');
     this.$('.js-more').removeClass('hidden');
   },
 
-  addCondition: function () {
-    var metric = this.ui.metricSelect.val();
+  addCondition () {
+    const metric = this.ui.metricSelect.val();
     this.ui.metricSelect.select2('val', '');
-    var condition = new Condition({ metric: metric });
+    const condition = new Condition({ metric });
     this.collection.add(condition);
   },
 
-  groupedMetrics: function () {
-    var metrics = this.options.metrics.filter(function (metric) {
+  groupedMetrics () {
+    let metrics = this.options.metrics.filter(function (metric) {
       return !metric.hidden;
     });
     metrics = _.groupBy(metrics, 'domain');
     metrics = _.map(metrics, function (list, domain) {
       return {
-        domain: domain,
+        domain,
         metrics: _.sortBy(list, 'short_name')
       };
     });
     return _.sortBy(metrics, 'domain');
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.CompositeView.prototype.serializeData.apply(this, arguments), {
       canEdit: this.options.canEdit,
       metricGroups: this.groupedMetrics()

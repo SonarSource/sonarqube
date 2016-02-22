@@ -34,35 +34,35 @@ export default Marionette.ItemView.extend({
     'click .js-raw-source': 'showRawSource'
   },
 
-  onRender: function () {
-    var that = this;
+  onRender () {
+    const that = this;
     $('body').on('click.component-viewer-more-actions', function () {
       $('body').off('click.component-viewer-more-actions');
       that.destroy();
     });
   },
 
-  showMeasures: function () {
+  showMeasures () {
     this.options.parent.showMeasures();
   },
 
-  openNewWindow: function () {
+  openNewWindow () {
     this.options.parent.getPermalink();
   },
 
-  openInWorkspace: function () {
-    var uuid = this.options.parent.model.id;
-    Workspace.openComponent({ uuid: uuid });
+  openInWorkspace () {
+    const uuid = this.options.parent.model.id;
+    Workspace.openComponent({ uuid });
   },
 
-  showRawSource: function () {
+  showRawSource () {
     this.options.parent.showRawSources();
   },
 
-  serializeData: function () {
-    var options = this.options.parent.options.viewer.options;
+  serializeData () {
+    const options = this.options.parent.options.viewer.options;
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      options: options
+      options
     });
   }
 });

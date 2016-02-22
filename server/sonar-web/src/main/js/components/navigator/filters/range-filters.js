@@ -23,7 +23,7 @@ import BaseFilters from './base-filters';
 import Template from '../templates/range-filter.hbs';
 import { translate } from '../../../helpers/l10n';
 
-var DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
+const DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
 
 
@@ -32,10 +32,10 @@ var DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
   },
 
 
-  change: function () {
-    var value = {},
-        valueFrom = this.$('input').eq(0).val(),
-        valueTo = this.$('input').eq(1).val();
+  change () {
+    const value = {};
+    const valueFrom = this.$('input').eq(0).val();
+    const valueTo = this.$('input').eq(1).val();
 
     if (valueFrom.length > 0) {
       value[this.model.get('propertyFrom')] = valueFrom;
@@ -49,37 +49,37 @@ var DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
   },
 
 
-  populateInputs: function () {
-    var value = this.model.get('value'),
-        propertyFrom = this.model.get('propertyFrom'),
-        propertyTo = this.model.get('propertyTo'),
-        valueFrom = _.isObject(value) && value[propertyFrom],
-        valueTo = _.isObject(value) && value[propertyTo];
+  populateInputs () {
+    const value = this.model.get('value');
+    const propertyFrom = this.model.get('propertyFrom');
+    const propertyTo = this.model.get('propertyTo');
+    const valueFrom = _.isObject(value) && value[propertyFrom];
+    const valueTo = _.isObject(value) && value[propertyTo];
 
     this.$('input').eq(0).val(valueFrom || '');
     this.$('input').eq(1).val(valueTo || '');
   },
 
 
-  onShow: function () {
+  onShow () {
     this.$(':input:first').focus();
   }
 
 });
 
 
-var RangeFilterView = BaseFilters.BaseFilterView.extend({
+const RangeFilterView = BaseFilters.BaseFilterView.extend({
 
-  initialize: function () {
+  initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
       detailsView: DetailsRangeFilterView
     });
   },
 
 
-  renderValue: function () {
+  renderValue () {
     if (!this.isDefaultValue()) {
-      var value = _.values(this.model.get('value'));
+      const value = _.values(this.model.get('value'));
       return value.join(' — ');
     } else {
       return translate('any');
@@ -87,12 +87,12 @@ var RangeFilterView = BaseFilters.BaseFilterView.extend({
   },
 
 
-  renderInput: function () {
-    var value = this.model.get('value'),
-        propertyFrom = this.model.get('propertyFrom'),
-        propertyTo = this.model.get('propertyTo'),
-        valueFrom = _.isObject(value) && value[propertyFrom],
-        valueTo = _.isObject(value) && value[propertyTo];
+  renderInput () {
+    const value = this.model.get('value');
+    const propertyFrom = this.model.get('propertyFrom');
+    const propertyTo = this.model.get('propertyTo');
+    const valueFrom = _.isObject(value) && value[propertyFrom];
+    const valueTo = _.isObject(value) && value[propertyTo];
 
     $('<input>')
         .prop('name', propertyFrom)
@@ -110,21 +110,21 @@ var RangeFilterView = BaseFilters.BaseFilterView.extend({
   },
 
 
-  isDefaultValue: function () {
-    var value = this.model.get('value'),
-        propertyFrom = this.model.get('propertyFrom'),
-        propertyTo = this.model.get('propertyTo'),
-        valueFrom = _.isObject(value) && value[propertyFrom],
-        valueTo = _.isObject(value) && value[propertyTo];
+  isDefaultValue () {
+    const value = this.model.get('value');
+    const propertyFrom = this.model.get('propertyFrom');
+    const propertyTo = this.model.get('propertyTo');
+    const valueFrom = _.isObject(value) && value[propertyFrom];
+    const valueTo = _.isObject(value) && value[propertyTo];
 
     return !valueFrom && !valueTo;
   },
 
 
-  restoreFromQuery: function (q) {
-    var paramFrom = _.findWhere(q, { key: this.model.get('propertyFrom') }),
-        paramTo = _.findWhere(q, { key: this.model.get('propertyTo') }),
-        value = {};
+  restoreFromQuery (q) {
+    const paramFrom = _.findWhere(q, { key: this.model.get('propertyFrom') });
+    const paramTo = _.findWhere(q, { key: this.model.get('propertyTo') });
+    const value = {};
 
     if ((paramFrom && paramFrom.value) || (paramTo && paramTo.value)) {
       if (paramFrom && paramFrom.value) {
@@ -136,7 +136,7 @@ var RangeFilterView = BaseFilters.BaseFilterView.extend({
       }
 
       this.model.set({
-        value: value,
+        value,
         enabled: true
       });
 
@@ -145,14 +145,14 @@ var RangeFilterView = BaseFilters.BaseFilterView.extend({
   },
 
 
-  restore: function (value) {
+  restore (value) {
     if (this.choices && this.selection && value.length > 0) {
-      var that = this;
+      const that = this;
       this.choices.add(this.selection.models);
       this.selection.reset([]);
 
       _.each(value, function (v) {
-        var cModel = that.choices.findWhere({ id: v });
+        const cModel = that.choices.findWhere({ id: v });
 
         if (cModel) {
           that.selection.add(cModel);
@@ -163,19 +163,19 @@ var RangeFilterView = BaseFilters.BaseFilterView.extend({
       this.detailsView.updateLists();
 
       this.model.set({
-        value: value,
+        value,
         enabled: true
       });
     }
   },
 
 
-  formatValue: function () {
+  formatValue () {
     return this.model.get('value');
   },
 
 
-  clear: function () {
+  clear () {
     this.model.unset('value');
     this.detailsView.render();
   }
@@ -183,9 +183,9 @@ var RangeFilterView = BaseFilters.BaseFilterView.extend({
 });
 
 
-var DateRangeFilterView = RangeFilterView.extend({
+const DateRangeFilterView = RangeFilterView.extend({
 
-  render: function () {
+  render () {
     RangeFilterView.prototype.render.apply(this, arguments);
     this.detailsView.$('input')
         .prop('placeholder', '1970-01-31')
@@ -200,12 +200,12 @@ var DateRangeFilterView = RangeFilterView.extend({
   },
 
 
-  renderValue: function () {
+  renderValue () {
     if (!this.isDefaultValue()) {
-      var value = _.values(this.model.get('value'));
+      const value = _.values(this.model.get('value'));
       return value.join(' — ');
     } else {
-      return translate('anytime')
+      return translate('anytime');
     }
   }
 
@@ -217,8 +217,8 @@ var DateRangeFilterView = RangeFilterView.extend({
  */
 
 export default {
-  RangeFilterView: RangeFilterView,
-  DateRangeFilterView: DateRangeFilterView
+  RangeFilterView,
+  DateRangeFilterView
 };
 
 

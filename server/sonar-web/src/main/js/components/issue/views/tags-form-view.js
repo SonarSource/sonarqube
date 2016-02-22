@@ -31,7 +31,7 @@ export default ActionOptionsView.extend({
     'change:tags': 'renderTags'
   },
 
-  events: function () {
+  events () {
     return _.extend(ActionOptionsView.prototype.events.apply(this, arguments), {
       'click input': 'onInputClick',
       'keydown input': 'onInputKeydown',
@@ -39,7 +39,7 @@ export default ActionOptionsView.extend({
     });
   },
 
-  initialize: function () {
+  initialize () {
     ActionOptionsView.prototype.initialize.apply(this, arguments);
     this.query = '';
     this.tags = [];
@@ -48,16 +48,16 @@ export default ActionOptionsView.extend({
     this.requestTags();
   },
 
-  requestTags: function (query) {
-    var that = this;
+  requestTags (query) {
+    const that = this;
     return $.get('/api/issues/tags', { ps: 10, q: query }).done(function (data) {
       that.tags = data.tags;
       that.renderTags();
     });
   },
 
-  onRender: function () {
-    var that = this;
+  onRender () {
+    const that = this;
     ActionOptionsView.prototype.onRender.apply(this, arguments);
     this.renderTags();
     setTimeout(function () {
@@ -65,19 +65,19 @@ export default ActionOptionsView.extend({
     }, 100);
   },
 
-  selectInitialOption: function () {
+  selectInitialOption () {
     this.selected = Math.max(Math.min(this.selected, this.getOptions().length - 1), 0);
     this.makeActive(this.getOptions().eq(this.selected));
   },
 
-  filterTags: function (tags) {
-    var that = this;
+  filterTags (tags) {
+    const that = this;
     return _.filter(tags, function (tag) {
       return tag.indexOf(that.query) !== -1;
     });
   },
 
-  renderTags: function () {
+  renderTags () {
     this.$('.menu').empty();
     this.filterTags(this.getTags()).forEach(this.renderSelectedTag, this);
     this.filterTags(_.difference(this.tags, this.getTags())).forEach(this.renderTag, this);
@@ -87,38 +87,38 @@ export default ActionOptionsView.extend({
     this.selectInitialOption();
   },
 
-  renderSelectedTag: function (tag) {
-    var html = this.optionTemplate({
-      tag: tag,
+  renderSelectedTag (tag) {
+    const html = this.optionTemplate({
+      tag,
       selected: true,
       custom: false
     });
     return this.$('.menu').append(html);
   },
 
-  renderTag: function (tag) {
-    var html = this.optionTemplate({
-      tag: tag,
+  renderTag (tag) {
+    const html = this.optionTemplate({
+      tag,
       selected: false,
       custom: false
     });
     return this.$('.menu').append(html);
   },
 
-  renderCustomTag: function (tag) {
-    var html = this.optionTemplate({
-      tag: tag,
+  renderCustomTag (tag) {
+    const html = this.optionTemplate({
+      tag,
       selected: false,
       custom: true
     });
     return this.$('.menu').append(html);
   },
 
-  selectOption: function (e) {
+  selectOption (e) {
     e.preventDefault();
     e.stopPropagation();
-    var tags = this.getTags().slice(),
-        tag = $(e.currentTarget).data('value');
+    let tags = this.getTags().slice();
+    const tag = $(e.currentTarget).data('value');
     if ($(e.currentTarget).data('selected') != null) {
       tags = _.without(tags, tag);
     } else {
@@ -128,10 +128,10 @@ export default ActionOptionsView.extend({
     return this.submit(tags);
   },
 
-  submit: function (tags) {
-    var that = this;
-    var _tags = this.getTags();
-    this.model.set({ tags: tags });
+  submit (tags) {
+    const that = this;
+    const _tags = this.getTags();
+    this.model.set({ tags });
     return $.ajax({
       type: 'POST',
       url: '/api/issues/set_tags',
@@ -144,11 +144,11 @@ export default ActionOptionsView.extend({
     });
   },
 
-  onInputClick: function (e) {
+  onInputClick (e) {
     e.stopPropagation();
   },
 
-  onInputKeydown: function (e) {
+  onInputKeydown (e) {
     this.query = this.$('input').val();
     if (e.keyCode === 38) {
       this.selectPreviousOption();
@@ -167,27 +167,27 @@ export default ActionOptionsView.extend({
     }
   },
 
-  onInputKeyup: function () {
-    var query = this.$('input').val();
+  onInputKeyup () {
+    const query = this.$('input').val();
     if (query !== this.query) {
       this.query = query;
       this.debouncedSearch(query);
     }
   },
 
-  search: function (query) {
+  search (query) {
     this.query = query;
     return this.requestTags(query);
   },
 
-  resetAssignees: function (users) {
+  resetAssignees (users) {
     this.assignees = users.map(function (user) {
       return { id: user.login, text: user.name };
     });
     this.renderTags();
   },
 
-  getTags: function () {
+  getTags () {
     return this.model.get('tags') || [];
   }
 });

@@ -20,11 +20,11 @@
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
-  url: function () {
+  url () {
     return '/api/issue_filters/show/' + this.id;
   },
 
-  parse: function (r) {
+  parse (r) {
     if (r.filter != null) {
       return r.filter;
     } else {

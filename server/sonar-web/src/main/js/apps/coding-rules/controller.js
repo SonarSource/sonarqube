@@ -31,16 +31,16 @@ export default Controller.extend({
   ],
 
 
-  _searchParameters: function () {
-    var fields = this.ruleFields.slice(),
-        profile = this.app.state.get('query').qprofile;
+  _searchParameters () {
+    const fields = this.ruleFields.slice();
+    const profile = this.app.state.get('query').qprofile;
     if (profile != null) {
       fields.push('actives');
       fields.push('params');
       fields.push('isTemplate');
       fields.push('severity');
     }
-    var params = {
+    const params = {
       p: this.app.state.get('page'),
       ps: this.pageSize,
       facets: this._facetsFromServer().join(),
@@ -52,7 +52,7 @@ export default Controller.extend({
     return params;
   },
 
-  fetchList: function (firstPage) {
+  fetchList (firstPage) {
     firstPage = firstPage == null ? true : firstPage;
     if (firstPage) {
       this.app.state.set({ selectedIndex: 0, page: 1 }, { silent: true });
@@ -60,11 +60,11 @@ export default Controller.extend({
 
     this.hideDetails(firstPage);
 
-    var that = this,
-        url = '/api/rules/search',
-        options = _.extend(this._searchParameters(), this.app.state.get('query'));
+    const that = this;
+    const url = '/api/rules/search';
+    const options = _.extend(this._searchParameters(), this.app.state.get('query'));
     return $.get(url, options).done(function (r) {
-      var rules = that.app.list.parseRules(r);
+      const rules = that.app.list.parseRules(r);
       if (firstPage) {
         that.app.list.reset(rules);
       } else {
@@ -87,46 +87,46 @@ export default Controller.extend({
     });
   },
 
-  isRulePermalink: function () {
-    var query = this.app.state.get('query');
+  isRulePermalink () {
+    const query = this.app.state.get('query');
     return query.rule_key != null && this.app.list.length === 1;
   },
 
-  requestFacet: function (id) {
-    var url = '/api/rules/search',
-        facet = this.app.facets.get(id),
-        options = _.extend({ facets: id, ps: 1 }, this.app.state.get('query'));
+  requestFacet (id) {
+    const url = '/api/rules/search';
+    const facet = this.app.facets.get(id);
+    const options = _.extend({ facets: id, ps: 1 }, this.app.state.get('query'));
     return $.get(url, options).done(function (r) {
-      var facetData = _.findWhere(r.facets, { property: id });
+      const facetData = _.findWhere(r.facets, { property: id });
       if (facetData) {
         facet.set(facetData);
       }
     });
   },
 
-  parseQuery: function () {
-    var q = Controller.prototype.parseQuery.apply(this, arguments);
+  parseQuery () {
+    const q = Controller.prototype.parseQuery.apply(this, arguments);
     delete q.asc;
     delete q.s;
     return q;
   },
 
-  getRuleDetails: function (rule) {
-    var that = this,
-        url = '/api/rules/show',
-        options = {
-          key: rule.id,
-          actives: true
-        };
+  getRuleDetails (rule) {
+    const that = this;
+    const url = '/api/rules/show';
+    const options = {
+      key: rule.id,
+      actives: true
+    };
     return $.get(url, options).done(function (data) {
       rule.set(data.rule);
       rule.addExtraAttributes(that.app.repositories);
     });
   },
 
-  showDetails: function (rule) {
-    var that = this,
-        ruleModel = typeof rule === 'string' ? new Rule({ key: rule }) : rule;
+  showDetails (rule) {
+    const that = this;
+    const ruleModel = typeof rule === 'string' ? new Rule({ key: rule }) : rule;
     this.app.layout.workspaceDetailsRegion.reset();
     this.getRuleDetails(ruleModel).done(function (data) {
       key.setScope('details');
@@ -142,12 +142,12 @@ export default Controller.extend({
     });
   },
 
-  showDetailsForSelected: function () {
-    var rule = this.app.list.at(this.app.state.get('selectedIndex'));
+  showDetailsForSelected () {
+    const rule = this.app.list.at(this.app.state.get('selectedIndex'));
     this.showDetails(rule);
   },
 
-  hideDetails: function (firstPage) {
+  hideDetails (firstPage) {
     key.setScope('list');
     this.app.state.unset('rule');
     this.app.layout.workspaceDetailsRegion.reset();
@@ -158,20 +158,20 @@ export default Controller.extend({
     }
   },
 
-  activateCurrent: function () {
+  activateCurrent () {
     if (this.app.layout.detailsShow()) {
       this.app.workspaceDetailsView.$('#coding-rules-quality-profile-activate').click();
     } else {
-      var rule = this.app.list.at(this.app.state.get('selectedIndex'));
-      var ruleView = this.app.workspaceListView.children.findByModel(rule);
+      const rule = this.app.list.at(this.app.state.get('selectedIndex'));
+      const ruleView = this.app.workspaceListView.children.findByModel(rule);
       ruleView.$('.coding-rules-detail-quality-profile-activate').click();
     }
   },
 
-  deactivateCurrent: function () {
+  deactivateCurrent () {
     if (!this.app.layout.detailsShow()) {
-      var rule = this.app.list.at(this.app.state.get('selectedIndex'));
-      var ruleView = this.app.workspaceListView.children.findByModel(rule);
+      const rule = this.app.list.at(this.app.state.get('selectedIndex'));
+      const ruleView = this.app.workspaceListView.children.findByModel(rule);
       ruleView.$('.coding-rules-detail-quality-profile-deactivate').click();
     }
   }

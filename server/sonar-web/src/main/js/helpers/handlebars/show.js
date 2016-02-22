@@ -18,8 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = function () {
-  var args = Array.prototype.slice.call(arguments),
-      ret = null;
+  const args = Array.prototype.slice.call(arguments);
+  let ret = null;
   args.forEach(function (arg) {
     if (typeof arg === 'string' && ret == null) {
       ret = arg;

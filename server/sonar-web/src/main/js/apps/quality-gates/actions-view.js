@@ -29,14 +29,14 @@ export default Marionette.ItemView.extend({
     'click #quality-gate-add': 'add'
   },
 
-  add: function (e) {
+  add (e) {
     e.preventDefault();
     new CreateView({
       collection: this.collection
     }).render();
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canEdit: this.options.canEdit
     });

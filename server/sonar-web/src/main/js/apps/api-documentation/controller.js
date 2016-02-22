@@ -24,16 +24,16 @@ import ActionsView from './actions-view';
 import HeaderView from './header-view';
 
 export default Marionette.Controller.extend({
-  initialize: function (options) {
+  initialize (options) {
     this.list = options.app.list;
     this.listenTo(this.list, 'select', this.onItemSelect);
   },
 
-  show: function (path) {
-    var that = this;
+  show (path) {
+    const that = this;
     this.fetchList().done(function () {
       if (path) {
-        var item = that.list.findWhere({ path: path });
+        const item = that.list.findWhere({ path });
         if (item != null) {
           that.showWebService(path);
         } else {
@@ -43,26 +43,26 @@ export default Marionette.Controller.extend({
     });
   },
 
-  showWebService: function (path) {
-    var item = this.list.findWhere({ path: path });
+  showWebService (path) {
+    const item = this.list.findWhere({ path });
     if (item != null) {
       item.trigger('select', item);
     }
   },
 
-  showAction: function (path) {
-    var webService = this.list.find(function (item) {
+  showAction (path) {
+    const webService = this.list.find(function (item) {
       return path.indexOf(item.get('path')) === 0;
     });
     if (webService != null) {
-      var action = path.substr(webService.get('path').length + 1);
-      webService.trigger('select', webService, { trigger: false, action: action });
+      const action = path.substr(webService.get('path').length + 1);
+      webService.trigger('select', webService, { trigger: false, action });
     }
   },
 
-  onItemSelect: function (item, options) {
-    var path = item.get('path'),
-        opts = _.defaults(options || {}, { trigger: true });
+  onItemSelect (item, options) {
+    const path = item.get('path');
+    const opts = _.defaults(options || {}, { trigger: true });
     if (opts.trigger) {
       this.options.app.router.navigate(path);
     }
@@ -72,16 +72,16 @@ export default Marionette.Controller.extend({
       this.options.state.set({ internal: true });
     }
 
-    var actions = new Backbone.Collection(item.get('actions')),
-        actionsView = new ActionsView({
-          collection: actions,
-          state: this.options.state
-        });
+    const actions = new Backbone.Collection(item.get('actions'));
+    const actionsView = new ActionsView({
+      collection: actions,
+      state: this.options.state
+    });
     this.options.app.layout.detailsRegion.show(actionsView);
     this.options.app.layout.headerRegion.show(new HeaderView({ model: item }));
 
     if (opts.action != null) {
-      var model = actions.findWhere({ key: opts.action });
+      const model = actions.findWhere({ key: opts.action });
       if (model) {
         if (model.get('internal')) {
           this.options.state.set({ internal: true });
@@ -93,7 +93,7 @@ export default Marionette.Controller.extend({
     }
   },
 
-  fetchList: function () {
+  fetchList () {
     return this.list.fetch({ data: { 'include_internals': true } });
   }
 });

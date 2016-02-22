@@ -24,29 +24,29 @@ import Template from '../templates/facets/coding-rules-query-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
       'submit form': 'onFormSubmit'
     });
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.attr('data-property', this.model.get('property'));
-    var query = this.options.app.state.get('query'),
-        value = query.q;
+    const query = this.options.app.state.get('query');
+    const value = query.q;
     if (value != null) {
       this.$('input').val(value);
     }
   },
 
-  onFormSubmit: function (e) {
+  onFormSubmit (e) {
     e.preventDefault();
     this.applyFacet();
   },
 
-  applyFacet: function () {
-    var obj = {},
-        property = this.model.get('property');
+  applyFacet () {
+    const obj = {};
+    const property = this.model.get('property');
     obj[property] = this.$('input').val();
     this.options.app.state.updateFilter(obj, { force: true });
   }

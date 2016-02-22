@@ -23,11 +23,11 @@ import Filter from './filter';
 export default Backbone.Collection.extend({
   model: Filter,
 
-  url: function () {
+  url () {
     return '/api/issue_filters/search';
   },
 
-  parse: function (r) {
+  parse (r) {
     return r.issueFilters;
   }
 });

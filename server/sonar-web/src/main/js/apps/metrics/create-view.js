@@ -22,15 +22,15 @@ import FormView from './form-view';
 
 export default FormView.extend({
 
-  sendRequest: function () {
-    var that = this,
-        metric = new Metric({
-          key: this.$('#create-metric-key').val(),
-          name: this.$('#create-metric-name').val(),
-          description: this.$('#create-metric-description').val(),
-          domain: this.$('#create-metric-domain').val(),
-          type: this.$('#create-metric-type').val()
-        });
+  sendRequest () {
+    const that = this;
+    const metric = new Metric({
+      key: this.$('#create-metric-key').val(),
+      name: this.$('#create-metric-name').val(),
+      description: this.$('#create-metric-description').val(),
+      domain: this.$('#create-metric-domain').val(),
+      type: this.$('#create-metric-type').val()
+    });
     this.disableForm();
     return metric.save(null, {
       statusCode: {

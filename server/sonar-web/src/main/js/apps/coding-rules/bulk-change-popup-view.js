@@ -30,21 +30,21 @@ export default PopupView.extend({
     'click .js-bulk-change': 'doAction'
   },
 
-  doAction: function (e) {
-    var action = $(e.currentTarget).data('action'),
-        param = $(e.currentTarget).data('param');
+  doAction (e) {
+    const action = $(e.currentTarget).data('action');
+    const param = $(e.currentTarget).data('param');
     new BulkChangeModalView({
       app: this.options.app,
-      action: action,
-      param: param
+      action,
+      param
     }).render();
   },
 
-  serializeData: function () {
-    var query = this.options.app.state.get('query'),
-        profileKey = query.qprofile,
-        profile = _.findWhere(this.options.app.qualityProfiles, { key: profileKey }),
-        activation = '' + query.activation;
+  serializeData () {
+    const query = this.options.app.state.get('query');
+    const profileKey = query.qprofile;
+    const profile = _.findWhere(this.options.app.qualityProfiles, { key: profileKey });
+    const activation = '' + query.activation;
 
     return {
       qualityProfile: profileKey,

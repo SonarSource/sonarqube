@@ -24,41 +24,41 @@ import HeaderView from './header-view';
 import ListView from './list-view';
 import ListFooterView from './list-footer-view';
 
-var App = new Marionette.Application(),
-    init = function (options) {
-      // Layout
-      this.layout = new Layout({
-        el: options.el
-      });
-      this.layout.render();
+const App = new Marionette.Application();
+const init = function (options) {
+  // Layout
+  this.layout = new Layout({
+    el: options.el
+  });
+  this.layout.render();
 
-      // Collection
-      this.customMeasures = new CustomMeasures({
-        projectId: options.component.id
-      });
+  // Collection
+  this.customMeasures = new CustomMeasures({
+    projectId: options.component.id
+  });
 
-      // Header View
-      this.headerView = new HeaderView({
-        collection: this.customMeasures,
-        projectId: options.component.id
-      });
-      this.layout.headerRegion.show(this.headerView);
+  // Header View
+  this.headerView = new HeaderView({
+    collection: this.customMeasures,
+    projectId: options.component.id
+  });
+  this.layout.headerRegion.show(this.headerView);
 
-      // List View
-      this.listView = new ListView({
-        collection: this.customMeasures
-      });
-      this.layout.listRegion.show(this.listView);
+  // List View
+  this.listView = new ListView({
+    collection: this.customMeasures
+  });
+  this.layout.listRegion.show(this.listView);
 
-      // List Footer View
-      this.listFooterView = new ListFooterView({
-        collection: this.customMeasures
-      });
-      this.layout.listFooterRegion.show(this.listFooterView);
+  // List Footer View
+  this.listFooterView = new ListFooterView({
+    collection: this.customMeasures
+  });
+  this.layout.listFooterRegion.show(this.listFooterView);
 
-      // Go!
-      this.customMeasures.fetch();
-    };
+  // Go!
+  this.customMeasures.fetch();
+};
 
 App.on('start', function (options) {
   init.call(App, options);

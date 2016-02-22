@@ -32,27 +32,27 @@ export default Marionette.LayoutView.extend({
     workspaceDetailsRegion: '.search-navigator-workspace-details'
   },
 
-  onRender: function () {
-    var navigator = this.$('.search-navigator');
-    var top = navigator.offset().top;
-    this.$('.search-navigator-workspace-header').css({ top: top });
-    this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
+  onRender () {
+    const navigator = this.$('.search-navigator');
+    const top = navigator.offset().top;
+    this.$('.search-navigator-workspace-header').css({ top });
+    this.$('.search-navigator-side').css({ top }).isolatedScroll();
   },
 
-  showDetails: function () {
+  showDetails () {
     this.scroll = $(window).scrollTop();
     this.$('.search-navigator').addClass('search-navigator-extended-view');
   },
 
 
-  hideDetails: function () {
+  hideDetails () {
     this.$('.search-navigator').removeClass('search-navigator-extended-view');
     if (this.scroll != null) {
       $(window).scrollTop(this.scroll);
     }
   },
 
-  detailsShow: function () {
+  detailsShow () {
     return this.$('.search-navigator').is('.search-navigator-extended-view');
   }
 

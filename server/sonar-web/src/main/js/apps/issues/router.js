@@ -25,12 +25,12 @@ export default Router.extend({
     ':query': 'index'
   },
 
-  initialize: function (options) {
+  initialize (options) {
     Router.prototype.initialize.apply(this, arguments);
     this.listenTo(options.app.state, 'change:filter', this.updateRoute);
   },
 
-  home: function () {
+  home () {
     if (this.options.app.state.get('isContext')) {
       return this.navigate('resolved=false', { trigger: true, replace: true });
     } else {
@@ -38,11 +38,11 @@ export default Router.extend({
     }
   },
 
-  index: function (query) {
-    var that = this;
+  index (query) {
+    const that = this;
     query = this.options.app.controller.parseQuery(query);
     if (query.id != null) {
-      var filter = this.options.app.filters.get(query.id);
+      const filter = this.options.app.filters.get(query.id);
       delete query.id;
       if (Object.keys(query).length > 0) {
         that.options.app.controller.applyFilter(filter, true);

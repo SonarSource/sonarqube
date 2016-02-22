@@ -28,9 +28,9 @@ export default WorkspaceListView.extend({
   childViewContainer: '.js-list',
   emptyView: WorkspaceListEmptyView,
 
-  bindShortcuts: function () {
+  bindShortcuts () {
     WorkspaceListView.prototype.bindShortcuts.apply(this, arguments);
-    var that = this;
+    const that = this;
     key('right', 'list', function () {
       that.options.app.controller.showDetailsForSelected();
       return false;

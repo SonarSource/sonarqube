@@ -21,8 +21,8 @@ import FormView from './form-view';
 
 export default FormView.extend({
 
-  sendRequest: function () {
-    var that = this;
+  sendRequest () {
+    const that = this;
     this.model.set({
       name: this.$('#create-group-name').val(),
       description: this.$('#create-group-description').val()

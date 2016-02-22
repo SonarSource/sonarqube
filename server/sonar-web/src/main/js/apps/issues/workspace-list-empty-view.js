@@ -23,7 +23,7 @@ import { translate } from '../../helpers/l10n';
 export default Marionette.ItemView.extend({
   className: 'search-navigator-no-results',
 
-  template: function () {
+  template () {
     return translate('issue_filter.no_issues');
   }
 });

@@ -33,13 +33,13 @@ export default Marionette.ItemView.extend({
     'search @ui.input': 'onChange'
   },
 
-  initialize: function () {
+  initialize () {
     this.query = '';
     this.debouncedFilter = _.debounce(this.filter, 250);
   },
 
-  onChange: function () {
-    var query = this.ui.input.val();
+  onChange () {
+    const query = this.ui.input.val();
     if (query === this.query) {
       return;
     }
@@ -47,7 +47,7 @@ export default Marionette.ItemView.extend({
     this.debouncedFilter(query);
   },
 
-  filter: function (query) {
-    this.options.state.set({ query: query });
+  filter (query) {
+    this.options.state.set({ query });
   }
 });

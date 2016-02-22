@@ -46,23 +46,23 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     'click .js-rule-filter': 'onRuleFilterClick'
   },
 
-  onRender: function () {
+  onRender () {
     this.$('[data-toggle="tooltip"]').tooltip({
       container: 'body'
     });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  requestTags: function () {
-    var url = '/api/rules/tags';
+  requestTags () {
+    const url = '/api/rules/tags';
     return $.get(url);
   },
 
-  changeTags: function () {
-    var that = this;
+  changeTags () {
+    const that = this;
     this.requestTags().done(function (r) {
       that.ui.tagInput.select2({
         tags: _.difference(_.difference(r.tags, that.model.get('tags')), that.model.get('sysTags')),
@@ -76,7 +76,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     });
   },
 
-  cancelEdit: function () {
+  cancelEdit () {
     this.ui.tagsList.removeClass('hidden');
     this.ui.tagsEdit.addClass('hidden');
     if (this.ui.tagInput.select2) {
@@ -85,15 +85,15 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     }
   },
 
-  editDone: function () {
-    var that = this,
-        tags = this.ui.tagInput.val();
+  editDone () {
+    const that = this;
+    const tags = this.ui.tagInput.val();
     return $.ajax({
       type: 'POST',
       url: '/api/rules/update',
       data: {
         key: this.model.get('key'),
-        tags: tags
+        tags
       }
     }).done(function (r) {
       that.model.set('tags', r.rule.tags);
@@ -103,7 +103,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canWrite: this.options.app.canWrite,
       subCharacteristic: this.options.app.getSubCharacteristicName(this.model.get('debtSubChar')),

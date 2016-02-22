@@ -45,11 +45,11 @@ export default Marionette.ItemView.extend({
     'click .js-plugin-category': 'onCategoryClick'
   },
 
-  getTemplate: function () {
+  getTemplate () {
     return this.model.get('_system') ? this.systemTemplate : this.template;
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.attr('data-id', this.model.id);
     if (this.model.get('_system')) {
       this.$el.attr('data-system', '');
@@ -57,58 +57,58 @@ export default Marionette.ItemView.extend({
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onModelChange: function () {
+  onModelChange () {
     if (!this.model.hasChanged('_hidden')) {
       this.render();
     }
   },
 
-  onChangelogClick: function (e) {
+  onChangelogClick (e) {
     e.preventDefault();
     e.stopPropagation();
     $('body').click();
-    var index = $(e.currentTarget).data('idx'),
+    const index = $(e.currentTarget).data('idx');
     // if show changelog of update, show details of this update
     // otherwise show changelog of the available release
-        update = this.model.has('release') ? this.model.toJSON() : this.model.get('updates')[index],
-        popup = new PluginChangelogView({
-          triggerEl: $(e.currentTarget),
-          model: new Backbone.Model(update)
-        });
+    const update = this.model.has('release') ? this.model.toJSON() : this.model.get('updates')[index];
+    const popup = new PluginChangelogView({
+      triggerEl: $(e.currentTarget),
+      model: new Backbone.Model(update)
+    });
     popup.render();
   },
 
-  onRequest: function () {
+  onRequest () {
     this.$('.js-actions').addClass('hidden');
     this.$('.js-spinner').removeClass('hidden');
   },
 
-  toggleDisplay: function () {
+  toggleDisplay () {
     this.$el.toggleClass('hidden', this.model.get('_hidden'));
   },
 
-  install: function () {
+  install () {
     this.model.install();
   },
 
-  update: function () {
+  update () {
     this.model.update();
   },
 
-  uninstall: function () {
+  uninstall () {
     this.model.uninstall();
   },
 
-  onTermsChange: function () {
-    var isAccepted = this.$('.js-terms').is(':checked');
+  onTermsChange () {
+    const isAccepted = this.$('.js-terms').is(':checked');
     this.$('.js-install').prop('disabled', !isAccepted);
   },
 
-  onCategoryClick: function (e) {
+  onCategoryClick (e) {
     e.preventDefault();
     this.model.trigger('filter', this.model);
   }

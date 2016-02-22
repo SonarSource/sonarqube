@@ -40,8 +40,8 @@ export const ComplexityDistribution = React.createClass({
       let value = parseInt(tokens[0], 10);
       return {
         x: index,
-        y: y,
-        value: value,
+        y,
+        value,
         tooltip: translateWithParameters(`overview.complexity_tooltip.${this.props.of}`, y, value)
       };
     });

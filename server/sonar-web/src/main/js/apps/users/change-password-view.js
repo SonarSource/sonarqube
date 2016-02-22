@@ -23,16 +23,16 @@ import Template from './templates/users-change-password.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest: function () {
-    var that = this,
-        oldPassword = this.$('#change-user-password-old-password').val(),
-        password = this.$('#change-user-password-password').val(),
-        confirmation = this.$('#change-user-password-password-confirmation').val();
+  sendRequest () {
+    const that = this;
+    const oldPassword = this.$('#change-user-password-old-password').val();
+    const password = this.$('#change-user-password-password').val();
+    const confirmation = this.$('#change-user-password-password-confirmation').val();
     if (password !== confirmation) {
       that.showErrors([{ msg: 'New password and its confirmation do not match' }]);
       return;
@@ -51,7 +51,7 @@ export default ModalForm.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return Object.assign({}, ModalForm.prototype.serializeData.apply(this, arguments), {
       isOwnPassword: window.SS.user === this.model.id
     });

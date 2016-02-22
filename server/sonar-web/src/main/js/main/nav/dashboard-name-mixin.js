@@ -21,8 +21,8 @@ import { translate } from '../../helpers/l10n';
 
 export default {
   getLocalizedDashboardName(baseName) {
-    var l10nKey = 'dashboard.' + baseName + '.name';
-    var l10nLabel = translate(l10nKey);
+    const l10nKey = 'dashboard.' + baseName + '.name';
+    const l10nLabel = translate(l10nKey);
     if (l10nLabel !== l10nKey) {
       return l10nLabel;
     } else {

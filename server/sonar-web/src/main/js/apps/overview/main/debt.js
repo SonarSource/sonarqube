@@ -59,13 +59,13 @@ export const GeneralDebt = React.createClass({
       <MeasuresList>
         <Measure label={getMetricName('new_debt')}>
           <IssuesLink component={this.props.component.key}
-                      params={{ resolved: 'false', createdAfter: createdAfter, facetMode: 'debt' }}>
+                      params={{ resolved: 'false', createdAfter, facetMode: 'debt' }}>
             {formatMeasure(this.props.leak.debt, 'SHORT_WORK_DUR')}
           </IssuesLink>
         </Measure>
         <Measure label={getMetricName('new_issues')}>
           <IssuesLink component={this.props.component.key}
-                      params={{ resolved: 'false', createdAfter: createdAfter }}>
+                      params={{ resolved: 'false', createdAfter }}>
             {formatMeasure(this.props.leak.issues, 'SHORT_INT')}
           </IssuesLink>
         </Measure>

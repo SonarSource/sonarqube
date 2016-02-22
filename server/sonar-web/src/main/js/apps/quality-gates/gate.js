@@ -21,29 +21,29 @@ import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
 
-  isDefault: function () {
+  isDefault () {
     return this.get('isDefault');
   },
 
-  url: function () {
+  url () {
     return '/api/qualitygates';
   },
 
-  showUrl: function () {
+  showUrl () {
     return this.url() + '/show';
   },
 
-  deleteUrl: function () {
+  deleteUrl () {
     return this.url() + '/destroy';
   },
 
-  toggleDefaultUrl: function () {
-    var method = this.isDefault() ? 'unset_default' : 'set_as_default';
+  toggleDefaultUrl () {
+    const method = this.isDefault() ? 'unset_default' : 'set_as_default';
     return this.url() + '/' + method;
   },
 
-  sync: function (method, model, options) {
-    var opts = options || {};
+  sync (method, model, options) {
+    const opts = options || {};
     opts.data = opts.data || {};
     opts.data.id = model.id;
     if (method === 'read') {
@@ -56,9 +56,9 @@ export default Backbone.Model.extend({
     return Backbone.ajax(opts);
   },
 
-  toggleDefault: function () {
-    var that = this;
-    var opts = {
+  toggleDefault () {
+    const that = this;
+    const opts = {
       type: 'POST',
       url: this.toggleDefaultUrl(),
       data: { id: this.id }

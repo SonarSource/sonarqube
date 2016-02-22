@@ -27,14 +27,14 @@ export default Marionette.ItemView.extend({
   overlayClassName: 'modal-overlay',
   htmlClassName: 'modal-open',
 
-  events: function () {
+  events () {
     return {
       'click .js-modal-close': 'onCloseClick'
     };
   },
 
-  onRender: function () {
-    var that = this;
+  onRender () {
+    const that = this;
     this.$el.detach().appendTo($('body'));
     $('html').addClass(this.htmlClassName);
     this.renderOverlay();
@@ -50,39 +50,39 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  show: function () {
-    var that = this;
+  show () {
+    const that = this;
     setTimeout(function () {
       that.$el.addClass('in');
       $('.' + that.overlayClassName).addClass('in');
     }, 0);
   },
 
-  onDestroy: function () {
+  onDestroy () {
     $('html').removeClass(this.htmlClassName);
     this.removeOverlay();
     key.deleteScope('modal');
     key.setScope(this.keyScope);
   },
 
-  onCloseClick: function (e) {
+  onCloseClick (e) {
     e.preventDefault();
     this.destroy();
   },
 
-  renderOverlay: function () {
-    var overlay = $('.' + this.overlayClassName);
+  renderOverlay () {
+    const overlay = $('.' + this.overlayClassName);
     if (overlay.length === 0) {
       $('<div class="' + this.overlayClassName + '"></div>').appendTo($('body'));
     }
   },
 
-  removeOverlay: function () {
+  removeOverlay () {
     $('.' + this.overlayClassName).remove();
   },
 
-  attachCloseEvents: function () {
-    var that = this;
+  attachCloseEvents () {
+    const that = this;
     $('body').on('click.' + EVENT_SCOPE, function () {
       $('body').off('click.' + EVENT_SCOPE);
       that.destroy();

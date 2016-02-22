@@ -20,11 +20,11 @@
 import Backbone from 'backbone';
 
 export default Backbone.Collection.extend({
-  url: function () {
+  url () {
     return '/api/action_plans/search';
   },
 
-  parse: function (r) {
+  parse (r) {
     return r.actionPlans;
   }
 });

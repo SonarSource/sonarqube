@@ -24,13 +24,13 @@ import Template from './templates/permission-templates-delete.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest: function () {
-    var that = this;
+  sendRequest () {
+    const that = this;
     return deletePermissionTemplate({
       data: { templateId: this.model.id },
       statusCode: {

@@ -29,23 +29,23 @@ export default Marionette.ItemView.extend({
     'click .js-hide-changelog': 'onHideChangelogClick'
   },
 
-  onFormSubmit: function (e) {
+  onFormSubmit (e) {
     e.preventDefault();
     this.model.fetchChangelog(this.getSearchParameters());
   },
 
-  onShowMoreChangelogClick: function (e) {
+  onShowMoreChangelogClick (e) {
     e.preventDefault();
     this.model.fetchMoreChangelog();
   },
 
-  onHideChangelogClick: function (e) {
+  onHideChangelogClick (e) {
     e.preventDefault();
     this.model.resetChangelog();
   },
 
-  getSearchParameters: function () {
-    var form = this.$('#quality-profile-changelog-form');
+  getSearchParameters () {
+    const form = this.$('#quality-profile-changelog-form');
     return {
       since: form.find('[name="since"]').val(),
       to: form.find('[name="to"]').val()

@@ -23,19 +23,19 @@ import Backbone from 'backbone';
 export default Backbone.Model.extend({
   idAttribute: 'login',
 
-  urlRoot: function () {
+  urlRoot () {
     return '/api/users';
   },
 
-  defaults: function () {
+  defaults () {
     return {
       groups: [],
       scmAccounts: []
     };
   },
 
-  toQuery: function () {
-    var q = this.toJSON();
+  toQuery () {
+    const q = this.toJSON();
     _.each(q, function (value, key) {
       if (_.isArray(value)) {
         q[key] = value.join(',');
@@ -44,13 +44,13 @@ export default Backbone.Model.extend({
     return q;
   },
 
-  isNew: function () {
+  isNew () {
     // server never sends a password
     return this.has('password');
   },
 
-  sync: function (method, model, options) {
-    var opts = options || {};
+  sync (method, model, options) {
+    const opts = options || {};
     if (method === 'create') {
       _.defaults(opts, {
         url: this.urlRoot() + '/create',
@@ -75,18 +75,18 @@ export default Backbone.Model.extend({
     return Backbone.ajax(opts);
   },
 
-  changePassword: function (oldPassword, password, options) {
+  changePassword (oldPassword, password, options) {
     const data = {
       login: this.id,
-      password: password
+      password
     };
     if (oldPassword != null) {
       data.previousPassword = oldPassword;
     }
-    var opts = _.defaults(options || {}, {
+    const opts = _.defaults(options || {}, {
       url: this.urlRoot() + '/change_password',
       type: 'POST',
-      data: data
+      data
     });
     return Backbone.ajax(opts);
   }

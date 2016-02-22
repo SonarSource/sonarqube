@@ -23,7 +23,7 @@ import BaseFilters from './base-filters';
 import Template from '../templates/metric-filter.hbs';
 import { translate } from '../../../helpers/l10n';
 
-var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
+const DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
 
 
@@ -32,22 +32,22 @@ var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
   },
 
 
-  inputChanged: function () {
-    var metric = this.$('[name=metric]').val(),
-        isDifferentialMetric = metric.indexOf('new_') === 0,
-        periodSelect = this.$('[name=period]'),
-        period = periodSelect.val(),
-        optionZero = periodSelect.children('[value="0"]'),
-        value = {
-          metric: metric,
-          metricText: this.$('[name=metric] option:selected').text(),
-          period: period,
-          periodText: this.$('[name=period] option:selected').text(),
-          op: this.$('[name=op]').val(),
-          opText: this.$('[name=op] option:selected').text(),
-          val: this.$('[name=val]').val(),
-          valText: this.$('[name=val]').originalVal()
-        };
+  inputChanged () {
+    const metric = this.$('[name=metric]').val();
+    const isDifferentialMetric = metric.indexOf('new_') === 0;
+    const periodSelect = this.$('[name=period]');
+    let period = periodSelect.val();
+    const optionZero = periodSelect.children('[value="0"]');
+    const value = {
+      metric,
+      period,
+      metricText: this.$('[name=metric] option:selected').text(),
+      periodText: this.$('[name=period] option:selected').text(),
+      op: this.$('[name=op]').val(),
+      opText: this.$('[name=op] option:selected').text(),
+      val: this.$('[name=val]').val(),
+      valText: this.$('[name=val]').originalVal()
+    };
 
     if (isDifferentialMetric) {
       optionZero.remove();
@@ -69,8 +69,8 @@ var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
   },
 
 
-  updateDataType: function (value) {
-    var metric = _.find(window.SS.metrics, function (m) {
+  updateDataType (value) {
+    const metric = _.find(window.SS.metrics, function (m) {
       return m.metric.name === value.metric;
     });
     if (metric) {
@@ -85,11 +85,11 @@ var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
   },
 
 
-  onRender: function () {
-    var periodZeroLabel = this.$('[name=period]').children('[value="0"]').html();
+  onRender () {
+    const periodZeroLabel = this.$('[name=period]').children('[value="0"]').html();
     this.periodZeroOption = '<option value="0">' + periodZeroLabel + '</option>';
 
-    var value = this.model.get('value') || {};
+    const value = this.model.get('value') || {};
     this.$('[name=metric]').val(value.metric).select2({
       width: '100%',
       placeholder: translate('measure_filter.criteria.metric')
@@ -109,8 +109,8 @@ var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
   },
 
 
-  onShow: function () {
-    var select = this.$('[name=metric]');
+  onShow () {
+    const select = this.$('[name=metric]');
     if (this.model.get('value').metric === '') {
       select.select2('open');
     } else {
@@ -123,7 +123,7 @@ var DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
 
 export default BaseFilters.BaseFilterView.extend({
 
-  initialize: function () {
+  initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
       detailsView: DetailsMetricFilterView
     });
@@ -132,27 +132,27 @@ export default BaseFilters.BaseFilterView.extend({
   },
 
 
-  groupMetrics: function () {
-    var metrics = _.map(this.model.get('metrics'), function (metric) {
-          return metric.metric;
-        }),
-        groupedMetrics =
-            _.sortBy(
-                _.map(
-                    _.groupBy(metrics, 'domain'),
-                    function (metricList, domain) {
-                      return {
-                        domain: domain,
-                        metrics: _.sortBy(metricList, 'short_name')
-                      };
-                    }),
-                'domain'
-            );
+  groupMetrics () {
+    const metrics = _.map(this.model.get('metrics'), function (metric) {
+      return metric.metric;
+    });
+    const groupedMetrics =
+        _.sortBy(
+            _.map(
+                _.groupBy(metrics, 'domain'),
+                function (metricList, domain) {
+                  return {
+                    domain,
+                    metrics: _.sortBy(metricList, 'short_name')
+                  };
+                }),
+            'domain'
+        );
     this.model.set('groupedMetrics', groupedMetrics);
   },
 
 
-  renderValue: function () {
+  renderValue () {
     return this.isDefaultValue() ?
         translate('measure_filter.criteria.metric.not_set') :
     this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' +
@@ -160,13 +160,13 @@ export default BaseFilters.BaseFilterView.extend({
   },
 
 
-  renderInput: function () {
-    var that = this,
-        value = this.model.get('value');
+  renderInput () {
+    const that = this;
+    const value = this.model.get('value');
 
     if (_.isObject(value) && value.metric && value.op && (value.val != null)) {
       _.each(['metric', 'period', 'op', 'val'], function (key) {
-        var v = value[key];
+        let v = value[key];
         if (key === 'period' && v === '0') {
           v = '';
         }
@@ -182,8 +182,8 @@ export default BaseFilters.BaseFilterView.extend({
   },
 
 
-  isDefaultValue: function () {
-    var value = this.model.get('value');
+  isDefaultValue () {
+    const value = this.model.get('value');
     if (!_.isObject(value)) {
       return true;
     }
@@ -191,12 +191,12 @@ export default BaseFilters.BaseFilterView.extend({
   },
 
 
-  restoreFromQuery: function (q) {
-    var that = this,
-        value = {};
+  restoreFromQuery (q) {
+    const that = this;
+    const value = {};
     _.each(['metric', 'period', 'op', 'val'], function (p) {
-      var property = that.model.get('property') + '_' + p,
-          pValue = _.findWhere(q, { key: property });
+      const property = that.model.get('property') + '_' + p;
+      const pValue = _.findWhere(q, { key: property });
 
       if (pValue && pValue.value) {
         value[p] = pValue.value;
@@ -205,7 +205,7 @@ export default BaseFilters.BaseFilterView.extend({
 
     if (value && value.metric && value.op && (value.val != null)) {
       this.model.set({
-        value: value,
+        value,
         enabled: true
       });
     }

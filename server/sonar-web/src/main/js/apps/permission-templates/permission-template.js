@@ -37,7 +37,7 @@ export default React.createClass({
   showGroups(permission, e) {
     e.preventDefault();
     new GroupsView({
-      permission: permission,
+      permission,
       permissionTemplate: this.props.permissionTemplate,
       refresh: this.props.refresh
     }).render();
@@ -46,7 +46,7 @@ export default React.createClass({
   showUsers(permission, e) {
     e.preventDefault();
     new UsersView({
-      permission: permission,
+      permission,
       permissionTemplate: this.props.permissionTemplate,
       refresh: this.props.refresh
     }).render();

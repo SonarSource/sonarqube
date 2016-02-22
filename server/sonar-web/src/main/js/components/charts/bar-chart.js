@@ -73,7 +73,7 @@ export const BarChart = React.createClass({
                    dy="1.5em"
                    onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
                    style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-                   {...tooltipAtts}>{tick}</text>;
+          {...tooltipAtts}>{tick}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -99,7 +99,7 @@ export const BarChart = React.createClass({
                    dy="-1em"
                    onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
                    style={{ cursor: this.props.onBarClick ? 'pointer' : 'default' }}
-                   {...tooltipAtts}>{value}</text>;
+          {...tooltipAtts}>{value}</text>;
     });
     return <g>{ticks}</g>;
   },
@@ -117,7 +117,7 @@ export const BarChart = React.createClass({
       }
       return <rect key={index}
                    className="bar-chart-bar"
-                   {...tooltipAtts}
+          {...tooltipAtts}
                    x={x}
                    y={y}
                    width={this.props.barsWidth}
@@ -136,16 +136,17 @@ export const BarChart = React.createClass({
     let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
     let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    const innerPadding = (availableWidth - this.props.barsWidth * this.props.data.length) / (this.props.data.length - 1);
+    const innerPadding = (availableWidth - this.props.barsWidth * this.props.data.length) /
+        (this.props.data.length - 1);
     const relativeInnerPadding = innerPadding / (innerPadding + this.props.barsWidth);
 
     let maxY = d3.max(this.props.data, d => d.y);
     let xScale = d3.scale.ordinal()
-                   .domain(this.props.data.map(d => d.x))
-                   .rangeBands([0, availableWidth], relativeInnerPadding, 0);
+        .domain(this.props.data.map(d => d.x))
+        .rangeBands([0, availableWidth], relativeInnerPadding, 0);
     let yScale = d3.scale.linear()
-                   .domain([0, maxY])
-                   .range([availableHeight, 0]);
+        .domain([0, maxY])
+        .range([availableHeight, 0]);
 
     return <svg className="bar-chart" width={this.state.width} height={this.state.height}>
       <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>

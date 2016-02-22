@@ -26,29 +26,29 @@ import { translateWithParameters } from '../../helpers/l10n';
 export default ModalFormView.extend({
   template: Template,
 
-  ui: function () {
+  ui () {
     return _.extend(ModalFormView.prototype.ui.apply(this, arguments), {
       codingRulesSubmitBulkChange: '#coding-rules-submit-bulk-change'
     });
   },
 
-  showSuccessMessage: function (profile, succeeded) {
-    var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
-        profileName = profileBase != null ? profileBase.name : profile,
-        message = translateWithParameters('coding_rules.bulk_change.success',
-            profileName, profileBase.language, succeeded);
+  showSuccessMessage (profile, succeeded) {
+    const profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile });
+    const profileName = profileBase != null ? profileBase.name : profile;
+    const message = translateWithParameters('coding_rules.bulk_change.success',
+        profileName, profileBase.language, succeeded);
     this.ui.messagesContainer.append('<div class="alert alert-success">' + message + '</div>');
   },
 
-  showWarnMessage: function (profile, succeeded, failed) {
-    var profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile }),
-        profileName = profileBase != null ? profileBase.name : profile,
-        message = translateWithParameters('coding_rules.bulk_change.warning',
-            profileName, profileBase.language, succeeded, failed);
+  showWarnMessage (profile, succeeded, failed) {
+    const profileBase = _.findWhere(this.options.app.qualityProfiles, { key: profile });
+    const profileName = profileBase != null ? profileBase.name : profile;
+    const message = translateWithParameters('coding_rules.bulk_change.warning',
+        profileName, profileBase.language, succeeded, failed);
     this.ui.messagesContainer.append('<div class="alert alert-warning">' + message + '</div>');
   },
 
-  onRender: function () {
+  onRender () {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('#coding-rules-bulk-change-profile').select2({
       width: '250px',
@@ -57,20 +57,20 @@ export default ModalFormView.extend({
     });
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-    var url = '/api/qualityprofiles/' + this.options.action + '_rules',
-        options = _.extend({}, this.options.app.state.get('query'), { wsAction: this.options.action }),
-        profiles = this.$('#coding-rules-bulk-change-profile').val() || [this.options.param];
+    const url = '/api/qualityprofiles/' + this.options.action + '_rules';
+    const options = _.extend({}, this.options.app.state.get('query'), { wsAction: this.options.action });
+    const profiles = this.$('#coding-rules-bulk-change-profile').val() || [this.options.param];
     this.ui.messagesContainer.empty();
     this.sendRequests(url, options, profiles);
   },
 
-  sendRequests: function (url, options, profiles) {
-    var that = this,
-        looper = $.Deferred().resolve();
+  sendRequests (url, options, profiles) {
+    const that = this;
+    let looper = $.Deferred().resolve();
     profiles.forEach(function (profile) {
-      var opts = _.extend({}, options, { profile_key: profile });
+      const opts = _.extend({}, options, { profile_key: profile });
       looper = looper.then(function () {
         return $.post(url, opts).done(function (r) {
           if (r.failed) {
@@ -89,10 +89,10 @@ export default ModalFormView.extend({
     });
   },
 
-  getAvailableQualityProfiles: function () {
-    var queryLanguages = this.options.app.state.get('query').languages,
-        languages = queryLanguages && queryLanguages.length > 0 ? queryLanguages.split(',') : [],
-        profiles = this.options.app.qualityProfiles;
+  getAvailableQualityProfiles () {
+    const queryLanguages = this.options.app.state.get('query').languages;
+    const languages = queryLanguages && queryLanguages.length > 0 ? queryLanguages.split(',') : [];
+    let profiles = this.options.app.qualityProfiles;
     if (languages.length > 0) {
       profiles = _.filter(profiles, function (profile) {
         return languages.indexOf(profile.lang) !== -1;
@@ -101,8 +101,8 @@ export default ModalFormView.extend({
     return profiles;
   },
 
-  serializeData: function () {
-    var profile = _.findWhere(this.options.app.qualityProfiles, { key: this.options.param });
+  serializeData () {
+    const profile = _.findWhere(this.options.app.qualityProfiles, { key: this.options.param });
     return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
       action: this.options.action,
       state: this.options.app.state.toJSON(),

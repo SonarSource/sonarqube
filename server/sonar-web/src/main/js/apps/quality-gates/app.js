@@ -27,9 +27,9 @@ import Router from './router';
 import Layout from './layout';
 import Controller from './controller';
 
-var App = new Marionette.Application();
+const App = new Marionette.Application();
 
-var init = function () {
+const init = function () {
   let options = window.sonarqube;
   // Layout
   this.layout = new Layout({ el: options.el });
@@ -64,7 +64,7 @@ var init = function () {
   });
 };
 
-var appXHR = $.get('/api/qualitygates/app')
+const appXHR = $.get('/api/qualitygates/app')
     .done(function (r) {
       App.canEdit = r.edit;
       App.periods = r.periods;

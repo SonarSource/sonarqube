@@ -34,8 +34,8 @@ export default Marionette.ItemView.extend({
     'click .js-filter-edit': 'edit'
   },
 
-  initialize: function (options) {
-    var that = this;
+  initialize (options) {
+    const that = this;
     this.listenTo(options.app.state, 'change:filter', this.render);
     this.listenTo(options.app.state, 'change:changed', this.render);
     this.listenTo(options.app.state, 'change:canManageFilters', this.render);
@@ -43,7 +43,7 @@ export default Marionette.ItemView.extend({
     window.onSaveAs = window.onCopy = window.onEdit = function (id) {
       $('#modal').dialog('close');
       return that.options.app.controller.fetchFilters().done(function () {
-        var filter = that.collection.get(id);
+        const filter = that.collection.get(id);
         return filter.fetch().done(function () {
           return that.options.app.controller.applyFilter(filter);
         });
@@ -51,12 +51,12 @@ export default Marionette.ItemView.extend({
     };
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.toggleClass('search-navigator-filters-selected', this.options.app.state.has('filter'));
   },
 
-  toggleFilters: function (e) {
-    var that = this;
+  toggleFilters (e) {
+    const that = this;
     e.stopPropagation();
     this.$('.search-navigator-filters-list').toggle();
     return $('body').on('click.issues-filters', function () {
@@ -65,41 +65,41 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  applyFilter: function (e) {
-    var that = this;
-    var id = $(e.currentTarget).data('id'),
-        filter = this.collection.get(id);
+  applyFilter (e) {
+    const that = this;
+    const id = $(e.currentTarget).data('id');
+    const filter = this.collection.get(id);
     return that.options.app.controller.applyFilter(filter);
 
   },
 
-  saveAs: function () {
-    var query = this.options.app.controller.getQuery('&'),
-        url = '/issues/save_as_form?' + query;
+  saveAs () {
+    const query = this.options.app.controller.getQuery('&');
+    const url = '/issues/save_as_form?' + query;
     window.openModalWindow(url, {});
   },
 
-  save: function () {
-    var that = this;
-    var query = this.options.app.controller.getQuery('&'),
-        url = '/issues/save/' + (this.options.app.state.get('filter').id) + '?' + query;
+  save () {
+    const that = this;
+    const query = this.options.app.controller.getQuery('&');
+    const url = '/issues/save/' + (this.options.app.state.get('filter').id) + '?' + query;
     return $.post(url).done(function () {
       return that.options.app.state.set({ changed: false });
     });
   },
 
-  copy: function () {
-    var url = '/issues/copy_form/' + (this.options.app.state.get('filter').id);
+  copy () {
+    const url = '/issues/copy_form/' + (this.options.app.state.get('filter').id);
     window.openModalWindow(url, {});
   },
 
-  edit: function () {
-    var url = '/issues/edit_form/' + (this.options.app.state.get('filter').id);
+  edit () {
+    const url = '/issues/edit_form/' + (this.options.app.state.get('filter').id);
     window.openModalWindow(url, {});
   },
 
-  serializeData: function () {
-    var filter = this.options.app.state.get('filter');
+  serializeData () {
+    const filter = this.options.app.state.get('filter');
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       state: this.options.app.state.toJSON(),
       filter: filter != null ? filter.toJSON() : null,

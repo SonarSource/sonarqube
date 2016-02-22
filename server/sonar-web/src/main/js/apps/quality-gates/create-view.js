@@ -22,17 +22,17 @@ import FormView from './form-view';
 export default FormView.extend({
   method: 'create',
 
-  prepareRequest: function () {
-    var that = this;
-    var url = '/api/qualitygates/create',
-        name = this.$('#quality-gate-form-name').val(),
-        options = {
-          url: url,
-          data: { name: name }
-        };
+  prepareRequest () {
+    const that = this;
+    const url = '/api/qualitygates/create';
+    const name = this.$('#quality-gate-form-name').val();
+    const options = {
+      url,
+      data: { name }
+    };
     return this.sendRequest(options)
         .done(function (r) {
-          var gate = that.addGate(r);
+          const gate = that.addGate(r);
           gate.trigger('select', gate);
         });
   }

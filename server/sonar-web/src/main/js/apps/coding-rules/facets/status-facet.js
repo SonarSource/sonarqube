@@ -24,22 +24,22 @@ import { translate } from '../../../helpers/l10n';
 export default BaseFacet.extend({
   statuses: ['READY', 'DEPRECATED', 'BETA'],
 
-  getValues: function () {
-    var values = this.model.getValues();
-    var x = values.map(function (value) {
+  getValues () {
+    const values = this.model.getValues();
+    const x = values.map(function (value) {
       return _.extend(value, { label: translate('rules.status', value.val.toLowerCase()) });
     });
     return x;
   },
 
-  sortValues: function (values) {
-    var order = this.statuses;
+  sortValues (values) {
+    const order = this.statuses;
     return _.sortBy(values, function (v) {
       return order.indexOf(v.val);
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.getValues())
     });

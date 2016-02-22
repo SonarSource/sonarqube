@@ -18,10 +18,10 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = function () {
-  var args = Array.prototype.slice.call(arguments, 0, -1),
-      options = arguments[arguments.length - 1],
-      all = args.reduce(function (prev, current) {
-        return prev && current;
-      }, true);
+  const args = Array.prototype.slice.call(arguments, 0, -1);
+  const options = arguments[arguments.length - 1];
+  const all = args.reduce(function (prev, current) {
+    return prev && current;
+  }, true);
   return all ? options.fn(this) : options.inverse(this);
 };

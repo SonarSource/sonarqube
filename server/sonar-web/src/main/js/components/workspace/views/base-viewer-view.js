@@ -32,21 +32,21 @@ export default Marionette.LayoutView.extend({
     viewerRegion: '.workspace-viewer-container'
   },
 
-  onRender: function () {
+  onRender () {
     this.showHeader();
     this.$('.workspace-viewer-container').isolatedScroll();
   },
 
-  onViewerMinimize: function () {
+  onViewerMinimize () {
     this.trigger('viewerMinimize');
   },
 
-  onViewerClose: function () {
+  onViewerClose () {
     this.trigger('viewerClose', this.model);
   },
 
-  showHeader: function () {
-    var headerView = new HeaderView({ model: this.model });
+  showHeader () {
+    const headerView = new HeaderView({ model: this.model });
     this.listenTo(headerView, 'viewerMinimize', this.onViewerMinimize);
     this.listenTo(headerView, 'viewerClose', this.onViewerClose);
     this.headerRegion.show(headerView);

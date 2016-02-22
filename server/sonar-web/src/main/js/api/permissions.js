@@ -31,7 +31,7 @@ function typeError (method, message) {
 
 export function getUsers (data) {
   const url = '/api/permissions/users';
-  return request({ type: 'GET', url: url, data: data });
+  return request({ type: 'GET', url, data });
 }
 
 
@@ -44,11 +44,11 @@ export function grantToUser (permission, user, project) {
   }
 
   const url = '/api/permissions/add_user';
-  const data = { permission: permission, login: user };
+  const data = { permission, login: user };
   if (project) {
     data.projectId = project;
   }
-  return request({ type: 'POST', url: url, data: data });
+  return request({ type: 'POST', url, data });
 }
 
 
@@ -61,17 +61,17 @@ export function revokeFromUser (permission, user, project) {
   }
 
   const url = '/api/permissions/remove_user';
-  const data = { permission: permission, login: user };
+  const data = { permission, login: user };
   if (project) {
     data.projectId = project;
   }
-  return request({ type: 'POST', url: url, data: data });
+  return request({ type: 'POST', url, data });
 }
 
 
 export function getGroups (data) {
   const url = '/api/permissions/groups';
-  return request({ type: 'GET', url: url, data: data });
+  return request({ type: 'GET', url, data });
 }
 
 
@@ -84,11 +84,11 @@ export function grantToGroup (permission, group, project) {
   }
 
   const url = '/api/permissions/add_group';
-  const data = { permission: permission, groupName: group };
+  const data = { permission, groupName: group };
   if (project) {
     data.projectId = project;
   }
-  return request({ type: 'POST', url: url, data: data });
+  return request({ type: 'POST', url, data });
 }
 
 
@@ -101,11 +101,11 @@ export function revokeFromGroup (permission, group, project) {
   }
 
   const url = '/api/permissions/remove_group';
-  const data = { permission: permission, groupName: group };
+  const data = { permission, groupName: group };
   if (project) {
     data.projectId = project;
   }
-  return request({ type: 'POST', url: url, data: data });
+  return request({ type: 'POST', url, data });
 }
 
 
@@ -115,24 +115,24 @@ export function getPermissionTemplates (query) {
   if (query) {
     data.q = query;
   }
-  return request({ type: 'GET', url: url, data: data });
+  return request({ type: 'GET', url, data });
 }
 
 
 export function createPermissionTemplate (options) {
   const url = '/api/permissions/create_template';
-  return request(_.extend({ type: 'POST', url: url }, options));
+  return request(_.extend({ type: 'POST', url }, options));
 }
 
 export function updatePermissionTemplate (options) {
   const url = '/api/permissions/update_template';
-  return request(_.extend({ type: 'POST', url: url }, options));
+  return request(_.extend({ type: 'POST', url }, options));
 }
 
 
 export function deletePermissionTemplate (options) {
   const url = '/api/permissions/delete_template';
-  return request(_.extend({ type: 'POST', url: url }, options));
+  return request(_.extend({ type: 'POST', url }, options));
 }
 
 
@@ -149,5 +149,5 @@ export function setDefaultPermissionTemplate (template, qualifier) {
 
 export function applyTemplateToProject(options) {
   const url = '/api/permissions/apply_template';
-  return request(_.extend({ type: 'POST', url: url }, options));
+  return request(_.extend({ type: 'POST', url }, options));
 }

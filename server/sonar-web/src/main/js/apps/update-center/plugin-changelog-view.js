@@ -24,18 +24,18 @@ import Template from './templates/update-center-plugin-changelog.hbs';
 export default Popup.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     Popup.prototype.onRender.apply(this, arguments);
     this.$('.bubble-popup-container').isolatedScroll();
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     Popup.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Popup.prototype.serializeData.apply(this, arguments), {
       // if there is no status, this is a new plugin
       // => force COMPATIBLE status

@@ -42,7 +42,7 @@ import _ from 'underscore';
 
 
   BaseWidget.prototype.addField = function (name, defaultValue) {
-    var privateName = '_' + name;
+    const privateName = '_' + name;
     this[privateName] = defaultValue;
     this[name] = function (d) {
       return this.param.call(this, privateName, d);
@@ -59,10 +59,10 @@ import _ from 'underscore';
   };
 
   BaseWidget.prototype.addMetric = function (property, index) {
-    var key = this.metricsPriority()[index];
+    const key = this.metricsPriority()[index];
     this[property] = _.extend(this.metrics()[key], {
-      key: key,
-      value: function (d) {
+      key,
+      value (d) {
         if (d.measures[key] != null) {
           if (d.measures[key].text != null) {
             return d.measures[key].text;
@@ -73,7 +73,7 @@ import _ from 'underscore';
           }
         }
       },
-      formattedValue: function (d) {
+      formattedValue (d) {
         if (d.measures[key] != null) {
           if (d.measures[key].text != null) {
             return d.measures[key].text;
@@ -101,7 +101,7 @@ import _ from 'underscore';
 
   BaseWidget.prototype.tooltip = function (d) {
     /* jshint nonbsp: false */
-    var title = d.longName;
+    let title = d.longName;
     if (this.colorMetric && (this.colorMetric.value(d) != null)) {
       title += '\n' + this.colorMetric.name + ': ' + (this.colorMetric.formattedValue(d));
     }

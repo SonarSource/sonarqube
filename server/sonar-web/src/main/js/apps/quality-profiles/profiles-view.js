@@ -35,27 +35,27 @@ export default Marionette.CompositeView.extend({
     'filter': 'filterByLanguage'
   },
 
-  childViewOptions: function (model) {
+  childViewOptions (model) {
     return {
       collectionView: this,
       highlighted: model.get('key') === this.highlighted
     };
   },
 
-  highlight: function (key) {
+  highlight (key) {
     this.highlighted = key;
     this.render();
   },
 
-  attachHtml: function (compositeView, childView, index) {
-    var $container = this.getChildViewContainer(compositeView),
-        model = this.collection.at(index);
+  attachHtml (compositeView, childView, index) {
+    const $container = this.getChildViewContainer(compositeView);
+    const model = this.collection.at(index);
     if (model != null) {
-      var prev = this.collection.at(index - 1),
-          putLanguage = prev == null;
+      const prev = this.collection.at(index - 1);
+      let putLanguage = prev == null;
       if (prev != null) {
-        var lang = model.get('language'),
-            prevLang = prev.get('language');
+        const lang = model.get('language');
+        const prevLang = prev.get('language');
         if (lang !== prevLang) {
           putLanguage = true;
         }
@@ -67,12 +67,12 @@ export default Marionette.CompositeView.extend({
     compositeView._insertAfter(childView);
   },
 
-  destroyChildren: function () {
+  destroyChildren () {
     Marionette.CompositeView.prototype.destroyChildren.apply(this, arguments);
     this.$('.js-list-language').remove();
   },
 
-  filterByLanguage: function (language) {
+  filterByLanguage (language) {
     if (language) {
       this.$('[data-language]').addClass('hidden');
       this.$('[data-language="' + language + '"]').removeClass('hidden');

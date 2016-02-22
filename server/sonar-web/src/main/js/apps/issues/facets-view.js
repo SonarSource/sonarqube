@@ -37,7 +37,7 @@ import IssueKeyFacet from './facets/issue-key-facet';
 import ContextFacet from './facets/context-facet';
 import ModeFacet from './facets/mode-facet';
 
-var viewsMapping = {
+const viewsMapping = {
   severities: SeverityFacet,
   statuses: StatusFacet,
   assignees: AssigneeFacet,
@@ -58,8 +58,8 @@ var viewsMapping = {
 };
 
 export default FacetsView.extend({
-  getChildView: function (model) {
-    var view = viewsMapping[model.get('property')];
+  getChildView (model) {
+    const view = viewsMapping[model.get('property')];
     return view ? view : BaseFacet;
   }
 });

@@ -25,8 +25,8 @@ export default BaseFacet.extend({
   template: Template,
   severities: ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'],
 
-  sortValues: function (values) {
-    var order = this.severities;
+  sortValues (values) {
+    const order = this.severities;
     return _.sortBy(values, function (v) {
       return order.indexOf(v.val);
     });

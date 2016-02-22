@@ -23,7 +23,7 @@ import Marionette from 'backbone.marionette';
 export default Marionette.ItemView.extend({
   className: 'bubble-popup',
 
-  onRender: function () {
+  onRender () {
     this.$el.detach().appendTo($('body'));
     if (this.options.bottom) {
       this.$el.addClass('bubble-popup-bottom');
@@ -46,8 +46,8 @@ export default Marionette.ItemView.extend({
     this.attachCloseEvents();
   },
 
-  attachCloseEvents: function () {
-    var that = this;
+  attachCloseEvents () {
+    const that = this;
     key('escape', function () {
       that.destroy();
     });
@@ -62,7 +62,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     $('body').off('click.bubble-popup');
     this.options.triggerEl.off('click.bubble-popup');
   }

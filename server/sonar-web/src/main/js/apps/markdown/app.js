@@ -20,7 +20,7 @@
 import Marionette from 'backbone.marionette';
 import MarkdownView from './markdown-help-view';
 
-var App = new Marionette.Application();
+const App = new Marionette.Application();
 
 App.on('start', function () {
   let options = window.sonarqube;

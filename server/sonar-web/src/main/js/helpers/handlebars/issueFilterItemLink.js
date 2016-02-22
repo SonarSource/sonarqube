@@ -21,7 +21,7 @@ import _ from 'underscore';
 
 function getQuery (query, separator) {
   separator = separator || '|';
-  var route = [];
+  const route = [];
   _.forEach(query, function (value, property) {
     route.push('' + property + '=' + encodeURIComponent(value));
   });
@@ -29,9 +29,9 @@ function getQuery (query, separator) {
 }
 
 module.exports = function (query, property, value, mode) {
-  var criterion = {};
+  const criterion = {};
   criterion[property] = value;
-  var r = _.extend({}, query, criterion);
+  const r = _.extend({}, query, criterion);
   if (mode === 'debt') {
     r.facetMode = 'debt';
   }

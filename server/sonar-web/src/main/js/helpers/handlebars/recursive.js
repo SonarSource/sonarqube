@@ -20,7 +20,7 @@
 let audaciousFn;
 
 module.exports = function (children, options) {
-  var out = '';
+  let out = '';
 
   if (options.fn !== undefined) {
     audaciousFn = options.fn;

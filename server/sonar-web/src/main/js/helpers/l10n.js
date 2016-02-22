@@ -19,7 +19,6 @@
  */
 import { stringify } from 'querystring';
 import moment from 'moment';
-import _ from 'underscore';
 
 let messages = {};
 
@@ -94,7 +93,7 @@ export function installGlobal () {
 }
 
 export function getLocalizedDashboardName (baseName) {
-  var l10nKey = 'dashboard.' + baseName + '.name';
-  var l10nLabel = translate(l10nKey);
+  const l10nKey = 'dashboard.' + baseName + '.name';
+  const l10nLabel = translate(l10nKey);
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }

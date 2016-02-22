@@ -28,7 +28,7 @@ export default React.createClass({
     search: React.PropTypes.func.isRequired
   },
 
-  componentWillMount: function () {
+  componentWillMount () {
     this.search = _.debounce(this.search, 250);
   },
 

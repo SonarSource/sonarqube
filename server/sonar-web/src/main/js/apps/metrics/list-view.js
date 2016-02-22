@@ -24,7 +24,7 @@ export default Marionette.CollectionView.extend({
   tagName: 'ul',
   childView: ListItemView,
 
-  childViewOptions: function () {
+  childViewOptions () {
     return {
       types: this.options.types,
       domains: this.options.domains

@@ -29,11 +29,11 @@ export default Marionette.CollectionView.extend({
     'sync': 'hideLoading'
   },
 
-  showLoading: function () {
+  showLoading () {
     this.$el.addClass('new-loading');
   },
 
-  hideLoading: function () {
+  hideLoading () {
     this.$el.removeClass('new-loading');
   }
 });

@@ -20,10 +20,10 @@
 import _ from 'underscore';
 
 module.exports = function (context, property, options) {
-  var ret = '';
+  let ret = '';
   context.forEach(function (d, i) {
-    var changed = i > 0 ? d[property] !== context[i - 1][property] : true,
-        c = _.extend({ changed: changed }, d);
+    const changed = i > 0 ? d[property] !== context[i - 1][property] : true;
+    const c = _.extend({ changed }, d);
     ret += options.fn(c);
   });
   return ret;

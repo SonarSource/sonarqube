@@ -24,29 +24,29 @@ import Template from './templates/quality-profiles-rename-profile.hbs';
 export default ModalFormView.extend({
   template: Template,
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest: function () {
-    var that = this,
-        url = '/api/qualityprofiles/rename',
-        name = this.$('#rename-profile-name').val(),
-        options = {
-          key: this.model.get('key'),
-          name: name
-        };
+  sendRequest () {
+    const that = this;
+    const url = '/api/qualityprofiles/rename';
+    const name = this.$('#rename-profile-name').val();
+    const options = {
+      key: this.model.get('key'),
+      name
+    };
     return $.ajax({
+      url,
       type: 'POST',
-      url: url,
       data: options,
       statusCode: {
         // do not show global error
         400: null
       }
     }).done(function () {
-      that.model.set({ name: name });
+      that.model.set({ name });
       that.destroy();
     }).fail(function (jqXHR) {
       that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);

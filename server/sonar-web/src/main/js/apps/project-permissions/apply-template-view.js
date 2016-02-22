@@ -26,7 +26,7 @@ import Template from './templates/project-permissions-apply-template.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('#project-permissions-template').select2({
       width: '250px',
@@ -34,14 +34,14 @@ export default ModalForm.extend({
     });
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
-    var that = this;
+    const that = this;
     this.disableForm();
 
-    var projects = this.options.project ? [this.options.project] : this.options.projects,
-        permissionTemplate = this.$('#project-permissions-template').val(),
-        looper = $.Deferred().resolve();
+    const projects = this.options.project ? [this.options.project] : this.options.projects;
+    const permissionTemplate = this.$('#project-permissions-template').val();
+    let looper = $.Deferred().resolve();
 
     projects.forEach(function (project) {
       looper = looper.then(function () {
@@ -60,7 +60,7 @@ export default ModalForm.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
       permissionTemplates: this.options.permissionTemplates,
       project: this.options.project,

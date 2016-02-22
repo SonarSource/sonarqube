@@ -28,7 +28,7 @@ import { formatMeasure } from '../../../helpers/measures';
 export default BaseFacet.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
       'change input': 'applyFacet',
       'click .js-select-period-start': 'selectPeriodStart',
@@ -41,25 +41,25 @@ export default BaseFacet.extend({
     });
   },
 
-  onRender: function () {
-    var that = this;
+  onRender () {
+    const that = this;
     this.$el.toggleClass('search-navigator-facet-box-collapsed', !this.model.get('enabled'));
     this.$('input').datepicker({
       dateFormat: 'yy-mm-dd',
       changeMonth: true,
       changeYear: true
     });
-    var props = ['createdAfter', 'createdBefore', 'createdAt'],
-        query = this.options.app.state.get('query');
+    const props = ['createdAfter', 'createdBefore', 'createdAt'];
+    const query = this.options.app.state.get('query');
     props.forEach(function (prop) {
-      var value = query[prop];
+      const value = query[prop];
       if (value != null) {
         return that.$('input[name=' + prop + ']').val(value);
       }
     });
-    var values = this.model.getValues();
+    let values = this.model.getValues();
     if (!(_.isArray(values) && values.length > 0)) {
-      var date = moment();
+      let date = moment();
       values = [];
       _.times(10, function () {
         values.push({ count: 0, val: date.toDate().toString() });
@@ -68,33 +68,32 @@ export default BaseFacet.extend({
       values.reverse();
     }
     values = values.map(function (v) {
-      var format = that.options.app.state.getFacetMode() === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
-      var text = formatMeasure(v.count, format);
-      return _.extend(v, { text: text });
+      const format = that.options.app.state.getFacetMode() === 'count' ? 'SHORT_INT' : 'SHORT_WORK_DUR';
+      const text = formatMeasure(v.count, format);
+      return _.extend(v, { text });
     });
     return this.$('.js-barchart').barchart(values);
   },
 
-  selectPeriodStart: function () {
+  selectPeriodStart () {
     return this.$('.js-period-start').datepicker('show');
   },
 
-  selectPeriodEnd: function () {
+  selectPeriodEnd () {
     return this.$('.js-period-end').datepicker('show');
   },
 
-  applyFacet: function () {
-    var obj = { createdAt: null, createdInLast: null };
+  applyFacet () {
+    const obj = { createdAt: null, createdInLast: null };
     this.$('input').each(function () {
-      var property, value;
-      property = $(this).prop('name');
-      value = $(this).val();
+      const property = $(this).prop('name');
+      const value = $(this).val();
       obj[property] = value;
     });
     return this.options.app.state.updateFilter(obj);
   },
 
-  disable: function () {
+  disable () {
     return this.options.app.state.updateFilter({
       createdAfter: null,
       createdBefore: null,
@@ -103,9 +102,9 @@ export default BaseFacet.extend({
     });
   },
 
-  selectBar: function (e) {
-    var periodStart = $(e.currentTarget).data('period-start'),
-        periodEnd = $(e.currentTarget).data('period-end');
+  selectBar (e) {
+    const periodStart = $(e.currentTarget).data('period-start');
+    const periodEnd = $(e.currentTarget).data('period-end');
     return this.options.app.state.updateFilter({
       createdAfter: periodStart,
       createdBefore: periodEnd,
@@ -114,7 +113,7 @@ export default BaseFacet.extend({
     });
   },
 
-  selectPeriod: function (period) {
+  selectPeriod (period) {
     return this.options.app.state.updateFilter({
       createdAfter: null,
       createdBefore: null,
@@ -123,26 +122,26 @@ export default BaseFacet.extend({
     });
   },
 
-  onAllClick: function () {
+  onAllClick () {
     return this.disable();
   },
 
-  onLastWeekClick: function (e) {
+  onLastWeekClick (e) {
     e.preventDefault();
     return this.selectPeriod('1w');
   },
 
-  onLastMonthClick: function (e) {
+  onLastMonthClick (e) {
     e.preventDefault();
     return this.selectPeriod('1m');
   },
 
-  onLastYearClick: function (e) {
+  onLastYearClick (e) {
     e.preventDefault();
     return this.selectPeriod('1y');
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       periodStart: this.options.app.state.get('query').createdAfter,
       periodEnd: this.options.app.state.get('query').createdBefore,

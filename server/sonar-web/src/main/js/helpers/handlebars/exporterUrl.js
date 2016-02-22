@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = function (profile, exporterKey) {
-  var url = '/api/qualityprofiles/export';
+  let url = '/api/qualityprofiles/export';
   url += '?language=' + encodeURIComponent(profile.language);
   url += '&name=' + encodeURIComponent(profile.name);
   if (exporterKey != null) {

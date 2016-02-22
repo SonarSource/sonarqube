@@ -22,7 +22,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default React.createClass({
   renderLogo() {
-    let url = this.props.logoUrl || `/images/logo.svg`;
+    let url = this.props.logoUrl || '/images/logo.svg';
     let width = this.props.logoWidth || 100;
     let height = 30;
     let title = translate('layout.sonar.slogan');

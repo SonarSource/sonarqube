@@ -33,50 +33,50 @@ import FacetsView from './facets-view';
 import FiltersView from './filters-view';
 import { translate } from '../../helpers/l10n';
 
-var App = new Marionette.Application(),
-    init = function () {
-      let options = window.sonarqube;
+const App = new Marionette.Application();
+const init = function () {
+  let options = window.sonarqube;
 
-      this.layout = new Layout({ el: options.el });
-      this.layout.render();
-      $('#footer').addClass('search-navigator-footer');
+  this.layout = new Layout({ el: options.el });
+  this.layout.render();
+  $('#footer').addClass('search-navigator-footer');
 
-      this.state = new State();
-      this.list = new Rules();
-      this.facets = new Facets();
+  this.state = new State();
+  this.list = new Rules();
+  this.facets = new Facets();
 
-      this.controller = new Controller({ app: this });
+  this.controller = new Controller({ app: this });
 
-      this.workspaceListView = new WorkspaceListView({
-        app: this,
-        collection: this.list
-      });
-      this.layout.workspaceListRegion.show(this.workspaceListView);
-      this.workspaceListView.bindScrollEvents();
+  this.workspaceListView = new WorkspaceListView({
+    app: this,
+    collection: this.list
+  });
+  this.layout.workspaceListRegion.show(this.workspaceListView);
+  this.workspaceListView.bindScrollEvents();
 
-      this.workspaceHeaderView = new WorkspaceHeaderView({
-        app: this,
-        collection: this.list
-      });
-      this.layout.workspaceHeaderRegion.show(this.workspaceHeaderView);
+  this.workspaceHeaderView = new WorkspaceHeaderView({
+    app: this,
+    collection: this.list
+  });
+  this.layout.workspaceHeaderRegion.show(this.workspaceHeaderView);
 
-      this.facetsView = new FacetsView({
-        app: this,
-        collection: this.facets
-      });
-      this.layout.facetsRegion.show(this.facetsView);
+  this.facetsView = new FacetsView({
+    app: this,
+    collection: this.facets
+  });
+  this.layout.facetsRegion.show(this.facetsView);
 
-      this.filtersView = new FiltersView({
-        app: this
-      });
-      this.layout.filtersRegion.show(this.filtersView);
+  this.filtersView = new FiltersView({
+    app: this
+  });
+  this.layout.filtersRegion.show(this.filtersView);
 
-      key.setScope('list');
-      this.router = new Router({
-        app: this
-      });
-      Backbone.history.start();
-    };
+  key.setScope('list');
+  this.router = new Router({
+    app: this
+  });
+  Backbone.history.start();
+};
 
 App.manualRepository = function () {
   return {
@@ -88,15 +88,15 @@ App.manualRepository = function () {
 
 App.getSubCharacteristicName = function (key) {
   if (key != null) {
-    var ch = _.findWhere(App.characteristics, { key: key }),
-        parent = _.findWhere(App.characteristics, { key: ch.parent });
+    const ch = _.findWhere(App.characteristics, { key });
+    const parent = _.findWhere(App.characteristics, { key: ch.parent });
     return [parent.name, ch.name].join(' > ');
   } else {
     return null;
   }
 };
 
-var appXHR = $.get('/api/rules/app').done(function (r) {
+const appXHR = $.get('/api/rules/app').done(function (r) {
   App.canWrite = r.canWrite;
   App.qualityProfiles = _.sortBy(r.qualityprofiles, ['name', 'lang']);
   App.languages = _.extend(r.languages, {
@@ -109,7 +109,7 @@ var appXHR = $.get('/api/rules/app').done(function (r) {
   App.repositories.push(App.manualRepository());
   App.statuses = r.statuses;
   App.characteristics = r.characteristics.map(function (item, index) {
-    return _.extend(item, { index: index });
+    return _.extend(item, { index });
   });
 });
 

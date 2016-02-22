@@ -24,16 +24,16 @@ import Rule from './rule';
 export default Backbone.Collection.extend({
   model: Rule,
 
-  parseRules: function (r) {
-    var rules = r.rules,
-        profiles = r.qProfiles || [];
+  parseRules (r) {
+    let rules = r.rules;
+    const profiles = r.qProfiles || [];
 
     if (r.actives != null) {
       rules = rules.map(function (rule) {
-        var activations = (r.actives[rule.key] || []).map(function (activation) {
-          var profile = profiles[activation.qProfile];
+        const activations = (r.actives[rule.key] || []).map(function (activation) {
+          const profile = profiles[activation.qProfile];
           if (profile != null) {
-            _.extend(activation, { profile: profile });
+            _.extend(activation, { profile });
             if (profile.parent != null) {
               _.extend(activation, { parentProfile: profiles[profile.parent] });
             }
@@ -46,13 +46,13 @@ export default Backbone.Collection.extend({
     return rules;
   },
 
-  setIndex: function () {
+  setIndex () {
     this.forEach(function (rule, index) {
-      rule.set({ index: index });
+      rule.set({ index });
     });
   },
 
-  addExtraAttributes: function (repositories) {
+  addExtraAttributes (repositories) {
     this.models.forEach(function (model) {
       model.addExtraAttributes(repositories);
     });

@@ -40,96 +40,96 @@ export default Marionette.ItemView.extend({
     'click .js-user-tokens': 'onTokensClick'
   },
 
-  initialize: function () {
+  initialize () {
     this.scmLimit = 3;
     this.groupsLimit = 3;
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.attr('data-login', this.model.id);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onMoreScmClick: function (e) {
+  onMoreScmClick (e) {
     e.preventDefault();
     this.showMoreScm();
   },
 
-  onMoreGroupsClick: function (e) {
+  onMoreGroupsClick (e) {
     e.preventDefault();
     this.showMoreGroups();
   },
 
-  onUpdateClick: function (e) {
+  onUpdateClick (e) {
     e.preventDefault();
     this.updateUser();
   },
 
-  onChangePasswordClick: function (e) {
+  onChangePasswordClick (e) {
     e.preventDefault();
     this.changePassword();
   },
 
-  onDeactivateClick: function (e) {
+  onDeactivateClick (e) {
     e.preventDefault();
     this.deactivateUser();
   },
 
-  onGroupsClick: function (e) {
+  onGroupsClick (e) {
     e.preventDefault();
     this.showGroups();
   },
 
-  onTokensClick: function (e) {
+  onTokensClick (e) {
     e.preventDefault();
     this.showTokens();
   },
 
-  showMoreScm: function () {
+  showMoreScm () {
     this.scmLimit = 10000;
     this.render();
   },
 
-  showMoreGroups: function () {
+  showMoreGroups () {
     this.groupsLimit = 10000;
     this.render();
   },
 
-  updateUser: function () {
+  updateUser () {
     new UpdateView({
       model: this.model,
       collection: this.model.collection
     }).render();
   },
 
-  changePassword: function () {
+  changePassword () {
     new ChangePasswordView({
       model: this.model,
       collection: this.model.collection
     }).render();
   },
 
-  deactivateUser: function () {
+  deactivateUser () {
     new DeactivateView({ model: this.model }).render();
   },
 
-  showGroups: function () {
+  showGroups () {
     new GroupsView({ model: this.model }).render();
   },
 
-  showTokens: function () {
+  showTokens () {
     new TokensView({ model: this.model }).render();
   },
 
-  serializeData: function () {
-    var scmAccounts = this.model.get('scmAccounts'),
-        scmAccountsLimit = scmAccounts.length > this.scmLimit ? this.scmLimit - 1 : this.scmLimit,
-        groups = this.model.get('groups'),
-        groupsLimit = groups.length > this.groupsLimit ? this.groupsLimit - 1 : this.groupsLimit;
+  serializeData () {
+    const scmAccounts = this.model.get('scmAccounts');
+    const scmAccountsLimit = scmAccounts.length > this.scmLimit ? this.scmLimit - 1 : this.scmLimit;
+    const groups = this.model.get('groups');
+    const groupsLimit = groups.length > this.groupsLimit ? this.groupsLimit - 1 : this.groupsLimit;
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       firstScmAccounts: _.first(scmAccounts, scmAccountsLimit),
       moreScmAccountsCount: scmAccounts.length - scmAccountsLimit,

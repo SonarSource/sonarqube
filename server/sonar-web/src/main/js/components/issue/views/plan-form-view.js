@@ -26,30 +26,30 @@ import { translate } from '../../../helpers/l10n';
 export default ActionOptionsView.extend({
   template: Template,
 
-  getActionPlan: function () {
+  getActionPlan () {
     return this.model.get('actionPlan') || '';
   },
 
-  selectInitialOption: function () {
+  selectInitialOption () {
     this.makeActive(this.getOptions().filter('[data-value="' + this.getActionPlan() + '"]'));
   },
 
-  selectOption: function (e) {
-    var actionPlan = $(e.currentTarget).data('value'),
-        actionPlanName = $(e.currentTarget).data('text');
+  selectOption (e) {
+    const actionPlan = $(e.currentTarget).data('value');
+    const actionPlanName = $(e.currentTarget).data('text');
     this.submit(actionPlan, actionPlanName);
     return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  submit: function (actionPlan) {
+  submit (actionPlan) {
     return this.model.plan(actionPlan);
   },
 
-  getActionPlans: function () {
+  getActionPlans () {
     return [{ key: '', name: translate('issue.unplanned') }].concat(this.collection.toJSON());
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(ActionOptionsView.prototype.serializeData.apply(this, arguments), {
       items: this.getActionPlans()
     });

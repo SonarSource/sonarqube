@@ -78,6 +78,7 @@ class Component extends React.Component {
       }
     }
 
+    /* eslint object-shorthand: 0 */
     return (
         <tr className={classNames({ 'selected': selected })}>
           <td className="thin nowrap">

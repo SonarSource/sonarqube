@@ -20,8 +20,8 @@
 import { translate } from '../../helpers/l10n';
 
 module.exports = function (dashboardName) {
-  var l10nKey = 'dashboard.' + dashboardName + '.name';
-  var l10nLabel = translate(l10nKey);
+  const l10nKey = 'dashboard.' + dashboardName + '.name';
+  const l10nLabel = translate(l10nKey);
   if (l10nLabel !== l10nKey) {
     return l10nLabel;
   } else {

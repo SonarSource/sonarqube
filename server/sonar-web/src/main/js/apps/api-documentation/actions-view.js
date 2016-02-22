@@ -24,34 +24,34 @@ import ActionView from './action-view';
 export default Marionette.CollectionView.extend({
   childView: ActionView,
 
-  childViewOptions: function () {
+  childViewOptions () {
     return {
       state: this.options.state
     };
   },
 
-  scrollToTop: function () {
-    var parent = this.$el.scrollParent();
+  scrollToTop () {
+    let parent = this.$el.scrollParent();
     if (parent.is(document)) {
       parent = $(window);
     }
     parent.scrollTop(0);
   },
 
-  scrollToAction: function (action) {
-    var model = this.collection.findWhere({ key: action });
+  scrollToAction (action) {
+    const model = this.collection.findWhere({ key: action });
     if (model != null) {
-      var view = this.children.findByModel(model);
+      const view = this.children.findByModel(model);
       if (view != null) {
         this.scrollToView(view);
       }
     }
   },
 
-  scrollToView: function (view) {
-    var elOffset = view.el.getBoundingClientRect();
+  scrollToView (view) {
+    const elOffset = view.el.getBoundingClientRect();
     if (elOffset != null) {
-      var scrollTop = elOffset.top - 70;
+      const scrollTop = elOffset.top - 70;
       window.scrollTo(0, scrollTop);
     }
   }

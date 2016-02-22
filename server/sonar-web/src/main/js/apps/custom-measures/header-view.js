@@ -28,12 +28,12 @@ export default Marionette.ItemView.extend({
     'click #custom-measures-create': 'onCreateClick'
   },
 
-  onCreateClick: function (e) {
+  onCreateClick (e) {
     e.preventDefault();
     this.createCustomMeasure();
   },
 
-  createCustomMeasure: function () {
+  createCustomMeasure () {
     new CreateView({
       collection: this.collection,
       projectId: this.options.projectId

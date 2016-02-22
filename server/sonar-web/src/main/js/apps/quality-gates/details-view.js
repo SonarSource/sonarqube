@@ -36,32 +36,32 @@ export default Marionette.LayoutView.extend({
     'change': 'render'
   },
 
-  onRender: function () {
+  onRender () {
     this.showConditions();
     this.showProjects();
   },
 
-  orderByName: function (conditions) {
+  orderByName (conditions) {
     let metrics = this.options.metrics;
     return _.sortBy(conditions, (condition) => {
       return _.findWhere(metrics, { key: condition.metric }).name;
     });
   },
 
-  showConditions: function () {
-    var conditions = new Conditions(this.orderByName(this.model.get('conditions'))),
-        view = new DetailConditionsView({
-          canEdit: this.options.canEdit,
-          collection: conditions,
-          model: this.model,
-          metrics: this.options.metrics,
-          periods: this.options.periods
-        });
+  showConditions () {
+    const conditions = new Conditions(this.orderByName(this.model.get('conditions')));
+    const view = new DetailConditionsView({
+      canEdit: this.options.canEdit,
+      collection: conditions,
+      model: this.model,
+      metrics: this.options.metrics,
+      periods: this.options.periods
+    });
     this.conditionsRegion.show(view);
   },
 
-  showProjects: function () {
-    var view = new ProjectsView({
+  showProjects () {
+    const view = new ProjectsView({
       canEdit: this.options.canEdit,
       model: this.model
     });

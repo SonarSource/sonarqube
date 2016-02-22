@@ -25,10 +25,10 @@ module.exports = function (source, scm, options) {
     scm = null;
   }
 
-  var sources = _.map(source, function (code, line) {
+  const sources = _.map(source, function (code, line) {
     return {
+      code,
       lineNumber: line,
-      code: code,
       scm: (scm && scm[line]) ? { author: scm[line][0], date: scm[line][1] } : undefined
     };
   });

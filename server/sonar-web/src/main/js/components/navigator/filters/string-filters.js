@@ -22,7 +22,7 @@ import _ from 'underscore';
 import BaseFilters from './base-filters';
 import Template from '../templates/string-filter.hbs';
 
-var DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
+const DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
 
 
@@ -31,18 +31,18 @@ var DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
   },
 
 
-  change: function (e) {
+  change (e) {
     this.model.set('value', $(e.target).val());
   },
 
 
-  onShow: function () {
+  onShow () {
     BaseFilters.DetailsFilterView.prototype.onShow.apply(this, arguments);
     this.$(':input').focus();
   },
 
 
-  serializeData: function () {
+  serializeData () {
     return _.extend({}, this.model.toJSON(), {
       value: this.model.get('value') || ''
     });
@@ -53,19 +53,19 @@ var DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
 
 export default BaseFilters.BaseFilterView.extend({
 
-  initialize: function () {
+  initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
       detailsView: DetailsStringFilterView
     });
   },
 
 
-  renderValue: function () {
+  renderValue () {
     return this.isDefaultValue() ? '—' : this.model.get('value');
   },
 
 
-  renderInput: function () {
+  renderInput () {
     $('<input>')
         .prop('name', this.model.get('property'))
         .prop('type', 'hidden')
@@ -75,20 +75,20 @@ export default BaseFilters.BaseFilterView.extend({
   },
 
 
-  isDefaultValue: function () {
+  isDefaultValue () {
     return !this.model.get('value');
   },
 
 
-  restore: function (value) {
+  restore (value) {
     this.model.set({
-      value: value,
+      value,
       enabled: true
     });
   },
 
 
-  clear: function () {
+  clear () {
     this.model.unset('value');
     this.detailsView.render();
   }

@@ -50,7 +50,7 @@ export default Marionette.ItemView.extend({
     'change :input': 'enableUpdate'
   },
 
-  onRender: function () {
+  onRender () {
     this.ui.warningInput.val(this.model.get('warning'));
     this.ui.errorInput.val(this.model.get('error'));
 
@@ -69,8 +69,8 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  saveCondition: function () {
-    var attrs = {
+  saveCondition () {
+    const attrs = {
       gateId: this.model.isNew() ? this.options.gate.id : void 0,
       period: this.ui.periodSelect.val(),
       op: this.ui.operatorSelect.val(),
@@ -80,33 +80,33 @@ export default Marionette.ItemView.extend({
     this.model.save(attrs, { wait: true });
   },
 
-  deleteCondition: function () {
+  deleteCondition () {
     new DeleteConditionView({
       model: this.model,
       metric: this.getMetric()
     }).render();
   },
 
-  cancelAddCondition: function () {
+  cancelAddCondition () {
     this.destroy();
   },
 
-  enableUpdate: function () {
+  enableUpdate () {
     this.ui.updateButton.prop('disabled', false);
   },
 
-  getMetric: function () {
-    var key = this.model.get('metric');
-    return _.findWhere(this.options.metrics, { key: key });
+  getMetric () {
+    const key = this.model.get('metric');
+    return _.findWhere(this.options.metrics, { key });
   },
 
-  isDiffMetric: function () {
-    var key = this.model.get('metric');
+  isDiffMetric () {
+    const key = this.model.get('metric');
     return key.indexOf('new_') === 0;
   },
 
-  serializeData: function () {
-    var period = _.findWhere(this.options.periods, { key: this.model.get('period') });
+  serializeData () {
+    const period = _.findWhere(this.options.periods, { key: this.model.get('period') });
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canEdit: this.options.canEdit,
       periods: this.options.periods,

@@ -27,7 +27,7 @@ export default React.createClass({
     onCheck: React.PropTypes.func.isRequired
   },
 
-  getDefaultProps: function () {
+  getDefaultProps () {
     return { disabled: false, value: null };
   },
 

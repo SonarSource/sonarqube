@@ -25,7 +25,7 @@ import Template from './templates/issues-workspace-header.hbs';
 export default WorkspaceHeaderView.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return _.extend(WorkspaceHeaderView.prototype.events.apply(this, arguments), {
       'click .js-selection': 'onSelectionClick',
       'click .js-back': 'returnToList',
@@ -34,52 +34,52 @@ export default WorkspaceHeaderView.extend({
     });
   },
 
-  initialize: function () {
+  initialize () {
     WorkspaceHeaderView.prototype.initialize.apply(this, arguments);
     this._onBulkIssues = window.onBulkIssues;
     window.onBulkIssues = _.bind(this.afterBulkChange, this);
   },
 
-  onDestroy: function () {
+  onDestroy () {
     WorkspaceHeaderView.prototype.onDestroy.apply(this, arguments);
     window.onBulkIssues = this._onBulkIssues;
   },
 
-  onSelectionClick: function (e) {
+  onSelectionClick (e) {
     e.preventDefault();
     this.toggleSelection();
   },
 
-  onBulkChangeSelectedClick: function (e) {
+  onBulkChangeSelectedClick (e) {
     e.preventDefault();
     this.bulkChangeSelected();
   },
 
-  afterBulkChange: function () {
-    var that = this;
+  afterBulkChange () {
+    const that = this;
     $('#modal').dialog('close');
-    var selectedIndex = this.options.app.state.get('selectedIndex');
-    var selectedKeys = _.pluck(this.options.app.list.where({ selected: true }), 'id');
+    const selectedIndex = this.options.app.state.get('selectedIndex');
+    const selectedKeys = _.pluck(this.options.app.list.where({ selected: true }), 'id');
     this.options.app.controller.fetchList().done(function () {
-      that.options.app.state.set({ selectedIndex: selectedIndex });
+      that.options.app.state.set({ selectedIndex });
       that.options.app.list.selectByKeys(selectedKeys);
     });
   },
 
-  render: function () {
+  render () {
     if (!this._suppressUpdate) {
       WorkspaceHeaderView.prototype.render.apply(this, arguments);
     }
   },
 
-  toggleSelection: function () {
+  toggleSelection () {
     this._suppressUpdate = true;
-    var selectedCount = this.options.app.list.where({ selected: true }).length,
-        someSelected = selectedCount > 0;
+    const selectedCount = this.options.app.list.where({ selected: true }).length;
+    const someSelected = selectedCount > 0;
     return someSelected ? this.selectNone() : this.selectAll();
   },
 
-  selectNone: function () {
+  selectNone () {
     this.options.app.list.where({ selected: true }).forEach(function (issue) {
       issue.set({ selected: false });
     });
@@ -87,7 +87,7 @@ export default WorkspaceHeaderView.extend({
     this.render();
   },
 
-  selectAll: function () {
+  selectAll () {
     this.options.app.list.forEach(function (issue) {
       issue.set({ selected: true });
     });
@@ -95,37 +95,37 @@ export default WorkspaceHeaderView.extend({
     this.render();
   },
 
-  returnToList: function () {
+  returnToList () {
     this.options.app.controller.closeComponentViewer();
   },
 
-  newSearch: function () {
+  newSearch () {
     this.options.app.controller.newSearch();
   },
 
-  bulkChange: function () {
-    var query = this.options.app.controller.getQuery('&', true),
-        url = '/issues/bulk_change_form?' + query;
+  bulkChange () {
+    const query = this.options.app.controller.getQuery('&', true);
+    const url = '/issues/bulk_change_form?' + query;
     window.openModalWindow(url, {});
   },
 
-  bulkChangeSelected: function () {
-    var selected = this.options.app.list.where({ selected: true }),
-        selectedKeys = _.first(_.pluck(selected, 'id'), 200),
-        query = 'issues=' + selectedKeys.join(),
-        url = '/issues/bulk_change_form?' + query;
+  bulkChangeSelected () {
+    const selected = this.options.app.list.where({ selected: true });
+    const selectedKeys = _.first(_.pluck(selected, 'id'), 200);
+    const query = 'issues=' + selectedKeys.join();
+    const url = '/issues/bulk_change_form?' + query;
     window.openModalWindow(url, {});
   },
 
-  serializeData: function () {
-    var issuesCount = this.options.app.list.length,
-        selectedCount = this.options.app.list.where({ selected: true }).length,
-        allSelected = issuesCount > 0 && issuesCount === selectedCount,
-        someSelected = !allSelected && selectedCount > 0;
+  serializeData () {
+    const issuesCount = this.options.app.list.length;
+    const selectedCount = this.options.app.list.where({ selected: true }).length;
+    const allSelected = issuesCount > 0 && issuesCount === selectedCount;
+    const someSelected = !allSelected && selectedCount > 0;
     return _.extend(WorkspaceHeaderView.prototype.serializeData.apply(this, arguments), {
-      selectedCount: selectedCount,
-      allSelected: allSelected,
-      someSelected: someSelected
+      selectedCount,
+      allSelected,
+      someSelected
     });
   }
 });

@@ -32,7 +32,7 @@ export default React.createClass({
   },
 
   requestPermissions() {
-    const url = `/api/permissions/search_global_permissions`;
+    const url = '/api/permissions/search_global_permissions';
     $.get(url).done(r => {
       this.setState({ ready: true, permissions: r.permissions });
     });

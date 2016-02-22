@@ -21,8 +21,8 @@ import FormView from './form-view';
 
 export default FormView.extend({
 
-  sendRequest: function () {
-    var that = this;
+  sendRequest () {
+    const that = this;
     this.model.set({
       name: this.$('#create-user-name').val(),
       email: this.$('#create-user-email').val(),

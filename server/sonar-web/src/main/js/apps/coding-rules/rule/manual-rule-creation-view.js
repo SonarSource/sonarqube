@@ -27,7 +27,7 @@ import { translate } from '../../../helpers/l10n';
 export default ModalFormView.extend({
   template: Template,
 
-  ui: function () {
+  ui () {
     return _.extend(ModalFormView.prototype.ui.apply(this.arguments), {
       manualRuleCreationKey: '#coding-rules-manual-rule-creation-key',
       manualRuleCreationName: '#coding-rules-manual-rule-creation-name',
@@ -41,7 +41,7 @@ export default ModalFormView.extend({
     });
   },
 
-  events: function () {
+  events () {
     return _.extend(ModalFormView.prototype.events.apply(this.arguments), {
       'input @ui.manualRuleCreationName': 'generateKey',
       'keydown @ui.manualRuleCreationName': 'generateKey',
@@ -57,29 +57,29 @@ export default ModalFormView.extend({
     });
   },
 
-  onRender: function () {
+  onRender () {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.keyModifiedByUser = false;
     this.ui.manualRuleCreationReactivate.addClass('hidden');
   },
 
-  generateKey: function () {
+  generateKey () {
     if (!this.keyModifiedByUser && this.ui.manualRuleCreationKey) {
-      var generatedKey = latinize(this.ui.manualRuleCreationName.val()).replace(/[^A-Za-z0-9]/g, '_');
+      const generatedKey = latinize(this.ui.manualRuleCreationName.val()).replace(/[^A-Za-z0-9]/g, '_');
       this.ui.manualRuleCreationKey.val(generatedKey);
     }
   },
 
-  flagKey: function () {
+  flagKey () {
     this.keyModifiedByUser = true;
   },
 
-  create: function () {
-    var action = (this.model && this.model.has('key')) ? 'update' : 'create',
-        options = {
-          name: this.ui.manualRuleCreationName.val(),
-          markdown_description: this.ui.manualRuleCreationHtmlDescription.val()
-        };
+  create () {
+    const action = (this.model && this.model.has('key')) ? 'update' : 'create';
+    const options = {
+      name: this.ui.manualRuleCreationName.val(),
+      markdown_description: this.ui.manualRuleCreationHtmlDescription.val()
+    };
     if (action === 'update') {
       options.key = this.model.get('key');
     } else {
@@ -89,8 +89,8 @@ export default ModalFormView.extend({
     this.sendRequest(action, options);
   },
 
-  reactivate: function () {
-    var options = {
+  reactivate () {
+    const options = {
       name: this.existingRule.name,
       markdown_description: this.existingRule.mdDesc,
       manual_key: this.ui.manualRuleCreationKey.val(),
@@ -99,11 +99,11 @@ export default ModalFormView.extend({
     this.sendRequest('create', options);
   },
 
-  sendRequest: function (action, options) {
-    var that = this,
-        url = '/api/rules/' + action;
+  sendRequest (action, options) {
+    const that = this;
+    const url = '/api/rules/' + action;
     return $.ajax({
-      url: url,
+      url,
       type: 'POST',
       data: options,
       statusCode: {
@@ -128,7 +128,7 @@ export default ModalFormView.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
       change: this.model && this.model.has('key')
     });

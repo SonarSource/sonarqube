@@ -40,48 +40,48 @@ export default Marionette.ItemView.extend({
     'click #quality-profile-delete': 'onDeleteClick'
   },
 
-  onBackupClick: function (e) {
+  onBackupClick (e) {
     $(e.currentTarget).blur();
   },
 
-  onCopyClick: function (e) {
+  onCopyClick (e) {
     e.preventDefault();
     this.copy();
   },
 
-  onRenameClick: function (e) {
+  onRenameClick (e) {
     e.preventDefault();
     this.rename();
   },
 
-  onDefaultClick: function (e) {
+  onDefaultClick (e) {
     e.preventDefault();
     this.setAsDefault();
   },
 
-  onDeleteClick: function (e) {
+  onDeleteClick (e) {
     e.preventDefault();
     this.delete();
   },
 
-  copy: function () {
+  copy () {
     new ProfileCopyView({ model: this.model }).render();
   },
 
-  rename: function () {
+  rename () {
     new ProfileRenameView({ model: this.model }).render();
   },
 
-  setAsDefault: function () {
+  setAsDefault () {
     this.model.trigger('setAsDefault', this.model);
   },
 
-  delete: function () {
+  delete () {
     new ProfileDeleteView({ model: this.model }).render();
   },
 
-  serializeData: function () {
-    var key = this.model.get('key');
+  serializeData () {
+    const key = this.model.get('key');
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       encodedKey: encodeURIComponent(key),
       canWrite: this.options.canWrite

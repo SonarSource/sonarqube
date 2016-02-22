@@ -24,8 +24,8 @@ import EmptyView from './workspace-list-empty-view';
 import Template from './templates/issues-workspace-list.hbs';
 import ComponentTemplate from './templates/issues-workspace-list-component.hbs';
 
-var COMPONENT_HEIGHT = 29,
-    BOTTOM_OFFSET = 60;
+const COMPONENT_HEIGHT = 29;
+const BOTTOM_OFFSET = 60;
 
 export default WorkspaceListView.extend({
   template: Template,
@@ -34,24 +34,24 @@ export default WorkspaceListView.extend({
   childViewContainer: '.js-list',
   emptyView: EmptyView,
 
-  bindShortcuts: function () {
-    var that = this;
-    var doAction = function (action) {
-      var selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
+  bindShortcuts () {
+    const that = this;
+    const doAction = function (action) {
+      const selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
       if (selectedIssue == null) {
         return;
       }
-      var selectedIssueView = that.children.findByModel(selectedIssue);
+      const selectedIssueView = that.children.findByModel(selectedIssue);
       selectedIssueView.$('.js-issue-' + action).click();
     };
     WorkspaceListView.prototype.bindShortcuts.apply(this, arguments);
     key('right', 'list', function () {
-      var selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
+      const selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
       that.options.app.controller.showComponentViewer(selectedIssue);
       return false;
     });
     key('space', 'list', function () {
-      var selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
+      const selectedIssue = that.collection.at(that.options.app.state.get('selectedIndex'));
       selectedIssue.set({ selected: !selectedIssue.get('selected') });
       return false;
     });
@@ -78,7 +78,7 @@ export default WorkspaceListView.extend({
     });
   },
 
-  unbindShortcuts: function () {
+  unbindShortcuts () {
     WorkspaceListView.prototype.unbindShortcuts.apply(this, arguments);
     key.unbind('right', 'list');
     key.unbind('space', 'list');
@@ -91,20 +91,20 @@ export default WorkspaceListView.extend({
     key.unbind('t', 'list');
   },
 
-  scrollTo: function () {
-    var selectedIssue = this.collection.at(this.options.app.state.get('selectedIndex'));
+  scrollTo () {
+    const selectedIssue = this.collection.at(this.options.app.state.get('selectedIndex'));
     if (selectedIssue == null) {
       return;
     }
-    var selectedIssueView = this.children.findByModel(selectedIssue),
-        parentTopOffset = this.$el.offset().top,
-        viewTop = selectedIssueView.$el.offset().top - parentTopOffset;
+    const selectedIssueView = this.children.findByModel(selectedIssue);
+    const parentTopOffset = this.$el.offset().top;
+    let viewTop = selectedIssueView.$el.offset().top - parentTopOffset;
     if (selectedIssueView.$el.prev().is('.issues-workspace-list-component')) {
       viewTop -= COMPONENT_HEIGHT;
     }
-    var viewBottom = selectedIssueView.$el.offset().top + selectedIssueView.$el.outerHeight() + BOTTOM_OFFSET,
-        windowTop = $(window).scrollTop(),
-        windowBottom = windowTop + $(window).height();
+    const viewBottom = selectedIssueView.$el.offset().top + selectedIssueView.$el.outerHeight() + BOTTOM_OFFSET;
+    const windowTop = $(window).scrollTop();
+    const windowBottom = windowTop + $(window).height();
     if (viewTop < windowTop) {
       $(window).scrollTop(viewTop);
     }
@@ -113,15 +113,15 @@ export default WorkspaceListView.extend({
     }
   },
 
-  attachHtml: function (compositeView, childView, index) {
-    var $container = this.getChildViewContainer(compositeView),
-        model = this.collection.at(index);
+  attachHtml (compositeView, childView, index) {
+    const $container = this.getChildViewContainer(compositeView);
+    const model = this.collection.at(index);
     if (model != null) {
-      var prev = index > 0 && this.collection.at(index - 1),
-          putComponent = !prev;
+      const prev = index > 0 && this.collection.at(index - 1);
+      let putComponent = !prev;
       if (prev) {
-        var fullComponent = [model.get('project'), model.get('component')].join(' '),
-            fullPrevComponent = [prev.get('project'), prev.get('component')].join(' ');
+        const fullComponent = [model.get('project'), model.get('component')].join(' ');
+        const fullPrevComponent = [prev.get('project'), prev.get('component')].join(' ');
         if (fullComponent !== fullPrevComponent) {
           putComponent = true;
         }
@@ -133,7 +133,7 @@ export default WorkspaceListView.extend({
     $container.append(childView.el);
   },
 
-  destroyChildren: function () {
+  destroyChildren () {
     WorkspaceListView.prototype.destroyChildren.apply(this, arguments);
     this.$('.issues-workspace-list-component').remove();
   }

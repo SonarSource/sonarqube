@@ -27,7 +27,7 @@ import { csvEscape } from '../../../helpers/csv';
 export default ModalForm.extend({
   template: Template,
 
-  ui: function () {
+  ui () {
     return _.extend(ModalForm.prototype.ui.apply(this, arguments), {
       qualityProfileSelect: '#coding-rules-quality-profile-activation-select',
       qualityProfileSeverity: '#coding-rules-quality-profile-activation-severity',
@@ -36,13 +36,13 @@ export default ModalForm.extend({
     });
   },
 
-  events: function () {
+  events () {
     return _.extend(ModalForm.prototype.events.apply(this, arguments), {
       'click @ui.qualityProfileActivate': 'activate'
     });
   },
 
-  onRender: function () {
+  onRender () {
     ModalForm.prototype.onRender.apply(this, arguments);
 
     this.ui.qualityProfileSelect.select2({
@@ -50,15 +50,15 @@ export default ModalForm.extend({
       minimumResultsForSearch: 5
     });
 
-    var that = this,
-        format = function (state) {
-          if (!state.id) {
-            return state.text;
-          } else {
-            return '<i class="icon-severity-' + state.id.toLowerCase() + '"></i> ' + state.text;
-          }
-        },
-        severity = (this.model && this.model.get('severity')) || this.options.rule.get('severity');
+    const that = this;
+    const format = function (state) {
+      if (!state.id) {
+        return state.text;
+      } else {
+        return '<i class="icon-severity-' + state.id.toLowerCase() + '"></i> ' + state.text;
+      }
+    };
+    const severity = (this.model && this.model.get('severity')) || this.options.rule.get('severity');
     this.ui.qualityProfileSeverity.val(severity);
     this.ui.qualityProfileSeverity.select2({
       width: '250px',
@@ -71,19 +71,19 @@ export default ModalForm.extend({
     }, 0);
   },
 
-  activate: function (e) {
+  activate (e) {
     e.preventDefault();
-    var that = this,
-        profileKey = this.ui.qualityProfileSelect.val(),
-        params = this.ui.qualityProfileParameters.map(function () {
-          return {
-            key: $(this).prop('name'),
-            value: $(this).val() || $(this).prop('placeholder') || ''
-          };
-        }).get(),
-        paramsHash = (params.map(function (param) {
-          return param.key + '=' + csvEscape(param.value);
-        })).join(';');
+    const that = this;
+    let profileKey = this.ui.qualityProfileSelect.val();
+    const params = this.ui.qualityProfileParameters.map(function () {
+      return {
+        key: $(this).prop('name'),
+        value: $(this).val() || $(this).prop('placeholder') || ''
+      };
+    }).get();
+    const paramsHash = (params.map(function (param) {
+      return param.key + '=' + csvEscape(param.value);
+    })).join(';');
 
     if (this.model) {
       profileKey = this.model.get('qProfile');
@@ -92,8 +92,8 @@ export default ModalForm.extend({
       }
     }
 
-    var severity = this.ui.qualityProfileSeverity.val(),
-        ruleKey = this.options.rule.get('key');
+    const severity = this.ui.qualityProfileSeverity.val();
+    const ruleKey = this.options.rule.get('key');
 
     this.disableForm();
 
@@ -103,7 +103,7 @@ export default ModalForm.extend({
       data: {
         profile_key: profileKey,
         rule_key: ruleKey,
-        severity: severity,
+        severity,
         params: paramsHash
       },
       statusCode: {
@@ -119,23 +119,23 @@ export default ModalForm.extend({
     });
   },
 
-  getAvailableQualityProfiles: function (lang) {
-    var activeQualityProfiles = this.collection || new Backbone.Collection(),
-        inactiveProfiles = _.reject(this.options.app.qualityProfiles, function (profile) {
-          return activeQualityProfiles.findWhere({ key: profile.key });
-        });
+  getAvailableQualityProfiles (lang) {
+    const activeQualityProfiles = this.collection || new Backbone.Collection();
+    const inactiveProfiles = _.reject(this.options.app.qualityProfiles, function (profile) {
+      return activeQualityProfiles.findWhere({ key: profile.key });
+    });
     return _.filter(inactiveProfiles, function (profile) {
       return profile.lang === lang;
     });
   },
 
-  serializeData: function () {
-    var params = this.options.rule.get('params');
+  serializeData () {
+    let params = this.options.rule.get('params');
     if (this.model != null) {
-      var modelParams = this.model.get('params');
+      const modelParams = this.model.get('params');
       if (_.isArray(modelParams)) {
         params = params.map(function (p) {
-          var parentParam = _.findWhere(modelParams, { key: p.key });
+          const parentParam = _.findWhere(modelParams, { key: p.key });
           if (parentParam != null) {
             _.extend(p, { value: parentParam.value });
           }
@@ -144,14 +144,14 @@ export default ModalForm.extend({
       }
     }
 
-    var availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang')),
-        contextProfile = this.options.app.state.get('query').qprofile;
+    const availableProfiles = this.getAvailableQualityProfiles(this.options.rule.get('lang'));
+    const contextProfile = this.options.app.state.get('query').qprofile;
 
     return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
       change: this.model && this.model.has('severity'),
-      params: params,
+      params,
       qualityProfiles: availableProfiles,
-      contextProfile: contextProfile,
+      contextProfile,
       severities: ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'],
       saveEnabled: !_.isEmpty(availableProfiles) || (this.model && this.model.get('qProfile')),
       isCustomRule: (this.model && this.model.has('templateKey')) || this.options.rule.has('templateKey')

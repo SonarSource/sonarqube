@@ -36,8 +36,8 @@ const Nav = ({ user }) => (
           </li>
           <li>
             <a
-                className={window.location.pathname === `/account/issues` && 'active'}
-                href={`/account/issues`}>
+                className={window.location.pathname === '/account/issues' && 'active'}
+                href="/account/issues">
               {translate('issues.page')}
             </a>
           </li>

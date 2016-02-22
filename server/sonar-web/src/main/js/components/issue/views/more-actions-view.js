@@ -24,13 +24,13 @@ import Template from '../templates/issue-more-actions.hbs';
 export default ActionOptionsView.extend({
   template: Template,
 
-  selectOption: function (e) {
-    var action = $(e.currentTarget).data('action');
+  selectOption (e) {
+    const action = $(e.currentTarget).data('action');
     this.submit(action);
     return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  submit: function (actionKey) {
+  submit (actionKey) {
     return this.options.detailView.action(actionKey);
   }
 });

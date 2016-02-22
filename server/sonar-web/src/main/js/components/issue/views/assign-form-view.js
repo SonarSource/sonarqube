@@ -28,7 +28,7 @@ export default ActionOptionsView.extend({
   template: Template,
   optionTemplate: OptionTemplate,
 
-  events: function () {
+  events () {
     return _.extend(ActionOptionsView.prototype.events.apply(this, arguments), {
       'click input': 'onInputClick',
       'keydown input': 'onInputKeydown',
@@ -36,22 +36,22 @@ export default ActionOptionsView.extend({
     });
   },
 
-  initialize: function () {
+  initialize () {
     ActionOptionsView.prototype.initialize.apply(this, arguments);
     this.assignees = null;
     this.debouncedSearch = _.debounce(this.search, 250);
   },
 
-  getAssignee: function () {
+  getAssignee () {
     return this.model.get('assignee');
   },
 
-  getAssigneeName: function () {
+  getAssigneeName () {
     return this.model.get('assigneeName');
   },
 
-  onRender: function () {
-    var that = this;
+  onRender () {
+    const that = this;
     ActionOptionsView.prototype.onRender.apply(this, arguments);
     this.renderTags();
     setTimeout(function () {
@@ -59,34 +59,34 @@ export default ActionOptionsView.extend({
     }, 100);
   },
 
-  renderTags: function () {
+  renderTags () {
     this.$('.menu').empty();
     this.getAssignees().forEach(this.renderAssignee, this);
     this.bindUIElements();
     this.selectInitialOption();
   },
 
-  renderAssignee: function (assignee) {
-    var html = this.optionTemplate(assignee);
+  renderAssignee (assignee) {
+    const html = this.optionTemplate(assignee);
     this.$('.menu').append(html);
   },
 
-  selectOption: function (e) {
-    var assignee = $(e.currentTarget).data('value'),
-        assigneeName = $(e.currentTarget).data('text');
+  selectOption (e) {
+    const assignee = $(e.currentTarget).data('value');
+    const assigneeName = $(e.currentTarget).data('text');
     this.submit(assignee, assigneeName);
     return ActionOptionsView.prototype.selectOption.apply(this, arguments);
   },
 
-  submit: function (assignee) {
+  submit (assignee) {
     return this.model.assign(assignee);
   },
 
-  onInputClick: function (e) {
+  onInputClick (e) {
     e.stopPropagation();
   },
 
-  onInputKeydown: function (e) {
+  onInputKeydown (e) {
     this.query = this.$('input').val();
     if (e.keyCode === 38) {
       this.selectPreviousOption();
@@ -105,8 +105,8 @@ export default ActionOptionsView.extend({
     }
   },
 
-  onInputKeyup: function () {
-    var query = this.$('input').val();
+  onInputKeyup () {
+    let query = this.$('input').val();
     if (query !== this.query) {
       if (query.length < 2) {
         query = '';
@@ -116,8 +116,8 @@ export default ActionOptionsView.extend({
     }
   },
 
-  search: function (query) {
-    var that = this;
+  search (query) {
+    const that = this;
     if (query.length > 1) {
       $.get('/api/users/search', { q: query }).done(function (data) {
         that.resetAssignees(data.users);
@@ -127,7 +127,7 @@ export default ActionOptionsView.extend({
     }
   },
 
-  resetAssignees: function (users) {
+  resetAssignees (users) {
     if (users) {
       this.assignees = users.map(function (user) {
         return { id: user.login, text: user.name };
@@ -138,13 +138,13 @@ export default ActionOptionsView.extend({
     this.renderTags();
   },
 
-  getAssignees: function () {
+  getAssignees () {
     if (this.assignees) {
       return this.assignees;
     }
-    var assignees = [{ id: '', text: translate('unassigned') }],
-        currentUser = window.SS.user,
-        currentUserName = window.SS.userName;
+    const assignees = [{ id: '', text: translate('unassigned') }];
+    const currentUser = window.SS.user;
+    const currentUserName = window.SS.userName;
     assignees.push({ id: currentUser, text: currentUserName });
     if (this.getAssignee()) {
       assignees.push({ id: this.getAssignee(), text: this.getAssigneeName() });
@@ -152,7 +152,7 @@ export default ActionOptionsView.extend({
     return this.makeUnique(assignees);
   },
 
-  makeUnique: function (assignees) {
+  makeUnique (assignees) {
     return _.uniq(assignees, false, function (assignee) {
       return assignee.id;
     });

@@ -32,16 +32,16 @@ export default Marionette.ItemView.extend({
     'click #metrics-fetch-more': 'onMoreClick'
   },
 
-  onMoreClick: function (e) {
+  onMoreClick (e) {
     e.preventDefault();
     this.fetchMore();
   },
 
-  fetchMore: function () {
+  fetchMore () {
     this.collection.fetchMore();
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       total: this.collection.total,
       count: this.collection.length,

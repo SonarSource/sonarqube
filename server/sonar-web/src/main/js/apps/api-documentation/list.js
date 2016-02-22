@@ -24,17 +24,17 @@ export default Backbone.Collection.extend({
   url: '/api/webservices/list',
   comparator: 'path',
 
-  parse: function (r) {
+  parse (r) {
     return r.webServices.map(function (webService) {
-      var internal = _.every(webService.actions, function (action) {
-            return action.internal;
-          }),
-          actions = webService.actions.map(function (action) {
-            return _.extend(action, { path: webService.path });
-          });
+      const internal = _.every(webService.actions, function (action) {
+        return action.internal;
+      });
+      const actions = webService.actions.map(function (action) {
+        return _.extend(action, { path: webService.path });
+      });
       return _.extend(webService, {
-        internal: internal,
-        actions: actions
+        internal,
+        actions
       });
     });
   }

@@ -79,7 +79,7 @@ export const NclocDistribution = React.createClass({
         x: component.measures[METRIC] ? parseInt(component.measures[METRIC], 10) : 0,
         y: index,
         value: component.name,
-        component: component
+        component
       };
     });
 

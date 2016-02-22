@@ -28,7 +28,7 @@ export default PopupView.extend({
     'sync': 'render'
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(PopupView.prototype.serializeData.apply(this, arguments), {
       issue: this.options.issue.toJSON()
     });

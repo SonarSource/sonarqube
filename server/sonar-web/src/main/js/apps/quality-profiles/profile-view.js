@@ -36,23 +36,23 @@ export default Marionette.ItemView.extend({
     'click': 'onClick'
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.toggleClass('active', this.options.highlighted);
     this.$el.attr('data-key', this.model.id);
     this.$el.attr('data-language', this.model.get('language'));
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onClick: function (e) {
+  onClick (e) {
     e.preventDefault();
     this.model.trigger('select', this.model);
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       projectCountFormatted: formatMeasure(this.model.get('projectCount'), 'INT')
     });

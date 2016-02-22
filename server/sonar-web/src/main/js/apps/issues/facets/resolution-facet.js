@@ -25,20 +25,20 @@ import Template from '../templates/facets/issues-resolution-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
-    var value = this.options.app.state.get('query').resolved;
+    const value = this.options.app.state.get('query').resolved;
     if ((value != null) && (!value || value === 'false')) {
       return this.$('.js-facet').filter('[data-unresolved]').addClass('active');
     }
   },
 
-  toggleFacet: function (e) {
-    var unresolved = $(e.currentTarget).is('[data-unresolved]');
+  toggleFacet (e) {
+    const unresolved = $(e.currentTarget).is('[data-unresolved]');
     $(e.currentTarget).toggleClass('active');
     if (unresolved) {
-      var checked = $(e.currentTarget).is('.active'),
-          value = checked ? 'false' : null;
+      const checked = $(e.currentTarget).is('.active');
+      const value = checked ? 'false' : null;
       return this.options.app.state.updateFilter({
         resolved: value,
         resolutions: null
@@ -51,15 +51,15 @@ export default BaseFacet.extend({
     }
   },
 
-  disable: function () {
+  disable () {
     return this.options.app.state.updateFilter({
       resolved: null,
       resolutions: null
     });
   },
 
-  sortValues: function (values) {
-    var order = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
+  sortValues (values) {
+    const order = ['', 'FIXED', 'FALSE-POSITIVE', 'WONTFIX', 'REMOVED'];
     return _.sortBy(values, function (v) {
       return order.indexOf(v.val);
     });

@@ -26,7 +26,7 @@ window.Portal = function (options) {
 
 window.Portal.prototype = {
 
-  initialize: function (options) {
+  initialize (options) {
     this.options = options;
     if (!this.options.editorEnabled) {
       return;
@@ -37,22 +37,20 @@ window.Portal.prototype = {
   },
 
 
-  createAllSortables: function () {
-    var that = this,
-        blocks = $('.' + this.options.block),
-        columnHandle = $('.' + this.options.columnHandle),
-        draggable,
-
-        onDragLeave = function (e) {
-          $(e.currentTarget).removeClass(that.options.hoverClass);
-        },
-
-        onDrop = function (e) {
-          e.preventDefault();
-          draggable.detach().insertBefore($(e.currentTarget));
-          onDragLeave(e);
-          that.saveDashboardsState();
-        };
+  createAllSortables () {
+    const that = this;
+    const blocks = $('.' + this.options.block);
+    const columnHandle = $('.' + this.options.columnHandle);
+    let draggable;
+    const onDragLeave = function (e) {
+      $(e.currentTarget).removeClass(that.options.hoverClass);
+    };
+    const onDrop = function (e) {
+      e.preventDefault();
+      draggable.detach().insertBefore($(e.currentTarget));
+      onDragLeave(e);
+      that.saveDashboardsState();
+    };
 
     blocks
         .prop('draggable', true)
@@ -84,9 +82,9 @@ window.Portal.prototype = {
   },
 
 
-  highlightWidget: function (widgetId) {
-    var block = $('#block_' + widgetId),
-        options = this.options;
+  highlightWidget (widgetId) {
+    const block = $('#block_' + widgetId);
+    const options = this.options;
     block.css('background-color', options.highlightStartColor);
     setTimeout(function () {
       block.css('background-color', options.highlightEndColor);
@@ -94,22 +92,22 @@ window.Portal.prototype = {
   },
 
 
-  saveDashboardsState: function () {
-    var options = this.options,
-        result = $('.' + this.options.column).map(function () {
-          var blocks = $(this).find('.' + options.block);
-          $(this).find('.' + options.columnHandle).toggle(blocks.length === 0);
+  saveDashboardsState () {
+    const options = this.options;
+    const result = $('.' + this.options.column).map(function () {
+      const blocks = $(this).find('.' + options.block);
+      $(this).find('.' + options.columnHandle).toggle(blocks.length === 0);
 
-          return blocks.map(function () {
-            return $(this).prop('id').substring(options.block.length + 1);
-          }).get().join(',');
-        }).get().join(';');
+      return blocks.map(function () {
+        return $(this).prop('id').substring(options.block.length + 1);
+      }).get().join(',');
+    }).get().join(';');
 
     if (result === this.lastSaveString) {
       return;
     }
 
-    var firstTime = this.lastSaveString === '';
+    const firstTime = this.lastSaveString === '';
     this.lastSaveString = result;
 
     if (firstTime) {
@@ -117,7 +115,7 @@ window.Portal.prototype = {
     }
 
     if (this.options.saveUrl) {
-      var postBody = this.options.dashboardState + '=' + encodeURIComponent(result);
+      const postBody = this.options.dashboardState + '=' + encodeURIComponent(result);
 
       $.ajax({
         url: this.options.saveUrl,
@@ -128,7 +126,7 @@ window.Portal.prototype = {
   },
 
 
-  editWidget: function (widgetId) {
+  editWidget (widgetId) {
     $('#widget_title_' + widgetId).hide();
     $('#widget_' + widgetId).hide();
     $('#widget_props_' + widgetId).show();
@@ -136,7 +134,7 @@ window.Portal.prototype = {
   },
 
 
-  cancelEditWidget: function (widgetId) {
+  cancelEditWidget (widgetId) {
     $('widget_title_' + widgetId).show();
     $('#widget_' + widgetId).show();
     $('#widget_props_' + widgetId).hide();
@@ -144,7 +142,7 @@ window.Portal.prototype = {
   },
 
 
-  deleteWidget: function (element) {
+  deleteWidget (element) {
     $(element).closest('.' + this.options.block).remove();
     this.saveDashboardsState();
   }
@@ -152,6 +150,6 @@ window.Portal.prototype = {
 
 
 window.autoResize = function (everyMs, callback) {
-  var debounce = _.debounce(callback, everyMs);
+  const debounce = _.debounce(callback, everyMs);
   $(window).on('resize', debounce);
 };

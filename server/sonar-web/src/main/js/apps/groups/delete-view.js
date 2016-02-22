@@ -23,14 +23,14 @@ import Template from './templates/groups-delete.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest: function () {
-    var that = this,
-        collection = this.model.collection;
+  sendRequest () {
+    const that = this;
+    const collection = this.model.collection;
     return this.model.destroy({
       wait: true,
       statusCode: {
@@ -45,7 +45,7 @@ export default ModalForm.extend({
     });
   },
 
-  showErrors: function (errors, warnings) {
+  showErrors (errors, warnings) {
     this.$('.js-modal-text').addClass('hidden');
     this.disableForm();
     ModalForm.prototype.showErrors.call(this, errors, warnings);

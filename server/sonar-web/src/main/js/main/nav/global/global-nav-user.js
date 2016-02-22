@@ -32,7 +32,7 @@ export default React.createClass({
           </a>
           <ul className="dropdown-menu dropdown-menu-right">
             <li>
-              <a href={`/account/`}>{translate('my_account.page')}</a>
+              <a href="/account/">{translate('my_account.page')}</a>
             </li>
             <li>
               <a onClick={this.handleLogout} href="#">{translate('layout.logout')}</a>
@@ -59,7 +59,7 @@ export default React.createClass({
   handleLogout(e) {
     e.preventDefault();
     RecentHistory.clear();
-    window.location = `/sessions/logout`;
+    window.location = '/sessions/logout';
   },
 
   render() {

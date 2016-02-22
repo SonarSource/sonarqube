@@ -29,23 +29,23 @@ export default Popup.extend({
     'click .js-add-manual-issue': 'addManualIssue'
   },
 
-  getPermalink: function (e) {
+  getPermalink (e) {
     e.preventDefault();
-    var url = '/component/index?id=' +
-            (encodeURIComponent(this.model.key())) + '&line=' + this.options.line,
-        windowParams = 'resizable=1,scrollbars=1,status=1';
+    const url = '/component/index?id=' +
+        (encodeURIComponent(this.model.key())) + '&line=' + this.options.line;
+    const windowParams = 'resizable=1,scrollbars=1,status=1';
     window.open(url, this.model.get('name'), windowParams);
   },
 
-  addManualIssue: function (e) {
+  addManualIssue (e) {
     e.preventDefault();
-    var that = this,
-        line = this.options.line,
-        component = this.model.key(),
-        manualIssueView = new ManualIssueView({
-          line: line,
-          component: component
-        });
+    const that = this;
+    const line = this.options.line;
+    const component = this.model.key();
+    const manualIssueView = new ManualIssueView({
+      line,
+      component
+    });
     manualIssueView.render().$el.appendTo(this.options.row.find('.source-line-code'));
     manualIssueView.on('add', function (issue) {
       that.trigger('onManualIssueAdded', issue);

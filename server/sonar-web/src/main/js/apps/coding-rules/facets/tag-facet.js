@@ -21,18 +21,18 @@ import CustomValuesFacet from './custom-values-facet';
 
 export default CustomValuesFacet.extend({
 
-  getUrl: function () {
+  getUrl () {
     return '/api/rules/tags';
   },
 
-  prepareAjaxSearch: function () {
+  prepareAjaxSearch () {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data: function (term) {
+      data (term) {
         return { q: term, ps: 10000 };
       },
-      results: function (data) {
+      results (data) {
         return {
           more: false,
           results: data.tags.map(function (tag) {

@@ -20,25 +20,25 @@
 import Backbone from 'backbone';
 import Item from './item';
 
-var STORAGE_KEY = 'sonarqube-workspace';
+const STORAGE_KEY = 'sonarqube-workspace';
 
 export default Backbone.Collection.extend({
   model: Item,
 
-  initialize: function () {
+  initialize () {
     this.on('remove', this.save);
   },
 
-  save: function () {
-    var dump = JSON.stringify(this.toJSON());
+  save () {
+    const dump = JSON.stringify(this.toJSON());
     window.localStorage.setItem(STORAGE_KEY, dump);
   },
 
-  load: function () {
-    var dump = window.localStorage.getItem(STORAGE_KEY);
+  load () {
+    const dump = window.localStorage.getItem(STORAGE_KEY);
     if (dump != null) {
       try {
-        var parsed = JSON.parse(dump);
+        const parsed = JSON.parse(dump);
         this.reset(parsed);
       } catch (err) {
         // fail silently
@@ -46,14 +46,14 @@ export default Backbone.Collection.extend({
     }
   },
 
-  has: function (model) {
-    var forComponent = model.isComponent() && this.findWhere({ uuid: model.get('uuid') }) != null,
-        forRule = model.isRule() && this.findWhere({ key: model.get('key') }) != null;
+  has (model) {
+    const forComponent = model.isComponent() && this.findWhere({ uuid: model.get('uuid') }) != null;
+    const forRule = model.isRule() && this.findWhere({ key: model.get('key') }) != null;
     return forComponent || forRule;
   },
 
-  add2: function (model) {
-    var tryModel = model.isComponent() ?
+  add2 (model) {
+    const tryModel = model.isComponent() ?
         this.findWhere({ uuid: model.get('uuid') }) :
         this.findWhere({ key: model.get('key') });
     return tryModel != null ? tryModel : this.add(model);

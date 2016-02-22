@@ -22,14 +22,14 @@ import FormView from './form-view';
 export default FormView.extend({
   method: 'rename',
 
-  prepareRequest: function () {
-    var that = this;
-    var url = '/api/qualitygates/rename',
-        name = this.$('#quality-gate-form-name').val(),
-        options = {
-          url: url,
-          data: { id: this.model.id, name: name }
-        };
+  prepareRequest () {
+    const that = this;
+    const url = '/api/qualitygates/rename';
+    const name = this.$('#quality-gate-form-name').val();
+    const options = {
+      url,
+      data: { id: this.model.id, name }
+    };
     return this.sendRequest(options)
         .done(function (r) {
           that.model.set(r);

@@ -29,34 +29,34 @@ export default Marionette.ItemView.extend({
     'click .js-hide-comparison': 'onHideComparisonClick'
   },
 
-  onRender: function () {
+  onRender () {
     this.$('select').select2({
       width: '250px',
       minimumResultsForSearch: 50
     });
   },
 
-  onFormSubmit: function (e) {
+  onFormSubmit (e) {
     e.preventDefault();
-    var withKey = this.$('#quality-profile-comparison-with-key').val();
+    const withKey = this.$('#quality-profile-comparison-with-key').val();
     this.model.compareWith(withKey);
   },
 
-  onHideComparisonClick: function (e) {
+  onHideComparisonClick (e) {
     e.preventDefault();
     this.model.resetComparison();
   },
 
-  getProfilesForComparison: function () {
-    var profiles = this.model.collection.toJSON(),
-        key = this.model.id,
-        language = this.model.get('language');
+  getProfilesForComparison () {
+    const profiles = this.model.collection.toJSON();
+    const key = this.model.id;
+    const language = this.model.get('language');
     return profiles.filter(function (profile) {
       return profile.language === language && key !== profile.key;
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       profiles: this.getProfilesForComparison()
     });

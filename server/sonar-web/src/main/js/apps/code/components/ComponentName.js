@@ -35,16 +35,16 @@ function getTooltip (component) {
 }
 
 function mostCommitPrefix (strings) {
-  var sortedStrings = strings.slice(0).sort(),
-      firstString = sortedStrings[0],
-      firstStringLength = firstString.length,
-      lastString = sortedStrings[sortedStrings.length - 1],
-      i = 0;
+  const sortedStrings = strings.slice(0).sort();
+  const firstString = sortedStrings[0];
+  const firstStringLength = firstString.length;
+  const lastString = sortedStrings[sortedStrings.length - 1];
+  let i = 0;
   while (i < firstStringLength && firstString.charAt(i) === lastString.charAt(i)) {
     i++;
   }
-  var prefix = firstString.substr(0, i),
-      lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
+  const prefix = firstString.substr(0, i);
+  const lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
 

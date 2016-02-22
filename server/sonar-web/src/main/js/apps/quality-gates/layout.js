@@ -31,14 +31,14 @@ export default Marionette.LayoutView.extend({
     detailsRegion: '.search-navigator-workspace-details'
   },
 
-  onRender: function () {
-    var top = this.$('.search-navigator').offset().top;
-    this.$('.search-navigator-workspace-header').css({ top: top });
-    this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
+  onRender () {
+    const top = this.$('.search-navigator').offset().top;
+    this.$('.search-navigator-workspace-header').css({ top });
+    this.$('.search-navigator-side').css({ top }).isolatedScroll();
     this.renderIntro();
   },
 
-  renderIntro: function () {
+  renderIntro () {
     this.detailsRegion.show(new IntroView());
   }
 });

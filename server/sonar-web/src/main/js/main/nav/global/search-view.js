@@ -29,53 +29,53 @@ import RecentHistory from '../component/recent-history';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 
-var SearchItemView = Marionette.ItemView.extend({
-      tagName: 'li',
-      template: SearchItemTemplate,
+const SearchItemView = Marionette.ItemView.extend({
+  tagName: 'li',
+  template: SearchItemTemplate,
 
-      select: function () {
-        this.$el.addClass('active');
-      },
+  select () {
+    this.$el.addClass('active');
+  },
 
-      deselect: function () {
-        this.$el.removeClass('active');
-      },
+  deselect () {
+    this.$el.removeClass('active');
+  },
 
-      submit: function () {
-        this.$('a')[0].click();
-      },
+  submit () {
+    this.$('a')[0].click();
+  },
 
-      onRender: function () {
-        this.$('[data-toggle="tooltip"]').tooltip({
-          container: 'body',
-          html: true,
-          placement: 'left',
-          delay: { show: 500, hide: 0 }
-        });
-      },
-
-      onDestroy: function () {
-        this.$('[data-toggle="tooltip"]').tooltip('destroy');
-      },
-
-      serializeData: function () {
-        return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-          index: this.options.index
-        });
-      }
-    }),
-
-    SearchEmptyView = Marionette.ItemView.extend({
-      tagName: 'li',
-      template: EmptySearchTemplate
-    }),
-
-    SearchResultsView = SelectableCollectionView.extend({
-      className: 'menu',
-      tagName: 'ul',
-      childView: SearchItemView,
-      emptyView: SearchEmptyView
+  onRender () {
+    this.$('[data-toggle="tooltip"]').tooltip({
+      container: 'body',
+      html: true,
+      placement: 'left',
+      delay: { show: 500, hide: 0 }
     });
+  },
+
+  onDestroy () {
+    this.$('[data-toggle="tooltip"]').tooltip('destroy');
+  },
+
+  serializeData () {
+    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      index: this.options.index
+    });
+  }
+});
+
+const SearchEmptyView = Marionette.ItemView.extend({
+  tagName: 'li',
+  template: EmptySearchTemplate
+});
+
+const SearchResultsView = SelectableCollectionView.extend({
+  className: 'menu',
+  tagName: 'ul',
+  childView: SearchItemView,
+  emptyView: SearchEmptyView
+});
 
 export default Marionette.LayoutView.extend({
   className: 'navbar-search',
@@ -92,8 +92,8 @@ export default Marionette.LayoutView.extend({
     'keyup .js-search-input': 'onKeyUp'
   },
 
-  initialize: function () {
-    var that = this;
+  initialize () {
+    const that = this;
     this.results = new Backbone.Collection();
     this.favorite = [];
     if (window.SS.user) {
@@ -108,15 +108,15 @@ export default Marionette.LayoutView.extend({
     this._bufferedValue = '';
   },
 
-  onRender: function () {
-    var that = this;
+  onRender () {
+    const that = this;
     this.resultsRegion.show(this.resultsView);
     setTimeout(function () {
       that.$('.js-search-input').focus();
     }, 0);
   },
 
-  onKeyDown: function (e) {
+  onKeyDown (e) {
     if (e.keyCode === 38) {
       this.resultsView.selectPrev();
       return false;
@@ -136,8 +136,8 @@ export default Marionette.LayoutView.extend({
     }
   },
 
-  onKeyUp: function () {
-    var value = this.$('.js-search-input').val();
+  onKeyUp () {
+    const value = this.$('.js-search-input').val();
     if (value === this._bufferedValue) {
       return;
     }
@@ -148,15 +148,15 @@ export default Marionette.LayoutView.extend({
     this.searchRequest = this.debouncedSearch(value);
   },
 
-  onSubmit: function () {
+  onSubmit () {
     return false;
   },
 
-  fetchFavorite: function () {
-    var that = this;
+  fetchFavorite () {
+    const that = this;
     return $.get('/api/favourites').done(function (r) {
       that.favorite = r.map(function (f) {
-        var isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
+        const isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
         return {
           url: '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
           name: isFile ? collapsedDirFromPath(f.lname) + fileFromPath(f.lname) : f.name,
@@ -167,41 +167,41 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  resetResultsToDefault: function () {
-    var recentHistory = RecentHistory.get(),
-        history = recentHistory.map(function (historyItem, index) {
-          var url = '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
-              window.dashboardParameters(true);
-          return {
-            url: url,
-            name: historyItem.name,
-            q: historyItem.icon,
-            extra: index === 0 ? translate('browsed_recently') : null
-          };
-        }),
-        favorite = _.first(this.favorite, 6).map(function (f, index) {
-          return _.extend(f, { extra: index === 0 ? translate('favorite') : null });
-        }),
-        qualifiers = this.model.get('qualifiers').map(function (q, index) {
-          return {
-            url: '/all_projects?qualifier=' + encodeURIComponent(q),
-            name: translate('qualifiers.all', q),
-            extra: index === 0 ? '' : null
-          };
-        });
+  resetResultsToDefault () {
+    const recentHistory = RecentHistory.get();
+    const history = recentHistory.map(function (historyItem, index) {
+      const url = '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
+          window.dashboardParameters(true);
+      return {
+        url,
+        name: historyItem.name,
+        q: historyItem.icon,
+        extra: index === 0 ? translate('browsed_recently') : null
+      };
+    });
+    const favorite = _.first(this.favorite, 6).map(function (f, index) {
+      return _.extend(f, { extra: index === 0 ? translate('favorite') : null });
+    });
+    const qualifiers = this.model.get('qualifiers').map(function (q, index) {
+      return {
+        url: '/all_projects?qualifier=' + encodeURIComponent(q),
+        name: translate('qualifiers.all', q),
+        extra: index === 0 ? '' : null
+      };
+    });
     this.results.reset([].concat(history, favorite, qualifiers));
   },
 
-  search: function (q) {
+  search (q) {
     if (q.length < 2) {
       this.resetResultsToDefault();
       return;
     }
-    var that = this,
-        url = '/api/components/suggestions',
-        options = { s: q };
+    const that = this;
+    const url = '/api/components/suggestions';
+    const options = { s: q };
     return $.get(url, options).done(function (r) {
-      var collection = [];
+      const collection = [];
       r.results.forEach(function (domain) {
         domain.items.forEach(function (item, index) {
           collection.push(_.extend(item, {
@@ -220,20 +220,20 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  getNavigationFindings: function (q) {
-    var DEFAULT_ITEMS = [
-          { name: translate('issues.page'), url: '/issues/search' },
-          { name: translate('layout.measures'), url: '/measures/search?qualifiers[]=TRK' },
-          { name: translate('coding_rules.page'), url: '/coding_rules' },
-          { name: translate('quality_profiles.page'), url: '/profiles' },
-          { name: translate('quality_gates.page'), url: '/quality_gates' },
-          { name: translate('comparison_global.page'), url: '/comparison' }
-        ],
-        customItems = [];
+  getNavigationFindings (q) {
+    const DEFAULT_ITEMS = [
+      { name: translate('issues.page'), url: '/issues/search' },
+      { name: translate('layout.measures'), url: '/measures/search?qualifiers[]=TRK' },
+      { name: translate('coding_rules.page'), url: '/coding_rules' },
+      { name: translate('quality_profiles.page'), url: '/profiles' },
+      { name: translate('quality_gates.page'), url: '/quality_gates' },
+      { name: translate('comparison_global.page'), url: '/comparison' }
+    ];
+    const customItems = [];
     if (window.SS.isUserAdmin) {
       customItems.push({ name: translate('layout.settings'), url: '/settings' });
     }
-    var findings = [].concat(DEFAULT_ITEMS, customItems).filter(function (f) {
+    const findings = [].concat(DEFAULT_ITEMS, customItems).filter(function (f) {
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {
@@ -242,12 +242,12 @@ export default Marionette.LayoutView.extend({
     return _.first(findings, 6);
   },
 
-  getGlobalDashboardFindings: function (q) {
-    var dashboards = this.model.get('globalDashboards') || [],
-        items = dashboards.map(function (d) {
-          return { name: d.name, url: '/dashboard/index?did=' + encodeURIComponent(d.key) };
-        });
-    var findings = items.filter(function (f) {
+  getGlobalDashboardFindings (q) {
+    const dashboards = this.model.get('globalDashboards') || [];
+    const items = dashboards.map(function (d) {
+      return { name: d.name, url: '/dashboard/index?did=' + encodeURIComponent(d.key) };
+    });
+    const findings = items.filter(function (f) {
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {
@@ -256,8 +256,8 @@ export default Marionette.LayoutView.extend({
     return _.first(findings, 6);
   },
 
-  getFavoriteFindings: function (q) {
-    var findings = this.favorite.filter(function (f) {
+  getFavoriteFindings (q) {
+    const findings = this.favorite.filter(function (f) {
       return f.name.match(new RegExp(q, 'i'));
     });
     if (findings.length > 0) {

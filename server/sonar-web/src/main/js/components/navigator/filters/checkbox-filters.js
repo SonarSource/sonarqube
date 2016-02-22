@@ -26,18 +26,18 @@ export default BaseFilters.BaseFilterView.extend({
   className: 'navigator-filter navigator-filter-inline',
 
 
-  events: function () {
+  events () {
     return {
       'click .navigator-filter-disable': 'disable'
     };
   },
 
 
-  showDetails: function () {
+  showDetails () {
   },
 
 
-  renderInput: function () {
+  renderInput () {
     if (this.model.get('enabled')) {
       $('<input>')
           .prop('name', this.model.get('property'))
@@ -50,19 +50,19 @@ export default BaseFilters.BaseFilterView.extend({
   },
 
 
-  renderValue: function () {
+  renderValue () {
     return this.model.get('value');
   },
 
 
-  isDefaultValue: function () {
+  isDefaultValue () {
     return false;
   },
 
 
-  restore: function (value) {
+  restore (value) {
     this.model.set({
-      value: value,
+      value,
       enabled: true
     });
   }

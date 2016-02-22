@@ -26,15 +26,15 @@ import { translate } from '../../../helpers/l10n';
 export default BaseFacet.extend({
   template: Template,
 
-  initialize: function (options) {
+  initialize (options) {
     this.listenTo(options.app.state, 'change:query', this.onQueryChange);
   },
 
-  onQueryChange: function () {
-    var query = this.options.app.state.get('query'),
-        isProfileSelected = query.qprofile != null;
+  onQueryChange () {
+    const query = this.options.app.state.get('query');
+    const isProfileSelected = query.qprofile != null;
     if (isProfileSelected) {
-      var profile = _.findWhere(this.options.app.qualityProfiles, { key: query.qprofile });
+      const profile = _.findWhere(this.options.app.qualityProfiles, { key: query.qprofile });
       if (profile != null && profile.parentKey == null) {
         this.forbid();
       }
@@ -43,23 +43,23 @@ export default BaseFacet.extend({
     }
   },
 
-  onRender: function () {
+  onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
     this.onQueryChange();
   },
 
-  forbid: function () {
+  forbid () {
     BaseFacet.prototype.forbid.apply(this, arguments);
     this.$el.prop('title', translate('coding_rules.filters.inheritance.inactive'));
   },
 
-  allow: function () {
+  allow () {
     BaseFacet.prototype.allow.apply(this, arguments);
     this.$el.prop('title', null);
   },
 
-  getValues: function () {
-    var values = ['NONE', 'INHERITED', 'OVERRIDES'];
+  getValues () {
+    const values = ['NONE', 'INHERITED', 'OVERRIDES'];
     return values.map(function (key) {
       return {
         label: translate('coding_rules.filters.inheritance', key.toLowerCase()),
@@ -68,9 +68,9 @@ export default BaseFacet.extend({
     });
   },
 
-  toggleFacet: function (e) {
-    var obj = {},
-        property = this.model.get('property');
+  toggleFacet (e) {
+    const obj = {};
+    const property = this.model.get('property');
     if ($(e.currentTarget).is('.active')) {
       obj[property] = null;
     } else {
@@ -79,7 +79,7 @@ export default BaseFacet.extend({
     this.options.app.state.updateFilter(obj);
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       values: this.getValues()
     });

@@ -21,12 +21,12 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
-  urlRoot: function () {
+  urlRoot () {
     return '/api/user_groups';
   },
 
-  sync: function (method, model, options) {
-    var opts = options || {};
+  sync (method, model, options) {
+    const opts = options || {};
     if (method === 'create') {
       _.defaults(opts, {
         url: this.urlRoot() + '/create',
@@ -35,7 +35,7 @@ export default Backbone.Model.extend({
       });
     }
     if (method === 'update') {
-      var attrs = _.extend(_.pick(model.changed, 'name', 'description'), { id: model.id });
+      const attrs = _.extend(_.pick(model.changed, 'name', 'description'), { id: model.id });
       _.defaults(opts, {
         url: this.urlRoot() + '/update',
         type: 'POST',

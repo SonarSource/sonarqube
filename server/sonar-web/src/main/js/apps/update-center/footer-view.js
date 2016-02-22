@@ -28,7 +28,7 @@ export default Marionette.ItemView.extend({
     'all': 'render'
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       total: this.collection.where({ _hidden: false }).length
     });

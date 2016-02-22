@@ -83,13 +83,13 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
   window.SonarWidgets.PieChart.prototype.render = function (container) {
-    var widget = this,
-        containerS = container;
+    const widget = this;
+    const containerS = container;
 
     container = d3.select(container);
 
 
-    var validData = this.components().reduce(function(p, c) {
+    const validData = this.components().reduce(function (p, c) {
       return p && !!c.measures[widget.metricsPriority()[0]];
     }, true);
 
@@ -114,7 +114,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     // Configure metrics
     this.mainMetric = this.metricsPriority()[0];
-    this.getMainMetric = function(d) {
+    this.getMainMetric = function (d) {
       return d.measures[widget.mainMetric].val;
     };
 
@@ -131,7 +131,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Configure pie
     this.pie = d3.layout.pie()
         .sort(null)
-        .value(function(d) { return widget.getMainMetric(d); });
+        .value(function (d) { return widget.getMainMetric(d); });
 
 
     // Configure legend
@@ -172,7 +172,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.PieChart.prototype.updateLegend = function () {
-    var widget = this;
+    const widget = this;
     this.legendWrap
         .attr('transform', trans(
             this.legendMargin() + 2 * this.radius,
@@ -185,12 +185,12 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.legendsEnter = this.legends.enter()
         .append('g')
         .classed('legend pie-legend', true)
-        .attr('transform', function(d, i) { return trans(0, 10 + i * widget._lineHeight); });
+        .attr('transform', function (d, i) { return trans(0, 10 + i * widget._lineHeight); });
 
     this.legendsEnter.append('circle')
         .attr('class', 'legend-bullet')
         .attr('r', 4)
-        .style('fill', function(d, i) { return widget.color(i); });
+        .style('fill', function (d, i) { return widget.color(i); });
 
     this.legendsEnter.append('text')
         .attr('class', 'legend-text')
@@ -198,14 +198,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(10, 3));
 
     this.legends.selectAll('text')
-        .text(function(d) {
+        .text(function (d) {
           return d.name.length > widget._legendSymbols ? d.name.substr(0, widget._legendSymbols) + '...' : d.name;
         });
   };
 
 
   window.SonarWidgets.PieChart.prototype.updateDetails = function () {
-    var widget = this;
+    const widget = this;
     this.detailsWrap
         .attr('width', this.legendWidth())
         .attr('transform', trans(
@@ -216,7 +216,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .transition()
         .style('font-size', (this.radius / 6) + 'px');
 
-    var fz = Math.min(
+    const fz = Math.min(
         12,
         this.radius / 10,
         1.5 * this.radius / this.metrics()[this.mainMetric].name.length
@@ -228,110 +228,106 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.PieChart.prototype.configureEvents = function () {
-    var widget = this;
-    var updateMetrics = function(metrics) {
-          widget.detailsMetrics = widget.detailsWrap.selectAll('.details-metric')
-              .data(metrics);
+    const widget = this;
+    const updateMetrics = function (metrics) {
+      widget.detailsMetrics = widget.detailsWrap.selectAll('.details-metric')
+          .data(metrics);
 
-          widget.detailsMetrics.enter().append('text')
-              .classed('details-metric', true)
-              .classed('details-metric-main', function(d, i) { return i === 0; })
-              .attr('transform', function(d, i) { return trans(10, i * widget._lineHeight); })
-              .attr('dy', '1.2em');
+      widget.detailsMetrics.enter().append('text')
+          .classed('details-metric', true)
+          .classed('details-metric-main', function (d, i) { return i === 0; })
+          .attr('transform', function (d, i) { return trans(10, i * widget._lineHeight); })
+          .attr('dy', '1.2em');
 
-          widget.detailsMetrics
-              .text(function(d) { return d.name + (d.value ? ': ' + d.value : ''); })
-              .style('opacity', 1);
+      widget.detailsMetrics
+          .text(function (d) { return d.name + (d.value ? ': ' + d.value : ''); })
+          .style('opacity', 1);
 
-          widget.detailsMetrics.exit().remove();
-        },
-        enterHandler = function(sector, d, i, showDetails) {
-          if (showDetails) {
-            var metrics = widget.metricsPriority().map(function(m) {
-              return {
-                name: widget.metrics()[m].name,
-                value: (d.measures[m] ? d.measures[m].fval : '–')
-              };
-            });
-            metrics.unshift({
-              name: (d.name.length > widget._legendSymbols ? d.name.substr(0, widget._legendSymbols) + '...' : d.name)
-            });
-            updateMetrics(metrics);
+      widget.detailsMetrics.exit().remove();
+    };
+    const enterHandler = function (sector, d, i, showDetails) {
+      if (showDetails) {
+        const metrics = widget.metricsPriority().map(function (m) {
+          return {
+            name: widget.metrics()[m].name,
+            value: (d.measures[m] ? d.measures[m].fval : '–')
+          };
+        });
+        metrics.unshift({
+          name: (d.name.length > widget._legendSymbols ? d.name.substr(0, widget._legendSymbols) + '...' : d.name)
+        });
+        updateMetrics(metrics);
 
-            widget.legendWrap
-                .style('opacity', 0);
+        widget.legendWrap
+            .style('opacity', 0);
 
-            widget.detailsColorIndicator
-                .style('opacity', 1)
-                .style('fill', widget.color(i));
+        widget.detailsColorIndicator
+            .style('opacity', 1)
+            .style('fill', widget.color(i));
 
-            widget.detailsWrap
-                .style('display', 'block');
-          }
-          widget.donutLabel
-              .style('opacity', 1)
-              .text(d.measures[widget.mainMetric].fval);
-          widget.donutLabel
-              .style('opacity', 1);
-          widget.plotWrap
-              .classed('hover', true);
-          sector.
-              classed('hover', true);
-        },
-
-        leaveHandler = function(sector) {
-          widget.legendWrap
-              .style('opacity', 1);
-          widget.detailsColorIndicator
-              .style('opacity', 0);
-          if (widget.detailsMetrics) {
-            widget.detailsMetrics
-                .style('opacity', 0);
-          }
-          widget.donutLabel
-              .style('opacity', 0)
-              .text('');
-          widget.plotWrap
-              .classed('hover', false);
-          sector.
-              classed('hover', false);
-          widget.detailsWrap
-              .style('display', 'none');
-        },
-
-        clickHandler = function(d) {
-          window.location = widget.options().baseUrl + '?id=' + encodeURIComponent(d.key);
-        };
+        widget.detailsWrap
+            .style('display', 'block');
+      }
+      widget.donutLabel
+          .style('opacity', 1)
+          .text(d.measures[widget.mainMetric].fval);
+      widget.donutLabel
+          .style('opacity', 1);
+      widget.plotWrap
+          .classed('hover', true);
+      sector.classed('hover', true);
+    };
+    const leaveHandler = function (sector) {
+      widget.legendWrap
+          .style('opacity', 1);
+      widget.detailsColorIndicator
+          .style('opacity', 0);
+      if (widget.detailsMetrics) {
+        widget.detailsMetrics
+            .style('opacity', 0);
+      }
+      widget.donutLabel
+          .style('opacity', 0)
+          .text('');
+      widget.plotWrap
+          .classed('hover', false);
+      sector.classed('hover', false);
+      widget.detailsWrap
+          .style('display', 'none');
+    };
+    const clickHandler = function (d) {
+      window.location = widget.options().baseUrl + '?id=' + encodeURIComponent(d.key);
+    };
 
     this.sectors
-        .on('mouseenter', function(d, i) {
+        .on('mouseenter', function (d, i) {
           return enterHandler(d3.select(this), d.data, i, true);
         })
-        .on('mouseleave', function() {
+        .on('mouseleave', function () {
           return leaveHandler(d3.select(this));
         })
-        .on('click', function(d) {
+        .on('click', function (d) {
           return clickHandler(d.data);
         });
 
     this.legends
-        .on('mouseenter', function(d, i) {
+        .on('mouseenter', function (d, i) {
           return enterHandler(d3.select(widget.sectors[0][i]), d, i, false);
         })
-        .on('mouseleave', function(d, i) {
+        .on('mouseleave', function (d, i) {
           return leaveHandler(d3.select(widget.sectors[0][i]));
         })
-        .on('click', function(d) {
+        .on('click', function (d) {
           return clickHandler(d);
         });
   };
 
 
-  window.SonarWidgets.PieChart.prototype.update = function(container) {
+  window.SonarWidgets.PieChart.prototype.update = function (container) {
     container = d3.select(container);
 
-    var widget = this,
-        width = container.property('offsetWidth');
+    const widget = this;
+    const width = container.property('offsetWidth');
     this.width(width > 100 ? width : 100);
 
 
@@ -370,7 +366,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .enter()
         .append('path')
         .classed('arc', true)
-        .style('fill', function(d, i) { return widget.color(i); });
+        .style('fill', function (d, i) { return widget.color(i); });
 
     this.sectors
         .transition()
@@ -386,7 +382,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
   window.SonarWidgets.PieChart.defaults = {
     width: 350,
     height: 300,
@@ -396,11 +391,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
   // Some helper functions
 
   // Gets or sets parameter
-  function param(name, value) {
+  function param (name, value) {
     if (value == null) {
       return this[name];
     } else {
@@ -410,7 +404,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   }
 
   // Helper for create the translate(x, y) string
-  function trans(left, top) {
+  function trans (left, top) {
     return 'translate(' + left + ', ' + top + ')';
   }
 

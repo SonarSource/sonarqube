@@ -26,7 +26,7 @@ function trans (left, top) {
   return 'translate(' + left + ', ' + top + ')';
 }
 
-var defaults = function () {
+const defaults = function () {
   return {
     height: 140,
     color: '#1f77b4',
@@ -49,31 +49,28 @@ var defaults = function () {
 
 $.fn.barchart = function (data) {
   $(this).each(function () {
-    var options = _.defaults($(this).data(), defaults());
+    const options = _.defaults($(this).data(), defaults());
     _.extend(options, {
       width: options.width || $(this).width(),
       endDate: moment(options.endDate)
     });
 
-    var container = d3.select(this),
-        svg = container.append('svg')
-            .attr('width', options.width + 2)
-            .attr('height', options.height + 2)
-            .classed('sonar-d3', true),
-
-        plot = svg.append('g')
-            .classed('plot', true),
-
-        xScale = d3.scale.ordinal()
-            .domain(data.map(function (d, i) {
-              return i;
-            })),
-
-        yScaleMax = d3.max(data, function (d) {
-          return d.count;
-        }),
-        yScale = d3.scale.linear()
-            .domain([0, yScaleMax]);
+    const container = d3.select(this);
+    const svg = container.append('svg')
+        .attr('width', options.width + 2)
+        .attr('height', options.height + 2)
+        .classed('sonar-d3', true);
+    const plot = svg.append('g')
+        .classed('plot', true);
+    const xScale = d3.scale.ordinal()
+        .domain(data.map(function (d, i) {
+          return i;
+        }));
+    const yScaleMax = d3.max(data, function (d) {
+      return d.count;
+    });
+    const yScale = d3.scale.linear()
+        .domain([0, yScaleMax]);
 
     _.extend(options, {
       availableWidth: options.width - options.marginLeft - options.marginRight,
@@ -84,11 +81,11 @@ $.fn.barchart = function (data) {
     xScale.rangeRoundBands([0, options.availableWidth], 0.05, 0);
     yScale.range([3, options.availableHeight]);
 
-    var barWidth = xScale.rangeBand(),
-        bars = plot.selectAll('g').data(data);
+    const barWidth = xScale.rangeBand();
+    const bars = plot.selectAll('g').data(data);
 
     if (barWidth > 0) {
-      var barsEnter = bars.enter()
+      const barsEnter = bars.enter()
           .append('g')
           .attr('transform', function (d, i) {
             return trans(xScale(i), Math.ceil(options.availableHeight - yScale(d.count)));
@@ -105,34 +102,34 @@ $.fn.barchart = function (data) {
             return moment(d.val).format('YYYY-MM-DD');
           })
           .attr('data-period-end', function (d, i) {
-            var beginning = moment(d.val),
-                ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate,
-                isSameDay = ending.diff(beginning, 'days') <= 1;
+            const beginning = moment(d.val);
+            const ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate;
+            const isSameDay = ending.diff(beginning, 'days') <= 1;
             if (isSameDay) {
               ending.add(1, 'days');
             }
             return ending.format('YYYY-MM-DD');
           })
           .attr('title', function (d, i) {
-            var beginning = moment(d.val),
-                ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate,
-                isSameDay = ending.diff(beginning, 'days') <= 1;
+            const beginning = moment(d.val);
+            const ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate;
+            const isSameDay = ending.diff(beginning, 'days') <= 1;
             return d.text + '<br>' + beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
           })
           .attr('data-placement', 'bottom')
           .attr('data-toggle', 'tooltip');
 
-      var maxValue = d3.max(data, function (d) {
-            return d.count;
-          }),
-          isValueShown = false;
+      const maxValue = d3.max(data, function (d) {
+        return d.count;
+      });
+      let isValueShown = false;
 
       barsEnter.append('text')
           .classed('subtitle', true)
           .attr('transform', trans(barWidth / 2, -4))
           .style('text-anchor', 'middle')
           .text(function (d) {
-            var text = !isValueShown && d.count === maxValue ? d.text : '';
+            const text = !isValueShown && d.count === maxValue ? d.text : '';
             isValueShown = d.count === maxValue;
             return text;
           });

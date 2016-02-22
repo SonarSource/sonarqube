@@ -21,32 +21,32 @@ import CustomValuesFacet from './custom-values-facet';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
-  getUrl: function () {
+  getUrl () {
     return '/api/issues/authors';
   },
 
-  prepareSearch: function () {
+  prepareSearch () {
     return this.$('.js-custom-value').select2({
       placeholder: 'Search...',
       minimumInputLength: 2,
       allowClear: false,
-      formatNoMatches: function () {
+      formatNoMatches () {
         return translate('select2.noMatches');
       },
-      formatSearching: function () {
+      formatSearching () {
         return translate('select2.searching');
       },
-      formatInputTooShort: function () {
+      formatInputTooShort () {
         return translateWithParameters('select2.tooShort', 2);
       },
       width: '100%',
       ajax: {
         quietMillis: 300,
         url: this.getUrl(),
-        data: function (term) {
+        data (term) {
           return { q: term, ps: 25 };
         },
-        results: function (data) {
+        results (data) {
           return {
             more: false,
             results: data.authors.map(function (author) {

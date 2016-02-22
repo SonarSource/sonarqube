@@ -22,14 +22,14 @@ import FormView from './form-view';
 
 export default FormView.extend({
 
-  sendRequest: function () {
-    var that = this,
-        customMeasure = new CustomMeasure({
-          metricId: this.$('#create-custom-measure-metric').val(),
-          value: this.$('#create-custom-measure-value').val(),
-          description: this.$('#create-custom-measure-description').val(),
-          projectId: this.options.projectId
-        });
+  sendRequest () {
+    const that = this;
+    const customMeasure = new CustomMeasure({
+      metricId: this.$('#create-custom-measure-metric').val(),
+      value: this.$('#create-custom-measure-value').val(),
+      description: this.$('#create-custom-measure-description').val(),
+      projectId: this.options.projectId
+    });
     this.disableForm();
     return customMeasure.save(null, {
       statusCode: {

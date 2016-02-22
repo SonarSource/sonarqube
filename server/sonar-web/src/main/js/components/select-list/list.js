@@ -17,23 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
+import React from 'react';
+import Item from './item';
 
-export default Backbone.Model.extend({
-  idAttribute: 'property',
-
-  defaults: {
-    enabled: false
+export default React.createClass({
+  propTypes: {
+    items: React.PropTypes.array.isRequired,
+    renderItem: React.PropTypes.func.isRequired,
+    getItemKey: React.PropTypes.func.isRequired,
+    selectItem: React.PropTypes.func.isRequired,
+    deselectItem: React.PropTypes.func.isRequired
   },
 
-  getValues () {
-    return this.get('values') || [];
-  },
-
-  toggle () {
-    const enabled = this.get('enabled');
-    this.set({ enabled: !enabled });
+  render() {
+    let renderedItems = this.props.items.map(item => {
+      let key = this.props.getItemKey(item);
+      return <Item key={key} {...this.props} item={item} />;
+    });
+    return (
+        <ul>{renderedItems}</ul>
+    );
   }
 });
-
-

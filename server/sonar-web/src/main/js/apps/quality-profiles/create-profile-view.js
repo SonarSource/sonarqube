@@ -27,13 +27,13 @@ import { createQualityProfile } from '../../api/quality-profiles';
 export default ModalFormView.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return _.extend(ModalFormView.prototype.events.apply(this, arguments), {
       'change #create-profile-language': 'onLanguageChange'
     });
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
 
     const form = this.$('form')[0];
@@ -49,7 +49,7 @@ export default ModalFormView.extend({
         });
   },
 
-  onRender: function () {
+  onRender () {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('select').select2({
       width: '250px',
@@ -58,10 +58,10 @@ export default ModalFormView.extend({
     this.onLanguageChange();
   },
 
-  onLanguageChange: function () {
-    var that = this;
-    var language = this.$('#create-profile-language').val();
-    var importers = this.getImportersForLanguages(language);
+  onLanguageChange () {
+    const that = this;
+    const language = this.$('#create-profile-language').val();
+    const importers = this.getImportersForLanguages(language);
     this.$('.js-importer').each(function () {
       that.emptyInput($(this));
       $(this).addClass('hidden');
@@ -71,18 +71,18 @@ export default ModalFormView.extend({
     });
   },
 
-  emptyInput: function (e) {
+  emptyInput (e) {
     e.wrap('<form>').closest('form').get(0).reset();
     e.unwrap();
   },
 
-  addProfile: function (profileData) {
-    var profile = new Profile(profileData);
+  addProfile (profileData) {
+    const profile = new Profile(profileData);
     this.collection.add([profile]);
     profile.trigger('select', profile);
   },
 
-  getImportersForLanguages: function (language) {
+  getImportersForLanguages (language) {
     if (language != null) {
       return this.options.importers.filter(function (importer) {
         return importer.languages.indexOf(language) !== -1;
@@ -92,7 +92,7 @@ export default ModalFormView.extend({
     }
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
       languages: this.options.languages,
       importers: this.options.importers

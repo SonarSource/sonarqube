@@ -27,14 +27,14 @@ export default Marionette.CompositeView.extend({
   childView: ItemView,
   childViewContainer: '.js-list',
 
-  childViewOptions: function (model) {
+  childViewOptions (model) {
     return {
       collectionView: this,
       highlighted: model.id === this.highlighted
     };
   },
 
-  highlight: function (id) {
+  highlight (id) {
     this.highlighted = id;
     this.render();
   }

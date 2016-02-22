@@ -28,57 +28,57 @@ export default PopupView.extend({
     options: '.menu > li > a'
   },
 
-  events: function () {
+  events () {
     return {
       'click @ui.options': 'selectOption',
       'mouseenter @ui.options': 'activateOptionByPointer'
     };
   },
 
-  initialize: function () {
+  initialize () {
     this.bindShortcuts();
   },
 
-  onRender: function () {
+  onRender () {
     PopupView.prototype.onRender.apply(this, arguments);
     this.selectInitialOption();
   },
 
-  getOptions: function () {
+  getOptions () {
     return this.$('.menu > li > a');
   },
 
-  getActiveOption: function () {
+  getActiveOption () {
     return this.getOptions().filter('.active');
   },
 
-  makeActive: function (option) {
+  makeActive (option) {
     if (option.length > 0) {
       this.getOptions().removeClass('active').tooltip('hide');
       option.addClass('active').tooltip('show');
     }
   },
 
-  selectInitialOption: function () {
+  selectInitialOption () {
     this.makeActive(this.getOptions().first());
   },
 
-  selectNextOption: function () {
+  selectNextOption () {
     this.makeActive(this.getActiveOption().parent().nextAll('li:not(.divider)').first().children('a'));
     return false;
   },
 
-  selectPreviousOption: function () {
+  selectPreviousOption () {
     this.makeActive(this.getActiveOption().parent().prevAll('li:not(.divider)').first().children('a'));
     return false;
   },
 
-  activateOptionByPointer: function (e) {
+  activateOptionByPointer (e) {
     this.makeActive($(e.currentTarget));
   },
 
-  bindShortcuts: function () {
-    var that = this;
+  bindShortcuts () {
+    const that = this;
     this.currentKeyScope = key.getScope();
     key.setScope(this.keyScope);
     key('down', this.keyScope, function () {
@@ -101,7 +101,7 @@ export default PopupView.extend({
     });
   },
 
-  unbindShortcuts: function () {
+  unbindShortcuts () {
     key.unbind('down', this.keyScope);
     key.unbind('up', this.keyScope);
     key.unbind('return', this.keyScope);
@@ -112,19 +112,19 @@ export default PopupView.extend({
     key.setScope(this.currentKeyScope);
   },
 
-  onDestroy: function () {
+  onDestroy () {
     PopupView.prototype.onDestroy.apply(this, arguments);
     this.unbindShortcuts();
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
     $('.tooltip').remove();
   },
 
-  selectOption: function (e) {
+  selectOption (e) {
     e.preventDefault();
     this.destroy();
   },
 
-  selectActiveOption: function () {
+  selectActiveOption () {
     this.getActiveOption().click();
   }
 });

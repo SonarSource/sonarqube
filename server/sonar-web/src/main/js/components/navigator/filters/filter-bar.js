@@ -32,12 +32,12 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  getChildView: function (item) {
+  getChildView (item) {
     return item.get('type') || BaseFilters.BaseFilterView;
   },
 
 
-  childViewOptions: function () {
+  childViewOptions () {
     return {
       filterBarView: this,
       app: this.options.app
@@ -45,22 +45,22 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  initialize: function () {
+  initialize () {
     Marionette.CompositeView.prototype.initialize.apply(this, arguments);
 
-    var that = this;
+    const that = this;
     $('body').on('click', function () {
       that.hideDetails();
     });
     this.addMoreCriteriaFilter();
 
     key.filter = function (e) {
-      var r = true,
-          el = $(e.target),
-          box = el.closest('.navigator-filter-details-inner'),
-          tabbableSet = box.find(':tabbable'),
-          isElFocusable = el.is(':input') || el.is('a'),
-          isInsideDialog = el.closest('.ui-dialog').length > 0;
+      let r = true;
+      const el = $(e.target);
+      const box = el.closest('.navigator-filter-details-inner');
+      const tabbableSet = box.find(':tabbable');
+      const isElFocusable = el.is(':input') || el.is('a');
+      const isInsideDialog = el.closest('.ui-dialog').length > 0;
       if (isElFocusable) {
         if (!isInsideDialog && (e.keyCode === 9 || e.keyCode === 27)) {
           r = tabbableSet.index(el) >= tabbableSet.length - 1;
@@ -91,7 +91,7 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  getEnabledFilters: function () {
+  getEnabledFilters () {
     return this.$(this.childViewContainer).children()
         .not('.navigator-filter-disabled')
         .not('.navigator-filter-inactive')
@@ -99,14 +99,14 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  selectFirst: function () {
+  selectFirst () {
     this.selected = -1;
     this.selectNext();
   },
 
 
-  selectPrev: function () {
-    var filters = this.getEnabledFilters();
+  selectPrev () {
+    const filters = this.getEnabledFilters();
     if (this.selected > 0) {
       filters.eq(this.selected).blur();
       this.selected--;
@@ -116,8 +116,8 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  selectNext: function () {
-    var filters = this.getEnabledFilters();
+  selectNext () {
+    const filters = this.getEnabledFilters();
     if (this.selected < filters.length - 1) {
       filters.eq(this.selected).blur();
       this.selected++;
@@ -130,8 +130,8 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  addMoreCriteriaFilter: function () {
-    var disabledFilters = this.collection.where({ enabled: false });
+  addMoreCriteriaFilter () {
+    const disabledFilters = this.collection.where({ enabled: false });
     if (disabledFilters.length > 0) {
       this.moreCriteriaFilter = new BaseFilters.Filter({
         type: MoreCriteriaFilters.MoreCriteriaFilterView,
@@ -144,14 +144,14 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  onAddChild: function (childView) {
+  onAddChild (childView) {
     if (childView.model.get('type') === MoreCriteriaFilters.FavoriteFilterView) {
       $('.navigator-header').addClass('navigator-header-favorite');
     }
   },
 
 
-  restoreFromQuery: function (q) {
+  restoreFromQuery (q) {
     this.collection.each(function (item) {
       item.set('enabled', !item.get('optional'));
       item.view.clear();
@@ -160,16 +160,16 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  hideDetails: function () {
+  hideDetails () {
     if (_.isObject(this.showedView)) {
       this.showedView.hideDetails();
     }
   },
 
 
-  enableFilter: function (id) {
-    var filter = this.collection.get(id),
-        filterView = filter.view;
+  enableFilter (id) {
+    const filter = this.collection.get(id);
+    const filterView = filter.view;
 
     filterView.$el.detach().insertBefore(this.$('.navigator-filter-more-criteria'));
     filter.set('enabled', true);
@@ -177,8 +177,8 @@ export default Marionette.CompositeView.extend({
   },
 
 
-  changeEnabled: function () {
-    var disabledFilters = _.reject(this.collection.where({ enabled: false }), function (filter) {
+  changeEnabled () {
+    const disabledFilters = _.reject(this.collection.where({ enabled: false }), function (filter) {
       return filter.get('type') === MoreCriteriaFilters.MoreCriteriaFilterView;
     });
 

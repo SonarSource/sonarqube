@@ -27,17 +27,17 @@ export default ModalFormView.extend({
   template: Template,
   successTemplate: TemplateSuccess,
 
-  getTemplate: function () {
+  getTemplate () {
     return this.selectedLanguage ? this.successTemplate : this.template;
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  onRender: function () {
+  onRender () {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('select').select2({
       width: '250px',
@@ -45,15 +45,15 @@ export default ModalFormView.extend({
     });
   },
 
-  sendRequest: function () {
-    var that = this,
-        url = '/api/qualityprofiles/restore_built_in',
-        lang = this.$('#restore-built-in-profiles-language').val(),
-        options = { language: lang };
+  sendRequest () {
+    const that = this;
+    const url = '/api/qualityprofiles/restore_built_in';
+    const lang = this.$('#restore-built-in-profiles-language').val();
+    const options = { language: lang };
     this.selectedLanguage = _.findWhere(this.options.languages, { key: lang }).name;
     return $.ajax({
       type: 'POST',
-      url: url,
+      url,
       data: options,
       statusCode: {
         // do not show global error
@@ -69,7 +69,7 @@ export default ModalFormView.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(ModalFormView.prototype.serializeData.apply(this, arguments), {
       languages: this.options.languages,
       selectedLanguage: this.selectedLanguage

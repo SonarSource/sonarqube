@@ -257,7 +257,7 @@ export const SeverityMeasure = React.createClass({
           <small className="flex-1 text-left text-ellipsis">{translate('overview.added')}</small>
           <IssuesLink className="text-danger"
                       component={this.props.component.key}
-                      params={{ resolved: 'false', severities: this.props.severity, createdAfter: createdAfter }}>
+                      params={{ resolved: 'false', severities: this.props.severity, createdAfter }}>
             <span className="overview-detailed-measure-value">
               {formatMeasure(added, 'SHORT_INT')}
             </span>

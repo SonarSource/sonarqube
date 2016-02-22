@@ -24,11 +24,11 @@ export default Backbone.Router.extend({
     '*path': 'show'
   },
 
-  initialize: function (options) {
+  initialize (options) {
     this.app = options.app;
   },
 
-  show: function (path) {
+  show (path) {
     this.app.controller.show(path);
   }
 });

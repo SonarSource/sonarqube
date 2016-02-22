@@ -53,7 +53,7 @@ export default Marionette.LayoutView.extend({
     'click .js-delete': 'deleteRule'
   },
 
-  initialize: function () {
+  initialize () {
     this.bindShortcuts();
     this.customRules = new Rules();
     if (this.model.get('isTemplate')) {
@@ -62,7 +62,7 @@ export default Marionette.LayoutView.extend({
     this.listenTo(this.options.app.state, 'change:selectedIndex', this.select);
   },
 
-  onRender: function () {
+  onRender () {
     this.metaRegion.show(new MetaView({
       app: this.options.app,
       model: this.model
@@ -92,28 +92,28 @@ export default Marionette.LayoutView.extend({
     this.$el.scrollParent().scrollTop(0);
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.unbindShortcuts();
   },
 
-  fetchCustomRules: function () {
-    var that = this,
-        url = '/api/rules/search',
-        options = {
-          template_key: this.model.get('key'),
-          f: 'name,severity,params'
-        };
+  fetchCustomRules () {
+    const that = this;
+    const url = '/api/rules/search';
+    const options = {
+      template_key: this.model.get('key'),
+      f: 'name,severity,params'
+    };
     return $.get(url, options).done(function (data) {
       that.customRules.reset(data.rules);
     });
   },
 
-  getQualityProfiles: function () {
+  getQualityProfiles () {
     return this.model.getInactiveProfiles(this.options.actives, this.options.app.qualityProfiles);
   },
 
-  bindShortcuts: function () {
-    var that = this;
+  bindShortcuts () {
+    const that = this;
     key('up', 'details', function () {
       that.options.app.controller.selectPrev();
       return false;
@@ -128,33 +128,33 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  unbindShortcuts: function () {
+  unbindShortcuts () {
     key.deleteScope('details');
   },
 
-  editManualRule: function () {
+  editManualRule () {
     new ManualRuleCreationView({
       app: this.options.app,
       model: this.model
     }).render();
   },
 
-  editCustomRule: function () {
+  editCustomRule () {
     new CustomRuleCreationView({
       app: this.options.app,
       model: this.model
     }).render();
   },
 
-  deleteRule: function () {
-    var that = this,
-        ruleType = this.model.has('templateKey') ? 'custom' : 'manual';
+  deleteRule () {
+    const that = this;
+    const ruleType = this.model.has('templateKey') ? 'custom' : 'manual';
     confirmDialog({
       title: translate('delete'),
       html: translateWithParameters('coding_rules.delete.' + ruleType + '.confirm', this.model.get('name')),
-      yesHandler: function () {
-        var url = '/api/rules/delete',
-            options = { key: that.model.id };
+      yesHandler () {
+        const url = '/api/rules/delete';
+        const options = { key: that.model.id };
         $.post(url, options).done(function () {
           that.options.app.controller.fetchList();
         });
@@ -162,17 +162,17 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  select: function () {
-    var selected = this.options.app.state.get('selectedIndex'),
-        selectedRule = this.options.app.list.at(selected);
+  select () {
+    const selected = this.options.app.state.get('selectedIndex');
+    const selectedRule = this.options.app.list.at(selected);
     this.options.app.controller.showDetails(selectedRule);
   },
 
-  serializeData: function () {
-    var isManual = this.model.get('isManual'),
-        isCustom = this.model.has('templateKey'),
-        isEditable = this.options.app.canWrite && (isManual || isCustom),
-        qualityProfilesVisible = !isManual;
+  serializeData () {
+    const isManual = this.model.get('isManual');
+    const isCustom = this.model.has('templateKey');
+    const isEditable = this.options.app.canWrite && (isManual || isCustom);
+    let qualityProfilesVisible = !isManual;
 
     if (qualityProfilesVisible) {
       if (this.model.get('isTemplate')) {
@@ -184,9 +184,9 @@ export default Marionette.LayoutView.extend({
     }
 
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      isEditable: isEditable,
+      isEditable,
       canWrite: this.options.app.canWrite,
-      qualityProfilesVisible: qualityProfilesVisible,
+      qualityProfilesVisible,
       allTags: _.union(this.model.get('sysTags'), this.model.get('tags'))
     });
   }

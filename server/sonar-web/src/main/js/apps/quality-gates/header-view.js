@@ -38,30 +38,30 @@ export default Marionette.ItemView.extend({
     'click #quality-gate-toggle-default': 'toggleDefault'
   },
 
-  renameQualityGate: function () {
+  renameQualityGate () {
     new RenameView({
       model: this.model
     }).render();
   },
 
-  copyQualityGate: function () {
+  copyQualityGate () {
     new CopyView({
       model: this.model,
       collection: this.model.collection
     }).render();
   },
 
-  deleteQualityGate: function () {
+  deleteQualityGate () {
     new DeleteView({
       model: this.model
     }).render();
   },
 
-  toggleDefault: function () {
+  toggleDefault () {
     this.model.toggleDefault();
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canEdit: this.options.canEdit
     });

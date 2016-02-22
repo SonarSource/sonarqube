@@ -24,16 +24,16 @@ import Template from '../templates/facets/issues-base-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
     return this.$('[data-toggle="tooltip"]').tooltip({ container: 'body' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     return this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       state: this.options.app.state.toJSON()
     });

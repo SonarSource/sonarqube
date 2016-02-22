@@ -25,7 +25,7 @@ export default Marionette.ItemView.extend({
   tagName: 'tr',
   template: Template,
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canEdit: this.options.canEdit
     });

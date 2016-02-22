@@ -24,15 +24,15 @@ import Template from '../templates/facets/issues-issue-key-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     return this.$el.toggleClass('hidden', !this.options.app.state.get('query').issues);
   },
 
-  disable: function () {
+  disable () {
     return this.options.app.state.updateFilter({ issues: null });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       issues: this.options.app.state.get('query').issues
     });

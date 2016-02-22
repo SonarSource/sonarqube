@@ -23,106 +23,106 @@ import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import { translate } from '../helpers/l10n';
 
-var defaults = {
+const defaults = {
   queue: {},
   timeout: 300,
   fadeTimeout: 100
 };
 
-var Process = Backbone.Model.extend({
-      defaults: {
-        state: 'ok'
-      },
+const Process = Backbone.Model.extend({
+  defaults: {
+    state: 'ok'
+  },
 
-      timeout: function () {
-        this.set({
-          state: 'timeout',
-          message: 'Still Working...'
-        });
-      },
-
-      finish: function (options) {
-        options = _.defaults(options || {}, { force: false });
-        if (this.get('state') !== 'failed' || !!options.force) {
-          this.trigger('destroy', this, this.collection, options);
-        }
-      },
-
-      fail: function (message) {
-        var that = this,
-            msg = message || translate('process.fail');
-        if (msg === 'process.fail') {
-          // no translation
-          msg = 'An error happened, some parts of the page might not render correctly. ' +
-              'Please contact the administrator if you keep on experiencing this error.';
-        }
-        clearInterval(this.get('timer'));
-        this.set({
-          state: 'failed',
-          message: msg
-        });
-        this.set('state', 'failed');
-        setTimeout(function () {
-          that.finish({ force: true });
-        }, 5000);
-      }
-    }),
-
-    Processes = Backbone.Collection.extend({
-      model: Process
-    }),
-
-    ProcessesView = Marionette.ItemView.extend({
-      tagName: 'ul',
-      className: 'processes-container',
-
-      collectionEvents: {
-        'all': 'render'
-      },
-
-      render: function () {
-        var failed = this.collection.findWhere({ state: 'failed' }),
-            timeout = this.collection.findWhere({ state: 'timeout' }),
-            el;
-        this.$el.empty();
-        if (failed != null) {
-          el = $('<li></li>')
-              .html(failed.get('message'))
-              .addClass('process-spinner process-spinner-failed shown');
-          var close = $('<button></button>').html('<i class="icon-close"></i>').addClass('process-spinner-close');
-          close.appendTo(el);
-          close.on('click', function () {
-            failed.finish({ force: true });
-          });
-          el.appendTo(this.$el);
-        } else if (timeout != null) {
-          el = $('<li></li>')
-              .html(timeout.get('message'))
-              .addClass('process-spinner shown');
-          el.appendTo(this.$el);
-        }
-        return this;
-      }
+  timeout () {
+    this.set({
+      state: 'timeout',
+      message: 'Still Working...'
     });
+  },
 
+  finish (options) {
+    options = _.defaults(options || {}, { force: false });
+    if (this.get('state') !== 'failed' || !!options.force) {
+      this.trigger('destroy', this, this.collection, options);
+    }
+  },
 
-var processes = new Processes(),
-    processesView = new ProcessesView({
-      collection: processes
+  fail (message) {
+    const that = this;
+    let msg = message || translate('process.fail');
+    if (msg === 'process.fail') {
+      // no translation
+      msg = 'An error happened, some parts of the page might not render correctly. ' +
+          'Please contact the administrator if you keep on experiencing this error.';
+    }
+    clearInterval(this.get('timer'));
+    this.set({
+      state: 'failed',
+      message: msg
     });
+    this.set('state', 'failed');
+    setTimeout(function () {
+      that.finish({ force: true });
+    }, 5000);
+  }
+});
+
+const Processes = Backbone.Collection.extend({
+  model: Process
+});
+
+const ProcessesView = Marionette.ItemView.extend({
+  tagName: 'ul',
+  className: 'processes-container',
+
+  collectionEvents: {
+    'all': 'render'
+  },
+
+  render () {
+    const failed = this.collection.findWhere({ state: 'failed' });
+    const timeout = this.collection.findWhere({ state: 'timeout' });
+    let el;
+    this.$el.empty();
+    if (failed != null) {
+      el = $('<li></li>')
+          .html(failed.get('message'))
+          .addClass('process-spinner process-spinner-failed shown');
+      const close = $('<button></button>').html('<i class="icon-close"></i>').addClass('process-spinner-close');
+      close.appendTo(el);
+      close.on('click', function () {
+        failed.finish({ force: true });
+      });
+      el.appendTo(this.$el);
+    } else if (timeout != null) {
+      el = $('<li></li>')
+          .html(timeout.get('message'))
+          .addClass('process-spinner shown');
+      el.appendTo(this.$el);
+    }
+    return this;
+  }
+});
+
+
+const processes = new Processes();
+const processesView = new ProcessesView({
+  collection: processes
+});
 
 /**
  * Add background process
  * @returns {number}
  */
 function addBackgroundProcess () {
-  var uid = _.uniqueId('process'),
-      process = new Process({
-        id: uid,
-        timer: setTimeout(function () {
-          process.timeout();
-        }, defaults.timeout)
-      });
+  const uid = _.uniqueId('process');
+  const process = new Process({
+    id: uid,
+    timer: setTimeout(function () {
+      process.timeout();
+    }, defaults.timeout)
+  });
   processes.add(process);
   return uid;
 }
@@ -132,7 +132,7 @@ function addBackgroundProcess () {
  * @param {number} uid
  */
 function finishBackgroundProcess (uid) {
-  var process = processes.get(uid);
+  const process = processes.get(uid);
   if (process != null) {
     process.finish();
   }
@@ -144,7 +144,7 @@ function finishBackgroundProcess (uid) {
  * @param {string} message
  */
 function failBackgroundProcess (uid, message) {
-  var process = processes.get(uid);
+  const process = processes.get(uid);
   if (process != null) {
     process.fail(message);
   }
@@ -156,7 +156,7 @@ function failBackgroundProcess (uid, message) {
  */
 function handleAjaxError (jqXHR) {
   if (jqXHR.processId != null) {
-    var message = null;
+    let message = null;
     if (jqXHR != null && jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
       message = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
     }
@@ -166,10 +166,10 @@ function handleAjaxError (jqXHR) {
 
 
 $.ajaxSetup({
-  beforeSend: function (jqXHR) {
+  beforeSend (jqXHR) {
     jqXHR.processId = addBackgroundProcess();
   },
-  complete: function (jqXHR) {
+  complete (jqXHR) {
     if (jqXHR.processId != null) {
       finishBackgroundProcess(jqXHR.processId);
     }

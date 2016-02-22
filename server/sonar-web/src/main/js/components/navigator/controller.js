@@ -23,21 +23,21 @@ import Marionette from 'backbone.marionette';
 export default Marionette.Controller.extend({
   pageSize: 50,
 
-  initialize: function (options) {
+  initialize (options) {
     this.app = options.app;
     this.listenTo(options.app.state, 'change:query', this.fetchList);
   },
 
-  _allFacets: function () {
+  _allFacets () {
     return this.options.app.state.get('allFacets').map(function (facet) {
       return { property: facet };
     });
   },
 
-  _enabledFacets: function () {
-    var that = this,
-        facets = this.options.app.state.get('facets'),
-        criteria = Object.keys(this.options.app.state.get('query'));
+  _enabledFacets () {
+    const that = this;
+    let facets = this.options.app.state.get('facets');
+    const criteria = Object.keys(this.options.app.state.get('query'));
     facets = facets.concat(criteria);
     facets = facets.map(function (facet) {
       return that.options.app.state.get('transform')[facet] != null ?
@@ -49,25 +49,25 @@ export default Marionette.Controller.extend({
     });
   },
 
-  _facetsFromServer: function () {
-    var that = this,
-        facets = this._enabledFacets();
+  _facetsFromServer () {
+    const that = this;
+    const facets = this._enabledFacets();
     return facets.filter(function (facet) {
       return that.options.app.state.get('facetsFromServer').indexOf(facet) !== -1;
     });
   },
 
-  fetchList: function () {
+  fetchList () {
 
   },
 
-  fetchNextPage: function () {
+  fetchNextPage () {
     this.options.app.state.nextPage();
     return this.fetchList(false);
   },
 
-  enableFacet: function (id) {
-    var facet = this.options.app.facets.get(id);
+  enableFacet (id) {
+    const facet = this.options.app.facets.get(id);
     if (facet.has('values') || this.options.app.state.get('facetsFromServer').indexOf(id) === -1) {
       facet.set({ enabled: true });
     } else {
@@ -78,14 +78,14 @@ export default Marionette.Controller.extend({
     }
   },
 
-  disableFacet: function (id) {
-    var facet = this.options.app.facets.get(id);
+  disableFacet (id) {
+    const facet = this.options.app.facets.get(id);
     facet.set({ enabled: false });
     this.options.app.facetsView.children.findByModel(facet).disable();
   },
 
-  toggleFacet: function (id) {
-    var facet = this.options.app.facets.get(id);
+  toggleFacet (id) {
+    const facet = this.options.app.facets.get(id);
     if (facet.get('enabled')) {
       this.disableFacet(id);
     } else {
@@ -93,19 +93,19 @@ export default Marionette.Controller.extend({
     }
   },
 
-  enableFacets: function (facets) {
+  enableFacets (facets) {
     facets.forEach(this.enableFacet, this);
   },
 
-  newSearch: function () {
+  newSearch () {
     this.options.app.state.setQuery({});
   },
 
-  parseQuery: function (query, separator) {
+  parseQuery (query, separator) {
     separator = separator || '|';
-    var q = {};
+    const q = {};
     (query || '').split(separator).forEach(function (t) {
-      var tokens = t.split('=');
+      const tokens = t.split('=');
       if (tokens[0] && tokens[1] != null) {
         q[tokens[0]] = decodeURIComponent(tokens[1]);
       }
@@ -113,28 +113,28 @@ export default Marionette.Controller.extend({
     return q;
   },
 
-  getQuery: function (separator) {
+  getQuery (separator) {
     separator = separator || '|';
-    var filter = this.options.app.state.get('query'),
-        route = [];
+    const filter = this.options.app.state.get('query');
+    const route = [];
     _.map(filter, function (value, property) {
       route.push('' + property + '=' + encodeURIComponent(value));
     });
     return route.join(separator);
   },
 
-  getRoute: function (separator) {
+  getRoute (separator) {
     separator = separator || '|';
     return this.getQuery(separator);
   },
 
-  selectNext: function () {
-    var index = this.options.app.state.get('selectedIndex') + 1;
+  selectNext () {
+    const index = this.options.app.state.get('selectedIndex') + 1;
     if (index < this.options.app.list.length) {
       this.options.app.state.set({ selectedIndex: index });
     } else {
       if (!this.options.app.state.get('maxResultsReached')) {
-        var that = this;
+        const that = this;
         this.fetchNextPage().done(function () {
           that.options.app.state.set({ selectedIndex: index });
         });
@@ -144,8 +144,8 @@ export default Marionette.Controller.extend({
     }
   },
 
-  selectPrev: function () {
-    var index = this.options.app.state.get('selectedIndex') - 1;
+  selectPrev () {
+    const index = this.options.app.state.get('selectedIndex') - 1;
     if (index >= 0) {
       this.options.app.state.set({ selectedIndex: index });
     } else {

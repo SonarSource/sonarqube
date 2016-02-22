@@ -37,36 +37,36 @@ export default Marionette.ItemView.extend({
     'filter': 'onFilter'
   },
 
-  initialize: function () {
+  initialize () {
     this._bufferedValue = null;
     this.search = _.debounce(this.search, 50);
     this.listenTo(this.options.state, 'change', this.render);
   },
 
-  onRender: function () {
+  onRender () {
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFilterChange: function () {
-    var value = this.$('[name="update-center-filter"]:checked').val();
+  onFilterChange () {
+    const value = this.$('[name="update-center-filter"]:checked').val();
     this.filter(value);
   },
 
-  filter: function (value) {
+  filter (value) {
     this.options.router.navigate(value, { trigger: true });
   },
 
-  onFormSubmit: function (e) {
+  onFormSubmit (e) {
     e.preventDefault();
     this.debouncedOnKeyUp();
   },
 
-  onKeyUp: function () {
-    var q = this.getQuery();
+  onKeyUp () {
+    const q = this.getQuery();
     if (q === this._bufferedValue) {
       return;
     }
@@ -74,28 +74,28 @@ export default Marionette.ItemView.extend({
     this.search(q);
   },
 
-  getQuery: function () {
+  getQuery () {
     return this.$('#update-center-search-query').val();
   },
 
-  search: function (q) {
+  search (q) {
     this.collection.search(q);
   },
 
-  focusSearch: function () {
-    var that = this;
+  focusSearch () {
+    const that = this;
     setTimeout(function () {
       that.$('#update-center-search-query').focus();
     }, 0);
   },
 
-  onFilter: function (model) {
-    var q = model.get('category');
+  onFilter (model) {
+    const q = model.get('category');
     this.$('#update-center-search-query').val(q);
     this.search(q);
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       state: this.options.state.toJSON()
     });

@@ -23,12 +23,12 @@ import Backbone from 'backbone';
 export default Backbone.Model.extend({
   idAttribute: 'id',
 
-  urlRoot: function () {
+  urlRoot () {
     return '/api/custom_measures';
   },
 
-  sync: function (method, model, options) {
-    var opts = options || {};
+  sync (method, model, options) {
+    const opts = options || {};
     if (method === 'create') {
       _.defaults(opts, {
         url: this.urlRoot() + '/create',

@@ -52,8 +52,8 @@ function part (str, from, to, acc) {
  * @returns {Array}
  */
 function splitByTokens (code) {
-  var container = document.createElement('div'),
-      tokens = [];
+  const container = document.createElement('div');
+  const tokens = [];
   container.innerHTML = code;
   [].forEach.call(container.childNodes, function (node) {
     if (node.nodeType === 1) {
@@ -78,18 +78,18 @@ function splitByTokens (code) {
  */
 function highlightIssueLocations (tokens, issueLocations, className) {
   issueLocations.forEach(function (location) {
-    var nextTokens = [],
-        acc = 0;
+    const nextTokens = [];
+    let acc = 0;
     tokens.forEach(function (token) {
-      var x = intersect(acc, acc + token.text.length, location.from, location.to);
-      var p1 = part(token.text, acc, x.from, acc),
-          p2 = part(token.text, x.from, x.to, acc),
-          p3 = part(token.text, x.to, acc + token.text.length, acc);
+      const x = intersect(acc, acc + token.text.length, location.from, location.to);
+      const p1 = part(token.text, acc, x.from, acc);
+      const p2 = part(token.text, x.from, x.to, acc);
+      const p3 = part(token.text, x.to, acc + token.text.length, acc);
       if (p1.length) {
         nextTokens.push({ className: token.className, text: p1 });
       }
       if (p2.length) {
-        var newClassName = token.className.indexOf(className) === -1 ?
+        const newClassName = token.className.indexOf(className) === -1 ?
             [token.className, className].join(' ') : token.className;
         nextTokens.push({ className: newClassName, text: p2 });
       }
@@ -125,9 +125,9 @@ function generateHTML (tokens) {
  * @returns {string}
  */
 function doTheStuff (code, issueLocations, optionalClassName) {
-  var _code = code || '&nbsp;';
-  var _issueLocations = issueLocations || [];
-  var _className = optionalClassName ? optionalClassName : 'source-line-code-issue';
+  const _code = code || '&nbsp;';
+  const _issueLocations = issueLocations || [];
+  const _className = optionalClassName ? optionalClassName : 'source-line-code-issue';
   return generateHTML(highlightIssueLocations(splitByTokens(_code), _issueLocations, _className));
 }
 

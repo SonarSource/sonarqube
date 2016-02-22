@@ -24,43 +24,43 @@ import HeaderView from './header-view';
 
 export default Marionette.Controller.extend({
 
-  initialize: function (options) {
+  initialize (options) {
     this.app = options.app;
     this.canEdit = this.app.canEdit;
     this.listenTo(this.app.gates, 'select', this.onSelect);
     this.listenTo(this.app.gates, 'destroy', this.onDestroy);
   },
 
-  index: function () {
+  index () {
     this.app.gates.fetch();
   },
 
-  show: function (id) {
-    var that = this;
+  show (id) {
+    const that = this;
     this.app.gates.fetch().done(function () {
-      var gate = that.app.gates.get(id);
+      const gate = that.app.gates.get(id);
       if (gate != null) {
         gate.trigger('select', gate, { trigger: false });
       }
     });
   },
 
-  onSelect: function (gate, options) {
-    var that = this,
-        route = 'show/' + gate.id,
-        opts = _.defaults(options || {}, { trigger: true });
+  onSelect (gate, options) {
+    const that = this;
+    const route = 'show/' + gate.id;
+    const opts = _.defaults(options || {}, { trigger: true });
     if (opts.trigger) {
       this.app.router.navigate(route);
     }
     this.app.gatesView.highlight(gate.id);
     gate.fetch().done(function () {
-      var headerView = new HeaderView({
+      const headerView = new HeaderView({
         model: gate,
         canEdit: that.canEdit
       });
       that.app.layout.headerRegion.show(headerView);
 
-      var detailsView = new DetailsView({
+      const detailsView = new DetailsView({
         model: gate,
         canEdit: that.canEdit,
         metrics: that.app.metrics,
@@ -70,7 +70,7 @@ export default Marionette.Controller.extend({
     });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.app.router.navigate('');
     this.app.layout.headerRegion.reset();
     this.app.layout.detailsRegion.reset();

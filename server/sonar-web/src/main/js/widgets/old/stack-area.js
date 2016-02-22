@@ -74,34 +74,34 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-  window.SonarWidgets.StackArea.prototype.initScales = function() {
-    var widget = this,
-        colorsLength = widget.colors().length;
-    var timeDomain = this.data()
-        .map(function(_) {
-          return d3.extent(_, function(d) {
+  window.SonarWidgets.StackArea.prototype.initScales = function () {
+    const widget = this;
+    const colorsLength = widget.colors().length;
+    const timeDomain = this.data()
+        .map(function (_) {
+          return d3.extent(_, function (d) {
             return d.x;
           });
         })
-        .reduce(function(p, c) {
+        .reduce(function (p, c) {
           return p.concat(c);
         }, []);
 
     this.time = d3.time.scale().domain(d3.extent(timeDomain));
 
     this.y = d3.scale.linear()
-        .domain([0, d3.max(this.stackDataTop, function(d) {
+        .domain([0, d3.max(this.stackDataTop, function (d) {
           return d.y0 + d.y;
         })])
         .nice();
 
-    this.color = function(i) {
+    this.color = function (i) {
       return widget.colors()[i % colorsLength][0];
     };
   };
 
 
-  window.SonarWidgets.StackArea.prototype.initAxis = function() {
+  window.SonarWidgets.StackArea.prototype.initAxis = function () {
     this.timeAxis = d3.svg.axis()
         .scale(this.time)
         .orient('bottom')
@@ -109,21 +109,21 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-  window.SonarWidgets.StackArea.prototype.initArea = function() {
-    var widget = this;
+  window.SonarWidgets.StackArea.prototype.initArea = function () {
+    const widget = this;
     this.area = d3.svg.area()
-        .x(function(d) { return widget.time(d.x); })
-        .y0(function(d) { return widget.y(d.y0); })
-        .y1(function(d) { return widget.y(d.y0 + d.y); });
+        .x(function (d) { return widget.time(d.x); })
+        .y0(function (d) { return widget.y(d.y0); })
+        .y1(function (d) { return widget.y(d.y0 + d.y); });
 
     this.areaLine = d3.svg.line()
-        .x(function(d) { return widget.time(d.x); })
-        .y(function(d) { return widget.y(d.y0 + d.y); });
+        .x(function (d) { return widget.time(d.x); })
+        .y(function (d) { return widget.y(d.y0 + d.y); });
   };
 
 
-  window.SonarWidgets.StackArea.prototype.initInfo = function() {
-    var widget = this;
+  window.SonarWidgets.StackArea.prototype.initInfo = function () {
+    const widget = this;
     this.infoWrap
         .attr('class', 'info')
         .attr('transform', trans(0, -60));
@@ -141,11 +141,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(0, 54));
 
     this.infoMetrics = [];
-    var prevX = 120;
-    this.metrics().forEach(function(d, i) {
-      var infoMetric = widget.infoWrap.append('g');
+    let prevX = 120;
+    this.metrics().forEach(function (d, i) {
+      const infoMetric = widget.infoWrap.append('g');
 
-      var infoMetricText = infoMetric.append('text')
+      const infoMetricText = infoMetric.append('text')
           .attr('class', 'info-text-small')
           .attr('transform', trans(10, 0))
           .text(widget.metrics()[i]);
@@ -153,11 +153,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       infoMetric.append('circle')
           .attr('transform', trans(0, -4))
           .attr('r', 4)
-          .style('fill', function() { return widget.color(i); });
+          .style('fill', function () { return widget.color(i); });
 
       // Align metric labels
       infoMetric
-          .attr('transform', function() {
+          .attr('transform', function () {
             return trans(prevX, -1 + (i % 3) * 18);
           });
 
@@ -170,10 +170,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-  window.SonarWidgets.StackArea.prototype.initEvents = function() {
-    var widget = this;
+  window.SonarWidgets.StackArea.prototype.initEvents = function () {
+    const widget = this;
     this.events = widget.snapshots()
-        .filter(function(d) { return d.e.length > 0; });
+        .filter(function (d) { return d.e.length > 0; });
 
     this.gevents = this.gWrap.append('g')
         .attr('class', 'axis events')
@@ -185,11 +185,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('y2', -8);
 
 
-    this.selectSnapshot = function(cl) {
-      var dataX = widget.data()[0][cl].x,
-          sx = widget.time(dataX),
-          snapshotIndex = null,
-          eventIndex = null;
+    this.selectSnapshot = function (cl) {
+      const dataX = widget.data()[0][cl].x;
+      const sx = widget.time(dataX);
+      let snapshotIndex = null;
+      let eventIndex = null;
 
       // Update scanner position
       widget.scanner
@@ -198,18 +198,18 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
       // Update metric labels
-      var metricsLines = widget.data().map(function(d, i) {
-        var value = d[cl].fy || d[cl].y;
+      const metricsLines = widget.data().map(function (d, i) {
+        const value = d[cl].fy || d[cl].y;
         return widget.metrics()[i] + ': ' + value;
       });
 
-      metricsLines.forEach(function(d, i) {
+      metricsLines.forEach(function (d, i) {
         widget.infoMetrics[i].select('text').text(d);
       });
 
 
       // Update snapshot info
-      this.snapshots().forEach(function(d, i) {
+      this.snapshots().forEach(function (d, i) {
         if (d.d - dataX === 0) {
           snapshotIndex = i;
         }
@@ -225,14 +225,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.infoDate
           .text(moment(widget.data()[0][cl].x).format('LL'));
 
-      var snapshotValue = this.snapshots()[snapshotIndex].fy,
-          totalValue = snapshotValue || (widget.stackDataTop[cl].y0 + widget.stackDataTop[cl].y);
+      const snapshotValue = this.snapshots()[snapshotIndex].fy;
+      const totalValue = snapshotValue || (widget.stackDataTop[cl].y0 + widget.stackDataTop[cl].y);
       widget.infoTotal
           .text('Total: ' + totalValue);
 
 
       // Update event
-      this.events.forEach(function(d, i) {
+      this.events.forEach(function (d, i) {
         if (d.d - dataX === 0) {
           eventIndex = i;
         }
@@ -244,9 +244,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Set event listeners
-    this.svg.on('mousemove', function() {
-      var mx = d3.mouse(widget.plotWrap.node())[0],
-          cl = closest(widget.data()[0], mx, function(d) { return widget.time(d.x); });
+    this.svg.on('mousemove', function () {
+      const mx = d3.mouse(widget.plotWrap.node())[0];
+      const cl = closest(widget.data()[0], mx, function (d) { return widget.time(d.x); });
       widget.selectSnapshot(cl);
     });
   };
@@ -296,9 +296,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-  window.SonarWidgets.StackArea.prototype.update = function() {
-    var widget = this,
-        width = this.container.property('offsetWidth');
+  window.SonarWidgets.StackArea.prototype.update = function () {
+    const widget = this;
+    const width = this.container.property('offsetWidth');
 
     this.width(width > 100 ? width : 100);
 
@@ -330,15 +330,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .enter()
         .insert('path', ':first-child')
         .attr('class', 'area')
-        .attr('d', function(d) { return widget.area(d); })
-        .style('fill', function(d, i) { return widget.color(i); });
+        .attr('d', function (d) { return widget.area(d); })
+        .style('fill', function (d, i) { return widget.color(i); });
 
     this.gareaLine = this.plotWrap.selectAll('.area-line')
         .data(this.stackData)
         .enter()
         .insert('path')
         .attr('class', 'area-line')
-        .attr('d', function(d) { return widget.areaLine(d); })
+        .attr('d', function (d) { return widget.areaLine(d); })
         .style('fill', 'none')
         .style('stroke', '#808080');
 
@@ -350,7 +350,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Update events
     this.gevents
         .transition()
-        .attr('transform', function(d) {
+        .attr('transform', function (d) {
           return trans(widget.time(d.d), widget.availableHeight + 10);
         });
 
@@ -365,7 +365,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
   window.SonarWidgets.StackArea.defaults = {
     width: 350,
     height: 150,
@@ -373,11 +372,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
   // Some helper functions
 
   // Gets or sets parameter
-  function param(name, value) {
+  function param (name, value) {
     if (value == null) {
       return this[name];
     } else {
@@ -387,14 +385,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   }
 
   // Helper for create the translate(x, y) string
-  function trans(left, top) {
+  function trans (left, top) {
     return 'translate(' + left + ', ' + top + ')';
   }
 
   // Helper for find the closest number in array
-  function closest(array, number, getter) {
-    var cl = null;
-    array.forEach(function(value, i) {
+  function closest (array, number, getter) {
+    let cl = null;
+    array.forEach(function (value, i) {
       if (cl == null ||
           Math.abs(getter(value) - number) < Math.abs(getter(array[cl]) - number)) {
         cl = i;

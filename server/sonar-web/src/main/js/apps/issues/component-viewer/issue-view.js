@@ -21,12 +21,12 @@ import _ from 'underscore';
 import IssueView from '../workspace-list-item-view';
 
 export default IssueView.extend({
-  onRender: function () {
+  onRender () {
     IssueView.prototype.onRender.apply(this, arguments);
     this.$el.removeClass('issue-navigate-right issue-with-checkbox');
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(IssueView.prototype.serializeData.apply(this, arguments), {
       showComponent: false
     });

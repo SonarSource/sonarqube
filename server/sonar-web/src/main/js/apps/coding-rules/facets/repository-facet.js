@@ -22,18 +22,18 @@ import CustomValuesFacet from './custom-values-facet';
 
 export default CustomValuesFacet.extend({
 
-  getUrl: function () {
+  getUrl () {
     return '/api/rules/repositories';
   },
 
-  prepareAjaxSearch: function () {
+  prepareAjaxSearch () {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data: function (term) {
+      data (term) {
         return { q: term, ps: 10000 };
       },
-      results: function (data) {
+      results (data) {
         return {
           more: false,
           results: data.repositories.map(function (repo) {
@@ -44,25 +44,25 @@ export default CustomValuesFacet.extend({
     };
   },
 
-  getLabelsSource: function () {
-    var repos = this.options.app.repositories;
+  getLabelsSource () {
+    const repos = this.options.app.repositories;
     return _.object(_.pluck(repos, 'key'), _.pluck(repos, 'name'));
   },
 
-  getValues: function () {
-    var that = this,
-        labels = that.getLabelsSource();
+  getValues () {
+    const that = this;
+    const labels = that.getLabelsSource();
     return this.model.getValues().map(function (value) {
-      var repo = _.findWhere(that.options.app.repositories, { key: value.val });
+      const repo = _.findWhere(that.options.app.repositories, { key: value.val });
       if (repo != null) {
-        var langName = that.options.app.languages[repo.language];
+        const langName = that.options.app.languages[repo.language];
         _.extend(value, { extra: langName });
       }
       return _.extend(value, { label: labels[value.val] });
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
       values: this.getValues()
     });

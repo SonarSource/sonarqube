@@ -48,19 +48,19 @@ export default Marionette.ItemView.extend({
     'click @ui.extendDescriptionRemove': 'removeExtendedDescription'
   },
 
-  showExtendDescriptionForm: function () {
+  showExtendDescriptionForm () {
     this.ui.descriptionExtra.addClass('hidden');
     this.ui.extendDescriptionForm.removeClass('hidden');
     this.ui.extendDescriptionText.focus();
   },
 
-  hideExtendDescriptionForm: function () {
+  hideExtendDescriptionForm () {
     this.ui.descriptionExtra.removeClass('hidden');
     this.ui.extendDescriptionForm.addClass('hidden');
   },
 
-  submitExtendDescription: function () {
-    var that = this;
+  submitExtendDescription () {
+    const that = this;
     this.ui.extendDescriptionForm.addClass('hidden');
     return $.ajax({
       type: 'POST',
@@ -81,22 +81,22 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  removeExtendedDescription: function () {
-    var that = this;
+  removeExtendedDescription () {
+    const that = this;
     confirmDialog({
       html: translate('coding_rules.remove_extended_description.confirm'),
-      yesHandler: function () {
+      yesHandler () {
         that.ui.extendDescriptionText.val('');
         that.submitExtendDescription();
       }
     });
   },
 
-  serializeData: function () {
-    var isEditable = this.options.app.canWrite && (this.model.get('isManual') || this.model.get('isCustom'));
+  serializeData () {
+    const isEditable = this.options.app.canWrite && (this.model.get('isManual') || this.model.get('isCustom'));
 
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      isEditable: isEditable,
+      isEditable,
       canWrite: this.options.app.canWrite
     });
   }

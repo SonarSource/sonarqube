@@ -24,7 +24,7 @@ const HISTORY_LIMIT = 10;
 
 export default class RecentHistory {
   static get () {
-    var history = localStorage.getItem(STORAGE_KEY);
+    let history = localStorage.getItem(STORAGE_KEY);
     if (history == null) {
       history = [];
     } else {
@@ -47,11 +47,11 @@ export default class RecentHistory {
   }
 
   static add (componentKey, componentName, icon) {
-    var sonarHistory = RecentHistory.get();
+    const sonarHistory = RecentHistory.get();
 
     if (componentKey) {
-      var newEntry = { key: componentKey, name: componentName, icon: icon };
-      var newHistory = _.reject(sonarHistory, entry => entry.key === newEntry.key);
+      const newEntry = { key: componentKey, name: componentName, icon };
+      let newHistory = _.reject(sonarHistory, entry => entry.key === newEntry.key);
       newHistory.unshift(newEntry);
       newHistory = _.first(newHistory, HISTORY_LIMIT);
       RecentHistory.set(newHistory);

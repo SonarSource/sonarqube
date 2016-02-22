@@ -24,7 +24,7 @@ import IssueFilterView from './issue-filter-view';
 import CheckboxTemplate from './templates/issues-issue-checkbox.hbs';
 import FilterTemplate from './templates/issues-issue-filter.hbs';
 
-var SHOULD_NULL = {
+const SHOULD_NULL = {
   any: ['issues'],
   resolutions: ['resolved'],
   resolved: ['resolutions'],
@@ -38,7 +38,7 @@ export default IssueView.extend({
   checkboxTemplate: CheckboxTemplate,
   filterTemplate: FilterTemplate,
 
-  events: function () {
+  events () {
     return _.extend(IssueView.prototype.events.apply(this, arguments), {
       'click': 'selectCurrent',
       'dblclick': 'openComponentViewer',
@@ -48,12 +48,12 @@ export default IssueView.extend({
     });
   },
 
-  initialize: function (options) {
+  initialize (options) {
     IssueView.prototype.initialize.apply(this, arguments);
     this.listenTo(options.app.state, 'change:selectedIndex', this.select);
   },
 
-  onRender: function () {
+  onRender () {
     IssueView.prototype.onRender.apply(this, arguments);
     this.select();
     this.addFilterSelect();
@@ -64,8 +64,8 @@ export default IssueView.extend({
     }
   },
 
-  onIssueFilterClick: function (e) {
-    var that = this;
+  onIssueFilterClick (e) {
+    const that = this;
     e.preventDefault();
     e.stopPropagation();
     $('body').click();
@@ -75,8 +75,7 @@ export default IssueView.extend({
       model: this.model
     });
     this.popup.on('select', function (property, value) {
-      var obj;
-      obj = {};
+      const obj = {};
       obj[property] = '' + value;
       SHOULD_NULL.any.forEach(function (p) {
         obj[p] = null;
@@ -92,50 +91,50 @@ export default IssueView.extend({
     this.popup.render();
   },
 
-  onIssueToggle: function (e) {
+  onIssueToggle (e) {
     e.preventDefault();
     this.model.set({ selected: !this.model.get('selected') });
-    var selected = this.model.collection.where({ selected: true }).length;
-    this.options.app.state.set({ selected: selected });
+    const selected = this.model.collection.where({ selected: true }).length;
+    this.options.app.state.set({ selected });
   },
 
-  addFilterSelect: function () {
+  addFilterSelect () {
     this.$('.issue-table-meta-cell-first')
         .find('.issue-meta-list')
         .append(this.filterTemplate(this.model.toJSON()));
   },
 
-  addCheckbox: function () {
+  addCheckbox () {
     this.$el.append(this.checkboxTemplate(this.model.toJSON()));
   },
 
-  select: function () {
-    var selected = this.model.get('index') === this.options.app.state.get('selectedIndex');
+  select () {
+    const selected = this.model.get('index') === this.options.app.state.get('selectedIndex');
     this.$el.toggleClass('selected', selected);
   },
 
-  selectCurrent: function () {
+  selectCurrent () {
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
   },
 
-  resetIssue: function (options) {
-    var that = this;
-    var key = this.model.get('key'),
-        componentUuid = this.model.get('componentUuid'),
-        index = this.model.get('index'),
-        selected = this.model.get('selected');
+  resetIssue (options) {
+    const that = this;
+    const key = this.model.get('key');
+    const componentUuid = this.model.get('componentUuid');
+    const index = this.model.get('index');
+    const selected = this.model.get('selected');
     this.model.reset({
-      key: key,
-      componentUuid: componentUuid,
-      index: index,
-      selected: selected
+      key,
+      componentUuid,
+      index,
+      selected
     }, { silent: true });
     return this.model.fetch(options).done(function () {
       return that.trigger('reset');
     });
   },
 
-  openComponentViewer: function () {
+  openComponentViewer () {
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
     if (this.options.app.state.has('component')) {
       return this.options.app.controller.closeComponentViewer();
@@ -144,7 +143,7 @@ export default IssueView.extend({
     }
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(IssueView.prototype.serializeData.apply(this, arguments), {
       showComponent: true
     });

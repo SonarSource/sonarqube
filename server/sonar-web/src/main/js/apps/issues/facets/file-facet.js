@@ -25,22 +25,22 @@ import Template from '../templates/facets/issues-file-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
-    var maxValueWidth = _.max(this.$('.facet-stat').map(function () {
+    const maxValueWidth = _.max(this.$('.facet-stat').map(function () {
       return $(this).outerWidth();
     }).get());
     return this.$('.facet-name').css('padding-right', maxValueWidth);
   },
 
-  getValuesWithLabels: function () {
-    var values = this.model.getValues(),
-        source = this.options.app.facets.components;
+  getValuesWithLabels () {
+    const values = this.model.getValues();
+    const source = this.options.app.facets.components;
     values.forEach(function (v) {
-      var key = v.val,
-          label = null;
+      const key = v.val;
+      let label = null;
       if (key) {
-        var item = _.findWhere(source, { uuid: key });
+        const item = _.findWhere(source, { uuid: key });
         if (item != null) {
           label = item.longName;
         }
@@ -50,7 +50,7 @@ export default BaseFacet.extend({
     return values;
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.getValuesWithLabels())
     });

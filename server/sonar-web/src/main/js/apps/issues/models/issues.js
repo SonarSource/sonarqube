@@ -24,19 +24,19 @@ import Issue from './issue';
 export default Backbone.Collection.extend({
   model: Issue,
 
-  url: function () {
+  url () {
     return '/api/issues/search';
   },
 
-  _injectRelational: function (issue, source, baseField, lookupField) {
-    var baseValue = issue[baseField];
+  _injectRelational (issue, source, baseField, lookupField) {
+    const baseValue = issue[baseField];
     if (baseValue != null && _.size(source)) {
-      var lookupValue = _.find(source, function (candidate) {
+      const lookupValue = _.find(source, function (candidate) {
         return candidate[lookupField] === baseValue;
       });
       if (lookupValue != null) {
         Object.keys(lookupValue).forEach(function (key) {
-          var newKey = baseField + key.charAt(0).toUpperCase() + key.slice(1);
+          const newKey = baseField + key.charAt(0).toUpperCase() + key.slice(1);
           issue[newKey] = lookupValue[key];
         });
       }
@@ -44,11 +44,11 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  _injectCommentsRelational: function (issue, users) {
+  _injectCommentsRelational (issue, users) {
     if (issue.comments) {
-      var that = this;
-      var newComments = issue.comments.map(function (comment) {
-        var newComment = _.extend({}, comment, { author: comment.login });
+      const that = this;
+      const newComments = issue.comments.map(function (comment) {
+        let newComment = _.extend({}, comment, { author: comment.login });
         delete newComment.login;
         newComment = that._injectRelational(newComment, users, 'author', 'login');
         return newComment;
@@ -58,7 +58,7 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  _prepareClosed: function (issue) {
+  _prepareClosed (issue) {
     if (issue.status === 'CLOSED') {
       issue.flows = [];
       delete issue.textRange;
@@ -66,7 +66,7 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  ensureTextRange: function (issue) {
+  ensureTextRange (issue) {
     if (issue.line && !issue.textRange) {
       // FIXME 999999
       issue.textRange = {
@@ -79,10 +79,10 @@ export default Backbone.Collection.extend({
     return issue;
   },
 
-  parseIssues: function (r) {
-    var that = this;
+  parseIssues (r) {
+    const that = this;
     return r.issues.map(function (issue, index) {
-      _.extend(issue, { index: index });
+      _.extend(issue, { index });
       issue = that._injectRelational(issue, r.components, 'component', 'key');
       issue = that._injectRelational(issue, r.components, 'project', 'key');
       issue = that._injectRelational(issue, r.components, 'subProject', 'key');
@@ -97,16 +97,16 @@ export default Backbone.Collection.extend({
     });
   },
 
-  setIndex: function () {
+  setIndex () {
     return this.forEach(function (issue, index) {
-      return issue.set({ index: index });
+      return issue.set({ index });
     });
   },
 
-  selectByKeys: function (keys) {
-    var that = this;
+  selectByKeys (keys) {
+    const that = this;
     keys.forEach(function (key) {
-      var issue = that.get(key);
+      const issue = that.get(key);
       if (issue) {
         issue.set({ selected: true });
       }

@@ -25,20 +25,20 @@ import Template from '../templates/facets/issues-action-plan-facet.hbs';
 export default BaseFacet.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
-    var value = this.options.app.state.get('query').planned;
+    const value = this.options.app.state.get('query').planned;
     if ((value != null) && (!value || value === 'false')) {
       return this.$('.js-facet').filter('[data-unplanned]').addClass('active');
     }
   },
 
-  toggleFacet: function (e) {
-    var unplanned = $(e.currentTarget).is('[data-unplanned]');
+  toggleFacet (e) {
+    const unplanned = $(e.currentTarget).is('[data-unplanned]');
     $(e.currentTarget).toggleClass('active');
     if (unplanned) {
-      var checked = $(e.currentTarget).is('.active'),
-          value = checked ? 'false' : null;
+      const checked = $(e.currentTarget).is('.active');
+      const value = checked ? 'false' : null;
       return this.options.app.state.updateFilter({
         planned: value,
         actionPlans: null
@@ -51,14 +51,14 @@ export default BaseFacet.extend({
     }
   },
 
-  getValuesWithLabels: function () {
-    var values = this.model.getValues(),
-        actionPlans = this.options.app.facets.actionPlans;
+  getValuesWithLabels () {
+    const values = this.model.getValues();
+    const actionPlans = this.options.app.facets.actionPlans;
     values.forEach(function (v) {
-      var key = v.val,
-          label = null;
+      const key = v.val;
+      let label = null;
       if (key) {
-        var actionPlan = _.findWhere(actionPlans, { key: key });
+        const actionPlan = _.findWhere(actionPlans, { key });
         if (actionPlan != null) {
           label = actionPlan.name;
         }
@@ -68,14 +68,14 @@ export default BaseFacet.extend({
     return values;
   },
 
-  disable: function () {
+  disable () {
     return this.options.app.state.updateFilter({
       planned: null,
       actionPlans: null
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       values: this.getValuesWithLabels()
     });

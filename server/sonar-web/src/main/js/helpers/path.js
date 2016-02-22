@@ -25,23 +25,23 @@ export function collapsePath (path, limit = 30) {
     return '';
   }
 
-  var tokens = path.split('/');
+  const tokens = path.split('/');
 
   if (tokens.length <= 2) {
     return path;
   }
 
-  var head = _.first(tokens),
-      tail = _.last(tokens),
-      middle = _.initial(_.rest(tokens)),
-      cut = false;
+  const head = _.first(tokens);
+  const tail = _.last(tokens);
+  const middle = _.initial(_.rest(tokens));
+  let cut = false;
 
   while (middle.join().length > limit && middle.length > 0) {
     middle.shift();
     cut = true;
   }
 
-  var body = [].concat(head, cut ? ['...'] : [], middle, tail);
+  const body = [].concat(head, cut ? ['...'] : [], middle, tail);
   return body.join('/');
 }
 
@@ -55,19 +55,19 @@ export function collapsePath (path, limit = 30) {
  * @returns {string|null}
  */
 export function collapsedDirFromPath (path) {
-  var limit = 30;
+  const limit = 30;
   if (typeof path === 'string') {
-    var tokens = _.initial(path.split('/'));
+    const tokens = _.initial(path.split('/'));
     if (tokens.length > 2) {
-      var head = _.first(tokens),
-          tail = _.last(tokens),
-          middle = _.initial(_.rest(tokens)),
-          cut = false;
+      const head = _.first(tokens);
+      const tail = _.last(tokens);
+      const middle = _.initial(_.rest(tokens));
+      let cut = false;
       while (middle.join().length > limit && middle.length > 0) {
         middle.shift();
         cut = true;
       }
-      var body = [].concat(head, cut ? ['...'] : [], middle, tail);
+      const body = [].concat(head, cut ? ['...'] : [], middle, tail);
       return body.join('/') + '/';
     } else {
       return tokens.join('/') + '/';
@@ -88,7 +88,7 @@ export function collapsedDirFromPath (path) {
  */
 export function fileFromPath (path) {
   if (typeof path === 'string') {
-    var tokens = path.split('/');
+    const tokens = path.split('/');
     return _.last(tokens);
   } else {
     return null;

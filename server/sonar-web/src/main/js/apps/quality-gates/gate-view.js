@@ -33,12 +33,12 @@ export default Marionette.ItemView.extend({
     'click': 'onClick'
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.toggleClass('active', this.options.highlighted);
     this.$el.attr('data-id', this.model.id);
   },
 
-  onClick: function (e) {
+  onClick (e) {
     e.preventDefault();
     this.model.trigger('select', this.model);
   }

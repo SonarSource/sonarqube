@@ -26,18 +26,17 @@ import ViewerView from './views/viewer-view';
 import RuleView from './views/rule-view';
 
 
-var instance = null,
-
-    Workspace = function () {
-      if (instance != null) {
-        throw new Error('Cannot instantiate more than one Workspace, use Workspace.getInstance()');
-      }
-      this.initialize();
-    };
+let instance = null;
+const Workspace = function () {
+  if (instance != null) {
+    throw new Error('Cannot instantiate more than one Workspace, use Workspace.getInstance()');
+  }
+  this.initialize();
+};
 
 Workspace.prototype = {
-  initialize: function () {
-    var that = this;
+  initialize () {
+    const that = this;
 
     this.items = new Items();
     this.items.load();
@@ -52,22 +51,22 @@ Workspace.prototype = {
     });
   },
 
-  save: function () {
+  save () {
     this.items.save();
   },
 
-  addComponent: function (model) {
-    var m = this.items.add2(model);
+  addComponent (model) {
+    const m = this.items.add2(model);
     this.save();
     return m;
   },
 
-  open: function (options) {
-    var model = typeof options.toJSON === 'function' ? options : new Item(options);
+  open (options) {
+    const model = typeof options.toJSON === 'function' ? options : new Item(options);
     if (!model.isValid()) {
       throw new Error(model.validationError);
     }
-    var m = this.addComponent(model);
+    const m = this.addComponent(model);
     if (m.isComponent()) {
       this.showComponentViewer(m);
     }
@@ -76,23 +75,23 @@ Workspace.prototype = {
     }
   },
 
-  openComponent: function (options) {
+  openComponent (options) {
     return this.open(_.extend(options, { type: 'component' }));
   },
 
-  openRule: function (options) {
+  openRule (options) {
     return this.open(_.extend(options, { type: 'rule' }));
   },
 
-  showViewer: function (Viewer, model) {
-    var that = this;
+  showViewer (Viewer, model) {
+    const that = this;
     if (this.viewerView != null) {
       this.viewerView.model.trigger('hideViewer');
       this.viewerView.destroy();
     }
     $('html').addClass('with-workspace');
     model.trigger('showViewer');
-    this.viewerView = new Viewer({ model: model });
+    this.viewerView = new Viewer({ model });
     this.viewerView
         .on('viewerMinimize', function () {
           model.trigger('hideViewer');
@@ -105,32 +104,31 @@ Workspace.prototype = {
     this.viewerView.render().$el.appendTo(document.body);
   },
 
-  showComponentViewer: function (model) {
+  showComponentViewer (model) {
     this.showViewer(ViewerView, model);
   },
 
-  closeComponentViewer: function () {
+  closeComponentViewer () {
     if (this.viewerView != null) {
       this.viewerView.destroy();
       $('.with-workspace').removeClass('with-workspace');
     }
   },
 
-  showRule: function (model) {
-    var that = this;
-    this.fetchRule(model)
-        .done(function () {
-          model.set({ exist: true });
-          that.showViewer(RuleView, model);
-        }).fail(function () {
-          model.set({ exist: false });
-          that.showViewer(RuleView, model);
-        });
+  showRule (model) {
+    const that = this;
+    this.fetchRule(model).done(function () {
+      model.set({ exist: true });
+      that.showViewer(RuleView, model);
+    }).fail(function () {
+      model.set({ exist: false });
+      that.showViewer(RuleView, model);
+    });
   },
 
-  fetchRule: function (model) {
-    var url = '/api/rules/show',
-        options = { key: model.get('key') };
+  fetchRule (model) {
+    const url = '/api/rules/show';
+    const options = { key: model.get('key') };
     return $.get(url, options).done(function (r) {
       model.set(r.rule);
     });

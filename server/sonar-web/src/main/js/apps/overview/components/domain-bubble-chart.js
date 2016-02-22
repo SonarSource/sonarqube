@@ -70,7 +70,7 @@ export class DomainBubbleChart extends React.Component {
       });
       this.setState({
         loading: false,
-        files: files,
+        files,
         total: files.length
       });
     });

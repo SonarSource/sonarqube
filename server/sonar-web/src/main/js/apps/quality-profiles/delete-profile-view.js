@@ -28,19 +28,19 @@ export default ModalFormView.extend({
     'destroy': 'destroy'
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  sendRequest: function () {
-    var that = this,
-        url = '/api/qualityprofiles/delete',
-        options = { profileKey: this.model.get('key') };
+  sendRequest () {
+    const that = this;
+    const url = '/api/qualityprofiles/delete';
+    const options = { profileKey: this.model.get('key') };
     return $.ajax({
       type: 'POST',
-      url: url,
+      url,
       data: options,
       statusCode: {
         // do not show global error

@@ -22,62 +22,62 @@ import ModalView from './modals';
 
 export default ModalView.extend({
 
-  ui: function () {
+  ui () {
     return {
       messagesContainer: '.js-modal-messages'
     };
   },
 
-  events: function () {
+  events () {
     return _.extend(ModalView.prototype.events.apply(this, arguments), {
       'keydown input,textarea,select': 'onInputKeydown',
       'submit form': 'onFormSubmit'
     });
   },
 
-  onRender: function () {
+  onRender () {
     ModalView.prototype.onRender.apply(this, arguments);
-    var that = this;
+    const that = this;
     setTimeout(function () {
       that.$(':tabbable').first().focus();
     }, 0);
   },
 
-  onInputKeydown: function (e) {
+  onInputKeydown (e) {
     if (e.keyCode === 27) {
       // escape
       this.destroy();
     }
   },
 
-  onFormSubmit: function (e) {
+  onFormSubmit (e) {
     e.preventDefault();
   },
 
-  showErrors: function (errors, warnings) {
-    var container = this.ui.messagesContainer.empty();
+  showErrors (errors, warnings) {
+    const container = this.ui.messagesContainer.empty();
     if (_.isArray(errors)) {
       errors.forEach(function (error) {
-        var html = '<div class="alert alert-danger">' + error.msg + '</div>';
+        const html = '<div class="alert alert-danger">' + error.msg + '</div>';
         container.append(html);
       });
     }
     if (_.isArray(warnings)) {
       warnings.forEach(function (warn) {
-        var html = '<div class="alert alert-warning">' + warn.msg + '</div>';
+        const html = '<div class="alert alert-warning">' + warn.msg + '</div>';
         container.append(html);
       });
     }
     this.ui.messagesContainer.scrollParent().scrollTop(0);
   },
 
-  disableForm: function () {
-    var form = this.$('form');
+  disableForm () {
+    const form = this.$('form');
     this.disabledFields = form.find(':input:not(:disabled)');
     this.disabledFields.prop('disabled', true);
   },
 
-  enableForm: function () {
+  enableForm () {
     if (this.disabledFields != null) {
       this.disabledFields.prop('disabled', false);
     }

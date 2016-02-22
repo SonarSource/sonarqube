@@ -24,14 +24,14 @@ import Template from './templates/users-groups.hbs';
 export default Modal.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     Modal.prototype.onRender.apply(this, arguments);
     new window.SelectList({
       el: this.$('#users-groups'),
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format: function (item) {
+      format (item) {
         return item.name + '<br><span class="note">' + item.description + '</span>';
       },
       queryParam: 'q',
@@ -43,14 +43,14 @@ export default Modal.extend({
       },
       selectParameter: 'id',
       selectParameterValue: 'id',
-      parse: function (r) {
+      parse (r) {
         this.more = false;
         return r.groups;
       }
     });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.model.collection.refresh();
     Modal.prototype.onDestroy.apply(this, arguments);
   }

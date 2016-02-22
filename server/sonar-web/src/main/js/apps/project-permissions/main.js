@@ -55,12 +55,12 @@ export default React.createClass({
         let projectPermission = _.findWhere(project.permissions, { key: basePermission.key });
         return _.extend({ usersCount: 0, groupsCount: 0 }, basePermission, projectPermission);
       });
-      return _.extend({}, project, { permissions: permissions });
+      return _.extend({}, project, { permissions });
     });
   },
 
   requestPermissions(page = 1, query = '', filter = this.state.filter) {
-    let url = `/api/permissions/search_project_permissions`;
+    let url = '/api/permissions/search_project_permissions';
     let data = { p: page, q: query };
     if (filter !== '__ALL__') {
       data.qualifier = filter;
@@ -77,12 +77,12 @@ export default React.createClass({
         }
         this.setState({
           ready: true,
-          projects: projects,
-          permissions: permissions,
+          projects,
+          permissions,
           total: r.paging.total,
           page: r.paging.pageIndex,
-          query: query,
-          filter: filter
+          query,
+          filter
         });
       });
     });

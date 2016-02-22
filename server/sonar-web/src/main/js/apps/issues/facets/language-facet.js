@@ -22,32 +22,32 @@ import CustomValuesFacet from './custom-values-facet';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
-  getUrl: function () {
+  getUrl () {
     return '/api/languages/list';
   },
 
-  prepareSearch: function () {
+  prepareSearch () {
     return this.$('.js-custom-value').select2({
       placeholder: 'Search...',
       minimumInputLength: 2,
       allowClear: false,
-      formatNoMatches: function () {
+      formatNoMatches () {
         return translate('select2.noMatches');
       },
-      formatSearching: function () {
+      formatSearching () {
         return translate('select2.searching');
       },
-      formatInputTooShort: function () {
+      formatInputTooShort () {
         return translateWithParameters('select2.tooShort', 2);
       },
       width: '100%',
       ajax: {
         quietMillis: 300,
         url: this.getUrl(),
-        data: function (term) {
+        data (term) {
           return { q: term, ps: 0 };
         },
-        results: function (data) {
+        results (data) {
           return {
             more: false,
             results: data.languages.map(function (lang) {
@@ -59,14 +59,14 @@ export default CustomValuesFacet.extend({
     });
   },
 
-  getValuesWithLabels: function () {
-    var values = this.model.getValues(),
-        source = this.options.app.facets.languages;
+  getValuesWithLabels () {
+    const values = this.model.getValues();
+    const source = this.options.app.facets.languages;
     values.forEach(function (v) {
-      var key = v.val,
-          label = null;
+      const key = v.val;
+      let label = null;
       if (key) {
-        var item = _.findWhere(source, { key: key });
+        const item = _.findWhere(source, { key });
         if (item != null) {
           label = item.name;
         }
@@ -76,7 +76,7 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.getValuesWithLabels())
     });

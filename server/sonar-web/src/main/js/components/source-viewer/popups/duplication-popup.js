@@ -30,32 +30,32 @@ export default Popup.extend({
     'click a[data-uuid]': 'goToFile'
   },
 
-  goToFile: function (e) {
+  goToFile (e) {
     e.stopPropagation();
-    var uuid = $(e.currentTarget).data('uuid'),
-        line = $(e.currentTarget).data('line');
-    Workspace.openComponent({ uuid: uuid, line: line });
+    const uuid = $(e.currentTarget).data('uuid');
+    const line = $(e.currentTarget).data('line');
+    Workspace.openComponent({ uuid, line });
   },
 
-  serializeData: function () {
-    var that = this,
-        files = this.model.get('duplicationFiles'),
-        groupedBlocks = _.groupBy(this.collection.toJSON(), '_ref'),
-        duplications = _.map(groupedBlocks, function (blocks, fileRef) {
-          return {
-            blocks: blocks,
-            file: files[fileRef]
-          };
-        });
+  serializeData () {
+    const that = this;
+    const files = this.model.get('duplicationFiles');
+    const groupedBlocks = _.groupBy(this.collection.toJSON(), '_ref');
+    let duplications = _.map(groupedBlocks, function (blocks, fileRef) {
+      return {
+        blocks,
+        file: files[fileRef]
+      };
+    });
     duplications = _.sortBy(duplications, function (d) {
-      var a = d.file.projectName !== that.model.get('projectName'),
-          b = d.file.subProjectName !== that.model.get('subProjectName'),
-          c = d.file.key !== that.model.get('key');
+      const a = d.file.projectName !== that.model.get('projectName');
+      const b = d.file.subProjectName !== that.model.get('subProjectName');
+      const c = d.file.key !== that.model.get('key');
       return '' + a + b + c;
     });
     return {
       component: this.model.toJSON(),
-      duplications: duplications,
+      duplications,
       inRemovedComponent: this.options.inRemovedComponent
     };
   }

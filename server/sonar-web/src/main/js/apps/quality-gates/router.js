@@ -25,15 +25,15 @@ export default Backbone.Router.extend({
     'show/:id': 'show'
   },
 
-  initialize: function (options) {
+  initialize (options) {
     this.app = options.app;
   },
 
-  index: function () {
+  index () {
     this.app.controller.index();
   },
 
-  show: function (id) {
+  show (id) {
     this.app.controller.show(id);
   }
 });

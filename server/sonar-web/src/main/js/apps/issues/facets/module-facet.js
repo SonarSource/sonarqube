@@ -21,14 +21,14 @@ import _ from 'underscore';
 import BaseFacet from './base-facet';
 
 export default BaseFacet.extend({
-  getValuesWithLabels: function () {
-    var values = this.model.getValues(),
-        components = this.options.app.facets.components;
+  getValuesWithLabels () {
+    const values = this.model.getValues();
+    const components = this.options.app.facets.components;
     values.forEach(function (v) {
-      var uuid = v.val,
-          label = uuid;
+      const uuid = v.val;
+      let label = uuid;
       if (uuid) {
-        var component = _.findWhere(components, { uuid: uuid });
+        const component = _.findWhere(components, { uuid });
         if (component != null) {
           label = component.longName;
         }
@@ -38,7 +38,7 @@ export default BaseFacet.extend({
     return values;
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.getValuesWithLabels())
     });

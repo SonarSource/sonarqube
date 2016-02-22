@@ -22,13 +22,13 @@ import BaseFacet from './base-facet';
 
 export default BaseFacet.extend({
 
-  getLabelsSource: function () {
+  getLabelsSource () {
     return [];
   },
 
-  getValues: function () {
-    var that = this,
-        labels = that.getLabelsSource();
+  getValues () {
+    const that = this;
+    const labels = that.getLabelsSource();
     return this.model.getValues().map(function (item) {
       return _.extend(item, {
         label: labels[item.val]
@@ -36,7 +36,7 @@ export default BaseFacet.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       values: this.getValues()
     });

@@ -23,8 +23,8 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
 
-  getUrl: function () {
-    var q = this.options.app.state.get('contextComponentQualifier');
+  getUrl () {
+    const q = this.options.app.state.get('contextComponentQualifier');
     if (q === 'VW' || q === 'SVW') {
       return '/api/components/search_view_components';
     } else {
@@ -32,8 +32,8 @@ export default CustomValuesFacet.extend({
     }
   },
 
-  prepareSearch: function () {
-    var q = this.options.app.state.get('contextComponentQualifier');
+  prepareSearch () {
+    const q = this.options.app.state.get('contextComponentQualifier');
     if (q === 'VW' || q === 'SVW') {
       return this.prepareSearchForViews();
     } else {
@@ -41,29 +41,29 @@ export default CustomValuesFacet.extend({
     }
   },
 
-  prepareSearchForViews: function () {
-    var componentId = this.options.app.state.get('contextComponentUuid');
+  prepareSearchForViews () {
+    const componentId = this.options.app.state.get('contextComponentUuid');
     return this.$('.js-custom-value').select2({
       placeholder: 'Search...',
       minimumInputLength: 2,
       allowClear: false,
-      formatNoMatches: function () {
+      formatNoMatches () {
         return translate('select2.noMatches');
       },
-      formatSearching: function () {
+      formatSearching () {
         return translate('select2.searching');
       },
-      formatInputTooShort: function () {
+      formatInputTooShort () {
         return translateWithParameters('select2.tooShort', 2);
       },
       width: '100%',
       ajax: {
         quietMillis: 300,
         url: this.getUrl(),
-        data: function (term, page) {
-          return { q: term, componentId: componentId, p: page, ps: 25 };
+        data (term, page) {
+          return { q: term, componentId, p: page, ps: 25 };
         },
-        results: function (data) {
+        results (data) {
           return {
             more: data.p * data.ps < data.total,
             results: data.components.map(function (c) {
@@ -75,14 +75,14 @@ export default CustomValuesFacet.extend({
     });
   },
 
-  getValuesWithLabels: function () {
-    var values = this.model.getValues(),
-        projects = this.options.app.facets.components;
+  getValuesWithLabels () {
+    const values = this.model.getValues();
+    const projects = this.options.app.facets.components;
     values.forEach(function (v) {
-      var uuid = v.val,
-          label = '';
+      const uuid = v.val;
+      let label = '';
       if (uuid) {
-        var project = _.findWhere(projects, { uuid: uuid });
+        const project = _.findWhere(projects, { uuid });
         if (project != null) {
           label = project.longName;
         }
@@ -92,7 +92,7 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.getValuesWithLabels())
     });

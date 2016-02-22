@@ -85,7 +85,7 @@ export default React.createClass({
   isCustomDashboardActive(customDashboard) {
     let path = window.location.pathname;
     let params = qs.parse(window.location.search.substr(1));
-    return path.indexOf(`/dashboard`) === 0 && params['did'] === `${customDashboard.key}`;
+    return path.indexOf('/dashboard') === 0 && params['did'] === `${customDashboard.key}`;
   },
 
   isCustomDashboardsActive () {
@@ -97,12 +97,12 @@ export default React.createClass({
 
   isDefaultDeveloperDashboardActive() {
     let path = window.location.pathname;
-    return this.isDeveloper() && path.indexOf(`/dashboard`) === 0;
+    return this.isDeveloper() && path.indexOf('/dashboard') === 0;
   },
 
   isDashboardManagementActive () {
     let path = window.location.pathname;
-    return path.indexOf(`/dashboards`) === 0;
+    return path.indexOf('/dashboards') === 0;
   },
 
   renderFixedDashboards() {

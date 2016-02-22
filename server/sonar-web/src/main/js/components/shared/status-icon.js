@@ -24,7 +24,7 @@ export default React.createClass({
     if (!this.props.status) {
       return null;
     }
-    var className = 'icon-status-' + this.props.status.toLowerCase();
+    const className = 'icon-status-' + this.props.status.toLowerCase();
     return <i className={className}></i>;
   }
 });

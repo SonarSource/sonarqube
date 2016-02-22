@@ -34,38 +34,37 @@ export default Marionette.ItemView.extend({
     'click .js-hide-response-example': 'onHideResponseExampleClick'
   },
 
-  initialize: function () {
+  initialize () {
     this.listenTo(this.options.state, 'change', this.toggleHidden);
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.attr('data-web-service', this.model.get('path'));
     this.$el.attr('data-action', this.model.get('key'));
     this.toggleHidden();
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onShowResponseExampleClick: function (e) {
+  onShowResponseExampleClick (e) {
     e.preventDefault();
     this.fetchResponse();
   },
 
-  onHideResponseExampleClick: function (e) {
+  onHideResponseExampleClick (e) {
     e.preventDefault();
     this.model.unset('responseExample');
   },
 
-  fetchResponse: function () {
-    var that = this,
-        url = '/api/webservices/response_example',
-        options = { controller: this.model.get('path'), action: this.model.get('key') };
-    return $.get(url, options).done(function (r) {
-      that.model.set({ responseExample: r.example });
+  fetchResponse () {
+    const url = '/api/webservices/response_example';
+    const options = { controller: this.model.get('path'), action: this.model.get('key') };
+    return $.get(url, options).done(r => {
+      this.model.set({ responseExample: r.example });
     });
   },
 
-  toggleHidden: function () {
-    var test = this.model.get('path') + '/' + this.model.get('key');
+  toggleHidden () {
+    const test = this.model.get('path') + '/' + this.model.get('key');
     this.$el.toggleClass('hidden', !this.options.state.match(test, this.model.get('internal')));
   }
 });

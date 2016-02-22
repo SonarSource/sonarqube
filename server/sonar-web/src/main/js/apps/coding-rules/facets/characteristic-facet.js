@@ -25,21 +25,21 @@ import Template from '../templates/facets/coding-rules-characteristic-facet.hbs'
 export default BaseFacet.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
-    var value = this.options.app.state.get('query').has_debt_characteristic;
+    const value = this.options.app.state.get('query').has_debt_characteristic;
     if (value != null && ('' + value === 'false')) {
       this.$('.js-facet').filter('[data-empty-characteristic]').addClass('active');
     }
   },
 
-  toggleFacet: function (e) {
-    var noneCharacteristic = $(e.currentTarget).is('[data-empty-characteristic]'),
-        property = this.model.get('property'),
-        obj = {};
+  toggleFacet (e) {
+    const noneCharacteristic = $(e.currentTarget).is('[data-empty-characteristic]');
+    const property = this.model.get('property');
+    const obj = {};
     $(e.currentTarget).toggleClass('active');
     if (noneCharacteristic) {
-      var checked = $(e.currentTarget).is('.active');
+      const checked = $(e.currentTarget).is('.active');
       obj.has_debt_characteristic = checked ? 'false' : null;
       obj[property] = null;
     } else {
@@ -49,19 +49,19 @@ export default BaseFacet.extend({
     this.options.app.state.updateFilter(obj);
   },
 
-  disable: function () {
-    var property = this.model.get('property'),
-        obj = {};
+  disable () {
+    const property = this.model.get('property');
+    const obj = {};
     obj.has_debt_characteristic = null;
     obj[property] = null;
     this.options.app.state.updateFilter(obj);
   },
 
-  getValues: function () {
-    var values = this.model.getValues(),
-        characteristics = this.options.app.characteristics;
+  getValues () {
+    const values = this.model.getValues();
+    const characteristics = this.options.app.characteristics;
     return values.map(function (value) {
-      var ch = _.findWhere(characteristics, { key: value.val });
+      const ch = _.findWhere(characteristics, { key: value.val });
       if (ch != null) {
         _.extend(value, ch, { label: ch.name });
       }
@@ -69,11 +69,11 @@ export default BaseFacet.extend({
     });
   },
 
-  sortValues: function (values) {
+  sortValues (values) {
     return _.sortBy(values, 'index');
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.getValues())
     });

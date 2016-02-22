@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = function (componentKey, componentQualifier) {
-  var url = '/dashboard/index?id=' + encodeURIComponent(componentKey);
+  let url = '/dashboard/index?id=' + encodeURIComponent(componentKey);
   if (componentQualifier === 'FIL' || componentQualifier === 'CLA') {
     url += '&metric=sqale_index';
   }

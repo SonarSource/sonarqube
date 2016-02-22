@@ -24,15 +24,15 @@ import Template from '../templates/workspace-viewer.hbs';
 export default BaseView.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     BaseView.prototype.onRender.apply(this, arguments);
     this.showViewer();
   },
 
-  showViewer: function () {
-    var that = this,
-        viewer = new SourceViewer(),
-        options = this.model.toJSON();
+  showViewer () {
+    const that = this;
+    const viewer = new SourceViewer();
+    const options = this.model.toJSON();
     viewer.open(this.model.get('uuid'), { workspace: true });
     viewer.on('loaded', function () {
       that.model.set({

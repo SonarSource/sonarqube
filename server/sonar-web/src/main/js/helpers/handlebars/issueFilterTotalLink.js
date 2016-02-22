@@ -21,7 +21,7 @@ import _ from 'underscore';
 
 function getQuery (query, separator) {
   separator = separator || '|';
-  var route = [];
+  const route = [];
   _.forEach(query, function (value, property) {
     route.push('' + property + '=' + encodeURIComponent(value));
   });
@@ -29,7 +29,7 @@ function getQuery (query, separator) {
 }
 
 module.exports = function (query, mode) {
-  var r = _.extend({}, query);
+  const r = _.extend({}, query);
   if (mode === 'debt') {
     r.facetMode = 'debt';
   }

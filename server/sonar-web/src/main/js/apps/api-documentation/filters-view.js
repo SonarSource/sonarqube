@@ -28,15 +28,15 @@ export default Marionette.ItemView.extend({
     'change .js-toggle-internal': 'toggleInternal'
   },
 
-  initialize: function () {
+  initialize () {
     this.listenTo(this.options.state, 'change:internal', this.render);
   },
 
-  toggleInternal: function () {
+  toggleInternal () {
     this.options.state.set({ internal: !this.options.state.get('internal') });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       state: this.options.state.toJSON()
     });

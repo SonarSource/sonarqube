@@ -63,7 +63,7 @@ export function groupByDomain (metrics) {
   let groupedMetrics = _.groupBy(metrics, 'domain');
   let domains = _.map(groupedMetrics, (metricList, domain) => {
     return {
-      domain: domain,
+      domain,
       metrics: _.sortBy(metricList, 'name')
     };
   });
@@ -129,7 +129,7 @@ function intVariationFormatter (value) {
 }
 
 function shortIntFormatter (value) {
-  var format = '0,0';
+  let format = '0,0';
   if (value >= 1000) {
     format = '0.[0]a';
   }
@@ -168,8 +168,8 @@ function ratingFormatter (value) {
 }
 
 function levelFormatter (value) {
-  var l10nKey = 'metric.level.' + value,
-      result = translate(l10nKey);
+  const l10nKey = 'metric.level.' + value;
+  const result = translate(l10nKey);
   // if couldn't translate, return the initial value
   return l10nKey !== result ? result : value;
 }
@@ -224,7 +224,7 @@ function addSpaceIfNeeded (value) {
 }
 
 function formatDuration (isNegative, days, hours, minutes) {
-  var formatted = '';
+  let formatted = '';
   if (shouldDisplayDays(days)) {
     formatted += translateWithParameters('work_duration.x_days', isNegative ? -1 * days : days);
   }
@@ -242,9 +242,9 @@ function formatDuration (isNegative, days, hours, minutes) {
 }
 
 function formatDurationShort (isNegative, days, hours, minutes) {
-  var formatted = '';
+  let formatted = '';
   if (shouldDisplayDays(days)) {
-    var formattedDays = formatMeasure(isNegative ? -1 * days : days, 'SHORT_INT');
+    const formattedDays = formatMeasure(isNegative ? -1 * days : days, 'SHORT_INT');
     formatted += translateWithParameters('work_duration.x_days', formattedDays);
   }
   if (shouldDisplayHoursInShortFormat(days, hours)) {
@@ -264,12 +264,12 @@ function durationFormatter (value) {
   if (value === 0) {
     return '0';
   }
-  var hoursInDay = window.SS.hoursInDay,
-      isNegative = value < 0,
-      absValue = Math.abs(value);
-  var days = Math.floor(absValue / hoursInDay / 60);
-  var remainingValue = absValue - days * hoursInDay * 60;
-  var hours = Math.floor(remainingValue / 60);
+  const hoursInDay = window.SS.hoursInDay;
+  const isNegative = value < 0;
+  const absValue = Math.abs(value);
+  const days = Math.floor(absValue / hoursInDay / 60);
+  let remainingValue = absValue - days * hoursInDay * 60;
+  const hours = Math.floor(remainingValue / 60);
   remainingValue -= hours * 60;
   return formatDuration(isNegative, days, hours, remainingValue);
 }
@@ -279,12 +279,12 @@ function shortDurationFormatter (value) {
   if (value === 0) {
     return '0';
   }
-  var hoursInDay = window.SS.hoursInDay,
-      isNegative = value < 0,
-      absValue = Math.abs(value);
-  var days = Math.floor(absValue / hoursInDay / 60);
-  var remainingValue = absValue - days * hoursInDay * 60;
-  var hours = Math.floor(remainingValue / 60);
+  const hoursInDay = window.SS.hoursInDay;
+  const isNegative = value < 0;
+  const absValue = Math.abs(value);
+  const days = Math.floor(absValue / hoursInDay / 60);
+  let remainingValue = absValue - days * hoursInDay * 60;
+  const hours = Math.floor(remainingValue / 60);
   remainingValue -= hours * 60;
   return formatDurationShort(isNegative, days, hours, remainingValue);
 }
@@ -293,7 +293,7 @@ function durationVariationFormatter (value) {
   if (value === 0) {
     return '0';
   }
-  var formatted = durationFormatter(value);
+  const formatted = durationFormatter(value);
   return formatted[0] !== '-' ? '+' + formatted : formatted;
 }
 
@@ -301,6 +301,6 @@ function shortDurationVariationFormatter (value) {
   if (value === 0) {
     return '+0';
   }
-  var formatted = shortDurationFormatter(value);
+  const formatted = shortDurationFormatter(value);
   return formatted[0] !== '-' ? '+' + formatted : formatted;
 }

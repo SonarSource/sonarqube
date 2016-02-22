@@ -22,15 +22,15 @@ import FormView from './form-view';
 
 export default FormView.extend({
 
-  sendRequest: function () {
-    var that = this,
-        user = new User({
-          login: this.$('#create-user-login').val(),
-          name: this.$('#create-user-name').val(),
-          email: this.$('#create-user-email').val(),
-          password: this.$('#create-user-password').val(),
-          scmAccounts: this.getScmAccounts()
-        });
+  sendRequest () {
+    const that = this;
+    const user = new User({
+      login: this.$('#create-user-login').val(),
+      name: this.$('#create-user-name').val(),
+      email: this.$('#create-user-email').val(),
+      password: this.$('#create-user-password').val(),
+      scmAccounts: this.getScmAccounts()
+    });
     this.disableForm();
     return user.save(null, {
       statusCode: {

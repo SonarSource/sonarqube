@@ -50,7 +50,7 @@ export default React.createClass({
         let projectPermission = _.findWhere(permissionTemplate.permissions, { key: basePermission.key });
         return _.extend({ usersCount: 0, groupsCount: 0 }, basePermission, projectPermission);
       });
-      return _.extend({}, permissionTemplate, { permissions: permissions });
+      return _.extend({}, permissionTemplate, { permissions });
     });
   },
 
@@ -74,7 +74,7 @@ export default React.createClass({
       this.setState({
         ready: true,
         permissionTemplates: permissionTemplatesWithDefaults,
-        permissions: permissions
+        permissions
       });
     });
   },

@@ -33,7 +33,7 @@ import InheritanceFacet from './facets/inheritance-facet';
 import ActiveSeverityFacet from './facets/active-severity-facet';
 import TemplateFacet from './facets/template-facet';
 
-var viewsMapping = {
+const viewsMapping = {
   q: QueryFacet,
   rule_key: KeyFacet,
   languages: LanguageFacet,
@@ -51,8 +51,8 @@ var viewsMapping = {
 
 export default FacetsView.extend({
 
-  getChildView: function (model) {
-    var view = viewsMapping[model.get('property')];
+  getChildView (model) {
+    const view = viewsMapping[model.get('property')];
     return view ? view : BaseFacet;
   }
 

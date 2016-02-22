@@ -21,7 +21,7 @@ import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
 
-  validate: function () {
+  validate () {
     if (!this.has('type')) {
       return 'type is missing';
     }
@@ -33,15 +33,15 @@ export default Backbone.Model.extend({
     }
   },
 
-  isComponent: function () {
+  isComponent () {
     return this.get('type') === 'component';
   },
 
-  isRule: function () {
+  isRule () {
     return this.get('type') === 'rule';
   },
 
-  destroy: function (options) {
+  destroy (options) {
     this.stopListening();
     this.trigger('destroy', this, this.collection, options);
   }

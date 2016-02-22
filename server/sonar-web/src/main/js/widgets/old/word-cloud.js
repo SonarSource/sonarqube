@@ -33,7 +33,7 @@
   WordCloud.prototype.sizeLow = 10;
 
   WordCloud.prototype.formatDirectory = function (path) {
-    var dirs = path.split('/');
+    const dirs = path.split('/');
     if (dirs.length > 2) {
       return '.../' + dirs[dirs.length - 1];
     } else {
@@ -42,9 +42,9 @@
   };
 
   WordCloud.prototype.renderWords = function () {
-    var that = this;
-    var words = this.wordContainer.selectAll('.cloud-word').data(this.components()),
-        wordsEnter = words.enter().append('a').classed('cloud-word', true);
+    const that = this;
+    const words = this.wordContainer.selectAll('.cloud-word').data(this.components());
+    const wordsEnter = words.enter().append('a').classed('cloud-word', true);
     wordsEnter.text(function (d) {
       return d.qualifier === 'DIR' ? that.formatDirectory(d.name) : d.name;
     });
@@ -74,8 +74,8 @@
   };
 
   WordCloud.prototype.render = function (container) {
-    var that = this;
-    var box = d3.select(container).append('div');
+    const that = this;
+    const box = d3.select(container).append('div');
     box.classed('sonar-d3', true);
     box.classed('cloud-widget', true);
     this.wordContainer = box.append('div');
@@ -87,12 +87,12 @@
     } else {
       this.color.range(this.colors4r);
     }
-    var sizeDomain = d3.extent(this.components(), function (d) {
+    const sizeDomain = d3.extent(this.components(), function (d) {
       return that.sizeMetric.value(d);
     });
     this.size = d3.scale.linear().domain(sizeDomain).range([this.sizeLow, this.sizeHigh]);
     if (this.maxResultsReached()) {
-      var maxResultsReachedLabel = box.append('div').text(this.options().maxItemsReachedMessage);
+      const maxResultsReachedLabel = box.append('div').text(this.options().maxItemsReachedMessage);
       maxResultsReachedLabel.classed('max-results-reached-message', true);
     }
     this.renderWords();

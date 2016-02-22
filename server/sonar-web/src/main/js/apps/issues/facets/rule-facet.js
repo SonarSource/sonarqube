@@ -22,9 +22,9 @@ import CustomValuesFacet from './custom-values-facet';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
-  prepareSearch: function () {
-    var url = '/api/rules/search?f=name,langName',
-        languages = this.options.app.state.get('query').languages;
+  prepareSearch () {
+    let url = '/api/rules/search?f=name,langName';
+    const languages = this.options.app.state.get('query').languages;
     if (languages != null) {
       url += '&languages=' + languages;
     }
@@ -32,26 +32,25 @@ export default CustomValuesFacet.extend({
       placeholder: 'Search...',
       minimumInputLength: 2,
       allowClear: false,
-      formatNoMatches: function () {
+      formatNoMatches () {
         return translate('select2.noMatches');
       },
-      formatSearching: function () {
+      formatSearching () {
         return translate('select2.searching');
       },
-      formatInputTooShort: function () {
+      formatInputTooShort () {
         return translateWithParameters('select2.tooShort', 2);
       },
       width: '100%',
       ajax: {
         quietMillis: 300,
-        url: url,
-        data: function (term, page) {
+        url,
+        data (term, page) {
           return { q: term, p: page };
         },
-        results: function (data) {
-          var results;
-          results = data.rules.map(function (rule) {
-            var lang = rule.langName || translate('manual');
+        results (data) {
+          const results = data.rules.map(function (rule) {
+            const lang = rule.langName || translate('manual');
             return {
               id: rule.key,
               text: '(' + lang + ') ' + rule.name
@@ -59,22 +58,22 @@ export default CustomValuesFacet.extend({
           });
           return {
             more: data.p * data.ps < data.total,
-            results: results
+            results
           };
         }
       }
     });
   },
 
-  getValuesWithLabels: function () {
-    var values = this.model.getValues(),
-        rules = this.options.app.facets.rules;
+  getValuesWithLabels () {
+    const values = this.model.getValues();
+    const rules = this.options.app.facets.rules;
     values.forEach(function (v) {
-      var key = v.val,
-          label = '',
-          extra = '';
+      const key = v.val;
+      let label = '';
+      let extra = '';
       if (key) {
-        var rule = _.findWhere(rules, { key: key });
+        const rule = _.findWhere(rules, { key });
         if (rule != null) {
           label = rule.name;
         }
@@ -88,7 +87,7 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.getValuesWithLabels())
     });

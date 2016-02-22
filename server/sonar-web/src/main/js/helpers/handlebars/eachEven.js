@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = function (context, options) {
-  var ret = '';
+  let ret = '';
   context.forEach(function (d, i) {
     if (i % 2 === 0) {
       ret += options.fn(d);

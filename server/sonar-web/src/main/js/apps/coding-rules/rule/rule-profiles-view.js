@@ -28,7 +28,7 @@ export default Marionette.CompositeView.extend({
   childView: ProfileView,
   childViewContainer: '#coding-rules-detail-quality-profiles',
 
-  childViewOptions: function () {
+  childViewOptions () {
     return {
       app: this.options.app,
       rule: this.model,
@@ -44,9 +44,9 @@ export default Marionette.CompositeView.extend({
     'click #coding-rules-quality-profile-activate': 'activate'
   },
 
-  onRender: function () {
-    var isManual = this.model.get('isManual'),
-        qualityProfilesVisible = !isManual;
+  onRender () {
+    const isManual = this.model.get('isManual');
+    let qualityProfilesVisible = !isManual;
 
     if (qualityProfilesVisible) {
       if (this.model.get('isTemplate')) {
@@ -60,36 +60,36 @@ export default Marionette.CompositeView.extend({
     this.$el.toggleClass('hidden', !qualityProfilesVisible);
   },
 
-  activate: function () {
-    var that = this,
-        activationView = new ProfileActivationView({
-          rule: this.model,
-          collection: this.collection,
-          app: this.options.app
-        });
+  activate () {
+    const that = this;
+    const activationView = new ProfileActivationView({
+      rule: this.model,
+      collection: this.collection,
+      app: this.options.app
+    });
     activationView.on('profileActivated', function (severity, params, profile) {
       if (that.options.app.state.get('query').qprofile === profile) {
-        var activation = {
-          severity: severity,
+        const activation = {
+          severity,
           inherit: 'NONE',
-          params: params,
+          params,
           qProfile: profile
         };
-        that.model.set({ activation: activation });
+        that.model.set({ activation });
       }
       that.refreshActives();
     });
     activationView.render();
   },
 
-  refreshActives: function () {
-    var that = this;
+  refreshActives () {
+    const that = this;
     this.options.app.controller.getRuleDetails(this.model).done(function (data) {
       that.collection.reset(that.model.getInactiveProfiles(data.actives, that.options.app.qualityProfiles));
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canWrite: this.options.app.canWrite
     });

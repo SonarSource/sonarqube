@@ -28,12 +28,12 @@ export default BaseFacet.extend({
     'change [name="issues-page-mode"]': 'onModeChange'
   },
 
-  onModeChange: function () {
-    var mode = this.$('[name="issues-page-mode"]:checked').val();
+  onModeChange () {
+    const mode = this.$('[name="issues-page-mode"]:checked').val();
     this.options.app.state.updateFilter({ facetMode: mode });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       mode: this.options.app.state.getFacetMode()
     });

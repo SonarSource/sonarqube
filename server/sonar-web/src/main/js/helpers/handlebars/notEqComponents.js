@@ -18,6 +18,6 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = function (a, b, options) {
-  var notEq = a && b && ((a.project !== b.project) || (a.subProject !== b.subProject));
+  const notEq = a && b && ((a.project !== b.project) || (a.subProject !== b.subProject));
   return notEq ? options.fn(this) : options.inverse(this);
 };

@@ -36,15 +36,15 @@ import { translate } from '../../helpers/l10n';
   TagCloud.prototype.sizeLow = 10;
 
   TagCloud.prototype.renderWords = function () {
-    var that = this;
+    const that = this;
     return window.sonarqube.appStarted.then(function () {
-      var words = that.wordContainer.selectAll('.cloud-word').data(that.tags()),
-          wordsEnter = words.enter().append('a').classed('cloud-word', true);
+      const words = that.wordContainer.selectAll('.cloud-word').data(that.tags());
+      const wordsEnter = words.enter().append('a').classed('cloud-word', true);
       wordsEnter.text(function (d) {
         return d.key;
       });
       wordsEnter.attr('href', function (d) {
-        var url = that.options().baseUrl + '|tags=' + d.key;
+        let url = that.options().baseUrl + '|tags=' + d.key;
         if (that.options().createdAfter) {
           url += '|createdAfter=' + that.options().createdAfter;
         }
@@ -67,16 +67,16 @@ import { translate } from '../../helpers/l10n';
   };
 
   TagCloud.prototype.render = function (container) {
-    var box = d3.select(container).append('div');
+    const box = d3.select(container).append('div');
     box.classed('sonar-d3', true);
     box.classed('cloud-widget', true);
     this.wordContainer = box.append('div');
-    var sizeDomain = d3.extent(this.tags(), function (d) {
+    const sizeDomain = d3.extent(this.tags(), function (d) {
       return d.value;
     });
     this.size = d3.scale.linear().domain(sizeDomain).range([this.sizeLow, this.sizeHigh]);
     if (this.maxResultsReached()) {
-      var maxResultsReachedLabel = box.append('div').text(this.options().maxItemsReachedMessage);
+      const maxResultsReachedLabel = box.append('div').text(this.options().maxItemsReachedMessage);
       maxResultsReachedLabel.classed('max-results-reached-message', true);
     }
     this.renderWords();
@@ -84,8 +84,8 @@ import { translate } from '../../helpers/l10n';
   };
 
   TagCloud.prototype.tooltip = function (d) {
-    var suffixKey = d.value === 1 ? 'issue' : 'issues',
-        suffix = translate(suffixKey);
+    const suffixKey = d.value === 1 ? 'issue' : 'issues';
+    const suffix = translate(suffixKey);
     return (d.value + '\u00a0') + suffix;
   };
 

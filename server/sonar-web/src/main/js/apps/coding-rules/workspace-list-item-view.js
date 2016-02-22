@@ -46,45 +46,45 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     'click .coding-rules-detail-quality-profile-deactivate': 'deactivate'
   },
 
-  selectCurrent: function () {
+  selectCurrent () {
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
   },
 
-  openRule: function () {
+  openRule () {
     this.options.app.controller.showDetails(this.model);
   },
 
-  activate: function () {
-    var that = this,
-        selectedProfile = this.options.app.state.get('query').qprofile,
-        othersQualityProfiles = _.reject(this.options.app.qualityProfiles, function (profile) {
-          return profile.key === selectedProfile;
-        }),
-        activationView = new ProfileActivationView({
-          rule: this.model,
-          collection: new Backbone.Collection(othersQualityProfiles),
-          app: this.options.app
-        });
+  activate () {
+    const that = this;
+    const selectedProfile = this.options.app.state.get('query').qprofile;
+    const othersQualityProfiles = _.reject(this.options.app.qualityProfiles, function (profile) {
+      return profile.key === selectedProfile;
+    });
+    const activationView = new ProfileActivationView({
+      rule: this.model,
+      collection: new Backbone.Collection(othersQualityProfiles),
+      app: this.options.app
+    });
     activationView.on('profileActivated', function (severity, params, profile) {
-      var activation = {
-        severity: severity,
+      const activation = {
+        severity,
         inherit: 'NONE',
-        params: params,
+        params,
         qProfile: profile
       };
-      that.model.set({ activation: activation });
+      that.model.set({ activation });
     });
     activationView.render();
   },
 
-  deactivate: function () {
-    var that = this,
-        ruleKey = this.model.get('key'),
-        activation = this.model.get('activation');
+  deactivate () {
+    const that = this;
+    const ruleKey = this.model.get('key');
+    const activation = this.model.get('activation');
     confirmDialog({
       title: translate('coding_rules.deactivate'),
       html: translateWithParameters('coding_rules.deactivate.confirm'),
-      yesHandler: function () {
+      yesHandler () {
         return $.ajax({
           type: 'POST',
           url: '/api/qualityprofiles/deactivate_rule',
@@ -99,7 +99,7 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(WorkspaceListItemView.prototype.serializeData.apply(this, arguments), {
       tags: _.union(this.model.get('sysTags'), this.model.get('tags')),
       canWrite: this.options.app.canWrite,

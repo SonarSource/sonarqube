@@ -45,7 +45,7 @@ export default React.createClass({
     };
   },
 
-  componentWillMount: function () {
+  componentWillMount () {
     this.requestProjects = _.debounce(this.requestProjects, 250);
   },
 
@@ -89,7 +89,7 @@ export default React.createClass({
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
-      this.setState({ ready: true, projects: projects, total: r.total });
+      this.setState({ ready: true, projects, total: r.total });
     });
   },
 
@@ -102,7 +102,7 @@ export default React.createClass({
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
-      this.setState({ ready: true, projects: projects, total: r.total });
+      this.setState({ ready: true, projects, total: r.total });
     });
   },
 
@@ -114,7 +114,7 @@ export default React.createClass({
       if (this.state.page > 1) {
         projects = [].concat(this.state.projects, projects);
       }
-      this.setState({ ready: true, projects: projects, total: r.paging.total });
+      this.setState({ ready: true, projects, total: r.paging.total });
     });
   },
 

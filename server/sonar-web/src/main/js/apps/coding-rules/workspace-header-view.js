@@ -26,7 +26,7 @@ import Template from './templates/coding-rules-workspace-header.hbs';
 export default WorkspaceHeaderView.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return _.extend(WorkspaceHeaderView.prototype.events.apply(this, arguments), {
       'click .js-back': 'onBackClick',
       'click .js-bulk-change': 'onBulkChangeClick',
@@ -35,11 +35,11 @@ export default WorkspaceHeaderView.extend({
     });
   },
 
-  onBackClick: function () {
+  onBackClick () {
     this.options.app.controller.hideDetails();
   },
 
-  onBulkChangeClick: function (e) {
+  onBulkChangeClick (e) {
     e.stopPropagation();
     $('body').click();
     new BulkChangePopup({
@@ -49,15 +49,15 @@ export default WorkspaceHeaderView.extend({
     }).render();
   },
 
-  reload: function () {
+  reload () {
     this.options.app.controller.fetchList(true);
   },
 
-  newSearch: function () {
+  newSearch () {
     this.options.app.controller.newSearch();
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(WorkspaceHeaderView.prototype.serializeData.apply(this, arguments), {
       canWrite: this.options.app.canWrite
     });

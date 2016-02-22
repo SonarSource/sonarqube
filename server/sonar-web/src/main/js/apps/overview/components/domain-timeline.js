@@ -94,7 +94,7 @@ export const DomainTimeline = React.createClass({
       comparisonMetric = '';
     }
     this.requestTimeMachineData(newMetric, comparisonMetric).then(snapshots => {
-      this.setState({ currentMetric: newMetric, comparisonMetric: comparisonMetric, snapshots });
+      this.setState({ currentMetric: newMetric, comparisonMetric, snapshots });
     });
   },
 

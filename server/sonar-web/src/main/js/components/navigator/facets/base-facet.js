@@ -25,28 +25,28 @@ export default Marionette.ItemView.extend({
   className: 'search-navigator-facet-box',
   forbiddenClassName: 'search-navigator-facet-box-forbidden',
 
-  modelEvents: function () {
+  modelEvents () {
     return {
       'change': 'render'
     };
   },
 
-  events: function () {
+  events () {
     return {
       'click .js-facet-toggle': 'toggle',
       'click .js-facet': 'toggleFacet'
     };
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.toggleClass('search-navigator-facet-box-collapsed', !this.model.get('enabled'));
     this.$el.attr('data-property', this.model.get('property'));
-    var that = this,
-        property = this.model.get('property'),
-        value = this.options.app.state.get('query')[property];
+    const that = this;
+    const property = this.model.get('property');
+    const value = this.options.app.state.get('query')[property];
     if (typeof value === 'string') {
       value.split(',').forEach(function (s) {
-        var facet = that.$('.js-facet').filter('[data-value="' + s + '"]');
+        const facet = that.$('.js-facet').filter('[data-value="' + s + '"]');
         if (facet.length > 0) {
           facet.addClass('active');
         }
@@ -54,47 +54,47 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  toggle: function () {
+  toggle () {
     if (!this.isForbidden()) {
       this.options.app.controller.toggleFacet(this.model.id);
     }
   },
 
-  getValue: function () {
+  getValue () {
     return this.$('.js-facet.active').map(function () {
       return $(this).data('value');
     }).get().join();
   },
 
-  toggleFacet: function (e) {
+  toggleFacet (e) {
     $(e.currentTarget).toggleClass('active');
-    var property = this.model.get('property'),
-        obj = {};
+    const property = this.model.get('property');
+    const obj = {};
     obj[property] = this.getValue();
     this.options.app.state.updateFilter(obj);
   },
 
-  disable: function () {
-    var property = this.model.get('property'),
-        obj = {};
+  disable () {
+    const property = this.model.get('property');
+    const obj = {};
     obj[property] = null;
     this.options.app.state.updateFilter(obj);
   },
 
-  forbid: function () {
+  forbid () {
     this.options.app.controller.disableFacet(this.model.id);
     this.$el.addClass(this.forbiddenClassName);
   },
 
-  allow: function () {
+  allow () {
     this.$el.removeClass(this.forbiddenClassName);
   },
 
-  isForbidden: function () {
+  isForbidden () {
     return this.$el.hasClass(this.forbiddenClassName);
   },
 
-  sortValues: function (values) {
+  sortValues (values) {
     return values.slice().sort(function (left, right) {
       if (left.count !== right.count) {
         return right.count - left.count;
@@ -111,7 +111,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.model.getValues())
     });

@@ -22,18 +22,18 @@ import CustomValuesFacet from './custom-values-facet';
 
 export default CustomValuesFacet.extend({
 
-  getUrl: function () {
+  getUrl () {
     return '/api/languages/list';
   },
 
-  prepareAjaxSearch: function () {
+  prepareAjaxSearch () {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data: function (term) {
+      data (term) {
         return { q: term, ps: 10000 };
       },
-      results: function (data) {
+      results (data) {
         return {
           more: false,
           results: data.languages.map(function (lang) {
@@ -44,13 +44,13 @@ export default CustomValuesFacet.extend({
     };
   },
 
-  getLabelsSource: function () {
+  getLabelsSource () {
     return this.options.app.languages;
   },
 
-  getValues: function () {
-    var that = this,
-        labels = that.getLabelsSource();
+  getValues () {
+    const that = this;
+    const labels = that.getLabelsSource();
     return this.model.getValues().map(function (item) {
       return _.extend(item, {
         label: labels[item.val]
@@ -58,7 +58,7 @@ export default CustomValuesFacet.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
       values: this.getValues()
     });

@@ -28,59 +28,59 @@ export default Backbone.Model.extend({
     _system: false
   },
 
-  _matchAttribute: function (attr, query) {
-    var value = this.get(attr) || '';
+  _matchAttribute (attr, query) {
+    const value = this.get(attr) || '';
     return value.search(new RegExp(query, 'i')) !== -1;
   },
 
-  match: function (query) {
+  match (query) {
     return this._matchAttribute('name', query) ||
         this._matchAttribute('category', query) ||
         this._matchAttribute('description', query);
   },
 
-  _action: function (options) {
-    var that = this;
-    var opts = _.extend({}, options, {
+  _action (options) {
+    const that = this;
+    const opts = _.extend({}, options, {
       type: 'POST',
       data: { key: this.id },
-      beforeSend: function () {
+      beforeSend () {
         // disable global ajax notifications
       },
-      success: function () {
+      success () {
         options.success(that);
       },
-      error: function (jqXHR) {
+      error (jqXHR) {
         that.set({ _status: 'failed', _errors: jqXHR.responseJSON.errors });
       }
     });
-    var xhr = Backbone.ajax(opts);
+    const xhr = Backbone.ajax(opts);
     this.trigger('request', this, xhr);
     return xhr;
   },
 
-  install: function () {
+  install () {
     return this._action({
       url: '/api/plugins/install',
-      success: function (model) {
+      success (model) {
         model.set({ _status: 'installing' });
       }
     });
   },
 
-  update: function () {
+  update () {
     return this._action({
       url: '/api/plugins/update',
-      success: function (model) {
+      success (model) {
         model.set({ _status: 'installing' });
       }
     });
   },
 
-  uninstall: function () {
+  uninstall () {
     return this._action({
       url: '/api/plugins/uninstall',
-      success: function (model) {
+      success (model) {
         model.set({ _status: 'uninstalling' });
       }
     });

@@ -57,7 +57,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.Widget.prototype.render = function(container) {
-    var that = this;
+    const that = this;
 
     this.showSpinner(container);
     d3.json(this.source(), function(error, response) {

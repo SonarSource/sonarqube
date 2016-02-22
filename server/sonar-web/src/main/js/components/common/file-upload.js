@@ -21,7 +21,7 @@ import $ from 'jquery';
 import _ from 'underscore';
 
 function createFrame () {
-  var uuid = _.uniqueId('upload-form-');
+  const uuid = _.uniqueId('upload-form-');
   return $('<iframe></iframe>')
       .prop('frameborder', 0)
       .prop('width', 0)
@@ -32,11 +32,11 @@ function createFrame () {
 }
 
 export default function (options) {
-  var deferred = new $.Deferred(),
-      body = $('body'),
-      frame = createFrame(),
-      parent = options.form.parent(),
-      clonedForm = options.form.detach();
+  const deferred = new $.Deferred();
+  const body = $('body');
+  const frame = createFrame();
+  const parent = options.form.parent();
+  const clonedForm = options.form.detach();
 
   clonedForm
       .prop('target', frame.prop('id'))
@@ -45,9 +45,9 @@ export default function (options) {
   frame.appendTo(body);
 
   frame.on('load', function () {
-    var result = this.contentWindow.document.body.textContent;
+    const result = this.contentWindow.document.body.textContent;
     try {
-      var js = JSON.parse(result);
+      const js = JSON.parse(result);
       deferred.resolve(js);
     } catch (e) {
       deferred.resolve(result);

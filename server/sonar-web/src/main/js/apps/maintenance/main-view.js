@@ -30,8 +30,8 @@ export default Marionette.ItemView.extend({
     'click #start-migration': 'startMigration'
   },
 
-  initialize: function () {
-    var that = this;
+  initialize () {
+    const that = this;
     this.requestOptions = {
       type: 'GET',
       url: '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
@@ -41,8 +41,8 @@ export default Marionette.ItemView.extend({
     }, 5000);
   },
 
-  refresh: function () {
-    var that = this;
+  refresh () {
+    const that = this;
     return Backbone.ajax(this.requestOptions).done(function (r) {
       that.model.set(r);
       that.render();
@@ -55,12 +55,12 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  stopPolling: function () {
+  stopPolling () {
     clearInterval(this.pollingInternal);
   },
 
-  startMigration: function () {
-    var that = this;
+  startMigration () {
+    const that = this;
     Backbone.ajax({
       url: '/api/system/migrate_db',
       type: 'POST'
@@ -70,17 +70,17 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  onRender: function () {
+  onRender () {
     $('.page-simple').toggleClass('panel-warning', this.model.get('state') === 'MIGRATION_REQUIRED');
   },
 
-  goHome: function () {
+  goHome () {
     setInterval(function () {
       window.location = '/';
     }, 2500);
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       setup: this.options.setup
     });

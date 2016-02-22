@@ -32,61 +32,62 @@ import WorkspaceListView from '../issues/workspace-list-view';
 import WorkspaceHeaderView from '../issues/workspace-header-view';
 import FacetsView from './../issues/facets-view';
 
-var App = new Marionette.Application(),
-    init = function (options) {
-      this.config = options.config;
-      this.state = new State({
-        isContext: true,
-        contextQuery: { assignees: '__me__' }
-      });
-      this.updateContextFacets();
-      this.list = new Issues();
-      this.facets = new Facets();
-      this.filters = new Filters();
+const App = new Marionette.Application();
 
-      this.layout = new Layout({ app: this });
-      this.layout.$el.appendTo(options.el);
-      this.layout.render();
-      $('#footer').addClass('search-navigator-footer');
+const init = function (options) {
+  this.config = options.config;
+  this.state = new State({
+    isContext: true,
+    contextQuery: { assignees: '__me__' }
+  });
+  this.updateContextFacets();
+  this.list = new Issues();
+  this.facets = new Facets();
+  this.filters = new Filters();
 
-      this.controller = new Controller({ app: this });
+  this.layout = new Layout({ app: this });
+  this.layout.$el.appendTo(options.el);
+  this.layout.render();
+  $('#footer').addClass('search-navigator-footer');
 
-      this.issuesView = new WorkspaceListView({
-        app: this,
-        collection: this.list
-      });
-      this.layout.workspaceListRegion.show(this.issuesView);
-      this.issuesView.bindScrollEvents();
+  this.controller = new Controller({ app: this });
 
-      this.workspaceHeaderView = new WorkspaceHeaderView({
-        app: this,
-        collection: this.list
-      });
-      this.layout.workspaceHeaderRegion.show(this.workspaceHeaderView);
+  this.issuesView = new WorkspaceListView({
+    app: this,
+    collection: this.list
+  });
+  this.layout.workspaceListRegion.show(this.issuesView);
+  this.issuesView.bindScrollEvents();
 
-      this.facetsView = new FacetsView({
-        app: this,
-        collection: this.facets
-      });
-      this.layout.facetsRegion.show(this.facetsView);
+  this.workspaceHeaderView = new WorkspaceHeaderView({
+    app: this,
+    collection: this.list
+  });
+  this.layout.workspaceHeaderRegion.show(this.workspaceHeaderView);
 
-      this.controller.fetchFilters().done(function () {
-        key.setScope('list');
-        App.router = new Router({ app: App });
-        Backbone.history.start();
-      });
-    };
+  this.facetsView = new FacetsView({
+    app: this,
+    collection: this.facets
+  });
+  this.layout.facetsRegion.show(this.facetsView);
+
+  this.controller.fetchFilters().done(function () {
+    key.setScope('list');
+    App.router = new Router({ app: App });
+    Backbone.history.start();
+  });
+};
 
 App.getContextQuery = function () {
   return { assignees: '__me__' };
 };
 
 App.updateContextFacets = function () {
-  var facets = this.state.get('facets'),
-      allFacets = this.state.get('allFacets'),
-      facetsFromServer = this.state.get('facetsFromServer');
+  const facets = this.state.get('facets');
+  const allFacets = this.state.get('allFacets');
+  const facetsFromServer = this.state.get('facetsFromServer');
   return this.state.set({
-    facets: facets,
+    facets,
     allFacets: _.difference(allFacets, ['assignees']),
     facetsFromServer: _.difference(facetsFromServer, ['assignees'])
   });

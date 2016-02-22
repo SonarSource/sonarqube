@@ -28,22 +28,22 @@ import { translate } from '../../helpers/l10n';
 
 
 const SIZE_SCALE = d3.scale.linear()
-                     .domain([3, 15])
-                     .range([11, 18])
-                     .clamp(true);
+    .domain([3, 15])
+    .range([11, 18])
+    .clamp(true);
 
 
 function mostCommitPrefix (strings) {
-  var sortedStrings = strings.slice(0).sort(),
-      firstString = sortedStrings[0],
-      firstStringLength = firstString.length,
-      lastString = sortedStrings[sortedStrings.length - 1],
-      i = 0;
+  const sortedStrings = strings.slice(0).sort();
+  const firstString = sortedStrings[0];
+  const firstStringLength = firstString.length;
+  const lastString = sortedStrings[sortedStrings.length - 1];
+  let i = 0;
   while (i < firstStringLength && firstString.charAt(i) === lastString.charAt(i)) {
     i++;
   }
-  var prefix = firstString.substr(0, i),
-      lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
+  const prefix = firstString.substr(0, i);
+  const lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
 
@@ -72,7 +72,9 @@ export const TreemapRect = React.createClass({
     return <a onClick={e => e.stopPropagation()}
               className="treemap-link"
               href={this.props.link}
-              style={{ fontSize: 12 }}><span className="icon-link"/></a>;
+              style={{ fontSize: 12 }}>
+      <span className="icon-link"/>
+    </a>;
   },
 
   render () {
@@ -95,7 +97,7 @@ export const TreemapRect = React.createClass({
     };
     let isTextVisible = this.props.width >= 40 && this.props.height >= 40;
     return <div className="treemap-cell"
-                {...tooltipAttrs}
+        {...tooltipAttrs}
                 style={cellStyles}
                 onClick={this.props.onClick}>
       <div className="treemap-inner" dangerouslySetInnerHTML={{ __html: this.props.label }}
@@ -138,10 +140,10 @@ export const Treemap = React.createClass({
     }
 
     let treemap = d3.layout.treemap()
-                    .round(true)
-                    .value(d => d.size)
-                    .sort((a, b) => a.value - b.value)
-                    .size([this.state.width, this.state.height]);
+        .round(true)
+        .value(d => d.size)
+        .sort((a, b) => a.value - b.value)
+        .size([this.state.width, this.state.height]);
     let nodes = treemap
         .nodes({ children: this.props.items })
         .filter(d => !d.children)

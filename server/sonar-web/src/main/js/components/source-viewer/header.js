@@ -24,12 +24,12 @@ import MoreActionsView from './more-actions';
 import MeasuresOverlay from './measures-overlay';
 import Template from './templates/source-viewer-header.hbs';
 
-var API_FAVORITE = '/api/favourites';
+const API_FAVORITE = '/api/favourites';
 
 export default Marionette.ItemView.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return {
       'click .js-favorite': 'toggleFavorite',
       'click .js-actions': 'showMoreActions',
@@ -37,8 +37,8 @@ export default Marionette.ItemView.extend({
     };
   },
 
-  toggleFavorite: function () {
-    var that = this;
+  toggleFavorite () {
+    const that = this;
     if (this.model.get('fav')) {
       $.ajax({
         url: API_FAVORITE + '/' + this.model.get('key'),
@@ -62,36 +62,36 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  showMoreActions: function (e) {
+  showMoreActions (e) {
     e.stopPropagation();
     $('body').click();
-    var view = new MoreActionsView({ parent: this });
+    const view = new MoreActionsView({ parent: this });
     view.render().$el.appendTo(this.$el);
   },
 
-  getPermalink: function () {
-    var query = 'id=' + encodeURIComponent(this.model.get('key')),
-        windowParams = 'resizable=1,scrollbars=1,status=1';
+  getPermalink () {
+    let query = 'id=' + encodeURIComponent(this.model.get('key'));
+    const windowParams = 'resizable=1,scrollbars=1,status=1';
     if (this.options.viewer.highlightedLine) {
       query = query + '&line=' + this.options.viewer.highlightedLine;
     }
     window.open('/component/index?' + query, this.model.get('name'), windowParams);
   },
 
-  showRawSources: function () {
-    var url = '/api/sources/raw?key=' + encodeURIComponent(this.model.get('key')),
-        windowParams = 'resizable=1,scrollbars=1,status=1';
+  showRawSources () {
+    const url = '/api/sources/raw?key=' + encodeURIComponent(this.model.get('key'));
+    const windowParams = 'resizable=1,scrollbars=1,status=1';
     window.open(url, this.model.get('name'), windowParams);
   },
 
-  showMeasures: function () {
+  showMeasures () {
     new MeasuresOverlay({
       model: this.model,
       large: true
     }).render();
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       path: this.model.get('path') || this.model.get('longName')
     });

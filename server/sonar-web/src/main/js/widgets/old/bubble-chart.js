@@ -86,18 +86,18 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.hasValidData = function () {
-    var widget = this,
-        noInvalidEntry = true,
-        atLeastOneValueOnX = false,
-        atLeastOneValueOnY = false;
-    this.components().forEach(function(component) {
+    const widget = this;
+    let noInvalidEntry = true;
+    let atLeastOneValueOnX = false;
+    let atLeastOneValueOnY = false;
+    this.components().forEach(function (component) {
       noInvalidEntry = noInvalidEntry &&
-      !!component.measures[widget.metricsPriority()[0]] &&
-      !!component.measures[widget.metricsPriority()[1]];
+          !!component.measures[widget.metricsPriority()[0]] &&
+          !!component.measures[widget.metricsPriority()[1]];
       atLeastOneValueOnX = atLeastOneValueOnX ||
-      (component.measures[widget.metricsPriority()[0]] || {}).fval !== '-';
+          (component.measures[widget.metricsPriority()[0]] || {}).fval !== '-';
       atLeastOneValueOnY = atLeastOneValueOnY ||
-      (component.measures[widget.metricsPriority()[1]] || {}).fval !== '-';
+          (component.measures[widget.metricsPriority()[1]] || {}).fval !== '-';
     });
     return !!noInvalidEntry && !!atLeastOneValueOnX && !!atLeastOneValueOnY;
   };
@@ -128,27 +128,27 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.initMetrics = function () {
-    var widget = this;
+    const widget = this;
 
     this.xMetric = this.metricsPriority()[0];
-    this.getXMetric = function(d) {
+    this.getXMetric = function (d) {
       return d.measures[widget.xMetric].val;
     };
 
     this.yMetric = this.metricsPriority()[1];
-    this.getYMetric = function(d) {
+    this.getYMetric = function (d) {
       return d.measures[widget.yMetric].val;
     };
 
     this.sizeMetric = this.metricsPriority()[2];
-    this.getSizeMetric = function(d) {
+    this.getSizeMetric = function (d) {
       return d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].val : 0;
     };
   };
 
 
   window.SonarWidgets.BubbleChart.prototype.initScales = function () {
-    var widget = this;
+    const widget = this;
     this
         .xLog(this.options().xLog)
         .yLog(this.options().yLog);
@@ -172,10 +172,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         return widget.getSizeMetric(d);
       }));
     } else {
-      var singleComponent = this.components()[0],
-          xm = this.getXMetric(singleComponent),
-          ym = this.getYMetric(singleComponent),
-          sm = this.getSizeMetric(singleComponent);
+      const singleComponent = this.components()[0];
+      const xm = this.getXMetric(singleComponent);
+      const ym = this.getYMetric(singleComponent);
+      const sm = this.getSizeMetric(singleComponent);
       this.x.domain([xm * 0.8, xm * 1.2]);
       this.y.domain([ym * 0.8, ym * 1.2]);
       this.size.domain([sm * 0.8, sm * 1.2]);
@@ -184,7 +184,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.initBubbles = function () {
-    var widget = this;
+    const widget = this;
 
     // Create bubbles
     this.items = this.plotWrap.selectAll('.item')
@@ -212,13 +212,12 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('transition', 'all 0.2s ease')
 
         .attr('title', function (d) {
-          var xMetricName = widget.metrics()[widget.xMetric].name,
-              yMetricName = widget.metrics()[widget.yMetric].name,
-              sizeMetricName = widget.metrics()[widget.sizeMetric].name,
-
-              xMetricValue = d.measures[widget.xMetric].fval,
-              yMetricValue = d.measures[widget.yMetric].fval,
-              sizeMetricValue = d.measures[widget.sizeMetric].fval;
+          const xMetricName = widget.metrics()[widget.xMetric].name;
+          const yMetricName = widget.metrics()[widget.yMetric].name;
+          const sizeMetricName = widget.metrics()[widget.sizeMetric].name;
+          const xMetricValue = d.measures[widget.xMetric].fval;
+          const yMetricValue = d.measures[widget.yMetric].fval;
+          const sizeMetricValue = d.measures[widget.sizeMetric].fval;
 
           return '<div class="text-left">' +
               collapsedDirFromPath(d.longName) + '<br>' +
@@ -240,7 +239,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.initBubbleEvents = function () {
-    var widget = this;
+    const widget = this;
     this.items
         .on('click', function (d) {
           window.location = widget.options().baseUrl + '?id=' + encodeURIComponent(d.key);
@@ -296,7 +295,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.render = function (container) {
-    var containerS = container;
+    const containerS = container;
 
     container = d3.select(container);
 
@@ -321,27 +320,27 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.adjustScalesAfterUpdate = function () {
-    var widget = this;
+    const widget = this;
     // X
-    var minX = d3.min(this.components(), function (d) {
-          return widget.x(widget.getXMetric(d)) - widget.size(widget.getSizeMetric(d));
-        }),
-        maxX = d3.max(this.components(), function (d) {
-          return widget.x(widget.getXMetric(d)) + widget.size(widget.getSizeMetric(d));
-        }),
-        dMinX = minX < 0 ? this.x.range()[0] - minX : this.x.range()[0],
-        dMaxX = maxX > this.x.range()[1] ? maxX - this.x.range()[1] : 0;
+    const minX = d3.min(this.components(), function (d) {
+      return widget.x(widget.getXMetric(d)) - widget.size(widget.getSizeMetric(d));
+    });
+    const maxX = d3.max(this.components(), function (d) {
+      return widget.x(widget.getXMetric(d)) + widget.size(widget.getSizeMetric(d));
+    });
+    const dMinX = minX < 0 ? this.x.range()[0] - minX : this.x.range()[0];
+    const dMaxX = maxX > this.x.range()[1] ? maxX - this.x.range()[1] : 0;
     this.x.range([dMinX, this.availableWidth - dMaxX]);
 
     // Y
-    var minY = d3.min(this.components(), function (d) {
-          return widget.y(widget.getYMetric(d)) - widget.size(widget.getSizeMetric(d));
-        }),
-        maxY = d3.max(this.components(), function (d) {
-          return widget.y(widget.getYMetric(d)) + widget.size(widget.getSizeMetric(d));
-        }),
-        dMinY = minY < 0 ? this.y.range()[1] - minY: this.y.range()[1],
-        dMaxY = maxY > this.y.range()[0] ? maxY - this.y.range()[0] : 0;
+    const minY = d3.min(this.components(), function (d) {
+      return widget.y(widget.getYMetric(d)) - widget.size(widget.getSizeMetric(d));
+    });
+    const maxY = d3.max(this.components(), function (d) {
+      return widget.y(widget.getYMetric(d)) + widget.size(widget.getSizeMetric(d));
+    });
+    const dMinY = minY < 0 ? this.y.range()[1] - minY : this.y.range()[1];
+    const dMaxY = maxY > this.y.range()[0] ? maxY - this.y.range()[0] : 0;
     this.y.range([this.availableHeight - dMaxY, dMinY]);
 
 
@@ -349,7 +348,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // X
     if (this.xLog()) {
       this.xAxis.tickFormat(function (d) {
-        var ticksCount = widget.availableWidth / 50;
+        const ticksCount = widget.availableWidth / 50;
         return widget.x.tickFormat(ticksCount, d3.format(',d'))(d);
       });
     }
@@ -357,7 +356,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Y
     if (this.yLog()) {
       this.yAxis.tickFormat(function (d) {
-        var ticksCount = widget.availableHeight / 30;
+        const ticksCount = widget.availableHeight / 30;
         return widget.y.tickFormat(ticksCount, d3.format(',d'))(d);
       });
     }
@@ -369,7 +368,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.updateScales = function () {
-    var widget = this;
+    const widget = this;
     this.x.range([0, this.availableWidth]);
     this.y.range([this.availableHeight, 0]);
 
@@ -381,10 +380,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         return widget.getYMetric(d);
       }));
     } else {
-      var singleComponent = this.components()[0],
-          xm = this.getXMetric(singleComponent),
-          ym = this.getYMetric(singleComponent),
-          sm = this.getSizeMetric(singleComponent);
+      const singleComponent = this.components()[0];
+      const xm = this.getXMetric(singleComponent);
+      const ym = this.getYMetric(singleComponent);
+      const sm = this.getSizeMetric(singleComponent);
       this.x.domain([xm * 0.8, xm * 1.2]);
       this.y.domain([ym * 0.8, ym * 1.2]);
       this.size.domain([sm * 0.8, sm * 1.2]);
@@ -399,14 +398,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     // Avoid zero values when using log scale
     if (this.xLog) {
-      var xDomain = this.x.domain();
+      const xDomain = this.x.domain();
       this.x
           .domain([xDomain[0] > 0 ? xDomain[0] : 0.1, xDomain[1]])
           .clamp(true);
     }
 
     if (this.yLog) {
-      var yDomain = this.y.domain();
+      const yDomain = this.y.domain();
       this.y
           .domain([yDomain[0] > 0 ? yDomain[0] : 0.1, yDomain[1]])
           .clamp(true);
@@ -415,7 +414,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.updateBubbles = function () {
-    var widget = this;
+    const widget = this;
     this.items
         .transition()
         .attr('transform', function (d) {
@@ -456,14 +455,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.BubbleChart.prototype.updateGrid = function () {
-    var widget = this;
+    const widget = this;
     this.gxGridLines
         .transition()
         .attr({
-          x1: function (d) {
+          x1 (d) {
             return widget.x(d);
           },
-          x2: function (d) {
+          x2 (d) {
             return widget.x(d);
           },
           y1: widget.y.range()[0],
@@ -475,10 +474,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr({
           x1: widget.x.range()[0],
           x2: widget.x.range()[1],
-          y1: function (d) {
+          y1 (d) {
             return widget.y(d);
           },
-          y2: function (d) {
+          y2 (d) {
             return widget.y(d);
           }
         });
@@ -488,7 +487,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   window.SonarWidgets.BubbleChart.prototype.update = function (container) {
     container = d3.select(container);
 
-    var width = container.property('offsetWidth');
+    const width = container.property('offsetWidth');
 
     this.width(width > 100 ? width : 100);
 
@@ -509,7 +508,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
   window.SonarWidgets.BubbleChart.defaults = {
     width: 350,
     height: 150,
@@ -521,11 +519,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
   // Some helper functions
 
   // Gets or sets parameter
-  function param(name, value) {
+  function param (name, value) {
     if (value == null) {
       return this[name];
     } else {
@@ -535,7 +532,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   }
 
   // Helper for create the translate(x, y) string
-  function trans(left, top) {
+  function trans (left, top) {
     return 'translate(' + left + ', ' + top + ')';
   }
 

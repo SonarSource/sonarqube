@@ -22,12 +22,12 @@ import FormView from './form-view';
 
 export default FormView.extend({
 
-  sendRequest: function () {
-    var that = this,
-        group = new Group({
-          name: this.$('#create-group-name').val(),
-          description: this.$('#create-group-description').val()
-        });
+  sendRequest () {
+    const that = this;
+    const group = new Group({
+      name: this.$('#create-group-name').val(),
+      description: this.$('#create-group-description').val()
+    });
     this.disableForm();
     return group.save(null, {
       statusCode: {

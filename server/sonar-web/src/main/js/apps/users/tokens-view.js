@@ -96,7 +96,7 @@ export default Modal.extend({
     this.newToken = null;
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.model.collection.refresh();
     Modal.prototype.onDestroy.apply(this, arguments);
   },

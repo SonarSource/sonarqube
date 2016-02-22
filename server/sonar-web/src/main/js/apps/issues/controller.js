@@ -27,15 +27,15 @@ import HomeView from './workspace-home-view';
 const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'actionPlans', 'languages'];
 
 export default Controller.extend({
-  _facetsFromServer: function () {
-    var facets = Controller.prototype._facetsFromServer.apply(this, arguments) || [];
+  _facetsFromServer () {
+    const facets = Controller.prototype._facetsFromServer.apply(this, arguments) || [];
     if (facets.indexOf('assignees') !== -1) {
       facets.push('assigned_to_me');
     }
     return facets;
   },
 
-  _issuesParameters: function () {
+  _issuesParameters () {
     return {
       p: this.options.app.state.get('page'),
       ps: this.pageSize,
@@ -46,8 +46,8 @@ export default Controller.extend({
     };
   },
 
-  _myIssuesFromResponse: function (r) {
-    var myIssuesData = _.findWhere(r.facets, { property: 'assigned_to_me' });
+  _myIssuesFromResponse (r) {
+    const myIssuesData = _.findWhere(r.facets, { property: 'assigned_to_me' });
     if ((myIssuesData != null) && _.isArray(myIssuesData.values) && myIssuesData.values.length > 0) {
       return this.options.app.state.set({ myIssues: myIssuesData.values[0].count }, { silent: true });
     } else {
@@ -55,8 +55,8 @@ export default Controller.extend({
     }
   },
 
-  fetchList: function (firstPage) {
-    var that = this;
+  fetchList (firstPage) {
+    const that = this;
     if (firstPage == null) {
       firstPage = true;
     }
@@ -65,13 +65,13 @@ export default Controller.extend({
       this.hideHomePage();
       this.closeComponentViewer();
     }
-    var data = this._issuesParameters();
+    const data = this._issuesParameters();
     _.extend(data, this.options.app.state.get('query'));
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
     return $.get('/api/issues/search', data).done(function (r) {
-      var issues = that.options.app.list.parseIssues(r);
+      const issues = that.options.app.list.parseIssues(r);
       if (firstPage) {
         that.options.app.list.reset(issues);
       } else {
@@ -99,13 +99,13 @@ export default Controller.extend({
     });
   },
 
-  isIssuePermalink: function () {
-    var query = this.options.app.state.get('query');
+  isIssuePermalink () {
+    const query = this.options.app.state.get('query');
     return (query.issues != null) && this.options.app.list.length === 1;
   },
 
-  fetchFilters: function () {
-    var that = this;
+  fetchFilters () {
+    const that = this;
     return $.when(
         that.options.app.filters.fetch({ reset: true }),
         $.get('/api/issue_filters/app', function (r) {
@@ -116,19 +116,19 @@ export default Controller.extend({
         }));
   },
 
-  _mergeCollections: function (a, b) {
-    var collection = new Backbone.Collection(a);
+  _mergeCollections (a, b) {
+    const collection = new Backbone.Collection(a);
     collection.add(b, { merge: true });
     return collection.toJSON();
   },
 
-  requestFacet: function (id) {
-    var that = this;
+  requestFacet (id) {
+    const that = this;
     if (id === 'assignees') {
       return this.requestAssigneeFacet();
     }
-    var facet = this.options.app.facets.get(id),
-        data = _.extend({ facets: id, ps: 1, additionalFields: '_all' }, this.options.app.state.get('query'));
+    const facet = this.options.app.facets.get(id);
+    const data = _.extend({ facets: id, ps: 1, additionalFields: '_all' }, this.options.app.state.get('query'));
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
@@ -136,18 +136,18 @@ export default Controller.extend({
       FACET_DATA_FIELDS.forEach(function (field) {
         that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
       });
-      var facetData = _.findWhere(r.facets, { property: id });
+      const facetData = _.findWhere(r.facets, { property: id });
       if (facetData != null) {
         return facet.set(facetData);
       }
     });
   },
 
-  requestAssigneeFacet: function () {
-    var that = this;
-    var facet = this.options.app.facets.get('assignees'),
-        data = _.extend({ facets: 'assignees,assigned_to_me', ps: 1, additionalFields: '_all' },
-            this.options.app.state.get('query'));
+  requestAssigneeFacet () {
+    const that = this;
+    const facet = this.options.app.facets.get('assignees');
+    const data = _.extend({ facets: 'assignees,assigned_to_me', ps: 1, additionalFields: '_all' },
+        this.options.app.state.get('query'));
     if (this.options.app.state.get('isContext')) {
       _.extend(data, this.options.app.state.get('contextQuery'));
     }
@@ -155,7 +155,7 @@ export default Controller.extend({
       FACET_DATA_FIELDS.forEach(function (field) {
         that.options.app.facets[field] = that._mergeCollections(that.options.app.facets[field], r[field]);
       });
-      var facetData = _.findWhere(r.facets, { property: 'assignees' });
+      const facetData = _.findWhere(r.facets, { property: 'assignees' });
       that._myIssuesFromResponse(r);
       if (facetData != null) {
         return facet.set(facetData);
@@ -163,50 +163,50 @@ export default Controller.extend({
     });
   },
 
-  newSearch: function () {
+  newSearch () {
     this.options.app.state.unset('filter');
     return this.options.app.state.setQuery({ resolved: 'false' });
   },
 
-  applyFilter: function (filter, ignoreQuery) {
+  applyFilter (filter, ignoreQuery) {
     if (ignoreQuery == null) {
       ignoreQuery = false;
     }
     if (!ignoreQuery) {
-      var filterQuery = this.parseQuery(filter.get('query'));
+      const filterQuery = this.parseQuery(filter.get('query'));
       this.options.app.state.setQuery(filterQuery);
     }
-    return this.options.app.state.set({ filter: filter, changed: false });
+    return this.options.app.state.set({ filter, changed: false });
   },
 
-  parseQuery: function () {
-    var q = Controller.prototype.parseQuery.apply(this, arguments);
+  parseQuery () {
+    const q = Controller.prototype.parseQuery.apply(this, arguments);
     delete q.asc;
     delete q.s;
     return q;
   },
 
-  getQuery: function (separator, addContext) {
+  getQuery (separator, addContext) {
     if (separator == null) {
       separator = '|';
     }
     if (addContext == null) {
       addContext = false;
     }
-    var filter = this.options.app.state.get('query');
+    const filter = this.options.app.state.get('query');
     if (addContext && this.options.app.state.get('isContext')) {
       _.extend(filter, this.options.app.state.get('contextQuery'));
     }
-    var route = [];
+    const route = [];
     _.map(filter, function (value, property) {
       return route.push('' + property + '=' + encodeURIComponent(value));
     });
     return route.join(separator);
   },
 
-  getRoute: function () {
-    var filter = this.options.app.state.get('filter'),
-        query = Controller.prototype.getRoute.apply(this, arguments);
+  getRoute () {
+    const filter = this.options.app.state.get('filter');
+    let query = Controller.prototype.getRoute.apply(this, arguments);
     if (filter != null) {
       if (this.options.app.state.get('changed') && query.length > 0) {
         query = 'id=' + filter.id + '|' + query;
@@ -217,7 +217,7 @@ export default Controller.extend({
     return query;
   },
 
-  _prepareComponent: function (issue) {
+  _prepareComponent (issue) {
     return {
       key: issue.get('component'),
       name: issue.get('componentLongName'),
@@ -229,7 +229,7 @@ export default Controller.extend({
     };
   },
 
-  showComponentViewer: function (issue) {
+  showComponentViewer (issue) {
     this.options.app.layout.workspaceComponentViewerRegion.reset();
     key.setScope('componentViewer');
     this.options.app.issuesView.unbindScrollEvents();
@@ -240,7 +240,7 @@ export default Controller.extend({
     return this.options.app.componentViewer.openFileByIssue(issue);
   },
 
-  closeComponentViewer: function () {
+  closeComponentViewer () {
     key.setScope('list');
     $('body').click();
     this.options.app.state.unset('component');
@@ -250,7 +250,7 @@ export default Controller.extend({
     return this.options.app.issuesView.scrollTo();
   },
 
-  showHomePage: function () {
+  showHomePage () {
     this.options.app.state.set({ query: { resolved: 'false' } }, { silent: true });
     this.fetchList();
     this.options.app.layout.workspaceComponentViewerRegion.reset();
@@ -264,7 +264,7 @@ export default Controller.extend({
     return this.options.app.layout.showHomePage();
   },
 
-  hideHomePage: function () {
+  hideHomePage () {
     this.options.app.layout.workspaceComponentViewerRegion.reset();
     this.options.app.layout.workspaceHomeRegion.reset();
     key.setScope('list');

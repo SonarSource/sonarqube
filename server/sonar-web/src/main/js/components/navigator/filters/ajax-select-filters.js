@@ -25,39 +25,39 @@ import ChoiceFilters from './choice-filters';
 import Template from '../templates/ajax-select-filter.hbs';
 import ListTemplate from '../templates/choice-filter-item.hbs';
 
-var PAGE_SIZE = 100;
+const PAGE_SIZE = 100;
 
 
-var Suggestions = Backbone.Collection.extend({
+const Suggestions = Backbone.Collection.extend({
   comparator: 'text',
 
-  initialize: function () {
+  initialize () {
     this.more = false;
     this.page = 0;
   },
 
 
-  parse: function (r) {
+  parse (r) {
     this.more = r.more;
     return r.results;
   },
 
 
-  fetch: function (options) {
+  fetch (options) {
     this.data = _.extend({
       p: 1,
       ps: PAGE_SIZE
     }, options.data || {});
 
-    var settings = _.extend({}, options, { data: this.data });
+    const settings = _.extend({}, options, { data: this.data });
     return Backbone.Collection.prototype.fetch.call(this, settings);
   },
 
 
-  fetchNextPage: function (options) {
+  fetchNextPage (options) {
     if (this.more) {
       this.data.p += 1;
-      var settings = _.extend({ remove: false }, options, { data: this.data });
+      const settings = _.extend({ remove: false }, options, { data: this.data });
       return this.fetch(settings);
     }
     return false;
@@ -66,14 +66,14 @@ var Suggestions = Backbone.Collection.extend({
 });
 
 
-var UserSuggestions = Suggestions.extend({
+const UserSuggestions = Suggestions.extend({
 
-  url: function () {
+  url () {
     return '/api/users/search';
   },
 
-  parse: function (response) {
-    var parsedResponse = window.usersToSelect2(response);
+  parse (response) {
+    const parsedResponse = window.usersToSelect2(response);
     this.more = parsedResponse.more;
     this.results = parsedResponse.results;
   }
@@ -81,27 +81,27 @@ var UserSuggestions = Suggestions.extend({
 });
 
 
-var ProjectSuggestions = Suggestions.extend({
+const ProjectSuggestions = Suggestions.extend({
 
-  url: function () {
+  url () {
     return '/api/resources/search?f=s2&q=TRK&display_key=true';
   }
 
 });
 
 
-var ComponentSuggestions = Suggestions.extend({
+const ComponentSuggestions = Suggestions.extend({
 
-  url: function () {
+  url () {
     return '/api/resources/search?f=s2&qp=supportsGlobalDashboards&display_key=true';
   },
 
-  parse: function (r) {
+  parse (r) {
     this.more = r.more;
 
     // If results are divided into categories
     if (r.results.length > 0 && r.results[0].children) {
-      var results = [];
+      const results = [];
       _.each(r.results, function (category) {
         _.each(category.children, function (child) {
           child.category = category.text;
@@ -117,26 +117,26 @@ var ComponentSuggestions = Suggestions.extend({
 });
 
 
-var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
+const AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
   template: Template,
   listTemplate: ListTemplate,
   searchKey: 's',
 
 
-  render: function () {
+  render () {
     ChoiceFilters.DetailsChoiceFilterView.prototype.render.apply(this, arguments);
 
-    var that = this,
-        keyup = function (e) {
-          if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 && e.keyCode !== 40) {
-            that.search();
-          }
-        },
-        debouncedKeyup = _.debounce(keyup, 250),
-        scroll = function () {
-          that.scroll();
-        },
-        throttledScroll = _.throttle(scroll, 1000);
+    const that = this;
+    const keyup = function (e) {
+      if (e.keyCode !== 37 && e.keyCode !== 38 && e.keyCode !== 39 && e.keyCode !== 40) {
+        that.search();
+      }
+    };
+    const debouncedKeyup = _.debounce(keyup, 250);
+    const scroll = function () {
+      that.scroll();
+    };
+    const throttledScroll = _.throttle(scroll, 1000);
 
     this.$('.navigator-filter-search input')
         .off('keyup keydown')
@@ -149,17 +149,17 @@ var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
   },
 
 
-  search: function () {
-    var that = this;
+  search () {
+    const that = this;
     this.query = this.$('.navigator-filter-search input').val();
     if (this.query.length > 1) {
       this.$el.addClass('fetching');
-      var selected = that.options.filterView.getSelected(),
-          data = { ps: PAGE_SIZE };
+      const selected = that.options.filterView.getSelected();
+      const data = { ps: PAGE_SIZE };
       data[this.searchKey] = this.query;
       this.options.filterView.choices.fetch({
-        data: data,
-        success: function () {
+        data,
+        success () {
           selected.forEach(function (item) {
             that.options.filterView.choices.unshift(item);
           });
@@ -172,7 +172,7 @@ var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
           that.$el.removeClass('fetching');
           that.$('.navigator-filter-search').removeClass('fetching-error');
         },
-        error: function () {
+        error () {
           that.showSearchError();
         }
       });
@@ -183,16 +183,16 @@ var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
   },
 
 
-  showSearchError: function () {
+  showSearchError () {
     this.$el.removeClass('fetching');
     this.$('.navigator-filter-search').addClass('fetching-error');
   },
 
 
-  scroll: function () {
-    var that = this,
-        el = this.$('.choices'),
-        scrollBottom = el.scrollTop() >= el[0].scrollHeight - el.outerHeight();
+  scroll () {
+    const that = this;
+    const el = this.$('.choices');
+    const scrollBottom = el.scrollTop() >= el[0].scrollHeight - el.outerHeight();
 
     if (scrollBottom) {
       this.options.filterView.choices.fetchNextPage().done(function () {
@@ -202,15 +202,15 @@ var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
   },
 
 
-  keydown: function (e) {
+  keydown (e) {
     if (_([38, 40, 13]).indexOf(e.keyCode) !== -1) {
       e.preventDefault();
     }
   },
 
 
-  resetChoices: function () {
-    var that = this;
+  resetChoices () {
+    const that = this;
     this.options.filterView.choices.reset(this.options.filterView.choices.filter(function (item) {
       return item.get('checked');
     }));
@@ -220,7 +220,7 @@ var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
   },
 
 
-  onShow: function () {
+  onShow () {
     ChoiceFilters.DetailsChoiceFilterView.prototype.onShow.apply(this, arguments);
     this.resetChoices();
     this.render();
@@ -230,38 +230,38 @@ var AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
 });
 
 
-var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
+const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
-  initialize: function (options) {
+  initialize (options) {
     ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
       detailsView: (options && options.detailsView) ? options.detailsView : AjaxSelectDetailsFilterView
     });
   },
 
 
-  isDefaultValue: function () {
+  isDefaultValue () {
     return this.getSelected().length === 0;
   },
 
 
-  renderInput: function () {
-    var value = this.model.get('value') || [],
-        input = $('<input>')
-            .prop('name', this.model.get('property'))
-            .prop('type', 'hidden')
-            .css('display', 'none')
-            .val(value.join());
+  renderInput () {
+    const value = this.model.get('value') || [];
+    const input = $('<input>')
+        .prop('name', this.model.get('property'))
+        .prop('type', 'hidden')
+        .css('display', 'none')
+        .val(value.join());
     input.appendTo(this.$el);
   },
 
 
-  restoreFromQuery: function (q) {
-    var param = _.findWhere(q, { key: this.model.get('property') });
+  restoreFromQuery (q) {
+    let param = _.findWhere(q, { key: this.model.get('property') });
 
     if (this.model.get('choices')) {
       _.each(this.model.get('choices'), function (v, k) {
         if (k[0] === '!') {
-          var x = _.findWhere(q, { key: k.substr(1) });
+          const x = _.findWhere(q, { key: k.substr(1) });
           if (x == null) {
             return;
           }
@@ -283,16 +283,16 @@ var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
   },
 
 
-  restore: function (value, param) {
-    var that = this;
+  restore (value, param) {
+    const that = this;
     if (_.isString(value)) {
       value = value.split(',');
     }
 
     if (this.choices && value.length > 0) {
-      this.model.set({ value: value, enabled: true });
+      this.model.set({ value, enabled: true });
 
-      var opposite = _.filter(value, function (item) {
+      const opposite = _.filter(value, function (item) {
         return item[0] === '!';
       });
       opposite.forEach(function (item) {
@@ -317,8 +317,8 @@ var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
   },
 
 
-  restoreFromText: function (value, text) {
-    var that = this;
+  restoreFromText (value, text) {
+    const that = this;
     _.each(value, function (v, i) {
       that.choices.add(new Backbone.Model({
         id: v,
@@ -330,11 +330,11 @@ var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
   },
 
 
-  restoreByRequests: function (value) {
-    var that = this,
-        requests = _.map(value, function (v) {
-          return that.createRequest(v);
-        });
+  restoreByRequests (value) {
+    const that = this;
+    const requests = _.map(value, function (v) {
+      return that.createRequest(v);
+    });
 
     $.when.apply($, requests).done(function () {
       that.onRestore(value);
@@ -342,13 +342,13 @@ var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
   },
 
 
-  onRestore: function () {
+  onRestore () {
     this.detailsView.updateLists();
     this.renderBase();
   },
 
 
-  clear: function () {
+  clear () {
     this.model.unset('value');
     if (this.choices) {
       this.choices.reset([]);
@@ -357,15 +357,15 @@ var AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
   },
 
 
-  createRequest: function () {
+  createRequest () {
   }
 
 });
 
 
-var ComponentFilterView = AjaxSelectFilterView.extend({
+const ComponentFilterView = AjaxSelectFilterView.extend({
 
-  initialize: function () {
+  initialize () {
     AjaxSelectFilterView.prototype.initialize.call(this, {
       detailsView: AjaxSelectDetailsFilterView
     });
@@ -373,8 +373,8 @@ var ComponentFilterView = AjaxSelectFilterView.extend({
   },
 
 
-  createRequest: function (v) {
-    var that = this;
+  createRequest (v) {
+    const that = this;
     return $
         .ajax({
           url: '/api/resources',
@@ -392,9 +392,9 @@ var ComponentFilterView = AjaxSelectFilterView.extend({
 });
 
 
-var ProjectFilterView = AjaxSelectFilterView.extend({
+const ProjectFilterView = AjaxSelectFilterView.extend({
 
-  initialize: function () {
+  initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
       detailsView: AjaxSelectDetailsFilterView
     });
@@ -403,8 +403,8 @@ var ProjectFilterView = AjaxSelectFilterView.extend({
   },
 
 
-  createRequest: function (v) {
-    var that = this;
+  createRequest (v) {
+    const that = this;
     return $
         .ajax({
           url: '/api/resources',
@@ -423,9 +423,9 @@ var ProjectFilterView = AjaxSelectFilterView.extend({
 });
 
 
-var AssigneeFilterView = AjaxSelectFilterView.extend({
+const AssigneeFilterView = AjaxSelectFilterView.extend({
 
-  initialize: function () {
+  initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
       detailsView: AjaxSelectDetailsFilterView
     });
@@ -433,8 +433,8 @@ var AssigneeFilterView = AjaxSelectFilterView.extend({
     this.choices = new UserSuggestions();
   },
 
-  createRequest: function (v) {
-    var that = this;
+  createRequest (v) {
+    const that = this;
     return $
         .ajax({
           url: '/api/users/search',
@@ -453,9 +453,9 @@ var AssigneeFilterView = AjaxSelectFilterView.extend({
 });
 
 
-var ReporterFilterView = AjaxSelectFilterView.extend({
+const ReporterFilterView = AjaxSelectFilterView.extend({
 
-  initialize: function () {
+  initialize () {
     BaseFilters.BaseFilterView.prototype.initialize.call(this, {
       detailsView: AjaxSelectDetailsFilterView
     });
@@ -465,8 +465,8 @@ var ReporterFilterView = AjaxSelectFilterView.extend({
   },
 
 
-  createRequest: function (v) {
-    var that = this;
+  createRequest (v) {
+    const that = this;
     return $
         .ajax({
           url: '/api/users/search',
@@ -490,13 +490,13 @@ var ReporterFilterView = AjaxSelectFilterView.extend({
  */
 
 export default {
-  Suggestions: Suggestions,
-  AjaxSelectDetailsFilterView: AjaxSelectDetailsFilterView,
-  AjaxSelectFilterView: AjaxSelectFilterView,
-  ProjectFilterView: ProjectFilterView,
-  ComponentFilterView: ComponentFilterView,
-  AssigneeFilterView: AssigneeFilterView,
-  ReporterFilterView: ReporterFilterView
+  Suggestions,
+  AjaxSelectDetailsFilterView,
+  AjaxSelectFilterView,
+  ProjectFilterView,
+  ComponentFilterView,
+  AssigneeFilterView,
+  ReporterFilterView
 };
 
 

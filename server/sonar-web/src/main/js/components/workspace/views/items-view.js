@@ -27,7 +27,7 @@ export default Marionette.CompositeView.extend({
   childViewContainer: '.workspace-nav-list',
   childView: ItemView,
 
-  childViewOptions: function () {
+  childViewOptions () {
     return { collectionView: this };
   }
 });

@@ -25,33 +25,33 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 export default BaseFacet.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
       'change .js-custom-value': 'addCustomValue'
     });
   },
 
-  getUrl: function () {
+  getUrl () {
     return '';
   },
 
-  onRender: function () {
+  onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
     this.prepareSearch();
   },
 
-  prepareSearch: function () {
+  prepareSearch () {
     this.$('.js-custom-value').select2({
       placeholder: translate('search_verb'),
       minimumInputLength: 1,
       allowClear: false,
-      formatNoMatches: function () {
+      formatNoMatches () {
         return translate('select2.noMatches');
       },
-      formatSearching: function () {
+      formatSearching () {
         return translate('select2.searching');
       },
-      formatInputTooShort: function () {
+      formatInputTooShort () {
         return translateWithParameters('select2.tooShort', 1);
       },
       width: '100%',
@@ -59,28 +59,28 @@ export default BaseFacet.extend({
     });
   },
 
-  prepareAjaxSearch: function () {
+  prepareAjaxSearch () {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data: function (term, page) {
+      data (term, page) {
         return { s: term, p: page };
       },
-      results: function (data) {
+      results (data) {
         return { more: data.more, results: data.results };
       }
     };
   },
 
-  addCustomValue: function () {
-    var property = this.model.get('property'),
-        customValue = this.$('.js-custom-value').select2('val'),
-        value = this.getValue();
+  addCustomValue () {
+    const property = this.model.get('property');
+    const customValue = this.$('.js-custom-value').select2('val');
+    let value = this.getValue();
     if (value.length > 0) {
       value += ',';
     }
     value += customValue;
-    var obj = {};
+    const obj = {};
     obj[property] = value;
     this.options.app.state.updateFilter(obj);
   }

@@ -21,35 +21,35 @@ import Marionette from 'backbone.marionette';
 
 export default Marionette.CollectionView.extend({
 
-  initialize: function () {
+  initialize () {
     this.resetSelectedIndex();
     this.listenTo(this.collection, 'reset', this.resetSelectedIndex);
   },
 
-  childViewOptions: function (model, index) {
-    return { index: index };
+  childViewOptions (model, index) {
+    return { index };
   },
 
-  resetSelectedIndex: function () {
+  resetSelectedIndex () {
     this.selectedIndex = 0;
   },
 
-  onRender: function () {
+  onRender () {
     this.selectCurrent();
   },
 
-  submitCurrent: function () {
-    var view = this.children.findByIndex(this.selectedIndex);
+  submitCurrent () {
+    const view = this.children.findByIndex(this.selectedIndex);
     if (view != null) {
       view.submit();
     }
   },
 
-  selectCurrent: function () {
+  selectCurrent () {
     this.selectItem(this.selectedIndex);
   },
 
-  selectNext: function () {
+  selectNext () {
     if (this.selectedIndex < this.collection.length - 1) {
       this.deselectItem(this.selectedIndex);
       this.selectedIndex++;
@@ -57,7 +57,7 @@ export default Marionette.CollectionView.extend({
     }
   },
 
-  selectPrev: function () {
+  selectPrev () {
     if (this.selectedIndex > 0) {
       this.deselectItem(this.selectedIndex);
       this.selectedIndex--;
@@ -65,17 +65,17 @@ export default Marionette.CollectionView.extend({
     }
   },
 
-  selectItem: function (index) {
+  selectItem (index) {
     if (index >= 0 && index < this.collection.length) {
-      var view = this.children.findByIndex(index);
+      const view = this.children.findByIndex(index);
       if (view != null) {
         view.select();
       }
     }
   },
 
-  deselectItem: function (index) {
-    var view = this.children.findByIndex(index);
+  deselectItem (index) {
+    const view = this.children.findByIndex(index);
     if (view != null) {
       view.deselect();
     }

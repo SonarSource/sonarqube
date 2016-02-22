@@ -21,8 +21,8 @@ import FormView from './form-view';
 
 export default FormView.extend({
 
-  sendRequest: function () {
-    var that = this;
+  sendRequest () {
+    const that = this;
     this.model.set({
       key: this.$('#create-metric-key').val(),
       name: this.$('#create-metric-name').val(),

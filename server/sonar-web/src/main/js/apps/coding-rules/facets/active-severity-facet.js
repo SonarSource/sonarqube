@@ -26,36 +26,36 @@ export default BaseFacet.extend({
   template: Template,
   severities: ['BLOCKER', 'MINOR', 'CRITICAL', 'INFO', 'MAJOR'],
 
-  initialize: function (options) {
+  initialize (options) {
     this.listenTo(options.app.state, 'change:query', this.onQueryChange);
   },
 
-  onQueryChange: function () {
-    var query = this.options.app.state.get('query'),
-        isProfileSelected = query.qprofile != null,
-        isActiveShown = '' + query.activation === 'true';
+  onQueryChange () {
+    const query = this.options.app.state.get('query');
+    const isProfileSelected = query.qprofile != null;
+    const isActiveShown = '' + query.activation === 'true';
     if (!isProfileSelected || !isActiveShown) {
       this.forbid();
     }
   },
 
-  onRender: function () {
+  onRender () {
     BaseFacet.prototype.onRender.apply(this, arguments);
     this.onQueryChange();
   },
 
-  forbid: function () {
+  forbid () {
     BaseFacet.prototype.forbid.apply(this, arguments);
     this.$el.prop('title', translate('coding_rules.filters.active_severity.inactive'));
   },
 
-  allow: function () {
+  allow () {
     BaseFacet.prototype.allow.apply(this, arguments);
     this.$el.prop('title', null);
   },
 
-  sortValues: function (values) {
-    var order = this.severities;
+  sortValues (values) {
+    const order = this.severities;
     return _.sortBy(values, function (v) {
       return order.indexOf(v.val);
     });

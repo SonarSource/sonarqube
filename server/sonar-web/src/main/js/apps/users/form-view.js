@@ -25,34 +25,34 @@ import Template from './templates/users-form.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return _.extend(ModalForm.prototype.events.apply(this, arguments), {
       'click #create-user-add-scm-account': 'onAddScmAccountClick'
     });
   },
 
-  onRender: function () {
+  onRender () {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  onAddScmAccountClick: function (e) {
+  onAddScmAccountClick (e) {
     e.preventDefault();
     this.addScmAccount();
   },
 
-  getScmAccounts: function () {
-    var scmAccounts = this.$('[name="scmAccounts"]').map(function () {
+  getScmAccounts () {
+    const scmAccounts = this.$('[name="scmAccounts"]').map(function () {
       return $(this).val();
     }).toArray();
     return scmAccounts.filter(function (value) {
@@ -60,8 +60,8 @@ export default ModalForm.extend({
     });
   },
 
-  addScmAccount: function () {
-    var fields = this.$('[name="scmAccounts"]');
+  addScmAccount () {
+    const fields = this.$('[name="scmAccounts"]');
     fields.first().clone().val('').insertAfter(fields.last());
   }
 });

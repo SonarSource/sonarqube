@@ -31,8 +31,8 @@ export default Marionette.ItemView.extend({
     'click .js-cancel': 'cancel'
   },
 
-  initialize: function () {
-    var that = this;
+  initialize () {
+    const that = this;
     this.rules = [];
     $.get('/api/rules/search?repositories=manual&f=name&ps=9999999').done(function (r) {
       that.rules = r.rules;
@@ -40,7 +40,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  onRender: function () {
+  onRender () {
     this.delegateEvents();
     this.$('[name=rule]').select2({
       width: '250px',
@@ -55,16 +55,16 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  onDestroy: function () {
+  onDestroy () {
     if (key != null && this.key != null) {
       key.setScope(this.key);
     }
   },
 
-  formSubmit: function (e) {
-    var that = this;
+  formSubmit (e) {
+    const that = this;
     e.preventDefault();
-    var issue = new Issue({
+    const issue = new Issue({
       component: this.options.component,
       line: this.options.line,
       message: this.$('[name="message"]').val(),
@@ -75,20 +75,20 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  addIssue: function (issue) {
-    var that = this;
+  addIssue (issue) {
+    const that = this;
     return issue.fetch().done(function () {
       that.trigger('add', issue);
       that.destroy();
     });
   },
 
-  cancel: function (e) {
+  cancel (e) {
     e.preventDefault();
     this.destroy();
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       rules: _.sortBy(this.rules, 'name')
     });

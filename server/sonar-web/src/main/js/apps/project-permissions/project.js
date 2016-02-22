@@ -34,7 +34,7 @@ export default React.createClass({
   showGroups(permission, e) {
     e.preventDefault();
     new GroupsView({
-      permission: permission,
+      permission,
       project: this.props.project.id,
       projectName: this.props.project.name,
       refresh: this.props.refresh
@@ -44,7 +44,7 @@ export default React.createClass({
   showUsers(permission, e) {
     e.preventDefault();
     new UsersView({
-      permission: permission,
+      permission,
       project: this.props.project.id,
       projectName: this.props.project.name,
       refresh: this.props.refresh

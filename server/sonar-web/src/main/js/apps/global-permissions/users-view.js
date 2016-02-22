@@ -22,7 +22,7 @@ import Template from './templates/global-permissions-users.hbs';
 import '../../components/SelectList';
 
 function getSearchUrl (permission, project) {
-  var url = '/api/permissions/users?ps=100&permission=' + permission;
+  let url = '/api/permissions/users?ps=100&permission=' + permission;
   if (project) {
     url = url + '&projectId=' + project;
   }
@@ -30,7 +30,7 @@ function getSearchUrl (permission, project) {
 }
 
 function getExtra (permission, project) {
-  var extra = { permission: permission };
+  const extra = { permission };
   if (project) {
     extra.projectId = project;
   }
@@ -40,14 +40,14 @@ function getExtra (permission, project) {
 export default Modal.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     Modal.prototype.onRender.apply(this, arguments);
     new window.SelectList({
       el: this.$('#global-permissions-users'),
       width: '100%',
       readOnly: false,
       focusSearch: false,
-      format: function (item) {
+      format (item) {
         return item.name + '<br><span class="note">' + item.login + '</span>';
       },
       queryParam: 'q',
@@ -57,14 +57,14 @@ export default Modal.extend({
       extra: getExtra(this.options.permission, this.options.project),
       selectParameter: 'login',
       selectParameterValue: 'login',
-      parse: function (r) {
+      parse (r) {
         this.more = false;
         return r.users;
       }
     });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.options.refresh();
     Modal.prototype.onDestroy.apply(this, arguments);
   }

@@ -25,43 +25,43 @@ import ProfileDetailsView from './profile-details-view';
 
 export default Marionette.Controller.extend({
 
-  initialize: function () {
+  initialize () {
     this.listenTo(this.options.app.profiles, 'select', this.onProfileSelect);
     this.listenTo(this.options.app.profiles, 'setAsDefault', this.onProfileSetAsDefault);
     this.listenTo(this.options.app.profiles, 'destroy', this.onProfileDestroy);
   },
 
-  index: function () {
+  index () {
     this.fetchProfiles();
   },
 
-  show: function (key) {
-    var that = this;
+  show (key) {
+    const that = this;
     this.fetchProfiles().done(function () {
-      var profile = that.options.app.profiles.findWhere({ key: key });
+      const profile = that.options.app.profiles.findWhere({ key });
       if (profile != null) {
         profile.trigger('select', profile, { trigger: false });
       }
     });
   },
 
-  changelog: function (key, since, to) {
-    var that = this;
+  changelog (key, since, to) {
+    const that = this;
     this.anchor = 'changelog';
     this.fetchProfiles().done(function () {
-      var profile = that.options.app.profiles.findWhere({ key: key });
+      const profile = that.options.app.profiles.findWhere({ key });
       if (profile != null) {
         profile.trigger('select', profile, { trigger: false });
-        profile.fetchChangelog({ since: since, to: to });
+        profile.fetchChangelog({ since, to });
       }
     });
   },
 
-  compare: function (key, withKey) {
-    var that = this;
+  compare (key, withKey) {
+    const that = this;
     this.anchor = 'comparison';
     this.fetchProfiles().done(function () {
-      var profile = that.options.app.profiles.findWhere({ key: key });
+      const profile = that.options.app.profiles.findWhere({ key });
       if (profile != null) {
         profile.trigger('select', profile, { trigger: false });
         profile.compareWith(withKey);
@@ -69,23 +69,23 @@ export default Marionette.Controller.extend({
     });
   },
 
-  onProfileSelect: function (profile, options) {
-    var that = this,
-        key = profile.get('key'),
-        route = 'show?key=' + encodeURIComponent(key),
-        opts = _.defaults(options || {}, { trigger: true });
+  onProfileSelect (profile, options) {
+    const that = this;
+    const key = profile.get('key');
+    const route = 'show?key=' + encodeURIComponent(key);
+    const opts = _.defaults(options || {}, { trigger: true });
     if (opts.trigger) {
       this.options.app.router.navigate(route);
     }
     this.options.app.profilesView.highlight(key);
     this.fetchProfile(profile).done(function () {
-      var profileHeaderView = new ProfileHeaderView({
+      const profileHeaderView = new ProfileHeaderView({
         model: profile,
         canWrite: that.options.app.canWrite
       });
       that.options.app.layout.headerRegion.show(profileHeaderView);
 
-      var profileDetailsView = new ProfileDetailsView({
+      const profileDetailsView = new ProfileDetailsView({
         model: profile,
         canWrite: that.options.app.canWrite,
         exporters: that.options.app.exporters,
@@ -97,18 +97,18 @@ export default Marionette.Controller.extend({
     });
   },
 
-  onProfileSetAsDefault: function (profile) {
-    var that = this,
-        url = '/api/qualityprofiles/set_default',
-        key = profile.get('key'),
-        options = { profileKey: key };
+  onProfileSetAsDefault (profile) {
+    const that = this;
+    const url = '/api/qualityprofiles/set_default';
+    const key = profile.get('key');
+    const options = { profileKey: key };
     return $.post(url, options).done(function () {
       profile.set({ isDefault: true });
       that.fetchProfiles();
     });
   },
 
-  onProfileDestroy: function () {
+  onProfileDestroy () {
     this.options.app.router.navigate('');
     this.options.app.layout.headerRegion.reset();
     this.options.app.layout.detailsRegion.reset();
@@ -116,11 +116,11 @@ export default Marionette.Controller.extend({
     this.options.app.profilesView.highlight(null);
   },
 
-  fetchProfiles: function () {
+  fetchProfiles () {
     return this.options.app.profiles.fetch({ reset: true });
   },
 
-  fetchProfile: function (profile) {
+  fetchProfile (profile) {
     return profile.fetch();
   }
 

@@ -25,22 +25,22 @@ import Template from './templates/projects-create-form.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  sendRequest: function () {
+  sendRequest () {
     let data = {
       name: this.$('#create-project-name').val(),
       branch: this.$('#create-project-branch').val(),

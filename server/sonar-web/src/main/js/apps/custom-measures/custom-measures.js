@@ -24,43 +24,43 @@ import CustomMeasure from './custom-measure';
 export default Backbone.Collection.extend({
   model: CustomMeasure,
 
-  initialize: function (options) {
+  initialize (options) {
     this.projectId = options.projectId;
   },
 
-  url: function () {
+  url () {
     return '/api/custom_measures/search';
   },
 
-  parse: function (r) {
+  parse (r) {
     this.total = r.total;
     this.p = r.p;
     this.ps = r.ps;
     return r.customMeasures;
   },
 
-  fetch: function (options) {
-    var opts = _.defaults(options || {}, { data: {} });
+  fetch (options) {
+    const opts = _.defaults(options || {}, { data: {} });
     this.q = opts.data.q;
     opts.data.projectId = this.projectId;
     return Backbone.Collection.prototype.fetch.call(this, opts);
   },
 
-  fetchMore: function () {
-    var p = this.p + 1;
-    return this.fetch({ add: true, remove: false, data: { p: p, ps: this.ps, q: this.q } });
+  fetchMore () {
+    const p = this.p + 1;
+    return this.fetch({ add: true, remove: false, data: { p, ps: this.ps, q: this.q } });
   },
 
-  refresh: function () {
+  refresh () {
     return this.fetch({ reset: true, data: { q: this.q } });
   },
 
-  hasMore: function () {
+  hasMore () {
     return this.total > this.p * this.ps;
   },
 
-  getTakenMetrics: function () {
-    var metrics = this.map(function (model) {
+  getTakenMetrics () {
+    const metrics = this.map(function (model) {
       return model.get('metric').id;
     });
     return _.uniq(metrics);

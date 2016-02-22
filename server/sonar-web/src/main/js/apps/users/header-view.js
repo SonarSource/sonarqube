@@ -33,20 +33,20 @@ export default Marionette.ItemView.extend({
     'click #users-create': 'onCreateClick'
   },
 
-  showSpinner: function () {
+  showSpinner () {
     this.$('.spinner').removeClass('hidden');
   },
 
-  hideSpinner: function () {
+  hideSpinner () {
     this.$('.spinner').addClass('hidden');
   },
 
-  onCreateClick: function (e) {
+  onCreateClick (e) {
     e.preventDefault();
     this.createUser();
   },
 
-  createUser: function () {
+  createUser () {
     new CreateView({
       collection: this.collection
     }).render();

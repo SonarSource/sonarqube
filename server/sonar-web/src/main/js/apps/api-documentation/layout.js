@@ -31,11 +31,11 @@ export default Marionette.LayoutView.extend({
     detailsRegion: '.search-navigator-workspace-details'
   },
 
-  onRender: function () {
-    var navigator = this.$('.search-navigator');
+  onRender () {
+    const navigator = this.$('.search-navigator');
     navigator.addClass('sticky search-navigator-extended-view');
-    var top = navigator.offset().top;
-    this.$('.search-navigator-workspace-header').css({ top: top });
-    this.$('.search-navigator-side').css({ top: top }).isolatedScroll();
+    const top = navigator.offset().top;
+    this.$('.search-navigator-workspace-header').css({ top });
+    this.$('.search-navigator-side').css({ top }).isolatedScroll();
   }
 });

@@ -25,14 +25,14 @@ export default Backbone.Collection.extend({
   url: '/api/qualityprofiles/search',
   comparator: 'key',
 
-  parse: function (r) {
+  parse (r) {
     return r.profiles;
   },
 
-  updateForLanguage: function (language) {
+  updateForLanguage (language) {
     this.fetch({
       data: {
-        language: language
+        language
       },
       merge: true,
       reset: false,

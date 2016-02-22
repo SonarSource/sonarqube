@@ -40,7 +40,7 @@ class App {
     if (opts.component.hasSnapshot) {
       ReactDOM.render(<Overview {...opts} leakPeriodIndex={LEAK_PERIOD}/>, el);
     } else {
-      ReactDOM.render(<EmptyOverview  {...opts}/>, el);
+      ReactDOM.render(<EmptyOverview {...opts}/>, el);
     }
   }
 }

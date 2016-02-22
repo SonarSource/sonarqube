@@ -75,21 +75,21 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   window.SonarWidgets.Timeline.prototype.initScalesAndAxis = function () {
     // Configure scales
-    var timeDomain = this.data()
-        .map(function(_) {
-          return d3.extent(_, function(d) {
+    const timeDomain = this.data()
+        .map(function (_) {
+          return d3.extent(_, function (d) {
             return d.x;
           });
         })
-        .reduce(function(p, c) {
+        .reduce(function (p, c) {
           return p.concat(c);
         }, []);
 
     this.time = d3.time.scale().domain(d3.extent(timeDomain));
 
-    this.y = this.data().map(function(_) {
+    this.y = this.data().map(function (_) {
       return d3.scale.linear()
-          .domain(d3.extent(_, function(d) { return d.y; }));
+          .domain(d3.extent(_, function (d) { return d.y; }));
     });
 
     this.color = d3.scale.category10();
@@ -103,7 +103,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.Timeline.prototype.initEvents = function () {
-    var widget = this;
+    const widget = this;
     this.events(this.events().filter(function (event) {
       return event.d >= widget.time.domain()[0];
     }));
@@ -120,10 +120,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gevents.exit().remove();
 
 
-    this.selectSnapshot = function(cl) {
-      var sx = widget.time(widget.data()[0][cl].x);
+    this.selectSnapshot = function (cl) {
+      const sx = widget.time(widget.data()[0][cl].x);
 
-      widget.markers.forEach(function(marker) {
+      widget.markers.forEach(function (marker) {
         marker.style('opacity', 0);
         d3.select(marker[0][cl]).style('opacity', 1);
       });
@@ -135,23 +135,23 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.infoDate
           .text(moment(widget.data()[0][cl].x).format('LL'));
 
-      var metricsLines = widget.data().map(function(d, i) {
+      const metricsLines = widget.data().map(function (d, i) {
         return widget.metrics()[i] + ': ' + d[cl].yl;
       });
 
-      metricsLines.forEach(function(d, i) {
+      metricsLines.forEach(function (d, i) {
         widget.infoMetrics[i].select('text').text(d);
       });
 
       widget.gevents.attr('y2', -8);
       widget.infoEvent.text('');
-      widget.events().forEach(function(d, i) {
+      widget.events().forEach(function (d, i) {
         if (d.d - widget.data()[0][cl].x === 0) {
           d3.select(widget.gevents[0][i]).attr('y2', -12);
 
           widget.infoEvent
               .text(widget.events()[i].l
-                  .map(function(e) { return e.n; })
+                  .map(function (e) { return e.n; })
                   .join(', '));
         }
       });
@@ -159,16 +159,16 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Set event listeners
-    this.svg.on('mousemove', function() {
-      var mx = d3.mouse(widget.plotWrap.node())[0],
-          cl = closest(widget.data()[0], mx, function(d) { return widget.time(d.x); });
+    this.svg.on('mousemove', function () {
+      const mx = d3.mouse(widget.plotWrap.node())[0];
+      const cl = closest(widget.data()[0], mx, function (d) { return widget.time(d.x); });
       widget.selectSnapshot(cl);
     });
   };
 
 
   window.SonarWidgets.Timeline.prototype.render = function () {
-    var widget = this;
+    const widget = this;
 
     this.svg = this.container.append('svg')
         .attr('class', 'sonar-d3');
@@ -202,24 +202,24 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.lines = [];
     this.glines = [];
     this.markers = [];
-    this.data().forEach(function(_, i) {
-      var line = d3.svg.line()
-          .x(function(d) { return widget.time(d.x); })
-          .y(function(d) { return widget.y[i](d.y); })
+    this.data().forEach(function (_, i) {
+      const line = d3.svg.line()
+          .x(function (d) { return widget.time(d.x); })
+          .y(function (d) { return widget.y[i](d.y); })
           .interpolate('linear');
 
-      var gline = widget.plotWrap.append('path')
+      const gline = widget.plotWrap.append('path')
           .attr('class', 'line')
-          .style('stroke', function() { return widget.color(i); });
+          .style('stroke', function () { return widget.color(i); });
 
       widget.lines.push(line);
       widget.glines.push(gline);
 
-      var marker = widget.plotWrap.selectAll('.marker').data(_);
+      const marker = widget.plotWrap.selectAll('.marker').data(_);
       marker.enter().append('circle')
           .attr('class', 'line-marker')
           .attr('r', 3)
-          .style('stroke', function() { return widget.color(i); });
+          .style('stroke', function () { return widget.color(i); });
       marker.exit().remove();
 
       widget.markers.push(marker);
@@ -240,10 +240,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(0, 0));
 
     this.infoMetrics = [];
-    this.metrics().forEach(function(d, i) {
-      var infoMetric = widget.infoWrap.append('g')
+    this.metrics().forEach(function (d, i) {
+      const infoMetric = widget.infoWrap.append('g')
           .attr('class', 'metric-legend')
-          .attr('transform', function() { return trans(110 + i * 150, -1); });
+          .attr('transform', function () { return trans(110 + i * 150, -1); });
 
       infoMetric.append('text')
           .attr('class', 'info-text-small')
@@ -253,7 +253,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           .attr('class', 'metric-legend-line')
           .attr('transform', trans(0, -4))
           .attr('r', 4)
-          .style('fill', function() { return widget.color(i); });
+          .style('fill', function () { return widget.color(i); });
 
       widget.infoMetrics.push(infoMetric);
     });
@@ -266,20 +266,20 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
   window.SonarWidgets.Timeline.prototype.showLimitHistoryMessage = function () {
-    var minEvent = d3.min(this.events(), function (d) {
-          return d.d;
-        }),
-        minData = this.time.domain()[0];
+    const minEvent = d3.min(this.events(), function (d) {
+      return d.d;
+    });
+    const minData = this.time.domain()[0];
     if (minEvent < minData) {
-      var maxResultsReachedLabel = this.container.append('div').text(this.limitedHistoricalData);
+      const maxResultsReachedLabel = this.container.append('div').text(this.limitedHistoricalData);
       maxResultsReachedLabel.classed('max-results-reached-message', true);
     }
   };
 
 
-  window.SonarWidgets.Timeline.prototype.update = function() {
-    var widget = this,
-        width = this.container.property('offsetWidth');
+  window.SonarWidgets.Timeline.prototype.update = function () {
+    const widget = this;
+    const width = this.container.property('offsetWidth');
 
     this.width(width > 100 ? width : 100);
 
@@ -295,10 +295,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Update metric lines
-    var metricY = -1;
-    this.infoMetrics.forEach(function(metric, i) {
-      var x = 120 + i * 170,
-          x2 = x + 170;
+    let metricY = -1;
+    this.infoMetrics.forEach(function (metric, i) {
+      let x = 120 + i * 170;
+      const x2 = x + 170;
 
       if (x2 > widget.availableWidth) {
         metricY += 18;
@@ -307,7 +307,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
       metric
           .transition()
-          .attr('transform', function() { return trans(x, metricY); });
+          .attr('transform', function () { return trans(x, metricY); });
     });
 
     if (metricY > -1) {
@@ -322,7 +322,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.time
         .range([0, this.availableWidth]);
 
-    this.y.forEach(function(scale) {
+    this.y.forEach(function (scale) {
       scale.range([widget.availableHeight, 0]);
     });
 
@@ -340,7 +340,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
 
     // Update lines and points
-    this.data().forEach(function(_, i) {
+    this.data().forEach(function (_, i) {
       widget.glines[i]
           .transition()
           .attr('d', widget.lines[i](_));
@@ -348,7 +348,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.markers[i]
           .data(_)
           .transition()
-          .attr('transform', function(d) { return trans(widget.time(d.x), widget.y[i](d.y)); });
+          .attr('transform', function (d) { return trans(widget.time(d.x), widget.y[i](d.y)); });
     });
 
 
@@ -363,7 +363,7 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     this.gevents
         .transition()
-        .attr('transform', function(d) { return trans(widget.time(d.d), widget.availableHeight + 10 + metricY); });
+        .attr('transform', function (d) { return trans(widget.time(d.d), widget.availableHeight + 10 + metricY); });
 
 
     // Select latest values if this it the first update
@@ -376,7 +376,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
   window.SonarWidgets.Timeline.defaults = {
     width: 350,
     height: 150,
@@ -384,11 +383,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   };
 
 
-
   // Some helper functions
 
   // Gets or sets parameter
-  function param(name, value) {
+  function param (name, value) {
     if (value == null) {
       return this[name];
     } else {
@@ -398,14 +396,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
   }
 
   // Helper for create the translate(x, y) string
-  function trans(left, top) {
+  function trans (left, top) {
     return 'translate(' + left + ', ' + top + ')';
   }
 
   // Helper for find the closest number in array
-  function closest(array, number, getter) {
-    var cl = null;
-    array.forEach(function(value, i) {
+  function closest (array, number, getter) {
+    let cl = null;
+    array.forEach(function (value, i) {
       if (cl == null ||
           Math.abs(getter(value) - number) < Math.abs(getter(array[cl]) - number)) {
         cl = i;

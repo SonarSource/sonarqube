@@ -40,23 +40,23 @@ export default PopupView.extend({
     'click @ui.submitButton': 'submit'
   },
 
-  onRender: function () {
-    var that = this;
+  onRender () {
+    const that = this;
     PopupView.prototype.onRender.apply(this, arguments);
     setTimeout(function () {
       that.ui.textarea.focus();
     }, 100);
   },
 
-  toggleSubmit: function () {
+  toggleSubmit () {
     this.ui.submitButton.prop('disabled', this.ui.textarea.val().length === 0);
   },
 
-  onClick: function (e) {
+  onClick (e) {
     e.stopPropagation();
   },
 
-  onKeydown: function (e) {
+  onKeydown (e) {
     if (e.keyCode === 27) {
       this.destroy();
     }
@@ -65,25 +65,25 @@ export default PopupView.extend({
     }
   },
 
-  cancel: function () {
+  cancel () {
     this.options.detailView.updateAfterAction(false);
   },
 
-  disableForm: function () {
+  disableForm () {
     this.$(':input').prop('disabled', true);
   },
 
-  enableForm: function () {
+  enableForm () {
     this.$(':input').prop('disabled', false);
   },
 
-  submit: function () {
-    var that = this;
-    var text = this.ui.textarea.val(),
-        update = this.model && this.model.has('key'),
-        method = update ? 'edit_comment' : 'add_comment',
-        url = '/api/issues/' + method,
-        data = { text: text };
+  submit () {
+    const that = this;
+    const text = this.ui.textarea.val();
+    const update = this.model && this.model.has('key');
+    const method = update ? 'edit_comment' : 'add_comment';
+    const url = '/api/issues/' + method;
+    const data = { text };
     if (update) {
       data.key = this.model.get('key');
     } else {
@@ -100,10 +100,10 @@ export default PopupView.extend({
         });
   },
 
-  serializeData: function () {
-    var options = _.defaults(this.options.additionalOptions, { fromTransition: false });
+  serializeData () {
+    const options = _.defaults(this.options.additionalOptions, { fromTransition: false });
     return _.extend(PopupView.prototype.serializeData.apply(this, arguments), {
-      options: options
+      options
     });
   }
 });

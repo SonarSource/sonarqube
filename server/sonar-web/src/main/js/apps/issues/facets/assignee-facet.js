@@ -25,35 +25,35 @@ import Template from '../templates/facets/issues-assignee-facet.hbs';
 export default CustomValuesFacet.extend({
   template: Template,
 
-  getUrl: function () {
+  getUrl () {
     return '/api/users/search';
   },
 
-  prepareAjaxSearch: function () {
+  prepareAjaxSearch () {
     return {
       quietMillis: 300,
       url: this.getUrl(),
-      data: function (term, page) {
+      data (term, page) {
         return { q: term, p: page };
       },
       results: window.usersToSelect2
     };
   },
 
-  onRender: function () {
+  onRender () {
     CustomValuesFacet.prototype.onRender.apply(this, arguments);
-    var value = this.options.app.state.get('query').assigned;
+    const value = this.options.app.state.get('query').assigned;
     if ((value != null) && (!value || value === 'false')) {
       return this.$('.js-facet').filter('[data-unassigned]').addClass('active');
     }
   },
 
-  toggleFacet: function (e) {
-    var unassigned = $(e.currentTarget).is('[data-unassigned]');
+  toggleFacet (e) {
+    const unassigned = $(e.currentTarget).is('[data-unassigned]');
     $(e.currentTarget).toggleClass('active');
     if (unassigned) {
-      var checked = $(e.currentTarget).is('.active'),
-          value = checked ? 'false' : null;
+      const checked = $(e.currentTarget).is('.active');
+      const value = checked ? 'false' : null;
       return this.options.app.state.updateFilter({
         assigned: value,
         assignees: null
@@ -66,14 +66,14 @@ export default CustomValuesFacet.extend({
     }
   },
 
-  getValuesWithLabels: function () {
-    var values = this.model.getValues(),
-        users = this.options.app.facets.users;
+  getValuesWithLabels () {
+    const values = this.model.getValues();
+    const users = this.options.app.facets.users;
     values.forEach(function (v) {
-      var login = v.val,
-          name = '';
+      const login = v.val;
+      let name = '';
       if (login) {
-        var user = _.findWhere(users, { login: login });
+        const user = _.findWhere(users, { login });
         if (user != null) {
           name = user.name;
         }
@@ -83,38 +83,38 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  disable: function () {
+  disable () {
     return this.options.app.state.updateFilter({
       assigned: null,
       assignees: null
     });
   },
 
-  addCustomValue: function () {
-    var property = this.model.get('property'),
-        customValue = this.$('.js-custom-value').select2('val'),
-        value = this.getValue();
+  addCustomValue () {
+    const property = this.model.get('property');
+    const customValue = this.$('.js-custom-value').select2('val');
+    let value = this.getValue();
     if (value.length > 0) {
       value += ',';
     }
     value += customValue;
-    var obj = {};
+    const obj = {};
     obj[property] = value;
     obj.assigned = null;
     return this.options.app.state.updateFilter(obj);
   },
 
-  sortValues: function (values) {
+  sortValues (values) {
     return _.sortBy(values, function (v) {
       return v.val === '' ? -999999 : -v.count;
     });
   },
 
-  getNumberOfMyIssues: function () {
+  getNumberOfMyIssues () {
     return this.options.app.state.get('myIssues');
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
       myIssues: this.getNumberOfMyIssues(),
       values: this.sortValues(this.getValuesWithLabels())

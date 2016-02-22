@@ -27,50 +27,50 @@ import Profiles from './profiles';
 import ActionsView from './actions-view';
 import ProfilesView from './profiles-view';
 
-var App = new Marionette.Application(),
-    requestUser = $.get('/api/users/current').done(function (r) {
-      App.canWrite = r.permissions.global.indexOf('profileadmin') !== -1;
-    }),
-    requestExporters = $.get('/api/qualityprofiles/exporters').done(function (r) {
-      App.exporters = r.exporters;
-    }),
-    init = function () {
-      let options = window.sonarqube;
+const App = new Marionette.Application();
+const requestUser = $.get('/api/users/current').done(function (r) {
+  App.canWrite = r.permissions.global.indexOf('profileadmin') !== -1;
+});
+const requestExporters = $.get('/api/qualityprofiles/exporters').done(function (r) {
+  App.exporters = r.exporters;
+});
+const init = function () {
+  let options = window.sonarqube;
 
-      // Layout
-      this.layout = new Layout({ el: options.el });
-      this.layout.render();
-      $('#footer').addClass('search-navigator-footer');
+  // Layout
+  this.layout = new Layout({ el: options.el });
+  this.layout.render();
+  $('#footer').addClass('search-navigator-footer');
 
-      // Profiles List
-      this.profiles = new Profiles();
+  // Profiles List
+  this.profiles = new Profiles();
 
-      // Controller
-      this.controller = new Controller({ app: this });
+  // Controller
+  this.controller = new Controller({ app: this });
 
-      // Actions View
-      this.actionsView = new ActionsView({
-        collection: this.profiles,
-        canWrite: this.canWrite
-      });
-      this.actionsView.requestLanguages().done(function () {
-        App.layout.actionsRegion.show(App.actionsView);
-      });
+  // Actions View
+  this.actionsView = new ActionsView({
+    collection: this.profiles,
+    canWrite: this.canWrite
+  });
+  this.actionsView.requestLanguages().done(function () {
+    App.layout.actionsRegion.show(App.actionsView);
+  });
 
-      // Profiles View
-      this.profilesView = new ProfilesView({
-        collection: this.profiles,
-        canWrite: this.canWrite
-      });
-      this.layout.resultsRegion.show(this.profilesView);
+  // Profiles View
+  this.profilesView = new ProfilesView({
+    collection: this.profiles,
+    canWrite: this.canWrite
+  });
+  this.layout.resultsRegion.show(this.profilesView);
 
-      // Router
-      this.router = new Router({ app: this });
-      Backbone.history.start({
-        pushState: true,
-        root: options.urlRoot
-      });
-    };
+  // Router
+  this.router = new Router({ app: this });
+  Backbone.history.start({
+    pushState: true,
+    root: options.urlRoot
+  });
+};
 
 App.on('start', function () {
   $.when(requestUser, requestExporters).done(function () {

@@ -73,12 +73,12 @@ export default State.extend({
     }
   },
 
-  getFacetMode: function () {
-    var query = this.get('query');
+  getFacetMode () {
+    const query = this.get('query');
     return query.facetMode || 'count';
   },
 
-  toJSON: function () {
+  toJSON () {
     return _.extend({ facetMode: this.getFacetMode() }, this.attributes);
   }
 });

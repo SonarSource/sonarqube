@@ -43,7 +43,7 @@ export default Marionette.ItemView.extend({
     'transition': 'onTransition'
   },
 
-  events: function () {
+  events () {
     return {
       'click .js-issue-comment': 'onComment',
       'click .js-issue-comment-edit': 'editComment',
@@ -61,32 +61,32 @@ export default Marionette.ItemView.extend({
     };
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.attr('data-key', this.model.get('key'));
   },
 
-  disableControls: function () {
+  disableControls () {
     this.$(':input').prop('disabled', true);
   },
 
-  enableControls: function () {
+  enableControls () {
     this.$(':input').prop('disabled', false);
   },
 
-  resetIssue: function (options) {
-    var that = this;
-    var key = this.model.get('key'),
-        componentUuid = this.model.get('componentUuid');
-    this.model.reset({ key: key, componentUuid: componentUuid }, { silent: true });
+  resetIssue (options) {
+    const that = this;
+    const key = this.model.get('key');
+    const componentUuid = this.model.get('componentUuid');
+    this.model.reset({ key, componentUuid }, { silent: true });
     return this.model.fetch(options).done(function () {
       return that.trigger('reset');
     });
   },
 
-  showChangeLog: function (e) {
-    var that = this;
-    var t = $(e.currentTarget),
-        changeLog = new ChangeLog();
+  showChangeLog (e) {
+    const that = this;
+    const t = $(e.currentTarget);
+    const changeLog = new ChangeLog();
     return changeLog.fetch({
       data: { issue: this.model.get('key') }
     }).done(function () {
@@ -103,7 +103,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  updateAfterAction: function (fetch) {
+  updateAfterAction (fetch) {
     if (this.popup) {
       this.popup.destroy();
     }
@@ -112,12 +112,12 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  onComment: function (e) {
+  onComment (e) {
     e.stopPropagation();
     this.comment();
   },
 
-  comment: function (options) {
+  comment (options) {
     $('body').click();
     this.popup = new CommentFormView({
       triggerEl: this.$('.js-issue-comment'),
@@ -129,12 +129,12 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  editComment: function (e) {
+  editComment (e) {
     e.stopPropagation();
     $('body').click();
-    var commentEl = $(e.currentTarget).closest('.issue-comment'),
-        commentKey = commentEl.data('comment-key'),
-        comment = _.findWhere(this.model.get('comments'), { key: commentKey });
+    const commentEl = $(e.currentTarget).closest('.issue-comment');
+    const commentKey = commentEl.data('comment-key');
+    const comment = _.findWhere(this.model.get('comments'), { key: commentKey });
     this.popup = new CommentFormView({
       triggerEl: $(e.currentTarget),
       bottomRight: true,
@@ -145,10 +145,10 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  deleteComment: function (e) {
-    var that = this;
-    var commentKey = $(e.target).closest('[data-comment-key]').data('comment-key'),
-        confirmMsg = $(e.target).data('confirm-msg');
+  deleteComment (e) {
+    const that = this;
+    const commentKey = $(e.target).closest('[data-comment-key]').data('comment-key');
+    const confirmMsg = $(e.target).data('confirm-msg');
     if (confirm(confirmMsg)) {
       this.disableControls();
       return $.ajax({
@@ -160,7 +160,7 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  transition: function (e) {
+  transition (e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new TransitionsFormView({
@@ -172,7 +172,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  setSeverity: function (e) {
+  setSeverity (e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new SetSeverityFormView({
@@ -183,7 +183,7 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  assign: function (e) {
+  assign (e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new AssignFormView({
@@ -194,8 +194,8 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  assignToMe: function () {
-    var view = new AssignFormView({
+  assignToMe () {
+    const view = new AssignFormView({
       model: this.model,
       triggerEl: $('body')
     });
@@ -203,10 +203,10 @@ export default Marionette.ItemView.extend({
     view.destroy();
   },
 
-  plan: function (e) {
-    var that = this;
-    var t = $(e.currentTarget),
-        actionPlans = new ActionPlans();
+  plan (e) {
+    const that = this;
+    const t = $(e.currentTarget);
+    const actionPlans = new ActionPlans();
     return actionPlans.fetch({
       reset: true,
       data: { project: this.model.get('project') }
@@ -223,12 +223,12 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  showRule: function () {
-    var ruleKey = this.model.get('rule');
+  showRule () {
+    const ruleKey = this.model.get('rule');
     Workspace.openRule({ key: ruleKey });
   },
 
-  showMoreActions: function (e) {
+  showMoreActions (e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new MoreActionsView({
@@ -240,8 +240,8 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  action: function (action) {
-    var that = this;
+  action (action) {
+    const that = this;
     this.disableControls();
     return this.model.customAction(action)
         .done(function () {
@@ -252,7 +252,7 @@ export default Marionette.ItemView.extend({
         });
   },
 
-  editTags: function (e) {
+  editTags (e) {
     e.stopPropagation();
     $('body').click();
     this.popup = new TagsFormView({
@@ -263,18 +263,18 @@ export default Marionette.ItemView.extend({
     this.popup.render();
   },
 
-  showLocations: function () {
+  showLocations () {
     this.model.trigger('locations', this.model);
   },
 
-  onTransition: function (transition) {
+  onTransition (transition) {
     if (transition === 'falsepositive' || transition === 'wontfix') {
       this.comment({ fromTransition: true });
     }
   },
 
-  serializeData: function () {
-    var issueKey = encodeURIComponent(this.model.get('key'));
+  serializeData () {
+    const issueKey = encodeURIComponent(this.model.get('key'));
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       permalink: '/issues/search#issues=' + issueKey,
       hasSecondaryLocations: this.model.get('flows').length

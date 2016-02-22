@@ -27,8 +27,8 @@ import Template from './templates/quality-profiles-restore-profile.hbs';
 export default ModalFormView.extend({
   template: Template,
 
-  onFormSubmit: function (e) {
-    var that = this;
+  onFormSubmit (e) {
+    const that = this;
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     uploader({ form: $(e.currentTarget) }).done(function (r) {
       if (_.isArray(r.errors) || _.isArray(r.warnings)) {
@@ -40,10 +40,10 @@ export default ModalFormView.extend({
     });
   },
 
-  addProfile: function (profileData) {
-    var profile = new Profile(profileData);
+  addProfile (profileData) {
+    const profile = new Profile(profileData);
     this.collection.add([profile], { merge: true });
-    var addedProfile = this.collection.get(profile.id);
+    const addedProfile = this.collection.get(profile.id);
     if (addedProfile != null) {
       addedProfile.trigger('select', addedProfile);
     }

@@ -28,27 +28,27 @@ export default Backbone.Router.extend({
     'system': 'showSystemUpgrades'
   },
 
-  initialize: function (options) {
+  initialize (options) {
     this.controller = options.controller;
   },
 
-  index: function () {
+  index () {
     this.navigate('installed', { trigger: true, replace: true });
   },
 
-  showInstalled: function () {
+  showInstalled () {
     this.controller.showInstalled();
   },
 
-  showUpdates: function () {
+  showUpdates () {
     this.controller.showUpdates();
   },
 
-  showAvailable: function () {
+  showAvailable () {
     this.controller.showAvailable();
   },
 
-  showSystemUpgrades: function () {
+  showSystemUpgrades () {
     this.controller.showSystemUpgrades();
   }
 });

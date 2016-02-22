@@ -89,8 +89,8 @@ export default React.createClass({
 
       this.setState({
         ready: true,
-        measures: measures,
-        leak: leak,
+        measures,
+        leak,
         coverageMetricPrefix: this.getCoverageMetricPrefix(measures)
       }, this.requestHistory);
     });
@@ -130,7 +130,7 @@ export default React.createClass({
     // FIXME requesting severities facet only to get debtTotal
     return getIssuesCount({
       componentUuids: this.props.component.id,
-      createdAfter: createdAfter,
+      createdAfter,
       resolved: 'false',
       facets: 'severities'
     });

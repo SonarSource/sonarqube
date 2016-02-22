@@ -21,8 +21,8 @@ import FormView from './form-view';
 import { updatePermissionTemplate } from '../../api/permissions';
 
 export default FormView.extend({
-  sendRequest: function () {
-    var that = this;
+  sendRequest () {
+    const that = this;
     this.disableForm();
     return updatePermissionTemplate({
       data: {

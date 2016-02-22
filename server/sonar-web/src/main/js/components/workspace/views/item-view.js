@@ -36,22 +36,22 @@ export default Marionette.ItemView.extend({
     'click .js-close': 'onCloseClick'
   },
 
-  onClick: function (e) {
+  onClick (e) {
     e.preventDefault();
     this.options.collectionView.trigger('click', this.model);
   },
 
-  onCloseClick: function (e) {
+  onCloseClick (e) {
     e.preventDefault();
     e.stopPropagation();
     this.model.destroy();
   },
 
-  onViewerShow: function () {
+  onViewerShow () {
     this.$el.addClass('hidden');
   },
 
-  onViewerHide: function () {
+  onViewerHide () {
     this.$el.removeClass('hidden');
   }
 });

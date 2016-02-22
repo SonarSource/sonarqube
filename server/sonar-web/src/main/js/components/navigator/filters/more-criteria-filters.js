@@ -23,7 +23,7 @@ import ChoiceFilters from './choice-filters';
 import Template from '../templates/more-criteria-filter.hbs';
 import DetailsTemplate from '../templates/more-criteria-details-filter.hbs';
 
-var DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
+const DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
   template: DetailsTemplate,
 
 
@@ -32,14 +32,14 @@ var DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend
   },
 
 
-  enableById: function (id) {
+  enableById (id) {
     this.model.view.options.filterBarView.enableFilter(id);
     this.model.view.hideDetails();
   },
 
 
-  enableByProperty: function (property) {
-    var filter = _.find(this.model.get('filters'), function (f) {
+  enableByProperty (property) {
+    const filter = _.find(this.model.get('filters'), function (f) {
       return f.get('property') === property;
     });
     if (filter) {
@@ -48,61 +48,61 @@ var DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend
   },
 
 
-  enableFilter: function (e) {
-    var id = $(e.target).data('id');
+  enableFilter (e) {
+    const id = $(e.target).data('id');
     this.enableById(id);
     this.updateCurrent(0);
   },
 
 
-  selectCurrent: function () {
+  selectCurrent () {
     this.$('label').eq(this.currentChoice).click();
   },
 
 
-  serializeData: function () {
-    var filters = this.model.get('filters').map(function (filter) {
-          return _.extend(filter.toJSON(), { id: filter.cid });
-        }),
-        getName = function (filter) {
-          return filter.name;
-        },
-        uniqueFilters = _.unique(filters, getName),
-        sortedFilters = _.sortBy(uniqueFilters, getName);
+  serializeData () {
+    const filters = this.model.get('filters').map(function (filter) {
+      return _.extend(filter.toJSON(), { id: filter.cid });
+    });
+    const getName = function (filter) {
+      return filter.name;
+    };
+    const uniqueFilters = _.unique(filters, getName);
+    const sortedFilters = _.sortBy(uniqueFilters, getName);
     return _.extend(this.model.toJSON(), { filters: sortedFilters });
   }
 
 });
 
 
-var MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
+const MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
   template: Template,
   className: 'navigator-filter navigator-filter-more-criteria',
 
 
-  initialize: function () {
+  initialize () {
     ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
       detailsView: DetailsMoreCriteriaFilterView
     });
   },
 
 
-  renderValue: function () {
+  renderValue () {
     return '';
   },
 
 
-  renderInput: function () {
+  renderInput () {
   },
 
 
-  renderBase: function () {
+  renderBase () {
     ChoiceFilters.ChoiceFilterView.prototype.renderBase.call(this);
     this.$el.prop('title', '');
   },
 
 
-  isDefaultValue: function () {
+  isDefaultValue () {
     return false;
   }
 
@@ -114,8 +114,8 @@ var MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
  */
 
 export default {
-  DetailsMoreCriteriaFilterView: DetailsMoreCriteriaFilterView,
-  MoreCriteriaFilterView: MoreCriteriaFilterView
+  DetailsMoreCriteriaFilterView,
+  MoreCriteriaFilterView
 };
 
 

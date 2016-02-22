@@ -46,33 +46,33 @@ export default Marionette.ItemView.extend({
     'click @ui.deactivate': 'deactivate'
   },
 
-  onRender: function () {
+  onRender () {
     this.$('[data-toggle="tooltip"]').tooltip({
       container: 'body'
     });
   },
 
-  change: function () {
-    var that = this,
-        activationView = new ProfileActivationView({
-          model: this.model,
-          collection: this.model.collection,
-          rule: this.options.rule,
-          app: this.options.app
-        });
+  change () {
+    const that = this;
+    const activationView = new ProfileActivationView({
+      model: this.model,
+      collection: this.model.collection,
+      rule: this.options.rule,
+      app: this.options.app
+    });
     activationView.on('profileActivated', function () {
       that.options.refreshActives();
     });
     activationView.render();
   },
 
-  revert: function () {
-    var that = this,
-        ruleKey = this.options.rule.get('key');
+  revert () {
+    const that = this;
+    const ruleKey = this.options.rule.get('key');
     confirmDialog({
       title: translate('coding_rules.revert_to_parent_definition'),
       html: translateWithParameters('coding_rules.revert_to_parent_definition.confirm', this.getParent().name),
-      yesHandler: function () {
+      yesHandler () {
         return $.ajax({
           type: 'POST',
           url: '/api/qualityprofiles/activate_rule',
@@ -88,13 +88,13 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  deactivate: function () {
-    var that = this,
-        ruleKey = this.options.rule.get('key');
+  deactivate () {
+    const that = this;
+    const ruleKey = this.options.rule.get('key');
     confirmDialog({
       title: translate('coding_rules.deactivate'),
       html: translateWithParameters('coding_rules.deactivate.confirm'),
-      yesHandler: function () {
+      yesHandler () {
         return $.ajax({
           type: 'POST',
           url: '/api/qualityprofiles/deactivate_rule',
@@ -109,34 +109,34 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  enableUpdate: function () {
+  enableUpdate () {
     return this.ui.update.prop('disabled', false);
   },
 
-  getParent: function () {
+  getParent () {
     if (!(this.model.get('inherit') && this.model.get('inherit') !== 'NONE')) {
       return null;
     }
-    var myProfile = _.findWhere(this.options.app.qualityProfiles, {
-          key: this.model.get('qProfile')
-        }),
-        parentKey = myProfile.parentKey,
-        parent = _.extend({}, _.findWhere(this.options.app.qualityProfiles, {
-          key: parentKey
-        })),
-        parentActiveInfo = this.model.collection.findWhere({ qProfile: parentKey }) || new Backbone.Model();
+    const myProfile = _.findWhere(this.options.app.qualityProfiles, {
+      key: this.model.get('qProfile')
+    });
+    const parentKey = myProfile.parentKey;
+    const parent = _.extend({}, _.findWhere(this.options.app.qualityProfiles, {
+      key: parentKey
+    }));
+    const parentActiveInfo = this.model.collection.findWhere({ qProfile: parentKey }) || new Backbone.Model();
     _.extend(parent, parentActiveInfo.toJSON());
     return parent;
   },
 
-  enhanceParameters: function () {
-    var parent = this.getParent(),
-        params = _.sortBy(this.model.get('params'), 'key');
+  enhanceParameters () {
+    const parent = this.getParent();
+    const params = _.sortBy(this.model.get('params'), 'key');
     if (!parent) {
       return params;
     }
     return params.map(function (p) {
-      var parentParam = _.findWhere(parent.params, { key: p.key });
+      const parentParam = _.findWhere(parent.params, { key: p.key });
       if (parentParam != null) {
         return _.extend(p, {
           original: _.findWhere(parent.params, { key: p.key }).value
@@ -147,7 +147,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canWrite: this.options.app.canWrite,
       parent: this.getParent(),

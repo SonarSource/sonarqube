@@ -24,7 +24,7 @@ export default Marionette.CollectionView.extend({
   className: 'list-group',
   childView: ItemView,
 
-  childViewOptions: function (model) {
+  childViewOptions (model) {
     return {
       collectionView: this,
       highlighted: model.get('path') === this.highlighted,
@@ -32,7 +32,7 @@ export default Marionette.CollectionView.extend({
     };
   },
 
-  highlight: function (path) {
+  highlight (path) {
     this.highlighted = path;
     this.render();
   }

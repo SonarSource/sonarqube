@@ -26,21 +26,21 @@ import Template from './templates/quality-gate-form.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.prepareRequest();
   },
 
-  sendRequest: function (options) {
-    var that = this,
-        opts = _.defaults(options || {}, {
-          type: 'POST',
-          statusCode: {
-            // do not show global error
-            400: null
-          }
-        });
+  sendRequest (options) {
+    const that = this;
+    const opts = _.defaults(options || {}, {
+      type: 'POST',
+      statusCode: {
+        // do not show global error
+        400: null
+      }
+    });
     return Backbone.ajax(opts)
         .done(function () {
           that.destroy();
@@ -50,13 +50,13 @@ export default ModalForm.extend({
         });
   },
 
-  addGate: function (attrs) {
-    var gate = new Gate(attrs);
+  addGate (attrs) {
+    const gate = new Gate(attrs);
     this.collection.add(gate, { merge: true });
     return gate;
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
       method: this.method
     });

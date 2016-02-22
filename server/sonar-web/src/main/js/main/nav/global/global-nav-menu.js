@@ -25,11 +25,11 @@ import { translate } from '../../../helpers/l10n';
 export default React.createClass({
   mixins: [DashboardNameMixin, LinksMixin],
 
-  getDefaultProps: function () {
+  getDefaultProps () {
     return { globalDashboards: [], globalPages: [] };
   },
 
-  renderDashboardLink(dashboard) {
+  renderDashboardLink (dashboard) {
     const url = `/dashboard/index?did=${encodeURIComponent(dashboard.key)}`;
     const name = this.getLocalizedDashboardName(dashboard.name);
     return (
@@ -39,8 +39,8 @@ export default React.createClass({
     );
   },
 
-  renderDashboardsManagementLink() {
-    const url = `/dashboards`;
+  renderDashboardsManagementLink () {
+    const url = '/dashboards';
     return (
         <li>
           <a href={url}>{translate('dashboard.manage_dashboards')}</a>
@@ -48,13 +48,14 @@ export default React.createClass({
     );
   },
 
-  renderDashboards() {
+  renderDashboards () {
     const dashboards = this.props.globalDashboards.map(this.renderDashboardLink);
     const canManageDashboards = !!window.SS.user;
     return (
         <li className="dropdown">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            {translate('layout.dashboards')}&nbsp;<span className="icon-dropdown"/>
+            {translate('layout.dashboards')}&nbsp;
+            <span className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
             {dashboards}
@@ -65,8 +66,8 @@ export default React.createClass({
     );
   },
 
-  renderIssuesLink() {
-    const url = `/issues/search`;
+  renderIssuesLink () {
+    const url = '/issues/search';
     return (
         <li className={this.activeLink('/issues')}>
           <a href={url}>{translate('issues.page')}</a>
@@ -74,8 +75,8 @@ export default React.createClass({
     );
   },
 
-  renderMeasuresLink() {
-    const url = `/measures/search?qualifiers[]=TRK`;
+  renderMeasuresLink () {
+    const url = '/measures/search?qualifiers[]=TRK';
     return (
         <li className={this.activeLink('/measures')}>
           <a href={url}>{translate('layout.measures')}</a>
@@ -83,8 +84,8 @@ export default React.createClass({
     );
   },
 
-  renderRulesLink() {
-    const url = `/coding_rules`;
+  renderRulesLink () {
+    const url = '/coding_rules';
     return (
         <li className={this.activeLink('/coding_rules')}>
           <a href={url}>{translate('coding_rules.page')}</a>
@@ -93,7 +94,7 @@ export default React.createClass({
   },
 
   renderProfilesLink() {
-    const url = `/profiles`;
+    const url = '/profiles';
     return (
         <li className={this.activeLink('/profiles')}>
           <a href={url}>{translate('quality_profiles.page')}</a>
@@ -101,8 +102,8 @@ export default React.createClass({
     );
   },
 
-  renderQualityGatesLink() {
-    const url = `/quality_gates`;
+  renderQualityGatesLink () {
+    const url = '/quality_gates';
     return (
         <li className={this.activeLink('/quality_gates')}>
           <a href={url}>{translate('quality_gates.page')}</a>
@@ -110,11 +111,11 @@ export default React.createClass({
     );
   },
 
-  renderAdministrationLink() {
+  renderAdministrationLink () {
     if (!window.SS.isUserAdmin) {
       return null;
     }
-    const url = `/settings`;
+    const url = '/settings';
     return (
         <li className={this.activeLink('/settings')}>
           <a className="navbar-admin-link" href={url}>{translate('layout.settings')}</a>
@@ -122,8 +123,8 @@ export default React.createClass({
     );
   },
 
-  renderComparisonLink() {
-    const url = `/comparison`;
+  renderComparisonLink () {
+    const url = '/comparison';
     return (
         <li className={this.activeLink('/comparison')}>
           <a href={url}>{translate('comparison_global.page')}</a>
@@ -131,7 +132,7 @@ export default React.createClass({
     );
   },
 
-  renderGlobalPageLink(globalPage, index) {
+  renderGlobalPageLink (globalPage, index) {
     const url = globalPage.url;
     return (
         <li key={index}>
@@ -140,12 +141,13 @@ export default React.createClass({
     );
   },
 
-  renderMore() {
+  renderMore () {
     const globalPages = this.props.globalPages.map(this.renderGlobalPageLink);
     return (
         <li className="dropdown">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            {translate('more')}&nbsp;<span className="icon-dropdown"/>
+            {translate('more')}&nbsp;
+            <span className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
             {this.renderComparisonLink()}
@@ -155,7 +157,7 @@ export default React.createClass({
     );
   },
 
-  render() {
+  render () {
     return (
         <ul className="nav navbar-nav">
           {this.renderDashboards()}

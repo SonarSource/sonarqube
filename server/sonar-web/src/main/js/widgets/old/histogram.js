@@ -35,26 +35,26 @@
   Histogram.prototype.barFill = '#1f77b4';
 
   Histogram.prototype.isDataValid = function () {
-    var that = this;
+    const that = this;
     return this.components().reduce(function (p, c) {
       return p && !!c.measures[that.mainMetric.key];
     }, true);
   };
 
   Histogram.prototype.truncate = function (text, type) {
-    var maxLength = 40;
+    const maxLength = 40;
+    const n = text.length;
+
     switch (type) {
       case 'FIL':
       case 'CLA':
-        var n = text.length;
         if (n > maxLength) {
-          var shortText = text.substr(n - maxLength + 2, n - 1),
-              dotIndex = shortText.indexOf('.');
+          const shortText = text.substr(n - maxLength + 2, n - 1);
+          const dotIndex = shortText.indexOf('.');
           return '...' + shortText.substr(dotIndex + 1);
         } else {
           return text;
         }
-        break;
       default:
         if (text.length > maxLength) {
           return text.substr(0, maxLength - 3) + '...';
@@ -65,7 +65,7 @@
   };
 
   Histogram.prototype.render = function (container) {
-    var box = d3.select(container);
+    const box = d3.select(container);
     this.addMetric('mainMetric', 0);
     if (!this.isDataValid()) {
       box.text(this.options().noMainMetric);
@@ -88,19 +88,19 @@
   };
 
   Histogram.prototype.update = function (container) {
-    var that = this;
-    var box = d3.select(container);
+    const that = this;
+    const box = d3.select(container);
     this.width(box.property('offsetWidth'));
-    var availableWidth = this.width() - this.margin().left - this.margin().right - this.legendWidth(),
-        availableHeight = this.barHeight * this.components().length + this.lineHeight,
-        totalHeight = availableHeight + this.margin().top + this.margin().bottom;
+    const availableWidth = this.width() - this.margin().left - this.margin().right - this.legendWidth();
+    const availableHeight = this.barHeight * this.components().length + this.lineHeight;
+    let totalHeight = availableHeight + this.margin().top + this.margin().bottom;
     if (this.maxResultsReached()) {
       totalHeight += this.lineHeight;
     }
     this.height(totalHeight);
     this.svg.attr('width', this.width()).attr('height', this.height());
     this.plotWrap.attr('transform', this.trans(0, this.lineHeight));
-    var xDomain = d3.extent(this.components(), function (d) {
+    let xDomain = d3.extent(this.components(), function (d) {
       return that.mainMetric.value(d);
     });
     if (!this.options().relativeScale) {

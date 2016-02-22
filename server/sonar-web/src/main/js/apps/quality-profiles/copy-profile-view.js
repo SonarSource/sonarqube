@@ -25,23 +25,23 @@ import Template from './templates/quality-profiles-copy-profile.hbs';
 export default ModalFormView.extend({
   template: Template,
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  sendRequest: function () {
-    var that = this,
-        url = '/api/qualityprofiles/copy',
-        name = this.$('#copy-profile-name').val(),
-        options = {
-          fromKey: this.model.get('key'),
-          toName: name
-        };
+  sendRequest () {
+    const that = this;
+    const url = '/api/qualityprofiles/copy';
+    const name = this.$('#copy-profile-name').val();
+    const options = {
+      fromKey: this.model.get('key'),
+      toName: name
+    };
     return $.ajax({
       type: 'POST',
-      url: url,
+      url,
       data: options,
       statusCode: {
         // do not show global error
@@ -56,8 +56,8 @@ export default ModalFormView.extend({
     });
   },
 
-  addProfile: function (profileData) {
-    var profile = new Profile(profileData);
+  addProfile (profileData) {
+    const profile = new Profile(profileData);
     this.model.collection.add([profile]);
     profile.trigger('select', profile);
   }

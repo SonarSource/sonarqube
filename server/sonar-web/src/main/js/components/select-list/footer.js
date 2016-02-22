@@ -17,23 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
+import React from 'react';
 
-export default Backbone.Model.extend({
-  idAttribute: 'property',
-
-  defaults: {
-    enabled: false
+export default React.createClass({
+  propTypes: {
+    count: React.PropTypes.number.isRequired,
+    total: React.PropTypes.number.isRequired,
+    loadMore: React.PropTypes.func.isRequired
   },
 
-  getValues () {
-    return this.get('values') || [];
+  loadMore(e) {
+    e.preventDefault();
+    this.props.loadMore();
   },
 
-  toggle () {
-    const enabled = this.get('enabled');
-    this.set({ enabled: !enabled });
+  renderLoadMoreLink() {
+    let hasMore = this.props.total > this.props.count;
+    if (!hasMore) {
+      return null;
+    }
+    return <a onClick={this.loadMore} className="spacer-left" href="#">show more</a>;
+  },
+
+  render() {
+    return (
+        <footer className="spacer-top note text-center">
+          {this.props.count}/{this.props.total} shown
+          {this.renderLoadMoreLink()}
+        </footer>
+    );
   }
 });
-
-

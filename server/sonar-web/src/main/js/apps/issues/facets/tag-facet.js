@@ -22,9 +22,9 @@ import CustomValuesFacet from './custom-values-facet';
 import { translate } from '../../../helpers/l10n';
 
 export default CustomValuesFacet.extend({
-  prepareSearch: function () {
-    var url = '/api/issues/tags?ps=10',
-        tags = this.options.app.state.get('query').tags;
+  prepareSearch () {
+    let url = '/api/issues/tags?ps=10';
+    const tags = this.options.app.state.get('query').tags;
     if (tags != null) {
       url += '&tags=' + tags;
     }
@@ -32,31 +32,31 @@ export default CustomValuesFacet.extend({
       placeholder: 'Search...',
       minimumInputLength: 0,
       allowClear: false,
-      formatNoMatches: function () {
+      formatNoMatches () {
         return translate('select2.noMatches');
       },
-      formatSearching: function () {
+      formatSearching () {
         return translate('select2.searching');
       },
       width: '100%',
       ajax: {
         quietMillis: 300,
-        url: url,
-        data: function (term) {
+        url,
+        data (term) {
           return { q: term, ps: 10 };
         },
-        results: function (data) {
-          var results = data.tags.map(function (tag) {
+        results (data) {
+          const results = data.tags.map(function (tag) {
             return { id: tag, text: tag };
           });
-          return { more: false, results: results };
+          return { more: false, results };
         }
       }
     });
   },
 
-  getValuesWithLabels: function () {
-    var values = this.model.getValues();
+  getValuesWithLabels () {
+    const values = this.model.getValues();
     values.forEach(function (v) {
       v.label = v.val;
       v.extra = '';
@@ -64,7 +64,7 @@ export default CustomValuesFacet.extend({
     return values;
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(CustomValuesFacet.prototype.serializeData.apply(this, arguments), {
       values: this.sortValues(this.getValuesWithLabels())
     });

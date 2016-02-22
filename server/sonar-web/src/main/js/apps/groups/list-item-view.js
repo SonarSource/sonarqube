@@ -35,43 +35,43 @@ export default Marionette.ItemView.extend({
     'click .js-group-users': 'onUsersClick'
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.attr('data-id', this.model.id);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onUpdateClick: function (e) {
+  onUpdateClick (e) {
     e.preventDefault();
     this.updateGroup();
   },
 
-  onDeleteClick: function (e) {
+  onDeleteClick (e) {
     e.preventDefault();
     this.deleteGroup();
   },
 
-  onUsersClick: function (e) {
+  onUsersClick (e) {
     e.preventDefault();
     $('.tooltip').remove();
     this.showUsers();
   },
 
-  updateGroup: function () {
+  updateGroup () {
     new UpdateView({
       model: this.model,
       collection: this.model.collection
     }).render();
   },
 
-  deleteGroup: function () {
+  deleteGroup () {
     new DeleteView({ model: this.model }).render();
   },
 
-  showUsers: function () {
+  showUsers () {
     new UsersView({ model: this.model }).render();
   }
 });

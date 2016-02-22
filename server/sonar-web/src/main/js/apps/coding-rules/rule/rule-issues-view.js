@@ -25,8 +25,8 @@ import Template from '../templates/rule/coding-rules-rule-issues.hbs';
 export default Marionette.ItemView.extend({
   template: Template,
 
-  initialize: function () {
-    var that = this;
+  initialize () {
+    const that = this;
     this.total = null;
     this.projects = [];
     this.requestIssues().done(function () {
@@ -34,20 +34,20 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  requestIssues: function () {
-    var that = this,
-        url = '/api/issues/search',
-        options = {
-          rules: this.model.id,
-          resolved: false,
-          ps: 1,
-          facets: 'projectUuids'
-        };
+  requestIssues () {
+    const that = this;
+    const url = '/api/issues/search';
+    const options = {
+      rules: this.model.id,
+      resolved: false,
+      ps: 1,
+      facets: 'projectUuids'
+    };
     return $.get(url, options).done(function (r) {
-      var projectsFacet = _.findWhere(r.facets, { property: 'projectUuids' }),
-          projects = projectsFacet != null ? projectsFacet.values : [];
+      const projectsFacet = _.findWhere(r.facets, { property: 'projectUuids' });
+      let projects = projectsFacet != null ? projectsFacet.values : [];
       projects = projects.map(function (project) {
-        var projectBase = _.findWhere(r.components, { uuid: project.val });
+        const projectBase = _.findWhere(r.components, { uuid: project.val });
         return _.extend(project, {
           name: projectBase != null ? projectBase.longName : ''
         });
@@ -57,7 +57,7 @@ export default Marionette.ItemView.extend({
     });
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       total: this.total,
       projects: this.projects,

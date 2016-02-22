@@ -23,7 +23,7 @@ import Backbone from 'backbone';
 export default Backbone.Model.extend({
   idAttribute: 'uuid',
 
-  defaults: function () {
+  defaults () {
     return {
       exist: true,
 
@@ -37,14 +37,14 @@ export default Backbone.Model.extend({
     };
   },
 
-  key: function () {
+  key () {
     return this.get('key');
   },
 
-  addMeta: function (meta) {
-    var source = this.get('source'),
-        metaIdx = 0,
-        metaLine = meta[metaIdx];
+  addMeta (meta) {
+    const source = this.get('source');
+    let metaIdx = 0;
+    let metaLine = meta[metaIdx];
     source.forEach(function (line) {
       while (metaLine != null && line.line > metaLine.line) {
         metaLine = meta[++metaIdx];
@@ -54,20 +54,20 @@ export default Backbone.Model.extend({
         metaLine = meta[++metaIdx];
       }
     });
-    this.set({ source: source });
+    this.set({ source });
   },
 
-  addDuplications: function (duplications) {
-    var source = this.get('source');
+  addDuplications (duplications) {
+    const source = this.get('source');
     if (source != null) {
       source.forEach(function (line) {
-        var lineDuplications = [];
+        const lineDuplications = [];
         duplications.forEach(function (d, i) {
-          var duplicated = false;
+          let duplicated = false;
           d.blocks.forEach(function (b) {
             if (b._ref === '1') {
-              var lineFrom = b.from,
-                  lineTo = b.from + b.size - 1;
+              const lineFrom = b.from;
+              const lineTo = b.from + b.size - 1;
               if (line.line >= lineFrom && line.line <= lineTo) {
                 duplicated = true;
               }
@@ -78,12 +78,12 @@ export default Backbone.Model.extend({
         line.duplications = lineDuplications;
       });
     }
-    this.set({ source: source });
+    this.set({ source });
   },
 
-  checkIfHasDuplications: function () {
-    var hasDuplications = false,
-        source = this.get('source');
+  checkIfHasDuplications () {
+    const source = this.get('source');
+    let hasDuplications = false;
     if (source != null) {
       source.forEach(function (line) {
         if (line.duplicated) {
@@ -91,16 +91,16 @@ export default Backbone.Model.extend({
         }
       });
     }
-    this.set({ hasDuplications: hasDuplications });
+    this.set({ hasDuplications });
   },
 
-  hasUTCoverage: function (source) {
+  hasUTCoverage (source) {
     return _.some(source, function (line) {
       return line.utCoverageStatus != null;
     });
   },
 
-  hasITCoverage: function (source) {
+  hasITCoverage (source) {
     return _.some(source, function (line) {
       return line.itCoverageStatus != null;
     });

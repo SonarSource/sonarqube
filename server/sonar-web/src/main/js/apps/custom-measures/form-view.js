@@ -25,13 +25,13 @@ import Template from './templates/custom-measures-form.hbs';
 export default ModalForm.extend({
   template: Template,
 
-  initialize: function () {
+  initialize () {
     this.metrics = new Metrics();
     this.listenTo(this.metrics, 'reset', this.render);
     this.metrics.fetch({ reset: true });
   },
 
-  onRender: function () {
+  onRender () {
     ModalForm.prototype.onRender.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
     this.$('#create-custom-measure-metric').select2({
@@ -40,28 +40,28 @@ export default ModalForm.extend({
     });
   },
 
-  onDestroy: function () {
+  onDestroy () {
     ModalForm.prototype.onDestroy.apply(this, arguments);
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalForm.prototype.onFormSubmit.apply(this, arguments);
     this.sendRequest();
   },
 
-  getAvailableMetrics: function () {
-    var takenMetrics = this.collection.getTakenMetrics();
+  getAvailableMetrics () {
+    const takenMetrics = this.collection.getTakenMetrics();
     return this.metrics.toJSON().filter(function (metric) {
       return takenMetrics.indexOf(metric.id) === -1;
     });
   },
 
-  serializeData: function () {
-    var metrics = this.getAvailableMetrics(),
-        isNew = !this.model;
+  serializeData () {
+    const metrics = this.getAvailableMetrics();
+    const isNew = !this.model;
     return _.extend(ModalForm.prototype.serializeData.apply(this, arguments), {
-      metrics: metrics,
+      metrics,
       canCreateMetric: !isNew || (isNew && metrics.length > 0)
     });
   }

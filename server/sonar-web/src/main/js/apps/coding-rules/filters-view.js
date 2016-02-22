@@ -29,13 +29,13 @@ export default Marionette.ItemView.extend({
     'click .js-create-manual-rule': 'createManualRule'
   },
 
-  createManualRule: function () {
+  createManualRule () {
     new ManualRuleCreationView({
       app: this.options.app
     }).render();
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canWrite: this.options.app.canWrite
     });

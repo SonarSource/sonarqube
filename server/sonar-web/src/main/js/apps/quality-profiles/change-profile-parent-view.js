@@ -26,7 +26,7 @@ import Template from './templates/quality-profiles-change-profile-parent.hbs';
 export default ModalFormView.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     ModalFormView.prototype.onRender.apply(this, arguments);
     this.$('select').select2({
       width: '250px',
@@ -34,23 +34,23 @@ export default ModalFormView.extend({
     });
   },
 
-  onFormSubmit: function () {
+  onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
     this.disableForm();
     this.sendRequest();
   },
 
-  sendRequest: function () {
-    var that = this,
-        url = '/api/qualityprofiles/change_parent',
-        parent = this.$('#change-profile-parent').val(),
-        options = {
-          profileKey: this.model.get('key'),
-          parentKey: parent
-        };
+  sendRequest () {
+    const that = this;
+    const url = '/api/qualityprofiles/change_parent';
+    const parent = this.$('#change-profile-parent').val();
+    const options = {
+      profileKey: this.model.get('key'),
+      parentKey: parent
+    };
     return $.ajax({
       type: 'POST',
-      url: url,
+      url,
       data: options,
       statusCode: {
         // do not show global error
@@ -66,14 +66,14 @@ export default ModalFormView.extend({
     });
   },
 
-  serializeData: function () {
-    var that = this,
-        profilesData = this.model.collection.toJSON(),
-        profiles = _.filter(profilesData, function (profile) {
-          return profile.language === that.model.get('language') && profile.key !== that.model.id;
-        });
+  serializeData () {
+    const that = this;
+    const profilesData = this.model.collection.toJSON();
+    const profiles = _.filter(profilesData, function (profile) {
+      return profile.language === that.model.get('language') && profile.key !== that.model.id;
+    });
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      profiles: profiles
+      profiles
     });
   }
 });

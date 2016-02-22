@@ -34,37 +34,37 @@ export default Marionette.ItemView.extend({
     'click': 'onClick'
   },
 
-  initialize: function () {
+  initialize () {
     this.listenTo(this.options.state, 'change:query', this.toggleHidden);
     this.listenTo(this.options.state, 'change:internal', this.toggleHidden);
   },
 
-  shouldBeHidden: function () {
-    var that = this;
-    var match = this.options.state.match(this.model.get('path')) ||
+  shouldBeHidden () {
+    const that = this;
+    const match = this.options.state.match(this.model.get('path')) ||
         _.some(this.model.get('actions'), function (action) {
-          var test = action.path + '/' + action.key;
+          const test = action.path + '/' + action.key;
           return that.options.state.match(test, action.internal);
         });
 
-    var showInternal = this.options.state.get('internal'),
-        hideMe = this.model.get('internal') && !showInternal;
+    const showInternal = this.options.state.get('internal');
+    const hideMe = this.model.get('internal') && !showInternal;
     return !match || hideMe;
   },
 
-  onRender: function () {
+  onRender () {
     this.$el.attr('data-path', this.model.get('path'));
     this.$el.toggleClass('active', this.options.highlighted);
     this.toggleHidden();
     this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'right' });
   },
 
-  onClick: function (e) {
+  onClick (e) {
     e.preventDefault();
     this.model.trigger('select', this.model);
   },
 
-  toggleHidden: function () {
+  toggleHidden () {
     this.$el.toggleClass('hidden', this.shouldBeHidden());
   }
 });

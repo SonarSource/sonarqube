@@ -37,10 +37,10 @@ import { translate } from '../../helpers/l10n';
   Treemap.prototype.sizeHigh = 18;
 
   Treemap.prototype.filterComponents = function () {
-    var that = this,
-        components = this.components().filter(function (d) {
-          return that.sizeMetric.value(d) != null;
-        });
+    const that = this;
+    const components = this.components().filter(function (d) {
+      return that.sizeMetric.value(d) != null;
+    });
     this.components(components);
   };
 
@@ -53,7 +53,7 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.renderTreemap = function () {
-    var that = this;
+    const that = this;
     this.filterComponents();
     if (!this.components().length) {
       this.maxResultsReachedLabel
@@ -61,11 +61,11 @@ import { translate } from '../../helpers/l10n';
           .style('display', 'block');
       return;
     }
-    var nodes = this.getNodes();
+    const nodes = this.getNodes();
     this.color = that.getColorScale();
     this.cells = this.box.selectAll('.treemap-cell').data(nodes);
     this.cells.exit().remove();
-    var cellsEnter = this.cells.enter().append('div');
+    const cellsEnter = this.cells.enter().append('div');
     cellsEnter.classed('treemap-cell', true);
     cellsEnter.append('div').classed('treemap-inner', true);
     cellsEnter.append('a').classed('treemap-link', true);
@@ -82,8 +82,8 @@ import { translate } from '../../helpers/l10n';
     this.cells.classed('treemap-cell-drilldown', function (d) {
       return (d.qualifier != null) && d.qualifier !== 'FIL' && d.qualifier !== 'CLA';
     });
-    var prefix = this.mostCommonPrefix(_.pluck(this.components(), 'longName')),
-        prefixLength = prefix.length;
+    const prefix = this.mostCommonPrefix(_.pluck(this.components(), 'longName'));
+    const prefixLength = prefix.length;
     this.cellsInner = this.box.selectAll('.treemap-inner').data(nodes);
     this.cellsInner.html(function (d) {
       if (prefixLength > 0) {
@@ -109,14 +109,14 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.attachEvents = function (cells) {
-    var that = this;
+    const that = this;
     return cells.on('click', function (d) {
       return that.requestChildren(d);
     });
   };
 
   Treemap.prototype.positionCells = function () {
-    var that = this;
+    const that = this;
     this.cells.style('left', function (d) {
       return d.x + 'px';
     });
@@ -164,7 +164,7 @@ import { translate } from '../../helpers/l10n';
   Treemap.prototype.renderBreadcrumbs = function (box) {
     this.breadcrumbsBox = box.append('div').classed('treemap-breadcrumbs', true);
     this.breadcrumbs = [];
-    var d = {
+    const d = {
       name: '<i class="icon-home"></i>',
       components: this.components(),
       maxResultsReached: this.maxResultsReached()
@@ -173,10 +173,10 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.updateBreadcrumbs = function () {
-    var that = this;
-    var breadcrumbs = this.breadcrumbsBox.selectAll('.treemap-breadcrumbs-item').data(this.breadcrumbs);
+    const that = this;
+    const breadcrumbs = this.breadcrumbsBox.selectAll('.treemap-breadcrumbs-item').data(this.breadcrumbs);
     breadcrumbs.exit().remove();
-    var breadcrumbsEnter = breadcrumbs.enter().append('span').classed('treemap-breadcrumbs-item', true);
+    const breadcrumbsEnter = breadcrumbs.enter().append('span').classed('treemap-breadcrumbs-item', true);
     breadcrumbsEnter.attr('title', function (d) {
       if (d.longName != null) {
         return d.longName;
@@ -200,7 +200,7 @@ import { translate } from '../../helpers/l10n';
         return '';
       }
     });
-    var breadcrumbsEnterLinks = breadcrumbsEnter.append('a');
+    const breadcrumbsEnterLinks = breadcrumbsEnter.append('a');
     breadcrumbsEnterLinks.html(function (d) {
       return d.name;
     });
@@ -217,7 +217,7 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.cutBreadcrumbs = function (lastElement) {
-    var index = null;
+    let index = null;
     this.breadcrumbs.forEach(function (d, i) {
       if (d.key === lastElement.key) {
         index = i;
@@ -240,15 +240,15 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.getPercentColorScale = function () {
-    var color = d3.scale.linear().domain([0, 25, 50, 75, 100]);
+    const color = d3.scale.linear().domain([0, 25, 50, 75, 100]);
     color.range(this.colorMetric.direction === 1 ? this.colors5 : this.colors5r);
     return color;
   };
 
   Treemap.prototype.getRatingColorScale = function () {
-    var domain = [1, 2, 3, 4, 5];
+    let domain = [1, 2, 3, 4, 5];
     if (this.components().length > 0) {
-      var colorMetricSample = this.colorMetric.value(_.first(this.components()));
+      const colorMetricSample = this.colorMetric.value(_.first(this.components()));
       if (typeof colorMetricSample === 'string') {
         domain = ['A', 'B', 'C', 'D', 'E'];
       }
@@ -261,8 +261,8 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.render = function (container) {
-    var that = this;
-    var box = d3.select(container).append('div');
+    const that = this;
+    const box = d3.select(container).append('div');
     box.classed('sonar-d3', true);
     this.box = box.append('div').classed('treemap-container', true);
     this.addMetric('colorMetric', 0);
@@ -297,9 +297,9 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.formatComponents = function (data) {
-    var that = this;
-    var components = _.filter(data, function (component) {
-      var hasSizeMetric = function () {
+    const that = this;
+    const components = _.filter(data, function (component) {
+      const hasSizeMetric = function () {
         return _.findWhere(component.msr, {
           key: that.sizeMetric.key
         });
@@ -308,7 +308,7 @@ import { translate } from '../../helpers/l10n';
     });
     if (_.isArray(components) && components.length > 0) {
       return components.map(function (component) {
-        var measures = {};
+        const measures = {};
         component.msr.forEach(function (measure) {
           measures[measure.key] = {
             val: measure.val,
@@ -322,22 +322,22 @@ import { translate } from '../../helpers/l10n';
           name: component.name,
           longName: component.lname,
           qualifier: component.qualifier,
-          measures: measures
+          measures
         };
       });
     }
   };
 
   Treemap.prototype.requestChildren = function (d) {
-    var that = this;
-    var metrics = this.metricsPriority().join(','),
-        RESOURCES_URL = '/api/resources/index';
+    const that = this;
+    const metrics = this.metricsPriority().join(',');
+    const RESOURCES_URL = '/api/resources/index';
     return $.get(RESOURCES_URL, {
       resource: d.key,
       depth: 1,
-      metrics: metrics
+      metrics
     }).done(function (r) {
-      var components = that.formatComponents(r);
+      let components = that.formatComponents(r);
       if (components != null) {
         components = _.sortBy(components, function (component) {
           return -that.sizeMetric.value(component);
@@ -345,7 +345,7 @@ import { translate } from '../../helpers/l10n';
         components = _.initial(components, components.length - that.options().maxItems - 1);
         that.updateTreemap(components, components.length > that.options().maxItems);
         return that.addToBreadcrumbs(_.extend(d, {
-          components: components,
+          components,
           maxResultsReached: that.maxResultsReached()
         }));
       }
@@ -353,16 +353,16 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.mostCommonPrefix = function (strings) {
-    var sortedStrings = strings.slice(0).sort(),
-        firstString = sortedStrings[0],
-        firstStringLength = firstString.length,
-        lastString = sortedStrings[sortedStrings.length - 1],
-        i = 0;
+    const sortedStrings = strings.slice(0).sort();
+    const firstString = sortedStrings[0];
+    const firstStringLength = firstString.length;
+    const lastString = sortedStrings[sortedStrings.length - 1];
+    let i = 0;
     while (i < firstStringLength && firstString.charAt(i) === lastString.charAt(i)) {
       i++;
     }
-    var prefix = firstString.substr(0, i),
-        lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
+    const prefix = firstString.substr(0, i);
+    const lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
     return prefix.substr(0, prefix.length - lastPrefixPart.length);
   };
 

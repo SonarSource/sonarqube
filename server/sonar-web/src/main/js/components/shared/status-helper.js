@@ -22,11 +22,11 @@ import StatusIcon from './status-icon';
 import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
-  render: function () {
+  render () {
     if (!this.props.status) {
       return null;
     }
-    var resolution;
+    let resolution;
     if (this.props.resolution) {
       resolution = ' (' + translate('issue.resolution', this.props.resolution) + ')';
     }

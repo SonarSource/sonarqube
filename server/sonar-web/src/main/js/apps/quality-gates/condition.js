@@ -25,24 +25,24 @@ export default Backbone.Model.extend({
     period: 0
   },
 
-  url: function () {
+  url () {
     return '/api/qualitygates';
   },
 
-  createUrl: function () {
+  createUrl () {
     return this.url() + '/create_condition';
   },
 
-  updateUrl: function () {
+  updateUrl () {
     return this.url() + '/update_condition';
   },
 
-  deleteUrl: function () {
+  deleteUrl () {
     return this.url() + '/delete_condition';
   },
 
-  sync: function (method, model, options) {
-    var opts = options || {};
+  sync (method, model, options) {
+    const opts = options || {};
     opts.type = 'POST';
     if (method === 'create') {
       opts.url = this.createUrl();

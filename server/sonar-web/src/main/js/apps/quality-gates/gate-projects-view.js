@@ -26,14 +26,14 @@ import { translate } from '../../helpers/l10n';
 export default Marionette.ItemView.extend({
   template: Template,
 
-  onRender: function () {
+  onRender () {
     if (!this.model.isDefault()) {
       new window.SelectList({
         el: this.$('#select-list-projects'),
         width: '100%',
         readOnly: !this.options.canEdit,
         focusSearch: false,
-        format: function (item) {
+        format (item) {
           return item.name;
         },
         searchUrl: '/api/qualitygates/search?gateId=' + this.model.id,
@@ -58,7 +58,7 @@ export default Marionette.ItemView.extend({
     }
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canEdit: this.options.canEdit
     });

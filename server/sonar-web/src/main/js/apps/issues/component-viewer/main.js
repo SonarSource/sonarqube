@@ -23,19 +23,19 @@ import SourceViewer from '../../../components/source-viewer/main';
 import IssueView from './issue-view';
 
 export default SourceViewer.extend({
-  events: function () {
+  events () {
     return _.extend(SourceViewer.prototype.events.apply(this, arguments), {
       'click .js-close-component-viewer': 'closeComponentViewer',
       'click .code-issue': 'selectIssue'
     });
   },
 
-  initialize: function (options) {
+  initialize (options) {
     SourceViewer.prototype.initialize.apply(this, arguments);
     return this.listenTo(options.app.state, 'change:selectedIndex', this.select);
   },
 
-  onLoaded: function () {
+  onLoaded () {
     SourceViewer.prototype.onLoaded.apply(this, arguments);
     this.bindShortcuts();
     if (this.baseIssue != null) {
@@ -44,10 +44,10 @@ export default SourceViewer.extend({
     }
   },
 
-  bindShortcuts: function () {
-    var that = this;
-    var doAction = function (action) {
-      var selectedIssueView = that.getSelectedIssueEl();
+  bindShortcuts () {
+    const that = this;
+    const doAction = function (action) {
+      const selectedIssueView = that.getSelectedIssueEl();
       if (!selectedIssueView) {
         return;
       }
@@ -85,19 +85,19 @@ export default SourceViewer.extend({
     });
   },
 
-  unbindShortcuts: function () {
+  unbindShortcuts () {
     return key.deleteScope('componentViewer');
   },
 
-  onDestroy: function () {
+  onDestroy () {
     SourceViewer.prototype.onDestroy.apply(this, arguments);
     this.unbindScrollEvents();
     return this.unbindShortcuts();
   },
 
-  select: function () {
-    var selected = this.options.app.state.get('selectedIndex'),
-        selectedIssue = this.options.app.list.at(selected);
+  select () {
+    const selected = this.options.app.state.get('selectedIndex');
+    const selectedIssue = this.options.app.list.at(selected);
     if (selectedIssue.get('component') === this.model.get('key')) {
       selectedIssue.trigger('locations', selectedIssue);
       return this.scrollToIssue(selectedIssue.get('key'));
@@ -107,16 +107,16 @@ export default SourceViewer.extend({
     }
   },
 
-  getSelectedIssueEl: function () {
-    var selected = this.options.app.state.get('selectedIndex');
+  getSelectedIssueEl () {
+    const selected = this.options.app.state.get('selectedIndex');
     if (selected == null) {
       return null;
     }
-    var selectedIssue = this.options.app.list.at(selected);
+    const selectedIssue = this.options.app.list.at(selected);
     if (selectedIssue == null) {
       return null;
     }
-    var selectedIssueView = this.$('#issue-' + (selectedIssue.get('key')));
+    const selectedIssueView = this.$('#issue-' + (selectedIssue.get('key')));
     if (selectedIssueView.length > 0) {
       return selectedIssueView;
     } else {
@@ -124,37 +124,37 @@ export default SourceViewer.extend({
     }
   },
 
-  selectIssue: function (e) {
-    var key = $(e.currentTarget).data('issue-key'),
-        issue = this.issues.find(function (model) {
-          return model.get('key') === key;
-        }),
-        index = this.options.app.list.indexOf(issue);
+  selectIssue (e) {
+    const key = $(e.currentTarget).data('issue-key');
+    const issue = this.issues.find(function (model) {
+      return model.get('key') === key;
+    });
+    const index = this.options.app.list.indexOf(issue);
     return this.options.app.state.set({ selectedIndex: index });
   },
 
-  scrollToIssue: function (key) {
-    var el = this.$('#issue-' + key);
+  scrollToIssue (key) {
+    const el = this.$('#issue-' + key);
     if (el.length > 0) {
-      var line = el.closest('[data-line-number]').data('line-number');
+      const line = el.closest('[data-line-number]').data('line-number');
       return this.scrollToLine(line);
     } else {
       this.unbindShortcuts();
-      var selected = this.options.app.state.get('selectedIndex'),
-          selectedIssue = this.options.app.list.at(selected);
+      const selected = this.options.app.state.get('selectedIndex');
+      const selectedIssue = this.options.app.list.at(selected);
       return this.options.app.controller.showComponentViewer(selectedIssue);
     }
   },
 
-  openFileByIssue: function (issue) {
+  openFileByIssue (issue) {
     this.baseIssue = issue;
-    var componentKey = issue.get('component'),
-        componentUuid = issue.get('componentUuid');
+    const componentKey = issue.get('component');
+    const componentUuid = issue.get('componentUuid');
     return this.open(componentUuid, componentKey);
   },
 
-  linesLimit: function () {
-    var line = this.LINES_LIMIT / 2;
+  linesLimit () {
+    let line = this.LINES_LIMIT / 2;
     if ((this.baseIssue != null) && this.baseIssue.has('line')) {
       line = Math.max(line, this.baseIssue.get('line'));
     }
@@ -164,9 +164,9 @@ export default SourceViewer.extend({
     };
   },
 
-  limitIssues: function (issues) {
-    var that = this;
-    var index = this.ISSUES_LIMIT / 2;
+  limitIssues (issues) {
+    const that = this;
+    let index = this.ISSUES_LIMIT / 2;
     if ((this.baseIssue != null) && this.baseIssue.has('index')) {
       index = Math.max(index, this.baseIssue.get('index'));
     }
@@ -175,9 +175,9 @@ export default SourceViewer.extend({
     });
   },
 
-  requestIssues: function () {
-    var that = this;
-    var r;
+  requestIssues () {
+    const that = this;
+    let r;
     if (this.options.app.list.last().get('component') === this.model.get('key')) {
       r = this.options.app.controller.fetchNextPage();
     } else {
@@ -192,13 +192,13 @@ export default SourceViewer.extend({
     });
   },
 
-  renderIssues: function () {
+  renderIssues () {
     this.issues.forEach(this.renderIssue, this);
     return this.$('.source-line-issues').addClass('hidden');
   },
 
-  renderIssue: function (issue) {
-    var issueView = new IssueView({
+  renderIssue (issue) {
+    const issueView = new IssueView({
       el: '#issue-' + issue.get('key'),
       model: issue,
       app: this.options.app
@@ -207,14 +207,14 @@ export default SourceViewer.extend({
     return issueView.render();
   },
 
-  scrollToLine: function (line) {
-    var row = this.$('[data-line-number=' + line + ']'),
-        topOffset = $(window).height() / 2 - 60,
-        goal = row.length > 0 ? row.offset().top - topOffset : 0;
+  scrollToLine (line) {
+    const row = this.$('[data-line-number=' + line + ']');
+    const topOffset = $(window).height() / 2 - 60;
+    const goal = row.length > 0 ? row.offset().top - topOffset : 0;
     return $(window).scrollTop(goal);
   },
 
-  closeComponentViewer: function () {
+  closeComponentViewer () {
     return this.options.app.controller.closeComponentViewer();
   }
 });

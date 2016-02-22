@@ -93,18 +93,18 @@ export const BubbleChart = React.createClass({
   },
 
   getXRange (xScale, sizeScale, availableWidth) {
-    var minX = d3.min(this.props.items, d => xScale(d.x) - sizeScale(d.size)),
-        maxX = d3.max(this.props.items, d => xScale(d.x) + sizeScale(d.size)),
-        dMinX = minX < 0 ? xScale.range()[0] - minX : xScale.range()[0],
-        dMaxX = maxX > xScale.range()[1] ? maxX - xScale.range()[1] : 0;
+    const minX = d3.min(this.props.items, d => xScale(d.x) - sizeScale(d.size));
+    const maxX = d3.max(this.props.items, d => xScale(d.x) + sizeScale(d.size));
+    const dMinX = minX < 0 ? xScale.range()[0] - minX : xScale.range()[0];
+    const dMaxX = maxX > xScale.range()[1] ? maxX - xScale.range()[1] : 0;
     return [dMinX, availableWidth - dMaxX];
   },
 
   getYRange (yScale, sizeScale, availableHeight) {
-    var minY = d3.min(this.props.items, d => yScale(d.y) - sizeScale(d.size)),
-        maxY = d3.max(this.props.items, d => yScale(d.y) + sizeScale(d.size)),
-        dMinY = minY < 0 ? yScale.range()[1] - minY : yScale.range()[1],
-        dMaxY = maxY > yScale.range()[0] ? maxY - yScale.range()[0] : 0;
+    const minY = d3.min(this.props.items, d => yScale(d.y) - sizeScale(d.size));
+    const maxY = d3.max(this.props.items, d => yScale(d.y) + sizeScale(d.size));
+    const dMinY = minY < 0 ? yScale.range()[1] - minY : yScale.range()[1];
+    const dMaxY = maxY > yScale.range()[0] ? maxY - yScale.range()[0] : 0;
     return [availableHeight - dMaxY, dMinY];
   },
 

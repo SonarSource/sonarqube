@@ -25,35 +25,35 @@ import Template from '../templates/facets/coding-rules-quality-profile-facet.hbs
 export default BaseFacet.extend({
   template: Template,
 
-  events: function () {
+  events () {
     return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
       'click .js-active': 'setActivation',
       'click .js-inactive': 'unsetActivation'
     });
   },
 
-  getValues: function () {
-    var that = this,
-        languagesQuery = this.options.app.state.get('query').languages,
-        languages = languagesQuery != null ? languagesQuery.split(',') : [],
-        lang = languages.length === 1 ? languages[0] : null,
-        values = this.options.app.qualityProfiles
-            .filter(function (profile) {
-              return lang != null ? profile.lang === lang : true;
-            })
-            .map(function (profile) {
-              return {
-                label: profile.name,
-                extra: that.options.app.languages[profile.lang],
-                val: profile.key
-              };
-            });
+  getValues () {
+    const that = this;
+    const languagesQuery = this.options.app.state.get('query').languages;
+    const languages = languagesQuery != null ? languagesQuery.split(',') : [];
+    const lang = languages.length === 1 ? languages[0] : null;
+    const values = this.options.app.qualityProfiles
+        .filter(function (profile) {
+          return lang != null ? profile.lang === lang : true;
+        })
+        .map(function (profile) {
+          return {
+            label: profile.name,
+            extra: that.options.app.languages[profile.lang],
+            val: profile.key
+          };
+        });
     return _.sortBy(values, 'label');
   },
 
-  toggleFacet: function (e) {
-    var obj = {},
-        property = this.model.get('property');
+  toggleFacet (e) {
+    const obj = {};
+    const property = this.model.get('property');
     if ($(e.currentTarget).is('.active')) {
       obj.activation = null;
       obj[property] = null;
@@ -64,29 +64,29 @@ export default BaseFacet.extend({
     this.options.app.state.updateFilter(obj);
   },
 
-  setActivation: function (e) {
+  setActivation (e) {
     e.stopPropagation();
     this.options.app.state.updateFilter({ activation: 'true' });
   },
 
-  unsetActivation: function (e) {
+  unsetActivation (e) {
     e.stopPropagation();
     this.options.app.state.updateFilter({ activation: 'false', active_severities: null });
   },
 
-  getToggled: function () {
-    var activation = this.options.app.state.get('query').activation;
+  getToggled () {
+    const activation = this.options.app.state.get('query').activation;
     return activation === 'true' || activation === true;
   },
 
-  disable: function () {
-    var obj = { activation: null },
-        property = this.model.get('property');
+  disable () {
+    const obj = { activation: null };
+    const property = this.model.get('property');
     obj[property] = null;
     this.options.app.state.updateFilter(obj);
   },
 
-  serializeData: function () {
+  serializeData () {
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
       values: this.getValues(),
       toggled: this.getToggled()
