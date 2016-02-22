@@ -35,7 +35,6 @@ import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.WidgetDao;
 import org.sonar.db.dashboard.WidgetPropertyDao;
-import org.sonar.db.debt.CharacteristicDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
 import org.sonar.db.issue.ActionPlanDao;
@@ -108,7 +107,6 @@ public class DaoModule extends Module {
     QualityProfileDao.class,
     PurgeDao.class,
     RuleDao.class,
-    CharacteristicDao.class,
     ResourceIndexDao.class,
     ResourceDao.class,
     ResourceKeyUpdaterDao.class,

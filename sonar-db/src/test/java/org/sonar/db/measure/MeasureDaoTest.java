@@ -236,34 +236,6 @@ public class MeasureDaoTest {
   }
 
   @Test
-  public void select_past_measures_on_characteristic_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
-    db.prepareDbUnit(getClass(), "past_measures_with_characteristic_id.xml");
-
-    List<PastMeasureDto> measures = underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "ABCD", 1000L, ImmutableSet.of(1));
-    assertThat(measures).hasSize(3);
-
-    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
-
-    PastMeasureDto measure1 = pastMeasuresById.get(1L);
-    assertThat(measure1.getValue()).isEqualTo(60d);
-    assertThat(measure1.getMetricId()).isEqualTo(1);
-    assertThat(measure1.getRuleId()).isNull();
-    assertThat(measure1.getPersonId()).isNull();
-
-    PastMeasureDto measure2 = pastMeasuresById.get(2L);
-    assertThat(measure2.getValue()).isEqualTo(20d);
-    assertThat(measure2.getMetricId()).isEqualTo(1);
-    assertThat(measure2.getRuleId()).isNull();
-    assertThat(measure2.getPersonId()).isNull();
-
-    PastMeasureDto measure3 = pastMeasuresById.get(3L);
-    assertThat(measure3.getValue()).isEqualTo(40d);
-    assertThat(measure3.getMetricId()).isEqualTo(1);
-    assertThat(measure3.getRuleId()).isNull();
-    assertThat(measure3.getPersonId()).isNull();
-  }
-
-  @Test
   public void select_past_measures_ignore_measures_with_person_id() {
     db.prepareDbUnit(getClass(), "past_measures_with_person_id.xml");
 
