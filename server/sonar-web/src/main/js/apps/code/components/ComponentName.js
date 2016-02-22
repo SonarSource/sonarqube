@@ -28,9 +28,9 @@ import { getComponentUrl } from '../../../helpers/urls';
 function getTooltip (component) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
   if (isFile && component.path) {
-    return component.path;
+    return component.path + '\n\n' + component.key;
   } else {
-    return component.name;
+    return component.name + '\n\n' + component.key;
   }
 }
 
