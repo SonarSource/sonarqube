@@ -4,6 +4,9 @@ node/
 # nodeJS dependencies
 node_modules/
 
+# npm logs
+npm-debug.log.*
+
 # build
 build/
 src/main/webapp/js/
