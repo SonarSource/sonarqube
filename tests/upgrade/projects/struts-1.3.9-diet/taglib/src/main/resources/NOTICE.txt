@@ -1,0 +1,10 @@
+Apache Struts Taglib
+Copyright 2000-2007 The Apache Software Foundation
+
+This product includes software developed by
+The Apache Software Foundation (http://www.apache.org/).
+
+This product includes the ANTLR parsing library,
+developed by JGuru.com (http://www.antlr.org and
+http://www.jguru.com).
+

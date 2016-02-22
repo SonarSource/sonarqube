@@ -1509,11 +1509,12 @@
     </profile>
 
     <profile>
-      <!-- integration and performance tests -->
+      <!-- integration, performance and upgrade tests -->
       <id>tests</id>
       <modules>
         <module>it</module>
         <module>tests/perf</module>
+        <module>tests/upgrade</module>
       </modules>
     </profile>
   </profiles>
