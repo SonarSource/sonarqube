@@ -35,8 +35,8 @@ public final class Changeset {
   private final String author;
 
   private Changeset(Builder builder) {
-    this.revision = builder.revision;
-    this.author = builder.author;
+    this.revision = builder.revision == null ? null : builder.revision.intern();
+    this.author = builder.author == null ? null : builder.author.intern();
     this.date = builder.date;
   }
 
@@ -65,9 +65,7 @@ public final class Changeset {
     }
 
     public Builder setAuthor(@Nullable String author) {
-      // SONAR-7316
-      // String.intern() is used in order for same authors to use the same object.
-      this.author = author != null ? author.intern() : null;
+      this.author = author;
       return this;
     }
 
@@ -101,7 +99,7 @@ public final class Changeset {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
