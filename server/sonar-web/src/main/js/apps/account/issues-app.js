@@ -95,6 +95,7 @@ App.updateContextFacets = function () {
 App.stop = function () {
   App.layout.destroy();
   Backbone.history.stop();
+  $('#footer').removeClass('search-navigator-footer');
 };
 
 App.on('start', function (options) {
