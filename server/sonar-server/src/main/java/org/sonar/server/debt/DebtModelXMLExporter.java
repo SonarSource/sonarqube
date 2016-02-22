@@ -19,7 +19,6 @@
  */
 package org.sonar.server.debt;
 
-import com.google.common.collect.Ordering;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -39,7 +38,6 @@ import org.apache.commons.lang.StringEscapeUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.server.debt.DebtCharacteristic;
 import org.xml.sax.InputSource;
 
 /**
@@ -197,26 +195,6 @@ public class DebtModelXMLExporter {
         ", coefficient='" + coefficient + '\'' +
         ", offset='" + offset + '\'' +
         '}';
-    }
-  }
-
-  private static class SortByOrder extends Ordering<DebtCharacteristic> {
-    @Override
-    public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
-      if (left == null || left.order() == null || right == null || right.order() == null) {
-        return -1;
-      }
-      return left.order() - right.order();
-    }
-  }
-
-  private static class SortByName extends Ordering<DebtCharacteristic> {
-    @Override
-    public int compare(@Nullable DebtCharacteristic left, @Nullable DebtCharacteristic right) {
-      if (left == null || right == null) {
-        return -1;
-      }
-      return StringUtils.defaultString(left.name()).compareTo(StringUtils.defaultString(right.name()));
     }
   }
 }
