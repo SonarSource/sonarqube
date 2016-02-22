@@ -21,22 +21,19 @@ package org.sonar.server.startup;
 
 import java.util.Date;
 import javax.annotation.Nullable;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.db.RuleDao;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.tester.ServerTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.loadedtemplate.LoadedTemplateDto.ONE_SHOT_TASK_TYPE;
@@ -49,28 +46,17 @@ public class ClearRulesOverloadedDebtTest {
   private static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
   private static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
 
-  @ClassRule
-  public static ServerTester tester = new ServerTester();
+  @Rule
+  public DbTester tester = DbTester.create(System2.INSTANCE);
 
-  @org.junit.Rule
+  @Rule
   public LogTester logTester = new LogTester();
 
-  RuleDao ruleDao = tester.get(RuleDao.class);
-  RuleIndex ruleIndex = tester.get(RuleIndex.class);
-  DbClient dbClient = tester.get(DbClient.class);
-  DbSession dbSession = tester.get(DbClient.class).openSession(false);
+  DbClient dbClient = tester.getDbClient();
+  DbSession dbSession = tester.getSession();
+  RuleDao ruleDao = new RuleDao();
 
   ClearRulesOverloadedDebt underTest = new ClearRulesOverloadedDebt(dbClient);
-
-  @Before
-  public void before() {
-    tester.clearDbAndIndexes();
-  }
-
-  @After
-  public void after() {
-    dbSession.close();
-  }
 
   @Test
   public void remove_overridden_debt() throws Exception {
@@ -97,7 +83,7 @@ public class ClearRulesOverloadedDebtTest {
 
     underTest.start();
 
-    RuleDto reloaded = ruleDao.getByKey(dbSession, RULE_KEY_1);
+    RuleDto reloaded = ruleDao.selectOrFailByKey(dbSession, RULE_KEY_1);
     assertThat(reloaded.getUpdatedAt()).isEqualTo(updateAt);
     verifyRuleHasNotOverriddenDebt(RULE_KEY_1);
 
@@ -113,11 +99,8 @@ public class ClearRulesOverloadedDebtTest {
 
     underTest.start();
 
-    RuleDto reloaded = ruleDao.getByKey(dbSession, RULE_KEY_1);
+    RuleDto reloaded = ruleDao.selectOrFailByKey(dbSession, RULE_KEY_1);
     assertThat(reloaded.getUpdatedAt()).isEqualTo(updateAt);
-
-    Rule ruleEs = ruleIndex.getByKey(RULE_KEY_1);
-    assertThat(ruleEs.debtOverloaded()).isTrue();
 
     verifyTaskRegistered();
     verifyEmptyLog();
@@ -140,14 +123,11 @@ public class ClearRulesOverloadedDebtTest {
     // Refresh session
     dbSession.commit(true);
 
-    RuleDto ruleDto = ruleDao.getByKey(dbSession, ruleKey);
+    RuleDto ruleDto = ruleDao.selectOrFailByKey(dbSession, ruleKey);
     assertThat(ruleDto.getSubCharacteristicId()).isNull();
     assertThat(ruleDto.getRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationCoefficient()).isNull();
     assertThat(ruleDto.getRemediationOffset()).isNull();
-
-    Rule rule = ruleIndex.getByKey(ruleKey);
-    assertThat(rule.debtOverloaded()).isFalse();
   }
 
   private RuleDto insertRuleDto(RuleKey ruleKey, @Nullable Integer subCharId, @Nullable String function, @Nullable String coeff, @Nullable String offset) {

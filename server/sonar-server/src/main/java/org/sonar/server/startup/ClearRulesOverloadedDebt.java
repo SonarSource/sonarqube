@@ -22,10 +22,10 @@ package org.sonar.server.startup;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 
 import static org.sonar.db.loadedtemplate.LoadedTemplateDto.ONE_SHOT_TASK_TYPE;
 
@@ -70,13 +70,13 @@ public class ClearRulesOverloadedDebt implements Startable {
 
   private void clearDebt(DbSession session) {
     int countClearedRules = 0;
-    for (RuleDto rule : dbClient.deprecatedRuleDao().selectAll(session)) {
+    for (RuleDto rule : dbClient.ruleDao().selectAll(session)) {
       if (isDebtOverridden(rule)) {
         rule.setSubCharacteristicId(null);
         rule.setRemediationFunction(null);
         rule.setRemediationCoefficient(null);
         rule.setRemediationOffset(null);
-        dbClient.deprecatedRuleDao().update(session, rule);
+        dbClient.ruleDao().update(session, rule);
         countClearedRules++;
       }
     }
