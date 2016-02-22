@@ -529,6 +529,11 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
+        <groupId>org.sonarsource.sonarqube</groupId>
+        <artifactId>sonar-governance-bridge</artifactId>
+        <version>${project.version}</version>
+      </dependency>
+      <dependency>
         <groupId>org.sonarsource.java</groupId>
         <artifactId>sonar-java-plugin</artifactId>
         <version>${sonarJava.version}</version>
