@@ -21,6 +21,9 @@ package org.sonar.server.computation.scm;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -30,7 +33,6 @@ import org.sonar.server.computation.component.Component;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Iterables.isEmpty;
 import static java.lang.String.format;
 
 /**
@@ -47,11 +49,11 @@ class DbScmInfo implements ScmInfo {
 
   static Optional<ScmInfo> create(Component component, Iterable<DbFileSources.Line> lines) {
     LineToChangeset lineToChangeset = new LineToChangeset();
-    Iterable<Changeset> lineChangesets = from(lines)
+    List<Changeset> lineChangesets = from(lines)
       .transform(lineToChangeset)
       .filter(notNull())
       .toList();
-    if (isEmpty(lineChangesets)) {
+    if (lineChangesets.isEmpty()) {
       return Optional.absent();
     }
     checkState(!lineToChangeset.isEncounteredLineWithoutScmInfo(),
@@ -85,16 +87,24 @@ class DbScmInfo implements ScmInfo {
    */
   private static class LineToChangeset implements Function<DbFileSources.Line, Changeset> {
     private boolean encounteredLineWithoutScmInfo = false;
+    private final Map<String, Changeset> cache = new HashMap<>();
+    private final Changeset.Builder builder = Changeset.newChangesetBuilder();
 
     @Override
     @Nullable
     public Changeset apply(@Nonnull DbFileSources.Line input) {
-      if (input.hasScmRevision() || input.hasScmAuthor() || input.hasScmDate()) {
-        return Changeset.newChangesetBuilder()
-          .setRevision(input.getScmRevision())
-          .setAuthor(input.getScmAuthor())
-          .setDate(input.getScmDate())
-          .build();
+      if (input.hasScmRevision() && input.hasScmDate()) {
+        String revision = input.getScmRevision();
+        Changeset changeset = cache.get(revision);
+        if (changeset == null) {
+          changeset = builder
+              .setRevision(revision)
+              .setAuthor(input.hasScmAuthor() ? input.getScmAuthor() : null)
+              .setDate(input.getScmDate())
+              .build();
+          cache.put(revision, changeset);
+        }
+        return changeset;
       }
 
       this.encounteredLineWithoutScmInfo = true;
