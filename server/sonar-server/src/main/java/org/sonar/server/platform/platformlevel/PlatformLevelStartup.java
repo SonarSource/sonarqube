@@ -74,7 +74,6 @@ public class PlatformLevelStartup extends PlatformLevel {
     DoPrivileged.execute(new DoPrivileged.Task(getComponentByType(ThreadLocalUserSession.class)) {
       @Override
       protected void doPrivileged() {
-        getComponentByType(IndexSynchronizer.class).executeDeprecated();
         PlatformLevelStartup.super.start();
         getComponentByType(IndexSynchronizer.class).execute();
         getComponentByType(ServerLifecycleNotifier.class).notifyStart();

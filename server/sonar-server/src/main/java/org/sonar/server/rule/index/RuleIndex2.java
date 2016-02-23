@@ -64,8 +64,6 @@ import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.StickyFacetBuilder;
 
@@ -276,9 +274,9 @@ public class RuleIndex2 extends BaseIndex {
 
     // ActiveRule Filter (profile and inheritance)
     BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
-    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());
-    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field(), query.getInheritance());
-    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field(), query.getActiveSeverities());
+    addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
+    addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
+    addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
 
     // ChildQuery
     FilterBuilder childQuery;
@@ -291,12 +289,12 @@ public class RuleIndex2 extends BaseIndex {
     /** Implementation of activation query */
     if (Boolean.TRUE.equals(query.getActivation())) {
       filters.put("activation",
-        FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
+        FilterBuilders.hasChildFilter(RuleIndexDefinition.TYPE_ACTIVE_RULE,
           childQuery));
     } else if (Boolean.FALSE.equals(query.getActivation())) {
       filters.put("activation",
         FilterBuilders.boolFilter().mustNot(
-          FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
+          FilterBuilders.hasChildFilter(RuleIndexDefinition.TYPE_ACTIVE_RULE,
             childQuery)));
     }
 
@@ -383,13 +381,13 @@ public class RuleIndex2 extends BaseIndex {
       // so the rule filter has to be used as parent filter for active rules
       // from which we remove filters that concern active rules ("activation")
       HasParentFilterBuilder ruleFilter = FilterBuilders.hasParentFilter(
-        IndexDefinition.RULE.getIndexType(),
+        RuleIndexDefinition.TYPE_RULE,
         stickyFacetBuilder.getStickyFacetFilter("activation"));
 
       // Rebuilding the active rule filter without severities
       BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
-      this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());
-      this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field(), query.getInheritance());
+      this.addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
+      this.addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       FilterBuilder activeRuleFilter;
       if (childrenFilter.hasClauses()) {
         activeRuleFilter = childrenFilter.must(ruleFilter);
@@ -398,13 +396,13 @@ public class RuleIndex2 extends BaseIndex {
       }
 
       AggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children")
-        .childType(IndexDefinition.ACTIVE_RULE.getIndexType())
+        .childType(RuleIndexDefinition.TYPE_ACTIVE_RULE)
         .subAggregation(AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter")
           .filter(activeRuleFilter)
           .subAggregation(
             AggregationBuilders
               .terms(FACET_ACTIVE_SEVERITIES)
-              .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
+              .field(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY)
               .include(Joiner.on('|').join(Severity.ALL))
               .size(Severity.ALL.size())));
 

@@ -26,14 +26,18 @@ import java.util.List;
 import java.util.Map;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleDocTesting;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singleton;
@@ -42,14 +46,28 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.data.MapEntry.entry;
 import static org.junit.Assert.fail;
 import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
+import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.INHERITED;
+import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.OVERRIDES;
 import static org.sonar.server.rule.index.RuleDocTesting.newDoc;
 import static org.sonar.server.rule.index.RuleIndex2.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex2.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex2.FACET_TAGS;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
+import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class RuleIndex2Test {
+
+  static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
+  static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
+  static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
+  static final RuleKey RULE_KEY_4 = RuleKey.of("xoo", "x4");
+
+  static final String QUALITY_PROFILE_KEY1 = "qp1";
+  static final String QUALITY_PROFILE_KEY2 = "qp2";
 
   @ClassRule
   public static EsTester tester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
@@ -57,11 +75,13 @@ public class RuleIndex2Test {
   RuleIndex2 index;
 
   RuleIndexer ruleIndexer;
+  ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void setUp() {
     tester.truncateIndices();
     ruleIndexer = new RuleIndexer(null, tester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(null, tester.client());
     index = new RuleIndex2(tester.client());
   }
 
@@ -306,7 +326,7 @@ public class RuleIndex2Test {
       newDoc(RuleKey.of("java", "S002")).setStatus(RuleStatus.READY.name()));
 
     RuleQuery query = new RuleQuery().setStatuses(asList(RuleStatus.DEPRECATED, RuleStatus.READY));
-    SearchIdResult results = index.search(query, new SearchOptions());
+    SearchIdResult<RuleKey> results = index.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(RuleKey.of("java", "S002"));
 
     // no results
@@ -323,194 +343,146 @@ public class RuleIndex2Test {
   }
 
   @Test
-  @Ignore
-  public void search_by_profile() {
-    // QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
-    // QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2();
-    // db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
-    //
-    // RuleDto rule1 = RuleTesting.newXooX1();
-    // RuleDto rule2 = RuleTesting.newXooX2();
-    // RuleDto rule3 = RuleTesting.newXooX3();
-    // dao.insert(dbSession, rule1, rule2, rule3);
-    //
-    // db.activeRuleDao().insert(
-    // dbSession,
-    // ActiveRuleDto.createFor(qualityProfileDto1, rule1).setSeverity("BLOCKER"),
-    // ActiveRuleDto.createFor(qualityProfileDto2, rule1).setSeverity("BLOCKER"),
-    // ActiveRuleDto.createFor(qualityProfileDto1, rule2).setSeverity("BLOCKER"));
-    // dbSession.commit();
-    // dbSession.clearCache();
-    //
-    // // 1. get all active rules.
-    // Result<org.sonar.server.rule.Rule> result = index.search(new RuleQuery().setActivation(true),
-    // new SearchOptions());
-    // assertThat(result.getHits()).hasSize(2);
-    //
-    // // 2. get all inactive rules.
-    // result = index.search(new RuleQuery().setActivation(false),
-    // new SearchOptions());
-    // assertThat(result.getHits()).hasSize(1);
-    // assertThat(result.getHits().get(0).name()).isEqualTo(rule3.getName());
-    //
-    // // 3. get all rules not active on profile
-    // index.search(new RuleQuery().setActivation(false).setQProfileKey(qualityProfileDto2.getKey()),
-    // new SearchOptions());
-    // // TODO
-    // assertThat(result.getHits()).hasSize(1);
-    //
-    // // 4. get all active rules on profile
-    // result = index.search(new RuleQuery().setActivation(true)
-    // .setQProfileKey(qualityProfileDto2.getKey()),
-    // new SearchOptions());
-    // assertThat(result.getHits()).hasSize(1);
-    // assertThat(result.getHits().get(0).name()).isEqualTo(rule1.getName());
+  public void search_by_profile() throws InterruptedException {
+    indexRules(
+      newDoc(RULE_KEY_1),
+      newDoc(RULE_KEY_2),
+      newDoc(RULE_KEY_3));
+
+    indexActiveRules(
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)));
+
+    assertThat(tester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isEqualTo(3);
+
+    // 1. get all active rules.
+    assertThat(index.search(new RuleQuery().setActivation(true), new SearchOptions()).getIds())
+      .containsOnly(RULE_KEY_1, RULE_KEY_2);
+
+    // 2. get all inactive rules.
+    assertThat(index.search(new RuleQuery().setActivation(false), new SearchOptions()).getIds())
+      .containsOnly(RULE_KEY_3);
+
+    // 3. get all rules not active on profile
+    assertThat(index.search(new RuleQuery().setActivation(false).setQProfileKey(QUALITY_PROFILE_KEY2), new SearchOptions()).getIds())
+      .containsOnly(RULE_KEY_2, RULE_KEY_3);
+
+    // 4. get all active rules on profile
+    assertThat(index.search(new RuleQuery().setActivation(true).setQProfileKey(QUALITY_PROFILE_KEY2), new SearchOptions()).getIds())
+      .containsOnly(RULE_KEY_1);
   }
 
   @Test
-  @Ignore
   public void search_by_profile_and_inheritance() {
-    // QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
-    // QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2().setParentKee(QProfileTesting.XOO_P1_KEY);
-    // db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
-    //
-    // RuleDto rule1 = RuleTesting.newDto(RuleKey.of("xoo", "S001"));
-    // RuleDto rule2 = RuleTesting.newDto(RuleKey.of("xoo", "S002"));
-    // RuleDto rule3 = RuleTesting.newDto(RuleKey.of("xoo", "S003"));
-    // RuleDto rule4 = RuleTesting.newDto(RuleKey.of("xoo", "S004"));
-    // dao.insert(dbSession, rule1, rule2, rule3, rule4);
-    //
-    // db.activeRuleDao().insert(
-    // dbSession,
-    // ActiveRuleDto.createFor(qualityProfileDto1, rule1)
-    // .setSeverity("BLOCKER"),
-    // ActiveRuleDto.createFor(qualityProfileDto1, rule2)
-    // .setSeverity("BLOCKER"),
-    // ActiveRuleDto.createFor(qualityProfileDto1, rule3)
-    // .setSeverity("BLOCKER"),
-    //
-    // ActiveRuleDto.createFor(qualityProfileDto2, rule1)
-    // .setSeverity("MINOR")
-    // .setInheritance(ActiveRule.Inheritance.INHERITED.name()),
-    // ActiveRuleDto.createFor(qualityProfileDto2, rule2)
-    // .setSeverity("BLOCKER")
-    // .setInheritance(ActiveRule.Inheritance.OVERRIDES.name()),
-    // ActiveRuleDto.createFor(qualityProfileDto2, rule3)
-    // .setSeverity("BLOCKER")
-    // .setInheritance(ActiveRule.Inheritance.INHERITED.name())
-    // );
-    //
-    // dbSession.commit();
-    //
-    // // 0. get all rules
-    // Result<org.sonar.server.rule.Rule> result = index.search(new RuleQuery(),
-    // new SearchOptions());
-    // assertThat(result.getHits()).hasSize(4);
-    //
-    // // 1. get all active rules
-    // result = index.search(new RuleQuery().setActivation(true),
-    // new SearchOptions());
-    // assertThat(result.getHits()).hasSize(3);
-    //
-    // // 2. get all inactive rules.
-    // result = index.search(new RuleQuery().setActivation(false),
-    // new SearchOptions());
-    // assertThat(result.getHits()).hasSize(1);
-    // assertThat(result.getHits().get(0).name()).isEqualTo(rule4.getName());
-    //
-    // // 3. get Inherited Rules on profile1
-    // result = index.search(new RuleQuery().setActivation(true)
-    // .setQProfileKey(qualityProfileDto1.getKey())
-    // .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
-    // new SearchOptions()
-    // );
-    // assertThat(result.getHits()).hasSize(0);
-    //
-    // // 4. get Inherited Rules on profile2
-    // result = index.search(new RuleQuery().setActivation(true)
-    // .setQProfileKey(qualityProfileDto2.getKey())
-    // .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.INHERITED.name())),
-    // new SearchOptions()
-    // );
-    // assertThat(result.getHits()).hasSize(2);
-    //
-    // // 5. get Overridden Rules on profile1
-    // result = index.search(new RuleQuery().setActivation(true)
-    // .setQProfileKey(qualityProfileDto1.getKey())
-    // .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
-    // new SearchOptions()
-    // );
-    // assertThat(result.getHits()).hasSize(0);
-    //
-    // // 6. get Overridden Rules on profile2
-    // result = index.search(new RuleQuery().setActivation(true)
-    // .setQProfileKey(qualityProfileDto2.getKey())
-    // .setInheritance(ImmutableSet.of(ActiveRule.Inheritance.OVERRIDES.name())),
-    // new SearchOptions()
-    // );
-    // assertThat(result.getHits()).hasSize(1);
-    //
-    // // 7. get Inherited AND Overridden Rules on profile1
-    // result = index.search(new RuleQuery().setActivation(true)
-    // .setQProfileKey(qualityProfileDto1.getKey())
-    // .setInheritance(ImmutableSet.of(
-    // ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
-    // new SearchOptions()
-    // );
-    // assertThat(result.getHits()).hasSize(0);
-    //
-    // // 8. get Inherited AND Overridden Rules on profile2
-    // result = index.search(new RuleQuery().setActivation(true)
-    // .setQProfileKey(qualityProfileDto2.getKey())
-    // .setInheritance(ImmutableSet.of(
-    // ActiveRule.Inheritance.INHERITED.name(), ActiveRule.Inheritance.OVERRIDES.name())),
-    // new SearchOptions()
-    // );
-    // assertThat(result.getHits()).hasSize(3);
+    indexRules(
+      newDoc(RULE_KEY_1),
+      newDoc(RULE_KEY_2),
+      newDoc(RULE_KEY_3),
+      newDoc(RULE_KEY_4));
+
+    ActiveRuleKey activeRuleKey1 = ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1);
+    ActiveRuleKey activeRuleKey2 = ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2);
+    ActiveRuleKey activeRuleKey3 = ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_3);
+
+    indexActiveRules(
+      ActiveRuleDocTesting.newDoc(activeRuleKey1),
+      ActiveRuleDocTesting.newDoc(activeRuleKey2),
+      ActiveRuleDocTesting.newDoc(activeRuleKey3),
+      // Profile 2 is a child a profile 1
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1))
+        .setParentKey(activeRuleKey1.toString()).setInheritance(INHERITED.name()),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2))
+        .setParentKey(activeRuleKey2.toString()).setInheritance(OVERRIDES.name()),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3))
+        .setParentKey(activeRuleKey3.toString()).setInheritance(INHERITED.name()));
+
+    // 0. get all rules
+    assertThat(index.search(new RuleQuery(), new SearchOptions()).getIds())
+      .hasSize(4);
+
+    // 1. get all active rules
+    assertThat(index.search(new RuleQuery()
+      .setActivation(true), new SearchOptions()).getIds())
+      .hasSize(3);
+
+    // 2. get all inactive rules.
+    assertThat(index.search(new RuleQuery()
+      .setActivation(false), new SearchOptions()).getIds())
+      .containsOnly(RULE_KEY_4);
+
+    // 3. get Inherited Rules on profile1
+    assertThat(index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(QUALITY_PROFILE_KEY1)
+      .setInheritance(ImmutableSet.of(INHERITED.name())),
+      new SearchOptions()).getIds())
+      .isEmpty();
+
+    // 4. get Inherited Rules on profile2
+    assertThat(index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(QUALITY_PROFILE_KEY2)
+      .setInheritance(ImmutableSet.of(INHERITED.name())),
+      new SearchOptions()).getIds())
+      .hasSize(2);
+
+    // 5. get Overridden Rules on profile1
+    assertThat(index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(QUALITY_PROFILE_KEY1)
+      .setInheritance(ImmutableSet.of(OVERRIDES.name())),
+      new SearchOptions()).getIds())
+      .isEmpty();
+
+    // 6. get Overridden Rules on profile2
+    assertThat(index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(QUALITY_PROFILE_KEY2)
+      .setInheritance(ImmutableSet.of(OVERRIDES.name())),
+      new SearchOptions()).getIds())
+      .hasSize(1);
+
+    // 7. get Inherited AND Overridden Rules on profile1
+    assertThat(index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(QUALITY_PROFILE_KEY1)
+      .setInheritance(ImmutableSet.of(INHERITED.name(), OVERRIDES.name())),
+      new SearchOptions()).getIds())
+      .isEmpty();
+
+    // 8. get Inherited AND Overridden Rules on profile2
+    assertThat(index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(QUALITY_PROFILE_KEY2)
+      .setInheritance(ImmutableSet.of(INHERITED.name(), OVERRIDES.name())),
+      new SearchOptions()).getIds())
+      .hasSize(3);
   }
 
   @Test
-  @Ignore
   public void search_by_profile_and_active_severity() {
-    // QualityProfileDto qualityProfileDto1 = QProfileTesting.newXooP1();
-    // QualityProfileDto qualityProfileDto2 = QProfileTesting.newXooP2();
-    // db.qualityProfileDao().insert(dbSession, qualityProfileDto1, qualityProfileDto2);
-    //
-    // RuleDto rule1 = RuleTesting.newXooX1().setSeverity("MAJOR");
-    // RuleDto rule2 = RuleTesting.newXooX2().setSeverity("MINOR");
-    // RuleDto rule3 = RuleTesting.newXooX3().setSeverity("INFO");
-    // dao.insert(dbSession, rule1, rule2, rule3);
-    //
-    // db.activeRuleDao().insert(
-    // dbSession,
-    // ActiveRuleDto.createFor(qualityProfileDto1, rule1).setSeverity("BLOCKER"),
-    // ActiveRuleDto.createFor(qualityProfileDto2, rule1).setSeverity("BLOCKER"),
-    // ActiveRuleDto.createFor(qualityProfileDto1, rule2).setSeverity("CRITICAL"));
-    // dbSession.commit();
-    // dbSession.clearCache();
-    //
-    // // 1. get all active rules.
-    // Result<org.sonar.server.rule.Rule> result = index.search(new
-    // RuleQuery().setActivation(true).setQProfileKey(qualityProfileDto1.getKey()),
-    // new SearchOptions());
-    // assertThat(result.getHits()).hasSize(2);
-    //
-    // // 2. get rules with active severity critical.
-    // result = index.search(new
-    // RuleQuery().setActivation(true).setQProfileKey(qualityProfileDto1.getKey()).setActiveSeverities(Arrays.asList("CRITICAL")),
-    // new SearchOptions().addFacets(Arrays.asList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
-    // assertThat(result.getHits()).hasSize(1);
-    // assertThat(result.getHits().get(0).name()).isEqualTo(rule2.getName());
-    // // check stickyness of active severity facet
-    // assertThat(result.getFacetValues(RuleIndex.FACET_ACTIVE_SEVERITIES)).containsOnly(new FacetValue("BLOCKER", 1), new
-    // FacetValue("CRITICAL", 1));
-    //
-    // // 3. count activation severities of all active rules
-    // result = index.search(new RuleQuery(),
-    // new SearchOptions().addFacets(Arrays.asList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
-    // assertThat(result.getHits()).hasSize(3);
-    // assertThat(result.getFacetValues(RuleIndex.FACET_ACTIVE_SEVERITIES)).containsOnly(new FacetValue("BLOCKER", 2), new
-    // FacetValue("CRITICAL", 1));
+    indexRules(
+      newDoc(RULE_KEY_1).setSeverity(MAJOR),
+      newDoc(RULE_KEY_2).setSeverity(MINOR),
+      newDoc(RULE_KEY_3).setSeverity(INFO));
+
+    indexActiveRules(
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)).setSeverity(BLOCKER),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)).setSeverity(BLOCKER),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)).setSeverity(CRITICAL));
+
+    // 1. get all active rules.
+    assertThat(index.search(new RuleQuery().setActivation(true).setQProfileKey(QUALITY_PROFILE_KEY1), new SearchOptions()).getIds())
+      .hasSize(2);
+
+    // 2. get rules with active severity critical.
+    SearchIdResult<RuleKey> result = index.search(new RuleQuery().setActivation(true)
+      .setQProfileKey(QUALITY_PROFILE_KEY1).setActiveSeverities(singletonList(CRITICAL)),
+      new SearchOptions().addFacets(singletonList(RuleIndex2.FACET_ACTIVE_SEVERITIES)));
+    assertThat(result.getIds()).containsOnly(RULE_KEY_2);
+
+    // check stickyness of active severity facet
+    assertThat(result.getFacets().get(RuleIndex2.FACET_ACTIVE_SEVERITIES)).containsOnly(entry(BLOCKER, 1L), entry(CRITICAL, 1L));
+
+    // 3. count activation severities of all active rules
+    result = index.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(RuleIndex2.FACET_ACTIVE_SEVERITIES)));
+    assertThat(result.getIds()).hasSize(3);
+    assertThat(result.getFacets().get(RuleIndex2.FACET_ACTIVE_SEVERITIES)).containsOnly(entry(BLOCKER, 2L), entry(CRITICAL, 1L));
   }
 
   @Test
@@ -723,5 +695,9 @@ public class RuleIndex2Test {
 
   private void indexRules(RuleDoc... rules) {
     ruleIndexer.index(asList(rules).iterator());
+  }
+
+  private void indexActiveRules(ActiveRuleDoc... docs) {
+    activeRuleIndexer.index(asList(docs).iterator());
   }
 }

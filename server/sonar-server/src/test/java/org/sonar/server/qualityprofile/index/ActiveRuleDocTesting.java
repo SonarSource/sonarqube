@@ -17,35 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
+package org.sonar.server.qualityprofile.index;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
+import org.sonar.api.rule.Severity;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.rule.RuleTesting;
 
-public interface ActiveRule {
+public class ActiveRuleDocTesting {
 
-  enum Inheritance {
-    NONE, OVERRIDES, INHERITED;
-    public static final List<Inheritance> ALL = ImmutableList.of(NONE, OVERRIDES, INHERITED);
+  public static ActiveRuleDoc newDoc() {
+    return newDoc(ActiveRuleKey.of("sonar-way", RuleTesting.XOO_X1));
   }
 
-  Date createdAt();
-
-  Date updatedAt();
-
-  ActiveRuleKey key();
-
-  String severity();
-
-  Inheritance inheritance();
-
-  @CheckForNull
-  ActiveRuleKey parentKey();
-
-  Map<String, String> params();
-
+  public static ActiveRuleDoc newDoc(ActiveRuleKey key) {
+    return new ActiveRuleDoc(key)
+      .setSeverity(Severity.CRITICAL)
+      .setParentKey(null)
+      .setInheritance(null).setCreatedAt(150000000L)
+      .setUpdatedAt(160000000L);
+  }
 }

@@ -38,7 +38,7 @@ public class RuleIndexDefinitionTest {
     assertThat(underTest.getIndices()).hasSize(1);
     NewIndex ruleIndex = underTest.getIndices().get("rules");
     assertThat(ruleIndex).isNotNull();
-    assertThat(ruleIndex.getTypes().keySet()).containsOnly("rule");
+    assertThat(ruleIndex.getTypes().keySet()).containsOnly("rule", "activeRule");
 
     // no cluster by default
     assertThat(ruleIndex.getSettings().get("index.number_of_shards")).isEqualTo(String.valueOf(NewIndex.DEFAULT_NUMBER_OF_SHARDS));

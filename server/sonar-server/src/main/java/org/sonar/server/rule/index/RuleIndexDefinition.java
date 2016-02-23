@@ -33,28 +33,34 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String TYPE_RULE = "rule";
 
   public static final String FIELD_RULE_KEY = "key";
-
   // TODO find at what this field is useful ?
   public static final String FIELD_RULE_KEY_AS_LIST = "_key";
-
   public static final String FIELD_RULE_REPOSITORY = "repo";
   public static final String FIELD_RULE_RULE_KEY = "ruleKey";
   public static final String FIELD_RULE_INTERNAL_KEY = "internalKey";
-
   public static final String FIELD_RULE_NAME = "name";
   public static final String FIELD_RULE_HTML_DESCRIPTION = "htmlDesc";
-
   public static final String FIELD_RULE_SEVERITY = "severity";
   public static final String FIELD_RULE_STATUS = "status";
   public static final String FIELD_RULE_LANGUAGE = "lang";
-
   public static final String FIELD_RULE_IS_TEMPLATE = "isTemplate";
   public static final String FIELD_RULE_TEMPLATE_KEY = "templateKey";
-
   public static final String FIELD_RULE_ALL_TAGS = "allTags";
-
   public static final String FIELD_RULE_CREATED_AT = "createdAt";
   public static final String FIELD_RULE_UPDATED_AT = "updatedAt";
+
+  // Active rule fields
+
+  public static final String TYPE_ACTIVE_RULE = "activeRule";
+  public static final String FIELD_ACTIVE_RULE_KEY = "key";
+  public static final String FIELD_ACTIVE_RULE_REPOSITORY = "repo";
+  public static final String FIELD_ACTIVE_RULE_INHERITANCE = "inheritance";
+  public static final String FIELD_ACTIVE_RULE_PROFILE_KEY = "profile";
+  public static final String FIELD_ACTIVE_RULE_SEVERITY = "severity";
+  public static final String FIELD_ACTIVE_RULE_PARENT_KEY = "parentKey";
+  public static final String FIELD_ACTIVE_RULE_RULE_KEY = "ruleKey";
+  public static final String FIELD_ACTIVE_RULE_CREATED_AT = "createdAt";
+  public static final String FIELD_ACTIVE_RULE_UPDATED_AT = "updatedAt";
 
   private final Settings settings;
 
@@ -69,30 +75,47 @@ public class RuleIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.setShards(settings);
 
-    NewIndex.NewIndexType indexMapping = index.createType(TYPE_RULE);
-    indexMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_RULE_KEY));
-    indexMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_RULE));
-    indexMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_RULE_REPOSITORY));
-    indexMapping.setEnableSource(false);
+    // Rule type
+    NewIndex.NewIndexType ruleMapping = index.createType(TYPE_RULE);
+    ruleMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_RULE_KEY));
+    ruleMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", RuleIndexDefinition.FIELD_RULE_REPOSITORY));
+    ruleMapping.setEnableSource(false);
 
-    indexMapping.stringFieldBuilder(FIELD_RULE_KEY).enableSorting().enableGramSearch().build();
-    indexMapping.stringFieldBuilder(FIELD_RULE_KEY_AS_LIST).enableGramSearch().build();
-    indexMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).disableSearch().docValues().build();
-    indexMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).docValues().build();
-    indexMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableSearch().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).enableSorting().enableGramSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_KEY_AS_LIST).enableGramSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).disableSearch().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableSearch().docValues().build();
 
-    indexMapping.stringFieldBuilder(FIELD_RULE_NAME).enableSorting().enableWordSearch().build();
-    indexMapping.stringFieldBuilder(FIELD_RULE_HTML_DESCRIPTION).enableWordSearch().build();
-    indexMapping.stringFieldBuilder(FIELD_RULE_SEVERITY).docValues().build();
-    indexMapping.stringFieldBuilder(FIELD_RULE_STATUS).docValues().build();
-    indexMapping.stringFieldBuilder(FIELD_RULE_LANGUAGE).enableGramSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_NAME).enableSorting().enableWordSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_HTML_DESCRIPTION).enableWordSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_SEVERITY).docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_STATUS).docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_LANGUAGE).enableGramSearch().build();
 
-    indexMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
-    indexMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).docValues().build();
+    ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
+    ruleMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).docValues().build();
 
-    indexMapping.stringFieldBuilder(FIELD_RULE_ALL_TAGS).enableGramSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_ALL_TAGS).enableGramSearch().build();
 
-    indexMapping.createLongField(FIELD_RULE_CREATED_AT);
-    indexMapping.createLongField(FIELD_RULE_UPDATED_AT);
+    ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
+    ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);
+
+    // Active rule type
+    NewIndex.NewIndexType activeRuleMapping = index.createType(RuleIndexDefinition.TYPE_ACTIVE_RULE);
+    activeRuleMapping.setAttribute("_id", ImmutableMap.of("path", RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY));
+    activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", RuleIndexDefinition.TYPE_RULE));
+    activeRuleMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY));
+
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY).enableSorting().enableGramSearch().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).disableSearch().docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY).disableSearch().docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY).docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_PARENT_KEY).disableSearch().docValues().build();
+
+    activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT);
+    activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT);
   }
 }

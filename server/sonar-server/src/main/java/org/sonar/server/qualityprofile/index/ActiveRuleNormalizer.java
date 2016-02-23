@@ -112,9 +112,9 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
 
       /* Creating updateRequest */
       requests.add(new UpdateRequest()
+        .id(key.toString())
         .routing(key.ruleKey().toString())
-        .id(activeRuleDto.getKey().toString())
-        .parent(activeRuleDto.getKey().ruleKey().toString())
+        .parent(key.ruleKey().toString())
         .doc(newRule)
         .upsert(getUpsertFor(ActiveRuleField.ALL_FIELDS, newRule)));
 

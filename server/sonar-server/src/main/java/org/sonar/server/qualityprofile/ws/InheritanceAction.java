@@ -20,28 +20,27 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.Multimap;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.search.FacetValue;
 
-import javax.annotation.Nullable;
-
-import java.util.List;
-import java.util.Map;
+import static org.sonar.server.qualityprofile.index.ActiveRuleIndex2.COUNT_ACTIVE_RULES;
 
 public class InheritanceAction implements QProfileWsAction {
 
@@ -148,8 +147,8 @@ public class InheritanceAction implements QProfileWsAction {
 
   private Long getActiveRuleCount(Multimap<String, FacetValue> profileStats) {
     Long result = null;
-    if (profileStats.containsKey(ActiveRuleIndex.COUNT_ACTIVE_RULES)) {
-      result = profileStats.get(ActiveRuleIndex.COUNT_ACTIVE_RULES).iterator().next().getValue();
+    if (profileStats.containsKey(COUNT_ACTIVE_RULES)) {
+      result = profileStats.get(COUNT_ACTIVE_RULES).iterator().next().getValue();
     }
     return result;
   }

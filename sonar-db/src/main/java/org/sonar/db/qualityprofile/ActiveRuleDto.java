@@ -36,17 +36,20 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   public static final String INHERITED = ActiveRule.INHERITED;
   public static final String OVERRIDES = ActiveRule.OVERRIDES;
 
-  private String repository;
-  private String ruleField;
-  private String profileKey;
-
   private Integer id;
   private Integer profileId;
   private Integer ruleId;
   private Integer severity;
   private String inheritance;
-  //This field do not exists in db, it's only retrieve by joins
+
+  private long createdAtInMs;
+  private long updatedAtInMs;
+
+  //These fields do not exists in db, it's only retrieve by joins
   private Integer parentId;
+  private String repository;
+  private String ruleField;
+  private String profileKey;
 
   /**
    * @deprecated for internal use, should be private
@@ -77,7 +80,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
     return profileId;
   }
 
-  // TODO mark as private
   public ActiveRuleDto setProfileId(Integer profileId) {
     this.profileId = profileId;
     return this;
@@ -87,7 +89,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
     return ruleId;
   }
 
-  // TODO mark as private
   public ActiveRuleDto setRuleId(Integer ruleId) {
     this.ruleId = ruleId;
     return this;
@@ -122,10 +123,12 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   }
 
   @CheckForNull
+  @Deprecated
   public Integer getParentId() {
     return parentId;
   }
 
+  @Deprecated
   public ActiveRuleDto setParentId(@Nullable Integer parentId) {
     this.parentId = parentId;
     return this;
@@ -137,6 +140,24 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
 
   public boolean doesOverride() {
     return StringUtils.equals(OVERRIDES, inheritance);
+  }
+
+  public long getUpdatedAtInMs() {
+    return updatedAtInMs;
+  }
+
+  public ActiveRuleDto setUpdatedAtInMs(long updatedAtInMs) {
+    this.updatedAtInMs = updatedAtInMs;
+    return this;
+  }
+
+  public long getCreatedAtInMs() {
+    return createdAtInMs;
+  }
+
+  public ActiveRuleDto setCreatedAtInMs(long createdAtInMs) {
+    this.createdAtInMs = createdAtInMs;
+    return this;
   }
 
   public static ActiveRuleDto createFor(QualityProfileDto profileDto, RuleDto ruleDto) {

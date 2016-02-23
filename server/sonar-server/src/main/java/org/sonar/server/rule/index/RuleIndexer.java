@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.util.Iterator;
 import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
@@ -46,8 +45,7 @@ public class RuleIndexer extends BaseIndexer {
     return doIndex(createBulkIndexer(false), lastUpdatedAt);
   }
 
-  @VisibleForTesting
-  void index(Iterator<RuleDoc> rules) {
+  public void index(Iterator<RuleDoc> rules) {
     doIndex(createBulkIndexer(false), rules);
   }
 
@@ -70,11 +68,11 @@ public class RuleIndexer extends BaseIndexer {
     while (rules.hasNext()) {
       RuleDoc rule = rules.next();
       // TODO when active rule is not more DAO v2, restore deleting of REMOVED rules and also remove active rules linked to this rule
-//      if (rule.status() == RuleStatus.REMOVED) {
-//        bulk.add(newDeleteRequest(rule));
-//      } else {
-//      }
-      bulk.add(newUpsertRequest(rule));
+      // if (rule.status() == RuleStatus.REMOVED) {
+      // bulk.add(newDeleteRequest(rule));
+      // } else {
+      // }
+      bulk.add(newIndexRequest(rule));
 
       // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
       maxDate = Math.max(maxDate, rule.updatedAtAtAsLong());
@@ -89,15 +87,15 @@ public class RuleIndexer extends BaseIndexer {
     return bulk;
   }
 
-  private IndexRequest newUpsertRequest(RuleDoc rule) {
+  private IndexRequest newIndexRequest(RuleDoc rule) {
     return new IndexRequest(INDEX, TYPE_RULE, rule.key().toString())
       .routing(rule.repository())
       .source(rule.getFields());
   }
 
-//  private DeleteRequest newDeleteRequest(RuleDoc rule) {
-//    return new DeleteRequest(INDEX, TYPE_RULE, rule.key().toString())
-//      .routing(rule.repository());
-//  }
+  // private DeleteRequest newDeleteRequest(RuleDoc rule) {
+  // return new DeleteRequest(INDEX, TYPE_RULE, rule.key().toString())
+  // .routing(rule.repository());
+  // }
 
 }
