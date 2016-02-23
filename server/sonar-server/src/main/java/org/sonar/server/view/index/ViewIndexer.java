@@ -21,7 +21,7 @@ package org.sonar.server.view.index;
 
 import java.util.List;
 import java.util.Map;
-import org.elasticsearch.action.update.UpdateRequest;
+import org.elasticsearch.action.index.IndexRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -113,16 +113,15 @@ public class ViewIndexer extends BaseIndexer {
   }
 
   private void doIndex(BulkIndexer bulk, ViewDoc viewDoc, boolean needClearCache) {
-    bulk.add(newUpsertRequest(viewDoc));
+    bulk.add(newIndexRequest(viewDoc));
     if (needClearCache) {
       clearLookupCache(viewDoc.uuid());
     }
   }
 
-  private static UpdateRequest newUpsertRequest(ViewDoc doc) {
-    return new UpdateRequest(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, doc.uuid())
-      .doc(doc.getFields())
-      .upsert(doc.getFields());
+  private static IndexRequest newIndexRequest(ViewDoc doc) {
+    return new IndexRequest(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, doc.uuid())
+      .source(doc.getFields());
   }
 
   private void clearLookupCache(String viewUuid) {

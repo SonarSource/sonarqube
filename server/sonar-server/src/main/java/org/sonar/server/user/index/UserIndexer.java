@@ -20,6 +20,7 @@
 package org.sonar.server.user.index;
 
 import java.util.Iterator;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -57,17 +58,16 @@ public class UserIndexer extends BaseIndexer {
     bulk.start();
     while (users.hasNext()) {
       UserDoc user = users.next();
-      bulk.add(newUpsertRequest(user));
+      bulk.add(newIndexRequest(user));
       maxUpdatedAt = Math.max(maxUpdatedAt, user.updatedAt());
     }
     bulk.stop();
     return maxUpdatedAt;
   }
 
-  private static UpdateRequest newUpsertRequest(UserDoc user) {
-    return new UpdateRequest(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user.login())
-      .doc(user.getFields())
-      .upsert(user.getFields());
+  private static IndexRequest newIndexRequest(UserDoc user) {
+    return new IndexRequest(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user.login())
+      .source(user.getFields());
   }
 
 }
