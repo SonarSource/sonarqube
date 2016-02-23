@@ -21,8 +21,8 @@ package org.sonar.server.issue.index;
 
 import java.util.Iterator;
 import javax.annotation.Nullable;
+import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.db.DbClient;
@@ -83,7 +83,7 @@ public class IssueIndexer extends BaseIndexer {
     long maxDate = 0L;
     while (issues.hasNext()) {
       IssueDoc issue = issues.next();
-      bulk.add(newUpsertRequest(issue));
+      bulk.add(newIndexRequest(issue));
 
       // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
       maxDate = Math.max(maxDate, issue.getTechnicalUpdateDate().getTime());
@@ -112,17 +112,13 @@ public class IssueIndexer extends BaseIndexer {
     return bulk;
   }
 
-  private UpdateRequest newUpsertRequest(IssueDoc issue) {
+  private IndexRequest newIndexRequest(IssueDoc issue) {
     String projectUuid = issue.projectUuid();
 
-    // type of parent doc is "authorization"
-    issue.setField("_parent", projectUuid);
-
-    return new UpdateRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, issue.key())
+    return new IndexRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, issue.key())
       .routing(projectUuid)
       .parent(projectUuid)
-      .doc(issue.getFields())
-      .upsert(issue.getFields());
+      .source(issue.getFields());
   }
 
 }
