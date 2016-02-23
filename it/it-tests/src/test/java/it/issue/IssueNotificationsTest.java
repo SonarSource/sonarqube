@@ -47,7 +47,6 @@ import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
 @Category(QaOnly.class)
-@Ignore
 public class IssueNotificationsTest extends AbstractIssueTest {
 
   private final static String PROJECT_KEY = "sample";

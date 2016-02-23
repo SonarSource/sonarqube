@@ -52,7 +52,6 @@ import static util.ItUtils.projectDir;
 import static util.ItUtils.setServerProperty;
 
 @Category(QaOnly.class)
-@Ignore
 public class QualityGateNotificationTest {
 
   private static long DEFAULT_QUALITY_GATE;
