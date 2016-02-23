@@ -31,6 +31,7 @@ import java.util.Map;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -57,6 +58,8 @@ import org.sonar.server.tester.UserSessionRule;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
+// TODO To be removed when dao v2 is removed
+@Ignore
 public class ActiveRuleTest {
 
   @ClassRule
@@ -97,20 +100,20 @@ public class ActiveRuleTest {
     db.deprecatedRuleDao().insert(dbSession, rule1);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile1, rule1).setSeverity("BLOCKER");
-    db.activeRuleDao().insert(dbSession, activeRule);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     // 1. Synchronize since 0
     tester.clearIndexes();
     assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNull();
-    db.activeRuleDao().synchronizeAfter(dbSession, new Date(0L));
+    db.deprecatedActiveRuleDao().synchronizeAfter(dbSession, new Date(0L));
     dbSession.commit();
     assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNotNull();
 
     // 2. Synchronize since beginning
     tester.clearIndexes();
     assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNull();
-    db.activeRuleDao().synchronizeAfter(dbSession, beginning);
+    db.deprecatedActiveRuleDao().synchronizeAfter(dbSession, beginning);
     dbSession.commit();
     assertThat(index.get(ActiveRuleIndex.class).getNullableByKey(activeRule.getKey())).isNotNull();
 
@@ -134,7 +137,7 @@ public class ActiveRuleTest {
     db.deprecatedRuleDao().insert(dbSession, rule);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
-    db.activeRuleDao().insert(dbSession, activeRule);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     // Remove rule -> Active rule is now linked to a not existing rule
@@ -143,7 +146,7 @@ public class ActiveRuleTest {
 
     // Synchronize index from start
     tester.clearIndexes();
-    db.activeRuleDao().synchronizeAfter(dbSession, new Date(0L));
+    db.deprecatedActiveRuleDao().synchronizeAfter(dbSession, new Date(0L));
     dbSession.commit();
 
     // Active does not exist in the index
@@ -162,7 +165,7 @@ public class ActiveRuleTest {
     db.deprecatedRuleDao().insert(dbSession, rule);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
-    db.activeRuleDao().insert(dbSession, activeRule);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     // Remove quality profile -> active rule is now linked to a not existing quality profile
@@ -171,7 +174,7 @@ public class ActiveRuleTest {
 
     // Synchronize index from start
     tester.clearIndexes();
-    db.activeRuleDao().synchronizeAfter(dbSession, new Date(0L));
+    db.deprecatedActiveRuleDao().synchronizeAfter(dbSession, new Date(0L));
     dbSession.commit();
 
     // Active does not exist in the index
@@ -189,12 +192,12 @@ public class ActiveRuleTest {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERITED.name())
       .setSeverity(Severity.BLOCKER);
-    db.activeRuleDao().insert(dbSession, activeRule);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     // verify db
-    assertThat(db.activeRuleDao().getByKey(dbSession, activeRule.getKey())).isNotNull();
-    List<ActiveRuleDto> persistedDtos = db.activeRuleDao().selectByRule(dbSession, ruleDto);
+    assertThat(db.deprecatedActiveRuleDao().getByKey(dbSession, activeRule.getKey())).isNotNull();
+    List<ActiveRuleDto> persistedDtos = db.deprecatedActiveRuleDao().selectByRule(dbSession, ruleDto);
     assertThat(persistedDtos).hasSize(1);
 
     // verify es
@@ -228,20 +231,20 @@ public class ActiveRuleTest {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, ruleDto)
       .setInheritance(ActiveRule.Inheritance.INHERITED.name())
       .setSeverity(Severity.BLOCKER);
-    db.activeRuleDao().insert(dbSession, activeRule);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
 
     ActiveRuleParamDto activeRuleMinParam = ActiveRuleParamDto.createFor(minParam)
       .setValue("minimum");
-    db.activeRuleDao().insertParam(dbSession, activeRule, activeRuleMinParam);
+    db.deprecatedActiveRuleDao().insertParam(dbSession, activeRule, activeRuleMinParam);
 
     ActiveRuleParamDto activeRuleMaxParam = ActiveRuleParamDto.createFor(maxParam)
       .setValue("maximum");
-    db.activeRuleDao().insertParam(dbSession, activeRule, activeRuleMaxParam);
+    db.deprecatedActiveRuleDao().insertParam(dbSession, activeRule, activeRuleMaxParam);
 
     dbSession.commit();
 
     // verify db
-    List<ActiveRuleParamDto> persistedDtos = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.getKey());
+    List<ActiveRuleParamDto> persistedDtos = db.deprecatedActiveRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.getKey());
     assertThat(persistedDtos).hasSize(2);
 
     // verify es
@@ -264,21 +267,21 @@ public class ActiveRuleTest {
     RuleDto removedRule = RuleTesting.newDto(RuleKey.of("xoo", "removed")).setSeverity(Severity.MAJOR).setStatus(RuleStatus.REMOVED);
     db.deprecatedRuleDao().insert(dbSession, rule1, rule2, removedRule);
 
-    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
-    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
-    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
+    db.deprecatedActiveRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule1).setSeverity(Severity.MINOR));
+    db.deprecatedActiveRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile1, rule2).setSeverity(Severity.BLOCKER));
+    db.deprecatedActiveRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, rule2).setSeverity(Severity.CRITICAL));
     // Removed rule can still be activated for instance when removing the checkstyle plugin, active rules related on checkstyle are not
     // removed
     // because if the plugin is re-install, quality profiles using these rule are not changed.
-    db.activeRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, removedRule).setSeverity(Severity.MAJOR));
+    db.deprecatedActiveRuleDao().insert(dbSession, ActiveRuleDto.createFor(profile2, removedRule).setSeverity(Severity.MAJOR));
     dbSession.commit();
 
     // 1. find by rule key
 
     // in db
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().selectByRule(dbSession, rule1)).hasSize(1);
-    assertThat(db.activeRuleDao().selectByRule(dbSession, rule2)).hasSize(2);
+    assertThat(db.deprecatedActiveRuleDao().selectByRule(dbSession, rule1)).hasSize(1);
+    assertThat(db.deprecatedActiveRuleDao().selectByRule(dbSession, rule2)).hasSize(2);
 
     // in es
     List<ActiveRule> activeRules = index.get(ActiveRuleIndex.class).findByRule(RuleTesting.XOO_X1);
@@ -317,7 +320,7 @@ public class ActiveRuleTest {
       db.deprecatedRuleDao().insert(dbSession, rule);
 
       ActiveRuleDto activeRule = ActiveRuleDto.createFor(profileDto, rule).setSeverity(Severity.MAJOR);
-      db.activeRuleDao().insert(dbSession, activeRule);
+      db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
     }
     dbSession.commit();
     dbSession.clearCache();
@@ -339,7 +342,7 @@ public class ActiveRuleTest {
 
     ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(profileDto1, ruleDto).setSeverity(Severity.MAJOR);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profileDto2, ruleDto).setSeverity(Severity.MAJOR);
-    db.activeRuleDao().insert(dbSession, activeRule1, activeRule2);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule1, activeRule2);
     dbSession.commit();
 
     // 0. Test base case
@@ -367,7 +370,7 @@ public class ActiveRuleTest {
 
     ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(profileDto1, ruleDto).setSeverity(Severity.MAJOR);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profileDto2, ruleDto).setSeverity(Severity.MAJOR);
-    db.activeRuleDao().insert(dbSession, activeRule1, activeRule2);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule1, activeRule2);
     dbSession.commit();
 
     // 0. Test base case
@@ -390,7 +393,7 @@ public class ActiveRuleTest {
     RuleDto ruleDto2 = newRuleDto(RuleTesting.XOO_X2);
     db.deprecatedRuleDao().insert(dbSession, ruleDto1, ruleDto2);
 
-    db.activeRuleDao().insert(dbSession,
+    db.deprecatedActiveRuleDao().insert(dbSession,
       ActiveRuleDto.createFor(profileDto1, ruleDto1)
         .setInheritance(ActiveRule.Inheritance.INHERITED.name())
         .setSeverity(Severity.BLOCKER),
@@ -432,7 +435,7 @@ public class ActiveRuleTest {
       profileKeys.add(profileDto.getKey());
       db.qualityProfileDao().insert(dbSession, profileDto);
 
-      db.activeRuleDao().insert(dbSession,
+      db.deprecatedActiveRuleDao().insert(dbSession,
         ActiveRuleDto.createFor(profileDto, ruleDto1)
           .setSeverity(Severity.BLOCKER),
         ActiveRuleDto.createFor(profileDto, ruleDto2)
@@ -454,10 +457,10 @@ public class ActiveRuleTest {
     db.deprecatedRuleDao().insert(dbSession, rule);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
-    db.activeRuleDao().insert(dbSession, activeRule);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
-    assertThat(db.activeRuleDao().selectById(dbSession, activeRule.getId()).getId()).isEqualTo(activeRule.getId());
+    assertThat(db.deprecatedActiveRuleDao().selectById(dbSession, activeRule.getId()).getId()).isEqualTo(activeRule.getId());
   }
 
   @Test
@@ -469,14 +472,14 @@ public class ActiveRuleTest {
     db.deprecatedRuleDao().insert(dbSession, rule);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
-    db.activeRuleDao().insert(dbSession, activeRule);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     // Remove rule -> Active rule is now linked to a not existing rule
     executeSql(String.format("DELETE FROM rules WHERE id=%s", rule.getId()));
     dbSession.commit();
 
-    assertThat(db.activeRuleDao().selectById(dbSession, activeRule.getId())).isNull();
+    assertThat(db.deprecatedActiveRuleDao().selectById(dbSession, activeRule.getId())).isNull();
   }
 
   @Test
@@ -488,14 +491,14 @@ public class ActiveRuleTest {
     db.deprecatedRuleDao().insert(dbSession, rule);
 
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
-    db.activeRuleDao().insert(dbSession, activeRule);
+    db.deprecatedActiveRuleDao().insert(dbSession, activeRule);
     dbSession.commit();
 
     // Remove quality profile -> active rule is now linked to a not existing quality profile
     executeSql(String.format("DELETE FROM rules_profiles WHERE id=%s", profile.getId()));
     dbSession.commit();
 
-    assertThat(db.activeRuleDao().selectById(dbSession, activeRule.getId())).isNull();
+    assertThat(db.deprecatedActiveRuleDao().selectById(dbSession, activeRule.getId())).isNull();
   }
 
   private RuleDto newRuleDto(RuleKey ruleKey) {

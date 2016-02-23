@@ -128,7 +128,7 @@ public class QProfileReset {
     BulkChangeResult result = new BulkChangeResult(profile);
     Set<RuleKey> ruleToBeDeactivated = Sets.newHashSet();
     // Keep reference to all the activated rules before backup restore
-    for (ActiveRuleDto activeRuleDto : db.activeRuleDao().selectByProfileKey(dbSession, profile.getKee())) {
+    for (ActiveRuleDto activeRuleDto : db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, profile.getKee())) {
       if (activeRuleDto.getInheritance() == null) {
         // inherited rules can't be deactivated
         ruleToBeDeactivated.add(activeRuleDto.getKey().ruleKey());

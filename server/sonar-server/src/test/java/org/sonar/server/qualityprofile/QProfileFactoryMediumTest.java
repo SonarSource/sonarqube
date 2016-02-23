@@ -212,8 +212,8 @@ public class QProfileFactoryMediumTest {
 
     dbSession.clearCache();
     assertThat(db.qualityProfileDao().selectAll(dbSession)).isEmpty();
-    assertThat(db.activeRuleDao().selectAll(dbSession)).isEmpty();
-    assertThat(db.activeRuleDao().selectAllParams(dbSession)).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectAll(dbSession)).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectAllParams(dbSession)).isEmpty();
     assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P1_KEY)).isEmpty();
   }
 
@@ -229,14 +229,14 @@ public class QProfileFactoryMediumTest {
     dbSession.commit();
     dbSession.clearCache();
     assertThat(db.qualityProfileDao().selectAll(dbSession)).hasSize(3);
-    assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(3);
+    assertThat(db.deprecatedActiveRuleDao().selectAll(dbSession)).hasSize(3);
 
     factory.delete(XOO_P1_KEY);
 
     dbSession.clearCache();
     assertThat(db.qualityProfileDao().selectAll(dbSession)).isEmpty();
-    assertThat(db.activeRuleDao().selectAll(dbSession)).isEmpty();
-    assertThat(db.activeRuleDao().selectAllParams(dbSession)).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectAll(dbSession)).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectAllParams(dbSession)).isEmpty();
     assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P1_KEY)).isEmpty();
     assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P2_KEY)).isEmpty();
     assertThat(index.get(ActiveRuleIndex.class).findByProfile(XOO_P3_KEY)).isEmpty();

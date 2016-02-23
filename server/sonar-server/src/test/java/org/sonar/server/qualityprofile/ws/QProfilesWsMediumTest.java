@@ -29,9 +29,9 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -89,7 +89,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.DEACTIVATE_ACTION);
@@ -99,7 +99,7 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
   }
 
   @Test
@@ -116,7 +116,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
@@ -125,7 +125,7 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
   }
 
   @Test
@@ -141,7 +141,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
@@ -150,8 +150,8 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
-    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).hasSize(2);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, php.getKey())).hasSize(2);
   }
 
   @Test
@@ -164,7 +164,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(2);
 
     // 1. Deactivate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
@@ -174,7 +174,7 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
   }
 
   @Test
@@ -184,7 +184,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
@@ -194,7 +194,7 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
   }
 
   @Test
@@ -204,7 +204,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     try {
       // 1. Activate Rule
@@ -226,7 +226,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
@@ -239,7 +239,7 @@ public class QProfilesWsMediumTest {
     // 2. Assert ActiveRule in DAO
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), rule.getKey());
 
-    assertThat(db.activeRuleDao().getNullableByKey(session, activeRuleKey).getSeverityString())
+    assertThat(db.deprecatedActiveRuleDao().getNullableByKey(session, activeRuleKey).getSeverityString())
       .isEqualTo("MINOR");
   }
 
@@ -253,7 +253,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
@@ -263,7 +263,7 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(4);
   }
 
   @Test
@@ -277,7 +277,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, php.getKey())).isEmpty();
 
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
@@ -287,7 +287,7 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, php.getKey())).hasSize(2);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, php.getKey())).hasSize(2);
   }
 
   @Test
@@ -300,7 +300,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
 
     // 1. Activate Rule with query returning 0 hits
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
@@ -310,7 +310,7 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
 
     // 1. Activate Rule with query returning 1 hits
     request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
@@ -320,7 +320,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 2. Assert ActiveRule in DAO
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(1);
   }
 
   @Test
@@ -331,8 +331,8 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 0. Assert No Active Rule for profile
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
 
     // 2. Assert ActiveRule with BLOCKER severity
     assertThat(tester.get(RuleIndex.class).search(
@@ -362,12 +362,12 @@ public class QProfilesWsMediumTest {
       .setSeverity(rule.getSeverityString());
     ActiveRuleDto active2 = ActiveRuleDto.createFor(subProfile, rule)
       .setSeverity("MINOR");
-    db.activeRuleDao().insert(session, active1, active2);
+    db.deprecatedActiveRuleDao().insert(session, active1, active2);
 
     session.commit();
 
     // 0. assert rule child rule is minor
-    assertThat(db.activeRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isEqualTo("MINOR");
+    assertThat(db.deprecatedActiveRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isEqualTo("MINOR");
 
     // 1. reset child rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, RuleActivationActions.ACTIVATE_ACTION);
@@ -378,7 +378,7 @@ public class QProfilesWsMediumTest {
     session.clearCache();
 
     // 2. assert rule child rule is NOT minor
-    assertThat(db.activeRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isNotEqualTo("MINOR");
+    assertThat(db.deprecatedActiveRuleDao().getByKey(session, active2.getKey()).getSeverityString()).isNotEqualTo("MINOR");
   }
 
   @Test
@@ -566,7 +566,7 @@ public class QProfilesWsMediumTest {
   private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
-    db.activeRuleDao().insert(session, activeRule);
+    db.deprecatedActiveRuleDao().insert(session, activeRule);
     return activeRule;
   }
 }

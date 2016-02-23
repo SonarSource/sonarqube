@@ -42,11 +42,11 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
@@ -264,10 +264,10 @@ public class RuleActivatorMediumTest {
     activation.setSeverity(Severity.BLOCKER);
     activate(activation, XOO_P1_KEY);
 
-    assertThat(db.activeRuleDao().selectParamByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
-    db.activeRuleDao().deleteParamByKeyAndName(dbSession, activeRuleKey, "max");
+    assertThat(db.deprecatedActiveRuleDao().selectParamByKeyAndName(activeRuleKey, "max", dbSession)).isNotNull();
+    db.deprecatedActiveRuleDao().deleteParamByKeyAndName(dbSession, activeRuleKey, "max");
     dbSession.commit();
-    assertThat(db.activeRuleDao().selectParamByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
+    assertThat(db.deprecatedActiveRuleDao().selectParamByKeyAndName(activeRuleKey, "max", dbSession)).isNull();
     dbSession.clearCache();
 
     // update
@@ -853,7 +853,7 @@ public class RuleActivatorMediumTest {
 
     // 2. assert that all activation has been commit to DB and ES
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
     assertThat(index.findByProfile(XOO_P1_KEY)).hasSize(bulkSize);
     assertThat(result.countSucceeded()).isEqualTo(bulkSize);
     assertThat(result.countFailed()).isEqualTo(0);
@@ -867,7 +867,7 @@ public class RuleActivatorMediumTest {
     // 2. assert that all activations have been commit to DB and ES
     // -> xoo rules x1, x2 and custom1
     dbSession.clearCache();
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
     assertThat(index.findByProfile(XOO_P1_KEY)).hasSize(3);
     assertThat(result.countSucceeded()).isEqualTo(3);
     assertThat(result.countFailed()).isGreaterThan(0);
@@ -1035,7 +1035,7 @@ public class RuleActivatorMediumTest {
   }
 
   private int countActiveRules(String profileKey) {
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, profileKey);
+    List<ActiveRuleDto> activeRuleDtos = db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, profileKey);
     List<ActiveRule> activeRules = Lists.newArrayList(index.findByProfile(profileKey));
     assertThat(activeRuleDtos.size()).as("Not same active rules between db and index").isEqualTo(activeRules.size());
     return activeRuleDtos.size();
@@ -1056,7 +1056,7 @@ public class RuleActivatorMediumTest {
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
     // verify db
     boolean found = false;
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, activeRuleKey.qProfile());
+    List<ActiveRuleDto> activeRuleDtos = db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, activeRuleKey.qProfile());
     for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
       if (activeRuleDto.getKey().equals(activeRuleKey)) {
         found = true;
@@ -1066,10 +1066,10 @@ public class RuleActivatorMediumTest {
         assertThat(activeRuleDto.getCreatedAt()).isNotNull();
         assertThat(activeRuleDto.getUpdatedAt()).isNotNull();
 
-        List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
+        List<ActiveRuleParamDto> paramDtos = db.deprecatedActiveRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
         assertThat(paramDtos).hasSize(expectedParams.size());
         for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
-          ActiveRuleParamDto paramDto = db.activeRuleDao().selectParamByKeyAndName(activeRuleDto.getKey(), entry.getKey(), dbSession);
+          ActiveRuleParamDto paramDto = db.deprecatedActiveRuleDao().selectParamByKeyAndName(activeRuleDto.getKey(), entry.getKey(), dbSession);
           assertThat(paramDto).isNotNull();
           assertThat(paramDto.getValue()).isEqualTo(entry.getValue());
         }
@@ -1117,7 +1117,7 @@ public class RuleActivatorMediumTest {
   private void verifyZeroActiveRules(String key) {
     // verify db
     dbSession.clearCache();
-    List<ActiveRuleDto> activeRuleDtos = db.activeRuleDao().selectByProfileKey(dbSession, key);
+    List<ActiveRuleDto> activeRuleDtos = db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, key);
     assertThat(activeRuleDtos).isEmpty();
 
     // verify es

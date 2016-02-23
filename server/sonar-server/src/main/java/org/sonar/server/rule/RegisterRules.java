@@ -284,7 +284,7 @@ public class RegisterRules implements Startable {
     for (RuleParamDto paramDto : paramDtos) {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
-        dbClient.activeRuleDao().deleteParamsByRuleParam(session, rule, paramDto.getName());
+        dbClient.deprecatedActiveRuleDao().deleteParamsByRuleParam(session, rule, paramDto.getName());
         dbClient.ruleDao().deleteRuleParam(session, paramDto.getId());
       } else {
         if (mergeParam(paramDto, paramDef)) {
@@ -306,9 +306,9 @@ public class RegisterRules implements Startable {
         dbClient.ruleDao().insertRuleParam(session, rule, paramDto);
         if (!StringUtils.isEmpty(param.defaultValue())) {
           // Propagate the default value to existing active rules
-          for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRule(session, rule)) {
+          for (ActiveRuleDto activeRule : dbClient.deprecatedActiveRuleDao().selectByRule(session, rule)) {
             ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
-            dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
+            dbClient.deprecatedActiveRuleDao().insertParam(session, activeRule, activeParam);
           }
         }
       }
