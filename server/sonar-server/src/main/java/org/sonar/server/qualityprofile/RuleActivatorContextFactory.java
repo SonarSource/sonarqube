@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Optional;
 import java.util.Collection;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
@@ -86,16 +87,16 @@ public class RuleActivatorContextFactory {
 
   private void initActiveRules(String profileKey, RuleKey ruleKey, RuleActivatorContext context, DbSession session, boolean parent) {
     ActiveRuleKey key = ActiveRuleKey.of(profileKey, ruleKey);
-    ActiveRuleDto activeRule = db.deprecatedActiveRuleDao().getNullableByKey(session, key);
+    Optional<ActiveRuleDto> activeRule = db.activeRuleDao().selectByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
-    if (activeRule != null) {
-      activeRuleParams = db.deprecatedActiveRuleDao().selectParamsByActiveRuleKey(session, key);
+    if (activeRule.isPresent()) {
+      activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleKey(session, key);
     }
     if (parent) {
-      context.setParentActiveRule(activeRule);
+      context.setParentActiveRule(activeRule.orNull());
       context.setParentActiveRuleParams(activeRuleParams);
     } else {
-      context.setActiveRule(activeRule);
+      context.setActiveRule(activeRule.orNull());
       context.setActiveRuleParams(activeRuleParams);
     }
   }

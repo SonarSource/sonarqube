@@ -158,7 +158,7 @@ public class ActiveRuleIndexerTest {
     dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), profile);
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity(Severity.BLOCKER)
       .setCreatedAtInMs(yesterday).setUpdatedAtInMs(yesterday);
-//    dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule);
+    dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule);
     dbTester.getSession().commit();
 
     indexer.index();
@@ -170,7 +170,7 @@ public class ActiveRuleIndexerTest {
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), rule2);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profile, rule2).setSeverity(Severity.CRITICAL)
       .setCreatedAtInMs(now).setUpdatedAtInMs(now);
-//    dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule2);
+    dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule2);
     dbTester.getSession().commit();
 
     indexer.index(singletonList(ActiveRuleChange.createFor(ACTIVATED, activeRule2.getKey())));

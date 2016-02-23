@@ -24,30 +24,28 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.profiles.ProfileDefinition;
-import org.sonar.api.profiles.RulesProfile;
-import org.sonar.api.resources.Languages;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.ActiveRuleParam;
-import org.sonar.api.utils.ValidationMessages;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-import org.sonar.api.utils.log.Profiler;
-import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.db.DbClient;
-import org.sonar.server.platform.PersistentSettings;
-
-import javax.annotation.Nullable;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.profiles.ProfileDefinition;
+import org.sonar.api.profiles.RulesProfile;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.ActiveRuleParam;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.ValidationMessages;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
+import org.sonar.api.utils.log.Profiler;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 /**
  * Synchronize Quality profiles during server startup
@@ -64,24 +62,26 @@ public class RegisterQualityProfiles {
   private final QProfileFactory profileFactory;
   private final RuleActivator ruleActivator;
   private final Languages languages;
+  private final ActiveRuleIndexer activeRuleIndexer;
 
   /**
    * To be kept when no ProfileDefinition are injected
    */
-  public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
-    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages) {
-    this(settings, builtInProfiles, dbClient, profileFactory, ruleActivator, Collections.<ProfileDefinition>emptyList(), languages);
+  public RegisterQualityProfiles(BuiltInProfiles builtInProfiles,
+    DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator, Languages languages, ActiveRuleIndexer activeRuleIndexer) {
+    this(builtInProfiles, dbClient, profileFactory, ruleActivator, Collections.<ProfileDefinition>emptyList(), languages, activeRuleIndexer);
   }
 
-  public RegisterQualityProfiles(PersistentSettings settings, BuiltInProfiles builtInProfiles,
+  public RegisterQualityProfiles(BuiltInProfiles builtInProfiles,
     DbClient dbClient, QProfileFactory profileFactory, RuleActivator ruleActivator,
-    List<ProfileDefinition> definitions, Languages languages) {
+    List<ProfileDefinition> definitions, Languages languages, ActiveRuleIndexer activeRuleIndexer) {
     this.builtInProfiles = builtInProfiles;
     this.dbClient = dbClient;
     this.profileFactory = profileFactory;
     this.ruleActivator = ruleActivator;
     this.definitions = definitions;
     this.languages = languages;
+    this.activeRuleIndexer = activeRuleIndexer;
   }
 
   public void start() {
@@ -95,6 +95,7 @@ public class RegisterQualityProfiles {
           registerProfilesForLanguage(session, language, defs);
         }
       }
+      activeRuleIndexer.setEnabled(true).index();
       profiler.stopDebug();
 
     } finally {

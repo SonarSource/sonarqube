@@ -19,14 +19,16 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -34,23 +36,20 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.MessageException;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
@@ -58,16 +57,15 @@ import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
-// TODO tests should be moved to RegisterRulesTest
+// TODO remaining tests should be moved to RegisterRulesTest
 public class RegisterRulesMediumTest {
 
   static final XooRulesDefinition RULE_DEFS = new XooRulesDefinition();
 
   @ClassRule
   public static final ServerTester TESTER = new ServerTester().addXoo().addComponents(RULE_DEFS);
-  public static final RuleKey X1_KEY = RuleKey.of("xoo", "x1");
+
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(TESTER);
 
@@ -75,8 +73,6 @@ public class RegisterRulesMediumTest {
   DbSession dbSession = TESTER.get(DbClient.class).openSession(false);
 
   RuleIndex2 ruleIndex = TESTER.get(RuleIndex2.class);
-  ActiveRuleIndex activeRuleIndex = TESTER.get(ActiveRuleIndex.class);
-
   RuleDao ruleDao = db.ruleDao();
 
   @Before
@@ -102,36 +98,6 @@ public class RegisterRulesMediumTest {
     dbSession = TESTER.get(DbClient.class).openSession(false);
     dbSession.clearCache();
     ruleIndex = TESTER.get(RuleIndex2.class);
-  }
-
-  /**
-   * Use-case:
-   * 1. start server
-   * 2. stop server
-   * 3. drop elasticsearch index: rm -rf data/es
-   * 4. start server -> db is up-to-date (no changes) but rules must be re-indexed
-   */
-  @Test
-  @Ignore
-  public void index_rules_even_if_no_changes() {
-    Rules rules = new Rules() {
-      @Override
-      public void init(RulesDefinition.NewRepository repository) {
-        repository.createRule("x1")
-          .setName("x1 name")
-          .setHtmlDescription("x1 desc");
-      }
-    };
-    register(rules);
-
-    // clear ES but keep db
-    TESTER.clearIndexes();
-    register(rules);
-
-    // verify that rules are indexed
-    SearchIdResult<RuleKey> searchResult = ruleIndex.search(new RuleQuery().setKey("xoo:x1"), new SearchOptions());
-    assertThat(searchResult.getTotal()).isEqualTo(1);
-    assertThat(searchResult.getIds()).containsOnly(RuleKey.of("xoo", "x1"));
   }
 
   @Test
@@ -160,7 +126,7 @@ public class RegisterRulesMediumTest {
     });
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X2.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
-    assertThat(activeRuleIndex.findByProfile(QProfileTesting.XOO_P1_KEY)).hasSize(0);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
   }
 
   @Test
@@ -183,13 +149,16 @@ public class RegisterRulesMediumTest {
 
     // Restart without xoo
     register(null);
+    dbSession.commit();
+    dbSession.clearCache();
+
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
-    assertThat(activeRuleIndex.findByProfile(QProfileTesting.XOO_P1_KEY)).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
 
     // Re-install
     register(rules);
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
-    assertThat(activeRuleIndex.findByProfile(QProfileTesting.XOO_P1_KEY)).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
   }
 
   @Test
@@ -225,15 +194,16 @@ public class RegisterRulesMediumTest {
       }
     });
 
-    ActiveRule activeRule = activeRuleIndex.getByKey(ActiveRuleKey.of(QProfileTesting.XOO_P1_KEY, RuleTesting.XOO_X1));
-    Map<String, String> params = activeRule.params();
+    List<ActiveRuleParamDto> params = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, ActiveRuleKey.of(QProfileTesting.XOO_P1_KEY, RuleTesting.XOO_X1));
     assertThat(params).hasSize(2);
 
+    Map<String, ActiveRuleParamDto> parmsByKey = FluentIterable.from(params).uniqueIndex(ActiveRuleParamToKey.INSTANCE);
+
     // do not change default value on existing active rules -> keep min=5
-    assertThat(params.get("min")).isEqualTo("5");
+    assertThat(parmsByKey.get("min").getValue()).isEqualTo("5");
 
     // new param with default value
-    assertThat(params.get("max")).isEqualTo("10");
+    assertThat(parmsByKey.get("max").getValue()).isEqualTo("10");
   }
 
   @Test
@@ -483,6 +453,15 @@ public class RegisterRulesMediumTest {
         rules.init(repository);
         repository.done();
       }
+    }
+  }
+
+  private enum ActiveRuleParamToKey implements Function<ActiveRuleParamDto, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull ActiveRuleParamDto input) {
+      return input.getKey();
     }
   }
 

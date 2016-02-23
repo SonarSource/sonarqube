@@ -35,16 +35,13 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -68,7 +65,7 @@ public class RegisterRulesTest {
   static final RuleKey RULE_KEY2 = RuleKey.of("fake", "rule2");
   static final RuleKey RULE_KEY3 = RuleKey.of("fake", "rule3");
 
-  System2 system;
+  System2 system = mock(System2.class);;
 
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
@@ -78,7 +75,7 @@ public class RegisterRulesTest {
 
   RuleActivator ruleActivator = mock(RuleActivator.class);
 
-  DbClient dbClient;
+  DbClient dbClient = dbTester.getDbClient();
 
   RuleIndexer ruleIndexer;
 
@@ -87,12 +84,7 @@ public class RegisterRulesTest {
   @Before
   public void before() {
     esTester.truncateIndices();
-    system = mock(System2.class);
     when(system.now()).thenReturn(DATE1.getTime());
-    RuleDao ruleDao = new RuleDao(system);
-    ActiveRuleDao activeRuleDao = new ActiveRuleDao(new QualityProfileDao(dbTester.myBatis(), system), ruleDao, system);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), ruleDao, activeRuleDao, new org.sonar.db.rule.RuleDao(),
-      new QualityProfileDao(dbTester.myBatis(), system));
     ruleIndexer = new RuleIndexer(dbClient, esTester.client());
     ruleIndexer.setEnabled(true);
     ruleIndex = new RuleIndex2(esTester.client());

@@ -230,9 +230,9 @@ public class RuleUpdater {
       // Load active rules and its parameters in cache
       Multimap<RuleDto, ActiveRuleDto> activeRules = ArrayListMultimap.create();
       Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams = ArrayListMultimap.create();
-      for (ActiveRuleDto activeRuleDto : dbClient.deprecatedActiveRuleDao().selectByRule(dbSession, customRule)) {
+      for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().selectByRule(dbSession, customRule)) {
         activeRules.put(customRule, activeRuleDto);
-        for (ActiveRuleParamDto activeRuleParamDto : dbClient.deprecatedActiveRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey())) {
+        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey())) {
           activeRuleParams.put(activeRuleDto, activeRuleParamDto);
         }
       }
@@ -257,9 +257,9 @@ public class RuleUpdater {
         for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
           for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
             if (activeRuleParamDto.getKey().equals(key)) {
-              dbClient.deprecatedActiveRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(value));
+              dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(value));
             } else {
-              dbClient.deprecatedActiveRuleDao().insertParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(ruleParamDto).setValue(value));
+              dbClient.activeRuleDao().insertParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(ruleParamDto).setValue(value));
             }
           }
         }
@@ -268,7 +268,7 @@ public class RuleUpdater {
         for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
           for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
             if (activeRuleParamDto.getKey().equals(key)) {
-              dbClient.deprecatedActiveRuleDao().deleteParam(dbSession, activeRuleDto, activeRuleParamDto);
+              dbClient.activeRuleDao().deleteParam(dbSession, activeRuleDto, activeRuleParamDto);
             }
           }
         }

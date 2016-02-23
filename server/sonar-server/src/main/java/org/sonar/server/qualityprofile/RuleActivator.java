@@ -29,7 +29,10 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -37,9 +40,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
@@ -58,6 +59,7 @@ import static com.google.common.collect.Lists.newArrayList;
 @ServerSide
 public class RuleActivator {
 
+  private final System2 system2;
   private final DbClient db;
   private final TypeValidations typeValidations;
   private final RuleActivatorContextFactory contextFactory;
@@ -65,9 +67,10 @@ public class RuleActivator {
   private final ActivityService activityService;
   private final UserSession userSession;
 
-  public RuleActivator(DbClient db, IndexClient index,
+  public RuleActivator(System2 system2, DbClient db, IndexClient index,
     RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
     ActivityService activityService, UserSession userSession) {
+    this.system2 = system2;
     this.db = db;
     this.index = index;
     this.contextFactory = contextFactory;
@@ -233,21 +236,21 @@ public class RuleActivator {
     ActiveRuleDto activeRule = null;
     if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
       activeRule = doInsert(change, context, dbSession);
-
     } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
-      ActiveRuleDao dao = db.deprecatedActiveRuleDao();
-      dao.deleteByKey(dbSession, change.getKey());
+      ActiveRuleDao dao = db.activeRuleDao();
+      dao.delete(dbSession, change.getKey());
 
     } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
       activeRule = doUpdate(change, context, dbSession);
     }
+
     activityService.save(change.toActivity());
     return activeRule;
   }
 
   private ActiveRuleDto doInsert(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
     ActiveRuleDto activeRule;
-    ActiveRuleDao dao = db.deprecatedActiveRuleDao();
+    ActiveRuleDao dao = db.activeRuleDao();
     activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
     String severity = change.getSeverity();
     if (severity != null) {
@@ -257,6 +260,8 @@ public class RuleActivator {
     if (inheritance != null) {
       activeRule.setInheritance(inheritance.name());
     }
+    activeRule.setUpdatedAtInMs(system2.now());
+    activeRule.setCreatedAtInMs(system2.now());
     dao.insert(dbSession, activeRule);
     for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
       if (param.getValue() != null) {
@@ -269,7 +274,7 @@ public class RuleActivator {
   }
 
   private ActiveRuleDto doUpdate(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
-    ActiveRuleDao dao = db.deprecatedActiveRuleDao();
+    ActiveRuleDao dao = db.activeRuleDao();
     ActiveRuleDto activeRule = context.activeRule();
     if (activeRule != null) {
       String severity = change.getSeverity();
@@ -280,6 +285,7 @@ public class RuleActivator {
       if (inheritance != null) {
         activeRule.setInheritance(inheritance.name());
       }
+      activeRule.setUpdatedAtInMs(system2.now());
       dao.update(dbSession, activeRule);
 
       for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
@@ -331,7 +337,7 @@ public class RuleActivator {
    */
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
-    List<ActiveRuleDto> activeRules = db.deprecatedActiveRuleDao().selectByRule(dbSession, ruleDto);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRule(dbSession, ruleDto);
     for (ActiveRuleDto activeRule : activeRules) {
       changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
     }
@@ -478,7 +484,7 @@ public class RuleActivator {
       // set new parent
       profile.setParentKee(parentKey);
       db.qualityProfileDao().update(dbSession, profile);
-      for (ActiveRuleDto parentActiveRule : db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, parentKey)) {
+      for (ActiveRuleDto parentActiveRule : db.activeRuleDao().selectByProfileKey(dbSession, parentKey)) {
         try {
           RuleActivation activation = new RuleActivation(parentActiveRule.getKey().ruleKey());
           activate(dbSession, activation, profileKey);
@@ -497,12 +503,13 @@ public class RuleActivator {
     if (profileDto.getParentKee() != null) {
       profileDto.setParentKee(null);
       db.qualityProfileDao().update(dbSession, profileDto);
-      for (ActiveRuleDto activeRule : db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, profileDto.getKey())) {
+      for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())) {
         if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
           deactivate(dbSession, activeRule.getKey(), true);
         } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
           activeRule.setInheritance(null);
-          db.deprecatedActiveRuleDao().update(dbSession, activeRule);
+          activeRule.setUpdatedAtInMs(system2.now());
+          db.activeRuleDao().update(dbSession, activeRule);
         }
       }
     }

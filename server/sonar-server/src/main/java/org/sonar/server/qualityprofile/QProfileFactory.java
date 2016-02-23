@@ -116,7 +116,7 @@ public class QProfileFactory {
 
   private void doDelete(DbSession session, QualityProfileDto profile) {
     db.qualityProfileDao().deleteAllProjectProfileAssociation(profile.getKey(), session);
-    db.deprecatedActiveRuleDao().deleteByProfileKey(session, profile.getKey());
+    db.activeRuleDao().deleteByProfileKey(session, profile.getKey());
     db.qualityProfileDao().delete(session, profile);
   }
 
