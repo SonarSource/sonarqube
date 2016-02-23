@@ -20,16 +20,26 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.base.Preconditions;
+import com.google.common.collect.Maps;
+import java.util.Collections;
+import java.util.Date;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 
-import javax.annotation.CheckForNull;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PARENT_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT;
 
 public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
 
@@ -37,33 +47,38 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
 
   public ActiveRuleDoc(Map<String, Object> fields) {
     super(fields);
-    this.key = ActiveRuleKey.parse((String) getField(ActiveRuleNormalizer.ActiveRuleField.KEY.field()));
-    Preconditions.checkArgument(key!=null, "Invalid ActiveRuleKey!");
+    this.key = ActiveRuleKey.parse((String) getField(FIELD_ACTIVE_RULE_KEY));
+    Preconditions.checkArgument(key != null, "ActiveRuleKey cannot be null");
   }
 
-  @Override
-  public Date createdAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(ActiveRuleNormalizer.ActiveRuleField.CREATED_AT.field()));
-  }
-
-  @Override
-  public Date updatedAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(ActiveRuleNormalizer.ActiveRuleField.UPDATED_AT.field()));
+  public ActiveRuleDoc(ActiveRuleKey key) {
+    super(Maps.<String, Object>newHashMapWithExpectedSize(8));
+    Preconditions.checkNotNull(key, "ActiveRuleKey cannot be null");
+    this.key = key;
+    setField(FIELD_ACTIVE_RULE_KEY, key.toString());
+    setField(FIELD_ACTIVE_RULE_PROFILE_KEY, key.qProfile());
+    setField(FIELD_ACTIVE_RULE_RULE_KEY, key.ruleKey().toString());
+    setField(FIELD_ACTIVE_RULE_REPOSITORY, key.ruleKey().repository());
   }
 
   @Override
   public ActiveRuleKey key() {
-    return this.key;
+    return key;
   }
 
   @Override
   public String severity() {
-    return (String) getNullableField(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field());
+    return (String) getNullableField(FIELD_ACTIVE_RULE_SEVERITY);
+  }
+
+  public ActiveRuleDoc setSeverity(@Nullable String s) {
+    setField(FIELD_ACTIVE_RULE_SEVERITY, s);
+    return this;
   }
 
   @Override
   public ActiveRule.Inheritance inheritance() {
-    String inheritance = getNullableField(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field());
+    String inheritance = getNullableField(FIELD_ACTIVE_RULE_INHERITANCE);
     if (inheritance == null || inheritance.isEmpty() ||
       inheritance.toLowerCase().contains("none")) {
       return Inheritance.NONE;
@@ -76,26 +91,61 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
     }
   }
 
+  public ActiveRuleDoc setInheritance(@Nullable String s) {
+    setField(FIELD_ACTIVE_RULE_INHERITANCE, s);
+    return this;
+  }
+
   @Override
   @CheckForNull
   public ActiveRuleKey parentKey() {
-    String data = getNullableField(ActiveRuleNormalizer.ActiveRuleField.PARENT_KEY.field());
+    String data = getNullableField(FIELD_ACTIVE_RULE_PARENT_KEY);
     if (data != null && !data.isEmpty()) {
       return ActiveRuleKey.parse(data);
     }
     return null;
   }
 
+  public ActiveRuleDoc setParentKey(@Nullable String s) {
+    setField(FIELD_ACTIVE_RULE_PARENT_KEY, s);
+    return this;
+  }
+
   @Override
+  @Deprecated
   public Map<String, String> params() {
-    Map<String, String> params = new HashMap<>();
-    List<Map<String, String>> allParams = getNullableField(ActiveRuleNormalizer.ActiveRuleField.PARAMS.field());
-    if (allParams != null) {
-      for (Map<String, String> param : allParams) {
-        params.put(param.get(ActiveRuleNormalizer.ActiveRuleParamField.NAME.field()),
-          param.get(ActiveRuleNormalizer.ActiveRuleParamField.VALUE.field()));
-      }
-    }
-    return params;
+    return Collections.emptyMap();
+  }
+
+  @Override
+  @Deprecated
+  public Date createdAt() {
+    return IndexUtils.parseDateTime((String) getNullableField(FIELD_ACTIVE_RULE_CREATED_AT));
+  }
+
+  @CheckForNull
+  public Long createdAtAsLong() {
+    return (Long) getField(FIELD_ACTIVE_RULE_CREATED_AT);
+  }
+
+  public ActiveRuleDoc setCreatedAt(@Nullable Long l) {
+    setField(FIELD_ACTIVE_RULE_CREATED_AT, l);
+    return this;
+  }
+
+  @Override
+  @Deprecated
+  public Date updatedAt() {
+    return IndexUtils.parseDateTime((String) getNullableField(FIELD_ACTIVE_RULE_UPDATED_AT));
+  }
+
+  @CheckForNull
+  public Long updatedAtAsLong() {
+    return (Long) getField(FIELD_ACTIVE_RULE_UPDATED_AT);
+  }
+
+  public ActiveRuleDoc setUpdatedAt(@Nullable Long l) {
+    setField(FIELD_ACTIVE_RULE_UPDATED_AT, l);
+    return this;
   }
 }

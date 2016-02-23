@@ -44,6 +44,7 @@ import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.ruby.PlatformRackBridge;
 import org.sonar.server.rule.db.RuleDao;
@@ -110,6 +111,7 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // rules/qprofiles
       RuleIndex2.class,
+      ActiveRuleIndex2.class,
       RuleNormalizer.class,
       ActiveRuleNormalizer.class,
       RuleIndex.class,

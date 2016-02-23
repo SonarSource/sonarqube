@@ -17,35 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.qualityprofile;
+package org.sonar.db.qualityprofile;
 
-import com.google.common.collect.ImmutableList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import javax.annotation.CheckForNull;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
-
-public interface ActiveRule {
-
-  enum Inheritance {
-    NONE, OVERRIDES, INHERITED;
-    public static final List<Inheritance> ALL = ImmutableList.of(NONE, OVERRIDES, INHERITED);
-  }
-
-  Date createdAt();
-
-  Date updatedAt();
-
-  ActiveRuleKey key();
-
-  String severity();
-
-  Inheritance inheritance();
-
-  @CheckForNull
-  ActiveRuleKey parentKey();
-
-  Map<String, String> params();
+// TODO
+public class ActiveRuleDaoTest {
 
 }

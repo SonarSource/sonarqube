@@ -222,7 +222,7 @@ public class EsTester extends ExternalResource {
     }));
   }
 
-  public List<String> getIds(String indexName, String typeName){
+  public List<String> getIds(String indexName, String typeName) {
     return FluentIterable.from(getDocuments(indexName, typeName)).transform(SearchHitToId.INSTANCE).toList();
   }
 
@@ -234,7 +234,7 @@ public class EsTester extends ExternalResource {
     return client;
   }
 
-  private enum SearchHitToId implements Function<SearchHit, String>{
+  private enum SearchHitToId implements Function<SearchHit, String> {
     INSTANCE;
 
     @Override

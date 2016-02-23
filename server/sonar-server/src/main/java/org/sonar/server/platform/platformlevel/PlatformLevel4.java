@@ -223,6 +223,7 @@ import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.BackupAction;
 import org.sonar.server.qualityprofile.ws.BulkRuleActivationActions;
 import org.sonar.server.qualityprofile.ws.ChangeParentAction;
@@ -387,6 +388,7 @@ public class PlatformLevel4 extends PlatformLevel {
       UpdateCenterWs.class,
 
       // quality profile
+      ActiveRuleIndexer.class,
       XMLProfileParser.class,
       XMLProfileSerializer.class,
       AnnotationProfileParser.class,

@@ -21,26 +21,24 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import org.sonar.api.server.ServerSide;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ServerSide;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.IndexClient;
 import org.sonar.server.search.QueryContext;
-
-import javax.annotation.CheckForNull;
-
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.sonar.server.user.UserSession;
 
 @ServerSide
@@ -102,20 +100,12 @@ public class QProfileLoader {
     return index.get(ActiveRuleIndex.class).findByProfile(key);
   }
 
-  public long countActiveRulesByProfile(String key) {
-    return index.get(ActiveRuleIndex.class).countByQualityProfileKey(key);
-  }
-
   public Map<String, Long> countAllActiveRules() {
     Map<String, Long> counts = new HashMap<>();
     for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class).countAllByQualityProfileKey().entrySet()) {
       counts.put(entry.getKey(), entry.getValue());
     }
     return counts;
-  }
-
-  public Multimap<String, FacetValue> getStatsByProfile(String key) {
-    return index.get(ActiveRuleIndex.class).getStatsByProfileKey(key);
   }
 
   public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {

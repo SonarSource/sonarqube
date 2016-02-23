@@ -19,17 +19,12 @@
  */
 package org.sonar.server.search;
 
-import java.util.Date;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.DbSession;
 import org.sonar.server.activity.index.ActivityIndexer;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.db.DeprecatedDao;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.view.index.ViewIndexer;
@@ -38,8 +33,6 @@ public class IndexSynchronizer {
 
   private static final Logger LOG = Loggers.get(IndexSynchronizer.class);
 
-  private final DbClient db;
-  private final IndexClient index;
   private final TestIndexer testIndexer;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
   private final IssueIndexer issueIndexer;
@@ -53,12 +46,9 @@ public class IndexSynchronizer {
    * because we need {@link org.sonar.server.issue.index.IssueAuthorizationIndexer} to be executed before
    * {@link org.sonar.server.issue.index.IssueIndexer}
    */
-  public IndexSynchronizer(DbClient db, IndexClient index,
-    TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+  public IndexSynchronizer(TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
     UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer,
     Settings settings) {
-    this.db = db;
-    this.index = index;
     this.testIndexer = testIndexer;
     this.issueAuthorizationIndexer = issueAuthorizationIndexer;
     this.issueIndexer = issueIndexer;
@@ -66,17 +56,6 @@ public class IndexSynchronizer {
     this.viewIndexer = viewIndexer;
     this.activityIndexer = activityIndexer;
     this.settings = settings;
-  }
-
-  public void executeDeprecated() {
-    DbSession session = db.openSession(false);
-    try {
-      // synchronize(session, db.deprecatedRuleDao(), index.get(RuleIndex.class));
-      synchronize(session, db.activeRuleDao(), index.get(ActiveRuleIndex.class));
-      session.commit();
-    } finally {
-      session.close();
-    }
   }
 
   public void execute() {
@@ -99,14 +78,4 @@ public class IndexSynchronizer {
     }
   }
 
-  void synchronize(DbSession session, DeprecatedDao dao, Index index) {
-    long count = index.getIndexStat().getDocumentCount();
-    Date lastSynch = index.getLastSynchronization();
-    LOG.info("Index {}s", index.getIndexType());
-    if (count <= 0) {
-      dao.synchronizeAfter(session);
-    } else {
-      dao.synchronizeAfter(session, lastSynch);
-    }
-  }
 }
