@@ -44,6 +44,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.db.DbClient;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -133,7 +134,7 @@ public class QProfileBackuperMediumTest {
     QualityProfileDto profile = db.qualityProfileDao().selectByNameAndLanguage("P1", "xoo", dbSession);
     assertThat(profile).isNotNull();
 
-    List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(profile.getKey()));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(profile.getKey()));
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
@@ -160,7 +161,7 @@ public class QProfileBackuperMediumTest {
     tester.get(QProfileBackuper.class).restore(new StringReader(
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)), null);
 
-    List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
@@ -188,7 +189,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-child.xml"), StandardCharsets.UTF_8)), null);
 
     // parent profile is unchanged
-    List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("INFO");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
@@ -223,7 +224,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore-parent.xml"), StandardCharsets.UTF_8)), null);
 
     // parent profile is updated
-    List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(1);
     assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
@@ -258,7 +259,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/keep_other_inherited_rules.xml"), StandardCharsets.UTF_8)), QProfileTesting.XOO_P2_NAME);
 
     // x1 and x2
-    List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P2_KEY));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P2_KEY));
     assertThat(activeRules).hasSize(2);
   }
 
@@ -302,7 +303,7 @@ public class QProfileBackuperMediumTest {
       Resources.toString(getClass().getResource("QProfileBackuperMediumTest/restore.xml"), StandardCharsets.UTF_8)),
       QProfileTesting.XOO_P3_NAME);
 
-    List<ActiveRule> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(0);
 
     QualityProfileDto target = db.qualityProfileDao().selectByNameAndLanguage("P3", "xoo", dbSession);

@@ -20,6 +20,10 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -40,12 +44,8 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.tester.ServerTester;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.List;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -138,7 +138,7 @@ public class QProfileExportersTest {
     exporters.importXml(profileDto, "XooProfileImporter", "<xml/>", dbSession);
     dbSession.commit();
 
-    List<ActiveRule> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profileDto.getKey()));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profileDto.getKey()));
     assertThat(activeRules).hasSize(1);
     ActiveRule activeRule = activeRules.get(0);
     assertThat(activeRule.key().ruleKey()).isEqualTo(RuleKey.of("xoo", "R1"));

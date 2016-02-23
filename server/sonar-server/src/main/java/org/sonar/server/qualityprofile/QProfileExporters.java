@@ -45,6 +45,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 
 @ServerSide
 public class QProfileExporters {
@@ -119,7 +120,7 @@ public class QProfileExporters {
 
   private RulesProfile wrap(QualityProfileDto profile) {
     RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
-    for (Iterator<ActiveRule> activeRuleIterator = loader.findActiveRulesByProfile(profile.getKey()); activeRuleIterator.hasNext();) {
+    for (Iterator<ActiveRuleDoc> activeRuleIterator = loader.findActiveRulesByProfile(profile.getKey()); activeRuleIterator.hasNext();) {
       ActiveRule activeRule = activeRuleIterator.next();
       Rule rule = ruleFinder.findByKey(activeRule.key().ruleKey());
       org.sonar.api.rules.ActiveRule wrappedActiveRule = target.activateRule(rule, RulePriority.valueOf(activeRule.severity()));

@@ -23,16 +23,16 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.db.DbClient;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.Set;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
+import org.sonar.core.util.NonNullInputFunction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 
 @ServerSide
 public class QProfileComparison {
@@ -66,8 +66,8 @@ public class QProfileComparison {
     result.right = dbClient.qualityProfileDao().selectByKey(session, rightKey);
     Preconditions.checkArgument(result.right != null, String.format("Could not find right profile '%s'", leftKey));
 
-    Map<RuleKey, ActiveRule> leftActiveRulesByRuleKey = loadActiveRules(leftKey);
-    Map<RuleKey, ActiveRule> rightActiveRulesByRuleKey = loadActiveRules(rightKey);
+    Map<RuleKey, ActiveRuleDoc> leftActiveRulesByRuleKey = loadActiveRules(leftKey);
+    Map<RuleKey, ActiveRuleDoc> rightActiveRulesByRuleKey = loadActiveRules(rightKey);
 
     Set<RuleKey> allRules = Sets.newHashSet();
     allRules.addAll(leftActiveRulesByRuleKey.keySet());
@@ -99,10 +99,10 @@ public class QProfileComparison {
     }
   }
 
-  private Map<RuleKey, ActiveRule> loadActiveRules(String profileKey) {
-    return Maps.uniqueIndex(profileLoader.findActiveRulesByProfile(profileKey), new NonNullInputFunction<ActiveRule, RuleKey>() {
+  private Map<RuleKey, ActiveRuleDoc> loadActiveRules(String profileKey) {
+    return Maps.uniqueIndex(profileLoader.findActiveRulesByProfile(profileKey), new NonNullInputFunction<ActiveRuleDoc, RuleKey>() {
       @Override
-      protected RuleKey doApply(ActiveRule input) {
+      protected RuleKey doApply(ActiveRuleDoc input) {
         return input.key().ruleKey();
       }
     });
