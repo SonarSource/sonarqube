@@ -45,13 +45,14 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -123,7 +124,7 @@ public class QProfileServiceMediumTest {
     assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
     assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
 
-    List<ActiveRule> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profile.getKey()));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profile.getKey()));
     assertThat(activeRules).hasSize(1);
   }
 

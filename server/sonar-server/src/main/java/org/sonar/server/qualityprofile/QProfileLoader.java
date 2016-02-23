@@ -33,25 +33,24 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.es.SearchOptions;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.user.UserSession;
 
 @ServerSide
 public class QProfileLoader {
 
   private final DbClient dbClient;
-  private final IndexClient index;
-  private final UserSession userSession;
+  private final ActiveRuleIndex2 activeRuleIndex;
+  private final RuleIndex2 ruleIndex;
 
-  public QProfileLoader(DbClient dbClient, IndexClient index, UserSession userSession) {
+  public QProfileLoader(DbClient dbClient, ActiveRuleIndex2 activeRuleIndex, RuleIndex2 ruleIndex) {
     this.dbClient = dbClient;
-    this.index = index;
-    this.userSession = userSession;
+    this.activeRuleIndex = activeRuleIndex;
+    this.ruleIndex = ruleIndex;
   }
 
   /**
@@ -89,20 +88,20 @@ public class QProfileLoader {
 
   @CheckForNull
   public ActiveRule getActiveRule(ActiveRuleKey key) {
-    return index.get(ActiveRuleIndex.class).getNullableByKey(key);
+    return activeRuleIndex.getNullableByKey(key);
   }
 
   public List<ActiveRule> findActiveRulesByRule(RuleKey key) {
-    return index.get(ActiveRuleIndex.class).findByRule(key);
+    return activeRuleIndex.findByRule(key);
   }
 
-  public Iterator<ActiveRule> findActiveRulesByProfile(String key) {
-    return index.get(ActiveRuleIndex.class).findByProfile(key);
+  public Iterator<ActiveRuleDoc> findActiveRulesByProfile(String key) {
+    return activeRuleIndex.findByProfile(key);
   }
 
   public Map<String, Long> countAllActiveRules() {
     Map<String, Long> counts = new HashMap<>();
-    for (Map.Entry<String, Long> entry : index.get(ActiveRuleIndex.class).countAllByQualityProfileKey().entrySet()) {
+    for (Map.Entry<String, Long> entry : activeRuleIndex.countAllByQualityProfileKey().entrySet()) {
       counts.put(entry.getKey(), entry.getValue());
     }
     return counts;
@@ -113,16 +112,16 @@ public class QProfileLoader {
     for (QualityProfileDto profile : this.findAll()) {
       keys.add(profile.getKey());
     }
-    return index.get(ActiveRuleIndex.class).getStatsByProfileKeys(keys);
+    return activeRuleIndex.getStatsByProfileKeys(keys);
   }
 
   public long countDeprecatedActiveRulesByProfile(String key) {
-    return index.get(RuleIndex.class).search(
+    return ruleIndex.search(
       new RuleQuery()
         .setQProfileKey(key)
         .setActivation(true)
         .setStatuses(Lists.newArrayList(RuleStatus.DEPRECATED)),
-      new QueryContext(userSession).setLimit(0)).getTotal();
+      new SearchOptions().setLimit(0)).getTotal();
   }
 
 }
