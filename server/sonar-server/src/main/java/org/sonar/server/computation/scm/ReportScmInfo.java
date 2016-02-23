@@ -74,6 +74,7 @@ class ReportScmInfo implements ScmInfo {
   private static class LineIndexToChangeset implements Function<Integer, Changeset> {
     private final BatchReport.Changesets changesets;
     private final Map<Integer, Changeset> changesetCache;
+    private final Changeset.Builder builder = Changeset.newChangesetBuilder();
 
     public LineIndexToChangeset(BatchReport.Changesets changesets) {
       this.changesets = changesets;
@@ -93,10 +94,10 @@ class ReportScmInfo implements ScmInfo {
       return res;
     }
 
-    private static Changeset convert(BatchReport.Changesets.Changeset changeset, int line) {
+    private Changeset convert(BatchReport.Changesets.Changeset changeset, int line) {
       checkState(changeset.hasRevision(), "Changeset on line %s must have a revision", line);
       checkState(changeset.hasDate(), "Changeset on line %s must have a date", line);
-      return Changeset.newChangesetBuilder()
+      return builder
         .setRevision(changeset.getRevision())
         .setAuthor(changeset.hasAuthor() ? changeset.getAuthor() : null)
         .setDate(changeset.getDate())
