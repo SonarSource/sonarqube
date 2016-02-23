@@ -235,7 +235,7 @@ public class RuleActivator {
       activeRule = doInsert(change, context, dbSession);
 
     } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
-      ActiveRuleDao dao = db.activeRuleDao();
+      ActiveRuleDao dao = db.deprecatedActiveRuleDao();
       dao.deleteByKey(dbSession, change.getKey());
 
     } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
@@ -247,7 +247,7 @@ public class RuleActivator {
 
   private ActiveRuleDto doInsert(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
     ActiveRuleDto activeRule;
-    ActiveRuleDao dao = db.activeRuleDao();
+    ActiveRuleDao dao = db.deprecatedActiveRuleDao();
     activeRule = ActiveRuleDto.createFor(context.profile(), context.rule());
     String severity = change.getSeverity();
     if (severity != null) {
@@ -269,7 +269,7 @@ public class RuleActivator {
   }
 
   private ActiveRuleDto doUpdate(ActiveRuleChange change, RuleActivatorContext context, DbSession dbSession) {
-    ActiveRuleDao dao = db.activeRuleDao();
+    ActiveRuleDao dao = db.deprecatedActiveRuleDao();
     ActiveRuleDto activeRule = context.activeRule();
     if (activeRule != null) {
       String severity = change.getSeverity();
@@ -331,7 +331,7 @@ public class RuleActivator {
    */
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRule(dbSession, ruleDto);
+    List<ActiveRuleDto> activeRules = db.deprecatedActiveRuleDao().selectByRule(dbSession, ruleDto);
     for (ActiveRuleDto activeRule : activeRules) {
       changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
     }
@@ -478,7 +478,7 @@ public class RuleActivator {
       // set new parent
       profile.setParentKee(parentKey);
       db.qualityProfileDao().update(dbSession, profile);
-      for (ActiveRuleDto parentActiveRule : db.activeRuleDao().selectByProfileKey(dbSession, parentKey)) {
+      for (ActiveRuleDto parentActiveRule : db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, parentKey)) {
         try {
           RuleActivation activation = new RuleActivation(parentActiveRule.getKey().ruleKey());
           activate(dbSession, activation, profileKey);
@@ -497,12 +497,12 @@ public class RuleActivator {
     if (profileDto.getParentKee() != null) {
       profileDto.setParentKee(null);
       db.qualityProfileDao().update(dbSession, profileDto);
-      for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())) {
+      for (ActiveRuleDto activeRule : db.deprecatedActiveRuleDao().selectByProfileKey(dbSession, profileDto.getKey())) {
         if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
           deactivate(dbSession, activeRule.getKey(), true);
         } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
           activeRule.setInheritance(null);
-          db.activeRuleDao().update(dbSession, activeRule);
+          db.deprecatedActiveRuleDao().update(dbSession, activeRule);
         }
       }
     }

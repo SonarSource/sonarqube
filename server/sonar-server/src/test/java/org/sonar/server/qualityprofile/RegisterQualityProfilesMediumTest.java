@@ -33,12 +33,12 @@ import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbSession;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
@@ -76,7 +76,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(profile).isNotNull();
 
     // Check ActiveRules in DB
-    ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
+    ActiveRuleDao activeRuleDao = dbClient().deprecatedActiveRuleDao();
     assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
@@ -122,7 +122,7 @@ public class RegisterQualityProfilesMediumTest {
     verifyDefaultProfile("xoo", "Basic");
 
     // Check ActiveRules in DB
-    ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
+    ActiveRuleDao activeRuleDao = dbClient().deprecatedActiveRuleDao();
     assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -41,8 +42,6 @@ import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -83,7 +82,7 @@ public class ChangeParentActionMediumTest {
     createActiveRule(rule1, parent1);
     session.commit();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
     // Set parent
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
@@ -93,7 +92,7 @@ public class ChangeParentActionMediumTest {
     session.clearCache();
 
     // Check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules1 = db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
   }
@@ -122,7 +121,7 @@ public class ChangeParentActionMediumTest {
     session.clearCache();
 
     // Check rule 2 enabled
-    List<ActiveRuleDto> activeRules2 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules2 = db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo("rule2");
   }
@@ -147,7 +146,7 @@ public class ChangeParentActionMediumTest {
     session.clearCache();
 
     // Check no rule enabled
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules = db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules).isEmpty();
   }
 
@@ -163,7 +162,7 @@ public class ChangeParentActionMediumTest {
     createActiveRule(rule2, parent2);
     session.commit();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
     // 1. Set parent 1
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
@@ -174,7 +173,7 @@ public class ChangeParentActionMediumTest {
     session.clearCache();
 
     // 1. check rule 1 enabled
-    List<ActiveRuleDto> activeRules1 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules1 = db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
 
@@ -187,7 +186,7 @@ public class ChangeParentActionMediumTest {
     session.clearCache();
 
     // 2. check rule 2 enabled
-    List<ActiveRuleDto> activeRules2 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules2 = db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo("rule2");
 
@@ -200,7 +199,7 @@ public class ChangeParentActionMediumTest {
     session.clearCache();
 
     // 3. check no rule enabled
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules = db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules).isEmpty();
   }
 
@@ -213,7 +212,7 @@ public class ChangeParentActionMediumTest {
     createActiveRule(rule1, parent);
     session.commit();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
     // Set parent
     tester.get(RuleActivator.class).setParent(child.getKey(), parent.getKey());
@@ -227,7 +226,7 @@ public class ChangeParentActionMediumTest {
     session.clearCache();
 
     // Check no rule enabled
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
+    List<ActiveRuleDto> activeRules = db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules).isEmpty();
   }
 
@@ -236,7 +235,7 @@ public class ChangeParentActionMediumTest {
     QualityProfileDto child = createProfile("xoo", "Child");
     session.commit();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKee())
@@ -250,7 +249,7 @@ public class ChangeParentActionMediumTest {
     QualityProfileDto child = createProfile("xoo", "Child");
     session.commit();
 
-    assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(db.deprecatedActiveRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKee())
@@ -286,7 +285,7 @@ public class ChangeParentActionMediumTest {
   private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
-    db.activeRuleDao().insert(session, activeRule);
+    db.deprecatedActiveRuleDao().insert(session, activeRule);
     return activeRule;
   }
 }

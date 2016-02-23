@@ -216,7 +216,7 @@ public class CompareActionMediumTest {
   private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
-    db.activeRuleDao().insert(session, activeRule);
+    db.deprecatedActiveRuleDao().insert(session, activeRule);
     return activeRule;
   }
 
@@ -224,14 +224,14 @@ public class CompareActionMediumTest {
     ActiveRuleDto activeRule = createActiveRule(rule, profile);
     RuleParamDto paramDto = db.deprecatedRuleDao().selectRuleParamsByRuleKey(session, rule.getKey()).get(0);
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(paramDto).setValue(value);
-    db.activeRuleDao().insertParam(session, activeRule, activeRuleParam);
+    db.deprecatedActiveRuleDao().insertParam(session, activeRule, activeRuleParam);
     return activeRule;
   }
 
   private ActiveRuleDto createActiveRuleWithSeverity(RuleDto rule, QualityProfileDto profile, String severity) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(severity);
-    db.activeRuleDao().insert(session, activeRule);
+    db.deprecatedActiveRuleDao().insert(session, activeRule);
     return activeRule;
   }
 }

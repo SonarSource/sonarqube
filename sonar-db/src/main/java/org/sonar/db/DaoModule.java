@@ -57,6 +57,7 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateDao;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.source.FileSourceDao;
@@ -107,6 +108,7 @@ public class DaoModule extends Module {
     QualityProfileDao.class,
     PurgeDao.class,
     RuleDao.class,
+    ActiveRuleDao.class,
     ResourceIndexDao.class,
     ResourceDao.class,
     ResourceKeyUpdaterDao.class,

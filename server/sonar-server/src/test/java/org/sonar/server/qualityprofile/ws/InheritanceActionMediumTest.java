@@ -137,7 +137,7 @@ public class InheritanceActionMediumTest {
   private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString());
-    db.activeRuleDao().insert(session, activeRule);
+    db.deprecatedActiveRuleDao().insert(session, activeRule);
     return activeRule;
   }
 
