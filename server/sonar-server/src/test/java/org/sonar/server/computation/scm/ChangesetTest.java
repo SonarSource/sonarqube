@@ -105,7 +105,7 @@ public class ChangesetTest {
   }
 
   @Test
-  public void test_equals_and_hash_code() throws Exception {
+  public void equals_and_hashcode_are_based_on_revision_alone() throws Exception {
     Changeset.Builder changesetBuilder = Changeset.newChangesetBuilder()
       .setAuthor("john")
       .setDate(123456789L)
@@ -114,14 +114,26 @@ public class ChangesetTest {
     Changeset changeset = changesetBuilder.build();
     Changeset sameChangeset = changesetBuilder.build();
 
-    Changeset anotherChangeset = Changeset.newChangesetBuilder()
+    Changeset anotherChangesetWithSameRevision = Changeset.newChangesetBuilder()
       .setAuthor("henry")
       .setDate(1234567810L)
+      .setRevision("rev-1")
+      .build();
+
+    Changeset anotherChangeset = Changeset.newChangesetBuilder()
+      .setAuthor("henry")
+      .setDate(996L)
       .setRevision("rev-2")
       .build();
 
-    assertThat(changeset).isEqualTo(sameChangeset);
     assertThat(changeset).isEqualTo(changeset);
+    assertThat(changeset).isEqualTo(sameChangeset);
+    assertThat(changeset).isEqualTo(anotherChangesetWithSameRevision);
     assertThat(changeset).isNotEqualTo(anotherChangeset);
+
+    assertThat(changeset.hashCode()).isEqualTo(changeset.hashCode());
+    assertThat(changeset.hashCode()).isEqualTo(sameChangeset.hashCode());
+    assertThat(changeset.hashCode()).isEqualTo(anotherChangesetWithSameRevision.hashCode());
+    assertThat(changeset.hashCode()).isNotEqualTo(anotherChangeset.hashCode());
   }
 }

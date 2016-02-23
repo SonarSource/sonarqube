@@ -65,6 +65,21 @@ public class DbScmInfoTest {
   }
 
   @Test
+  public void return_same_changeset_objects_for_lines_with_same_revision() throws Exception {
+    DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(65L).setLine(1);
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev2").setScmDate(6541L).setLine(2);
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev1").setScmDate(6541L).setLine(3);
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(6542L).setLine(4);
+
+    ScmInfo scmInfo = DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get();
+
+    assertThat(scmInfo.getAllChangesets()).hasSize(4);
+
+    assertThat(scmInfo.getChangesetForLine(1)).isSameAs(scmInfo.getChangesetForLine(4));
+  }
+
+  @Test
   public void return_latest_changeset() throws Exception {
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
     addLine(fileDataBuilder, 1, "john", 123456789L, "rev-1");
@@ -90,14 +105,53 @@ public class DbScmInfoTest {
   }
 
   @Test
+  public void return_absent_dsm_info_when_changeset_line_has_both_revision_and_date() throws Exception {
+    DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
+    fileDataBuilder.addLinesBuilder().setLine(1);
+    fileDataBuilder.addLinesBuilder().setScmDate(6541L).setLine(2);
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setLine(3);
+    fileDataBuilder.addLinesBuilder().setScmAuthor("author").setLine(4);
+
+    assertThat(DbScmInfo.create(FILE, fileDataBuilder.getLinesList())).isAbsent();
+  }
+
+  @Test
   public void fail_with_ISE_when_changeset_has_no_field() throws Exception {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
       "Not all lines have SCM info. Can not proceed");
 
     DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
-    fileDataBuilder.addLinesBuilder().setLine(1);
-    fileDataBuilder.addLinesBuilder().setScmAuthor("John").setLine(2);
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(543L).setLine(1);
+    fileDataBuilder.addLinesBuilder().setLine(2);
+    fileDataBuilder.build();
+
+    DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get().getAllChangesets();
+  }
+
+  @Test
+  public void fail_with_ISE_when_changeset_has_only_revision_field() throws Exception {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
+      "Not all lines have SCM info. Can not proceed");
+
+    DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(555L).setLine(1);
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev-1").setLine(2);
+    fileDataBuilder.build();
+
+    DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get().getAllChangesets();
+  }
+
+  @Test
+  public void fail_with_ISE_when_changeset_has_only_author_field() throws Exception {
+    thrown.expect(IllegalStateException.class);
+    thrown.expectMessage("Partial scm information stored in DB for component 'ReportComponent{ref=1, key='FILE_KEY', type=FILE}'. " +
+      "Not all lines have SCM info. Can not proceed");
+
+    DbFileSources.Data.Builder fileDataBuilder = DbFileSources.Data.newBuilder();
+    fileDataBuilder.addLinesBuilder().setScmAuthor("John").setLine(1);
+    fileDataBuilder.addLinesBuilder().setScmRevision("rev").setScmDate(555L).setLine(2);
     fileDataBuilder.build();
 
     DbScmInfo.create(FILE, fileDataBuilder.getLinesList()).get().getAllChangesets();
