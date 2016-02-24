@@ -74,7 +74,10 @@ export const LanguageDistribution = React.createClass({
   },
 
   render () {
-    return <div className="overview-bar-chart">
+    const count = this.props.distribution.split(';').length;
+    const height = count * 25;
+
+    return <div className="overview-bar-chart" style={{ height }}>
       {this.renderBarChart()}
     </div>;
   }

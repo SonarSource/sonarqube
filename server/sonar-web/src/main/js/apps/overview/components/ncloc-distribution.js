@@ -111,7 +111,7 @@ export const NclocDistribution = React.createClass({
           {translateWithParameters('overview.chart.legend.size_x', translate('metric.ncloc.name'))}
         </span>
       </div>
-      <div className="overview-bar-chart">
+      <div className="overview-bar-chart" style={{ height: HEIGHT }}>
         {this.renderBarChart()}
       </div>
     </div>;

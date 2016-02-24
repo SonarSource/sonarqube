@@ -155,7 +155,7 @@ export class DomainTreemap extends React.Component {
           {color}
         </ul>
       </div>
-      <div className="overview-treemap">
+      <div className="overview-treemap" style={{ height: HEIGHT }}>
         {this.renderTreemap()}
       </div>
     </div>;
