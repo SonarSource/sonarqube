@@ -17,8 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.condition.Condition;
 
+enum IsManual implements Condition {
+  INSTANCE;
+
+  @Override
+  public boolean matches(Issue issue) {
+    return issue.ruleKey().isManual();
+  }
+}

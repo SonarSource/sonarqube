@@ -17,26 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.condition.Condition;
+import org.junit.Test;
 
-public class OrCondition implements Condition {
-  private final Condition[] conditions;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
-  public OrCondition(Condition... conditions) {
-    this.conditions = conditions;
+public class SetCloseDateTest {
+  @Test
+  public void should_set_close_date() {
+    SetCloseDate function = new SetCloseDate(true);
+    Function.Context context = mock(Function.Context.class);
+    function.execute(context);
+    verify(context, times(1)).setCloseDate(true);
   }
-
-  @Override
-  public boolean matches(Issue issue) {
-    for (Condition condition : conditions) {
-      if (condition.matches(issue)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
 }

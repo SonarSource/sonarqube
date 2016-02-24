@@ -22,7 +22,7 @@ package org.sonar.server.issue.ws;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.user.UserSession;

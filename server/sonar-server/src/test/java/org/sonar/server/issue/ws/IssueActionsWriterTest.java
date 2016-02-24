@@ -30,7 +30,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.tester.UserSessionRule;

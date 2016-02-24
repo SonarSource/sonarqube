@@ -17,24 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-import javax.annotation.Nullable;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.user.User;
+import org.junit.Test;
 
-interface Function {
-  interface Context {
-    Issue issue();
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.sonar.server.issue.workflow.UnsetAssignee.INSTANCE;
 
-    Context setAssignee(@Nullable User user);
+public class UnsetAssigneeTest {
 
-    Context setResolution(@Nullable String s);
-
-    Context setCloseDate(boolean b);
-
-    Context setLine(@Nullable Integer line);
+  @Test
+  public void unassign() {
+    Function.Context context = mock(Function.Context.class);
+    INSTANCE.execute(context);
+    verify(context, times(1)).setAssignee(null);
   }
-
-  void execute(Context context);
 }

@@ -17,28 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
 
-public class StateMachineTest {
+public class StateTest {
+
+  Transition t1 = Transition.builder("close").from("OPEN").to("CLOSED").build();
+
   @Test
-  public void keep_order_of_state_keys() {
-    StateMachine machine = StateMachine.builder().states("OPEN", "RESOLVED", "CLOSED").build();
-
-    assertThat(machine.stateKeys()).containsSequence("OPEN", "RESOLVED", "CLOSED");
+  public void key_should_be_set() {
+    try {
+      new State("", new Transition[0]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("State key must be set");
+    }
   }
 
   @Test
-  public void stateKey() {
-    StateMachine machine = StateMachine.builder()
-      .states("OPEN", "RESOLVED", "CLOSED")
-      .transition(Transition.builder("resolve").from("OPEN").to("RESOLVED").build())
-      .build();
+  public void key_should_be_upper_case() {
+    try {
+      new State("close", new Transition[0]);
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("State key must be upper-case");
+    }
+  }
 
-    assertThat(machine.state("OPEN")).isNotNull();
-    assertThat(machine.state("OPEN").transition("resolve")).isNotNull();
+  @Test
+  public void no_duplicated_out_transitions() {
+    try {
+      new State("CLOSE", new Transition[] {t1, t1});
+      fail();
+    } catch (IllegalArgumentException e) {
+      assertThat(e).hasMessage("Transition 'close' is declared several times from the originating state 'CLOSE'");
+    }
   }
 }

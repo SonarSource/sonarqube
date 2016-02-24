@@ -17,20 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-import org.junit.Test;
+import javax.annotation.Nullable;
 
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+public class SetResolution implements Function {
+  private final String resolution;
 
-public class SetCloseDateTest {
-  @Test
-  public void should_set_close_date() {
-    SetCloseDate function = new SetCloseDate(true);
-    Function.Context context = mock(Function.Context.class);
-    function.execute(context);
-    verify(context, times(1)).setCloseDate(true);
+  public SetResolution(@Nullable String resolution) {
+    this.resolution = resolution;
+  }
+
+  @Override
+  public void execute(Context context) {
+    context.setResolution(resolution);
   }
 }

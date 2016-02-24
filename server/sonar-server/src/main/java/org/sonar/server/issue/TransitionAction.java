@@ -28,8 +28,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.user.UserSession;
 
 @ServerSide

@@ -17,22 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.core.issue.DefaultIssue;
+class SetCloseDate implements Function {
+  private final boolean set;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.issue.workflow.IsManual.INSTANCE;
-
-public class IsManualTest {
-
-  @Test
-  public void should_match() {
-    DefaultIssue issue = new DefaultIssue();
-    assertThat(INSTANCE.matches(issue.setRuleKey(RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "R1")))).isTrue();
-    assertThat(INSTANCE.matches(issue.setRuleKey(RuleKey.of("java", "R1")))).isFalse();
+  public SetCloseDate(boolean set) {
+    this.set = set;
   }
 
+  @Override
+  public void execute(Context context) {
+    context.setCloseDate(set);
+  }
 }

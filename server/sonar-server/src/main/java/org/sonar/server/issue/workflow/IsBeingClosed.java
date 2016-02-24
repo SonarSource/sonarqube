@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-enum UnsetAssignee implements Function {
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.condition.Condition;
+import org.sonar.core.issue.DefaultIssue;
+
+enum IsBeingClosed implements Condition {
   INSTANCE;
 
   @Override
-  public void execute(Context context) {
-    context.setAssignee(null);
+  public boolean matches(Issue issue) {
+    return ((DefaultIssue) issue).isBeingClosed();
   }
 }

@@ -17,19 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-import javax.annotation.Nullable;
+import org.junit.Test;
+import org.sonar.core.issue.DefaultIssue;
 
-public class SetResolution implements Function {
-  private final String resolution;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.issue.workflow.IsBeingClosed.INSTANCE;
 
-  public SetResolution(@Nullable String resolution) {
-    this.resolution = resolution;
+public class IsBeingClosedTest {
+
+  @Test
+  public void should_be_end_of_life() {
+    DefaultIssue issue = new DefaultIssue();
+    assertThat(INSTANCE.matches(issue.setBeingClosed(true))).isTrue();
+    assertThat(INSTANCE.matches(issue.setBeingClosed(false))).isFalse();
   }
 
-  @Override
-  public void execute(Context context) {
-    context.setResolution(resolution);
-  }
 }

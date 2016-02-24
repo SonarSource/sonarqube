@@ -26,7 +26,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.IssueUpdater;
-import org.sonar.core.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
 
