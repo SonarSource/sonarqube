@@ -219,6 +219,14 @@ public class MeasureDto {
     return this;
   }
 
+  /**
+   * @deprecated in 5.5. Does nothing. Kept for compatibility with developer cockpit plugin, version 1.10
+   */
+  @Deprecated
+  public MeasureDto setCharacteristicId(@Nullable Integer characteristicId) {
+    return this;
+  }
+
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
