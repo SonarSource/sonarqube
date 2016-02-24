@@ -41,9 +41,9 @@ export default function Task ({ task, index, tasks, component, onCancelTask, onF
         <TaskStatus task={task}/>
         <TaskComponent task={task}/>
         <TaskDay task={task} prevTask={prevTask}/>
-        <TaskDate date={task.submittedAt} format="LTS"/>
-        <TaskDate date={task.startedAt} format="LTS"/>
-        <TaskDate date={task.executedAt} format="LTS"/>
+        <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS"/>
+        <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS"/>
+        <TaskDate date={task.executedAt} baseDate={task.submittedAt} format="LTS"/>
         <TaskExecutionTime task={task}/>
 
         <td className="thin nowrap text-right">
