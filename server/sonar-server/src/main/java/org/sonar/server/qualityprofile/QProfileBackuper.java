@@ -43,25 +43,25 @@ import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.XmlWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.DbClient;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.search.IndexClient;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
 
 @ServerSide
 public class QProfileBackuper {
 
   private final QProfileReset reset;
   private final DbClient db;
-  private final IndexClient index;
+  private final ActiveRuleIndex2 activeRuleIndex;
 
   private static final Joiner RULEKEY_JOINER = Joiner.on(", ").skipNulls();
 
-  public QProfileBackuper(QProfileReset reset, DbClient db, IndexClient index) {
+  public QProfileBackuper(QProfileReset reset, DbClient db, ActiveRuleIndex2 activeRuleIndex) {
     this.reset = reset;
     this.db = db;
-    this.index = index;
+    this.activeRuleIndex = activeRuleIndex;
   }
 
   public void backup(String key, Writer writer) {
@@ -72,12 +72,12 @@ public class QProfileBackuper {
     } finally {
       dbSession.close();
     }
-    List<ActiveRule> activeRules = Lists.newArrayList(index.get(ActiveRuleIndex.class).findByProfile(profile.getKey()));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(activeRuleIndex.findByProfile(profile.getKey()));
     Collections.sort(activeRules, BackupActiveRuleComparator.INSTANCE);
     writeXml(writer, profile, activeRules.iterator());
   }
 
-  private static void writeXml(Writer writer, QualityProfileDto profile, Iterator<ActiveRule> activeRules) {
+  private static void writeXml(Writer writer, QualityProfileDto profile, Iterator<ActiveRuleDoc> activeRules) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
     xml.begin("profile");
     xml.prop("name", profile.getName());

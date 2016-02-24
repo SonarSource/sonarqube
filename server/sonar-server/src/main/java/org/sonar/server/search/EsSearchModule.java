@@ -27,7 +27,6 @@ public class EsSearchModule extends Module {
   protected void configureModule() {
     add(
       SearchClient.class,
-      IndexClient.class,
       EsClient.class);
   }
 }
