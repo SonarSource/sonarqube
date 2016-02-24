@@ -27,12 +27,12 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.core.user.DefaultUser;
+import org.sonar.api.user.User;
 
 /**
  * @since 3.2
  */
-public class UserDto {
+public class UserDto implements User {
   public static final char SCM_ACCOUNTS_SEPARATOR = '\n';
 
   private Long id;
@@ -210,11 +210,23 @@ public class UserDto {
     return this;
   }
 
-  public DefaultUser toUser() {
-    return new DefaultUser()
-      .setLogin(login)
-      .setName(name)
-      .setEmail(email)
-      .setActive(active);
+  @Override
+  public String login() {
+    return login;
+  }
+
+  @Override
+  public String name() {
+    return name;
+  }
+
+  @Override
+  public String email() {
+    return email;
+  }
+
+  @Override
+  public boolean active() {
+    return active;
   }
 }
