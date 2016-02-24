@@ -19,7 +19,7 @@
  */
 import React from 'react';
 import Avatar from '../../../components/shared/avatar';
-import RecentHistory from '../component/recent-history';
+import RecentHistory from '../component/RecentHistory';
 import { translate } from '../../../helpers/l10n';
 
 export default React.createClass({

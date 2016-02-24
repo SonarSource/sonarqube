@@ -532,7 +532,7 @@ export default Marionette.LayoutView.extend({
   },
 
   highlightLine (line) {
-    const row = this.$('.source-line[data-line-number=' + line + ']');
+    const row = this.$(`.source-line[data-line-number=${line}]`);
     this.removeHighlighting();
     this.highlightedLine = line;
     row.addClass(HIGHLIGHTED_ROW_CLASS);
@@ -563,7 +563,7 @@ export default Marionette.LayoutView.extend({
   },
 
   scrollToLine (line) {
-    const row = this.$('.source-line[data-line-number=' + line + ']');
+    const row = this.$(`.source-line[data-line-number=${line}]`);
     if (row.length > 0) {
       const p = $(window);
       const pTopOffset = p.offset() != null ? p.offset().top : 0;
@@ -575,7 +575,7 @@ export default Marionette.LayoutView.extend({
   },
 
   scrollToFirstLine (line) {
-    const row = this.$('.source-line[data-line-number=' + line + ']');
+    const row = this.$(`.source-line[data-line-number=${line}]`);
     if (row.length > 0) {
       const p = $(window);
       const pTopOffset = p.offset() != null ? p.offset().top : 0;
@@ -586,7 +586,7 @@ export default Marionette.LayoutView.extend({
   },
 
   scrollToLastLine (line) {
-    const row = this.$('.source-line[data-line-number=' + line + ']');
+    const row = this.$(`.source-line[data-line-number=${line}]`);
     if (row.length > 0) {
       let p = $(window);
       if (p.is(document)) {
@@ -764,7 +764,7 @@ export default Marionette.LayoutView.extend({
   showIssueLocation (location, index) {
     if (location && location.textRange) {
       const line = location.textRange.startLine;
-      const row = this.$('.source-line-code[data-line-number="' + line + '"]');
+      const row = this.$(`.source-line-code[data-line-number="${line}"]`);
 
       if (index > 0 && _.size(location.msg)) {
         // render location marker only for
@@ -785,7 +785,7 @@ export default Marionette.LayoutView.extend({
 
   highlightIssueLocationInCode (location) {
     for (let line = location.textRange.startLine; line <= location.textRange.endLine; line++) {
-      const row = this.$('.source-line-code[data-line-number="' + line + '"]');
+      const row = this.$(`.source-line-code[data-line-number="${line}"]`);
 
       // get location for the current line
       const from = line === location.textRange.startLine ? location.textRange.startOffset : 0;

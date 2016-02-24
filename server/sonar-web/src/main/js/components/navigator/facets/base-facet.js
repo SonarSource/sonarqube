@@ -46,7 +46,7 @@ export default Marionette.ItemView.extend({
     const value = this.options.app.state.get('query')[property];
     if (typeof value === 'string') {
       value.split(',').forEach(function (s) {
-        const facet = that.$('.js-facet').filter('[data-value="' + s + '"]');
+        const facet = that.$('.js-facet').filter(`[data-value="${s}"]`);
         if (facet.length > 0) {
           facet.addClass('active');
         }

@@ -93,7 +93,7 @@ export function installGlobal () {
 }
 
 export function getLocalizedDashboardName (baseName) {
-  const l10nKey = 'dashboard.' + baseName + '.name';
+  const l10nKey = `dashboard.${baseName}.name`;
   const l10nLabel = translate(l10nKey);
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }

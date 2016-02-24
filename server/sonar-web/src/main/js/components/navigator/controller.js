@@ -118,7 +118,7 @@ export default Marionette.Controller.extend({
     const filter = this.options.app.state.get('query');
     const route = [];
     _.map(filter, function (value, property) {
-      route.push('' + property + '=' + encodeURIComponent(value));
+      route.push(`${property}=${encodeURIComponent(value)}`);
     });
     return route.join(separator);
   },

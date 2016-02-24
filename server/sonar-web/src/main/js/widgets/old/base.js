@@ -87,7 +87,7 @@ import _ from 'underscore';
   };
 
   BaseWidget.prototype.trans = function (left, top) {
-    return 'translate(' + left + ',' + top + ')';
+    return `translate(${left},${top})`;
   };
 
   BaseWidget.prototype.render = function (container) {

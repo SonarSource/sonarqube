@@ -145,7 +145,7 @@ export default Backbone.Model.extend({
    * @returns {Object}
    */
   reset (attrs, options) {
-    for (let key in this.attributes) {
+    for (const key in this.attributes) {
       if (this.attributes.hasOwnProperty(key) && !(key in attrs)) {
         attrs[key] = void 0;
       }

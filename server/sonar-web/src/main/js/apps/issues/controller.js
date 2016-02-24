@@ -199,7 +199,7 @@ export default Controller.extend({
     }
     const route = [];
     _.map(filter, function (value, property) {
-      return route.push('' + property + '=' + encodeURIComponent(value));
+      return route.push(`${property}=${encodeURIComponent(value)}`);
     });
     return route.join(separator);
   },

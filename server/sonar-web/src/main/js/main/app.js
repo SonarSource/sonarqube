@@ -51,7 +51,7 @@ function startNavigation () {
 }
 
 function prepareAppOptions (navResponse) {
-  let appOptions = { el: '#content' };
+  const appOptions = { el: '#content' };
   if (navResponse) {
     appOptions.rootQualifiers = navResponse.global.qualifiers;
     if (navResponse.component) {

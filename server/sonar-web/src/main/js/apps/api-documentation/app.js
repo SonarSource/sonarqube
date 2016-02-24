@@ -30,7 +30,7 @@ import SearchView from './search-view';
 
 const App = new Marionette.Application();
 const init = function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
 
   // State
   this.state = new Backbone.Model({ internal: false });

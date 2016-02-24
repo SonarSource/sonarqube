@@ -78,7 +78,7 @@ export default ModalFormView.extend({
       if (!state.id) {
         return state.text;
       } else {
-        return '<i class="icon-severity-' + state.id.toLowerCase() + '"></i> ' + state.text;
+        return `<i class="icon-severity-${state.id.toLowerCase()}"></i> ${state.text}`;
       }
     };
     const severity = (this.model && this.model.get('severity')) || this.options.templateRule.get('severity');

@@ -42,7 +42,7 @@ export default Marionette.LayoutView.extend({
   },
 
   orderByName (conditions) {
-    let metrics = this.options.metrics;
+    const metrics = this.options.metrics;
     return _.sortBy(conditions, (condition) => {
       return _.findWhere(metrics, { key: condition.metric }).name;
     });

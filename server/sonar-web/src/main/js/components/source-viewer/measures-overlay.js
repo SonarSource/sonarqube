@@ -51,7 +51,7 @@ export default ModalView.extend({
 
   initPieChart () {
     const trans = function (left, top) {
-      return 'translate(' + left + ', ' + top + ')';
+      return `translate(${left}, ${top})`;
     };
 
     const defaults = {
@@ -221,7 +221,7 @@ export default ModalView.extend({
       that.testSorting = 'status';
       that.testAsc = true;
       that.sortTests(function (test) {
-        return '' + that.testsOrder.indexOf(test.status) + '_______' + test.name;
+        return `${that.testsOrder.indexOf(test.status)}_______${test.name}`;
       });
     });
   },
@@ -261,7 +261,7 @@ export default ModalView.extend({
       this.testAsc = !this.testAsc;
     }
     this.sortTests(function (test) {
-      return '' + that.testsOrder.indexOf(test.status) + '_______' + test.name;
+      return `${that.testsOrder.indexOf(test.status)}_______${test.name}`;
     });
     this.testSorting = 'status';
     this.render();

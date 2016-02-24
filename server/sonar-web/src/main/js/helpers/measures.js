@@ -28,7 +28,7 @@ import { translate, translateWithParameters } from './l10n';
  * @param {string} type
  */
 export function formatMeasure (value, type) {
-  let formatter = getFormatter(type);
+  const formatter = getFormatter(type);
   return useFormatter(value, formatter);
 }
 
@@ -39,7 +39,7 @@ export function formatMeasure (value, type) {
  * @param {string} type
  */
 export function formatMeasureVariation (value, type) {
-  let formatter = getVariationFormatter(type);
+  const formatter = getVariationFormatter(type);
   return useFormatter(value, formatter);
 }
 
@@ -60,8 +60,8 @@ export function localizeMetric (metricKey) {
  * @returns {Array}
  */
 export function groupByDomain (metrics) {
-  let groupedMetrics = _.groupBy(metrics, 'domain');
-  let domains = _.map(groupedMetrics, (metricList, domain) => {
+  const groupedMetrics = _.groupBy(metrics, 'domain');
+  const domains = _.map(groupedMetrics, (metricList, domain) => {
     return {
       domain,
       metrics: _.sortBy(metricList, 'name')
@@ -140,7 +140,7 @@ function shortIntFormatter (value) {
 }
 
 function shortIntVariationFormatter (value) {
-  let formatted = shortIntFormatter(Math.abs(value));
+  const formatted = shortIntFormatter(Math.abs(value));
   return value < 0 ? `-${formatted}` : `+${formatted}`;
 }
 
@@ -178,10 +178,10 @@ function millisecondsFormatter (value) {
   const ONE_SECOND = 1000;
   const ONE_MINUTE = 60 * ONE_SECOND;
   if (value >= ONE_MINUTE) {
-    let minutes = Math.round(value / ONE_MINUTE);
+    const minutes = Math.round(value / ONE_MINUTE);
     return `${minutes}min`;
   } else if (value >= ONE_SECOND) {
-    let seconds = Math.round(value / ONE_SECOND);
+    const seconds = Math.round(value / ONE_SECOND);
     return `${seconds}s`;
   } else {
     return `${value}ms`;
@@ -189,8 +189,8 @@ function millisecondsFormatter (value) {
 }
 
 function millisecondsVariationFormatter (value) {
-  let absValue = Math.abs(value);
-  let formattedValue = millisecondsFormatter(absValue);
+  const absValue = Math.abs(value);
+  const formattedValue = millisecondsFormatter(absValue);
   return value < 0 ? `-${formattedValue}` : `+${formattedValue}`;
 }
 

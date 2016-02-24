@@ -27,6 +27,6 @@ module.exports = function (email, size) {
       .replace('{EMAIL_MD5}', emailHash)
       .replace('{SIZE}', size * 2);
   return new Handlebars.default.SafeString(
-      '<img class="rounded" src="' + url + '" width="' + size + '" height="' + size + '" alt="' + email + '">'
+      `<img class="rounded" src="${url}" width="${size}" height="${size}" alt="${email}">`
   );
 };

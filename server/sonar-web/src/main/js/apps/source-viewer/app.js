@@ -22,7 +22,7 @@ import SourceViewer from '../../components/source-viewer/main';
 
 const App = new Marionette.Application();
 const init = function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
 
   this.addRegions({ mainRegion: options.el });
 

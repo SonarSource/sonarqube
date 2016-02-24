@@ -35,7 +35,7 @@ const requestExporters = $.get('/api/qualityprofiles/exporters').done(function (
   App.exporters = r.exporters;
 });
 const init = function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
 
   // Layout
   this.layout = new Layout({ el: options.el });

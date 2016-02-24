@@ -23,7 +23,7 @@ import MarkdownView from './markdown-help-view';
 const App = new Marionette.Application();
 
 App.on('start', function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
   new MarkdownView({ el: options.el }).render();
 });
 

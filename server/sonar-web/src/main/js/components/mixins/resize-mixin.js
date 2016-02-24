@@ -34,9 +34,9 @@ export const ResizeMixin = {
   },
 
   handleResize () {
-    let boundingClientRect = ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect();
-    let newWidth = this.props.width || boundingClientRect.width;
-    let newHeight = this.props.height || boundingClientRect.height;
+    const boundingClientRect = ReactDOM.findDOMNode(this).parentNode.getBoundingClientRect();
+    const newWidth = this.props.width || boundingClientRect.width;
+    const newHeight = this.props.height || boundingClientRect.height;
     this.setState({ width: newWidth, height: newHeight });
   },
 

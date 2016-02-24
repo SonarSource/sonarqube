@@ -30,7 +30,7 @@ import Controller from './controller';
 const App = new Marionette.Application();
 
 const init = function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
   // Layout
   this.layout = new Layout({ el: options.el });
   this.layout.render();

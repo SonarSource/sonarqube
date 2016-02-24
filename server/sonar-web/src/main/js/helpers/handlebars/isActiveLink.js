@@ -17,10 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function () {
-  const args = Array.prototype.slice.call(arguments, 0, -1);
-  const options = arguments[arguments.length - 1];
-  const prefix = args.join('');
+module.exports = function (...args) {
+  const options = args[args.length - 1];
+  const list = args.slice(0, -1);
+  const prefix = list.join('');
   const path = window.location.pathname;
   const match = path.indexOf(prefix) === 0;
   return match ? options.fn(this) : options.inverse(this);

@@ -17,9 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function () {
-  const args = Array.prototype.slice.call(arguments, 0, -1);
-  return args.reduce(function (prev, current) {
+module.exports = function (...args) {
+  const list = args.slice(0, -1);
+  return list.reduce(function (prev, current) {
     return prev != null ? prev : current;
   }, null);
 };

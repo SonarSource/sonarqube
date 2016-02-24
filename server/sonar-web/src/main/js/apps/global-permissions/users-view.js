@@ -48,7 +48,7 @@ export default Modal.extend({
       readOnly: false,
       focusSearch: false,
       format (item) {
-        return item.name + '<br><span class="note">' + item.login + '</span>';
+        return `${item.name}<br><span class="note">${item.login}</span>`;
       },
       queryParam: 'q',
       searchUrl: getSearchUrl(this.options.permission, this.options.project),

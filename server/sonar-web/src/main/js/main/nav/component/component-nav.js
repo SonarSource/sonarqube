@@ -27,7 +27,7 @@ import ComponentNavFavorite from './component-nav-favorite';
 import ComponentNavBreadcrumbs from './component-nav-breadcrumbs';
 import ComponentNavMeta from './component-nav-meta';
 import ComponentNavMenu from './component-nav-menu';
-import RecentHistory from './recent-history';
+import RecentHistory from './RecentHistory';
 
 export default React.createClass({
   componentDidMount() {

@@ -34,7 +34,7 @@ import FiltersView from './filters-view';
 
 const App = new Marionette.Application();
 const init = function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
 
   this.state = new State();
   this.list = new Issues();

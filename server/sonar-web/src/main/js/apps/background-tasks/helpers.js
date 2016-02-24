@@ -29,10 +29,10 @@ export function formatDuration(value) {
     return '';
   }
   if (value >= ONE_MINUTE) {
-    let minutes = Math.round(value / ONE_MINUTE);
+    const minutes = Math.round(value / ONE_MINUTE);
     return format(minutes, 'min');
   } else if (value >= ONE_SECOND) {
-    let seconds = Math.round(value / ONE_SECOND);
+    const seconds = Math.round(value / ONE_SECOND);
     return format(seconds, 's');
   } else {
     return format(value, 'ms');

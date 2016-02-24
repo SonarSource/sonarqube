@@ -23,7 +23,7 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 
 export function getPeriodLabel (periods, periodIndex) {
-  let period = _.findWhere(periods, { index: periodIndex });
+  const period = _.findWhere(periods, { index: periodIndex });
   if (!period) {
     return null;
   }
@@ -35,7 +35,7 @@ export function getPeriodLabel (periods, periodIndex) {
 
 
 export function getPeriodDate (periods, periodIndex) {
-  let period = _.findWhere(periods, { index: periodIndex });
+  const period = _.findWhere(periods, { index: periodIndex });
   if (!period) {
     return null;
   }

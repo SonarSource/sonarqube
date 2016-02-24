@@ -34,7 +34,7 @@ import FacetsView from './../issues/facets-view';
 
 const App = new Marionette.Application();
 const init = function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
 
   this.config = options.config;
   this.state = new State({

@@ -32,7 +32,7 @@ export default Modal.extend({
       readOnly: false,
       focusSearch: false,
       format (item) {
-        return item.name + '<br><span class="note">' + item.description + '</span>';
+        return `${item.name}<br><span class="note">${item.description}</span>`;
       },
       queryParam: 'q',
       searchUrl: '/api/users/groups?ps=100&login=' + this.model.id,

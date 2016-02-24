@@ -21,7 +21,8 @@ module.exports = function (array, separator, options) {
   let ret = '';
 
   if (array && array.length > 0) {
-    for (let i = 0, n = array.length; i < n; i++) {
+    const n = array.length;
+    for (let i = 0; i < n; i++) {
       ret += options.fn(array[i]);
       if (i < n - 1) {
         ret += separator;

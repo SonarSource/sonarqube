@@ -75,7 +75,7 @@ export default Marionette.CompositeView.extend({
   filterByLanguage (language) {
     if (language) {
       this.$('[data-language]').addClass('hidden');
-      this.$('[data-language="' + language + '"]').removeClass('hidden');
+      this.$(`[data-language="${language}"]`).removeClass('hidden');
     } else {
       this.$('[data-language]').removeClass('hidden');
     }

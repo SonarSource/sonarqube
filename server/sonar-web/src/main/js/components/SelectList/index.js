@@ -269,7 +269,7 @@ const SelectListView = Backbone.View.extend({
   },
 
   renderEmpty () {
-    this.$list.append('<li class="empty-message">' + this.settings.labels.noResults + '</li>');
+    this.$list.append(`<li class="empty-message">${this.settings.labels.noResults}</li>`);
   },
 
   confirmFilter (model) {
@@ -293,7 +293,7 @@ const SelectListView = Backbone.View.extend({
       this.$('.select-list-search-control input').val('');
 
       this.$('.select-list-control-button').removeClass('active')
-          .filter('[name=' + filter + ']').addClass('active');
+          .filter(`[name=${filter}]`).addClass('active');
 
       this.showFetchSpinner();
 

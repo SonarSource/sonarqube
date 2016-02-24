@@ -23,7 +23,7 @@ import '../../components/SelectList';
 import Template from './templates/project-permissions-groups.hbs';
 
 function getSearchUrl (permission, project) {
-  return '/api/permissions/groups?ps=100&permission=' + permission + '&projectId=' + project;
+  return `/api/permissions/groups?ps=100&permission=${permission}&projectId=${project}`;
 }
 
 export default Modal.extend({

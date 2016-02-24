@@ -58,13 +58,13 @@ export default ModalView.extend({
     const container = this.ui.messagesContainer.empty();
     if (_.isArray(errors)) {
       errors.forEach(function (error) {
-        const html = '<div class="alert alert-danger">' + error.msg + '</div>';
+        const html = `<div class="alert alert-danger">${error.msg}</div>`;
         container.append(html);
       });
     }
     if (_.isArray(warnings)) {
       warnings.forEach(function (warn) {
-        const html = '<div class="alert alert-warning">' + warn.msg + '</div>';
+        const html = `<div class="alert alert-warning">${warn.msg}</div>`;
         container.append(html);
       });
     }

@@ -27,7 +27,7 @@ import ListFooterView from './list-footer-view';
 
 const App = new Marionette.Application();
 const init = function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
 
   // Layout
   this.layout = new Layout({ el: options.el });

@@ -36,7 +36,7 @@ export default Modal.extend({
       readOnly: false,
       focusSearch: false,
       format (item) {
-        return item.name + '<br><span class="note">' + item.login + '</span>';
+        return `${item.name}<br><span class="note">${item.login}</span>`;
       },
       queryParam: 'q',
       selectUrl: '/api/permissions/add_user',

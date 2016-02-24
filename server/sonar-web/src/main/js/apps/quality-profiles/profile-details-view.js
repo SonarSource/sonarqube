@@ -169,7 +169,7 @@ export default Marionette.LayoutView.extend({
 
   serializeData () {
     const key = this.model.get('key');
-    const rulesSearchUrl = '/coding_rules#qprofile=' + encodeURIComponent(key) + '|activation=true';
+    const rulesSearchUrl = `/coding_rules#qprofile=${encodeURIComponent(key)}|activation=true`;
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       rulesSearchUrl,
       canWrite: this.options.canWrite,

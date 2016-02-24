@@ -212,7 +212,7 @@ function getQuery (query, separator) {
   separator = separator || '|';
   const route = [];
   _.forEach(query, function (value, property) {
-    route.push('' + property + '=' + encodeURIComponent(value));
+    route.push(`${property}=${encodeURIComponent(value)}`);
   });
   return route.join(separator);
 }

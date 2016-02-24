@@ -30,7 +30,7 @@ export default ActionOptionsView.extend({
   },
 
   selectInitialOption () {
-    return this.makeActive(this.getOptions().filter('[data-value="' + this.getTransition() + '"]'));
+    return this.makeActive(this.getOptions().filter(`[data-value="${this.getTransition()}"]`));
   },
 
   selectOption (e) {

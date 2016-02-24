@@ -208,7 +208,7 @@ export default SourceViewer.extend({
   },
 
   scrollToLine (line) {
-    const row = this.$('[data-line-number=' + line + ']');
+    const row = this.$(`[data-line-number=${line}]`);
     const topOffset = $(window).height() / 2 - 60;
     const goal = row.length > 0 ? row.offset().top - topOffset : 0;
     return $(window).scrollTop(goal);

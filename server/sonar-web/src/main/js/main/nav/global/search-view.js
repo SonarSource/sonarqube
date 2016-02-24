@@ -25,7 +25,7 @@ import SelectableCollectionView from '../../../components/common/selectable-coll
 import SearchItemTemplate from '../templates/nav-search-item.hbs';
 import EmptySearchTemplate from '../templates/nav-search-empty.hbs';
 import SearchTemplate from '../templates/nav-search.hbs';
-import RecentHistory from '../component/recent-history';
+import RecentHistory from '../component/RecentHistory';
 import { translate } from '../../../helpers/l10n';
 import { collapsedDirFromPath, fileFromPath } from '../../../helpers/path';
 

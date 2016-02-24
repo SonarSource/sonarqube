@@ -37,7 +37,7 @@ export default ModalFormView.extend({
     const profileName = profileBase != null ? profileBase.name : profile;
     const message = translateWithParameters('coding_rules.bulk_change.success',
         profileName, profileBase.language, succeeded);
-    this.ui.messagesContainer.append('<div class="alert alert-success">' + message + '</div>');
+    this.ui.messagesContainer.append(`<div class="alert alert-success">${message}</div>`);
   },
 
   showWarnMessage (profile, succeeded, failed) {
@@ -45,7 +45,7 @@ export default ModalFormView.extend({
     const profileName = profileBase != null ? profileBase.name : profile;
     const message = translateWithParameters('coding_rules.bulk_change.warning',
         profileName, profileBase.language, succeeded, failed);
-    this.ui.messagesContainer.append('<div class="alert alert-warning">' + message + '</div>');
+    this.ui.messagesContainer.append(`<div class="alert alert-warning">${message}</div>`);
   },
 
   onRender () {
@@ -59,7 +59,7 @@ export default ModalFormView.extend({
 
   onFormSubmit () {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-    const url = '/api/qualityprofiles/' + this.options.action + '_rules';
+    const url = `/api/qualityprofiles/${this.options.action}_rules`;
     const options = _.extend({}, this.options.app.state.get('query'), { wsAction: this.options.action });
     const profiles = this.$('#coding-rules-bulk-change-profile').val() || [this.options.param];
     this.ui.messagesContainer.empty();

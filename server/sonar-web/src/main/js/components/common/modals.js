@@ -73,7 +73,7 @@ export default Marionette.ItemView.extend({
   renderOverlay () {
     const overlay = $('.' + this.overlayClassName);
     if (overlay.length === 0) {
-      $('<div class="' + this.overlayClassName + '"></div>').appendTo($('body'));
+      $(`<div class="${this.overlayClassName}"></div>`).appendTo($('body'));
     }
   },
 

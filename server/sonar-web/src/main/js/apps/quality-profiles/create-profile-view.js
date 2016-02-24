@@ -67,7 +67,7 @@ export default ModalFormView.extend({
       $(this).addClass('hidden');
     });
     importers.forEach(function (importer) {
-      that.$('.js-importer[data-key="' + importer.key + '"]').removeClass('hidden');
+      that.$(`.js-importer[data-key="${importer.key}"]`).removeClass('hidden');
     });
   },
 

@@ -64,7 +64,7 @@ class Request {
 
   submit () {
     let url = this.url;
-    let options = _.defaults(this.options, OPTIONS);
+    const options = _.defaults(this.options, OPTIONS);
     options.headers = _.defaults(this.headers, HEADERS);
     if (this.data) {
       if (options.method === 'GET') {

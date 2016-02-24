@@ -35,7 +35,7 @@ import { translate } from '../../helpers/l10n';
 
 const App = new Marionette.Application();
 const init = function () {
-  let options = window.sonarqube;
+  const options = window.sonarqube;
 
   this.layout = new Layout({ el: options.el });
   this.layout.render();

@@ -54,7 +54,7 @@ export default Marionette.ItemView.extend({
     e.preventDefault();
     this.errors = [];
     this.newToken = null;
-    let tokenName = this.$('.js-generate-token-form input').val();
+    const tokenName = this.$('.js-generate-token-form input').val();
     generateToken(this.model.id, tokenName)
         .then(response => {
           this.newToken = response;
@@ -70,8 +70,8 @@ export default Marionette.ItemView.extend({
 
   onRevokeTokenFormSubmit(e) {
     e.preventDefault();
-    let tokenName = $(e.currentTarget).data('token');
-    let token = _.findWhere(this.tokens, { name: `${tokenName}` });
+    const tokenName = $(e.currentTarget).data('token');
+    const token = _.findWhere(this.tokens, { name: `${tokenName}` });
     if (token) {
       if (token.deleting) {
         revokeToken(this.model.id, tokenName).then(this.requestTokens.bind(this));
@@ -83,9 +83,9 @@ export default Marionette.ItemView.extend({
   },
 
   onRender () {
-    let copyButton = this.$('.js-copy-to-clipboard');
+    const copyButton = this.$('.js-copy-to-clipboard');
     if (copyButton.length) {
-      let clipboard = new Clipboard(copyButton.get(0));
+      const clipboard = new Clipboard(copyButton.get(0));
       clipboard.on('success', () => {
         copyButton.tooltip({ title: 'Copied!', placement: 'bottom', trigger: 'manual' }).tooltip('show');
         setTimeout(() => copyButton.tooltip('hide'), 1000);

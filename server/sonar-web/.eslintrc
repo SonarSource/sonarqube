@@ -51,7 +51,7 @@
     "object-shorthand": 2,
     "one-var": [1, { "let": "never", "const": "never" }],
     "quotes": [1, "single", "avoid-escape"],
-    "prefer-const": 0,
+    "prefer-const": 2,
     "semi": [1, "always"],
     "keyword-spacing": 1,
 

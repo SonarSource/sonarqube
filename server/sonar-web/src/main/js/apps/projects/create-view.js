@@ -41,7 +41,7 @@ export default ModalForm.extend({
   },
 
   sendRequest () {
-    let data = {
+    const data = {
       name: this.$('#create-project-name').val(),
       branch: this.$('#create-project-branch').val(),
       key: this.$('#create-project-key').val()

@@ -54,7 +54,7 @@ export default BaseFacet.extend({
     props.forEach(function (prop) {
       const value = query[prop];
       if (value != null) {
-        return that.$('input[name=' + prop + ']').val(value);
+        return that.$(`input[name=${prop}]`).val(value);
       }
     });
     let values = this.model.getValues();

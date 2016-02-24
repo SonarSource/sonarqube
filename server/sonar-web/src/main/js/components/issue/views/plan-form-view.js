@@ -31,7 +31,7 @@ export default ActionOptionsView.extend({
   },
 
   selectInitialOption () {
-    this.makeActive(this.getOptions().filter('[data-value="' + this.getActionPlan() + '"]'));
+    this.makeActive(this.getOptions().filter(`[data-value="${this.getActionPlan()}"]`));
   },
 
   selectOption (e) {
