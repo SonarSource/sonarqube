@@ -32,7 +32,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.issue.IssueUpdater;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

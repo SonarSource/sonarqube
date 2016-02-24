@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.collect.Sets;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.issue.IssueUpdater;
 
 import java.util.Collection;
 import java.util.Set;

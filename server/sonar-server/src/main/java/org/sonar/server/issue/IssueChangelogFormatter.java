@@ -28,7 +28,6 @@ import org.sonar.api.i18n.I18n;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;

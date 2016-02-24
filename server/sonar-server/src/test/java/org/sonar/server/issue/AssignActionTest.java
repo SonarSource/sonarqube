@@ -28,7 +28,6 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.user.DefaultUser;
 import org.sonar.server.user.ThreadLocalUserSession;
 

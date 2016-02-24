@@ -36,7 +36,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.issue.IssueUpdater;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.period.Period;
 

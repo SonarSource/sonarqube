@@ -23,7 +23,7 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.scm.Changeset;

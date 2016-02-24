@@ -30,7 +30,6 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

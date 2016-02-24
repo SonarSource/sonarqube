@@ -28,7 +28,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.scm.ScmInfo;
