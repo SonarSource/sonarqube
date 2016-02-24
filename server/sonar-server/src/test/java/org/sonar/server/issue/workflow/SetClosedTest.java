@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.sonar.core.issue.workflow.SetClosed.INSTANCE;
+import static org.sonar.server.issue.workflow.SetClosed.INSTANCE;
 
 public class SetClosedTest {
 

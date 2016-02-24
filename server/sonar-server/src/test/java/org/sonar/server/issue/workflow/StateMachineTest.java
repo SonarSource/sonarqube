@@ -17,21 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
 import org.junit.Test;
-import org.sonar.core.issue.DefaultIssue;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.issue.workflow.IsBeingClosed.INSTANCE;
 
-public class IsBeingClosedTest {
-
+public class StateMachineTest {
   @Test
-  public void should_be_end_of_life() {
-    DefaultIssue issue = new DefaultIssue();
-    assertThat(INSTANCE.matches(issue.setBeingClosed(true))).isTrue();
-    assertThat(INSTANCE.matches(issue.setBeingClosed(false))).isFalse();
+  public void keep_order_of_state_keys() {
+    StateMachine machine = StateMachine.builder().states("OPEN", "RESOLVED", "CLOSED").build();
+
+    assertThat(machine.stateKeys()).containsSequence("OPEN", "RESOLVED", "CLOSED");
   }
 
+  @Test
+  public void stateKey() {
+    StateMachine machine = StateMachine.builder()
+      .states("OPEN", "RESOLVED", "CLOSED")
+      .transition(Transition.builder("resolve").from("OPEN").to("RESOLVED").build())
+      .build();
+
+    assertThat(machine.state("OPEN")).isNotNull();
+    assertThat(machine.state("OPEN").transition("resolve")).isNotNull();
+  }
 }

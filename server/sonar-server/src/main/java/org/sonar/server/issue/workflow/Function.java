@@ -17,17 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-class SetCloseDate implements Function {
-  private final boolean set;
+import javax.annotation.Nullable;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.user.User;
 
-  public SetCloseDate(boolean set) {
-    this.set = set;
+interface Function {
+  interface Context {
+    Issue issue();
+
+    Context setAssignee(@Nullable User user);
+
+    Context setResolution(@Nullable String s);
+
+    Context setCloseDate(boolean b);
+
+    Context setLine(@Nullable Integer line);
   }
 
-  @Override
-  public void execute(Context context) {
-    context.setCloseDate(set);
-  }
+  void execute(Context context);
 }

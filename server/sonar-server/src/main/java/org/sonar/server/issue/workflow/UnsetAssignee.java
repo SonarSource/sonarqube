@@ -17,26 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue.workflow;
+package org.sonar.server.issue.workflow;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.core.issue.DefaultIssue;
-
-public enum SetClosed implements Function {
+enum UnsetAssignee implements Function {
   INSTANCE;
 
   @Override
   public void execute(Context context) {
-    DefaultIssue issue = (DefaultIssue) context.issue();
-    if (issue.isOnDisabledRule()) {
-      context.setResolution(Issue.RESOLUTION_REMOVED);
-    } else {
-      context.setResolution(Issue.RESOLUTION_FIXED);
-    }
-
-    // closed issues are not "tracked" -> the line number does not evolve anymore
-    // when code changes. That's misleading for end-users, so line number
-    // is unset.
-    context.setLine(null);
+    context.setAssignee(null);
   }
 }

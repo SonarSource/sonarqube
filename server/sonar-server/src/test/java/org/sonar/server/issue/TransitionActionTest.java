@@ -27,8 +27,8 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.workflow.IssueWorkflow;
-import org.sonar.core.issue.workflow.Transition;
+import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
