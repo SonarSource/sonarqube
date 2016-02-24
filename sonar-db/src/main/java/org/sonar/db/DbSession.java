@@ -35,22 +35,28 @@ public class DbSession implements SqlSession {
 
   private List<ClusterAction> actions;
 
-  private WorkQueue queue;
   private SqlSession session;
   private int actionCount;
 
   public DbSession(WorkQueue queue, SqlSession session) {
     this.actionCount = 0;
     this.session = session;
-    this.queue = queue;
     this.actions = new ArrayList<>();
   }
 
+  /**
+   * @deprecated since 5.5, not used anymore
+   */
+  @Deprecated
   public void enqueue(ClusterAction action) {
     actionCount++;
     this.actions.add(action);
   }
 
+  /**
+   * @deprecated since 5.5, not used anymore
+   */
+  @Deprecated
   public int getActionCount() {
     return actionCount;
   }
@@ -58,14 +64,12 @@ public class DbSession implements SqlSession {
   @Override
   public void commit() {
     session.commit();
-    queue.enqueue(actions);
     actions.clear();
   }
 
   @Override
   public void commit(boolean force) {
     session.commit(force);
-    queue.enqueue(actions);
     actions.clear();
   }
 

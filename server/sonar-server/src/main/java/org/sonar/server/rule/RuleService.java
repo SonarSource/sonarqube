@@ -75,7 +75,9 @@ public class RuleService {
   }
 
   public Result<Rule> search(RuleQuery query, QueryContext options) {
-    return index.search(query, options);
+    // TODO replace QueryContext by SearchOptions
+    // return index.search(query, options);
+    throw new UnsupportedOperationException("Wait for replacement of QueryContext by SearchOptions ");
   }
 
   /**

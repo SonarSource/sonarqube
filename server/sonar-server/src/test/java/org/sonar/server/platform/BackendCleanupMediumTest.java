@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleTesting;
@@ -32,6 +33,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.rule.index.RuleDoc;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.view.index.ViewDoc;
@@ -45,7 +47,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BackendCleanupMediumTest {
 
   @ClassRule
-  public static EsTester esTester = new EsTester();
+  public static EsTester esTester = new EsTester().addDefinitions(
+    new RuleIndexDefinition(new Settings()),
+    new IssueIndexDefinition(new Settings()),
+    new ViewIndexDefinition(new Settings())
+  );
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
