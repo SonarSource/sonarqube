@@ -35,8 +35,8 @@ public final class Changeset {
   private final String author;
 
   private Changeset(Builder builder) {
-    this.revision = builder.revision;
-    this.author = builder.author;
+    this.revision = builder.revision == null ? null : builder.revision.intern();
+    this.author = builder.author == null ? null : builder.author.intern();
     this.date = builder.date;
   }
 
@@ -75,11 +75,11 @@ public final class Changeset {
       return new Changeset(this);
     }
 
-    private static String checkRevision(String revision){
+    private static String checkRevision(String revision) {
       return requireNonNull(revision, "Revision cannot be null");
     }
 
-    private static long checkDate(Long date){
+    private static long checkDate(Long date) {
       return requireNonNull(date, "Date cannot be null");
     }
 
@@ -99,7 +99,7 @@ public final class Changeset {
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
@@ -109,26 +109,20 @@ public final class Changeset {
 
     Changeset changeset = (Changeset) o;
 
-    if (date != changeset.date) {
-      return false;
-    }
-    if (!revision.equals(changeset.revision)) {
-      return false;
-    }
-    return Objects.equals(author, changeset.author);
+    return revision.equals(changeset.revision);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(revision, author, date);
+    return Objects.hash(revision);
   }
 
   @Override
   public String toString() {
     return "Changeset{" +
-        "revision='" + revision + '\'' +
-        ", author='" + author + '\'' +
-        ", date=" + date +
-        '}';
+      "revision='" + revision + '\'' +
+      ", author='" + author + '\'' +
+      ", date=" + date +
+      '}';
   }
 }
