@@ -544,35 +544,4 @@ public class IssueUpdaterTest {
     updater.setNewAuthor(issue, "julien", context);
   }
 
-  @Test
-  public void set_project() {
-    boolean updated = updater.setProject(issue, "sample", context);
-    assertThat(updated).isTrue();
-    assertThat(issue.projectKey()).isEqualTo("sample");
-
-    // do not save change
-    assertThat(issue.currentChange()).isNull();
-    assertThat(issue.mustSendNotifications()).isFalse();
-  }
-
-  @Test
-  public void set_past_project() {
-    issue.setProjectKey("new project key");
-    boolean updated = updater.setPastProject(issue, "past project key", context);
-    assertThat(updated).isTrue();
-    assertThat(issue.projectKey()).isEqualTo("new project key");
-
-    // do not save change
-    assertThat(issue.currentChange()).isNull();
-    assertThat(issue.mustSendNotifications()).isFalse();
-  }
-
-  @Test
-  public void not_set_past_project_if_no_change() {
-    issue.setProjectKey("key");
-    boolean updated = updater.setPastProject(issue, "key", context);
-    assertThat(updated).isFalse();
-    assertThat(issue.projectKey()).isEqualTo("key");
-  }
-
 }
