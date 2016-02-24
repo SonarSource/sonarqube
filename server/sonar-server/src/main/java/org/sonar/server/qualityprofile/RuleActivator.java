@@ -21,12 +21,12 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
@@ -41,14 +41,8 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -63,20 +57,18 @@ public class RuleActivator {
   private final DbClient db;
   private final TypeValidations typeValidations;
   private final RuleActivatorContextFactory contextFactory;
-  private final IndexClient index;
+  private final RuleIndex2 ruleIndex;
   private final ActivityService activityService;
-  private final UserSession userSession;
 
-  public RuleActivator(System2 system2, DbClient db, IndexClient index,
+  public RuleActivator(System2 system2, DbClient db, RuleIndex2 ruleIndex,
     RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-    ActivityService activityService, UserSession userSession) {
+    ActivityService activityService) {
     this.system2 = system2;
     this.db = db;
-    this.index = index;
+    this.ruleIndex = ruleIndex;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
     this.activityService = activityService;
-    this.userSession = userSession;
   }
 
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, String profileKey) {
@@ -397,16 +389,13 @@ public class RuleActivator {
 
   BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profileKey, @Nullable String severity) {
     BulkChangeResult result = new BulkChangeResult();
-    RuleIndex ruleIndex = index.get(RuleIndex.class);
     DbSession dbSession = db.openSession(false);
     try {
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext(userSession).setScroll(true)
-        .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
-      Iterator<Rule> rules = ruleSearchResult.scroll();
+      Iterator<RuleKey> rules = ruleIndex.searchAll(ruleQuery);
       while (rules.hasNext()) {
-        Rule rule = rules.next();
+        RuleKey ruleKey = rules.next();
         try {
-          RuleActivation activation = new RuleActivation(rule.key());
+          RuleActivation activation = new RuleActivation(ruleKey);
           activation.setSeverity(severity);
           List<ActiveRuleChange> changes = activate(dbSession, activation, profileKey);
           result.addChanges(changes);
@@ -430,15 +419,12 @@ public class RuleActivator {
   BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
     DbSession dbSession = db.openSession(false);
     try {
-      RuleIndex ruleIndex = index.get(RuleIndex.class);
       BulkChangeResult result = new BulkChangeResult();
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext(userSession).setScroll(true)
-        .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
-      Iterator<Rule> rules = ruleSearchResult.scroll();
+      Iterator<RuleKey> rules = ruleIndex.searchAll(ruleQuery);
       while (rules.hasNext()) {
         try {
-          Rule rule = rules.next();
-          ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
+          RuleKey ruleKey = rules.next();
+          ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
           List<ActiveRuleChange> changes = deactivate(dbSession, key);
           result.addChanges(changes);
           if (!changes.isEmpty()) {
