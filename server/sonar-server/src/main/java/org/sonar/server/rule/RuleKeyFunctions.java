@@ -17,30 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.rule;
+package org.sonar.server.rule;
 
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.List;
-import org.junit.Test;
+import com.google.common.base.Function;
+import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.test.TestUtils;
 
-import static com.google.common.collect.FluentIterable.from;
-import static org.assertj.core.api.Assertions.assertThat;
+public final class RuleKeyFunctions {
 
-public class RuleKeyFunctionsTest {
-
-  @Test
-  public void stringToRuleKey() {
-    Collection<String> strings = Arrays.asList("js:S001", "java:S002");
-    List<RuleKey> keys = from(strings).transform(RuleKeyFunctions.stringToRuleKey()).toList();
-
-    assertThat(keys).containsExactly(RuleKey.of("js", "S001"), RuleKey.of("java", "S002"));
+  private RuleKeyFunctions() {
+    // only static methods
   }
 
-  @Test
-  public void on_static_methods() {
-    assertThat(TestUtils.hasOnlyPrivateConstructors(RuleKeyFunctions.class)).isTrue();
+  public static Function<String, RuleKey> stringToRuleKey() {
+    return StringToRuleKey.INSTANCE;
   }
+
+  /**
+   * Transforms a string representation of key to {@link RuleKey}. It
+   * does not accept null string inputs.
+   */
+  private enum StringToRuleKey implements Function<String, RuleKey> {
+    INSTANCE;
+    @Nonnull
+    @Override
+    public RuleKey apply(@Nonnull String input) {
+      return RuleKey.parse(input);
+    }
+  }
+
 }

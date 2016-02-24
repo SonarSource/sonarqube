@@ -17,21 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.rule;
+package org.sonar.server.rule;
 
-import org.sonar.api.rule.Severity;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.List;
+import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.test.TestUtils;
 
-public class SeverityUtil {
+import static com.google.common.collect.FluentIterable.from;
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private SeverityUtil() {
-    // Only static stuff
+public class RuleKeyFunctionsTest {
+
+  @Test
+  public void stringToRuleKey() {
+    Collection<String> strings = Arrays.asList("js:S001", "java:S002");
+    List<RuleKey> keys = from(strings).transform(RuleKeyFunctions.stringToRuleKey()).toList();
+
+    assertThat(keys).containsExactly(RuleKey.of("js", "S001"), RuleKey.of("java", "S002"));
   }
 
-  public static String getSeverityFromOrdinal(int ordinal) {
-    return Severity.ALL.get(ordinal);
-  }
-
-  public static int getOrdinalFromSeverity(String severity) {
-    return Severity.ALL.indexOf(severity);
+  @Test
+  public void on_static_methods() {
+    assertThat(TestUtils.hasOnlyPrivateConstructors(RuleKeyFunctions.class)).isTrue();
   }
 }
