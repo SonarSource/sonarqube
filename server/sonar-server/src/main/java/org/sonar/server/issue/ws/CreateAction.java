@@ -19,12 +19,12 @@
  */
 package org.sonar.server.issue.ws;
 
+import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.IssueService;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -76,7 +76,7 @@ public class CreateAction implements IssuesWsAction {
     String componentKey = request.mandatoryParam("component");
     RuleKey ruleKey = RuleKey.parse(request.mandatoryParam("rule"));
 
-    DefaultIssue issue = issueService.createManualIssue(componentKey, ruleKey,
+    Issue issue = issueService.createManualIssue(componentKey, ruleKey,
       request.paramAsInt("line"),
       request.param("message"),
       request.param("severity"));

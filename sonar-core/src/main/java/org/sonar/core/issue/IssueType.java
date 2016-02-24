@@ -17,18 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.core.issue;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import static java.lang.String.format;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public enum IssueType {
+  CODE_SMELL(1), BUG(2), VULNERABILITY(3);
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(55);
+  private final int dbConstant;
+
+  IssueType(int dbConstant) {
+    this.dbConstant = dbConstant;
+  }
+
+  public int getDbConstant() {
+    return dbConstant;
+  }
+
+  /**
+   * Returns the enum constant of the specified DB column value.
+   */
+  public static IssueType valueOf(int dbConstant) {
+    // iterating the array is fast-enough as size is small. No need for a map.
+    for (IssueType type : values()) {
+      if (type.getDbConstant() == dbConstant) {
+        return type;
+      }
+    }
+    throw new IllegalArgumentException(format("Unsupported value for db column ISSUES.ISSUE_TYPE: %d", dbConstant));
   }
 }

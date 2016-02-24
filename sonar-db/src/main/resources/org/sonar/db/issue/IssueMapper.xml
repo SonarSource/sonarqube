@@ -38,7 +38,8 @@
     p.module_uuid_path as moduleUuidPath,
     p.path as filePath,
     root.kee as projectKey,
-    i.project_uuid as projectUuid
+    i.project_uuid as projectUuid,
+    i.issue_type as type
   </sql>
 
   <sql id="sortColumn">
@@ -70,7 +71,7 @@
     INSERT INTO issues (kee, rule_id, action_plan_key, severity, manual_severity,
     message, line, locations, effort_to_fix, technical_debt, status, tags,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
-    issue_close_date, created_at, updated_at, component_uuid, project_uuid)
+    issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type)
     VALUES (#{kee,jdbcType=VARCHAR}, #{ruleId,jdbcType=INTEGER}, #{actionPlanKey,jdbcType=VARCHAR},
     #{severity,jdbcType=VARCHAR},
     #{manualSeverity,jdbcType=BOOLEAN}, #{message,jdbcType=VARCHAR}, #{line,jdbcType=INTEGER},
@@ -81,7 +82,7 @@
     #{issueAttributes,jdbcType=VARCHAR},
     #{issueCreationTime,jdbcType=BIGINT},#{issueUpdateTime,jdbcType=BIGINT}, #{issueCloseTime,jdbcType=BIGINT},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT},
-    #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR})
+    #{componentUuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER})
   </insert>
 
   <!--
@@ -109,7 +110,8 @@
     issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
-    updated_at=#{updatedAt,jdbcType=BIGINT}
+    updated_at=#{updatedAt,jdbcType=BIGINT},
+    issue_type=#{type,jdbcType=INTEGER}
     where kee = #{kee}
   </update>
 
@@ -138,7 +140,8 @@
     issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},
     issue_update_date=#{issueUpdateTime,jdbcType=BIGINT},
     issue_close_date=#{issueCloseTime,jdbcType=BIGINT},
-    updated_at=#{updatedAt,jdbcType=BIGINT}
+    updated_at=#{updatedAt,jdbcType=BIGINT},
+    issue_type=#{type,jdbcType=INTEGER}
     where kee = #{kee} and updated_at &lt;= #{selectedAt}
   </update>
 
@@ -192,6 +195,7 @@
     i.issue_close_date as issueCloseTime,
     i.created_at as createdAt,
     i.updated_at as updatedAt,
+    i.issue_type as type,
     r.plugin_rule_key as ruleKey,
     r.plugin_name as ruleRepo,
     p.kee as componentKey,

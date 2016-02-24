@@ -72,6 +72,7 @@ public class IssueQuery {
   private final Collection<String> authors;
   private final Collection<String> languages;
   private final Collection<String> tags;
+  private final Collection<String> types;
   private final Boolean onComponentOnly;
   private final Boolean assigned;
   private final Boolean planned;
@@ -108,6 +109,7 @@ public class IssueQuery {
     this.authors = defaultCollection(builder.authors);
     this.languages = defaultCollection(builder.languages);
     this.tags = defaultCollection(builder.tags);
+    this.types = defaultCollection(builder.types);
     this.onComponentOnly = builder.onComponentOnly;
     this.assigned = builder.assigned;
     this.planned = builder.planned;
@@ -195,6 +197,10 @@ public class IssueQuery {
 
   public Collection<String> tags() {
     return tags;
+  }
+
+  public Collection<String> types() {
+    return types;
   }
 
   @CheckForNull
@@ -303,6 +309,7 @@ public class IssueQuery {
     private Collection<String> authors;
     private Collection<String> languages;
     private Collection<String> tags;
+    private Collection<String> types;
     private Boolean onComponentOnly = false;
     private Boolean assigned = null;
     private Boolean planned = null;
@@ -411,6 +418,11 @@ public class IssueQuery {
 
     public Builder tags(@Nullable Collection<String> t) {
       this.tags = t;
+      return this;
+    }
+
+    public Builder types(@Nullable Collection<String> t) {
+      this.types = t;
       return this;
     }
 

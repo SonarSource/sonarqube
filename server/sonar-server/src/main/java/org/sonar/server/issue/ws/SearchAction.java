@@ -20,6 +20,7 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import java.util.Collection;
@@ -36,6 +37,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
+import org.sonar.core.issue.IssueType;
 import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
@@ -52,6 +54,7 @@ import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.concat;
+import static java.lang.String.format;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
@@ -90,6 +93,7 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.RULES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.SEVERITIES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.STATUSES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.TAGS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.TYPES;
 
 public class SearchAction implements IssuesWsAction {
 
@@ -159,6 +163,11 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(IssueFilterParameters.TAGS)
       .setDescription("Comma-separated list of tags.")
       .setExampleValue("security,convention");
+    action.createParam(IssueFilterParameters.TYPES)
+      .setDescription("Comma-separated list of types.")
+      .setSince("5.5")
+      .setPossibleValues(IssueType.values())
+      .setExampleValue(format("%s,%s", IssueType.CODE_SMELL, IssueType.BUG));
     action.createParam(ACTION_PLANS)
       .setDescription("Comma-separated list of action plan keys (not names)")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
@@ -338,6 +347,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, IssueFilterParameters.RULES, request.getRules());
     addMandatoryValuesToFacet(facets, IssueFilterParameters.LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, IssueFilterParameters.TAGS, request.getTags());
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.TYPES, request.getTypes());
     List<String> actionPlans = Lists.newArrayList("");
     List<String> actionPlansFromRequest = request.getActionPlans();
     if (actionPlansFromRequest != null) {
@@ -443,7 +453,8 @@ public class SearchAction implements IssuesWsAction {
       .setSort(request.param(Param.SORT))
       .setSeverities(request.paramAsStrings(SEVERITIES))
       .setStatuses(request.paramAsStrings(STATUSES))
-      .setTags(request.paramAsStrings(TAGS));
+      .setTags(request.paramAsStrings(TAGS))
+      .setTypes(request.paramAsStrings(TYPES));
   }
 
   private enum IssueDocToKey implements Function<IssueDoc, String> {

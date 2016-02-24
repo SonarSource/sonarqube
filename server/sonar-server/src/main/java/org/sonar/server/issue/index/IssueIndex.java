@@ -109,6 +109,7 @@ public class IssueIndex extends BaseIndex {
     IssueFilterParameters.DIRECTORIES,
     IssueFilterParameters.LANGUAGES,
     IssueFilterParameters.TAGS,
+    IssueFilterParameters.TYPES,
     IssueFilterParameters.CREATED_AT);
 
   // TODO to be documented
@@ -265,6 +266,7 @@ public class IssueIndex extends BaseIndex {
 
     filters.put(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
+    filters.put(IssueIndexDefinition.FIELD_ISSUE_TYPE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_REPORTER, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_REPORTER, query.reporters()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
@@ -404,7 +406,9 @@ public class IssueIndex extends BaseIndex {
       if (options.getFacets().contains(IssueFilterParameters.TAGS)) {
         esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TAGS, IssueFilterParameters.TAGS, query.tags().toArray()));
       }
-
+      if (options.getFacets().contains(IssueFilterParameters.TYPES)) {
+        esSearch.addAggregation(stickyFacetBuilder.buildStickyFacet(IssueIndexDefinition.FIELD_ISSUE_TYPE, IssueFilterParameters.TYPES, query.types().toArray()));
+      }
       if (options.getFacets().contains(IssueFilterParameters.RESOLUTIONS)) {
         esSearch.addAggregation(createResolutionFacet(query, filters, esQuery));
       }

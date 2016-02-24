@@ -56,7 +56,7 @@ import static java.lang.String.format;
 public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.Issue {
 
   private String key;
-
+  private IssueType type;
   private String componentUuid;
   private String componentKey;
 
@@ -124,6 +124,15 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
 
   public DefaultIssue setKey(String key) {
     this.key = key;
+    return this;
+  }
+
+  public IssueType type() {
+    return type;
+  }
+
+  public DefaultIssue setType(IssueType type) {
+    this.type = type;
     return this;
   }
 

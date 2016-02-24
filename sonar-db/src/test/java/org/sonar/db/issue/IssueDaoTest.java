@@ -27,6 +27,7 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.core.issue.IssueType;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
@@ -205,6 +206,7 @@ public class IssueDaoTest {
     dto.setProject(new ComponentDto().setKey("struts").setId(100L).setUuid("project-uuid"));
     dto.setRule(RuleTesting.newDto(RuleKey.of("squid", "S001")).setId(200));
     dto.setKee("ABCDE");
+    dto.setType(2);
     dto.setLine(500);
     dto.setEffortToFix(3.14);
     dto.setDebt(10L);

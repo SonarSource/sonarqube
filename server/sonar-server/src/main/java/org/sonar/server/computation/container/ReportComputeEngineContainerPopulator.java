@@ -53,6 +53,7 @@ import org.sonar.server.computation.issue.NewDebtAggregator;
 import org.sonar.server.computation.issue.NewDebtCalculator;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.issue.RuleTagsCopier;
+import org.sonar.server.computation.issue.RuleTypeCopier;
 import org.sonar.server.computation.issue.ScmAccountToUser;
 import org.sonar.server.computation.issue.ScmAccountToUserLoader;
 import org.sonar.server.computation.issue.TrackerBaseInputFactory;
@@ -178,6 +179,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       NewDebtAggregator.class,
       IssueAssigner.class,
       RuleTagsCopier.class,
+      RuleTypeCopier.class,
       IssueCounter.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues

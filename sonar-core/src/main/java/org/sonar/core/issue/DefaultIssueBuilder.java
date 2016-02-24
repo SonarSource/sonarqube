@@ -19,6 +19,7 @@
  */
 package org.sonar.core.issue;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
@@ -41,6 +42,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private Double effortToFix;
   private String reporter;
   private String assignee;
+  private IssueType type;
   private Map<String, String> attributes;
 
   public DefaultIssueBuilder() {
@@ -122,6 +124,11 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     return this;
   }
 
+  public DefaultIssueBuilder type(@Nullable IssueType type) {
+    this.type = type;
+    return this;
+  }
+
   @Override
   public DefaultIssueBuilder attribute(String key, @Nullable String value) {
     if (attributes == null) {
@@ -140,6 +147,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     DefaultIssue issue = new DefaultIssue();
     String key = Uuids.create();
     issue.setKey(key);
+    issue.setType(Objects.firstNonNull(type, IssueType.CODE_SMELL));
     issue.setComponentKey(componentKey);
     issue.setProjectKey(projectKey);
     issue.setRuleKey(ruleKey);

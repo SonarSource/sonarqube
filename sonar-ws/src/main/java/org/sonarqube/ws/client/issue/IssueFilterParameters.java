@@ -53,6 +53,7 @@ public class IssueFilterParameters {
   public static final String AUTHORS = "authors";
   public static final String LANGUAGES = "languages";
   public static final String TAGS = "tags";
+  public static final String TYPES = "types";
   public static final String ASSIGNED = "assigned";
   public static final String PLANNED = "planned";
   public static final String HIDE_RULES = "hideRules";
@@ -74,7 +75,7 @@ public class IssueFilterParameters {
 
   public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
 
-  public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED, COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS, TAGS,
+  public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED, COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS, TAGS, TYPES,
     ASSIGNEES, LANGUAGES, ASSIGNED, PLANNED, HIDE_RULES, CREATED_AT, CREATED_AFTER, CREATED_BEFORE, CREATED_IN_LAST, COMPONENT_UUIDS, COMPONENT_ROOT_UUIDS, FACET_MODE,
     PROJECTS, PROJECT_UUIDS, PROJECT_KEYS, COMPONENT_KEYS, MODULE_UUIDS, DIRECTORIES, FILE_UUIDS, AUTHORS, HIDE_COMMENTS, PAGE_SIZE, PAGE_INDEX, SORT, ASC);
 

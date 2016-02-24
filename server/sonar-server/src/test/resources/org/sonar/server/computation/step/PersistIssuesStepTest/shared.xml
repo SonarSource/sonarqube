@@ -39,6 +39,7 @@
       created_at="1300000000000"
       updated_at="1300000000000"
       locations="[null]"
+      issue_type="[null]"
       />
 
 </dataset>

@@ -33,6 +33,8 @@
       issue_creation_date="1115848800000"
       issue_update_date="1356994800000"
       issue_close_date="[null]"
-      locations="[null]"/>
+      locations="[null]"
+      issue_type="2"
+  />
 
 </dataset>

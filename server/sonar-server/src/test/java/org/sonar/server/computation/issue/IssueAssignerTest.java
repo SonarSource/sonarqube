@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueType;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -175,16 +176,12 @@ public class IssueAssignerTest {
   @Test
   public void display_warning_when_line_is_above_max_size() throws Exception {
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(2);
+    DefaultIssue issue = new DefaultIssue().setLine(2).setType(IssueType.VULNERABILITY);
 
     underTest.onIssue(FILE, issue);
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
-      "No SCM info has been found for issue DefaultIssue[key=<null>,componentUuid=<null>,componentKey=<null>,moduleUuid=<null>,moduleUuidPath=<null>," +
-        "projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>,manualSeverity=false,message=<null>,line=2,effortToFix=<null>,debt=<null>," +
-        "status=<null>,resolution=<null>,reporter=<null>,assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,actionPlanKey=<null>,comments=<null>,tags=<null>,l" +
-        "ocations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,beingClosed=false,onDisabledRule=false," +
-        "isChanged=false,sendNotifications=false,selectedAt=<null>]");
+      "No SCM info has been found for issue DefaultIssue[key=<null>,type=VULNERABILITY,componentUuid=<null>,componentKey=<null>,moduleUuid=<null>,moduleUuidPath=<null>,projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>,manualSeverity=false,message=<null>,line=2,effortToFix=<null>,debt=<null>,status=<null>,resolution=<null>,reporter=<null>,assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,actionPlanKey=<null>,comments=<null>,tags=<null>,locations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,beingClosed=false,onDisabledRule=false,isChanged=false,sendNotifications=false,selectedAt=<null>]");
   }
 
   private void setSingleChangeset(String author, Long date, String revision) {

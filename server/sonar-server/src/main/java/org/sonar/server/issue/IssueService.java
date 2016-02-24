@@ -44,6 +44,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueType;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.db.DbClient;
@@ -142,8 +143,8 @@ public class IssueService {
     return allowedTransitions;
   }
 
-  public Issue doTransition(String issueKey, String transitionKey) {
-    verifyLoggedIn();
+  public void doTransition(String issueKey, String transitionKey) {
+    userSession.checkLoggedIn();
 
     DbSession session = dbClient.openSession(false);
     try {
@@ -153,7 +154,6 @@ public class IssueService {
       if (workflow.doTransition(defaultIssue, transitionKey, context)) {
         saveIssue(session, defaultIssue, context, null);
       }
-      return defaultIssue;
 
     } finally {
       session.close();
@@ -170,8 +170,8 @@ public class IssueService {
     }
   }
 
-  public Issue assign(String issueKey, @Nullable String assignee) {
-    verifyLoggedIn();
+  public void assign(String issueKey, @Nullable String assignee) {
+    userSession.checkLoggedIn();
 
     DbSession session = dbClient.openSession(false);
     try {
@@ -187,15 +187,14 @@ public class IssueService {
       if (issueUpdater.assign(issue, user, context)) {
         saveIssue(session, issue, context, null);
       }
-      return issue;
 
     } finally {
       session.close();
     }
   }
 
-  public Issue plan(String issueKey, @Nullable String actionPlanKey) {
-    verifyLoggedIn();
+  public void plan(String issueKey, @Nullable String actionPlanKey) {
+    userSession.checkLoggedIn();
 
     DbSession session = dbClient.openSession(false);
     try {
@@ -212,15 +211,14 @@ public class IssueService {
       if (issueUpdater.plan(issue, actionPlan, context)) {
         saveIssue(session, issue, context, null);
       }
-      return issue;
 
     } finally {
       session.close();
     }
   }
 
-  public Issue setSeverity(String issueKey, String severity) {
-    verifyLoggedIn();
+  public void setSeverity(String issueKey, String severity) {
+    userSession.checkLoggedIn();
 
     DbSession session = dbClient.openSession(false);
     try {
@@ -231,14 +229,13 @@ public class IssueService {
       if (issueUpdater.setManualSeverity(issue, severity, context)) {
         saveIssue(session, issue, context, null);
       }
-      return issue;
     } finally {
       session.close();
     }
   }
 
-  public DefaultIssue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity) {
-    verifyLoggedIn();
+  public Issue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity) {
+    userSession.checkLoggedIn();
 
     DbSession dbSession = dbClient.openSession(false);
     try {
@@ -260,6 +257,7 @@ public class IssueService {
 
       DefaultIssue issue = new DefaultIssueBuilder()
         .componentKey(component.getKey())
+        // TODO use rule type: type(rule.type())
         .projectKey(project.getKey())
         .line(line)
         .message(!Strings.isNullOrEmpty(message) ? message : rule.getName())
@@ -318,10 +316,6 @@ public class IssueService {
     return issueIndex.search(query, options);
   }
 
-  private void verifyLoggedIn() {
-    userSession.checkLoggedIn();
-  }
-
   /**
    * Search for all tags, whatever issue resolution or user access rights
    */
@@ -340,7 +334,7 @@ public class IssueService {
   }
 
   public Collection<String> setTags(String issueKey, Collection<String> tags) {
-    verifyLoggedIn();
+    userSession.checkLoggedIn();
 
     DbSession session = dbClient.openSession(false);
     try {

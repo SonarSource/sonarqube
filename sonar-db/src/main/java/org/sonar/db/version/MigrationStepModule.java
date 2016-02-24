@@ -69,6 +69,7 @@ import org.sonar.db.version.v54.MigrateQualityGatesConditions;
 import org.sonar.db.version.v54.MigrateUsersIdentity;
 import org.sonar.db.version.v54.RemoveComponentPageProperties;
 import org.sonar.db.version.v54.RemovePreviewPermission;
+import org.sonar.db.version.v55.AddIssuesType;
 import org.sonar.db.version.v55.AddRulesLongDateColumns;
 import org.sonar.db.version.v55.DeleteMeasuresWithCharacteristicId;
 import org.sonar.db.version.v55.FeedRulesLongDateColumns;
@@ -141,7 +142,8 @@ public class MigrationStepModule extends Module {
       // 5.5
       AddRulesLongDateColumns.class,
       FeedRulesLongDateColumns.class,
-      DeleteMeasuresWithCharacteristicId.class
-    );
+      DeleteMeasuresWithCharacteristicId.class,
+      AddIssuesType.class
+      );
   }
 }

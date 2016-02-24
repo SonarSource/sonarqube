@@ -61,6 +61,7 @@ public class SearchWsRequest {
   private List<String> severities;
   private List<String> statuses;
   private List<String> tags;
+  private List<String> types;
 
   @CheckForNull
   public List<String> getActionPlans() {
@@ -389,6 +390,16 @@ public class SearchWsRequest {
 
   public SearchWsRequest setTags(@Nullable List<String> tags) {
     this.tags = tags;
+    return this;
+  }
+
+  @CheckForNull
+  public List<String> getTypes() {
+    return types;
+  }
+
+  public SearchWsRequest setTypes(@Nullable List<String> types) {
+    this.types = types;
     return this;
   }
 

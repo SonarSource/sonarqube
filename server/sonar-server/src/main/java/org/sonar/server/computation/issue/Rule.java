@@ -24,6 +24,7 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.core.issue.IssueType;
 
 public interface Rule {
 
@@ -34,6 +35,8 @@ public interface Rule {
   String getName();
 
   RuleStatus getStatus();
+
+  IssueType getType();
 
   /**
    * Get all tags, whatever system or user tags.

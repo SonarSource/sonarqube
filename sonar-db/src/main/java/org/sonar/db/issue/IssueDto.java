@@ -38,6 +38,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -54,6 +55,7 @@ public final class IssueDto implements Serializable {
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 
   private Long id;
+  private int type;
   private String kee;
   private String componentUuid;
   private String projectUuid;
@@ -103,6 +105,7 @@ public final class IssueDto implements Serializable {
   public static IssueDto toDtoForComputationInsert(DefaultIssue issue, int ruleId, long now) {
     return new IssueDto()
       .setKee(issue.key())
+      .setType(issue.type())
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
@@ -151,6 +154,7 @@ public final class IssueDto implements Serializable {
     // Invariant fields, like key and rule, can't be updated
     return new IssueDto()
       .setKee(issue.key())
+      .setType(issue.type())
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
@@ -696,6 +700,20 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
+  public int getType() {
+    return type;
+  }
+
+  public IssueDto setType(int type) {
+    this.type = type;
+    return this;
+  }
+
+  public IssueDto setType(IssueType type) {
+    this.type = type.getDbConstant();
+    return this;
+  }
+
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
@@ -704,6 +722,7 @@ public final class IssueDto implements Serializable {
   public DefaultIssue toDefaultIssue() {
     DefaultIssue issue = new DefaultIssue();
     issue.setKey(kee);
+    issue.setType(IssueType.valueOf(type));
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setMessage(message);

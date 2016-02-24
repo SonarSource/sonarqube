@@ -34,6 +34,7 @@
     issue_update_date="1356994800000"
     issue_close_date="[null]"
     locations="[null]"
+    issue_type="1"
     />
 
   <issues
@@ -63,6 +64,7 @@
     issue_update_date="1356994800000"
     issue_close_date="[null]"
     locations="[null]"
+    issue_type="2"
     />
 
   <issues
@@ -91,7 +93,9 @@
     issue_creation_date="1115848800000"
     issue_update_date="1368828000000"
     issue_close_date="[null]"
-    locations="[null]"/>
+    locations="[null]"
+    issue_type="1"
+  />
 
   <issues
     id="4"
@@ -120,6 +124,7 @@
     issue_update_date="1356994800000"
     issue_close_date="[null]"
     locations="[null]"
+    issue_type="1"
     />
 
 </dataset>

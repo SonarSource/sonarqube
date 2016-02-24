@@ -17,18 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v55;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AddColumnsBuilder;
+import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.TinyIntColumnDef;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class AddIssuesType extends DdlChange {
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(55);
+  private final Database db;
+
+  public AddIssuesType(Database db) {
+    super(db);
+    this.db = db;
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(generateSql());
+  }
+
+  private String generateSql() {
+    return new AddColumnsBuilder(db.getDialect(), "issues")
+      .addColumn(new TinyIntColumnDef.Builder().setColumnName("issue_type").setIsNullable(true).build())
+      .build();
+  }
+
 }

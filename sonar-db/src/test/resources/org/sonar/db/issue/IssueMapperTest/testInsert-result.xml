@@ -26,5 +26,6 @@
     updated_at="1500000000000"
     action_plan_key="current_sprint"
     locations="[null]"
+    issue_type="2"
     />
 </dataset>

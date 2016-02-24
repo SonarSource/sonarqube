@@ -19,18 +19,16 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.collect.Sets;
-import java.util.Collections;
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueType;
 import org.sonar.server.computation.component.Component;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.rule.RuleTesting.XOO_X1;
 
-public class RuleTagsCopierTest {
+public class RuleTypeCopierTest {
 
   DumbRule rule = new DumbRule(XOO_X1);
 
@@ -38,35 +36,24 @@ public class RuleTagsCopierTest {
   public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(rule);
 
   DefaultIssue issue = new DefaultIssue().setRuleKey(rule.getKey());
-  RuleTagsCopier underTest = new RuleTagsCopier(ruleRepository);
+  RuleTypeCopier underTest = new RuleTypeCopier(ruleRepository);
 
   @Test
-  public void copy_tags_if_new_issue() {
-    rule.setTags(Sets.newHashSet("bug", "performance"));
-    issue.setNew(true);
+  public void copy_rule_type_if_missing() {
+    rule.setType(IssueType.BUG);
 
     underTest.onIssue(mock(Component.class), issue);
 
-    assertThat(issue.tags()).containsExactly("bug", "performance");
+    assertThat(issue.type()).isEqualTo(IssueType.BUG);
   }
 
   @Test
-  public void do_not_copy_tags_if_existing_issue() {
-    rule.setTags(Sets.newHashSet("bug", "performance"));
-    issue.setNew(false).setTags(asList("misra"));
+  public void do_not_copy_type_if_present() {
+    rule.setType(IssueType.BUG);
+    issue.setType(IssueType.VULNERABILITY);
 
     underTest.onIssue(mock(Component.class), issue);
 
-    assertThat(issue.tags()).containsExactly("misra");
-  }
-
-  @Test
-  public void do_not_copy_tags_if_existing_issue_without_tags() {
-    rule.setTags(Sets.newHashSet("bug", "performance"));
-    issue.setNew(false).setTags(Collections.<String>emptyList());
-
-    underTest.onIssue(mock(Component.class), issue);
-
-    assertThat(issue.tags()).isEmpty();
+    assertThat(issue.type()).isEqualTo(IssueType.VULNERABILITY);
   }
 }

@@ -34,6 +34,8 @@ import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueType;
+import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -161,7 +163,7 @@ public class ActionPlanServiceTest {
     when(actionPlanDao.selectByKey("ABCD")).thenReturn(new ActionPlanDto().setKey("ABCD").setProjectKey_unit_test_only(PROJECT_KEY));
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(new ResourceDto().setKey(PROJECT_KEY).setId(1l));
 
-    IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey("squid", "s100").setIssueCreationDate(new Date());
+    IssueDto issueDto = new IssueDto().setId(100L).setStatus(Issue.STATUS_OPEN).setRuleKey("squid", "s100").setIssueCreationDate(new Date()).setType(IssueType.BUG);
     when(issueDao.selectByActionPlan(session, "ABCD")).thenReturn(newArrayList(issueDto));
     when(issueUpdater.plan(any(DefaultIssue.class), eq((ActionPlan) null), any(IssueChangeContext.class))).thenReturn(true);
 

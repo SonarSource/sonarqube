@@ -31,6 +31,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
+import org.sonarqube.ws.Issues;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -86,6 +87,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.effortToFix()).isEqualTo(2d);
     assertThat(issue.actionPlanKey()).isEqualTo("PLAN1");
     assertThat(issue.attribute("JIRA")).isEqualTo("http://jira.com");
+    assertThat(issue.type().getDbConstant()).isEqualTo(2);
   }
 
   @Test
@@ -108,6 +110,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.type().getDbConstant()).isEqualTo(1);
 
     issue = issuesByKey.get("BCD");
     assertThat(issue.key()).isEqualTo("BCD");
@@ -120,6 +123,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.filePath()).isNull();
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.type().getDbConstant()).isEqualTo(2);
 
     issue = issuesByKey.get("DEF");
     assertThat(issue.key()).isEqualTo("DEF");
@@ -132,6 +136,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.tags()).isEmpty();
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.type().getDbConstant()).isEqualTo(1);
 
     issue = issuesByKey.get("EFG");
     assertThat(issue.key()).isEqualTo("EFG");
@@ -144,6 +149,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.filePath()).isEqualTo("src/main/java");
     assertThat(issue.tags()).isEmpty();
     assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.type().getDbConstant()).isEqualTo(1);
   }
 
   @Test

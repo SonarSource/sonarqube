@@ -76,6 +76,7 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_STATUS = "status";
   public static final String FIELD_ISSUE_CHECKSUM = "checksum";
   public static final String FIELD_ISSUE_TAGS = "tags";
+  public static final String FIELD_ISSUE_TYPE = "type";
   /**
    * Technical date
    */
@@ -134,5 +135,6 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.stringFieldBuilder(FIELD_ISSUE_STATUS).enableSorting().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_TAGS).build();
     issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_TYPE).build();
   }
 }

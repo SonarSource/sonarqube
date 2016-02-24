@@ -26,6 +26,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueType;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
 
@@ -40,6 +41,7 @@ public class UpdateConflictResolverTest {
   public void should_reload_issue_and_resolve_conflict() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
+      .setType(IssueType.CODE_SMELL)
       .setRuleKey(RuleKey.of("squid", "AvoidCycles"))
       .setComponentKey("struts:org.apache.struts.Action")
       .setNew(false)
@@ -50,6 +52,7 @@ public class UpdateConflictResolverTest {
     when(mapper.selectByKey("ABCDE")).thenReturn(
       new IssueDto()
         .setKee("ABCDE")
+        .setType(IssueType.CODE_SMELL)
         .setRuleId(10)
         .setRuleKey("squid", "AvoidCycles")
         .setComponentKey("struts:org.apache.struts.Action")

@@ -145,6 +145,10 @@ public class SearchResponseFormat {
 
   private void formatIssue(Issues.Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
+    Issues.IssueType type = Issues.IssueType.valueOf(dto.getType());
+    if (type != null) {
+      issueBuilder.setType(type);
+    }
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
     issueBuilder.setComponent(dto.getComponentKey());
     // Only used for the compatibility with the Java WS Client <= 4.4 used by Eclipse

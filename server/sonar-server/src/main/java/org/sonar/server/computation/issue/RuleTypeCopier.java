@@ -17,18 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.server.computation.issue;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.server.computation.component.Component;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.google.common.collect.Sets.union;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(55);
+public class RuleTypeCopier extends IssueVisitor {
+
+  private final RuleRepository ruleRepository;
+
+  public RuleTypeCopier(RuleRepository ruleRepository) {
+    this.ruleRepository = ruleRepository;
+  }
+
+  @Override
+  public void onIssue(Component component, DefaultIssue issue) {
+    if (issue.type()==null) {
+      Rule rule = ruleRepository.getByKey(issue.ruleKey());
+      issue.setType(rule.getType());
+    }
   }
 }

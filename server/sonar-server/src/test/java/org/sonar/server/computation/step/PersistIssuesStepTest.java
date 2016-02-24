@@ -32,6 +32,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.IssueType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -93,6 +94,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     issueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
+      .setType(IssueType.CODE_SMELL)
       .setRuleKey(RuleKey.of("xoo", "S01"))
       .setComponentUuid("COMPONENT")
       .setProjectUuid("PROJECT")
@@ -112,6 +114,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     issueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
+      .setType(IssueType.CODE_SMELL)
       .setRuleKey(RuleKey.of("xoo", "S01"))
       .setComponentUuid("COMPONENT")
       .setProjectUuid("PROJECT")
@@ -134,6 +137,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     issueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
+      .setType(IssueType.CODE_SMELL)
       .setRuleKey(RuleKey.of("xoo", "S01"))
       .setComponentUuid("COMPONENT")
       .setProjectUuid("PROJECT")
@@ -162,6 +166,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
     issueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
+      .setType(IssueType.CODE_SMELL)
       .setRuleKey(RuleKey.of("xoo", "S01"))
       .setComponentUuid("COMPONENT")
       .setProjectUuid("PROJECT")

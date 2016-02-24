@@ -50,6 +50,7 @@ public class IssueQueryTest {
       .assignees(newArrayList("gargantua"))
       .languages(newArrayList("xoo"))
       .tags(newArrayList("tag1", "tag2"))
+      .types(newArrayList("RELIABILITY", "SECURITY"))
       .assigned(true)
       .hideRules(true)
       .createdAfter(new Date())
@@ -70,6 +71,7 @@ public class IssueQueryTest {
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
+    assertThat(query.types()).containsOnly("RELIABILITY", "SECURITY");
     assertThat(query.assigned()).isTrue();
     assertThat(query.hideRules()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
@@ -124,6 +126,7 @@ public class IssueQueryTest {
       .severities(null)
       .languages(null)
       .tags(null)
+      .types(null)
       .build();
     assertThat(query.issueKeys()).isEmpty();
     assertThat(query.componentUuids()).isEmpty();
@@ -137,6 +140,7 @@ public class IssueQueryTest {
     assertThat(query.severities()).isEmpty();
     assertThat(query.languages()).isEmpty();
     assertThat(query.tags()).isEmpty();
+    assertThat(query.types()).isEmpty();
   }
 
   @Test

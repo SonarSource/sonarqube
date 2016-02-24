@@ -68,6 +68,7 @@ public class IssueLifecycle {
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
     raw.setNew(false);
     raw.setKey(base.key());
+    raw.setType(base.type());
     raw.setCreationDate(base.creationDate());
     raw.setUpdateDate(base.updateDate());
     raw.setCloseDate(base.closeDate());

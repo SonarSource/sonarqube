@@ -43,6 +43,7 @@ public class IssueMapperTest {
     dto.setComponentUuid("uuid-123");
     dto.setProjectUuid("uuid-100");
     dto.setRuleId(200);
+    dto.setType(2);
     dto.setKee("ABCDE");
     dto.setLine(500);
     dto.setEffortToFix(3.14);
@@ -78,6 +79,7 @@ public class IssueMapperTest {
     dto.setComponentUuid("uuid-123");
     dto.setProjectUuid("uuid-101");
     dto.setRuleId(200);
+    dto.setType(3);
     dto.setKee("ABCDE");
     dto.setLine(500);
     dto.setEffortToFix(3.14);
@@ -113,6 +115,7 @@ public class IssueMapperTest {
     dto.setComponentUuid("uuid-123");
     dto.setProjectUuid("uuid-101");
     dto.setRuleId(200);
+    dto.setType(3);
     dto.setKee("ABCDE");
     dto.setLine(500);
     dto.setEffortToFix(3.14);

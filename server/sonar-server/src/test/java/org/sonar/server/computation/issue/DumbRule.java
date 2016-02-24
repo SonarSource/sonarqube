@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.core.issue.IssueType;
 
 import static java.util.Objects.requireNonNull;
 
@@ -33,6 +34,7 @@ public class DumbRule implements Rule {
   private RuleKey key;
   private String name;
   private RuleStatus status = RuleStatus.READY;
+  private IssueType type = IssueType.CODE_SMELL;
   private Set<String> tags = new HashSet<>();
   private DebtRemediationFunction function;
 
@@ -67,6 +69,11 @@ public class DumbRule implements Rule {
   }
 
   @Override
+  public IssueType getType() {
+    return type;
+  }
+
+  @Override
   public DebtRemediationFunction getRemediationFunction() {
     return function;
   }
@@ -93,5 +100,9 @@ public class DumbRule implements Rule {
 
   public void setTags(Set<String> tags) {
     this.tags = tags;
+  }
+
+  public void setType(IssueType type) {
+    this.type = type;
   }
 }

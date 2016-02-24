@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.IssueType;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -80,7 +81,8 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "p.module_uuid_path",
     "p.path",
     "p.scope",
-    "i.tags"
+    "i.tags",
+    "i.issue_type"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from issues i " +
@@ -191,6 +193,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
     String tags = rs.getString(28);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
+    doc.setType(IssueType.valueOf(rs.getInt(29)));
     return doc;
   }
 }
