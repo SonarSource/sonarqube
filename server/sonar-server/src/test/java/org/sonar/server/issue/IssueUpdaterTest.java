@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue;
+package org.sonar.server.issue;
 
 import java.util.Date;
 import org.junit.Before;
@@ -27,16 +27,20 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultActionPlan;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
+import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.user.DefaultUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.core.issue.IssueUpdater.ACTION_PLAN;
-import static org.sonar.core.issue.IssueUpdater.ASSIGNEE;
-import static org.sonar.core.issue.IssueUpdater.RESOLUTION;
-import static org.sonar.core.issue.IssueUpdater.SEVERITY;
-import static org.sonar.core.issue.IssueUpdater.STATUS;
-import static org.sonar.core.issue.IssueUpdater.TECHNICAL_DEBT;
-import static org.sonar.core.issue.IssueUpdater.UNUSED;
+import static org.sonar.server.issue.IssueUpdater.ACTION_PLAN;
+import static org.sonar.server.issue.IssueUpdater.ASSIGNEE;
+import static org.sonar.server.issue.IssueUpdater.RESOLUTION;
+import static org.sonar.server.issue.IssueUpdater.SEVERITY;
+import static org.sonar.server.issue.IssueUpdater.STATUS;
+import static org.sonar.server.issue.IssueUpdater.TECHNICAL_DEBT;
+import static org.sonar.server.issue.IssueUpdater.UNUSED;
 
 public class IssueUpdaterTest {
 

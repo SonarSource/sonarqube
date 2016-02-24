@@ -33,7 +33,6 @@ import org.sonar.api.issue.action.Function;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.properties.ProjectSettingsFactory;

@@ -28,7 +28,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserSession;

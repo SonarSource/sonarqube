@@ -28,7 +28,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.issue.DefaultActionPlan;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.user.ThreadLocalUserSession;
 

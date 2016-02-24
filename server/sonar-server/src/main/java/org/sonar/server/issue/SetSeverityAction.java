@@ -28,7 +28,6 @@ import org.sonar.api.issue.condition.IsUnResolved;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueUpdater;
 import org.sonar.server.user.UserSession;
 
 @ServerSide

@@ -25,7 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
+import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.core.util.Uuids;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;

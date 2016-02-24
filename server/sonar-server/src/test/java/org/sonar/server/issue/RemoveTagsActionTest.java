@@ -27,7 +27,6 @@ import org.junit.rules.ExpectedException;
 import org.mockito.Matchers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueUpdater;
 
 import java.util.Collection;
 import java.util.Map;
