@@ -36,7 +36,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.rule.RuleKeyFunctions;
+import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;

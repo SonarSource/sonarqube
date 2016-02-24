@@ -33,7 +33,6 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.core.rule.SeverityUtil;
 import org.sonar.db.Dto;
 
 import static com.google.common.base.Preconditions.checkArgument;

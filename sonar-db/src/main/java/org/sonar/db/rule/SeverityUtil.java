@@ -17,8 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.core.rule;
+package org.sonar.db.rule;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+import org.sonar.api.rule.Severity;
 
+public class SeverityUtil {
+
+  private SeverityUtil() {
+    // Only static stuff
+  }
+
+  public static String getSeverityFromOrdinal(int ordinal) {
+    return Severity.ALL.get(ordinal);
+  }
+
+  public static int getOrdinalFromSeverity(String severity) {
+    return Severity.ALL.indexOf(severity);
+  }
+}

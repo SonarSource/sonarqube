@@ -27,7 +27,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.core.rule.SeverityUtil;
+import org.sonar.db.rule.SeverityUtil;
 import org.sonar.db.Dto;
 import org.sonar.db.rule.RuleDto;
 
