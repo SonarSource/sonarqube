@@ -24,6 +24,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -35,13 +36,14 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.ActiveRuleParam;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 
 @ServerSide
 public class QProfileReset {
@@ -49,19 +51,22 @@ public class QProfileReset {
   private final DbClient db;
   private final QProfileFactory factory;
   private final RuleActivator activator;
+  private final ActiveRuleIndexer activeRuleIndexer;
   private final BuiltInProfiles builtInProfiles;
   private final ProfileDefinition[] definitions;
 
-  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles, QProfileFactory factory, ProfileDefinition[] definitions) {
+  public QProfileReset(DbClient db, RuleActivator activator, ActiveRuleIndexer activeRuleIndexer, BuiltInProfiles builtInProfiles, QProfileFactory factory,
+    ProfileDefinition[] definitions) {
     this.db = db;
     this.activator = activator;
+    this.activeRuleIndexer = activeRuleIndexer;
     this.builtInProfiles = builtInProfiles;
     this.factory = factory;
     this.definitions = definitions;
   }
 
-  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles, QProfileFactory factory) {
-    this(db, activator, builtInProfiles, factory, new ProfileDefinition[0]);
+  public QProfileReset(DbClient db, RuleActivator activator, BuiltInProfiles builtInProfiles, QProfileFactory factory, ActiveRuleIndexer activeRuleIndexer) {
+    this(db, activator, activeRuleIndexer, builtInProfiles, factory, new ProfileDefinition[0]);
   }
 
   public Collection<String> builtInProfileNamesForLanguage(String language) {
@@ -89,7 +94,7 @@ public class QProfileReset {
                 activation.setParameter(param.getParamKey(), param.getValue());
               }
             } else {
-              for (RuleParamDto param : db.deprecatedRuleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
+              for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(dbSession, activeRule.getRule().ruleKey())) {
                 activation.setParameter(param.getName(), param.getDefaultValue());
               }
             }
@@ -97,7 +102,6 @@ public class QProfileReset {
           }
         }
         doReset(dbSession, profile, activations);
-        dbSession.commit();
       }
     } finally {
       dbSession.close();
@@ -112,7 +116,6 @@ public class QProfileReset {
     try {
       QualityProfileDto profile = factory.getOrCreate(dbSession, profileName);
       BulkChangeResult result = doReset(dbSession, profile, activations);
-      dbSession.commit();
       return result;
     } finally {
       dbSession.close();
@@ -147,13 +150,17 @@ public class QProfileReset {
       }
     }
 
+    List<ActiveRuleChange> changes = new ArrayList<>();
+    changes.addAll(result.getChanges());
     for (RuleKey ruleKey : ruleToBeDeactivated) {
       try {
-        activator.deactivate(dbSession, ActiveRuleKey.of(profile.getKee(), ruleKey));
+        changes.addAll(activator.deactivate(dbSession, ActiveRuleKey.of(profile.getKee(), ruleKey)));
       } catch (BadRequestException e) {
         // ignore, probably a rule inherited from parent that can't be deactivated
       }
     }
+    dbSession.commit();
+    activeRuleIndexer.index(changes);
     return result;
   }
 
