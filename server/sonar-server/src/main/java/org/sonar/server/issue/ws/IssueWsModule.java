@@ -33,13 +33,11 @@ public class IssueWsModule extends Module {
       CreateAction.class,
       DoTransitionAction.class,
       PlanAction.class,
-      ShowAction.class,
       SearchAction.class,
       SetSeverityAction.class,
       TagsAction.class,
       SetTagsAction.class,
       ComponentTagsAction.class,
-      IssueActionsWriter.class,
       AuthorsAction.class);
   }
 }
