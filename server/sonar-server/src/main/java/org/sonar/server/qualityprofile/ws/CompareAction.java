@@ -21,6 +21,9 @@ package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -29,9 +32,9 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.core.util.NonNullInputFunction;
-import org.sonar.server.qualityprofile.ActiveRule;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
@@ -39,10 +42,6 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
 import org.sonar.server.rule.RuleService;
-
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 
 public class CompareAction implements QProfileWsAction {
 
@@ -145,15 +144,15 @@ public class CompareAction implements QProfileWsAction {
       .prop(ATTRIBUTE_NAME, profile.getName());
   }
 
-  private void writeRules(JsonWriter json, Map<RuleKey, ActiveRule> activeRules, Map<RuleKey, Rule> rulesByKey) {
+  private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, Rule> rulesByKey) {
     json.beginArray();
-    for (Entry<RuleKey, ActiveRule> activeRule : activeRules.entrySet()) {
+    for (Entry<RuleKey, ActiveRuleDto> activeRule : activeRules.entrySet()) {
       RuleKey key = activeRule.getKey();
-      ActiveRule value = activeRule.getValue();
+      ActiveRuleDto value = activeRule.getValue();
 
       json.beginObject();
       writeRule(json, key, rulesByKey);
-      json.prop(ATTRIBUTE_SEVERITY, value.severity());
+      json.prop(ATTRIBUTE_SEVERITY, value.getSeverityString());
       json.endObject();
     }
     json.endArray();
