@@ -65,6 +65,7 @@ import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUser;
@@ -86,6 +87,7 @@ public class IssueServiceMediumTest {
   IssueIndex IssueIndex;
   DbSession session;
   IssueService service;
+  RuleIndexer ruleIndexer;
 
   @Before
   public void setUp() {
@@ -94,6 +96,8 @@ public class IssueServiceMediumTest {
     IssueIndex = tester.get(IssueIndex.class);
     session = db.openSession(false);
     service = tester.get(IssueService.class);
+    ruleIndexer = tester.get(RuleIndexer.class);
+    ruleIndexer.setEnabled(true);
   }
 
   @After
@@ -573,6 +577,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = RuleTesting.newXooX1();
     tester.get(RuleDao.class).insert(session, rule);
     session.commit();
+    ruleIndexer.index();
     return rule;
   }
 
