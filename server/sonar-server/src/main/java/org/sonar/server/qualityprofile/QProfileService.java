@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.base.Optional;
 import java.io.Reader;
 import java.io.StringReader;
 import java.io.StringWriter;
@@ -32,14 +33,15 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.activity.index.ActivityIndex;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
@@ -49,6 +51,7 @@ public class QProfileService {
 
   private final DbClient db;
   private final ActivityIndex activityIndex;
+  private final ActiveRuleIndexer activeRuleIndexer;
   private final RuleActivator ruleActivator;
   private final QProfileFactory factory;
   private final QProfileBackuper backuper;
@@ -57,11 +60,12 @@ public class QProfileService {
   private final QProfileExporters exporters;
   private final UserSession userSession;
 
-  public QProfileService(DbClient db, ActivityIndex activityIndex, RuleActivator ruleActivator, QProfileFactory factory,
+  public QProfileService(DbClient db, ActivityIndex activityIndex, ActiveRuleIndexer activeRuleIndexer, RuleActivator ruleActivator, QProfileFactory factory,
     QProfileBackuper backuper, QProfileCopier copier, QProfileReset reset, QProfileExporters exporters,
     UserSession userSession) {
     this.db = db;
     this.activityIndex = activityIndex;
+    this.activeRuleIndexer = activeRuleIndexer;
     this.ruleActivator = ruleActivator;
     this.factory = factory;
     this.backuper = backuper;
@@ -84,6 +88,7 @@ public class QProfileService {
         }
       }
       dbSession.commit();
+      activeRuleIndexer.index(result.getChanges());
       return result;
     } finally {
       dbSession.close();
@@ -100,6 +105,7 @@ public class QProfileService {
     try {
       List<ActiveRuleChange> changes = ruleActivator.activate(dbSession, activation, profileKey);
       dbSession.commit();
+      activeRuleIndexer.index(changes);
       return changes;
     } finally {
       dbSession.close();
@@ -172,7 +178,14 @@ public class QProfileService {
 
   public void delete(String key) {
     verifyAdminPermission();
-    factory.delete(key);
+    DbSession session = db.openSession(false);
+    try {
+      List<ActiveRuleChange> changes = factory.delete(session, key, false);
+      session.commit();
+      activeRuleIndexer.index(changes);
+    } finally {
+      db.closeSession(session);
+    }
   }
 
   public void rename(String key, String newName) {
@@ -219,8 +232,8 @@ public class QProfileService {
       Result<QProfileActivity> result = new Result<>(response);
       for (SearchHit hit : response.getHits().getHits()) {
         QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
-        RuleDto ruleDto = db.deprecatedRuleDao().getNullableByKey(session, profileActivity.ruleKey());
-        profileActivity.ruleName(ruleDto != null ? ruleDto.getName() : null);
+        Optional<RuleDto> ruleDto = db.ruleDao().selectByKey(session, profileActivity.ruleKey());
+        profileActivity.ruleName(ruleDto.isPresent() ? ruleDto.get().getName() : null);
 
         String login = profileActivity.getLogin();
         if (login != null) {
