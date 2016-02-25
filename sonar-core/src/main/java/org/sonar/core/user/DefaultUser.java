@@ -27,8 +27,10 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.user.User;
 
 /**
- * @since 3.6
+ * Used only by unit tests. To be replaced by UserDto.
+ * @deprecated
  */
+@Deprecated
 public class DefaultUser implements User {
   private String login;
   private String name;

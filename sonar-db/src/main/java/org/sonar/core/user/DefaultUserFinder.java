@@ -43,8 +43,7 @@ public class DefaultUserFinder implements UserFinder {
   @Override
   @CheckForNull
   public User findByLogin(String login) {
-    UserDto dto = userDao.selectActiveUserByLogin(login);
-    return dto != null ? dto.toUser() : null;
+    return userDao.selectActiveUserByLogin(login);
   }
 
   @Override
@@ -62,7 +61,7 @@ public class DefaultUserFinder implements UserFinder {
   private static List<User> toUsers(Collection<UserDto> dtos) {
     List<User> users = Lists.newArrayList();
     for (UserDto dto : dtos) {
-      users.add(dto.toUser());
+      users.add(dto);
     }
     return users;
   }
