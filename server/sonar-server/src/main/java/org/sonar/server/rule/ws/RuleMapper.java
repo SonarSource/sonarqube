@@ -54,6 +54,9 @@ public class RuleMapper {
     this.macroInterpreter = macroInterpreter;
   }
 
+  /**
+   * Convert a RuleDto to WsRule. If fieldsToReturn is empty all the fields are returned
+   */
   public Rules.Rule toWsRule(RuleDto ruleDto, SearchResult result, Set<String> fieldsToReturn) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
 
@@ -286,7 +289,7 @@ public class RuleMapper {
   private static DebtRemediationFunction debtRemediationFunction(final RuleDto ruleDto) {
     final String function = ruleDto.getRemediationFunction();
     if (function == null || function.isEmpty()) {
-      return null;
+      return defaultDebtRemediationFunction(ruleDto);
     } else {
       return new DebtRemediationFunction() {
         @Override

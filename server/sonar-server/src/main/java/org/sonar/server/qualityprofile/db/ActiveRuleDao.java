@@ -22,6 +22,7 @@ package org.sonar.server.qualityprofile.db;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -31,6 +32,7 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.qualityprofile.SqlActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleMapper;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
@@ -137,9 +139,14 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
       return emptyList();
     }
 
-    return DatabaseUtils.executeLargeInputs(keys, new Function<List<ActiveRuleKey>, List<ActiveRuleDto>>() {
+    List<SqlActiveRuleKey> sqlKeys = new ArrayList<>();
+    for (ActiveRuleKey key : keys) {
+      sqlKeys.add(new SqlActiveRuleKey(key));
+    }
+
+    return DatabaseUtils.executeLargeInputs(sqlKeys, new Function<List<SqlActiveRuleKey>, List<ActiveRuleDto>>() {
       @Override
-      public List<ActiveRuleDto> apply(@Nonnull List<ActiveRuleKey> input) {
+      public List<ActiveRuleDto> apply(@Nonnull List<SqlActiveRuleKey> input) {
         return mapper(dbSession).selectByKeys(input);
       }
     });

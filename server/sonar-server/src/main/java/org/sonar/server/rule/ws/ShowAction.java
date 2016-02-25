@@ -19,16 +19,24 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.io.Resources;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.Rule;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.RuleService;
 import org.sonarqube.ws.Rules.ShowResponse;
 
+import static java.util.Collections.singletonList;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -39,14 +47,18 @@ public class ShowAction implements RulesWsAction {
   public static final String PARAM_KEY = "key";
   public static final String PARAM_ACTIVES = "actives";
 
+  private final DbClient dbClient;
   private final RuleService service;
   private final RuleMapping mapping;
+  private final RuleMapper mapper;
   private final ActiveRuleCompleter activeRuleCompleter;
 
-  public ShowAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping) {
+  public ShowAction(DbClient dbClient, RuleService service, RuleMapping mapping, RuleMapper mapper, ActiveRuleCompleter activeRuleCompleter) {
+    this.dbClient = dbClient;
     this.service = service;
     this.mapping = mapping;
     this.activeRuleCompleter = activeRuleCompleter;
+    this.mapper = mapper;
   }
 
   @Override
@@ -74,21 +86,39 @@ public class ShowAction implements RulesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    Rule rule = service.getByKey(key);
-    if (rule == null) {
-      throw new NotFoundException("Rule not found: " + key);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, key);
+      checkFoundWithOptional(optionalRule, "Rule not found: " + key);
+      RuleDto rule = optionalRule.get();
+      List<RuleDto> templateRules = new ArrayList<>();
+      if (rule.getTemplateId() != null) {
+        Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(rule.getTemplateId(), dbSession);
+        if (templateRule.isPresent()) {
+          templateRules.add(templateRule.get());
+        }
+      }
+      List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
+      ShowResponse showResponse = buildResponse(dbSession, request,
+        new SearchAction.SearchResult()
+          .setRules(singletonList(rule))
+          .setTemplateRules(templateRules)
+          .setRuleParameters(ruleParameters)
+          .setTotal(1L));
+      writeProtobuf(showResponse, request, response);
+    } finally {
+      dbClient.closeSession(dbSession);
     }
 
-    ShowResponse showResponse = buildResponse(request, rule);
-    writeProtobuf(showResponse, request, response);
   }
 
-  private ShowResponse buildResponse(Request request, Rule rule) {
+  private ShowResponse buildResponse(DbSession dbSession, Request request, SearchAction.SearchResult searchResult) {
     ShowResponse.Builder responseBuilder = ShowResponse.newBuilder();
-    responseBuilder.setRule(mapping.buildRuleResponse(rule, null /* TODO replace by SearchOptions immutable constant */));
+    RuleDto rule = searchResult.getRules().get(0);
+    responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.<String>emptySet()));
 
     if (request.mandatoryParamAsBoolean(PARAM_ACTIVES)) {
-      activeRuleCompleter.completeShow(rule, responseBuilder);
+      activeRuleCompleter.completeShow(dbSession, rule, responseBuilder);
     }
 
     return responseBuilder.build();

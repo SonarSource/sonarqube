@@ -38,7 +38,7 @@ public interface ActiveRuleMapper {
 
   ActiveRuleDto selectByKey(@Param("profileKey") String profileKey, @Param("repository") String repository, @Param("rule") String rule);
 
-  List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
+  List<ActiveRuleDto> selectByKeys(@Param("keys") List<SqlActiveRuleKey> keys);
 
   List<ActiveRuleDto> selectByRuleId(int ruleId);
 

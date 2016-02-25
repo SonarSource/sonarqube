@@ -26,7 +26,6 @@ import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -47,7 +46,6 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileLoader;
-import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.Rules;
 import org.sonarqube.ws.Rules.SearchResponse;
@@ -125,9 +123,23 @@ public class ActiveRuleCompleter {
     return qProfileKeys;
   }
 
-  void completeShow(Rule rule, ShowResponse.Builder response) {
-    for (ActiveRule activeRule : loader.findActiveRulesByRule(rule.key())) {
-      response.addActives(buildActiveRuleResponse(activeRule, Collections.<ActiveRuleParamDto>emptyList()));
+  void completeShow(DbSession dbSession, RuleDto rule, ShowResponse.Builder response) {
+    List<ActiveRule> activeRules = loader.findActiveRulesByRule(rule.getKey());
+    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByActiveRuleKeys(dbSession, Lists.transform(activeRules, ActiveRuleToKey.INSTANCE));
+    Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
+    for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
+      activeRuleIdsByKey.put(activeRuleDto.getId(), activeRuleDto.getKey());
+    }
+
+    List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDtoToId.INSTANCE));
+    ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRules.size(), 10);
+    for (ActiveRuleParamDto activeRuleParamDto : activeRuleParamDtos) {
+      ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getId());
+      activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParamDto);
+    }
+
+    for (ActiveRule activeRule : activeRules) {
+      response.addActives(buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.key())));
     }
   }
 

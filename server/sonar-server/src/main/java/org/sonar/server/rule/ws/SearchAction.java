@@ -386,10 +386,12 @@ public class SearchAction implements RulesWsAction {
       .toList();
     List<RuleDto> templateRules = dbClient.ruleDao().selectByIds(dbSession, templateRuleIds);
     List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds);
-    return new SearchResult(result)
+    return new SearchResult()
       .setRules(rules)
-      .setRuleParams(ruleParamDtos)
-      .setTemplateRules(templateRules);
+      .setRuleParameters(ruleParamDtos)
+      .setTemplateRules(templateRules)
+      .setFacets(result.getFacetsObject())
+      .setTotal(result.getTotal());
   }
 
   protected RuleQuery doQuery(Request request) {
@@ -482,15 +484,13 @@ public class SearchAction implements RulesWsAction {
     private List<RuleDto> rules;
     private final ListMultimap<Integer, RuleParamDto> ruleParamsByRuleId;
     private final Map<Integer, RuleDto> templateRulesByRuleId;
-    private final long total;
-    private final Facets facets;
+    private Long total;
+    private Facets facets;
 
-    public SearchResult(Result<Rule> result) {
+    public SearchResult() {
       this.rules = new ArrayList<>();
       this.ruleParamsByRuleId = ArrayListMultimap.create();
       this.templateRulesByRuleId = new HashMap<>();
-      this.total = result.getTotal();
-      this.facets = result.getFacetsObject();
     }
 
     public List<RuleDto> getRules() {
@@ -506,7 +506,7 @@ public class SearchAction implements RulesWsAction {
       return ruleParamsByRuleId;
     }
 
-    public SearchResult setRuleParams(List<RuleParamDto> ruleParams) {
+    public SearchResult setRuleParameters(List<RuleParamDto> ruleParams) {
       ruleParamsByRuleId.clear();
       for (RuleParamDto ruleParam : ruleParams) {
         ruleParamsByRuleId.put(ruleParam.getRuleId(), ruleParam);
@@ -526,12 +526,24 @@ public class SearchAction implements RulesWsAction {
       return this;
     }
 
-    public long getTotal() {
+    @CheckForNull
+    public Long getTotal() {
       return total;
     }
 
+    public SearchResult setTotal(Long total) {
+      this.total = total;
+      return this;
+    }
+
+    @CheckForNull
     public Facets getFacets() {
       return facets;
+    }
+
+    public SearchResult setFacets(Facets facets) {
+      this.facets = facets;
+      return this;
     }
   }
 
