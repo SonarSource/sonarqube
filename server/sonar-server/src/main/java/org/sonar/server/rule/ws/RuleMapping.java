@@ -114,8 +114,6 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
 
   public Rules.Rule buildRuleResponse(Rule ruleDoc, @Nullable QueryContext queryContext) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
-
-    RuleMappingContext context = new RuleMappingContext();
     Set<String> fieldsToReturn = fieldsToReturn(queryContext);
 
     ruleResponse.setKey(ruleDoc.key().toString());

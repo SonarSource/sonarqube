@@ -73,6 +73,10 @@ public class Result<K> {
     return this.facets.getFacets();
   }
 
+  public Facets getFacetsObject() {
+    return this.facets;
+  }
+
   @CheckForNull
   public Collection<FacetValue> getFacetValues(String facetName) {
     return this.facets.getFacetValues(facetName);

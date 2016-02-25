@@ -20,6 +20,9 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -47,10 +50,6 @@ import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -166,7 +165,7 @@ public class SearchActionMediumTest {
 
   @Test
   public void return_lang_key_field_when_language_name_is_not_available() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newDto(RuleKey.of("other", "rule"))).setLanguage("unknown");
+    ruleDao.insert(dbSession, RuleTesting.newDto(RuleKey.of("other", "rule")).setLanguage("unknown"));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "langName");
@@ -184,8 +183,7 @@ public class SearchActionMediumTest {
       .setDefaultRemediationOffset("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setRemediationCoefficient("2h")
-      .setRemediationOffset("25min")
-      );
+      .setRemediationOffset("25min"));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -202,8 +200,7 @@ public class SearchActionMediumTest {
       .setDefaultRemediationOffset("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
       .setRemediationCoefficient(null)
-      .setRemediationOffset("5min")
-      );
+      .setRemediationOffset("5min"));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -220,8 +217,7 @@ public class SearchActionMediumTest {
       .setDefaultRemediationOffset("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
       .setRemediationCoefficient("1h")
-      .setRemediationOffset(null)
-      );
+      .setRemediationOffset(null));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
@@ -248,7 +244,7 @@ public class SearchActionMediumTest {
   public void search_custom_rules_from_template_key() throws Exception {
     RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
     ruleDao.insert(dbSession, templateRule);
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()).setTemplateId(templateRule.getId());
+    ruleDao.insert(dbSession, RuleTesting.newXooX2().setTemplateId(templateRule.getId()));
     dbSession.commit();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);

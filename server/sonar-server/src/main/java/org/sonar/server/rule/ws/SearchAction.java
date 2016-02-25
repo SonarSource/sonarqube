@@ -19,36 +19,47 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicates;
+import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.io.Resources;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
+import org.sonar.server.search.Facets;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
@@ -56,6 +67,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
 
+import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.server.search.QueryContext.MAX_LIMIT;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
@@ -83,16 +95,20 @@ public class SearchAction implements RulesWsAction {
 
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
 
-  private final RuleService ruleService;
+  private final UserSession userSession;
+  private final DbClient dbClient;
+  private final RuleIndex ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapping mapping;
-  private final UserSession userSession;
+  private final RuleMapper mapper;
 
-  public SearchAction(RuleService service, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, UserSession userSession) {
+  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, UserSession userSession, DbClient dbClient, RuleMapper mapper) {
     this.userSession = userSession;
-    this.ruleService = service;
+    this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapping = mapping;
+    this.dbClient = dbClient;
+    this.mapper = mapper;
   }
 
   @Override
@@ -124,26 +140,30 @@ public class SearchAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    QueryContext context = getQueryContext(request);
-    RuleQuery query = doQuery(request);
-    Result<Rule> result = doSearch(query, context);
-
-    SearchResponse responseBuilder = buildResponse(request, context, result);
-    writeProtobuf(responseBuilder, request, response);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      QueryContext context = getQueryContext(request);
+      RuleQuery query = doQuery(request);
+      SearchResult searchResult = doSearch(dbSession, query, context);
+      SearchResponse responseBuilder = buildResponse(dbSession, request, context, searchResult);
+      writeProtobuf(responseBuilder, request, response);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
-  private SearchResponse buildResponse(Request request, QueryContext context, Result<Rule> result) {
+  private SearchResponse buildResponse(DbSession dbSession, Request request, QueryContext context, SearchResult result) {
     SearchResponse.Builder responseBuilder = SearchResponse.newBuilder();
     writeStatistics(responseBuilder, result, context);
-    doContextResponse(request, result, responseBuilder);
+    doContextResponse(dbSession, request, result, responseBuilder);
     if (context.isFacet()) {
       writeFacets(responseBuilder, request, context, result);
     }
     return responseBuilder.build();
   }
 
-  protected void writeStatistics(SearchResponse.Builder response, Result searchResult, QueryContext context) {
-    response.setTotal(searchResult.getTotal());
+  protected void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, QueryContext context) {
+    response.setTotal(searchResult.total);
     response.setP(context.getPage());
     response.setPs(context.getLimit());
   }
@@ -167,8 +187,7 @@ public class SearchAction implements RulesWsAction {
       RuleIndex.FACET_SEVERITIES,
       RuleIndex.FACET_ACTIVE_SEVERITIES,
       RuleIndex.FACET_STATUSES,
-      RuleIndex.FACET_OLD_DEFAULT
-      );
+      RuleIndex.FACET_OLD_DEFAULT);
   }
 
   /**
@@ -305,9 +324,9 @@ public class SearchAction implements RulesWsAction {
     return query;
   }
 
-  private void writeRules(SearchResponse.Builder response, Result<Rule> result, QueryContext context) {
-    for (Rule rule : result.getHits()) {
-      response.addRules(mapping.buildRuleResponse(rule, context));
+  private void writeRules(SearchResponse.Builder response, SearchResult result, QueryContext context) {
+    for (RuleDto rule : result.rules) {
+      response.addRules(mapper.toWsRule(rule, result, context.getFieldsToReturn()));
     }
   }
 
@@ -341,12 +360,40 @@ public class SearchAction implements RulesWsAction {
     return context;
   }
 
-  protected Result<Rule> doSearch(RuleQuery query, QueryContext context) {
-    return ruleService.search(query, context);
+  protected SearchResult doSearch(DbSession dbSession, RuleQuery query, QueryContext context) {
+    Result<Rule> result = ruleIndex.search(query, context);
+    List<RuleKey> ruleKeys = from(result.getHits()).transform(RuleToRuleKey.INSTANCE).toList();
+    // rule order is managed by ES
+    Map<RuleKey, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
+      dbClient.ruleDao().selectByKeys(dbSession, ruleKeys),
+      new Function<RuleDto, RuleKey>() {
+        @Override
+        public RuleKey apply(@Nonnull RuleDto input) {
+          return input.getKey();
+        }
+      });
+    List<RuleDto> rules = new ArrayList<>();
+    for (RuleKey ruleKey : ruleKeys) {
+      RuleDto rule = rulesByRuleKey.get(ruleKey);
+      if (rule != null) {
+        rules.add(rule);
+      }
+    }
+    List<Integer> ruleIds = from(rules).transform(RuleDtoToId.INSTANCE).toList();
+    List<Integer> templateRuleIds = from(rules)
+      .transform(RuleDtoToTemplateId.INSTANCE)
+      .filter(Predicates.<Integer>notNull())
+      .toList();
+    List<RuleDto> templateRules = dbClient.ruleDao().selectByIds(dbSession, templateRuleIds);
+    List<RuleParamDto> ruleParamDtos = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, ruleIds);
+    return new SearchResult(result)
+      .setRules(rules)
+      .setRuleParams(ruleParamDtos)
+      .setTemplateRules(templateRules);
   }
 
   protected RuleQuery doQuery(Request request) {
-    RuleQuery plainQuery = createRuleQuery(ruleService.newRuleQuery(), request);
+    RuleQuery plainQuery = createRuleQuery(new RuleQuery(), request);
 
     String qProfileKey = request.param(PARAM_QPROFILE);
     if (qProfileKey != null) {
@@ -359,12 +406,12 @@ public class SearchAction implements RulesWsAction {
     return plainQuery;
   }
 
-  protected void doContextResponse(Request request, Result<Rule> result, SearchResponse.Builder response) {
+  protected void doContextResponse(DbSession dbSession, Request request, SearchResult result, SearchResponse.Builder response) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 2/2
     QueryContext contextForResponse = loadCommonContext(request);
     writeRules(response, result, contextForResponse);
     if (contextForResponse.getFieldsToReturn().contains("actives")) {
-      activeRuleCompleter.completeSearch(doQuery(request), result.getHits(), response);
+      activeRuleCompleter.completeSearch(dbSession, doQuery(request), result.rules, response);
     }
   }
 
@@ -374,7 +421,7 @@ public class SearchAction implements RulesWsAction {
     return builder.add("actives").build();
   }
 
-  protected void writeFacets(SearchResponse.Builder response, Request request, QueryContext context, Result<?> results) {
+  protected void writeFacets(SearchResponse.Builder response, Request request, QueryContext context, SearchResult results) {
     addMandatoryFacetValues(results, RuleIndex.FACET_LANGUAGES, request.paramAsStrings(PARAM_LANGUAGES));
     addMandatoryFacetValues(results, RuleIndex.FACET_REPOSITORIES, request.paramAsStrings(PARAM_REPOSITORIES));
     addMandatoryFacetValues(results, RuleIndex.FACET_STATUSES, RuleIndex.ALL_STATUSES_EXCEPT_REMOVED);
@@ -386,9 +433,9 @@ public class SearchAction implements RulesWsAction {
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
     for (String facetName : context.facets()) {
       facet.clear().setProperty(facetName);
-      if (results.getFacets().containsKey(facetName)) {
+      if (results.facets.getFacets().containsKey(facetName)) {
         Set<String> itemsFromFacets = Sets.newHashSet();
-        for (FacetValue facetValue : results.getFacets().get(facetName)) {
+        for (FacetValue facetValue : results.facets.getFacets().get(facetName)) {
           itemsFromFacets.add(facetValue.getKey());
           facet.addValues(value
             .clear()
@@ -415,8 +462,8 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  protected void addMandatoryFacetValues(Result<?> results, String facetName, @Nullable List<String> mandatoryValues) {
-    Collection<FacetValue> facetValues = results.getFacetValues(facetName);
+  protected void addMandatoryFacetValues(SearchResult results, String facetName, @Nullable List<String> mandatoryValues) {
+    Collection<FacetValue> facetValues = results.facets.getFacetValues(facetName);
     if (facetValues != null) {
       Map<String, Long> valuesByItem = Maps.newHashMap();
       for (FacetValue value : facetValues) {
@@ -428,6 +475,90 @@ public class SearchAction implements RulesWsAction {
           facetValues.add(new FacetValue(item, 0));
         }
       }
+    }
+  }
+
+  static class SearchResult {
+    private List<RuleDto> rules;
+    private final ListMultimap<Integer, RuleParamDto> ruleParamsByRuleId;
+    private final Map<Integer, RuleDto> templateRulesByRuleId;
+    private final long total;
+    private final Facets facets;
+
+    public SearchResult(Result<Rule> result) {
+      this.rules = new ArrayList<>();
+      this.ruleParamsByRuleId = ArrayListMultimap.create();
+      this.templateRulesByRuleId = new HashMap<>();
+      this.total = result.getTotal();
+      this.facets = result.getFacetsObject();
+    }
+
+    public List<RuleDto> getRules() {
+      return rules;
+    }
+
+    public SearchResult setRules(List<RuleDto> rules) {
+      this.rules = rules;
+      return this;
+    }
+
+    public ListMultimap<Integer, RuleParamDto> getRuleParamsByRuleId() {
+      return ruleParamsByRuleId;
+    }
+
+    public SearchResult setRuleParams(List<RuleParamDto> ruleParams) {
+      ruleParamsByRuleId.clear();
+      for (RuleParamDto ruleParam : ruleParams) {
+        ruleParamsByRuleId.put(ruleParam.getRuleId(), ruleParam);
+      }
+      return this;
+    }
+
+    public Map<Integer, RuleDto> getTemplateRulesByRuleId() {
+      return templateRulesByRuleId;
+    }
+
+    public SearchResult setTemplateRules(List<RuleDto> templateRules) {
+      templateRulesByRuleId.clear();
+      for (RuleDto templateRule : templateRules) {
+        templateRulesByRuleId.put(templateRule.getId(), templateRule);
+      }
+      return this;
+    }
+
+    public long getTotal() {
+      return total;
+    }
+
+    public Facets getFacets() {
+      return facets;
+    }
+  }
+
+  private enum RuleDtoToId implements Function<RuleDto, Integer> {
+    INSTANCE;
+
+    @Override
+    public Integer apply(@Nonnull RuleDto input) {
+      return input.getId();
+    }
+  }
+
+  private enum RuleDtoToTemplateId implements Function<RuleDto, Integer> {
+    INSTANCE;
+
+    @Override
+    public Integer apply(@Nonnull RuleDto input) {
+      return input.getTemplateId();
+    }
+  }
+
+  private enum RuleToRuleKey implements Function<Rule, RuleKey> {
+    INSTANCE;
+
+    @Override
+    public RuleKey apply(@Nonnull Rule input) {
+      return input.key();
     }
   }
 }

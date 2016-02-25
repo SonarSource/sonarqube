@@ -27,7 +27,7 @@ import org.sonar.api.rule.RuleKey;
  *
  * @since 4.4
  */
-public class ActiveRuleKey implements Serializable {
+public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
 
   private final String qualityProfileKey;
   private final RuleKey ruleKey;
@@ -103,5 +103,14 @@ public class ActiveRuleKey implements Serializable {
   @Override
   public String toString() {
     return String.format("%s:%s", qualityProfileKey, ruleKey.toString());
+  }
+
+  @Override
+  public int compareTo(ActiveRuleKey o) {
+    int compareQualityProfileKey = this.qualityProfileKey.compareTo(o.qualityProfileKey);
+    if (compareQualityProfileKey == 0) {
+      return this.ruleKey.compareTo(o.ruleKey);
+    }
+    return compareQualityProfileKey;
   }
 }

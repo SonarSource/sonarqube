@@ -36,6 +36,10 @@ public interface ActiveRuleMapper {
   @CheckForNull
   ActiveRuleDto selectById(Integer id);
 
+  ActiveRuleDto selectByKey(@Param("profileKey") String profileKey, @Param("repository") String repository, @Param("rule") String rule);
+
+  List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);
+
   List<ActiveRuleDto> selectByRuleId(int ruleId);
 
   List<ActiveRuleDto> selectByProfileKey(String key);
@@ -55,13 +59,11 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleId(int activeRuleId);
 
-  List<ActiveRuleParamDto> selectParamsByProfileKey(String profileKey);
+  List<ActiveRuleParamDto> selectParamsByActiveRuleIds(@Param("ids") List<Integer> ids);
 
-  ActiveRuleDto selectByKey(@Param("profileKey") String profileKey,
-    @Param("repository") String repository, @Param("rule") String rule);
+  List<ActiveRuleParamDto> selectParamsByProfileKey(String profileKey);
 
   List<ActiveRuleParamDto> selectAllParams();
 
   List<ActiveRuleDto> selectAfterDate(@Nullable Timestamp date);
-
 }

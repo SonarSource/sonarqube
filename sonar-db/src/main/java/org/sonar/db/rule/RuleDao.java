@@ -23,12 +23,15 @@ import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import java.util.List;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class RuleDao implements Dao {
@@ -54,6 +57,18 @@ public class RuleDao implements Dao {
     return Optional.fromNullable(mapper(session).selectById(id));
   }
 
+  public List<RuleDto> selectByIds(final DbSession dbSession, List<Integer> ids) {
+    if (ids.isEmpty()) {
+      return emptyList();
+    }
+    return DatabaseUtils.executeLargeInputs(ids, new Function<List<Integer>, List<RuleDto>>() {
+      @Override
+      public List<RuleDto> apply(@Nullable List<Integer> input) {
+        return mapper(dbSession).selectByIds(input);
+      }
+    });
+  }
+
   /**
    * Select rules by keys, whatever their status. Returns an empty list
    * if the list of {@code keys} is empty, without any db round trip.
@@ -72,6 +87,18 @@ public class RuleDao implements Dao {
 
   public List<RuleDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
+  }
+
+  public List<RuleParamDto> selectRuleParamsByRuleIds(final DbSession dbSession, List<Integer> ruleIds) {
+    if (ruleIds.isEmpty()) {
+      return emptyList();
+    }
+    return DatabaseUtils.executeLargeInputs(ruleIds, new Function<List<Integer>, List<RuleParamDto>>() {
+      @Override
+      public List<RuleParamDto> apply(@Nonnull List<Integer> input) {
+        return mapper(dbSession).selectParamsByRuleIds(input);
+      }
+    });
   }
 
   public void insert(DbSession session, RuleDto dto) {

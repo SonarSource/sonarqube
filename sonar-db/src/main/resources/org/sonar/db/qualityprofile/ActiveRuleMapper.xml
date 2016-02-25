@@ -89,6 +89,19 @@
     AND r.plugin_name = #{repository}
   </select>
 
+  <select id="selectByKeys" parameterType="map" resultType="ActiveRule">
+    SELECT
+    <include refid="activeRuleKeyColumns"/>
+    FROM active_rules a
+    <include refid="activeRuleKeyJoin"/>
+    WHERE
+    <foreach collection="keys" item="key" open="(" separator=" or " close=")">
+      (qp.kee = #{key.qProfile()}
+      AND r.plugin_rule_key = #{key.ruleKey().rule()}
+      AND r.plugin_name = #{key.ruleKey().repository()})
+    </foreach>
+  </select>
+
   <select id="selectByProfileKey" parameterType="string" resultType="ActiveRule">
     SELECT
     <include refid="activeRuleKeyColumns"/>
@@ -158,9 +171,9 @@
     <include refid="activeRuleParamColumns"/>
     from active_rule_parameters p
     <where>
-      (<foreach collection="list" item="id" open="(" separator=" or " close=")">
-      p.active_rule_id=#{id}
-    </foreach>)
+      <foreach collection="ids" item="id" open="(" separator=" or " close=")">
+        p.active_rule_id=#{id}
+    </foreach>
     </where>
   </select>
 

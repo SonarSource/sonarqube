@@ -19,8 +19,15 @@
  */
 package org.sonar.server.qualityprofile.db;
 
+import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -33,9 +40,7 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
 
-import javax.annotation.CheckForNull;
-
-import java.util.List;
+import static java.util.Collections.emptyList;
 
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey> {
 
@@ -59,9 +64,6 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     this.profileDao = profileDao;
   }
 
-  /**
-   * @deprecated do not use ids but keys
-   */
   @CheckForNull
   @Deprecated
   public ActiveRuleDto selectById(DbSession session, int activeRuleId) {
@@ -126,6 +128,23 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     return mapper(dbSession).selectAllParams();
   }
 
+  public Optional<ActiveRuleDto> selectByActiveRuleKey(DbSession dbSession, ActiveRuleKey key) {
+    return Optional.fromNullable(mapper(dbSession).selectByKey(key.qProfile(), key.ruleKey().repository(), key.ruleKey().rule()));
+  }
+
+  public List<ActiveRuleDto> selectByActiveRuleKeys(final DbSession dbSession, final List<ActiveRuleKey> keys) {
+    if (keys.isEmpty()) {
+      return emptyList();
+    }
+
+    return DatabaseUtils.executeLargeInputs(keys, new Function<List<ActiveRuleKey>, List<ActiveRuleDto>>() {
+      @Override
+      public List<ActiveRuleDto> apply(@Nonnull List<ActiveRuleKey> input) {
+        return mapper(dbSession).selectByKeys(input);
+      }
+    });
+  }
+
   /**
    * Nested DTO ActiveRuleParams
    */
@@ -185,6 +204,23 @@ public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, Acti
     Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
     ActiveRuleDto activeRule = this.getByKey(session, key);
     return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(DbSession dbSession, Integer activeRuleId) {
+    return mapper(dbSession).selectParamsByActiveRuleId(activeRuleId);
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(final DbSession dbSession, List<Integer> activeRuleIds) {
+    if (activeRuleIds.isEmpty()) {
+      return emptyList();
+    }
+
+    return DatabaseUtils.executeLargeInputs(activeRuleIds, new Function<List<Integer>, List<ActiveRuleParamDto>>() {
+      @Override
+      public List<ActiveRuleParamDto> apply(@Nullable List<Integer> input) {
+        return mapper(dbSession).selectParamsByActiveRuleIds(input);
+      }
+    });
   }
 
   @CheckForNull

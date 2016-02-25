@@ -42,6 +42,8 @@ public interface RuleMapper {
 
   RuleDto selectById(long id);
 
+  List<RuleDto> selectByIds(@Param("ruleIds") List<Integer> ids);
+
   RuleDto selectByKey(RuleKey ruleKey);
 
   List<RuleDto> selectByKeys(@Param("ruleKeys") List<RuleKey> keys);

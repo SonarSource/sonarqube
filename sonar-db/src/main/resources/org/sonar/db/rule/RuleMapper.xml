@@ -65,6 +65,15 @@
     from rules r WHERE r.id=#{id}
   </select>
 
+  <select id="selectByIds" parameterType="Integer" resultType="Rule">
+    select
+    <include refid="selectColumns"/>
+    from rules r WHERE r.id in
+    <foreach collection="ruleIds" index="index" item="id" open="(" separator="," close=")">
+      #{id}
+    </foreach>
+  </select>
+
   <select id="selectByKey" parameterType="map" resultType="Rule">
     SELECT
     <include refid="selectColumns"/>

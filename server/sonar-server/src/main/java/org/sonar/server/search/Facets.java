@@ -35,7 +35,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-class Facets {
+public class Facets {
 
   private static final Logger LOGGER = Loggers.get(Facets.class);
 
