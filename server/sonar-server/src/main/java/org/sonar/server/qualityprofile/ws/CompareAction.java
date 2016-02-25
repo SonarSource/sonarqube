@@ -19,11 +19,14 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.base.Function;
 import com.google.common.collect.MapDifference.ValueDifference;
 import com.google.common.collect.Maps;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import javax.annotation.Nonnull;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
@@ -32,16 +35,16 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewController;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.core.util.NonNullInputFunction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
-import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleRepositories.Repository;
-import org.sonar.server.rule.RuleService;
 
 public class CompareAction implements QProfileWsAction {
 
@@ -63,14 +66,14 @@ public class CompareAction implements QProfileWsAction {
   private static final String PARAM_LEFT_KEY = "leftKey";
   private static final String PARAM_RIGHT_KEY = "rightKey";
 
+  private final DbClient dbClient;
   private final QProfileComparison comparator;
-  private final RuleService ruleService;
   private final RuleRepositories ruleRepositories;
   private final Languages languages;
 
-  public CompareAction(QProfileComparison comparator, RuleService ruleService, RuleRepositories ruleRepositories, Languages languages) {
+  public CompareAction(DbClient dbClient, QProfileComparison comparator, RuleRepositories ruleRepositories, Languages languages) {
+    this.dbClient = dbClient;
     this.comparator = comparator;
-    this.ruleService = ruleService;
     this.ruleRepositories = ruleRepositories;
     this.languages = languages;
   }
@@ -102,18 +105,17 @@ public class CompareAction implements QProfileWsAction {
 
     QProfileComparisonResult result = comparator.compare(leftKey, rightKey);
 
-    List<Rule> referencedRules = ruleService.getByKeys(result.collectRuleKeys());
-    Map<RuleKey, Rule> rulesByKey = Maps.uniqueIndex(referencedRules, new NonNullInputFunction<Rule, RuleKey>() {
-      @Override
-      protected RuleKey doApply(Rule input) {
-        return input.key();
-      }
-    });
-
-    writeResult(response.newJsonWriter(), result, rulesByKey);
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      List<RuleDto> referencedRules = dbClient.ruleDao().selectByKeys(dbSession, new ArrayList<>(result.collectRuleKeys()));
+      Map<RuleKey, RuleDto> rulesByKey = Maps.uniqueIndex(referencedRules, RuleDtoToRuleKey.INSTANCE);
+      writeResult(response.newJsonWriter(), result, rulesByKey);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
-  private void writeResult(JsonWriter json, QProfileComparisonResult result, Map<RuleKey, Rule> rulesByKey) {
+  private void writeResult(JsonWriter json, QProfileComparisonResult result, Map<RuleKey, RuleDto> rulesByKey) {
     json.beginObject();
 
     json.name(ATTRIBUTE_LEFT).beginObject();
@@ -144,7 +146,7 @@ public class CompareAction implements QProfileWsAction {
       .prop(ATTRIBUTE_NAME, profile.getName());
   }
 
-  private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, Rule> rulesByKey) {
+  private void writeRules(JsonWriter json, Map<RuleKey, ActiveRuleDto> activeRules, Map<RuleKey, RuleDto> rulesByKey) {
     json.beginArray();
     for (Entry<RuleKey, ActiveRuleDto> activeRule : activeRules.entrySet()) {
       RuleKey key = activeRule.getKey();
@@ -158,10 +160,10 @@ public class CompareAction implements QProfileWsAction {
     json.endArray();
   }
 
-  private void writeRule(JsonWriter json, RuleKey key, Map<RuleKey, Rule> rulesByKey) {
+  private void writeRule(JsonWriter json, RuleKey key, Map<RuleKey, RuleDto> rulesByKey) {
     String repositoryKey = key.repository();
     json.prop(ATTRIBUTE_KEY, key.toString())
-      .prop(ATTRIBUTE_NAME, rulesByKey.get(key).name())
+      .prop(ATTRIBUTE_NAME, rulesByKey.get(key).getName())
       .prop(ATTRIBUTE_PLUGIN_KEY, repositoryKey);
 
     Repository repo = ruleRepositories.repository(repositoryKey);
@@ -175,7 +177,7 @@ public class CompareAction implements QProfileWsAction {
     }
   }
 
-  private void writeDifferences(JsonWriter json, Map<RuleKey, ActiveRuleDiff> modified, Map<RuleKey, Rule> rulesByKey) {
+  private void writeDifferences(JsonWriter json, Map<RuleKey, ActiveRuleDiff> modified, Map<RuleKey, RuleDto> rulesByKey) {
     json.beginArray();
     for (Entry<RuleKey, ActiveRuleDiff> diffEntry : modified.entrySet()) {
       RuleKey key = diffEntry.getKey();
@@ -215,6 +217,15 @@ public class CompareAction implements QProfileWsAction {
       json.endObject();
     }
     json.endArray();
+  }
+
+  private enum RuleDtoToRuleKey implements Function<RuleDto, RuleKey> {
+    INSTANCE;
+
+    @Override
+    public RuleKey apply(@Nonnull RuleDto input) {
+      return input.getKey();
+    }
   }
 
 }
