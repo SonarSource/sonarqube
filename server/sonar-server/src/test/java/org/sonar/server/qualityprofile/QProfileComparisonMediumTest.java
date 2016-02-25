@@ -24,34 +24,28 @@ import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.tester.ServerTester;
-import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class QProfileComparisonMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addXoo();
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
+  public static ServerTester tester = new ServerTester().withEsIndexes().addXoo();
 
   DbClient db;
   DbSession dbSession;
-  ActiveRuleIndex index;
   RuleActivator ruleActivator;
   QProfileComparison comparison;
 
@@ -70,17 +64,18 @@ public class QProfileComparisonMediumTest {
 
     xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
     xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
-    db.deprecatedRuleDao().insert(dbSession, xooRule1, xooRule2);
-    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insert(dbSession, xooRule1);
+    db.ruleDao().insert(dbSession, xooRule2);
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setType(RuleParamType.INTEGER.type()));
-    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("min").setType(RuleParamType.INTEGER.type()));
 
     left = QProfileTesting.newXooP1();
     right = QProfileTesting.newXooP2();
     db.qualityProfileDao().insert(dbSession, left, right);
+
     dbSession.commit();
-    dbSession.clearCache();
   }
 
   @After
