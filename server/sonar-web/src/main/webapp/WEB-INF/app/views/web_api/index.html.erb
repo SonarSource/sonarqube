@@ -1,0 +1,6 @@
+<% content_for :extra_script do %>
+  <script>
+    window.sonarqube.urlRoot = '/web_api';
+  </script>
+  <script src="/js/bundles/web-api.js?v=<%= sonar_version -%>"></script>
+<% end %>

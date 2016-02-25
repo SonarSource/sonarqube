@@ -17,18 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Backbone from 'backbone';
+import React from 'react';
 
-export default Backbone.Router.extend({
-  routes: {
-    '*path': 'show'
-  },
+import { translate } from '../../../helpers/l10n';
 
-  initialize (options) {
-    this.app = options.app;
-  },
+export default function DeprecatedBadge ({ since }) {
+  const label = since ? `deprecated since ${since}` : 'deprecated';
 
-  show (path) {
-    this.app.controller.show(path);
-  }
-});
+  return (
+      <span
+          className="badge badge-warning"
+          title={translate('api_documentation.deprecation_tooltip')}>
+        {label}
+      </span>
+  );
+}

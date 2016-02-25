@@ -17,25 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-import Backbone from 'backbone';
+import React from 'react';
+import { render } from 'react-dom';
+import { Router, Route, Redirect, useRouterHistory } from 'react-router';
+import { createHistory } from 'history';
 
-export default Backbone.Collection.extend({
-  url: '/api/webservices/list',
-  comparator: 'path',
+import WebApiApp from './components/WebApiApp';
+import './styles/web-api.css';
 
-  parse (r) {
-    return r.webServices.map(function (webService) {
-      const internal = _.every(webService.actions, function (action) {
-        return action.internal;
-      });
-      const actions = webService.actions.map(function (action) {
-        return _.extend(action, { path: webService.path });
-      });
-      return _.extend(webService, {
-        internal,
-        actions
-      });
-    });
-  }
+window.sonarqube.appStarted.then(options => {
+  const el = document.querySelector(options.el);
+
+  const history = useRouterHistory(createHistory)({
+    basename: window.sonarqube.urlRoot
+  });
+
+  render((
+      <Router history={history}>
+        <Redirect from="/index" to="/"/>
+        <Route path="/**" component={WebApiApp}/>
+      </Router>
+  ), el);
 });

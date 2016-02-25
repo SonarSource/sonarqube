@@ -18,9 +18,8 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-class ApiDocumentationController < ApplicationController
+class WebApiController < ApplicationController
 
-  # GET /api_documentation/index
   def index
 
   end

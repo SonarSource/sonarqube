@@ -17,25 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Marionette from 'backbone.marionette';
-import Template from './templates/api-documentation-layout.hbs';
+import React from 'react';
 
-export default Marionette.LayoutView.extend({
-  template: Template,
+import { translate } from '../../../helpers/l10n';
 
-  regions: {
-    headerRegion: '.search-navigator-workspace-header',
-    actionsRegion: '.search-navigator-filters',
-    searchRegion: '.api-documentation-search',
-    resultsRegion: '.api-documentation-results',
-    detailsRegion: '.search-navigator-workspace-details'
-  },
-
-  onRender () {
-    const navigator = this.$('.search-navigator');
-    navigator.addClass('sticky search-navigator-extended-view');
-    const top = navigator.offset().top;
-    this.$('.search-navigator-workspace-header').css({ top });
-    this.$('.search-navigator-side').css({ top }).isolatedScroll();
-  }
-});
+export default function InternalBadge () {
+  return (
+      <span
+          className="badge badge-danger"
+          title={translate('api_documentation.internal_tooltip')}>
+        internal
+      </span>
+  );
+}

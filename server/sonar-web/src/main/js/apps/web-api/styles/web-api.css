@@ -1,0 +1,72 @@
+.web-api-page-header {
+  margin: 10px 20px;
+}
+
+.web-api-search {
+  margin: 20px 10px 0;
+  padding: 0 10px 20px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.web-api-search .icon-search {
+  color: #cdcdcd;
+}
+
+.web-api-domain {
+  padding: 10px 20px;
+}
+
+.web-api-domain-header,
+.web-api-action-header {
+  display: flex;
+  align-items: center;
+}
+
+.web-api-domain-title {
+  font-size: 18px;
+  font-weight: 400;
+}
+
+.web-api-domain-description {
+  margin-top: 10px;
+  line-height: 1.5;
+}
+
+.web-api-domain-actions {
+}
+
+.web-api-action {
+  padding-top: 30px;
+}
+
+.web-api-action-title {
+  font-weight: 500;
+}
+
+.web-api-action-description {
+  margin-top: 10px;
+}
+
+.web-api-action-actions {
+  margin-top: 10px;
+}
+
+.web-api-params,
+.web-api-response {
+  margin-top: 10px;
+}
+
+.web-api-params > table {
+  width: 100%;
+  table-layout: fixed;
+}
+
+.web-api-params td {
+  vertical-align: top;
+  padding: 8px 10px;
+  border-top: 1px solid #e6e6e6;
+}
+
+.web-api-params tr:first-child td {
+  border-top: none;
+}

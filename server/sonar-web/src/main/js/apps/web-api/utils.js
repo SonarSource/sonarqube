@@ -17,14 +17,6 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@import (reference) "../mixins";
-@import (reference) "../variables";
-
-
-.api-documentation-search {
-  padding: 10px;
-
-  .search-box-input {
-    background-color: @barBackgroundColor;
-  }
+export function getActionKey (domain, action) {
+  return domain + '/' + action;
 }

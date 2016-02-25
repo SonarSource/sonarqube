@@ -51,6 +51,7 @@ module.exports = {
     'system': './src/main/js/apps/system/app.js',
     'update-center': './src/main/js/apps/update-center/app.js',
     'users': './src/main/js/apps/users/app.js',
+    'web-api': './src/main/js/apps/web-api/app.js',
 
     'widgets': './src/main/js/widgets/widgets.js'
   },

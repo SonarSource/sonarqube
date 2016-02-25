@@ -17,30 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-import Marionette from 'backbone.marionette';
-import Template from './templates/api-documentation-filters.hbs';
+import { getJSON } from '../helpers/request';
 
-export default Marionette.ItemView.extend({
-  template: Template,
+export function fetchWebApi (showInternal = true) {
+  const url = '/api/webservices/list';
+  const data = { 'include_internals': showInternal };
 
-  events: {
-    'change .js-toggle-internal': 'toggleInternal'
-  },
+  return getJSON(url, data).then(r => r.webServices.map(domain => {
+    const internal = !domain.actions.find(action => !action.internal);
 
-  initialize () {
-    this.listenTo(this.options.state, 'change:internal', this.render);
-  },
+    return { ...domain, internal };
+  }));
+}
 
-  toggleInternal () {
-    this.options.state.set({ internal: !this.options.state.get('internal') });
-  },
+export function fetchResponseExample (domain, action) {
+  const url = '/api/webservices/response_example';
+  const data = { controller: domain, action };
 
-  serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      state: this.options.state.toJSON()
-    });
-  }
-});
-
-
+  return getJSON(url, data);
+}
