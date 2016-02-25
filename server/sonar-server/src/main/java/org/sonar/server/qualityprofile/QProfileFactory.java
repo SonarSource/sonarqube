@@ -20,18 +20,22 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.Slug;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.Verifications;
+
+import static org.sonar.server.qualityprofile.ActiveRuleChange.Type.DEACTIVATED;
 
 /**
  * Create, delete, rename and set as default profile.
@@ -84,21 +88,11 @@ public class QProfileFactory {
 
   // ------------- DELETION
 
-  void delete(String key) {
-    DbSession session = db.openSession(false);
-    try {
-      delete(session, key, false);
-      session.commit();
-    } finally {
-      session.close();
-    }
-  }
-
   /**
    * Session is NOT committed. Profiles marked as "default" for a language can't be deleted,
    * except if the parameter <code>force</code> is true.
    */
-  public void delete(DbSession session, String key, boolean force) {
+  public List<ActiveRuleChange> delete(DbSession session, String key, boolean force) {
     QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(session, key);
     List<QualityProfileDto> descendants = db.qualityProfileDao().selectDescendants(session, key);
     if (!force) {
@@ -108,16 +102,23 @@ public class QProfileFactory {
       }
     }
     // delete bottom-up
+    List<ActiveRuleChange> changes = new ArrayList<>();
     for (QualityProfileDto descendant : Lists.reverse(descendants)) {
-      doDelete(session, descendant);
+      changes.addAll(doDelete(session, descendant));
     }
-    doDelete(session, profile);
+    changes.addAll(doDelete(session, profile));
+    return changes;
   }
 
-  private void doDelete(DbSession session, QualityProfileDto profile) {
+  private List<ActiveRuleChange> doDelete(DbSession session, QualityProfileDto profile) {
     db.qualityProfileDao().deleteAllProjectProfileAssociation(profile.getKey(), session);
-    db.activeRuleDao().deleteByProfileKey(session, profile.getKey());
+    List<ActiveRuleChange> changes = new ArrayList<>();
+    for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileKey(session, profile.getKey())) {
+      db.activeRuleDao().delete(session, activeRule.getKey());
+      changes.add(ActiveRuleChange.createFor(DEACTIVATED, activeRule.getKey()));
+    }
     db.qualityProfileDao().delete(session, profile);
+    return changes;
   }
 
   // ------------- DEFAULT PROFILE
