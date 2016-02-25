@@ -23,12 +23,12 @@ import React from 'react';
 export default function TaskDate ({ date, baseDate, format }) {
   const m = moment(date);
   const baseM = moment(baseDate);
-  const diff = (date && baseDate) ? m.diff(baseM, 'minutes') : 0;
+  const diff = (date && baseDate) ? m.diff(baseM, 'days') : 0;
 
   return (
       <td className="thin nowrap text-right">
         {diff > 0 && (
-            <span className="text-warning little-spacer-right">{`(+${diff})`}</span>
+            <span className="text-warning little-spacer-right">{`(+${diff}d)`}</span>
         )}
 
         {date ? moment(date).format(format) : ''}
