@@ -35,4 +35,15 @@ describe('LanguageDistribution', function () {
   it('should pass right yValues', function () {
     expect(props.yValues).to.deep.equal(['19.4%', '2.1%', '1.7%']);
   });
+
+  it('should correctly render very small values', function () {
+    const DISTRIBUTION_SMALL = 'java=194342;js=999';
+
+    let renderer = TestUtils.createRenderer();
+    renderer.render(<LanguageDistribution distribution={DISTRIBUTION_SMALL} lines={LINES}/>);
+    let output = renderer.getRenderOutput();
+    let child = React.Children.only(output.props.children);
+
+    expect(child.props.yValues).to.deep.equal(['19.4%', '<0.1%']);
+  });
 });

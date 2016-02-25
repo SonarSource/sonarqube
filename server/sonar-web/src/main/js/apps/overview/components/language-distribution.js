@@ -42,7 +42,7 @@ export const LanguageDistribution = React.createClass({
 
   getLanguageName (langKey) {
     if (this.state && this.state.languages) {
-      let lang = _.findWhere(this.state.languages, { key: langKey });
+      const lang = _.findWhere(this.state.languages, { key: langKey });
       return lang ? lang.name : translate('unknown');
     } else {
       return langKey;
@@ -55,15 +55,17 @@ export const LanguageDistribution = React.createClass({
 
   renderBarChart () {
     let data = this.props.distribution.split(';').map((point, index) => {
-      let tokens = point.split('=');
+      const tokens = point.split('=');
       return { x: parseInt(tokens[1], 10), y: index, value: tokens[0] };
     });
 
     data = _.sortBy(data, d => -d.x);
 
-    let yTicks = data.map(point => this.getLanguageName(point.value)).map(this.cutLanguageName);
-
-    let yValues = data.map(point => formatMeasure(point.x / this.props.lines * 100, 'PERCENT'));
+    const yTicks = data.map(point => this.getLanguageName(point.value)).map(this.cutLanguageName);
+    const yValues = data.map(point => {
+      const percent = point.x / this.props.lines * 100;
+      return percent >= 0.1 ? formatMeasure(percent, 'PERCENT') : '<0.1%';
+    });
 
     return <Histogram data={data}
                       yTicks={yTicks}
