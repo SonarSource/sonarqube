@@ -19,6 +19,10 @@
  */
 package org.sonar.core.issue;
 
+import com.google.common.base.Enums;
+import com.google.common.collect.Lists;
+import java.util.List;
+
 import static java.lang.String.format;
 
 public enum IssueType {
@@ -46,4 +50,6 @@ public enum IssueType {
     }
     throw new IllegalArgumentException(format("Unsupported value for db column ISSUES.ISSUE_TYPE: %d", dbConstant));
   }
+
+  public static List<String> ALL_NAMES = Lists.transform(Lists.newArrayList(values()), Enums.stringConverter(IssueType.class).reverse());
 }

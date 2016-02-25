@@ -39,7 +39,7 @@ public class FeedRulesLongDateColumnsTest {
 
   System2 system = mock(System2.class);
 
-  MigrationStep migration = new FeedRulesLongDateColumns(db.database(), system);
+  MigrationStep underTest = new FeedRulesLongDateColumns(db.database(), system);
 
   @Before
   public void setUp() throws Exception {
@@ -50,7 +50,7 @@ public class FeedRulesLongDateColumnsTest {
   public void execute() throws Exception {
     db.prepareDbUnit(getClass(), "execute.xml");
 
-    migration.execute();
+    underTest.execute();
 
     assertThat(db.countSql("select count(*) from rules where created_at_ms is not null and updated_at_ms is not null")).isEqualTo(3);
     // Only 1 rules not updated

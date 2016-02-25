@@ -358,7 +358,7 @@ public class SearchActionMediumTest {
     userSessionRule.login("john");
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
-      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
+      .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans,types")
       .execute();
     result.assertJson(this.getClass(), "display_facets.json");
   }

@@ -106,6 +106,7 @@ public class IssueDaoTest {
     assertThat(issue.getRuleId()).isEqualTo(500);
     assertThat(issue.getLanguage()).isEqualTo("java");
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
+    assertThat(issue.getType()).isEqualTo(2);
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.getMessage()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);

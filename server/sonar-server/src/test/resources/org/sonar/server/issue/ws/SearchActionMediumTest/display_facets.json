@@ -138,5 +138,22 @@
           "count": 1
         }
       ]
+    },
+    {
+      "property": "types",
+      "values": [
+        {
+          "val": "CODE_SMELL",
+          "count": 1
+        },
+        {
+          "val": "BUG",
+          "count": 0
+        },
+        {
+          "val": "VULNERABILITY",
+          "count": 0
+        }
+      ]
     }
   ]}

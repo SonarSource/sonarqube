@@ -20,7 +20,6 @@
 package org.sonar.server.issue.ws;
 
 import com.google.common.base.Function;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
 import com.google.common.io.Resources;
 import java.util.Collection;
@@ -38,7 +37,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
 import org.sonar.core.issue.IssueType;
-import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -47,6 +45,7 @@ import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.client.issue.IssueFilterParameters;
@@ -347,7 +346,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, IssueFilterParameters.RULES, request.getRules());
     addMandatoryValuesToFacet(facets, IssueFilterParameters.LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, IssueFilterParameters.TAGS, request.getTags());
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.TYPES, request.getTypes());
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.TYPES, IssueType.ALL_NAMES);
     List<String> actionPlans = Lists.newArrayList("");
     List<String> actionPlansFromRequest = request.getActionPlans();
     if (actionPlansFromRequest != null) {

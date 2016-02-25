@@ -17,18 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.core.issue;
 
+import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class MigrationStepModuleTest {
+public class IssueTypeTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(56);
+  public void test_valueOf_db_constant() {
+    assertThat(IssueType.valueOf(1)).isEqualTo(IssueType.CODE_SMELL);
+    assertThat(IssueType.valueOf(2)).isEqualTo(IssueType.BUG);
+  }
+
+  @Test
+  public void valueOf_throws_ISE_if_unsupported_db_constant() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Unsupported value for db column ISSUES.ISSUE_TYPE: 4");
+    IssueType.valueOf(4);
+  }
+
+  @Test
+  public void test_ALL_NAMES() {
+    assertThat(IssueType.ALL_NAMES).containsOnly("BUG", "VULNERABILITY", "CODE_SMELL");
   }
 }

@@ -21,7 +21,6 @@ package org.sonar.server.user.index;
 
 import java.util.Iterator;
 import org.elasticsearch.action.index.IndexRequest;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;

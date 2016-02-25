@@ -929,7 +929,7 @@ public interface RulesDefinition {
       this.status = newRule.status;
       this.debtRemediationFunction = newRule.debtRemediationFunction;
       this.effortToFixDescription = newRule.effortToFixDescription;
-      this.type = (newRule.type == null ? RuleTagsToTypeConverter.convert(newRule.tags) : newRule.type);
+      this.type = newRule.type == null ? RuleTagsToTypeConverter.convert(newRule.tags) : newRule.type;
       this.tags = ImmutableSortedSet.copyOf(Sets.difference(newRule.tags, RuleTagsToTypeConverter.RESERVED_TAGS));
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newRule.paramsByKey.values()) {

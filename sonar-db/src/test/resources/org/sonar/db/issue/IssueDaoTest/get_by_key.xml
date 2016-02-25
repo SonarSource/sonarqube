@@ -24,6 +24,7 @@
       created_at="1400000000000"
       updated_at="1450000000000"
       locations="[null]"
+      issue_type="2"
     />
 
     <issues
@@ -50,6 +51,7 @@
       created_at="1400000000000"
       updated_at="1450000000000"
       locations="[null]"
+      issue_type="2"
       />
 
 </dataset>
