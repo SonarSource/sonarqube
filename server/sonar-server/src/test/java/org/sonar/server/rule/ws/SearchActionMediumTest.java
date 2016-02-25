@@ -20,6 +20,9 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -31,6 +34,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -39,7 +43,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
@@ -48,16 +51,12 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SearchActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addXoo();
+  public static ServerTester tester = new ServerTester().withEsIndexes().addXoo();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

@@ -27,16 +27,18 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -46,7 +48,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RulesWsMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -58,6 +61,8 @@ public class RulesWsMediumTest {
   RulesWs ws;
   RuleDao ruleDao;
   DbSession session;
+  RuleIndexer ruleIndexer;
+  ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void setUp() {
@@ -66,6 +71,10 @@ public class RulesWsMediumTest {
     ruleDao = tester.get(RuleDao.class);
     ws = tester.get(RulesWs.class);
     session = tester.get(DbClient.class).openSession(false);
+    ruleIndexer = tester.get(RuleIndexer.class);
+    ruleIndexer.setEnabled(true);
+    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    activeRuleIndexer.setEnabled(true);
   }
 
   @After
@@ -104,6 +113,7 @@ public class RulesWsMediumTest {
     tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
     session.commit();
     session.clearCache();
+    activeRuleIndexer.index();
 
     // 1. With Activation
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SHOW_METHOD);
@@ -134,6 +144,7 @@ public class RulesWsMediumTest {
       .setSystemTags(ImmutableSet.of("sys1"));
     ruleDao.insert(session, rule2);
     session.commit();
+    ruleIndexer.index();
 
     tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD).execute().assertJson(this.getClass(), "get_tags.json");
     tester.wsTester().newGetRequest(API_ENDPOINT, API_TAGS_METHOD)

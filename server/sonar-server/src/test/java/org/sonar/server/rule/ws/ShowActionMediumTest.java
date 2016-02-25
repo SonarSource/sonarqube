@@ -28,12 +28,12 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.db.RuleDao;
@@ -46,7 +46,8 @@ import static com.google.common.collect.Sets.newHashSet;
 public class ShowActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).login()
     .setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);

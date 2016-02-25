@@ -64,7 +64,10 @@ public class RegisterRulesMediumTest {
   static final XooRulesDefinition RULE_DEFS = new XooRulesDefinition();
 
   @ClassRule
-  public static final ServerTester TESTER = new ServerTester().addXoo().addComponents(RULE_DEFS);
+  public static final ServerTester TESTER = new ServerTester()
+    .withEsIndexes()
+    .addXoo()
+    .addComponents(RULE_DEFS);
 
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(TESTER);

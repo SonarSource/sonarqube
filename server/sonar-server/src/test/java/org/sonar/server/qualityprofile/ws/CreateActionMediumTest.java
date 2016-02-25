@@ -25,8 +25,8 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileExportersTest.StandardExporter;
@@ -45,10 +45,14 @@ public class CreateActionMediumTest {
 
   // TODO Replace with simpler test with DbTester / EsTester after removal of DaoV2
   @ClassRule
-  public static ServerTester tester = new ServerTester().withStartupTasks().addXoo().addComponents(
-    XooRulesDefinition.class, XooProfileDefinition.class,
-    XooExporter.class, StandardExporter.class,
-    XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);
+  public static ServerTester tester = new ServerTester()
+    .withEsIndexes()
+    .withStartupTasks()
+    .addXoo()
+    .addComponents(
+      XooRulesDefinition.class, XooProfileDefinition.class,
+      XooExporter.class, StandardExporter.class,
+      XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
