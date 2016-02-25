@@ -45,23 +45,21 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.XmlWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
 
 @ServerSide
 public class QProfileBackuper {
 
   private final QProfileReset reset;
   private final DbClient db;
-  private final ActiveRuleIndex2 activeRuleIndex;
 
   private static final Joiner RULEKEY_JOINER = Joiner.on(", ").skipNulls();
 
-  public QProfileBackuper(QProfileReset reset, DbClient db, ActiveRuleIndex2 activeRuleIndex) {
+  public QProfileBackuper(QProfileReset reset, DbClient db) {
     this.reset = reset;
     this.db = db;
-    this.activeRuleIndex = activeRuleIndex;
   }
 
   public void backup(String key, Writer writer) {
@@ -69,28 +67,28 @@ public class QProfileBackuper {
     DbSession dbSession = db.openSession(false);
     try {
       profile = db.qualityProfileDao().selectOrFailByKey(dbSession, key);
+      List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, key);
+      Collections.sort(activeRules, BackupActiveRuleComparator.INSTANCE);
+      writeXml(dbSession, writer, profile, activeRules.iterator());
     } finally {
-      dbSession.close();
+      db.closeSession(dbSession);
     }
-    List<ActiveRuleDoc> activeRules = Lists.newArrayList(activeRuleIndex.findByProfile(profile.getKey()));
-    Collections.sort(activeRules, BackupActiveRuleComparator.INSTANCE);
-    writeXml(writer, profile, activeRules.iterator());
   }
 
-  private static void writeXml(Writer writer, QualityProfileDto profile, Iterator<ActiveRuleDoc> activeRules) {
+  private void writeXml(DbSession dbSession, Writer writer, QualityProfileDto profile, Iterator<ActiveRuleDto> activeRules) {
     XmlWriter xml = XmlWriter.of(writer).declaration();
     xml.begin("profile");
     xml.prop("name", profile.getName());
     xml.prop("language", profile.getLanguage());
     xml.begin("rules");
     while (activeRules.hasNext()) {
-      ActiveRule activeRule = activeRules.next();
+      ActiveRuleDto activeRule = activeRules.next();
       xml.begin("rule");
-      xml.prop("repositoryKey", activeRule.key().ruleKey().repository());
-      xml.prop("key", activeRule.key().ruleKey().rule());
-      xml.prop("priority", activeRule.severity());
+      xml.prop("repositoryKey", activeRule.getKey().ruleKey().repository());
+      xml.prop("key", activeRule.getKey().ruleKey().rule());
+      xml.prop("priority", activeRule.getSeverityString());
       xml.begin("parameters");
-      for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
+      for (ActiveRuleParamDto param : db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.getKey())) {
         xml
           .begin("parameter")
           .prop("key", param.getKey())
@@ -213,14 +211,14 @@ public class QProfileBackuper {
     return new SMInputFactory(xmlFactory);
   }
 
-  private enum BackupActiveRuleComparator implements Comparator<ActiveRule> {
+  private enum BackupActiveRuleComparator implements Comparator<ActiveRuleDto> {
     INSTANCE;
 
     @Override
-    public int compare(ActiveRule o1, ActiveRule o2) {
+    public int compare(ActiveRuleDto o1, ActiveRuleDto o2) {
       return new CompareToBuilder()
-        .append(o1.key().ruleKey().repository(), o2.key().ruleKey().repository())
-        .append(o1.key().ruleKey().rule(), o2.key().ruleKey().rule())
+        .append(o1.getKey().ruleKey().repository(), o2.getKey().ruleKey().repository())
+        .append(o1.getKey().ruleKey().rule(), o2.getKey().ruleKey().rule())
         .toComparison();
     }
   }

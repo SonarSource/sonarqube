@@ -37,14 +37,18 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -54,7 +58,7 @@ import static org.junit.Assert.fail;
 public class QProfileBackuperMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
   @Rule
   public ExpectedException thrown = ExpectedException.none();
   @Rule
@@ -62,21 +66,29 @@ public class QProfileBackuperMediumTest {
 
   DbClient db;
   DbSession dbSession;
+  RuleIndexer ruleIndexer;
+  ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
+    ruleIndexer = tester.get(RuleIndexer.class);
+    ruleIndexer.setEnabled(true);
+    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    activeRuleIndexer.setEnabled(true);
 
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR").setLanguage("xoo");
     RuleDto xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR").setLanguage("xoo");
-    db.deprecatedRuleDao().insert(dbSession, xooRule1, xooRule2);
-    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insert(dbSession, xooRule1);
+    db.ruleDao().insert(dbSession, xooRule2);
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     dbSession.commit();
     dbSession.clearCache();
+    ruleIndexer.index();
   }
 
   @After
@@ -88,9 +100,10 @@ public class QProfileBackuperMediumTest {
   public void backup() throws Exception {
     RuleKey blahRuleKey = RuleKey.of("blah", "my-rule");
     RuleDto blahRule = RuleTesting.newDto(blahRuleKey).setSeverity("INFO").setLanguage("xoo");
-    db.deprecatedRuleDao().insert(dbSession, blahRule);
+    db.ruleDao().insert(dbSession, blahRule);
     dbSession.commit();
     dbSession.clearCache();
+    ruleIndexer.index();
 
     // create profile P1 with rules x2 and x1 activated
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
@@ -104,6 +117,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation3, QProfileTesting.XOO_P1_NAME);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     StringWriter output = new StringWriter();
     tester.get(QProfileBackuper.class).backup(QProfileTesting.XOO_P1_KEY, output);
@@ -136,9 +150,14 @@ public class QProfileBackuperMediumTest {
 
     List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(profile.getKey()));
     assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
-    assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRules.get(0).params().get("max")).isEqualTo("7");
+    ActiveRuleDoc activeRuleDoc = activeRules.get(0);
+    assertThat(activeRuleDoc.severity()).isEqualTo("BLOCKER");
+    assertThat(activeRuleDoc.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
+
+    List<ActiveRuleParamDto> params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleDoc.key());
+    assertThat(params).hasSize(1);
+    assertThat(params.get(0).getKey()).isEqualTo("max");
+    assertThat(params.get(0).getValue()).isEqualTo("7");
   }
 
   @Test
@@ -155,6 +174,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_NAME);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     // restore backup, which activates only x1
     // -> update x1 and deactivate x2
@@ -163,9 +183,14 @@ public class QProfileBackuperMediumTest {
 
     List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
-    assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRules.get(0).params().get("max")).isEqualTo("7");
+    ActiveRuleDoc activeRuleDoc = activeRules.get(0);
+    assertThat(activeRuleDoc.severity()).isEqualTo("BLOCKER");
+    assertThat(activeRuleDoc.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
+
+    List<ActiveRuleParamDto> params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleDoc.key());
+    assertThat(params).hasSize(1);
+    assertThat(params.get(0).getKey()).isEqualTo("max");
+    assertThat(params.get(0).getValue()).isEqualTo("7");
   }
 
   @Test
@@ -183,6 +208,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     // restore backup of child profile -> overrides x1
     tester.get(QProfileBackuper.class).restore(new StringReader(
@@ -191,16 +217,24 @@ public class QProfileBackuperMediumTest {
     // parent profile is unchanged
     List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).severity()).isEqualTo("INFO");
-    assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRules.get(0).params().get("max")).isEqualTo("10");
+    ActiveRuleDoc activeRuleDoc = activeRules.get(0);
+    assertThat(activeRuleDoc.severity()).isEqualTo("INFO");
+    assertThat(activeRuleDoc.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
+    List<ActiveRuleParamDto> params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleDoc.key());
+    assertThat(params).hasSize(1);
+    assertThat(params.get(0).getKey()).isEqualTo("max");
+    assertThat(params.get(0).getValue()).isEqualTo("10");
 
     // child profile overrides parent
     activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P2_KEY));
     assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
-    assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.OVERRIDES);
-    assertThat(activeRules.get(0).params().get("max")).isEqualTo("7");
+    activeRuleDoc = activeRules.get(0);
+    assertThat(activeRuleDoc.severity()).isEqualTo("BLOCKER");
+    assertThat(activeRuleDoc.inheritance()).isEqualTo(ActiveRule.Inheritance.OVERRIDES);
+    params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleDoc.key());
+    assertThat(params).hasSize(1);
+    assertThat(params.get(0).getKey()).isEqualTo("max");
+    assertThat(params.get(0).getValue()).isEqualTo("7");
   }
 
   @Test
@@ -218,6 +252,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     // restore backup of parent profile -> update x1 and propagates to child
     tester.get(QProfileBackuper.class).restore(new StringReader(
@@ -226,16 +261,25 @@ public class QProfileBackuperMediumTest {
     // parent profile is updated
     List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P1_KEY));
     assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
-    assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRules.get(0).params().get("max")).isEqualTo("7");
+
+    ActiveRuleDoc activeRuleDoc = activeRules.get(0);
+    assertThat(activeRuleDoc.severity()).isEqualTo("BLOCKER");
+    assertThat(activeRuleDoc.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
+    List<ActiveRuleParamDto> params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleDoc.key());
+    assertThat(params).hasSize(1);
+    assertThat(params.get(0).getKey()).isEqualTo("max");
+    assertThat(params.get(0).getValue()).isEqualTo("7");
 
     // child profile is inherited
     activeRules = Lists.newArrayList(tester.get(QProfileLoader.class).findActiveRulesByProfile(QProfileTesting.XOO_P2_KEY));
     assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).severity()).isEqualTo("BLOCKER");
-    assertThat(activeRules.get(0).inheritance()).isEqualTo(ActiveRule.Inheritance.INHERITED);
-    assertThat(activeRules.get(0).params().get("max")).isEqualTo("7");
+    activeRuleDoc = activeRules.get(0);
+    assertThat(activeRuleDoc.severity()).isEqualTo("BLOCKER");
+    assertThat(activeRuleDoc.inheritance()).isEqualTo(ActiveRule.Inheritance.INHERITED);
+    params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleDoc.key());
+    assertThat(params).hasSize(1);
+    assertThat(params.get(0).getKey()).isEqualTo("max");
+    assertThat(params.get(0).getValue()).isEqualTo("7");
   }
 
   @Test
@@ -253,6 +297,7 @@ public class QProfileBackuperMediumTest {
     tester.get(RuleActivator.class).activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     // backup of child profile contains x2 but not x1
     tester.get(QProfileBackuper.class).restore(new StringReader(
@@ -319,7 +364,7 @@ public class QProfileBackuperMediumTest {
       null);
 
     dbSession.clearCache();
-    assertThat(db.deprecatedActiveRuleDao().selectAll(dbSession)).hasSize(0);
+    assertThat(db.activeRuleDao().selectAll(dbSession)).hasSize(0);
     List<QualityProfileDto> profiles = db.qualityProfileDao().selectAll(dbSession);
     assertThat(profiles).hasSize(1);
     assertThat(profiles.get(0).getName()).isEqualTo("P1");
