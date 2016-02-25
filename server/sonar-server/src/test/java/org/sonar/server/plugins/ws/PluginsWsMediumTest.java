@@ -40,6 +40,7 @@ public class PluginsWsMediumTest {
   public static TemporaryFolder temporaryFolder = new TemporaryFolder();
   @ClassRule
   public static ServerTester serverTester = new ServerTester()
+    .withEsIndexes()
     .addPluginJar(getFile("sonar-decoy-plugin-1.0.jar"))
     .setUpdateCenterUrl(createUpdateCenterPropertiesFile());
 
@@ -62,19 +63,19 @@ public class PluginsWsMediumTest {
       );
 
     wsTester.newGetRequest("api/plugins", "available").execute().assertJson("{" +
-        "  \"plugins\": [" +
-        "    {" +
-        "      \"key\": \"foo\"," +
-        "      \"release\": {" +
-        "        \"version\": \"1.0\"," +
-        "      }," +
-        "      \"update\": {" +
-        "        \"status\": \"COMPATIBLE\"," +
-        "        \"requires\": []" +
-        "      }" +
-        "    }" +
-        "  ]" +
-        "}");
+      "  \"plugins\": [" +
+      "    {" +
+      "      \"key\": \"foo\"," +
+      "      \"release\": {" +
+      "        \"version\": \"1.0\"," +
+      "      }," +
+      "      \"update\": {" +
+      "        \"status\": \"COMPATIBLE\"," +
+      "        \"requires\": []" +
+      "      }" +
+      "    }" +
+      "  ]" +
+      "}");
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{\"installing\":[],\"removing\":[]}");
 
@@ -83,30 +84,30 @@ public class PluginsWsMediumTest {
     wsTester.newPostRequest("api/plugins", "update").setParam("key", "decoy").execute().assertNoContent();
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{" +
-        "  \"installing\": [" +
-        "    {" +
-        "      \"key\": \"decoy\"," +
-        "      \"version\": \"1.1\"" +
-        "    }" +
-        "  ]," +
-        "  \"removing\": []" +
-        "}");
+      "  \"installing\": [" +
+      "    {" +
+      "      \"key\": \"decoy\"," +
+      "      \"version\": \"1.1\"" +
+      "    }" +
+      "  ]," +
+      "  \"removing\": []" +
+      "}");
 
     wsTester.newPostRequest("api/plugins", "install").setParam("key", "foo").execute().assertNoContent();
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{" +
-        "  \"installing\": [" +
-        "    {" +
-        "      \"key\": \"decoy\"," +
-        "      \"version\": \"1.1\"" +
-        "    }," +
-        "    {" +
-        "      \"key\": \"foo\"," +
-        "      \"version\": \"1.0\"" +
-        "    }" +
-        "  ]," +
-        "  \"removing\": []" +
-        "}");
+      "  \"installing\": [" +
+      "    {" +
+      "      \"key\": \"decoy\"," +
+      "      \"version\": \"1.1\"" +
+      "    }," +
+      "    {" +
+      "      \"key\": \"foo\"," +
+      "      \"version\": \"1.0\"" +
+      "    }" +
+      "  ]," +
+      "  \"removing\": []" +
+      "}");
 
     // 3 - simulate SQ restart
     wsTester = restartServerTester();
@@ -131,28 +132,28 @@ public class PluginsWsMediumTest {
     wsTester.newPostRequest("api/plugins", "uninstall").setParam("key", "foo").execute().assertNoContent();
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{" +
-        "  \"installing\": []," +
-        "  \"removing\": [" +
-        "    {" +
-        "      \"key\": \"foo\"," +
-        "      \"version\": \"1.0\"" +
-        "    }" +
-        "  ]," +
-        "}");
+      "  \"installing\": []," +
+      "  \"removing\": [" +
+      "    {" +
+      "      \"key\": \"foo\"," +
+      "      \"version\": \"1.0\"" +
+      "    }" +
+      "  ]," +
+      "}");
 
     // 6 - simulate SQ restart again
     wsTester = restartServerTester();
 
     // 7 - make sure plugin has been uninstalled
     wsTester.newGetRequest("api/plugins", "installed").execute().assertJson("{" +
-            "  \"plugins\": [" +
-            "    {" +
-            "      \"key\": \"decoy\"," +
-            "      \"version\": \"1.1\"" +
-            "    }" +
-            "  ]" +
-            "}"
-    );
+      "  \"plugins\": [" +
+      "    {" +
+      "      \"key\": \"decoy\"," +
+      "      \"version\": \"1.1\"" +
+      "    }" +
+      "  ]" +
+      "}"
+      );
   }
 
   private WsTester restartServerTester() {
@@ -167,9 +168,9 @@ public class PluginsWsMediumTest {
     try {
       temporaryFolder.create();
       String content = FileUtils.readFileToString(getFile("update-center.properties"), ENCODING)
-          .replace("[[decoy.10.jar]]", getFileUrl("sonar-decoy-plugin-1.0.jar").toString())
-          .replace("[[decoy.11.jar]]", getFileUrl("sonar-decoy-plugin-1.1.jar").toString())
-          .replace("[[foo.10.jar]]", getFileUrl("sonar-foo-plugin-1.0.jar").toString());
+        .replace("[[decoy.10.jar]]", getFileUrl("sonar-decoy-plugin-1.0.jar").toString())
+        .replace("[[decoy.11.jar]]", getFileUrl("sonar-decoy-plugin-1.1.jar").toString())
+        .replace("[[foo.10.jar]]", getFileUrl("sonar-foo-plugin-1.0.jar").toString());
       File res = temporaryFolder.newFile("update-center.properties");
       FileUtils.write(res, content, "UTF-8");
       return res.toURI().toURL();

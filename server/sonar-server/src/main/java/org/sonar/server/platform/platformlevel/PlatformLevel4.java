@@ -223,6 +223,7 @@ import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfiles;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.RuleActivatorContextFactory;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.ws.BackupAction;
 import org.sonar.server.qualityprofile.ws.BulkRuleActivationActions;
 import org.sonar.server.qualityprofile.ws.ChangeParentAction;
@@ -256,6 +257,8 @@ import org.sonar.server.rule.RuleOperations;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.RuleUpdater;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.ws.ActiveRuleCompleter;
 import org.sonar.server.rule.ws.RepositoriesAction;
 import org.sonar.server.rule.ws.RuleMapping;
@@ -384,6 +387,7 @@ public class PlatformLevel4 extends PlatformLevel {
       UpdateCenterWs.class,
 
       // quality profile
+      ActiveRuleIndexer.class,
       XMLProfileParser.class,
       XMLProfileSerializer.class,
       AnnotationProfileParser.class,
@@ -429,6 +433,8 @@ public class PlatformLevel4 extends PlatformLevel {
       RubyQProfileActivityService.class,
 
       // rule
+      RuleIndexDefinition.class,
+      RuleIndexer.class,
       AnnotationRuleParser.class,
       XMLRuleParser.class,
       DefaultRuleFinder.class,

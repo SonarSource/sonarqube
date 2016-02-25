@@ -13,7 +13,9 @@
     r.plugin_name as "repository",
     qp.kee as "profileKey",
     a.created_at as "createdAt",
-    a.updated_at as "updatedAt"
+    a.updated_at as "updatedAt",
+    a.created_at_ms as "createdAtInMs",
+    a.updated_at_ms as "updatedAtInMs"
   </sql>
 
   <sql id="activeRuleKeyJoin">
@@ -21,6 +23,7 @@
     INNER JOIN rules r ON r.id = a.rule_id
   </sql>
 
+  <!-- Should be removed when ActiveRuleDao v2 will be removed -->
   <sql id="activeRuleColumns">
     a.id,
     a.profile_id as profileId,
@@ -29,9 +32,12 @@
     a.inheritance as inheritance,
     active_rule_parent.id as parentId,
     a.created_at as "createdAt",
-    a.updated_at as "updatedAt"
+    a.updated_at as "updatedAt",
+    a.created_at_ms as "createdAtInMs",
+    a.updated_at_ms as "updatedAtInMs"
   </sql>
 
+  <!-- Should be removed when ActiveRuleDao v2 will be removed -->
   <sql id="activeRuleJoin">
     INNER JOIN rules_profiles qp ON qp.id=a.profile_id
     LEFT JOIN rules_profiles profile_parent ON profile_parent.kee=qp.parent_kee
@@ -52,8 +58,8 @@
   </select>
 
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, created_at, updated_at)
-    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{createdAt}, #{updatedAt})
+    INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, created_at, updated_at, created_at_ms, updated_at_ms)
+    VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{createdAt}, #{updatedAt}, #{createdAtInMs}, #{updatedAtInMs})
   </insert>
 
   <update id="update" parameterType="ActiveRule">
@@ -62,7 +68,8 @@
     rule_id=#{ruleId},
     failure_level=#{severity},
     inheritance=#{inheritance},
-    updated_at=#{updatedAt}
+    updated_at=#{updatedAt},
+    updated_at_ms=#{updatedAtInMs}
     WHERE id=#{id}
   </update>
 

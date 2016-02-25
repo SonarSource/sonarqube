@@ -45,6 +45,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 
 @ServerSide
 public class QProfileExporters {
@@ -119,7 +120,7 @@ public class QProfileExporters {
 
   private RulesProfile wrap(QualityProfileDto profile) {
     RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
-    for (Iterator<ActiveRule> activeRuleIterator = loader.findActiveRulesByProfile(profile.getKey()); activeRuleIterator.hasNext();) {
+    for (Iterator<ActiveRuleDoc> activeRuleIterator = loader.findActiveRulesByProfile(profile.getKey()); activeRuleIterator.hasNext();) {
       ActiveRule activeRule = activeRuleIterator.next();
       Rule rule = ruleFinder.findByKey(activeRule.key().ruleKey());
       org.sonar.api.rules.ActiveRule wrappedActiveRule = target.activateRule(rule, RulePriority.valueOf(activeRule.severity()));
@@ -165,15 +166,18 @@ public class QProfileExporters {
     ValidationMessages messages = ValidationMessages.create();
     ProfileImporter importer = getProfileImporter(importerKey);
     RulesProfile rulesProfile = importer.importProfile(xml, messages);
-    importProfile(profileDto, rulesProfile, dbSession);
+    List<ActiveRuleChange> changes = importProfile(profileDto, rulesProfile, dbSession);
+    result.addChanges(changes);
     processValidationMessages(messages, result);
     return result;
   }
 
-  private void importProfile(QualityProfileDto profileDto, RulesProfile rulesProfile, DbSession dbSession) {
+  private List<ActiveRuleChange> importProfile(QualityProfileDto profileDto, RulesProfile rulesProfile, DbSession dbSession) {
+    List<ActiveRuleChange> changes = new ArrayList<>();
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
-      ruleActivator.activate(dbSession, toRuleActivation(activeRule), profileDto);
+      changes.addAll(ruleActivator.activate(dbSession, toRuleActivation(activeRule), profileDto));
     }
+    return changes;
   }
 
   private ProfileImporter getProfileImporter(String importerKey) {

@@ -20,10 +20,11 @@
 package org.sonar.db.rule;
 
 import com.google.common.base.Optional;
+import com.google.common.collect.Iterables;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.junit.Rule;
@@ -32,12 +33,17 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleQuery;
+import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
@@ -71,6 +77,17 @@ public class RuleDaoTest {
     Optional<RuleDto> ruleDtoOptional = underTest.selectById(1l, dbTester.getSession());
     assertThat(ruleDtoOptional).isPresent();
     assertThat(ruleDtoOptional.get().getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void selectByIds() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1))).hasSize(1);
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1,2))).hasSize(2);
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(1,2,3))).hasSize(2);
+
+    assertThat(underTest.selectByIds(dbTester.getSession(), asList(123))).isEmpty();
   }
 
   @Test
@@ -132,19 +149,7 @@ public class RuleDaoTest {
 
     List<RuleDto> ruleDtos = underTest.selectAll(dbTester.getSession());
 
-    assertThat(ruleDtos).extracting("id").containsOnly(1, 2);
-  }
-
-  @Test
-  public void insert() throws Exception {
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S001")).setConfigKey(null));
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RuleTesting.newDto(RuleKey.of("java", "S002")).setConfigKey("I002"));
-    dbTester.getSession().commit();
-
-    List<Map<String, Object>> rows = dbTester.select("select plugin_rule_key as \"ruleKey\" from rules order by plugin_rule_key");
-    assertThat(rows).hasSize(2);
-    assertThat(rows.get(0).get("ruleKey")).isEqualTo("S001");
-    assertThat(rows.get(1).get("ruleKey")).isEqualTo("S002");
+    assertThat(ruleDtos).extracting("id").containsOnly(1, 2, 10);
   }
 
   @Test
@@ -163,5 +168,228 @@ public class RuleDaoTest {
     assertThat(rules.size()).isEqualTo(1);
     RuleDto ruleDto = rules.get(0);
     assertThat(ruleDto.getId()).isEqualTo(1);
+  }
+
+  @Test
+  public void select_non_manual() {
+    dbTester.prepareDbUnit(getClass(), "selectNonManual.xml");
+
+    List<RuleDto> ruleDtos = underTest.selectByNonManual(dbTester.getSession());
+
+    assertThat(ruleDtos.size()).isEqualTo(1);
+    RuleDto ruleDto = ruleDtos.get(0);
+    assertThat(ruleDto.getId()).isEqualTo(1);
+    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
+    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
+  }
+
+
+  @Test
+  public void select_by_query() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create())).hasSize(2);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withKey("S001"))).hasSize(1);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withConfigKey("S1"))).hasSize(1);
+    assertThat(underTest.selectByQuery(dbTester.getSession(), RuleQuery.create().withRepositoryKey("java"))).hasSize(2);
+    assertThat(underTest.selectByQuery(dbTester.getSession(),
+      RuleQuery.create().withKey("S001").withConfigKey("S1").withRepositoryKey("java"))).hasSize(1);
+  }
+
+  @Test
+  public void insert() throws Exception {
+    RuleDto newRule = new RuleDto()
+      .setRuleKey("NewRuleKey")
+      .setRepositoryKey("plugin")
+      .setName("new name")
+      .setDescription("new description")
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .setStatus(RuleStatus.DEPRECATED)
+      .setConfigKey("NewConfigKey")
+      .setSeverity(Severity.INFO)
+      .setIsTemplate(true)
+      .setLanguage("dart")
+      .setTemplateId(3)
+      .setNoteData("My note")
+      .setNoteUserLogin("admin")
+      .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
+      .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+      .setRemediationCoefficient("1h")
+      .setDefaultRemediationCoefficient("5d")
+      .setRemediationOffset("5min")
+      .setDefaultRemediationOffset("10h")
+      .setEffortToFixDescription("squid.S115.effortToFix")
+      .setCreatedAtInMs(1500000000000L)
+      .setUpdatedAtInMs(2000000000000L);
+    underTest.insert(dbTester.getSession(), newRule);
+    dbTester.getSession().commit();
+
+    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
+    assertThat(ruleDto.getId()).isNotNull();
+    assertThat(ruleDto.getName()).isEqualTo("new name");
+    assertThat(ruleDto.getDescription()).isEqualTo("new description");
+    assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
+    assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
+    assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
+    assertThat(ruleDto.getConfigKey()).isEqualTo("NewConfigKey");
+    assertThat(ruleDto.getSeverity()).isEqualTo(0);
+    assertThat(ruleDto.getLanguage()).isEqualTo("dart");
+    assertThat(ruleDto.isTemplate()).isTrue();
+    assertThat(ruleDto.getTemplateId()).isEqualTo(3);
+    assertThat(ruleDto.getNoteData()).isEqualTo("My note");
+    assertThat(ruleDto.getNoteUserLogin()).isEqualTo("admin");
+    assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
+    assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
+    assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
+    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
+    assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
+    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getCreatedAtInMs()).isEqualTo(1500000000000L);
+    assertThat(ruleDto.getUpdatedAtInMs()).isEqualTo(2000000000000L);
+  }
+
+  @Test
+  public void update() {
+    dbTester.prepareDbUnit(getClass(), "update.xml");
+
+    RuleDto ruleToUpdate = new RuleDto()
+      .setId(1)
+      .setRuleKey("NewRuleKey")
+      .setRepositoryKey("plugin")
+      .setName("new name")
+      .setDescription("new description")
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN)
+      .setStatus(RuleStatus.DEPRECATED)
+      .setConfigKey("NewConfigKey")
+      .setSeverity(Severity.INFO)
+      .setIsTemplate(true)
+      .setLanguage("dart")
+      .setTemplateId(3)
+      .setNoteData("My note")
+      .setNoteUserLogin("admin")
+      .setNoteCreatedAt(DateUtils.parseDate("2013-12-19"))
+      .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
+      .setRemediationCoefficient("1h")
+      .setDefaultRemediationCoefficient("5d")
+      .setRemediationOffset("5min")
+      .setDefaultRemediationOffset("10h")
+      .setEffortToFixDescription("squid.S115.effortToFix")
+      .setUpdatedAtInMs(2000000000000L);
+
+    underTest.update(dbTester.getSession(), ruleToUpdate);
+    dbTester.getSession().commit();
+
+    RuleDto ruleDto = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
+    assertThat(ruleDto.getName()).isEqualTo("new name");
+    assertThat(ruleDto.getDescription()).isEqualTo("new description");
+    assertThat(ruleDto.getDescriptionFormat()).isEqualTo(RuleDto.Format.MARKDOWN);
+    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.DEPRECATED);
+    assertThat(ruleDto.getRuleKey()).isEqualTo("NewRuleKey");
+    assertThat(ruleDto.getRepositoryKey()).isEqualTo("plugin");
+    assertThat(ruleDto.getConfigKey()).isEqualTo("NewConfigKey");
+    assertThat(ruleDto.getSeverity()).isEqualTo(0);
+    assertThat(ruleDto.getLanguage()).isEqualTo("dart");
+    assertThat(ruleDto.isTemplate()).isTrue();
+    assertThat(ruleDto.getTemplateId()).isEqualTo(3);
+    assertThat(ruleDto.getNoteData()).isEqualTo("My note");
+    assertThat(ruleDto.getNoteUserLogin()).isEqualTo("admin");
+    assertThat(ruleDto.getNoteCreatedAt()).isNotNull();
+    assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
+    assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
+    assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
+    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
+    assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
+    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getCreatedAtInMs()).isEqualTo(1500000000000L);
+    assertThat(ruleDto.getUpdatedAtInMs()).isEqualTo(2000000000000L);
+  }
+
+  @Test
+  public void select_parameters_by_rule_key() {
+    dbTester.prepareDbUnit(getClass(), "select_parameters_by_rule_key.xml");
+    List<RuleParamDto> ruleDtos = underTest.selectRuleParamsByRuleKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"));
+
+    assertThat(ruleDtos.size()).isEqualTo(1);
+    RuleParamDto ruleDto = ruleDtos.get(0);
+    assertThat(ruleDto.getId()).isEqualTo(1);
+    assertThat(ruleDto.getName()).isEqualTo("myParameter");
+    assertThat(ruleDto.getDescription()).isEqualTo("My Parameter");
+    assertThat(ruleDto.getType()).isEqualTo("plop");
+    assertThat(ruleDto.getRuleId()).isEqualTo(1);
+  }
+
+  @Test
+  public void select_parameters_by_rule_keys() {
+    dbTester.prepareDbUnit(getClass(), "select_parameters_by_rule_key.xml");
+
+    assertThat(underTest.selectRuleParamsByRuleKeys(dbTester.getSession(),
+      Arrays.asList(RuleKey.of("checkstyle", "AvoidNull"), RuleKey.of("unused", "Unused"))
+    )).hasSize(2);
+
+    assertThat(underTest.selectRuleParamsByRuleKeys(dbTester.getSession(),
+      singletonList(RuleKey.of("unknown", "Unknown"))
+    )).isEmpty();
+  }
+
+  @Test
+  public void insert_parameter() {
+    dbTester.prepareDbUnit(getClass(), "insert_parameter.xml");
+    RuleDto rule1 = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("plugin", "NewRuleKey"));
+
+    RuleParamDto param = RuleParamDto.createFor(rule1)
+      .setName("max")
+      .setType("INTEGER")
+      .setDefaultValue("30")
+      .setDescription("My Parameter");
+
+    underTest.insertRuleParam(dbTester.getSession(), rule1, param);
+    dbTester.getSession().commit();
+
+    dbTester.assertDbUnit(getClass(), "insert_parameter-result.xml", "rules_parameters");
+  }
+
+  @Test
+  public void update_parameter() {
+    dbTester.prepareDbUnit(getClass(), "update_parameter.xml");
+
+    RuleDto rule1 = underTest.selectOrFailByKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"));
+
+    List<RuleParamDto> params = underTest.selectRuleParamsByRuleKey(dbTester.getSession(), rule1.getKey());
+    assertThat(params).hasSize(1);
+
+    RuleParamDto param = Iterables.getFirst(params, null);
+    param
+      .setName("format")
+      .setType("STRING")
+      .setDefaultValue("^[a-z]+(\\.[a-z][a-z0-9]*)*$")
+      .setDescription("Regular expression used to check the package names against.");
+
+    underTest.updateRuleParam(dbTester.getSession(), rule1, param);
+    dbTester.getSession().commit();
+
+    dbTester.assertDbUnit(getClass(), "update_parameter-result.xml", "rules_parameters");
+  }
+
+  @Test
+  public void delete_parameter() {
+    dbTester.prepareDbUnit(getClass(), "select_parameters_by_rule_key.xml");
+    assertThat(underTest.selectRuleParamsByRuleKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"))).hasSize(1);
+
+    underTest.deleteRuleParam(dbTester.getSession(), 1);
+    dbTester.getSession().commit();
+
+    assertThat(underTest.selectRuleParamsByRuleKey(dbTester.getSession(), RuleKey.of("checkstyle", "AvoidNull"))).isEmpty();
   }
 }

@@ -19,8 +19,10 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.api.server.ServerSide;
+import com.google.common.base.Optional;
+import java.util.Collection;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -29,8 +31,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-
-import java.util.Collection;
 
 @ServerSide
 public class RuleActivatorContextFactory {
@@ -87,16 +87,16 @@ public class RuleActivatorContextFactory {
 
   private void initActiveRules(String profileKey, RuleKey ruleKey, RuleActivatorContext context, DbSession session, boolean parent) {
     ActiveRuleKey key = ActiveRuleKey.of(profileKey, ruleKey);
-    ActiveRuleDto activeRule = db.activeRuleDao().getNullableByKey(session, key);
+    Optional<ActiveRuleDto> activeRule = db.activeRuleDao().selectByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
-    if (activeRule != null) {
+    if (activeRule.isPresent()) {
       activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleKey(session, key);
     }
     if (parent) {
-      context.setParentActiveRule(activeRule);
+      context.setParentActiveRule(activeRule.orNull());
       context.setParentActiveRuleParams(activeRuleParams);
     } else {
-      context.setActiveRule(activeRule);
+      context.setActiveRule(activeRule.orNull());
       context.setActiveRuleParams(activeRuleParams);
     }
   }

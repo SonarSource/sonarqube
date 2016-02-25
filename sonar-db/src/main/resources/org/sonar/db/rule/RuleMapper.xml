@@ -32,7 +32,9 @@
     r.tags as "tagsField",
     r.system_tags as "systemTagsField",
     r.created_at as "createdAt",
-    r.updated_at as "updatedAt"
+    r.updated_at as "updatedAt",
+    r.created_at_ms as "createdAtInMs",
+    r.updated_at_ms as "updatedAtInMs"
   </sql>
 
   <select id="selectAll" resultType="Rule">
@@ -63,6 +65,16 @@
     select
     <include refid="selectColumns"/>
     from rules r WHERE r.id=#{id}
+  </select>
+
+  <select id="selectByIds" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r
+    WHERE
+    <foreach collection="ids" index="index" item="id" open="" separator=" or " close="">
+      r.id=#{id}
+    </foreach>
   </select>
 
   <select id="selectByKey" parameterType="map" resultType="Rule">
@@ -101,6 +113,25 @@
     where (r.characteristic_id=#{subCharacteristicId} or r.default_characteristic_id=#{subCharacteristicId})
   </select>
 
+  <select id="selectByQuery" parameterType="map" resultType="Rule">
+    SELECT
+    <include refid="selectColumns"/>
+    FROM rules r
+    <where>
+      AND r.status != 'REMOVED'
+      <if test="query.repositoryKey!=null">
+        AND r.plugin_name = #{query.repositoryKey}
+      </if>
+      <if test="query.key!=null">
+        AND r.plugin_rule_key = #{query.key}
+      </if>
+      <if test="query.configKey!=null">
+        AND r.plugin_config_key = #{query.configKey}
+      </if>
+    </where>
+    ORDER BY r.updated_at_ms DESC
+  </select>
+
   <update id="update" parameterType="Rule">
     UPDATE rules SET
     plugin_rule_key=#{ruleKey},
@@ -127,9 +158,10 @@
     remediation_offset=#{remediationOffset},
     default_remediation_offset=#{defaultRemediationOffset},
     effort_to_fix_description=#{effortToFixDescription},
-    updated_at=#{updatedAt},
     tags=#{tagsField},
-    system_tags=#{systemTagsField}
+    system_tags=#{systemTagsField},
+    updated_at=#{updatedAt},
+    updated_at_ms=#{updatedAtInMs}
     WHERE id=#{id}
   </update>
 
@@ -139,7 +171,7 @@
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
-    created_at, updated_at)
+    created_at, updated_at, created_at_ms, updated_at_ms)
   </sql>
 
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
@@ -150,7 +182,7 @@
     #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
-    #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
+    #{noteUpdatedAt}, #{createdAt}, #{updatedAt}, #{createdAtInMs}, #{updatedAtInMs})
   </insert>
 
   <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
@@ -166,7 +198,10 @@
     #{remediationCoefficient,jdbcType=VARCHAR}, #{defaultRemediationCoefficient,jdbcType=VARCHAR},
     #{remediationOffset,jdbcType=VARCHAR}, #{defaultRemediationOffset,jdbcType=VARCHAR},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
-    #{noteUpdatedAt,jdbcType=TIMESTAMP}, #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP})
+    #{noteUpdatedAt,jdbcType=TIMESTAMP},
+    #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP},
+    #{createdAtInMs,jdbcType=BIGINT}, #{updatedAtInMs,jdbcType=BIGINT}
+    )
   </insert>
 
   <delete id="deleteParams" parameterType="Integer">
@@ -200,6 +235,17 @@
     FROM rules_parameters p, rules r
     WHERE p.rule_id=r.id
     AND r.plugin_name=#{repository} AND r.plugin_rule_key=#{rule}
+  </select>
+
+  <select id="selectParamsByRuleKeys" resultType="RuleParam" parameterType="map">
+    SELECT
+    <include refid="paramColumns"/>
+    FROM rules_parameters p
+    INNER JOIN rules r ON r.id=p.rule_id
+    WHERE
+    <foreach collection="ruleKeys" index="index" item="ruleKey" open="" separator=" or " close="">
+      (r.plugin_name=#{ruleKey.repository} AND r.plugin_rule_key=#{ruleKey.rule})
+    </foreach>
   </select>
 
   <select id="selectParamByRuleAndKey" resultType="RuleParam">

@@ -8,7 +8,7 @@
          remediation_coeff="1h" default_remediation_coeff="5d"
          remediation_offset="5min" default_remediation_offset="10h"
          effort_to_fix_description="squid.S115.effortToFix" description_format="HTML"
-         created_at_ms="[null]" updated_at_ms="[null]"
+         created_at_ms="0" updated_at_ms="0"
       />
 
   <rules tags="[null]" system_tags="[null]" id="2" plugin_rule_key="NewRuleKey2" plugin_name="plugin2" name="new name2" description="new description2" status="BETA"
@@ -19,7 +19,7 @@
          remediation_coeff="5d" default_remediation_coeff="1h"
          remediation_offset="10h" default_remediation_offset="5min"
          effort_to_fix_description="squid.S115.effortToFix2" description_format="MARKDOWN"
-         created_at_ms="[null]" updated_at_ms="[null]"
+         created_at_ms="0" updated_at_ms="0"
       />
 
 </dataset>

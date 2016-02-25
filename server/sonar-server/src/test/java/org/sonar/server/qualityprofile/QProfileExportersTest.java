@@ -20,6 +20,10 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.io.Reader;
+import java.io.Writer;
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -35,17 +39,14 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.tester.ServerTester;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.io.Writer;
-import java.util.List;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,10 +55,13 @@ import static org.junit.Assert.fail;
 public class QProfileExportersTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().withStartupTasks().addXoo().addComponents(
-    XooRulesDefinition.class, XooProfileDefinition.class,
-    XooExporter.class, StandardExporter.class,
-    XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);
+  public static ServerTester tester = new ServerTester()
+    .withEsIndexes()
+    .withStartupTasks()
+    .addXoo()
+    .addComponents(XooRulesDefinition.class, XooProfileDefinition.class, XooExporter.class, StandardExporter.class,
+      XooProfileImporter.class, XooProfileImporterWithMessages.class, XooProfileImporterWithError.class);
+
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -65,6 +69,7 @@ public class QProfileExportersTest {
   DbSession dbSession;
   QProfileExporters exporters;
   QProfileLoader loader;
+  ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void before() {
@@ -72,6 +77,8 @@ public class QProfileExportersTest {
     dbSession = db.openSession(false);
     exporters = tester.get(QProfileExporters.class);
     loader = tester.get(QProfileLoader.class);
+    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    activeRuleIndexer.setEnabled(true);
   }
 
   @After
@@ -135,10 +142,11 @@ public class QProfileExportersTest {
 
     assertThat(loader.findActiveRulesByProfile(profileDto.getKey())).isEmpty();
 
-    exporters.importXml(profileDto, "XooProfileImporter", "<xml/>", dbSession);
+    QProfileResult result = exporters.importXml(profileDto, "XooProfileImporter", "<xml/>", dbSession);
     dbSession.commit();
+    activeRuleIndexer.index(result.getChanges());
 
-    List<ActiveRule> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profileDto.getKey()));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profileDto.getKey()));
     assertThat(activeRules).hasSize(1);
     ActiveRule activeRule = activeRules.get(0);
     assertThat(activeRule.key().ruleKey()).isEqualTo(RuleKey.of("xoo", "R1"));

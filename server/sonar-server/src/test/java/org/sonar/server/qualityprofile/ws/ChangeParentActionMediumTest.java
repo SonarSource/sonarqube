@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -28,21 +29,24 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndexer;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -50,7 +54,7 @@ public class ChangeParentActionMediumTest {
 
   // TODO Replace with DbTester + EsTester once DaoV2 is removed
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -58,6 +62,9 @@ public class ChangeParentActionMediumTest {
   DbClient db;
   DbSession session;
   WsTester wsTester;
+  RuleIndexer ruleIndexer;
+  ActiveRuleIndexer activeRuleIndexer;
+  RuleIndex2 ruleIndex;
 
   @Before
   public void setUp() {
@@ -66,6 +73,11 @@ public class ChangeParentActionMediumTest {
     ws = tester.get(QProfilesWs.class);
     wsTester = tester.get(WsTester.class);
     session = db.openSession(false);
+    ruleIndexer = tester.get(RuleIndexer.class);
+    ruleIndexer.setEnabled(true);
+    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    activeRuleIndexer.setEnabled(true);
+    ruleIndex = tester.get(RuleIndex2.class);
     userSessionRule.login("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 
@@ -82,13 +94,15 @@ public class ChangeParentActionMediumTest {
     RuleDto rule1 = createRule("xoo", "rule1");
     createActiveRule(rule1, parent1);
     session.commit();
+    ruleIndexer.index();
+    activeRuleIndexer.index();
 
     assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
     // Set parent
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
-      .setParam("parentKey", parent1.getKey().toString())
+      .setParam("parentKey", parent1.getKey())
       .execute();
     session.clearCache();
 
@@ -96,6 +110,8 @@ public class ChangeParentActionMediumTest {
     List<ActiveRuleDto> activeRules1 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
+
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).hasSize(1);
   }
 
   @Test
@@ -109,6 +125,8 @@ public class ChangeParentActionMediumTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     session.commit();
+    ruleIndexer.index();
+    activeRuleIndexer.index();
 
     // Set parent 1
     tester.get(RuleActivator.class).setParent(child.getKey(), parent1.getKey());
@@ -117,7 +135,7 @@ public class ChangeParentActionMediumTest {
     // Set parent 2 through WS
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKey())
-      .setParam("parentKey", parent2.getKey().toString())
+      .setParam("parentKey", parent2.getKey())
       .execute();
     session.clearCache();
 
@@ -125,6 +143,8 @@ public class ChangeParentActionMediumTest {
     List<ActiveRuleDto> activeRules2 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules2).hasSize(1);
     assertThat(activeRules2.get(0).getKey().ruleKey().rule()).isEqualTo("rule2");
+
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).hasSize(1);
   }
 
   @Test
@@ -135,6 +155,8 @@ public class ChangeParentActionMediumTest {
     RuleDto rule1 = createRule("xoo", "rule1");
     createActiveRule(rule1, parent);
     session.commit();
+    ruleIndexer.index();
+    activeRuleIndexer.index();
 
     // Set parent
     tester.get(RuleActivator.class).setParent(child.getKey(), parent.getKey());
@@ -149,6 +171,8 @@ public class ChangeParentActionMediumTest {
     // Check no rule enabled
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules).isEmpty();
+
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
   }
 
   @Test
@@ -162,6 +186,8 @@ public class ChangeParentActionMediumTest {
     createActiveRule(rule1, parent1);
     createActiveRule(rule2, parent2);
     session.commit();
+    ruleIndexer.index();
+    activeRuleIndexer.index();
 
     assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
@@ -177,6 +203,7 @@ public class ChangeParentActionMediumTest {
     List<ActiveRuleDto> activeRules1 = db.activeRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules1).hasSize(1);
     assertThat(activeRules1.get(0).getKey().ruleKey().rule()).isEqualTo("rule1");
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).hasSize(1);
 
     // 2. Set parent 2
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
@@ -202,6 +229,7 @@ public class ChangeParentActionMediumTest {
     // 3. check no rule enabled
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
   }
 
   @Test
@@ -212,6 +240,8 @@ public class ChangeParentActionMediumTest {
     RuleDto rule1 = createRule("xoo", "rule1");
     createActiveRule(rule1, parent);
     session.commit();
+    ruleIndexer.index();
+    activeRuleIndexer.index();
 
     assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
 
@@ -229,6 +259,7 @@ public class ChangeParentActionMediumTest {
     // Check no rule enabled
     List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(session, child.getKey());
     assertThat(activeRules).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
   }
 
   @Test(expected = IllegalArgumentException.class)
@@ -237,6 +268,7 @@ public class ChangeParentActionMediumTest {
     session.commit();
 
     assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
 
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKee())
@@ -251,6 +283,7 @@ public class ChangeParentActionMediumTest {
     session.commit();
 
     assertThat(db.activeRuleDao().selectByProfileKey(session, child.getKey())).isEmpty();
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true).setQProfileKey(child.getKey()), new SearchOptions()).getIds()).isEmpty();
 
     wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, "change_parent")
       .setParam(QProfileIdentificationParamUtils.PARAM_PROFILE_KEY, child.getKee())
@@ -279,7 +312,7 @@ public class ChangeParentActionMediumTest {
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    db.deprecatedRuleDao().insert(session, rule);
+    db.ruleDao().insert(session, rule);
     return rule;
   }
 

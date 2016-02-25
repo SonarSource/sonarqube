@@ -27,20 +27,18 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -51,32 +49,26 @@ public class DeleteActionTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
-  private DbClient dbClient;
+  private DbClient dbClient = dbTester.getDbClient();
 
-  private QualityProfileDao qualityProfileDao;
+  private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
 
-  private ComponentDao componentDao;
+  private ComponentDao componentDao = dbClient.componentDao();
 
   private Language xoo1;
   private Language xoo2;
 
   private WsTester tester;
 
-  private DbSession session;
-
-  System2 system2 = mock(System2.class);
+  private DbSession session = dbTester.getSession();
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
-    qualityProfileDao = new QualityProfileDao(dbTester.myBatis(), mock(System2.class));
-    componentDao = new ComponentDao();
-
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), qualityProfileDao, new ActiveRuleDao(qualityProfileDao, new RuleDao(system2), system2));
-    session = dbClient.openSession(false);
 
     xoo1 = LanguageTesting.newLanguage("xoo1");
     xoo2 = LanguageTesting.newLanguage("xoo2");

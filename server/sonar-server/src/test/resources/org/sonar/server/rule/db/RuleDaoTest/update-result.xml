@@ -10,7 +10,7 @@
          remediation_coeff="1h" default_remediation_coeff="5d"
          remediation_offset="5min" default_remediation_offset="10h"
          effort_to_fix_description="squid.S115.effortToFix" description_format="MARKDOWN"
-         created_at_ms="1500000000000" updated_at_ms="1600000000000"
+         created_at_ms="1500000000000" updated_at_ms="0"
   />
 
   <rules tags="[null]" system_tags="[null]" id="2" plugin_rule_key="Parent1" plugin_name="checkstyle"

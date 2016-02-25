@@ -20,6 +20,8 @@
 package org.sonar.server.qualityprofile.db;
 
 import com.google.common.base.Preconditions;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -33,10 +35,7 @@ import org.sonar.server.db.BaseDao;
 import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.search.IndexDefinition;
 
-import javax.annotation.CheckForNull;
-
-import java.util.List;
-
+@Deprecated
 public class ActiveRuleDao extends BaseDao<ActiveRuleMapper, ActiveRuleDto, ActiveRuleKey> {
 
   private static final String QUALITY_PROFILE_IS_NOT_PERSISTED = "Quality profile is not persisted (missing id)";

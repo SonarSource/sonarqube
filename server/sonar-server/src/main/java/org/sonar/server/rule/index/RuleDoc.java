@@ -19,9 +19,11 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -49,11 +51,6 @@ public class RuleDoc extends BaseDoc implements Rule {
     super(fields);
   }
 
-  @Override
-  public RuleKey key() {
-    return RuleKey.parse(this.<String>getField(RuleNormalizer.RuleField.KEY.field()));
-  }
-
   /**
    * @deprecated Only use for sqale backward compat. Use key() instead.
    */
@@ -62,34 +59,87 @@ public class RuleDoc extends BaseDoc implements Rule {
     return getField(RuleNormalizer.RuleField.ID.field());
   }
 
-  /**
-   * Alias for backward-compatibility with SQALE
-   */
-  public RuleKey ruleKey() {
-    return key();
+  @Override
+  public RuleKey key() {
+    return RuleKey.parse(this.<String>getField(RuleIndexDefinition.FIELD_RULE_KEY));
+  }
+
+  public RuleDoc setKey(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_KEY, s);
+    return this;
+  }
+
+  @VisibleForTesting
+  List<String> keyAsList() {
+    return (List<String>) getField(RuleIndexDefinition.FIELD_RULE_KEY_AS_LIST);
+  }
+
+  public RuleDoc setKeyAsList(@Nullable List<String> s) {
+    setField(RuleIndexDefinition.FIELD_RULE_KEY_AS_LIST, s);
+    return this;
+  }
+
+  @CheckForNull
+  public String ruleKey() {
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_RULE_KEY);
+  }
+
+  public RuleDoc setRuleKey(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_RULE_KEY, s);
+    return this;
+  }
+
+  @CheckForNull
+  public String repository() {
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_REPOSITORY);
+  }
+
+  public RuleDoc setRepository(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_REPOSITORY, s);
+    return this;
   }
 
   @Override
   @CheckForNull
   public String internalKey() {
-    return getNullableField(RuleNormalizer.RuleField.INTERNAL_KEY.field());
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_INTERNAL_KEY);
+  }
+
+  public RuleDoc setInternalKey(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_INTERNAL_KEY, s);
+    return this;
   }
 
   @Override
   @CheckForNull
   public String language() {
-    return getNullableField(RuleNormalizer.RuleField.LANGUAGE.field());
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_LANGUAGE);
+  }
+
+  public RuleDoc setLanguage(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_LANGUAGE, s);
+    return this;
   }
 
   @Override
   public String name() {
-    return getField(RuleNormalizer.RuleField.NAME.field());
+    return getField(RuleIndexDefinition.FIELD_RULE_NAME);
+  }
+
+  public RuleDoc setName(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_NAME, s);
+    return this;
   }
 
   @Override
   @CheckForNull
   public String htmlDescription() {
-    return getNullableField(RuleNormalizer.RuleField.HTML_DESCRIPTION.field());
+    return getNullableField(RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION);
+  }
+
+  public RuleDoc setHtmlDescription(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION, s);
+    return this;
   }
 
   @Override
@@ -107,18 +157,33 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   @CheckForNull
   public String severity() {
-    return (String) getNullableField(RuleNormalizer.RuleField.SEVERITY.field());
+    return (String) getNullableField(RuleIndexDefinition.FIELD_RULE_SEVERITY);
+  }
+
+  public RuleDoc setSeverity(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_SEVERITY, s);
+    return this;
   }
 
   @Override
   @CheckForNull
   public RuleStatus status() {
-    return RuleStatus.valueOf((String) getField(RuleNormalizer.RuleField.STATUS.field()));
+    return RuleStatus.valueOf((String) getField(RuleIndexDefinition.FIELD_RULE_STATUS));
+  }
+
+  public RuleDoc setStatus(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_STATUS, s);
+    return this;
   }
 
   @Override
   public boolean isTemplate() {
-    return (Boolean) getField(RuleNormalizer.RuleField.IS_TEMPLATE.field());
+    return (Boolean) getField(RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE);
+  }
+
+  public RuleDoc setIsTemplate(@Nullable Boolean b) {
+    setField(RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE, b);
+    return this;
   }
 
   @Override
@@ -126,6 +191,11 @@ public class RuleDoc extends BaseDoc implements Rule {
   public RuleKey templateKey() {
     String templateKey = getNullableField(RuleNormalizer.RuleField.TEMPLATE_KEY.field());
     return templateKey != null ? RuleKey.parse(templateKey) : null;
+  }
+
+  public RuleDoc setTemplateKey(@Nullable String s) {
+    setField(RuleIndexDefinition.FIELD_RULE_TEMPLATE_KEY, s);
+    return this;
   }
 
   @Override
@@ -136,6 +206,15 @@ public class RuleDoc extends BaseDoc implements Rule {
   @Override
   public List<String> systemTags() {
     return (List<String>) getField(RuleNormalizer.RuleField.SYSTEM_TAGS.field());
+  }
+
+  public Collection<String> allTags() {
+    return (Collection<String>) getField(RuleIndexDefinition.FIELD_RULE_ALL_TAGS);
+  }
+
+  public RuleDoc setAllTags(@Nullable Collection<String> l) {
+    setField(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, l);
+    return this;
   }
 
   @Override
@@ -267,9 +346,29 @@ public class RuleDoc extends BaseDoc implements Rule {
     return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.CREATED_AT.field()));
   }
 
+  @CheckForNull
+  public Long createdAtAsLong() {
+    return (Long) getField(RuleIndexDefinition.FIELD_RULE_CREATED_AT);
+  }
+
+  public RuleDoc setCreatedAt(@Nullable Long l) {
+    setField(RuleIndexDefinition.FIELD_RULE_CREATED_AT, l);
+    return this;
+  }
+
   @Override
   public Date updatedAt() {
     return IndexUtils.parseDateTime((String) getNullableField(RuleNormalizer.RuleField.UPDATED_AT.field()));
+  }
+
+  @CheckForNull
+  public Long updatedAtAtAsLong() {
+    return (Long) getField(RuleIndexDefinition.FIELD_RULE_UPDATED_AT);
+  }
+
+  public RuleDoc setUpdatedAt(@Nullable Long l) {
+    setField(RuleIndexDefinition.FIELD_RULE_UPDATED_AT, l);
+    return this;
   }
 
   @Override

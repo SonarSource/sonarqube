@@ -47,7 +47,7 @@ public class DbClient extends org.sonar.db.DbClient {
     this.ruleDao = (RuleDao) daoByClass.get(RuleDao.class);
   }
 
-  public ActiveRuleDao activeRuleDao() {
+  public ActiveRuleDao deprecatedActiveRuleDao() {
     return activeRuleDao;
   }
 

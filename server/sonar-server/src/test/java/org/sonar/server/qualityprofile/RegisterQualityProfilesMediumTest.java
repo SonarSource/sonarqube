@@ -32,22 +32,26 @@ import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.loadedtemplate.LoadedTemplateDto;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.loadedtemplate.LoadedTemplateDto;
-import org.sonar.server.db.DbClient;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
+// TODO replace this MediumTest by DbTester and EsTester
 public class RegisterQualityProfilesMediumTest {
 
   ServerTester tester;
@@ -65,7 +69,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void register_existing_profile_definitions() {
-    tester = new ServerTester().withStartupTasks().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
 
@@ -78,37 +82,40 @@ public class RegisterQualityProfilesMediumTest {
     // Check ActiveRules in DB
     ActiveRuleDao activeRuleDao = dbClient().activeRuleDao();
     assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
+
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), ruleKey);
+    assertThat(activeRuleDao.selectByKey(dbSession, activeRuleKey)).isPresent();
 
-    // 0. Check and clear ES
-    assertThat(tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey)).isNotNull();
-    tester.clearIndexes();
-    assertThat(tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey)).isNull();
+    // Check in ES
+    assertThat(tester.get(RuleIndex2.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
+
     tester.get(Platform.class).restart();
-    assertThat(tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey)).isNotNull();
 
-    // Check ActiveRules in ES
-    org.sonar.server.qualityprofile.ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey);
-    assertThat(activeRule.key().qProfile()).isEqualTo(profile.getKee());
-    assertThat(activeRule.key().ruleKey()).isEqualTo(ruleKey);
-    assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);
+    assertThat(activeRuleDao.selectByKey(dbSession, activeRuleKey)).isPresent();
+
+    // Check ActiveRules
+    ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, activeRuleKey).get();
+    assertThat(activeRule.getKey().qProfile()).isEqualTo(profile.getKee());
+    assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
+    assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
+
+    // Check in ES
+    assertThat(tester.get(RuleIndex2.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
 
     // TODO
     // Check ActiveRuleParameters in DB
-    Map<String, ActiveRuleParamDto> params =
-      ActiveRuleParamDto.groupByKey(activeRuleDao.selectParamsByActiveRuleKey(dbSession, activeRule.key()));
+    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.selectParamsByActiveRuleKey(dbSession, activeRule.getKey()));
     assertThat(params).hasSize(2);
     // set by profile
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
     // default value
     assertThat(params.get("max").getValue()).isEqualTo("10");
-
   }
 
   @Test
   public void register_profile_definitions() {
-    tester = new ServerTester().withStartupTasks().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
 
@@ -126,7 +133,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(activeRuleDao.selectByProfileKey(dbSession, profile.getKey())).hasSize(2);
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
 
-    ActiveRuleDto activeRule = activeRuleDao.getNullableByKey(dbSession, ActiveRuleKey.of(profile.getKey(), ruleKey));
+    ActiveRuleDto activeRule = activeRuleDao.selectByKey(dbSession, ActiveRuleKey.of(profile.getKey(), ruleKey)).get();
     assertThat(activeRule.getKey().qProfile()).isEqualTo(profile.getKey());
     assertThat(activeRule.getKey().ruleKey()).isEqualTo(ruleKey);
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
@@ -144,7 +151,7 @@ public class RegisterQualityProfilesMediumTest {
   @Test
   public void do_not_register_profile_if_missing_language() {
     // xoo language is not installed
-    tester = new ServerTester().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().withEsIndexes().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
     dbSession = dbClient().openSession(false);
 
@@ -155,7 +162,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void fail_if_two_definitions_are_marked_as_default_on_the_same_language() {
-    tester = new ServerTester().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", true));
+    tester = new ServerTester().withEsIndexes().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", true));
 
     try {
       tester.start();
@@ -166,7 +173,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void mark_profile_as_default() {
-    tester = new ServerTester().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
+    tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", false), new SimpleProfileDefinition("two", true));
 
     tester.start();
     verifyDefaultProfile("xoo", "two");
@@ -174,7 +181,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void use_sonar_way_as_default_profile_if_none_are_marked_as_default() {
-    tester = new ServerTester().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
+    tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("Sonar way", false), new SimpleProfileDefinition("Other way", false));
 
     tester.start();
     verifyDefaultProfile("xoo", "Sonar way");
@@ -182,7 +189,7 @@ public class RegisterQualityProfilesMediumTest {
 
   @Test
   public void do_not_reset_default_profile_if_still_valid() {
-    tester = new ServerTester().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
+    tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo().addComponents(new SimpleProfileDefinition("one", true), new SimpleProfileDefinition("two", false));
     tester.start();
 
     QualityProfileDao profileDao = dbClient().qualityProfileDao();
@@ -203,7 +210,7 @@ public class RegisterQualityProfilesMediumTest {
    */
   @Test
   public void clean_up_profiles_if_missing_loaded_template() {
-    tester = new ServerTester().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
+    tester = new ServerTester().withEsIndexes().addXoo().addComponents(XooRulesDefinition.class, XooProfileDefinition.class);
     tester.start();
 
     dbSession = dbClient().openSession(false);

@@ -20,6 +20,7 @@
 package org.sonar.server.rule;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
@@ -27,9 +28,11 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -39,18 +42,21 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.rule.index.RuleIndexer;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
@@ -63,13 +69,18 @@ public class RegisterRules implements Startable {
   private final RuleDefinitionsLoader defLoader;
   private final RuleActivator ruleActivator;
   private final DbClient dbClient;
+  private final RuleIndexer ruleIndexer;
   private final Languages languages;
+  private final System2 system2;
 
-  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, Languages languages) {
+  public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RuleIndexer ruleIndexer,
+                       Languages languages, System2 system2) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
+    this.ruleIndexer = ruleIndexer;
     this.languages = languages;
+    this.system2 = system2;
   }
 
   @Override
@@ -91,6 +102,7 @@ public class RegisterRules implements Startable {
       List<RuleDto> activeRules = processRemainingDbRules(allRules.values(), session);
       removeActiveRulesOnStillExistingRepositories(session, activeRules, context);
       session.commit();
+      ruleIndexer.setEnabled(true).index();
       profiler.stopDebug();
     } finally {
       session.close();
@@ -121,7 +133,7 @@ public class RegisterRules implements Startable {
     }
 
     if (executeUpdate) {
-      dbClient.deprecatedRuleDao().update(session, rule);
+      update(session, rule);
     }
 
     mergeParams(ruleDef, rule, session);
@@ -129,7 +141,7 @@ public class RegisterRules implements Startable {
 
   private Map<RuleKey, RuleDto> loadRules(DbSession session) {
     Map<RuleKey, RuleDto> rules = new HashMap<>();
-    for (RuleDto rule : dbClient.deprecatedRuleDao().selectByNonManual(session)) {
+    for (RuleDto rule : dbClient.ruleDao().selectByNonManual(session)) {
       rules.put(rule.getKey(), rule);
     }
     return rules;
@@ -159,7 +171,11 @@ public class RegisterRules implements Startable {
       .setSeverity(ruleDef.severity())
       .setStatus(ruleDef.status())
       .setEffortToFixDescription(ruleDef.effortToFixDescription())
-      .setSystemTags(ruleDef.tags());
+      .setSystemTags(ruleDef.tags())
+      .setCreatedAtInMs(system2.now())
+      .setUpdatedAtInMs(system2.now());
+    ruleDto.setCreatedAt(new Date(system2.now()));
+    ruleDto.setUpdatedAt(new Date(system2.now()));
     if (ruleDef.htmlDescription() != null) {
       ruleDto.setDescription(ruleDef.htmlDescription());
       ruleDto.setDescriptionFormat(Format.HTML);
@@ -168,7 +184,7 @@ public class RegisterRules implements Startable {
       ruleDto.setDescriptionFormat(Format.MARKDOWN);
     }
 
-    dbClient.deprecatedRuleDao().insert(session, ruleDto);
+    dbClient.ruleDao().insert(session, ruleDto);
     return ruleDto;
   }
 
@@ -262,17 +278,17 @@ public class RegisterRules implements Startable {
   }
 
   private void mergeParams(RulesDefinition.Rule ruleDef, RuleDto rule, DbSession session) {
-    List<RuleParamDto> paramDtos = dbClient.deprecatedRuleDao().selectRuleParamsByRuleKey(session, rule.getKey());
+    List<RuleParamDto> paramDtos = dbClient.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey());
     Map<String, RuleParamDto> existingParamsByName = Maps.newHashMap();
 
     for (RuleParamDto paramDto : paramDtos) {
       RulesDefinition.Param paramDef = ruleDef.param(paramDto.getName());
       if (paramDef == null) {
         dbClient.activeRuleDao().deleteParamsByRuleParam(session, rule, paramDto.getName());
-        dbClient.deprecatedRuleDao().deleteRuleParam(session, rule, paramDto);
+        dbClient.ruleDao().deleteRuleParam(session, paramDto.getId());
       } else {
         if (mergeParam(paramDto, paramDef)) {
-          dbClient.deprecatedRuleDao().updateRuleParam(session, rule, paramDto);
+          dbClient.ruleDao().updateRuleParam(session, rule, paramDto);
         }
         existingParamsByName.put(paramDto.getName(), paramDto);
       }
@@ -287,7 +303,7 @@ public class RegisterRules implements Startable {
           .setDescription(param.description())
           .setDefaultValue(param.defaultValue())
           .setType(param.type().toString());
-        dbClient.deprecatedRuleDao().insertRuleParam(session, rule, paramDto);
+        dbClient.ruleDao().insertRuleParam(session, rule, paramDto);
         if (!StringUtils.isEmpty(param.defaultValue())) {
           // Propagate the default value to existing active rules
           for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRule(session, rule)) {
@@ -346,10 +362,12 @@ public class RegisterRules implements Startable {
     }
 
     for (RuleDto customRule : customRules) {
-      RuleDto template = dbClient.deprecatedRuleDao().selectTemplate(customRule, session);
-      if (template != null && template.getStatus() != RuleStatus.REMOVED) {
-        if (updateCustomRuleFromTemplateRule(customRule, template)) {
-          dbClient.deprecatedRuleDao().update(session, customRule);
+      Integer templateId = customRule.getTemplateId();
+      checkNotNull(templateId, "Template id of the custom rule '%s' is null", customRule);
+      Optional<RuleDto> template = dbClient.ruleDao().selectById(templateId, session);
+      if (template.isPresent() && template.get().getStatus() != RuleStatus.REMOVED) {
+        if (updateCustomRuleFromTemplateRule(customRule, template.get())) {
+          update(session, customRule);
         }
       } else {
         removeRule(session, removedRules, customRule);
@@ -365,7 +383,7 @@ public class RegisterRules implements Startable {
     rule.setStatus(RuleStatus.REMOVED);
     rule.setSystemTags(Collections.<String>emptySet());
     rule.setTags(Collections.<String>emptySet());
-    dbClient.deprecatedRuleDao().update(session, rule);
+    update(session, rule);
     removedRules.add(rule);
     if (removedRules.size() % 100 == 0) {
       session.commit();
@@ -423,7 +441,7 @@ public class RegisterRules implements Startable {
   private void removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDto> removedRules, RulesDefinition.Context context) {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RulesDefinition.Repository, String>() {
       @Override
-      public String apply(RulesDefinition.Repository input) {
+      public String apply(@Nonnull RulesDefinition.Repository input) {
         return input.key();
       }
     }
@@ -435,5 +453,11 @@ public class RegisterRules implements Startable {
         ruleActivator.deactivate(session, rule);
       }
     }
+  }
+
+  private void update(DbSession session, RuleDto rule){
+    rule.setUpdatedAtInMs(system2.now());
+    rule.setUpdatedAt(new Date(system2.now()));
+    dbClient.ruleDao().update(session, rule);
   }
 }

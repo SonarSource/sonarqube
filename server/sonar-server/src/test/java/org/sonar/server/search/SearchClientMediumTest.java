@@ -32,7 +32,7 @@ import static org.junit.Assert.fail;
 public class SearchClientMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);

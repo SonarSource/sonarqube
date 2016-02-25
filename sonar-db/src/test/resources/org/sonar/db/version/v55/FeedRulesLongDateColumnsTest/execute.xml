@@ -8,7 +8,7 @@
          created_at_ms="[null]" updated_at_ms="[null]"
   />
 
-  <!-- re-entrant migration - ignore the issues that are already fed with new dates -->
+  <!-- re-entrant migration - ignore the rules that are already fed with new dates -->
   <rules id="2" name="Slow" plugin_rule_key="S002"
          plugin_config_key="S2" plugin_name="java" description="[null]" priority="4" status="BETA"
          is_template="[false]" template_id="[null]"

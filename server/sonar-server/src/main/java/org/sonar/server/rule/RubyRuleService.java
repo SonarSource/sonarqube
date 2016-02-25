@@ -22,11 +22,10 @@ package org.sonar.server.rule;
 import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.server.paging.PagedResult;
@@ -58,14 +57,6 @@ public class RubyRuleService implements Startable {
     this.service = service;
     this.updater = updater;
     this.userSession = userSession;
-  }
-
-  /**
-   * Used in issues_controller.rb and in manual_rules_controller.rb and in SQALE
-   */
-  @CheckForNull
-  public Rule findByKey(String ruleKey) {
-    return service.getByKey(RuleKey.parse(ruleKey));
   }
 
   /**

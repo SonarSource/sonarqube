@@ -25,6 +25,7 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
+import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleTesting;
@@ -32,7 +33,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.rule.index.RuleDoc;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexDefinition;
@@ -45,7 +46,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BackendCleanupMediumTest {
 
   @ClassRule
-  public static EsTester esTester = new EsTester();
+  public static EsTester esTester = new EsTester().addDefinitions(
+    new RuleIndexDefinition(new Settings()),
+    new IssueIndexDefinition(new Settings()),
+    new ViewIndexDefinition(new Settings())
+    );
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -72,7 +77,7 @@ public class BackendCleanupMediumTest {
   @Test
   public void clear_indexes() throws Exception {
     esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc());
-    esTester.putDocuments(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), newRuleDoc());
+    esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
 
     backendCleanup.clearIndexes();
 
@@ -83,7 +88,7 @@ public class BackendCleanupMediumTest {
   public void clear_all() throws Exception {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc());
-    esTester.putDocuments(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), newRuleDoc());
+    esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
 
     backendCleanup.clearAll();
 
@@ -101,22 +106,25 @@ public class BackendCleanupMediumTest {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
     esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc());
     esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, new ViewDoc().setUuid("CDEF").setProjects(newArrayList("DEFG")));
-    esTester.putDocuments(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType(), newRuleDoc());
+    esTester.putDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE, newRuleDoc());
 
     backendCleanup.resetData();
 
-    assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(0);
-    assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(0);
-    assertThat(dbTester.countRowsOfTable("properties")).isEqualTo(0);
-    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0);
-    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEqualTo(0);
+    assertThat(dbTester.countRowsOfTable("projects")).isZero();
+    assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
+    assertThat(dbTester.countRowsOfTable("properties")).isZero();
+    assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isZero();
+    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isZero();
 
     // Rules should not be removed
     assertThat(dbTester.countRowsOfTable("rules")).isEqualTo(1);
-    assertThat(esTester.countDocuments(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType())).isEqualTo(1);
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(1);
   }
 
   private static RuleDoc newRuleDoc() {
-    return new RuleDoc(ImmutableMap.<String, Object>of(RuleNormalizer.RuleField.RULE_KEY.field(), RuleTesting.XOO_X1));
+    return new RuleDoc(ImmutableMap.<String, Object>of(
+      RuleIndexDefinition.FIELD_RULE_KEY, RuleTesting.XOO_X1,
+      RuleIndexDefinition.FIELD_RULE_REPOSITORY, RuleTesting.XOO_X1.repository()
+    ));
   }
 }

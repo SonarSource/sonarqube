@@ -32,8 +32,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.db.component.ComponentDto;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.component.ComponentDto;
 
 @ServerSide
 public class QualityProfileDao implements Dao {
@@ -209,21 +209,11 @@ public class QualityProfileDao implements Dao {
     }
   }
 
-  /**
-   * @deprecated Replaced by
-   *    {@link #selectByKey(DbSession, String)}
-   */
-  @Deprecated
   @CheckForNull
   public QualityProfileDto selectById(DbSession session, int id) {
     return mapper(session).selectById(id);
   }
 
-  /**
-   * @deprecated Replaced by
-   *    {@link #selectByKey(DbSession, String)}
-   */
-  @Deprecated
   @CheckForNull
   public QualityProfileDto selectById(int id) {
     DbSession session = mybatis.openSession(false);

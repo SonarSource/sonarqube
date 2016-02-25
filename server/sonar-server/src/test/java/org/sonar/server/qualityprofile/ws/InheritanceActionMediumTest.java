@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -27,16 +28,18 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -44,21 +47,28 @@ import org.sonar.server.ws.WsTester;
 public class InheritanceActionMediumTest {
 
   @ClassRule
-  public static final ServerTester tester = new ServerTester();
+  public static final ServerTester tester = new ServerTester().withEsIndexes();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  private WsTester wsTester;
+  WsTester wsTester;
 
-  private DbClient db;
+  DbClient db;
+  DbSession session;
 
-  private DbSession session;
+  RuleIndexer ruleIndexer;
+  ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
     session = db.openSession(false);
+    ruleIndexer = tester.get(RuleIndexer.class);
+    ruleIndexer.setEnabled(true);
+    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    activeRuleIndexer.setEnabled(true);
 
     wsTester = new WsTester(tester.get(QProfilesWs.class));
   }
@@ -80,7 +90,10 @@ public class InheritanceActionMediumTest {
     QualityProfileDto groupWide = createProfile("xoo", "My Group Profile", "xoo-my-group-profile-01234");
     createActiveRule(rule1, groupWide);
     createActiveRule(rule2, groupWide);
+
     session.commit();
+    ruleIndexer.index();
+    activeRuleIndexer.index();
 
     QualityProfileDto companyWide = createProfile("xoo", "My Company Profile", "xoo-my-company-profile-12345");
     setParent(groupWide, companyWide);
@@ -93,12 +106,14 @@ public class InheritanceActionMediumTest {
     setParent(buWide, forProject1);
     createActiveRule(rule3, forProject1);
     session.commit();
+    activeRuleIndexer.index();
 
     QualityProfileDto forProject2 = createProfile("xoo", "For Project Two", "xoo-for-project-two-45678");
     setParent(buWide, forProject2);
     overrideActiveRuleSeverity(rule2, forProject2, Severity.CRITICAL);
 
-    wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", buWide.getKee()).execute().assertJson(getClass(), "inheritance-buWide.json");
+    wsTester.newGetRequest("api/qualityprofiles", "inheritance").setParam("profileKey", buWide.getKee())
+      .execute().assertJson(getClass(), "inheritance-buWide.json");
   }
 
   @Test
@@ -126,17 +141,23 @@ public class InheritanceActionMediumTest {
   }
 
   private RuleDto createRule(String lang, String id) {
+    long now = new Date().getTime();
     RuleDto rule = RuleDto.createFor(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
-      .setStatus(RuleStatus.READY);
-    db.deprecatedRuleDao().insert(session, rule);
+      .setStatus(RuleStatus.READY)
+      .setUpdatedAtInMs(now)
+      .setCreatedAtInMs(now);
+    db.ruleDao().insert(session, rule);
     return rule;
   }
 
   private ActiveRuleDto createActiveRule(RuleDto rule, QualityProfileDto profile) {
+    long now = new Date().getTime();
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
-      .setSeverity(rule.getSeverityString());
+      .setSeverity(rule.getSeverityString())
+      .setUpdatedAtInMs(now)
+      .setCreatedAtInMs(now);
     db.activeRuleDao().insert(session, activeRule);
     return activeRule;
   }
@@ -144,5 +165,6 @@ public class InheritanceActionMediumTest {
   private void overrideActiveRuleSeverity(RuleDto rule, QualityProfileDto profile, String severity) {
     tester.get(RuleActivator.class).activate(session, new RuleActivation(rule.getKey()).setSeverity(severity), profile.getKey());
     session.commit();
+    activeRuleIndexer.index();
   }
 }

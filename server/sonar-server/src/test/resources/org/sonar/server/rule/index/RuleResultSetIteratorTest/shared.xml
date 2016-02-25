@@ -1,0 +1,22 @@
+<dataset>
+
+  <rules id="1" name="Null Pointer" plugin_rule_key="S001"
+         plugin_config_key="S1" plugin_name="xoo"
+         description_format="HTML" description="S001 desc" language="xoo"
+         priority="4" status="READY"
+         is_template="[false]" template_id="[null]"
+         tags="bug,performance" system_tags="cwe"
+         created_at="2014-05-10" updated_at="2014-05-11"
+         created_at_ms="1500000000000" updated_at_ms="1600000000000"
+  />
+
+  <rules id="2" name="Slow" plugin_rule_key="S002"
+         plugin_config_key="S2" plugin_name="xoo"
+         description_format="MARKDOWN" description="*S002 desc*" language="xoo"
+         priority="3" status="BETA"
+         is_template="[true]" template_id="[null]"
+         tags="[null]" system_tags="[null]"
+         created_at="2014-05-10" updated_at="2014-05-11"
+         created_at_ms="2000000000000" updated_at_ms="2100000000000"
+  />
+</dataset>

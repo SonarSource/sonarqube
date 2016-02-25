@@ -36,7 +36,6 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.server.debt.DebtCharacteristic;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -285,7 +284,7 @@ public class SearchAction implements RulesWsAction {
     query.setQueryText(request.param(Param.TEXT_QUERY));
     query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
     query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
-    query.setAvailableSince(request.paramAsDate(PARAM_AVAILABLE_SINCE));
+    query.setAvailableSince(request.hasParam(PARAM_AVAILABLE_SINCE) ? request.paramAsDate(PARAM_AVAILABLE_SINCE).getTime() : null);
     query.setStatuses(request.paramAsEnums(PARAM_STATUSES, RuleStatus.class));
     query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
     query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));

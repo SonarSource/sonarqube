@@ -21,6 +21,7 @@ package org.sonar.server.es;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
+import org.assertj.core.data.MapEntry;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Test;
@@ -66,8 +67,8 @@ public class NewIndexTest {
     mapping.createUuidPathField("uuid_path_field");
 
     mapping = index.getTypes().get("issue");
-    assertThat(mapping.getAttributes().get("dynamic")).isEqualTo("true");
     assertThat(mapping).isNotNull();
+    assertThat(mapping.getAttributes().get("dynamic")).isEqualTo("true");
     assertThat(mapping.getProperty("foo_field")).isInstanceOf(Map.class);
     assertThat((Map) mapping.getProperty("foo_field")).containsEntry("type", "string");
     assertThat((Map) mapping.getProperty("byte_field")).isNotEmpty();
@@ -183,5 +184,27 @@ public class NewIndexTest {
     index.setShards(settings);
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_SHARDS)).isEqualTo("3");
     assertThat(index.getSettings().get(IndexMetaData.SETTING_NUMBER_OF_REPLICAS)).isEqualTo("1");
+  }
+
+  @Test
+  public void index_with_source() {
+    NewIndex index = new NewIndex("issues");
+    NewIndex.NewIndexType mapping = index.createType("issue");
+    mapping.setEnableSource(true);
+
+    mapping = index.getTypes().get("issue");
+    assertThat(mapping).isNotNull();
+    assertThat((Map<String, Object>)mapping.getAttributes().get("_source")).containsExactly(MapEntry.entry("enabled", true));
+  }
+
+  @Test
+  public void index_without_source() {
+    NewIndex index = new NewIndex("issues");
+    NewIndex.NewIndexType mapping = index.createType("issue");
+    mapping.setEnableSource(false);
+
+    mapping = index.getTypes().get("issue");
+    assertThat(mapping).isNotNull();
+    assertThat((Map<String, Object>)mapping.getAttributes().get("_source")).containsExactly(MapEntry.entry("enabled", false));
   }
 }

@@ -41,17 +41,20 @@ import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
-import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -65,6 +68,7 @@ public class QProfileServiceMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withStartupTasks().withEsIndexes().addComponents(XooProfileImporter.class, XooExporter.class);
+
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -73,6 +77,8 @@ public class QProfileServiceMediumTest {
   QProfileService service;
   QProfileLoader loader;
   RuleActivator activator;
+  RuleIndexer ruleIndexer;
+  ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void before() {
@@ -82,15 +88,19 @@ public class QProfileServiceMediumTest {
     service = tester.get(QProfileService.class);
     loader = tester.get(QProfileLoader.class);
     activator = tester.get(RuleActivator.class);
+    ruleIndexer = tester.get(RuleIndexer.class);
+    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
 
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    db.deprecatedRuleDao().insert(dbSession, xooRule1);
+    db.ruleDao().insert(dbSession, xooRule1);
 
     // create pre-defined profiles P1 and P2
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2());
+
     dbSession.commit();
     dbSession.clearCache();
+    ruleIndexer.index();
   }
 
   @After
@@ -113,8 +123,9 @@ public class QProfileServiceMediumTest {
   public void create_profile_with_xml() {
     userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    db.deprecatedRuleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
+    db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
     dbSession.commit();
+    ruleIndexer.index();
 
     QProfileResult result = service.create(QProfileName.createFor("xoo", "New Profile"), ImmutableMap.of("XooProfileImporter", "<xml/>"));
     QualityProfileDto profile = result.profile();
@@ -123,7 +134,7 @@ public class QProfileServiceMediumTest {
     assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
     assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
 
-    List<ActiveRule> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profile.getKey()));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profile.getKey()));
     assertThat(activeRules).hasSize(1);
   }
 
@@ -133,8 +144,8 @@ public class QProfileServiceMediumTest {
 
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
-
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     Map<String, Long> counts = loader.countAllActiveRules();
     assertThat(counts).hasSize(2);
@@ -149,6 +160,7 @@ public class QProfileServiceMediumTest {
     service.activate(XOO_P1_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("MINOR"));
     service.activate(XOO_P2_KEY, new RuleActivation(RuleTesting.XOO_X1).setSeverity("BLOCKER"));
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     Map<String, Multimap<String, FacetValue>> stats = loader.getAllProfileStats();
 
@@ -166,8 +178,9 @@ public class QProfileServiceMediumTest {
     // create deprecated rule
     RuleDto deprecatedXooRule = RuleTesting.newDto(RuleKey.of("xoo", "deprecated1"))
       .setSeverity("MINOR").setLanguage("xoo").setStatus(RuleStatus.DEPRECATED);
-    db.deprecatedRuleDao().insert(dbSession, deprecatedXooRule);
+    db.ruleDao().insert(dbSession, deprecatedXooRule);
     dbSession.commit();
+    ruleIndexer.index();
 
     // active some rules
     service.activate(XOO_P1_KEY, new RuleActivation(deprecatedXooRule.getKey()).setSeverity("BLOCKER"));
@@ -183,11 +196,10 @@ public class QProfileServiceMediumTest {
 
     UserDto user = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
     db.userDao().insert(dbSession, user);
+    dbSession.commit();
 
     // We need an actual rule in DB to test RuleName in Activity
-    RuleDto rule = db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
-
-    dbSession.commit();
+    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
 
     tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
       .setSeverity(Severity.MAJOR)
@@ -234,8 +246,9 @@ public class QProfileServiceMediumTest {
     userSessionRule.login("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     // We need an actual rule in DB to test RuleName in Activity
-    db.deprecatedRuleDao().getByKey(dbSession, RuleTesting.XOO_X1);
-    dbSession.commit();
+    // TODO ???
+    //db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    //dbSession.commit();
 
     tester.get(ActivityService.class).save(
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))

@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.util.Date;
 import java.util.Locale;
@@ -33,10 +32,7 @@ import org.sonar.api.utils.Durations;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.index.RuleDoc;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.user.index.UserIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,10 +51,9 @@ public class NewIssuesNotificationTest {
 
   NewIssuesStatistics.Stats stats = new NewIssuesStatistics.Stats();
   UserIndex userIndex = mock(UserIndex.class);
-  RuleIndex ruleIndex = mock(RuleIndex.class);
   DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
   Durations durations = mock(Durations.class);
-  NewIssuesNotification underTest = new NewIssuesNotification(userIndex, ruleIndex, dbClient, durations);
+  NewIssuesNotification underTest = new NewIssuesNotification(userIndex, dbClient, durations);
 
   @Test
   public void set_project() {
@@ -84,8 +79,8 @@ public class NewIssuesNotificationTest {
     addIssueNTimes(newIssue2(), 3);
     when(dbClient.componentDao().selectOrFailByUuid(any(DbSession.class), eq("file-uuid")).name()).thenReturn("file-name");
     when(dbClient.componentDao().selectOrFailByUuid(any(DbSession.class), eq("directory-uuid")).name()).thenReturn("directory-name");
-    when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-world"))).thenReturn(newRule("Rule the World", "Java"));
-    when(ruleIndex.getByKey(RuleKey.of("SonarQube", "rule-the-universe"))).thenReturn(newRule("Rule the Universe", "Clojure"));
+    when(dbClient.ruleDao().selectOrFailByKey(any(DbSession.class), eq(RuleKey.of("SonarQube", "rule-the-world")))).thenReturn(newRule("Rule the World", "Java"));
+    when(dbClient.ruleDao().selectOrFailByKey(any(DbSession.class), eq(RuleKey.of("SonarQube", "rule-the-universe")))).thenReturn(newRule("Rule the Universe", "Clojure"));
 
     underTest.setStatistics("project-long-name", stats);
 
@@ -145,10 +140,9 @@ public class NewIssuesNotificationTest {
       .setDebt(Duration.create(10L));
   }
 
-  private Rule newRule(String name, String language) {
-    return new RuleDoc(ImmutableMap.<String, Object>of(
-      RuleNormalizer.RuleField.NAME.field(), name,
-      RuleNormalizer.RuleField.LANGUAGE.field(), language
-    ));
+  private RuleDto newRule(String name, String language) {
+    return new RuleDto()
+      .setName(name)
+      .setLanguage(language);
   }
 }

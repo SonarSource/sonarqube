@@ -21,17 +21,6 @@ package org.sonar.server.es;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import org.elasticsearch.action.search.SearchScrollRequestBuilder;
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
-import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.search.SearchHit;
-import org.elasticsearch.search.SearchHits;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.sonar.server.search.BaseDoc;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +31,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Queue;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.elasticsearch.action.search.SearchScrollRequestBuilder;
+import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
+import org.elasticsearch.common.unit.TimeValue;
+import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHits;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.sonar.server.search.BaseDoc;
 
 public class EsUtils {
 
@@ -113,6 +111,35 @@ public class EsUtils {
           throw new NoSuchElementException();
         }
         return docConverter.apply(hits.poll().getSource());
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException("Cannot remove item when scrolling");
+      }
+    };
+  }
+
+  public static <ID> Iterator<ID> scrollIds(final EsClient esClient, final String scrollId, final Function<String, ID> idConverter) {
+    return new Iterator<ID>() {
+      private final Queue<SearchHit> hits = new ArrayDeque<>();
+
+      @Override
+      public boolean hasNext() {
+        if (hits.isEmpty()) {
+          SearchScrollRequestBuilder esRequest = esClient.prepareSearchScroll(scrollId)
+            .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
+          Collections.addAll(hits, esRequest.get().getHits().getHits());
+        }
+        return !hits.isEmpty();
+      }
+
+      @Override
+      public ID next() {
+        if (!hasNext()) {
+          throw new NoSuchElementException();
+        }
+        return idConverter.apply(hits.poll().getId());
       }
 
       @Override

@@ -41,15 +41,14 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileBackuper;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 
@@ -62,8 +61,6 @@ public class ExportActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
   WsTester wsTester;
 
@@ -89,12 +86,10 @@ public class ExportActionTest {
     ProfileExporter exporter1 = newExporter("polop");
     ProfileExporter exporter2 = newExporter("palap");
 
-    IndexClient indexClient = mock(IndexClient.class);
-    ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
-    when(activeRuleIndex.findByProfile(Matchers.anyString())).thenReturn(Sets.<ActiveRule>newHashSet().iterator());
+    ActiveRuleIndex2 activeRuleIndex = mock(ActiveRuleIndex2.class);
+    when(activeRuleIndex.findByProfile(Matchers.anyString())).thenReturn(Sets.<ActiveRuleDoc>newHashSet().iterator());
 
-    when(indexClient.get(ActiveRuleIndex.class)).thenReturn(activeRuleIndex);
-    exporters = new QProfileExporters(new QProfileLoader(dbClient, indexClient, userSessionRule), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
+    exporters = new QProfileExporters(new QProfileLoader(dbClient, activeRuleIndex, mock(RuleIndex2.class)), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),

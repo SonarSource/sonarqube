@@ -28,13 +28,14 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleOperations.RuleChange;
-import org.sonar.server.rule.db.RuleDao;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -56,6 +57,9 @@ public class RuleOperationsTest {
   @Mock
   RuleDao ruleDao;
 
+  @Mock
+  RuleIndexer ruleIndexer;
+
   @Captor
   ArgumentCaptor<RuleDto> ruleCaptor;
 
@@ -66,8 +70,8 @@ public class RuleOperationsTest {
   @Before
   public void setUp() {
     when(dbClient.openSession(false)).thenReturn(session);
-    when(dbClient.deprecatedRuleDao()).thenReturn(ruleDao);
-    operations = new RuleOperations(dbClient);
+    when(dbClient.ruleDao()).thenReturn(ruleDao);
+    operations = new RuleOperations(ruleIndexer, dbClient);
   }
 
   @Test
@@ -76,7 +80,7 @@ public class RuleOperationsTest {
       .setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getNullableByKey(session, ruleKey)).thenReturn(dto);
+    when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
 
     operations.updateRule(
       new RuleChange().setRuleKey(ruleKey)
@@ -93,6 +97,8 @@ public class RuleOperationsTest {
     assertThat(result.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(result.getRemediationCoefficient()).isEqualTo("2h");
     assertThat(result.getRemediationOffset()).isEqualTo("20min");
+
+    verify(ruleIndexer).index();
   }
 
   @Test
@@ -102,7 +108,7 @@ public class RuleOperationsTest {
       .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getNullableByKey(session, ruleKey)).thenReturn(dto);
+    when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
 
     operations.updateRule(
       // Same value as default values -> overridden values will be set to null
@@ -128,7 +134,7 @@ public class RuleOperationsTest {
       .setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getNullableByKey(session, ruleKey)).thenReturn(dto);
+    when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
 
     operations.updateRule(
       new RuleChange().setRuleKey(ruleKey)
@@ -138,6 +144,7 @@ public class RuleOperationsTest {
 
     verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verify(session, never()).commit();
+    verify(ruleIndexer, never()).index();
   }
 
   @Test
@@ -146,7 +153,7 @@ public class RuleOperationsTest {
       .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getNullableByKey(session, ruleKey)).thenReturn(dto);
+    when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
 
     operations.updateRule(
       // Characteristic is the not same as the default one -> Overridden values should be set
@@ -166,14 +173,13 @@ public class RuleOperationsTest {
     assertThat(result.getRemediationCoefficient()).isEqualTo("10min");
   }
 
-
   @Test
   public void disable_rule_debt_when_update_rule_with_no_function() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getNullableByKey(session, ruleKey)).thenReturn(dto);
+    when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
 
     operations.updateRule(new RuleChange().setRuleKey(ruleKey), authorizedUserSession);
 
@@ -189,32 +195,12 @@ public class RuleOperationsTest {
   }
 
   @Test
-  public void fail_to_update_rule_on_unknown_rule() {
-    RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
-
-    when(ruleDao.getNullableByKey(session, ruleKey)).thenReturn(null);
-
-    try {
-      operations.updateRule(
-        new RuleChange().setRuleKey(ruleKey)
-          .setDebtRemediationFunction("LINEAR_OFFSET").setDebtRemediationCoefficient("2h").setDebtRemediationOffset("20min"),
-        authorizedUserSession
-      );
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class);
-    }
-
-    verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
-    verify(session, never()).commit();
-  }
-
-  @Test
   public void fail_to_update_rule_on_invalid_coefficient() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
       .setRemediationFunction("LINEAR").setRemediationCoefficient("1h");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
-    when(ruleDao.getNullableByKey(session, ruleKey)).thenReturn(dto);
+    when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
 
     try {
       operations.updateRule(

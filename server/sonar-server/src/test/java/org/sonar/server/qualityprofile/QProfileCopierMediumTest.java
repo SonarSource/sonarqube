@@ -31,14 +31,18 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -48,15 +52,17 @@ import static org.junit.Assert.fail;
 public class QProfileCopierMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
   DbSession dbSession;
-  ActiveRuleIndex index;
+  ActiveRuleIndex2 index;
   RuleActivator ruleActivator;
   QProfileCopier copier;
+  RuleIndexer ruleIndexer;
+  ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void before() {
@@ -64,20 +70,26 @@ public class QProfileCopierMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     ruleActivator = tester.get(RuleActivator.class);
-    index = tester.get(ActiveRuleIndex.class);
+    index = tester.get(ActiveRuleIndex2.class);
     copier = tester.get(QProfileCopier.class);
+    ruleIndexer = tester.get(RuleIndexer.class);
+    ruleIndexer.setEnabled(true);
+    activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    activeRuleIndexer.setEnabled(true);
 
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
     RuleDto xooRule2 = RuleTesting.newXooX2().setSeverity("MAJOR");
-    db.deprecatedRuleDao().insert(dbSession, xooRule1, xooRule2);
-    db.deprecatedRuleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
+    db.ruleDao().insert(dbSession, xooRule1);
+    db.ruleDao().insert(dbSession, xooRule2);
+    db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
 
     // create pre-defined profile
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1());
     dbSession.commit();
     dbSession.clearCache();
+    ruleIndexer.index();
   }
 
   @After
@@ -94,6 +106,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     // target does not exist
     copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
@@ -110,6 +123,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     // create target with both x1 and x2 activated
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP2());
@@ -122,6 +136,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P2_KEY);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     // copy -> reset x1 and deactivate x2
     copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
@@ -141,6 +156,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     // copy child -> profile2 is created with parent P1
     copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P2_NAME.getName());
@@ -158,6 +174,7 @@ public class QProfileCopierMediumTest {
     ruleActivator.activate(dbSession, activation, QProfileTesting.XOO_P1_KEY);
     dbSession.commit();
     dbSession.clearCache();
+    activeRuleIndexer.index();
 
     try {
       copier.copyToName(QProfileTesting.XOO_P1_KEY, QProfileTesting.XOO_P1_NAME.getName());
@@ -176,16 +193,19 @@ public class QProfileCopierMediumTest {
   private void verifyOneActiveRule(String profileKey, String expectedSeverity,
     @Nullable String expectedInheritance, Map<String, String> expectedParams) {
 
-    List<ActiveRule> activeRules = Lists.newArrayList(index.findByProfile(profileKey));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(index.findByProfile(profileKey));
     assertThat(activeRules).hasSize(1);
-    ActiveRule activeRule = activeRules.get(0);
+
+    ActiveRuleDoc activeRule = activeRules.get(0);
     assertThat(activeRule.severity()).isEqualTo(expectedSeverity);
     assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE : ActiveRule.Inheritance.valueOf(expectedInheritance));
 
     // verify parameters
-    assertThat(activeRule.params()).hasSize(expectedParams.size());
+    List<ActiveRuleParamDto> params = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.key());
+    assertThat(params).hasSize(expectedParams.size());
+    Map<String, ActiveRuleParamDto> paramsByKey = ActiveRuleParamDto.groupByKey(params);
     for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
-      String value = activeRule.params().get(entry.getKey());
+      String value = paramsByKey.get(entry.getKey()).getValue();
       assertThat(value).isEqualTo(entry.getValue());
     }
   }

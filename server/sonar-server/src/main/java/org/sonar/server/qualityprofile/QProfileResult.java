@@ -19,11 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
-import org.sonar.db.qualityprofile.QualityProfileDto;
-
+import java.util.ArrayList;
 import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 
 public class QProfileResult {
 
@@ -32,9 +30,12 @@ public class QProfileResult {
 
   private QualityProfileDto profile;
 
+  private List<ActiveRuleChange> changes;
+
   public QProfileResult() {
-    warnings = newArrayList();
-    infos = newArrayList();
+    warnings = new ArrayList<>();
+    infos = new ArrayList<>();
+    changes = new ArrayList<>();
   }
 
   public List<String> warnings() {
@@ -64,9 +65,19 @@ public class QProfileResult {
     return this;
   }
 
+  public List<ActiveRuleChange> getChanges() {
+    return changes;
+  }
+
+  public QProfileResult addChanges(List<ActiveRuleChange> changes) {
+    this.changes.addAll(changes);
+    return this;
+  }
+
   public QProfileResult add(QProfileResult result) {
     warnings.addAll(result.warnings());
     infos.addAll(result.infos());
+    changes.addAll(result.getChanges());
     return this;
   }
 

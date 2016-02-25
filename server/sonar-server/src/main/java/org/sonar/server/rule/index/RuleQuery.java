@@ -20,15 +20,15 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
+import java.util.Collection;
+import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.server.search.IndexField;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
+import static java.util.Arrays.asList;
 
 public class RuleQuery {
 
@@ -45,7 +45,7 @@ public class RuleQuery {
   private Collection<String> activeSeverities;
   private String templateKey;
   private Boolean isTemplate;
-  private Date availableSince;
+  private Long availableSince;
   private IndexField sortField;
   private boolean ascendingSort = true;
   private String internalKey;
@@ -138,6 +138,13 @@ public class RuleQuery {
     return this;
   }
 
+  public RuleQuery setSeverities(@Nullable String... severities) {
+    if (severities != null) {
+      return setSeverities(asList(severities));
+    }
+    return this;
+  }
+
   @CheckForNull
   public Collection<RuleStatus> getStatuses() {
     return statuses;
@@ -224,12 +231,23 @@ public class RuleQuery {
     return this;
   }
 
+  @Deprecated
   public RuleQuery setAvailableSince(@Nullable Date d) {
-    this.availableSince = d;
+    this.availableSince = d.getTime();
     return this;
   }
 
+  @Deprecated
   public Date getAvailableSince() {
+    return new Date(this.availableSince);
+  }
+
+  public RuleQuery setAvailableSince(@Nullable Long l) {
+    this.availableSince = l;
+    return this;
+  }
+
+  public Long getAvailableSinceLong() {
     return this.availableSince;
   }
 

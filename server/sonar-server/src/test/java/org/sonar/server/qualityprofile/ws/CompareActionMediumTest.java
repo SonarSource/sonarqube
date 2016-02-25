@@ -30,13 +30,13 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.tester.ServerTester;
@@ -46,7 +46,7 @@ import org.sonar.server.ws.WsTester;
 public class CompareActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().withStartupTasks().addXoo()
+  public static ServerTester tester = new ServerTester().withEsIndexes().withStartupTasks().addXoo()
     .addComponents(new RulesDefinition() {
       @Override
       public void define(Context context) {
@@ -200,16 +200,16 @@ public class CompareActionMediumTest {
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);
-    db.deprecatedRuleDao().insert(session, rule);
+    db.ruleDao().insert(session, rule);
     RuleParamDto param = RuleParamDto.createFor(rule).setName("param_" + id).setType(RuleParamType.STRING.toString());
-    db.deprecatedRuleDao().insertRuleParam(session, rule, param);
+    db.ruleDao().insertRuleParam(session, rule, param);
     return rule;
   }
 
   private RuleDto createRuleWithParam(String lang, String id) {
     RuleDto rule = createRule(lang, id);
     RuleParamDto param = RuleParamDto.createFor(rule).setName("param_" + id).setType(RuleParamType.STRING.toString());
-    db.deprecatedRuleDao().insertRuleParam(session, rule, param);
+    db.ruleDao().insertRuleParam(session, rule, param);
     return rule;
   }
 
@@ -222,7 +222,7 @@ public class CompareActionMediumTest {
 
   private ActiveRuleDto createActiveRuleWithParam(RuleDto rule, QualityProfileDto profile, String value) {
     ActiveRuleDto activeRule = createActiveRule(rule, profile);
-    RuleParamDto paramDto = db.deprecatedRuleDao().selectRuleParamsByRuleKey(session, rule.getKey()).get(0);
+    RuleParamDto paramDto = db.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey()).get(0);
     ActiveRuleParamDto activeRuleParam = ActiveRuleParamDto.createFor(paramDto).setValue(value);
     db.activeRuleDao().insertParam(session, activeRule, activeRuleParam);
     return activeRule;

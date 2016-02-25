@@ -21,15 +21,20 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -37,17 +42,10 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.activity.ActivityService;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.IndexClient;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.user.UserSession;
 import org.sonar.server.util.TypeValidations;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -58,22 +56,24 @@ import static com.google.common.collect.Lists.newArrayList;
 @ServerSide
 public class RuleActivator {
 
+  private final System2 system2;
   private final DbClient db;
   private final TypeValidations typeValidations;
   private final RuleActivatorContextFactory contextFactory;
-  private final IndexClient index;
+  private final RuleIndex2 ruleIndex;
+  private final ActiveRuleIndexer activeRuleIndexer;
   private final ActivityService activityService;
-  private final UserSession userSession;
 
-  public RuleActivator(DbClient db, IndexClient index,
+  public RuleActivator(System2 system2, DbClient db, RuleIndex2 ruleIndex,
     RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
-    ActivityService activityService, UserSession userSession) {
+    ActiveRuleIndexer activeRuleIndexer, ActivityService activityService) {
+    this.system2 = system2;
     this.db = db;
-    this.index = index;
+    this.ruleIndex = ruleIndex;
     this.contextFactory = contextFactory;
     this.typeValidations = typeValidations;
+    this.activeRuleIndexer = activeRuleIndexer;
     this.activityService = activityService;
-    this.userSession = userSession;
   }
 
   public List<ActiveRuleChange> activate(DbSession dbSession, RuleActivation activation, String profileKey) {
@@ -233,14 +233,14 @@ public class RuleActivator {
     ActiveRuleDto activeRule = null;
     if (change.getType() == ActiveRuleChange.Type.ACTIVATED) {
       activeRule = doInsert(change, context, dbSession);
-
     } else if (change.getType() == ActiveRuleChange.Type.DEACTIVATED) {
       ActiveRuleDao dao = db.activeRuleDao();
-      dao.deleteByKey(dbSession, change.getKey());
+      dao.delete(dbSession, change.getKey());
 
     } else if (change.getType() == ActiveRuleChange.Type.UPDATED) {
       activeRule = doUpdate(change, context, dbSession);
     }
+
     activityService.save(change.toActivity());
     return activeRule;
   }
@@ -257,6 +257,8 @@ public class RuleActivator {
     if (inheritance != null) {
       activeRule.setInheritance(inheritance.name());
     }
+    activeRule.setUpdatedAtInMs(system2.now());
+    activeRule.setCreatedAtInMs(system2.now());
     dao.insert(dbSession, activeRule);
     for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
       if (param.getValue() != null) {
@@ -280,6 +282,7 @@ public class RuleActivator {
       if (inheritance != null) {
         activeRule.setInheritance(inheritance.name());
       }
+      activeRule.setUpdatedAtInMs(system2.now());
       dao.update(dbSession, activeRule);
 
       for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
@@ -313,6 +316,7 @@ public class RuleActivator {
     try {
       List<ActiveRuleChange> changes = deactivate(dbSession, key);
       dbSession.commit();
+      activeRuleIndexer.index(changes);
       return changes;
     } finally {
       dbSession.close();
@@ -390,17 +394,14 @@ public class RuleActivator {
   }
 
   BulkChangeResult bulkActivate(RuleQuery ruleQuery, String profileKey, @Nullable String severity) {
-    BulkChangeResult result = new BulkChangeResult();
-    RuleIndex ruleIndex = index.get(RuleIndex.class);
     DbSession dbSession = db.openSession(false);
+    BulkChangeResult result = new BulkChangeResult();
     try {
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext(userSession).setScroll(true)
-        .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
-      Iterator<Rule> rules = ruleSearchResult.scroll();
+      Iterator<RuleKey> rules = ruleIndex.searchAll(ruleQuery);
       while (rules.hasNext()) {
-        Rule rule = rules.next();
+        RuleKey ruleKey = rules.next();
         try {
-          RuleActivation activation = new RuleActivation(rule.key());
+          RuleActivation activation = new RuleActivation(ruleKey);
           activation.setSeverity(severity);
           List<ActiveRuleChange> changes = activate(dbSession, activation, profileKey);
           result.addChanges(changes);
@@ -415,6 +416,7 @@ public class RuleActivator {
         }
       }
       dbSession.commit();
+      activeRuleIndexer.index(result.getChanges());
     } finally {
       dbSession.close();
     }
@@ -423,16 +425,13 @@ public class RuleActivator {
 
   BulkChangeResult bulkDeactivate(RuleQuery ruleQuery, String profile) {
     DbSession dbSession = db.openSession(false);
+    BulkChangeResult result = new BulkChangeResult();
     try {
-      RuleIndex ruleIndex = index.get(RuleIndex.class);
-      BulkChangeResult result = new BulkChangeResult();
-      Result<Rule> ruleSearchResult = ruleIndex.search(ruleQuery, new QueryContext(userSession).setScroll(true)
-        .setFieldsToReturn(Arrays.asList(RuleNormalizer.RuleField.KEY.field())));
-      Iterator<Rule> rules = ruleSearchResult.scroll();
+      Iterator<RuleKey> rules = ruleIndex.searchAll(ruleQuery);
       while (rules.hasNext()) {
         try {
-          Rule rule = rules.next();
-          ActiveRuleKey key = ActiveRuleKey.of(profile, rule.key());
+          RuleKey ruleKey = rules.next();
+          ActiveRuleKey key = ActiveRuleKey.of(profile, ruleKey);
           List<ActiveRuleChange> changes = deactivate(dbSession, key);
           result.addChanges(changes);
           if (!changes.isEmpty()) {
@@ -445,6 +444,7 @@ public class RuleActivator {
         }
       }
       dbSession.commit();
+      activeRuleIndexer.index(result.getChanges());
       return result;
     } finally {
       dbSession.close();
@@ -454,26 +454,28 @@ public class RuleActivator {
   public void setParent(String key, @Nullable String parentKey) {
     DbSession dbSession = db.openSession(false);
     try {
-      setParent(dbSession, key, parentKey);
+      List<ActiveRuleChange> changes = setParent(dbSession, key, parentKey);
       dbSession.commit();
+      activeRuleIndexer.index(changes);
 
     } finally {
       dbSession.close();
     }
   }
 
-  void setParent(DbSession dbSession, String profileKey, @Nullable String parentKey) {
+  List<ActiveRuleChange> setParent(DbSession dbSession, String profileKey, @Nullable String parentKey) {
     QualityProfileDto profile = db.qualityProfileDao().selectOrFailByKey(dbSession, profileKey);
+    List<ActiveRuleChange> changes = new ArrayList<>();
     if (parentKey == null) {
       // unset if parent is defined, else nothing to do
-      removeParent(dbSession, profile);
+      changes.addAll(removeParent(dbSession, profile));
 
     } else if (profile.getParentKee() == null || !parentKey.equals(profile.getParentKee())) {
       QualityProfileDto parentProfile = db.qualityProfileDao().selectOrFailByKey(dbSession, parentKey);
       if (isDescendant(dbSession, profile, parentProfile)) {
         throw new BadRequestException(String.format("Descendant profile '%s' can not be selected as parent of '%s'", parentKey, profileKey));
       }
-      removeParent(dbSession, profile);
+      changes.addAll(removeParent(dbSession, profile));
 
       // set new parent
       profile.setParentKee(parentKey);
@@ -481,31 +483,37 @@ public class RuleActivator {
       for (ActiveRuleDto parentActiveRule : db.activeRuleDao().selectByProfileKey(dbSession, parentKey)) {
         try {
           RuleActivation activation = new RuleActivation(parentActiveRule.getKey().ruleKey());
-          activate(dbSession, activation, profileKey);
+          changes.addAll(activate(dbSession, activation, profileKey));
         } catch (BadRequestException e) {
           // for example because rule status is REMOVED
           // TODO return errors
         }
       }
     }
+    return changes;
   }
 
   /**
    * Does not commit
    */
-  private void removeParent(DbSession dbSession, QualityProfileDto profileDto) {
+  private List<ActiveRuleChange> removeParent(DbSession dbSession, QualityProfileDto profileDto) {
     if (profileDto.getParentKee() != null) {
+      List<ActiveRuleChange> changes = new ArrayList<>();
       profileDto.setParentKee(null);
       db.qualityProfileDao().update(dbSession, profileDto);
       for (ActiveRuleDto activeRule : db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())) {
         if (ActiveRuleDto.INHERITED.equals(activeRule.getInheritance())) {
-          deactivate(dbSession, activeRule.getKey(), true);
+          changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
         } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
           activeRule.setInheritance(null);
+          activeRule.setUpdatedAtInMs(system2.now());
           db.activeRuleDao().update(dbSession, activeRule);
+          changes.add(ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, activeRule.getKey()).setInheritance(null));
         }
       }
+      return changes;
     }
+    return Collections.emptyList();
   }
 
   boolean isDescendant(DbSession dbSession, QualityProfileDto childProfile, @Nullable QualityProfileDto parentProfile) {

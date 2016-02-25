@@ -19,7 +19,8 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -28,34 +29,42 @@ import org.junit.Test;
 import org.sonar.api.profiles.ProfileDefinition;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleParam;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
 import org.sonar.server.tester.ServerTester;
-
-import javax.annotation.Nullable;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.rule.Severity.CRITICAL;
+import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.api.rule.Severity.MINOR;
 
+// TODO Replace ServerTester by EsTester and DbTester
 public class QProfileResetMediumTest {
 
   static final XooRulesDefinition RULE_DEFS = new XooRulesDefinition();
   static final XooProfileDefinition PROFILE_DEFS = new XooProfileDefinition();
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addXoo().addComponents(PROFILE_DEFS, RULE_DEFS);
+  public static ServerTester tester = new ServerTester()
+    .withEsIndexes()
+    .addXoo().addComponents(PROFILE_DEFS, RULE_DEFS);
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -105,7 +114,7 @@ public class QProfileResetMediumTest {
       RulesDefinition.NewRule x1 = repository.createRule("x1")
         .setName("x1 name")
         .setHtmlDescription("x1 desc")
-        .setSeverity(Severity.MINOR);
+        .setSeverity(MINOR);
       x1.createParam("acceptWhitespace")
         .setDefaultValue("false")
         .setType(RuleParamType.BOOLEAN)
@@ -120,23 +129,32 @@ public class QProfileResetMediumTest {
 
     // Change the severity and the value of the parameter in the active rule
     tester.get(RuleActivator.class).activate(dbSession,
-      new RuleActivation(ruleKey).setSeverity(Severity.BLOCKER)
+      new RuleActivation(ruleKey).setSeverity(BLOCKER)
         .setParameter("acceptWhitespace", "false"),
       profile.getKey()
     );
     dbSession.commit();
 
+
     // Verify severity and param has changed
-    ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey);
-    assertThat(activeRule.severity()).isEqualTo(Severity.BLOCKER);
-    assertThat(activeRule.params()).isEqualTo(ImmutableMap.of("acceptWhitespace", "false"));
+    ActiveRuleDto activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);
+    assertThat(activeRuleDto.getSeverityString()).isEqualTo(BLOCKER);
+    List<ActiveRuleParamDto> activeRuleParamDtos = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleKey);
+    assertThat(activeRuleParamDtos.get(0).getKey()).isEqualTo("acceptWhitespace");
+    assertThat(activeRuleParamDtos.get(0).getValue()).isEqualTo("false");
 
     reset.resetLanguage(ServerTester.Xoo.KEY);
+    dbSession.commit();
 
     // Severity and parameter value come back to origin after reset
-    activeRule = tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey);
-    assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);
-    assertThat(activeRule.params()).isEqualTo(ImmutableMap.of("acceptWhitespace", "true"));
+    activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);
+    assertThat(activeRuleDto.getSeverityString()).isEqualTo(CRITICAL);
+    ActiveRule activeRule = tester.get(ActiveRuleIndex2.class).getNullableByKey(activeRuleKey);
+    assertThat(activeRule.severity()).isEqualTo(CRITICAL);
+
+    activeRuleParamDtos = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleKey);
+    assertThat(activeRuleParamDtos.get(0).getKey()).isEqualTo("acceptWhitespace");
+    assertThat(activeRuleParamDtos.get(0).getValue()).isEqualTo("true");
   }
 
   @Test
@@ -150,7 +168,7 @@ public class QProfileResetMediumTest {
         RulesDefinition.NewRule x1 = repository.createRule("x1")
           .setName("x1 name")
           .setHtmlDescription("x1 desc")
-          .setSeverity(Severity.MAJOR);
+          .setSeverity(MAJOR);
         x1.createParam("acceptWhitespace")
           .setDefaultValue("false")
           .setType(RuleParamType.BOOLEAN)
@@ -167,7 +185,7 @@ public class QProfileResetMediumTest {
         RulesDefinition.NewRule x1 = repository.createRule("x1")
           .setName("x1 name")
           .setHtmlDescription("x1 desc")
-          .setSeverity(Severity.MAJOR);
+          .setSeverity(MAJOR);
         x1.createParam("acceptWhitespace")
           .setDefaultValue("true")
           .setType(RuleParamType.BOOLEAN)
@@ -177,8 +195,10 @@ public class QProfileResetMediumTest {
     reset.resetLanguage(ServerTester.Xoo.KEY);
 
     // Parameter value come back to origin after reset
-    ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey);
-    assertThat(activeRule.params()).isEqualTo(ImmutableMap.of("acceptWhitespace", "true"));
+    List<ActiveRuleParamDto> params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleKey);
+    assertThat(params).hasSize(1);
+    assertThat(params.get(0).getKey()).isEqualTo("acceptWhitespace");
+    assertThat(params.get(0).getValue()).isEqualTo("true");
   }
 
   interface Rules {

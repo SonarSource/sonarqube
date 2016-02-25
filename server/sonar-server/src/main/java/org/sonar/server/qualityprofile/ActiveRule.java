@@ -20,16 +20,15 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
-
-import javax.annotation.CheckForNull;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.db.qualityprofile.ActiveRuleKey;
 
 public interface ActiveRule {
 
-  public enum Inheritance {
+  enum Inheritance {
     NONE, OVERRIDES, INHERITED;
     public static final List<Inheritance> ALL = ImmutableList.of(NONE, OVERRIDES, INHERITED);
   }
