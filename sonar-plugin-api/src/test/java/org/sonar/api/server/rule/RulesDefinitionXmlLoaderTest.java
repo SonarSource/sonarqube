@@ -54,7 +54,8 @@ public class RulesDefinitionXmlLoaderTest {
     assertThat(rule.template()).isTrue();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.internalKey()).isEqualTo("Checker/TreeWalker/LocalVariableName");
-    assertThat(rule.tags()).containsOnly("style", "security");
+    assertThat(rule.type()).isEqualTo(RulesDefinition.Type.BUG);
+    assertThat(rule.tags()).containsOnly("misra", "spring");
 
     assertThat(rule.params()).hasSize(2);
     RulesDefinition.Param ignore = rule.param("ignore");
@@ -69,6 +70,7 @@ public class RulesDefinitionXmlLoaderTest {
     assertThat(rule.params()).isEmpty();
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
+    assertThat(rule.type()).isEqualTo(RulesDefinition.Type.CODE_SMELL);
   }
 
   @Test

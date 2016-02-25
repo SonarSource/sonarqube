@@ -128,7 +128,7 @@ public class RulesDefinitionAnnotationLoaderTest {
     RulesDefinition.Repository repository = load(RuleWithTags.class);
     assertThat(repository.rules()).hasSize(1);
     RulesDefinition.Rule rule = repository.rules().get(0);
-    assertThat(rule.tags()).containsOnly("style", "security");
+    assertThat(rule.tags()).containsOnly("misra", "clumsy");
   }
 
   @Test
@@ -185,7 +185,7 @@ public class RulesDefinitionAnnotationLoaderTest {
     public String property;
   }
 
-  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Bar", tags = {"style", "security"})
+  @org.sonar.check.Rule(key = "foo", name = "bar", description = "Bar", tags = {"misra", "clumsy"})
   static class RuleWithTags {
   }
 }

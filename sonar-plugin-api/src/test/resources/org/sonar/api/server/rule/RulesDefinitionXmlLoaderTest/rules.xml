@@ -10,8 +10,9 @@
     <severity>BLOCKER</severity>
     <cardinality>MULTIPLE</cardinality>
     <status>BETA</status>
-    <tag>style</tag>
-    <tag>security</tag>
+    <type>BUG</type>
+    <tag>misra</tag>
+    <tag>spring</tag>
     <param>
       <key>tokens</key>
       <description>

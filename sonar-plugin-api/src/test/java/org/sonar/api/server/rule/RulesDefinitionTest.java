@@ -410,4 +410,30 @@ public class RulesDefinitionTest {
     RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
     assertThat(rule.debtSubCharacteristic()).isNull();
   }
+
+  @Test
+  public void type_is_defined() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("desc")
+      .setType(RulesDefinition.Type.VULNERABILITY).setTags("bug", "misra");
+    newRepository.done();
+
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
+    // type VULNERABILITY is kept even if the tag "bug" is present
+    assertThat(rule.type()).isEqualTo(RulesDefinition.Type.VULNERABILITY);
+    // tag "bug" is reserved and removed.
+    assertThat(rule.tags()).containsOnly("misra");
+  }
+
+  @Test
+  public void guess_type_from_tags_if_type_is_missing() {
+    RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
+    newRepository.createRule("NPE").setName("NPE").setHtmlDescription("desc").setTags("bug", "misra");
+    newRepository.done();
+
+    RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
+    assertThat(rule.type()).isEqualTo(RulesDefinition.Type.BUG);
+    // tag "bug" is reserved and removed
+    assertThat(rule.tags()).containsOnly("misra");
+  }
 }

@@ -100,9 +100,12 @@ import static org.apache.commons.lang.StringUtils.trim;
  *     &lt;!-- Status displayed in rules console. Possible values are BETA, READY (default), DEPRECATED. --&gt;
  *     &lt;status&gt;BETA&lt;/status&gt;
  *
+ *     &lt;!-- Type as defined by the SonarQube Quality Model. Possible values are CODE_SMELL (default), BUG and VULNERABILITY.--&gt;
+ *     &lt;type&gt;BUG&lt;/type&gt;
+ *
  *     &lt;!-- Optional tags. See org.sonar.api.server.rule.RuleTagFormat. The maximal length of all tags is 4000 characters. --&gt;
- *     &lt;tag&gt;style&lt;/tag&gt;
- *     &lt;tag&gt;security&lt;/tag&gt;
+ *     &lt;tag&gt;misra&lt;/tag&gt;
+ *     &lt;tag&gt;multi-threading&lt;/tag&gt;
  *
  *     &lt;!-- Optional parameters --&gt;
  *     &lt;param&gt;
@@ -117,14 +120,7 @@ import static org.apache.commons.lang.StringUtils.trim;
  *     &lt;param&gt;
  *       &lt;key&gt;another-param&lt;/key&gt;
  *     &lt;/param&gt;
- *
- *     &lt;!-- SQALE debt - key of sub-characteristic --&gt;
- *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.SubCharacteristics} for core supported values.
- *     Any other values can be used. If sub-characteristic does not exist at runtime in the SQALE model,
- *     then the rule is created without any sub-characteristic. --&gt;
- *     &lt;!-- Since 5.3 --&gt;
- *     &lt;debtSubCharacteristic&gt;MODULARITY&lt;/debtSubCharacteristic&gt;
- *
+ **
  *     &lt;!-- SQALE debt - type of debt remediation function --&gt;
  *     &lt;!-- See enum {@link org.sonar.api.server.debt.DebtRemediationFunction.Type} for supported values --&gt;
  *     &lt;!-- Since 5.3 --&gt;
@@ -164,7 +160,6 @@ import static org.apache.commons.lang.StringUtils.trim;
  *     &lt;tag&gt;cwe&lt;/tag&gt;
  *     &lt;tag&gt;security&lt;/tag&gt;
  *     &lt;tag&gt;user-experience&lt;/tag&gt;
- *     &lt;debtSubCharacteristic&gt;SECURITY_FEATURES&lt;/debtSubCharacteristic&gt;
  *     &lt;debtRemediationFunction&gt;CONSTANT_ISSUE&lt;/debtRemediationFunction&gt;
  *     &lt;debtRemediationFunctionOffset&gt;10min&lt;/debtRemediationFunctionOffset&gt;
  *   &lt;/rule&gt;
@@ -239,6 +234,7 @@ public class RulesDefinitionXmlLoader {
     String descriptionFormat = DescriptionFormat.HTML.name();
     String internalKey = null;
     String severity = Severity.defaultSeverity();
+    String type = null;
     RuleStatus status = RuleStatus.defaultStatus();
     boolean template = false;
     String effortToFixDescription = null;
@@ -264,6 +260,9 @@ public class RulesDefinitionXmlLoader {
 
       if (equalsIgnoreCase("name", nodeName)) {
         name = nodeValue(cursor);
+
+      } else if (equalsIgnoreCase("type", nodeName)) {
+        type = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("description", nodeName)) {
         description = nodeValue(cursor);
@@ -326,6 +325,9 @@ public class RulesDefinitionXmlLoader {
         .setTemplate(template)
         .setStatus(status)
         .setEffortToFixDescription(effortToFixDescription);
+      if (type != null) {
+        rule.setType(RulesDefinition.Type.valueOf(type));
+      }
       fillDescription(rule, descriptionFormat, description);
       fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionOffset, debtRemediationFunctionCoeff);
       fillParams(rule, params);

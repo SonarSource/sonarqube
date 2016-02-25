@@ -74,7 +74,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
       rule.setConfigKey("Checker/TreeWalker/ConstantName");
       rule.setSeverity(RulePriority.BLOCKER);
       rule.setStatus(Rule.STATUS_BETA);
-      rule.setTags(new String[] {"style", "security"});
+      rule.setTags(new String[] {"style", "clumsy"});
       rule.createParameter("format").setDescription("Regular expression").setDefaultValue("A-Z").setType("REGULAR_EXPRESSION");
       return Arrays.asList(rule);
     }
@@ -114,7 +114,7 @@ public class DeprecatedRulesDefinitionLoaderTest {
     assertThat(rule.severity()).isEqualTo(Severity.BLOCKER);
     assertThat(rule.internalKey()).isEqualTo("Checker/TreeWalker/ConstantName");
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule.tags()).containsOnly("style", "security");
+    assertThat(rule.tags()).containsOnly("style", "clumsy");
     assertThat(rule.params()).hasSize(1);
     RulesDefinition.Param param = rule.param("format");
     assertThat(param).isNotNull();

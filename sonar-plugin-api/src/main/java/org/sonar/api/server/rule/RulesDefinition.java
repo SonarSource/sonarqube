@@ -46,6 +46,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.Loggers;
 
+import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -79,6 +80,9 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  *
  *     // default severity when the rule is activated on a Quality profile. Default value is MAJOR.
  *     .setSeverity(Severity.MINOR);
+ *
+ *     // optional type for SonarQube Quality Model. Default is RulesDefinition.Type.CODE_SMELL.
+ *     .setType(RulesDefinition.Type.BUG)
  *
  *     x1Rule
  *       .setDebtRemediationFunction(x1Rule.debtRemediationFunctions().linearWithOffset("1h", "30min"));
@@ -146,6 +150,13 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 @ExtensionPoint
 public interface RulesDefinition {
 
+  /**
+   * Rule type according to SonarQube Quality Model
+   * @since 5.5
+   */
+  enum Type {
+    CODE_SMELL, BUG, VULNERABILITY
+  }
   /**
    * Default sub-characteristics of technical debt model. See http://www.sqale.org
    * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
@@ -656,6 +667,7 @@ public interface RulesDefinition {
   class NewRule {
     private final String repoKey;
     private final String key;
+    private Type type;
     private String name;
     private String htmlDescription;
     private String markdownDescription;
@@ -695,6 +707,26 @@ public interface RulesDefinition {
     public NewRule setSeverity(String s) {
       checkArgument(Severity.ALL.contains(s), "Severity of rule %s is not correct: %s", this, s);
       this.severity = s;
+      return this;
+    }
+
+    /**
+     * The type as defined by the SonarQube Quality Model.
+     * <p/>
+     * When a plugin does not define rule type, then it is deduced from
+     * tags:
+     * <ul>
+     * <li>if the rule has the "bug" tag then type is {@link Type#BUG}</li>
+     * <li>if the rule has the "security" tag then type is {@link Type#VULNERABILITY}</li>
+     * <li>if the rule has both tags "bug" and "security", then type is {@link Type#BUG}</li>
+     * <li>default type is {@link Type#CODE_SMELL}</li>
+     * </ul>
+     * Finally the "bug" and "security" tags are considered as reserved. They
+     * are silently removed from the final state of definition.
+     * @since 5.5
+     */
+    public NewRule setType(Type t) {
+      this.type = t;
       return this;
     }
 
@@ -767,6 +799,7 @@ public interface RulesDefinition {
      * @see org.sonar.api.server.rule.RulesDefinition.SubCharacteristics for constant values
      * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model. This method does nothing.
      *             See https://jira.sonarsource.com/browse/MMF-184
+     * @see #setType(Type)
      */
     public NewRule setDebtSubCharacteristic(@Nullable String s) {
       return this;
@@ -871,6 +904,7 @@ public interface RulesDefinition {
     private final String repoKey;
     private final String key;
     private final String name;
+    private final Type type;
     private final String htmlDescription;
     private final String markdownDescription;
     private final String internalKey;
@@ -895,7 +929,8 @@ public interface RulesDefinition {
       this.status = newRule.status;
       this.debtRemediationFunction = newRule.debtRemediationFunction;
       this.effortToFixDescription = newRule.effortToFixDescription;
-      this.tags = ImmutableSortedSet.copyOf(newRule.tags);
+      this.type = (newRule.type == null ? RuleTagsToTypeConverter.convert(newRule.tags) : newRule.type);
+      this.tags = ImmutableSortedSet.copyOf(Sets.difference(newRule.tags, RuleTagsToTypeConverter.RESERVED_TAGS));
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
       for (NewParam newParam : newRule.paramsByKey.values()) {
         paramsBuilder.put(newParam.key, new Param(newParam));
@@ -913,6 +948,14 @@ public interface RulesDefinition {
 
     public String name() {
       return name;
+    }
+
+    /**
+     * @since 5.5
+     * @see NewRule#setType(Type)
+     */
+    public Type type() {
+      return type;
     }
 
     public String severity() {
@@ -940,6 +983,7 @@ public interface RulesDefinition {
     /**
      * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model. {@code null} is
      * always returned. See https://jira.sonarsource.com/browse/MMF-184
+     * @see #type()
      */
     @CheckForNull
     @Deprecated
