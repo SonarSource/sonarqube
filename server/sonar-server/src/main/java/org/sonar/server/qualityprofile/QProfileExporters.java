@@ -166,15 +166,18 @@ public class QProfileExporters {
     ValidationMessages messages = ValidationMessages.create();
     ProfileImporter importer = getProfileImporter(importerKey);
     RulesProfile rulesProfile = importer.importProfile(xml, messages);
-    importProfile(profileDto, rulesProfile, dbSession);
+    List<ActiveRuleChange> changes = importProfile(profileDto, rulesProfile, dbSession);
+    result.addChanges(changes);
     processValidationMessages(messages, result);
     return result;
   }
 
-  private void importProfile(QualityProfileDto profileDto, RulesProfile rulesProfile, DbSession dbSession) {
+  private List<ActiveRuleChange> importProfile(QualityProfileDto profileDto, RulesProfile rulesProfile, DbSession dbSession) {
+    List<ActiveRuleChange> changes = new ArrayList<>();
     for (org.sonar.api.rules.ActiveRule activeRule : rulesProfile.getActiveRules()) {
-      ruleActivator.activate(dbSession, toRuleActivation(activeRule), profileDto);
+      changes.addAll(ruleActivator.activate(dbSession, toRuleActivation(activeRule), profileDto));
     }
+    return changes;
   }
 
   private ProfileImporter getProfileImporter(String importerKey) {
