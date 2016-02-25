@@ -24,6 +24,7 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Multimaps;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
@@ -88,6 +89,7 @@ public class RegisterQualityProfiles {
     Profiler profiler = Profiler.create(Loggers.get(getClass())).startInfo("Register quality profiles");
     DbSession session = dbClient.openSession(false);
     try {
+      activeRuleIndexer.setEnabled(true);
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {
         List<RulesProfile> defs = profilesByLanguage.get(language);
@@ -95,7 +97,6 @@ public class RegisterQualityProfiles {
           registerProfilesForLanguage(session, language, defs);
         }
       }
-      activeRuleIndexer.setEnabled(true).index();
       profiler.stopDebug();
 
     } finally {
@@ -125,7 +126,6 @@ public class RegisterQualityProfiles {
       QProfileName profileName = new QProfileName(language, name);
       if (shouldRegister(profileName, session)) {
         register(profileName, entry.getValue(), session);
-        session.commit();
       }
       builtInProfiles.put(language, name);
     }
@@ -138,10 +138,15 @@ public class RegisterQualityProfiles {
 
     QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), session);
     if (profileDto != null) {
-      profileFactory.delete(session, profileDto.getKey(), true);
+      // When deleting the profile, we also remove active rule from index in order to have to deal with conflicts when activating new rules
+      // (for instance, if same rule is removed then activated)
+      List<ActiveRuleChange> deleteChanges = profileFactory.delete(session, profileDto.getKey(), true);
+      session.commit();
+      activeRuleIndexer.index(deleteChanges);
     }
     profileFactory.create(session, name);
 
+    List<ActiveRuleChange> changes = new ArrayList<>();
     for (RulesProfile profile : profiles) {
       for (org.sonar.api.rules.ActiveRule activeRule : profile.getActiveRules()) {
         RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
@@ -150,12 +155,14 @@ public class RegisterQualityProfiles {
         for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
           activation.setParameter(param.getKey(), param.getValue());
         }
-        ruleActivator.activate(session, activation, name);
+        changes.addAll(ruleActivator.activate(session, activation, name));
       }
     }
 
     LoadedTemplateDto template = new LoadedTemplateDto(templateKey(name), LoadedTemplateDto.QUALITY_PROFILE_TYPE);
     dbClient.loadedTemplateDao().insert(template, session);
+    session.commit();
+    activeRuleIndexer.index(changes);
   }
 
   private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
