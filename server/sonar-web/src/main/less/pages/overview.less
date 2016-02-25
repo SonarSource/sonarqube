@@ -419,6 +419,10 @@
   padding-top: 10px;
   padding-bottom: 15px;
 
+  svg {
+    position: absolute;
+  }
+
   .bar-chart-bar {
     fill: @blue;
   }
@@ -443,6 +447,10 @@
   border: 1px solid @barBorderColor;
   box-sizing: border-box;
   background-color: #fff;
+
+  svg {
+    position: absolute;
+  }
 
   .line-chart-path {
     fill: none;
@@ -523,6 +531,9 @@
 }
 
 .overview-treemap {
+  & > div {
+    position: absolute;
+  }
 }
 
 .overview-chart-placeholder {
@@ -534,8 +545,11 @@
 .overview-bubble-chart {
   padding: 10px;
   border: 1px solid @barBorderColor;
-  box-sizing: border-box;
   background-color: #fff;
+
+  svg {
+    position: absolute;
+  }
 
   .bubble-chart-bubble {
     fill: @blue;

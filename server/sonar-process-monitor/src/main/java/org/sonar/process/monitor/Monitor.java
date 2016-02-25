@@ -451,7 +451,7 @@ public class Monitor {
   }
 
   private static void awaitTermination(@Nullable Thread t) {
-    if (t == null) {
+    if (t == null || Thread.currentThread() == t) {
       return;
     }
 

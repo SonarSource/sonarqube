@@ -151,7 +151,7 @@ export const DomainTimeline = React.createClass({
     let formatValue = (value) => formatMeasure(value, metricType);
     let formatYTick = (tick) => formatMeasure(tick, getShortType(metricType));
 
-    return <div className={'overview-timeline-' + index}>
+    return <div className={'overview-timeline-' + index} style={{ height: HEIGHT }}>
       <Timeline key={metric}
                 data={data}
                 metricType={metricType}

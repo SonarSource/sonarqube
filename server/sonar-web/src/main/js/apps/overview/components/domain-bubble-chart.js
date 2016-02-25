@@ -154,7 +154,7 @@ export class DomainBubbleChart extends React.Component {
           </li>
         </ul>
       </div>
-      <div className="overview-bubble-chart">
+      <div className="overview-bubble-chart" style={{ height: HEIGHT }}>
         <div className="note" style={{ position: 'relative', top: '10px', left: '10px' }}>
           {this.state.yMetric.name}
         </div>
