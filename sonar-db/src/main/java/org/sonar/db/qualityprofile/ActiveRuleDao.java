@@ -57,6 +57,11 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectByRuleId(rule.getId());
   }
 
+  // TODO As it's only used by MediumTest, it should be replaced by DbTester.countRowsOfTable()
+  public List<ActiveRuleDto> selectAll(DbSession dbSession) {
+    return mapper(dbSession).selectAll();
+  }
+
   public List<ActiveRuleParamDto> selectAllParams(DbSession dbSession) {
     return mapper(dbSession).selectAllParams();
   }
@@ -120,13 +125,6 @@ public class ActiveRuleDao implements Dao {
     Preconditions.checkNotNull(activeRule.getId(), ACTIVE_RULE_IS_NOT_PERSISTED);
     Preconditions.checkNotNull(activeRuleParam.getId(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
     mapper(session).deleteParameter(activeRuleParam.getId());
-  }
-
-  public void deleteByProfileKey(DbSession session, String profileKey) {
-    /** Functional cascade for params */
-    for (ActiveRuleDto activeRule : selectByProfileKey(session, profileKey)) {
-      delete(session, activeRule.getKey());
-    }
   }
 
   public List<ActiveRuleDto> selectByProfileKey(DbSession session, String profileKey) {
