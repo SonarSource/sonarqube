@@ -31,7 +31,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ViewsIntegrationTest {
   private final ViewsBridgeSimulator viewsBridgeSimulator = new ViewsBridgeSimulator();
 
-  private ServerTester serverTester = new ServerTester();
+  private ServerTester serverTester = new ServerTester().withEsIndexes();
 
   @After
   public void tearDown() throws Exception {

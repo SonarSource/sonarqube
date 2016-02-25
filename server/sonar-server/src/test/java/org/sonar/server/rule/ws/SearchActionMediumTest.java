@@ -34,6 +34,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
@@ -42,7 +43,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.rule.db.RuleDao;
@@ -56,7 +56,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class SearchActionMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addXoo();
+  public static ServerTester tester = new ServerTester().withEsIndexes().addXoo();
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

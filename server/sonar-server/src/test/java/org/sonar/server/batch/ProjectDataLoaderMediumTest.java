@@ -58,7 +58,7 @@ public class ProjectDataLoaderMediumTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @ClassRule
-  public static ServerTester tester = new ServerTester().addXoo();
+  public static ServerTester tester = new ServerTester().withEsIndexes().addXoo();
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);

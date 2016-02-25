@@ -52,7 +52,8 @@ import static org.junit.Assert.fail;
 public class RuleCreatorMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
+
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 

@@ -35,11 +35,11 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
 import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
@@ -51,7 +51,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class RuleDeleterMediumTest {
 
   @ClassRule
-  public static ServerTester tester = new ServerTester();
+  public static ServerTester tester = new ServerTester().withEsIndexes();
+
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
@@ -99,7 +100,7 @@ public class RuleDeleterMediumTest {
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.REMOVED);
 
     // Verify there's no more active rule from custom rule
-    List<ActiveRule> activeRules = Lists.newArrayList(tester.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey()));
+    List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(ActiveRuleIndex2.class).findByProfile(profileDto.getKey()));
     assertThat(activeRules).isEmpty();
 
     // Verify in index
