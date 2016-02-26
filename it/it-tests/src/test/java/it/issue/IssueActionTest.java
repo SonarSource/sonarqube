@@ -70,7 +70,7 @@ public class IssueActionTest extends AbstractIssueTest {
   public void add_comment() throws Exception {
     IssueComment comment = adminIssueClient().addComment(issue.key(), "this is my *comment*");
     assertThat(comment.key()).isNotNull();
-    assertThat(comment.htmlText()).isEqualTo("this is my <em>comment</em>");
+    assertThat(comment.htmlText()).isEqualTo("this is my <strong>comment</strong>");
     assertThat(comment.login()).isEqualTo("admin");
     assertThat(comment.createdAt()).isNotNull();
 
@@ -79,7 +79,7 @@ public class IssueActionTest extends AbstractIssueTest {
 
     assertThat(reloaded.comments()).hasSize(1);
     assertThat(reloaded.comments().get(0).key()).isEqualTo(comment.key());
-    assertThat(reloaded.comments().get(0).htmlText()).isEqualTo("this is my <em>comment</em>");
+    assertThat(reloaded.comments().get(0).htmlText()).isEqualTo("this is my <strong>comment</strong>");
     assertThat(reloaded.updateDate().before(issue.creationDate())).isFalse();
   }
 
