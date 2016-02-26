@@ -4,6 +4,12 @@
 
 <ul class="menu">
   <li>
+    <a href="#" data-property="types" data-value="{{this.type}}">
+      {{issueType this.type}}
+    </a>
+  </li>
+
+  <li>
     <a href="#" data-property="severities" data-value="{{s}}">
       {{severityIcon severity}}&nbsp;{{t "severity" severity}}
     </a>

@@ -44,6 +44,10 @@
       <td>
         <ul class="list-inline issue-meta-list">
           <li class="issue-meta">
+            {{issueType this.type}}
+          </li>
+
+          <li class="issue-meta">
             {{#inArray actions "set_severity"}}
               <button class="button-link issue-action issue-action-with-options js-issue-set-severity">
                 <span class="issue-meta-label">{{severityHelper severity}}</span>&nbsp;<i class="icon-dropdown"></i>
@@ -72,7 +76,8 @@
                     <span class="text-top">{{avatarHelper assigneeEmail 16}}</span>
                   {{/ifShowAvatars}}
                 {{/if}}
-                <span class="issue-meta-label">{{#if assignee}}{{assigneeName}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i class="icon-dropdown"></i>
+                <span class="issue-meta-label">{{#if assignee}}{{assigneeName}}{{else}}{{t 'unassigned'}}{{/if}}</span>&nbsp;<i
+                  class="icon-dropdown"></i>
               </button>
             {{else}}
               {{#if assignee}}
