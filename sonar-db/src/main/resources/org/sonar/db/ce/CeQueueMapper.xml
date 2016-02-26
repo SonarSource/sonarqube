@@ -19,7 +19,7 @@
   </sql>
 
   <sql id="orderByDescDateAndId">
-    order by cq.created_at desc, cq.id asc
+    order by cq.created_at desc, cq.id desc
   </sql>
 
   <select id="selectByUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
