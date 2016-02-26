@@ -19,11 +19,15 @@
  */
 package org.sonar.db.qualityprofile;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.rule.RuleDto;
@@ -52,6 +56,14 @@ public class ActiveRuleDao implements Dao {
     throw new RowNotFoundException(String.format("Active rule with key '%s' does not exist", key));
   }
 
+  public List<ActiveRuleDto> selectByKeys(DbSession dbSession, List<ActiveRuleKey> keys) {
+    List<SqlActiveRuleKey> sqlKeys = new ArrayList<>();
+    for (ActiveRuleKey key : keys) {
+      sqlKeys.add(new SqlActiveRuleKey(key));
+    }
+    return DatabaseUtils.executeLargeInputs(sqlKeys, new KeyToDto(mapper(dbSession)));
+  }
+
   public List<ActiveRuleDto> selectByRule(DbSession dbSession, RuleDto rule) {
     Preconditions.checkNotNull(rule.getId(), RULE_IS_NOT_PERSISTED);
     return mapper(dbSession).selectByRuleId(rule.getId());
@@ -62,8 +74,8 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectAll();
   }
 
-  public List<ActiveRuleParamDto> selectAllParams(DbSession dbSession) {
-    return mapper(dbSession).selectAllParams();
+  public List<ActiveRuleDto> selectByProfileKey(DbSession session, String profileKey) {
+    return mapper(session).selectByProfileKey(profileKey);
   }
 
   public ActiveRuleDto insert(DbSession session, ActiveRuleDto item) {
@@ -93,6 +105,35 @@ public class ActiveRuleDao implements Dao {
   /**
    * Nested DTO ActiveRuleParams
    */
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleId(DbSession dbSession, Integer activeRuleId) {
+    return mapper(dbSession).selectParamsByActiveRuleId(activeRuleId);
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(final DbSession dbSession, List<Integer> activeRuleIds) {
+    return DatabaseUtils.executeLargeInputs(activeRuleIds, new ParamIdToDto(mapper(dbSession)));
+  }
+
+  public List<ActiveRuleParamDto> selectParamsByActiveRuleKey(DbSession session, ActiveRuleKey key) {
+    Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
+    ActiveRuleDto activeRule = selectOrFailByKey(session, key);
+    return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
+  }
+
+  @CheckForNull
+  public ActiveRuleParamDto selectParamByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
+    Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
+    Preconditions.checkNotNull(name, PARAMETER_NAME_CANNOT_BE_NULL);
+    Optional<ActiveRuleDto> activeRule = selectByKey(session, key);
+    if (activeRule.isPresent()) {
+      return mapper(session).selectParamByActiveRuleAndKey(activeRule.get().getId(), name);
+    }
+    return null;
+  }
+
+  public List<ActiveRuleParamDto> selectAllParams(DbSession dbSession) {
+    return mapper(dbSession).selectAllParams();
+  }
 
   public ActiveRuleParamDto insertParam(DbSession session, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
     Preconditions.checkArgument(activeRule.getId() != null, ACTIVE_RULE_IS_NOT_PERSISTED);
@@ -127,31 +168,6 @@ public class ActiveRuleDao implements Dao {
     mapper(session).deleteParameter(activeRuleParam.getId());
   }
 
-  public List<ActiveRuleDto> selectByProfileKey(DbSession session, String profileKey) {
-    return mapper(session).selectByProfileKey(profileKey);
-  }
-
-  /**
-   * Finder methods for ActiveRuleParams
-   */
-
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleKey(DbSession session, ActiveRuleKey key) {
-    Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
-    ActiveRuleDto activeRule = selectOrFailByKey(session, key);
-    return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
-  }
-
-  @CheckForNull
-  public ActiveRuleParamDto selectParamByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
-    Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
-    Preconditions.checkNotNull(name, PARAMETER_NAME_CANNOT_BE_NULL);
-    Optional<ActiveRuleDto> activeRule = selectByKey(session, key);
-    if (activeRule.isPresent()) {
-      return mapper(session).selectParamByActiveRuleAndKey(activeRule.get().getId(), name);
-    }
-    return null;
-  }
-
   public void deleteParamsByRuleParam(DbSession dbSession, RuleDto rule, String paramKey) {
     List<ActiveRuleDto> activeRules = selectByRule(dbSession, rule);
     for (ActiveRuleDto activeRule : activeRules) {
@@ -165,5 +181,31 @@ public class ActiveRuleDao implements Dao {
 
   private ActiveRuleMapper mapper(DbSession session) {
     return session.getMapper(ActiveRuleMapper.class);
+  }
+
+  private static class KeyToDto implements Function<List<SqlActiveRuleKey>, List<ActiveRuleDto>> {
+    private final ActiveRuleMapper mapper;
+
+    private KeyToDto(ActiveRuleMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<ActiveRuleDto> apply(@Nonnull List<SqlActiveRuleKey> partitionOfIds) {
+      return mapper.selectByKeys(partitionOfIds);
+    }
+  }
+
+  private static class ParamIdToDto implements Function<List<Integer>, List<ActiveRuleParamDto>> {
+    private final ActiveRuleMapper mapper;
+
+    private ParamIdToDto(ActiveRuleMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<ActiveRuleParamDto> apply(@Nonnull List<Integer> partitionOfIds) {
+      return mapper.selectParamsByActiveRuleIds(partitionOfIds);
+    }
   }
 }
