@@ -48,7 +48,7 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
 
   private static final int BULK_EDITED_ISSUE_COUNT = 3;
   private static final String COMMENT_AS_MARKDOWN = "this is my *comment*";
-  private static final String COMMENT_AS_HTML = "this is my <em>comment</em>";
+  private static final String COMMENT_AS_HTML = "this is my <strong>comment</strong>";
 
   @Rule
   public final ProjectAnalysisRule projectAnalysisRule = ProjectAnalysisRule.from(ORCHESTRATOR);
