@@ -42,8 +42,6 @@ import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.DbTests;
 
@@ -61,44 +59,38 @@ public class SearchActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   // TODO remove mock
   private QProfileLoader profileLoader = mock(QProfileLoader.class);
-  private DbClient dbClient;
-  private QualityProfileDao qualityProfileDao;
+
+  private DbClient dbClient = db.getDbClient();
+  private DbSession dbSession = db.getSession();
+
+  private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
+
   private Language xoo1;
   private Language xoo2;
-  private DbSession dbSession;
   private WsActionTester ws;
+
   private QualityProfileDbTester qualityProfileDb;
 
   @Before
   public void setUp() {
-    dbClient = db.getDbClient();
-    dbSession = db.getSession();
-    qualityProfileDao = dbClient.qualityProfileDao();
     qualityProfileDb = new QualityProfileDbTester(db);
 
     xoo1 = LanguageTesting.newLanguage("xoo1");
     xoo2 = LanguageTesting.newLanguage("xoo2");
 
     Languages languages = new Languages(xoo1, xoo2);
-    org.sonar.server.db.DbClient oldDbClient = new org.sonar.server.db.DbClient(
-      db.database(),
-      db.myBatis(),
-      dbClient.qualityProfileDao(),
-      new ActiveRuleDao(
-        dbClient.qualityProfileDao(),
-        new RuleDao(System2.INSTANCE),
-        System2.INSTANCE));
     ws = new WsActionTester(new SearchAction(
       new SearchDataLoader(
         languages,
         new QProfileLookup(dbClient),
         profileLoader,
-        new QProfileFactory(oldDbClient),
+        new QProfileFactory(dbClient),
         dbClient,
         new ComponentFinder(dbClient)),
       languages));
