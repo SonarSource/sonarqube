@@ -57,24 +57,18 @@ public class RuleUpdater {
   /**
    * Update manual rules and custom rules (rules instantiated from templates)
    */
-  public boolean update(RuleUpdate update, UserSession userSession) {
+  public boolean update(DbSession dbSession, RuleUpdate update, UserSession userSession) {
     if (update.isEmpty()) {
       return false;
     }
 
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      Context context = newContext(update);
-      // validate only the changes, not all the rule fields
-      apply(update, context, userSession);
-      dbClient.deprecatedRuleDao().update(dbSession, context.rule);
-      updateParameters(dbSession, update, context);
-      dbSession.commit();
-      return true;
-
-    } finally {
-      dbSession.close();
-    }
+    Context context = newContext(update);
+    // validate only the changes, not all the rule fields
+    apply(update, context, userSession);
+    dbClient.deprecatedRuleDao().update(dbSession, context.rule);
+    updateParameters(dbSession, update, context);
+    dbSession.commit();
+    return true;
   }
 
   /**

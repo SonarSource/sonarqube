@@ -19,8 +19,12 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Sets;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -31,12 +35,18 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.RuleService;
+import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.RuleUpdate;
+import org.sonar.server.rule.RuleUpdater;
+import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Rules.UpdateResponse;
 
+import static java.util.Collections.singletonList;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class UpdateAction implements RulesWsAction {
@@ -54,12 +64,16 @@ public class UpdateAction implements RulesWsAction {
   public static final String PARAM_STATUS = "status";
   public static final String PARAMS = "params";
 
-  private final RuleService service;
-  private final RuleMapping mapping;
+  private final DbClient dbClient;
+  private final RuleUpdater ruleUpdater;
+  private final RuleMapper mapper;
+  private final UserSession userSession;
 
-  public UpdateAction(RuleService service, RuleMapping mapping) {
-    this.service = service;
-    this.mapping = mapping;
+  public UpdateAction(DbClient dbClient, RuleUpdater ruleUpdater, RuleMapper mapper, UserSession userSession) {
+    this.dbClient = dbClient;
+    this.ruleUpdater = ruleUpdater;
+    this.mapper = mapper;
+    this.userSession = userSession;
   }
 
   @Override
@@ -125,16 +139,22 @@ public class UpdateAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    RuleUpdate update = readRequest(request);
-    service.update(update);
-    UpdateResponse updateResponse = buildResponse(update.getRuleKey());
+    checkPermission();
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      RuleUpdate update = readRequest(dbSession, request);
+      ruleUpdater.update(dbSession, update, userSession);
+      UpdateResponse updateResponse = buildResponse(dbSession, update.getRuleKey());
 
-    writeProtobuf(updateResponse, request, response);
+      writeProtobuf(updateResponse, request, response);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
-  private RuleUpdate readRequest(Request request) {
+  private RuleUpdate readRequest(DbSession dbSession, Request request) {
     RuleKey key = RuleKey.parse(request.mandatoryParam(PARAM_KEY));
-    RuleUpdate update = createRuleUpdate(key);
+    RuleUpdate update = createRuleUpdate(dbSession, key);
     readTags(request, update);
     readMarkdownNote(request, update);
     readDebt(request, update);
@@ -162,14 +182,13 @@ public class UpdateAction implements RulesWsAction {
     return update;
   }
 
-  private RuleUpdate createRuleUpdate(RuleKey key) {
-    Rule rule = service.getByKey(key);
-    if (rule == null) {
-      throw new NotFoundException("This rule does not exists : " + key);
-    }
-    if (rule.templateKey() != null) {
+  private RuleUpdate createRuleUpdate(DbSession dbSession, RuleKey key) {
+    Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, key);
+    checkFoundWithOptional(optionalRule, "This rule does not exists : " + key);
+    RuleDto rule = optionalRule.get();
+    if (rule.getTemplateId() != null) {
       return RuleUpdate.createForCustomRule(key);
-    } else if (rule.isManual()) {
+    } else if (RuleKey.MANUAL_REPOSITORY_KEY.equals(rule.getRepositoryKey())) {
       return RuleUpdate.createForManualRule(key);
     } else {
       return RuleUpdate.createForPluginRule(key);
@@ -210,11 +229,31 @@ public class UpdateAction implements RulesWsAction {
     }
   }
 
-  private UpdateResponse buildResponse(RuleKey ruleKey) {
-    Rule rule = service.getNonNullByKey(ruleKey);
+  private UpdateResponse buildResponse(DbSession dbSession, RuleKey key) {
+    Optional<RuleDto> optionalRule = dbClient.ruleDao().selectByKey(dbSession, key);
+    checkFoundWithOptional(optionalRule, "Rule not found: " + key);
+    RuleDto rule = optionalRule.get();
+    List<RuleDto> templateRules = new ArrayList<>();
+    if (rule.getTemplateId() != null) {
+      Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(rule.getTemplateId(), dbSession);
+      if (templateRule.isPresent()) {
+        templateRules.add(templateRule.get());
+      }
+    }
+    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
     UpdateResponse.Builder responseBuilder = UpdateResponse.newBuilder();
-    responseBuilder.setRule(mapping.buildRuleResponse(rule, null /* TODO replace by SearchOptions immutable constant */));
+    SearchAction.SearchResult searchResult = new SearchAction.SearchResult()
+      .setRules(singletonList(rule))
+      .setTemplateRules(templateRules)
+      .setRuleParameters(ruleParameters)
+      .setTotal(1L);
+    responseBuilder.setRule(mapper.toWsRule(rule, searchResult, Collections.<String>emptySet()));
 
     return responseBuilder.build();
+  }
+
+  private void checkPermission() {
+    userSession.checkLoggedIn();
+    userSession.checkPermission(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 }

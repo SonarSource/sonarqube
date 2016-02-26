@@ -96,11 +96,6 @@ public class RuleService {
     return index.terms(RuleNormalizer.RuleField.ALL_TAGS.field(), query, size);
   }
 
-  public void update(RuleUpdate update) {
-    checkPermission();
-    ruleUpdater.update(update, userSession);
-  }
-
   public RuleKey create(NewRule newRule) {
     checkPermission();
     return ruleCreator.create(newRule);

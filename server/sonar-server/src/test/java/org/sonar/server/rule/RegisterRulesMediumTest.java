@@ -35,7 +35,6 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.utils.MessageException;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -461,7 +460,7 @@ public class RegisterRulesMediumTest {
     assertThat(rule.tags()).isEmpty();
 
     // User adds tag
-    TESTER.get(RuleUpdater.class).update(RuleUpdate.createForPluginRule(RuleTesting.XOO_X1).setTags(newHashSet("tag2")), userSessionRule);
+    TESTER.get(RuleUpdater.class).update(dbSession, RuleUpdate.createForPluginRule(RuleTesting.XOO_X1).setTags(newHashSet("tag2")), userSessionRule);
     dbSession.clearCache();
     rule = ruleIndex.getByKey(RuleTesting.XOO_X1);
     assertThat(rule.systemTags()).containsOnly("tag1");

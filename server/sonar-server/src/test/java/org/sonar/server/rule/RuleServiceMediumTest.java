@@ -157,41 +157,6 @@ public class RuleServiceMediumTest {
   }
 
   @Test
-  public void update_rule() {
-    userSessionRule.login("me").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    RuleKey key = RuleKey.of("java", "S001");
-
-    dao.insert(dbSession, RuleTesting.newDto(key));
-    dbSession.commit();
-
-    RuleUpdate update = RuleUpdate.createForCustomRule(key);
-    update.setMarkdownNote("my *note*");
-    service.update(update);
-
-    dbSession.clearCache();
-
-    RuleDto rule = dao.getNullableByKey(dbSession, key);
-    assertThat(rule.getNoteData()).isEqualTo("my *note*");
-    assertThat(rule.getNoteUserLogin()).isEqualTo("me");
-  }
-
-  @Test(expected = UnauthorizedException.class)
-  public void do_not_update_if_not_granted() {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-
-    RuleKey key = RuleKey.of("java", "S001");
-
-    dao.insert(dbSession, RuleTesting.newDto(key)
-      .setTags(Sets.newHashSet("security"))
-      .setSystemTags(Sets.newHashSet("java8", "javadoc")));
-    dbSession.commit();
-
-    RuleUpdate update = RuleUpdate.createForPluginRule(key).setMarkdownNote("my *note*");
-    service.update(update);
-  }
-
-  @Test
   public void create_rule() {
     userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
