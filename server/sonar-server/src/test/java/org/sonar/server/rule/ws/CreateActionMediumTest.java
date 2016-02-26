@@ -134,6 +134,7 @@ public class CreateActionMediumTest {
       .setStatus(RuleStatus.REMOVED)
       .setName("My manual rule")
       .setDescription("Description")
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN)
       .setSeverity(Severity.MAJOR));
     session.commit();
     session.clearCache();

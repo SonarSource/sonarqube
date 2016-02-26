@@ -19,6 +19,10 @@
  */
 package org.sonar.server.rule.ws;
 
+import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -26,15 +30,19 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.ReactivationException;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.RuleCreator;
 import org.sonarqube.ws.Rules;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.net.HttpURLConnection.HTTP_CONFLICT;
+import static java.util.Collections.singletonList;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -53,12 +61,14 @@ public class CreateAction implements RulesWsAction {
 
   public static final String PARAM_PREVENT_REACTIVATION = "prevent_reactivation";
 
-  private final RuleService service;
-  private final RuleMapping mapping;
+  private final DbClient dbClient;
+  private final RuleCreator ruleCreator;
+  private final RuleMapper ruleMapper;
 
-  public CreateAction(RuleService service, RuleMapping mapping) {
-    this.service = service;
-    this.mapping = mapping;
+  public CreateAction(DbClient dbClient, RuleCreator ruleCreator, RuleMapper ruleMapper) {
+    this.dbClient = dbClient;
+    this.ruleCreator = ruleCreator;
+    this.ruleMapper = ruleMapper;
   }
 
   @Override
@@ -125,52 +135,65 @@ public class CreateAction implements RulesWsAction {
     if (isNullOrEmpty(customKey) && isNullOrEmpty(manualKey)) {
       throw new BadRequestException(String.format("Either '%s' or '%s' parameters should be set", PARAM_CUSTOM_KEY, PARAM_MANUAL_KEY));
     }
-
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      if (!isNullOrEmpty(customKey)) {
-        NewRule newRule = NewRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
-          .setName(request.mandatoryParam(PARAM_NAME))
-          .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
-          .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
-          .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
-          .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
-        String params = request.param(PARAMS);
-        if (!isNullOrEmpty(params)) {
-          newRule.setParameters(KeyValueFormat.parse(params));
+      try {
+        if (!isNullOrEmpty(customKey)) {
+          NewRule newRule = NewRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
+            .setName(request.mandatoryParam(PARAM_NAME))
+            .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
+            .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
+            .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
+            .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
+          String params = request.param(PARAMS);
+          if (!isNullOrEmpty(params)) {
+            newRule.setParameters(KeyValueFormat.parse(params));
+          }
+          writeResponse(dbSession, request, response, ruleCreator.create(newRule));
         }
-        writeResponse(request, response, service.create(newRule));
-      }
 
-      if (!isNullOrEmpty(manualKey)) {
-        NewRule newRule = NewRule.createForManualRule(manualKey)
-          .setName(request.mandatoryParam(PARAM_NAME))
-          .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
-          .setSeverity(request.param(PARAM_SEVERITY))
-          .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
-        writeResponse(request, response, service.create(newRule));
+        if (!isNullOrEmpty(manualKey)) {
+          NewRule newRule = NewRule.createForManualRule(manualKey)
+            .setName(request.mandatoryParam(PARAM_NAME))
+            .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
+            .setSeverity(request.param(PARAM_SEVERITY))
+            .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
+          writeResponse(dbSession, request, response, ruleCreator.create(newRule));
+        }
+      } catch (ReactivationException e) {
+        write409(dbSession, request, response, e.ruleKey());
       }
-    } catch (ReactivationException e) {
-      write409(request, response, e.ruleKey());
+    } finally {
+      dbClient.closeSession(dbSession);
     }
   }
 
-  private void writeResponse(Request request, Response response, RuleKey ruleKey) throws Exception {
-    Rule rule = service.getNonNullByKey(ruleKey);
-    Rules.CreateResponse createResponse = Rules.CreateResponse.newBuilder()
-      .setRule(mapping.buildRuleResponse(rule, null /* TODO replace by SearchOptions immutable constant */))
-      .build();
-
-    writeProtobuf(createResponse, request, response);
+  private void writeResponse(DbSession dbSession, Request request, Response response, RuleKey ruleKey) {
+    writeProtobuf(createResponse(dbSession, ruleKey), request, response);
   }
 
-  private void write409(Request request, Response response, RuleKey ruleKey) throws Exception {
-    Rule rule = service.getNonNullByKey(ruleKey);
-
+  private void write409(DbSession dbSession, Request request, Response response, RuleKey ruleKey) {
     response.stream().setStatus(HTTP_CONFLICT);
-    Rules.CreateResponse createResponse = Rules.CreateResponse.newBuilder()
-      .setRule(mapping.buildRuleResponse(rule, null /* TODO replace by SearchOptions immutable constant */))
-      .build();
+    writeProtobuf(createResponse(dbSession, ruleKey), request, response);
+  }
 
-    writeProtobuf(createResponse, request, response);
+  private Rules.CreateResponse createResponse(DbSession dbSession, RuleKey ruleKey) {
+    RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, ruleKey);
+    List<RuleDto> templateRules = new ArrayList<>();
+    if (rule.getTemplateId() != null) {
+      Optional<RuleDto> templateRule = dbClient.ruleDao().selectById(rule.getTemplateId(), dbSession);
+      if (templateRule.isPresent()) {
+        templateRules.add(templateRule.get());
+      }
+    }
+    List<RuleParamDto> ruleParameters = dbClient.ruleDao().selectRuleParamsByRuleIds(dbSession, singletonList(rule.getId()));
+    SearchAction.SearchResult searchResult = new SearchAction.SearchResult()
+      .setRules(singletonList(rule))
+      .setRuleParameters(ruleParameters)
+      .setTemplateRules(templateRules)
+      .setTotal(1L);
+    return Rules.CreateResponse.newBuilder()
+      .setRule(ruleMapper.toWsRule(rule, searchResult, Collections.<String>emptySet()))
+      .build();
   }
 }
