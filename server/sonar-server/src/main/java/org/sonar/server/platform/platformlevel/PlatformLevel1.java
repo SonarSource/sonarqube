@@ -43,10 +43,8 @@ import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
-import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.ruby.PlatformRackBridge;
 import org.sonar.server.rule.index.RuleIndex;
-import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.search.IndexQueue;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -104,8 +102,6 @@ public class PlatformLevel1 extends PlatformLevel {
       // rules/qprofiles
       RuleIndex.class,
       ActiveRuleIndex.class,
-      RuleNormalizer.class,
-      ActiveRuleNormalizer.class,
 
       // issues
       IssueIndex.class,

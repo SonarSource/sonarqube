@@ -19,30 +19,18 @@
  */
 package org.sonar.server.rule.index;
 
-import com.google.common.base.Optional;
-import com.google.common.base.Preconditions;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.db.DbSession;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleParamDto;
-import org.sonar.markdown.Markdown;
-import org.sonar.process.ProcessProperties;
-import org.sonar.server.db.DbClient;
-import org.sonar.server.search.BaseNormalizer;
 import org.sonar.server.search.IndexField;
 import org.sonar.server.search.Indexable;
 
-public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
+/**
+ * Only used by RuleMapping and RuleMapper, should be removed
+ */
+@Deprecated
+public class RuleNormalizer {
+
+  public static final String UPDATED_AT_FIELD = "updatedAt";
 
   public static final class RuleParamField extends Indexable {
 
@@ -125,162 +113,6 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       }
       throw new IllegalStateException("Could not find an IndexField for '" + fieldName + "'");
     }
-  }
-
-  public RuleNormalizer(DbClient db) {
-    super(db);
-  }
-
-  @Override
-  public List<UpdateRequest> normalize(RuleDto rule) {
-
-    List<UpdateRequest> requests = new ArrayList<>();
-
-    DbSession session = db.openSession(false);
-    try {
-
-      /** Update Fields */
-      Map<String, Object> update = new HashMap<>();
-
-      update.put(RuleField.ID.field(), rule.getId());
-
-      update.put(RuleField.KEY.field(), rule.getKey().toString());
-      update.put(RuleField._KEY.field(), ImmutableList.of(rule.getKey().repository(), rule.getKey().rule()));
-
-      update.put(RuleField.REPOSITORY.field(), rule.getRepositoryKey());
-      update.put(RuleField.RULE_KEY.field(), rule.getRuleKey());
-      update.put(RuleField.NAME.field(), rule.getName());
-      update.put(RuleField.CREATED_AT.field(), rule.getCreatedAt());
-      update.put(RuleField.UPDATED_AT.field(), rule.getUpdatedAt());
-
-      if (RuleDto.Format.HTML.equals(rule.getDescriptionFormat())) {
-        update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription());
-        update.put(RuleField.MARKDOWN_DESCRIPTION.field(), null);
-      } else {
-        update.put(RuleField.HTML_DESCRIPTION.field(), rule.getDescription() == null ? null : Markdown.convertToHtml(rule.getDescription()));
-        update.put(RuleField.MARKDOWN_DESCRIPTION.field(), rule.getDescription());
-      }
-
-      update.put(RuleField.FIX_DESCRIPTION.field(), rule.getEffortToFixDescription());
-      update.put(RuleField.SEVERITY.field(), rule.getSeverityString());
-
-      RuleStatus status = rule.getStatus();
-      update.put(RuleField.STATUS.field(), status != null ? rule.getStatus().name() : null);
-
-      update.put(RuleField.LANGUAGE.field(), rule.getLanguage());
-      update.put(RuleField.INTERNAL_KEY.field(), rule.getConfigKey());
-      update.put(RuleField.IS_TEMPLATE.field(), rule.isTemplate());
-
-      update.put(RuleField.NOTE.field(), rule.getNoteData());
-      update.put(RuleField.NOTE_LOGIN.field(), rule.getNoteUserLogin());
-      update.put(RuleField.NOTE_CREATED_AT.field(), rule.getNoteCreatedAt());
-      update.put(RuleField.NOTE_UPDATED_AT.field(), rule.getNoteUpdatedAt());
-
-      // TODO Legacy PARENT_ID in DTO should be parent_key
-      Integer templateId = rule.getTemplateId();
-      String templateKeyFieldValue = null;
-      if (templateId != null) {
-        Optional<RuleDto> templateRule = db.ruleDao().selectById(templateId, session);
-        if (templateRule.isPresent()) {
-          RuleKey templateKey = templateRule.get().getKey();
-          templateKeyFieldValue = templateKey != null ? templateKey.toString() : null;
-        }
-      }
-      update.put(RuleField.TEMPLATE_KEY.field(), templateKeyFieldValue);
-
-      if (rule.getDefaultRemediationFunction() != null) {
-        update.put(RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field(), rule.getDefaultRemediationFunction());
-        update.put(RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field(), rule.getDefaultRemediationCoefficient());
-        update.put(RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field(), rule.getDefaultRemediationOffset());
-      } else {
-        update.put(RuleField.DEFAULT_DEBT_FUNCTION_TYPE.field(), null);
-        update.put(RuleField.DEFAULT_DEBT_FUNCTION_COEFFICIENT.field(), null);
-        update.put(RuleField.DEFAULT_DEBT_FUNCTION_OFFSET.field(), null);
-      }
-
-      if (rule.getRemediationFunction() != null) {
-        update.put(RuleField.DEBT_FUNCTION_TYPE.field(), rule.getRemediationFunction());
-        update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), rule.getRemediationCoefficient());
-        update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), rule.getRemediationOffset());
-        update.put(RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field(), true);
-      } else {
-        update.put(RuleField.DEBT_FUNCTION_TYPE.field(), rule.getDefaultRemediationFunction());
-        update.put(RuleField.DEBT_FUNCTION_COEFFICIENT.field(), rule.getDefaultRemediationCoefficient());
-        update.put(RuleField.DEBT_FUNCTION_OFFSET.field(), rule.getDefaultRemediationOffset());
-        update.put(RuleField.DEBT_FUNCTION_TYPE_OVERLOADED.field(), false);
-      }
-
-      update.put(RuleField.TAGS.field(), rule.getTags());
-      update.put(RuleField.SYSTEM_TAGS.field(), rule.getSystemTags());
-      update.put(RuleField.ALL_TAGS.field(), Sets.union(rule.getSystemTags(), rule.getTags()));
-
-      /** Upsert elements */
-      Map<String, Object> upsert = getUpsertFor(RuleField.ALL_FIELDS, update);
-      upsert.put(RuleField.KEY.field(), rule.getKey().toString());
-
-      /** Creating updateRequest */
-      requests.add(new UpdateRequest()
-        .id(rule.getKey().toString())
-        .doc(update)
-        .upsert(upsert));
-
-      for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey())) {
-        requests.addAll(normalizeNested(param, rule.getKey()));
-      }
-
-    } finally {
-      session.close();
-    }
-
-    return requests;
-  }
-
-  @Override
-  public List<UpdateRequest> normalizeNested(Object object, RuleKey key) {
-    Preconditions.checkNotNull(key, "key of rule must be set");
-    if (object.getClass().isAssignableFrom(RuleParamDto.class)) {
-      return nestedUpdate((RuleParamDto) object, key);
-    } else {
-      throw new IllegalStateException("Cannot normalize object of type '" + object.getClass() + "' in current context");
-    }
-  }
-
-  @Override
-  public List<UpdateRequest> deleteNested(Object object, RuleKey key) {
-    Preconditions.checkNotNull(key, "key of Rule must be set");
-    if (object.getClass().isAssignableFrom(RuleParamDto.class)) {
-      return nestedDelete((RuleParamDto) object, key);
-    } else {
-      throw new IllegalStateException("Cannot normalize object of type '" + object.getClass() + "' in current context");
-    }
-  }
-
-  private List<UpdateRequest> nestedUpdate(RuleParamDto param, RuleKey key) {
-    Map<String, Object> newParam = new HashMap<>();
-    newParam.put(RuleParamField.NAME.field(), param.getName());
-    newParam.put(RuleParamField.TYPE.field(), param.getType());
-    newParam.put(RuleParamField.DESCRIPTION.field(), param.getDescription());
-    newParam.put(RuleParamField.DEFAULT_VALUE.field(), param.getDefaultValue());
-
-    return ImmutableList.of(new UpdateRequest()
-      .id(key.toString())
-      .script(ProcessProperties.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
-      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
-      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE, newParam)
-      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
-      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
-      );
-  }
-
-  private List<UpdateRequest> nestedDelete(RuleParamDto param, RuleKey key) {
-    return ImmutableList.of(new UpdateRequest()
-      .id(key.toString())
-      .script(ProcessProperties.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME)
-      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_FIELD, RuleField.PARAMS.field())
-      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_VALUE, null)
-      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_FIELD, RuleParamField.NAME.field())
-      .addScriptParam(ProcessProperties.ES_PLUGIN_LISTUPDATE_ID_VALUE, param.getName())
-      );
   }
 
 }

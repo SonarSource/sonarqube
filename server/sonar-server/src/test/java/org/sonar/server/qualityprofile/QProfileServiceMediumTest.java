@@ -53,7 +53,7 @@ import org.sonar.server.activity.ActivityService;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.Result;
@@ -166,8 +166,8 @@ public class QProfileServiceMediumTest {
 
     assertThat(stats.size()).isEqualTo(2);
     assertThat(stats.get(XOO_P1_KEY).size()).isEqualTo(3);
-    assertThat(stats.get(XOO_P1_KEY).get(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field()).size()).isEqualTo(1);
-    assertThat(stats.get(XOO_P1_KEY).get(ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field()).size()).isEqualTo(1);
+    assertThat(stats.get(XOO_P1_KEY).get(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).size()).isEqualTo(1);
+    assertThat(stats.get(XOO_P1_KEY).get(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).size()).isEqualTo(1);
     assertThat(stats.get(XOO_P1_KEY).get("countActiveRules").size()).isEqualTo(1);
   }
 
@@ -247,8 +247,8 @@ public class QProfileServiceMediumTest {
 
     // We need an actual rule in DB to test RuleName in Activity
     // TODO ???
-    //db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
-    //dbSession.commit();
+    // db.ruleDao().getByKey(dbSession, RuleTesting.XOO_X1);
+    // dbSession.commit();
 
     tester.get(ActivityService.class).save(
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))

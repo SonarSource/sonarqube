@@ -49,7 +49,6 @@ import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
-import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -536,7 +535,7 @@ public class SearchActionMediumTest {
     // 2. Sort Name DESC
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
     request.setParam(WebService.Param.FIELDS, "");
-    request.setParam(WebService.Param.SORT, RuleNormalizer.RuleField.NAME.field());
+    request.setParam(WebService.Param.SORT, RuleIndexDefinition.FIELD_RULE_NAME);
     request.setParam(WebService.Param.ASCENDING, "false");
 
     result = request.execute();
