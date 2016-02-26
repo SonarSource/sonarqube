@@ -80,13 +80,13 @@
   </delete>
 
   <select id="countByComponentUuid" resultType="Integer">
-    select count(*)
+    select count(1)
     from manual_measures m
     where m.component_uuid=#{componentUuid}
   </select>
 
   <select id="countByComponentIdAndMetricId" resultType="Integer">
-    select count(*)
+    select count(1)
     from manual_measures m
     where m.metric_id=#{metricId} and m.component_uuid=#{componentUuid}
   </select>

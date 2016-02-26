@@ -86,11 +86,11 @@ public class ResourceIndexDaoTest {
 
     dao.indexProject(1);
     // project
-    assertThat(dbTester.countSql("select count(resource_id) from resource_index where resource_id=1")).isGreaterThan(0);
+    assertThat(dbTester.countSql("select count(1) from resource_index where resource_id=1")).isGreaterThan(0);
     // directory
-    assertThat(dbTester.countSql("select count(resource_id) from resource_index where resource_id=2")).isEqualTo(0);
+    assertThat(dbTester.countSql("select count(1) from resource_index where resource_id=2")).isEqualTo(0);
     // file
-    assertThat(dbTester.countSql("select count(resource_id) from resource_index where resource_id=3")).isGreaterThan(0);
+    assertThat(dbTester.countSql("select count(1) from resource_index where resource_id=3")).isGreaterThan(0);
   }
 
   @Test

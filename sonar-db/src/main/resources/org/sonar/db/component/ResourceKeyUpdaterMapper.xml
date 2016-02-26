@@ -12,7 +12,7 @@
   </resultMap>
 
   <select id="countResourceByKey" parameterType="String" resultType="int">
-    SELECT count(*)
+    SELECT count(1)
     FROM projects
     WHERE kee = #{key}
   </select>

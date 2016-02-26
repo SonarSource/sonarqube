@@ -30,11 +30,11 @@
   </select>
 
   <select id="countByStatus" parameterType="org.sonar.db.ce.CeQueueDto$Status" resultType="int">
-    select count(id) from ce_queue where status=#{status}
+    select count(1) from ce_queue where status=#{status}
   </select>
 
   <select id="countAll" resultType="int">
-    select count(id) from ce_queue
+    select count(1) from ce_queue
   </select>
 
   <select id="selectByComponentUuid" parameterType="String" resultType="org.sonar.db.ce.CeQueueDto">
@@ -60,7 +60,7 @@
   </select>
 
   <select id="countByQuery" resultType="int">
-    select count(id)
+    select count(1)
     <include refid="sqlSelectByQuery"/>
   </select>
 

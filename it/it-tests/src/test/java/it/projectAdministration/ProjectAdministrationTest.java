@@ -247,7 +247,7 @@ public class ProjectAdministrationTest {
   }
 
   private int count(String condition) {
-    return orchestrator.getDatabase().countSql("select count(*) from " + condition);
+    return orchestrator.getDatabase().countSql("select count(1) from " + condition);
   }
 
 }

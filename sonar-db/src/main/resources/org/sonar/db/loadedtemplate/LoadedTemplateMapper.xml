@@ -10,7 +10,7 @@
   </resultMap>
 
   <select id="countByTypeAndKey" parameterType="map" resultType="int">
-    SELECT count(*)
+    SELECT count(1)
     FROM loaded_templates
     WHERE kee = #{key} AND template_type = #{type}
   </select>

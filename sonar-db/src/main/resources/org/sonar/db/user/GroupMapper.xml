@@ -74,7 +74,7 @@
   </select>
 
   <select id="countByQuery" parameterType="map" resultType="int">
-    SELECT count(g.id)
+    SELECT count(1)
     FROM groups g
     <where>
       <if test="query!=null">

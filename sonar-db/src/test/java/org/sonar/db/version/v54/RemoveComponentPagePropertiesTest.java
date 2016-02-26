@@ -116,7 +116,7 @@ public class RemoveComponentPagePropertiesTest {
 
   private static String propertiesRowSql(String key, @Nullable Integer resourceId, @Nullable Integer userId) {
     return format(
-      "select count(*) from properties where prop_key='%s' and resource_id %s and user_id %s and text_value = '%s'",
+      "select count(1) from properties where prop_key='%s' and resource_id %s and user_id %s and text_value = '%s'",
       key,
       whereClauseOfInteger(resourceId),
       whereClauseOfInteger(userId),

@@ -33,8 +33,8 @@ import static util.ItUtils.projectDir;
 
 public class TechnicalDebtPurgeTest {
 
-  private static final String SQL_COUNT_MEASURES_ON_CHARACTERISTICS = "select count(*) from project_measures where characteristic_id is not null";
-  private static final String SQL_COUNT_MEASURES_ON_DEBT_MEASURES_WITH_RULES = "select count(*) from project_measures where rule_id is not null and metric_id in (select id from metrics where name='sqale_index')";
+  private static final String SQL_COUNT_MEASURES_ON_CHARACTERISTICS = "select count(1) from project_measures where characteristic_id is not null";
+  private static final String SQL_COUNT_MEASURES_ON_DEBT_MEASURES_WITH_RULES = "select count(1) from project_measures where rule_id is not null and metric_id in (select id from metrics where name='sqale_index')";
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 

@@ -140,7 +140,7 @@
   </select>
 
   <select id="countGroups" parameterType="map" resultType="int">
-    SELECT count(name) FROM
+    SELECT count(1) FROM
     (SELECT g.name as name, g.description as description, ptg.permission_reference as permission
     FROM groups g
     LEFT JOIN perm_templates_groups ptg ON ptg.group_id=g.id
@@ -202,7 +202,7 @@
   </select>
 
   <select id="countAll" parameterType="String" resultType="int">
-    SELECT count(id)
+    SELECT count(1)
     FROM permission_templates
     <where>
       <if test="nameMatch!=null">
@@ -271,7 +271,7 @@
 
   <select id="groupsCountByTemplateIdAndPermission" parameterType="map"
           resultType="org.sonar.db.permission.CountByTemplateAndPermissionDto">
-    SELECT count(name) as count, permission, templateId
+    SELECT count(1) as count, permission, templateId
     FROM
     (SELECT g.name as name, ptg.permission_reference as permission, ptg.template_id as templateId
     FROM groups g

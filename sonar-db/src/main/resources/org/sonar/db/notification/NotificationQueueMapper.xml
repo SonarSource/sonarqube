@@ -14,7 +14,7 @@
   </delete>
 
   <select id="count" resultType="long">
-    select count(*) from notifications
+    select count(1) from notifications
   </select>
 
   <select id="findOldest" parameterType="int" resultType="NotificationQueue">

@@ -144,7 +144,7 @@ public class DbTester extends ExternalResource {
    */
   public int countRowsOfTable(String tableName) {
     Preconditions.checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
-    return countSql("select count(*) from " + tableName);
+    return countSql("select count(1) from " + tableName);
   }
 
   /**

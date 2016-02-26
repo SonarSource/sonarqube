@@ -103,12 +103,12 @@
   </delete>
 
   <select id="countResourceUserRoles" parameterType="long" resultType="int">
-    SELECT count(id)
+    SELECT count(1)
     FROM user_roles WHERE resource_id=#{id}
   </select>
 
   <select id="countResourceGroupRoles" parameterType="long" resultType="int">
-    SELECT count(id)
+    SELECT count(1)
     FROM group_roles WHERE resource_id=#{id}
   </select>
 

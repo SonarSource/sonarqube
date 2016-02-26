@@ -68,7 +68,7 @@
   </select>
 
   <select id="countLastSnapshotByComponentUuid" resultType="Integer">
-    SELECT count(s.id)
+    SELECT count(1)
     FROM snapshots s
     INNER JOIN projects p ON p.id=s.project_id AND p.uuid=#{componentUuid}
     <where>

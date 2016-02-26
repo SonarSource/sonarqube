@@ -230,7 +230,7 @@ public class InsertGateAdminPermissionForEachProfileAdminTest {
 
   private static String groupRoleRowSql(@Nullable Integer groupId, @Nullable Integer resourceId, String role) {
     return format(
-        "select count(*) from group_roles where group_id %s and resource_id %s and role = '%s'",
+        "select count(1) from group_roles where group_id %s and resource_id %s and role = '%s'",
         whereClauseFromInteger(groupId),
         whereClauseFromInteger(resourceId),
         role);
@@ -248,7 +248,7 @@ public class InsertGateAdminPermissionForEachProfileAdminTest {
 
   private static String userRoleRowSql(@Nullable Integer userId, @Nullable Integer resourceId, String role) {
     return format(
-        "select count(*) from user_roles where user_id %s and resource_id %s and role = '%s'",
+        "select count(1) from user_roles where user_id %s and resource_id %s and role = '%s'",
         whereClauseFromInteger(userId),
         whereClauseFromInteger(resourceId),
         role);

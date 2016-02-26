@@ -80,8 +80,8 @@ public class CopyScmAccountsFromAuthorsToUsersTest {
 
     migration.execute();
 
-    assertThat(db.countSql("SELECT count(*) FROM USERS WHERE updated_at=" + updatedDate)).isEqualTo(0);
-    assertThat(db.countSql("SELECT count(*) FROM USERS WHERE updated_at=" + oldDate)).isEqualTo(7);
+    assertThat(db.countSql("SELECT count(1) FROM USERS WHERE updated_at=" + updatedDate)).isEqualTo(0);
+    assertThat(db.countSql("SELECT count(1) FROM USERS WHERE updated_at=" + oldDate)).isEqualTo(7);
   }
 
   private User getUserByLogin(String login) {

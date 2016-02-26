@@ -47,7 +47,7 @@ public class FeedEventsLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from events where " +
+      .countSql("select count(1) from events where " +
         "created_at_ms is not null " +
         "and event_date_ms is not null");
     assertThat(count).isEqualTo(3);
@@ -63,7 +63,7 @@ public class FeedEventsLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from events where " +
+      .countSql("select count(1) from events where " +
         "created_at_ms = 1234");
     assertThat(count).isEqualTo(2);
   }
@@ -76,7 +76,7 @@ public class FeedEventsLongDatesTest {
 
     long time = parseDate("2014-09-25").getTime();
     int count = db
-      .countSql("select count(*) from events where " +
+      .countSql("select count(1) from events where " +
         "created_at_ms=" + time);
     assertThat(count).isEqualTo(1);
   }

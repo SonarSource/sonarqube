@@ -92,7 +92,7 @@
   </select>
 
   <select id="countByEmail" parameterType="String" resultType="long">
-    SELECT count(u.id)
+    SELECT count(1)
     FROM users u
     where lower(u.email)=#{email} AND u.active=${_true}
   </select>

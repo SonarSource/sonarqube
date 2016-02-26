@@ -79,7 +79,7 @@ public class PropertiesDao implements Dao {
     Connection connection = session.getConnection();
     PreparedStatement pstmt = null;
     ResultSet rs = null;
-    String sql = "SELECT count(*) FROM properties pp " +
+    String sql = "SELECT count(1) FROM properties pp " +
       "left outer join projects pj on pp.resource_id = pj.id " +
       "where pp.user_id is not null and (pp.resource_id is null or pj.uuid=?) " +
       "and (" + DatabaseUtils.repeatCondition("pp.prop_key like ?", dispatcherKeys.size(), "or") + ")";

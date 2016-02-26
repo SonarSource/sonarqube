@@ -51,7 +51,7 @@ public class FeedFileSourcesBinaryDataTest {
     MigrationStep migration = new FeedFileSourcesBinaryData(db.database());
     migration.execute();
 
-    int count = db.countSql("select count(*) from file_sources where binary_data is not null");
+    int count = db.countSql("select count(1) from file_sources where binary_data is not null");
     assertThat(count).isEqualTo(3);
 
     try (Connection connection = db.openConnection()) {

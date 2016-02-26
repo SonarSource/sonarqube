@@ -47,7 +47,7 @@ public class FeedManualMeasuresLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from manual_measures where " +
+      .countSql("select count(1) from manual_measures where " +
         "created_at_ms is not null " +
         "and updated_at_ms is not null");
     assertThat(count).isEqualTo(2);
@@ -63,7 +63,7 @@ public class FeedManualMeasuresLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from manual_measures where " +
+      .countSql("select count(1) from manual_measures where " +
         "created_at_ms = 1234");
     assertThat(count).isEqualTo(1);
   }
@@ -76,7 +76,7 @@ public class FeedManualMeasuresLongDatesTest {
 
     long snapshotTime = parseDate("2014-09-25").getTime();
     int count = db
-      .countSql("select count(*) from manual_measures where " +
+      .countSql("select count(1) from manual_measures where " +
         "created_at_ms=" + snapshotTime);
     assertThat(count).isEqualTo(1);
   }

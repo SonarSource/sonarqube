@@ -170,7 +170,7 @@ public abstract class DatabaseCommands {
     Statement stmt = connection.createStatement();
     ResultSet rs = null;
     try {
-      rs = stmt.executeQuery("select count(*) from " + table);
+      rs = stmt.executeQuery("select count(1) from " + table);
       if (rs.next()) {
         return rs.getInt(1) > 0;
       }

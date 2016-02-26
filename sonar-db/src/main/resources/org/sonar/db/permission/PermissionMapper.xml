@@ -57,7 +57,7 @@
 
   <select id="groupsCountByProjectIdAndPermission" parameterType="map"
           resultType="org.sonar.db.permission.CountByProjectAndPermissionDto">
-    SELECT count(name) as count, permission, componentId
+    SELECT count(1) as count, permission, componentId
     FROM
     (SELECT g.name as name, group_role.role as permission, group_role.resource_id as componentId
     FROM groups g
@@ -80,7 +80,7 @@
   </select>
 
   <select id="countGroups" parameterType="map" resultType="int">
-    SELECT count(name)
+    SELECT count(1)
     FROM
     (SELECT g.name as name
     FROM groups g

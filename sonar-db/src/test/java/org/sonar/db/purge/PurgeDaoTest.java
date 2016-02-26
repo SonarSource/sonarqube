@@ -148,7 +148,7 @@ public class PurgeDaoTest {
 
     underTest.deleteProject(dbSession, "A");
     dbSession.commit();
-    assertThat(dbTester.countSql("select count(id) from projects where uuid='A'")).isZero();
+    assertThat(dbTester.countSql("select count(1) from projects where uuid='A'")).isZero();
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
   }
 
@@ -159,17 +159,17 @@ public class PurgeDaoTest {
     // technical project
     underTest.deleteProject(dbSession, "D");
     dbSession.commit();
-    assertThat(dbTester.countSql("select count(id) from projects where uuid='D'")).isZero();
+    assertThat(dbTester.countSql("select count(1) from projects where uuid='D'")).isZero();
 
     // sub view
     underTest.deleteProject(dbSession, "B");
     dbSession.commit();
-    assertThat(dbTester.countSql("select count(id) from projects where uuid='B'")).isZero();
+    assertThat(dbTester.countSql("select count(1) from projects where uuid='B'")).isZero();
 
     // view
     underTest.deleteProject(dbSession, "A");
     dbSession.commit();
-    assertThat(dbTester.countSql("select count(id) from projects where uuid='A'")).isZero();
+    assertThat(dbTester.countSql("select count(1) from projects where uuid='A'")).isZero();
   }
 
   @Test

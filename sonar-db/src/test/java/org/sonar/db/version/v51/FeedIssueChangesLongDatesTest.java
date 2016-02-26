@@ -42,11 +42,11 @@ public class FeedIssueChangesLongDatesTest {
     MigrationStep migration = new FeedIssueChangesLongDates(db.database(), system);
     migration.execute();
 
-    int count = db.countSql("select count(*) from issue_changes where created_at_ms is not null and updated_at_ms is not null");
+    int count = db.countSql("select count(1) from issue_changes where created_at_ms is not null and updated_at_ms is not null");
     assertThat(count).isEqualTo(3);
 
     int countWithAllDateFieldsNull = db
-      .countSql("select count(*) from issue_changes where created_at_ms is not null and updated_at_ms is not null and issue_change_creation_date_ms is not null");
+      .countSql("select count(1) from issue_changes where created_at_ms is not null and updated_at_ms is not null and issue_change_creation_date_ms is not null");
     assertThat(countWithAllDateFieldsNull).isEqualTo(2);
   }
 }

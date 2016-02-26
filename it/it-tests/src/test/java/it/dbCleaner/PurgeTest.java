@@ -263,7 +263,7 @@ public class PurgeTest {
   }
 
   private int count(String condition) {
-    return orchestrator.getDatabase().countSql("select count(*) from " + condition);
+    return orchestrator.getDatabase().countSql("select count(1) from " + condition);
   }
 
   private void assertMeasuresCountForQualifier(String qualifier, int count) {
@@ -275,7 +275,7 @@ public class PurgeTest {
   }
 
   private int countMeasures(String qualifier) {
-    String sql = "SELECT count(pm.id) FROM project_measures pm, snapshots s, metrics m where pm.snapshot_id=s.id and pm.metric_id=m.id and s.qualifier='" + qualifier + "'";
+    String sql = "SELECT count(1) FROM project_measures pm, snapshots s, metrics m where pm.snapshot_id=s.id and pm.metric_id=m.id and s.qualifier='" + qualifier + "'";
     return orchestrator.getDatabase().countSql(sql);
   }
 

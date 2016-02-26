@@ -43,7 +43,7 @@ public class FeedIssueLongDatesTest {
     MigrationStep migration = new FeedIssueLongDates(db.database(), system);
     migration.execute();
 
-    int count = db.countSql("select count(*) from issues where created_at_ms is not null and updated_at_ms is not null");
+    int count = db.countSql("select count(1) from issues where created_at_ms is not null and updated_at_ms is not null");
     assertThat(count).isEqualTo(3);
   }
 

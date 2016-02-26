@@ -42,7 +42,7 @@ public class FeedIssuesLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from issues where " +
+      .countSql("select count(1) from issues where " +
         "issue_creation_date_ms is not null " +
         "and issue_update_date_ms is not null " +
         "and issue_close_date_ms is not null");
@@ -59,7 +59,7 @@ public class FeedIssuesLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from issues where " +
+      .countSql("select count(1) from issues where " +
         "issue_creation_date_ms = 0");
     assertThat(count).isEqualTo(1);
   }
@@ -73,7 +73,7 @@ public class FeedIssuesLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from issues where " +
+      .countSql("select count(1) from issues where " +
         "issue_creation_date_ms=" + snapshotTime);
     assertThat(count).isEqualTo(1);
   }

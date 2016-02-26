@@ -9,7 +9,7 @@
   </select>
 
   <select id="countDeveloperLogins" parameterType="long" resultType="int">
-    SELECT count(id)
+    SELECT count(1)
     FROM authors WHERE person_id=#{id}
   </select>
 

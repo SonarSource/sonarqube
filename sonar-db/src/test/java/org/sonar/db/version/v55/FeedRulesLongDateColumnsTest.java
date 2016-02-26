@@ -52,9 +52,9 @@ public class FeedRulesLongDateColumnsTest {
 
     underTest.execute();
 
-    assertThat(db.countSql("select count(*) from rules where created_at_ms is not null and updated_at_ms is not null")).isEqualTo(3);
+    assertThat(db.countSql("select count(1) from rules where created_at_ms is not null and updated_at_ms is not null")).isEqualTo(3);
     // Only 1 rules not updated
-    assertThat(db.countSql("select count(*) from rules where created_at_ms='1000000000000' and updated_at_ms='1000000000000'")).isEqualTo(1);
+    assertThat(db.countSql("select count(1) from rules where created_at_ms='1000000000000' and updated_at_ms='1000000000000'")).isEqualTo(1);
   }
 
 }

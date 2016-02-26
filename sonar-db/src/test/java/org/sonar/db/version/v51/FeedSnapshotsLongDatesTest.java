@@ -42,7 +42,7 @@ public class FeedSnapshotsLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from snapshots where created_at_ms is not null " +
+      .countSql("select count(1) from snapshots where created_at_ms is not null " +
         "and build_date_ms is not null " +
         "and period1_date_ms is not null " +
         "and period2_date_ms is not null " +
@@ -62,7 +62,7 @@ public class FeedSnapshotsLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from snapshots where " +
+      .countSql("select count(1) from snapshots where " +
         "created_at_ms = 0");
     assertThat(count).isEqualTo(1);
   }
@@ -76,7 +76,7 @@ public class FeedSnapshotsLongDatesTest {
     migration.execute();
 
     int count = db
-      .countSql("select count(*) from snapshots where " +
+      .countSql("select count(1) from snapshots where " +
         "created_at_ms=" + snapshotTime);
     assertThat(count).isEqualTo(1);
   }

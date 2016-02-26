@@ -68,7 +68,7 @@
   </select>
 
   <select id="countEnabled" resultType="Integer">
-    SELECT COUNT(*)
+    SELECT COUNT(1)
     FROM metrics m
     <where>
       AND m.enabled=${_true}
