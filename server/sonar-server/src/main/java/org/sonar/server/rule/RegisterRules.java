@@ -28,7 +28,6 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -174,8 +173,6 @@ public class RegisterRules implements Startable {
       .setSystemTags(ruleDef.tags())
       .setCreatedAtInMs(system2.now())
       .setUpdatedAtInMs(system2.now());
-    ruleDto.setCreatedAt(new Date(system2.now()));
-    ruleDto.setUpdatedAt(new Date(system2.now()));
     if (ruleDef.htmlDescription() != null) {
       ruleDto.setDescription(ruleDef.htmlDescription());
       ruleDto.setDescriptionFormat(Format.HTML);
@@ -457,7 +454,6 @@ public class RegisterRules implements Startable {
 
   private void update(DbSession session, RuleDto rule){
     rule.setUpdatedAtInMs(system2.now());
-    rule.setUpdatedAt(new Date(system2.now()));
     dbClient.ruleDao().update(session, rule);
   }
 }

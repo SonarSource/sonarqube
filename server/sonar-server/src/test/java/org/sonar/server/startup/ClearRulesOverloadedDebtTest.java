@@ -19,7 +19,6 @@
  */
 package org.sonar.server.startup;
 
-import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -91,12 +90,12 @@ public class ClearRulesOverloadedDebtTest {
   @Test
   public void not_update_rule_debt_not_overridden() throws Exception {
     RuleDto rule = insertRuleDto(RULE_KEY_1, null, null, null, null);
-    Date updateAt = rule.getUpdatedAt();
+    long updateAt = rule.getUpdatedAtInMs();
 
     underTest.start();
 
     RuleDto reloaded = ruleDao.selectOrFailByKey(dbSession, RULE_KEY_1);
-    assertThat(reloaded.getUpdatedAt()).isEqualTo(updateAt);
+    assertThat(reloaded.getUpdatedAtInMs()).isEqualTo(updateAt);
     verifyRuleHasNotOverriddenDebt(RULE_KEY_1);
 
     verifyTaskRegistered();
@@ -107,12 +106,12 @@ public class ClearRulesOverloadedDebtTest {
   public void not_update_rule_debt_when_sqale_is_installed() throws Exception {
     insertSqaleProperty();
     RuleDto rule = insertRuleDto(RULE_KEY_1, SUB_CHARACTERISTIC_ID, "LINEAR", null, "1d");
-    Date updateAt = rule.getUpdatedAt();
+    long updateAt = rule.getUpdatedAtInMs();
 
     underTest.start();
 
     RuleDto reloaded = ruleDao.selectOrFailByKey(dbSession, RULE_KEY_1);
-    assertThat(reloaded.getUpdatedAt()).isEqualTo(updateAt);
+    assertThat(reloaded.getUpdatedAtInMs()).isEqualTo(updateAt);
 
     verifyTaskRegistered();
     verifyEmptyLog();

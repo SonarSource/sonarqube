@@ -33,12 +33,10 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.db.Dto;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
-// TODO remove extends Dto
-public class RuleDto extends Dto<RuleKey> {
+public class RuleDto {
 
   public static final int DISABLED_CHARACTERISTIC_ID = -1;
 
@@ -79,7 +77,6 @@ public class RuleDto extends Dto<RuleKey> {
   private long createdAtInMs;
   private long updatedAtInMs;
 
-  @Override
   public RuleKey getKey() {
     if (key == null) {
       key = RuleKey.of(getRepositoryKey(), getRuleKey());

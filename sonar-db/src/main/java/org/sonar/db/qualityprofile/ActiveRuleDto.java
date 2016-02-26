@@ -27,11 +27,10 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
-import org.sonar.db.rule.SeverityUtil;
-import org.sonar.db.Dto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.SeverityUtil;
 
-public class ActiveRuleDto extends Dto<ActiveRuleKey> {
+public class ActiveRuleDto {
 
   public static final String INHERITED = ActiveRule.INHERITED;
   public static final String OVERRIDES = ActiveRule.OVERRIDES;
@@ -45,7 +44,7 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   private long createdAtInMs;
   private long updatedAtInMs;
 
-  //These fields do not exists in db, it's only retrieve by joins
+  // These fields do not exists in db, it's only retrieve by joins
   private Integer parentId;
   private String repository;
   private String ruleField;
@@ -54,7 +53,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
   /**
    * @deprecated for internal use, should be private
    */
-  @Deprecated
   public ActiveRuleDto setKey(ActiveRuleKey key) {
     this.repository = key.ruleKey().repository();
     this.ruleField = key.ruleKey().rule();
@@ -62,7 +60,6 @@ public class ActiveRuleDto extends Dto<ActiveRuleKey> {
     return this;
   }
 
-  @Override
   public ActiveRuleKey getKey() {
     return ActiveRuleKey.of(profileKey, RuleKey.of(repository, ruleField));
   }

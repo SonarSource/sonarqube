@@ -31,8 +31,6 @@
     r.effort_to_fix_description as "effortToFixDescription",
     r.tags as "tagsField",
     r.system_tags as "systemTagsField",
-    r.created_at as "createdAt",
-    r.updated_at as "updatedAt",
     r.created_at_ms as "createdAtInMs",
     r.updated_at_ms as "updatedAtInMs"
   </sql>
@@ -160,7 +158,6 @@
     effort_to_fix_description=#{effortToFixDescription},
     tags=#{tagsField},
     system_tags=#{systemTagsField},
-    updated_at=#{updatedAt},
     updated_at_ms=#{updatedAtInMs}
     WHERE id=#{id}
   </update>
@@ -171,7 +168,7 @@
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
-    created_at, updated_at, created_at_ms, updated_at_ms)
+    created_at_ms, updated_at_ms)
   </sql>
 
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
@@ -182,7 +179,7 @@
     #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
-    #{noteUpdatedAt}, #{createdAt}, #{updatedAt}, #{createdAtInMs}, #{updatedAtInMs})
+    #{noteUpdatedAt}, #{createdAtInMs}, #{updatedAtInMs})
   </insert>
 
   <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
@@ -199,7 +196,6 @@
     #{remediationOffset,jdbcType=VARCHAR}, #{defaultRemediationOffset,jdbcType=VARCHAR},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
     #{noteUpdatedAt,jdbcType=TIMESTAMP},
-    #{createdAt,jdbcType=TIMESTAMP}, #{updatedAt,jdbcType=TIMESTAMP},
     #{createdAtInMs,jdbcType=BIGINT}, #{updatedAtInMs,jdbcType=BIGINT}
     )
   </insert>
