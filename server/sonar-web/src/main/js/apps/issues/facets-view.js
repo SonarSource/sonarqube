@@ -19,6 +19,7 @@
  */
 import FacetsView from '../../components/navigator/facets-view';
 import BaseFacet from './facets/base-facet';
+import TypeFacet from './facets/type-facet';
 import SeverityFacet from './facets/severity-facet';
 import StatusFacet from './facets/status-facet';
 import ProjectFacet from './facets/project-facet';
@@ -38,6 +39,7 @@ import ContextFacet from './facets/context-facet';
 import ModeFacet from './facets/mode-facet';
 
 const viewsMapping = {
+  types: TypeFacet,
   severities: SeverityFacet,
   statuses: StatusFacet,
   assignees: AssigneeFacet,

@@ -25,13 +25,14 @@ export default State.extend({
     page: 1,
     maxResultsReached: false,
     query: {},
-    facets: ['facetMode', 'severities', 'resolutions'],
+    facets: ['facetMode', 'types', 'resolutions'],
     isContext: false,
     allFacets: [
       'facetMode',
       'issues',
-      'severities',
+      'types',
       'resolutions',
+      'severities',
       'statuses',
       'createdAt',
       'rules',
@@ -47,6 +48,7 @@ export default State.extend({
       'actionPlans'
     ],
     facetsFromServer: [
+      'types',
       'severities',
       'statuses',
       'resolutions',
