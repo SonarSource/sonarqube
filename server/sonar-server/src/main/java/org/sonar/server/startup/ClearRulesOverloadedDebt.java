@@ -20,12 +20,14 @@
 package org.sonar.server.startup;
 
 import org.picocontainer.Startable;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.loadedtemplate.LoadedTemplateDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.sonar.db.loadedtemplate.LoadedTemplateDto.ONE_SHOT_TASK_TYPE;
 
@@ -45,10 +47,16 @@ public class ClearRulesOverloadedDebt implements Startable {
 
   private static final String SQALE_LICENSE_PROPERTY = "sonar.sqale.licenseHash.secured";
 
+  private final System2 system2;
+
   private final DbClient dbClient;
 
-  public ClearRulesOverloadedDebt(DbClient dbClient) {
+  private final RuleIndexer ruleIndexer;
+
+  public ClearRulesOverloadedDebt(System2 system2, DbClient dbClient, RuleIndexer ruleIndexer) {
+    this.system2 = system2;
     this.dbClient = dbClient;
+    this.ruleIndexer = ruleIndexer;
   }
 
   @Override
@@ -63,6 +71,7 @@ public class ClearRulesOverloadedDebt implements Startable {
       }
       markAsExecuted(session);
       session.commit();
+      ruleIndexer.index();
     } finally {
       dbClient.closeSession(session);
     }
@@ -76,6 +85,7 @@ public class ClearRulesOverloadedDebt implements Startable {
         rule.setRemediationFunction(null);
         rule.setRemediationCoefficient(null);
         rule.setRemediationOffset(null);
+        rule.setUpdatedAtInMs(system2.now());
         dbClient.ruleDao().update(session, rule);
         countClearedRules++;
       }

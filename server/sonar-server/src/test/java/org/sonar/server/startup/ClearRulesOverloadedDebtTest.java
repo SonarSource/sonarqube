@@ -21,8 +21,10 @@ package org.sonar.server.startup;
 
 import java.util.Date;
 import javax.annotation.Nullable;
+import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
@@ -34,8 +36,12 @@ import org.sonar.db.property.PropertyDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.es.EsTester;
+import org.sonar.server.rule.index.RuleIndexDefinition;
+import org.sonar.server.rule.index.RuleIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 import static org.sonar.db.loadedtemplate.LoadedTemplateDto.ONE_SHOT_TASK_TYPE;
 
 public class ClearRulesOverloadedDebtTest {
@@ -46,8 +52,13 @@ public class ClearRulesOverloadedDebtTest {
   private static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
   private static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
 
+  System2 system2 = mock(System2.class);
+
   @Rule
-  public DbTester tester = DbTester.create(System2.INSTANCE);
+  public DbTester tester = DbTester.create(system2);
+
+  @ClassRule
+  public static EsTester esTester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -55,8 +66,9 @@ public class ClearRulesOverloadedDebtTest {
   DbClient dbClient = tester.getDbClient();
   DbSession dbSession = tester.getSession();
   RuleDao ruleDao = new RuleDao();
+  RuleIndexer ruleIndexer = new RuleIndexer(dbClient, esTester.client());
 
-  ClearRulesOverloadedDebt underTest = new ClearRulesOverloadedDebt(dbClient);
+  ClearRulesOverloadedDebt underTest = new ClearRulesOverloadedDebt(system2, dbClient, ruleIndexer);
 
   @Test
   public void remove_overridden_debt() throws Exception {
@@ -136,6 +148,7 @@ public class ClearRulesOverloadedDebtTest {
       ruleDto
       );
     dbSession.commit();
+    ruleIndexer.index();
     return ruleDto;
   }
 

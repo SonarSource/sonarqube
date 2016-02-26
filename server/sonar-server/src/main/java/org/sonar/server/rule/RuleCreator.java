@@ -30,6 +30,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -47,11 +48,13 @@ import static com.google.common.collect.Lists.newArrayList;
 @ServerSide
 public class RuleCreator {
 
+  private final System2 system2;
   private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
   private final TypeValidations typeValidations;
 
-  public RuleCreator(RuleIndexer ruleIndexer, DbClient dbClient, TypeValidations typeValidations) {
+  public RuleCreator(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, TypeValidations typeValidations) {
+    this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
     this.typeValidations = typeValidations;
@@ -211,7 +214,9 @@ public class RuleCreator {
       .setDefaultRemediationOffset(templateRuleDto.getDefaultRemediationOffset())
       .setEffortToFixDescription(templateRuleDto.getEffortToFixDescription())
       .setTags(templateRuleDto.getTags())
-      .setSystemTags(templateRuleDto.getSystemTags());
+      .setSystemTags(templateRuleDto.getSystemTags())
+      .setCreatedAtInMs(system2.now())
+      .setUpdatedAtInMs(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDto);
 
     for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
@@ -236,7 +241,9 @@ public class RuleCreator {
       .setDescription(newRule.markdownDescription())
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(newRule.severity())
-      .setStatus(RuleStatus.READY);
+      .setStatus(RuleStatus.READY)
+      .setCreatedAtInMs(system2.now())
+      .setUpdatedAtInMs(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDto);
     return ruleKey;
   }
@@ -246,7 +253,8 @@ public class RuleCreator {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(String.format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
       } else {
-        ruleDto.setStatus(RuleStatus.READY);
+        ruleDto.setStatus(RuleStatus.READY)
+          .setUpdatedAtInMs(system2.now());
         dbClient.ruleDao().update(dbSession, ruleDto);
       }
     } else {

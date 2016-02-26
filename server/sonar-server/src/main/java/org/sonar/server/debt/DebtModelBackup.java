@@ -42,6 +42,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -58,10 +59,11 @@ public class DebtModelBackup {
   private final RuleDefinitionsLoader defLoader;
   private final System2 system2;
   private final UserSession userSession;
+  private final RuleIndexer ruleIndexer;
 
   public DebtModelBackup(DbClient dbClient, RuleOperations ruleOperations,
     DebtRulesXMLImporter rulesXMLImporter,
-    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, System2 system2, UserSession userSession) {
+    DebtModelXMLExporter debtModelXMLExporter, RuleDefinitionsLoader defLoader, System2 system2, UserSession userSession, RuleIndexer ruleIndexer) {
     this.dbClient = dbClient;
     this.ruleOperations = ruleOperations;
     this.rulesXMLImporter = rulesXMLImporter;
@@ -69,6 +71,7 @@ public class DebtModelBackup {
     this.defLoader = defLoader;
     this.system2 = system2;
     this.userSession = userSession;
+    this.ruleIndexer = ruleIndexer;
   }
 
   public String backup() {
@@ -122,6 +125,7 @@ public class DebtModelBackup {
         resetRules(ruleDtos, rules, updateDate, session);
       }
 
+      ruleIndexer.index();
       session.commit();
     } finally {
       MyBatis.closeQuietly(session);
@@ -183,6 +187,7 @@ public class DebtModelBackup {
       restoreRules(rules(languageKey, session), rulesXMLImporter.importXML(xml, validationMessages), validationMessages, updateDate, session);
 
       session.commit();
+      ruleIndexer.index();
     } catch (IllegalArgumentException e) {
       LOG.debug("Error when restoring the model", e);
       validationMessages.addErrorText(e.getMessage());
@@ -200,7 +205,7 @@ public class DebtModelBackup {
         ruleDebt != null ? ruleDebt.function() : null,
         ruleDebt != null ? ruleDebt.coefficient() : null,
         ruleDebt != null ? ruleDebt.offset() : null, session);
-      rule.setUpdatedAt(updateDate);
+      rule.setUpdatedAtInMs(updateDate.getTime());
       ruleDebts.remove(ruleDebt);
     }
 

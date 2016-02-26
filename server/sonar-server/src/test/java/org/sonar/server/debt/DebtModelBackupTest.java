@@ -47,6 +47,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.UserSessionRule;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -84,6 +85,8 @@ public class DebtModelBackupTest {
   RuleDefinitionsLoader defLoader;
   @Mock
   System2 system2;
+  @Mock
+  RuleIndexer ruleIndexer;
   @Captor
   ArgumentCaptor<RuleDto> ruleCaptor;
   @Captor
@@ -106,7 +109,7 @@ public class DebtModelBackupTest {
     when(dbClient.ruleDao()).thenReturn(ruleDao);
 
     underTest = new DebtModelBackup(dbClient, ruleOperations, rulesXMLImporter,
-      debtModelXMLExporter, defLoader, system2, userSessionRule);
+      debtModelXMLExporter, defLoader, system2, userSessionRule, ruleIndexer);
   }
 
   @Test
@@ -247,6 +250,7 @@ public class DebtModelBackupTest {
     verifyNoMoreInteractions(ruleDao);
 
     verify(session).commit();
+    verify(ruleIndexer).index();
 
     RuleDto rule = ruleCaptor.getValue();
 
@@ -289,6 +293,7 @@ public class DebtModelBackupTest {
     verifyNoMoreInteractions(ruleDao);
 
     verify(session).commit();
+    verify(ruleIndexer).index();
 
     RuleDto rule = ruleCaptor.getValue();
     assertThat(rule.getDefaultRemediationFunction()).isNull();
@@ -330,6 +335,7 @@ public class DebtModelBackupTest {
     verify(ruleDao, times(2)).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
     verify(session).commit();
+    verify(ruleIndexer).index();
 
     RuleDto rule = ruleCaptor.getAllValues().get(1);
 
@@ -356,6 +362,7 @@ public class DebtModelBackupTest {
     verifyZeroInteractions(defLoader);
 
     verify(session).commit();
+    verify(ruleIndexer).index();
   }
 
   @Test
@@ -375,6 +382,7 @@ public class DebtModelBackupTest {
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
+    verify(ruleIndexer).index();
   }
 
   @Test
@@ -390,6 +398,7 @@ public class DebtModelBackupTest {
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
+    verify(ruleIndexer).index();
   }
 
   @Test
@@ -413,6 +422,7 @@ public class DebtModelBackupTest {
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
+    verify(ruleIndexer).index();
   }
 
   @Test
@@ -433,6 +443,7 @@ public class DebtModelBackupTest {
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
+    verify(ruleIndexer).index();
   }
 
   @Test
@@ -448,6 +459,7 @@ public class DebtModelBackupTest {
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session).commit();
+    verify(ruleIndexer).index();
   }
 
   @Test
@@ -466,6 +478,7 @@ public class DebtModelBackupTest {
 
     verify(ruleDao).selectEnabledAndNonManual(session);
     verify(session, never()).commit();
+    verify(ruleIndexer, never()).index();
   }
 
 }

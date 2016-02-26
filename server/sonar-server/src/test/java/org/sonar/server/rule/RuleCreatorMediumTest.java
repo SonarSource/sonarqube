@@ -21,6 +21,7 @@ package org.sonar.server.rule;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
+import java.util.Date;
 import java.util.List;
 import org.assertj.core.api.Fail;
 import org.junit.After;
@@ -41,6 +42,7 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -62,11 +64,14 @@ public class RuleCreatorMediumTest {
   RuleDao dao = tester.get(RuleDao.class);
   RuleCreator creator = tester.get(RuleCreator.class);
   RuleIndex2 ruleIndex = tester.get(RuleIndex2.class);
+  RuleIndexer ruleIndexer;
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
     dbSession = tester.get(DbClient.class).openSession(false);
+    ruleIndexer = tester.get(RuleIndexer.class);
+    ruleIndexer.setEnabled(true);
   }
 
   @After
@@ -682,11 +687,14 @@ public class RuleCreatorMediumTest {
       .setDefaultRemediationOffset("5min")
       .setEffortToFixDescription("desc")
       .setTags(Sets.newHashSet("usertag1", "usertag2"))
-      .setSystemTags(Sets.newHashSet("tag1", "tag4"));
+      .setSystemTags(Sets.newHashSet("tag1", "tag4"))
+      .setCreatedAtInMs(new Date().getTime())
+      .setUpdatedAtInMs(new Date().getTime());
     dao.insert(dbSession, templateRule);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
     dbSession.commit();
+    ruleIndexer.index();
     return templateRule;
   }
 
@@ -698,12 +706,15 @@ public class RuleCreatorMediumTest {
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationCoefficient("1h")
       .setDefaultRemediationOffset("5min")
-      .setEffortToFixDescription("desc");
+      .setEffortToFixDescription("desc")
+      .setCreatedAtInMs(new Date().getTime())
+      .setUpdatedAtInMs(new Date().getTime());
     dao.insert(dbSession, templateRule);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule)
       .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
     dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
     dbSession.commit();
+    ruleIndexer.index();
     return templateRule;
   }
 
@@ -715,7 +726,9 @@ public class RuleCreatorMediumTest {
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
       .setDefaultRemediationCoefficient("1h")
       .setDefaultRemediationOffset("5min")
-      .setEffortToFixDescription("desc");
+      .setEffortToFixDescription("desc")
+      .setCreatedAtInMs(new Date().getTime())
+      .setUpdatedAtInMs(new Date().getTime());
     dao.insert(dbSession, templateRule);
     RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule)
       .setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0");
