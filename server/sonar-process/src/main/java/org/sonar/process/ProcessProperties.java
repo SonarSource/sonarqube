@@ -65,9 +65,6 @@ public class ProcessProperties {
    */
   public static final String ENABLE_STOP_COMMAND = "sonar.enableStopCommand";
 
-  // Constants declared by the ES plugin ListUpdate (see sonar-search)
-  // that are used by sonar-server
-  public static final String ES_PLUGIN_LISTUPDATE_SCRIPT_NAME = "listUpdate";
   public static final String ES_PLUGIN_LISTUPDATE_ID_FIELD = "idField";
   public static final String ES_PLUGIN_LISTUPDATE_ID_VALUE = "idValue";
   public static final String ES_PLUGIN_LISTUPDATE_FIELD = "field";

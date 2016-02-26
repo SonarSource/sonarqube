@@ -19,6 +19,11 @@
  */
 package org.sonar.search;
 
+import java.io.File;
+import java.util.Arrays;
+import java.util.LinkedHashSet;
+import java.util.Set;
+import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.ImmutableSettings;
@@ -28,13 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.search.script.ListUpdate;
-
-import java.io.File;
-import java.util.Arrays;
-import java.util.LinkedHashSet;
-import java.util.Set;
-import java.util.TreeSet;
 
 class SearchSettings {
 
@@ -62,7 +60,6 @@ class SearchSettings {
     ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder();
     configureFileSystem(builder);
     configureIndexDefaults(builder);
-    configurePlugins(builder);
     configureNetwork(builder);
     configureCluster(builder);
     configureMarvel(builder);
@@ -102,13 +99,6 @@ class SearchSettings {
       logDir = new File(homeDir, "log");
     }
     builder.put("path.logs", logDir.getAbsolutePath());
-  }
-
-  private void configurePlugins(ImmutableSettings.Builder builder) {
-    builder
-      .put("script.default_lang", "native")
-      .put(String.format("script.native.%s.type", ProcessProperties.ES_PLUGIN_LISTUPDATE_SCRIPT_NAME),
-        ListUpdate.UpdateListScriptFactory.class.getName());
   }
 
   private void configureNetwork(ImmutableSettings.Builder builder) {
