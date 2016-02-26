@@ -168,8 +168,7 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
-  @CheckForNull
-  public Long createdAtAsLong() {
+  public long createdAt() {
     return (Long) getField(RuleIndexDefinition.FIELD_RULE_CREATED_AT);
   }
 
@@ -178,8 +177,7 @@ public class RuleDoc extends BaseDoc {
     return this;
   }
 
-  @CheckForNull
-  public Long updatedAtAtAsLong() {
+  public long updatedAt() {
     return (Long) getField(RuleIndexDefinition.FIELD_RULE_UPDATED_AT);
   }
 

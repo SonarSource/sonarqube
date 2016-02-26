@@ -69,8 +69,8 @@ public class RuleResultSetIteratorTest {
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.isTemplate()).isFalse();
     assertThat(rule.allTags()).containsOnly("bug", "performance", "cwe");
-    assertThat(rule.createdAtAsLong()).isEqualTo(1500000000000L);
-    assertThat(rule.updatedAtAtAsLong()).isEqualTo(1600000000000L);
+    assertThat(rule.createdAt()).isEqualTo(1500000000000L);
+    assertThat(rule.updatedAt()).isEqualTo(1600000000000L);
   }
 
   @Test
@@ -109,8 +109,8 @@ public class RuleResultSetIteratorTest {
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.isTemplate()).isFalse();
     assertThat(rule.allTags()).containsOnly("bug", "performance", "cwe");
-    assertThat(rule.createdAtAsLong()).isEqualTo(1500000000000L);
-    assertThat(rule.updatedAtAtAsLong()).isEqualTo(1600000000000L);
+    assertThat(rule.createdAt()).isEqualTo(1500000000000L);
+    assertThat(rule.updatedAt()).isEqualTo(1600000000000L);
 
     rule = rulesByKey.get("S002");
     assertThat(rule.key()).isEqualTo(RuleKey.of("xoo", "S002"));
@@ -125,8 +125,8 @@ public class RuleResultSetIteratorTest {
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.isTemplate()).isTrue();
     assertThat(rule.allTags()).isEmpty();
-    assertThat(rule.createdAtAsLong()).isEqualTo(2000000000000L);
-    assertThat(rule.updatedAtAtAsLong()).isEqualTo(2100000000000L);
+    assertThat(rule.createdAt()).isEqualTo(2000000000000L);
+    assertThat(rule.updatedAt()).isEqualTo(2100000000000L);
   }
 
   @Test

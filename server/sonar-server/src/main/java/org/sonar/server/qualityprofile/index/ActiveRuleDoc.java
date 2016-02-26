@@ -21,15 +21,12 @@ package org.sonar.server.qualityprofile.index;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import java.util.Collections;
-import java.util.Date;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseDoc;
-import org.sonar.server.search.IndexUtils;
 
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
@@ -112,19 +109,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
   }
 
   @Override
-  @Deprecated
-  public Map<String, String> params() {
-    return Collections.emptyMap();
-  }
-
-  @Override
-  @Deprecated
-  public Date createdAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(FIELD_ACTIVE_RULE_CREATED_AT));
-  }
-
-  @CheckForNull
-  public Long createdAtAsLong() {
+  public long createdAt() {
     return (Long) getField(FIELD_ACTIVE_RULE_CREATED_AT);
   }
 
@@ -134,13 +119,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
   }
 
   @Override
-  @Deprecated
-  public Date updatedAt() {
-    return IndexUtils.parseDateTime((String) getNullableField(FIELD_ACTIVE_RULE_UPDATED_AT));
-  }
-
-  @CheckForNull
-  public Long updatedAtAsLong() {
+  public long updatedAt() {
     return (Long) getField(FIELD_ACTIVE_RULE_UPDATED_AT);
   }
 

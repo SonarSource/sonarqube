@@ -27,9 +27,7 @@ import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.profiles.ProfileExporter;
@@ -41,22 +39,26 @@ import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 
 @ServerSide
 public class QProfileExporters {
 
+  private final DbClient dbClient;
   private final QProfileLoader loader;
   private final RuleFinder ruleFinder;
   private final RuleActivator ruleActivator;
   private final ProfileExporter[] exporters;
   private final ProfileImporter[] importers;
 
-  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters, ProfileImporter[] importers) {
+  public QProfileExporters(DbClient dbClient, QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters, ProfileImporter[] importers) {
+    this.dbClient = dbClient;
     this.loader = loader;
     this.ruleFinder = ruleFinder;
     this.ruleActivator = ruleActivator;
@@ -67,22 +69,22 @@ public class QProfileExporters {
   /**
    * Used by Pico if no {@link ProfileImporter} is found
    */
-  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters) {
-    this(loader, ruleFinder, ruleActivator, exporters, new ProfileImporter[0]);
+  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters, DbClient dbClient) {
+    this(dbClient, loader, ruleFinder, ruleActivator, exporters, new ProfileImporter[0]);
   }
 
   /**
    * Used by Pico if no {@link ProfileExporter} is found
    */
-  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileImporter[] importers) {
-    this(loader, ruleFinder, ruleActivator, new ProfileExporter[0], importers);
+  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileImporter[] importers, DbClient dbClient) {
+    this(dbClient, loader, ruleFinder, ruleActivator, new ProfileExporter[0], importers);
   }
 
   /**
    * Used by Pico if no {@link ProfileImporter} nor {@link ProfileExporter} is found
    */
-  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator) {
-    this(loader, ruleFinder, ruleActivator, new ProfileExporter[0], new ProfileImporter[0]);
+  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, DbClient dbClient) {
+    this(dbClient, loader, ruleFinder, ruleActivator, new ProfileExporter[0], new ProfileImporter[0]);
   }
 
   public List<ProfileExporter> exportersForLanguage(String language) {
@@ -119,14 +121,19 @@ public class QProfileExporters {
   }
 
   private RulesProfile wrap(QualityProfileDto profile) {
+    DbSession dbSession = dbClient.openSession(false);
     RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
-    for (Iterator<ActiveRuleDoc> activeRuleIterator = loader.findActiveRulesByProfile(profile.getKey()); activeRuleIterator.hasNext();) {
-      ActiveRule activeRule = activeRuleIterator.next();
-      Rule rule = ruleFinder.findByKey(activeRule.key().ruleKey());
-      org.sonar.api.rules.ActiveRule wrappedActiveRule = target.activateRule(rule, RulePriority.valueOf(activeRule.severity()));
-      for (Map.Entry<String, String> entry : activeRule.params().entrySet()) {
-        wrappedActiveRule.setParameter(entry.getKey(), entry.getValue());
+    try {
+      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKey())) {
+        Rule rule = ruleFinder.findByKey(activeRule.getKey().ruleKey());
+        org.sonar.api.rules.ActiveRule wrappedActiveRule = target.activateRule(rule, RulePriority.valueOf(activeRule.getSeverityString()));
+        List<ActiveRuleParamDto> paramDtos = dbClient.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRule.getId());
+        for (ActiveRuleParamDto activeRuleParamDto : paramDtos) {
+          wrappedActiveRule.setParameter(activeRuleParamDto.getKey(), activeRuleParamDto.getValue());
+        }
       }
+    } finally {
+      dbClient.closeSession(dbSession);
     }
     return target;
   }

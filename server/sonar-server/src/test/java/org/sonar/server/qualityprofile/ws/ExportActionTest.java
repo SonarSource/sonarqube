@@ -89,7 +89,7 @@ public class ExportActionTest {
     ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
     when(activeRuleIndex.findByProfile(Matchers.anyString())).thenReturn(Sets.<ActiveRuleDoc>newHashSet().iterator());
 
-    exporters = new QProfileExporters(new QProfileLoader(dbClient, activeRuleIndex, mock(RuleIndex.class)), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
+    exporters = new QProfileExporters(dbClient, new QProfileLoader(dbClient, activeRuleIndex, mock(RuleIndex.class)), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
@@ -181,7 +181,7 @@ public class ExportActionTest {
 
   @Test
   public void do_not_fail_when_no_exporters() throws Exception {
-    QProfileExporters myExporters = new QProfileExporters(null, null, null, new ProfileExporter[0], null);
+    QProfileExporters myExporters = new QProfileExporters(dbClient, null, null, null, new ProfileExporter[0], null);
     WsTester myWsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),

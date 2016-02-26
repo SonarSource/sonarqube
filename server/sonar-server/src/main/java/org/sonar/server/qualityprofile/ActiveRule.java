@@ -20,9 +20,7 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableList;
-import java.util.Date;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 
@@ -33,9 +31,9 @@ public interface ActiveRule {
     public static final List<Inheritance> ALL = ImmutableList.of(NONE, OVERRIDES, INHERITED);
   }
 
-  Date createdAt();
+  long createdAt();
 
-  Date updatedAt();
+  long updatedAt();
 
   ActiveRuleKey key();
 
@@ -45,7 +43,5 @@ public interface ActiveRule {
 
   @CheckForNull
   ActiveRuleKey parentKey();
-
-  Map<String, String> params();
 
 }

@@ -75,7 +75,7 @@ public class RuleIndexer extends BaseIndexer {
       bulk.add(newIndexRequest(rule));
 
       // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
-      maxDate = Math.max(maxDate, rule.updatedAtAtAsLong());
+      maxDate = Math.max(maxDate, rule.updatedAt());
     }
     bulk.stop();
     return maxDate;

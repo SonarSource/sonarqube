@@ -1123,8 +1123,8 @@ public class RuleActivatorMediumTest {
           ActiveRule.Inheritance.valueOf(expectedInheritance));
 
         // Dates should be set
-        assertThat(activeRule.createdAtAsLong()).isNotNull();
-        assertThat(activeRule.updatedAtAsLong()).isNotNull();
+        assertThat(activeRule.createdAt()).isNotNull();
+        assertThat(activeRule.updatedAt()).isNotNull();
       }
     }
     assertThat(found).as("Rule is not activated in index").isTrue();

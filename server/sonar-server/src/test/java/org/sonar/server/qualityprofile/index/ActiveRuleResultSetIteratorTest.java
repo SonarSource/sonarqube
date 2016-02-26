@@ -66,8 +66,8 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
     assertThat(activeRule.parentKey()).isNull();
-    assertThat(activeRule.createdAtAsLong()).isEqualTo(1500000000000L);
-    assertThat(activeRule.updatedAtAsLong()).isEqualTo(1600000000000L);
+    assertThat(activeRule.createdAt()).isEqualTo(1500000000000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(1600000000000L);
   }
 
   @Test
@@ -85,8 +85,8 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
     assertThat(activeRule.parentKey()).isNull();
-    assertThat(activeRule.createdAtAsLong()).isEqualTo(2000000000000L);
-    assertThat(activeRule.updatedAtAsLong()).isEqualTo(2100000000000L);
+    assertThat(activeRule.createdAt()).isEqualTo(2000000000000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(2100000000000L);
 
     key = ActiveRuleKey.of("parent", RuleKey.of("xoo", "S001"));
     activeRule = activeRulesByKey.get(key);
@@ -94,8 +94,8 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.severity()).isEqualTo(INFO);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
     assertThat(activeRule.parentKey()).isNull();
-    assertThat(activeRule.createdAtAsLong()).isEqualTo(1700000000000L);
-    assertThat(activeRule.updatedAtAsLong()).isEqualTo(1800000000000L);
+    assertThat(activeRule.createdAt()).isEqualTo(1700000000000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(1800000000000L);
 
     key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
     activeRule = activeRulesByKey.get(key);
@@ -103,8 +103,8 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.severity()).isEqualTo(BLOCKER);
     assertThat(activeRule.inheritance()).isEqualTo(INHERITED);
     assertThat(activeRule.parentKey()).isEqualTo(ActiveRuleKey.of("parent", RuleKey.of("xoo", "S001")));
-    assertThat(activeRule.createdAtAsLong()).isEqualTo(1500000000000L);
-    assertThat(activeRule.updatedAtAsLong()).isEqualTo(1600000000000L);
+    assertThat(activeRule.createdAt()).isEqualTo(1500000000000L);
+    assertThat(activeRule.updatedAt()).isEqualTo(1600000000000L);
   }
 
   @Test
