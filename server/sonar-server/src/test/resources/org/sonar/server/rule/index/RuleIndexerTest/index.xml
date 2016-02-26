@@ -6,8 +6,7 @@
          priority="4" status="READY"
          is_template="[false]" template_id="[null]"
          tags="bug,performance" system_tags="cwe"
-         created_at="2014-05-10" updated_at="2014-05-11"
-         created_at_ms="1500000000000" updated_at_ms="1600000000000"
+         created_at="1500000000000" updated_at="1600000000000"
   />
 
 </dataset>

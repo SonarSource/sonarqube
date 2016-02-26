@@ -146,8 +146,8 @@ public class InheritanceActionMediumTest {
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY)
-      .setUpdatedAtInMs(now)
-      .setCreatedAtInMs(now);
+      .setUpdatedAt(now)
+      .setCreatedAt(now);
     db.ruleDao().insert(session, rule);
     return rule;
   }
@@ -156,8 +156,8 @@ public class InheritanceActionMediumTest {
     long now = new Date().getTime();
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule)
       .setSeverity(rule.getSeverityString())
-      .setUpdatedAtInMs(now)
-      .setCreatedAtInMs(now);
+      .setUpdatedAt(now)
+      .setCreatedAt(now);
     db.activeRuleDao().insert(session, activeRule);
     return activeRule;
   }

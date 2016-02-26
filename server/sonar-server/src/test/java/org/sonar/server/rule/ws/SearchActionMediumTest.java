@@ -547,11 +547,11 @@ public class SearchActionMediumTest {
   public void available_since() throws Exception {
     Date since = new Date();
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
-      .setUpdatedAtInMs(since.getTime())
-      .setCreatedAtInMs(since.getTime()));
+      .setUpdatedAt(since.getTime())
+      .setCreatedAt(since.getTime()));
     ruleDao.insert(dbSession, RuleTesting.newXooX2()
-      .setUpdatedAtInMs(since.getTime())
-      .setCreatedAtInMs(since.getTime()));
+      .setUpdatedAt(since.getTime())
+      .setCreatedAt(since.getTime()));
 
     dbSession.commit();
     dbSession.clearCache();

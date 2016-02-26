@@ -2,9 +2,9 @@
 
   <rules tags="[null]" system_tags="[null]" id="1" plugin_rule_key="AvoidNull" plugin_name="checkstyle"
          name="Avoid Null" description="Should avoid NULL" status="READY" description_format="HTML"
-         created_at_ms="1500000000000" updated_at_ms="1600000000000"/>
+         created_at="1500000000000" updated_at="1600000000000"/>
   <rules tags="[null]" system_tags="[null]" id="2" plugin_rule_key="AvoidNull" plugin_name="manual" name="Manual Rule"
          description="Should not appear" status="READY" description_format="HTML"
-         created_at_ms="1500000000000" updated_at_ms="1600000000000"/>
+         created_at="1500000000000" updated_at="1600000000000"/>
 
 </dataset>

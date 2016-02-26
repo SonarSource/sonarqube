@@ -688,8 +688,8 @@ public class RuleCreatorMediumTest {
       .setEffortToFixDescription("desc")
       .setTags(Sets.newHashSet("usertag1", "usertag2"))
       .setSystemTags(Sets.newHashSet("tag1", "tag4"))
-      .setCreatedAtInMs(new Date().getTime())
-      .setUpdatedAtInMs(new Date().getTime());
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
     dao.insert(dbSession, templateRule);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     dao.insertRuleParam(dbSession, templateRule, ruleParamDto);
@@ -707,8 +707,8 @@ public class RuleCreatorMediumTest {
       .setDefaultRemediationCoefficient("1h")
       .setDefaultRemediationOffset("5min")
       .setEffortToFixDescription("desc")
-      .setCreatedAtInMs(new Date().getTime())
-      .setUpdatedAtInMs(new Date().getTime());
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
     dao.insert(dbSession, templateRule);
     RuleParamDto ruleParamDto = RuleParamDto.createFor(templateRule)
       .setName("myIntegers").setType("INTEGER,multiple=true,values=1;2;3").setDescription("My Integers").setDefaultValue("1");
@@ -727,8 +727,8 @@ public class RuleCreatorMediumTest {
       .setDefaultRemediationCoefficient("1h")
       .setDefaultRemediationOffset("5min")
       .setEffortToFixDescription("desc")
-      .setCreatedAtInMs(new Date().getTime())
-      .setUpdatedAtInMs(new Date().getTime());
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
     dao.insert(dbSession, templateRule);
     RuleParamDto ruleParam1Dto = RuleParamDto.createFor(templateRule)
       .setName("first").setType("INTEGER").setDescription("First integer").setDefaultValue("0");

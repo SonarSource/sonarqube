@@ -257,8 +257,8 @@ public class RuleActivator {
     if (inheritance != null) {
       activeRule.setInheritance(inheritance.name());
     }
-    activeRule.setUpdatedAtInMs(system2.now());
-    activeRule.setCreatedAtInMs(system2.now());
+    activeRule.setUpdatedAt(system2.now());
+    activeRule.setCreatedAt(system2.now());
     dao.insert(dbSession, activeRule);
     for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
       if (param.getValue() != null) {
@@ -282,7 +282,7 @@ public class RuleActivator {
       if (inheritance != null) {
         activeRule.setInheritance(inheritance.name());
       }
-      activeRule.setUpdatedAtInMs(system2.now());
+      activeRule.setUpdatedAt(system2.now());
       dao.update(dbSession, activeRule);
 
       for (Map.Entry<String, String> param : change.getParameters().entrySet()) {
@@ -506,7 +506,7 @@ public class RuleActivator {
           changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
         } else if (ActiveRuleDto.OVERRIDES.equals(activeRule.getInheritance())) {
           activeRule.setInheritance(null);
-          activeRule.setUpdatedAtInMs(system2.now());
+          activeRule.setUpdatedAt(system2.now());
           db.activeRuleDao().update(dbSession, activeRule);
           changes.add(ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, activeRule.getKey()).setInheritance(null));
         }

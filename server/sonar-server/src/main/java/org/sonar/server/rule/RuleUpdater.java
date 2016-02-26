@@ -306,7 +306,7 @@ public class RuleUpdater {
   }
 
   private void update(DbSession session, RuleDto rule) {
-    rule.setUpdatedAtInMs(system.now());
+    rule.setUpdatedAt(system.now());
     dbClient.ruleDao().update(session, rule);
   }
 

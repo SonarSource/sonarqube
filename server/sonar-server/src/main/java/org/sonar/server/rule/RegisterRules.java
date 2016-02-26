@@ -171,8 +171,8 @@ public class RegisterRules implements Startable {
       .setStatus(ruleDef.status())
       .setEffortToFixDescription(ruleDef.effortToFixDescription())
       .setSystemTags(ruleDef.tags())
-      .setCreatedAtInMs(system2.now())
-      .setUpdatedAtInMs(system2.now());
+      .setCreatedAt(system2.now())
+      .setUpdatedAt(system2.now());
     if (ruleDef.htmlDescription() != null) {
       ruleDto.setDescription(ruleDef.htmlDescription());
       ruleDto.setDescriptionFormat(Format.HTML);
@@ -453,7 +453,7 @@ public class RegisterRules implements Startable {
   }
 
   private void update(DbSession session, RuleDto rule){
-    rule.setUpdatedAtInMs(system2.now());
+    rule.setUpdatedAt(system2.now());
     dbClient.ruleDao().update(session, rule);
   }
 }

@@ -31,8 +31,8 @@
     r.effort_to_fix_description as "effortToFixDescription",
     r.tags as "tagsField",
     r.system_tags as "systemTagsField",
-    r.created_at_ms as "createdAtInMs",
-    r.updated_at_ms as "updatedAtInMs"
+    r.created_at as "createdAt",
+    r.updated_at as "updatedAt"
   </sql>
 
   <select id="selectAll" resultType="Rule">
@@ -127,7 +127,7 @@
         AND r.plugin_config_key = #{query.configKey}
       </if>
     </where>
-    ORDER BY r.updated_at_ms DESC
+    ORDER BY r.updated_at DESC
   </select>
 
   <update id="update" parameterType="Rule">
@@ -158,7 +158,7 @@
     effort_to_fix_description=#{effortToFixDescription},
     tags=#{tagsField},
     system_tags=#{systemTagsField},
-    updated_at_ms=#{updatedAtInMs}
+    updated_at=#{updatedAt}
     WHERE id=#{id}
   </update>
 
@@ -168,7 +168,7 @@
     characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
-    created_at_ms, updated_at_ms)
+    created_at, updated_at)
   </sql>
 
   <insert id="insert" parameterType="Rule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
@@ -179,7 +179,7 @@
     #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
-    #{noteUpdatedAt}, #{createdAtInMs}, #{updatedAtInMs})
+    #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
   </insert>
 
   <insert id="batchInsert" parameterType="Rule" useGeneratedKeys="false">
@@ -196,7 +196,7 @@
     #{remediationOffset,jdbcType=VARCHAR}, #{defaultRemediationOffset,jdbcType=VARCHAR},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
     #{noteUpdatedAt,jdbcType=TIMESTAMP},
-    #{createdAtInMs,jdbcType=BIGINT}, #{updatedAtInMs,jdbcType=BIGINT}
+    #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT}
     )
   </insert>
 

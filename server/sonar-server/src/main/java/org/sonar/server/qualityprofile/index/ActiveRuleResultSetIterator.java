@@ -44,8 +44,8 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
     "r.plugin_name",
     "qp.kee",
     "profile_parent.kee",
-    "a.created_at_ms",
-    "a.updated_at_ms"
+    "a.created_at",
+    "a.updated_at"
   };
 
   private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM active_rules a " +
@@ -53,7 +53,7 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
     "INNER JOIN rules r ON r.id = a.rule_id " +
     "LEFT JOIN rules_profiles profile_parent ON profile_parent.kee=qp.parent_kee ";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " WHERE a.updated_at_ms>?";
+  private static final String SQL_AFTER_DATE = SQL_ALL + " WHERE a.updated_at>?";
 
   private ActiveRuleResultSetIterator(PreparedStatement stmt) throws SQLException {
     super(stmt);

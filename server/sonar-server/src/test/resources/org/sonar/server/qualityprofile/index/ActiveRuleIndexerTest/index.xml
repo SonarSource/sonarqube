@@ -4,10 +4,10 @@
          plugin_config_key="S1" description_format="HTML" description="S001 desc" language="xoo"
          priority="4" status="READY" is_template="[false]" template_id="[null]"
          tags="bug,performance" system_tags="cwe"
-         created_at_ms="1500000000000" updated_at_ms="1600000000000"/>
+         created_at="1500000000000" updated_at="1600000000000"/>
 
   <rules_profiles id="100" name="Sonar Way" kee="sonar-way" language="xoo" parent_kee="[null]" is_default="[false]"/>
 
   <active_rules id="1" profile_id="100" rule_id="10" failure_level="3" inheritance="[null]"
-                created_at_ms="1500000000000" updated_at_ms="1600000000000"/>
+                created_at="1500000000000" updated_at="1600000000000"/>
 </dataset>

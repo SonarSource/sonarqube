@@ -157,7 +157,7 @@ public class ActiveRuleIndexerTest {
     QualityProfileDto profile = QualityProfileDto.createFor("qp").setLanguage("xoo").setName("profile");
     dbTester.getDbClient().qualityProfileDao().insert(dbTester.getSession(), profile);
     ActiveRuleDto activeRule = ActiveRuleDto.createFor(profile, rule).setSeverity(Severity.BLOCKER)
-      .setCreatedAtInMs(yesterday).setUpdatedAtInMs(yesterday);
+      .setCreatedAt(yesterday).setUpdatedAt(yesterday);
     dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule);
     dbTester.getSession().commit();
 
@@ -169,7 +169,7 @@ public class ActiveRuleIndexerTest {
     RuleDto rule2 = RuleTesting.newDto(RULE_KEY_2);
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), rule2);
     ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(profile, rule2).setSeverity(Severity.CRITICAL)
-      .setCreatedAtInMs(now).setUpdatedAtInMs(now);
+      .setCreatedAt(now).setUpdatedAt(now);
     dbTester.getDbClient().activeRuleDao().insert(dbTester.getSession(), activeRule2);
     dbTester.getSession().commit();
 

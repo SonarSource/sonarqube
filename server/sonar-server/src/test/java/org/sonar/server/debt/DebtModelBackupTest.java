@@ -257,12 +257,12 @@ public class DebtModelBackupTest {
     assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("4h");
     assertThat(rule.getDefaultRemediationOffset()).isEqualTo("20min");
-    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
+    assertThat(rule.getUpdatedAt()).isEqualTo(now.getTime());
 
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
+    assertThat(rule.getUpdatedAt()).isEqualTo(now.getTime());
   }
 
   @Test
@@ -299,7 +299,7 @@ public class DebtModelBackupTest {
     assertThat(rule.getDefaultRemediationFunction()).isNull();
     assertThat(rule.getDefaultRemediationCoefficient()).isNull();
     assertThat(rule.getDefaultRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
+    assertThat(rule.getUpdatedAt()).isEqualTo(now.getTime());
   }
 
   @Test
@@ -343,12 +343,12 @@ public class DebtModelBackupTest {
     assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("4h");
     assertThat(rule.getDefaultRemediationOffset()).isEqualTo("20min");
-    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
+    assertThat(rule.getUpdatedAt()).isEqualTo(now.getTime());
 
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
+    assertThat(rule.getUpdatedAt()).isEqualTo(now.getTime());
   }
 
   @Test

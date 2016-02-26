@@ -17,18 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v55;
 
+import org.junit.Before;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(60);
+public class DropActiveRulesDateColumnsTest {
+
+  DropActiveRulesDateColumns migration;
+
+  Database database;
+
+  @Before
+  public void setUp() {
+    database = mock(Database.class);
+    migration = new DropActiveRulesDateColumns(database);
   }
+
+  @Test
+  public void generate_sql_on_postgresql() {
+    when(database.getDialect()).thenReturn(new PostgreSql());
+    assertThat(migration.generateSql()).isEqualTo(
+      "ALTER TABLE active_rules DROP COLUMN created_at, DROP COLUMN updated_at"
+      );
+  }
+
 }

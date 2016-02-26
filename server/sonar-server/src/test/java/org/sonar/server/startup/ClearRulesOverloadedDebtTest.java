@@ -90,12 +90,12 @@ public class ClearRulesOverloadedDebtTest {
   @Test
   public void not_update_rule_debt_not_overridden() throws Exception {
     RuleDto rule = insertRuleDto(RULE_KEY_1, null, null, null, null);
-    long updateAt = rule.getUpdatedAtInMs();
+    long updateAt = rule.getUpdatedAt();
 
     underTest.start();
 
     RuleDto reloaded = ruleDao.selectOrFailByKey(dbSession, RULE_KEY_1);
-    assertThat(reloaded.getUpdatedAtInMs()).isEqualTo(updateAt);
+    assertThat(reloaded.getUpdatedAt()).isEqualTo(updateAt);
     verifyRuleHasNotOverriddenDebt(RULE_KEY_1);
 
     verifyTaskRegistered();
@@ -106,12 +106,12 @@ public class ClearRulesOverloadedDebtTest {
   public void not_update_rule_debt_when_sqale_is_installed() throws Exception {
     insertSqaleProperty();
     RuleDto rule = insertRuleDto(RULE_KEY_1, SUB_CHARACTERISTIC_ID, "LINEAR", null, "1d");
-    long updateAt = rule.getUpdatedAtInMs();
+    long updateAt = rule.getUpdatedAt();
 
     underTest.start();
 
     RuleDto reloaded = ruleDao.selectOrFailByKey(dbSession, RULE_KEY_1);
-    assertThat(reloaded.getUpdatedAtInMs()).isEqualTo(updateAt);
+    assertThat(reloaded.getUpdatedAt()).isEqualTo(updateAt);
 
     verifyTaskRegistered();
     verifyEmptyLog();

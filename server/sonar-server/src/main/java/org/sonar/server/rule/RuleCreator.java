@@ -215,8 +215,8 @@ public class RuleCreator {
       .setEffortToFixDescription(templateRuleDto.getEffortToFixDescription())
       .setTags(templateRuleDto.getTags())
       .setSystemTags(templateRuleDto.getSystemTags())
-      .setCreatedAtInMs(system2.now())
-      .setUpdatedAtInMs(system2.now());
+      .setCreatedAt(system2.now())
+      .setUpdatedAt(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDto);
 
     for (RuleParamDto templateRuleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, templateRuleDto.getKey())) {
@@ -242,8 +242,8 @@ public class RuleCreator {
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(newRule.severity())
       .setStatus(RuleStatus.READY)
-      .setCreatedAtInMs(system2.now())
-      .setUpdatedAtInMs(system2.now());
+      .setCreatedAt(system2.now())
+      .setUpdatedAt(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDto);
     return ruleKey;
   }
@@ -254,7 +254,7 @@ public class RuleCreator {
         throw new ReactivationException(String.format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());
       } else {
         ruleDto.setStatus(RuleStatus.READY)
-          .setUpdatedAtInMs(system2.now());
+          .setUpdatedAt(system2.now());
         dbClient.ruleDao().update(dbSession, ruleDto);
       }
     } else {

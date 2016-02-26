@@ -171,7 +171,7 @@ public class RuleMapper {
 
   private static void setCreatedAt(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.CREATED_AT)) {
-      ruleResponse.setCreatedAt(formatDateTime(ruleDto.getCreatedAtInMs()));
+      ruleResponse.setCreatedAt(formatDateTime(ruleDto.getCreatedAt()));
     }
   }
 

@@ -41,8 +41,8 @@ public class ActiveRuleDto {
   private Integer severity;
   private String inheritance;
 
-  private long createdAtInMs;
-  private long updatedAtInMs;
+  private long createdAt;
+  private long updatedAt;
 
   // These fields do not exists in db, it's only retrieve by joins
   private Integer parentId;
@@ -139,21 +139,21 @@ public class ActiveRuleDto {
     return StringUtils.equals(OVERRIDES, inheritance);
   }
 
-  public long getUpdatedAtInMs() {
-    return updatedAtInMs;
+  public long getUpdatedAt() {
+    return updatedAt;
   }
 
-  public ActiveRuleDto setUpdatedAtInMs(long updatedAtInMs) {
-    this.updatedAtInMs = updatedAtInMs;
+  public ActiveRuleDto setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 
-  public long getCreatedAtInMs() {
-    return createdAtInMs;
+  public long getCreatedAt() {
+    return createdAt;
   }
 
-  public ActiveRuleDto setCreatedAtInMs(long createdAtInMs) {
-    this.createdAtInMs = createdAtInMs;
+  public ActiveRuleDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 

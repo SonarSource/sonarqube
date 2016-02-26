@@ -61,14 +61,14 @@ public class RuleResultSetIterator extends ResultSetIterator<RuleDoc> {
     "t.plugin_name",
     "r.plugin_config_key",
     "r.language",
-    "r.created_at_ms",
-    "r.updated_at_ms",
+    "r.created_at",
+    "r.updated_at",
   };
 
   private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM rules r " +
     "LEFT OUTER JOIN rules t ON t.id=r.template_id";
 
-  private static final String SQL_AFTER_DATE = SQL_ALL + " WHERE r.updated_at_ms>?";
+  private static final String SQL_AFTER_DATE = SQL_ALL + " WHERE r.updated_at>?";
 
   private static final Splitter TAGS_SPLITTER = Splitter.on(',').trimResults().omitEmptyStrings();
 

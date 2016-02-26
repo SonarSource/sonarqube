@@ -223,8 +223,8 @@ public class RuleDaoTest {
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix")
-      .setCreatedAtInMs(1500000000000L)
-      .setUpdatedAtInMs(2000000000000L);
+      .setCreatedAt(1500000000000L)
+      .setUpdatedAt(2000000000000L);
     underTest.insert(dbTester.getSession(), newRule);
     dbTester.getSession().commit();
 
@@ -252,8 +252,8 @@ public class RuleDaoTest {
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
     assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
-    assertThat(ruleDto.getCreatedAtInMs()).isEqualTo(1500000000000L);
-    assertThat(ruleDto.getUpdatedAtInMs()).isEqualTo(2000000000000L);
+    assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
+    assertThat(ruleDto.getUpdatedAt()).isEqualTo(2000000000000L);
   }
 
   @Test
@@ -284,7 +284,7 @@ public class RuleDaoTest {
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix")
-      .setUpdatedAtInMs(2000000000000L);
+      .setUpdatedAt(2000000000000L);
 
     underTest.update(dbTester.getSession(), ruleToUpdate);
     dbTester.getSession().commit();
@@ -312,8 +312,8 @@ public class RuleDaoTest {
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
     assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
-    assertThat(ruleDto.getCreatedAtInMs()).isEqualTo(1500000000000L);
-    assertThat(ruleDto.getUpdatedAtInMs()).isEqualTo(2000000000000L);
+    assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
+    assertThat(ruleDto.getUpdatedAt()).isEqualTo(2000000000000L);
   }
 
   @Test

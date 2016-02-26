@@ -104,8 +104,8 @@ public class RegisterRulesTest {
     assertThat(rule1.getSystemTags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(rule1.getConfigKey()).isEqualTo("config1");
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.BETA);
-    assertThat(rule1.getCreatedAtInMs()).isEqualTo(DATE1.getTime());
-    assertThat(rule1.getUpdatedAtInMs()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(rule1.getDefaultRemediationCoefficient()).isEqualTo("5d");
     assertThat(rule1.getDefaultRemediationOffset()).isEqualTo("10h");
@@ -148,8 +148,8 @@ public class RegisterRulesTest {
     assertThat(rule1.getNoteData()).isEqualTo("user *note*");
     assertThat(rule1.getNoteUserLogin()).isEqualTo("marius");
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.READY);
-    assertThat(rule1.getCreatedAtInMs()).isEqualTo(DATE1.getTime());
-    assertThat(rule1.getUpdatedAtInMs()).isEqualTo(DATE2.getTime());
+    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
     // TODO check remediation function
 
     List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), RULE_KEY1);
@@ -161,7 +161,7 @@ public class RegisterRulesTest {
     // rule2 has been removed -> status set to REMOVED but db row is not deleted
     RuleDto rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY2);
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
-    assertThat(rule2.getUpdatedAtInMs()).isEqualTo(DATE2.getTime());
+    assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2.getTime());
 
     // rule3 has been created
     RuleDto rule3 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY3);
@@ -273,8 +273,8 @@ public class RegisterRulesTest {
     execute(new FakeRepositoryV1());
 
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY1);
-    assertThat(rule1.getCreatedAtInMs()).isEqualTo(DATE1.getTime());
-    assertThat(rule1.getUpdatedAtInMs()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
+    assertThat(rule1.getUpdatedAt()).isEqualTo(DATE1.getTime());
   }
 
   @Test
@@ -306,7 +306,7 @@ public class RegisterRulesTest {
     // -> rule2 is still removed, but not update at DATE3
     rule2 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY2);
     assertThat(rule2.getStatus()).isEqualTo(RuleStatus.REMOVED);
-    assertThat(rule2.getUpdatedAtInMs()).isEqualTo(DATE2.getTime());
+    assertThat(rule2.getUpdatedAt()).isEqualTo(DATE2.getTime());
 
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(RULE_KEY1, RULE_KEY3);
   }

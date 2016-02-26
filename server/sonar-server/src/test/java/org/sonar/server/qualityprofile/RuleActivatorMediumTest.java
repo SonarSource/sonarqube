@@ -1095,8 +1095,8 @@ public class RuleActivatorMediumTest {
         assertThat(activeRuleDto.getSeverityString()).isEqualTo(expectedSeverity);
         assertThat(activeRuleDto.getInheritance()).isEqualTo(expectedInheritance);
         // Dates should be set
-        assertThat(activeRuleDto.getCreatedAtInMs()).isNotNull();
-        assertThat(activeRuleDto.getUpdatedAtInMs()).isNotNull();
+        assertThat(activeRuleDto.getCreatedAt()).isNotNull();
+        assertThat(activeRuleDto.getUpdatedAt()).isNotNull();
 
         List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
         assertThat(paramDtos).hasSize(expectedParams.size());

@@ -84,14 +84,14 @@ public class RuleIndexerTest {
     // Create and Index rule
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("xoo", "S001"))
       .setStatus(RuleStatus.READY)
-      .setUpdatedAtInMs(1000L);
+      .setUpdatedAt(1000L);
     dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), ruleDto);
     dbTester.getSession().commit();
     indexer.index();
 
     // Remove rule
     ruleDto.setStatus(RuleStatus.REMOVED);
-    ruleDto.setUpdatedAtInMs(2000L);
+    ruleDto.setUpdatedAt(2000L);
     dbTester.getDbClient().ruleDao().update(dbTester.getSession(), ruleDto);
     dbTester.getSession().commit();
     indexer.index();

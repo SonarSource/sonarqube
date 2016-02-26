@@ -324,13 +324,13 @@ public class RegisterRulesMediumTest {
       .setStatus(RuleStatus.READY)
       .setParameters(ImmutableMap.of("format", "txt")));
 
-    Long updatedAt = ruleDao.selectOrFailByKey(dbSession, customRuleKey).getUpdatedAtInMs();
+    Long updatedAt = ruleDao.selectOrFailByKey(dbSession, customRuleKey).getUpdatedAt();
 
     register(rules);
 
     // Verify custom rule has been restore from the template
     RuleDto customRuleReloaded = ruleDao.selectOrFailByKey(dbSession, customRuleKey);
-    assertThat(customRuleReloaded.getUpdatedAtInMs()).isEqualTo(updatedAt);
+    assertThat(customRuleReloaded.getUpdatedAt()).isEqualTo(updatedAt);
   }
 
   @Test

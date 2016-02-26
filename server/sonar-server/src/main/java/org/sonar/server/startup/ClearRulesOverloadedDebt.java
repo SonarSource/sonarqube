@@ -85,7 +85,7 @@ public class ClearRulesOverloadedDebt implements Startable {
         rule.setRemediationFunction(null);
         rule.setRemediationCoefficient(null);
         rule.setRemediationOffset(null);
-        rule.setUpdatedAtInMs(system2.now());
+        rule.setUpdatedAt(system2.now());
         dbClient.ruleDao().update(session, rule);
         countClearedRules++;
       }

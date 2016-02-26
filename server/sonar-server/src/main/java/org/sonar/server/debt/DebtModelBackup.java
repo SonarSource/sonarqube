@@ -158,7 +158,7 @@ public class DebtModelBackup {
       rule.setRemediationFunction(null);
       rule.setRemediationCoefficient(null);
       rule.setRemediationOffset(null);
-      rule.setUpdatedAtInMs(updateDate.getTime());
+      rule.setUpdatedAt(updateDate.getTime());
       dbClient.ruleDao().update(session, rule);
     }
   }
@@ -205,7 +205,7 @@ public class DebtModelBackup {
         ruleDebt != null ? ruleDebt.function() : null,
         ruleDebt != null ? ruleDebt.coefficient() : null,
         ruleDebt != null ? ruleDebt.offset() : null, session);
-      rule.setUpdatedAtInMs(updateDate.getTime());
+      rule.setUpdatedAt(updateDate.getTime());
       ruleDebts.remove(ruleDebt);
     }
 

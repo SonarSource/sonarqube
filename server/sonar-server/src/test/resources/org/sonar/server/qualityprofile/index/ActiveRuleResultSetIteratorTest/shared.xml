@@ -6,8 +6,7 @@
          priority="4" status="READY"
          is_template="[false]" template_id="[null]"
          tags="bug,performance" system_tags="cwe"
-         created_at="2014-05-10" updated_at="2014-05-11"
-         created_at_ms="1500000000000" updated_at_ms="1600000000000"/>
+         created_at="1500000000000" updated_at="1600000000000"/>
 
   <rules id="11" name="Slow" plugin_rule_key="S002"
          plugin_config_key="S2" plugin_name="xoo"
@@ -15,23 +14,22 @@
          priority="3" status="BETA"
          is_template="[true]" template_id="[null]"
          tags="[null]" system_tags="[null]"
-         created_at="2014-05-10" updated_at="2014-05-11"
-         created_at_ms="2000000000000" updated_at_ms="2100000000000"/>
+         created_at="2000000000000" updated_at="2100000000000"/>
 
   <rules_profiles id="1" name="Parent" kee="parent" language="xoo" parent_kee="[null]" is_default="[false]"/>
 
   <rules_profiles id="2" name="Child" kee="child" language="xoo" parent_kee="parent" is_default="[false]"/>
 
   <active_rules id="1" profile_id="2" rule_id="10" failure_level="4" inheritance="INHERITED"
-                created_at_ms="1500000000000" updated_at_ms="1600000000000"/>
+                created_at="1500000000000" updated_at="1600000000000"/>
 
   <!-- Parent of Active rule 1 -->
   <active_rules id="2" profile_id="1" rule_id="10" failure_level="0" inheritance="[null]"
-                created_at_ms="1700000000000" updated_at_ms="1800000000000"/>
+                created_at="1700000000000" updated_at="1800000000000"/>
 
   <rules_profiles id="3" name="Sonar Way" kee="sonar-way" language="xoo" parent_kee="[null]" is_default="[false]"/>
 
   <active_rules id="3" profile_id="3" rule_id="11" failure_level="3" inheritance="[null]"
-                created_at_ms="2000000000000" updated_at_ms="2100000000000"/>
+                created_at="2000000000000" updated_at="2100000000000"/>
 
 </dataset>

@@ -74,8 +74,8 @@ public class RuleDto {
 
   private RuleKey key;
 
-  private long createdAtInMs;
-  private long updatedAtInMs;
+  private long createdAt;
+  private long updatedAt;
 
   public RuleKey getKey() {
     if (key == null) {
@@ -378,21 +378,21 @@ public class RuleDto {
     return this;
   }
 
-  public long getCreatedAtInMs() {
-    return createdAtInMs;
+  public long getCreatedAt() {
+    return createdAt;
   }
 
-  public RuleDto setCreatedAtInMs(long createdAt) {
-    this.createdAtInMs = createdAt;
+  public RuleDto setCreatedAt(long createdAt) {
+    this.createdAt = createdAt;
     return this;
   }
 
-  public long getUpdatedAtInMs() {
-    return updatedAtInMs;
+  public long getUpdatedAt() {
+    return updatedAt;
   }
 
-  public RuleDto setUpdatedAtInMs(long updatedAt) {
-    this.updatedAtInMs = updatedAt;
+  public RuleDto setUpdatedAt(long updatedAt) {
+    this.updatedAt = updatedAt;
     return this;
   }
 
