@@ -111,8 +111,10 @@ public class RulesWsMediumTest {
 
     ActiveRuleDto activeRuleDto = ActiveRuleDto.createFor(profile, rule).setSeverity("BLOCKER");
     tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
+
     session.commit();
     session.clearCache();
+    ruleIndexer.index();
     activeRuleIndexer.index();
 
     // 1. With Activation
@@ -143,6 +145,7 @@ public class RulesWsMediumTest {
       .setTags(ImmutableSet.of("hello", "java"))
       .setSystemTags(ImmutableSet.of("sys1"));
     ruleDao.insert(session, rule2);
+
     session.commit();
     ruleIndexer.index();
 

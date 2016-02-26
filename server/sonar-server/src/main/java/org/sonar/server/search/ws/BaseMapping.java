@@ -21,18 +21,15 @@ package org.sonar.server.search.ws;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.search.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 import org.sonar.server.search.QueryContext;
-
-import javax.annotation.Nullable;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-import org.sonar.server.user.UserSession;
 
 /**
  * Mapping of search documents (see {@link org.sonar.server.search.BaseDoc}) to WS JSON responses
@@ -42,10 +39,9 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
 
   private final Multimap<String, String> indexFieldsByWsFields = LinkedHashMultimap.create();
   private final Multimap<String, Mapper> mappers = LinkedHashMultimap.create();
-  private final UserSession userSession;
 
-  protected BaseMapping(UserSession userSession) {
-    this.userSession = userSession;
+  protected BaseMapping() {
+    // Nothing here
   }
 
   /**
@@ -55,13 +51,13 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
     return mappers.keySet();
   }
 
-  public QueryContext newQueryOptions(SearchOptions options) {
-    QueryContext result = new QueryContext(userSession);
+  public org.sonar.server.es.SearchOptions newQueryOptions(SearchOptions options) {
+    org.sonar.server.es.SearchOptions result = new org.sonar.server.es.SearchOptions();
     result.setPage(options.page(), options.pageSize());
     List<String> optionFields = options.fields();
     if (optionFields != null) {
       for (String optionField : optionFields) {
-        result.addFieldsToReturn(indexFieldsByWsFields.get(optionField));
+        result.addFields(indexFieldsByWsFields.get(optionField));
       }
     }
     return result;

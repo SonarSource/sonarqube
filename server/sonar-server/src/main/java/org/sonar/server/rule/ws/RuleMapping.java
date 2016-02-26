@@ -38,7 +38,6 @@ import org.sonar.server.search.IndexField;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.search.ws.BaseMapping;
 import org.sonar.server.text.MacroInterpreter;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 
@@ -53,8 +52,8 @@ public class RuleMapping extends BaseMapping<RuleDoc, RuleMappingContext> {
   private final Languages languages;
   private final MacroInterpreter macroInterpreter;
 
-  public RuleMapping(final Languages languages, final MacroInterpreter macroInterpreter, UserSession userSession) {
-    super(userSession);
+  public RuleMapping(final Languages languages, final MacroInterpreter macroInterpreter) {
+    super();
     this.languages = languages;
     this.macroInterpreter = macroInterpreter;
 

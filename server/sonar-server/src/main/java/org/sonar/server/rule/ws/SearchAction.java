@@ -53,24 +53,18 @@ import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.es.Facets;
+import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.FacetValue;
-import org.sonar.server.search.Facets;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.search.ws.SearchOptions;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
 
 import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.server.search.QueryContext.MAX_LIMIT;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
-
 import static org.sonar.server.rule.index.RuleIndex2.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex2.FACET_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex2.FACET_LANGUAGES;
@@ -79,6 +73,7 @@ import static org.sonar.server.rule.index.RuleIndex2.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex2.FACET_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex2.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex2.FACET_TAGS;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
  * @since 4.4
@@ -104,15 +99,13 @@ public class SearchAction implements RulesWsAction {
 
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
 
-  private final UserSession userSession;
   private final DbClient dbClient;
   private final RuleIndex2 ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapping mapping;
   private final RuleMapper mapper;
 
-  public SearchAction(RuleIndex2 ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, UserSession userSession, DbClient dbClient, RuleMapper mapper) {
-    this.userSession = userSession;
+  public SearchAction(RuleIndex2 ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, DbClient dbClient, RuleMapper mapper) {
     this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapping = mapping;
@@ -123,7 +116,7 @@ public class SearchAction implements RulesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .addPagingParams(100, MAX_LIMIT)
+      .addPagingParams(100, org.sonar.server.es.SearchOptions.MAX_LIMIT)
       .setHandler(this);
 
     Collection<String> possibleFacets = possibleFacets();
@@ -151,7 +144,7 @@ public class SearchAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      QueryContext context = getQueryContext(request);
+      org.sonar.server.es.SearchOptions context = getQueryContext(request);
       RuleQuery query = doQuery(request);
       SearchResult searchResult = doSearch(dbSession, query, context);
       SearchResponse responseBuilder = buildResponse(dbSession, request, context, searchResult);
@@ -161,17 +154,17 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private SearchResponse buildResponse(DbSession dbSession, Request request, QueryContext context, SearchResult result) {
+  private SearchResponse buildResponse(DbSession dbSession, Request request, org.sonar.server.es.SearchOptions context, SearchResult result) {
     SearchResponse.Builder responseBuilder = SearchResponse.newBuilder();
     writeStatistics(responseBuilder, result, context);
     doContextResponse(dbSession, request, result, responseBuilder);
-    if (context.isFacet()) {
+    if (!context.getFacets().isEmpty()) {
       writeFacets(responseBuilder, request, context, result);
     }
     return responseBuilder.build();
   }
 
-  protected void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, QueryContext context) {
+  protected void writeStatistics(SearchResponse.Builder response, SearchResult searchResult, org.sonar.server.es.SearchOptions context) {
     response.setTotal(searchResult.total);
     response.setP(context.getPage());
     response.setPs(context.getLimit());
@@ -197,7 +190,7 @@ public class SearchAction implements RulesWsAction {
       FACET_ACTIVE_SEVERITIES,
       FACET_STATUSES,
       FACET_OLD_DEFAULT
-    );
+      );
   }
 
   /**
@@ -300,7 +293,6 @@ public class SearchAction implements RulesWsAction {
       .setPossibleValues(RuleIndexDefinition.SORT_FIELDS)
       .setExampleValue(RuleIndexDefinition.SORT_FIELDS.iterator().next());
 
-
     action
       .createParam(Param.ASCENDING)
       .setDescription("Ascending sort")
@@ -332,45 +324,44 @@ public class SearchAction implements RulesWsAction {
     return query;
   }
 
-  private void writeRules(SearchResponse.Builder response, SearchResult result, QueryContext context) {
+  private void writeRules(SearchResponse.Builder response, SearchResult result, org.sonar.server.es.SearchOptions context) {
     for (RuleDto rule : result.rules) {
-      response.addRules(mapper.toWsRule(rule, result, context.getFieldsToReturn()));
+      response.addRules(mapper.toWsRule(rule, result, context.getFields()));
     }
   }
 
-  protected QueryContext getQueryContext(Request request) {
+  protected org.sonar.server.es.SearchOptions getQueryContext(Request request) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 1/2
-    QueryContext context = loadCommonContext(request);
-    QueryContext searchQueryContext = mapping.newQueryOptions(SearchOptions.create(request))
+    org.sonar.server.es.SearchOptions context = loadCommonContext(request);
+    org.sonar.server.es.SearchOptions searchQueryContext = mapping.newQueryOptions(SearchOptions.create(request))
       .setLimit(context.getLimit())
-      .setOffset(context.getOffset())
-      .setScroll(context.isScroll());
-    if (context.facets().contains(RuleIndex2.FACET_OLD_DEFAULT)) {
+      .setOffset(context.getOffset());
+    if (context.getFacets().contains(RuleIndex2.FACET_OLD_DEFAULT)) {
       searchQueryContext.addFacets(DEFAULT_FACETS);
     } else {
-      searchQueryContext.addFacets(context.facets());
+      searchQueryContext.addFacets(context.getFacets());
     }
     return searchQueryContext;
   }
 
-  private QueryContext loadCommonContext(Request request) {
+  private org.sonar.server.es.SearchOptions loadCommonContext(Request request) {
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-    QueryContext context = new QueryContext(userSession).addFieldsToReturn(request.paramAsStrings(Param.FIELDS));
+    org.sonar.server.es.SearchOptions context = new org.sonar.server.es.SearchOptions().addFields(request.paramAsStrings(Param.FIELDS));
     List<String> facets = request.paramAsStrings(Param.FACETS);
     if (facets != null) {
       context.addFacets(facets);
     }
     if (pageSize < 1) {
-      context.setPage(request.mandatoryParamAsInt(Param.PAGE), 0).setMaxLimit();
+      context.setPage(request.mandatoryParamAsInt(Param.PAGE), 0).setLimit(org.sonar.server.es.SearchOptions.MAX_LIMIT);
     } else {
       context.setPage(request.mandatoryParamAsInt(Param.PAGE), pageSize);
     }
     return context;
   }
 
-  protected SearchResult doSearch(DbSession dbSession, RuleQuery query, QueryContext context) {
-    Result<Rule> result = ruleIndex.search(query, context);
-    List<RuleKey> ruleKeys = from(result.getHits()).transform(RuleToRuleKey.INSTANCE).toList();
+  protected SearchResult doSearch(DbSession dbSession, RuleQuery query, org.sonar.server.es.SearchOptions context) {
+    SearchIdResult<RuleKey> result = ruleIndex.search(query, context);
+    List<RuleKey> ruleKeys = result.getIds();
     // rule order is managed by ES
     Map<RuleKey, RuleDto> rulesByRuleKey = Maps.uniqueIndex(
       dbClient.ruleDao().selectByKeys(dbSession, ruleKeys),
@@ -398,7 +389,7 @@ public class SearchAction implements RulesWsAction {
       .setRules(rules)
       .setRuleParameters(ruleParamDtos)
       .setTemplateRules(templateRules)
-      .setFacets(result.getFacetsObject())
+      .setFacets(result.getFacets())
       .setTotal(result.getTotal());
   }
 
@@ -418,9 +409,9 @@ public class SearchAction implements RulesWsAction {
 
   protected void doContextResponse(DbSession dbSession, Request request, SearchResult result, SearchResponse.Builder response) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 2/2
-    QueryContext contextForResponse = loadCommonContext(request);
+    org.sonar.server.es.SearchOptions contextForResponse = loadCommonContext(request);
     writeRules(response, result, contextForResponse);
-    if (contextForResponse.getFieldsToReturn().contains("actives")) {
+    if (contextForResponse.getFields().contains("actives")) {
       activeRuleCompleter.completeSearch(dbSession, doQuery(request), result.rules, response);
     }
   }
@@ -431,7 +422,7 @@ public class SearchAction implements RulesWsAction {
     return builder.add("actives").build();
   }
 
-  protected void writeFacets(SearchResponse.Builder response, Request request, QueryContext context, SearchResult results) {
+  protected void writeFacets(SearchResponse.Builder response, Request request, org.sonar.server.es.SearchOptions context, SearchResult results) {
     addMandatoryFacetValues(results, FACET_LANGUAGES, request.paramAsStrings(PARAM_LANGUAGES));
     addMandatoryFacetValues(results, FACET_REPOSITORIES, request.paramAsStrings(PARAM_REPOSITORIES));
     addMandatoryFacetValues(results, FACET_STATUSES, ALL_STATUSES_EXCEPT_REMOVED);
@@ -441,11 +432,12 @@ public class SearchAction implements RulesWsAction {
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
-    for (String facetName : context.facets()) {
+    for (String facetName : context.getFacets()) {
       facet.clear().setProperty(facetName);
-      if (results.facets.getFacets().containsKey(facetName)) {
+      Map<String, Long> facets = results.facets.get(facetName);
+      if (facets != null) {
         Set<String> itemsFromFacets = Sets.newHashSet();
-        for (FacetValue facetValue : results.facets.getFacets().get(facetName)) {
+        for (Map.Entry<String, Long> facetValue : facets.entrySet()) {
           itemsFromFacets.add(facetValue.getKey());
           facet.addValues(value
             .clear()
@@ -473,16 +465,12 @@ public class SearchAction implements RulesWsAction {
   }
 
   protected void addMandatoryFacetValues(SearchResult results, String facetName, @Nullable List<String> mandatoryValues) {
-    Collection<FacetValue> facetValues = results.facets.getFacetValues(facetName);
+    Map<String, Long> facetValues = results.facets.get(facetName);
     if (facetValues != null) {
-      Map<String, Long> valuesByItem = Maps.newHashMap();
-      for (FacetValue value : facetValues) {
-        valuesByItem.put(value.getKey(), value.getValue());
-      }
       List<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
       for (String item : valuesToAdd) {
-        if (!valuesByItem.containsKey(item)) {
-          facetValues.add(new FacetValue(item, 0));
+        if (!facetValues.containsKey(item)) {
+          facetValues.put(item, 0L);
         }
       }
     }
