@@ -35,10 +35,10 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
@@ -154,8 +154,8 @@ public class DebtModelBackup {
       rule.setRemediationFunction(null);
       rule.setRemediationCoefficient(null);
       rule.setRemediationOffset(null);
-      rule.setUpdatedAt(updateDate);
-      dbClient.deprecatedRuleDao().update(session, rule);
+      rule.setUpdatedAtInMs(updateDate.getTime());
+      dbClient.ruleDao().update(session, rule);
     }
   }
 

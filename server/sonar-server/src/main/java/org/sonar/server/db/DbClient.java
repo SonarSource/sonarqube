@@ -23,8 +23,6 @@ import java.util.Map;
 import org.sonar.db.Dao;
 import org.sonar.db.Database;
 import org.sonar.db.MyBatis;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
-import org.sonar.server.rule.db.RuleDao;
 
 /**
  * Should be replaced by {@link org.sonar.db.DbClient}, but some DAOs
@@ -34,24 +32,12 @@ import org.sonar.server.rule.db.RuleDao;
 @Deprecated
 public class DbClient extends org.sonar.db.DbClient {
 
-  private ActiveRuleDao activeRuleDao;
-  private RuleDao ruleDao;
-
   public DbClient(Database database, MyBatis myBatis, Dao... daos) {
     super(database, myBatis, daos);
   }
 
   @Override
   protected void doOnLoad(Map<Class, Dao> daoByClass) {
-    this.activeRuleDao = (ActiveRuleDao) daoByClass.get(ActiveRuleDao.class);
-    this.ruleDao = (RuleDao) daoByClass.get(RuleDao.class);
   }
 
-  public ActiveRuleDao deprecatedActiveRuleDao() {
-    return activeRuleDao;
-  }
-
-  public RuleDao deprecatedRuleDao() {
-    return ruleDao;
-  }
 }

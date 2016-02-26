@@ -31,12 +31,12 @@ import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.RuleService;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
@@ -51,7 +51,7 @@ public class UpdateActionMediumTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).
-      login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+    login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   WsTester wsTester;
 
@@ -76,7 +76,8 @@ public class UpdateActionMediumTest {
   @Test
   public void update_custom_rule() throws Exception {
     // Template rule
-    RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    ruleDao.insert(session, templateRule);
     RuleParamDto param = RuleParamDto.createFor(templateRule).setName("regex").setType("STRING").setDescription("Reg ex").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, templateRule, param);
     session.commit();
@@ -104,7 +105,8 @@ public class UpdateActionMediumTest {
   @Test
   public void fail_to_update_custom_when_description_is_empty() {
     // Template rule
-    RuleDto templateRule = ruleDao.insert(session, RuleTesting.newTemplateRule(RuleKey.of("java", "S001")));
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    ruleDao.insert(session, templateRule);
 
     // Custom rule
     RuleDto customRule = RuleTesting.newCustomRule(templateRule);
@@ -112,7 +114,7 @@ public class UpdateActionMediumTest {
     session.commit();
     session.clearCache();
 
-  WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
+    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")
       .setParam("key", customRule.getKey().toString())
       .setParam("name", "My custom rule")
       .setParam("markdown_description", "");

@@ -23,7 +23,6 @@ import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.Map;
 import org.joda.time.DateTime;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -34,10 +33,10 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
-import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.db.user.UserDto;
@@ -45,7 +44,6 @@ import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.index.ActivityDoc;
 import org.sonar.server.activity.index.ActivityIndex;
 import org.sonar.server.activity.index.ActivityIndexDefinition;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
@@ -53,8 +51,6 @@ import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.ActiveRuleChange.Type;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.rule.db.RuleDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.ws.WsTester;
 
 import static org.mockito.Mockito.mock;
@@ -68,8 +64,8 @@ public class ChangelogActionTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));
 
-  private DbClient db;
-  private DbSession dbSession;
+  private DbClient db = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
   private WsTester wsTester;
   private String login;
 
@@ -80,12 +76,9 @@ public class ChangelogActionTest {
 
     System2 system = mock(System2.class);
 
-    db = new DbClient(dbTester.database(), dbTester.myBatis(), new RuleDao(system), new QualityProfileDao(dbTester.myBatis(), system), new UserDao(dbTester.myBatis(), system));
-    dbSession = db.openSession(false);
-
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    db.deprecatedRuleDao().insert(dbSession, xooRule1);
+    db.ruleDao().insert(dbSession, xooRule1);
 
     // create pre-defined profiles P1 and P2
     db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2());
@@ -99,11 +92,6 @@ public class ChangelogActionTest {
 
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class), mock(BulkRuleActivationActions.class), mock(ProjectAssociationActions.class),
       new ChangelogAction(db, new ActivityIndex(esTester.client()), new QProfileFactory(db), LanguageTesting.newLanguages("xoo"))));
-  }
-
-  @After
-  public void after() {
-    dbSession.close();
   }
 
   @Test

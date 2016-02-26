@@ -40,10 +40,10 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.debt.DebtModelXMLExporter.RuleDebt;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleOperations;
@@ -75,8 +75,6 @@ public class DebtModelBackupTest {
   @Mock
   RuleDao ruleDao;
   @Mock
-  org.sonar.server.rule.db.RuleDao deprecatedRuleDao;
-  @Mock
   RuleOperations ruleOperations;
   @Mock
   DebtRulesXMLImporter rulesXMLImporter;
@@ -106,7 +104,6 @@ public class DebtModelBackupTest {
     currentId = 10;
     when(dbClient.openSession(false)).thenReturn(session);
     when(dbClient.ruleDao()).thenReturn(ruleDao);
-    when(dbClient.deprecatedRuleDao()).thenReturn(deprecatedRuleDao);
 
     underTest = new DebtModelBackup(dbClient, ruleOperations, rulesXMLImporter,
       debtModelXMLExporter, defLoader, system2, userSessionRule);
@@ -246,7 +243,7 @@ public class DebtModelBackupTest {
     underTest.reset();
 
     verify(ruleDao).selectEnabledAndNonManual(session);
-    verify(deprecatedRuleDao).update(eq(session), ruleCaptor.capture());
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
 
     verify(session).commit();
@@ -256,12 +253,12 @@ public class DebtModelBackupTest {
     assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("4h");
     assertThat(rule.getDefaultRemediationOffset()).isEqualTo("20min");
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
 
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
   }
 
   @Test
@@ -288,7 +285,7 @@ public class DebtModelBackupTest {
     underTest.reset();
 
     verify(ruleDao).selectEnabledAndNonManual(session);
-    verify(deprecatedRuleDao).update(eq(session), ruleCaptor.capture());
+    verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
 
     verify(session).commit();
@@ -297,7 +294,7 @@ public class DebtModelBackupTest {
     assertThat(rule.getDefaultRemediationFunction()).isNull();
     assertThat(rule.getDefaultRemediationCoefficient()).isNull();
     assertThat(rule.getDefaultRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
   }
 
   @Test
@@ -330,7 +327,7 @@ public class DebtModelBackupTest {
     underTest.reset();
 
     verify(ruleDao).selectEnabledAndNonManual(session);
-    verify(deprecatedRuleDao, times(2)).update(eq(session), ruleCaptor.capture());
+    verify(ruleDao, times(2)).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
     verify(session).commit();
 
@@ -340,12 +337,12 @@ public class DebtModelBackupTest {
     assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
     assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("4h");
     assertThat(rule.getDefaultRemediationOffset()).isEqualTo("20min");
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
 
     assertThat(rule.getRemediationFunction()).isNull();
     assertThat(rule.getRemediationCoefficient()).isNull();
     assertThat(rule.getRemediationOffset()).isNull();
-    assertThat(rule.getUpdatedAt()).isEqualTo(now);
+    assertThat(rule.getUpdatedAtInMs()).isEqualTo(now.getTime());
   }
 
   @Test
@@ -355,7 +352,7 @@ public class DebtModelBackupTest {
     underTest.reset();
 
     verify(ruleDao).selectEnabledAndNonManual(session);
-    verify(deprecatedRuleDao, never()).update(eq(session), any(RuleDto.class));
+    verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verifyZeroInteractions(defLoader);
 
     verify(session).commit();

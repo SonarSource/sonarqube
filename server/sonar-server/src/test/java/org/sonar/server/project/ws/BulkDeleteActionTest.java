@@ -21,7 +21,6 @@ package org.sonar.server.project.ws;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -36,30 +35,24 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.db.issue.IssueDao;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.db.component.SnapshotTesting;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
@@ -92,17 +85,12 @@ public class BulkDeleteActionTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   WsTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
   ResourceType resourceType;
 
   @Before
   public void setUp() {
-    ComponentDao componentDao = new ComponentDao();
-    ResourceDao resourceDao = new ResourceDao(db.myBatis(), System2.INSTANCE);
-    PurgeDao purgeDao = new PurgeDao(db.myBatis(), resourceDao, System2.INSTANCE);
-    dbClient = new DbClient(db.database(), db.myBatis(), componentDao, purgeDao, new RuleDao(System2.INSTANCE), new IssueDao(db.myBatis()), new SnapshotDao());
-    dbSession = dbClient.openSession(false);
     resourceType = mock(ResourceType.class);
     when(resourceType.getBooleanProperty(anyString())).thenReturn(true);
     ResourceTypes mockResourceTypes = mock(ResourceTypes.class);
@@ -118,11 +106,6 @@ public class BulkDeleteActionTest {
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     db.truncateTables();
     es.truncateIndices();
-  }
-
-  @After
-  public void tearDown() {
-    dbSession.close();
   }
 
   @Test
@@ -222,7 +205,7 @@ public class BulkDeleteActionTest {
       .newProjectDto("project-uuid-" + suffix)
       .setKey("project-key-" + suffix);
     RuleDto rule = RuleTesting.newDto(RuleKey.of("sonarqube", "rule-" + suffix));
-    dbClient.deprecatedRuleDao().insert(dbSession, rule);
+    dbClient.ruleDao().insert(dbSession, rule);
     IssueDto issue = IssueTesting.newDto(rule, project, project).setKee("issue-key-" + suffix);
     dbClient.componentDao().insert(dbSession, project);
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, SnapshotTesting.newSnapshotForProject(project));

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.base.Optional;
 import java.util.Date;
 import java.util.Map.Entry;
 import org.elasticsearch.action.search.SearchResponse;
@@ -32,11 +33,11 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.activity.index.ActivityIndex;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileActivity;
@@ -123,8 +124,8 @@ public class ChangelogAction implements QProfileWsAction {
       Result<QProfileActivity> result = new Result<>(response);
       for (SearchHit hit : response.getHits().getHits()) {
         QProfileActivity profileActivity = new QProfileActivity(hit.getSource());
-        RuleDto ruleDto = dbClient.deprecatedRuleDao().getNullableByKey(session, profileActivity.ruleKey());
-        profileActivity.ruleName(ruleDto != null ? ruleDto.getName() : null);
+        Optional<RuleDto> ruleDto = dbClient.ruleDao().selectByKey(session, profileActivity.ruleKey());
+        profileActivity.ruleName(ruleDto.isPresent() ? ruleDto.get().getName() : null);
 
         String login = profileActivity.getLogin();
         if (login != null) {

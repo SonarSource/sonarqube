@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
@@ -179,9 +180,9 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
       Integer templateId = rule.getTemplateId();
       String templateKeyFieldValue = null;
       if (templateId != null) {
-        RuleDto templateRule = db.deprecatedRuleDao().selectById(session, templateId);
-        if (templateRule != null) {
-          RuleKey templateKey = templateRule.getKey();
+        Optional<RuleDto> templateRule = db.ruleDao().selectById(templateId, session);
+        if (templateRule.isPresent()) {
+          RuleKey templateKey = templateRule.get().getKey();
           templateKeyFieldValue = templateKey != null ? templateKey.toString() : null;
         }
       }
@@ -223,7 +224,7 @@ public class RuleNormalizer extends BaseNormalizer<RuleDto, RuleKey> {
         .doc(update)
         .upsert(upsert));
 
-      for (RuleParamDto param : db.deprecatedRuleDao().selectRuleParamsByRuleKey(session, rule.getKey())) {
+      for (RuleParamDto param : db.ruleDao().selectRuleParamsByRuleKey(session, rule.getKey())) {
         requests.addAll(normalizeNested(param, rule.getKey()));
       }
 

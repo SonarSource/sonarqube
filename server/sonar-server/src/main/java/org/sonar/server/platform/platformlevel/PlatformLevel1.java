@@ -42,11 +42,9 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
-import org.sonar.server.qualityprofile.db.ActiveRuleDao;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.ruby.PlatformRackBridge;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndex2;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.EsSearchModule;
@@ -102,10 +100,6 @@ public class PlatformLevel1 extends PlatformLevel {
 
       // Elasticsearch
       EsSearchModule.class,
-
-      // DAOs to be moved to sonar-db
-      RuleDao.class,
-      ActiveRuleDao.class,
 
       // rules/qprofiles
       RuleIndex2.class,

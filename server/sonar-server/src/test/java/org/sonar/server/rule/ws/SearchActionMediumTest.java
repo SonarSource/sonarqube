@@ -41,12 +41,12 @@ import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
+import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.db.RuleDao;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleNormalizer;
@@ -247,7 +247,9 @@ public class SearchActionMediumTest {
   public void search_template_rules() throws Exception {
     RuleDto templateRule = RuleTesting.newXooX1().setIsTemplate(true);
     ruleDao.insert(dbSession, templateRule);
-    ruleDao.insert(dbSession, RuleTesting.newXooX2()).setTemplateId(templateRule.getId());
+    RuleDto rule = RuleTesting.newXooX2();
+    rule.setTemplateId(templateRule.getId());
+    ruleDao.insert(dbSession, rule);
     dbSession.commit();
     ruleIndexer.index();
 

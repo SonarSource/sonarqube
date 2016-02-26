@@ -104,10 +104,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
       String parentKey = null;
       Integer parentId = activeRuleDto.getParentId();
       if (parentId != null) {
-        ActiveRuleDto parentDto = db.deprecatedActiveRuleDao().selectById(session, parentId);
-        if (parentDto != null) {
-          parentKey = parentDto.getKey().toString();
-        }
+
       }
 
       /* Creating updateRequest */
@@ -119,7 +116,7 @@ public class ActiveRuleNormalizer extends BaseNormalizer<ActiveRuleDto, ActiveRu
         .upsert(getUpsertFor(ActiveRuleField.ALL_FIELDS, newRule)));
 
       // Get the RuleParameters
-      for (ActiveRuleParamDto param : db.deprecatedActiveRuleDao().selectParamsByActiveRuleKey(session, key)) {
+      for (ActiveRuleParamDto param : db.activeRuleDao().selectParamsByActiveRuleKey(session, key)) {
         requests.addAll(normalizeNested(param, key));
       }
 
