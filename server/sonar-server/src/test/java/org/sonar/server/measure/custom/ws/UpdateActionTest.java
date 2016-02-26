@@ -72,7 +72,7 @@ public class UpdateActionTest {
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
   DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
   System2 system = mock(System2.class);
   WsTester ws;
 

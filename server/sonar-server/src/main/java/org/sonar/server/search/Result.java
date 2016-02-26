@@ -19,46 +19,24 @@
  */
 package org.sonar.server.search;
 
-import com.google.common.base.Preconditions;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.SearchHit;
 
 public class Result<K> {
 
   private final List<K> hits;
   private final Facets facets;
   private final long total;
-  private final String scrollId;
-  private final BaseIndex<K, ?, ?> index;
 
   public Result(SearchResponse response) {
-    this(null, response);
-  }
-
-  public Result(@Nullable BaseIndex<K, ?, ?> index, SearchResponse response) {
-    this.index = index;
-    this.scrollId = response.getScrollId();
     this.facets = new Facets(response);
     this.total = (int) response.getHits().totalHits();
     this.hits = new ArrayList<>();
-    if (index != null) {
-      for (SearchHit hit : response.getHits()) {
-        this.hits.add(index.toDoc(hit.getSource()));
-      }
-    }
-  }
-
-  public Iterator<K> scroll() {
-    Preconditions.checkState(scrollId != null, "Result is not scrollable. Please use QueryOptions.setScroll()");
-    return index.scroll(scrollId);
   }
 
   public List<K> getHits() {

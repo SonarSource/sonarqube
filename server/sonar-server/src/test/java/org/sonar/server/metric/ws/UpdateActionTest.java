@@ -65,7 +65,7 @@ public class UpdateActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   WsTester ws;
 

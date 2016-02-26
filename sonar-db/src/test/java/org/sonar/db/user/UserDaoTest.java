@@ -70,7 +70,7 @@ public class UserDaoTest {
   DbClient dbClient = db.getDbClient();
 
   UserDao underTest = db.getDbClient().userDao();
-  DbSession session = db.getSession();
+  final DbSession session = db.getSession();
 
   @Before
   public void setUp() throws Exception {

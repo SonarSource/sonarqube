@@ -37,7 +37,7 @@ public class DuplicationDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   DuplicationDao dao = db.getDbClient().duplicationDao();
 

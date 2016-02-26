@@ -66,8 +66,8 @@ public class SearchActionTest {
   // TODO remove mock
   private QProfileLoader profileLoader = mock(QProfileLoader.class);
 
-  private DbClient dbClient = db.getDbClient();
-  private DbSession dbSession = db.getSession();
+  final DbClient dbClient = db.getDbClient();
+  final DbSession dbSession = db.getSession();
 
   private QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
 

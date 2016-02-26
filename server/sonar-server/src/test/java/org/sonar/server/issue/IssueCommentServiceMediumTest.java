@@ -48,7 +48,6 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.permission.PermissionChange;
 import org.sonar.server.permission.PermissionUpdater;
-import org.sonar.server.search.IndexClient;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -63,7 +62,6 @@ public class IssueCommentServiceMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   DbClient db;
-  IndexClient indexClient;
   DbSession session;
   IssueCommentService service;
 
@@ -75,7 +73,6 @@ public class IssueCommentServiceMediumTest {
   public void setUp() {
     tester.clearDbAndIndexes();
     db = tester.get(DbClient.class);
-    indexClient = tester.get(IndexClient.class);
     session = db.openSession(false);
     service = tester.get(IssueCommentService.class);
 

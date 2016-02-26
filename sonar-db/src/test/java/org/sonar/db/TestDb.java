@@ -40,7 +40,6 @@ import org.junit.AssumptionViolatedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.deprecated.NullQueue;
 import org.sonar.db.dialect.H2;
 
 /**
@@ -105,7 +104,7 @@ class TestDb {
       commands = DatabaseCommands.forDialect(db.getDialect());
       tester = new DataSourceDatabaseTester(db.getDataSource(), commands.useLoginAsSchema() ? login : null);
 
-      myBatis = new MyBatis(db, new NullQueue());
+      myBatis = new MyBatis(db);
       myBatis.start();
     }
   }

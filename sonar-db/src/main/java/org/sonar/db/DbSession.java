@@ -20,7 +20,6 @@
 package org.sonar.db;
 
 import java.sql.Connection;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.apache.ibatis.executor.BatchResult;
@@ -28,49 +27,25 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.db.deprecated.ClusterAction;
-import org.sonar.db.deprecated.WorkQueue;
 
 public class DbSession implements SqlSession {
-
-  private List<ClusterAction> actions;
 
   private SqlSession session;
   private int actionCount;
 
-  public DbSession(WorkQueue queue, SqlSession session) {
+  public DbSession(SqlSession session) {
     this.actionCount = 0;
     this.session = session;
-    this.actions = new ArrayList<>();
-  }
-
-  /**
-   * @deprecated since 5.5, not used anymore
-   */
-  @Deprecated
-  public void enqueue(ClusterAction action) {
-    actionCount++;
-    this.actions.add(action);
-  }
-
-  /**
-   * @deprecated since 5.5, not used anymore
-   */
-  @Deprecated
-  public int getActionCount() {
-    return actionCount;
   }
 
   @Override
   public void commit() {
     session.commit();
-    actions.clear();
   }
 
   @Override
   public void commit(boolean force) {
     session.commit(force);
-    actions.clear();
   }
 
   /**

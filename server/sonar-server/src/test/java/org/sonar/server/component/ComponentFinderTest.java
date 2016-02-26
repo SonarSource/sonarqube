@@ -44,7 +44,7 @@ public class ComponentFinderTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   ComponentFinder underTest = new ComponentFinder(db.getDbClient());
 

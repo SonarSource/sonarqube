@@ -39,7 +39,6 @@ public class QueryContext {
   public static final int DEFAULT_OFFSET = 0;
   public static final int DEFAULT_LIMIT = 10;
   public static final int MAX_LIMIT = 500;
-  public static final boolean DEFAULT_FACET = false;
 
   private int offset = DEFAULT_OFFSET;
   private int limit = DEFAULT_LIMIT;
@@ -56,7 +55,7 @@ public class QueryContext {
   }
 
   /**
-   * Whether or not the search returns facets for the domain. Defaults to {@link #DEFAULT_FACET}
+   * Whether or not the search returns facets for the domain.
    */
   public boolean isFacet() {
     return !facets.isEmpty();

@@ -53,7 +53,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
-import org.sonar.server.permission.PermissionFinder;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.tester.UserSessionRule;
@@ -107,7 +106,6 @@ public class ApplyTemplateActionTest {
     dbSession = db.getSession();
 
     PermissionRepository repository = new PermissionRepository(dbClient, new Settings());
-    PermissionFinder permissionFinder = new PermissionFinder(dbClient);
     ComponentFinder componentFinder = new ComponentFinder(dbClient);
     PermissionService permissionService = new PermissionService(dbClient, repository, issueAuthorizationIndexer, userSession, componentFinder);
     PermissionDependenciesFinder permissionDependenciesFinder = new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes);

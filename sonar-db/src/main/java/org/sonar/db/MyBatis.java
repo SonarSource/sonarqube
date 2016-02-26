@@ -57,7 +57,6 @@ import org.sonar.db.dashboard.WidgetMapper;
 import org.sonar.db.dashboard.WidgetPropertyDto;
 import org.sonar.db.dashboard.WidgetPropertyMapper;
 import org.sonar.db.debt.RequirementMigrationDto;
-import org.sonar.db.deprecated.WorkQueue;
 import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.event.EventDto;
@@ -139,11 +138,9 @@ public class MyBatis {
 
   private final Database database;
   private SqlSessionFactory sessionFactory;
-  private WorkQueue<?> queue;
 
-  public MyBatis(Database database, WorkQueue<?> queue) {
+  public MyBatis(Database database) {
     this.database = database;
-    this.queue = queue;
   }
 
   // FIXME should be visible only to DAOs -> to be moved to AbstractDao
@@ -265,10 +262,10 @@ public class MyBatis {
   public DbSession openSession(boolean batch) {
     if (batch) {
       SqlSession session = sessionFactory.openSession(ExecutorType.BATCH);
-      return new BatchSession(queue, session);
+      return new BatchSession(session);
     }
     SqlSession session = sessionFactory.openSession(ExecutorType.REUSE);
-    return new DbSession(queue, session);
+    return new DbSession(session);
   }
 
   /**

@@ -58,7 +58,7 @@ public class ComponentDaoTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   ComponentDao underTest = new ComponentDao();
 

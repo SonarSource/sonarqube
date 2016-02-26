@@ -88,7 +88,7 @@ public class DeleteActionTest {
 
   DbClient dbClient = db.getDbClient();
 
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   ResourceType resourceType;
 

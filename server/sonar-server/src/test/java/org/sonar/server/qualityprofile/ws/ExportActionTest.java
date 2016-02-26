@@ -65,7 +65,7 @@ public class ExportActionTest {
 
   DbClient dbClient = db.getDbClient();
 
-  DbSession session = db.getSession();
+  final DbSession session = db.getSession();
 
   QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
 
@@ -75,7 +75,6 @@ public class ExportActionTest {
 
   @Before
   public void before() {
-    session = dbClient.openSession(false);
     backuper = mock(QProfileBackuper.class);
 
     db.truncateTables();

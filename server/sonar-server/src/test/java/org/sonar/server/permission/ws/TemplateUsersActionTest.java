@@ -71,7 +71,7 @@ public class TemplateUsersActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
   DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
   WsActionTester ws;
 
   TemplateUsersAction underTest;

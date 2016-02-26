@@ -86,7 +86,7 @@ public class BulkDeleteActionTest {
 
   WsTester ws;
   DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
   ResourceType resourceType;
 
   @Before

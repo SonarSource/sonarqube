@@ -46,7 +46,6 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.ruby.PlatformRackBridge;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.EsSearchModule;
-import org.sonar.server.search.IndexQueue;
 import org.sonar.server.user.ThreadLocalUserSession;
 
 public class PlatformLevel1 extends PlatformLevel {
@@ -76,7 +75,6 @@ public class PlatformLevel1 extends PlatformLevel {
       // must instantiate deprecated class in 5.2 and only this one (and not its replacement)
       // to avoid having two SqlSessionFactory instances
       org.sonar.core.persistence.MyBatis.class,
-      IndexQueue.class,
       DatabaseServerCompatibility.class,
       DatabaseVersion.class,
       PurgeProfiler.class,

@@ -21,8 +21,6 @@ package org.sonar.db;
 
 import org.apache.ibatis.session.SqlSession;
 import org.junit.Test;
-import org.sonar.db.deprecated.ClusterAction;
-import org.sonar.db.deprecated.WorkQueue;
 
 import static org.mockito.Mockito.anyBoolean;
 import static org.mockito.Mockito.mock;
@@ -34,8 +32,7 @@ public class BatchSessionTest {
   @Test
   public void shouldCommitWhenReachingBatchSize() {
     SqlSession mybatisSession = mock(SqlSession.class);
-    WorkQueue<?> queue = mock(WorkQueue.class);
-    BatchSession session = new BatchSession(queue, mybatisSession, 10);
+    BatchSession session = new BatchSession(mybatisSession, 10);
 
     for (int i = 0; i < 9; i++) {
       session.insert("id" + i);
@@ -51,22 +48,14 @@ public class BatchSessionTest {
   @Test
   public void shouldCommitWhenReachingBatchSizeWithoutCommits() {
     SqlSession mybatisSession = mock(SqlSession.class);
-    WorkQueue<?> queue = mock(WorkQueue.class);
-    BatchSession session = new BatchSession(queue, mybatisSession, 10);
-
-    ClusterAction action = new ClusterAction() {
-      @Override
-      public Object call() throws Exception {
-        return null;
-      }
-    };
+    BatchSession session = new BatchSession(mybatisSession, 10);
 
     for (int i = 0; i < 9; i++) {
-      session.enqueue(action);
+      session.delete("delete something");
       verify(mybatisSession, never()).commit();
       verify(mybatisSession, never()).commit(anyBoolean());
     }
-    session.enqueue(action);
+    session.delete("delete something");
     verify(mybatisSession).commit();
     session.close();
   }
@@ -74,8 +63,7 @@ public class BatchSessionTest {
   @Test
   public void shouldResetCounterAfterCommit() {
     SqlSession mybatisSession = mock(SqlSession.class);
-    WorkQueue<?> queue = mock(WorkQueue.class);
-    BatchSession session = new BatchSession(queue, mybatisSession, 10);
+    BatchSession session = new BatchSession(mybatisSession, 10);
 
     for (int i = 0; i < 35; i++) {
       session.insert("id" + i);

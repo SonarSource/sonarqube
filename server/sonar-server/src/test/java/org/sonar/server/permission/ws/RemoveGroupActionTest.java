@@ -71,7 +71,7 @@ public class RemoveGroupActionTest {
   ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
   private PermissionUpdater permissionUpdater;
   private ArgumentCaptor<PermissionChange> permissionChangeCaptor = ArgumentCaptor.forClass(PermissionChange.class);
-  private DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   @Before
   public void setUp() {

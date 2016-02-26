@@ -29,7 +29,6 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.test.DbTests;
@@ -51,8 +50,7 @@ public class SnapshotDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   ComponentDbTester componentDb = new ComponentDbTester(db);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   SnapshotDao underTest = db.getDbClient().snapshotDao();
 
@@ -178,7 +176,8 @@ public class SnapshotDaoTest {
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, DESC)).get(0).getId()).isEqualTo(3L);
 
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.PROJECT).setQualifier(Qualifiers.PACKAGE))).extracting("id").containsOnly(1L);
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.DIRECTORY).setQualifier(Qualifiers.PACKAGE))).extracting("id").containsOnly(2L, 3L, 4L, 5L, 6L);
+    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setScope(Scopes.DIRECTORY).setQualifier(Qualifiers.PACKAGE))).extracting("id").containsOnly(
+      2L, 3L, 4L, 5L, 6L);
 
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD"))).hasSize(3);
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("UNKOWN"))).isEmpty();
@@ -227,7 +226,7 @@ public class SnapshotDaoTest {
       newSnapshotForProject(project).setCreatedAt(5L),
       newSnapshotForProject(project).setCreatedAt(2L),
       newSnapshotForProject(project).setCreatedAt(1L)
-    );
+      );
     dbSession.commit();
 
     SnapshotDto dto = underTest.selectOldestSnapshot(dbSession, project.getId());
@@ -247,7 +246,7 @@ public class SnapshotDaoTest {
     db.getSession().commit();
 
     assertThat(dto.getId()).isNotNull();
-    db.assertDbUnit(getClass(), "insert-result.xml", new String[]{"id"}, "snapshots");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "snapshots");
   }
 
   @Test

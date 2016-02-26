@@ -61,7 +61,7 @@ public class PermissionTemplateDaoTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  DbSession session = db.getSession();
+  final DbSession session = db.getSession();
   DbClient dbClient = db.getDbClient();
 
   PermissionTemplateDao underTest = new PermissionTemplateDao(db.myBatis(), system);

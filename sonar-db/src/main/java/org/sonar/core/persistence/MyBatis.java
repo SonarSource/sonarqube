@@ -20,7 +20,6 @@
 package org.sonar.core.persistence;
 
 import org.sonar.db.Database;
-import org.sonar.db.deprecated.WorkQueue;
 
 /**
  * Kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
@@ -30,8 +29,8 @@ import org.sonar.db.deprecated.WorkQueue;
 @Deprecated
 public class MyBatis extends org.sonar.db.MyBatis {
 
-  public MyBatis(Database database, WorkQueue<?> queue) {
-    super(database, queue);
+  public MyBatis(Database database) {
+    super(database);
   }
 
 }

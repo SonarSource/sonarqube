@@ -49,7 +49,7 @@ public class DuplicationsParserTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   ComponentDao componentDao = db.getDbClient().componentDao();
 

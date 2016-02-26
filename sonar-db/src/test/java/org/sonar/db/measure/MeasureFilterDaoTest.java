@@ -33,7 +33,7 @@ public class MeasureFilterDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  DbSession session = db.getSession();
+  final DbSession session = db.getSession();
 
   MeasureFilterDao underTest = db.getDbClient().measureFilterDao();
 

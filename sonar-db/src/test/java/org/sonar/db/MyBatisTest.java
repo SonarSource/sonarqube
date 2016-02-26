@@ -25,16 +25,13 @@ import org.hamcrest.core.Is;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.sonar.db.deprecated.WorkQueue;
 import org.sonar.db.rule.RuleMapper;
 
 import static org.hamcrest.Matchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.mockito.Mockito.mock;
 
 public class MyBatisTest {
   private static H2Database database;
-  private WorkQueue<?> queue = mock(WorkQueue.class);
 
   @BeforeClass
   public static void start() {
@@ -49,7 +46,7 @@ public class MyBatisTest {
 
   @Test
   public void shouldConfigureMyBatis() {
-    MyBatis myBatis = new MyBatis(database, queue);
+    MyBatis myBatis = new MyBatis(database);
     myBatis.start();
 
     Configuration conf = myBatis.getSessionFactory().getConfiguration();
@@ -60,7 +57,7 @@ public class MyBatisTest {
 
   @Test
   public void shouldOpenBatchSession() {
-    MyBatis myBatis = new MyBatis(database, queue);
+    MyBatis myBatis = new MyBatis(database);
     myBatis.start();
 
     SqlSession session = myBatis.openSession(false);

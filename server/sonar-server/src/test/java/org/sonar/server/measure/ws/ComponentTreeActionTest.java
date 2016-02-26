@@ -91,7 +91,7 @@ public class ComponentTreeActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   ComponentDbTester componentDb = new ComponentDbTester(db);
   DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   WsActionTester ws = new WsActionTester(
     new ComponentTreeAction(

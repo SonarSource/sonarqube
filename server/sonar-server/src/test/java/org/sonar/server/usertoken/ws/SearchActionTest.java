@@ -62,7 +62,7 @@ public class SearchActionTest {
   public DbTester db = DbTester.create(System2.INSTANCE);
   UserDbTester userDb = new UserDbTester(db);
   DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   WsActionTester ws = new WsActionTester(new SearchAction(dbClient, userSession));
 

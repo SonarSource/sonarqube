@@ -44,7 +44,7 @@ public class ComponentDaoWithDuplicatedKeysTest {
 
   DbClient dbClient = db.getDbClient();
 
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
 
   ComponentDao underTest = new ComponentDao();
 

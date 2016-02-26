@@ -77,7 +77,7 @@ public class SearchProjectPermissionsActionTest {
   WsActionTester ws;
   I18nRule i18n = new I18nRule();
   DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  final DbSession dbSession = db.getSession();
   ResourceTypesRule resourceTypes = new ResourceTypesRule();
   SearchProjectPermissionsDataLoader dataLoader;
 
