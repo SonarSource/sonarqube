@@ -19,16 +19,15 @@
  */
 package org.sonar.server.search;
 
-import org.elasticsearch.action.update.UpdateRequest;
-import org.sonar.db.Dto;
-import org.sonar.server.db.DbClient;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import org.elasticsearch.action.update.UpdateRequest;
+import org.sonar.db.DbClient;
+import org.sonar.db.Dto;
 
 public abstract class BaseNormalizer<DTO extends Dto<KEY>, KEY extends Serializable> {
 

@@ -69,21 +69,21 @@ public class QProfileExporters {
   /**
    * Used by Pico if no {@link ProfileImporter} is found
    */
-  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters, DbClient dbClient) {
+  public QProfileExporters(DbClient dbClient, QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileExporter[] exporters) {
     this(dbClient, loader, ruleFinder, ruleActivator, exporters, new ProfileImporter[0]);
   }
 
   /**
    * Used by Pico if no {@link ProfileExporter} is found
    */
-  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileImporter[] importers, DbClient dbClient) {
+  public QProfileExporters(DbClient dbClient, QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, ProfileImporter[] importers) {
     this(dbClient, loader, ruleFinder, ruleActivator, new ProfileExporter[0], importers);
   }
 
   /**
    * Used by Pico if no {@link ProfileImporter} nor {@link ProfileExporter} is found
    */
-  public QProfileExporters(QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator, DbClient dbClient) {
+  public QProfileExporters(DbClient dbClient, QProfileLoader loader, RuleFinder ruleFinder, RuleActivator ruleActivator) {
     this(dbClient, loader, ruleFinder, ruleActivator, new ProfileExporter[0], new ProfileImporter[0]);
   }
 

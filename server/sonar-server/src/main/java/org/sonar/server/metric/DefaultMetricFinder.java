@@ -27,10 +27,10 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.MetricFinder;
-import org.sonar.db.metric.MetricDto;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.metric.MetricDto;
 
 import static com.google.common.collect.FluentIterable.from;
 

@@ -30,6 +30,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -39,7 +40,6 @@ import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.util.WrapInSingleElementArray;
 
 import static java.util.Arrays.asList;

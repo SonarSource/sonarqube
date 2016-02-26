@@ -27,19 +27,19 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.server.ws.WebService.SelectionMode;
 import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupMembershipDao;
+import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 import org.sonar.db.user.UserGroupDao;
 import org.sonar.db.user.UserGroupDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.server.ws.WsTester;
 
 public class GroupsActionTest {

@@ -23,8 +23,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
 import org.sonar.server.component.ComponentCleanerService;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;
 

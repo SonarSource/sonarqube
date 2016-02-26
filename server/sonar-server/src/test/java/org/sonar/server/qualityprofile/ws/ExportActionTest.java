@@ -23,7 +23,6 @@ import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.Writer;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -34,11 +33,11 @@ import org.sonar.api.profiles.ProfileExporter;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.server.ws.WebService.Action;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileBackuper;
@@ -64,11 +63,11 @@ public class ExportActionTest {
 
   WsTester wsTester;
 
-  QualityProfileDao qualityProfileDao;
+  DbClient dbClient = db.getDbClient();
 
-  DbClient dbClient;
+  DbSession session = db.getSession();
 
-  DbSession session;
+  QualityProfileDao qualityProfileDao = dbClient.qualityProfileDao();
 
   QProfileBackuper backuper;
 
@@ -76,8 +75,6 @@ public class ExportActionTest {
 
   @Before
   public void before() {
-    qualityProfileDao = new QualityProfileDao(db.myBatis(), mock(System2.class));
-    dbClient = new DbClient(db.database(), db.myBatis(), qualityProfileDao);
     session = dbClient.openSession(false);
     backuper = mock(QProfileBackuper.class);
 
@@ -89,16 +86,12 @@ public class ExportActionTest {
     ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
     when(activeRuleIndex.findByProfile(Matchers.anyString())).thenReturn(Sets.<ActiveRuleDoc>newHashSet().iterator());
 
-    exporters = new QProfileExporters(dbClient, new QProfileLoader(dbClient, activeRuleIndex, mock(RuleIndex.class)), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
+    exporters = new QProfileExporters(dbClient, new QProfileLoader(dbClient, activeRuleIndex, mock(RuleIndex.class)), null, null, new ProfileExporter[] {exporter1, exporter2},
+      null);
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),
       new ExportAction(dbClient, new QProfileFactory(dbClient), backuper, exporters, LanguageTesting.newLanguages("xoo"))));
-  }
-
-  @After
-  public void after() {
-    session.close();
   }
 
   private ProfileExporter newExporter(final String key) {

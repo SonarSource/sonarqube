@@ -23,7 +23,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.db.DbClient;
+import org.sonar.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.ws.WsTester;

@@ -27,13 +27,13 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.dashboard.DashboardDao;
 import org.sonar.db.dashboard.WidgetDao;
 import org.sonar.db.dashboard.WidgetPropertyDao;
 import org.sonar.db.issue.IssueFilterDao;
 import org.sonar.db.loadedtemplate.LoadedTemplateDao;
-import org.sonar.server.db.DbClient;
 import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;

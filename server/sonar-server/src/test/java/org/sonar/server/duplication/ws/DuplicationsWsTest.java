@@ -22,9 +22,9 @@ package org.sonar.server.duplication.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.db.DbClient;
 import org.sonar.db.measure.MeasureDao;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 

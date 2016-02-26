@@ -29,8 +29,8 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.Durations;
+import org.sonar.db.DbClient;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.db.DbClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
