@@ -139,7 +139,7 @@ public class QProfileResetMediumTest {
     // Verify severity and param has changed
     ActiveRuleDto activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);
     assertThat(activeRuleDto.getSeverityString()).isEqualTo(BLOCKER);
-    List<ActiveRuleParamDto> activeRuleParamDtos = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleKey);
+    List<ActiveRuleParamDto> activeRuleParamDtos = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
     assertThat(activeRuleParamDtos.get(0).getKey()).isEqualTo("acceptWhitespace");
     assertThat(activeRuleParamDtos.get(0).getValue()).isEqualTo("false");
 
@@ -152,7 +152,7 @@ public class QProfileResetMediumTest {
     ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
 
-    activeRuleParamDtos = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleKey);
+    activeRuleParamDtos = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
     assertThat(activeRuleParamDtos.get(0).getKey()).isEqualTo("acceptWhitespace");
     assertThat(activeRuleParamDtos.get(0).getValue()).isEqualTo("true");
   }
@@ -195,7 +195,8 @@ public class QProfileResetMediumTest {
     reset.resetLanguage(ServerTester.Xoo.KEY);
 
     // Parameter value come back to origin after reset
-    List<ActiveRuleParamDto> params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleKey);
+    ActiveRuleDto activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);
+    List<ActiveRuleParamDto> params = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
     assertThat(params).hasSize(1);
     assertThat(params.get(0).getKey()).isEqualTo("acceptWhitespace");
     assertThat(params.get(0).getValue()).isEqualTo("true");

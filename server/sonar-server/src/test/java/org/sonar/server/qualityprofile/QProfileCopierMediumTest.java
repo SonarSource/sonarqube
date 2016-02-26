@@ -201,7 +201,8 @@ public class QProfileCopierMediumTest {
     assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE : ActiveRule.Inheritance.valueOf(expectedInheritance));
 
     // verify parameters
-    List<ActiveRuleParamDto> params = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.key());
+    ActiveRuleDto activeRuleDto = db.activeRuleDao().selectOrFailByKey(dbSession, activeRule.key());
+    List<ActiveRuleParamDto> params = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
     assertThat(params).hasSize(expectedParams.size());
     Map<String, ActiveRuleParamDto> paramsByKey = ActiveRuleParamDto.groupByKey(params);
     for (Map.Entry<String, String> entry : expectedParams.entrySet()) {

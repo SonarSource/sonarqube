@@ -469,7 +469,7 @@ public class RuleUpdaterMediumTest {
     assertThat(activeRuleDto.getSeverityString()).isEqualTo(Severity.BLOCKER);
 
     // Verify active rule parameters has been updated
-    List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
+    List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
 
     // FIXME why 4 parameters are returned ??? (This issue already exists in 5.4)
     //assertThat(activeRuleParams).hasSize(2);

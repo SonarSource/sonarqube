@@ -114,7 +114,10 @@ public class ActiveRuleDao implements Dao {
     return DatabaseUtils.executeLargeInputs(activeRuleIds, new ParamIdToDto(mapper(dbSession)));
   }
 
-  public List<ActiveRuleParamDto> selectParamsByActiveRuleKey(DbSession session, ActiveRuleKey key) {
+  /**
+   * Warning ! This method is executing 2 queries : one to get the active rule from the key, and another one to get parameters
+   */
+  private List<ActiveRuleParamDto> selectParamsByActiveRuleKey(DbSession session, ActiveRuleKey key) {
     Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
     ActiveRuleDto activeRule = selectOrFailByKey(session, key);
     return mapper(session).selectParamsByActiveRuleId(activeRule.getId());

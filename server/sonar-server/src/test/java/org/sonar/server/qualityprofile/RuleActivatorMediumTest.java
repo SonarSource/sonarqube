@@ -1098,7 +1098,7 @@ public class RuleActivatorMediumTest {
         assertThat(activeRuleDto.getCreatedAt()).isNotNull();
         assertThat(activeRuleDto.getUpdatedAt()).isNotNull();
 
-        List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey());
+        List<ActiveRuleParamDto> paramDtos = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
         assertThat(paramDtos).hasSize(expectedParams.size());
         for (Map.Entry<String, String> entry : expectedParams.entrySet()) {
           ActiveRuleParamDto paramDto = db.activeRuleDao().selectParamByKeyAndName(activeRuleDto.getKey(), entry.getKey(), dbSession);

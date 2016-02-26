@@ -39,6 +39,7 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDao;
@@ -197,7 +198,8 @@ public class RegisterRulesMediumTest {
       }
     });
 
-    List<ActiveRuleParamDto> params = db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, ActiveRuleKey.of(QProfileTesting.XOO_P1_KEY, RuleTesting.XOO_X1));
+    ActiveRuleDto activeRuleDto = db.activeRuleDao().selectOrFailByKey(dbSession, ActiveRuleKey.of(QProfileTesting.XOO_P1_KEY, RuleTesting.XOO_X1));
+    List<ActiveRuleParamDto> params = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
     assertThat(params).hasSize(2);
 
     Map<String, ActiveRuleParamDto> parmsByKey = FluentIterable.from(params).uniqueIndex(ActiveRuleParamToKey.INSTANCE);

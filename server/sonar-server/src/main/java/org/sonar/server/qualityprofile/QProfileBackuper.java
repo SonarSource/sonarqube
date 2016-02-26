@@ -88,7 +88,7 @@ public class QProfileBackuper {
       xml.prop("key", activeRule.getKey().ruleKey().rule());
       xml.prop("priority", activeRule.getSeverityString());
       xml.begin("parameters");
-      for (ActiveRuleParamDto param : db.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRule.getKey())) {
+      for (ActiveRuleParamDto param : db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
         xml
           .begin("parameter")
           .prop("key", param.getKey())

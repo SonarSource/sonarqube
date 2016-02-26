@@ -90,7 +90,7 @@ public class RuleActivatorContextFactory {
     Optional<ActiveRuleDto> activeRule = db.activeRuleDao().selectByKey(session, key);
     Collection<ActiveRuleParamDto> activeRuleParams = null;
     if (activeRule.isPresent()) {
-      activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleKey(session, key);
+      activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleId(session, activeRule.get().getId());
     }
     if (parent) {
       context.setParentActiveRule(activeRule.orNull());

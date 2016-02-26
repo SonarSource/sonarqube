@@ -253,7 +253,7 @@ public class RuleUpdater {
       Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams = ArrayListMultimap.create();
       for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().selectByRule(dbSession, customRule)) {
         activeRules.put(customRule, activeRuleDto);
-        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().selectParamsByActiveRuleKey(dbSession, activeRuleDto.getKey())) {
+        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId())) {
           activeRuleParams.put(activeRuleDto, activeRuleParamDto);
         }
       }

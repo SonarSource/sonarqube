@@ -105,7 +105,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // TODO
     // Check ActiveRuleParameters in DB
-    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.selectParamsByActiveRuleKey(dbSession, activeRule.getKey()));
+    Map<String, ActiveRuleParamDto> params = ActiveRuleParamDto.groupByKey(activeRuleDao.selectParamsByActiveRuleId(dbSession, activeRule.getId()));
     assertThat(params).hasSize(2);
     // set by profile
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
@@ -140,7 +140,7 @@ public class RegisterQualityProfilesMediumTest {
 
     // Check ActiveRuleParameters in DB
     Map<String, ActiveRuleParamDto> params =
-      ActiveRuleParamDto.groupByKey(activeRuleDao.selectParamsByActiveRuleKey(dbSession, activeRule.getKey()));
+      ActiveRuleParamDto.groupByKey(activeRuleDao.selectParamsByActiveRuleId(dbSession, activeRule.getId()));
     assertThat(params).hasSize(2);
     // set by profile
     assertThat(params.get("acceptWhitespace").getValue()).isEqualTo("true");
