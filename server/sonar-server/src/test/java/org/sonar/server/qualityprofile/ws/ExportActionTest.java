@@ -47,8 +47,8 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 
@@ -86,10 +86,10 @@ public class ExportActionTest {
     ProfileExporter exporter1 = newExporter("polop");
     ProfileExporter exporter2 = newExporter("palap");
 
-    ActiveRuleIndex2 activeRuleIndex = mock(ActiveRuleIndex2.class);
+    ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
     when(activeRuleIndex.findByProfile(Matchers.anyString())).thenReturn(Sets.<ActiveRuleDoc>newHashSet().iterator());
 
-    exporters = new QProfileExporters(new QProfileLoader(dbClient, activeRuleIndex, mock(RuleIndex2.class)), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
+    exporters = new QProfileExporters(new QProfileLoader(dbClient, activeRuleIndex, mock(RuleIndex.class)), null, null, new ProfileExporter[] {exporter1, exporter2}, null);
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),
       mock(ProjectAssociationActions.class),

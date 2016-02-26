@@ -42,10 +42,10 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
 import org.sonar.server.ruby.PlatformRackBridge;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.search.IndexQueue;
@@ -102,8 +102,8 @@ public class PlatformLevel1 extends PlatformLevel {
       EsSearchModule.class,
 
       // rules/qprofiles
-      RuleIndex2.class,
-      ActiveRuleIndex2.class,
+      RuleIndex.class,
+      ActiveRuleIndex.class,
       RuleNormalizer.class,
       ActiveRuleNormalizer.class,
 

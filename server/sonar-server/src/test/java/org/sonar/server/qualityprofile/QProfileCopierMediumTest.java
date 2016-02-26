@@ -40,7 +40,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
@@ -58,7 +58,7 @@ public class QProfileCopierMediumTest {
 
   DbClient db;
   DbSession dbSession;
-  ActiveRuleIndex2 index;
+  ActiveRuleIndex index;
   RuleActivator ruleActivator;
   QProfileCopier copier;
   RuleIndexer ruleIndexer;
@@ -70,7 +70,7 @@ public class QProfileCopierMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     ruleActivator = tester.get(RuleActivator.class);
-    index = tester.get(ActiveRuleIndex2.class);
+    index = tester.get(ActiveRuleIndex.class);
     copier = tester.get(QProfileCopier.class);
     ruleIndexer = tester.get(RuleIndexer.class);
     ruleIndexer.setEnabled(true);

@@ -53,13 +53,13 @@ import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.OVERRIDES;
 import static org.sonar.server.rule.index.RuleDocTesting.newDoc;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_LANGUAGES;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_REPOSITORIES;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_TAGS;
+import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
-public class RuleIndex2Test {
+public class RuleIndexTest {
 
   static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
   static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
@@ -72,7 +72,7 @@ public class RuleIndex2Test {
   @ClassRule
   public static EsTester tester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
 
-  RuleIndex2 index;
+  RuleIndex index;
 
   RuleIndexer ruleIndexer;
   ActiveRuleIndexer activeRuleIndexer;
@@ -82,7 +82,7 @@ public class RuleIndex2Test {
     tester.truncateIndices();
     ruleIndexer = new RuleIndexer(null, tester.client());
     activeRuleIndexer = new ActiveRuleIndexer(null, tester.client());
-    index = new RuleIndex2(tester.client());
+    index = new RuleIndex(tester.client());
   }
 
   @Test
@@ -473,16 +473,16 @@ public class RuleIndex2Test {
     // 2. get rules with active severity critical.
     SearchIdResult<RuleKey> result = index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(QUALITY_PROFILE_KEY1).setActiveSeverities(singletonList(CRITICAL)),
-      new SearchOptions().addFacets(singletonList(RuleIndex2.FACET_ACTIVE_SEVERITIES)));
+      new SearchOptions().addFacets(singletonList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
     assertThat(result.getIds()).containsOnly(RULE_KEY_2);
 
     // check stickyness of active severity facet
-    assertThat(result.getFacets().get(RuleIndex2.FACET_ACTIVE_SEVERITIES)).containsOnly(entry(BLOCKER, 1L), entry(CRITICAL, 1L));
+    assertThat(result.getFacets().get(RuleIndex.FACET_ACTIVE_SEVERITIES)).containsOnly(entry(BLOCKER, 1L), entry(CRITICAL, 1L));
 
     // 3. count activation severities of all active rules
-    result = index.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(RuleIndex2.FACET_ACTIVE_SEVERITIES)));
+    result = index.search(new RuleQuery(), new SearchOptions().addFacets(singletonList(RuleIndex.FACET_ACTIVE_SEVERITIES)));
     assertThat(result.getIds()).hasSize(3);
-    assertThat(result.getFacets().get(RuleIndex2.FACET_ACTIVE_SEVERITIES)).containsOnly(entry(BLOCKER, 2L), entry(CRITICAL, 1L));
+    assertThat(result.getFacets().get(RuleIndex.FACET_ACTIVE_SEVERITIES)).containsOnly(entry(BLOCKER, 2L), entry(CRITICAL, 1L));
   }
 
   @Test

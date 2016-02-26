@@ -27,7 +27,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
@@ -40,13 +40,13 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class RuleService {
 
-  private final RuleIndex2 index;
+  private final RuleIndex index;
   private final RuleUpdater ruleUpdater;
   private final RuleCreator ruleCreator;
   private final RuleDeleter ruleDeleter;
   private final UserSession userSession;
 
-  public RuleService(RuleIndex2 index, RuleUpdater ruleUpdater, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
+  public RuleService(RuleIndex index, RuleUpdater ruleUpdater, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
     this.index = index;
     this.ruleUpdater = ruleUpdater;
     this.ruleCreator = ruleCreator;

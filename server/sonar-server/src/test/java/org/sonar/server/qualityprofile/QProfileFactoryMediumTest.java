@@ -38,7 +38,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.MockUserSession;
@@ -62,7 +62,7 @@ public class QProfileFactoryMediumTest {
 
   DbClient db;
   DbSession dbSession;
-  ActiveRuleIndex2 activeRuleIndex;
+  ActiveRuleIndex activeRuleIndex;
   ActiveRuleIndexer activeRuleIndexer;
   RuleIndexer ruleIndexer;
   QProfileFactory factory;
@@ -73,7 +73,7 @@ public class QProfileFactoryMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     factory = tester.get(QProfileFactory.class);
-    activeRuleIndex = tester.get(ActiveRuleIndex2.class);
+    activeRuleIndex = tester.get(ActiveRuleIndex.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     activeRuleIndexer.setEnabled(true);
     ruleIndexer = tester.get(RuleIndexer.class);

@@ -41,7 +41,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
@@ -63,7 +63,7 @@ public class RuleCreatorMediumTest {
   DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleCreator creator = tester.get(RuleCreator.class);
-  RuleIndex2 ruleIndex = tester.get(RuleIndex2.class);
+  RuleIndex ruleIndex = tester.get(RuleIndex.class);
   RuleIndexer ruleIndexer;
 
   @Before

@@ -43,7 +43,7 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -149,7 +149,7 @@ public class QProfileResetMediumTest {
     // Severity and parameter value come back to origin after reset
     activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);
     assertThat(activeRuleDto.getSeverityString()).isEqualTo(CRITICAL);
-    ActiveRule activeRule = tester.get(ActiveRuleIndex2.class).getNullableByKey(activeRuleKey);
+    ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
 
     activeRuleParamDtos = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleKey(dbSession, activeRuleKey);

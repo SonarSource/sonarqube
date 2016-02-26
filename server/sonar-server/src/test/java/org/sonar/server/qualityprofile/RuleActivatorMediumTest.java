@@ -46,9 +46,9 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.QueryContext;
@@ -95,7 +95,7 @@ public class RuleActivatorMediumTest {
 
   RuleIndexer ruleIndexer;
 
-  ActiveRuleIndex2 activeRuleIndex;
+  ActiveRuleIndex activeRuleIndex;
   ActiveRuleIndexer activeRuleIndexer;
 
   QualityProfileDto profileDto;
@@ -106,7 +106,7 @@ public class RuleActivatorMediumTest {
     db = tester.get(DbClient.class);
     dbSession = db.openSession(false);
     ruleActivator = tester.get(RuleActivator.class);
-    activeRuleIndex = tester.get(ActiveRuleIndex2.class);
+    activeRuleIndex = tester.get(ActiveRuleIndex.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     activeRuleIndexer.setEnabled(true);
     ruleIndexer = tester.get(RuleIndexer.class);
@@ -876,7 +876,7 @@ public class RuleActivatorMediumTest {
 
     // 0. No active rules so far (base case) and plenty rules available
     verifyZeroActiveRules(XOO_P1_KEY);
-    assertThat(tester.get(RuleIndex2.class)
+    assertThat(tester.get(RuleIndex.class)
       .search(new RuleQuery().setRepositories(Arrays.asList("bulk")), new SearchOptions()).getTotal())
       .isEqualTo(bulkSize);
 

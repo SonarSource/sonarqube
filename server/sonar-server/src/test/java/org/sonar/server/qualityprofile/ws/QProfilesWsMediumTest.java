@@ -43,9 +43,9 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.SearchAction;
@@ -361,7 +361,7 @@ public class QProfilesWsMediumTest {
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
 
     // 2. Assert ActiveRule with BLOCKER severity
-    assertThat(tester.get(RuleIndex2.class).search(
+    assertThat(tester.get(RuleIndex.class).search(
       new RuleQuery().setSeverities(ImmutableSet.of("BLOCKER")),
       new SearchOptions()).getIds()).hasSize(2);
 
@@ -373,7 +373,7 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 2. Assert ActiveRule with MINOR severity
-    assertThat(tester.get(ActiveRuleIndex2.class).findByRule(rule0.getKey()).get(0).severity()).isEqualTo("MINOR");
+    assertThat(tester.get(ActiveRuleIndex.class).findByRule(rule0.getKey()).get(0).severity()).isEqualTo("MINOR");
 
   }
 

@@ -43,7 +43,7 @@ import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 
@@ -88,7 +88,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(activeRuleDao.selectByKey(dbSession, activeRuleKey)).isPresent();
 
     // Check in ES
-    assertThat(tester.get(RuleIndex2.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
+    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
 
     tester.get(Platform.class).restart();
 
@@ -101,7 +101,7 @@ public class RegisterQualityProfilesMediumTest {
     assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
 
     // Check in ES
-    assertThat(tester.get(RuleIndex2.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
+    assertThat(tester.get(RuleIndex.class).search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).containsOnly(ruleKey, RuleKey.of("xoo", "x2"));
 
     // TODO
     // Check ActiveRuleParameters in DB

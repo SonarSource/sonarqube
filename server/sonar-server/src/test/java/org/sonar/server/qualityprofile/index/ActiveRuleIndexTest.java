@@ -53,7 +53,7 @@ import static org.sonar.server.rule.index.RuleDocTesting.newDoc;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
-public class ActiveRuleIndex2Test {
+public class ActiveRuleIndexTest {
 
   static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
   static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
@@ -64,7 +64,7 @@ public class ActiveRuleIndex2Test {
   @ClassRule
   public static EsTester tester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
 
-  ActiveRuleIndex2 index;
+  ActiveRuleIndex index;
 
   ActiveRuleIndexer activeRuleIndexer;
   RuleIndexer ruleIndexer;
@@ -74,7 +74,7 @@ public class ActiveRuleIndex2Test {
     tester.truncateIndices();
     activeRuleIndexer = new ActiveRuleIndexer(null, tester.client());
     ruleIndexer = new RuleIndexer(null, tester.client());
-    index = new ActiveRuleIndex2(tester.client());
+    index = new ActiveRuleIndex(tester.client());
   }
 
   @Test

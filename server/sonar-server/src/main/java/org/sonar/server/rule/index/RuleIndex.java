@@ -21,7 +21,6 @@ package org.sonar.server.rule.index;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
@@ -30,16 +29,16 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolFilterBuilder;
@@ -51,7 +50,6 @@ import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.query.SimpleQueryStringBuilder;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
@@ -62,21 +60,21 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.db.rule.RuleDto;
-import org.sonar.server.qualityprofile.index.ActiveRuleNormalizer;
-import org.sonar.server.rule.Rule;
-import org.sonar.server.search.BaseIndex;
-import org.sonar.server.search.IndexDefinition;
+import org.sonar.server.es.BaseIndex;
+import org.sonar.server.es.EsClient;
+import org.sonar.server.es.SearchIdResult;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.search.IndexField;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
-import org.sonar.server.search.SearchClient;
 import org.sonar.server.search.StickyFacetBuilder;
 
-import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
+import static org.sonar.server.es.EsUtils.scrollIds;
 
-@Deprecated
-public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
+/**
+ * The unique entry-point to interact with Elasticsearch index "rules".
+ * All the requests are listed here.
+ */
+public class RuleIndex extends BaseIndex {
 
   public static final String FACET_LANGUAGES = "languages";
   public static final String FACET_TAGS = "tags";
@@ -92,104 +90,73 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
         Arrays.asList(RuleStatus.values()),
         new Function<RuleStatus, String>() {
           @Override
-          public String apply(RuleStatus input) {
+          public String apply(@Nonnull RuleStatus input) {
             return input.toString();
           }
         }),
       new Predicate<String>() {
         @Override
-        public boolean apply(String input) {
+        public boolean apply(@Nonnull String input) {
           return !RuleStatus.REMOVED.toString().equals(input);
         }
       }));
 
-  public RuleIndex(RuleNormalizer normalizer, SearchClient client) {
-    super(IndexDefinition.RULE, normalizer, client);
+  public RuleIndex(EsClient client) {
+    super(client);
   }
 
-  @Override
-  protected String getKeyValue(RuleKey key) {
-    return key.toString();
-  }
+  public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
+    SearchRequestBuilder esSearch = getClient()
+      .prepareSearch(RuleIndexDefinition.INDEX)
+      .setTypes(RuleIndexDefinition.TYPE_RULE);
 
-  @Override
-  protected Map mapKey() {
-    Map<String, Object> mapping = new HashMap<>();
-    mapping.put("path", RuleNormalizer.RuleField.KEY.field());
-    return mapping;
-  }
+    QueryBuilder qb = buildQuery(query);
+    Map<String, FilterBuilder> filters = buildFilters(query);
 
-  @Override
-  protected Map mapProperties() {
-    Map<String, Object> mapping = new HashMap<>();
-    for (IndexField field : RuleNormalizer.RuleField.ALL_FIELDS) {
-      mapping.put(field.field(), mapField(field));
-    }
-    return mapping;
-  }
-
-  private void setFields(QueryContext options, SearchRequestBuilder esSearch) {
-    /* integrate Option's Fields */
-    Set<String> fields = new HashSet<>();
-    if (!options.getFieldsToReturn().isEmpty()) {
-      for (String fieldToReturn : options.getFieldsToReturn()) {
-        if (!fieldToReturn.isEmpty()) {
-          fields.add(fieldToReturn);
-        }
-      }
-      // required field
-      fields.add(RuleNormalizer.RuleField.KEY.field());
-    } else {
-      for (IndexField indexField : RuleNormalizer.RuleField.ALL_FIELDS) {
-        fields.add(indexField.field());
+    if (!options.getFacets().isEmpty()) {
+      for (AggregationBuilder aggregation : getFacets(query, options, qb, filters).values()) {
+        esSearch.addAggregation(aggregation);
       }
     }
 
-    esSearch.setFetchSource(fields.toArray(new String[fields.size()]), null);
-  }
+    setSorting(query, esSearch);
+    setPagination(options, esSearch);
 
-  private void setSorting(RuleQuery query, SearchRequestBuilder esSearch) {
-    /* integrate Query Sort */
-    String queryText = query.getQueryText();
-    if (query.getSortField() != null) {
-      FieldSortBuilder sort = SortBuilders.fieldSort(query.getSortField());
-      if (query.isAscendingSort()) {
-        sort.order(SortOrder.ASC);
-      } else {
-        sort.order(SortOrder.DESC);
-      }
-      esSearch.addSort(sort);
-    } else if (queryText != null && !queryText.isEmpty()) {
-      esSearch.addSort(SortBuilders.scoreSort());
-    } else {
-      esSearch.addSort(RuleNormalizer.RuleField.UPDATED_AT.sortField(), SortOrder.DESC);
-      // deterministic sort when exactly the same updated_at (same millisecond)
-      esSearch.addSort(RuleNormalizer.RuleField.KEY.sortField()
-        , SortOrder.ASC);
+    BoolFilterBuilder fb = FilterBuilders.boolFilter();
+    for (FilterBuilder filterBuilder : filters.values()) {
+      fb.must(filterBuilder);
     }
+
+    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+    return new SearchIdResult<>(esSearch.get(), ToRuleKey.INSTANCE);
   }
 
-  protected void setPagination(QueryContext options, SearchRequestBuilder esSearch) {
-    esSearch.setFrom(options.getOffset());
-    esSearch.setSize(options.getLimit());
-  }
+  /**
+   * Return all keys matching the search query, without pagination nor facets
+   */
+  public Iterator<RuleKey> searchAll(RuleQuery query) {
+    SearchRequestBuilder esSearch = getClient()
+      .prepareSearch(RuleIndexDefinition.INDEX)
+      .setTypes(RuleIndexDefinition.TYPE_RULE)
+      .setSearchType(SearchType.SCAN)
+      .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
 
-  private QueryBuilder termQuery(IndexField field, String query, float boost) {
-    return QueryBuilders.multiMatchQuery(query,
-      field.field(), field.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
-      .operator(MatchQueryBuilder.Operator.AND)
-      .boost(boost);
-  }
+    QueryBuilder qb = buildQuery(query);
+    Map<String, FilterBuilder> filters = buildFilters(query);
+    setSorting(query, esSearch);
 
-  private QueryBuilder termAnyQuery(IndexField field, String query, float boost) {
-    return QueryBuilders.multiMatchQuery(query,
-      field.field(), field.field() + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
-      .operator(MatchQueryBuilder.Operator.OR)
-      .boost(boost);
+    BoolFilterBuilder fb = FilterBuilders.boolFilter();
+    for (FilterBuilder filterBuilder : filters.values()) {
+      fb.must(filterBuilder);
+    }
+
+    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+    SearchResponse response = esSearch.get();
+    return scrollIds(getClient(), response.getScrollId(), ToRuleKey.INSTANCE);
   }
 
   /* Build main query (search based) */
-  protected QueryBuilder getQuery(RuleQuery query) {
+  private QueryBuilder buildQuery(RuleQuery query) {
 
     // No contextual query case
     String queryText = query.getQueryText();
@@ -203,70 +170,84 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
 
     // Human readable type of querying
     qb.should(QueryBuilders.simpleQueryStringQuery(query.getQueryText())
-      .field(RuleNormalizer.RuleField.NAME.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 20f)
-      .field(RuleNormalizer.RuleField.HTML_DESCRIPTION.field() + "." + IndexField.SEARCH_WORDS_SUFFIX, 3f)
+      .field(RuleIndexDefinition.FIELD_RULE_NAME + "." + BaseIndex.SEARCH_WORDS_SUFFIX, 20f)
+      .field(RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION + "." + BaseIndex.SEARCH_WORDS_SUFFIX, 3f)
       .defaultOperator(SimpleQueryStringBuilder.Operator.AND)
       ).boost(20f);
 
     // Match and partial Match queries
-    qb.should(this.termQuery(RuleNormalizer.RuleField.KEY, queryString, 15f));
-    qb.should(this.termQuery(RuleNormalizer.RuleField._KEY, queryString, 35f));
-    qb.should(this.termQuery(RuleNormalizer.RuleField.LANGUAGE, queryString, 3f));
-    qb.should(this.termQuery(RuleNormalizer.RuleField.ALL_TAGS, queryString, 10f));
-    qb.should(this.termAnyQuery(RuleNormalizer.RuleField.ALL_TAGS, queryString, 1f));
+    qb.should(this.termQuery(RuleIndexDefinition.FIELD_RULE_KEY, queryString, 15f));
+    qb.should(this.termQuery(RuleIndexDefinition.FIELD_RULE_KEY_AS_LIST, queryString, 35f));
+    qb.should(this.termQuery(RuleIndexDefinition.FIELD_RULE_LANGUAGE, queryString, 3f));
+    qb.should(this.termQuery(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, queryString, 10f));
+    qb.should(this.termAnyQuery(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, queryString, 1f));
 
     return qb;
   }
 
+  private QueryBuilder termQuery(String field, String query, float boost) {
+    return QueryBuilders.multiMatchQuery(query,
+      field, field + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
+      .operator(MatchQueryBuilder.Operator.AND)
+      .boost(boost);
+  }
+
+  private QueryBuilder termAnyQuery(String field, String query, float boost) {
+    return QueryBuilders.multiMatchQuery(query,
+      field, field + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
+      .operator(MatchQueryBuilder.Operator.OR)
+      .boost(boost);
+  }
+
   /* Build main filter (match based) */
-  protected Map<String, FilterBuilder> getFilters(RuleQuery query, QueryContext options) {
+  private Map<String, FilterBuilder> buildFilters(RuleQuery query) {
 
     Map<String, FilterBuilder> filters = new HashMap<>();
 
     /* Add enforced filter on rules that are REMOVED */
-    filters.put(RuleNormalizer.RuleField.STATUS.field(),
+    filters.put(RuleIndexDefinition.FIELD_RULE_STATUS,
       FilterBuilders.boolFilter().mustNot(
-        FilterBuilders.termFilter(RuleNormalizer.RuleField.STATUS.field(),
+        FilterBuilders.termFilter(RuleIndexDefinition.FIELD_RULE_STATUS,
           RuleStatus.REMOVED.toString())));
 
     if (!StringUtils.isEmpty(query.getInternalKey())) {
-      filters.put(RuleNormalizer.RuleField.INTERNAL_KEY.field(),
-        FilterBuilders.termFilter(RuleNormalizer.RuleField.INTERNAL_KEY.field(), query.getInternalKey()));
+      filters.put(RuleIndexDefinition.FIELD_RULE_INTERNAL_KEY,
+        FilterBuilders.termFilter(RuleIndexDefinition.FIELD_RULE_INTERNAL_KEY, query.getInternalKey()));
     }
 
     if (!StringUtils.isEmpty(query.getRuleKey())) {
-      filters.put(RuleNormalizer.RuleField.RULE_KEY.field(),
-        FilterBuilders.termFilter(RuleNormalizer.RuleField.RULE_KEY.field(), query.getRuleKey()));
+      filters.put(RuleIndexDefinition.FIELD_RULE_RULE_KEY,
+        FilterBuilders.termFilter(RuleIndexDefinition.FIELD_RULE_RULE_KEY, query.getRuleKey()));
     }
 
     if (!CollectionUtils.isEmpty(query.getLanguages())) {
-      filters.put(RuleNormalizer.RuleField.LANGUAGE.field(),
-        FilterBuilders.termsFilter(RuleNormalizer.RuleField.LANGUAGE.field(), query.getLanguages()));
+      filters.put(RuleIndexDefinition.FIELD_RULE_LANGUAGE,
+        FilterBuilders.termsFilter(RuleIndexDefinition.FIELD_RULE_LANGUAGE, query.getLanguages()));
     }
 
     if (!CollectionUtils.isEmpty(query.getRepositories())) {
-      filters.put(RuleNormalizer.RuleField.REPOSITORY.field(),
-        FilterBuilders.termsFilter(RuleNormalizer.RuleField.REPOSITORY.field(), query.getRepositories()));
+      filters.put(RuleIndexDefinition.FIELD_RULE_REPOSITORY,
+        FilterBuilders.termsFilter(RuleIndexDefinition.FIELD_RULE_REPOSITORY, query.getRepositories()));
     }
 
     if (!CollectionUtils.isEmpty(query.getSeverities())) {
-      filters.put(RuleNormalizer.RuleField.SEVERITY.field(),
-        FilterBuilders.termsFilter(RuleNormalizer.RuleField.SEVERITY.field(), query.getSeverities()));
+      filters.put(RuleIndexDefinition.FIELD_RULE_SEVERITY,
+        FilterBuilders.termsFilter(RuleIndexDefinition.FIELD_RULE_SEVERITY, query.getSeverities()));
     }
 
     if (!StringUtils.isEmpty(query.getKey())) {
-      filters.put(RuleNormalizer.RuleField.KEY.field(),
-        FilterBuilders.termFilter(RuleNormalizer.RuleField.KEY.field(), query.getKey()));
+      filters.put(RuleIndexDefinition.FIELD_RULE_KEY,
+        FilterBuilders.termFilter(RuleIndexDefinition.FIELD_RULE_KEY, query.getKey()));
     }
 
     if (!CollectionUtils.isEmpty(query.getTags())) {
-      filters.put(RuleNormalizer.RuleField.ALL_TAGS.field(),
-        FilterBuilders.termsFilter(RuleNormalizer.RuleField.ALL_TAGS.field(), query.getTags()));
+      filters.put(RuleIndexDefinition.FIELD_RULE_ALL_TAGS,
+        FilterBuilders.termsFilter(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, query.getTags()));
     }
 
-    if (query.getAvailableSince() != null) {
-      filters.put("availableSince", FilterBuilders.rangeFilter(RuleNormalizer.RuleField.CREATED_AT.field())
-        .gte(query.getAvailableSince()));
+    if (query.getAvailableSinceLong() != null) {
+      filters.put("availableSince", FilterBuilders.rangeFilter(RuleIndexDefinition.FIELD_RULE_CREATED_AT)
+        .gte(query.getAvailableSinceLong()));
     }
 
     Collection<RuleStatus> statusValues = query.getStatuses();
@@ -275,27 +256,27 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       for (RuleStatus status : statusValues) {
         stringStatus.add(status.name());
       }
-      filters.put(RuleNormalizer.RuleField.STATUS.field(),
-        FilterBuilders.termsFilter(RuleNormalizer.RuleField.STATUS.field(), stringStatus));
+      filters.put(RuleIndexDefinition.FIELD_RULE_STATUS,
+        FilterBuilders.termsFilter(RuleIndexDefinition.FIELD_RULE_STATUS, stringStatus));
     }
 
     Boolean isTemplate = query.isTemplate();
     if (isTemplate != null) {
-      filters.put(RuleNormalizer.RuleField.IS_TEMPLATE.field(),
-        FilterBuilders.termFilter(RuleNormalizer.RuleField.IS_TEMPLATE.field(), Boolean.toString(isTemplate)));
+      filters.put(RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE,
+        FilterBuilders.termFilter(RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE, Boolean.toString(isTemplate)));
     }
 
     String template = query.templateKey();
     if (template != null) {
-      filters.put(RuleNormalizer.RuleField.TEMPLATE_KEY.field(),
-        FilterBuilders.termFilter(RuleNormalizer.RuleField.TEMPLATE_KEY.field(), template));
+      filters.put(RuleIndexDefinition.FIELD_RULE_TEMPLATE_KEY,
+        FilterBuilders.termFilter(RuleIndexDefinition.FIELD_RULE_TEMPLATE_KEY, template));
     }
 
     // ActiveRule Filter (profile and inheritance)
     BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
-    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());
-    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field(), query.getInheritance());
-    this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field(), query.getActiveSeverities());
+    addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
+    addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
+    addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
 
     // ChildQuery
     FilterBuilder childQuery;
@@ -308,45 +289,84 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     /** Implementation of activation query */
     if (Boolean.TRUE.equals(query.getActivation())) {
       filters.put("activation",
-        FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
+        FilterBuilders.hasChildFilter(RuleIndexDefinition.TYPE_ACTIVE_RULE,
           childQuery));
     } else if (Boolean.FALSE.equals(query.getActivation())) {
       filters.put("activation",
         FilterBuilders.boolFilter().mustNot(
-          FilterBuilders.hasChildFilter(IndexDefinition.ACTIVE_RULE.getIndexType(),
+          FilterBuilders.hasChildFilter(RuleIndexDefinition.TYPE_ACTIVE_RULE,
             childQuery)));
     }
 
     return filters;
   }
 
-  protected Map<String, AggregationBuilder> getFacets(RuleQuery query, QueryContext options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters) {
+  private BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable Collection<String> values) {
+    if (values != null && !values.isEmpty()) {
+      BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
+      for (String value : values) {
+        FilterBuilder valueFilter = FilterBuilders.termFilter(field, value);
+        valuesFilter.should(valueFilter);
+      }
+      filter.must(valuesFilter);
+    }
+    return filter;
+  }
+
+  private BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable String value) {
+    if (value != null && !value.isEmpty()) {
+      filter.must(FilterBuilders.termFilter(field, value));
+    }
+    return filter;
+  }
+
+  private Map<String, AggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters) {
     Map<String, AggregationBuilder> aggregations = new HashMap<>();
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
 
-    addDefaultFacets(query, options, queryBuilder, filters, aggregations, stickyFacetBuilder);
+    addDefaultFacets(query, options, aggregations, stickyFacetBuilder);
 
     addStatusFacetIfNeeded(options, aggregations, stickyFacetBuilder);
 
-    if (options.facets().contains(FACET_SEVERITIES)) {
+    if (options.getFacets().contains(FACET_SEVERITIES)) {
       aggregations.put(FACET_SEVERITIES,
-        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.SEVERITY.field(), FACET_SEVERITIES, Severity.ALL.toArray()));
+        stickyFacetBuilder.buildStickyFacet(RuleIndexDefinition.FIELD_RULE_SEVERITY, FACET_SEVERITIES, Severity.ALL.toArray()));
     }
 
     addActiveSeverityFacetIfNeeded(query, options, aggregations, stickyFacetBuilder);
     return aggregations;
-
   }
 
-  private void addStatusFacetIfNeeded(QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
-    if (options.facets().contains(FACET_STATUSES)) {
-      BoolFilterBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(RuleNormalizer.RuleField.STATUS.field());
+  private void addDefaultFacets(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+    if (options.getFacets().contains(FACET_LANGUAGES) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
+      Collection<String> languages = query.getLanguages();
+      aggregations.put(FACET_LANGUAGES,
+        stickyFacetBuilder.buildStickyFacet(RuleIndexDefinition.FIELD_RULE_LANGUAGE, FACET_LANGUAGES,
+          languages == null ? new String[0] : languages.toArray()));
+    }
+    if (options.getFacets().contains(FACET_TAGS) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
+      Collection<String> tags = query.getTags();
+      aggregations.put(FACET_TAGS,
+        stickyFacetBuilder.buildStickyFacet(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, FACET_TAGS,
+          tags == null ? new String[0] : tags.toArray()));
+    }
+    if (options.getFacets().contains("repositories") || options.getFacets().contains(FACET_OLD_DEFAULT)) {
+      Collection<String> repositories = query.getRepositories();
+      aggregations.put(FACET_REPOSITORIES,
+        stickyFacetBuilder.buildStickyFacet(RuleIndexDefinition.FIELD_RULE_REPOSITORY, FACET_REPOSITORIES,
+          repositories == null ? new String[0] : repositories.toArray()));
+    }
+  }
+
+  private void addStatusFacetIfNeeded(SearchOptions options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+    if (options.getFacets().contains(FACET_STATUSES)) {
+      BoolFilterBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(RuleIndexDefinition.FIELD_RULE_STATUS);
       AggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter")
         .filter(facetFilter)
         .subAggregation(
           AggregationBuilders
             .terms(FACET_STATUSES)
-            .field(RuleNormalizer.RuleField.STATUS.field())
+            .field(RuleIndexDefinition.FIELD_RULE_STATUS)
             .include(Joiner.on('|').join(ALL_STATUSES_EXCEPT_REMOVED))
             .exclude(RuleStatus.REMOVED.toString())
             .size(ALL_STATUSES_EXCEPT_REMOVED.size()));
@@ -355,19 +375,19 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
   }
 
-  private void addActiveSeverityFacetIfNeeded(RuleQuery query, QueryContext options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
-    if (options.facets().contains(FACET_ACTIVE_SEVERITIES)) {
+  private void addActiveSeverityFacetIfNeeded(RuleQuery query, SearchOptions options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
+    if (options.getFacets().contains(FACET_ACTIVE_SEVERITIES)) {
       // We are building a children aggregation on active rules
       // so the rule filter has to be used as parent filter for active rules
       // from which we remove filters that concern active rules ("activation")
       HasParentFilterBuilder ruleFilter = FilterBuilders.hasParentFilter(
-        IndexDefinition.RULE.getIndexType(),
+        RuleIndexDefinition.TYPE_RULE,
         stickyFacetBuilder.getStickyFacetFilter("activation"));
 
       // Rebuilding the active rule filter without severities
       BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
-      this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.PROFILE_KEY.field(), query.getQProfileKey());
-      this.addTermFilter(childrenFilter, ActiveRuleNormalizer.ActiveRuleField.INHERITANCE.field(), query.getInheritance());
+      this.addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
+      this.addTermFilter(childrenFilter, RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       FilterBuilder activeRuleFilter;
       if (childrenFilter.hasClauses()) {
         activeRuleFilter = childrenFilter.must(ruleFilter);
@@ -376,13 +396,13 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       }
 
       AggregationBuilder activeSeverities = AggregationBuilders.children(FACET_ACTIVE_SEVERITIES + "_children")
-        .childType(IndexDefinition.ACTIVE_RULE.getIndexType())
+        .childType(RuleIndexDefinition.TYPE_ACTIVE_RULE)
         .subAggregation(AggregationBuilders.filter(FACET_ACTIVE_SEVERITIES + "_filter")
           .filter(activeRuleFilter)
           .subAggregation(
             AggregationBuilders
               .terms(FACET_ACTIVE_SEVERITIES)
-              .field(ActiveRuleNormalizer.ActiveRuleField.SEVERITY.field())
+              .field(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY)
               .include(Joiner.on('|').join(Severity.ALL))
               .size(Severity.ALL.size())));
 
@@ -390,66 +410,41 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     }
   }
 
-  protected void addDefaultFacets(RuleQuery query, QueryContext options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters,
-    Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
-    if (options.facets().contains(FACET_LANGUAGES) || options.facets().contains(FACET_OLD_DEFAULT)) {
-      Collection<String> languages = query.getLanguages();
-      aggregations.put(FACET_LANGUAGES,
-        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.LANGUAGE.field(), FACET_LANGUAGES,
-          languages == null ? new String[0] : languages.toArray()));
-    }
-    if (options.facets().contains(FACET_TAGS) || options.facets().contains(FACET_OLD_DEFAULT)) {
-      Collection<String> tags = query.getTags();
-      aggregations.put(FACET_TAGS,
-        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.ALL_TAGS.field(), FACET_TAGS,
-          tags == null ? new String[0] : tags.toArray()));
-    }
-    if (options.facets().contains("repositories") || options.facets().contains(FACET_OLD_DEFAULT)) {
-      Collection<String> repositories = query.getRepositories();
-      aggregations.put(FACET_REPOSITORIES,
-        stickyFacetBuilder.buildStickyFacet(RuleNormalizer.RuleField.REPOSITORY.field(), FACET_REPOSITORIES,
-          repositories == null ? new String[0] : repositories.toArray()));
-    }
+  private StickyFacetBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters) {
+    return new StickyFacetBuilder(query, filters);
   }
 
-  public Result<Rule> search(RuleQuery query, QueryContext options) {
-    SearchRequestBuilder esSearch = getClient()
-      .prepareSearch(this.getIndexName())
-      .setTypes(this.getIndexType())
-      .setIndices(this.getIndexName());
-
-    if (options.isScroll()) {
-      esSearch.setSearchType(SearchType.SCAN);
-      esSearch.setScroll(TimeValue.timeValueMinutes(3));
-    }
-
-    QueryBuilder qb = this.getQuery(query);
-    Map<String, FilterBuilder> filters = this.getFilters(query, options);
-
-    if (options.isFacet()) {
-      for (AggregationBuilder aggregation : getFacets(query, options, qb, filters).values()) {
-        esSearch.addAggregation(aggregation);
+  private void setSorting(RuleQuery query, SearchRequestBuilder esSearch) {
+    /* integrate Query Sort */
+    String queryText = query.getQueryText();
+    if (query.getSortField() != null) {
+      FieldSortBuilder sort = SortBuilders.fieldSort(appendSortSuffixIfNeeded(query.getSortField()));
+      if (query.isAscendingSort()) {
+        sort.order(SortOrder.ASC);
+      } else {
+        sort.order(SortOrder.DESC);
       }
+      esSearch.addSort(sort);
+    } else if (queryText != null && !queryText.isEmpty()) {
+      esSearch.addSort(SortBuilders.scoreSort());
+    } else {
+      esSearch.addSort(appendSortSuffixIfNeeded(RuleIndexDefinition.FIELD_RULE_UPDATED_AT), SortOrder.DESC);
+      // deterministic sort when exactly the same updated_at (same millisecond)
+      esSearch.addSort(appendSortSuffixIfNeeded(RuleIndexDefinition.FIELD_RULE_KEY), SortOrder.ASC);
     }
-
-    setSorting(query, esSearch);
-    setPagination(options, esSearch);
-    setFields(options, esSearch);
-
-    BoolFilterBuilder fb = FilterBuilders.boolFilter();
-    for (FilterBuilder ffb : filters.values()) {
-      fb.must(ffb);
-    }
-
-    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
-    SearchResponse esResult = esSearch.get();
-    return new Result<>(this, esResult);
   }
 
-  @Override
-  protected Rule toDoc(Map<String, Object> fields) {
-    Preconditions.checkNotNull(fields, "Cannot construct Rule with null response");
-    return new RuleDoc(fields);
+  public static String appendSortSuffixIfNeeded(String field) {
+      return field +
+        ((field.equals(RuleIndexDefinition.FIELD_RULE_NAME)
+        || field.equals(RuleIndexDefinition.FIELD_RULE_KEY))
+          ? "." + BaseIndex.SORT_SUFFIX
+          : "");
+  }
+
+  private void setPagination(SearchOptions options, SearchRequestBuilder esSearch) {
+    esSearch.setFrom(options.getOffset());
+    esSearch.setSize(options.getLimit());
   }
 
   public Set<String> terms(String fields) {
@@ -468,7 +463,7 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
       terms.include(".*" + query + ".*");
     }
     SearchRequestBuilder request = this.getClient()
-      .prepareSearch(this.getIndexName())
+      .prepareSearch(RuleIndexDefinition.INDEX)
       .setQuery(QueryBuilders.matchAllQuery())
       .addAggregation(terms);
 
@@ -484,55 +479,13 @@ public class RuleIndex extends BaseIndex<Rule, RuleDto, RuleKey> {
     return tags;
   }
 
-  /**
-   * @deprecated please use getByKey(RuleKey key)
-   */
-  @Deprecated
-  @CheckForNull
-  public Rule getById(int id) {
-    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
-      .setTypes(this.getIndexType())
-      .setQuery(QueryBuilders.termQuery(RuleNormalizer.RuleField.ID.field(), id))
-      .setSize(1);
-    SearchResponse response = request.get();
+  private enum ToRuleKey implements Function<String, RuleKey> {
+    INSTANCE;
 
-    SearchHit hit = response.getHits().getAt(0);
-    if (hit == null) {
-      return null;
-    } else {
-      return toDoc(hit.getSource());
+    @Override
+    public RuleKey apply(@Nonnull String input) {
+      return RuleKey.parse(input);
     }
   }
 
-  /**
-   * @deprecated please use getByKey(RuleKey key)
-   */
-  @Deprecated
-  public List<Rule> getByIds(Collection<Integer> ids) {
-    SearchRequestBuilder request = getClient().prepareSearch(this.getIndexName())
-      .setTypes(this.getIndexType())
-      .setSearchType(SearchType.SCAN)
-      .setScroll(TimeValue.timeValueSeconds(3L))
-      .setSize(100)
-      .setQuery(QueryBuilders.termsQuery(RuleNormalizer.RuleField.ID.field(), ids));
-    SearchResponse scrollResp = request.get();
-
-    List<Rule> rules = newArrayList();
-    while (true) {
-      SearchScrollRequestBuilder scrollRequest = getClient()
-        .prepareSearchScroll(scrollResp.getScrollId())
-        .setScroll(TimeValue.timeValueSeconds(3L));
-
-      scrollResp = scrollRequest.get();
-
-      for (SearchHit hit : scrollResp.getHits()) {
-        rules.add(toDoc(hit.getSource()));
-      }
-      // Break condition: No hits are returned
-      if (scrollResp.getHits().getHits().length == 0) {
-        break;
-      }
-    }
-    return rules;
-  }
 }

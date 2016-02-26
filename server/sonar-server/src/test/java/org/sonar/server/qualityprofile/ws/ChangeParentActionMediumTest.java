@@ -41,7 +41,7 @@ import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
@@ -64,7 +64,7 @@ public class ChangeParentActionMediumTest {
   WsTester wsTester;
   RuleIndexer ruleIndexer;
   ActiveRuleIndexer activeRuleIndexer;
-  RuleIndex2 ruleIndex;
+  RuleIndex ruleIndex;
 
   @Before
   public void setUp() {
@@ -77,7 +77,7 @@ public class ChangeParentActionMediumTest {
     ruleIndexer.setEnabled(true);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
     activeRuleIndexer.setEnabled(true);
-    ruleIndex = tester.get(RuleIndex2.class);
+    ruleIndex = tester.get(RuleIndex.class);
     userSessionRule.login("gandalf").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
   }
 

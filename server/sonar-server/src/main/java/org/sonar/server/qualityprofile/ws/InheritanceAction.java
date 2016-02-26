@@ -40,7 +40,7 @@ import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.FacetValue;
 
-import static org.sonar.server.qualityprofile.index.ActiveRuleIndex2.COUNT_ACTIVE_RULES;
+import static org.sonar.server.qualityprofile.index.ActiveRuleIndex.COUNT_ACTIVE_RULES;
 
 public class InheritanceAction implements QProfileWsAction {
 

@@ -44,7 +44,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.util.TypeValidations;
 
@@ -60,11 +60,11 @@ public class RuleActivator {
   private final DbClient db;
   private final TypeValidations typeValidations;
   private final RuleActivatorContextFactory contextFactory;
-  private final RuleIndex2 ruleIndex;
+  private final RuleIndex ruleIndex;
   private final ActiveRuleIndexer activeRuleIndexer;
   private final ActivityService activityService;
 
-  public RuleActivator(System2 system2, DbClient db, RuleIndex2 ruleIndex,
+  public RuleActivator(System2 system2, DbClient db, RuleIndex ruleIndex,
     RuleActivatorContextFactory contextFactory, TypeValidations typeValidations,
     ActiveRuleIndexer activeRuleIndexer, ActivityService activityService) {
     this.system2 = system2;

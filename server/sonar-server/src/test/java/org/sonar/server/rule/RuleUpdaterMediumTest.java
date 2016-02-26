@@ -51,7 +51,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -73,7 +73,7 @@ public class RuleUpdaterMediumTest {
   DbClient db = tester.get(DbClient.class);
   RuleDao ruleDao = tester.get(RuleDao.class);
   DbSession dbSession = db.openSession(false);
-  RuleIndex2 ruleIndex = tester.get(RuleIndex2.class);
+  RuleIndex ruleIndex = tester.get(RuleIndex.class);
 
   RuleUpdater underTest = tester.get(RuleUpdater.class);
 

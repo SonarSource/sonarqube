@@ -57,7 +57,7 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.Rule;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.ws.SearchOptions;
@@ -65,14 +65,14 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
 
 import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.server.rule.index.RuleIndex2.ALL_STATUSES_EXCEPT_REMOVED;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_ACTIVE_SEVERITIES;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_LANGUAGES;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_OLD_DEFAULT;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_REPOSITORIES;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_SEVERITIES;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_STATUSES;
-import static org.sonar.server.rule.index.RuleIndex2.FACET_TAGS;
+import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
+import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_OLD_DEFAULT;
+import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_SEVERITIES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
+import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 /**
@@ -100,12 +100,12 @@ public class SearchAction implements RulesWsAction {
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
 
   private final DbClient dbClient;
-  private final RuleIndex2 ruleIndex;
+  private final RuleIndex ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapping mapping;
   private final RuleMapper mapper;
 
-  public SearchAction(RuleIndex2 ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, DbClient dbClient, RuleMapper mapper) {
+  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, DbClient dbClient, RuleMapper mapper) {
     this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapping = mapping;
@@ -336,7 +336,7 @@ public class SearchAction implements RulesWsAction {
     org.sonar.server.es.SearchOptions searchQueryContext = mapping.newQueryOptions(SearchOptions.create(request))
       .setLimit(context.getLimit())
       .setOffset(context.getOffset());
-    if (context.getFacets().contains(RuleIndex2.FACET_OLD_DEFAULT)) {
+    if (context.getFacets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
       searchQueryContext.addFacets(DEFAULT_FACETS);
     } else {
       searchQueryContext.addFacets(context.getFacets());

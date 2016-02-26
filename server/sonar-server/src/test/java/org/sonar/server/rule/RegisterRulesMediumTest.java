@@ -50,7 +50,7 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -75,7 +75,7 @@ public class RegisterRulesMediumTest {
   DbClient db = TESTER.get(DbClient.class);
   DbSession dbSession = TESTER.get(DbClient.class).openSession(false);
 
-  RuleIndex2 ruleIndex = TESTER.get(RuleIndex2.class);
+  RuleIndex ruleIndex = TESTER.get(RuleIndex.class);
   RuleDao ruleDao = db.ruleDao();
 
   @Before
@@ -100,7 +100,7 @@ public class RegisterRulesMediumTest {
     db = TESTER.get(DbClient.class);
     dbSession = TESTER.get(DbClient.class).openSession(false);
     dbSession.clearCache();
-    ruleIndex = TESTER.get(RuleIndex2.class);
+    ruleIndex = TESTER.get(RuleIndex.class);
   }
 
   @Test

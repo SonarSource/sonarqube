@@ -37,7 +37,7 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
@@ -54,7 +54,7 @@ public class RuleServiceMediumTest {
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
   RuleDao dao = tester.get(RuleDao.class);
-  RuleIndex2 index = tester.get(RuleIndex2.class);
+  RuleIndex index = tester.get(RuleIndex.class);
   RuleService service = tester.get(RuleService.class);
   DbSession dbSession;
   RuleIndexer ruleIndexer;

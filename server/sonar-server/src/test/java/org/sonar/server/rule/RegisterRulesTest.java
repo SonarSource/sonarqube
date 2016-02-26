@@ -42,7 +42,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
@@ -79,7 +79,7 @@ public class RegisterRulesTest {
 
   RuleIndexer ruleIndexer;
 
-  RuleIndex2 ruleIndex;
+  RuleIndex ruleIndex;
 
   @Before
   public void before() {
@@ -87,7 +87,7 @@ public class RegisterRulesTest {
     when(system.now()).thenReturn(DATE1.getTime());
     ruleIndexer = new RuleIndexer(dbClient, esTester.client());
     ruleIndexer.setEnabled(true);
-    ruleIndex = new RuleIndex2(esTester.client());
+    ruleIndex = new RuleIndex(esTester.client());
   }
 
   @Test

@@ -35,8 +35,8 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex2;
-import org.sonar.server.rule.index.RuleIndex2;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 
@@ -44,10 +44,10 @@ import org.sonar.server.search.FacetValue;
 public class QProfileLoader {
 
   private final DbClient dbClient;
-  private final ActiveRuleIndex2 activeRuleIndex;
-  private final RuleIndex2 ruleIndex;
+  private final ActiveRuleIndex activeRuleIndex;
+  private final RuleIndex ruleIndex;
 
-  public QProfileLoader(DbClient dbClient, ActiveRuleIndex2 activeRuleIndex, RuleIndex2 ruleIndex) {
+  public QProfileLoader(DbClient dbClient, ActiveRuleIndex activeRuleIndex, RuleIndex ruleIndex) {
     this.dbClient = dbClient;
     this.activeRuleIndex = activeRuleIndex;
     this.ruleIndex = ruleIndex;
