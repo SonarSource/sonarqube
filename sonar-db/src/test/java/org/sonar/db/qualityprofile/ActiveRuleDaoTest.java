@@ -19,6 +19,7 @@
  */
 package org.sonar.db.qualityprofile;
 
+import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,6 +31,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -41,11 +43,11 @@ public class ActiveRuleDaoTest {
 
   static final long NOW = 10000000L;
 
-  static final QualityProfileDto QPROFILE_1 = QualityProfileDto.createFor("qp1").setName("QProile1");
-  static final QualityProfileDto QPROFILE_2 = QualityProfileDto.createFor("qp2").setName("QProile2");
+  QualityProfileDto QPROFILE_1 = QualityProfileDto.createFor("qp1").setName("QProile1");
+  QualityProfileDto QPROFILE_2 = QualityProfileDto.createFor("qp2").setName("QProile2");
 
-  static final RuleDto RULE_1 = RuleTesting.newDto(RuleTesting.XOO_X1);
-  static final RuleDto RULE_2 = RuleTesting.newDto(RuleTesting.XOO_X2);
+  RuleDto RULE_1 = RuleTesting.newDto(RuleTesting.XOO_X1);
+  RuleDto RULE_2 = RuleTesting.newDto(RuleTesting.XOO_X2);
 
   System2 system = mock(System2.class);
 
@@ -58,7 +60,7 @@ public class ActiveRuleDaoTest {
   ActiveRuleDao underTest = dbTester.getDbClient().activeRuleDao();
 
   @Before
-  public void createDao() {
+  public void setUp() {
     when(system.now()).thenReturn(NOW);
 
     dbClient.qualityProfileDao().insert(dbTester.getSession(), QPROFILE_1);
@@ -79,5 +81,21 @@ public class ActiveRuleDaoTest {
     assertThat(underTest.selectByKeys(dbSession, asList(activeRule1.getKey(), activeRule2.getKey()))).hasSize(2);
     assertThat(underTest.selectByKeys(dbSession, asList(activeRule1.getKey()))).hasSize(1);
     assertThat(underTest.selectByKeys(dbSession, asList(ActiveRuleKey.of(QPROFILE_2.getKey(), RULE_1.getKey())))).isEmpty();
+  }
+
+  @Test
+  public void select_by_rule_ids() {
+    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(QPROFILE_1, RULE_1).setSeverity(Severity.BLOCKER);
+    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(QPROFILE_1, RULE_2).setSeverity(Severity.BLOCKER);
+    ActiveRuleDto activeRule3 = ActiveRuleDto.createFor(QPROFILE_2, RULE_1).setSeverity(Severity.BLOCKER);
+    underTest.insert(dbSession, activeRule1);
+    underTest.insert(dbSession, activeRule2);
+    underTest.insert(dbSession, activeRule3);
+    dbSession.commit();
+
+    assertThat(underTest.selectByRuleIds(dbSession, Collections.singletonList(RULE_1.getId())))
+      .extracting("key").containsOnly(activeRule1.getKey(), activeRule3.getKey());
+    assertThat(underTest.selectByRuleIds(dbSession, newArrayList(RULE_1.getId(), RULE_2.getId())))
+      .extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey(), activeRule3.getKey());
   }
 }

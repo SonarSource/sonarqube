@@ -19,7 +19,6 @@
  */
 package org.sonar.db.qualityprofile;
 
-import com.google.common.base.Preconditions;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -29,6 +28,8 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.SeverityUtil;
+
+import static java.util.Objects.requireNonNull;
 
 public class ActiveRuleDto {
 
@@ -142,8 +143,8 @@ public class ActiveRuleDto {
   }
 
   public static ActiveRuleDto createFor(QualityProfileDto profileDto, RuleDto ruleDto) {
-    Preconditions.checkNotNull(profileDto.getId(), "Profile is not persisted");
-    Preconditions.checkNotNull(ruleDto.getId(), "Rule is not persisted");
+    requireNonNull(profileDto.getId(), "Profile is not persisted");
+    requireNonNull(ruleDto.getId(), "Rule is not persisted");
     ActiveRuleDto dto = new ActiveRuleDto();
     dto.setProfileId(profileDto.getId());
     dto.setRuleId(ruleDto.getId());

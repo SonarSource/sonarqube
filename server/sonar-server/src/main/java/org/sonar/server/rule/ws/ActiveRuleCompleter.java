@@ -20,7 +20,6 @@
 package org.sonar.server.rule.ws;
 
 import com.google.common.base.Function;
-import com.google.common.base.Optional;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -44,6 +43,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleDtoFunctions;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.rule.index.RuleQuery;
@@ -54,7 +54,6 @@ import org.sonarqube.ws.Rules.ShowResponse;
 import static com.google.common.base.Strings.nullToEmpty;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
-import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 /**
  * Add details about active rules to api/rules/search and api/rules/show
@@ -80,47 +79,64 @@ public class ActiveRuleCompleter {
     searchResponse.setQProfiles(buildQProfiles(harvestedProfileKeys));
   }
 
-  private Collection<String> writeActiveRules(DbSession dbSession, SearchResponse.Builder response, RuleQuery query, Collection<RuleDto> rules) {
+  private Collection<String> writeActiveRules(DbSession dbSession, SearchResponse.Builder response, RuleQuery query, List<RuleDto> rules) {
     Collection<String> qProfileKeys = newHashSet();
     Rules.Actives.Builder activesBuilder = response.getActivesBuilder();
 
     String profileKey = query.getQProfileKey();
     if (profileKey != null) {
       // Load details of active rules on the selected profile
+      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profileKey);
+      ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
+
       for (RuleDto rule : rules) {
         ActiveRule activeRule = loader.getActiveRule(ActiveRuleKey.of(profileKey, rule.getKey()));
         if (activeRule != null) {
-          Optional<ActiveRuleDto> activeRuleDto = dbClient.activeRuleDao().selectByKey(dbSession, activeRule.key());
-          checkFoundWithOptional(activeRuleDto, "Active rule with key '%s' not found", activeRule.key().toString());
-          List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.get().getId());
-          ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamByActiveRuleKey = ArrayListMultimap.create(1, activeRuleParamDtos.size());
-          activeRuleParamByActiveRuleKey.putAll(activeRule.key(), activeRuleParamDtos);
-          qProfileKeys = writeActiveRules(rule.getKey(), singletonList(activeRule), activeRuleParamByActiveRuleKey, activesBuilder);
+          qProfileKeys = writeActiveRules(rule.getKey(), singletonList(activeRule), activeRuleParamsByActiveRuleKey, activesBuilder);
         }
       }
     } else {
       // Load details of all active rules
+      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleIds(dbSession, Lists.transform(rules, RuleDtoFunctions.toId()));
+      ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = activeRuleDtosToActiveRuleParamDtos(dbSession, activeRuleDtos);
+
       for (RuleDto rule : rules) {
         List<ActiveRule> activeRules = loader.findActiveRulesByRule(rule.getKey());
-        List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByKeys(dbSession, Lists.transform(activeRules, ActiveRuleToKey.INSTANCE));
-        Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
-        for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
-          activeRuleIdsByKey.put(activeRuleDto.getId(), activeRuleDto.getKey());
-        }
-
-        List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDtoToId.INSTANCE));
-        ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRules.size(), 10);
-        for (ActiveRuleParamDto activeRuleParamDto : activeRuleParamDtos) {
-          ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getId());
-          activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParamDto);
-        }
-
         qProfileKeys = writeActiveRules(rule.getKey(), activeRules, activeRuleParamsByActiveRuleKey, activesBuilder);
       }
     }
 
     response.setActives(activesBuilder);
     return qProfileKeys;
+  }
+
+  private static Collection<String> writeActiveRules(RuleKey ruleKey, Collection<ActiveRule> activeRules,
+    ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey, Rules.Actives.Builder activesBuilder) {
+    Collection<String> qProfileKeys = newHashSet();
+    Rules.ActiveList.Builder activeRulesListResponse = Rules.ActiveList.newBuilder();
+    for (ActiveRule activeRule : activeRules) {
+      activeRulesListResponse.addActiveList(buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.key())));
+      qProfileKeys.add(activeRule.key().qProfile());
+    }
+    activesBuilder
+      .getMutableActives()
+      .put(ruleKey.toString(), activeRulesListResponse.build());
+    return qProfileKeys;
+  }
+
+  private ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleDtosToActiveRuleParamDtos(DbSession dbSession, List<ActiveRuleDto> activeRuleDtos) {
+    Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
+    for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
+      activeRuleIdsByKey.put(activeRuleDto.getId(), activeRuleDto.getKey());
+    }
+    List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDtoToId.INSTANCE));
+    ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRuleDtos.size(), 10);
+    for (ActiveRuleParamDto activeRuleParamDto : activeRuleParamDtos) {
+      ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getActiveRuleId());
+      activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParamDto);
+    }
+
+    return activeRuleParamsByActiveRuleKey;
   }
 
   void completeShow(DbSession dbSession, RuleDto rule, ShowResponse.Builder response) {
@@ -141,20 +157,6 @@ public class ActiveRuleCompleter {
     for (ActiveRule activeRule : activeRules) {
       response.addActives(buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.key())));
     }
-  }
-
-  private static Collection<String> writeActiveRules(RuleKey ruleKey, Collection<ActiveRule> activeRules,
-    ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey, Rules.Actives.Builder activesBuilder) {
-    Collection<String> qProfileKeys = newHashSet();
-    Rules.ActiveList.Builder activeRulesListResponse = Rules.ActiveList.newBuilder();
-    for (ActiveRule activeRule : activeRules) {
-      activeRulesListResponse.addActiveList(buildActiveRuleResponse(activeRule, activeRuleParamsByActiveRuleKey.get(activeRule.key())));
-      qProfileKeys.add(activeRule.key().qProfile());
-    }
-    activesBuilder
-      .getMutableActives()
-      .put(ruleKey.toString(), activeRulesListResponse.build());
-    return qProfileKeys;
   }
 
   private static Rules.Active buildActiveRuleResponse(ActiveRule activeRule, List<ActiveRuleParamDto> parameters) {
