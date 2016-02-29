@@ -18,26 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
 
-import OverviewApp from './components/OverviewApp';
-import EmptyOverview from './components/EmptyOverview';
+import { QualityGateLink } from '../../../components/shared/quality-gate-link';
+import { translate } from '../../../helpers/l10n';
 
-const LEAK_PERIOD = '1';
+export default function MetaQualityGate ({ gate }) {
+  return (
+      <div className="big-spacer-bottom">
+        <h4 className="overview-meta-header">
+          {translate('overview.quality_gate')}
+        </h4>
 
-class App {
-  start (options) {
-    const opts = { ...options, ...window.sonarqube.overview };
-    Object.assign(opts.component, options.component);
-
-    const el = document.querySelector(opts.el);
-
-    if (opts.component.hasSnapshot) {
-      ReactDOM.render(<OverviewApp {...opts} leakPeriodIndex={LEAK_PERIOD}/>, el);
-    } else {
-      ReactDOM.render(<EmptyOverview {...opts}/>, el);
-    }
-  }
+        <ul className="overview-meta-list">
+          <li>
+            {gate.isDefault && (
+                <span className="note spacer-right">
+                  {'(' + translate('default') + ')'}
+                </span>
+            )}
+            <QualityGateLink gate={gate.key}>
+              {gate.name}
+            </QualityGateLink>
+          </li>
+        </ul>
+      </div>
+  );
 }
-
-window.sonarqube.appStarted.then(options => new App().start(options));

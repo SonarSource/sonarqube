@@ -18,26 +18,22 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
 
-import OverviewApp from './components/OverviewApp';
-import EmptyOverview from './components/EmptyOverview';
-
-const LEAK_PERIOD = '1';
-
-class App {
-  start (options) {
-    const opts = { ...options, ...window.sonarqube.overview };
-    Object.assign(opts.component, options.component);
-
-    const el = document.querySelector(opts.el);
-
-    if (opts.component.hasSnapshot) {
-      ReactDOM.render(<OverviewApp {...opts} leakPeriodIndex={LEAK_PERIOD}/>, el);
-    } else {
-      ReactDOM.render(<EmptyOverview {...opts}/>, el);
-    }
-  }
+export default function MetaLinks ({ links }) {
+  return (
+      <ul className="overview-meta-list big-spacer-bottom">
+        {links.map(link => (
+            <li key={link.type}>
+              <a
+                  className="link-with-icon"
+                  href={link.href}
+                  target="_blank">
+                <i className={`icon-color-link icon-${link.type}`}/>
+                &nbsp;
+                {link.name}
+              </a>
+            </li>
+        ))}
+      </ul>
+  );
 }
-
-window.sonarqube.appStarted.then(options => new App().start(options));

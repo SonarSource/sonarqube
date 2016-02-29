@@ -18,26 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
 
-import OverviewApp from './components/OverviewApp';
-import EmptyOverview from './components/EmptyOverview';
+import Gate from '../gate/gate';
+import GeneralMain from './../main/main';
+import Meta from './Meta';
 
-const LEAK_PERIOD = '1';
-
-class App {
-  start (options) {
-    const opts = { ...options, ...window.sonarqube.overview };
-    Object.assign(opts.component, options.component);
-
-    const el = document.querySelector(opts.el);
-
-    if (opts.component.hasSnapshot) {
-      ReactDOM.render(<OverviewApp {...opts} leakPeriodIndex={LEAK_PERIOD}/>, el);
-    } else {
-      ReactDOM.render(<EmptyOverview {...opts}/>, el);
-    }
-  }
+export default function OverviewMain (props) {
+  return (
+      <div className="overview">
+        <div className="overview-main">
+          <Gate component={props.component} gate={props.gate}/>
+          <GeneralMain {...props}/>
+        </div>
+        <Meta component={props.component}/>
+      </div>
+  );
 }
-
-window.sonarqube.appStarted.then(options => new App().start(options));

@@ -20,25 +20,26 @@
 import moment from 'moment';
 import React from 'react';
 
-import { Domain,
-         DomainHeader,
-         DomainPanel,
-         DomainNutshell,
-         DomainLeak,
-         MeasuresList,
-         Measure,
-         DomainMixin } from './components';
+import {
+    Domain,
+    DomainHeader,
+    DomainPanel,
+    DomainNutshell,
+    DomainLeak,
+    MeasuresList,
+    Measure,
+    DomainMixin
+} from './components';
 import { Rating } from './../../../components/shared/rating';
 import { IssuesLink } from '../../../components/shared/issues-link';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
-import { Legend } from '../components/legend';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
 
-export const GeneralDebt = React.createClass({
+export const CodeSmells = React.createClass({
   propTypes: {
     leakPeriodLabel: React.PropTypes.string,
     leakPeriodDate: React.PropTypes.object
@@ -52,21 +53,23 @@ export const GeneralDebt = React.createClass({
     }
 
     const createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+    const newDebt = this.props.leak['new_technical_debt'] || 0;
+    const newCodeSmells = this.props.leak['new_code_smells'] || 0;
 
     return <DomainLeak>
-      <Legend leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
-
       <MeasuresList>
-        <Measure label={getMetricName('new_debt')}>
-          <IssuesLink component={this.props.component.key}
-                      params={{ resolved: 'false', createdAfter, facetMode: 'debt' }}>
-            {formatMeasure(this.props.leak.debt, 'SHORT_WORK_DUR')}
+        <Measure label={getMetricName('new_effort')}>
+          <IssuesLink
+              component={this.props.component.key}
+              params={{ resolved: 'false', createdAfter, types: 'CODE_SMELL', facetMode: 'debt' }}>
+            {formatMeasure(newDebt, 'SHORT_WORK_DUR')}
           </IssuesLink>
         </Measure>
-        <Measure label={getMetricName('new_issues')}>
-          <IssuesLink component={this.props.component.key}
-                      params={{ resolved: 'false', createdAfter }}>
-            {formatMeasure(this.props.leak.issues, 'SHORT_INT')}
+        <Measure label={getMetricName('new_code_smells')}>
+          <IssuesLink
+              component={this.props.component.key}
+              params={{ resolved: 'false', types: 'CODE_SMELL', createdAfter }}>
+            {formatMeasure(newCodeSmells, 'SHORT_INT')}
           </IssuesLink>
         </Measure>
       </MeasuresList>
@@ -75,9 +78,12 @@ export const GeneralDebt = React.createClass({
   },
 
   render () {
+    const debt = this.props.measures['sqale_index'] || 0;
+    const codeSmells = this.props.measures['code_smells'] || 0;
+
     return <Domain>
       <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.debt')}/>
+                    title={translate('overview.domain.code_smells')}/>
 
       <DomainPanel>
         <DomainNutshell>
@@ -93,18 +99,21 @@ export const GeneralDebt = React.createClass({
               </div>
               <div className="display-inline-block text-middle">
                 <div className="overview-domain-measure-value">
-                  <IssuesLink component={this.props.component.key}
-                              params={{ resolved: 'false', facetMode: 'debt' }}>
-                    {formatMeasure(this.props.measures.debt, 'SHORT_WORK_DUR')}
+                  <IssuesLink
+                      component={this.props.component.key}
+                      params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt' }}>
+                    {formatMeasure(debt, 'SHORT_WORK_DUR')}
                   </IssuesLink>
                 </div>
-                <div className="overview-domain-measure-label">{getMetricName('debt')}</div>
+                <div className="overview-domain-measure-label">{getMetricName('effort')}</div>
               </div>
             </Measure>
 
-            <Measure label={getMetricName('issues')}>
-              <IssuesLink component={this.props.component.key} params={{ resolved: 'false' }}>
-                {formatMeasure(this.props.measures.issues, 'SHORT_INT')}
+            <Measure label={getMetricName('code_smells')}>
+              <IssuesLink
+                  component={this.props.component.key}
+                  params={{ resolved: 'false', types: 'CODE_SMELL' }}>
+                {formatMeasure(codeSmells, 'SHORT_INT')}
               </IssuesLink>
             </Measure>
           </MeasuresList>

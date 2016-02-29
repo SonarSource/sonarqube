@@ -439,6 +439,17 @@ a[class^="icon-"], a[class*=" icon-"] {
   color: @darkBlue;
   font-size: @iconFontSize;
 }
+
+.icon-scm,
+.icon-scm_dev,
+.icon-ci,
+.icon-issue,
+.icon-homepage {
+  display: inline-block;
+  width: @iconSmallFontSize;
+  margin-top: -1px;
+  text-align: center;
+}
 .icon-scm:before {
   content: "\f017";
   font-size: @iconSmallFontSize;
@@ -459,6 +470,7 @@ a[class^="icon-"], a[class*=" icon-"] {
   content: "\f016";
   font-size: @iconSmallFontSize;
 }
+
 .icon-resizer:before {
   content: "\f142";
   color: @darkGrey;

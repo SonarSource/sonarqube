@@ -21,19 +21,19 @@ import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
 
-import { GeneralDebt } from './debt';
+import { Risk } from './risk';
+import { CodeSmells } from './code-smells';
 import { GeneralCoverage } from './coverage';
 import { GeneralDuplications } from './duplications';
 import { GeneralStructure } from './structure';
 import { CoverageSelectionMixin } from '../components/coverage-selection-mixin';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { getMeasures } from '../../../api/measures';
-import { getIssuesCount } from '../../../api/issues';
+import { getFacet } from '../../../api/issues';
 import { getTimeMachineData } from '../../../api/time-machine';
 
 
 const METRICS_LIST = [
-  'sqale_rating',
   'overall_coverage',
   'new_overall_coverage',
   'coverage',
@@ -44,7 +44,13 @@ const METRICS_LIST = [
   'duplicated_lines_density',
   'duplicated_blocks',
   'ncloc',
-  'ncloc_language_distribution'
+  'ncloc_language_distribution',
+
+  'sqale_index',
+  'new_technical_debt',
+  'sqale_rating',
+  'reliability_rating',
+  'security_rating'
 ];
 
 const HISTORY_METRICS_LIST = [
@@ -73,18 +79,22 @@ export default React.createClass({
   componentDidMount() {
     Promise.all([
       this.requestMeasures(),
-      this.requestIssuesAndDebt(),
-      this.requestLeakIssuesAndDebt()
+      this.requestIssues(),
+      this.requestNewIssues()
     ]).then(responses => {
       const measures = this.getMeasuresValues(responses[0]);
-      measures.issues = responses[1].issues;
-      measures.debt = responses[1].debt;
+      const typesFacet = responses[1];
+      measures['code_smells'] = this.getFacetCount(typesFacet, 'CODE_SMELL');
+      measures['bugs'] = this.getFacetCount(typesFacet, 'BUG');
+      measures['vulnerabilities'] = this.getFacetCount(typesFacet, 'VULNERABILITY');
 
       let leak;
       if (this.state.leakPeriodDate) {
+        const newTypesFacet = responses[2];
         leak = this.getMeasuresValues(responses[0], Number(this.props.leakPeriodIndex));
-        leak.issues = responses[2].issues;
-        leak.debt = responses[2].debt;
+        leak['new_code_smells'] = this.getFacetCount(newTypesFacet, 'CODE_SMELL');
+        leak['new_bugs'] = this.getFacetCount(newTypesFacet, 'BUG');
+        leak['new_vulnerabilities'] = this.getFacetCount(newTypesFacet, 'VULNERABILITY');
       }
 
       this.setState({
@@ -111,29 +121,29 @@ export default React.createClass({
     return values;
   },
 
-  requestIssuesAndDebt() {
-    // FIXME requesting severities facet only to get debtTotal
-    return getIssuesCount({
-      componentUuids: this.props.component.id,
-      resolved: 'false',
-      facets: 'severities'
-    });
+  requestIssues (criteria = {}) {
+    const { component } = this.props;
+    const query = {
+      componentUuids: component.id,
+      resolved: false,
+      ...criteria
+    };
+    return getFacet(query, 'types').then(r => r.facet);
   },
 
-  requestLeakIssuesAndDebt() {
-    if (!this.state.leakPeriodDate) {
+  requestNewIssues () {
+    const { leakPeriodDate } = this.state;
+
+    if (!leakPeriodDate) {
       return Promise.resolve();
     }
 
-    const createdAfter = moment(this.state.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+    const createdAfter = moment(leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+    return this.requestIssues({ createdAfter });
+  },
 
-    // FIXME requesting severities facet only to get debtTotal
-    return getIssuesCount({
-      componentUuids: this.props.component.id,
-      createdAfter,
-      resolved: 'false',
-      facets: 'severities'
-    });
+  getFacetCount (facet, value) {
+    return facet.find(item => item.val === value).count;
   },
 
   requestHistory () {
@@ -168,7 +178,8 @@ export default React.createClass({
     const props = _.extend({}, this.props, this.state);
 
     return <div className="overview-domains-list">
-      <GeneralDebt {...props} history={this.state.history['sqale_index']}/>
+      <Risk {...props}/>
+      <CodeSmells {...props} history={this.state.history['sqale_index']}/>
       <GeneralCoverage {...props} coverageMetricPrefix={this.state.coverageMetricPrefix}
                                   history={this.state.history[coverageMetric]}/>
       <GeneralDuplications {...props} history={this.state.history['duplicated_lines_density']}/>

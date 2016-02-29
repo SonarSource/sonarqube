@@ -18,26 +18,29 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
 
-import OverviewApp from './components/OverviewApp';
-import EmptyOverview from './components/EmptyOverview';
+import { QualityProfileLink } from '../../../components/shared/quality-profile-link';
+import { translate } from '../../../helpers/l10n';
 
-const LEAK_PERIOD = '1';
+export default function MetaQualityProfiles ({ profiles }) {
+  return (
+      <div>
+        <h4 className="overview-meta-header">
+          {translate('overview.quality_profiles')}
+        </h4>
 
-class App {
-  start (options) {
-    const opts = { ...options, ...window.sonarqube.overview };
-    Object.assign(opts.component, options.component);
-
-    const el = document.querySelector(opts.el);
-
-    if (opts.component.hasSnapshot) {
-      ReactDOM.render(<OverviewApp {...opts} leakPeriodIndex={LEAK_PERIOD}/>, el);
-    } else {
-      ReactDOM.render(<EmptyOverview {...opts}/>, el);
-    }
-  }
+        <ul className="overview-meta-list">
+          {profiles.map(profile => (
+              <li key={profile.key}>
+                <span className="note spacer-right">
+                  {'(' + profile.language + ')'}
+                </span>
+                <QualityProfileLink profile={profile.key}>
+                  {profile.name}
+                </QualityProfileLink>
+              </li>
+          ))}
+        </ul>
+      </div>
+  );
 }
-
-window.sonarqube.appStarted.then(options => new App().start(options));
