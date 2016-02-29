@@ -22,7 +22,6 @@ package org.sonar.db.qualityprofile;
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -57,11 +56,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public List<ActiveRuleDto> selectByKeys(DbSession dbSession, List<ActiveRuleKey> keys) {
-    List<SqlActiveRuleKey> sqlKeys = new ArrayList<>();
-    for (ActiveRuleKey key : keys) {
-      sqlKeys.add(new SqlActiveRuleKey(key));
-    }
-    return DatabaseUtils.executeLargeInputs(sqlKeys, new KeyToDto(mapper(dbSession)));
+    return DatabaseUtils.executeLargeInputs(keys, new KeyToDto(mapper(dbSession)));
   }
 
   public List<ActiveRuleDto> selectByRule(DbSession dbSession, RuleDto rule) {
@@ -186,7 +181,7 @@ public class ActiveRuleDao implements Dao {
     return session.getMapper(ActiveRuleMapper.class);
   }
 
-  private static class KeyToDto implements Function<List<SqlActiveRuleKey>, List<ActiveRuleDto>> {
+  private static class KeyToDto implements Function<List<ActiveRuleKey>, List<ActiveRuleDto>> {
     private final ActiveRuleMapper mapper;
 
     private KeyToDto(ActiveRuleMapper mapper) {
@@ -194,7 +189,7 @@ public class ActiveRuleDao implements Dao {
     }
 
     @Override
-    public List<ActiveRuleDto> apply(@Nonnull List<SqlActiveRuleKey> partitionOfIds) {
+    public List<ActiveRuleDto> apply(@Nonnull List<ActiveRuleKey> partitionOfIds) {
       return mapper.selectByKeys(partitionOfIds);
     }
   }

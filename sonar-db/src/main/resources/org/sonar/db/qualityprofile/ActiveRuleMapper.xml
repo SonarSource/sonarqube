@@ -98,9 +98,10 @@
     <include refid="activeRuleKeyJoin"/>
     WHERE
     <foreach collection="keys" item="key" open="(" separator=" or " close=")">
-      (qp.kee = #{key.qProfile}
-      AND r.plugin_rule_key = #{key.rule}
-      AND r.plugin_name = #{key.repository})
+      (qp.kee = #{key.qualityProfileKey}
+      AND r.plugin_rule_key = #{key.ruleKey.rule}
+      AND r.plugin_name = #{key.ruleKey.repository}
+      )
     </foreach>
   </select>
 
