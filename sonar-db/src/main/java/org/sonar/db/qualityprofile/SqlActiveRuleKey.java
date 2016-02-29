@@ -45,6 +45,29 @@ public class SqlActiveRuleKey implements Comparable<SqlActiveRuleKey> {
     return repository.compareTo(o.repository);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || getClass() != o.getClass()) {
+      return false;
+    }
+
+    SqlActiveRuleKey activeRuleKey = (SqlActiveRuleKey) o;
+    return qProfile.equals(activeRuleKey.qProfile)
+      && rule.equals(activeRuleKey.rule)
+      && repository.equals(activeRuleKey.repository);
+  }
+
+  @Override
+  public int hashCode() {
+    int result = qProfile.hashCode();
+    result = 31 * result + rule.hashCode();
+    result = 31 * result + repository.hashCode();
+    return result;
+  }
+
   public String getqProfile() {
     return qProfile;
   }
