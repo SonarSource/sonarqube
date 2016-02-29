@@ -108,15 +108,23 @@ class Component extends React.Component {
             <div className="code-components-cell">
               <ComponentMeasure
                   component={component}
-                  metricKey="sqale_index"
-                  metricType="SHORT_WORK_DUR"/>
+                  metricKey="code_smells"
+                  metricType="SHORT_INT"/>
             </div>
           </td>
           <td className="thin nowrap text-right">
             <div className="code-components-cell">
               <ComponentMeasure
                   component={component}
-                  metricKey="violations"
+                  metricKey="bugs"
+                  metricType="SHORT_INT"/>
+            </div>
+          </td>
+          <td className="thin nowrap text-right">
+            <div className="code-components-cell">
+              <ComponentMeasure
+                  component={component}
+                  metricKey="vulnerabilities"
                   metricType="SHORT_INT"/>
             </div>
           </td>

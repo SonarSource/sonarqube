@@ -31,11 +31,14 @@ const ComponentsHeader = ({ baseComponent }) => (
           {baseComponent && translate('metric.ncloc.name')}
         </th>
         <th className="thin nowrap text-right">
-          {baseComponent && translate('metric.sqale_index.short_name')}
+          {baseComponent && translate('metric.code_smells.name')}
         </th>
         <th className="thin nowrap text-right">
-          {baseComponent && translate('metric.violations.name')
-          }</th>
+          {baseComponent && translate('metric.bugs.name')}
+        </th>
+        <th className="thin nowrap text-right">
+          {baseComponent && translate('metric.vulnerabilities.name')}
+        </th>
         <th className="thin nowrap text-right">
           {baseComponent && translate('metric.coverage.name')}
         </th>
