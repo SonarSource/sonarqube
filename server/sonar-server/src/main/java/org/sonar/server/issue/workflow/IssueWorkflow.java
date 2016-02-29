@@ -34,6 +34,7 @@ import org.sonar.server.issue.IssueUpdater;
 @ServerSide
 public class IssueWorkflow implements Startable {
 
+  public static final String AUTOMATIC_CLOSE_TRANSITION = "automaticclose";
   private final FunctionExecutor functionExecutor;
   private final IssueUpdater updater;
   private StateMachine machine;
@@ -54,7 +55,7 @@ public class IssueWorkflow implements Startable {
     machine = builder.build();
   }
 
-  private void buildManualTransitions(StateMachine.Builder builder) {
+  private static void buildManualTransitions(StateMachine.Builder builder) {
     builder.transition(Transition.builder(DefaultTransitions.CONFIRM)
       .from(Issue.STATUS_OPEN).to(Issue.STATUS_CONFIRMED)
       .functions(new SetResolution(null))
@@ -125,28 +126,28 @@ public class IssueWorkflow implements Startable {
 
   }
 
-  private void buildAutomaticTransitions(StateMachine.Builder builder) {
+  private static void buildAutomaticTransitions(StateMachine.Builder builder) {
     // Close the "end of life" issues (disabled/deleted rule, deleted component)
     builder
-      .transition(Transition.builder("automaticclose")
+      .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_CLOSED)
         .conditions(IsBeingClosed.INSTANCE)
         .functions(SetClosed.INSTANCE, new SetCloseDate(true))
         .automatic()
         .build())
-      .transition(Transition.builder("automaticclose")
+      .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
         .from(Issue.STATUS_REOPENED).to(Issue.STATUS_CLOSED)
         .conditions(IsBeingClosed.INSTANCE)
         .functions(SetClosed.INSTANCE, new SetCloseDate(true))
         .automatic()
         .build())
-      .transition(Transition.builder("automaticclose")
+      .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
         .from(Issue.STATUS_CONFIRMED).to(Issue.STATUS_CLOSED)
         .conditions(IsBeingClosed.INSTANCE)
         .functions(SetClosed.INSTANCE, new SetCloseDate(true))
         .automatic()
         .build())
-      .transition(Transition.builder("automaticclose")
+      .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
         .conditions(new OrCondition(IsBeingClosed.INSTANCE, IsManual.INSTANCE))
         .functions(SetClosed.INSTANCE, new SetCloseDate(true))
