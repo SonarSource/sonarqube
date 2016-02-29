@@ -26,7 +26,6 @@ module.exports = {
     'main': './src/main/js/main/app.js',
 
     'account': './src/main/js/apps/account/app.js',
-    'api-documentation': './src/main/js/apps/api-documentation/app.js',
     'background-tasks': './src/main/js/apps/background-tasks/app.js',
     'code': './src/main/js/apps/code/app.js',
     'coding-rules': './src/main/js/apps/coding-rules/app.js',
