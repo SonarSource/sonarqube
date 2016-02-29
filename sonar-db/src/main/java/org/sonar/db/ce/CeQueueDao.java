@@ -128,7 +128,7 @@ public class CeQueueDao implements Dao {
     return Optional.of(result);
   }
 
-  private CeQueueMapper mapper(DbSession session) {
+  private static CeQueueMapper mapper(DbSession session) {
     return session.getMapper(CeQueueMapper.class);
   }
 }

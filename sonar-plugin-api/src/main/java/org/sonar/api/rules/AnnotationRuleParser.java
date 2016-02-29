@@ -82,7 +82,7 @@ public final class AnnotationRuleParser {
     return rule;
   }
 
-  private void addRuleProperty(Rule rule, Field field) {
+  private static void addRuleProperty(Rule rule, Field field) {
     org.sonar.check.RuleProperty propertyAnnotation = field.getAnnotation(org.sonar.check.RuleProperty.class);
     if (propertyAnnotation != null) {
       String fieldKey = StringUtils.defaultIfEmpty(propertyAnnotation.key(), field.getName());

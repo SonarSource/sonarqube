@@ -47,4 +47,10 @@ public class IssueTypeTest {
   public void test_ALL_NAMES() {
     assertThat(IssueType.ALL_NAMES).containsOnly("BUG", "VULNERABILITY", "CODE_SMELL");
   }
+
+  @Test
+  public void ALL_NAMES_is_immutable() {
+    expectedException.expect(UnsupportedOperationException.class);
+    IssueType.ALL_NAMES.add("foo");
+  }
 }

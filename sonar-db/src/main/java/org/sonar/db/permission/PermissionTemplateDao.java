@@ -419,7 +419,7 @@ public class PermissionTemplateDao implements Dao {
     return new Date(system.now());
   }
 
-  private PermissionTemplateMapper mapper(SqlSession session) {
+  private static PermissionTemplateMapper mapper(SqlSession session) {
     return session.getMapper(PermissionTemplateMapper.class);
   }
 }

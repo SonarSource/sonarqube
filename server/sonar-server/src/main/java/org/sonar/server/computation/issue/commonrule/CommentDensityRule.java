@@ -71,7 +71,7 @@ public class CommentDensityRule extends CommonRule {
     return min;
   }
 
-  private CommonRuleIssue generateIssue(Optional<Measure> commentDensityMeasure, Optional<Measure> commentLinesMeasure, Optional<Measure> nclocMeasure, double minCommentDensity) {
+  private static CommonRuleIssue generateIssue(Optional<Measure> commentDensityMeasure, Optional<Measure> commentLinesMeasure, Optional<Measure> nclocMeasure, double minCommentDensity) {
     int commentLines = commentLinesMeasure.isPresent() ? commentLinesMeasure.get().getIntValue() : 0;
     int ncloc = nclocMeasure.get().getIntValue();
     int minExpectedCommentLines = (int) Math.ceil(minCommentDensity * ncloc / (100 - minCommentDensity));

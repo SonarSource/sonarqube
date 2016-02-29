@@ -206,7 +206,7 @@ public class PurgeDao implements Dao {
     return resourceDao.selectWholeTreeForRootId(session, rootId, Scopes.PROJECT);
   }
 
-  private PurgeMapper mapper(DbSession session) {
+  private static PurgeMapper mapper(DbSession session) {
     return session.getMapper(PurgeMapper.class);
   }
 }

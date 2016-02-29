@@ -116,7 +116,7 @@ public class MoveProjectProfileAssociation extends BaseDataChange {
     }
   }
 
-  private Table<String, String, String> getProfileKeysByLanguageThenName(final Context context) throws SQLException {
+  private static Table<String, String, String> getProfileKeysByLanguageThenName(final Context context) throws SQLException {
     final Table<String, String, String> profilesByLanguageAndName = HashBasedTable.create();
 
     Select selectProfiles = context.prepareSelect("SELECT kee, name, language FROM rules_profiles");

@@ -141,7 +141,7 @@ public class Checks<C> {
     return this;
   }
 
-  private String annotatedEngineKey(Object annotatedClassOrObject) {
+  private static String annotatedEngineKey(Object annotatedClassOrObject) {
     String key = null;
     org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClassOrObject, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
@@ -185,7 +185,7 @@ public class Checks<C> {
   }
 
   @CheckForNull
-  private Field getField(Object check, String key) {
+  private static Field getField(Object check, String key) {
     List<Field> fields = FieldUtils2.getFields(check.getClass(), true);
     for (Field field : fields) {
       RuleProperty propertyAnnotation = field.getAnnotation(RuleProperty.class);
@@ -196,7 +196,7 @@ public class Checks<C> {
     return null;
   }
 
-  private void configureField(Object check, Field field, String value) {
+  private static void configureField(Object check, Field field, String value) {
     try {
       field.setAccessible(true);
 

@@ -207,7 +207,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
       return Joiner.on(", ").join(descriptions);
     }
 
-    private void registerProxyCredentials(Map<String, String> settings) {
+    private static void registerProxyCredentials(Map<String, String> settings) {
       Authenticator.setDefault(new ProxyAuthenticator(
         settings.get(HTTP_PROXY_USER),
         settings.get(HTTP_PROXY_PASSWORD)));

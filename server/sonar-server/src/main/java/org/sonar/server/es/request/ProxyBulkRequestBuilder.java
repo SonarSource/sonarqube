@@ -71,7 +71,7 @@ public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
     throw unsupported();
   }
 
-  private UnsupportedOperationException unsupported() {
+  private static UnsupportedOperationException unsupported() {
     throw new UnsupportedOperationException("See " + ProxyBulkRequestBuilder.class.getName());
   }
 

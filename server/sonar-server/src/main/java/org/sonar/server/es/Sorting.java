@@ -73,12 +73,12 @@ public class Sorting {
     doFill(request, defaultFields, true);
   }
 
-  private void doFill(SearchRequestBuilder request, List<Field> fields, boolean asc) {
+  private static void doFill(SearchRequestBuilder request, List<Field> fields, boolean asc) {
     for (Field field : fields) {
       FieldSortBuilder sortBuilder = SortBuilders.fieldSort(field.name);
-      boolean effectiveAsc = asc ? !field.reverse : field.reverse;
+      boolean effectiveAsc = asc != field.reverse;
       sortBuilder.order(effectiveAsc ? SortOrder.ASC : SortOrder.DESC);
-      boolean effectiveMissingLast = asc ? field.missingLast : !field.missingLast;
+      boolean effectiveMissingLast = asc == field.missingLast;
       sortBuilder.missing(effectiveMissingLast ? "_last" : "_first");
       request.addSort(sortBuilder);
     }

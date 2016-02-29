@@ -47,7 +47,7 @@ public class JavaConstantTokenizer extends Tokenizer {
     this.tagAfter = tagAfter;
   }
 
-  private boolean hasNextToken(CodeReader code) {
+  private static boolean hasNextToken(CodeReader code) {
     int lastChar = code.lastChar();
     if (isJavaConstantStart(code.peek()) && !Character.isJavaIdentifierPart(lastChar) && !Character.isJavaIdentifierStart(lastChar)
       && lastChar != DOT) {

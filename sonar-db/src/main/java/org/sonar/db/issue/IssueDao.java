@@ -143,7 +143,7 @@ public class IssueDao implements Dao {
     mapper(session).update(dto);
   }
 
-  private IssueMapper mapper(DbSession session) {
+  private static IssueMapper mapper(DbSession session) {
     return session.getMapper(IssueMapper.class);
   }
 

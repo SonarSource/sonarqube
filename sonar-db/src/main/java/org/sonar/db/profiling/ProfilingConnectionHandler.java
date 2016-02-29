@@ -49,7 +49,7 @@ class ProfilingConnectionHandler implements InvocationHandler {
     return result;
   }
 
-  private Object buildStatementProxy(Class<? extends Statement> stmtClass, InvocationHandler handler) {
+  private static Object buildStatementProxy(Class<? extends Statement> stmtClass, InvocationHandler handler) {
     return Proxy.newProxyInstance(ProfilingConnectionHandler.class.getClassLoader(), new Class[] {stmtClass}, handler);
   }
 

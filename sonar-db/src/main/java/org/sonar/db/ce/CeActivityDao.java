@@ -79,7 +79,7 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).countByQuery(query);
   }
 
-  private CeActivityMapper mapper(DbSession dbSession) {
+  private static CeActivityMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(CeActivityMapper.class);
   }
 }

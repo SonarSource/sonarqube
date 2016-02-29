@@ -102,7 +102,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
 
   }
 
-  private void configureField(Object check, Field field, String value) {
+  private static void configureField(Object check, Field field, String value) {
     try {
       field.setAccessible(true);
 
@@ -147,7 +147,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
     }
   }
 
-  private Field getField(Object check, String key) {
+  private static Field getField(Object check, String key) {
     List<Field> fields = FieldUtils2.getFields(check.getClass(), true);
     for (Field field : fields) {
       RuleProperty propertyAnnotation = field.getAnnotation(RuleProperty.class);
@@ -158,7 +158,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
     return null;
   }
 
-  private String getRuleKey(Object annotatedClassOrObject) {
+  private static String getRuleKey(Object annotatedClassOrObject) {
     String key = null;
     Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClassOrObject, Rule.class);
     if (ruleAnnotation != null) {

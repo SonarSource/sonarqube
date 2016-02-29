@@ -66,7 +66,7 @@ class HttpsTrust {
   /**
    * Trust all certificates
    */
-  private SSLSocketFactory createSocketFactory(Ssl context) {
+  private static SSLSocketFactory createSocketFactory(Ssl context) {
     try {
       return context.newFactory(new AlwaysTrustManager());
     } catch (Exception e) {
@@ -77,7 +77,7 @@ class HttpsTrust {
   /**
    * Trust all hosts
    */
-  private HostnameVerifier createHostnameVerifier() {
+  private static HostnameVerifier createHostnameVerifier() {
     return new HostnameVerifier() {
       @Override
       public boolean verify(String hostname, SSLSession session) {

@@ -140,7 +140,7 @@ public class IssueChangeDao implements Dao {
     }
   }
 
-  private IssueChangeMapper mapper(DbSession session) {
+  private static IssueChangeMapper mapper(DbSession session) {
     return session.getMapper(IssueChangeMapper.class);
   }
 }

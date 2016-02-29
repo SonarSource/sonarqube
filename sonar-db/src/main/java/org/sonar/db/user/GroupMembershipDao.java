@@ -111,7 +111,7 @@ public class GroupMembershipDao implements Dao {
     return selectGroups(query, userId, 0, Integer.MAX_VALUE);
   }
 
-  private GroupMembershipMapper mapper(SqlSession session) {
+  private static GroupMembershipMapper mapper(SqlSession session) {
     return session.getMapper(GroupMembershipMapper.class);
   }
 }

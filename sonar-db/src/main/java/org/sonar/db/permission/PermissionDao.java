@@ -140,7 +140,7 @@ public class PermissionDao implements Dao {
     return params;
   }
 
-  private PermissionMapper mapper(SqlSession session) {
+  private static PermissionMapper mapper(SqlSession session) {
     return session.getMapper(PermissionMapper.class);
   }
 }

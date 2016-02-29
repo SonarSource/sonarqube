@@ -67,7 +67,7 @@ public class WidgetDao implements Dao {
     return mapper(session).selectAll();
   }
 
-  private WidgetMapper mapper(DbSession session) {
+  private static WidgetMapper mapper(DbSession session) {
     return session.getMapper(WidgetMapper.class);
   }
 

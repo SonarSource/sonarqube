@@ -51,7 +51,7 @@ public class ProjectQgateAssociationDao implements Dao {
     return selectProjects(query, gateId, 0, Integer.MAX_VALUE);
   }
 
-  private ProjectQgateAssociationMapper mapper(SqlSession session) {
+  private static ProjectQgateAssociationMapper mapper(SqlSession session) {
     return session.getMapper(ProjectQgateAssociationMapper.class);
   }
 

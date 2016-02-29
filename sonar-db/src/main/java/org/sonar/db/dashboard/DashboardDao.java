@@ -83,7 +83,7 @@ public class DashboardDao implements Dao {
     return mapper(session).selectAllowedById(key, userId != null ? userId : -1L);
   }
 
-  private DashboardMapper mapper(DbSession session) {
+  private static DashboardMapper mapper(DbSession session) {
     return session.getMapper(DashboardMapper.class);
   }
 }

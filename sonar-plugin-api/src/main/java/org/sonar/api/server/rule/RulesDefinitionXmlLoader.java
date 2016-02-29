@@ -280,11 +280,8 @@ public class RulesDefinitionXmlLoader {
       } else if (equalsIgnoreCase("internalKey", nodeName)) {
         internalKey = nodeValue(cursor);
 
-      } else if (equalsIgnoreCase("priority", nodeName)) {
-        // deprecated field, replaced by severity
-        severity = nodeValue(cursor);
-
-      } else if (equalsIgnoreCase("severity", nodeName)) {
+      } else if (equalsIgnoreCase("priority", nodeName) || equalsIgnoreCase("severity", nodeName)) {
+        // "priority" is deprecated field and has been replaced by "severity"
         severity = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("cardinality", nodeName)) {
@@ -380,7 +377,7 @@ public class RulesDefinitionXmlLoader {
     RuleParamType type = RuleParamType.STRING;
   }
 
-  private ParamStruct processParameter(SMInputCursor ruleC) throws XMLStreamException {
+  private static ParamStruct processParameter(SMInputCursor ruleC) throws XMLStreamException {
     ParamStruct param = new ParamStruct();
 
     // BACKWARD COMPATIBILITY WITH DEPRECATED FORMAT
