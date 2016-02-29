@@ -32,7 +32,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.rule.RuleService;
 import org.sonarqube.ws.Rules.ShowResponse;
 
 import static java.util.Collections.singletonList;
@@ -48,15 +47,11 @@ public class ShowAction implements RulesWsAction {
   public static final String PARAM_ACTIVES = "actives";
 
   private final DbClient dbClient;
-  private final RuleService service;
-  private final RuleMapping mapping;
   private final RuleMapper mapper;
   private final ActiveRuleCompleter activeRuleCompleter;
 
-  public ShowAction(DbClient dbClient, RuleService service, RuleMapping mapping, RuleMapper mapper, ActiveRuleCompleter activeRuleCompleter) {
+  public ShowAction(DbClient dbClient, RuleMapper mapper, ActiveRuleCompleter activeRuleCompleter) {
     this.dbClient = dbClient;
-    this.service = service;
-    this.mapping = mapping;
     this.activeRuleCompleter = activeRuleCompleter;
     this.mapper = mapper;
   }
