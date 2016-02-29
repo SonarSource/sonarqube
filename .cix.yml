@@ -14,6 +14,7 @@ RUN_ACTIVITY:
   - run-integration-tests-Category2
   - run-integration-tests-Category3
   - run-integration-tests-Category4
+  - run-integration-tests-Category5
   - run-it-released-plugins
   - run-perf-tests
 
@@ -37,6 +38,8 @@ exclude:
   - RUN_ACTIVITY: run-integration-tests-Category3
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-integration-tests-Category4
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-integration-tests-Category5
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-it-released-plugins
     SLAVE_TYPE: performance
