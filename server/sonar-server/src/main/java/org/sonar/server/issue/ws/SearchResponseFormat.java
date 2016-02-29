@@ -150,7 +150,7 @@ public class SearchResponseFormat {
       issueBuilder.setType(type);
     }
     ComponentDto component = data.getComponentByUuid(dto.getComponentUuid());
-    issueBuilder.setComponent(dto.getComponentKey());
+    issueBuilder.setComponent(component.key());
     // Only used for the compatibility with the Java WS Client <= 4.4 used by Eclipse
     issueBuilder.setComponentId(component.getId());
     ComponentDto project = data.getComponentByUuid(dto.getProjectUuid());

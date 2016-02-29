@@ -27,10 +27,11 @@ import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.IssueType;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.test.DbTests;
 
@@ -40,13 +41,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Category(DbTests.class)
 public class IssueDaoTest {
 
+  public static final RuleDto RULE = RuleTesting.newXooX1();
+  public static final ComponentDto PROJECT = ComponentTesting.newProjectDto();
+  public static final ComponentDto FILE = ComponentTesting.newFileDto(PROJECT);
+  public static final String ISSUE_KEY1 = "I1";
+  public static final String ISSUE_KEY2 = "I2";
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  IssueDao dao = dbTester.getDbClient().issueDao();
+  IssueDao underTest = dbTester.getDbClient().issueDao();
 
   @Test
   public void select_non_closed_issues_by_module() {
@@ -54,7 +60,7 @@ public class IssueDaoTest {
 
     // 400 is a non-root module, we should find 2 issues from classes and one on itself
     DefaultResultHandler handler = new DefaultResultHandler();
-    dao.selectNonClosedIssuesByModule(400, handler);
+    underTest.selectNonClosedIssuesByModule(400, handler);
     assertThat(handler.getResultList()).hasSize(3);
 
     IssueDto issue = (IssueDto) handler.getResultList().get(0);
@@ -65,7 +71,7 @@ public class IssueDaoTest {
 
     // 399 is the root module, we should only find 1 issue on itself
     handler = new DefaultResultHandler();
-    dao.selectNonClosedIssuesByModule(399, handler);
+    underTest.selectNonClosedIssuesByModule(399, handler);
     assertThat(handler.getResultList()).hasSize(1);
 
     issue = (IssueDto) handler.getResultList().get(0);
@@ -84,7 +90,7 @@ public class IssueDaoTest {
 
     // 400 is a non-root module, we should find 2 issues from classes and one on itself
     DefaultResultHandler handler = new DefaultResultHandler();
-    dao.selectNonClosedIssuesByModule(400, handler);
+    underTest.selectNonClosedIssuesByModule(400, handler);
     assertThat(handler.getResultList()).hasSize(3);
 
     IssueDto issue = (IssueDto) handler.getResultList().get(0);
@@ -96,37 +102,37 @@ public class IssueDaoTest {
 
   @Test
   public void selectByKeyOrFail() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
+    prepareTables();
 
-    IssueDto issue = dao.selectOrFailByKey(dbTester.getSession(), "I1");
-    assertThat(issue.getKee()).isEqualTo("I1");
-    assertThat(issue.getId()).isEqualTo(1L);
-    assertThat(issue.getComponentUuid()).isEqualTo("CDEF");
-    assertThat(issue.getProjectUuid()).isEqualTo("ABCD");
-    assertThat(issue.getRuleId()).isEqualTo(500);
-    assertThat(issue.getLanguage()).isEqualTo("java");
+    IssueDto issue = underTest.selectOrFailByKey(dbTester.getSession(), ISSUE_KEY1);
+    assertThat(issue.getKee()).isEqualTo(ISSUE_KEY1);
+    assertThat(issue.getId()).isGreaterThan(0L);
+    assertThat(issue.getComponentUuid()).isEqualTo(FILE.uuid());
+    assertThat(issue.getProjectUuid()).isEqualTo(PROJECT.uuid());
+    assertThat(issue.getRuleId()).isEqualTo(RULE.getId());
+    assertThat(issue.getLanguage()).isEqualTo(RULE.getLanguage());
     assertThat(issue.getSeverity()).isEqualTo("BLOCKER");
     assertThat(issue.getType()).isEqualTo(2);
     assertThat(issue.isManualSeverity()).isFalse();
-    assertThat(issue.getMessage()).isNull();
-    assertThat(issue.getLine()).isEqualTo(200);
-    assertThat(issue.getEffortToFix()).isEqualTo(4.2);
-    assertThat(issue.getStatus()).isEqualTo("OPEN");
+    assertThat(issue.getMessage()).isEqualTo("the message");
+    assertThat(issue.getLine()).isEqualTo(500);
+    assertThat(issue.getEffortToFix()).isEqualTo(3.14);
+    assertThat(issue.getStatus()).isEqualTo("RESOLVED");
     assertThat(issue.getResolution()).isEqualTo("FIXED");
-    assertThat(issue.getChecksum()).isEqualTo("XXX");
-    assertThat(issue.getAuthorLogin()).isEqualTo("karadoc");
-    assertThat(issue.getReporter()).isEqualTo("arthur");
-    assertThat(issue.getAssignee()).isEqualTo("perceval");
+    assertThat(issue.getChecksum()).isEqualTo("123456789");
+    assertThat(issue.getAuthorLogin()).isEqualTo("morgan");
+    assertThat(issue.getReporter()).isEqualTo("emmerik");
+    assertThat(issue.getAssignee()).isEqualTo("karadoc");
     assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(issue.getIssueCreationDate()).isNotNull();
     assertThat(issue.getIssueUpdateDate()).isNotNull();
     assertThat(issue.getIssueCloseDate()).isNotNull();
-    assertThat(issue.getCreatedAt()).isEqualTo(1400000000000L);
-    assertThat(issue.getUpdatedAt()).isEqualTo(1450000000000L);
-    assertThat(issue.getRuleRepo()).isEqualTo("squid");
-    assertThat(issue.getRule()).isEqualTo("AvoidCycle");
-    assertThat(issue.getComponentKey()).isEqualTo("Action.java");
-    assertThat(issue.getProjectKey()).isEqualTo("struts");
+    assertThat(issue.getCreatedAt()).isEqualTo(1_440_000_000_000L);
+    assertThat(issue.getUpdatedAt()).isEqualTo(1_440_000_000_000L);
+    assertThat(issue.getRuleRepo()).isEqualTo(RULE.getRepositoryKey());
+    assertThat(issue.getRule()).isEqualTo(RULE.getRuleKey());
+    assertThat(issue.getComponentKey()).isEqualTo(FILE.key());
+    assertThat(issue.getProjectKey()).isEqualTo(PROJECT.key());
     assertThat(issue.getLocations()).isNull();
     assertThat(issue.parseLocations()).isNull();
   }
@@ -136,28 +142,30 @@ public class IssueDaoTest {
     thrown.expect(RowNotFoundException.class);
     thrown.expectMessage("Issue with key 'DOES_NOT_EXIST' does not exist");
 
-    dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
+    prepareTables();
 
-    dao.selectOrFailByKey(dbTester.getSession(), "DOES_NOT_EXIST");
+    underTest.selectOrFailByKey(dbTester.getSession(), "DOES_NOT_EXIST");
   }
 
   @Test
   public void selectByKeys() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
+    // contains I1 and I2
+    prepareTables();
 
-    List<IssueDto> issues = dao.selectByKeys(dbTester.getSession(), asList("I1", "I2", "I3"));
+    List<IssueDto> issues = underTest.selectByKeys(dbTester.getSession(), asList("I1", "I2", "I3"));
     // results are not ordered, so do not use "containsExactly"
     assertThat(issues).extracting("key").containsOnly("I1", "I2");
   }
 
   @Test
   public void selectByOrderedKeys() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml", "get_by_key.xml");
+    // contains I1 and I2
+    prepareTables();
 
-    Iterable<IssueDto> issues = dao.selectByOrderedKeys(dbTester.getSession(), asList("I1", "I2", "I3"));
+    Iterable<IssueDto> issues = underTest.selectByOrderedKeys(dbTester.getSession(), asList("I1", "I2", "I3"));
     assertThat(issues).extracting("key").containsExactly("I1", "I2");
 
-    issues = dao.selectByOrderedKeys(dbTester.getSession(), asList("I2", "I3", "I1"));
+    issues = underTest.selectByOrderedKeys(dbTester.getSession(), asList("I2", "I3", "I1"));
     assertThat(issues).extracting("key").containsExactly("I2", "I1");
   }
 
@@ -165,7 +173,7 @@ public class IssueDaoTest {
   public void selectByActionPlan() {
     dbTester.prepareDbUnit(getClass(), "shared.xml", "find_by_action_plan.xml");
 
-    List<IssueDto> issues = dao.selectByActionPlan(dbTester.getSession(), "AP-1");
+    List<IssueDto> issues = underTest.selectByActionPlan(dbTester.getSession(), "AP-1");
     assertThat(issues).hasSize(1);
 
     IssueDto issue = issues.get(0);
@@ -198,15 +206,12 @@ public class IssueDaoTest {
     assertThat(issue.getProjectKey()).isEqualTo("struts");
   }
 
-  @Test
-  public void insert() {
-    dbTester.truncateTables();
-
+  private static IssueDto newIssueDto(String key) {
     IssueDto dto = new IssueDto();
     dto.setComponent(new ComponentDto().setKey("struts:Action").setId(123L).setUuid("component-uuid"));
     dto.setProject(new ComponentDto().setKey("struts").setId(100L).setUuid("project-uuid"));
     dto.setRule(RuleTesting.newDto(RuleKey.of("squid", "S001")).setId(200));
-    dto.setKee("ABCDE");
+    dto.setKee(key);
     dto.setType(2);
     dto.setLine(500);
     dto.setEffortToFix(3.14);
@@ -221,16 +226,26 @@ public class IssueDaoTest {
     dto.setIssueAttributes("JIRA=FOO-1234");
     dto.setChecksum("123456789");
     dto.setMessage("the message");
+    dto.setCreatedAt(1_440_000_000_000L);
+    dto.setUpdatedAt(1_440_000_000_000L);
+    dto.setIssueCreationTime(1_450_000_000_000L);
+    dto.setIssueUpdateTime(1_450_000_000_000L);
+    dto.setIssueCloseTime(1_450_000_000_000L);
+    return dto;
+  }
 
-    dto.setIssueCreationTime(1_500_000_000_000L);
-    dto.setIssueUpdateTime(1_500_000_000_001L);
-    dto.setIssueCloseTime(1_500_000_000_002L);
-    dto.setCreatedAt(1_400_000_000_000L);
-    dto.setUpdatedAt(1_450_000_000_000L);
-
-    dao.insert(dbTester.getSession(), dto);
+  private void prepareTables() {
+    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), RULE);
+    dbTester.getDbClient().componentDao().insert(dbTester.getSession(), PROJECT, FILE);
+    underTest.insert(dbTester.getSession(), newIssueDto(ISSUE_KEY1)
+      .setMessage("the message")
+      .setRuleId(RULE.getId())
+      .setComponentUuid(FILE.uuid())
+      .setProjectUuid(PROJECT.uuid()));
+    underTest.insert(dbTester.getSession(), newIssueDto(ISSUE_KEY2)
+      .setRuleId(RULE.getId())
+      .setComponentUuid(FILE.uuid())
+      .setProjectUuid(PROJECT.uuid()));
     dbTester.getSession().commit();
-
-    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "issues");
   }
 }
