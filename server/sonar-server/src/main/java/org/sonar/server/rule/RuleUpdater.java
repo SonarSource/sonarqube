@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
@@ -92,16 +91,6 @@ public class RuleUpdater {
     dbSession.commit();
     ruleIndexer.setEnabled(true).index();
     return true;
-  }
-
-  @VisibleForTesting
-  boolean update(RuleUpdate update, UserSession userSession) {
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      return update(dbSession, update, userSession);
-    } finally {
-      dbClient.closeSession(dbSession);
-    }
   }
 
   /**
