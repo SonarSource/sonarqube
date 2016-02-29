@@ -22,17 +22,15 @@ package org.sonar.server.dashboard.template;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.Dashboard;
 import org.sonar.api.web.DashboardLayout;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueFilterDao;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(DbTests.class)
+
 public class ProjectCustomDashboardTest {
 
   @Rule

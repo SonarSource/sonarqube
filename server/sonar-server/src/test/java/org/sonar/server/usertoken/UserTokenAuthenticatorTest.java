@@ -22,20 +22,18 @@ package org.sonar.server.usertoken;
 import com.google.common.base.Optional;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
-@Category(DbTests.class)
+
 public class UserTokenAuthenticatorTest {
   static final String GRACE_HOPPER = "grace.hopper";
   static final String ADA_LOVELACE = "ada.lovelace";

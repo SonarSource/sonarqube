@@ -25,7 +25,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
@@ -41,7 +40,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.DbTests;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.Status;
@@ -59,7 +57,7 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
-@Category(DbTests.class)
+
 public class ProjectStatusActionTest {
   private static final String ANALYSIS_ID = "task-uuid";
   @Rule

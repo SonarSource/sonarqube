@@ -22,16 +22,14 @@ package org.sonar.db.activity;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(DbTests.class)
+
 public class ActivityDaoTest {
 
   System2 system = mock(System2.class);

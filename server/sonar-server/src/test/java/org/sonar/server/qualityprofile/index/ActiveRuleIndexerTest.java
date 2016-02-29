@@ -25,7 +25,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
@@ -39,7 +38,6 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -50,7 +48,7 @@ import static org.sonar.server.qualityprofile.index.ActiveRuleDocTesting.newDoc;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
-@Category(DbTests.class)
+
 public class ActiveRuleIndexerTest {
 
   static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;

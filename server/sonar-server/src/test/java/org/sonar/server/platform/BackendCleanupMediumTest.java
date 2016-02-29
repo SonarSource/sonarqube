@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -37,12 +36,11 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexDefinition;
-import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-@Category(DbTests.class)
+
 public class BackendCleanupMediumTest {
 
   @ClassRule

@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.NewUserHandler;
@@ -49,7 +48,6 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
-import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -61,7 +59,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_LOCAL_USERS;
 import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
 
-@Category(DbTests.class)
+
 public class UserUpdaterTest {
 
   static final String DEFAULT_LOGIN = "marius";

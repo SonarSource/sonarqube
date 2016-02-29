@@ -23,7 +23,6 @@ import java.util.Locale;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
@@ -34,14 +33,13 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.VisitException;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(DbTests.class)
+
 public class PersistProjectLinksStepTest extends BaseStepTest {
 
   @Rule

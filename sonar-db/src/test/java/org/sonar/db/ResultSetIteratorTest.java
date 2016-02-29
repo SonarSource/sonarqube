@@ -26,14 +26,12 @@ import java.sql.SQLException;
 import java.util.NoSuchElementException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-@Category(DbTests.class)
+
 public class ResultSetIteratorTest {
 
   @Rule

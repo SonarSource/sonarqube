@@ -23,7 +23,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -38,7 +37,6 @@ import org.sonar.server.computation.component.MapBasedDbIdsRepository;
 import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
-import org.sonar.test.DbTests;
 
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -55,7 +53,7 @@ import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
 import static org.sonar.server.computation.component.ComponentFunctions.toKey;
 
-@Category(DbTests.class)
+
 public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
   private static final int PROJECT_KEY = 1;

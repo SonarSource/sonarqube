@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.resources.Qualifiers;
@@ -51,7 +50,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.DbTests;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsMeasures;
@@ -78,7 +76,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 
-@Category(DbTests.class)
+
 public class ComponentTreeActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();

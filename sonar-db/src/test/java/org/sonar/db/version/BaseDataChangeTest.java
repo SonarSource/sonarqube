@@ -26,19 +26,17 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.BatchSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.version.Select.Row;
 import org.sonar.db.version.Select.RowReader;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-@Category(DbTests.class)
+
 public class BaseDataChangeTest {
 
   @Rule

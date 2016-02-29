@@ -25,7 +25,6 @@ import java.io.InputStream;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
@@ -44,7 +43,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.DbTests;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
@@ -62,7 +60,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIO
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
-@Category(DbTests.class)
+
 public class ComponentActionTest {
   private static final String PROJECT_UUID = "project-uuid";
 

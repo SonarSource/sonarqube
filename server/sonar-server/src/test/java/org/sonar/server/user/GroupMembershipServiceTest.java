@@ -23,12 +23,10 @@ import com.google.common.collect.ImmutableMap;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.core.user.GroupMembership;
 import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -36,7 +34,7 @@ import static org.junit.Assert.fail;
 /**
  * Use BbUnit tests because there's no IT on this feature for the moment
  */
-@Category(DbTests.class)
+
 public class GroupMembershipServiceTest {
 
   @Rule

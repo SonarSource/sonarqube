@@ -32,7 +32,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.i18n.I18n;
@@ -54,7 +53,6 @@ import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.DbTests;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsComponents;
@@ -70,7 +68,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BAS
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
 
-@Category(DbTests.class)
+
 public class TreeActionTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();

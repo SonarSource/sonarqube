@@ -24,7 +24,6 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
@@ -43,7 +42,6 @@ import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,7 +52,7 @@ import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROFILE_NAME
 import static org.sonar.server.qualityprofile.ws.SearchAction.PARAM_PROJECT_KEY;
 import static org.sonar.test.JsonAssert.assertJson;
 
-@Category(DbTests.class)
+
 public class SearchActionTest {
 
   @Rule

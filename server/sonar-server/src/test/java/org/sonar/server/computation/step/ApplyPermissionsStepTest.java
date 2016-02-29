@@ -27,7 +27,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
@@ -48,7 +47,6 @@ import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newView;
@@ -56,7 +54,7 @@ import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTem
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
 
-@Category(DbTests.class)
+
 public class ApplyPermissionsStepTest extends BaseStepTest {
 
   private static final String ROOT_KEY = "ROOT_KEY";

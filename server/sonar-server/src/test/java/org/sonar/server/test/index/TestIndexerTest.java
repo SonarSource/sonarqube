@@ -34,7 +34,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -42,7 +41,6 @@ import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.test.db.TestTesting;
-import org.sonar.test.DbTests;
 import org.sonar.test.TestUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -58,7 +56,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
 import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
-@Category(DbTests.class)
+
 public class TestIndexerTest {
 
   @ClassRule

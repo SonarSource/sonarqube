@@ -23,7 +23,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -31,12 +30,11 @@ import org.sonar.db.DbTester;
 import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.ws.WsTester;
-import org.sonar.test.DbTests;
 import org.sonar.test.JsonAssert;
 
 import static org.sonar.db.metric.MetricTesting.newMetricDto;
 
-@Category(DbTests.class)
+
 public class DomainsActionTest {
 
   @Rule

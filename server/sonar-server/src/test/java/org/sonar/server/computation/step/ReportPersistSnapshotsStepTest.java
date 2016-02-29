@@ -23,7 +23,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -41,7 +40,6 @@ import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolderRule;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -49,7 +47,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_DATE;
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_ANALYSIS;
 
-@Category(DbTests.class)
+
 public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";

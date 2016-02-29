@@ -27,7 +27,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
@@ -42,7 +41,6 @@ import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableTreeRootHolderRule;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.batch.protocol.Constants.ComponentType.DIRECTORY;
@@ -55,7 +53,7 @@ import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 
-@Category(DbTests.class)
+
 @RunWith(DataProviderRunner.class)
 public class BuildComponentTreeStepTest {
 

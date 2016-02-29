@@ -22,7 +22,6 @@ package org.sonar.server.component.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
@@ -32,11 +31,10 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-import org.sonar.test.DbTests;
 
 import static org.mockito.Mockito.mock;
 
-@Category(DbTests.class)
+
 public class SearchViewComponentsActionTest {
 
   @Rule

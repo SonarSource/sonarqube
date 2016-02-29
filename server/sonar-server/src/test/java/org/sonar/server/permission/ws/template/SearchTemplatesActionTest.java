@@ -26,7 +26,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
@@ -44,7 +43,6 @@ import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -60,7 +58,7 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.test.JsonAssert.assertJson;
 
-@Category(DbTests.class)
+
 public class SearchTemplatesActionTest {
   @ClassRule
   public static DbTester db = DbTester.create(System2.INSTANCE);

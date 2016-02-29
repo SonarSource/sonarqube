@@ -24,7 +24,6 @@ import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
@@ -43,7 +42,6 @@ import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.measure.MeasureToMeasureDto;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 import org.sonar.server.computation.period.Period;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION;
@@ -62,7 +60,7 @@ import static org.sonar.server.computation.component.Component.Type.VIEW;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVariationsBuilder;
 
-@Category(DbTests.class)
+
 public class PersistMeasuresStepTest extends BaseStepTest {
 
   private static final String STRING_METRIC_KEY = "string-metric-key";

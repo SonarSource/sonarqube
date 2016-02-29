@@ -22,7 +22,6 @@ package org.sonar.db.permission;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
@@ -30,13 +29,12 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.RoleDao;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(DbTests.class)
+
 public class PermissionRepositoryTest {
 
   static final String DEFAULT_TEMPLATE = "default_20130101_010203";

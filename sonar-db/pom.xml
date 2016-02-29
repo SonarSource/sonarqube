@@ -200,9 +200,6 @@
           <name>with-db-drivers</name>
         </property>
       </activation>
-      <properties>
-        <junitGroups>org.sonar.test.DbTests</junitGroups>
-      </properties>
       <dependencies>
         <dependency>
           <groupId>mysql</groupId>

@@ -22,7 +22,6 @@ package org.sonar.server.computation.step;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -32,12 +31,11 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.test.DbTests;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(DbTests.class)
+
 public class SwitchSnapshotStepTest {
 
   @Rule

@@ -23,7 +23,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.batch.protocol.Constants;
@@ -46,14 +45,13 @@ import org.sonar.server.computation.duplication.TextBlock;
 import org.sonar.server.computation.scm.Changeset;
 import org.sonar.server.computation.scm.ScmInfoRepositoryRule;
 import org.sonar.server.computation.source.SourceLinesRepositoryRule;
-import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(DbTests.class)
+
 public class PersistFileSourcesStepTest extends BaseStepTest {
 
   private static final int FILE_REF = 3;

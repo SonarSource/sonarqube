@@ -22,7 +22,6 @@ package org.sonar.server.issue;
 import java.util.Collection;
 import java.util.Date;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -40,9 +39,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.issue.IssueMapper;
-import org.sonar.test.DbTests;
 
-@Category(DbTests.class)
+
 public class IssueStorageTest {
 
   IssueChangeContext context = IssueChangeContext.createUser(new Date(), "emmerik");

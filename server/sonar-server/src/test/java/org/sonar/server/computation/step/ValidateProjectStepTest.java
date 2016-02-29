@@ -23,7 +23,6 @@ import java.util.Date;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
@@ -40,9 +39,8 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
-import org.sonar.test.DbTests;
 
-@Category(DbTests.class)
+
 public class ValidateProjectStepTest {
 
   static long DEFAULT_ANALYSIS_TIME = 1433131200000L; // 2015-06-01

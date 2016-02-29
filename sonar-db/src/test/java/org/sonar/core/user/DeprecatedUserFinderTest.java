@@ -22,19 +22,17 @@ package org.sonar.core.user;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.database.model.User;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDao;
-import org.sonar.test.DbTests;
 
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
 
-@Category(DbTests.class)
+
 public class DeprecatedUserFinderTest {
 
   @Rule

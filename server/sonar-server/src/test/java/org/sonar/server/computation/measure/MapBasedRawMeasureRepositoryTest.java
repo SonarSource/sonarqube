@@ -33,7 +33,6 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
@@ -50,7 +49,6 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.metric.ReportMetricValidator;
-import org.sonar.test.DbTests;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
@@ -62,7 +60,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
-@Category(DbTests.class)
+
 public class MapBasedRawMeasureRepositoryTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);

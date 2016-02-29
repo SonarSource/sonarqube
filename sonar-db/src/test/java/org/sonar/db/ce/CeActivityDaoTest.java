@@ -24,16 +24,14 @@ import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
-import org.sonar.test.DbTests;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
-@Category(DbTests.class)
+
 public class CeActivityDaoTest {
 
   TestSystem2 system2 = new TestSystem2().setNow(1_450_000_000_000L);

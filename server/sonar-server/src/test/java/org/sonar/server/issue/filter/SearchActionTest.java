@@ -22,7 +22,6 @@ package org.sonar.server.issue.filter;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -33,11 +32,10 @@ import org.sonar.db.issue.IssueFilterFavouriteDto;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-import org.sonar.test.DbTests;
 
 import static org.sonar.test.JsonAssert.assertJson;
 
-@Category(DbTests.class)
+
 public class SearchActionTest {
   static final String EMPTY_ISSUE_FILTERS_JSON = "{" +
     "    \"issueFilters\": []" +

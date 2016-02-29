@@ -24,7 +24,6 @@ import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
@@ -45,7 +44,6 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.ws.WsTester;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.measure.custom.CustomMeasureTesting.newCustomMeasureDto;
@@ -53,7 +51,7 @@ import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.server.measure.custom.ws.CustomMeasuresWs.ENDPOINT;
 import static org.sonar.server.measure.custom.ws.MetricsAction.ACTION;
 
-@Category(DbTests.class)
+
 public class MetricsActionTest {
   private static final String DEFAULT_PROJECT_UUID = "project-uuid";
   private static final String DEFAULT_PROJECT_KEY = "project-key";

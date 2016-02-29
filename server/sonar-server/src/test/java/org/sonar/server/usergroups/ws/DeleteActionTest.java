@@ -22,7 +22,6 @@ package org.sonar.server.usergroups.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
@@ -41,13 +40,12 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.server.usergroups.ws.UserGroupsWsParameters.PARAM_GROUP_NAME;
 
-@Category(DbTests.class)
+
 public class DeleteActionTest {
 
   @Rule

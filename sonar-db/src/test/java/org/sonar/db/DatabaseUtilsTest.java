@@ -33,14 +33,12 @@ import java.util.Objects;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.Oracle;
-import org.sonar.test.DbTests;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
@@ -55,7 +53,7 @@ import static org.sonar.db.WildcardPosition.AFTER;
 import static org.sonar.db.WildcardPosition.BEFORE;
 import static org.sonar.db.WildcardPosition.BEFORE_AND_AFTER;
 
-@Category(DbTests.class)
+
 public class DatabaseUtilsTest {
 
   @Rule

@@ -23,7 +23,6 @@ import java.util.Collection;
 import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
@@ -38,13 +37,12 @@ import org.sonar.core.issue.IssueType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.issue.index.IssueIndexer;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@Category(DbTests.class)
+
 public class ServerIssueStorageTest {
 
   System2 system = mock(System2.class);

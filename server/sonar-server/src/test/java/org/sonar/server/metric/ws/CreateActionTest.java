@@ -22,7 +22,6 @@ package org.sonar.server.metric.ws;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.utils.System2;
@@ -38,7 +37,6 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.ruby.RubyBridge;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
@@ -49,7 +47,7 @@ import static org.sonar.server.metric.ws.CreateAction.PARAM_KEY;
 import static org.sonar.server.metric.ws.CreateAction.PARAM_NAME;
 import static org.sonar.server.metric.ws.CreateAction.PARAM_TYPE;
 
-@Category(DbTests.class)
+
 public class CreateActionTest {
 
   private static final String DEFAULT_KEY = "custom-metric-key";

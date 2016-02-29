@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
@@ -56,7 +55,6 @@ import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -66,7 +64,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_ID;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
 
-@Category(DbTests.class)
+
 public class DeleteActionTest {
 
   private static final String ACTION = "delete";

@@ -23,23 +23,21 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
-import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.properties.ProjectSettingsFactory;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 
-@Category(DbTests.class)
+
 public class SettingsRepositoryTest {
 
   private static final Component ROOT = ReportComponent.builder(PROJECT, 1).setKey("ROOT").build();

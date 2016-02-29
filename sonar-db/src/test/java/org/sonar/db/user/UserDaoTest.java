@@ -26,7 +26,6 @@ import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.DateUtils;
@@ -43,7 +42,6 @@ import org.sonar.db.measure.MeasureFilterDto;
 import org.sonar.db.measure.MeasureFilterFavouriteDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.test.DbTests;
 
 import static java.util.Arrays.asList;
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
@@ -54,7 +52,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupMembershipQuery.builder;
 
-@Category(DbTests.class)
+
 public class UserDaoTest {
 
   @Rule

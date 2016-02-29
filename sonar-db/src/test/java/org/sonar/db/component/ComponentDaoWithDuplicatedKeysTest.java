@@ -21,12 +21,10 @@ package org.sonar.db.component;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.experimental.categories.Category;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.test.DbTests;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -34,7 +32,7 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 /**
  * On H2, the index on PROJECTS.KEE is unique. In order to simulate the MySQL behaviour where the index is not unique, we need to create a schema where there's no unique index on PROJECTS.KEE
  */
-@Category(DbTests.class)
+
 public class ComponentDaoWithDuplicatedKeysTest {
 
   static final String PROJECT_KEY = "PROJECT_KEY";
