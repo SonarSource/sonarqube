@@ -25,7 +25,9 @@ import org.assertj.core.data.Offset;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueType;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -90,6 +92,12 @@ public class IssueCounterTest {
   static final Metric NEW_MINOR_ISSUES_METRIC = new MetricImpl(14, NEW_MINOR_VIOLATIONS_KEY, NEW_MINOR_VIOLATIONS_KEY, INT);
   static final Metric NEW_INFO_ISSUES_METRIC = new MetricImpl(15, NEW_INFO_VIOLATIONS_KEY, NEW_INFO_VIOLATIONS_KEY, INT);
   static final Metric FALSE_POSITIVE_ISSUES_METRIC = new MetricImpl(16, FALSE_POSITIVE_ISSUES_KEY, FALSE_POSITIVE_ISSUES_KEY, INT);
+  static final Metric CODE_SMELLS_METRIC = new MetricImpl(17, CoreMetrics.CODE_SMELLS_KEY, CoreMetrics.CODE_SMELLS_KEY, INT);
+  static final Metric BUGS_METRIC = new MetricImpl(18, CoreMetrics.BUGS_KEY, CoreMetrics.BUGS_KEY, INT);
+  static final Metric VULNERABILITIES_METRIC = new MetricImpl(19, CoreMetrics.VULNERABILITIES_KEY, CoreMetrics.VULNERABILITIES_KEY, INT);
+  static final Metric NEW_CODE_SMELLS_METRIC = new MetricImpl(20, CoreMetrics.NEW_CODE_SMELLS_KEY, CoreMetrics.NEW_CODE_SMELLS_KEY, INT);
+  static final Metric NEW_BUGS_METRIC = new MetricImpl(21, CoreMetrics.NEW_BUGS_KEY, CoreMetrics.NEW_BUGS_KEY, INT);
+  static final Metric NEW_VULNERABILITIES_METRIC = new MetricImpl(22, CoreMetrics.NEW_VULNERABILITIES_KEY, CoreMetrics.NEW_VULNERABILITIES_KEY, INT);
 
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
@@ -117,7 +125,13 @@ public class IssueCounterTest {
     .add(NEW_MAJOR_ISSUES_METRIC)
     .add(NEW_MINOR_ISSUES_METRIC)
     .add(NEW_INFO_ISSUES_METRIC)
-    .add(FALSE_POSITIVE_ISSUES_METRIC);
+    .add(FALSE_POSITIVE_ISSUES_METRIC)
+    .add(CODE_SMELLS_METRIC)
+    .add(BUGS_METRIC)
+    .add(VULNERABILITIES_METRIC)
+    .add(NEW_CODE_SMELLS_METRIC)
+    .add(NEW_BUGS_METRIC)
+    .add(NEW_VULNERABILITIES_METRIC);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -203,18 +217,51 @@ public class IssueCounterTest {
   }
 
   @Test
+  public void count_unresolved_issues_by_type() {
+    periodsHolder.setPeriods();
+
+    // bottom-up traversal -> from files to project
+    // file1 : one open code smell, one closed code smell (which will be excluded from metric)
+    underTest.beforeComponent(FILE1);
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(IssueType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(IssueType.CODE_SMELL));
+    underTest.afterComponent(FILE1);
+
+    // file2 : one bug
+    underTest.beforeComponent(FILE2);
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER).setType(IssueType.BUG));
+    underTest.afterComponent(FILE2);
+
+    underTest.beforeComponent(PROJECT);
+    underTest.afterComponent(PROJECT);
+
+    assertThat(measureRepository.getRawMeasure(FILE1, CODE_SMELLS_METRIC).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getRawMeasure(FILE1, BUGS_METRIC).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getRawMeasure(FILE1, VULNERABILITIES_METRIC).get().getIntValue()).isEqualTo(0);
+
+    assertThat(measureRepository.getRawMeasure(FILE2, CODE_SMELLS_METRIC).get().getIntValue()).isEqualTo(0);
+    assertThat(measureRepository.getRawMeasure(FILE2, BUGS_METRIC).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getRawMeasure(FILE2, VULNERABILITIES_METRIC).get().getIntValue()).isEqualTo(0);
+
+    assertThat(measureRepository.getRawMeasure(PROJECT, CODE_SMELLS_METRIC).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getRawMeasure(PROJECT, BUGS_METRIC).get().getIntValue()).isEqualTo(1);
+    assertThat(measureRepository.getRawMeasure(PROJECT, VULNERABILITIES_METRIC).get().getIntValue()).isEqualTo(0);
+  }
+
+  @Test
   public void count_new_issues() {
     Period period = newPeriod(3, 1500000000000L);
     periodsHolder.setPeriods(period);
 
     underTest.beforeComponent(FILE1);
-    // created before -> existing issues
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L));
-    // created during the first analysis starting the period -> existing issues
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()));
-    // created after -> new issues
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L));
-    underTest.onIssue(FILE1, createIssueAt(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L));
+    // created before -> existing issues (so ignored)
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L).setType(IssueType.CODE_SMELL));
+    // created during the first analysis starting the period -> existing issues (so ignored)
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()).setType(IssueType.BUG));
+    // created after -> 3 new issues but 1 is closed
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(IssueType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(IssueType.BUG));
+    underTest.onIssue(FILE1, createIssueAt(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L).setType(IssueType.BUG));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
@@ -223,15 +270,21 @@ public class IssueCounterTest {
     underTest.beforeComponent(PROJECT);
     underTest.afterComponent(PROJECT);
 
-    assertVariation(FILE1, NEW_ISSUES_METRIC, period.getIndex(), 1);
-    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 1);
+    assertVariation(FILE1, NEW_ISSUES_METRIC, period.getIndex(), 2);
+    assertVariation(FILE1, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 2);
     assertVariation(FILE1, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 0);
     assertVariation(FILE1, NEW_MAJOR_ISSUES_METRIC, period.getIndex(), 0);
+    assertVariation(FILE1, NEW_CODE_SMELLS_METRIC, period.getIndex(), 1);
+    assertVariation(FILE1, NEW_BUGS_METRIC, period.getIndex(), 1);
+    assertVariation(FILE1, NEW_VULNERABILITIES_METRIC, period.getIndex(), 0);
 
-    assertVariation(PROJECT, NEW_ISSUES_METRIC, period.getIndex(), 1);
-    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 1);
+    assertVariation(PROJECT, NEW_ISSUES_METRIC, period.getIndex(), 2);
+    assertVariation(PROJECT, NEW_CRITICAL_ISSUES_METRIC, period.getIndex(), 2);
     assertVariation(PROJECT, NEW_BLOCKER_ISSUES_METRIC, period.getIndex(), 0);
     assertVariation(PROJECT, NEW_MAJOR_ISSUES_METRIC, period.getIndex(), 0);
+    assertVariation(PROJECT, NEW_CODE_SMELLS_METRIC, period.getIndex(), 1);
+    assertVariation(PROJECT, NEW_BUGS_METRIC, period.getIndex(), 1);
+    assertVariation(PROJECT, NEW_VULNERABILITIES_METRIC, period.getIndex(), 0);
   }
 
   private void assertVariation(Component component, Metric metric, int periodIndex, int expectedVariation) {
@@ -243,6 +296,7 @@ public class IssueCounterTest {
     return new DefaultIssue()
       .setResolution(resolution).setStatus(status)
       .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
+      .setType(IssueType.CODE_SMELL)
       .setCreationDate(new Date());
   }
 
@@ -250,6 +304,7 @@ public class IssueCounterTest {
     return new DefaultIssue()
       .setResolution(resolution).setStatus(status)
       .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
+      .setType(IssueType.CODE_SMELL)
       .setCreationDate(new Date(creationDate));
   }
 
