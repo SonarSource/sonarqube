@@ -31,10 +31,8 @@ import org.apache.ibatis.session.SqlSession;
 public class DbSession implements SqlSession {
 
   private SqlSession session;
-  private int actionCount;
 
   public DbSession(SqlSession session) {
-    this.actionCount = 0;
     this.session = session;
   }
 

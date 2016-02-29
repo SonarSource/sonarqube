@@ -45,14 +45,10 @@ public class ActiveRuleDto {
   private long updatedAt;
 
   // These fields do not exists in db, it's only retrieve by joins
-  private Integer parentId;
   private String repository;
   private String ruleField;
   private String profileKey;
 
-  /**
-   * @deprecated for internal use, should be private
-   */
   public ActiveRuleDto setKey(ActiveRuleKey key) {
     this.repository = key.ruleKey().repository();
     this.ruleField = key.ruleKey().rule();
@@ -116,18 +112,6 @@ public class ActiveRuleDto {
 
   public ActiveRuleDto setInheritance(@Nullable String inheritance) {
     this.inheritance = inheritance;
-    return this;
-  }
-
-  @CheckForNull
-  @Deprecated
-  public Integer getParentId() {
-    return parentId;
-  }
-
-  @Deprecated
-  public ActiveRuleDto setParentId(@Nullable Integer parentId) {
-    this.parentId = parentId;
     return this;
   }
 
