@@ -20,12 +20,13 @@
 
 #
 # SonarQube 5.5
+# SONAR-7329
 # SONAR-7330
 #
-class AddRulesLongDateColumns < ActiveRecord::Migration
+class AddRulesColumns < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.db.version.v55.AddRulesLongDateColumns')
+    execute_java_migration('org.sonar.db.version.v55.AddRulesColumns')
   end
 
 end

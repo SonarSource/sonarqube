@@ -71,7 +71,7 @@ import org.sonar.db.version.v54.RemoveComponentPageProperties;
 import org.sonar.db.version.v54.RemovePreviewPermission;
 import org.sonar.db.version.v55.AddActiveRulesLongDateColumns;
 import org.sonar.db.version.v55.AddIssuesType;
-import org.sonar.db.version.v55.AddRulesLongDateColumns;
+import org.sonar.db.version.v55.AddRulesColumns;
 import org.sonar.db.version.v55.DeleteMeasuresWithCharacteristicId;
 import org.sonar.db.version.v55.DropActiveRulesDateColumns;
 import org.sonar.db.version.v55.DropRulesDateColumns;
@@ -145,7 +145,7 @@ public class MigrationStepModule extends Module {
       IncreaseProjectsNameColumnsSize.class,
 
       // 5.5
-      AddRulesLongDateColumns.class,
+      AddRulesColumns.class,
       FeedRulesLongDateColumns.class,
       DeleteMeasuresWithCharacteristicId.class,
       AddActiveRulesLongDateColumns.class,

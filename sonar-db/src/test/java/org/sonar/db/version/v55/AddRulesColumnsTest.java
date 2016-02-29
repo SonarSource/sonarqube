@@ -27,16 +27,16 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 import org.sonar.db.version.MigrationStep;
 
-public class AddRulesLongDateColumnsTest {
+public class AddRulesColumnsTest {
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddRulesLongDateColumnsTest.class, "schema.sql");
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddRulesColumnsTest.class, "schema.sql");
 
   MigrationStep migration;
 
   @Before
   public void setUp() {
-    migration = new AddRulesLongDateColumns(db.database());
+    migration = new AddRulesColumns(db.database());
   }
 
   @Test
@@ -45,6 +45,7 @@ public class AddRulesLongDateColumnsTest {
 
     db.assertColumnDefinition("rules", "created_at_ms", Types.BIGINT, null);
     db.assertColumnDefinition("rules", "updated_at_ms", Types.BIGINT, null);
+    db.assertColumnDefinition("rules", "rule_type", Types.TINYINT, null);
   }
 
 }

@@ -23,6 +23,7 @@ import java.sql.SQLException;
 import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.TinyIntColumnDef;
 
 import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBuilder;
 
@@ -30,12 +31,13 @@ import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBui
  * Add the following columns to the rules table :
  * - created_at_ms
  * - updated_at_ms
+ * - rule_type
  */
-public class AddRulesLongDateColumns extends DdlChange {
+public class AddRulesColumns extends DdlChange {
 
   private final Database db;
 
-  public AddRulesLongDateColumns(Database db) {
+  public AddRulesColumns(Database db) {
     super(db);
     this.db = db;
   }
@@ -49,6 +51,7 @@ public class AddRulesLongDateColumns extends DdlChange {
     return new AddColumnsBuilder(db.getDialect(), "rules")
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("created_at_ms").setIsNullable(true).build())
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("updated_at_ms").setIsNullable(true).build())
+      .addColumn(new TinyIntColumnDef.Builder().setColumnName("rule_type").setIsNullable(true).build())
       .build();
   }
 
