@@ -27,8 +27,9 @@ import { getComponentUrl } from '../../../helpers/urls';
 
 const METRICS = [
   'ncloc',
-  'sqale_index',
-  'violations',
+  'code_smells',
+  'bugs',
+  'vulnerabilities',
   'duplicated_lines_density',
   'alert_status'
 ];

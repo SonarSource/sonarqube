@@ -25,7 +25,9 @@
 }
 
 .code-components-cell {
-  width: 100px;
+  min-width: 80px;
+  padding-left: 30px !important;
+  box-sizing: border-box;
 }
 
 .code-truncated {

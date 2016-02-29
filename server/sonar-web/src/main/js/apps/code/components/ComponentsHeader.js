@@ -27,19 +27,22 @@ const ComponentsHeader = ({ baseComponent }) => (
       <tr>
         <th className="thin nowrap">&nbsp;</th>
         <th>&nbsp;</th>
-        <th className="thin nowrap text-right">
+        <th className="thin nowrap text-right code-components-cell">
           {baseComponent && translate('metric.ncloc.name')}
         </th>
-        <th className="thin nowrap text-right">
-          {baseComponent && translate('metric.sqale_index.short_name')}
+        <th className="thin nowrap text-right code-components-cell">
+          {baseComponent && translate('metric.code_smells.name')}
         </th>
-        <th className="thin nowrap text-right">
-          {baseComponent && translate('metric.violations.name')
-          }</th>
-        <th className="thin nowrap text-right">
+        <th className="thin nowrap text-right code-components-cell">
+          {baseComponent && translate('metric.bugs.name')}
+        </th>
+        <th className="thin nowrap text-right code-components-cell">
+          {baseComponent && translate('metric.vulnerabilities.name')}
+        </th>
+        <th className="thin nowrap text-right code-components-cell">
           {baseComponent && translate('metric.coverage.name')}
         </th>
-        <th className="thin nowrap text-right">
+        <th className="thin nowrap text-right code-components-cell">
           {baseComponent && translate('metric.duplicated_lines_density.short_name')}
         </th>
       </tr>
