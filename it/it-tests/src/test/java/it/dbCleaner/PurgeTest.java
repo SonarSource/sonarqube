@@ -105,9 +105,9 @@ public class PurgeTest {
     // must be a different date, else a single snapshot is kept per day
     scan(PROJECT_SAMPLE_PATH, DateFormatUtils.ISO_DATE_FORMAT.format(today));
 
-    int newMeasuresOnTrk = 43;
-    int newMeasuresOnBrc = 214;
-    int newMeasuresOnDir = 32;
+    int newMeasuresOnTrk = 49;
+    int newMeasuresOnBrc = 250;
+    int newMeasuresOnDir = 44;
     int newMeasuresOnFil = 0;
 
     assertMeasuresCountForQualifier("TRK", measuresOnTrk + newMeasuresOnTrk);
@@ -119,7 +119,7 @@ public class PurgeTest {
     collector.checkThat(
       "Wrong number of measure of new_ metrics",
       count("project_measures, metrics where metrics.id = project_measures.metric_id and metrics.name like 'new_%'"),
-      equalTo(88));
+      equalTo(121));
 
     // added measures relate to project and new_* metrics
     expectedMeasures += newMeasuresOnTrk + newMeasuresOnBrc + newMeasuresOnDir + newMeasuresOnFil;
