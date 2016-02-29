@@ -19,9 +19,9 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import java.util.HashMap;
-import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -32,14 +32,17 @@ import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.server.paging.PagedResult;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDao;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.es.SearchIdResult;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ThreadLocalUserSession;
 
-import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -57,10 +60,19 @@ public class RubyRuleServiceTest {
   RuleService ruleService;
 
   @Mock
+  DbClient dbClient;
+
+  @Mock
+  DbSession dbSession;
+
+  @Mock
+  RuleDao ruleDao;
+
+  @Mock
   RuleUpdater updater;
 
   @Captor
-  ArgumentCaptor<QueryContext> optionsCaptor;
+  ArgumentCaptor<SearchOptions> optionsCaptor;
 
   @Captor
   ArgumentCaptor<RuleQuery> ruleQueryCaptor;
@@ -69,18 +81,24 @@ public class RubyRuleServiceTest {
 
   @Before
   public void setUp() {
-    service = new RubyRuleService(ruleService, updater, userSessionRule);
+    when(dbClient.openSession(false)).thenReturn(dbSession);
+    when(dbClient.ruleDao()).thenReturn(ruleDao);
+    service = new RubyRuleService(dbClient, ruleService, updater, userSessionRule);
   }
 
   @Test
   public void find_by_key() {
-    service.findByKey("squid:S001");
-    verify(ruleService).getByKey(RuleKey.of("squid", "S001"));
+    RuleKey ruleKey = RuleKey.of("squid", "S001");
+    RuleDto ruleDto = RuleTesting.newXooX1();
+
+    when(ruleDao.selectByKey(dbSession, ruleKey)).thenReturn(Optional.of(ruleDto));
+
+    assertThat(service.findByKey("squid:S001")).isEqualTo(ruleDto);
   }
 
   @Test
   public void search_rules() {
-    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
+    when(ruleService.search(any(RuleQuery.class), any(SearchOptions.class))).thenReturn(mock(SearchIdResult.class));
 
     HashMap<String, Object> params = newHashMap();
     params.put("searchQuery", "Exception");
@@ -113,7 +131,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void search_rules_activated_on_a_profile() {
-    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
+    when(ruleService.search(any(RuleQuery.class), any(SearchOptions.class))).thenReturn(mock(SearchIdResult.class));
 
     HashMap<String, Object> params = newHashMap();
     params.put("profile", "xoo-profile");
@@ -127,7 +145,7 @@ public class RubyRuleServiceTest {
 
   @Test
   public void search_rules_without_page_size_param() {
-    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
+    when(ruleService.search(any(RuleQuery.class), any(SearchOptions.class))).thenReturn(mock(SearchIdResult.class));
 
     HashMap<String, Object> params = newHashMap();
     params.put(Param.PAGE, "1");
@@ -140,39 +158,12 @@ public class RubyRuleServiceTest {
   }
 
   @Test
-  public void search_all_rules() {
-    List<Rule> rules = newArrayList(mock(Rule.class));
-    Result serviceResult = mock(Result.class);
-    when(serviceResult.scroll()).thenReturn(rules.iterator());
-
-    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(serviceResult);
-
-    HashMap<String, Object> params = newHashMap();
-    params.put("pageSize", "-1");
-    PagedResult<Rule> result = service.find(params);
-
-    verify(serviceResult).scroll();
-
-    verify(ruleService).search(ruleQueryCaptor.capture(), optionsCaptor.capture());
-    assertThat(result.paging().pageSize()).isEqualTo(Integer.MAX_VALUE);
-  }
-
-  @Test
   public void update_rule() {
-    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
+    when(ruleService.search(any(RuleQuery.class), any(SearchOptions.class))).thenReturn(mock(SearchIdResult.class));
 
     service.updateRule(ImmutableMap.<String, Object>of("ruleKey", "squid:S001"));
 
     verify(updater).update(any(RuleUpdate.class), any(ThreadLocalUserSession.class));
-  }
-
-  @Test
-  public void search_manual_rules() {
-    when(ruleService.search(any(RuleQuery.class), any(QueryContext.class))).thenReturn(mock(Result.class));
-
-    service.searchManualRules();
-
-    verify(ruleService).search(any(RuleQuery.class), any(QueryContext.class));
   }
 
   @Test

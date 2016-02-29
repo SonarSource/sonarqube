@@ -24,6 +24,8 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.server.es.SearchIdResult;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
@@ -35,12 +37,14 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class RuleService {
 
+  private final RuleUpdater ruleUpdater;
   private final RuleIndex index;
   private final RuleCreator ruleCreator;
   private final RuleDeleter ruleDeleter;
   private final UserSession userSession;
 
-  public RuleService(RuleIndex index, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
+  public RuleService(RuleUpdater ruleUpdater, RuleIndex index, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
+    this.ruleUpdater = ruleUpdater;
     this.index = index;
     this.ruleCreator = ruleCreator;
     this.ruleDeleter = ruleDeleter;
@@ -65,6 +69,10 @@ public class RuleService {
   public Set<String> listTags(@Nullable String query, int size) {
     /** using combined ALL_TAGS field of ES until ES update that has multiTerms aggregation */
     return index.terms(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, query, size);
+  }
+
+  public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
+     return index.search(query, options);
   }
 
   public RuleKey create(NewRule newRule) {

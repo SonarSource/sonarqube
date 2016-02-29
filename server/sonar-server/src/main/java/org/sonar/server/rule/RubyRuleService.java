@@ -24,22 +24,22 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.picocontainer.Startable;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.server.es.SearchIdResult;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.paging.PagedResult;
 import org.sonar.server.paging.PagingResult;
-import org.sonar.server.rule.index.RuleDoc;
-import org.sonar.server.rule.index.RuleNormalizer;
+import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
-
-import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Used through ruby code <pre>Internal.rules</pre>
@@ -50,11 +50,13 @@ import static com.google.common.collect.Lists.newArrayList;
 @ServerSide
 public class RubyRuleService implements Startable {
 
+  private final DbClient dbClient;
   private final RuleService service;
   private final RuleUpdater updater;
   private final UserSession userSession;
 
-  public RubyRuleService(RuleService service, RuleUpdater updater, UserSession userSession) {
+  public RubyRuleService(DbClient dbClient, RuleService service, RuleUpdater updater, UserSession userSession) {
+    this.dbClient = dbClient;
     this.service = service;
     this.updater = updater;
     this.userSession = userSession;
@@ -64,15 +66,19 @@ public class RubyRuleService implements Startable {
    * Used in issues_controller.rb and in manual_rules_controller.rb and in SQALE
    */
   @CheckForNull
-  public Rule findByKey(String ruleKey) {
-    return service.getByKey(RuleKey.parse(ruleKey));
+  public RuleDto findByKey(String ruleKey) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return dbClient.ruleDao().selectByKey(dbSession, RuleKey.parse(ruleKey)).orNull();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   /**
    * Used in SQALE
-   * If 'pageSize' params is set no -1, all rules are returned (using scrolling)
    */
-  public PagedResult<Rule> find(Map<String, Object> params) {
+  public PagedResult<RuleDto> find(Map<String, Object> params) {
     RuleQuery query = new RuleQuery();
     query.setQueryText(Strings.emptyToNull((String) params.get("searchQuery")));
     query.setKey(Strings.emptyToNull((String) params.get("key")));
@@ -81,34 +87,22 @@ public class RubyRuleService implements Startable {
     query.setSeverities(RubyUtils.toStrings(params.get("severities")));
     query.setStatuses(RubyUtils.toEnums(params.get("statuses"), RuleStatus.class));
     query.setTags(RubyUtils.toStrings(params.get("tags")));
-    query.setSortField(RuleNormalizer.RuleField.NAME);
+    query.setSortField(RuleIndexDefinition.FIELD_RULE_NAME);
     String profile = Strings.emptyToNull((String) params.get("profile"));
     if (profile != null) {
       query.setQProfileKey(profile);
       query.setActivation(true);
     }
 
-    QueryContext options = new QueryContext(userSession);
+    SearchOptions options = new SearchOptions();
     Integer pageSize = RubyUtils.toInteger(params.get("pageSize"));
     int size = pageSize != null ? pageSize : 50;
-    if (size > -1) {
-      Integer page = RubyUtils.toInteger(params.get("p"));
-      int pageIndex = page != null ? page : 1;
-      options.setPage(pageIndex, size);
-      Result<Rule> result = service.search(query, options);
-      return new PagedResult<>(result.getHits(), PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
-    } else {
-      List<Rule> rules = newArrayList(service.search(query, new QueryContext(userSession).setScroll(true)).scroll());
-      return new PagedResult<>(rules, PagingResult.create(Integer.MAX_VALUE, 1, rules.size()));
-    }
-  }
-
-  /**
-   * Used in manual_rules_controller.rb
-   */
-  public List<Rule> searchManualRules() {
-    return service.search(new RuleQuery().setRepositories(newArrayList(RuleDoc.MANUAL_REPOSITORY))
-      .setSortField(RuleNormalizer.RuleField.NAME), new QueryContext(userSession)).getHits();
+    Integer page = RubyUtils.toInteger(params.get("p"));
+    int pageIndex = page != null ? page : 1;
+    options.setPage(pageIndex, size);
+    SearchIdResult<RuleKey> result = service.search(query, options);
+    List<RuleDto> ruleDtos = loadDtos(result.getIds());
+    return new PagedResult<>(ruleDtos, PagingResult.create(options.getLimit(), pageIndex, result.getTotal()));
   }
 
   // sqale
@@ -152,6 +146,15 @@ public class RubyRuleService implements Startable {
    */
   public void deleteManualRule(String ruleKey) {
     service.delete(RuleKey.parse(ruleKey));
+  }
+
+  private List<RuleDto> loadDtos(List<RuleKey> ruleKeys) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return dbClient.ruleDao().selectByKeys(dbSession, ruleKeys);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 
   @Override
