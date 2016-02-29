@@ -115,8 +115,7 @@ public class QProfileReset {
     DbSession dbSession = db.openSession(false);
     try {
       QualityProfileDto profile = factory.getOrCreate(dbSession, profileName);
-      BulkChangeResult result = doReset(dbSession, profile, activations);
-      return result;
+      return doReset(dbSession, profile, activations);
     } finally {
       dbSession.close();
     }

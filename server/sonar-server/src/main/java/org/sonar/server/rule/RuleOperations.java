@@ -32,7 +32,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 

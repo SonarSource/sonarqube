@@ -62,7 +62,7 @@ public class RuleIndexer extends BaseIndexer {
     }
   }
 
-  private long doIndex(BulkIndexer bulk, Iterator<RuleDoc> rules) {
+  private static long doIndex(BulkIndexer bulk, Iterator<RuleDoc> rules) {
     bulk.start();
     long maxDate = 0L;
     while (rules.hasNext()) {
@@ -87,7 +87,7 @@ public class RuleIndexer extends BaseIndexer {
     return bulk;
   }
 
-  private IndexRequest newIndexRequest(RuleDoc rule) {
+  private static IndexRequest newIndexRequest(RuleDoc rule) {
     return new IndexRequest(INDEX, TYPE_RULE, rule.key().toString())
       .routing(rule.repository())
       .source(rule.getFields());

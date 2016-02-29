@@ -19,10 +19,7 @@
  */
 package org.sonar.server.rule;
 
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ServerSide;
@@ -30,8 +27,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.QueryContext;
-import org.sonar.server.search.Result;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -41,43 +36,19 @@ import org.sonar.server.user.UserSession;
 public class RuleService {
 
   private final RuleIndex index;
-  private final RuleUpdater ruleUpdater;
   private final RuleCreator ruleCreator;
   private final RuleDeleter ruleDeleter;
   private final UserSession userSession;
 
-  public RuleService(RuleIndex index, RuleUpdater ruleUpdater, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
+  public RuleService(RuleIndex index, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
     this.index = index;
-    this.ruleUpdater = ruleUpdater;
     this.ruleCreator = ruleCreator;
     this.ruleDeleter = ruleDeleter;
     this.userSession = userSession;
   }
 
-  @CheckForNull
-  @Deprecated
-  public Rule getByKey(RuleKey key) {
-    throw new UnsupportedOperationException("Please use RuleDao");
-  }
-
-  @Deprecated
-  public List<Rule> getByKeys(Collection<RuleKey> keys) {
-    throw new UnsupportedOperationException("Please use RuleDao");
-  }
-
-  @Deprecated
-  public Rule getNonNullByKey(RuleKey key) {
-    throw new UnsupportedOperationException("Please use RuleDao");
-  }
-
   public RuleQuery newRuleQuery() {
     return new RuleQuery();
-  }
-
-  public Result<Rule> search(RuleQuery query, QueryContext options) {
-    // TODO replace QueryContext by SearchOptions
-    // return index.search(query, options);
-    throw new UnsupportedOperationException("Wait for replacement of QueryContext by SearchOptions ");
   }
 
   /**

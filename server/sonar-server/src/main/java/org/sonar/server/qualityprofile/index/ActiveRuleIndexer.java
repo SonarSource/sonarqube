@@ -73,7 +73,7 @@ public class ActiveRuleIndexer extends BaseIndexer {
     }
   }
 
-  private long doIndex(BulkIndexer bulk, Iterator<ActiveRuleDoc> activeRules) {
+  private static long doIndex(BulkIndexer bulk, Iterator<ActiveRuleDoc> activeRules) {
     bulk.start();
     long maxDate = 0L;
     while (activeRules.hasNext()) {
@@ -127,7 +127,7 @@ public class ActiveRuleIndexer extends BaseIndexer {
     return bulk;
   }
 
-  private IndexRequest newIndexRequest(ActiveRuleDoc doc) {
+  private static IndexRequest newIndexRequest(ActiveRuleDoc doc) {
     return new IndexRequest(INDEX, TYPE_ACTIVE_RULE, doc.key().toString())
       .parent(doc.key().ruleKey().toString())
       .routing(doc.key().ruleKey().repository())

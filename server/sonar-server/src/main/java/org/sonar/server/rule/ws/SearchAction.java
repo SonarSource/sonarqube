@@ -344,7 +344,7 @@ public class SearchAction implements RulesWsAction {
     return searchQueryContext;
   }
 
-  private org.sonar.server.es.SearchOptions loadCommonContext(Request request) {
+  private static org.sonar.server.es.SearchOptions loadCommonContext(Request request) {
     int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
     org.sonar.server.es.SearchOptions context = new org.sonar.server.es.SearchOptions().addFields(request.paramAsStrings(Param.FIELDS));
     List<String> facets = request.paramAsStrings(Param.FACETS);

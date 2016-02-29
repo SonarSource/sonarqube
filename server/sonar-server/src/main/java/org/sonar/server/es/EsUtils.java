@@ -91,61 +91,87 @@ public class EsUtils {
     return null;
   }
 
-  public static <D extends BaseDoc> Iterator<D> scroll(final EsClient esClient, final String scrollId, final Function<Map<String, Object>, D> docConverter) {
-    return new Iterator<D>() {
-      private final Queue<SearchHit> hits = new ArrayDeque<>();
-
-      @Override
-      public boolean hasNext() {
-        if (hits.isEmpty()) {
-          SearchScrollRequestBuilder esRequest = esClient.prepareSearchScroll(scrollId)
-            .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
-          Collections.addAll(hits, esRequest.get().getHits().getHits());
-        }
-        return !hits.isEmpty();
-      }
-
-      @Override
-      public D next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        return docConverter.apply(hits.poll().getSource());
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException("Cannot remove item when scrolling");
-      }
-    };
+  public static <D extends BaseDoc> Iterator<D> scroll(EsClient esClient, String scrollId, Function<Map<String, Object>, D> docConverter) {
+    return new DocScrollIterator<>(esClient, scrollId, docConverter);
   }
 
-  public static <ID> Iterator<ID> scrollIds(final EsClient esClient, final String scrollId, final Function<String, ID> idConverter) {
-    return new Iterator<ID>() {
-      private final Queue<SearchHit> hits = new ArrayDeque<>();
+  private static class DocScrollIterator<D extends BaseDoc> implements Iterator<D> {
 
-      @Override
-      public boolean hasNext() {
-        if (hits.isEmpty()) {
-          SearchScrollRequestBuilder esRequest = esClient.prepareSearchScroll(scrollId)
-            .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
-          Collections.addAll(hits, esRequest.get().getHits().getHits());
-        }
-        return !hits.isEmpty();
-      }
+    private final EsClient esClient;
+    private final String scrollId;
+    private final Function<Map<String, Object>, D> docConverter;
 
-      @Override
-      public ID next() {
-        if (!hasNext()) {
-          throw new NoSuchElementException();
-        }
-        return idConverter.apply(hits.poll().getId());
-      }
+    private final Queue<SearchHit> hits = new ArrayDeque<>();
 
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException("Cannot remove item when scrolling");
+    private DocScrollIterator(EsClient esClient, String scrollId, Function<Map<String, Object>, D> docConverter) {
+      this.esClient = esClient;
+      this.scrollId = scrollId;
+      this.docConverter = docConverter;
+    }
+
+    @Override
+    public boolean hasNext() {
+      if (hits.isEmpty()) {
+        SearchScrollRequestBuilder esRequest = esClient.prepareSearchScroll(scrollId)
+          .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
+        Collections.addAll(hits, esRequest.get().getHits().getHits());
       }
-    };
+      return !hits.isEmpty();
+    }
+
+    @Override
+    public D next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      return docConverter.apply(hits.poll().getSource());
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("Cannot remove item when scrolling");
+    }
+  }
+
+  public static <ID> Iterator<ID> scrollIds(EsClient esClient, String scrollId, Function<String, ID> idConverter) {
+    return new IdScrollIterator<>(esClient, scrollId, idConverter);
+  }
+
+  private static class IdScrollIterator<ID> implements Iterator<ID> {
+
+    private final EsClient esClient;
+    private final String scrollId;
+    private final Function<String, ID> idConverter;
+
+    private final Queue<SearchHit> hits = new ArrayDeque<>();
+
+    private IdScrollIterator(EsClient esClient, String scrollId, Function<String, ID> idConverter) {
+      this.esClient = esClient;
+      this.scrollId = scrollId;
+      this.idConverter = idConverter;
+    }
+
+    @Override
+    public boolean hasNext() {
+      if (hits.isEmpty()) {
+        SearchScrollRequestBuilder esRequest = esClient.prepareSearchScroll(scrollId)
+          .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
+        Collections.addAll(hits, esRequest.get().getHits().getHits());
+      }
+      return !hits.isEmpty();
+    }
+
+    @Override
+    public ID next() {
+      if (!hasNext()) {
+        throw new NoSuchElementException();
+      }
+      return idConverter.apply(hits.poll().getId());
+    }
+
+    @Override
+    public void remove() {
+      throw new UnsupportedOperationException("Cannot remove item when scrolling");
+    }
   }
 }

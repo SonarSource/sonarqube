@@ -21,7 +21,6 @@ package org.sonar.server.rule.index;
 
 import com.google.common.base.Preconditions;
 import java.util.Collection;
-import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
@@ -49,7 +48,6 @@ public class RuleQuery {
   private boolean ascendingSort = true;
   private String internalKey;
   private String ruleKey;
-
 
   /**
    * TODO should not be public
@@ -228,17 +226,6 @@ public class RuleQuery {
   public RuleQuery setAscendingSort(boolean b) {
     this.ascendingSort = b;
     return this;
-  }
-
-  @Deprecated
-  public RuleQuery setAvailableSince(@Nullable Date d) {
-    this.availableSince = d.getTime();
-    return this;
-  }
-
-  @Deprecated
-  public Date getAvailableSince() {
-    return new Date(this.availableSince);
   }
 
   public RuleQuery setAvailableSince(@Nullable Long l) {
