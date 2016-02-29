@@ -76,10 +76,10 @@ public class PurgeTest {
     collector.checkThat("Wrong number of files", count("projects where qualifier in ('FIL')"), equalTo(4));
     collector.checkThat("Wrong number of unit test files", count("projects where qualifier in ('UTS')"), equalTo(0));
 
-    int measuresOnTrk = 37;
-    int measuresOnBrc = 174;
-    int measuresOnDir = 109;
-    int measuresOnFil = 61;
+    int measuresOnTrk = 40;
+    int measuresOnBrc = 192;
+    int measuresOnDir = 121;
+    int measuresOnFil = 65;
 
     // count measures 
     assertMeasuresCountForQualifier("TRK", measuresOnTrk);

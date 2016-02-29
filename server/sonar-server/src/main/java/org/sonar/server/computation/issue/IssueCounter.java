@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.collect.EnumMultiset;
 import com.google.common.collect.HashMultiset;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Multiset;
@@ -26,7 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueType;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -64,11 +67,11 @@ import static org.sonar.api.rule.Severity.MINOR;
 /**
  * For each component, computes the measures related to number of issues:
  * <ul>
- *   <li>unresolved issues</li>
- *   <li>false-positives</li>
- *   <li>open issues</li>
- *   <li>issues per status (open, reopen, confirmed)</li>
- *   <li>issues per severity (from info to blocker)</li>
+ * <li>unresolved issues</li>
+ * <li>false-positives</li>
+ * <li>open issues</li>
+ * <li>issues per status (open, reopen, confirmed)</li>
+ * <li>issues per severity (from info to blocker)</li>
  * </ul>
  * For each value, the variation on configured periods is also computed.
  */
@@ -89,6 +92,17 @@ public class IssueCounter extends IssueVisitor {
     MINOR, NEW_MINOR_VIOLATIONS_KEY,
     INFO, NEW_INFO_VIOLATIONS_KEY
     );
+
+  private static final Map<IssueType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<IssueType, String>builder()
+    .put(IssueType.CODE_SMELL, CoreMetrics.CODE_SMELLS_KEY)
+    .put(IssueType.BUG, CoreMetrics.BUGS_KEY)
+    .put(IssueType.VULNERABILITY, CoreMetrics.VULNERABILITIES_KEY)
+    .build();
+  private static final Map<IssueType, String> TYPE_TO_NEW_METRIC_KEY = ImmutableMap.<IssueType, String>builder()
+    .put(IssueType.CODE_SMELL, CoreMetrics.NEW_CODE_SMELLS_KEY)
+    .put(IssueType.BUG, CoreMetrics.NEW_BUGS_KEY)
+    .put(IssueType.VULNERABILITY, CoreMetrics.NEW_VULNERABILITIES_KEY)
+    .build();
 
   private final PeriodsHolder periodsHolder;
   private final MetricRepository metricRepository;
@@ -131,8 +145,9 @@ public class IssueCounter extends IssueVisitor {
 
   @Override
   public void afterComponent(Component component) {
-    addMeasuresByStatus(component);
     addMeasuresBySeverity(component);
+    addMeasuresByStatus(component);
+    addMeasuresByType(component);
     addMeasuresByPeriod(component);
     currentCounters = null;
   }
@@ -151,6 +166,12 @@ public class IssueCounter extends IssueVisitor {
     addMeasure(component, REOPENED_ISSUES_KEY, currentCounters.counter().reopened);
     addMeasure(component, CONFIRMED_ISSUES_KEY, currentCounters.counter().confirmed);
     addMeasure(component, FALSE_POSITIVE_ISSUES_KEY, currentCounters.counter().falsePositives);
+  }
+
+  private void addMeasuresByType(Component component) {
+    for (Map.Entry<IssueType, String> entry : TYPE_TO_METRIC_KEY.entrySet()) {
+      addMeasure(component, entry.getValue(), currentCounters.counter().typeBag.count(entry.getKey()));
+    }
   }
 
   private void addMeasure(Component component, String metricKey, int value) {
@@ -174,7 +195,23 @@ public class IssueCounter extends IssueVisitor {
         Double[] variations = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
         for (Period period : periodsHolder.getPeriods()) {
           Multiset<String> bag = currentCounters.counterForPeriod(period.getIndex()).severityBag;
-          variations[period.getIndex() - 1] = new Double(bag.count(severity));
+          variations[period.getIndex() - 1] = (double) bag.count(severity);
+        }
+        Metric metric = metricRepository.getByKey(metricKey);
+        measureRepository.add(component, metric, Measure.newMeasureBuilder()
+          .setVariations(new MeasureVariations(variations))
+          .createNoValue());
+      }
+
+      // waiting for Java 8 lambda in order to factor this loop with the previous one
+      // (see call currentCounters.counterForPeriod(period.getIndex()).xxx with xxx as severityBag or typeBag)
+      for (Map.Entry<IssueType, String> entry : TYPE_TO_NEW_METRIC_KEY.entrySet()) {
+        IssueType type = entry.getKey();
+        String metricKey = entry.getValue();
+        Double[] variations = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
+        for (Period period : periodsHolder.getPeriods()) {
+          Multiset<IssueType> bag = currentCounters.counterForPeriod(period.getIndex()).typeBag;
+          variations[period.getIndex() - 1] = (double) bag.count(type);
         }
         Metric metric = metricRepository.getByKey(metricKey);
         measureRepository.add(component, metric, Measure.newMeasureBuilder()
@@ -193,7 +230,8 @@ public class IssueCounter extends IssueVisitor {
     private int reopened = 0;
     private int confirmed = 0;
     private int falsePositives = 0;
-    private Multiset<String> severityBag = HashMultiset.create();
+    private final Multiset<String> severityBag = HashMultiset.create();
+    private final EnumMultiset<IssueType> typeBag = EnumMultiset.create(IssueType.class);
 
     void add(Counter counter) {
       unresolved += counter.unresolved;
@@ -202,11 +240,13 @@ public class IssueCounter extends IssueVisitor {
       confirmed += counter.confirmed;
       falsePositives += counter.falsePositives;
       severityBag.addAll(counter.severityBag);
+      typeBag.addAll(counter.typeBag);
     }
 
-    void add(Issue issue) {
+    void add(DefaultIssue issue) {
       if (issue.resolution() == null) {
         unresolved++;
+        typeBag.add(issue.type());
         severityBag.add(issue.severity());
       } else if (Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {
         falsePositives++;
@@ -248,11 +288,11 @@ public class IssueCounter extends IssueVisitor {
       }
     }
 
-    void addOnPeriod(Issue issue, int periodIndex) {
+    void addOnPeriod(DefaultIssue issue, int periodIndex) {
       array[periodIndex].add(issue);
     }
 
-    void add(Issue issue) {
+    void add(DefaultIssue issue) {
       array[0].add(issue);
     }
 
