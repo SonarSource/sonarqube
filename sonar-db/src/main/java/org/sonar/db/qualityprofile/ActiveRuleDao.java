@@ -64,6 +64,10 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectByRuleId(rule.getId());
   }
 
+  public List<ActiveRuleDto> selectByRuleIds(DbSession dbSession, List<Integer> ids) {
+    return DatabaseUtils.executeLargeInputs(ids, new RuleIdToDto(mapper(dbSession)));
+  }
+
   // TODO As it's only used by MediumTest, it should be replaced by DbTester.countRowsOfTable()
   public List<ActiveRuleDto> selectAll(DbSession dbSession) {
     return mapper(dbSession).selectAll();
@@ -204,6 +208,19 @@ public class ActiveRuleDao implements Dao {
     @Override
     public List<ActiveRuleParamDto> apply(@Nonnull List<Integer> partitionOfIds) {
       return mapper.selectParamsByActiveRuleIds(partitionOfIds);
+    }
+  }
+
+  private static class RuleIdToDto implements Function<List<Integer>, List<ActiveRuleDto>> {
+    private final ActiveRuleMapper mapper;
+
+    private RuleIdToDto(ActiveRuleMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<ActiveRuleDto> apply(@Nonnull List<Integer> partitionOfRuleIds) {
+      return mapper.selectByRuleIds(partitionOfRuleIds);
     }
   }
 }

@@ -42,6 +42,8 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleDto> selectByRuleId(int ruleId);
 
+  List<ActiveRuleDto> selectByRuleIds(@Param("ruleIds") List<Integer> partitionOfRuleIds);
+
   List<ActiveRuleDto> selectByProfileKey(String key);
 
   List<ActiveRuleDto> selectAll();
