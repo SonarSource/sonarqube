@@ -248,6 +248,7 @@ import org.sonar.server.qualityprofile.ws.SetDefaultAction;
 import org.sonar.server.rule.CommonRuleDefinitionsImpl;
 import org.sonar.server.rule.DefaultRuleFinder;
 import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
+import org.sonar.server.rule.RubyRuleService;
 import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleDefinitionsLoader;
 import org.sonar.server.rule.RuleDeleter;
@@ -433,6 +434,7 @@ public class PlatformLevel4 extends PlatformLevel {
       XMLRuleParser.class,
       DefaultRuleFinder.class,
       RuleOperations.class,
+      RubyRuleService.class,
       RuleRepositories.class,
       DeprecatedRulesDefinitionLoader.class,
       RuleDefinitionsLoader.class,

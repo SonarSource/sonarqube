@@ -57,6 +57,22 @@ public class RuleUpdater {
   /**
    * Update manual rules and custom rules (rules instantiated from templates)
    */
+  public boolean update(RuleUpdate update, UserSession userSession) {
+    if (update.isEmpty()) {
+      return false;
+    }
+
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return update(dbSession, update, userSession);
+    } finally {
+      dbSession.close();
+    }
+  }
+
+  /**
+   * Update manual rules and custom rules (rules instantiated from templates)
+   */
   public boolean update(DbSession dbSession, RuleUpdate update, UserSession userSession) {
     if (update.isEmpty()) {
       return false;

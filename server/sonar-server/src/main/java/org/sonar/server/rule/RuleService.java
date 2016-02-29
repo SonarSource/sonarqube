@@ -101,6 +101,11 @@ public class RuleService {
     return ruleCreator.create(newRule);
   }
 
+  public void update(RuleUpdate update) {
+    checkPermission();
+    ruleUpdater.update(update, userSession);
+  }
+
   public void delete(RuleKey ruleKey) {
     checkPermission();
     ruleDeleter.delete(ruleKey);
