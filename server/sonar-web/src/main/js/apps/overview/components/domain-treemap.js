@@ -133,10 +133,13 @@ export class DomainTreemap extends React.Component {
 
     const canBeClicked = node => node.qualifier !== 'FIL' && node.qualifier !== 'UTS';
 
+    // FIXME remove this magic number
+    const height = HEIGHT - 35;
+
     return <Treemap
         items={items}
         breadcrumbs={this.state.breadcrumbs}
-        height={HEIGHT}
+        height={height}
         canBeClicked={canBeClicked}
         onRectangleClick={this.handleRectangleClick.bind(this)}
         onReset={this.handleReset.bind(this)}/>;

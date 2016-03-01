@@ -104,6 +104,9 @@ export const NclocDistribution = React.createClass({
   },
 
   render () {
+    const componentsCount = this.state.components ? this.state.components.length : 1;
+    const height = componentsCount * 25;
+
     return <div className="overview-domain-chart">
       <div className="overview-card-header">
         <h2 className="overview-title">{translate('overview.chart.components')}</h2>
@@ -111,7 +114,7 @@ export const NclocDistribution = React.createClass({
           {translateWithParameters('overview.chart.legend.size_x', translate('metric.ncloc.name'))}
         </span>
       </div>
-      <div className="overview-bar-chart" style={{ height: HEIGHT }}>
+      <div className="overview-bar-chart" style={{ height }}>
         {this.renderBarChart()}
       </div>
     </div>;
