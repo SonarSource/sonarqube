@@ -27,7 +27,6 @@ import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyCountRequestBuilder;
 import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
-import org.sonar.server.es.request.ProxyDeleteByQueryRequestBuilder;
 import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
 import org.sonar.server.es.request.ProxyFlushRequestBuilder;
 import org.sonar.server.es.request.ProxyGetRequestBuilder;
@@ -49,29 +48,28 @@ public class EsClientTest {
 
   @Test
   public void proxify_requests() {
-    EsClient client = es.client();
-    client.start();
-    assertThat(client.nativeClient()).isNotNull();
-    assertThat(client.prepareBulk()).isInstanceOf(ProxyBulkRequestBuilder.class);
-    assertThat(client.prepareClusterStats()).isInstanceOf(ProxyClusterStatsRequestBuilder.class);
-    assertThat(client.prepareCount()).isInstanceOf(ProxyCountRequestBuilder.class);
-    assertThat(client.prepareCreate("fakes")).isInstanceOf(ProxyCreateIndexRequestBuilder.class);
-    assertThat(client.prepareDeleteByQuery()).isInstanceOf(ProxyDeleteByQueryRequestBuilder.class);
-    assertThat(client.prepareDelete("fakes", "fake", "my_id")).isInstanceOf(ProxyDeleteRequestBuilder.class);
-    assertThat(client.prepareIndicesExist()).isInstanceOf(ProxyIndicesExistsRequestBuilder.class);
-    assertThat(client.prepareFlush()).isInstanceOf(ProxyFlushRequestBuilder.class);
-    assertThat(client.prepareGet()).isInstanceOf(ProxyGetRequestBuilder.class);
-    assertThat(client.prepareGet("fakes", "fake", "1")).isInstanceOf(ProxyGetRequestBuilder.class);
-    assertThat(client.prepareHealth()).isInstanceOf(ProxyClusterHealthRequestBuilder.class);
-    assertThat(client.prepareMultiGet()).isInstanceOf(ProxyMultiGetRequestBuilder.class);
-    assertThat(client.prepareNodesStats()).isInstanceOf(ProxyNodesStatsRequestBuilder.class);
-    assertThat(client.preparePutMapping()).isInstanceOf(ProxyPutMappingRequestBuilder.class);
-    assertThat(client.prepareRefresh()).isInstanceOf(ProxyRefreshRequestBuilder.class);
-    assertThat(client.prepareSearch()).isInstanceOf(ProxySearchRequestBuilder.class);
-    assertThat(client.prepareSearchScroll("1234")).isInstanceOf(ProxySearchScrollRequestBuilder.class);
-    assertThat(client.prepareState()).isInstanceOf(ProxyClusterStateRequestBuilder.class);
-    assertThat(client.prepareStats()).isInstanceOf(ProxyIndicesStatsRequestBuilder.class);
+    EsClient underTest = es.client();
+    underTest.start();
+    assertThat(underTest.nativeClient()).isNotNull();
+    assertThat(underTest.prepareBulk()).isInstanceOf(ProxyBulkRequestBuilder.class);
+    assertThat(underTest.prepareClusterStats()).isInstanceOf(ProxyClusterStatsRequestBuilder.class);
+    assertThat(underTest.prepareCount()).isInstanceOf(ProxyCountRequestBuilder.class);
+    assertThat(underTest.prepareCreate("fakes")).isInstanceOf(ProxyCreateIndexRequestBuilder.class);
+    assertThat(underTest.prepareDelete("fakes", "fake", "my_id")).isInstanceOf(ProxyDeleteRequestBuilder.class);
+    assertThat(underTest.prepareIndicesExist()).isInstanceOf(ProxyIndicesExistsRequestBuilder.class);
+    assertThat(underTest.prepareFlush()).isInstanceOf(ProxyFlushRequestBuilder.class);
+    assertThat(underTest.prepareGet()).isInstanceOf(ProxyGetRequestBuilder.class);
+    assertThat(underTest.prepareGet("fakes", "fake", "1")).isInstanceOf(ProxyGetRequestBuilder.class);
+    assertThat(underTest.prepareHealth()).isInstanceOf(ProxyClusterHealthRequestBuilder.class);
+    assertThat(underTest.prepareMultiGet()).isInstanceOf(ProxyMultiGetRequestBuilder.class);
+    assertThat(underTest.prepareNodesStats()).isInstanceOf(ProxyNodesStatsRequestBuilder.class);
+    assertThat(underTest.preparePutMapping()).isInstanceOf(ProxyPutMappingRequestBuilder.class);
+    assertThat(underTest.prepareRefresh()).isInstanceOf(ProxyRefreshRequestBuilder.class);
+    assertThat(underTest.prepareSearch()).isInstanceOf(ProxySearchRequestBuilder.class);
+    assertThat(underTest.prepareSearchScroll("1234")).isInstanceOf(ProxySearchScrollRequestBuilder.class);
+    assertThat(underTest.prepareState()).isInstanceOf(ProxyClusterStateRequestBuilder.class);
+    assertThat(underTest.prepareStats()).isInstanceOf(ProxyIndicesStatsRequestBuilder.class);
 
-    client.stop();
+    underTest.stop();
   }
 }

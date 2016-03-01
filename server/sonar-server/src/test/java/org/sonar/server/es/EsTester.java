@@ -51,7 +51,6 @@ import org.junit.rules.ExternalResource;
 import org.sonar.api.config.Settings;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.server.search.BaseDoc;
-import org.sonar.server.search.SearchClient;
 import org.sonar.test.TestUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
@@ -99,7 +98,7 @@ public class EsTester extends ExternalResource {
     DeleteIndexResponse response = node.client().admin().indices().prepareDelete("_all").get();
     assertThat(response.isAcknowledged()).isTrue();
 
-    client = new EsClient(new SearchClient(new Settings(), node.client()));
+    client = new EsClient(new Settings(), node.client());
     client.start();
 
     if (!definitions.isEmpty()) {
