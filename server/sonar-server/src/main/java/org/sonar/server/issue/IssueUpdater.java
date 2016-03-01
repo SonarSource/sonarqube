@@ -40,6 +40,7 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueType;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -52,6 +53,7 @@ public class IssueUpdater {
 
   public static final String UNUSED = "";
   public static final String SEVERITY = "severity";
+  public static final String TYPE = "type";
   public static final String ASSIGNEE = "assignee";
   public static final String RESOLUTION = "resolution";
   public static final String STATUS = "status";
@@ -61,6 +63,17 @@ public class IssueUpdater {
   public static final String TAGS = "tags";
 
   private static final Joiner CHANGELOG_TAG_JOINER = Joiner.on(" ").skipNulls();
+
+  public boolean setType(DefaultIssue issue, IssueType type, IssueChangeContext context) {
+    if (!Objects.equal(type, issue.type())) {
+      issue.setFieldChange(context, TYPE, issue.type(), type);
+      issue.setType(type);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      return true;
+    }
+    return false;
+  }
 
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (issue.manualSeverity()) {

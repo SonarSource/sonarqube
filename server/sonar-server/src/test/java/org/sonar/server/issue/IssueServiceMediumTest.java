@@ -37,6 +37,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
+import org.sonar.core.issue.IssueType;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -291,7 +292,7 @@ public class IssueServiceMediumTest {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
     ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectPermissions(UserRole.ISSUE_ADMIN, project.key());
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
 
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setSeverity(Severity.BLOCKER));
 
@@ -300,6 +301,22 @@ public class IssueServiceMediumTest {
     service.setSeverity(issue.getKey(), Severity.MINOR);
 
     assertThat(IssueIndex.getByKey(issue.getKey()).severity()).isEqualTo(Severity.MINOR);
+  }
+
+  @Test
+  public void set_type() {
+    RuleDto rule = newRule();
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    userSessionRule.login("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
+
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setType(IssueType.CODE_SMELL));
+
+    assertThat(IssueIndex.getByKey(issue.getKey()).type()).isEqualTo(IssueType.CODE_SMELL);
+
+    service.setType(issue.getKey(), IssueType.BUG);
+
+    assertThat(IssueIndex.getByKey(issue.getKey()).type()).isEqualTo(IssueType.BUG);
   }
 
   @Test

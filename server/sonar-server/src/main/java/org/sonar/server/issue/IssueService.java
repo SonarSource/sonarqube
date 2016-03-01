@@ -44,6 +44,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.issue.IssueType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -220,10 +221,27 @@ public class IssueService {
     DbSession session = dbClient.openSession(false);
     try {
       DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      userSession.checkComponentPermission(UserRole.ISSUE_ADMIN, issue.projectKey());
+      userSession.checkComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueUpdater.setManualSeverity(issue, severity, context)) {
+        saveIssue(session, issue, context, null);
+      }
+    } finally {
+      session.close();
+    }
+  }
+
+  public void setType(String issueKey, IssueType type) {
+    userSession.checkLoggedIn();
+
+    DbSession session = dbClient.openSession(false);
+    try {
+      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
+      userSession.checkComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
+
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
+      if (issueUpdater.setType(issue, type, context)) {
         saveIssue(session, issue, context, null);
       }
     } finally {
