@@ -38,19 +38,6 @@
     LEFT JOIN rules_profiles profile_parent ON profile_parent.kee=qp.parent_kee
   </sql>
 
-  <select id="selectAfterDate" parameterType="Date" resultType="ActiveRule"
-          fetchSize="${_scrollFetchSize}" resultSetType="FORWARD_ONLY">
-    select
-    <include refid="activeRuleKeyColumns"/>
-    from active_rules a
-    <include refid="activeRuleKeyJoin"/>
-    <where>
-      <if test="date != null">
-        a.updated_at IS NULL or a.updated_at &gt;= #{date}
-      </if>
-    </where>
-  </select>
-
   <insert id="insert" parameterType="ActiveRule" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO active_rules (profile_id, rule_id, failure_level, inheritance, created_at, updated_at)
     VALUES (#{profileId}, #{ruleId}, #{severity}, #{inheritance}, #{createdAt}, #{updatedAt})
@@ -198,15 +185,6 @@
       AND p.active_rule_id=#{activeRuleId}
       AND p.rules_parameter_key=#{key}
     </where>
-  </select>
-
-  <select id="selectParamsByProfileKey" parameterType="string" resultType="ActiveRuleParam">
-    select
-    <include refid="activeRuleParamColumns"/>
-    from active_rule_parameters p
-    inner join active_rules ar on ar.id=p.active_rule_id
-    inner join rules_profiles rp on rp.id=ar.profile_id
-    where rp.kee=#{id}
   </select>
 
   <select id="selectAllParams" resultType="ActiveRuleParam">

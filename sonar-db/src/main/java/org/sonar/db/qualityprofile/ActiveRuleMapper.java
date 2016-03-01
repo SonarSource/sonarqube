@@ -19,10 +19,8 @@
  */
 package org.sonar.db.qualityprofile;
 
-import java.sql.Timestamp;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 
 public interface ActiveRuleMapper {
@@ -63,9 +61,5 @@ public interface ActiveRuleMapper {
 
   List<ActiveRuleParamDto> selectParamsByActiveRuleIds(@Param("ids") List<Integer> ids);
 
-  List<ActiveRuleParamDto> selectParamsByProfileKey(String profileKey);
-
   List<ActiveRuleParamDto> selectAllParams();
-
-  List<ActiveRuleDto> selectAfterDate(@Nullable Timestamp date);
 }
