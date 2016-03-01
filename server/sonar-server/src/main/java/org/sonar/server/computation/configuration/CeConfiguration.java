@@ -17,16 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.taskprocessor;
+package org.sonar.server.computation.configuration;
 
-import java.util.concurrent.Callable;
-import org.sonar.server.computation.queue.CeQueue;
-import org.sonar.server.computation.queue.CeTask;
+public interface CeConfiguration {
 
-/**
- * Marker interface of the runnable in charge of polling the {@link CeQueue} and executing {@link CeTask}.
- * {@link Callable#call()} returns a Boolean which is {@code true} when some a {@link CeTask} was processed,
- * {@code false} otherwise.
- */
-public interface CeWorkerCallable extends Callable<Boolean> {
+  /**
+   * The number of workers to process CeTasks concurrently.
+   */
+  int getWorkerCount();
+
+  /**
+   * The delay in milliseconds before calling another {@link org.sonar.server.computation.taskprocessor.CeWorkerCallable}
+   * when previous one had nothing to do.
+   */
+  long getQueuePollingDelay();
 }

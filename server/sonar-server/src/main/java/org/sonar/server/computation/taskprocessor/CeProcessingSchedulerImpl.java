@@ -30,9 +30,10 @@ import javax.annotation.Nullable;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.server.computation.configuration.CeConfiguration;
 
 import static com.google.common.util.concurrent.Futures.addCallback;
-import static java.util.concurrent.TimeUnit.SECONDS;
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 
 public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startable {
   private static final Logger LOG = Loggers.get(CeProcessingSchedulerImpl.class);
@@ -42,15 +43,21 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
 
   private final long delayBetweenTasks;
   private final TimeUnit timeUnit;
-  // warning: using a single ChainingCallback object for chaining works and is thread safe only because we use a single Thread in CeProcessingSchedulerExecutorService
-  private final ChainingCallback chainingCallback = new ChainingCallback();
+  private final ChainingCallback[] chainingCallbacks;
 
-  public CeProcessingSchedulerImpl(CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerCallable workerRunnable) {
+  public CeProcessingSchedulerImpl(CeConfiguration ceConfiguration,
+    CeProcessingSchedulerExecutorService processingExecutorService, CeWorkerCallable workerRunnable) {
     this.executorService = processingExecutorService;
     this.workerRunnable = workerRunnable;
 
-    this.delayBetweenTasks = 2;
-    this.timeUnit = SECONDS;
+    this.delayBetweenTasks = ceConfiguration.getQueuePollingDelay();
+    this.timeUnit = MILLISECONDS;
+
+    int workerCount = ceConfiguration.getWorkerCount();
+    this.chainingCallbacks = new ChainingCallback[workerCount];
+    for (int i = 0; i < workerCount; i++) {
+      chainingCallbacks[i] = new ChainingCallback();
+    }
   }
 
   @Override
@@ -60,14 +67,17 @@ public class CeProcessingSchedulerImpl implements CeProcessingScheduler, Startab
 
   @Override
   public void startScheduling() {
-    ListenableScheduledFuture<Boolean> future = executorService.schedule(workerRunnable, delayBetweenTasks, timeUnit);
-
-    addCallback(future, chainingCallback, executorService);
+    for (ChainingCallback chainingCallback : chainingCallbacks) {
+      ListenableScheduledFuture<Boolean> future = executorService.schedule(workerRunnable, delayBetweenTasks, timeUnit);
+      addCallback(future, chainingCallback, executorService);
+    }
   }
 
   @Override
   public void stop() {
-    this.chainingCallback.stop();
+    for (ChainingCallback chainingCallback : chainingCallbacks) {
+      chainingCallback.stop();
+    }
   }
 
   private class ChainingCallback implements FutureCallback<Boolean> {

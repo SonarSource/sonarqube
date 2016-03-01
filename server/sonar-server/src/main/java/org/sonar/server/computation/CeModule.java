@@ -21,6 +21,7 @@ package org.sonar.server.computation;
 
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
+import org.sonar.server.computation.configuration.CeConfigurationImpl;
 import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;
 import org.sonar.server.computation.log.CeLogging;
@@ -33,6 +34,7 @@ public class CeModule extends Module {
   @Override
   protected void configureModule() {
     add(
+      CeConfigurationImpl.class,
       CeLogging.class,
 
       DefaultPeriodCleaner.class,

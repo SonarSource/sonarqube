@@ -42,108 +42,111 @@ import javax.annotation.concurrent.Immutable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
+import org.sonar.server.computation.configuration.CeConfigurationRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class CeProcessingSchedulerImplTest {
+public class CeProcessingSchedulerImplSingleThreadTest {
   private static final Error ERROR_TO_INTERRUPT_CHAINING = new Error("Error should stop scheduling");
 
   @Rule
   // due to risks of infinite chaining of tasks/futures, a timeout is required for safety
   public Timeout timeout = Timeout.seconds(60);
+  @Rule
+  public CeConfigurationRule ceConfiguration = new CeConfigurationRule();
 
   private CeWorkerCallable ceWorkerRunnable = mock(CeWorkerCallable.class);
   private StubCeProcessingSchedulerExecutorService processingExecutorService = new StubCeProcessingSchedulerExecutorService();
-  private SchedulerCall regularDelayedPoll = new SchedulerCall(ceWorkerRunnable, 2L, TimeUnit.SECONDS);
+  private SchedulerCall regularDelayedPoll = new SchedulerCall(ceWorkerRunnable, 2000L, TimeUnit.MILLISECONDS);
   private SchedulerCall notDelayedPoll = new SchedulerCall(ceWorkerRunnable);
 
-  private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(processingExecutorService, ceWorkerRunnable);
+  private CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerRunnable);
 
   @Test
   public void polls_without_delay_when_CeWorkerCallable_returns_true() throws Exception {
     when(ceWorkerRunnable.call())
-        .thenReturn(true)
-        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+      .thenReturn(true)
+      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
     assertThat(processingExecutorService.getSchedulerCalls()).containsOnly(
-        regularDelayedPoll,
-        notDelayedPoll
-    );
+      regularDelayedPoll,
+      notDelayedPoll
+      );
   }
 
   @Test
   public void polls_without_delay_when_CeWorkerCallable_throws_Exception_but_not_Error() throws Exception {
     when(ceWorkerRunnable.call())
-        .thenThrow(new Exception("Exception is followed by a poll without delay"))
-        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+      .thenThrow(new Exception("Exception is followed by a poll without delay"))
+      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
-        regularDelayedPoll,
-        notDelayedPoll
-    );
+      regularDelayedPoll,
+      notDelayedPoll
+      );
   }
 
   @Test
   public void polls_with_regular_delay_when_CeWorkerCallable_returns_false() throws Exception {
     when(ceWorkerRunnable.call())
-        .thenReturn(false)
-        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+      .thenReturn(false)
+      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
-        regularDelayedPoll,
-        regularDelayedPoll
-    );
+      regularDelayedPoll,
+      regularDelayedPoll
+      );
   }
 
   @Test
   public void startScheduling_schedules_CeWorkerCallable_at_fixed_rate_run_head_of_queue() throws Exception {
     when(ceWorkerRunnable.call())
-        .thenReturn(true)
-        .thenReturn(true)
-        .thenReturn(false)
-        .thenReturn(true)
-        .thenReturn(false)
-        .thenThrow(new Exception("IAE should not cause scheduling to stop"))
-        .thenReturn(false)
-        .thenReturn(false)
-        .thenReturn(false)
-        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+      .thenReturn(true)
+      .thenReturn(true)
+      .thenReturn(false)
+      .thenReturn(true)
+      .thenReturn(false)
+      .thenThrow(new Exception("IAE should not cause scheduling to stop"))
+      .thenReturn(false)
+      .thenReturn(false)
+      .thenReturn(false)
+      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     startSchedulingAndRun();
 
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
-        regularDelayedPoll,
-        notDelayedPoll,
-        notDelayedPoll,
-        regularDelayedPoll,
-        notDelayedPoll,
-        regularDelayedPoll,
-        notDelayedPoll,
-        regularDelayedPoll,
-        regularDelayedPoll,
-        regularDelayedPoll
-    );
+      regularDelayedPoll,
+      notDelayedPoll,
+      notDelayedPoll,
+      regularDelayedPoll,
+      notDelayedPoll,
+      regularDelayedPoll,
+      notDelayedPoll,
+      regularDelayedPoll,
+      regularDelayedPoll,
+      regularDelayedPoll
+      );
   }
 
   @Test
   public void stop_cancels_next_polling_and_does_not_add_any_new_one() throws Exception {
     when(ceWorkerRunnable.call())
-        .thenReturn(false)
-        .thenReturn(true)
-        .thenReturn(false)
-        .thenReturn(false)
-        .thenReturn(false)
-        .thenReturn(false)
-        .thenReturn(false)
-        .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
+      .thenReturn(false)
+      .thenReturn(true)
+      .thenReturn(false)
+      .thenReturn(false)
+      .thenReturn(false)
+      .thenReturn(false)
+      .thenReturn(false)
+      .thenThrow(ERROR_TO_INTERRUPT_CHAINING);
 
     underTest.startScheduling();
 
@@ -165,11 +168,11 @@ public class CeProcessingSchedulerImplTest {
 
     assertThat(cancelledTaskFutureCount).isEqualTo(1);
     assertThat(processingExecutorService.getSchedulerCalls()).containsExactly(
-        regularDelayedPoll,
-        regularDelayedPoll,
-        notDelayedPoll,
-        regularDelayedPoll
-    );
+      regularDelayedPoll,
+      regularDelayedPoll,
+      notDelayedPoll,
+      regularDelayedPoll
+      );
   }
 
   private void startSchedulingAndRun() throws ExecutionException, InterruptedException {
@@ -505,10 +508,10 @@ public class CeProcessingSchedulerImplTest {
     @Override
     public String toString() {
       return "SchedulerCall{" +
-          "callable=" + callable +
-          ", delay=" + delay +
-          ", unit=" + unit +
-          '}';
+        "callable=" + callable +
+        ", delay=" + delay +
+        ", unit=" + unit +
+        '}';
     }
   }
 

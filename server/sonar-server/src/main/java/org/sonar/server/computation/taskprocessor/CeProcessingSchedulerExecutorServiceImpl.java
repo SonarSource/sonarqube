@@ -27,16 +27,17 @@ import com.google.common.util.concurrent.ThreadFactoryBuilder;
 import java.util.concurrent.Callable;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.sonar.server.computation.configuration.CeConfiguration;
 import org.sonar.server.util.AbstractStoppableExecutorService;
 
 public class CeProcessingSchedulerExecutorServiceImpl extends AbstractStoppableExecutorService<ListeningScheduledExecutorService>
   implements CeProcessingSchedulerExecutorService {
-  private static final String THREAD_NAME_PREFIX = "ce-processor-";
+  private static final String THREAD_NAME_PREFIX = "ce-worker-";
 
-  public CeProcessingSchedulerExecutorServiceImpl() {
+  public CeProcessingSchedulerExecutorServiceImpl(CeConfiguration ceConfiguration) {
     super(
       MoreExecutors.listeningDecorator(
-        Executors.newSingleThreadScheduledExecutor(
+        Executors.newScheduledThreadPool(ceConfiguration.getWorkerCount(),
           new ThreadFactoryBuilder()
             .setNameFormat(THREAD_NAME_PREFIX + "%d")
             .setPriority(Thread.MIN_PRIORITY)
