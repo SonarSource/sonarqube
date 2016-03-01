@@ -32,8 +32,6 @@ public class RulesWsParameters {
   public static final String PARAM_AVAILABLE_SINCE = "available_since";
   public static final String PARAM_STATUSES = "statuses";
   public static final String PARAM_LANGUAGES = "languages";
-  public static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
-  public static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
   public static final String PARAM_TAGS = "tags";
   public static final String PARAM_TYPES = "types";
   public static final String PARAM_INHERITANCE = "inheritance";
@@ -58,12 +56,6 @@ public class RulesWsParameters {
   public static final String FIELD_NOTE_LOGIN = "noteLogin";
   public static final String FIELD_MARKDOWN_NOTE = "mdNote";
   public static final String FIELD_HTML_NOTE = "htmlNote";
-  public static final String FIELD_DEFAULT_DEBT_CHAR = "defaultDebtChar";
-  public static final String FIELD_DEFAULT_DEBT_SUB_CHAR = "defaultDebtSubChar";
-  public static final String FIELD_DEBT_CHAR = "debtChar";
-  public static final String FIELD_DEBT_SUB_CHAR = "debtSubChar";
-  public static final String FIELD_DEBT_CHAR_NAME = "debtCharName";
-  public static final String FIELD_DEBT_SUB_CHAR_NAME = "debtSubCharName";
   public static final String FIELD_DEFAULT_DEBT_REM_FUNCTION = "defaultDebtRemFn";
   public static final String FIELD_EFFORT_TO_FIX_DESCRIPTION = "effortToFixDescription";
   public static final String FIELD_DEBT_OVERLOADED = "debtOverloaded";
@@ -73,8 +65,8 @@ public class RulesWsParameters {
 
   public static final Set<String> OPTIONAL_FIELDS = ImmutableSet.of(FIELD_REPO, FIELD_NAME, FIELD_CREATED_AT, FIELD_SEVERITY, FIELD_STATUS, FIELD_INTERNAL_KEY, FIELD_IS_TEMPLATE,
     FIELD_TEMPLATE_KEY, FIELD_TAGS, FIELD_SYSTEM_TAGS, FIELD_LANGUAGE, FIELD_LANGUAGE_NAME, FIELD_HTML_DESCRIPTION, FIELD_MARKDOWN_DESCRIPTION, FIELD_NOTE_LOGIN,
-    FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE, FIELD_DEFAULT_DEBT_CHAR, FIELD_DEFAULT_DEBT_SUB_CHAR, FIELD_DEBT_CHAR, FIELD_DEBT_SUB_CHAR, FIELD_DEBT_CHAR_NAME,
-    FIELD_DEBT_SUB_CHAR_NAME, FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_EFFORT_TO_FIX_DESCRIPTION, FIELD_DEBT_OVERLOADED, FIELD_DEBT_REM_FUNCTION, FIELD_PARAMS, FIELD_ACTIVES);
+    FIELD_MARKDOWN_NOTE, FIELD_HTML_NOTE, FIELD_DEFAULT_DEBT_REM_FUNCTION, FIELD_EFFORT_TO_FIX_DESCRIPTION, FIELD_DEBT_OVERLOADED, FIELD_DEBT_REM_FUNCTION, FIELD_PARAMS,
+    FIELD_ACTIVES);
 
   private RulesWsParameters() {
     // prevent instantiation

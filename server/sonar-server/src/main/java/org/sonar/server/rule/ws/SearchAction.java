@@ -77,8 +77,6 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_DEBT_CHARACTERISTICS;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_HAS_DEBT_CHARACTERISTIC;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_KEY;
@@ -228,16 +226,6 @@ public class SearchAction implements RulesWsAction {
       .createParam(PARAM_AVAILABLE_SINCE)
       .setDescription("Filters rules added since date. Format is yyyy-MM-dd")
       .setExampleValue("2014-06-22");
-
-    action
-      .createParam(PARAM_DEBT_CHARACTERISTICS)
-      .setDescription("Comma-separated list of technical debt characteristics or sub-characteristics")
-      .setExampleValue("RELIABILITY");
-
-    action
-      .createParam(PARAM_HAS_DEBT_CHARACTERISTIC)
-      .setDescription("Filter rules that have a technical debt characteristic")
-      .setBooleanPossibleValues();
 
     action
       .createParam(PARAM_TAGS)

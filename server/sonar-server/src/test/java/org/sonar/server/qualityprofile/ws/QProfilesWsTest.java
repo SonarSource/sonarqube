@@ -202,7 +202,7 @@ public class QProfilesWsTest {
     WebService.Action restoreProfiles = controller.action(BulkRuleActivationActions.BULK_DEACTIVATE_ACTION);
     assertThat(restoreProfiles).isNotNull();
     assertThat(restoreProfiles.isPost()).isTrue();
-    assertThat(restoreProfiles.params()).hasSize(20);
+    assertThat(restoreProfiles.params()).hasSize(18);
   }
 
   @Test
