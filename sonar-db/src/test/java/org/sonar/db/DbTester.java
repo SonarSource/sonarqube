@@ -19,6 +19,7 @@
  */
 package org.sonar.db;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
 import java.io.InputStream;
 import java.math.BigDecimal;
@@ -62,9 +63,6 @@ import static org.junit.Assert.fail;
 /**
  * This class should be called using @Rule.
  * Data is truncated between each tests. The schema is created between each test.
- * <p>
- * File using {@link DbTester} must be annotated with {@link org.sonar.test.DbTests} so
- * that they can be executed on all supported DBs (Oracle, MySQL, ...).
  */
 public class DbTester extends ExternalResource {
 
@@ -135,8 +133,24 @@ public class DbTester extends ExternalResource {
     try (Connection connection = db.getDatabase().getDataSource().getConnection()) {
       new QueryRunner().update(connection, sql);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to execute sql: " + sql);
+      throw new IllegalStateException("Fail to execute sql: " + sql, e);
     }
+  }
+
+  /**
+   * Very simple helper method to insert some data into a table.
+   * It's the responsibility of the caller to convert column values to string.
+   */
+  public void executeInsert(String table, Map<String, String> valuesByColumn){
+    if (valuesByColumn.isEmpty()) {
+      throw new IllegalArgumentException("Values cannot be empty");
+    }
+    String sql = "insert into " + table.toLowerCase() + " (" +
+      Joiner.on(", ").join(valuesByColumn.keySet()) +
+      ") values ('" +
+      Joiner.on("', '").join(valuesByColumn.values()) +
+      "')";
+    executeUpdateSql(sql);
   }
 
   /**
@@ -377,7 +391,7 @@ public class DbTester extends ExternalResource {
     }
   }
 
-  private void closeQuietly(IDatabaseConnection connection) {
+  private void closeQuietly(@Nullable IDatabaseConnection connection) {
     try {
       if (connection != null) {
         connection.close();

@@ -42,30 +42,30 @@ import static org.sonar.db.version.v55.TagsToType.tagsToType;
  *
  * https://jira.sonarsource.com/browse/MMF-141
  */
-public class FeedIssueTypes extends BaseDataChange {
+public class FeedRulesTypes extends BaseDataChange {
 
   private static final Splitter TAG_SPLITTER = Splitter.on(',');
   private static final Joiner TAG_JOINER = Joiner.on(',').skipNulls();
-
   private final System2 system;
 
-  public FeedIssueTypes(Database db, System2 system) {
+  public FeedRulesTypes(Database db, System2 system) {
     super(db);
     this.system = system;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    MassUpdate update = context.prepareMassUpdate().rowPluralName("issues");
-    update.select("SELECT id, tags FROM issues WHERE issue_type IS NULL OR issue_type=0");
-    update.update("UPDATE issues SET issue_type=?, tags=?, updated_at=? WHERE id=?");
+    MassUpdate update = context.prepareMassUpdate().rowPluralName("rules");
+    update.select("SELECT id, system_tags, tags FROM rules WHERE rule_type IS NULL OR rule_type=0");
+    update.update("UPDATE rules SET rule_type=?, system_tags=?, tags=?, updated_at=? WHERE id=?");
     update.execute(new MigrationHandler(system.now()));
   }
 
   private static final class MigrationHandler implements Handler {
+
     private final long now;
 
-    public MigrationHandler(long now) {
+    private MigrationHandler(long now) {
       this.now = now;
     }
 
@@ -74,15 +74,19 @@ public class FeedIssueTypes extends BaseDataChange {
       long id = row.getLong(1);
 
       // See algorithm to deduce type from tags in RuleTagsToTypeConverter
-      List<String> tags = newArrayList(TAG_SPLITTER.split(defaultString(row.getNullableString(2))));
-      RuleType type = tagsToType(tags);
-      tags.remove("bug");
-      tags.remove("security");
+      List<String> systemTags = newArrayList(TAG_SPLITTER.split(defaultString(row.getNullableString(2))));
+      List<String> userTags = newArrayList(TAG_SPLITTER.split(defaultString(row.getNullableString(3))));
+      RuleType type = tagsToType(systemTags);
+      systemTags.remove("bug");
+      systemTags.remove("security");
+      userTags.remove("bug");
+      userTags.remove("security");
 
       update.setInt(1, type.getDbConstant());
-      update.setString(2, TAG_JOINER.join(tags));
-      update.setLong(3, now);
-      update.setLong(4, id);
+      update.setString(2, TAG_JOINER.join(systemTags));
+      update.setString(3, TAG_JOINER.join(userTags));
+      update.setLong(4, now);
+      update.setLong(5, id);
       return true;
     }
   }

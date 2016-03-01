@@ -78,6 +78,7 @@ import org.sonar.db.version.v55.DropRulesDatesAndCharacteristics;
 import org.sonar.db.version.v55.FeedActiveRulesLongDateColumns;
 import org.sonar.db.version.v55.FeedIssueTypes;
 import org.sonar.db.version.v55.FeedRulesLongDateColumns;
+import org.sonar.db.version.v55.FeedRulesTypes;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -153,7 +154,8 @@ public class MigrationStepModule extends Module {
       AddIssuesType.class,
       FeedIssueTypes.class,
       DropRulesDatesAndCharacteristics.class,
-      DropActiveRulesDateColumns.class
+      DropActiveRulesDateColumns.class,
+      FeedRulesTypes.class
       );
   }
 }

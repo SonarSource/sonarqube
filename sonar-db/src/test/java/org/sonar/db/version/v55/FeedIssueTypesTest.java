@@ -19,60 +19,48 @@
  */
 package org.sonar.db.version.v55;
 
-import java.util.Arrays;
-import java.util.Collections;
+import com.google.common.base.Joiner;
+import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.core.rule.RuleType;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.issue.IssueDto;
 import org.sonar.db.version.MigrationStep;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.sonar.db.version.v55.FeedIssueTypes.tagsToType;
 
 public class FeedIssueTypesTest {
+
+  static final Joiner TAGS_JOINER = Joiner.on(",");
 
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedIssueTypesTest.class, "schema.sql");
 
   @Test
-  public void test_tagsToType() {
-    assertThat(tagsToType(asList("misra", "bug"))).isEqualTo(RuleType.BUG);
-    assertThat(tagsToType(asList("misra", "security"))).isEqualTo(RuleType.VULNERABILITY);
+  public void test_migration() throws Exception {
+    insertIssue("code_smell", "clumsy", "spring");
+    insertIssue("without_tags");
+    insertIssue("bug", "clumsy", "bug");
 
-    // "bug" has priority on "security"
-    assertThat(tagsToType(asList("security", "bug"))).isEqualTo(RuleType.BUG);
+    MigrationStep underTest = new FeedIssueTypes(db.database(), mock(System2.class));
+    underTest.execute();
 
-    // default is "code smell"
-    assertThat(tagsToType(asList("clumsy", "spring"))).isEqualTo(RuleType.CODE_SMELL);
-    assertThat(tagsToType(Collections.<String>emptyList())).isEqualTo(RuleType.CODE_SMELL);
+    assertType("code_smell", RuleType.CODE_SMELL);
+    assertType("without_tags", RuleType.CODE_SMELL);
+    assertType("bug", RuleType.BUG);
   }
 
-  @Test
-  public void test_migration() throws Exception {
-    try (DbSession dbSession = db.getSession()) {
-      IssueDto codeSmell = new IssueDto().setKee("code_smell").setTags(Arrays.asList("clumsy", "spring"));
-      IssueDto withoutTags = new IssueDto().setKee("without_tags");
-      IssueDto bug = new IssueDto().setKee("bug").setTags(Arrays.asList("clumsy", "bug"));
-      db.getDbClient().issueDao().insert(dbSession, codeSmell, withoutTags, bug);
-      dbSession.commit();
-
-      MigrationStep underTest = new FeedIssueTypes(db.database(), mock(System2.class));
-      underTest.execute();
-
-      assertType("code_smell", RuleType.CODE_SMELL);
-      assertType("without_tags", RuleType.CODE_SMELL);
-      assertType("bug", RuleType.BUG);
-    }
+  private void insertIssue(String key, String... tags) {
+    db.executeInsert("issues", ImmutableMap.of(
+      "kee", key,
+      "tags", TAGS_JOINER.join(tags)
+      ));
   }
 
   private void assertType(String issueKey, RuleType expectedType) {
-    Number type = (Number)db.selectFirst("select * from issues where kee='" + issueKey + "'").get("ISSUE_TYPE");
+    Number type = (Number) db.selectFirst("select * from issues where kee='" + issueKey + "'").get("ISSUE_TYPE");
     assertThat(type.intValue()).isEqualTo(expectedType.getDbConstant());
   }
 

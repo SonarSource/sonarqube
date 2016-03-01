@@ -17,18 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v55;
 
+import java.util.Collections;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.api.rules.RuleType;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.version.v55.TagsToType.tagsToType;
 
-public class MigrationStepModuleTest {
+public class TagsToTypeTest {
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(61);
+  public void test_tagsToType() {
+    assertThat(tagsToType(asList("misra", "bug"))).isEqualTo(RuleType.BUG);
+    assertThat(tagsToType(asList("misra", "security"))).isEqualTo(RuleType.VULNERABILITY);
+
+    // "bug" has priority on "security"
+    assertThat(tagsToType(asList("security", "bug"))).isEqualTo(RuleType.BUG);
+
+    // default is "code smell"
+    assertThat(tagsToType(asList("clumsy", "spring"))).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(tagsToType(Collections.<String>emptyList())).isEqualTo(RuleType.CODE_SMELL);
   }
+
 }

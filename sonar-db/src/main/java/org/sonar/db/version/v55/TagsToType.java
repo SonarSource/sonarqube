@@ -17,18 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v55;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.util.List;
+import org.sonar.api.rules.RuleType;
 
-import static org.assertj.core.api.Assertions.assertThat;
+class TagsToType {
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(61);
+  private TagsToType(){
+    // only static methods
   }
+
+  static RuleType tagsToType(List<String> tags) {
+    RuleType type = RuleType.CODE_SMELL;
+    if (tags.contains("bug")) {
+      type = RuleType.BUG;
+    } else if (tags.contains("security")) {
+      type = RuleType.VULNERABILITY;
+    }
+    return type;
+  }
+
 }
