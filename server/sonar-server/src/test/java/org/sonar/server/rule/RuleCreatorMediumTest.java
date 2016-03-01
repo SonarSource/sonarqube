@@ -32,6 +32,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
@@ -557,7 +558,8 @@ public class RuleCreatorMediumTest {
       .setStatus(RuleStatus.REMOVED)
       .setName("Old name")
       .setDescription("Old description")
-      .setSeverity(Severity.INFO);
+      .setSeverity(Severity.INFO)
+      .setType(RuleType.CODE_SMELL);
     dao.insert(dbSession, rule);
     dbSession.commit();
     dbSession.clearCache();

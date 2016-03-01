@@ -37,6 +37,7 @@ import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -533,7 +534,8 @@ public class RuleUpdaterMediumTest {
     RuleDto manualRule = RuleTesting.newManualRule("My manual")
       .setName("Old name")
       .setDescription("Old description")
-      .setSeverity(Severity.INFO);
+      .setSeverity(Severity.INFO)
+      .setType(RuleType.CODE_SMELL);
     ruleDao.insert(dbSession, manualRule);
 
     dbSession.commit();

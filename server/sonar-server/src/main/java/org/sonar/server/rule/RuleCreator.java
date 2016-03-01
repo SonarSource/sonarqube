@@ -31,6 +31,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -215,6 +216,7 @@ public class RuleCreator {
       .setEffortToFixDescription(templateRuleDto.getEffortToFixDescription())
       .setTags(templateRuleDto.getTags())
       .setSystemTags(templateRuleDto.getSystemTags())
+      .setType(templateRuleDto.getType())
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDto);
@@ -242,6 +244,8 @@ public class RuleCreator {
       .setDescriptionFormat(Format.MARKDOWN)
       .setSeverity(newRule.severity())
       .setStatus(RuleStatus.READY)
+      // It's not possible to update type of manual rule for the moment
+      .setType(RuleType.CODE_SMELL)
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     dbClient.ruleDao().insert(dbSession, ruleDto);
