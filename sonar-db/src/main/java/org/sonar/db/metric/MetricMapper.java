@@ -47,7 +47,7 @@ public interface MetricMapper {
 
   void disableByIds(@Param("ids") List<Integer> ids);
 
-  void disableByKey(@Param("key") String key);
+  int disableByKey(@Param("key") String key);
 
   int countEnabled(@Param("isCustom") @Nullable Boolean isCustom);
 

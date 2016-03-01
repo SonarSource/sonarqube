@@ -141,8 +141,12 @@ public class MetricDao implements Dao {
     });
   }
 
-  public void disableCustomByKey(final DbSession session, String key) {
-    mapper(session).disableByKey(key);
+  /**
+   * Disable a metric and return {@code false} if the metric does not exist
+   * or is already disabled.
+   */
+  public boolean disableCustomByKey(DbSession session, String key) {
+    return mapper(session).disableByKey(key) == 1;
   }
 
   public void update(DbSession session, MetricDto metric) {

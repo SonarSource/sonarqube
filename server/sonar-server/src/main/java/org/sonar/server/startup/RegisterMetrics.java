@@ -103,8 +103,9 @@ public class RegisterMetrics {
 
     for (MetricDto nonUpdatedBase : basesByKey.values()) {
       if (!nonUpdatedBase.isUserManaged()) {
-        LOG.info("Disable metric {} [{}]", nonUpdatedBase.getShortName(), nonUpdatedBase.getKey());
-        dbClient.metricDao().disableCustomByKey(session, nonUpdatedBase.getKey());
+        if (dbClient.metricDao().disableCustomByKey(session, nonUpdatedBase.getKey())) {
+          LOG.info("Disable metric {} [{}]", nonUpdatedBase.getShortName(), nonUpdatedBase.getKey());
+        }
       }
     }
   }
