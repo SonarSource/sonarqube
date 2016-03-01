@@ -60,8 +60,6 @@ public class RuleDto {
   private String noteUserLogin;
   private Date noteCreatedAt;
   private Date noteUpdatedAt;
-  private Integer subCharacteristicId;
-  private Integer defaultSubCharacteristicId;
   private String remediationFunction;
   private String defaultRemediationFunction;
   private String remediationCoefficient;
@@ -241,35 +239,6 @@ public class RuleDto {
   public RuleDto setNoteUpdatedAt(Date noteUpdatedAt) {
     this.noteUpdatedAt = noteUpdatedAt;
     return this;
-  }
-
-  @CheckForNull
-  public Integer getSubCharacteristicId() {
-    return subCharacteristicId;
-  }
-
-  public RuleDto setSubCharacteristicId(@Nullable Integer subCharacteristicId) {
-    this.subCharacteristicId = subCharacteristicId;
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getDefaultSubCharacteristicId() {
-    return defaultSubCharacteristicId;
-  }
-
-  public RuleDto setDefaultSubCharacteristicId(@Nullable Integer defaultSubCharacteristicId) {
-    this.defaultSubCharacteristicId = defaultSubCharacteristicId;
-    return this;
-  }
-
-  @CheckForNull
-  public Integer getEffectiveSubCharacteristicId() {
-    Integer effective = subCharacteristicId == null ? defaultSubCharacteristicId : subCharacteristicId;
-    if (effective != null && effective != DISABLED_CHARACTERISTIC_ID) {
-      return effective;
-    }
-    return null;
   }
 
   @CheckForNull

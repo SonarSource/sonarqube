@@ -44,7 +44,7 @@ public class DropRulesDateColumnsTest {
   public void generate_sql_on_postgresql() {
     when(database.getDialect()).thenReturn(new PostgreSql());
     assertThat(migration.generateSql()).isEqualTo(
-      "ALTER TABLE rules DROP COLUMN created_at, DROP COLUMN updated_at"
+      "ALTER TABLE rules DROP COLUMN created_at, DROP COLUMN updated_at, DROP COLUMN characteristic_id, DROP COLUMN default_characteristic_id"
       );
   }
 

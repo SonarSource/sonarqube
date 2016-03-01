@@ -45,8 +45,6 @@ import static org.sonar.db.loadedtemplate.LoadedTemplateDto.ONE_SHOT_TASK_TYPE;
 
 public class ClearRulesOverloadedDebtTest {
 
-  static final int SUB_CHARACTERISTIC_ID = 1;
-
   private static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
   private static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
   private static final RuleKey RULE_KEY_3 = RuleTesting.XOO_X3;
@@ -72,11 +70,11 @@ public class ClearRulesOverloadedDebtTest {
   @Test
   public void remove_overridden_debt() throws Exception {
     // Characteristic and remediation function is overridden
-    insertRuleDto(RULE_KEY_1, SUB_CHARACTERISTIC_ID, "LINEAR", null, "1d");
+    insertRuleDto(RULE_KEY_1, "LINEAR", null, "1d");
     // Only characteristic is overridden
-    insertRuleDto(RULE_KEY_2, SUB_CHARACTERISTIC_ID, null, null, null);
+    insertRuleDto(RULE_KEY_2, null, null, null);
     // Only remediation function is overridden
-    insertRuleDto(RULE_KEY_3, null, "CONSTANT_ISSUE", "5min", null);
+    insertRuleDto(RULE_KEY_3, "CONSTANT_ISSUE", "5min", null);
 
     underTest.start();
 
@@ -89,7 +87,7 @@ public class ClearRulesOverloadedDebtTest {
 
   @Test
   public void not_update_rule_debt_not_overridden() throws Exception {
-    RuleDto rule = insertRuleDto(RULE_KEY_1, null, null, null, null);
+    RuleDto rule = insertRuleDto(RULE_KEY_1, null, null, null);
     long updateAt = rule.getUpdatedAt();
 
     underTest.start();
@@ -105,7 +103,7 @@ public class ClearRulesOverloadedDebtTest {
   @Test
   public void not_update_rule_debt_when_sqale_is_installed() throws Exception {
     insertSqaleProperty();
-    RuleDto rule = insertRuleDto(RULE_KEY_1, SUB_CHARACTERISTIC_ID, "LINEAR", null, "1d");
+    RuleDto rule = insertRuleDto(RULE_KEY_1, "LINEAR", null, "1d");
     long updateAt = rule.getUpdatedAt();
 
     underTest.start();
@@ -119,7 +117,7 @@ public class ClearRulesOverloadedDebtTest {
 
   @Test
   public void not_execute_task_when_already_executed() throws Exception {
-    insertRuleDto(RULE_KEY_1, SUB_CHARACTERISTIC_ID, "LINEAR", null, "1d");
+    insertRuleDto(RULE_KEY_1, "LINEAR", null, "1d");
     underTest.start();
     verifyLog();
     verifyTaskRegistered();
@@ -135,14 +133,13 @@ public class ClearRulesOverloadedDebtTest {
     dbSession.commit(true);
 
     RuleDto ruleDto = ruleDao.selectOrFailByKey(dbSession, ruleKey);
-    assertThat(ruleDto.getSubCharacteristicId()).isNull();
     assertThat(ruleDto.getRemediationFunction()).isNull();
     assertThat(ruleDto.getRemediationCoefficient()).isNull();
     assertThat(ruleDto.getRemediationOffset()).isNull();
   }
 
-  private RuleDto insertRuleDto(RuleKey ruleKey, @Nullable Integer subCharId, @Nullable String function, @Nullable String coeff, @Nullable String offset) {
-    RuleDto ruleDto = RuleTesting.newDto(ruleKey).setSubCharacteristicId(subCharId).setRemediationFunction(function).setRemediationOffset(offset).setRemediationCoefficient(coeff);
+  private RuleDto insertRuleDto(RuleKey ruleKey, @Nullable String function, @Nullable String coeff, @Nullable String offset) {
+    RuleDto ruleDto = RuleTesting.newDto(ruleKey).setRemediationFunction(function).setRemediationOffset(offset).setRemediationCoefficient(coeff);
     ruleDao.insert(dbSession,
       ruleDto
       );

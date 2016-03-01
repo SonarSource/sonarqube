@@ -47,7 +47,7 @@ public class DropRulesDateColumns extends DdlChange {
   @VisibleForTesting
   String generateSql() {
     return new DropColumnsBuilder(db.getDialect(), "rules",
-      "created_at", "updated_at")
+      "created_at", "updated_at", "characteristic_id", "default_characteristic_id")
       .build();
   }
 
