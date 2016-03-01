@@ -25,6 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.rule.RuleType;
 
 import static java.util.Arrays.asList;
 
@@ -37,6 +38,7 @@ public class RuleQuery {
   private Collection<String> severities;
   private Collection<RuleStatus> statuses;
   private Collection<String> tags;
+  private Collection<RuleType> types;
   private Boolean activation;
   private String qProfileKey;
   private Collection<String> inheritance;
@@ -159,6 +161,16 @@ public class RuleQuery {
 
   public RuleQuery setTags(@Nullable Collection<String> tags) {
     this.tags = tags;
+    return this;
+  }
+
+  @CheckForNull
+  public Collection<RuleType> getTypes() {
+    return types;
+  }
+
+  public RuleQuery setTypes(@Nullable Collection<RuleType> types) {
+    this.types = types;
     return this;
   }
 

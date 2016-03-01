@@ -31,6 +31,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
@@ -61,6 +62,7 @@ public class RuleResultSetIterator extends ResultSetIterator<RuleDoc> {
     "t.plugin_name",
     "r.plugin_config_key",
     "r.language",
+    "r.rule_type",
     "r.created_at",
     "r.updated_at",
   };
@@ -129,8 +131,9 @@ public class RuleResultSetIterator extends ResultSetIterator<RuleDoc> {
 
     doc.setInternalKey(rs.getString(13));
     doc.setLanguage(rs.getString(14));
-    doc.setCreatedAt(rs.getLong(15));
-    doc.setUpdatedAt(rs.getLong(16));
+    doc.setType(RuleType.valueOf(rs.getInt(15)));
+    doc.setCreatedAt(rs.getLong(16));
+    doc.setUpdatedAt(rs.getLong(17));
 
     return doc;
   }

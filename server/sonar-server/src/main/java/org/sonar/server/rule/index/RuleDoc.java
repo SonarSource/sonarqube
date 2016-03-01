@@ -28,6 +28,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.core.rule.RuleType;
 import org.sonar.server.search.BaseDoc;
 
 /**
@@ -165,6 +166,15 @@ public class RuleDoc extends BaseDoc {
 
   public RuleDoc setAllTags(@Nullable Collection<String> l) {
     setField(RuleIndexDefinition.FIELD_RULE_ALL_TAGS, l);
+    return this;
+  }
+
+  public RuleType type() {
+    return RuleType.valueOf((String) getField(RuleIndexDefinition.FIELD_RULE_TYPE));
+  }
+
+  public RuleDoc setType(RuleType ruleType) {
+    setField(RuleIndexDefinition.FIELD_RULE_TYPE, ruleType.name());
     return this;
   }
 

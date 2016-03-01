@@ -25,14 +25,17 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -43,6 +46,27 @@ public class RuleIndexerTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  DbClient dbClient = dbTester.getDbClient();
+
+  DbSession dbSession = dbTester.getSession();
+
+  RuleDto rule = new RuleDto()
+    .setRuleKey("S001")
+    .setRepositoryKey("xoo")
+    .setConfigKey("S1")
+    .setName("Null Pointer")
+    .setDescription("S001 desc")
+    .setDescriptionFormat(RuleDto.Format.HTML)
+    .setLanguage("xoo")
+    .setSeverity(Severity.BLOCKER)
+    .setStatus(RuleStatus.READY)
+    .setIsTemplate(true)
+    .setTags(newHashSet("performance"))
+    .setSystemTags(newHashSet("cwe"))
+    .setType(RuleType.BUG)
+    .setCreatedAt(1500000000000L)
+    .setUpdatedAt(1600000000000L);
 
   @Before
   public void setUp() {
@@ -58,7 +82,8 @@ public class RuleIndexerTest {
 
   @Test
   public void index_nothing_if_disabled() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
+    dbClient.ruleDao().insert(dbSession, rule);
+    dbSession.commit();
 
     createIndexer().setEnabled(false).index();
 
@@ -67,7 +92,8 @@ public class RuleIndexerTest {
 
   @Test
   public void index() {
-    dbTester.prepareDbUnit(getClass(), "index.xml");
+    dbClient.ruleDao().insert(dbSession, rule);
+    dbSession.commit();
 
     RuleIndexer indexer = createIndexer();
     indexer.index();
@@ -80,17 +106,13 @@ public class RuleIndexerTest {
     RuleIndexer indexer = createIndexer();
 
     // Create and Index rule
-    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("xoo", "S001"))
-      .setStatus(RuleStatus.READY)
-      .setUpdatedAt(1000L);
-    dbTester.getDbClient().ruleDao().insert(dbTester.getSession(), ruleDto);
-    dbTester.getSession().commit();
+    dbClient.ruleDao().insert(dbSession, rule.setStatus(RuleStatus.READY));
+    dbSession.commit();
     indexer.index();
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(1);
 
     // Remove rule
-    ruleDto.setStatus(RuleStatus.REMOVED);
-    ruleDto.setUpdatedAt(2000L);
-    dbTester.getDbClient().ruleDao().update(dbTester.getSession(), ruleDto);
+    dbTester.getDbClient().ruleDao().update(dbTester.getSession(), rule.setStatus(RuleStatus.READY).setUpdatedAt(2000000000000L));
     dbTester.getSession().commit();
     indexer.index();
 

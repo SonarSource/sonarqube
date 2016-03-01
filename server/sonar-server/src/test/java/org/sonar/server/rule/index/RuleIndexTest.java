@@ -30,6 +30,7 @@ import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
@@ -50,12 +51,16 @@ import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
 import static org.sonar.api.rule.Severity.MAJOR;
 import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.core.rule.RuleType.BUG;
+import static org.sonar.core.rule.RuleType.CODE_SMELL;
+import static org.sonar.core.rule.RuleType.VULNERABILITY;
 import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.INHERITED;
 import static org.sonar.server.qualityprofile.ActiveRule.Inheritance.OVERRIDES;
 import static org.sonar.server.rule.index.RuleDocTesting.newDoc;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
+import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
@@ -188,7 +193,7 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void search_by_tag() {
+  public void search_by_tags() {
     indexRules(
       newDoc(RuleKey.of("java", "S001")).setAllTags(singleton("tag1")),
       newDoc(RuleKey.of("java", "S002")).setAllTags(singleton("tag2")));
@@ -224,6 +229,39 @@ public class RuleIndexTest {
     // null list => no filter
     query = new RuleQuery().setTags(null);
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
+  }
+
+  @Test
+  public void search_by_types() {
+    indexRules(
+      newDoc(RULE_KEY_1).setType(CODE_SMELL),
+      newDoc(RULE_KEY_2).setType(VULNERABILITY),
+      newDoc(RULE_KEY_3).setType(BUG),
+      newDoc(RULE_KEY_4).setType(BUG)
+    );
+
+    // find all
+    RuleQuery query = new RuleQuery();
+    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(4);
+
+    // type3 in filter
+    query = new RuleQuery().setTypes(ImmutableSet.of(VULNERABILITY));
+    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RULE_KEY_2);
+
+    query = new RuleQuery().setTypes(ImmutableSet.of(BUG));
+    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RULE_KEY_3,RULE_KEY_4);
+
+    // types in query => nothing
+    query = new RuleQuery().setQueryText("code smell bug vulnerability");
+    assertThat(index.search(query, new SearchOptions()).getIds()).isEmpty();
+
+    // null list => no filter
+    query = new RuleQuery().setTypes(Collections.<RuleType>emptySet());
+    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(4);
+
+    // null list => no filter
+    query = new RuleQuery().setTypes(null);
+    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(4);
   }
 
   @Test
@@ -546,30 +584,31 @@ public class RuleIndexTest {
   @Test
   public void sticky_facets() {
     indexRules(
-      newDoc(RuleKey.of("xoo", "S001")).setLanguage("java").setAllTags(Collections.<String>emptyList()),
-      newDoc(RuleKey.of("xoo", "S002")).setLanguage("java").setAllTags(Collections.<String>emptyList()),
-      newDoc(RuleKey.of("xoo", "S003")).setLanguage("java").setAllTags(asList("T1", "T2")),
-      newDoc(RuleKey.of("xoo", "S011")).setLanguage("cobol").setAllTags(Collections.<String>emptyList()),
-      newDoc(RuleKey.of("xoo", "S012")).setLanguage("cobol").setAllTags(Collections.<String>emptyList()),
-      newDoc(RuleKey.of("foo", "S013")).setLanguage("cobol").setAllTags(asList("T3", "T4")),
-      newDoc(RuleKey.of("foo", "S111")).setLanguage("cpp").setAllTags(Collections.<String>emptyList()),
-      newDoc(RuleKey.of("foo", "S112")).setLanguage("cpp").setAllTags(Collections.<String>emptyList()),
-      newDoc(RuleKey.of("foo", "S113")).setLanguage("cpp").setAllTags(asList("T2", "T3")));
+      newDoc(RuleKey.of("xoo", "S001")).setLanguage("java").setAllTags(Collections.<String>emptyList()).setType(BUG),
+      newDoc(RuleKey.of("xoo", "S002")).setLanguage("java").setAllTags(Collections.<String>emptyList()).setType(CODE_SMELL),
+      newDoc(RuleKey.of("xoo", "S003")).setLanguage("java").setAllTags(asList("T1", "T2")).setType(CODE_SMELL),
+      newDoc(RuleKey.of("xoo", "S011")).setLanguage("cobol").setAllTags(Collections.<String>emptyList()).setType(CODE_SMELL),
+      newDoc(RuleKey.of("xoo", "S012")).setLanguage("cobol").setAllTags(Collections.<String>emptyList()).setType(BUG),
+      newDoc(RuleKey.of("foo", "S013")).setLanguage("cobol").setAllTags(asList("T3", "T4")).setType(VULNERABILITY),
+      newDoc(RuleKey.of("foo", "S111")).setLanguage("cpp").setAllTags(Collections.<String>emptyList()).setType(BUG),
+      newDoc(RuleKey.of("foo", "S112")).setLanguage("cpp").setAllTags(Collections.<String>emptyList()).setType(CODE_SMELL),
+      newDoc(RuleKey.of("foo", "S113")).setLanguage("cpp").setAllTags(asList("T2", "T3")).setType(CODE_SMELL));
 
     // 0 assert Base
     assertThat(index.search(new RuleQuery(), new SearchOptions()).getIds()).hasSize(9);
 
     // 1 Facet with no filters at all
-    SearchIdResult result = index.search(new RuleQuery(), new SearchOptions().addFacets(asList("languages", "repositories", "tags")));
-    assertThat(result.getFacets().getAll()).hasSize(3);
+    SearchIdResult result = index.search(new RuleQuery(), new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS, FACET_TYPES)));
+    assertThat(result.getFacets().getAll()).hasSize(4);
     assertThat(result.getFacets().getAll().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java", "cobol");
     assertThat(result.getFacets().getAll().get(FACET_REPOSITORIES).keySet()).containsOnly("xoo", "foo");
     assertThat(result.getFacets().getAll().get(FACET_TAGS).keySet()).containsOnly("T1", "T2", "T3", "T4");
+    assertThat(result.getFacets().getAll().get(FACET_TYPES).keySet()).containsOnly("BUG", "CODE_SMELL", "VULNERABILITY");
 
     // 2 Facet with a language filter
     // -- lang facet should still have all language
     result = index.search(new RuleQuery().setLanguages(ImmutableList.of("cpp"))
-      , new SearchOptions().addFacets(asList("languages", "repositories", "tags")));
+      , new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS)));
     assertThat(result.getIds()).hasSize(3);
     assertThat(result.getFacets().getAll()).hasSize(3);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java", "cobol");
@@ -581,26 +620,29 @@ public class RuleIndexTest {
     result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.of("cpp"))
       .setTags(ImmutableList.of("T2"))
-      , new SearchOptions().addFacets(asList("languages", "repositories", "tags")));
+      , new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS)));
     assertThat(result.getIds()).hasSize(1);
     assertThat(result.getFacets().getAll()).hasSize(3);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java");
     assertThat(result.getFacets().get(FACET_REPOSITORIES).keySet()).containsOnly("foo");
     assertThat(result.getFacets().get(FACET_TAGS).keySet()).containsOnly("T2", "T3");
 
-    // 4 facet with 2 filters
+    // 4 facet with 3 filters
     // -- lang facet for tag T2
     // -- tag facet for lang cpp & java
     // -- repository for (cpp || java) & T2
+    // -- type
     result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.of("cpp", "java"))
       .setTags(ImmutableList.of("T2"))
-      , new SearchOptions().addFacets(asList("languages", "repositories", "tags")));
+      .setTypes(asList(BUG, CODE_SMELL))
+      , new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS, FACET_TYPES)));
     assertThat(result.getIds()).hasSize(2);
-    assertThat(result.getFacets().getAll()).hasSize(3);
+    assertThat(result.getFacets().getAll()).hasSize(4);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java");
     assertThat(result.getFacets().get(FACET_REPOSITORIES).keySet()).containsOnly("foo", "xoo");
     assertThat(result.getFacets().get(FACET_TAGS).keySet()).containsOnly("T1", "T2", "T3");
+    assertThat(result.getFacets().get(FACET_TYPES).keySet()).containsOnly("CODE_SMELL");
   }
 
   @Test

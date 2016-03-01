@@ -60,6 +60,7 @@ import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.rule.RuleType;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
@@ -86,6 +87,7 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_RULE_KE
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_STATUS;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_TEMPLATE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_TYPE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_UPDATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
@@ -103,24 +105,11 @@ public class RuleIndex extends BaseIndex {
   public static final String FACET_SEVERITIES = "severities";
   public static final String FACET_ACTIVE_SEVERITIES = "active_severities";
   public static final String FACET_STATUSES = "statuses";
+  public static final String FACET_TYPES = "types";
   public static final String FACET_OLD_DEFAULT = "true";
 
   public static final List<String> ALL_STATUSES_EXCEPT_REMOVED = ImmutableList.copyOf(
-    Collections2.filter(
-      Collections2.transform(
-        Arrays.asList(RuleStatus.values()),
-        new Function<RuleStatus, String>() {
-          @Override
-          public String apply(@Nonnull RuleStatus input) {
-            return input.toString();
-          }
-        }),
-      new Predicate<String>() {
-        @Override
-        public boolean apply(@Nonnull String input) {
-          return !RuleStatus.REMOVED.toString().equals(input);
-        }
-      }));
+    Collections2.filter(Collections2.transform(Arrays.asList(RuleStatus.values()), RuleStatusToString.INSTANCE), NotRemoved.INSTANCE));
 
   public RuleIndex(EsClient client) {
     super(client);
@@ -266,6 +255,11 @@ public class RuleIndex extends BaseIndex {
         FilterBuilders.termsFilter(FIELD_RULE_ALL_TAGS, query.getTags()));
     }
 
+    if (!CollectionUtils.isEmpty(query.getTypes())) {
+      filters.put(FIELD_RULE_TYPE,
+        FilterBuilders.termsFilter(FIELD_RULE_TYPE, query.getTypes()));
+    }
+
     if (query.getAvailableSinceLong() != null) {
       filters.put("availableSince", FilterBuilders.rangeFilter(FIELD_RULE_CREATED_AT)
         .gte(query.getAvailableSinceLong()));
@@ -363,19 +357,25 @@ public class RuleIndex extends BaseIndex {
       Collection<String> languages = query.getLanguages();
       aggregations.put(FACET_LANGUAGES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_LANGUAGE, FACET_LANGUAGES,
-          languages == null ? new String[0] : languages.toArray()));
+          (languages == null) ? new String[0] : languages.toArray()));
     }
     if (options.getFacets().contains(FACET_TAGS) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> tags = query.getTags();
       aggregations.put(FACET_TAGS,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_ALL_TAGS, FACET_TAGS,
-          tags == null ? new String[0] : tags.toArray()));
+          (tags == null) ? new String[0] : tags.toArray()));
+    }
+    if (options.getFacets().contains(FACET_TYPES)) {
+      Collection<RuleType> types = query.getTypes();
+      aggregations.put(FACET_TYPES,
+        stickyFacetBuilder.buildStickyFacet(FIELD_RULE_TYPE, FACET_TYPES,
+          (types == null) ? new String[0] : types.toArray()));
     }
     if (options.getFacets().contains("repositories") || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> repositories = query.getRepositories();
       aggregations.put(FACET_REPOSITORIES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_REPOSITORY, FACET_REPOSITORIES,
-          repositories == null ? new String[0] : repositories.toArray()));
+          (repositories == null) ? new String[0] : repositories.toArray()));
     }
   }
 
@@ -505,6 +505,24 @@ public class RuleIndex extends BaseIndex {
     @Override
     public RuleKey apply(@Nonnull String input) {
       return RuleKey.parse(input);
+    }
+  }
+
+  private enum RuleStatusToString implements Function<RuleStatus, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull RuleStatus input) {
+      return input.toString();
+    }
+  }
+
+  private enum NotRemoved implements Predicate<String> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull String input) {
+      return !RuleStatus.REMOVED.toString().equals(input);
     }
   }
 

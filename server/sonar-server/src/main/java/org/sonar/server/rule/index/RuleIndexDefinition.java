@@ -48,6 +48,7 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String FIELD_RULE_IS_TEMPLATE = "isTemplate";
   public static final String FIELD_RULE_TEMPLATE_KEY = "templateKey";
   public static final String FIELD_RULE_ALL_TAGS = "allTags";
+  public static final String FIELD_RULE_TYPE = "type";
   public static final String FIELD_RULE_CREATED_AT = "createdAt";
   public static final String FIELD_RULE_UPDATED_AT = "updatedAt";
 
@@ -106,6 +107,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).docValues().build();
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_ALL_TAGS).enableGramSearch().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_TYPE).build();
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
     ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);

@@ -24,6 +24,7 @@ import java.util.Arrays;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.RuleTesting;
 
 public class RuleDocTesting {
@@ -43,7 +44,8 @@ public class RuleDocTesting {
       .setStatus(RuleStatus.READY.name())
       .setLanguage("xoo")
       .setIsTemplate(false)
-      .setAllTags(Arrays.asList("bug", "performance"))
+      .setAllTags(Arrays.asList("spring", "performance"))
+      .setType(RuleType.CODE_SMELL)
       .setCreatedAt(150000000L)
       .setUpdatedAt(160000000L);
   }
