@@ -42,6 +42,19 @@ public class SearchOptions {
   private int page;
   private List<String> fields;
 
+  public static SearchOptions create(Request request) {
+    SearchOptions options = new SearchOptions();
+
+    // both parameters have default values
+    options.setPage(request.mandatoryParamAsInt(WebService.Param.PAGE));
+    options.setPageSize(request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
+
+    // optional field
+    options.setFields(request.paramAsStrings(WebService.Param.FIELDS));
+
+    return options;
+  }
+
   public int pageSize() {
     return pageSize;
   }
@@ -84,19 +97,6 @@ public class SearchOptions {
     json.prop(WebService.Param.PAGE, page);
     json.prop(WebService.Param.PAGE_SIZE, pageSize);
     return this;
-  }
-
-  public static SearchOptions create(Request request) {
-    SearchOptions options = new SearchOptions();
-
-    // both parameters have default values
-    options.setPage(request.mandatoryParamAsInt(WebService.Param.PAGE));
-    options.setPageSize(request.mandatoryParamAsInt(WebService.Param.PAGE_SIZE));
-
-    // optional field
-    options.setFields(request.paramAsStrings(WebService.Param.FIELDS));
-
-    return options;
   }
 
   public static void defineFieldsParam(WebService.NewAction action, @Nullable Collection<String> possibleFields) {

@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableList.Builder;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -60,7 +59,6 @@ import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.search.ws.SearchOptions;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
 
@@ -74,6 +72,22 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.OPTIONAL_FIELDS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_DEBT_CHARACTERISTICS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_HAS_DEBT_CHARACTERISTIC;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_SEVERITIES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_STATUSES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TEMPLATE_KEY;
 
 /**
  * @since 4.4
@@ -81,34 +95,16 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class SearchAction implements RulesWsAction {
   public static final String ACTION = "search";
 
-  public static final String PARAM_REPOSITORIES = "repositories";
-  public static final String PARAM_KEY = "rule_key";
-  public static final String PARAM_ACTIVATION = "activation";
-  public static final String PARAM_QPROFILE = "qprofile";
-  public static final String PARAM_SEVERITIES = "severities";
-  public static final String PARAM_AVAILABLE_SINCE = "available_since";
-  public static final String PARAM_STATUSES = "statuses";
-  public static final String PARAM_LANGUAGES = "languages";
-  public static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
-  public static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
-  public static final String PARAM_TAGS = "tags";
-  public static final String PARAM_INHERITANCE = "inheritance";
-  public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";
-  public static final String PARAM_IS_TEMPLATE = "is_template";
-  public static final String PARAM_TEMPLATE_KEY = "template_key";
-
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
 
   private final DbClient dbClient;
   private final RuleIndex ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
-  private final RuleMapping mapping;
   private final RuleMapper mapper;
 
-  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleMapping mapping, DbClient dbClient, RuleMapper mapper) {
+  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, DbClient dbClient, RuleMapper mapper) {
     this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
-    this.mapping = mapping;
     this.dbClient = dbClient;
     this.mapper = mapper;
   }
@@ -128,16 +124,13 @@ public class SearchAction implements RulesWsAction {
       paramFacets.setExampleValue(String.format("%s,%s", it.next(), it.next()));
     }
 
-    Collection<String> possibleFields = possibleFields();
     WebService.NewParam paramFields = action.createParam(Param.FIELDS)
       .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
-      .setPossibleValues(possibleFields);
-    if (possibleFields != null && possibleFields.size() > 1) {
-      Iterator<String> it = possibleFields.iterator();
-      paramFields.setExampleValue(String.format("%s,%s", it.next(), it.next()));
-    }
+      .setPossibleValues(OPTIONAL_FIELDS);
+    Iterator<String> it = OPTIONAL_FIELDS.iterator();
+    paramFields.setExampleValue(String.format("%s,%s", it.next(), it.next()));
 
-    this.doDefinition(action);
+    doDefinition(action);
   }
 
   @Override
@@ -189,8 +182,7 @@ public class SearchAction implements RulesWsAction {
       FACET_SEVERITIES,
       FACET_ACTIVE_SEVERITIES,
       FACET_STATUSES,
-      FACET_OLD_DEFAULT
-      );
+      FACET_OLD_DEFAULT);
   }
 
   /**
@@ -333,7 +325,7 @@ public class SearchAction implements RulesWsAction {
   protected org.sonar.server.es.SearchOptions getQueryContext(Request request) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 1/2
     org.sonar.server.es.SearchOptions context = loadCommonContext(request);
-    org.sonar.server.es.SearchOptions searchQueryContext = mapping.newQueryOptions(SearchOptions.create(request))
+    org.sonar.server.es.SearchOptions searchQueryContext = new org.sonar.server.es.SearchOptions()
       .setLimit(context.getLimit())
       .setOffset(context.getOffset());
     if (context.getFacets().contains(RuleIndex.FACET_OLD_DEFAULT)) {
@@ -414,12 +406,6 @@ public class SearchAction implements RulesWsAction {
     if (contextForResponse.getFields().contains("actives")) {
       activeRuleCompleter.completeSearch(dbSession, doQuery(request), result.rules, response);
     }
-  }
-
-  protected Collection<String> possibleFields() {
-    Builder<String> builder = ImmutableList.builder();
-    builder.addAll(mapping.supportedFields());
-    return builder.add("actives").build();
   }
 
   protected void writeFacets(SearchResponse.Builder response, Request request, org.sonar.server.es.SearchOptions context, SearchResult results) {

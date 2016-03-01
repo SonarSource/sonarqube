@@ -48,13 +48,13 @@ import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
-import org.sonar.server.rule.ws.SearchAction;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 
 public class QProfilesWsMediumTest {
 
@@ -281,7 +281,7 @@ public class QProfilesWsMediumTest {
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
-    request.setParam(SearchAction.PARAM_LANGUAGES, "java");
+    request.setParam(PARAM_LANGUAGES, "java");
     WsTester.Result result = request.execute();
     session.clearCache();
 
@@ -306,7 +306,7 @@ public class QProfilesWsMediumTest {
     // 1. Activate Rule
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, php.getKey());
-    request.setParam(SearchAction.PARAM_LANGUAGES, "php");
+    request.setParam(PARAM_LANGUAGES, "php");
     WsTester.Result result = request.execute();
     session.clearCache();
 

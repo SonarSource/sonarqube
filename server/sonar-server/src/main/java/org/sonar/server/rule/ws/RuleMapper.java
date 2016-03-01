@@ -31,15 +31,33 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
-import org.sonar.server.rule.index.RuleNormalizer;
 import org.sonar.server.rule.ws.SearchAction.SearchResult;
-import org.sonar.server.search.IndexField;
 import org.sonar.server.text.MacroInterpreter;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules;
 
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_CREATED_AT;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_DEBT_OVERLOADED;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_DEBT_REM_FUNCTION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_DEFAULT_DEBT_REM_FUNCTION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_EFFORT_TO_FIX_DESCRIPTION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_HTML_DESCRIPTION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_INTERNAL_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_IS_TEMPLATE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_LANGUAGE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_LANGUAGE_NAME;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_MARKDOWN_DESCRIPTION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_NAME;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_NOTE_LOGIN;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_PARAMS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_REPO;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_SEVERITY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_STATUS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_SYSTEM_TAGS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_TAGS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_TEMPLATE_KEY;
 
 /**
  * Conversion of {@link org.sonar.db.rule.RuleDto} to {@link org.sonarqube.ws.Rules.Rule}
@@ -85,25 +103,25 @@ public class RuleMapper {
   }
 
   private static void setRepository(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.REPOSITORY)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_REPO)) {
       ruleResponse.setRepo(ruleDto.getKey().repository());
     }
   }
 
   private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.FIX_DESCRIPTION) && ruleDto.getEffortToFixDescription() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) && ruleDto.getEffortToFixDescription() != null) {
       ruleResponse.setEffortToFixDescription(ruleDto.getEffortToFixDescription());
     }
   }
 
   private static void setIsDebtOverloaded(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, "debtOverloaded")) {
+    if (shouldReturnField(fieldsToReturn, FIELD_DEBT_OVERLOADED)) {
       ruleResponse.setDebtOverloaded(ruleToOverloaded(ruleDto));
     }
   }
 
   private static void setDefaultDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, "defaultDebtRemFn")) {
+    if (shouldReturnField(fieldsToReturn, FIELD_DEFAULT_DEBT_REM_FUNCTION)) {
       DebtRemediationFunction defaultDebtRemediationFunction = defaultDebtRemediationFunction(ruleDto);
       if (defaultDebtRemediationFunction != null) {
         if (defaultDebtRemediationFunction.coefficient() != null) {
@@ -120,7 +138,7 @@ public class RuleMapper {
   }
 
   private static void setDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, "debtRemFn")) {
+    if (shouldReturnField(fieldsToReturn, FIELD_DEBT_REM_FUNCTION)) {
       DebtRemediationFunction debtRemediationFunction = debtRemediationFunction(ruleDto);
       if (debtRemediationFunction != null) {
         if (debtRemediationFunction.type() != null) {
@@ -137,31 +155,31 @@ public class RuleMapper {
   }
 
   private static void setName(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.NAME) && ruleDto.getName() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_NAME) && ruleDto.getName() != null) {
       ruleResponse.setName(ruleDto.getName());
     }
   }
 
   private static void setStatus(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.STATUS) && ruleDto.getStatus() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_STATUS) && ruleDto.getStatus() != null) {
       ruleResponse.setStatus(Common.RuleStatus.valueOf(ruleDto.getStatus().toString()));
     }
   }
 
   private static void setTags(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.TAGS)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_TAGS)) {
       ruleResponse.getTagsBuilder().addAllTags(ruleDto.getTags());
     }
   }
 
   private static void setSysTags(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.SYSTEM_TAGS)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_SYSTEM_TAGS)) {
       ruleResponse.getSysTagsBuilder().addAllSysTags(ruleDto.getSystemTags());
     }
   }
 
   private static void setParams(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, SearchResult searchResult, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.PARAMS)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_PARAMS)) {
       List<RuleParamDto> ruleParameters = searchResult.getRuleParamsByRuleId().get(ruleDto.getId());
       ruleResponse.getParamsBuilder().addAllParams(FluentIterable.from(ruleParameters)
         .transform(RuleParamDtoToWsRuleParam.INSTANCE)
@@ -170,13 +188,13 @@ public class RuleMapper {
   }
 
   private static void setCreatedAt(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.CREATED_AT)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_CREATED_AT)) {
       ruleResponse.setCreatedAt(formatDateTime(ruleDto.getCreatedAt()));
     }
   }
 
   private void setDescriptionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.HTML_DESCRIPTION)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_HTML_DESCRIPTION)) {
       String description = ruleDto.getDescription();
       if (description != null) {
         switch (ruleDto.getDescriptionFormat()) {
@@ -192,7 +210,7 @@ public class RuleMapper {
       }
     }
 
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.MARKDOWN_DESCRIPTION) && ruleDto.getDescription() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_MARKDOWN_DESCRIPTION) && ruleDto.getDescription() != null) {
       ruleResponse.setMdDesc(ruleDto.getDescription());
     }
   }
@@ -204,31 +222,31 @@ public class RuleMapper {
     if (shouldReturnField(fieldsToReturn, "mdNote") && ruleDto.getNoteData() != null) {
       ruleResponse.setMdNote(ruleDto.getNoteData());
     }
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.NOTE_LOGIN) && ruleDto.getNoteUserLogin() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_NOTE_LOGIN) && ruleDto.getNoteUserLogin() != null) {
       ruleResponse.setNoteLogin(ruleDto.getNoteUserLogin());
     }
   }
 
   private static void setSeverity(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.SEVERITY) && ruleDto.getSeverityString() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_SEVERITY) && ruleDto.getSeverityString() != null) {
       ruleResponse.setSeverity(ruleDto.getSeverityString());
     }
   }
 
   private static void setInternalKey(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.INTERNAL_KEY) && ruleDto.getConfigKey() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_INTERNAL_KEY) && ruleDto.getConfigKey() != null) {
       ruleResponse.setInternalKey(ruleDto.getConfigKey());
     }
   }
 
   private static void setLanguage(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.LANGUAGE) && ruleDto.getLanguage() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_LANGUAGE) && ruleDto.getLanguage() != null) {
       ruleResponse.setLang(ruleDto.getLanguage());
     }
   }
 
   private void setLanguageName(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, "langName") && ruleDto.getLanguage() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_LANGUAGE_NAME) && ruleDto.getLanguage() != null) {
       String languageKey = ruleDto.getLanguage();
       Language language = languages.get(languageKey);
       ruleResponse.setLangName(language == null ? languageKey : language.getName());
@@ -236,22 +254,18 @@ public class RuleMapper {
   }
 
   private static void setIsTemplate(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.IS_TEMPLATE)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_IS_TEMPLATE)) {
       ruleResponse.setIsTemplate(ruleDto.isTemplate());
     }
   }
 
   private static void setTemplateKey(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, SearchResult result, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, RuleNormalizer.RuleField.TEMPLATE_KEY) && ruleDto.getTemplateId() != null) {
+    if (shouldReturnField(fieldsToReturn, FIELD_TEMPLATE_KEY) && ruleDto.getTemplateId() != null) {
       RuleDto templateRule = result.getTemplateRulesByRuleId().get(ruleDto.getTemplateId());
       if (templateRule != null) {
         ruleResponse.setTemplateKey(templateRule.getKey().toString());
       }
     }
-  }
-
-  private static boolean shouldReturnField(Set<String> fieldsToReturn, IndexField field) {
-    return fieldsToReturn.isEmpty() || fieldsToReturn.contains(field.field());
   }
 
   private static boolean shouldReturnField(Set<String> fieldsToReturn, String fieldName) {
