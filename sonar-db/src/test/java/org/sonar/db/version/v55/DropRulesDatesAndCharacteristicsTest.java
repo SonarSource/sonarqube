@@ -28,22 +28,22 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class DropRulesDateColumnsTest {
+public class DropRulesDatesAndCharacteristicsTest {
 
-  DropRulesDateColumns migration;
+  DropRulesDatesAndCharacteristics underTest;
 
   Database database;
 
   @Before
   public void setUp() {
     database = mock(Database.class);
-    migration = new DropRulesDateColumns(database);
+    underTest = new DropRulesDatesAndCharacteristics(database);
   }
 
   @Test
   public void generate_sql_on_postgresql() {
     when(database.getDialect()).thenReturn(new PostgreSql());
-    assertThat(migration.generateSql()).isEqualTo(
+    assertThat(underTest.generateSql()).isEqualTo(
       "ALTER TABLE rules DROP COLUMN created_at, DROP COLUMN updated_at, DROP COLUMN characteristic_id, DROP COLUMN default_characteristic_id"
       );
   }

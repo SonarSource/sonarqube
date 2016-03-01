@@ -30,11 +30,11 @@ import org.sonar.db.version.DropColumnsBuilder;
  * - created_at
  * - updated_at
  */
-public class DropRulesDateColumns extends DdlChange {
+public class DropRulesDatesAndCharacteristics extends DdlChange {
 
   private final Database db;
 
-  public DropRulesDateColumns(Database db) {
+  public DropRulesDatesAndCharacteristics(Database db) {
     super(db);
     this.db = db;
   }
