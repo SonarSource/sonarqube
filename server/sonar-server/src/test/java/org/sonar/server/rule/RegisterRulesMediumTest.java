@@ -281,7 +281,6 @@ public class RegisterRulesMediumTest {
           .setTemplate(true)
           .setInternalKey("new_internal");
         rule
-          .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.INTEGRATION_TESTABILITY)
           .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset("1h", "30min"))
           .setEffortToFixDescription("Effort");
       }

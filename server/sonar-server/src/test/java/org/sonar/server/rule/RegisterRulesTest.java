@@ -358,7 +358,6 @@ public class RegisterRulesTest {
         .setInternalKey("config1")
         .setTags("tag1", "tag2", "tag3")
         .setStatus(RuleStatus.BETA)
-        .setDebtSubCharacteristic("MEMORY_EFFICIENCY")
         .setEffortToFixDescription("squid.S115.effortToFix");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"));
 
@@ -389,7 +388,6 @@ public class RegisterRulesTest {
         // tag2 and tag3 removed, tag4 added
         .setTags("tag1", "tag4")
         .setStatus(RuleStatus.READY)
-        .setDebtSubCharacteristic("MEMORY_EFFICIENCY")
         .setEffortToFixDescription("squid.S115.effortToFix.v2");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("6d", "2h"));
       rule1.createParam("param1").setDescription("parameter one v2").setDefaultValue("default1 v2");

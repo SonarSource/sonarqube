@@ -62,7 +62,6 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .addTags("bad-practice")
       .setHtmlDescription("An issue is created on a file as soon as the branch coverage on this file is less than the required threshold."
         + "It gives the number of branches to be covered in order to reach the required threshold.")
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("5min"))
       .setEffortToFixDescription("number of uncovered conditions")
       .setSeverity(Severity.MAJOR);
@@ -78,7 +77,6 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .addTags("bad-practice")
       .setHtmlDescription("An issue is created on a file as soon as the line coverage on this file is less than the required threshold. " +
         "It gives the number of lines to be covered in order to reach the required threshold.")
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("2min"))
       .setEffortToFixDescription("number of lines under the coverage threshold")
       .setSeverity(Severity.MAJOR);
@@ -94,7 +92,6 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .addTags("convention")
       .setHtmlDescription("An issue is created on a file as soon as the density of comment lines on this file is less than the required threshold. " +
         "The number of comment lines to be written in order to reach the required threshold is provided by each issue message.")
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNDERSTANDABILITY)
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("2min"))
       .setEffortToFixDescription("number of lines required to meet minimum density")
       .setSeverity(Severity.MAJOR);
@@ -109,7 +106,6 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
     rule.setName("Source files should not have any duplicated blocks")
       .addTags("pitfall")
       .setHtmlDescription("An issue is created on a file as soon as there is at least one block of duplicated code on this file")
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.LOGIC_CHANGEABILITY)
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset("10min", "10min"))
       .setEffortToFixDescription("number of duplicate blocks")
       .setSeverity(Severity.MAJOR);
@@ -122,7 +118,6 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .addTags("bug")
       .setHtmlDescription(
         "Test failures or errors generally indicate that regressions have been introduced. Those tests should be handled as soon as possible to reduce the cost to fix the corresponding regressions.")
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("10min"))
       .setEffortToFixDescription("number of failed tests")
       .setSeverity(Severity.MAJOR);
@@ -133,7 +128,6 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
     rule.setName("Skipped unit tests should be either removed or fixed")
       .addTags("pitfall")
       .setHtmlDescription("Skipped unit tests are considered as dead code. Either they should be activated again (and updated) or they should be removed.")
-      .setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.UNIT_TESTABILITY)
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("10min"))
       .setEffortToFixDescription("number of skipped tests")
       .setSeverity(Severity.MAJOR);
