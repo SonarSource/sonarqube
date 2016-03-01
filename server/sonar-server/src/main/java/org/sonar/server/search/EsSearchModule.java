@@ -25,8 +25,6 @@ import org.sonar.server.es.EsClient;
 public class EsSearchModule extends Module {
   @Override
   protected void configureModule() {
-    add(
-      SearchClient.class,
-      EsClient.class);
+    add(EsClient.class);
   }
 }
