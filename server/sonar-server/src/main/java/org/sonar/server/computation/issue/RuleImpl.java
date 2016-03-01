@@ -51,8 +51,7 @@ public class RuleImpl implements Rule {
     this.status = dto.getStatus();
     this.tags = union(dto.getSystemTags(), dto.getTags());
     this.remediationFunction = effectiveRemediationFunction(dto);
-    // TODO get rule type
-    this.type = RuleType.CODE_SMELL;
+    this.type = RuleType.valueOf(dto.getType());
   }
 
   @Override

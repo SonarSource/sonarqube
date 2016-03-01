@@ -33,6 +33,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
@@ -472,6 +473,16 @@ public class IssueServiceMediumTest {
     service.createManualIssue("UNKNOWN", manualRule.getKey(), null, "Fix it", Severity.MINOR);
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void fail_create_manual_issue_on_removed_rule() {
+    RuleDto rule = newRule(RuleTesting.newXooX1().setStatus(RuleStatus.REMOVED));
+    ComponentDto project = newProject();
+    ComponentDto file = newFile(project);
+    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
+
+    service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null);
+  }
+
   @Test
   public void search_issues() {
     RuleDto rule = newRule();
@@ -574,7 +585,10 @@ public class IssueServiceMediumTest {
   }
 
   private RuleDto newRule() {
-    RuleDto rule = RuleTesting.newXooX1();
+    return newRule(RuleTesting.newXooX1());
+  }
+
+  private RuleDto newRule(RuleDto rule) {
     tester.get(RuleDao.class).insert(session, rule);
     session.commit();
     ruleIndexer.index();

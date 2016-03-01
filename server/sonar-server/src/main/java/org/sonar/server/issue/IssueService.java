@@ -34,8 +34,8 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
@@ -44,11 +44,13 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.db.rule.RuleDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
@@ -249,17 +251,17 @@ public class IssueService {
       if (!ruleKey.isManual()) {
         throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + ruleKey);
       }
-      Rule rule = getNullableRuleByKey(ruleKey);
-      if (rule == null) {
+      Optional<RuleDto> rule = getRuleByKey(dbSession, ruleKey);
+      if (!rule.isPresent()) {
         throw new IllegalArgumentException("Unknown rule: " + ruleKey);
       }
 
       DefaultIssue issue = new DefaultIssueBuilder()
         .componentKey(component.getKey())
-        // TODO use rule type: type(rule.type())
+        .type(RuleType.valueOf(rule.get().getType()))
         .projectKey(project.getKey())
         .line(line)
-        .message(!Strings.isNullOrEmpty(message) ? message : rule.getName())
+        .message(!Strings.isNullOrEmpty(message) ? message : rule.get().getName())
         .severity(Objects.firstNonNull(severity, Severity.MAJOR))
         .ruleKey(ruleKey)
         .reporter(userSession.getLogin())
@@ -292,23 +294,24 @@ public class IssueService {
       throw new IllegalStateException(String.format("Issue '%s' has no project key", issue.key()));
     }
     issueStorage.save(session, issue);
-    Rule rule = getNullableRuleByKey(issue.ruleKey());
+    Optional<RuleDto> rule = getRuleByKey(session, issue.getRuleKey());
     ComponentDto project = dbClient.componentDao().selectOrFailByKey(session, projectKey);
     notificationService.scheduleForSending(new IssueChangeNotification()
       .setIssue(issue)
       .setChangeAuthorLogin(context.login())
-      .setRuleName(rule != null ? rule.getName() : null)
+      .setRuleName(rule.isPresent() ? rule.get().getName() : null)
       .setProject(project.getKey(), project.name())
       .setComponent(dbClient.componentDao().selectOrFailByKey(session, issue.componentKey()))
       .setComment(comment));
   }
 
-  /**
-   * Should use {@link org.sonar.server.rule.RuleService#getByKey(org.sonar.api.rule.RuleKey)}, but it's not possible as IssueNotifications is still used by the batch.
-   * Can be null for removed rules
-   */
-  private Rule getNullableRuleByKey(RuleKey ruleKey) {
-    return ruleFinder.findByKey(ruleKey);
+  private Optional<RuleDto> getRuleByKey(DbSession session, RuleKey ruleKey) {
+    Optional<RuleDto> rule = dbClient.ruleDao().selectByKey(session, ruleKey);
+    if (rule.isPresent() && rule.get().getStatus() != RuleStatus.REMOVED) {
+      return rule;
+    } else {
+      return Optional.absent();
+    }
   }
 
   public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
