@@ -37,9 +37,11 @@ import org.sonar.api.rules.RuleQuery;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -221,6 +223,9 @@ public class RuleDaoTest {
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix")
+      .setTags(newHashSet("tag1", "tag2"))
+      .setSystemTags(newHashSet("systag1", "systag2"))
+      .setType(RuleType.BUG)
       .setCreatedAt(1500000000000L)
       .setUpdatedAt(2000000000000L);
     underTest.insert(dbTester.getSession(), newRule);
@@ -250,6 +255,9 @@ public class RuleDaoTest {
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
     assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
+    assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2000000000000L);
   }
@@ -282,6 +290,9 @@ public class RuleDaoTest {
       .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
       .setEffortToFixDescription("squid.S115.effortToFix")
+      .setTags(newHashSet("tag1", "tag2"))
+      .setSystemTags(newHashSet("systag1", "systag2"))
+      .setType(RuleType.BUG)
       .setUpdatedAt(2000000000000L);
 
     underTest.update(dbTester.getSession(), ruleToUpdate);
@@ -310,6 +321,9 @@ public class RuleDaoTest {
     assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
     assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
     assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
+    assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
+    assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(ruleDto.getCreatedAt()).isEqualTo(1500000000000L);
     assertThat(ruleDto.getUpdatedAt()).isEqualTo(2000000000000L);
   }

@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.RuleDto.Format;
 
 /**
@@ -77,9 +78,9 @@ public class RuleTesting {
       .setDefaultRemediationFunction("LINEAR_OFFSET")
       .setRemediationCoefficient("1h")
       .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
       .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix");
+      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
+      .setType(RuleType.CODE_SMELL);
   }
 
   public static RuleDto newTemplateRule(RuleKey ruleKey) {
@@ -91,7 +92,8 @@ public class RuleTesting {
     Preconditions.checkNotNull(templateRule.getId(), "The template rule need to be persisted before creating this custom rule.");
     return newDto(RuleKey.of(templateRule.getRepositoryKey(), templateRule.getRuleKey() + "_" + System.currentTimeMillis()))
       .setLanguage(templateRule.getLanguage())
-      .setTemplateId(templateRule.getId());
+      .setTemplateId(templateRule.getId())
+      .setType(templateRule.getType());
   }
 
   public static RuleDto newManualRule(String manualKey) {
@@ -99,7 +101,8 @@ public class RuleTesting {
       .setName("Name " + manualKey)
       .setRepositoryKey(RuleKey.MANUAL_REPOSITORY_KEY)
       .setDescription("Description " + manualKey)
-      .setStatus(RuleStatus.READY);
+      .setStatus(RuleStatus.READY)
+      .setType(RuleType.CODE_SMELL);
   }
 
 }

@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
@@ -229,12 +230,12 @@ public class RuleRepositoryImplTest {
 
   private static RuleDto createABRuleDto() {
     RuleKey ruleKey = RuleKey.of("a", "b");
-    RuleDto res = new RuleDto();
-    res.setId(ruleKey.hashCode());
-    res.setRepositoryKey(ruleKey.repository());
-    res.setRuleKey(ruleKey.rule());
-    res.setStatus(RuleStatus.REMOVED);
-    return res;
+    return new RuleDto()
+      .setId(ruleKey.hashCode())
+      .setRepositoryKey(ruleKey.repository())
+      .setRuleKey(ruleKey.rule())
+      .setStatus(RuleStatus.REMOVED)
+      .setType(RuleType.CODE_SMELL);
   }
 
 }

@@ -35,6 +35,7 @@ import org.sonar.db.RowNotFoundException;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.qualityprofile.QProfileName;
@@ -308,7 +309,7 @@ public class ChangeParentActionMediumTest {
   }
 
   private RuleDto createRule(String lang, String id) {
-    RuleDto rule = RuleDto.createFor(RuleKey.of("blah", id))
+    RuleDto rule = RuleTesting.newDto(RuleKey.of("blah", id))
       .setLanguage(lang)
       .setSeverity(Severity.BLOCKER)
       .setStatus(RuleStatus.READY);

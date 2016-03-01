@@ -33,6 +33,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.core.rule.RuleType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 
@@ -69,6 +70,7 @@ public class RuleDto {
   private String effortToFixDescription;
   private String tags;
   private String systemTags;
+  private int type;
 
   private RuleKey key;
 
@@ -344,6 +346,20 @@ public class RuleDto {
 
   public RuleDto setSystemTags(Set<String> tags) {
     this.systemTags = tags.isEmpty() ? null : StringUtils.join(tags, ',');
+    return this;
+  }
+
+  public int getType() {
+    return type;
+  }
+
+  public RuleDto setType(int type) {
+    this.type = type;
+    return this;
+  }
+
+  public RuleDto setType(RuleType type) {
+    this.type = type.getDbConstant();
     return this;
   }
 

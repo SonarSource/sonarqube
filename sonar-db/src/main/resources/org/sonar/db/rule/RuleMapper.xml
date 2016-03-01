@@ -29,6 +29,7 @@
     r.effort_to_fix_description as "effortToFixDescription",
     r.tags as "tagsField",
     r.system_tags as "systemTagsField",
+    r.rule_type as "type",
     r.created_at as "createdAt",
     r.updated_at as "updatedAt"
   </sql>
@@ -136,6 +137,7 @@
     effort_to_fix_description=#{effortToFixDescription},
     tags=#{tagsField},
     system_tags=#{systemTagsField},
+    rule_type=#{type},
     updated_at=#{updatedAt}
     WHERE id=#{id}
   </update>
@@ -145,7 +147,7 @@
     is_template, language, template_id,
     remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
-    effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
+    effort_to_fix_description, tags, system_tags, rule_type, note_data, note_user_login, note_created_at, note_updated_at,
     created_at, updated_at)
   </sql>
 
@@ -156,7 +158,7 @@
     #{severity}, #{isTemplate}, #{language}, #{templateId},
     #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
-    #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
+    #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{type,jdbcType=INTEGER}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
     #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
   </insert>
 

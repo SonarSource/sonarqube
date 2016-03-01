@@ -36,11 +36,17 @@ import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.issue.IssueDto;
+import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.issue.UpdateConflictResolver;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -90,22 +96,36 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Test
   public void insert_new_issue() {
-    dbTester.prepareDbUnit(getClass(), "insert_new_issue.xml");
+    RuleDto rule = RuleTesting.newDto(RuleKey.of("xoo", "S01"));
+    dbClient.ruleDao().insert(session, rule);
+    ComponentDto project = ComponentTesting.newProjectDto();
+    dbClient.componentDao().insert(session, project);
+    ComponentDto file = ComponentTesting.newFileDto(project);
+    dbClient.componentDao().insert(session, file);
+    session.commit();
 
     issueCache.newAppender().append(new DefaultIssue()
       .setKey("ISSUE")
       .setType(RuleType.CODE_SMELL)
-      .setRuleKey(RuleKey.of("xoo", "S01"))
-      .setComponentUuid("COMPONENT")
-      .setProjectUuid("PROJECT")
+      .setRuleKey(rule.getKey())
+      .setComponentUuid(file.uuid())
+      .setProjectUuid(project.uuid())
       .setSeverity(Severity.BLOCKER)
       .setStatus(Issue.STATUS_OPEN)
       .setNew(true)
+      .setType(RuleType.BUG)
       ).close();
 
     step.execute();
 
-    dbTester.assertDbUnit(getClass(), "insert_new_issue-result.xml", new String[] {"id"}, "issues");
+    IssueDto result = dbClient.issueDao().selectOrFailByKey(session, "ISSUE");
+    assertThat(result.getKey()).isEqualTo("ISSUE");
+    assertThat(result.getRuleKey()).isEqualTo(rule.getKey());
+    assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
+    assertThat(result.getProjectUuid()).isEqualTo(project.uuid());
+    assertThat(result.getSeverity()).isEqualTo(Severity.BLOCKER);
+    assertThat(result.getStatus()).isEqualTo(Issue.STATUS_OPEN);
+    assertThat(result.getType()).isEqualTo(RuleType.BUG.getDbConstant());
   }
 
   @Test
