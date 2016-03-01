@@ -21,6 +21,7 @@ package org.sonarsource.sonarqube.perf.scanner.suite;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import org.sonarsource.sonarqube.perf.PerfRule;
 import org.sonarsource.sonarqube.perf.PerfTestCase;
 import java.io.File;
@@ -57,7 +58,7 @@ public class IssuesModeTest extends PerfTestCase {
     File userHome = temp.newFolder();
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-xoo-issue-per-line");
-    SonarRunner runner = newScanner(
+    SonarScanner runner = newScanner(
       "-Xmx512m -server -XX:MaxPermSize=64m",
       "sonar.analysis.mode", "issues",
       "sonar.userHome", userHome.getAbsolutePath(),
@@ -67,7 +68,7 @@ public class IssuesModeTest extends PerfTestCase {
     long duration = System.currentTimeMillis() - start;
     System.out.println("Issues analysis: " + duration + "ms");
 
-    perfRule.assertDurationAround(duration, 4450L);
+    perfRule.assertDurationAround(duration, 5230L);
   }
 
   @Test
