@@ -10,11 +10,11 @@ RUN_ACTIVITY:
   - run-db-unit-tests-oracle11g
   - run-db-unit-tests-oracle12c
   - run-db-unit-tests-postgresql93
-  - run-integration-tests-Category1
-  - run-integration-tests-Category2
-  - run-integration-tests-Category3
-  - run-integration-tests-Category4
-  - run-integration-tests-Category5
+  - run-db-integration-tests-mssql2014-Category1
+  - run-db-integration-tests-mssql2014-Category2
+  - run-db-integration-tests-mssql2014-Category3
+  - run-db-integration-tests-mssql2014-Category4
+  - run-db-integration-tests-mssql2014-Category5
   - run-it-released-plugins
   - run-perf-tests
 
@@ -31,15 +31,15 @@ exclude:
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-unit-tests-postgresql93
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-integration-tests-Category1
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category1
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-integration-tests-Category2
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category2
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-integration-tests-Category3
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category3
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-integration-tests-Category4
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category4
     SLAVE_TYPE: performance
-  - RUN_ACTIVITY: run-integration-tests-Category5
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category5
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-it-released-plugins
     SLAVE_TYPE: performance
