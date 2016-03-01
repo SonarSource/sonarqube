@@ -29,6 +29,7 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -144,7 +145,7 @@ public class DbTester extends ExternalResource {
    */
   public int countRowsOfTable(String tableName) {
     Preconditions.checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
-    return countSql("select count(1) from " + tableName);
+    return countSql("select count(1) from " + tableName.toLowerCase(Locale.ENGLISH));
   }
 
   /**

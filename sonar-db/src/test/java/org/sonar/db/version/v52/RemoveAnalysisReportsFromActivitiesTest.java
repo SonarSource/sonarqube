@@ -42,6 +42,6 @@ public class RemoveAnalysisReportsFromActivitiesTest {
 
     underTest.execute();
 
-    assertThat(db.countRowsOfTable("ACTIVITIES")).isEqualTo(1);
+    assertThat(db.countRowsOfTable("activities")).isEqualTo(1);
   }
 }
