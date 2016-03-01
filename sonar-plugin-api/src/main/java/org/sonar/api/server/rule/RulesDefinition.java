@@ -20,6 +20,7 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -46,7 +47,7 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.Loggers;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -444,7 +445,9 @@ public interface RulesDefinition {
 
   interface NewExtendedRepository {
     /**
-     * Create a rule with specified key. Max length of key is 200 characters.
+     * Create a rule with specified key. Max length of key is 200 characters. Key must be unique
+     * among the repository
+     * @throws IllegalArgumentException is key is not unique. Note a warning was logged up to version 5.4 (included)
      */
     NewRule createRule(String ruleKey);
 
@@ -490,12 +493,7 @@ public interface RulesDefinition {
 
     @Override
     public NewRule createRule(String ruleKey) {
-      if (newRules.containsKey(ruleKey)) {
-        // Should fail in a perfect world, but at the time being the Findbugs plugin
-        // defines several times the rule EC_INCOMPATIBLE_ARRAY_COMPARE
-        // See http://jira.sonarsource.com/browse/SONARJAVA-428
-        Loggers.get(getClass()).warn(format("The rule '%s' of repository '%s' is declared several times", ruleKey, key));
-      }
+      checkArgument(!newRules.containsKey(ruleKey), "The rule '%s' of repository '%s' is declared several times", ruleKey, key);
       NewRule newRule = new NewRule(key, ruleKey);
       newRules.put(ruleKey, newRule);
       return newRule;

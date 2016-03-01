@@ -22,11 +22,11 @@ package org.sonar.api.server.rule;
 import java.net.URL;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -37,6 +37,9 @@ public class RulesDefinitionTest {
 
   @Rule
   public LogTester logTester = new LogTester();
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void define_repositories() {
@@ -257,13 +260,12 @@ public class RulesDefinitionTest {
   }
 
   @Test
-  public void warning_if_duplicated_rule_keys() {
+  public void fail_if_duplicated_rule_keys_in_the_same_repository() {
+    expectedException.expect(IllegalArgumentException.class);
+
     RulesDefinition.NewRepository findbugs = context.createRepository("findbugs", "java");
     findbugs.createRule("NPE");
     findbugs.createRule("NPE");
-    // do not fail as long as http://jira.sonarsource.com/browse/SONARJAVA-428 is not fixed
-    // and as common-rules are packaged within plugins (common-rules were integrated to core in v5.2)
-    assertThat(logTester.logs(LoggerLevel.WARN)).hasSize(1);
   }
 
   @Test
