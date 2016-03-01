@@ -39,8 +39,6 @@ public interface RuleMapper {
 
   List<RuleDto> selectNonManual();
 
-  List<RuleDto> selectBySubCharacteristicId(int characteristicId);
-
   RuleDto selectById(long id);
 
   List<RuleDto> selectByIds(@Param("ids") List<Integer> ids);

@@ -20,8 +20,6 @@
     r.note_user_login as "noteUserLogin",
     r.note_created_at as "noteCreatedAt",
     r.note_updated_at as "noteUpdatedAt",
-    r.characteristic_id as "subCharacteristicId",
-    r.default_characteristic_id as "defaultSubCharacteristicId",
     r.remediation_function as "remediationFunction",
     r.default_remediation_function as "defaultRemediationFunction",
     r.remediation_coeff as "remediationCoefficient",
@@ -104,13 +102,6 @@
     where r.plugin_name != 'manual'
   </select>
 
-  <select id="selectBySubCharacteristicId" resultType="Rule">
-    select
-    <include refid="selectColumns"/>
-    from rules r
-    where (r.characteristic_id=#{subCharacteristicId} or r.default_characteristic_id=#{subCharacteristicId})
-  </select>
-
   <select id="selectByQuery" parameterType="map" resultType="Rule">
     SELECT
     <include refid="selectColumns"/>
@@ -147,8 +138,6 @@
     note_user_login=#{noteUserLogin},
     note_created_at=#{noteCreatedAt},
     note_updated_at=#{noteUpdatedAt},
-    characteristic_id=#{subCharacteristicId},
-    default_characteristic_id=#{defaultSubCharacteristicId},
     remediation_function=#{remediationFunction},
     default_remediation_function=#{defaultRemediationFunction},
     remediation_coeff=#{remediationCoefficient},
@@ -165,7 +154,7 @@
   <sql id="insertColumns">
     (plugin_rule_key, plugin_name, description, description_format, status, name, plugin_config_key, priority,
     is_template, language, template_id,
-    characteristic_id, default_characteristic_id, remediation_function, default_remediation_function,
+    remediation_function, default_remediation_function,
     remediation_coeff, default_remediation_coeff, remediation_offset, default_remediation_offset,
     effort_to_fix_description, tags, system_tags, note_data, note_user_login, note_created_at, note_updated_at,
     created_at, updated_at)
@@ -176,7 +165,7 @@
     <include refid="insertColumns"/>
     values (#{ruleKey}, #{repositoryKey}, #{description}, #{descriptionFormat}, #{status}, #{name}, #{configKey},
     #{severity}, #{isTemplate}, #{language}, #{templateId},
-    #{subCharacteristicId}, #{defaultSubCharacteristicId}, #{remediationFunction}, #{defaultRemediationFunction},
+    #{remediationFunction}, #{defaultRemediationFunction},
     #{remediationCoefficient}, #{defaultRemediationCoefficient}, #{remediationOffset}, #{defaultRemediationOffset},
     #{effortToFixDescription}, #{tagsField}, #{systemTagsField}, #{noteData}, #{noteUserLogin}, #{noteCreatedAt},
     #{noteUpdatedAt}, #{createdAt}, #{updatedAt})
@@ -190,7 +179,6 @@
     #{configKey,jdbcType=VARCHAR},
     #{severity,jdbcType=INTEGER}, #{isTemplate,jdbcType=BOOLEAN}, #{language,jdbcType=VARCHAR},
     #{templateId,jdbcType=INTEGER},
-    #{subCharacteristicId,jdbcType=INTEGER}, #{defaultSubCharacteristicId,jdbcType=INTEGER},
     #{remediationFunction,jdbcType=VARCHAR}, #{defaultRemediationFunction,jdbcType=VARCHAR},
     #{remediationCoefficient,jdbcType=VARCHAR}, #{defaultRemediationCoefficient,jdbcType=VARCHAR},
     #{remediationOffset,jdbcType=VARCHAR}, #{defaultRemediationOffset,jdbcType=VARCHAR},

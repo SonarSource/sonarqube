@@ -81,7 +81,6 @@ public class ClearRulesOverloadedDebt implements Startable {
     int countClearedRules = 0;
     for (RuleDto rule : dbClient.ruleDao().selectAll(session)) {
       if (isDebtOverridden(rule)) {
-        rule.setSubCharacteristicId(null);
         rule.setRemediationFunction(null);
         rule.setRemediationCoefficient(null);
         rule.setRemediationOffset(null);
@@ -97,7 +96,7 @@ public class ClearRulesOverloadedDebt implements Startable {
   }
 
   private static boolean isDebtOverridden(RuleDto ruleDto) {
-    return ruleDto.getSubCharacteristicId() != null || ruleDto.getRemediationFunction() != null || ruleDto.getRemediationCoefficient() != null
+    return ruleDto.getRemediationFunction() != null || ruleDto.getRemediationCoefficient() != null
       || ruleDto.getRemediationOffset() != null;
   }
 
