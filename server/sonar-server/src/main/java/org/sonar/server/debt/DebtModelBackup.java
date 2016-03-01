@@ -108,7 +108,7 @@ public class DebtModelBackup {
   public void reset() {
     checkPermission();
 
-    Date updateDate = new Date(system2.now());
+    long updateDate = system2.now();
     DbSession session = dbClient.openSession(false);
     try {
       // Restore rules
@@ -125,14 +125,14 @@ public class DebtModelBackup {
         resetRules(ruleDtos, rules, updateDate, session);
       }
 
-      ruleIndexer.index();
       session.commit();
+      ruleIndexer.index();
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  private void resetRules(List<RuleDto> ruleDtos, List<RulesDefinition.Rule> rules, Date updateDate, DbSession session) {
+  private void resetRules(List<RuleDto> ruleDtos, List<RulesDefinition.Rule> rules, long updateDate, DbSession session) {
     for (RuleDto rule : ruleDtos) {
       // Restore default debt definitions
 
@@ -158,7 +158,7 @@ public class DebtModelBackup {
       rule.setRemediationFunction(null);
       rule.setRemediationCoefficient(null);
       rule.setRemediationOffset(null);
-      rule.setUpdatedAt(updateDate.getTime());
+      rule.setUpdatedAt(updateDate);
       dbClient.ruleDao().update(session, rule);
     }
   }
