@@ -48,7 +48,7 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
       .setHtmlDescription("Generate an issue on each line of a file. It requires the metric \"lines\".");
-    oneIssuePerLine.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.MEMORY_EFFICIENCY)
+    oneIssuePerLine
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1min"))
       .setEffortToFixDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
 
@@ -62,7 +62,7 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule hasTag = repo.createRule(HasTagSensor.RULE_KEY).setName("Has Tag")
       .setHtmlDescription("Search for a given tag in Xoo files");
-    hasTag.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.READABILITY)
+    hasTag
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().constantPerIssue("2min"));
     hasTag.createParam("tag")
       .setDefaultValue("xoo")
@@ -78,7 +78,7 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneIssuePerLine = repo.createRule(OneIssuePerLineSensor.RULE_KEY).setName("One Issue Per Line")
       .setHtmlDescription("Generate an issue on each line of a file. It requires the metric \"lines\".");
-    oneIssuePerLine.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.MEMORY_EFFICIENCY)
+    oneIssuePerLine
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1min"))
       .setEffortToFixDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
 
@@ -87,17 +87,15 @@ public class XooRulesDefinition implements RulesDefinition {
 
     NewRule oneIssuePerFile = repo.createRule(OneIssuePerFileSensor.RULE_KEY).setName("One Issue Per File")
       .setHtmlDescription("Generate an issue on each file");
-    oneIssuePerFile.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.ARCHITECTURE_CHANGEABILITY)
-      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("10min"));
+    oneIssuePerFile.setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("10min"));
 
     NewRule oneDayDebtPerFile = repo.createRule(OneDayDebtPerFileSensor.RULE_KEY).setName("One Day Debt Per File")
       .setHtmlDescription("Generate an issue on each file with a debt of one day");
-    oneDayDebtPerFile.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.ARCHITECTURE_RELIABILITY)
-      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1d"));
+    oneDayDebtPerFile.setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1d"));
 
     NewRule oneIssuePerModule = repo.createRule(OneIssuePerModuleSensor.RULE_KEY).setName("One Issue Per Module")
       .setHtmlDescription("Generate an issue on each module");
-    oneIssuePerModule.setDebtSubCharacteristic(RulesDefinition.SubCharacteristics.API_ABUSE)
+    oneIssuePerModule
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linearWithOffset("25min", "1h"))
       .setEffortToFixDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
         "then it's about one hour per module.");
