@@ -34,6 +34,7 @@ import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
@@ -107,6 +108,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
     assertThat(rule1.getDefaultRemediationCoefficient()).isEqualTo("5d");
     assertThat(rule1.getDefaultRemediationOffset()).isEqualTo("10h");
+    assertThat(rule1.getType()).isEqualTo(RuleType.CODE_SMELL.getDbConstant());
 
     List<RuleParamDto> params = dbClient.ruleDao().selectRuleParamsByRuleKey(dbTester.getSession(), RULE_KEY1);
     assertThat(params).hasSize(2);
@@ -146,6 +148,7 @@ public class RegisterRulesTest {
     assertThat(rule1.getNoteData()).isEqualTo("user *note*");
     assertThat(rule1.getNoteUserLogin()).isEqualTo("marius");
     assertThat(rule1.getStatus()).isEqualTo(RuleStatus.READY);
+    assertThat(rule1.getType()).isEqualTo(RuleType.BUG.getDbConstant());
     assertThat(rule1.getCreatedAt()).isEqualTo(DATE1.getTime());
     assertThat(rule1.getUpdatedAt()).isEqualTo(DATE2.getTime());
     // TODO check remediation function
@@ -357,6 +360,7 @@ public class RegisterRulesTest {
         .setSeverity(BLOCKER)
         .setInternalKey("config1")
         .setTags("tag1", "tag2", "tag3")
+        .setType(Type.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
         .setEffortToFixDescription("squid.S115.effortToFix");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"));
@@ -387,6 +391,7 @@ public class RegisterRulesTest {
         .setInternalKey("config1 v2")
         // tag2 and tag3 removed, tag4 added
         .setTags("tag1", "tag4")
+        .setType(Type.BUG)
         .setStatus(RuleStatus.READY)
         .setEffortToFixDescription("squid.S115.effortToFix.v2");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("6d", "2h"));

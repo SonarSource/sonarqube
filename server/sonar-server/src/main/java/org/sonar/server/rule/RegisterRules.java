@@ -45,6 +45,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -171,6 +172,7 @@ public class RegisterRules implements Startable {
       .setStatus(ruleDef.status())
       .setEffortToFixDescription(ruleDef.effortToFixDescription())
       .setSystemTags(ruleDef.tags())
+      .setType(RuleType.valueOf(ruleDef.type().name()))
       .setCreatedAt(system2.now())
       .setUpdatedAt(system2.now());
     if (ruleDef.htmlDescription() != null) {
@@ -218,6 +220,11 @@ public class RegisterRules implements Startable {
     }
     if (!StringUtils.equals(dto.getLanguage(), def.repository().language())) {
       dto.setLanguage(def.repository().language());
+      changed = true;
+    }
+    RuleType type = RuleType.valueOf(def.type().name());
+    if (!ObjectUtils.equals(dto.getType(), type.getDbConstant())) {
+      dto.setType(type);
       changed = true;
     }
     return changed;
