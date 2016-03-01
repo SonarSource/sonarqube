@@ -87,6 +87,7 @@ public class ActionService {
       if (issue.resolution() == null) {
         availableActions.add("assign");
         availableActions.add("set_tags");
+        availableActions.add("set_type");
         if (!login.equals(issue.assignee())) {
           availableActions.add("assign_to_me");
         }

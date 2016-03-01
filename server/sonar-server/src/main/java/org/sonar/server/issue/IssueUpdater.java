@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.user.User;
@@ -52,6 +53,7 @@ public class IssueUpdater {
 
   public static final String UNUSED = "";
   public static final String SEVERITY = "severity";
+  public static final String TYPE = "type";
   public static final String ASSIGNEE = "assignee";
   public static final String RESOLUTION = "resolution";
   public static final String STATUS = "status";
@@ -61,6 +63,17 @@ public class IssueUpdater {
   public static final String TAGS = "tags";
 
   private static final Joiner CHANGELOG_TAG_JOINER = Joiner.on(" ").skipNulls();
+
+  public boolean setType(DefaultIssue issue, RuleType type, IssueChangeContext context) {
+    if (!Objects.equal(type, issue.type())) {
+      issue.setFieldChange(context, TYPE, issue.type(), type);
+      issue.setType(type);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
+      return true;
+    }
+    return false;
+  }
 
   public boolean setSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
     if (issue.manualSeverity()) {

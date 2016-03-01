@@ -6,7 +6,7 @@
       "reporter": "fabrice",
       "actionPlan": "AP-ABCD",
       "actions": [
-        "comment", "assign", "set_tags", "assign_to_me", "plan"
+        "comment", "assign", "set_tags", "set_type", "assign_to_me", "plan"
       ],
       "transitions": [
         "confirm", "resolve"
