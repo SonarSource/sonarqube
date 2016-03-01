@@ -297,10 +297,15 @@ public class MetricDaoTest {
   public void disableByKey() {
     underTest.insert(session, newMetricDto().setKey("metric-key").setEnabled(true).setUserManaged(true));
 
-    underTest.disableCustomByKey(session, "metric-key");
+    boolean updated = underTest.disableCustomByKey(session, "metric-key");
+    assertThat(updated).isTrue();
 
     MetricDto result = underTest.selectByKey(session, "metric-key");
     assertThat(result.isEnabled()).isFalse();
+
+    // disable again -> zero rows are touched
+    updated = underTest.disableCustomByKey(session, "metric-key");
+    assertThat(updated).isFalse();
   }
 
   @Test

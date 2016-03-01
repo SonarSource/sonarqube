@@ -136,6 +136,7 @@
     update metrics
     set enabled=${_false}
     where name=#{key}
+    and enabled=${_true}
   </update>
 
   <select id="selectByKeys" resultType="org.sonar.db.metric.MetricDto">
