@@ -28,6 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
@@ -83,7 +84,8 @@ public class ShowActionMediumTest {
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
       .setTags(newHashSet("tag1", "tag2"))
-      .setSystemTags(newHashSet("systag1", "systag2"));
+      .setSystemTags(newHashSet("systag1", "systag2"))
+      .setType(RuleType.BUG);
     ruleDao.insert(session, ruleDto);
     RuleParamDto param = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
     ruleDao.insertRuleParam(session, ruleDto, param);

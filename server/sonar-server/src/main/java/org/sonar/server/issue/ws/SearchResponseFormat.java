@@ -146,7 +146,7 @@ public class SearchResponseFormat {
 
   private void formatIssue(Issues.Issue.Builder issueBuilder, IssueDto dto, SearchResponseData data) {
     issueBuilder.setKey(dto.getKey());
-    Issues.IssueType type = Issues.IssueType.valueOf(dto.getType());
+    Common.RuleType type = Common.RuleType.valueOf(dto.getType());
     if (type != null) {
       issueBuilder.setType(type);
     }

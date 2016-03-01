@@ -7,12 +7,14 @@
       "key": "xoo:x2",
       "name": "Rule x2",
       "mdDesc": "A *Xoo* rule",
-      "htmlDesc": "A <strong>Xoo</strong> rule"
+      "htmlDesc": "A <strong>Xoo</strong> rule",
+      "type": "BUG"
     },
     {
       "key": "xoo:x1",
       "name": "Rule x1",
-      "htmlDesc": "Description x1"
+      "htmlDesc": "Description x1",
+      "type": "CODE_SMELL"
     }
   ]
 }

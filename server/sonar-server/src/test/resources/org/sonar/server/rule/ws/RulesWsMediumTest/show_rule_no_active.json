@@ -11,7 +11,6 @@
   "sysTags": ["systag1", "systag2"],
   "debtRemFnType": "LINEAR",
   "debtRemFnCoeff": "1h",
-  "debtRemFnOffset": "5min",
   "lang": "xoo",
   "params": []
 }}

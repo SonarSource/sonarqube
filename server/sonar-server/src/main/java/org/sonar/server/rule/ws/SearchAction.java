@@ -47,6 +47,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -55,7 +56,6 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.rule.Rule;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
@@ -71,6 +71,7 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_REPOSITORIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
+import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
@@ -88,6 +89,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TEMPLATE_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TYPES;
 
 /**
  * @since 4.4
@@ -182,6 +184,7 @@ public class SearchAction implements RulesWsAction {
       FACET_SEVERITIES,
       FACET_ACTIVE_SEVERITIES,
       FACET_STATUSES,
+      FACET_TYPES,
       FACET_OLD_DEFAULT);
   }
 
@@ -240,6 +243,13 @@ public class SearchAction implements RulesWsAction {
       .createParam(PARAM_TAGS)
       .setDescription("Comma-separated list of tags. Returned rules match any of the tags (OR operator)")
       .setExampleValue("security,java8");
+
+    action
+      .createParam(PARAM_TYPES)
+      .setSince("5.5")
+      .setDescription("Comma-separated list of types. Returned rules match any of the tags (OR operator)")
+      .setPossibleValues(RuleType.values())
+      .setExampleValue(RuleType.BUG);
 
     action
       .createParam(PARAM_ACTIVATION)
@@ -306,6 +316,7 @@ public class SearchAction implements RulesWsAction {
     query.setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES));
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
+    query.setTypes(request.paramAsEnums(PARAM_TYPES, RuleType.class));
     query.setKey(request.param(PARAM_KEY));
 
     String sortParam = request.param(Param.SORT);
@@ -415,6 +426,7 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, FACET_ACTIVE_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, FACET_TAGS, request.paramAsStrings(PARAM_TAGS));
+    addMandatoryFacetValues(results, FACET_TYPES, RuleType.ALL_NAMES);
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
@@ -547,12 +559,13 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private enum RuleToRuleKey implements Function<Rule, RuleKey> {
+  private enum TypeToString implements Function<RuleType, String> {
     INSTANCE;
 
     @Override
-    public RuleKey apply(@Nonnull Rule input) {
-      return input.key();
+    public String apply(@Nonnull RuleType input) {
+      return input.name();
     }
+
   }
 }

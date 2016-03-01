@@ -34,6 +34,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDao;
@@ -129,8 +130,10 @@ public class SearchActionMediumTest {
 
   @Test
   public void search_2_rules() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2());
+    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+      .setType(RuleType.BUG));
+    ruleDao.insert(dbSession, RuleTesting.newXooX2()
+      .setType(RuleType.VULNERABILITY));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -141,9 +144,15 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void search_2_rules_with_field_selection() throws Exception {
-    ruleDao.insert(dbSession, RuleTesting.newXooX1());
-    ruleDao.insert(dbSession, RuleTesting.newXooX2().setDescription("A *Xoo* rule").setDescriptionFormat(RuleDto.Format.MARKDOWN));
+  public void search_2_rules_with_fields_selection() throws Exception {
+    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+      .setType(RuleType.CODE_SMELL))
+    ;
+    ruleDao.insert(dbSession, RuleTesting.newXooX2()
+      .setType(RuleType.BUG)
+      .setDescription("A *Xoo* rule")
+      .setDescriptionFormat(RuleDto.Format.MARKDOWN))
+    ;
     dbSession.commit();
     ruleIndexer.index();
 
@@ -151,6 +160,21 @@ public class SearchActionMediumTest {
     WsTester.Result result = request.execute();
 
     result.assertJson(getClass(), "search_2_rules_fields.json");
+  }
+
+  @Test
+  public void return_mandatory_fields_even_when_setting_f_param() throws Exception {
+    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+      .setName("Rule x1")
+      .setType(RuleType.CODE_SMELL))
+    ;
+    dbSession.commit();
+    ruleIndexer.index();
+
+    WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD).setParam(WebService.Param.FIELDS, "name");
+    WsTester.Result result = request.execute();
+
+    result.assertJson(getClass(), "return_mandatory_fields_even_when_setting_f_param.json");
   }
 
   @Test

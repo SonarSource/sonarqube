@@ -78,7 +78,12 @@ public class RuleMapper {
   public Rules.Rule toWsRule(RuleDto ruleDto, SearchResult result, Set<String> fieldsToReturn) {
     Rules.Rule.Builder ruleResponse = Rules.Rule.newBuilder();
 
+    // Mandatory fields
     ruleResponse.setKey(ruleDto.getKey().toString());
+    Common.RuleType type = Common.RuleType.valueOf(ruleDto.getType());
+    ruleResponse.setType(type);
+
+    // Optional fields
     setRepository(ruleResponse, ruleDto, fieldsToReturn);
     setName(ruleResponse, ruleDto, fieldsToReturn);
     setStatus(ruleResponse, ruleDto, fieldsToReturn);

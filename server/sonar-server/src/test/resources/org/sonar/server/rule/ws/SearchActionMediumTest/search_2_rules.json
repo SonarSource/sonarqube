@@ -22,8 +22,8 @@
       ],
       "debtRemFnType": "LINEAR",
       "debtRemFnCoeff": "1h",
-      "debtRemFnOffset": "5min",
       "lang": "xoo",
+      "type": "VULNERABILITY",
       "params": []
     },
     {
@@ -45,8 +45,8 @@
       ],
       "debtRemFnType": "LINEAR",
       "debtRemFnCoeff": "1h",
-      "debtRemFnOffset": "5min",
       "lang": "xoo",
+      "type": "BUG",
       "params": []
     }
   ]

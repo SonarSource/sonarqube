@@ -54,18 +54,6 @@ message Operation {
   repeated ActionPlan actionPlans = 5;
 }
 
-enum IssueType {
-  // Zero is required in order to not get MAINTAINABILITY as default value
-  // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
-  UNKNOWN = 0;
-
-  // same name as in Java enum IssueType,
-  // same index values as in database (see column ISSUES.ISSUE_TYPE)
-  CODE_SMELL = 1;
-  BUG = 2;
-  VULNERABILITY = 3;
-}
-
 message Issue {
   optional string key = 1;
   optional string rule = 2;
@@ -102,7 +90,7 @@ message Issue {
   optional string fUpdateAge = 25;
   optional string closeDate = 26;
 
-  optional IssueType type = 27;
+  optional sonarqube.ws.commons.RuleType type = 27;
 }
 
 message Transitions {

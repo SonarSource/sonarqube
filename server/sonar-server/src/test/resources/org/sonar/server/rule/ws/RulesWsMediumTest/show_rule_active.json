@@ -8,11 +8,16 @@
     "status": "READY",
     "internalKey": "InternalKeyx1",
     "isTemplate": false,
-    "tags": ["tag1", "tag2"],
-    "sysTags": ["systag1", "systag2"],
+    "tags": [
+      "tag1",
+      "tag2"
+    ],
+    "sysTags": [
+      "systag1",
+      "systag2"
+    ],
     "debtRemFnType": "LINEAR",
     "debtRemFnCoeff": "1h",
-    "debtRemFnOffset": "5min",
     "lang": "xoo",
     "params": []
   },
@@ -23,4 +28,5 @@
       "severity": "BLOCKER",
       "params": []
     }
-  ]}
+  ]
+}

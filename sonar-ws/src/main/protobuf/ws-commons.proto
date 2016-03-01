@@ -112,3 +112,15 @@ message Metric {
   optional string bestValue = 11;
   optional string worstValue = 12;
 }
+
+enum RuleType {
+  // Zero is required in order to not get MAINTAINABILITY as default value
+  // See http://androiddevblog.com/protocol-buffers-pitfall-adding-enum-values/
+  UNKNOWN = 0;
+
+  // same name as in Java enum IssueType,
+  // same index values as in database (see column ISSUES.ISSUE_TYPE)
+  CODE_SMELL = 1;
+  BUG = 2;
+  VULNERABILITY = 3;
+}

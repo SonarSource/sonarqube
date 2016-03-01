@@ -102,6 +102,7 @@ message Rule {
   optional string debtRemFnType = 34;
   optional string debtRemFnCoeff = 35;
   optional string debtRemFnOffset = 36;
+  optional sonarqube.ws.commons.RuleType type = 37;
 
   message Params {
     repeated Param params = 1;

@@ -35,6 +35,7 @@ public class RulesWsParameters {
   public static final String PARAM_DEBT_CHARACTERISTICS = "debt_characteristics";
   public static final String PARAM_HAS_DEBT_CHARACTERISTIC = "has_debt_characteristic";
   public static final String PARAM_TAGS = "tags";
+  public static final String PARAM_TYPES = "types";
   public static final String PARAM_INHERITANCE = "inheritance";
   public static final String PARAM_ACTIVE_SEVERITIES = "active_severities";
   public static final String PARAM_IS_TEMPLATE = "is_template";
