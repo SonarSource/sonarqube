@@ -28,7 +28,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.RuleDto;
 
 import static com.google.common.collect.Sets.union;
@@ -42,7 +42,7 @@ public class RuleImpl implements Rule {
   private final RuleStatus status;
   private final Set<String> tags;
   private final DebtRemediationFunction remediationFunction;
-  private final IssueType type;
+  private final RuleType type;
 
   public RuleImpl(RuleDto dto) {
     this.id = dto.getId();
@@ -52,7 +52,7 @@ public class RuleImpl implements Rule {
     this.tags = union(dto.getSystemTags(), dto.getTags());
     this.remediationFunction = effectiveRemediationFunction(dto);
     // TODO get rule type
-    this.type = IssueType.CODE_SMELL;
+    this.type = RuleType.CODE_SMELL;
   }
 
   @Override
@@ -86,7 +86,7 @@ public class RuleImpl implements Rule {
   }
 
   @Override
-  public IssueType getType() {
+  public RuleType getType() {
     return type;
   }
 

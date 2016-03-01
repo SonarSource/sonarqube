@@ -21,7 +21,7 @@ package org.sonar.server.computation.issue;
 
 import org.junit.Test;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.server.computation.component.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,20 +40,20 @@ public class RuleTypeCopierTest {
 
   @Test
   public void copy_rule_type_if_missing() {
-    rule.setType(IssueType.BUG);
+    rule.setType(RuleType.BUG);
 
     underTest.onIssue(mock(Component.class), issue);
 
-    assertThat(issue.type()).isEqualTo(IssueType.BUG);
+    assertThat(issue.type()).isEqualTo(RuleType.BUG);
   }
 
   @Test
   public void do_not_copy_type_if_present() {
-    rule.setType(IssueType.BUG);
-    issue.setType(IssueType.VULNERABILITY);
+    rule.setType(RuleType.BUG);
+    issue.setType(RuleType.VULNERABILITY);
 
     underTest.onIssue(mock(Component.class), issue);
 
-    assertThat(issue.type()).isEqualTo(IssueType.VULNERABILITY);
+    assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
   }
 }

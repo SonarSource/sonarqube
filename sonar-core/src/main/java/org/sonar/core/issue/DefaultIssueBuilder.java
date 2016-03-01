@@ -29,6 +29,7 @@ import org.sonar.api.issue.Issuable;
 import org.sonar.api.issue.Issuable.IssueBuilder;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.Uuids;
 
 public class DefaultIssueBuilder implements Issuable.IssueBuilder {
@@ -42,7 +43,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private Double effortToFix;
   private String reporter;
   private String assignee;
-  private IssueType type;
+  private RuleType type;
   private Map<String, String> attributes;
 
   public DefaultIssueBuilder() {
@@ -124,7 +125,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     return this;
   }
 
-  public DefaultIssueBuilder type(@Nullable IssueType type) {
+  public DefaultIssueBuilder type(@Nullable RuleType type) {
     this.type = type;
     return this;
   }
@@ -147,7 +148,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     DefaultIssue issue = new DefaultIssue();
     String key = Uuids.create();
     issue.setKey(key);
-    issue.setType(Objects.firstNonNull(type, IssueType.CODE_SMELL));
+    issue.setType(Objects.firstNonNull(type, RuleType.CODE_SMELL));
     issue.setComponentKey(componentKey);
     issue.setProjectKey(projectKey);
     issue.setRuleKey(ruleKey);

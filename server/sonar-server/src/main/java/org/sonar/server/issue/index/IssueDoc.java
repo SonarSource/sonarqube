@@ -34,7 +34,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.server.search.BaseDoc;
 
 public class IssueDoc extends BaseDoc implements Issue {
@@ -197,10 +197,10 @@ public class IssueDoc extends BaseDoc implements Issue {
   }
 
   @CheckForNull
-  public IssueType type() {
+  public RuleType type() {
     String type = getNullableField(IssueIndexDefinition.FIELD_ISSUE_TYPE);
     if (type != null) {
-      return IssueType.valueOf(type);
+      return RuleType.valueOf(type);
     }
     return null;
   }
@@ -383,7 +383,7 @@ public class IssueDoc extends BaseDoc implements Issue {
     return this;
   }
 
-  public IssueDoc setType(IssueType type) {
+  public IssueDoc setType(RuleType type) {
     setField(IssueIndexDefinition.FIELD_ISSUE_TYPE, type.toString());
     return this;
   }

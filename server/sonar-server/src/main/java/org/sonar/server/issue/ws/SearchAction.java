@@ -36,7 +36,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.Paging;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
@@ -165,8 +165,8 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(IssueFilterParameters.TYPES)
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
-      .setPossibleValues(IssueType.values())
-      .setExampleValue(format("%s,%s", IssueType.CODE_SMELL, IssueType.BUG));
+      .setPossibleValues(RuleType.values())
+      .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
     action.createParam(ACTION_PLANS)
       .setDescription("Comma-separated list of action plan keys (not names)")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
@@ -346,7 +346,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, IssueFilterParameters.RULES, request.getRules());
     addMandatoryValuesToFacet(facets, IssueFilterParameters.LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, IssueFilterParameters.TAGS, request.getTags());
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.TYPES, IssueType.ALL_NAMES);
+    addMandatoryValuesToFacet(facets, IssueFilterParameters.TYPES, RuleType.ALL_NAMES);
     List<String> actionPlans = Lists.newArrayList("");
     List<String> actionPlansFromRequest = request.getActionPlans();
     if (actionPlansFromRequest != null) {

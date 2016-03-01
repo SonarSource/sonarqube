@@ -19,12 +19,13 @@
  */
 package org.sonar.db.version.v55;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import java.sql.SQLException;
 import java.util.List;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.Database;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
@@ -43,47 +44,56 @@ import static org.apache.commons.lang.StringUtils.defaultString;
  */
 public class FeedIssueTypes extends BaseDataChange {
 
-  private final long now;
+  private static final Splitter TAG_SPLITTER = Splitter.on(',');
+  private static final Joiner TAG_JOINER = Joiner.on(',').skipNulls();
+
+  private final System2 system;
 
   public FeedIssueTypes(Database db, System2 system) {
     super(db);
-    this.now = system.now();
+    this.system = system;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    final Splitter tagSplitter = Splitter.on(',');
-    final Joiner tagJoiner = Joiner.on(',').skipNulls();
-
     MassUpdate update = context.prepareMassUpdate().rowPluralName("issues");
     update.select("SELECT id, tags FROM issues WHERE issue_type IS NULL OR issue_type=0");
     update.update("UPDATE issues SET issue_type=?, tags=?, updated_at=? WHERE id=?");
-    update.execute(new Handler() {
-      @Override
-      public boolean handle(Row row, SqlStatement update) throws SQLException {
-        long id = row.getLong(1);
-
-        // See algorithm to deduce type from tags in RuleTagsToTypeConverter
-        List<String> tags = newArrayList(tagSplitter.split(defaultString(row.getNullableString(2))));
-        IssueType type = tagsToType(tags);
-        tags.remove("bug");
-        tags.remove("security");
-
-        update.setInt(1, type.getDbConstant());
-        update.setString(2, tagJoiner.join(tags));
-        update.setLong(3, now);
-        update.setLong(4, id);
-        return true;
-      }
-    });
+    update.execute(new MigrationHandler(system.now()));
   }
 
-  static IssueType tagsToType(List<String> tags) {
-    IssueType type = IssueType.CODE_SMELL;
+  private static final class MigrationHandler implements Handler {
+    private final long now;
+
+    public MigrationHandler(long now) {
+      this.now = now;
+    }
+
+    @Override
+    public boolean handle(Row row, SqlStatement update) throws SQLException {
+      long id = row.getLong(1);
+
+      // See algorithm to deduce type from tags in RuleTagsToTypeConverter
+      List<String> tags = newArrayList(TAG_SPLITTER.split(defaultString(row.getNullableString(2))));
+      RuleType type = tagsToType(tags);
+      tags.remove("bug");
+      tags.remove("security");
+
+      update.setInt(1, type.getDbConstant());
+      update.setString(2, TAG_JOINER.join(tags));
+      update.setLong(3, now);
+      update.setLong(4, id);
+      return true;
+    }
+  }
+
+  @VisibleForTesting
+  static RuleType tagsToType(List<String> tags) {
+    RuleType type = RuleType.CODE_SMELL;
     if (tags.contains("bug")) {
-      type = IssueType.BUG;
+      type = RuleType.BUG;
     } else if (tags.contains("security")) {
-      type = IssueType.VULNERABILITY;
+      type = RuleType.VULNERABILITY;
     }
     return type;
   }

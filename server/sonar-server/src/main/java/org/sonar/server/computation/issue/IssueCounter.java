@@ -29,7 +29,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
@@ -94,15 +94,15 @@ public class IssueCounter extends IssueVisitor {
     INFO, NEW_INFO_VIOLATIONS_KEY
     );
 
-  private static final Map<IssueType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<IssueType, String>builder()
-    .put(IssueType.CODE_SMELL, CoreMetrics.CODE_SMELLS_KEY)
-    .put(IssueType.BUG, CoreMetrics.BUGS_KEY)
-    .put(IssueType.VULNERABILITY, CoreMetrics.VULNERABILITIES_KEY)
+  private static final Map<RuleType, String> TYPE_TO_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
+    .put(RuleType.CODE_SMELL, CoreMetrics.CODE_SMELLS_KEY)
+    .put(RuleType.BUG, CoreMetrics.BUGS_KEY)
+    .put(RuleType.VULNERABILITY, CoreMetrics.VULNERABILITIES_KEY)
     .build();
-  private static final Map<IssueType, String> TYPE_TO_NEW_METRIC_KEY = ImmutableMap.<IssueType, String>builder()
-    .put(IssueType.CODE_SMELL, CoreMetrics.NEW_CODE_SMELLS_KEY)
-    .put(IssueType.BUG, CoreMetrics.NEW_BUGS_KEY)
-    .put(IssueType.VULNERABILITY, CoreMetrics.NEW_VULNERABILITIES_KEY)
+  private static final Map<RuleType, String> TYPE_TO_NEW_METRIC_KEY = ImmutableMap.<RuleType, String>builder()
+    .put(RuleType.CODE_SMELL, CoreMetrics.NEW_CODE_SMELLS_KEY)
+    .put(RuleType.BUG, CoreMetrics.NEW_BUGS_KEY)
+    .put(RuleType.VULNERABILITY, CoreMetrics.NEW_VULNERABILITIES_KEY)
     .build();
 
   private final PeriodsHolder periodsHolder;
@@ -170,7 +170,7 @@ public class IssueCounter extends IssueVisitor {
   }
 
   private void addMeasuresByType(Component component) {
-    for (Map.Entry<IssueType, String> entry : TYPE_TO_METRIC_KEY.entrySet()) {
+    for (Map.Entry<RuleType, String> entry : TYPE_TO_METRIC_KEY.entrySet()) {
       addMeasure(component, entry.getValue(), currentCounters.counter().typeBag.count(entry.getKey()));
     }
   }
@@ -206,12 +206,12 @@ public class IssueCounter extends IssueVisitor {
 
       // waiting for Java 8 lambda in order to factor this loop with the previous one
       // (see call currentCounters.counterForPeriod(period.getIndex()).xxx with xxx as severityBag or typeBag)
-      for (Map.Entry<IssueType, String> entry : TYPE_TO_NEW_METRIC_KEY.entrySet()) {
-        IssueType type = entry.getKey();
+      for (Map.Entry<RuleType, String> entry : TYPE_TO_NEW_METRIC_KEY.entrySet()) {
+        RuleType type = entry.getKey();
         String metricKey = entry.getValue();
         Double[] variations = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
         for (Period period : periodsHolder.getPeriods()) {
-          Multiset<IssueType> bag = currentCounters.counterForPeriod(period.getIndex()).typeBag;
+          Multiset<RuleType> bag = currentCounters.counterForPeriod(period.getIndex()).typeBag;
           variations[period.getIndex() - 1] = (double) bag.count(type);
         }
         Metric metric = metricRepository.getByKey(metricKey);
@@ -232,7 +232,7 @@ public class IssueCounter extends IssueVisitor {
     private int confirmed = 0;
     private int falsePositives = 0;
     private final Multiset<String> severityBag = HashMultiset.create();
-    private final EnumMultiset<IssueType> typeBag = EnumMultiset.create(IssueType.class);
+    private final EnumMultiset<RuleType> typeBag = EnumMultiset.create(RuleType.class);
 
     void add(Counter counter) {
       unresolved += counter.unresolved;

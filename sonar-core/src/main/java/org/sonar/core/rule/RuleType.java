@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.issue;
+package org.sonar.core.rule;
 
 import com.google.common.base.Enums;
 import com.google.common.collect.Lists;
@@ -25,12 +25,12 @@ import java.util.List;
 
 import static java.lang.String.format;
 
-public enum IssueType {
+public enum RuleType {
   CODE_SMELL(1), BUG(2), VULNERABILITY(3);
 
   private final int dbConstant;
 
-  IssueType(int dbConstant) {
+  RuleType(int dbConstant) {
     this.dbConstant = dbConstant;
   }
 
@@ -41,15 +41,15 @@ public enum IssueType {
   /**
    * Returns the enum constant of the specified DB column value.
    */
-  public static IssueType valueOf(int dbConstant) {
+  public static RuleType valueOf(int dbConstant) {
     // iterating the array is fast-enough as size is small. No need for a map.
-    for (IssueType type : values()) {
+    for (RuleType type : values()) {
       if (type.getDbConstant() == dbConstant) {
         return type;
       }
     }
-    throw new IllegalArgumentException(format("Unsupported value for db column ISSUES.ISSUE_TYPE: %d", dbConstant));
+    throw new IllegalArgumentException(format("Unsupported type value : %d", dbConstant));
   }
 
-  public static final List<String> ALL_NAMES = Lists.transform(Lists.newArrayList(values()), Enums.stringConverter(IssueType.class).reverse());
+  public static final List<String> ALL_NAMES = Lists.transform(Lists.newArrayList(values()), Enums.stringConverter(RuleType.class).reverse());
 }

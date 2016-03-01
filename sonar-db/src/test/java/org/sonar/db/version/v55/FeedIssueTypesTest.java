@@ -24,7 +24,7 @@ import java.util.Collections;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.issue.IssueDto;
@@ -42,15 +42,15 @@ public class FeedIssueTypesTest {
 
   @Test
   public void test_tagsToType() {
-    assertThat(tagsToType(asList("misra", "bug"))).isEqualTo(IssueType.BUG);
-    assertThat(tagsToType(asList("misra", "security"))).isEqualTo(IssueType.VULNERABILITY);
+    assertThat(tagsToType(asList("misra", "bug"))).isEqualTo(RuleType.BUG);
+    assertThat(tagsToType(asList("misra", "security"))).isEqualTo(RuleType.VULNERABILITY);
 
     // "bug" has priority on "security"
-    assertThat(tagsToType(asList("security", "bug"))).isEqualTo(IssueType.BUG);
+    assertThat(tagsToType(asList("security", "bug"))).isEqualTo(RuleType.BUG);
 
     // default is "code smell"
-    assertThat(tagsToType(asList("clumsy", "spring"))).isEqualTo(IssueType.CODE_SMELL);
-    assertThat(tagsToType(Collections.<String>emptyList())).isEqualTo(IssueType.CODE_SMELL);
+    assertThat(tagsToType(asList("clumsy", "spring"))).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(tagsToType(Collections.<String>emptyList())).isEqualTo(RuleType.CODE_SMELL);
   }
 
   @Test
@@ -65,13 +65,13 @@ public class FeedIssueTypesTest {
       MigrationStep underTest = new FeedIssueTypes(db.database(), mock(System2.class));
       underTest.execute();
 
-      assertType("code_smell", IssueType.CODE_SMELL);
-      assertType("without_tags", IssueType.CODE_SMELL);
-      assertType("bug", IssueType.BUG);
+      assertType("code_smell", RuleType.CODE_SMELL);
+      assertType("without_tags", RuleType.CODE_SMELL);
+      assertType("bug", RuleType.BUG);
     }
   }
 
-  private void assertType(String issueKey, IssueType expectedType) {
+  private void assertType(String issueKey, RuleType expectedType) {
     Number type = (Number)db.selectFirst("select * from issues where kee='" + issueKey + "'").get("ISSUE_TYPE");
     assertThat(type.intValue()).isEqualTo(expectedType.getDbConstant());
   }

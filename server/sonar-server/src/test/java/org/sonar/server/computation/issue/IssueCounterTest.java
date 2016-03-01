@@ -27,7 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -223,13 +223,13 @@ public class IssueCounterTest {
     // bottom-up traversal -> from files to project
     // file1 : one open code smell, one closed code smell (which will be excluded from metric)
     underTest.beforeComponent(FILE1);
-    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(IssueType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(IssueType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(null, STATUS_OPEN, BLOCKER).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssue(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR).setType(RuleType.CODE_SMELL));
     underTest.afterComponent(FILE1);
 
     // file2 : one bug
     underTest.beforeComponent(FILE2);
-    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER).setType(IssueType.BUG));
+    underTest.onIssue(FILE2, createIssue(null, STATUS_CONFIRMED, BLOCKER).setType(RuleType.BUG));
     underTest.afterComponent(FILE2);
 
     underTest.beforeComponent(PROJECT);
@@ -255,13 +255,13 @@ public class IssueCounterTest {
 
     underTest.beforeComponent(FILE1);
     // created before -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L).setType(IssueType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate() - 1000000L).setType(RuleType.CODE_SMELL));
     // created during the first analysis starting the period -> existing issues (so ignored)
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()).setType(IssueType.BUG));
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, BLOCKER, period.getSnapshotDate()).setType(RuleType.BUG));
     // created after -> 3 new issues but 1 is closed
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(IssueType.CODE_SMELL));
-    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(IssueType.BUG));
-    underTest.onIssue(FILE1, createIssueAt(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L).setType(IssueType.BUG));
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.CODE_SMELL));
+    underTest.onIssue(FILE1, createIssueAt(null, STATUS_OPEN, CRITICAL, period.getSnapshotDate() + 100000L).setType(RuleType.BUG));
+    underTest.onIssue(FILE1, createIssueAt(RESOLUTION_FIXED, STATUS_CLOSED, MAJOR, period.getSnapshotDate() + 200000L).setType(RuleType.BUG));
     underTest.afterComponent(FILE1);
 
     underTest.beforeComponent(FILE2);
@@ -296,7 +296,7 @@ public class IssueCounterTest {
     return new DefaultIssue()
       .setResolution(resolution).setStatus(status)
       .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
-      .setType(IssueType.CODE_SMELL)
+      .setType(RuleType.CODE_SMELL)
       .setCreationDate(new Date());
   }
 
@@ -304,7 +304,7 @@ public class IssueCounterTest {
     return new DefaultIssue()
       .setResolution(resolution).setStatus(status)
       .setSeverity(severity).setRuleKey(RuleTesting.XOO_X1)
-      .setType(IssueType.CODE_SMELL)
+      .setType(RuleType.CODE_SMELL)
       .setCreationDate(new Date(creationDate));
   }
 

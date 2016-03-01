@@ -26,20 +26,6 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.Duration;
-import org.sonar.core.issue.tracking.Trackable;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -50,13 +36,26 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
+import org.apache.commons.lang.time.DateUtils;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.tracking.Trackable;
+import org.sonar.core.rule.RuleType;
 
 import static java.lang.String.format;
 
 public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.Issue {
 
   private String key;
-  private IssueType type;
+  private RuleType type;
   private String componentUuid;
   private String componentKey;
 
@@ -127,11 +126,11 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
-  public IssueType type() {
+  public RuleType type() {
     return type;
   }
 
-  public DefaultIssue setType(IssueType type) {
+  public DefaultIssue setType(RuleType type) {
     this.type = type;
     return this;
   }

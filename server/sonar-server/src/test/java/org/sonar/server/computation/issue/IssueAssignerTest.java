@@ -23,12 +23,12 @@ import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueType;
-import org.sonar.server.issue.IssueUpdater;
+import org.sonar.core.rule.RuleType;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.scm.Changeset;
 import org.sonar.server.computation.scm.ScmInfoRepositoryRule;
+import org.sonar.server.issue.IssueUpdater;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -176,7 +176,7 @@ public class IssueAssignerTest {
   @Test
   public void display_warning_when_line_is_above_max_size() throws Exception {
     setSingleChangeset("john", 123456789L, "rev-1");
-    DefaultIssue issue = new DefaultIssue().setLine(2).setType(IssueType.VULNERABILITY);
+    DefaultIssue issue = new DefaultIssue().setLine(2).setType(RuleType.VULNERABILITY);
 
     underTest.onIssue(FILE, issue);
 

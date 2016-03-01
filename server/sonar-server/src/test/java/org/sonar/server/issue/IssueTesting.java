@@ -24,13 +24,13 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.issue.index.IssueDoc;
 
 public class IssueTesting {
 
@@ -46,7 +46,7 @@ public class IssueTesting {
     return new IssueDto()
       .setKee(Uuids.create())
       .setRule(rule)
-      .setType(IssueType.CODE_SMELL)
+      .setType(RuleType.CODE_SMELL)
       .setComponent(file)
       .setProject(project)
       .setStatus(Issue.STATUS_OPEN)
@@ -63,7 +63,7 @@ public class IssueTesting {
     IssueDoc doc = new IssueDoc(Maps.<String, Object>newHashMap());
     doc.setKey("ABC");
     doc.setRuleKey(RuleTesting.XOO_X1.toString());
-    doc.setType(IssueType.CODE_SMELL);
+    doc.setType(RuleType.CODE_SMELL);
     doc.setActionPlanKey(null);
     doc.setReporter(null);
     doc.setAssignee("steve");

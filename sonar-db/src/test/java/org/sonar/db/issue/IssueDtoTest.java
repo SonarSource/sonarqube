@@ -29,7 +29,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.rule.RuleDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -59,7 +59,7 @@ public class IssueDtoTest {
 
     IssueDto dto = new IssueDto()
       .setKee("100")
-      .setType(IssueType.VULNERABILITY)
+      .setType(RuleType.VULNERABILITY)
       .setRuleId(1)
       .setRuleKey("squid", "AvoidCycle")
       .setLanguage("xoo")
@@ -87,7 +87,7 @@ public class IssueDtoTest {
 
     DefaultIssue issue = dto.toDefaultIssue();
     assertThat(issue.key()).isEqualTo("100");
-    assertThat(issue.type()).isEqualTo(IssueType.VULNERABILITY);
+    assertThat(issue.type()).isEqualTo(RuleType.VULNERABILITY);
     assertThat(issue.ruleKey().toString()).isEqualTo("squid:AvoidCycle");
     assertThat(issue.language()).isEqualTo("xoo");
     assertThat(issue.componentUuid()).isEqualTo("CDEF");

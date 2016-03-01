@@ -38,7 +38,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.protobuf.DbIssues;
@@ -709,7 +709,7 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public IssueDto setType(IssueType type) {
+  public IssueDto setType(RuleType type) {
     this.type = type.getDbConstant();
     return this;
   }
@@ -722,7 +722,7 @@ public final class IssueDto implements Serializable {
   public DefaultIssue toDefaultIssue() {
     DefaultIssue issue = new DefaultIssue();
     issue.setKey(kee);
-    issue.setType(IssueType.valueOf(type));
+    issue.setType(RuleType.valueOf(type));
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setMessage(message);

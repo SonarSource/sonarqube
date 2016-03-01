@@ -32,7 +32,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueType;
+import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -61,7 +61,7 @@ public class IssueStorageTest {
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setType(IssueType.BUG)
+      .setType(RuleType.BUG)
       .setNew(true)
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
@@ -98,7 +98,7 @@ public class IssueStorageTest {
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setType(IssueType.BUG)
+      .setType(RuleType.BUG)
       .setNew(true)
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
@@ -138,7 +138,7 @@ public class IssueStorageTest {
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setType(IssueType.BUG)
+      .setType(RuleType.BUG)
       .setNew(true)
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
@@ -178,7 +178,7 @@ public class IssueStorageTest {
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setType(IssueType.BUG)
+      .setType(RuleType.BUG)
       .setNew(false)
       .setChanged(true)
 
@@ -225,7 +225,7 @@ public class IssueStorageTest {
     Date date = DateUtils.parseDateTime("2013-05-18T12:00:00+0000");
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
-      .setType(IssueType.BUG)
+      .setType(RuleType.BUG)
       .setNew(false)
       .setChanged(true)
 
