@@ -19,9 +19,7 @@
  */
 package org.sonar.db.rule;
 
-import java.sql.Timestamp;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
@@ -53,11 +51,7 @@ public interface RuleMapper {
 
   void update(RuleDto rule);
 
-  void batchInsert(RuleDto rule);
-
   void insert(RuleDto rule);
-
-  List<RuleParamDto> selectAllParams();
 
   List<RuleParamDto> selectParamsByRuleIds(@Param("ruleIds") List<Integer> ruleIds);
 
@@ -65,13 +59,9 @@ public interface RuleMapper {
 
   List<RuleParamDto> selectParamsByRuleKeys(@Param("ruleKeys") List<RuleKey> ruleKeys);
 
-  RuleParamDto selectParamByRuleAndKey(@Param("ruleId") Integer ruleId, @Param("key") String key);
-
   void insertParameter(RuleParamDto param);
 
   void updateParameter(RuleParamDto param);
 
   void deleteParameter(Integer paramId);
-
-  List<RuleDto> selectAfterDate(@Nullable @Param("date") Timestamp timestamp);
 }
