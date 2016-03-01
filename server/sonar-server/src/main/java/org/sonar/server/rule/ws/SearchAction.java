@@ -130,7 +130,7 @@ public class SearchAction implements RulesWsAction {
 
     Collection<String> possibleFields = possibleFields();
     WebService.NewParam paramFields = action.createParam(Param.FIELDS)
-      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default.")
+      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default, except actives.")
       .setPossibleValues(possibleFields);
     if (possibleFields != null && possibleFields.size() > 1) {
       Iterator<String> it = possibleFields.iterator();
