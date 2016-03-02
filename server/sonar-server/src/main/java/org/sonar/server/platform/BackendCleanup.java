@@ -33,7 +33,6 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 @ServerSide
@@ -175,13 +174,4 @@ public class BackendCleanup {
       .get();
   }
 
-  /**
-   * Remove only the type of an index
-   */
-  public void clearIndexType(IndexDefinition indexDefinition) {
-    esClient.prepareDeleteByQuery(esClient.prepareState().get()
-      .getState().getMetaData().concreteIndices(IndicesOptions.strictExpand(), indexDefinition.getIndexName())).setTypes(indexDefinition.getIndexType())
-      .setQuery(QueryBuilders.matchAllQuery())
-      .get();
-  }
 }

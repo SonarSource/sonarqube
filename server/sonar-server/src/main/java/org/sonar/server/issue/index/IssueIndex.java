@@ -77,7 +77,6 @@ import org.sonar.server.es.Sorting;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
@@ -633,8 +632,8 @@ public class IssueIndex extends BaseIndex {
 
   public List<String> listTags(IssueQuery query, @Nullable String textQuery, int maxNumberOfTags) {
     SearchRequestBuilder requestBuilder = getClient()
-      .prepareSearch(IssueIndexDefinition.INDEX, IndexDefinition.RULE.getIndexName())
-      .setTypes(IssueIndexDefinition.TYPE_ISSUE, IndexDefinition.RULE.getIndexType());
+      .prepareSearch(IssueIndexDefinition.INDEX, RuleIndexDefinition.INDEX)
+      .setTypes(IssueIndexDefinition.TYPE_ISSUE, RuleIndexDefinition.TYPE_RULE);
 
     requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
       createBoolFilter(query)));

@@ -33,13 +33,11 @@ import org.sonar.server.issue.IssueTesting;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.search.IndexDefinition;
 import org.sonar.server.view.index.ViewDoc;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class BackendCleanupMediumTest {
 
@@ -91,7 +89,7 @@ public class BackendCleanupMediumTest {
     backendCleanup.clearAll();
 
     assertThat(esTester.countDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE)).isEqualTo(0);
-    assertThat(esTester.countDocuments(IndexDefinition.RULE.getIndexName(), IndexDefinition.RULE.getIndexType())).isEqualTo(0);
+    assertThat(esTester.countDocuments(RuleIndexDefinition.INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(0);
 
     assertThat(dbTester.countRowsOfTable("projects")).isEqualTo(0);
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(0);
@@ -123,6 +121,6 @@ public class BackendCleanupMediumTest {
     return new RuleDoc(ImmutableMap.<String, Object>of(
       RuleIndexDefinition.FIELD_RULE_KEY, RuleTesting.XOO_X1,
       RuleIndexDefinition.FIELD_RULE_REPOSITORY, RuleTesting.XOO_X1.repository()
-    ));
+      ));
   }
 }

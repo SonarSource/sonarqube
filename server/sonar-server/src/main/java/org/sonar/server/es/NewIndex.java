@@ -32,9 +32,11 @@ import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.settings.ImmutableSettings;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessProperties;
-import org.sonar.server.search.IndexField;
 
 import static java.lang.String.format;
+import static org.sonar.server.es.BaseIndex.SEARCH_PARTIAL_SUFFIX;
+import static org.sonar.server.es.BaseIndex.SEARCH_WORDS_SUFFIX;
+import static org.sonar.server.es.BaseIndex.SORT_SUFFIX;
 
 public class NewIndex {
 
@@ -211,7 +213,7 @@ public class NewIndex {
      * Create an inner-field named "sort" with analyzer "sortable"
      */
     public StringFieldBuilder enableSorting() {
-      addSubField(IndexField.SORT_SUFFIX, ImmutableSortedMap.of(
+      addSubField(SORT_SUFFIX, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
         "analyzer", "sortable"));
@@ -222,7 +224,7 @@ public class NewIndex {
      * Create an inner-field named "words" with analyzer "words"
      */
     public StringFieldBuilder enableWordSearch() {
-      addSubField(IndexField.SEARCH_WORDS_SUFFIX, ImmutableSortedMap.of(
+      addSubField(SEARCH_WORDS_SUFFIX, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
         "index_analyzer", "index_words",
@@ -234,7 +236,7 @@ public class NewIndex {
      * Create a inner-field named "grams" with analyzer "grams"
      */
     public StringFieldBuilder enableGramSearch() {
-      addSubField(IndexField.SEARCH_PARTIAL_SUFFIX, ImmutableSortedMap.of(
+      addSubField(SEARCH_PARTIAL_SUFFIX, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
         "index_analyzer", "index_grams",

@@ -65,7 +65,6 @@ import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.search.IndexField;
 import org.sonar.server.search.StickyFacetBuilder;
 
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
@@ -180,8 +179,8 @@ public class RuleIndex extends BaseIndex {
 
     // Human readable type of querying
     qb.should(QueryBuilders.simpleQueryStringQuery(query.getQueryText())
-      .field(FIELD_RULE_NAME + "." + BaseIndex.SEARCH_WORDS_SUFFIX, 20f)
-      .field(FIELD_RULE_HTML_DESCRIPTION + "." + BaseIndex.SEARCH_WORDS_SUFFIX, 3f)
+      .field(FIELD_RULE_NAME + "." + SEARCH_WORDS_SUFFIX, 20f)
+      .field(FIELD_RULE_HTML_DESCRIPTION + "." + SEARCH_WORDS_SUFFIX, 3f)
       .defaultOperator(SimpleQueryStringBuilder.Operator.AND)
       ).boost(20f);
 
@@ -197,14 +196,14 @@ public class RuleIndex extends BaseIndex {
 
   private static QueryBuilder termQuery(String field, String query, float boost) {
     return QueryBuilders.multiMatchQuery(query,
-      field, field + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
+      field, field + "." + SEARCH_PARTIAL_SUFFIX)
       .operator(MatchQueryBuilder.Operator.AND)
       .boost(boost);
   }
 
   private static QueryBuilder termAnyQuery(String field, String query, float boost) {
     return QueryBuilders.multiMatchQuery(query,
-      field, field + "." + IndexField.SEARCH_PARTIAL_SUFFIX)
+      field, field + "." + SEARCH_PARTIAL_SUFFIX)
       .operator(MatchQueryBuilder.Operator.OR)
       .boost(boost);
   }
@@ -458,7 +457,7 @@ public class RuleIndex extends BaseIndex {
   private static String appendSortSuffixIfNeeded(String field) {
     return field +
       ((field.equals(FIELD_RULE_NAME) || field.equals(FIELD_RULE_KEY))
-        ? ("." + BaseIndex.SORT_SUFFIX)
+        ? ("." + SORT_SUFFIX)
         : "");
   }
 
