@@ -32,10 +32,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.measures.CoreMetrics.NEW_BLOCKER_VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_BUGS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_COVERAGE_KEY;
-import static org.sonar.api.measures.CoreMetrics.NEW_CRITICAL_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.NEW_SQALE_DEBT_RATIO_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_VULNERABILITIES_KEY;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_GREATER_THAN;
 import static org.sonar.db.qualitygate.QualityGateConditionDto.OPERATOR_LESS_THAN;
 
@@ -58,8 +58,8 @@ public class RegisterQualityGatesTest {
 
     verify(templateDao).countByTypeAndKey(templateType, templateName);
     verify(qualityGates).create(templateName);
-    verify(qualityGates).createCondition(eq(QGATE_ID), eq(NEW_BLOCKER_VIOLATIONS_KEY), eq(OPERATOR_GREATER_THAN), eq((String) null), eq("0"), eq(1));
-    verify(qualityGates).createCondition(eq(QGATE_ID), eq(NEW_CRITICAL_VIOLATIONS_KEY), eq(OPERATOR_GREATER_THAN), eq((String) null), eq("0"), eq(1));
+    verify(qualityGates).createCondition(eq(QGATE_ID), eq(NEW_BUGS_KEY), eq(OPERATOR_GREATER_THAN), eq((String) null), eq("0"), eq(1));
+    verify(qualityGates).createCondition(eq(QGATE_ID), eq(NEW_VULNERABILITIES_KEY), eq(OPERATOR_GREATER_THAN), eq((String) null), eq("0"), eq(1));
     verify(qualityGates).createCondition(eq(QGATE_ID), eq(NEW_SQALE_DEBT_RATIO_KEY), eq(OPERATOR_GREATER_THAN), eq((String) null), eq("5"), eq(1));
     verify(qualityGates).createCondition(eq(QGATE_ID), eq(NEW_COVERAGE_KEY), eq(OPERATOR_LESS_THAN), eq((String) null), eq("80"), eq(1));
     verify(qualityGates).setDefault(eq(QGATE_ID));
