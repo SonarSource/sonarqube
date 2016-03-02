@@ -20,9 +20,8 @@
 import _ from 'underscore';
 import React from 'react';
 
-import DeprecatedBadge from './DeprecatedBadge';
-import InternalBadge from './InternalBadge';
 import Checkbox from '../../../components/shared/checkbox';
+import { translate } from '../../../helpers/l10n';
 
 export default class Search extends React.Component {
   constructor (props) {
@@ -64,8 +63,9 @@ export default class Search extends React.Component {
             {' '}
             <span
                 style={{ cursor: 'pointer' }}
+                title={translate('api_documentation.internal_tooltip')}
                 onClick={onToggleInternal}>
-              <InternalBadge/>
+              Show Internal API
             </span>
           </div>
 
@@ -76,8 +76,9 @@ export default class Search extends React.Component {
             {' '}
             <span
                 style={{ cursor: 'pointer' }}
+                title={translate('api_documentation.deprecation_tooltip')}
                 onClick={onToggleDeprecated}>
-              Only <DeprecatedBadge/>
+              Show Only Deprecated API
             </span>
           </div>
         </div>
