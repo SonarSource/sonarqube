@@ -25,7 +25,7 @@ import { CoverageMeasures } from './coverage-measures';
 import { filterMetricsForDomains } from '../helpers/metrics';
 
 
-const TEST_DOMAINS = ['Tests', 'Tests (Integration)', 'Tests (Overall)'];
+const TEST_DOMAINS = ['Tests'];
 const TEST_METRICS = ['tests', 'test_execution_time', 'test_errors', 'test_failures', 'skipped_tests',
   'test_success_density'];
 
