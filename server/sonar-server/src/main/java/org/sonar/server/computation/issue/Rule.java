@@ -23,8 +23,8 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
-import org.sonar.core.rule.RuleType;
 
 public interface Rule {
 

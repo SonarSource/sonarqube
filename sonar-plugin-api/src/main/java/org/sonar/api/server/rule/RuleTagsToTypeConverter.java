@@ -22,9 +22,10 @@ package org.sonar.api.server.rule;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.Set;
+import org.sonar.api.rules.RuleType;
 
 /**
- * @see org.sonar.api.server.rule.RulesDefinition.NewRule#setType(RulesDefinition.Type)
+ * @see org.sonar.api.server.rule.RulesDefinition.NewRule#setType(RuleType)
  * @since 5.5
  */
 class RuleTagsToTypeConverter {
@@ -38,13 +39,13 @@ class RuleTagsToTypeConverter {
     // only statics
   }
 
-  static RulesDefinition.Type convert(Collection<String> tags) {
+  static RuleType convert(Collection<String> tags) {
     if (tags.contains(TAG_BUG)) {
-      return RulesDefinition.Type.BUG;
+      return RuleType.BUG;
     }
     if (tags.contains(TAG_SECURITY)) {
-      return RulesDefinition.Type.VULNERABILITY;
+      return RuleType.VULNERABILITY;
     }
-    return RulesDefinition.Type.CODE_SMELL;
+    return RuleType.CODE_SMELL;
   }
 }

@@ -25,6 +25,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.LogTester;
 
@@ -417,12 +418,12 @@ public class RulesDefinitionTest {
   public void type_is_defined() {
     RulesDefinition.NewRepository newRepository = context.createRepository("findbugs", "java");
     newRepository.createRule("NPE").setName("NPE").setHtmlDescription("desc")
-      .setType(RulesDefinition.Type.VULNERABILITY).setTags("bug", "misra");
+      .setType(RuleType.VULNERABILITY).setTags("bug", "misra");
     newRepository.done();
 
     RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
     // type VULNERABILITY is kept even if the tag "bug" is present
-    assertThat(rule.type()).isEqualTo(RulesDefinition.Type.VULNERABILITY);
+    assertThat(rule.type()).isEqualTo(RuleType.VULNERABILITY);
     // tag "bug" is reserved and removed.
     assertThat(rule.tags()).containsOnly("misra");
   }
@@ -434,7 +435,7 @@ public class RulesDefinitionTest {
     newRepository.done();
 
     RulesDefinition.Rule rule = context.repository("findbugs").rule("NPE");
-    assertThat(rule.type()).isEqualTo(RulesDefinition.Type.BUG);
+    assertThat(rule.type()).isEqualTo(RuleType.BUG);
     // tag "bug" is reserved and removed
     assertThat(rule.tags()).containsOnly("misra");
   }

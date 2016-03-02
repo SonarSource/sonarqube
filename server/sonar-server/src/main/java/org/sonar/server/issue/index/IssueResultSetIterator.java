@@ -33,7 +33,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.core.rule.RuleType;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;

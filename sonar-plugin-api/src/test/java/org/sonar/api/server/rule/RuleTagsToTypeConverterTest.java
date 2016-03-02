@@ -21,6 +21,7 @@ package org.sonar.api.server.rule;
 
 import java.util.Collections;
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.test.TestUtils;
 
 import static java.util.Arrays.asList;
@@ -31,20 +32,20 @@ public class RuleTagsToTypeConverterTest {
 
   @Test
   public void type_is_bug_if_has_tag_bug() {
-    assertThat(convert(asList("misra", "bug"))).isEqualTo(RulesDefinition.Type.BUG);
+    assertThat(convert(asList("misra", "bug"))).isEqualTo(RuleType.BUG);
     // "bug" has priority on "security"
-    assertThat(convert(asList("security", "bug"))).isEqualTo(RulesDefinition.Type.BUG);
+    assertThat(convert(asList("security", "bug"))).isEqualTo(RuleType.BUG);
   }
 
   @Test
   public void type_is_vulnerability_if_has_tag_security() {
-    assertThat(convert(asList("misra", "security"))).isEqualTo(RulesDefinition.Type.VULNERABILITY);
+    assertThat(convert(asList("misra", "security"))).isEqualTo(RuleType.VULNERABILITY);
   }
 
   @Test
   public void default_is_code_smell() {
-    assertThat(convert(asList("clumsy", "spring"))).isEqualTo(RulesDefinition.Type.CODE_SMELL);
-    assertThat(convert(Collections.<String>emptyList())).isEqualTo(RulesDefinition.Type.CODE_SMELL);
+    assertThat(convert(asList("clumsy", "spring"))).isEqualTo(RuleType.CODE_SMELL);
+    assertThat(convert(Collections.<String>emptyList())).isEqualTo(RuleType.CODE_SMELL);
   }
 
   @Test

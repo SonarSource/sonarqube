@@ -23,8 +23,8 @@ import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbTester;
 import org.sonar.db.version.MigrationStep;
 

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.rule;
+package org.sonar.api.rules;
 
 import com.google.common.base.Enums;
 import com.google.common.collect.Lists;
@@ -27,6 +27,8 @@ import static java.lang.String.format;
 
 public enum RuleType {
   CODE_SMELL(1), BUG(2), VULNERABILITY(3);
+
+  public static final List<String> ALL_NAMES = Lists.transform(Lists.newArrayList(values()), Enums.stringConverter(RuleType.class).reverse());
 
   private final int dbConstant;
 
@@ -51,5 +53,4 @@ public enum RuleType {
     throw new IllegalArgumentException(format("Unsupported type value : %d", dbConstant));
   }
 
-  public static final List<String> ALL_NAMES = Lists.transform(Lists.newArrayList(values()), Enums.stringConverter(RuleType.class).reverse());
 }

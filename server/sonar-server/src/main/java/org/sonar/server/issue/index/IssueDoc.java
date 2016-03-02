@@ -32,9 +32,9 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.core.rule.RuleType;
 import org.sonar.server.search.BaseDoc;
 
 public class IssueDoc extends BaseDoc implements Issue {

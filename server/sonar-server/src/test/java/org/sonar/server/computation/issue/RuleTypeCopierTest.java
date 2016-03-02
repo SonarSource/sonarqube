@@ -20,8 +20,8 @@
 package org.sonar.server.computation.issue;
 
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.rule.RuleType;
 import org.sonar.server.computation.component.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;

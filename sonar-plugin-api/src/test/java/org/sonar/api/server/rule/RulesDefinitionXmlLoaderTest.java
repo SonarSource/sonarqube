@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -54,7 +55,7 @@ public class RulesDefinitionXmlLoaderTest {
     assertThat(rule.template()).isTrue();
     assertThat(rule.status()).isEqualTo(RuleStatus.BETA);
     assertThat(rule.internalKey()).isEqualTo("Checker/TreeWalker/LocalVariableName");
-    assertThat(rule.type()).isEqualTo(RulesDefinition.Type.BUG);
+    assertThat(rule.type()).isEqualTo(RuleType.BUG);
     assertThat(rule.tags()).containsOnly("misra", "spring");
 
     assertThat(rule.params()).hasSize(2);
@@ -70,7 +71,7 @@ public class RulesDefinitionXmlLoaderTest {
     assertThat(rule.params()).isEmpty();
     assertThat(rule.status()).isEqualTo(RuleStatus.READY);
     assertThat(rule.severity()).isEqualTo(Severity.MAJOR);
-    assertThat(rule.type()).isEqualTo(RulesDefinition.Type.CODE_SMELL);
+    assertThat(rule.type()).isEqualTo(RuleType.CODE_SMELL);
   }
 
   @Test

@@ -24,7 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.core.rule.RuleType;
+import org.sonar.api.rules.RuleType;
 import org.sonar.db.rule.RuleDto.Format;
 
 /**

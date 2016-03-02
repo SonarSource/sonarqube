@@ -20,7 +20,6 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Objects;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -43,11 +42,11 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.Loggers;
 
-import static com.google.common.base.Preconditions.*;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -151,13 +150,6 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 @ExtensionPoint
 public interface RulesDefinition {
 
-  /**
-   * Rule type according to SonarQube Quality Model
-   * @since 5.5
-   */
-  enum Type {
-    CODE_SMELL, BUG, VULNERABILITY
-  }
   /**
    * Default sub-characteristics of technical debt model. See http://www.sqale.org
    * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model.
@@ -665,7 +657,7 @@ public interface RulesDefinition {
   class NewRule {
     private final String repoKey;
     private final String key;
-    private Type type;
+    private RuleType type;
     private String name;
     private String htmlDescription;
     private String markdownDescription;
@@ -714,16 +706,16 @@ public interface RulesDefinition {
      * When a plugin does not define rule type, then it is deduced from
      * tags:
      * <ul>
-     * <li>if the rule has the "bug" tag then type is {@link Type#BUG}</li>
-     * <li>if the rule has the "security" tag then type is {@link Type#VULNERABILITY}</li>
-     * <li>if the rule has both tags "bug" and "security", then type is {@link Type#BUG}</li>
-     * <li>default type is {@link Type#CODE_SMELL}</li>
+     * <li>if the rule has the "bug" tag then type is {@link RuleType#BUG}</li>
+     * <li>if the rule has the "security" tag then type is {@link RuleType#VULNERABILITY}</li>
+     * <li>if the rule has both tags "bug" and "security", then type is {@link RuleType#BUG}</li>
+     * <li>default type is {@link RuleType#CODE_SMELL}</li>
      * </ul>
      * Finally the "bug" and "security" tags are considered as reserved. They
      * are silently removed from the final state of definition.
      * @since 5.5
      */
-    public NewRule setType(Type t) {
+    public NewRule setType(RuleType t) {
       this.type = t;
       return this;
     }
@@ -797,7 +789,7 @@ public interface RulesDefinition {
      * @see org.sonar.api.server.rule.RulesDefinition.SubCharacteristics for constant values
      * @deprecated in 5.5. SQALE Quality Model is replaced by SonarQube Quality Model. This method does nothing.
      *             See https://jira.sonarsource.com/browse/MMF-184
-     * @see #setType(Type)
+     * @see #setType(RuleType)
      */
     public NewRule setDebtSubCharacteristic(@Nullable String s) {
       return this;
@@ -902,7 +894,7 @@ public interface RulesDefinition {
     private final String repoKey;
     private final String key;
     private final String name;
-    private final Type type;
+    private final RuleType type;
     private final String htmlDescription;
     private final String markdownDescription;
     private final String internalKey;
@@ -950,9 +942,9 @@ public interface RulesDefinition {
 
     /**
      * @since 5.5
-     * @see NewRule#setType(Type)
+     * @see NewRule#setType(RuleType)
      */
-    public Type type() {
+    public RuleType type() {
       return type;
     }
 

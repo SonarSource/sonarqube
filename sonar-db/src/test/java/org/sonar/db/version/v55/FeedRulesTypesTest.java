@@ -26,8 +26,8 @@ import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbTester;
 import org.sonar.db.version.MigrationStep;
 

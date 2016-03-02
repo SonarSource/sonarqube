@@ -30,11 +30,11 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
-import org.sonar.core.rule.RuleType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
@@ -52,7 +52,6 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.INFO;
-
 
 public class RegisterRulesTest {
 
@@ -360,7 +359,7 @@ public class RegisterRulesTest {
         .setSeverity(BLOCKER)
         .setInternalKey("config1")
         .setTags("tag1", "tag2", "tag3")
-        .setType(Type.CODE_SMELL)
+        .setType(RuleType.CODE_SMELL)
         .setStatus(RuleStatus.BETA)
         .setEffortToFixDescription("squid.S115.effortToFix");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("5d", "10h"));
@@ -391,7 +390,7 @@ public class RegisterRulesTest {
         .setInternalKey("config1 v2")
         // tag2 and tag3 removed, tag4 added
         .setTags("tag1", "tag4")
-        .setType(Type.BUG)
+        .setType(RuleType.BUG)
         .setStatus(RuleStatus.READY)
         .setEffortToFixDescription("squid.S115.effortToFix.v2");
       rule1.setDebtRemediationFunction(rule1.debtRemediationFunctions().linearWithOffset("6d", "2h"));

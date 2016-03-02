@@ -34,6 +34,7 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
@@ -323,7 +324,7 @@ public class RulesDefinitionXmlLoader {
         .setStatus(status)
         .setEffortToFixDescription(effortToFixDescription);
       if (type != null) {
-        rule.setType(RulesDefinition.Type.valueOf(type));
+        rule.setType(RuleType.valueOf(type));
       }
       fillDescription(rule, descriptionFormat, description);
       fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionOffset, debtRemediationFunctionCoeff);
