@@ -181,6 +181,11 @@ export default React.createClass({
     return this.renderLink(url, translate('issues.page'), '/component_issues');
   },
 
+  renderComponentMeasuresLink() {
+    const url = `/component_measures/?id=${encodeURIComponent(this.props.component.key)}`;
+    return this.renderLink(url, translate('layout.measures'), '/component_measures');
+  },
+
   renderAdministration() {
     let shouldShowAdministration =
         this.props.conf.showActionPlans ||
@@ -340,6 +345,7 @@ export default React.createClass({
           {this.renderCodeLink()}
           {this.renderProjectsLink()}
           {this.renderComponentIssuesLink()}
+          {this.renderComponentMeasuresLink()}
           {this.renderTools()}
           {this.renderAdministration()}
         </ul>

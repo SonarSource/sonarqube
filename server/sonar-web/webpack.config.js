@@ -30,6 +30,7 @@ module.exports = {
     'code': './src/main/js/apps/code/app.js',
     'coding-rules': './src/main/js/apps/coding-rules/app.js',
     'component-issues': './src/main/js/apps/component-issues/app.js',
+    'component-measures': './src/main/js/apps/component-measures/app.js',
     'custom-measures': './src/main/js/apps/custom-measures/app.js',
     'dashboard': './src/main/js/apps/dashboard/app.js',
     'drilldown': './src/main/js/apps/drilldown/app.js',

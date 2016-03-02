@@ -45,13 +45,13 @@ export function createProject (data) {
   return postJSON(url, data);
 }
 
-export function getChildren (componentKey, metrics = []) {
+export function getChildren (componentKey, metrics = [], additional = {}) {
   const url = '/api/measures/component_tree';
-  const data = {
+  const data = Object.assign({}, additional, {
     baseComponentKey: componentKey,
     metricKeys: metrics.join(','),
     strategy: 'children'
-  };
+  });
   return getJSON(url, data).then(r => r.components);
 }
 

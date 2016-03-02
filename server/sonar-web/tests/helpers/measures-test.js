@@ -189,7 +189,7 @@ describe('Measures', function () {
     });
 
     it('should format WORK_DUR', function () {
-      expect(formatMeasureVariation(0, 'WORK_DUR')).to.equal('0');
+      expect(formatMeasureVariation(0, 'WORK_DUR')).to.equal('+0');
       expect(formatMeasureVariation(5 * ONE_DAY, 'WORK_DUR')).to.equal('+5d');
       expect(formatMeasureVariation(2 * ONE_HOUR, 'WORK_DUR')).to.equal('+2h');
       expect(formatMeasureVariation(ONE_MINUTE, 'WORK_DUR')).to.equal('+1min');

@@ -290,15 +290,17 @@ function shortDurationFormatter (value) {
 }
 
 function durationVariationFormatter (value) {
-  if (value === 0) {
-    return '0';
+  /* eslint eqeqeq: 0 */
+  if (value == 0) {
+    return '+0';
   }
   const formatted = durationFormatter(value);
   return formatted[0] !== '-' ? '+' + formatted : formatted;
 }
 
 function shortDurationVariationFormatter (value) {
-  if (value === 0) {
+  /* eslint eqeqeq: 0 */
+  if (value == 0) {
     return '+0';
   }
   const formatted = shortDurationFormatter(value);

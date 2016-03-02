@@ -34,6 +34,7 @@ ActionController::Routing::Routes.draw do |map|
   map.connect 'web_api/*other', :controller => 'web_api', :action => 'index'
   map.connect 'quality_gates/*other', :controller => 'quality_gates', :action => 'index'
   map.connect 'overview/*other', :controller => 'overview', :action => 'index'
+  map.connect 'component_measures/*other', :controller => 'component_measures', :action => 'index'
   map.connect 'account/update_notifications', :controller => 'account', :action => 'update_notifications'
   map.connect 'account/*other', :controller => 'account', :action => 'index'
 

@@ -1,0 +1,159 @@
+.component-measures-domains {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  width: 980px;
+  margin: 20px auto -20px;
+}
+
+.component-measures-domains > li {
+  width: 300px;
+  margin-right: 40px;
+  margin-bottom: 40px;
+}
+
+.component-measures-domains > li:nth-child(3n) {
+  margin-right: 0;
+}
+
+.component-measures-domain-name {
+  margin-bottom: 8px;
+}
+
+.measure-details {
+  margin-top: 10px;
+}
+
+.measure-details-metric,
+.measure-details-value {
+  margin-left: 20px;
+  margin-right: 20px;
+}
+
+.measure-details-metric {
+  margin-bottom: 10px;
+}
+
+.measure-details-value {
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.measure-details-drilldown {
+  margin-top: 20px;
+}
+
+.measure-details-mode {
+  display: flex;
+  padding-left: 10px;
+  padding-right: 10px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.measure-details-mode > li {
+  margin-bottom: -1px;
+}
+
+.measure-details-mode > li + li {
+  margin-left: 2px;
+}
+
+.measure-details-mode > li > a {
+  display: inline-block;
+  padding: 5px 10px;
+  border-bottom: 2px solid transparent;
+  color: #444;
+}
+
+.measure-details-mode > li > a:hover,
+.measure-details-mode > li > a.active {
+  border-bottom-color: #4b9fd5;
+}
+
+.measure-details-mode > li > a.active .measure-tab-icon path {
+  fill: #4b9fd5;
+}
+
+.measure-details-breadcrumbs {
+  margin-bottom: 10px;
+}
+
+.measure-details-components {
+  width: 300px;
+  padding: 10px;
+  box-sizing: border-box;
+}
+
+.measure-details-components-parent {
+  padding-bottom: 6px;
+}
+
+.measure-details-components > ul > li > a {
+  display: flex;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  border: none;
+  color: #444;
+}
+
+.measure-details-components > ul > li > a:hover,
+.measure-details-components > ul > li > a.selected {
+  background-color: #cae3f2 !important;
+}
+
+.measure-details-component-name,
+.measure-details-component-value {
+  padding-right: 10px;
+  box-sizing: border-box;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.measure-details-component-name {
+  width: calc(100% - 60px);
+  padding-left: 10px;
+}
+
+.measure-details-component-value {
+  width: 60px;
+  text-align: right;
+}
+
+.measure-details-tree,
+.measure-details-plain-list {
+  display: flex;
+}
+
+.measure-details-viewer {
+  width: calc(100% - 300px);
+  margin-top: -1px;
+  margin-bottom: -1px;
+  box-sizing: border-box;
+}
+
+.measure-tab-icon {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  margin-right: 6px;
+}
+
+.measure-tab-icon path {
+  fill: #aeaeae;
+  transition: fill 0.3s ease;
+}
+
+.measure-details-components-up-icon {
+  display: inline-block;
+  height: 14px;
+  padding: 2px 4px 0;
+}
+
+.measure-details-components-up-icon path {
+  fill: #aeaeae;
+}
+
+.measures-details-components-empty {
+  padding: 20px;
+}
