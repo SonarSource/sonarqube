@@ -95,7 +95,7 @@ public class CopyScmAccountsFromAuthorsToUsers extends BaseDataChange {
     }
   }
 
-  private List<User> selectUsersFromLoginOrEmail(Context context, Collection<String> authors) throws SQLException {
+  private static List<User> selectUsersFromLoginOrEmail(Context context, Collection<String> authors) throws SQLException {
     final List<User> users = newArrayList();
     StringBuilder sql = new StringBuilder("SELECT u.id, u.login, u.email, u.scm_accounts FROM users u WHERE u.active=? AND (");
     for (int i = 0; i < authors.size(); i++) {

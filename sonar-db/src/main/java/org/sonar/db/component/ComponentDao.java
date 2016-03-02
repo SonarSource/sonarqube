@@ -318,7 +318,7 @@ public class ComponentDao implements Dao {
     mapper(session).delete(componentId);
   }
 
-  private ComponentMapper mapper(DbSession session) {
+  private static ComponentMapper mapper(DbSession session) {
     return session.getMapper(ComponentMapper.class);
   }
 

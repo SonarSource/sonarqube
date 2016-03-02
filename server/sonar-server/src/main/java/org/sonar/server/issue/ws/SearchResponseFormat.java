@@ -24,7 +24,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
-import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,8 +64,8 @@ public class SearchResponseFormat {
     this.languages = languages;
   }
 
-  public Issues.SearchWsResponse formatSearch(EnumSet<SearchAdditionalField> fields, SearchResponseData data,
-    Paging paging, @Nullable Facets facets) {
+  public Issues.SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data,
+                                              Paging paging, @Nullable Facets facets) {
     Issues.SearchWsResponse.Builder response = Issues.SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
@@ -124,7 +123,7 @@ public class SearchResponseFormat {
     response.setPaging(commonFormat.formatPaging(paging));
   }
 
-  private List<Issues.Issue> formatIssues(EnumSet<SearchAdditionalField> fields, SearchResponseData data) {
+  private List<Issues.Issue> formatIssues(Set<SearchAdditionalField> fields, SearchResponseData data) {
     List<Issues.Issue> result = new ArrayList<>();
     Issues.Issue.Builder issueBuilder = Issues.Issue.newBuilder();
     for (IssueDto dto : data.getIssues()) {

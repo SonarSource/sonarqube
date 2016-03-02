@@ -283,7 +283,7 @@ public class IssueFilterService {
   }
 
   @CheckForNull
-  private IssueFilterDto findFilterWithSameName(List<IssueFilterDto> dtos, String name) {
+  private static IssueFilterDto findFilterWithSameName(List<IssueFilterDto> dtos, String name) {
     return Iterables.find(dtos, new IssueFilterDtoMatchName(name), null);
   }
 

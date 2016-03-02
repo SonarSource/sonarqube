@@ -136,7 +136,7 @@ public class AddNewCharacteristics extends BaseDataChange {
     createSubCharacteristic(characteristicsContext, USABILITY_KEY + COMPLIANCE_KEY_SUFFIX, "Usability " + COMPLIANCE_NAME, usabilityKey);
   }
 
-  private void createSubCharacteristic(CharacteristicsContext characteristicsContext,
+  private static void createSubCharacteristic(CharacteristicsContext characteristicsContext,
     String subCharacteristicKey, String subCharacteristicName, String parentKey) throws SQLException {
     Characteristic parent = characteristicsContext.findCharacteristicByKey(parentKey);
     if (parent != null) {

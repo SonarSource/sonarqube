@@ -124,7 +124,7 @@ public class AddMissingCustomRuleParametersMigrationStep implements MigrationSte
     }
   }
 
-  private boolean hasParameter(String parameter, Collection<RuleParameter> customRuleParams) {
+  private static boolean hasParameter(String parameter, Collection<RuleParameter> customRuleParams) {
     return Iterables.any(customRuleParams, new MatchParameter(parameter));
   }
 

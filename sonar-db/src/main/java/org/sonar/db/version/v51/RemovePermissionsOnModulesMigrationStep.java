@@ -46,7 +46,7 @@ public class RemovePermissionsOnModulesMigrationStep extends BaseDataChange {
     removeUserRolePermissions(context, "group_roles", "group roles");
   }
 
-  private void removeUserRolePermissions(Context context, String tableName, String pluralName) throws SQLException {
+  private static void removeUserRolePermissions(Context context, String tableName, String pluralName) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("SELECT r.id " +
       "FROM " + tableName + " r " +

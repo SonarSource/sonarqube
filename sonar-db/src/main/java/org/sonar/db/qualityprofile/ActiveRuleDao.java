@@ -181,7 +181,7 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
-  private ActiveRuleMapper mapper(DbSession session) {
+  private static ActiveRuleMapper mapper(DbSession session) {
     return session.getMapper(ActiveRuleMapper.class);
   }
 

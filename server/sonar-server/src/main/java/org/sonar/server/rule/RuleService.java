@@ -72,7 +72,7 @@ public class RuleService {
   }
 
   public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
-     return index.search(query, options);
+    return index.search(query, options);
   }
 
   public RuleKey create(NewRule newRule) {

@@ -99,7 +99,7 @@ public class PermissionFinder {
     return (pageIndex - 1) * pageSize;
   }
 
-  private List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, PermissionQuery query) {
+  private static List<GroupWithPermissionDto> filterMembership(List<GroupWithPermissionDto> dtos, PermissionQuery query) {
     return newArrayList(Iterables.filter(dtos, new GroupWithPermissionMatchQuery(query)));
   }
 

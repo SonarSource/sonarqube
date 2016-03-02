@@ -21,10 +21,9 @@ package org.sonar.server.component;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
-import org.sonar.api.component.Component;
-
 import java.util.Collection;
 import java.util.List;
+import org.sonar.api.component.Component;
 
 /**
  * @since 3.7
@@ -48,7 +47,7 @@ class ComponentsFinderSort {
     return components;
   }
 
-  private ComponentProcessor getComponentProcessor(String sort) {
+  private static ComponentProcessor getComponentProcessor(String sort) {
     if (ComponentQuery.SORT_BY_NAME.equals(sort)) {
       return new NameSort();
     }

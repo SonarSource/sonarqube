@@ -36,7 +36,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
@@ -77,7 +76,6 @@ public class IssueService {
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final ActionPlanService actionPlanService;
-  private final RuleFinder ruleFinder;
   private final UserFinder userFinder;
   private final UserIndex userIndex;
   private final SourceService sourceService;
@@ -89,7 +87,6 @@ public class IssueService {
     IssueUpdater issueUpdater,
     NotificationManager notificationService,
     ActionPlanService actionPlanService,
-    RuleFinder ruleFinder,
     UserFinder userFinder,
     UserIndex userIndex, SourceService sourceService, UserSession userSession) {
     this.dbClient = dbClient;
@@ -98,7 +95,6 @@ public class IssueService {
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
     this.actionPlanService = actionPlanService;
-    this.ruleFinder = ruleFinder;
     this.notificationService = notificationService;
     this.userFinder = userFinder;
     this.userIndex = userIndex;

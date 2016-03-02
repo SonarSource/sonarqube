@@ -97,7 +97,7 @@ public class RuleDao implements Dao {
     mapper(session).update(dto);
   }
 
-  private RuleMapper mapper(DbSession session) {
+  private static RuleMapper mapper(DbSession session) {
     return session.getMapper(RuleMapper.class);
   }
 

@@ -23,6 +23,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
+import java.lang.reflect.Field;
+import java.util.List;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.utils.AnnotationUtils;
@@ -30,11 +33,6 @@ import org.sonar.api.utils.FieldUtils2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.check.Cardinality;
-
-import javax.annotation.CheckForNull;
-
-import java.lang.reflect.Field;
-import java.util.List;
 
 /**
  * Read definitions of rules based on the annotations provided by sonar-check-api. It is used
@@ -96,7 +94,7 @@ public class RulesDefinitionAnnotationLoader {
     return rule;
   }
 
-  private void loadParameters(RulesDefinition.NewRule rule, Field field) {
+  private static void loadParameters(RulesDefinition.NewRule rule, Field field) {
     org.sonar.check.RuleProperty propertyAnnotation = field.getAnnotation(org.sonar.check.RuleProperty.class);
     if (propertyAnnotation != null) {
       String fieldKey = StringUtils.defaultIfEmpty(propertyAnnotation.key(), field.getName());

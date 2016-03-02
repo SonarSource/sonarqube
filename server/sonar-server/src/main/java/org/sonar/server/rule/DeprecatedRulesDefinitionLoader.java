@@ -190,7 +190,7 @@ public class DeprecatedRulesDefinitionLoader {
   }
 
   @CheckForNull
-  private RuleDebt findRequirement(List<RuleDebt> requirements, final String repoKey, final String ruleKey) {
+  private static RuleDebt findRequirement(List<RuleDebt> requirements, final String repoKey, final String ruleKey) {
     return Iterables.find(requirements, new RuleDebtMatchRepoKeyAndRuleKey(repoKey, ruleKey), null);
   }
 

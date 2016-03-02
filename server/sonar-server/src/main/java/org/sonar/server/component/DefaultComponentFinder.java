@@ -58,7 +58,7 @@ public class DefaultComponentFinder {
     }
   }
 
-  private Collection<Component> search(ComponentQuery query, List<? extends Component> allComponents) {
+  private static Collection<Component> search(ComponentQuery query, List<? extends Component> allComponents) {
     return newArrayList(Iterables.filter(allComponents, new MatchQuery(query)));
   }
 

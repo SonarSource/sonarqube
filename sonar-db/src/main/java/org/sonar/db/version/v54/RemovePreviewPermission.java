@@ -41,7 +41,7 @@ public class RemovePreviewPermission extends BaseDataChange {
     execute(context, "user_roles", "users");
   }
 
-  private void execute(Context context, String tableName, String displayName) throws SQLException {
+  private static void execute(Context context, String tableName, String displayName) throws SQLException {
     MassUpdate update = context.prepareMassUpdate().rowPluralName(displayName);
     update.select("SELECT r.id FROM " + tableName + " r WHERE r.role=?").setString(1, "dryRunScan");
     update.update("DELETE FROM " + tableName + " WHERE id=?");

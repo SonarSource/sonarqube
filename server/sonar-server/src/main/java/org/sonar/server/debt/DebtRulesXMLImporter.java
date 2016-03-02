@@ -120,7 +120,7 @@ public class DebtRulesXMLImporter {
   }
 
   @CheckForNull
-  private RuleDebt processRule(ValidationMessages validationMessages, SMInputCursor cursor) throws XMLStreamException {
+  private static RuleDebt processRule(ValidationMessages validationMessages, SMInputCursor cursor) throws XMLStreamException {
     String ruleRepositoryKey = cursor.collectDescendantText().trim();
     String ruleKey = null;
     Properties properties = new Properties();
