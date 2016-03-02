@@ -35,7 +35,7 @@ import { CoverageMeasuresList } from '../components/coverage-measures-list';
 import { translate } from '../../../helpers/l10n';
 
 
-const TEST_DOMAINS = ['Tests', 'Tests (Integration)', 'Tests (Overall)'];
+const TEST_DOMAINS = ['Tests'];
 
 
 export const CoverageMain = React.createClass({
