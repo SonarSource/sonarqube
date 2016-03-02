@@ -15,6 +15,7 @@ RUN_ACTIVITY:
   - run-db-integration-tests-mssql2014-Category3
   - run-db-integration-tests-mssql2014-Category4
   - run-db-integration-tests-mssql2014-Category5
+  - run-upgrade-tests-mssql2014
   - run-it-released-plugins
   - run-perf-tests
 
@@ -40,6 +41,8 @@ exclude:
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category4
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category5
+    SLAVE_TYPE: performance
+  - RUN_ACTIVITY: run-upgrade-tests-mssql2014
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-it-released-plugins
     SLAVE_TYPE: performance

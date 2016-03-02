@@ -32,6 +32,11 @@ case "$RUN_ACTIVITY" in
     ./run-perf-tests.sh
     ;;
 
+  run-upgrade-tests-*)
+    DB_ENGINE=`echo $RUN_ACTIVITY | sed "s/run-upgrade-tests-//g"`
+    ./run-upgrade-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
+    ;;
+
   *)
     echo "unknown RUN_ACTIVITY = $RUN_ACTIVITY"
     exit 1
