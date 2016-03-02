@@ -24,7 +24,7 @@ import com.google.common.collect.Sets;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.plugins.checks.AbapCheck;
 import it.plugins.checks.CCheck;
 import it.plugins.checks.Check;
@@ -111,7 +111,7 @@ public class PluginsTest {
 
   @Test
   public void analysis_of_project_with_all_supported_languages() {
-    SonarRunner analysis = newAnalysis();
+    SonarScanner analysis = newAnalysis();
     BuildResult result = orchestrator.executeBuildQuietly(analysis);
     if (result.getStatus() != 0) {
       fail(result.getLogs());
@@ -124,7 +124,7 @@ public class PluginsTest {
 
   @Test
   public void preview_analysis_of_project_with_all_supported_languages() {
-    SonarRunner analysis = newAnalysis();
+    SonarScanner analysis = newAnalysis();
     analysis.setProperty("sonar.analysis.mode", "issues");
     analysis.setProperty("sonar.preview.excludePlugins", Joiner.on(",").join(DISABLED_PLUGINS_FOR_PREVIEW_MODE));
     BuildResult result = orchestrator.executeBuildQuietly(analysis);
@@ -133,9 +133,12 @@ public class PluginsTest {
     }
   }
 
-  private static SonarRunner newAnalysis() {
-    SonarRunner analysis = SonarRunner.create(Project.basedir());
+  private static SonarScanner newAnalysis() {
+    SonarScanner analysis = SonarScanner.create(Project.basedir());
     analysis.setEnvironmentVariable("SONAR_RUNNER_OPTS", "-XX:MaxPermSize=128m");
+
+    // required to bypass usage of build-wrapper
+    analysis.setProperties("sonar.cfamily.build-wrapper-output.bypass", "true");
     return analysis;
   }
 
