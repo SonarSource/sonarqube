@@ -20,6 +20,7 @@
 package org.sonar.api.server.rule;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -46,7 +47,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.Loggers;
 
-import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
@@ -488,14 +488,13 @@ public interface RulesDefinition {
       return this;
     }
 
+    /**
+     * The specified rule key must be unique among the repository. Since version 5.5 it raises
+     * a {@link IllegalArgumentException}, whereas it logs a warning in previous versions.
+     */
     @Override
     public NewRule createRule(String ruleKey) {
-      if (newRules.containsKey(ruleKey)) {
-        // Should fail in a perfect world, but at the time being the Findbugs plugin
-        // defines several times the rule EC_INCOMPATIBLE_ARRAY_COMPARE
-        // See http://jira.sonarsource.com/browse/SONARJAVA-428
-        Loggers.get(getClass()).warn(format("The rule '%s' of repository '%s' is declared several times", ruleKey, key));
-      }
+      Preconditions.checkArgument(!newRules.containsKey(ruleKey), "The rule '%s' of repository '%s' is declared several times", ruleKey, key);
       NewRule newRule = new NewRule(key, ruleKey);
       newRules.put(ruleKey, newRule);
       return newRule;
