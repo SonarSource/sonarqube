@@ -90,14 +90,15 @@ public class RegisterQualityProfiles {
     DbSession session = dbClient.openSession(false);
     try {
       activeRuleIndexer.setEnabled(true);
+      List<ActiveRuleChange> changes = new ArrayList<>();
       ListMultimap<String, RulesProfile> profilesByLanguage = profilesByLanguage();
       for (String language : profilesByLanguage.keySet()) {
         List<RulesProfile> defs = profilesByLanguage.get(language);
         if (verifyLanguage(language, defs)) {
-          registerProfilesForLanguage(session, language, defs);
+          changes.addAll(registerProfilesForLanguage(session, language, defs));
         }
       }
-      activeRuleIndexer.index();
+      activeRuleIndexer.index(changes);
       profiler.stopDebug();
 
     } finally {
@@ -121,33 +122,30 @@ public class RegisterQualityProfiles {
     return true;
   }
 
-  private void registerProfilesForLanguage(DbSession session, String language, List<RulesProfile> defs) {
+  private List<ActiveRuleChange> registerProfilesForLanguage(DbSession session, String language, List<RulesProfile> defs) {
+    List<ActiveRuleChange> changes = new ArrayList<>();
     for (Map.Entry<String, Collection<RulesProfile>> entry : profilesByName(defs).entrySet()) {
       String name = entry.getKey();
       QProfileName profileName = new QProfileName(language, name);
       if (shouldRegister(profileName, session)) {
-        register(profileName, entry.getValue(), session);
+        changes.addAll(register(profileName, entry.getValue(), session));
       }
       builtInProfiles.put(language, name);
     }
     setDefault(language, defs, session);
     session.commit();
+    return changes;
   }
 
-  private void register(QProfileName name, Collection<RulesProfile> profiles, DbSession session) {
+  private List<ActiveRuleChange> register(QProfileName name, Collection<RulesProfile> profiles, DbSession session) {
     LOGGER.info("Register profile " + name);
 
+    List<ActiveRuleChange> changes = new ArrayList<>();
     QualityProfileDto profileDto = dbClient.qualityProfileDao().selectByNameAndLanguage(name.getName(), name.getLanguage(), session);
     if (profileDto != null) {
-      // When deleting the profile, we also remove active rule from index in order to have to deal with conflicts when activating new rules
-      // (for instance, if same rule is removed then activated)
-      List<ActiveRuleChange> deleteChanges = profileFactory.delete(session, profileDto.getKey(), true);
-      session.commit();
-      activeRuleIndexer.index(deleteChanges);
+      changes.addAll(profileFactory.delete(session, profileDto.getKey(), true));
     }
     profileFactory.create(session, name);
-
-    List<ActiveRuleChange> changes = new ArrayList<>();
     for (RulesProfile profile : profiles) {
       for (org.sonar.api.rules.ActiveRule activeRule : profile.getActiveRules()) {
         RuleKey ruleKey = RuleKey.of(activeRule.getRepositoryKey(), activeRule.getRuleKey());
@@ -163,7 +161,7 @@ public class RegisterQualityProfiles {
     LoadedTemplateDto template = new LoadedTemplateDto(templateKey(name), LoadedTemplateDto.QUALITY_PROFILE_TYPE);
     dbClient.loadedTemplateDao().insert(template, session);
     session.commit();
-    activeRuleIndexer.index(changes);
+    return changes;
   }
 
   private void setDefault(String language, List<RulesProfile> profileDefs, DbSession session) {
