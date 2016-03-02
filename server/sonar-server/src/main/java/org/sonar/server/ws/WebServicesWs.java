@@ -104,7 +104,7 @@ public class WebServicesWs implements WebService {
       .setExampleValue("search");
   }
 
-  private void handleResponseExample(Action action, Response response) throws IOException {
+  private static void handleResponseExample(Action action, Response response) throws IOException {
     if (action.responseExample() != null) {
       response
         .newJsonWriter()
@@ -189,7 +189,7 @@ public class WebServicesWs implements WebService {
     }
   }
 
-  private void writeParam(JsonWriter writer, Param param) {
+  private static void writeParam(JsonWriter writer, Param param) {
     writer.beginObject();
     writer.prop("key", param.key());
     writer.prop("description", param.description());

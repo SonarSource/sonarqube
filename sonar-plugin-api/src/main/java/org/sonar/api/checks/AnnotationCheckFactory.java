@@ -89,7 +89,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
     }
   }
 
-  private void configureFields(ActiveRule activeRule, Object check) {
+  private static void configureFields(ActiveRule activeRule, Object check) {
     for (ActiveRuleParam param : activeRule.getActiveRuleParams()) {
       Field field = getField(check, param.getKey());
       if (field == null) {

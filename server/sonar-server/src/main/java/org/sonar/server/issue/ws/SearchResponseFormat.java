@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
+import java.util.EnumSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,6 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.Paging;
-import org.sonar.server.issue.workflow.Transition;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueChangeDto;
@@ -46,6 +46,7 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.markdown.Markdown;
 import org.sonar.server.es.Facets;
+import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.ws.WsResponseCommonFormat;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Issues;
@@ -64,7 +65,7 @@ public class SearchResponseFormat {
     this.languages = languages;
   }
 
-  public Issues.SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data,
+  public Issues.SearchWsResponse formatSearch(EnumSet<SearchAdditionalField> fields, SearchResponseData data,
     Paging paging, @Nullable Facets facets) {
     Issues.SearchWsResponse.Builder response = Issues.SearchWsResponse.newBuilder();
 
@@ -123,7 +124,7 @@ public class SearchResponseFormat {
     response.setPaging(commonFormat.formatPaging(paging));
   }
 
-  private List<Issues.Issue> formatIssues(Set<SearchAdditionalField> fields, SearchResponseData data) {
+  private List<Issues.Issue> formatIssues(EnumSet<SearchAdditionalField> fields, SearchResponseData data) {
     List<Issues.Issue> result = new ArrayList<>();
     Issues.Issue.Builder issueBuilder = Issues.Issue.newBuilder();
     for (IssueDto dto : data.getIssues()) {

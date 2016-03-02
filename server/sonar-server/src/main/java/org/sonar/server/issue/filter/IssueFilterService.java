@@ -317,7 +317,7 @@ public class IssueFilterService {
     return authorizationDao.selectGlobalPermissions(user).contains(GlobalPermissions.SYSTEM_ADMIN);
   }
 
-  private IssueFilterResult createIssueFilterResult(SearchResult<IssueDoc> issues, SearchOptions options) {
+  private static IssueFilterResult createIssueFilterResult(SearchResult<IssueDoc> issues, SearchOptions options) {
     Paging paging = Paging.forPageIndex(options.getPage()).withPageSize(options.getLimit()).andTotal((int) issues.getTotal());
     return new IssueFilterResult(issues.getDocs(), paging);
   }

@@ -83,7 +83,7 @@ public class WidgetPropertyDao implements Dao {
     });
   }
 
-  private WidgetPropertyMapper mapper(DbSession session) {
+  private static WidgetPropertyMapper mapper(DbSession session) {
     return session.getMapper(WidgetPropertyMapper.class);
   }
 }

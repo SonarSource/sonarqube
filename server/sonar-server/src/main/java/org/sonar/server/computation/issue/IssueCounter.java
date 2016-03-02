@@ -184,7 +184,7 @@ public class IssueCounter extends IssueVisitor {
     if (!periodsHolder.getPeriods().isEmpty()) {
       Double[] unresolvedVariations = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
       for (Period period : periodsHolder.getPeriods()) {
-        unresolvedVariations[period.getIndex() - 1] = new Double(currentCounters.counterForPeriod(period.getIndex()).unresolved);
+        unresolvedVariations[period.getIndex() - 1] = (double) currentCounters.counterForPeriod(period.getIndex()).unresolved;
       }
       measureRepository.add(component, metricRepository.getByKey(NEW_VIOLATIONS_KEY), Measure.newMeasureBuilder()
         .setVariations(new MeasureVariations(unresolvedVariations))

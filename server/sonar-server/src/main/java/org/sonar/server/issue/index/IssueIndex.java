@@ -541,7 +541,7 @@ public class IssueIndex extends BaseIndex {
       .subAggregation(facetTopAggregation);
   }
 
-  private Collection<String> escapeValuesForFacetInclusion(@Nullable Collection<String> values) {
+  private static Collection<String> escapeValuesForFacetInclusion(@Nullable Collection<String> values) {
     return values == null ? Arrays.<String>asList() : Collections2.transform(values, new Function<String, String>() {
       @Override
       public String apply(String input) {

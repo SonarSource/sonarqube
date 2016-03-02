@@ -76,7 +76,7 @@ public class ChangesOnMyIssueNotificationDispatcher extends NotificationDispatch
     }
   }
 
-  private void addUserToContextIfSubscribed(Context context, @Nullable String user, Multimap<String, NotificationChannel> subscribedRecipients) {
+  private static void addUserToContextIfSubscribed(Context context, @Nullable String user, Multimap<String, NotificationChannel> subscribedRecipients) {
     if (user != null) {
       Collection<NotificationChannel> channels = subscribedRecipients.get(user);
       for (NotificationChannel channel : channels) {

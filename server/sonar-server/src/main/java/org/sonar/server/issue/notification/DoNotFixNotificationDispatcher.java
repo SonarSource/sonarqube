@@ -66,7 +66,7 @@ public class DoNotFixNotificationDispatcher extends NotificationDispatcher {
     }
   }
 
-  private void notify(String author, Context context, Multimap<String, NotificationChannel> subscribedRecipients) {
+  private static void notify(String author, Context context, Multimap<String, NotificationChannel> subscribedRecipients) {
     for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
       String login = channelsByRecipients.getKey();
       // Do not notify the person that resolved the issue

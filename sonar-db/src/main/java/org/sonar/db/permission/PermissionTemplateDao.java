@@ -117,7 +117,7 @@ public class PermissionTemplateDao implements Dao {
     return countGroups(session, query, templateId, null);
   }
 
-  private int countGroups(DbSession session, PermissionQuery query, long templateId, @Nullable String groupName) {
+  private static int countGroups(DbSession session, PermissionQuery query, long templateId, @Nullable String groupName) {
     Map<String, Object> parameters = groupsParameters(query, templateId);
     if (groupName != null) {
       parameters.put("groupName", groupName.toUpperCase());

@@ -182,7 +182,7 @@ public class IssueAuthorizationDao {
     return stmt;
   }
 
-  private void processRow(ResultSet rs, Map<String, Dto> dtosByProjectUuid) throws SQLException {
+  private static void processRow(ResultSet rs, Map<String, Dto> dtosByProjectUuid) throws SQLException {
     String projectUuid = rs.getString(1);
     String userLogin = rs.getString(2);
     String group = rs.getString(3);

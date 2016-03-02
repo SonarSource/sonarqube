@@ -50,7 +50,7 @@ class IssuesFinderSort {
     return issues;
   }
 
-  private IssueProcessor getIssueProcessor(String sort) {
+  private static IssueProcessor getIssueProcessor(String sort) {
     if (IssueQuery.SORT_BY_ASSIGNEE.equals(sort)) {
       return new AssigneeSortIssueProcessor();
     }

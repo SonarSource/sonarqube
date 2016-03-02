@@ -64,7 +64,7 @@ public final class AnnotationRuleParser {
     return null;
   }
 
-  private Rule toRule(String repositoryKey, Class clazz, org.sonar.check.Rule ruleAnnotation) {
+  private static Rule toRule(String repositoryKey, Class clazz, org.sonar.check.Rule ruleAnnotation) {
     String ruleKey = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
     String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), null);
     String description = StringUtils.defaultIfEmpty(ruleAnnotation.description(), null);

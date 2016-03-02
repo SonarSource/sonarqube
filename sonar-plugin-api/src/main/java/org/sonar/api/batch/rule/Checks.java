@@ -171,7 +171,7 @@ public class Checks<C> {
     throw new IllegalStateException(String.format("Fail to instantiate class %s for rule %s", checkClassOrInstance, activeRule.ruleKey()), e);
   }
 
-  private void configureFields(ActiveRule activeRule, Object check) {
+  private static void configureFields(ActiveRule activeRule, Object check) {
     for (Map.Entry<String, String> param : activeRule.params().entrySet()) {
       Field field = getField(check, param.getKey());
       if (field == null) {
