@@ -17,26 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-import moment from 'moment';
+import React from 'react';
 
-import { getPeriodLabel as getLabel } from '../../../helpers/periods';
+import { translate } from '../../../helpers/l10n';
 
-export function getPeriodLabel (periods, periodIndex) {
-  const period = _.findWhere(periods, { index: periodIndex });
-
-  if (!period) {
-    return null;
-  }
-
-  return getLabel(period);
-}
-
-
-export function getPeriodDate (periods, periodIndex) {
-  const period = _.findWhere(periods, { index: periodIndex });
-  if (!period) {
-    return null;
-  }
-  return period.date ? moment(period.date).toDate() : null;
+export default function MeasureDrilldownEmpty () {
+  return (
+      <div className="measures-details-components-empty note">
+        {translate('no_results')}
+      </div>
+  );
 }

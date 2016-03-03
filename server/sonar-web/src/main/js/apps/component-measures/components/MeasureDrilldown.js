@@ -20,8 +20,8 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-import ListIcon from './ListIcon';
-import TreeIcon from './TreeIcon';
+import IconList from './IconList';
+import IconTree from './IconTree';
 import { translate } from '../../../helpers/l10n';
 
 export default class MeasureDrilldown extends React.Component {
@@ -29,19 +29,16 @@ export default class MeasureDrilldown extends React.Component {
     const { metric, children } = this.props;
     const { component } = this.context;
 
-    const child = React.cloneElement(children, {
-      component,
-      metric
-    });
+    const child = React.cloneElement(children, { component, metric });
 
     return (
         <div className="measure-details-drilldown">
-          <ul className="measure-details-mode">
+          <ul className="measure-details-drilldown-mode">
             <li>
               <Link
                   activeClassName="active"
                   to={{ pathname: `${metric.key}/tree`, query: { id: component.key } }}>
-                <TreeIcon/>
+                <IconTree/>
                 {translate('component_measures.tab.tree')}
               </Link>
             </li>
@@ -49,7 +46,7 @@ export default class MeasureDrilldown extends React.Component {
               <Link
                   activeClassName="active"
                   to={{ pathname: `${metric.key}/list`, query: { id: component.key } }}>
-                <ListIcon/>
+                <IconList/>
                 {translate('component_measures.tab.list')}
               </Link>
             </li>

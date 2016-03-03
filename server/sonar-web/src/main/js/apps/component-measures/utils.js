@@ -58,3 +58,27 @@ export function formatLeak (value, metric) {
     return formatMeasureVariation(value, metric.type);
   }
 }
+
+export function enhanceWithLeak (measures) {
+  function enhanceSingle (measure) {
+    return { ...measure, leak: getLeakValue(measure) };
+  }
+
+  if (Array.isArray(measures)) {
+    return measures.map(enhanceSingle);
+  } else {
+    return enhanceSingle(measures);
+  }
+}
+
+export function enhanceWithSingleMeasure (components) {
+  return components
+      .map(component => {
+        return {
+          ...component,
+          value: getSingleMeasureValue(component.measures),
+          leak: getSingleLeakValue(component.measures)
+        };
+      })
+      .filter(component => component.value != null || component.leak != null);
+}

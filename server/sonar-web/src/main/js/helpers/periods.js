@@ -17,14 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import { translate, translateWithParameters } from './l10n';
 
-import { translate } from '../../../helpers/l10n';
+export function getLeakPeriod (periods) {
+  if (!Array.isArray(periods)) {
+    return null;
+  }
 
-export default function NoResults () {
-  return (
-      <div className="measures-details-components-empty note">
-        {translate('no_results')}
-      </div>
-  );
+  return periods.find(period => period.index === 1);
+}
+
+export function getPeriodLabel (period) {
+  if (!period) {
+    return null;
+  }
+
+  const parameter = period.modeParam || period.parameter;
+
+  if (period.mode === 'previous_version' && !parameter) {
+    return translate('overview.period.previous_version_only_date');
+  }
+
+  return translateWithParameters(`overview.period.${period.mode}`, parameter);
+}
+
+export function getLeakPeriodLabel (periods) {
+  return getPeriodLabel(getLeakPeriod(periods));
 }

@@ -20,13 +20,13 @@
 import React from 'react';
 
 import Spinner from './Spinner';
-import ComponentsList from './ComponentsList';
+import MeasureDrilldownComponents from './MeasureDrilldownComponents';
 import SourceViewer from '../../code/components/SourceViewer';
-import NoResults from './NoResults';
-import { getSingleMeasureValue, getSingleLeakValue } from '../utils';
+
+import { enhanceWithSingleMeasure } from '../utils';
 import { getFiles } from '../../../api/components';
 
-export default class MeasurePlainList extends React.Component {
+export default class MeasureDrilldownList extends React.Component {
   state = {
     components: [],
     selected: null,
@@ -61,20 +61,12 @@ export default class MeasurePlainList extends React.Component {
 
     this.setState({ fetching: true });
 
-    getFiles(baseComponent.key, [metric.key], options).then(children => {
+    getFiles(baseComponent.key, [metric.key], options).then(files => {
       if (this.mounted) {
-        const componentsWithMappedMeasure = children
-            .map(component => {
-              return {
-                ...component,
-                value: getSingleMeasureValue(component.measures),
-                leak: getSingleLeakValue(component.measures)
-              };
-            })
-            .filter(component => component.value != null || component.leak != null);
+        const components = enhanceWithSingleMeasure(files);
 
         this.setState({
-          components: componentsWithMappedMeasure,
+          components,
           selected: null,
           fetching: false
         });
@@ -94,19 +86,13 @@ export default class MeasurePlainList extends React.Component {
       return <Spinner/>;
     }
 
-    if (!components.length) {
-      return <NoResults/>;
-    }
-
     return (
         <div className="measure-details-plain-list">
-          <div className="measure-details-components">
-            <ComponentsList
-                components={components}
-                selected={selected}
-                metric={metric}
-                onClick={this.handleFileClick.bind(this)}/>
-          </div>
+          <MeasureDrilldownComponents
+              components={components}
+              selected={selected}
+              metric={metric}
+              onClick={this.handleFileClick.bind(this)}/>
 
           {selected && (
               <div className="measure-details-viewer">
@@ -118,6 +104,6 @@ export default class MeasurePlainList extends React.Component {
   }
 }
 
-MeasurePlainList.contextTypes = {
+MeasureDrilldownList.contextTypes = {
   component: React.PropTypes.object
 };

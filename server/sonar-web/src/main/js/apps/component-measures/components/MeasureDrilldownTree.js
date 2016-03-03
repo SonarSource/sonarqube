@@ -20,13 +20,13 @@
 import React from 'react';
 
 import Spinner from './Spinner';
-import ComponentsList from './ComponentsList';
-import NoResults from './NoResults';
+import MeasureDrilldownComponents from './MeasureDrilldownComponents';
 import SourceViewer from '../../code/components/SourceViewer';
-import { getSingleMeasureValue, getSingleLeakValue } from '../utils';
+
+import { enhanceWithSingleMeasure } from '../utils';
 import { getChildren } from '../../../api/components';
 
-export default class MeasureTree extends React.Component {
+export default class MeasureDrilldownTree extends React.Component {
   state = {
     components: [],
     breadcrumbs: [],
@@ -64,17 +64,11 @@ export default class MeasureTree extends React.Component {
 
     getChildren(baseComponent.key, [metric.key], options).then(children => {
       if (this.mounted) {
-        const componentsWithMappedMeasure = children
-            .map(component => {
-              return {
-                ...component,
-                value: getSingleMeasureValue(component.measures),
-                leak: getSingleLeakValue(component.measures)
-              };
-            })
-            .filter(component => component.value != null || component.leak != null);
+        const components = enhanceWithSingleMeasure(children);
 
-        const indexInBreadcrumbs = this.state.breadcrumbs.findIndex(component => component === baseComponent);
+        const indexInBreadcrumbs = this.state.breadcrumbs
+            .findIndex(component => component === baseComponent);
+
         const breadcrumbs = indexInBreadcrumbs !== -1 ?
             this.state.breadcrumbs.slice(0, indexInBreadcrumbs + 1) :
             [...this.state.breadcrumbs, baseComponent];
@@ -82,7 +76,7 @@ export default class MeasureTree extends React.Component {
         this.setState({
           baseComponent,
           breadcrumbs,
-          components: componentsWithMappedMeasure,
+          components,
           selected: null,
           fetching: false
         });
@@ -111,20 +105,14 @@ export default class MeasureTree extends React.Component {
       return <Spinner/>;
     }
 
-    if (!components.length) {
-      return <NoResults/>;
-    }
-
     return (
         <div className="measure-details-tree">
-          <div className="measure-details-components">
-            <ComponentsList
-                components={components}
-                selected={selected}
-                parent={parent}
-                metric={metric}
-                onClick={this.handleFileClick.bind(this)}/>
-          </div>
+          <MeasureDrilldownComponents
+              components={components}
+              selected={selected}
+              parent={parent}
+              metric={metric}
+              onClick={this.handleFileClick.bind(this)}/>
 
           {selected && (
               <div className="measure-details-viewer">
@@ -136,6 +124,6 @@ export default class MeasureTree extends React.Component {
   }
 }
 
-MeasureTree.contextTypes = {
+MeasureDrilldownTree.contextTypes = {
   component: React.PropTypes.object
 };

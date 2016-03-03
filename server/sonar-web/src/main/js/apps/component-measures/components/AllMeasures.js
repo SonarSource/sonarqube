@@ -19,17 +19,14 @@
  */
 import _ from 'underscore';
 import React from 'react';
-import { Link } from 'react-router';
 
 import Spinner from './Spinner';
-import { getLeakValue, formatLeak } from '../utils';
+import AllMeasuresDomain from './AllMeasuresDomain';
+import { getLeakValue } from '../utils';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { formatMeasure } from '../../../helpers/measures';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { getLeakPeriodLabel } from '../../../helpers/periods';
 
-import { getPeriodLabel } from '../../overview/helpers/periods';
-
-export default class ComponentMeasuresApp extends React.Component {
+export default class AllMeasures extends React.Component {
   state = {
     fetching: true,
     measures: []
@@ -86,51 +83,23 @@ export default class ComponentMeasuresApp extends React.Component {
       return { name, measures: sortedMeasures };
     }), 'name');
 
-    const leakLabel = getPeriodLabel(periods, 1);
+    const leakPeriodLabel = getLeakPeriodLabel(periods);
 
     return (
-        <ul className="component-measures-domains">
+        <ul className="measures-domains">
           {domains.map((domain, index) => (
-              <li key={domain.name}>
-                <header className="page-header">
-                  <h3 className="page-title">{domain.name}</h3>
-                  {index === 0 && (
-                      <div className="component-measures-domains-leak-header">
-                        {translateWithParameters('overview.leak_period_x', leakLabel)}
-                      </div>
-                  )}
-                </header>
-
-                <ul className="component-measures-domain-measures">
-                  {domain.measures.map(measure => (
-                      <li key={measure.metric.key}>
-                        <div className="component-measures-domain-measures-name">
-                          {measure.metric.name}
-                        </div>
-                        <div className="component-measures-domain-measures-value">
-                          {measure.value != null && (
-                              <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
-                                {formatMeasure(measure.value, measure.metric.type)}
-                              </Link>
-                          )}
-                        </div>
-                        <div className="component-measures-domain-measures-value component-measures-leak-cell">
-                          {measure.leak != null && (
-                              <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
-                                {formatLeak(measure.leak, measure.metric)}
-                              </Link>
-                          )}
-                        </div>
-                      </li>
-                  ))}
-                </ul>
-              </li>
+              <AllMeasuresDomain
+                  key={domain.name}
+                  domain={domain}
+                  component={component}
+                  displayLeakHeader={index === 0}
+                  leakPeriodLabel={leakPeriodLabel}/>
           ))}
         </ul>
     );
   }
 }
 
-ComponentMeasuresApp.contextTypes = {
+AllMeasures.contextTypes = {
   component: React.PropTypes.object
 };

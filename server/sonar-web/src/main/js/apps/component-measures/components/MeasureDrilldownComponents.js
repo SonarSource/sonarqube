@@ -19,12 +19,13 @@
  */
 import React from 'react';
 
-import UpIcon from './UpIcon';
+import MeasureDrilldownEmpty from './MeasureDrilldownEmpty';
+import IconUp from './IconUp';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 import { formatMeasure } from '../../../helpers/measures';
 import { formatLeak } from '../utils';
 
-export default function ComponentsList ({ components, selected, parent, metric, onClick }) {
+export default function MeasureDrilldownComponents ({ components, selected, parent, metric, onClick }) {
   const handleClick = (component, e) => {
     e.preventDefault();
     e.target.blur();
@@ -32,18 +33,19 @@ export default function ComponentsList ({ components, selected, parent, metric, 
   };
 
   return (
-      <ul>
+      <ul className="measure-details-components">
         {parent && (
             <li key={parent.id} className="measure-details-components-parent">
               <a href="#" onClick={handleClick.bind(this, parent)}>
                 <div className="measure-details-component-name">
-                  <UpIcon/>
-                  &nbsp;
-                  ..
+                  <IconUp/>&nbsp;..
                 </div>
               </a>
             </li>
         )}
+
+        {!components.length && <MeasureDrilldownEmpty/>}
+
         {components.map(component => (
             <li key={component.id}>
               <a

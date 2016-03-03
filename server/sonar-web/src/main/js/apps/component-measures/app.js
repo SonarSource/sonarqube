@@ -23,10 +23,10 @@ import { Router, Route, IndexRoute, Redirect, IndexRedirect, useRouterHistory } 
 import { createHistory } from 'history';
 
 import ComponentMeasuresApp from './components/ComponentMeasuresApp';
-import AllMeasuresList from './components/AllMeasuresList';
+import AllMeasuresList from './components/AllMeasures';
 import MeasureDetails from './components/MeasureDetails';
-import MeasureTree from './components/MeasureTree';
-import MeasureList from './components/MeasureList';
+import MeasureDrilldownTree from './components/MeasureDrilldownTree';
+import MeasureDrilldownList from './components/MeasureDrilldownList';
 
 import './styles.css';
 
@@ -53,8 +53,8 @@ window.sonarqube.appStarted.then(options => {
           <IndexRoute component={AllMeasuresList}/>
           <Route path=":metricKey" component={MeasureDetails}>
             <IndexRedirect to="tree"/>
-            <Route path="tree" component={MeasureTree}/>
-            <Route path="list" component={MeasureList}/>
+            <Route path="tree" component={MeasureDrilldownTree}/>
+            <Route path="list" component={MeasureDrilldownList}/>
           </Route>
         </Route>
 
