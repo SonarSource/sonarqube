@@ -25,6 +25,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,6 +44,7 @@ public class TestIssueTest {
       .setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED)
       .setResolution(org.sonar.api.issue.Issue.RESOLUTION_FIXED)
       .setDebt(Duration.create(10L))
+      .setType(RuleType.BUG)
       .build();
 
     assertThat(issue.key()).isEqualTo("ABCD");
@@ -60,6 +62,7 @@ public class TestIssueTest {
       .setRuleKey(RuleKey.of("xoo", "S01"))
       .setSeverity(Severity.BLOCKER)
       .setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED)
+      .setType(RuleType.BUG)
       .build();
 
     assertThat(issue.resolution()).isNull();
@@ -76,6 +79,7 @@ public class TestIssueTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED)
       .setResolution(org.sonar.api.issue.Issue.RESOLUTION_FIXED)
+      .setType(RuleType.BUG)
       .build();
   }
 
@@ -97,6 +101,7 @@ public class TestIssueTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED)
       .setResolution(org.sonar.api.issue.Issue.RESOLUTION_FIXED)
+      .setType(RuleType.BUG)
       .build();
   }
 
@@ -119,6 +124,7 @@ public class TestIssueTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED)
       .setResolution("unknown")
+      .setType(RuleType.BUG)
       .build();
   }
 
@@ -132,6 +138,7 @@ public class TestIssueTest {
       .setRuleKey(RuleKey.of("xoo", "S01"))
       .setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED)
       .setResolution(org.sonar.api.issue.Issue.RESOLUTION_FIXED)
+      .setType(RuleType.BUG)
       .build();
   }
 
@@ -154,6 +161,7 @@ public class TestIssueTest {
       .setSeverity("unknown")
       .setStatus(org.sonar.api.issue.Issue.STATUS_RESOLVED)
       .setResolution(org.sonar.api.issue.Issue.RESOLUTION_FIXED)
+      .setType(RuleType.BUG)
       .build();
   }
 
@@ -167,6 +175,7 @@ public class TestIssueTest {
       .setRuleKey(RuleKey.of("xoo", "S01"))
       .setSeverity(Severity.BLOCKER)
       .setResolution(org.sonar.api.issue.Issue.RESOLUTION_FIXED)
+      .setType(RuleType.BUG)
       .build();
   }
 
@@ -189,6 +198,7 @@ public class TestIssueTest {
       .setSeverity(Severity.BLOCKER)
       .setStatus("unknown")
       .setResolution(org.sonar.api.issue.Issue.RESOLUTION_FIXED)
+      .setType(RuleType.BUG)
       .build();
   }
 }

@@ -23,6 +23,7 @@ import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
 import org.junit.Test;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.db.rule.RuleTesting;
@@ -37,7 +38,7 @@ import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 
-public class DebtAggregatorTest {
+public class EffortAggregatorTest {
 
   static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).build();
   static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();
@@ -53,14 +54,14 @@ public class DebtAggregatorTest {
   @org.junit.Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(PROJECT, metricRepository);
 
-  DebtAggregator underTest = new DebtAggregator(ruleRepository, metricRepository, measureRepository);
+  EffortAggregator underTest = new EffortAggregator(ruleRepository, metricRepository, measureRepository);
 
   @Test
-  public void sum_debt_of_unresolved_issues() {
-    DefaultIssue unresolved1 = newIssue(10);
-    DefaultIssue unresolved2 = newIssue(30);
-    DefaultIssue unresolvedWithoutDebt = newIssue();
-    DefaultIssue resolved = newIssue(50).setResolution(RESOLUTION_FIXED);
+  public void sum_maintainability_effort_of_unresolved_issues() {
+    DefaultIssue unresolved1 = newCodeSmellIssue(10);
+    DefaultIssue unresolved2 = newCodeSmellIssue(30);
+    DefaultIssue unresolvedWithoutDebt = newCodeSmellIssueWithoutEffort();
+    DefaultIssue resolved = newCodeSmellIssue(50).setResolution(RESOLUTION_FIXED);
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, unresolved1);
@@ -69,17 +70,34 @@ public class DebtAggregatorTest {
     underTest.onIssue(FILE, resolved);
     underTest.afterComponent(FILE);
 
-    // total debt
-    assertThat(debtMeasure(FILE).get().getLongValue()).isEqualTo(10 + 30);
+    // total maintainability effort
+    assertThat(maintainabilityEffortMeasure(FILE).get().getLongValue()).isEqualTo(10 + 30);
 
-    // debt by rule
+    // maintainability effort by rule
     assertThat(debtRuleMeasure(FILE, RULE.getId()).get().getLongValue()).isEqualTo(10 + 30);
   }
 
   @Test
-  public void aggregate_debt_of_children() {
-    DefaultIssue fileIssue = newIssue(10);
-    DefaultIssue projectIssue = newIssue(30);
+  public void maintainability_effort_is_only_computed_using_code_smell_issues() {
+    DefaultIssue codeSmellIssue = newCodeSmellIssue(10);
+    // Issue of type BUG should be ignored
+    DefaultIssue bugIssue = newBugIssue(15);
+    DefaultIssue vulnerabilityIssue = newVulnerabilityIssue(12);
+
+    underTest.beforeComponent(FILE);
+    underTest.onIssue(FILE, codeSmellIssue);
+    underTest.onIssue(FILE, bugIssue);
+    underTest.onIssue(FILE, vulnerabilityIssue);
+    underTest.afterComponent(FILE);
+
+    // Only effort of code smell issue is used
+    assertThat(maintainabilityEffortMeasure(FILE).get().getLongValue()).isEqualTo(10);
+  }
+
+  @Test
+  public void aggregate_maintainability_effort_of_children() {
+    DefaultIssue fileIssue = newCodeSmellIssue(10);
+    DefaultIssue projectIssue = newCodeSmellIssue(30);
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, fileIssue);
@@ -88,17 +106,17 @@ public class DebtAggregatorTest {
     underTest.onIssue(PROJECT, projectIssue);
     underTest.afterComponent(PROJECT);
 
-    // total debt of project
-    assertThat(debtMeasure(PROJECT).get().getLongValue()).isEqualTo(10 + 30);
+    // total maintainability effort of project
+    assertThat(maintainabilityEffortMeasure(PROJECT).get().getLongValue()).isEqualTo(10 + 30);
 
-    // debt by rule
+    // maintainability effort by rule
     assertThat(debtRuleMeasure(PROJECT, RULE.getId()).get().getLongValue()).isEqualTo(10 + 30);
   }
 
   @Test
-  public void sum_debt_of_issues_without_debt() {
-    DefaultIssue fileIssue = newIssue();
-    DefaultIssue projectIssue = newIssue();
+  public void sum_maintainability_effort_of_issues_without_effort() {
+    DefaultIssue fileIssue = newCodeSmellIssueWithoutEffort();
+    DefaultIssue projectIssue = newCodeSmellIssueWithoutEffort();
 
     underTest.beforeComponent(FILE);
     underTest.onIssue(FILE, fileIssue);
@@ -107,15 +125,15 @@ public class DebtAggregatorTest {
     underTest.onIssue(PROJECT, projectIssue);
     underTest.afterComponent(PROJECT);
 
-    // total debt of project
-    assertThat(debtMeasure(PROJECT).get().getLongValue()).isZero();
+    // total maintainability effort of project
+    assertThat(maintainabilityEffortMeasure(PROJECT).get().getLongValue()).isZero();
 
-    // debt by rule
+    // maintainability effort by rule
     assertThat(debtRuleMeasure(PROJECT, RULE.getId())).isAbsent();
   }
 
   @CheckForNull
-  private Optional<Measure> debtMeasure(Component component) {
+  private Optional<Measure> maintainabilityEffortMeasure(Component component) {
     return measureRepository.getAddedRawMeasure(component, TECHNICAL_DEBT_KEY);
   }
 
@@ -124,11 +142,19 @@ public class DebtAggregatorTest {
     return measureRepository.getAddedRawRuleMeasure(component, TECHNICAL_DEBT_KEY, ruleId);
   }
 
-  private static DefaultIssue newIssue(long debt) {
-    return newIssue().setDebt(Duration.create(debt));
+  private static DefaultIssue newCodeSmellIssue(long effort) {
+    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(RuleType.CODE_SMELL);
   }
 
-  private static DefaultIssue newIssue() {
-    return new DefaultIssue().setRuleKey(RULE.getKey());
+  private static DefaultIssue newBugIssue(long effort) {
+    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(RuleType.BUG);
+  }
+
+  private static DefaultIssue newVulnerabilityIssue(long effort) {
+    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(RuleType.VULNERABILITY);
+  }
+
+  private static DefaultIssue newCodeSmellIssueWithoutEffort() {
+    return new DefaultIssue().setRuleKey(RULE.getKey()).setType(RuleType.CODE_SMELL);
   }
 }

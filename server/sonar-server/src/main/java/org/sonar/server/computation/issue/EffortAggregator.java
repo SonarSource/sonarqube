@@ -25,6 +25,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
@@ -34,16 +35,20 @@ import org.sonar.server.computation.metric.MetricRepository;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-public class DebtAggregator extends IssueVisitor {
+/**
+ * Compute effort related measures :
+ * {@link CoreMetrics#TECHNICAL_DEBT_KEY}
+ */
+public class EffortAggregator extends IssueVisitor {
 
   private final RuleRepository ruleRepository;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
 
-  private final Map<Integer, Debt> debtsByComponentRef = new HashMap<>();
-  private Debt currentDebt;
+  private final Map<Integer, Effort> effortsByComponentRef = new HashMap<>();
+  private Effort effort;
 
-  public DebtAggregator(RuleRepository ruleRepository,
+  public EffortAggregator(RuleRepository ruleRepository,
     MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.ruleRepository = ruleRepository;
     this.metricRepository = metricRepository;
@@ -52,15 +57,15 @@ public class DebtAggregator extends IssueVisitor {
 
   @Override
   public void beforeComponent(Component component) {
-    currentDebt = new Debt();
-    debtsByComponentRef.put(component.getReportAttributes().getRef(), currentDebt);
+    effort = new Effort();
+    effortsByComponentRef.put(component.getReportAttributes().getRef(), effort);
 
     // aggregate children counters
     for (Component child : component.getChildren()) {
       // no need to keep the children in memory. They can be garbage-collected.
-      Debt childDebt = debtsByComponentRef.remove(child.getReportAttributes().getRef());
-      if (childDebt != null) {
-        currentDebt.add(childDebt);
+      Effort childEffort = effortsByComponentRef.remove(child.getReportAttributes().getRef());
+      if (childEffort != null) {
+        effort.add(childEffort);
       }
     }
   }
@@ -68,7 +73,7 @@ public class DebtAggregator extends IssueVisitor {
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
     if (issue.resolution() == null) {
-      currentDebt.add(issue);
+      effort.add(issue);
     }
   }
 
@@ -77,36 +82,38 @@ public class DebtAggregator extends IssueVisitor {
     Metric metric = metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY);
 
     // total value
-    measureRepository.add(component, metric, Measure.newMeasureBuilder().create(this.currentDebt.minutes));
+    measureRepository.add(component, metric, Measure.newMeasureBuilder().create(this.effort.maintainabilityEffort));
 
+    // TODO delete following lines when working on SONAR-7425
     // distribution by rule
-    for (Map.Entry<Integer, Long> entry : currentDebt.minutesByRuleId.entrySet()) {
+    for (Map.Entry<Integer, Long> entry : effort.minutesByRuleId.entrySet()) {
       int ruleId = entry.getKey();
       long ruleDebt = entry.getValue();
       // debt can't be zero.
       measureRepository.add(component, metric, Measure.newMeasureBuilder().forRule(ruleId).create(ruleDebt));
     }
 
-    this.currentDebt = null;
+    this.effort = null;
   }
 
-  private class Debt {
-    private long minutes = 0L;
+  private class Effort {
+    private long maintainabilityEffort = 0L;
     private final SumMap<Integer> minutesByRuleId = new SumMap<>();
 
     void add(DefaultIssue issue) {
-      Long issueMinutes = issue.debtInMinutes();
-      if (issueMinutes != null && issueMinutes != 0L) {
-        this.minutes += issueMinutes;
-
-        Rule rule = ruleRepository.getByKey(issue.ruleKey());
-        this.minutesByRuleId.add(rule.getId(), issueMinutes);
+      Long issueEffort = issue.debtInMinutes();
+      if (issueEffort != null && issueEffort != 0L) {
+        if (issue.type().equals(RuleType.CODE_SMELL)) {
+          this.maintainabilityEffort += issueEffort;
+          Rule rule = ruleRepository.getByKey(issue.ruleKey());
+          this.minutesByRuleId.add(rule.getId(), issueEffort);
+        }
       }
     }
 
-    public void add(Debt debt) {
-      this.minutes += debt.minutes;
-      this.minutesByRuleId.add(debt.minutesByRuleId);
+    public void add(Effort effort) {
+      this.maintainabilityEffort += effort.maintainabilityEffort;
+      this.minutesByRuleId.add(effort.minutesByRuleId);
     }
   }
 
