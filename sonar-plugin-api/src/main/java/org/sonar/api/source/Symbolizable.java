@@ -48,6 +48,8 @@ public interface Symbolizable extends Perspective {
     /**
      * Creates a new reference for a symbol.
      * The offsets are global in the file.
+     *
+     * @since 5.3
      */
     void newReference(Symbol symbol, int fromOffset, int toOffset);
 
