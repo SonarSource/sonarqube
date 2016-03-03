@@ -55,7 +55,6 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
 
   onDestroy () {
     this.$('[data-toggle="tooltip"]').tooltip('destroy');
-    WorkspaceListItemView.prototype.onDestroy.apply(this, arguments);
   },
 
   selectCurrent () {
