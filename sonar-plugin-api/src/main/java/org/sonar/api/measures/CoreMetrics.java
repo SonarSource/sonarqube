@@ -76,7 +76,10 @@ public final class CoreMetrics {
 
   /**
    * @since 4.0
+   *
+   * @deprecated in 5.5. Replaced by {@link #DOMAIN_MAINTAINABILITY}
    */
+  @Deprecated
   public static String DOMAIN_TECHNICAL_DEBT = "Technical Debt";
 
   /**
@@ -2151,7 +2154,7 @@ public final class CoreMetrics {
 
   // --------------------------------------------------------------------------------------------------------------------
   //
-  // TECHNICAL DEBT
+  // MAINTAINABILITY CHARACTERISTIC
   //
   // --------------------------------------------------------------------------------------------------------------------
 
@@ -2166,7 +2169,7 @@ public final class CoreMetrics {
    */
   // TODO should be renamed to MAINTAINABILITY_REMEDIATION_EFFORT
   public static final Metric<Long> TECHNICAL_DEBT = new Metric.Builder(TECHNICAL_DEBT_KEY, "Technical Debt", Metric.ValueType.WORK_DUR)
-    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
     .setBestValue(0.0)
@@ -2185,7 +2188,7 @@ public final class CoreMetrics {
   // TODO should be renamed to NEW_MAINTAINABILITY_REMEDIATION_EFFORT
   public static final Metric<Long> NEW_TECHNICAL_DEBT = new Metric.Builder(NEW_TECHNICAL_DEBT_KEY, "Technical Debt on new code", Metric.ValueType.WORK_DUR)
     .setDescription("Technical Debt of new code")
-    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
     .setBestValue(0.0)
@@ -2204,7 +2207,7 @@ public final class CoreMetrics {
    */
   // TODO should be renamed to MAINTAINABILITY_RATING
   public static final Metric<Integer> SQALE_RATING = new Metric.Builder(SQALE_RATING_KEY, "SQALE Rating", Metric.ValueType.RATING)
-    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
     .setBestValue(1.0)
@@ -2220,7 +2223,7 @@ public final class CoreMetrics {
    * @since 4.5
    */
   public static final Metric<String> DEVELOPMENT_COST = new Metric.Builder(DEVELOPMENT_COST_KEY, "SQALE Development Cost", Metric.ValueType.STRING)
-    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
     .setBestValue(0.0)
@@ -2240,7 +2243,7 @@ public final class CoreMetrics {
   // TODO should be renamed to TECHNICALDEBT_RATIO
   public static final Metric<Double> SQALE_DEBT_RATIO = new Metric.Builder(SQALE_DEBT_RATIO_KEY, "Technical Debt Ratio", Metric.ValueType.PERCENT)
     .setDescription("Ratio of the technical debt compared to what it would cost to develop the whole source code from scratch.")
-    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
     .setBestValue(0.0)
@@ -2259,11 +2262,91 @@ public final class CoreMetrics {
   // TODO should be renamed to TECHNICALDEBT_RATIO_ON_NEW_CODE
   public static final Metric<Double> NEW_SQALE_DEBT_RATIO = new Metric.Builder(NEW_SQALE_DEBT_RATIO_KEY, "Technical Debt Ratio on new code", Metric.ValueType.PERCENT)
     .setDescription("Technical Debt Ratio of new/changed code.")
-    .setDomain(DOMAIN_TECHNICAL_DEBT)
+    .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
     .setBestValue(0.0)
     .setQualitative(true)
+    .create();
+
+  // --------------------------------------------------------------------------------------------------------------------
+  //
+  // RELIABILITY CHARACTERISTIC
+  //
+  // --------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * @since 5.5
+   */
+  public static final String RELIABILITY_REMEDIATION_EFFORT_KEY = "reliability_remediation_effort";
+
+  /**
+   * @since 5.5
+   */
+  public static final Metric<Long> RELIABILITY_REMEDIATION_EFFORT = new Metric.Builder(RELIABILITY_REMEDIATION_EFFORT_KEY, "Reliability remediation effort", Metric.ValueType.WORK_DUR)
+    .setDomain(DOMAIN_RELIABILITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .create();
+
+  /**
+   * @since 5.5
+   */
+  public static final String NEW_RELIABILITY_REMEDIATION_EFFORT_KEY = "new_reliability_remediation_effort";
+
+  /**
+   * @since 5.5
+   */
+  public static final Metric<Long> NEW_RELIABILITY_REMEDIATION_EFFORT = new Metric.Builder(NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, "Reliability remediation effort on new code", Metric.ValueType.WORK_DUR)
+    .setDescription("Reliability remediation effort of new code")
+    .setDomain(DOMAIN_RELIABILITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .setDeleteHistoricalData(true)
+    .create();
+
+  // --------------------------------------------------------------------------------------------------------------------
+  //
+  // SECURITY CHARACTERISTIC
+  //
+  // --------------------------------------------------------------------------------------------------------------------
+
+  /**
+   * @since 5.5
+   */
+  public static final String SECURITY_REMEDIATION_EFFORT_KEY = "security_remediation_effort";
+
+  /**
+   * @since 5.5
+   */
+  public static final Metric<Long> SECURITY_REMEDIATION_EFFORT = new Metric.Builder(SECURITY_REMEDIATION_EFFORT_KEY, "Security remediation effort", Metric.ValueType.WORK_DUR)
+    .setDomain(DOMAIN_SECURITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .create();
+
+  /**
+   * @since 5.5
+   */
+  public static final String NEW_SECURITY_REMEDIATION_EFFORT_KEY = "new_security_remediation_effort";
+
+  /**
+   * @since 5.5
+   */
+  public static final Metric<Long> NEW_SECURITY_REMEDIATION_EFFORT = new Metric.Builder(NEW_SECURITY_REMEDIATION_EFFORT_KEY, "Security remediation effort on new code", Metric.ValueType.WORK_DUR)
+    .setDescription("Security remediation effort of new code")
+    .setDomain(DOMAIN_SECURITY)
+    .setDirection(Metric.DIRECTION_WORST)
+    .setOptimizedBestValue(true)
+    .setBestValue(0.0)
+    .setQualitative(true)
+    .setDeleteHistoricalData(true)
     .create();
 
   // --------------------------------------------------------------------------------------------------------------------

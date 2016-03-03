@@ -38,45 +38,56 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
-import static org.sonar.api.rules.RuleType.CODE_SMELL;
+import static org.sonar.api.measures.CoreMetrics.NEW_RELIABILITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_SECURITY_REMEDIATION_EFFORT_KEY;
+import static org.sonar.api.measures.CoreMetrics.NEW_TECHNICAL_DEBT_KEY;
 
 /**
  * Compute new effort related measures :
  * {@link CoreMetrics#NEW_TECHNICAL_DEBT_KEY}
+ * {@link CoreMetrics#NEW_RELIABILITY_REMEDIATION_EFFORT_KEY}
+ * {@link CoreMetrics#NEW_SECURITY_REMEDIATION_EFFORT_KEY}
  */
 public class NewEffortAggregator extends IssueVisitor {
 
   private final NewEffortCalculator calculator;
   private final PeriodsHolder periodsHolder;
   private final DbClient dbClient;
-  private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
 
+  private final Metric newMaintainabilityEffortMetric;
+  private final Metric newReliabilityEffortMetric;
+  private final Metric newSecurityEffortMetric;
+
   private ListMultimap<String, IssueChangeDto> changesByIssueUuid = ArrayListMultimap.create();
-  private Map<Integer, EffortSum> sumsByComponentRef = new HashMap<>();
-  private EffortSum maintainabilityEffortSum = null;
+  private Map<Integer, NewEffortCounter> counterByComponentRef = new HashMap<>();
+  private NewEffortCounter counter = null;
 
   public NewEffortAggregator(NewEffortCalculator calculator, PeriodsHolder periodsHolder, DbClient dbClient,
-                             MetricRepository metricRepository, MeasureRepository measureRepository) {
+    MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.calculator = calculator;
     this.periodsHolder = periodsHolder;
     this.dbClient = dbClient;
-    this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
+
+    this.newMaintainabilityEffortMetric = metricRepository.getByKey(NEW_TECHNICAL_DEBT_KEY);
+    this.newReliabilityEffortMetric = metricRepository.getByKey(NEW_RELIABILITY_REMEDIATION_EFFORT_KEY);
+    this.newSecurityEffortMetric = metricRepository.getByKey(NEW_SECURITY_REMEDIATION_EFFORT_KEY);
   }
 
   @Override
   public void beforeComponent(Component component) {
-    maintainabilityEffortSum = new EffortSum();
-    sumsByComponentRef.put(component.getReportAttributes().getRef(), maintainabilityEffortSum);
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectChangelogOfNonClosedIssuesByComponent(component.getUuid());
     for (IssueChangeDto change : changes) {
       changesByIssueUuid.put(change.getIssueKey(), change);
     }
+
+    counter = new NewEffortCounter(calculator);
+    counterByComponentRef.put(component.getReportAttributes().getRef(), counter);
     for (Component child : component.getChildren()) {
-      EffortSum childSum = sumsByComponentRef.remove(child.getReportAttributes().getRef());
+      NewEffortCounter childSum = counterByComponentRef.remove(child.getReportAttributes().getRef());
       if (childSum != null) {
-        maintainabilityEffortSum.add(childSum);
+        counter.add(childSum);
       }
     }
   }
@@ -86,23 +97,60 @@ public class NewEffortAggregator extends IssueVisitor {
     if (issue.resolution() == null && issue.debtInMinutes() != null && !periodsHolder.getPeriods().isEmpty()) {
       List<IssueChangeDto> changelog = changesByIssueUuid.get(issue.key());
       for (Period period : periodsHolder.getPeriods()) {
-        if (issue.type().equals(CODE_SMELL)) {
-          long newMaintainabilityEffort = calculator.calculate(issue, changelog, period);
-          maintainabilityEffortSum.add(period.getIndex(), newMaintainabilityEffort);
-        }
+        counter.add(issue, period, changelog);
       }
     }
   }
 
   @Override
   public void afterComponent(Component component) {
-    if (!maintainabilityEffortSum.isEmpty) {
-      MeasureVariations variations = new MeasureVariations(maintainabilityEffortSum.sums);
-      Metric metric = metricRepository.getByKey(CoreMetrics.NEW_TECHNICAL_DEBT_KEY);
+    computeMeasure(component, newMaintainabilityEffortMetric, counter.maintainabilitySum);
+    computeMeasure(component, newReliabilityEffortMetric, counter.reliabilitySum);
+    computeMeasure(component, newSecurityEffortMetric, counter.securitySum);
+    changesByIssueUuid.clear();
+    counter = null;
+  }
+
+  private void computeMeasure(Component component, Metric metric, EffortSum effortSum) {
+    if (!effortSum.isEmpty) {
+      MeasureVariations variations = new MeasureVariations(effortSum.sums);
       measureRepository.add(component, metric, Measure.newMeasureBuilder().setVariations(variations).createNoValue());
     }
-    changesByIssueUuid.clear();
-    maintainabilityEffortSum = null;
+  }
+
+  private static class NewEffortCounter {
+    private final NewEffortCalculator calculator;
+
+    private final EffortSum maintainabilitySum = new EffortSum();
+    private final EffortSum reliabilitySum = new EffortSum();
+    private final EffortSum securitySum = new EffortSum();
+
+    public NewEffortCounter(NewEffortCalculator calculator) {
+      this.calculator = calculator;
+    }
+
+    void add(NewEffortCounter otherCounter) {
+      maintainabilitySum.add(otherCounter.maintainabilitySum);
+      reliabilitySum.add(otherCounter.reliabilitySum);
+      securitySum.add(otherCounter.securitySum);
+    }
+
+    void add(DefaultIssue issue, Period period, List<IssueChangeDto> changelog) {
+      long newEffort = calculator.calculate(issue, changelog, period);
+      switch (issue.type()) {
+        case CODE_SMELL:
+          maintainabilitySum.add(period.getIndex(), newEffort);
+          break;
+        case BUG:
+          reliabilitySum.add(period.getIndex(), newEffort);
+          break;
+        case VULNERABILITY:
+          securitySum.add(period.getIndex(), newEffort);
+          break;
+        default:
+          throw new IllegalStateException(String.format("Unknown type '%s'", issue.type()));
+      }
+    }
   }
 
   private static class EffortSum {
