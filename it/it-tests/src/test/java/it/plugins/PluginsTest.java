@@ -65,7 +65,8 @@ public class PluginsTest {
    */
   static final Set<String> DISABLED_PLUGINS = Sets.newHashSet(
     // internal plugin used for integration tests of language plugins
-    "lits", "citymodel");
+    // - status 1.0 is built for Java 8 so it is temporarily disabled
+    "lits", "citymodel", "status");
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
     "abap", "cobol", "cpp", "devcockpit", "objc", "pli", "plsql", "report", "rpg",
