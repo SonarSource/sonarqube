@@ -46,19 +46,20 @@ export default Backbone.Model.extend({
     const key = this.id;
     const options = {
       ps: 1,
-      facets: 'active_severities',
+      facets: 'types',
       qprofile: key,
       activation: 'true'
     };
     return $.get(url, options).done(function (r) {
-      const severityFacet = _.findWhere(r.facets, { property: 'active_severities' });
-      if (severityFacet != null) {
-        const severities = severityFacet.values;
-        const severityComparator = function (s) {
-          return window.severityColumnsComparator(s.val);
+      const typesFacet = _.findWhere(r.facets, { property: 'types' });
+      if (typesFacet != null) {
+        const order = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+        const types = typesFacet.values;
+        const typesComparator = function (t) {
+          return order.indexOf(t.val);
         };
-        const sortedSeverities = _.sortBy(severities, severityComparator);
-        _.extend(that.fetchChanged, { rulesSeverities: sortedSeverities });
+        const sortedTypes = _.sortBy(types, typesComparator);
+        _.extend(that.fetchChanged, { rulesTypes: sortedTypes });
       }
     });
   },

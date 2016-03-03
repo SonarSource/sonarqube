@@ -4,32 +4,28 @@
       <header class="page-header">
         <h3 class="page-title">{{t 'coding_rules'}}</h3>
       </header>
-      <p>
-        <a class="big" href="{{link rulesSearchUrl}}">{{formatMeasure activeRuleCount 'INT'}}</a>
-        {{tp 'quality_profile.x_active_rules' ''}}
-      </p>
-      {{#notEmpty rulesSeverities}}
+
+      <div>
+        <div class="display-inline-block text-right little-spacer-right" style="width: 40px">
+          <strong>
+            <a href="{{link rulesSearchUrl}}">{{formatMeasure activeRuleCount 'INT'}}</a>
+          </strong>
+        </div>
+        <strong>
+          {{tp 'quality_profile.x_active_rules' ''}}
+        </strong>
+      </div>
+
+      {{#notEmpty rulesTypes}}
         <div class="abs-width-400 spacer-top">
-          <div class="columns">
-            <div class="column-half">
-              {{#eachEven rulesSeverities}}
-                <p class="spacer-top">
-                  {{severityIcon val}}
-                  <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
-                  <span class="text-lowercase">{{t 'severity' val}}</span>
-                </p>
-              {{/eachEven}}
+          {{#each rulesTypes}}
+            <div class="spacer-top">
+              <div class="display-inline-block text-right little-spacer-right" style="width: 40px">
+                <a href="{{link ../rulesSearchUrl '|types=' val}}">{{formatMeasure count 'INT'}}</a>
+              </div>
+              {{issueType val}}
             </div>
-            <div class="column-half">
-              {{#eachOdd rulesSeverities}}
-                <p class="spacer-top">
-                  {{severityIcon val}}
-                  <a href="{{link ../rulesSearchUrl '|active_severities=' val}}">{{formatMeasure count 'INT'}}</a>
-                  <span class="text-lowercase">{{t 'severity' val}}</span>
-                </p>
-              {{/eachOdd}}
-            </div>
-          </div>
+          {{/each}}
         </div>
       {{/notEmpty}}
     </div>
