@@ -2158,11 +2158,13 @@ public final class CoreMetrics {
   /**
    * @since 4.0
    */
+  // TODO should be renamed to MAINTAINABILITY_REMEDIATION_EFFORT_KEY = "maintainability_remediation_effort"
   public static final String TECHNICAL_DEBT_KEY = "sqale_index";
 
   /**
    * @since 4.0
    */
+  // TODO should be renamed to MAINTAINABILITY_REMEDIATION_EFFORT
   public static final Metric<Long> TECHNICAL_DEBT = new Metric.Builder(TECHNICAL_DEBT_KEY, "Technical Debt", Metric.ValueType.WORK_DUR)
     .setDomain(DOMAIN_TECHNICAL_DEBT)
     .setDirection(Metric.DIRECTION_WORST)
@@ -2174,11 +2176,13 @@ public final class CoreMetrics {
   /**
    * @since 4.1
    */
+  // TODO should be renamed to NEW_MAINTAINABILITY_REMEDIATION_EFFORT_KEY = "new_maintainability_remediation_effort"
   public static final String NEW_TECHNICAL_DEBT_KEY = "new_technical_debt";
 
   /**
    * @since 4.1
    */
+  // TODO should be renamed to NEW_MAINTAINABILITY_REMEDIATION_EFFORT
   public static final Metric<Long> NEW_TECHNICAL_DEBT = new Metric.Builder(NEW_TECHNICAL_DEBT_KEY, "Technical Debt on new code", Metric.ValueType.WORK_DUR)
     .setDescription("Technical Debt of new code")
     .setDomain(DOMAIN_TECHNICAL_DEBT)
@@ -2192,11 +2196,13 @@ public final class CoreMetrics {
   /**
    * @since 4.5
    */
+  // TODO should be renamed to MAINTAINABILITY_RATING_KEY = "maintainability_rating"
   public static final String SQALE_RATING_KEY = "sqale_rating";
 
   /**
    * @since 4.5
    */
+  // TODO should be renamed to MAINTAINABILITY_RATING
   public static final Metric<Integer> SQALE_RATING = new Metric.Builder(SQALE_RATING_KEY, "SQALE Rating", Metric.ValueType.RATING)
     .setDomain(DOMAIN_TECHNICAL_DEBT)
     .setDirection(Metric.DIRECTION_WORST)
@@ -2225,11 +2231,13 @@ public final class CoreMetrics {
   /**
    * @since 4.5
    */
+  // TODO should be renamed to TECHNICALDEBT_RATIO_KEY = "technicaldebt_ratio"
   public static final String SQALE_DEBT_RATIO_KEY = "sqale_debt_ratio";
 
   /**
    * @since 4.5
    */
+  // TODO should be renamed to TECHNICALDEBT_RATIO
   public static final Metric<Double> SQALE_DEBT_RATIO = new Metric.Builder(SQALE_DEBT_RATIO_KEY, "Technical Debt Ratio", Metric.ValueType.PERCENT)
     .setDescription("Ratio of the technical debt compared to what it would cost to develop the whole source code from scratch.")
     .setDomain(DOMAIN_TECHNICAL_DEBT)
@@ -2242,11 +2250,13 @@ public final class CoreMetrics {
   /**
    * @since 5.2
    */
+  // TODO should be renamed to TECHNICALDEBT_RATIO_ON_NEW_CODE_KEY = "technicaldebt_ratio_on_new_code"
   public static final String NEW_SQALE_DEBT_RATIO_KEY = "new_sqale_debt_ratio";
 
   /**
    * @since 5.2
    */
+  // TODO should be renamed to TECHNICALDEBT_RATIO_ON_NEW_CODE
   public static final Metric<Double> NEW_SQALE_DEBT_RATIO = new Metric.Builder(NEW_SQALE_DEBT_RATIO_KEY, "Technical Debt Ratio on new code", Metric.ValueType.PERCENT)
     .setDescription("Technical Debt Ratio of new/changed code.")
     .setDomain(DOMAIN_TECHNICAL_DEBT)

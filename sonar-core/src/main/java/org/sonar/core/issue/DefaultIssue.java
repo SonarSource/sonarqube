@@ -126,6 +126,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  @Override
   public RuleType type() {
     return type;
   }
