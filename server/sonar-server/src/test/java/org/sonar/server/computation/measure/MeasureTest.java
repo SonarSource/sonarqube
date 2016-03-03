@@ -55,7 +55,6 @@ public class MeasureTest {
     INT_MEASURE, LONG_MEASURE, DOUBLE_MEASURE, STRING_MEASURE, TRUE_MEASURE, FALSE_MEASURE, NO_VALUE_MEASURE, LEVEL_MEASURE
     );
   private static final int SOME_RULE_ID = 95236;
-  private static final int SOME_CHARACTERISTIC_ID = 42;
   private static final Developer SOME_DEVELOPER = new DumbDeveloper("DEV1");
 
   @Rule

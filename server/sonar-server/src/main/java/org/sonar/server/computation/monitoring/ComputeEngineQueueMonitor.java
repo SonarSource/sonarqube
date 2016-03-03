@@ -20,18 +20,22 @@
 package org.sonar.server.computation.monitoring;
 
 import java.util.LinkedHashMap;
+import org.sonar.server.computation.configuration.CeConfiguration;
 import org.sonar.server.computation.queue.CeQueue;
 import org.sonar.server.platform.monitoring.BaseMonitorMBean;
 
 public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements ComputeEngineQueueMonitorMBean {
   private final CEQueueStatus queueStatus;
+  private final CeConfiguration ceConfiguration;
 
   public ComputeEngineQueueMonitor(CEQueueStatus queueStatus,
     // ReportQueue initializes CEQueueStatus and is therefor a dependency of
     // ComputeEngineQueueMonitor.
     // Do not remove this parameter, it ensures start order of components
-    CeQueue ceQueue) {
+    CeQueue ceQueue,
+    CeConfiguration ceConfiguration) {
     this.queueStatus = queueStatus;
+    this.ceConfiguration = ceConfiguration;
   }
 
   @Override
@@ -48,6 +52,7 @@ public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements Compu
     attributes.put("Successfully processed", getSuccessCount());
     attributes.put("Processed with error", getErrorCount());
     attributes.put("Processing time", getProcessingTime());
+    attributes.put("Worker count", getWorkerCount());
     return attributes;
   }
 
@@ -79,5 +84,10 @@ public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements Compu
   @Override
   public long getProcessingTime() {
     return queueStatus.getProcessingTime();
+  }
+
+  @Override
+  public int getWorkerCount() {
+    return ceConfiguration.getWorkerCount();
   }
 }

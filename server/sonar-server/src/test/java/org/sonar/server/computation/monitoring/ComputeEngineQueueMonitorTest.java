@@ -20,6 +20,7 @@
 package org.sonar.server.computation.monitoring;
 
 import org.junit.Test;
+import org.sonar.server.computation.configuration.CeConfiguration;
 import org.sonar.server.computation.queue.CeQueueImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -33,8 +34,9 @@ public class ComputeEngineQueueMonitorTest {
   private static final long ERROR_COUNT = 10;
   private static final long SUCCESS_COUNT = 13;
   private static final long PROCESSING_TIME = 987;
+  private static final int WORKER_COUNT = 56;
 
-  private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus(), mock(CeQueueImpl.class));
+  private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus(), mock(CeQueueImpl.class), new DumbCeConfiguration());
 
   @Test
   public void name_is_ComputeEngine() {
@@ -49,7 +51,8 @@ public class ComputeEngineQueueMonitorTest {
       entry("In progress", IN_PROGRESS_COUNT),
       entry("Successfully processed", SUCCESS_COUNT),
       entry("Processed with error", ERROR_COUNT),
-      entry("Processing time", PROCESSING_TIME));
+      entry("Processing time", PROCESSING_TIME),
+      entry("Worker count", WORKER_COUNT));
   }
 
   @Test
@@ -60,6 +63,11 @@ public class ComputeEngineQueueMonitorTest {
     assertThat(underTest.getErrorCount()).isEqualTo(ERROR_COUNT);
     assertThat(underTest.getSuccessCount()).isEqualTo(SUCCESS_COUNT);
     assertThat(underTest.getProcessingTime()).isEqualTo(PROCESSING_TIME);
+  }
+
+  @Test
+  public void getWorkerCount_delegates_to_the_CEConfiguration_instance() {
+    assertThat(underTest.getWorkerCount()).isEqualTo(WORKER_COUNT);
   }
 
   /**
@@ -130,6 +138,18 @@ public class ComputeEngineQueueMonitorTest {
 
     private long methodNotImplemented() {
       throw new UnsupportedOperationException("Not Implemented");
+    }
+  }
+
+  private static class DumbCeConfiguration implements CeConfiguration {
+    @Override
+    public int getWorkerCount() {
+      return WORKER_COUNT;
+    }
+
+    @Override
+    public long getQueuePollingDelay() {
+      throw new UnsupportedOperationException("getQueuePollingDelay is not implemented");
     }
   }
 }

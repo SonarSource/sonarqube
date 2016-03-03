@@ -50,4 +50,9 @@ public interface ComputeEngineQueueMonitorMBean {
    * Time spent processing reports since startup.
    */
   long getProcessingTime();
+
+  /**
+   * Configured number of Workers.
+   */
+  int getWorkerCount();
 }
