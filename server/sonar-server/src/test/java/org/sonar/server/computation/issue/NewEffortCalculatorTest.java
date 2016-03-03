@@ -34,7 +34,7 @@ import org.sonar.server.computation.period.Period;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.config.CorePropertyDefinitions.TIMEMACHINE_MODE_PREVIOUS_VERSION;
 
-public class NewDebtCalculatorTest {
+public class NewEffortCalculatorTest {
 
   private static final int HOURS_IN_DAY = 8;
   private static final Duration ONE_DAY = Duration.create(HOURS_IN_DAY * 60 * 60L);
@@ -47,7 +47,7 @@ public class NewDebtCalculatorTest {
   private static final Period PERIOD = new Period(1, TIMEMACHINE_MODE_PREVIOUS_VERSION, null, PERIOD_DATE, SNAPSHOT_ID);
 
   DefaultIssue issue = new DefaultIssue();
-  NewDebtCalculator underTest = new NewDebtCalculator();
+  NewEffortCalculator underTest = new NewEffortCalculator();
 
   /**
    * New debt is the value of the debt when issue is created during the period
