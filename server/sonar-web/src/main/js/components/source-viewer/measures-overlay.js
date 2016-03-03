@@ -186,27 +186,24 @@ export default ModalView.extend({
       componentUuids: this.model.id,
       resolved: false,
       ps: 1,
-      facets: 'severities,tags'
+      facets: 'types,severities,tags'
     };
     return $.get(url, options).done(function (data) {
-      const issuesFacets = {};
-      data.facets.forEach(function (facet) {
-        issuesFacets[facet.property] = facet.values;
+      const typesFacet = data.facets.find(facet => facet.property === 'types').values;
+      const typesOrder = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+      const sortedTypesFacet = _.sortBy(typesFacet, function (v) {
+        return typesOrder.indexOf(v.val);
       });
-      const severityOrder = ['BLOCKER', 'CRITICAL', 'MAJOR', 'MINOR', 'INFO'];
-      const maxCountBySeverity = _.max(issuesFacets.severities, function (s) {
-        return s.count;
-      }).count;
-      const maxCountByTag = _.max(issuesFacets.tags, function (s) {
-        return s.count;
-      }).count;
-      issuesFacets.severities = _.sortBy(issuesFacets.severities, function (s) {
-        return severityOrder.indexOf(s.val);
-      });
+
+      const severitiesFacet = data.facets.find(facet => facet.property === 'severities').values;
+      const sortedSeveritiesFacet = _.sortBy(severitiesFacet, facet => window.severityComparator(facet.val));
+
+      const tagsFacet = data.facets.find(facet => facet.property === 'tags').values;
+
       that.model.set({
-        issuesFacets,
-        maxCountBySeverity,
-        maxCountByTag,
+        tagsFacet,
+        typesFacet: sortedTypesFacet,
+        severitiesFacet: sortedSeveritiesFacet,
         issuesCount: data.total
       });
     });

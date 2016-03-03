@@ -46,22 +46,6 @@
       </div>
     {{/unless}}
 
-    {{#notNull measures.sqaleRating}}
-      <div class="source-viewer-header-measure">
-        <span class="rating rating-{{measures.sqaleRating}}"
-              {{#if measures.debtRatio}}title="{{t 'metric.sqale_debt_ratio.name'}}: {{measures.debtRatio}}"{{/if}}>
-          {{measures.sqaleRating}}
-        </span>
-      </div>
-    {{/notNull}}
-
-    {{#notNull measures.debt}}
-      <div class="source-viewer-header-measure">
-        <span class="source-viewer-header-measure-value">{{default measures.debt}}</span>
-        <span class="source-viewer-header-measure-label">{{t 'component_viewer.header.debt'}}</span>
-      </div>
-    {{/notNull}}
-
     <div class="source-viewer-header-measure">
       <span class="source-viewer-header-measure-value">
         <a class="source-viewer-header-external-link" target="_blank"

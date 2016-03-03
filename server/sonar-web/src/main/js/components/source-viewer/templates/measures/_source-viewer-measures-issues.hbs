@@ -1,31 +1,22 @@
 <div class="source-viewer-measures-card">
-    <div class="measures">
-      {{#if measures.sqale_rating}}
-        <div class="measure measure-big" data-metric="sqale_rating">
-          <span class="rating rating-{{measures.sqale_rating}}">{{measures.sqale_rating}}</span>
-        </div>
-      {{/if}}
-      <div class="measure measure-big" data-metric="sqale_index">
-        <span class="measure-value">{{default measures.sqale_index 0}}</span>
-        <span class="measure-name">{{t 'metric.sqale_index.short_name'}}</span>
-      </div>
-      <div class="measure measure-big" data-metric="violations">
-        <span class="measure-value">{{default issuesCount 0}}</span>
-        <span class="measure-name">{{t 'metric.violations.name'}}</span>
-      </div>
+  <div class="measures">
+    <div class="measure measure-big" data-metric="violations">
+      <span class="measure-value">{{default issuesCount 0}}</span>
+      <span class="measure-name">{{t 'metric.violations.name'}}</span>
     </div>
+    <div class="measure measure-big" data-metric="sqale_index">
+      <span class="measure-value">{{default measures.sqale_index 0}}</span>
+      <span class="measure-name">{{t 'metric.sqale_index.short_name'}}</span>
+    </div>
+  </div>
 
   {{#if issuesCount}}
     <div class="measures">
       <div class="measures-list">
-        {{#each issuesFacets.severities}}
-          <div class="measure measure-one-line measure-with-bar">
-            <span class="measure-name">{{severityHelper val}}</span>
-            <span class="measure-value">{{count}}</span>
-            <span class="measure-bar">
-              <span class="measure-bar-inner measure-bar-inner-{{val}}"
-                    style="width: {{percent count ../maxCountBySeverity}}"></span>
-            </span>
+        {{#each typesFacet}}
+          <div class="measure measure-one-line">
+            <span class="measure-name">{{issueType val}}</span>
+            <span class="measure-value">{{formatMeasure count 'SHORT_INT'}}</span>
           </div>
         {{/each}}
       </div>
@@ -33,14 +24,21 @@
 
     <div class="measures">
       <div class="measures-list">
-        {{#each issuesFacets.tags}}
-          <div class="measure measure-one-line measure-with-bar">
-            <span class="measure-name">{{val}}</span>
-            <span class="measure-value">{{count}}</span>
-            <span class="measure-bar">
-              <span class="measure-bar-inner"
-                    style="width: {{percent count ../maxCountByTag}}"></span>
-            </span>
+        {{#each severitiesFacet}}
+          <div class="measure measure-one-line">
+            <span class="measure-name">{{severityHelper val}}</span>
+            <span class="measure-value">{{formatMeasure count 'SHORT_INT'}}</span>
+          </div>
+        {{/each}}
+      </div>
+    </div>
+
+    <div class="measures">
+      <div class="measures-list">
+        {{#each tagsFacet}}
+          <div class="measure measure-one-line">
+            <span class="measure-name"><i class="icon-tags"></i>&nbsp;{{val}}</span>
+            <span class="measure-value">{{formatMeasure count 'SHORT_INT'}}</span>
           </div>
         {{/each}}
       </div>
