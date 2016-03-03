@@ -46,11 +46,24 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
     'click .coding-rules-detail-quality-profile-deactivate': 'deactivate'
   },
 
+  onRender () {
+    WorkspaceListItemView.prototype.onRender.apply(this, arguments);
+    this.$('[data-toggle="tooltip"]').tooltip({
+      container: 'body'
+    });
+  },
+
+  onDestroy () {
+    this.$('[data-toggle="tooltip"]').tooltip('destroy');
+    WorkspaceListItemView.prototype.onDestroy.apply(this, arguments);
+  },
+
   selectCurrent () {
     this.options.app.state.set({ selectedIndex: this.model.get('index') });
   },
 
   openRule () {
+    this.$('[data-toggle="tooltip"]').tooltip('destroy');
     this.options.app.controller.showDetails(this.model);
   },
 
