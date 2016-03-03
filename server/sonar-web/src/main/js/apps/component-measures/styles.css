@@ -1,19 +1,55 @@
 .component-measures-domains {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  width: 980px;
-  margin: 20px auto -20px;
+  width: 600px;
+  margin: 20px auto;
 }
 
 .component-measures-domains > li {
-  width: 300px;
-  margin-right: 40px;
-  margin-bottom: 40px;
 }
 
-.component-measures-domains > li:nth-child(3n) {
-  margin-right: 0;
+.component-measures-domains > li + li {
+  margin-top: 40px;
+}
+
+.component-measures-domains-leak-header {
+  float: right;
+  line-height: 22px;
+  padding: 0 10px;
+  border: 1px solid #eae3c7;
+  background-color: #fbf3d5;
+}
+
+.component-measures-domain-measures {
+}
+
+.component-measures-domain-measures > li {
+  display: flex;
+}
+
+.component-measures-domain-measures > li:nth-child(odd) {
+  background-color: #f8f8f8;
+}
+
+.component-measures-domain-measures-name,
+.component-measures-domain-measures-value {
+  padding: 7px 10px;
+  box-sizing: border-box;
+}
+
+.component-measures-domain-measures-name {
+  width: calc(100% - 160px);
+}
+
+.component-measures-domain-measures-value {
+  width: 80px;
+  text-align: right;
+}
+
+.component-measures-leak-cell {
+  background-color: #fbf3d5;
+}
+
+.component-measures-domain-measures > li:nth-child(odd) .component-measures-leak-cell {
+  background-color: #f5eed0;
 }
 
 .component-measures-domain-name {
@@ -37,6 +73,22 @@
 .measure-details-value {
   font-size: 24px;
   font-weight: 300;
+}
+
+.measure-details-value-absolute {
+  display: inline-block;
+  padding: 5px 0;
+}
+
+.measure-details-value-leak {
+  display: inline-block;
+  padding: 4px 10px;
+  border: 1px solid #eae3c7;
+  background-color: #fbf3d5;
+}
+
+.measure-details-value-absolute + .measure-details-value-leak {
+  margin-left: 20px;
 }
 
 .measure-details-drilldown {

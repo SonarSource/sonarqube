@@ -22,8 +22,12 @@ import React from 'react';
 import { Link } from 'react-router';
 
 import Spinner from './Spinner';
-import { getMeasures } from '../../../api/measures';
+import { getLeakValue, formatLeak } from '../utils';
+import { getMeasuresAndMeta } from '../../../api/measures';
 import { formatMeasure } from '../../../helpers/measures';
+import { translateWithParameters } from '../../../helpers/l10n';
+
+import { getPeriodLabel } from '../../overview/helpers/periods';
 
 export default class ComponentMeasuresApp extends React.Component {
   state = {
@@ -48,17 +52,19 @@ export default class ComponentMeasuresApp extends React.Component {
         .filter(metric => metric.type !== 'DATA' && metric.type !== 'DISTRIB')
         .map(metric => metric.key);
 
-    getMeasures(component.key, metricKeys).then(measures => {
+    getMeasuresAndMeta(component.key, metricKeys, { additionalFields: 'periods' }).then(r => {
       if (this.mounted) {
-        const measuresWithMetrics = measures
+        const measures = r.component.measures
             .map(measure => {
               const metric = metrics.find(metric => metric.key === measure.metric);
-              return { ...measure, metric };
+              const leak = getLeakValue(measure);
+              return { ...measure, metric, leak };
             })
-            .filter(measure => measure.value != null);
+            .filter(measure => measure.value != null || measure.leak != null);
 
         this.setState({
-          measures: measuresWithMetrics,
+          measures,
+          periods: r.periods,
           fetching: false
         });
       }
@@ -66,7 +72,7 @@ export default class ComponentMeasuresApp extends React.Component {
   }
 
   render () {
-    const { fetching, measures } = this.state;
+    const { fetching, measures, periods } = this.state;
 
     if (fetching) {
       return <Spinner/>;
@@ -80,32 +86,44 @@ export default class ComponentMeasuresApp extends React.Component {
       return { name, measures: sortedMeasures };
     }), 'name');
 
+    const leakLabel = getPeriodLabel(periods, 1);
+
     return (
         <ul className="component-measures-domains">
-          {domains.map(domain => (
+          {domains.map((domain, index) => (
               <li key={domain.name}>
-                <h3 className="component-measures-domain-name">{domain.name}</h3>
+                <header className="page-header">
+                  <h3 className="page-title">{domain.name}</h3>
+                  {index === 0 && (
+                      <div className="component-measures-domains-leak-header">
+                        {translateWithParameters('overview.leak_period_x', leakLabel)}
+                      </div>
+                  )}
+                </header>
 
-                <table className="data zebra">
-                  <tbody>
+                <ul className="component-measures-domain-measures">
                   {domain.measures.map(measure => (
-                      <tr key={measure.metric.key}>
-                        <td>
+                      <li key={measure.metric.key}>
+                        <div className="component-measures-domain-measures-name">
                           {measure.metric.name}
-                        </td>
-                        <td className="thin nowrap text-right">
+                        </div>
+                        <div className="component-measures-domain-measures-value">
                           {measure.value != null && (
-                              <div style={{ width: 80 }}>
-                                <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
-                                  {formatMeasure(measure.value, measure.metric.type)}
-                                </Link>
-                              </div>
+                              <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
+                                {formatMeasure(measure.value, measure.metric.type)}
+                              </Link>
                           )}
-                        </td>
-                      </tr>
+                        </div>
+                        <div className="component-measures-domain-measures-value component-measures-leak-cell">
+                          {measure.leak != null && (
+                              <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
+                                {formatLeak(measure.leak, measure.metric)}
+                              </Link>
+                          )}
+                        </div>
+                      </li>
                   ))}
-                  </tbody>
-                </table>
+                </ul>
               </li>
           ))}
         </ul>

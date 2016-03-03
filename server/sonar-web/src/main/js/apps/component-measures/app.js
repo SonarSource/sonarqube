@@ -26,7 +26,7 @@ import ComponentMeasuresApp from './components/ComponentMeasuresApp';
 import AllMeasuresList from './components/AllMeasuresList';
 import MeasureDetails from './components/MeasureDetails';
 import MeasureTree from './components/MeasureTree';
-import MeasurePlainList from './components/MeasurePlainList';
+import MeasureList from './components/MeasureList';
 
 import './styles.css';
 
@@ -54,7 +54,7 @@ window.sonarqube.appStarted.then(options => {
           <Route path=":metricKey" component={MeasureDetails}>
             <IndexRedirect to="tree"/>
             <Route path="tree" component={MeasureTree}/>
-            <Route path="list" component={MeasurePlainList}/>
+            <Route path="list" component={MeasureList}/>
           </Route>
         </Route>
 

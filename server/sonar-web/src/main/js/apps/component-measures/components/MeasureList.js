@@ -23,7 +23,7 @@ import Spinner from './Spinner';
 import ComponentsList from './ComponentsList';
 import SourceViewer from '../../code/components/SourceViewer';
 import NoResults from './NoResults';
-import { getSingleMeasureValue } from '../utils';
+import { getSingleMeasureValue, getSingleLeakValue } from '../utils';
 import { getFiles } from '../../../api/components';
 
 export default class MeasurePlainList extends React.Component {
@@ -67,10 +67,11 @@ export default class MeasurePlainList extends React.Component {
             .map(component => {
               return {
                 ...component,
-                value: getSingleMeasureValue(component.measures)
+                value: getSingleMeasureValue(component.measures),
+                leak: getSingleLeakValue(component.measures)
               };
             })
-            .filter(component => component.value != null);
+            .filter(component => component.value != null || component.leak != null);
 
         this.setState({
           components: componentsWithMappedMeasure,

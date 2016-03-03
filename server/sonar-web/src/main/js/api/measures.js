@@ -25,3 +25,12 @@ export function getMeasures (componentKey, metrics) {
   const data = { componentKey, metricKeys: metrics.join(',') };
   return getJSON(url, data).then(r => r.component.measures);
 }
+
+export function getMeasuresAndMeta (componentKey, metrics, additional = {}) {
+  const url = '/api/measures/component';
+  const data = Object.assign({}, additional, {
+    componentKey,
+    metricKeys: metrics.join(',')
+  });
+  return getJSON(url, data);
+}

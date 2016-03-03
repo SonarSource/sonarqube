@@ -103,8 +103,8 @@ function getVariationFormatter (type) {
     'PERCENT': percentVariationFormatter,
     'WORK_DUR': durationVariationFormatter,
     'SHORT_WORK_DUR': shortDurationVariationFormatter,
-    'RATING': ratingFormatter,
-    'LEVEL': levelFormatter,
+    'RATING': emptyFormatter,
+    'LEVEL': emptyFormatter,
     'MILLISEC': millisecondsVariationFormatter
   };
   return FORMATTERS[type] || noFormatter;
@@ -118,6 +118,10 @@ function getVariationFormatter (type) {
 
 function noFormatter (value) {
   return value;
+}
+
+function emptyFormatter () {
+  return null;
 }
 
 function intFormatter (value) {
@@ -261,7 +265,7 @@ function formatDurationShort (isNegative, days, hours, minutes) {
 }
 
 function durationFormatter (value) {
-  if (value === 0) {
+  if (value === 0 || value === '0') {
     return '0';
   }
   const hoursInDay = window.SS.hoursInDay;
@@ -276,7 +280,7 @@ function durationFormatter (value) {
 
 function shortDurationFormatter (value) {
   value = parseInt(value, 10);
-  if (value === 0) {
+  if (value === 0 || value === '0') {
     return '0';
   }
   const hoursInDay = window.SS.hoursInDay;
@@ -290,8 +294,7 @@ function shortDurationFormatter (value) {
 }
 
 function durationVariationFormatter (value) {
-  /* eslint eqeqeq: 0 */
-  if (value == 0) {
+  if (value === 0 || value === '0') {
     return '+0';
   }
   const formatted = durationFormatter(value);
@@ -299,8 +302,7 @@ function durationVariationFormatter (value) {
 }
 
 function shortDurationVariationFormatter (value) {
-  /* eslint eqeqeq: 0 */
-  if (value == 0) {
+  if (value === 0 || value === '0') {
     return '+0';
   }
   const formatted = shortDurationFormatter(value);

@@ -22,6 +22,7 @@ import React from 'react';
 import UpIcon from './UpIcon';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 import { formatMeasure } from '../../../helpers/measures';
+import { formatLeak } from '../utils';
 
 export default function ComponentsList ({ components, selected, parent, metric, onClick }) {
   const handleClick = (component, e) => {
@@ -55,9 +56,14 @@ export default function ComponentsList ({ components, selected, parent, metric, 
                   &nbsp;
                   <span>{component.name}</span>
                 </div>
+
                 <div className="measure-details-component-value">
-                  {component.value != null && (
+                  {component.value != null ? (
                       formatMeasure(component.value, metric.type)
+                  ) : (
+                      component.leak != null && (
+                          formatLeak(component.leak, metric)
+                      )
                   )}
                 </div>
 

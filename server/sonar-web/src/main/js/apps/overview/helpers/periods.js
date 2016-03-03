@@ -24,13 +24,18 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export function getPeriodLabel (periods, periodIndex) {
   const period = _.findWhere(periods, { index: periodIndex });
+
   if (!period) {
     return null;
   }
-  if (period.mode === 'previous_version' && !period.modeParam) {
+
+  const parameter = period.modeParam || period.parameter;
+
+  if (period.mode === 'previous_version' && !parameter) {
     return translate('overview.period.previous_version_only_date');
   }
-  return translateWithParameters(`overview.period.${period.mode}`, period.modeParam);
+
+  return translateWithParameters(`overview.period.${period.mode}`, parameter);
 }
 
 

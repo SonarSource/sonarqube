@@ -21,8 +21,13 @@ import React from 'react';
 
 import Spinner from './Spinner';
 import MeasureDrilldown from './MeasureDrilldown';
-import { getMeasures } from '../../../api/measures';
+import { getLeakValue, formatLeak } from '../utils';
+import { getMeasuresAndMeta } from '../../../api/measures';
 import { formatMeasure } from '../../../helpers/measures';
+import { translateWithParameters } from '../../../helpers/l10n';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+
+import { getPeriodLabel } from '../../overview/helpers/periods';
 
 export default class MeasureDetails extends React.Component {
   state = {};
@@ -47,9 +52,18 @@ export default class MeasureDetails extends React.Component {
     const { metricKey } = this.props.params;
     const { component } = this.context;
 
-    getMeasures(component.key, [metricKey]).then(measures => {
+    getMeasuresAndMeta(component.key, [metricKey], { additionalFields: 'periods' }).then(r => {
+      const measures = r.component.measures;
+
       if (this.mounted && measures.length === 1) {
-        this.setState({ measure: measures[0] });
+        const measure = {
+          ...measures[0],
+          leak: getLeakValue(measures[0])
+        };
+        this.setState({
+          measure,
+          periods: r.periods
+        });
       }
     });
   }
@@ -57,13 +71,15 @@ export default class MeasureDetails extends React.Component {
   render () {
     const { metricKey, tab } = this.props.params;
     const { metrics, children } = this.props;
-    const { measure } = this.state;
+    const { measure, periods } = this.state;
     const metric = metrics.find(metric => metric.key === metricKey);
     const finalTab = tab || 'tree';
 
     if (!measure) {
       return <Spinner/>;
     }
+
+    const leakLabel = getPeriodLabel(periods, 1);
 
     return (
         <div className="measure-details">
@@ -72,11 +88,24 @@ export default class MeasureDetails extends React.Component {
           </h2>
 
           {measure && (
-              <div className="measure-details-value">
-                {measure.value != null && (
-                    formatMeasure(measure.value, metric.type)
-                )}
-              </div>
+              <TooltipsContainer>
+                <div className="measure-details-value">
+                  {measure.value != null && (
+                      <span className="measure-details-value-absolute">
+                      {formatMeasure(measure.value, metric.type)}
+                    </span>
+                  )}
+
+                  {measure.leak != null && (
+                      <span
+                          className="measure-details-value-leak"
+                          title={translateWithParameters('overview.leak_period_x', leakLabel)}
+                          data-toggle="tooltip">
+                      {formatLeak(measure.leak, metric)}
+                    </span>
+                  )}
+                </div>
+              </TooltipsContainer>
           )}
 
           {measure && (

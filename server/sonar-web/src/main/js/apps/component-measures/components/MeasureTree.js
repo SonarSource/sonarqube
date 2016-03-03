@@ -23,7 +23,7 @@ import Spinner from './Spinner';
 import ComponentsList from './ComponentsList';
 import NoResults from './NoResults';
 import SourceViewer from '../../code/components/SourceViewer';
-import { getSingleMeasureValue } from '../utils';
+import { getSingleMeasureValue, getSingleLeakValue } from '../utils';
 import { getChildren } from '../../../api/components';
 
 export default class MeasureTree extends React.Component {
@@ -68,10 +68,11 @@ export default class MeasureTree extends React.Component {
             .map(component => {
               return {
                 ...component,
-                value: getSingleMeasureValue(component.measures)
+                value: getSingleMeasureValue(component.measures),
+                leak: getSingleLeakValue(component.measures)
               };
             })
-            .filter(component => component.value != null);
+            .filter(component => component.value != null || component.leak != null);
 
         const indexInBreadcrumbs = this.state.breadcrumbs.findIndex(component => component === baseComponent);
         const breadcrumbs = indexInBreadcrumbs !== -1 ?
