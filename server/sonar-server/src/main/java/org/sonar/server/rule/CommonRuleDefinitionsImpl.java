@@ -21,7 +21,6 @@ package org.sonar.server.rule;
 
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
@@ -131,7 +130,6 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setHtmlDescription("Skipped unit tests are considered as dead code. Either they should be activated again (and updated) or they should be removed.")
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("10min"))
       .setEffortToFixDescription("number of skipped tests")
-      .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.DEPRECATED);
+      .setSeverity(Severity.MAJOR);
   }
 }
