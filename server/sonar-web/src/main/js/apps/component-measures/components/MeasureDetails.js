@@ -32,6 +32,20 @@ import { getPeriodLabel } from '../../overview/helpers/periods';
 export default class MeasureDetails extends React.Component {
   state = {};
 
+  componentWillMount () {
+    const { metrics } = this.props;
+    const { metricKey } = this.props.params;
+    const { router, component } = this.context;
+    const metric = metrics.find(metric => metric.key === metricKey);
+
+    if (!metric) {
+      router.replace({
+        pathname: '/',
+        query: { id: component.key }
+      });
+    }
+  }
+
   componentDidMount () {
     this.mounted = true;
     this.fetchMeasure();
@@ -69,16 +83,16 @@ export default class MeasureDetails extends React.Component {
   }
 
   render () {
-    const { metricKey, tab } = this.props.params;
     const { metrics, children } = this.props;
-    const { measure, periods } = this.state;
+    const { metricKey, tab } = this.props.params;
     const metric = metrics.find(metric => metric.key === metricKey);
-    const finalTab = tab || 'tree';
+    const { measure, periods } = this.state;
 
     if (!measure) {
       return <Spinner/>;
     }
 
+    const finalTab = tab || 'tree';
     const leakLabel = getPeriodLabel(periods, 1);
 
     return (
@@ -119,5 +133,6 @@ export default class MeasureDetails extends React.Component {
 }
 
 MeasureDetails.contextTypes = {
-  component: React.PropTypes.object
+  component: React.PropTypes.object,
+  router: React.PropTypes.object
 };
