@@ -172,14 +172,14 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       TestErrorRule.class,
       SkippedTestRule.class,
 
-      // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
+      // order is important: RuleTypeCopier must be the first one. And DebtAggregator must be before NewDebtAggregator (new debt requires debt)
+      RuleTypeCopier.class,
+      RuleTagsCopier.class,
       DebtCalculator.class,
       DebtAggregator.class,
       NewDebtCalculator.class,
       NewDebtAggregator.class,
       IssueAssigner.class,
-      RuleTagsCopier.class,
-      RuleTypeCopier.class,
       IssueCounter.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
