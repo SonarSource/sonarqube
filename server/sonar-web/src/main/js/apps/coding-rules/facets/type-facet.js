@@ -17,41 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import State from '../../../components/navigator/models/state';
+import _ from 'underscore';
+import BaseFacet from './base-facet';
+import Template from '../templates/facets/coding-rules-type-facet.hbs';
 
-export default State.extend({
-  defaults: {
-    page: 1,
-    maxResultsReached: false,
-    query: {},
-    facets: [
-      'types',
-      'languages'
-    ],
-    allFacets: [
-      'q',
-      'rule_key',
-      'languages',
-      'types',
-      'tags',
-      'repositories',
-      'severities',
-      'statuses',
-      'available_since',
-      'is_template',
-      'qprofile',
-      'inheritance',
-      'active_severities'
-    ],
-    facetsFromServer: [
-      'languages',
-      'repositories',
-      'tags',
-      'severities',
-      'statuses',
-      'active_severities',
-      'types'
-    ],
-    transform: {}
+export default BaseFacet.extend({
+  template: Template,
+
+  sortValues (values) {
+    const order = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+    return _.sortBy(values, function (v) {
+      return order.indexOf(v.val);
+    });
   }
 });
+
+

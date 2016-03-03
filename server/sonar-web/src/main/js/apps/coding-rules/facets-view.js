@@ -31,6 +31,7 @@ import AvailableSinceFacet from './facets/available-since-facet';
 import InheritanceFacet from './facets/inheritance-facet';
 import ActiveSeverityFacet from './facets/active-severity-facet';
 import TemplateFacet from './facets/template-facet';
+import TypeFacet from './facets/type-facet';
 
 const viewsMapping = {
   q: QueryFacet,
@@ -44,7 +45,8 @@ const viewsMapping = {
   available_since: AvailableSinceFacet,
   inheritance: InheritanceFacet,
   active_severities: ActiveSeverityFacet,
-  is_template: TemplateFacet
+  is_template: TemplateFacet,
+  types: TypeFacet
 };
 
 export default FacetsView.extend({
