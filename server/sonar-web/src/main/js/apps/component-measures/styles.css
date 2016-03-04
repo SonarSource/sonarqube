@@ -227,14 +227,14 @@
 }
 
 .measure-details-bubble-chart-axis.x {
-  top: 50%;
-  left: -20px;
-  transform: rotate(-90deg);
+  left: 50%;
+  bottom: 10px;
 }
 
 .measure-details-bubble-chart-axis.y {
-  left: 50%;
-  bottom: 10px;
+  top: 50%;
+  left: -20px;
+  transform: rotate(-90deg);
 }
 
 .measure-details-bubble-chart-axis.size {
