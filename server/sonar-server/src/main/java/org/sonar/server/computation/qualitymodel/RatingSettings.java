@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
 import com.google.common.collect.ImmutableMap;
 import java.util.Map;
@@ -35,12 +35,12 @@ import static org.sonar.api.CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_SIZE_MET
 import static org.sonar.api.CoreProperties.RATING_GRID;
 import static org.sonar.api.CoreProperties.RATING_GRID_DEF_VALUES;
 
-public class SqaleRatingSettings {
+public class RatingSettings {
 
   private final Settings settings;
   private final Map<String, LanguageSpecificConfiguration> languageSpecificConfigurationByLanguageKey;
 
-  public SqaleRatingSettings(Settings settings) {
+  public RatingSettings(Settings settings) {
     this.settings = settings;
     this.languageSpecificConfigurationByLanguageKey = buildLanguageSpecificConfigurationByLanguageKey(settings);
   }
@@ -55,14 +55,14 @@ public class SqaleRatingSettings {
     return builder.build();
   }
 
-  public double[] getRatingGrid() {
+  public RatingGrid getRatingGrid() {
     try {
       String[] ratingGrades = settings.getStringArray(RATING_GRID);
       double[] grid = new double[4];
       for (int i = 0; i < 4; i++) {
         grid[i] = Double.parseDouble(ratingGrades[i]);
       }
-      return grid;
+      return new RatingGrid(grid);
     } catch (Exception e) {
       throw new IllegalArgumentException("The SQALE rating grid is incorrect. Expected something similar to '"
         + RATING_GRID_DEF_VALUES + "' and got '"

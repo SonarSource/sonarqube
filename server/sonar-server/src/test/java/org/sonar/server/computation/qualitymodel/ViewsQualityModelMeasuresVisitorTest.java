@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
 import java.util.Arrays;
 import org.junit.Before;
@@ -46,12 +46,12 @@ import static org.sonar.server.computation.component.ViewsComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
-import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.A;
-import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.B;
-import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.D;
-import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.E;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.A;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.B;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.D;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.E;
 
-public class ViewsSqaleMeasuresVisitorTest {
+public class ViewsQualityModelMeasuresVisitorTest {
 
   private static final double[] RATING_GRID = new double[] {34, 50, 362, 900, 36258};
   private static final int ROOT_REF = 1;
@@ -91,13 +91,13 @@ public class ViewsSqaleMeasuresVisitorTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private SqaleRatingSettings sqaleRatingSettings = mock(SqaleRatingSettings.class);
+  private RatingSettings ratingSettings = mock(RatingSettings.class);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new SqaleMeasuresVisitor(metricRepository, measureRepository, sqaleRatingSettings)));
+  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
 
   @Before
   public void setUp() {
-    when(sqaleRatingSettings.getRatingGrid()).thenReturn(RATING_GRID);
+    when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
   }
 
   @Test
@@ -114,8 +114,8 @@ public class ViewsSqaleMeasuresVisitorTest {
         entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A)));
   }
 
-  private Measure createSqaleRatingMeasure(SqaleRatingGrid.SqaleRating sqaleRating) {
-    return newMeasureBuilder().create(sqaleRating.getIndex(), sqaleRating.name());
+  private Measure createSqaleRatingMeasure(RatingGrid.Rating rating) {
+    return newMeasureBuilder().create(rating.getIndex(), rating.name());
   }
 
   @Test
@@ -148,11 +148,11 @@ public class ViewsSqaleMeasuresVisitorTest {
     assertNewRawMeasures(ROOT_REF, debtRoot, 260, B);
   }
 
-  private void assertNewRawMeasures(int componentRef, long debt, long devCost, SqaleRatingGrid.SqaleRating sqaleRating) {
+  private void assertNewRawMeasures(int componentRef, long debt, long devCost, RatingGrid.Rating rating) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
       entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(String.valueOf(devCost))),
       entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(debt / (double) devCost * 100.0, 1)),
-      entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(sqaleRating)));
+      entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(rating)));
   }
 
   private void assertNoNewRawMeasureOnProjectViews() {

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -26,9 +26,9 @@ import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SqaleRatingGridTest {
+public class RatingGridTest {
 
-  private SqaleRatingGrid ratingGrid;
+  private RatingGrid ratingGrid;
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
@@ -36,7 +36,7 @@ public class SqaleRatingGridTest {
   @Before
   public void setUp() {
     double[] gridValues = new double[] {0.1, 0.2, 0.5, 1};
-    ratingGrid = new SqaleRatingGrid(gridValues);
+    ratingGrid = new RatingGrid(gridValues);
   }
 
   @Test

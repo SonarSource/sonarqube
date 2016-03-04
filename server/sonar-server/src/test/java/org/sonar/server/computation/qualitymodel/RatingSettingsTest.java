@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,7 +29,7 @@ import org.sonar.api.measures.CoreMetrics;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class SqaleRatingSettingsTest {
+public class RatingSettingsTest {
 
   private Settings settings;
 
@@ -44,9 +44,9 @@ public class SqaleRatingSettingsTest {
   @Test
   public void load_rating_grid() {
     settings.setProperty(CoreProperties.RATING_GRID, "1,3.4,8,50");
-    SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
+    RatingSettings configurationLoader = new RatingSettings(settings);
 
-    double[] grid = configurationLoader.getRatingGrid();
+    double[] grid = configurationLoader.getRatingGrid().getGridValues();
     assertThat(grid).hasSize(4);
     assertThat(grid[0]).isEqualTo(1.0);
     assertThat(grid[1]).isEqualTo(3.4);
@@ -57,7 +57,7 @@ public class SqaleRatingSettingsTest {
   @Test
   public void load_work_units_for_language() {
     settings.setProperty(CoreProperties.DEVELOPMENT_COST, "50");
-    SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
+    RatingSettings configurationLoader = new RatingSettings(settings);
 
     assertThat(configurationLoader.getDevCost("defaultLanguage")).isEqualTo(50L);
   }
@@ -76,7 +76,7 @@ public class SqaleRatingSettingsTest {
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS + "." + "1" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "40");
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS + "." + "1" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_SIZE_METRIC_KEY, CoreMetrics.COMPLEXITY_KEY);
 
-    SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
+    RatingSettings configurationLoader = new RatingSettings(settings);
 
     assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(30L);
     assertThat(configurationLoader.getDevCost(anotherLanguage)).isEqualTo(40L);
@@ -87,7 +87,7 @@ public class SqaleRatingSettingsTest {
 
     throwable.expect(IllegalArgumentException.class);
     settings.setProperty(CoreProperties.RATING_GRID, "a b c");
-    SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
+    RatingSettings configurationLoader = new RatingSettings(settings);
 
     configurationLoader.getRatingGrid();
   }
@@ -101,7 +101,7 @@ public class SqaleRatingSettingsTest {
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY, aLanguage);
     settings.setProperty(CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS + "." + "0" + "." + CoreProperties.LANGUAGE_SPECIFIC_PARAMETERS_MAN_DAYS_KEY, "40");
 
-    SqaleRatingSettings configurationLoader = new SqaleRatingSettings(settings);
+    RatingSettings configurationLoader = new RatingSettings(settings);
 
     assertThat(configurationLoader.getDevCost(aLanguage)).isEqualTo(40L);
   }

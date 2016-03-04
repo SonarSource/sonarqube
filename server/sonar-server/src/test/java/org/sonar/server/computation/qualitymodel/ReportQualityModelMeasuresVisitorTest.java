@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
 import java.util.Arrays;
 import org.junit.Before;
@@ -49,10 +49,10 @@ import static org.sonar.server.computation.component.ReportComponent.builder;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
-import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.A;
-import static org.sonar.server.computation.sqale.SqaleRatingGrid.SqaleRating.C;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.A;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.C;
 
-public class ReportSqaleMeasuresVisitorTest {
+public class ReportQualityModelMeasuresVisitorTest {
 
   private static final String LANGUAGE_KEY_1 = "lKey1";
   private static final String LANGUAGE_KEY_2 = "lKey2";
@@ -72,16 +72,16 @@ public class ReportSqaleMeasuresVisitorTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private SqaleRatingSettings sqaleRatingSettings = mock(SqaleRatingSettings.class);
+  private RatingSettings ratingSettings = mock(RatingSettings.class);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new SqaleMeasuresVisitor(metricRepository, measureRepository, sqaleRatingSettings)));
+  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
 
   @Before
   public void setUp() {
     // assumes SQALE rating configuration is consistent
-    when(sqaleRatingSettings.getRatingGrid()).thenReturn(RATING_GRID);
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_KEY_1)).thenReturn(DEV_COST_LANGUAGE_1);
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_KEY_2)).thenReturn(DEV_COST_LANGUAGE_2);
+    when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
+    when(ratingSettings.getDevCost(LANGUAGE_KEY_1)).thenReturn(DEV_COST_LANGUAGE_1);
+    when(ratingSettings.getDevCost(LANGUAGE_KEY_2)).thenReturn(DEV_COST_LANGUAGE_2);
   }
 
   @Test
@@ -98,8 +98,8 @@ public class ReportSqaleMeasuresVisitorTest {
         entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A)));
   }
 
-  private Measure createSqaleRatingMeasure(SqaleRatingGrid.SqaleRating sqaleRating) {
-    return newMeasureBuilder().create(sqaleRating.getIndex(), sqaleRating.name());
+  private Measure createSqaleRatingMeasure(RatingGrid.Rating rating) {
+    return newMeasureBuilder().create(rating.getIndex(), rating.name());
   }
 
   @Test
@@ -116,7 +116,7 @@ public class ReportSqaleMeasuresVisitorTest {
    * Verify the computation of measures values depending upon which language is associated to the file by
    * processing a tree of a single Component of type FILE.
    */
-  private void verify_computation_of_measure_for_file(long debt, long languageCost, String languageKey, SqaleRatingGrid.SqaleRating expectedRating) {
+  private void verify_computation_of_measure_for_file(long debt, long languageCost, String languageKey, RatingGrid.Rating expectedRating) {
     long measureValue = 10;
 
     int componentRef = 1;
@@ -229,12 +229,12 @@ public class ReportSqaleMeasuresVisitorTest {
     measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
   }
 
-  private void verifyFileMeasures(int componentRef, long measureValue, long debt, long languageCost, SqaleRatingGrid.SqaleRating expectedRating) {
+  private void verifyFileMeasures(int componentRef, long measureValue, long debt, long languageCost, RatingGrid.Rating expectedRating) {
     long developmentCost = measureValue * languageCost;
     verifyComponentMeasures(componentRef, developmentCost, debt / developmentCost, expectedRating);
   }
 
-  private void verifyComponentMeasures(int componentRef, long expectedDevCost, double expectedDebtRatio, SqaleRatingGrid.SqaleRating expectedRating) {
+  private void verifyComponentMeasures(int componentRef, long expectedDevCost, double expectedDebtRatio, RatingGrid.Rating expectedRating) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
       entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(Long.toString(expectedDevCost))),
       entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(expectedDebtRatio * 100.0, 1)),

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
 import com.google.common.base.Optional;
 import org.sonar.api.measures.CoreMetrics;
@@ -34,11 +34,17 @@ import org.sonar.server.computation.metric.MetricRepository;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresVisitor.DevelopmentCostCounter> {
-  private static final Logger LOG = Loggers.get(SqaleMeasuresVisitor.class);
+/**
+ * Compute following measures :
+ * {@link CoreMetrics#DEVELOPMENT_COST_KEY}
+ * {@link CoreMetrics#SQALE_DEBT_RATIO_KEY}
+ * {@link CoreMetrics#SQALE_RATING_KEY}
+ */
+public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<QualityModelMeasuresVisitor.DevelopmentCostCounter> {
+  private static final Logger LOG = Loggers.get(QualityModelMeasuresVisitor.class);
 
   private final MeasureRepository measureRepository;
-  private final SqaleRatingSettings sqaleRatingSettings;
+  private final RatingSettings ratingSettings;
 
   private final Metric nclocMetric;
   private final Metric developmentCostMetric;
@@ -46,14 +52,17 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   private final Metric debtRatioMetric;
   private final Metric sqaleRatingMetric;
 
-  public SqaleMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, SqaleRatingSettings sqaleRatingSettings) {
+  public QualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings) {
     super(CrawlerDepthLimit.LEAVES, POST_ORDER, DevelopmentCostCounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
-    this.sqaleRatingSettings = sqaleRatingSettings;
+    this.ratingSettings = ratingSettings;
 
+    // Input metrics
     this.nclocMetric = metricRepository.getByKey(CoreMetrics.NCLOC_KEY);
-    this.developmentCostMetric = metricRepository.getByKey(CoreMetrics.DEVELOPMENT_COST_KEY);
     this.technicalDebtMetric = metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY);
+
+    // Output metrics
+    this.developmentCostMetric = metricRepository.getByKey(CoreMetrics.DEVELOPMENT_COST_KEY);
     this.debtRatioMetric = metricRepository.getByKey(CoreMetrics.SQALE_DEBT_RATIO_KEY);
     this.sqaleRatingMetric = metricRepository.getByKey(CoreMetrics.SQALE_RATING_KEY);
   }
@@ -132,7 +141,7 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   }
 
   private void saveSqaleRatingMeasure(Component component, double density) {
-    SqaleRatingGrid ratingGrid = new SqaleRatingGrid(sqaleRatingSettings.getRatingGrid());
+    RatingGrid ratingGrid = ratingSettings.getRatingGrid();
     int rating = ratingGrid.getRatingForDensity(density);
     String ratingLetter = toRatingLetter(rating);
     measureRepository.add(component, sqaleRatingMetric, newMeasureBuilder().create(rating, ratingLetter));
@@ -147,7 +156,7 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
 
   private long computeDevelopmentCost(Component file) {
     long ncloc = getLongValue(measureRepository.getRawMeasure(file, this.nclocMetric));
-    return ncloc * sqaleRatingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
+    return ncloc * ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
   }
 
   private static long getLongValue(Optional<Measure> measure) {
@@ -171,7 +180,7 @@ public class SqaleMeasuresVisitor extends PathAwareVisitorAdapter<SqaleMeasuresV
   }
 
   private static String toRatingLetter(int rating) {
-    return SqaleRatingGrid.SqaleRating.createForIndex(rating).name();
+    return RatingGrid.Rating.createForIndex(rating).name();
   }
 
   /**

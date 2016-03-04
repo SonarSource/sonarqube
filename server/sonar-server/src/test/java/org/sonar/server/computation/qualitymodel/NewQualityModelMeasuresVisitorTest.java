@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
@@ -59,7 +59,7 @@ import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureAssert.assertThat;
 
-public class SqaleNewMeasuresVisitorTest {
+public class NewQualityModelMeasuresVisitorTest {
   private static final String LANGUAGE_1_KEY = "language 1 key";
   private static final long LANGUAGE_1_DEV_COST = 30l;
   private static final long PERIOD_2_SNAPSHOT_DATE = 12323l;
@@ -84,10 +84,10 @@ public class SqaleNewMeasuresVisitorTest {
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
-  private SqaleRatingSettings sqaleRatingSettings = mock(SqaleRatingSettings.class);
+  private RatingSettings ratingSettings = mock(RatingSettings.class);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new SqaleNewMeasuresVisitor(metricRepository, measureRepository, scmInfoRepository,
-    periodsHolder, sqaleRatingSettings)));
+  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new NewQualityModelMeasuresVisitor(metricRepository, measureRepository, scmInfoRepository,
+    periodsHolder, ratingSettings)));
 
   @Test
   public void project_has_new_debt_ratio_variation_for_each_defined_period() {
@@ -112,7 +112,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void file_has_no_new_debt_ratio_variation_if_there_is_no_period() {
     periodsHolder.setPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
 
@@ -145,7 +145,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void file_has_new_debt_ratio_if_some_scm_dates_are_after_snapshot_dates() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
 
@@ -158,7 +158,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_changes_with_language_cost() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST * 10);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST * 10);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
 
@@ -171,7 +171,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_changes_with_new_technical_debt() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(500, 120, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(500, 120));
 
@@ -184,7 +184,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_on_non_file_level_is_based_on_new_technical_debt_of_that_level() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(500, 120, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(1200, 820));
 
@@ -197,7 +197,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void no_new_debt_ratio_when_file_is_unit_test() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
 
@@ -210,7 +210,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_is_0_on_non_file_level_when_all_files_are_unit_test() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.UT_FILE, Flag.WITH_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 162));
 
@@ -223,7 +223,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_is_0_when_file_has_no_changesets() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
 
@@ -236,7 +236,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_is_0_on_non_file_level_when_no_file_has_changesets() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.WITH_NCLOC, Flag.NO_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 162));
 
@@ -249,7 +249,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_is_0_when_there_is_no_ncloc_in_file() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
 
@@ -262,7 +262,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_is_0_on_non_file_level_when_one_file_has_zero_new_debt_because_of_no_changeset() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.NO_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(200, 162));
 
@@ -275,7 +275,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void new_debt_ratio_is_0_when_ncloc_measure_is_missing() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     setupOneFileAloneInAProject(50, 12, Flag.SRC_FILE, Flag.MISSING_MEASURE_NCLOC, Flag.WITH_CHANGESET);
     measureRepository.addRawMeasure(ROOT_REF, NEW_TECHNICAL_DEBT_KEY, createNewDebtMeasure(50, 12));
 
@@ -288,7 +288,7 @@ public class SqaleNewMeasuresVisitorTest {
   @Test
   public void leaf_components_always_have_a_measure_when_at_least_one_period_exist_and_ratio_is_computed_from_current_level_new_debt() {
     setTwoPeriods();
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)
         .addChildren(
@@ -335,7 +335,7 @@ public class SqaleNewMeasuresVisitorTest {
       new Period(4, SOME_PERIOD_MODE, null, period4, SOME_SNAPSHOT_ID),
       new Period(5, SOME_PERIOD_MODE, null, period5, SOME_SNAPSHOT_ID));
 
-    when(sqaleRatingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
+    when(ratingSettings.getDevCost(LANGUAGE_1_KEY)).thenReturn(LANGUAGE_1_DEV_COST);
 
     treeRootHolder.setRoot(
       builder(PROJECT, ROOT_REF)

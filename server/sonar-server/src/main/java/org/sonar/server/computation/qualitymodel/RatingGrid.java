@@ -17,37 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import org.sonar.api.utils.MessageException;
 
-public class SqaleRatingGrid {
+public class RatingGrid {
 
   private final double[] gridValues;
 
-  public SqaleRatingGrid(double[] gridValues) {
+  public RatingGrid(double[] gridValues) {
     this.gridValues = Arrays.copyOf(gridValues, gridValues.length);
   }
 
   public int getRatingForDensity(double density) {
-    for (SqaleRating sqaleRating : SqaleRating.values()) {
-      double lowerBound = getGradeLowerBound(sqaleRating);
+    for (Rating rating : Rating.values()) {
+      double lowerBound = getGradeLowerBound(rating);
       if (density >= lowerBound) {
-        return sqaleRating.getIndex();
+        return rating.getIndex();
       }
     }
     throw MessageException.of("The SQALE density value should be between 0 and " + Double.MAX_VALUE + " and got " + density);
   }
 
-  private double getGradeLowerBound(SqaleRating rating) {
+  private double getGradeLowerBound(Rating rating) {
     if (rating.getIndex() > 1) {
       return gridValues[rating.getIndex() - 2];
     }
     return 0;
   }
 
-  public enum SqaleRating {
+  @VisibleForTesting
+  double[] getGridValues() {
+    return gridValues;
+  }
+
+  public enum Rating {
     E(5),
     D(4),
     C(3),
@@ -56,7 +62,7 @@ public class SqaleRatingGrid {
 
     private final int index;
 
-    SqaleRating(int index) {
+    Rating(int index) {
       this.index = index;
     }
 
@@ -64,8 +70,8 @@ public class SqaleRatingGrid {
       return index;
     }
 
-    public static SqaleRating createForIndex(int index) {
-      for (SqaleRating rating : values()) {
+    public static Rating createForIndex(int index) {
+      for (Rating rating : values()) {
         if (rating.getIndex() == index) {
           return rating;
         }

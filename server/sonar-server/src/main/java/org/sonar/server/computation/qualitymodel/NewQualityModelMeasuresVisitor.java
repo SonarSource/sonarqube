@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.sqale;
+package org.sonar.server.computation.qualitymodel;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -53,26 +53,29 @@ import static org.sonar.server.computation.measure.MeasureVariations.newMeasureV
 /**
  * This visitor depends on {@link org.sonar.server.computation.issue.IntegrateIssuesVisitor} for the computation of
  * metric {@link CoreMetrics#NEW_TECHNICAL_DEBT}.
+ *
+ * Compute following measure :
+ * {@link CoreMetrics#NEW_SQALE_DEBT_RATIO_KEY}
  */
-public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMeasuresVisitor.NewTechDebtRatioCounter> {
-  private static final Logger LOG = Loggers.get(SqaleNewMeasuresVisitor.class);
+public class NewQualityModelMeasuresVisitor extends PathAwareVisitorAdapter<NewQualityModelMeasuresVisitor.NewTechDebtRatioCounter> {
+  private static final Logger LOG = Loggers.get(NewQualityModelMeasuresVisitor.class);
 
   private final ScmInfoRepository scmInfoRepository;
   private final MeasureRepository measureRepository;
   private final PeriodsHolder periodsHolder;
-  private final SqaleRatingSettings sqaleRatingSettings;
+  private final RatingSettings ratingSettings;
 
   private final Metric newDebtMetric;
   private final Metric nclocDataMetric;
   private final Metric newDebtRatioMetric;
 
-  public SqaleNewMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository, PeriodsHolder periodsHolder,
-    SqaleRatingSettings sqaleRatingSettings) {
+  public NewQualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, ScmInfoRepository scmInfoRepository, PeriodsHolder periodsHolder,
+                                        RatingSettings ratingSettings) {
     super(CrawlerDepthLimit.FILE, POST_ORDER, NewDevelopmentCostCounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.scmInfoRepository = scmInfoRepository;
     this.periodsHolder = periodsHolder;
-    this.sqaleRatingSettings = sqaleRatingSettings;
+    this.ratingSettings = ratingSettings;
 
     // computed by NewDebtAggregator which is executed by IntegrateIssuesVisitor
     this.newDebtMetric = metricRepository.getByKey(CoreMetrics.NEW_TECHNICAL_DEBT_KEY);
@@ -122,7 +125,7 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
     }
   }
 
-  private double computeDensity(NewTechDebtRatioCounter counter, Period period) {
+  private static double computeDensity(NewTechDebtRatioCounter counter, Period period) {
     LongVariationValue newDebt = counter.getNewDebt(period);
     if (newDebt.isSet()) {
       long developmentCost = counter.getDevCost(period).getValue();
@@ -171,7 +174,7 @@ public class SqaleNewMeasuresVisitor extends PathAwareVisitorAdapter<SqaleNewMea
   private void initNewDebtRatioCounter(NewTechDebtRatioCounter devCostCounter, Component file, Measure nclocDataMeasure, ScmInfo scmInfo) {
     boolean[] hasDevCost = new boolean[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
 
-    long lineDevCost = sqaleRatingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
+    long lineDevCost = ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
     for (Integer nclocLineIndex : nclocLineIndexes(nclocDataMeasure)) {
       Changeset changeset = scmInfo.getChangesetForLine(nclocLineIndex);
       for (Period period : periodsHolder.getPeriods()) {

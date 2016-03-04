@@ -77,15 +77,15 @@ import org.sonar.server.computation.period.PeriodsHolderImpl;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
+import org.sonar.server.computation.qualitymodel.NewQualityModelMeasuresVisitor;
+import org.sonar.server.computation.qualitymodel.QualityModelMeasuresVisitor;
+import org.sonar.server.computation.qualitymodel.RatingSettings;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
 import org.sonar.server.computation.queue.CeTask;
 import org.sonar.server.computation.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.source.LastCommitVisitor;
 import org.sonar.server.computation.source.SourceHashRepositoryImpl;
 import org.sonar.server.computation.source.SourceLinesRepositoryImpl;
-import org.sonar.server.computation.sqale.SqaleMeasuresVisitor;
-import org.sonar.server.computation.sqale.SqaleNewMeasuresVisitor;
-import org.sonar.server.computation.sqale.SqaleRatingSettings;
 import org.sonar.server.computation.step.ComputationStepExecutor;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.computation.step.ReportComputationSteps;
@@ -132,7 +132,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       TreeRootHolderImpl.class,
       PeriodsHolderImpl.class,
       QualityGateHolderImpl.class,
-      SqaleRatingSettings.class,
+      RatingSettings.class,
       ActiveRulesHolderImpl.class,
       MeasureComputersHolderImpl.class,
       MutableTaskResultHolderImpl.class,
@@ -186,8 +186,8 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       LoadComponentUuidsHavingOpenIssuesVisitor.class,
       IntegrateIssuesVisitor.class,
       CloseIssuesOnRemovedComponentsVisitor.class,
-      SqaleMeasuresVisitor.class,
-      SqaleNewMeasuresVisitor.class,
+      QualityModelMeasuresVisitor.class,
+      NewQualityModelMeasuresVisitor.class,
       LastCommitVisitor.class,
       MeasureComputersVisitor.class,
 
