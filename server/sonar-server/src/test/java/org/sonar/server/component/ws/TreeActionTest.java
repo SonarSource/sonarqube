@@ -306,6 +306,19 @@ public class TreeActionTest {
   }
 
   @Test
+  public void fail_when_search_query_has_less_than_3_characters() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
+    componentDb.insertComponent(newProjectDto("project-uuid"));
+    db.commit();
+
+    ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(Param.TEXT_QUERY, "fi")
+      .execute();
+  }
+
+  @Test
   public void fail_when_sort_is_unknown() {
     expectedException.expect(IllegalArgumentException.class);
     componentDb.insertComponent(newProjectDto("project-uuid"));

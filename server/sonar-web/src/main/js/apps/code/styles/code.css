@@ -49,3 +49,14 @@
   float: left;
   padding-right: 10px;
 }
+
+.code-search-box .note {
+  margin-top: 4px;
+  margin-left: 25px;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.code-search-box input.touched ~ .note {
+  opacity: 1;
+}
