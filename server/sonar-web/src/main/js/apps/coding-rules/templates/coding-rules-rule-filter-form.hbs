@@ -9,6 +9,12 @@
     </a>
   </li>
 
+  <li>
+    <a href="#" class="issue-action-option" data-property="types" data-value="{{this.type}}">
+      {{issueType this.type}}
+    </a>
+  </li>
+
   {{#if severity}}
     <li>
       <a href="#" class="issue-action-option" data-property="severities" data-value="{{severity}}">
