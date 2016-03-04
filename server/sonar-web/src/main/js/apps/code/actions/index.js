@@ -222,7 +222,10 @@ debouncedSearch = _.debounce(debouncedSearch, 250);
 export function search (query, baseComponent) {
   return dispatch => {
     dispatch(updateQueryAction(query));
-    debouncedSearch(query, baseComponent, dispatch);
+
+    if (query.length > 2 || !query.length) {
+      debouncedSearch(query, baseComponent, dispatch);
+    }
   };
 }
 
