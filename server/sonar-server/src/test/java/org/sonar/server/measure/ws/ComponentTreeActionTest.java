@@ -319,6 +319,20 @@ public class ComponentTreeActionTest {
   }
 
   @Test
+  public void fail_when_search_query_have_less_than_3_characters() {
+    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+    insertNclocMetric();
+    insertNewViolationsMetric();
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("The 'q' parameter must have at least 3 characters");
+
+    call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_METRIC_KEYS, "ncloc, new_violations")
+      .setParam(Param.TEXT_QUERY, "fi"));
+  }
+
+  @Test
   public void fail_when_insufficient_privileges() {
     userSession.anonymous().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
     componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
