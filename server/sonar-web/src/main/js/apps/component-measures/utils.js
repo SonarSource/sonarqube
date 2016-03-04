@@ -91,3 +91,7 @@ export function hasHistory (metricKey) {
 export function hasBubbleChart (metricKey) {
   return !!bubbles[metricKey];
 }
+
+export function hasTreemap (metric) {
+  return ['PERCENT', 'RATING', 'LEVEL'].indexOf(metric.type) !== -1;
+}

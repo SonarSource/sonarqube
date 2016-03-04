@@ -241,3 +241,8 @@
   left: 50%;
   top: 10px;
 }
+
+.measure-details-treemap {
+  max-width: 960px;
+  margin: 10px auto;
+}

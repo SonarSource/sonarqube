@@ -29,6 +29,7 @@ import MeasureDrilldownTree from './components/MeasureDrilldownTree';
 import MeasureDrilldownList from './components/MeasureDrilldownList';
 import MeasureHistory from './components/MeasureHistory';
 import MeasureBubbleChart from './components/MeasureBubbleChart';
+import MeasureTreemap from './components/MeasureTreemap';
 
 import { checkHistoryExistence, checkBubbleChartExistence } from './hooks';
 
@@ -61,6 +62,7 @@ window.sonarqube.appStarted.then(options => {
             <Route path="list" component={MeasureDrilldownList}/>
             <Route path="history" component={MeasureHistory} onEnter={checkHistoryExistence}/>
             <Route path="bubbles" component={MeasureBubbleChart} onEnter={checkBubbleChartExistence}/>
+            <Route path="treemap" component={MeasureTreemap}/>
           </Route>
         </Route>
 

@@ -27,7 +27,7 @@ import { getTimeMachineData } from '../../../api/time-machine';
 import { getEvents } from '../../../api/events';
 import { formatMeasure, getShortType } from '../../../helpers/measures';
 
-const HEIGHT = 280;
+const HEIGHT = 360;
 
 function parseValue (value, type) {
   return type === 'RATING' && typeof value === 'string' ? value.charCodeAt(0) - 'A'.charCodeAt(0) + 1 : value;
