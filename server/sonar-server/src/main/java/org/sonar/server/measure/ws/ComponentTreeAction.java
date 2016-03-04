@@ -245,7 +245,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));
     checkRequest(componentTreeWsRequest.getPageSize() <= MAX_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_SIZE);
-    checkRequest(componentTreeWsRequest.getQuery() == null || componentTreeWsRequest.getQuery().length() >= QUERY_MINIMUM_LENGTH,
+    String searchQuery = componentTreeWsRequest.getQuery();
+    checkRequest(searchQuery == null || searchQuery.length() >= QUERY_MINIMUM_LENGTH,
       "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
     String metricSortValue = componentTreeWsRequest.getMetricSort();
     checkRequest(!componentTreeWsRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key", PARAM_METRIC_KEYS);
