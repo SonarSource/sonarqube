@@ -22,8 +22,6 @@ package org.sonar.server.computation.issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
 
-import static com.google.common.collect.Sets.union;
-
 public class RuleTypeCopier extends IssueVisitor {
 
   private final RuleRepository ruleRepository;
@@ -34,7 +32,7 @@ public class RuleTypeCopier extends IssueVisitor {
 
   @Override
   public void onIssue(Component component, DefaultIssue issue) {
-    if (issue.type()==null) {
+    if (issue.type() == null) {
       Rule rule = ruleRepository.getByKey(issue.ruleKey());
       issue.setType(rule.getType());
     }

@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.db.DbClient;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.Measure;
@@ -36,22 +37,27 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
-import org.sonar.db.DbClient;
 
-public class NewDebtAggregator extends IssueVisitor {
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 
-  private final NewDebtCalculator calculator;
+/**
+ * Compute new effort related measures :
+ * {@link CoreMetrics#NEW_TECHNICAL_DEBT_KEY}
+ */
+public class NewEffortAggregator extends IssueVisitor {
+
+  private final NewEffortCalculator calculator;
   private final PeriodsHolder periodsHolder;
   private final DbClient dbClient;
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
 
   private ListMultimap<String, IssueChangeDto> changesByIssueUuid = ArrayListMultimap.create();
-  private Map<Integer, DebtSum> sumsByComponentRef = new HashMap<>();
-  private DebtSum currentSum = null;
+  private Map<Integer, EffortSum> sumsByComponentRef = new HashMap<>();
+  private EffortSum maintainabilityEffortSum = null;
 
-  public NewDebtAggregator(NewDebtCalculator calculator, PeriodsHolder periodsHolder, DbClient dbClient,
-    MetricRepository metricRepository, MeasureRepository measureRepository) {
+  public NewEffortAggregator(NewEffortCalculator calculator, PeriodsHolder periodsHolder, DbClient dbClient,
+                             MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.calculator = calculator;
     this.periodsHolder = periodsHolder;
     this.dbClient = dbClient;
@@ -61,16 +67,16 @@ public class NewDebtAggregator extends IssueVisitor {
 
   @Override
   public void beforeComponent(Component component) {
-    currentSum = new DebtSum();
-    sumsByComponentRef.put(component.getReportAttributes().getRef(), currentSum);
+    maintainabilityEffortSum = new EffortSum();
+    sumsByComponentRef.put(component.getReportAttributes().getRef(), maintainabilityEffortSum);
     List<IssueChangeDto> changes = dbClient.issueChangeDao().selectChangelogOfNonClosedIssuesByComponent(component.getUuid());
     for (IssueChangeDto change : changes) {
       changesByIssueUuid.put(change.getIssueKey(), change);
     }
     for (Component child : component.getChildren()) {
-      DebtSum childSum = sumsByComponentRef.remove(child.getReportAttributes().getRef());
+      EffortSum childSum = sumsByComponentRef.remove(child.getReportAttributes().getRef());
       if (childSum != null) {
-        currentSum.add(childSum);
+        maintainabilityEffortSum.add(childSum);
       }
     }
   }
@@ -80,34 +86,36 @@ public class NewDebtAggregator extends IssueVisitor {
     if (issue.resolution() == null && issue.debtInMinutes() != null && !periodsHolder.getPeriods().isEmpty()) {
       List<IssueChangeDto> changelog = changesByIssueUuid.get(issue.key());
       for (Period period : periodsHolder.getPeriods()) {
-        long newDebt = calculator.calculate(issue, changelog, period);
-        currentSum.add(period.getIndex(), newDebt);
+        if (issue.type().equals(CODE_SMELL)) {
+          long newMaintainabilityEffort = calculator.calculate(issue, changelog, period);
+          maintainabilityEffortSum.add(period.getIndex(), newMaintainabilityEffort);
+        }
       }
     }
   }
 
   @Override
   public void afterComponent(Component component) {
-    if (!currentSum.isEmpty) {
-      MeasureVariations variations = new MeasureVariations(currentSum.sums);
+    if (!maintainabilityEffortSum.isEmpty) {
+      MeasureVariations variations = new MeasureVariations(maintainabilityEffortSum.sums);
       Metric metric = metricRepository.getByKey(CoreMetrics.NEW_TECHNICAL_DEBT_KEY);
       measureRepository.add(component, metric, Measure.newMeasureBuilder().setVariations(variations).createNoValue());
     }
     changesByIssueUuid.clear();
-    currentSum = null;
+    maintainabilityEffortSum = null;
   }
 
-  private static class DebtSum {
+  private static class EffortSum {
     private final Double[] sums = new Double[PeriodsHolder.MAX_NUMBER_OF_PERIODS];
     private boolean isEmpty = true;
 
-    void add(int periodIndex, long newDebt) {
+    void add(int periodIndex, long newEffort) {
       double previous = Objects.firstNonNull(sums[periodIndex - 1], 0d);
-      sums[periodIndex - 1] = previous + newDebt;
+      sums[periodIndex - 1] = previous + newEffort;
       isEmpty = false;
     }
 
-    void add(DebtSum other) {
+    void add(EffortSum other) {
       for (int i = 0; i < sums.length; i++) {
         Double otherValue = other.sums[i];
         if (otherValue != null) {

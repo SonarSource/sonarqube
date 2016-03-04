@@ -25,6 +25,7 @@ import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 
 import static com.google.common.base.Preconditions.checkArgument;
@@ -39,6 +40,7 @@ public class TestIssue implements Issue {
   private String severity;
   private RuleKey ruleKey;
   private Duration debt;
+  private RuleType type;
 
   private TestIssue(Builder builder) {
     this.key = builder.key;
@@ -47,6 +49,7 @@ public class TestIssue implements Issue {
     this.severity = builder.severity;
     this.ruleKey = builder.ruleKey;
     this.debt = builder.debt;
+    this.type = builder.type;
   }
 
   @Override
@@ -81,6 +84,15 @@ public class TestIssue implements Issue {
     return debt;
   }
 
+  public Duration effort() {
+    return debt;
+  }
+
+  @Override
+  public RuleType type() {
+    return type;
+  }
+
   public static class Builder {
     private String key;
     private String status;
@@ -88,6 +100,7 @@ public class TestIssue implements Issue {
     private String severity;
     private RuleKey ruleKey;
     private Duration debt;
+    private RuleType type;
 
     public Builder setKey(String key) {
       this.key = validateKey(key);
@@ -119,6 +132,11 @@ public class TestIssue implements Issue {
       return this;
     }
 
+    public Builder setType(RuleType type) {
+      this.type = validateType(type);
+      return this;
+    }
+
     private static String validateKey(String key){
       checkNotNull(key, "key cannot be null");
       return key;
@@ -146,12 +164,18 @@ public class TestIssue implements Issue {
       return status;
     }
 
+    private static RuleType validateType(RuleType type){
+      checkNotNull(type, "type cannot be null");
+      return type;
+    }
+
     public Issue build(){
       validateKey(key);
       validateResolution(resolution);
       validateSeverity(severity);
       validateStatus(status);
       validateRuleKey(ruleKey);
+      validateType(type);
       return new TestIssue(this);
     }
   }
