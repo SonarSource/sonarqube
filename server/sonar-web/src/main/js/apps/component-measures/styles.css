@@ -1,6 +1,7 @@
 .measures-domains {
-  width: 600px;
-  margin: 20px auto;
+  margin: 20px;
+  column-count: 2;
+  column-gap: 60px;
 }
 
 .measures-domains > li + li {
@@ -15,11 +16,13 @@
   background-color: #fbf3d5;
 }
 
-.domain-measures > li {
+
+.domain-measures > li > a {
   display: flex;
+  border: none;
 }
 
-.domain-measures > li:nth-child(odd) {
+.domain-measures > li:nth-child(odd) > a {
   background-color: #f8f8f8;
 }
 
@@ -33,13 +36,19 @@
   width: calc(100% - 160px);
 }
 
+.domain-measures-name > span {
+  border-bottom: 1px solid #cae3f2;
+}
+
 .domain-measures-value {
   width: 80px;
+  color: #444;
   text-align: right;
 }
 
 .domain-measures-leak {
   background-color: #fbf3d5;
+  transition: background-color 0.3s ease;
 }
 
 .domain-measures > li:nth-child(odd) .domain-measures-leak {

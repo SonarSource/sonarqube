@@ -39,23 +39,25 @@ export default function AllMeasuresDomain ({ domain, component, displayLeakHeade
         <ul className="domain-measures">
           {domain.measures.map(measure => (
               <li key={measure.metric.key}>
-                <div className="domain-measures-name">
-                  {measure.metric.name}
-                </div>
-                <div className="domain-measures-value">
-                  {measure.value != null && (
-                      <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
-                        {formatMeasure(measure.value, measure.metric.type)}
-                      </Link>
-                  )}
-                </div>
-                <div className="domain-measures-value domain-measures-leak">
-                  {measure.leak != null && (
-                      <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
-                        {formatLeak(measure.leak, measure.metric)}
-                      </Link>
-                  )}
-                </div>
+                <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
+                  <div className="domain-measures-name">
+                    <span>{measure.metric.name}</span>
+                  </div>
+                  <div className="domain-measures-value">
+                    {measure.value != null && (
+                        <span>
+                          {formatMeasure(measure.value, measure.metric.type)}
+                        </span>
+                    )}
+                  </div>
+                  <div className="domain-measures-value domain-measures-leak">
+                    {measure.leak != null && (
+                        <span>
+                          {formatLeak(measure.leak, measure.metric)}
+                        </span>
+                    )}
+                  </div>
+                </Link>
               </li>
           ))}
         </ul>
