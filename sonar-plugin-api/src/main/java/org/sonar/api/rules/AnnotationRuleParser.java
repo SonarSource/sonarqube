@@ -55,7 +55,7 @@ public final class AnnotationRuleParser {
     return rules;
   }
 
-  private Rule create(String repositoryKey, Class annotatedClass) {
+  private static Rule create(String repositoryKey, Class annotatedClass) {
     org.sonar.check.Rule ruleAnnotation = AnnotationUtils.getAnnotation(annotatedClass, org.sonar.check.Rule.class);
     if (ruleAnnotation != null) {
       return toRule(repositoryKey, annotatedClass, ruleAnnotation);

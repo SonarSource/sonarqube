@@ -74,7 +74,7 @@ public final class AnnotationCheckFactory extends CheckFactory {
     return null;
   }
 
-  private Object instantiate(ActiveRule activeRule, Object checkClassOrInstance) {
+  private static Object instantiate(ActiveRule activeRule, Object checkClassOrInstance) {
     try {
       Object check = checkClassOrInstance;
       if (check instanceof Class) {

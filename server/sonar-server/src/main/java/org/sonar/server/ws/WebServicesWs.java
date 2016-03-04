@@ -72,11 +72,11 @@ public class WebServicesWs implements WebService {
       .setDefaultValue("false");
   }
 
-  private void defineResponseExample(final Context context, NewController controller) {
+  private static void defineResponseExample(final Context context, NewController controller) {
     NewAction action = controller
       .createAction("response_example")
       .setDescription("Display web service response example")
-      .setResponseExample(getClass().getResource("response_example-example.json"))
+      .setResponseExample(WebServicesWs.class.getResource("response_example-example.json"))
       .setSince("4.4")
       .setHandler(new RequestHandler() {
         @Override
@@ -161,7 +161,7 @@ public class WebServicesWs implements WebService {
     }
   }
 
-  private void writeAction(JsonWriter writer, Action action, boolean includeInternals) {
+  private static void writeAction(JsonWriter writer, Action action, boolean includeInternals) {
     if (includeInternals || !action.isInternal()) {
       writer.beginObject();
       writer.prop("key", action.key());

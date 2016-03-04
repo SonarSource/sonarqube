@@ -154,7 +154,7 @@ public class Checks<C> {
     return StringUtils.defaultIfEmpty(key, clazz.getCanonicalName());
   }
 
-  private Object instantiate(ActiveRule activeRule, Object checkClassOrInstance) {
+  private static Object instantiate(ActiveRule activeRule, Object checkClassOrInstance) {
     try {
       Object check = checkClassOrInstance;
       if (check instanceof Class) {
