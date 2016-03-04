@@ -30,7 +30,8 @@ export default class ComponentMeasuresApp extends React.Component {
 
   getChildContext () {
     return {
-      component: this.props.component
+      component: this.props.component,
+      metrics: this.state.metrics
     };
   }
 
@@ -69,5 +70,6 @@ export default class ComponentMeasuresApp extends React.Component {
 }
 
 ComponentMeasuresApp.childContextTypes = {
-  component: React.PropTypes.object
+  component: React.PropTypes.object,
+  metrics: React.PropTypes.array
 };

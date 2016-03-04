@@ -46,7 +46,6 @@
   background-color: #f5eed0;
 }
 
-
 .measure-details {
   margin-top: 10px;
 }
@@ -203,4 +202,33 @@
 
 .measure-details-history {
   padding: 10px;
+}
+
+.measure-details-bubble-chart {
+  position: relative;
+  max-width: 960px;
+  margin: 10px auto;
+  padding: 30px 0 30px 50px;
+}
+
+.measure-details-bubble-chart-axis {
+  position: absolute;
+  color: #777;
+  font-size: 12px;
+}
+
+.measure-details-bubble-chart-axis.x {
+  top: 50%;
+  left: -20px;
+  transform: rotate(-90deg);
+}
+
+.measure-details-bubble-chart-axis.y {
+  left: 50%;
+  bottom: 10px;
+}
+
+.measure-details-bubble-chart-axis.size {
+  left: 50%;
+  top: 10px;
 }

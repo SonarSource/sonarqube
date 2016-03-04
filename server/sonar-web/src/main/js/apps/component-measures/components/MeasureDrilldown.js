@@ -22,8 +22,10 @@ import { Link } from 'react-router';
 
 import IconList from './IconList';
 import IconTree from './IconTree';
+import IconHistory from './IconHistory';
+import IconBubbles from './IconBubbles';
 
-import { hasHistory } from '../utils';
+import { hasHistory, hasBubbleChart } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
 export default class MeasureDrilldown extends React.Component {
@@ -44,6 +46,7 @@ export default class MeasureDrilldown extends React.Component {
                 {translate('component_measures.tab.tree')}
               </Link>
             </li>
+
             <li>
               <Link
                   activeClassName="active"
@@ -52,12 +55,25 @@ export default class MeasureDrilldown extends React.Component {
                 {translate('component_measures.tab.list')}
               </Link>
             </li>
+
             {hasHistory(metric.key) && (
                 <li>
                   <Link
                       activeClassName="active"
                       to={{ pathname: `${metric.key}/history`, query: { id: component.key } }}>
+                    <IconHistory/>
                     {translate('component_measures.tab.history')}
+                  </Link>
+                </li>
+            )}
+
+            {hasBubbleChart(metric.key) && (
+                <li>
+                  <Link
+                      activeClassName="active"
+                      to={{ pathname: `${metric.key}/bubbles`, query: { id: component.key } }}>
+                    <IconBubbles/>
+                    {translate('component_measures.tab.bubbles')}
                   </Link>
                 </li>
             )}

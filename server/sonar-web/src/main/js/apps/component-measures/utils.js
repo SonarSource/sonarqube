@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import bubbles from './bubbles';
 import { formatMeasure, formatMeasureVariation } from '../../helpers/measures';
 
 export function getLeakValue (measure) {
@@ -85,4 +86,8 @@ export function enhanceWithSingleMeasure (components) {
 
 export function hasHistory (metricKey) {
   return metricKey.indexOf('new_') !== 0;
+}
+
+export function hasBubbleChart (metricKey) {
+  return !!bubbles[metricKey];
 }

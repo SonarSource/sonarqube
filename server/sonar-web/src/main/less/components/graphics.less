@@ -22,7 +22,6 @@
 @import (reference) "../init/links";
 
 .sonar-d3 {
-
 }
 
 .sonar-d3 .axis path {
@@ -86,7 +85,6 @@
 }
 
 .sonar-d3 .legend {
-
 }
 
 .sonar-d3 .legend-bullet {
@@ -125,7 +123,6 @@
 }
 
 .sonar-d3 .info {
-
 }
 
 .sonar-d3 .info-text {
@@ -239,7 +236,7 @@ text.max-results-reached-message {
 .sonar-d3 .treemap-breadcrumbs {
   margin-top: 10px;
   padding-top: 7px;
-  border-top: 1px solid #E6E6E6;
+  border-top: 1px solid #e6e6e6;
   line-height: 1.3;
 }
 
@@ -267,8 +264,11 @@ text.max-results-reached-message {
   }
 }
 
-.line-chart {
+/*
+ * Line Chart
+ */
 
+.line-chart {
 }
 
 .line-chart-path {
@@ -284,7 +284,6 @@ text.max-results-reached-message {
 }
 
 .line-chart-backdrop {
-
 }
 
 .line-chart-tick {
@@ -304,4 +303,38 @@ text.max-results-reached-message {
 .line-chart-grid {
   shape-rendering: crispedges;
   stroke: #eee;
+}
+
+/*
+ * Bubble Chart
+ */
+
+.bubble-chart {
+}
+
+.bubble-chart-bubble {
+  fill: @blue;
+  fill-opacity: 0.2;
+  stroke: @blue;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  &:hover {
+    fill-opacity: 0.8;
+  }
+}
+
+.bubble-chart-grid {
+  shape-rendering: crispedges;
+  stroke: #eee;
+}
+
+.bubble-chart-tick {
+  fill: @secondFontColor;
+  font-size: 12px;
+  text-anchor: middle;
+}
+
+.bubble-chart-tick-y {
+  text-anchor: end;
 }

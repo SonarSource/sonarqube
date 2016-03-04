@@ -17,26 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { hasHistory, hasBubbleChart } from './utils';
+import React from 'react';
 
-export function checkHistoryExistence (nextState, replace) {
-  const { metricKey } = nextState.params;
-
-  if (!hasHistory(metricKey)) {
-    replace({
-      pathname: metricKey,
-      query: nextState.location.query
-    });
-  }
-}
-
-export function checkBubbleChartExistence (nextState, replace) {
-  const { metricKey } = nextState.params;
-
-  if (!hasBubbleChart(metricKey)) {
-    replace({
-      pathname: metricKey,
-      query: nextState.location.query
-    });
-  }
+export default function IconHistory () {
+  /* eslint max-len: 0 */
+  return (
+      <svg className="measure-tab-icon"
+           viewBox="0 0 512 448"
+           fillRule="evenodd"
+           clipRule="evenodd"
+           strokeLinejoin="round"
+           strokeMiterlimit="1.414">
+        <path
+            d="M512 384v32H0V32h32v352h480zM480 72v108.75q0 5.25-4.875 7.375t-8.875-1.875L436 156 277.75 314.25q-2.5 2.5-5.75 2.5t-5.75-2.5L208 256 104 360l-48-48 146.25-146.25q2.5-2.5 5.75-2.5t5.75 2.5L272 224l116-116-30.25-30.25q-4-4-1.875-8.875T363.25 64H472q3.5 0 5.75 2.25T480 72z"/>
+      </svg>
+  );
 }
