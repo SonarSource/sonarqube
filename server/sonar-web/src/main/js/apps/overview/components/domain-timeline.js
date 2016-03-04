@@ -26,7 +26,7 @@ import { getTimeMachineData } from '../../../api/time-machine';
 import { getEvents } from '../../../api/events';
 import { formatMeasure, groupByDomain } from '../../../helpers/measures';
 import { getShortType } from '../helpers/metrics';
-import { Timeline } from './timeline-chart';
+import Timeline from './../../../components/charts/Timeline';
 import { translate } from '../../../helpers/l10n';
 
 

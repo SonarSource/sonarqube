@@ -22,14 +22,16 @@ import { Link } from 'react-router';
 
 import IconList from './IconList';
 import IconTree from './IconTree';
+
+import { hasHistory } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
 export default class MeasureDrilldown extends React.Component {
   render () {
-    const { metric, children } = this.props;
+    const { children, metric, ...other } = this.props;
     const { component } = this.context;
 
-    const child = React.cloneElement(children, { component, metric });
+    const child = React.cloneElement(children, { component, metric, ...other });
 
     return (
         <div className="measure-details-drilldown">
@@ -50,6 +52,15 @@ export default class MeasureDrilldown extends React.Component {
                 {translate('component_measures.tab.list')}
               </Link>
             </li>
+            {hasHistory(metric.key) && (
+                <li>
+                  <Link
+                      activeClassName="active"
+                      to={{ pathname: `${metric.key}/history`, query: { id: component.key } }}>
+                    {translate('component_measures.tab.history')}
+                  </Link>
+                </li>
+            )}
           </ul>
 
           {child}

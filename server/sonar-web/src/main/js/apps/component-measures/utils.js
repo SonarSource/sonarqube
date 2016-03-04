@@ -82,3 +82,7 @@ export function enhanceWithSingleMeasure (components) {
       })
       .filter(component => component.value != null || component.leak != null);
 }
+
+export function hasHistory (metricKey) {
+  return metricKey.indexOf('new_') !== 0;
+}

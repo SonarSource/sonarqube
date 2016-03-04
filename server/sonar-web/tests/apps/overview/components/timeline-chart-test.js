@@ -2,7 +2,7 @@ import { expect } from 'chai';
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
 
-import { Timeline } from '../../../../src/main/js/apps/overview/components/timeline-chart';
+import Timeline from '../../../../src/main/js/components/charts/Timeline';
 
 
 const ZERO_DATA = [

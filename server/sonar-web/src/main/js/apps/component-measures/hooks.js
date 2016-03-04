@@ -17,39 +17,15 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import moment from 'moment';
-import { translate, translateWithParameters } from './l10n';
+import { hasHistory } from './utils';
 
-export function getLeakPeriod (periods) {
-  if (!Array.isArray(periods)) {
-    return null;
+export function checkHistoryExistence (nextState, replace) {
+  const { metricKey } = nextState.params;
+
+  if (!hasHistory(metricKey)) {
+    replace({
+      pathname: metricKey,
+      query: nextState.location.query
+    });
   }
-
-  return periods.find(period => period.index === 1);
-}
-
-export function getPeriodLabel (period) {
-  if (!period) {
-    return null;
-  }
-
-  const parameter = period.modeParam || period.parameter;
-
-  if (period.mode === 'previous_version' && !parameter) {
-    return translate('overview.period.previous_version_only_date');
-  }
-
-  return translateWithParameters(`overview.period.${period.mode}`, parameter);
-}
-
-export function getPeriodDate (period) {
-  if (!period) {
-    return null;
-  }
-
-  return moment(period.date).toDate();
-}
-
-export function getLeakPeriodLabel (periods) {
-  return getPeriodLabel(getLeakPeriod(periods));
 }

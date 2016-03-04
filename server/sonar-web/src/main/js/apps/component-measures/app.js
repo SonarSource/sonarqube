@@ -27,6 +27,9 @@ import AllMeasuresList from './components/AllMeasures';
 import MeasureDetails from './components/MeasureDetails';
 import MeasureDrilldownTree from './components/MeasureDrilldownTree';
 import MeasureDrilldownList from './components/MeasureDrilldownList';
+import MeasureHistory from './components/MeasureHistory';
+
+import { checkHistoryExistence } from './hooks';
 
 import './styles.css';
 
@@ -55,6 +58,7 @@ window.sonarqube.appStarted.then(options => {
             <IndexRedirect to="tree"/>
             <Route path="tree" component={MeasureDrilldownTree}/>
             <Route path="list" component={MeasureDrilldownList}/>
+            <Route path="history" component={MeasureHistory} onEnter={checkHistoryExistence}/>
           </Route>
         </Route>
 

@@ -25,7 +25,7 @@ import MeasureDrilldown from './MeasureDrilldown';
 
 import { enhanceWithLeak } from '../utils';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { getLeakPeriodLabel } from '../../../helpers/periods';
+import { getLeakPeriod, getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 
 export default class MeasureDetails extends React.Component {
   state = {};
@@ -92,7 +92,9 @@ export default class MeasureDetails extends React.Component {
     }
 
     const { tab } = this.props.params;
-    const leakPeriodLabel = getLeakPeriodLabel(periods);
+    const leakPeriod = getLeakPeriod(periods);
+    const leakPeriodLabel = getPeriodLabel(leakPeriod);
+    const leakPeriodDate = getPeriodDate(leakPeriod);
 
     return (
         <div className="measure-details">
@@ -102,7 +104,10 @@ export default class MeasureDetails extends React.Component {
               leakPeriodLabel={leakPeriodLabel}/>
 
           {measure && (
-              <MeasureDrilldown metric={this.metric} tab={tab}>
+              <MeasureDrilldown
+                  metric={this.metric}
+                  tab={tab}
+                  leakPeriodDate={leakPeriodDate}>
                 {this.props.children}
               </MeasureDrilldown>
           )}

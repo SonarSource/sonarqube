@@ -71,6 +71,21 @@ export function groupByDomain (metrics) {
 }
 
 
+/**
+ * Return corresponding "short" for better display in UI
+ * @param {string} type
+ * @returns {string}
+ */
+export function getShortType (type) {
+  if (type === 'INT') {
+    return 'SHORT_INT';
+  } else if (type === 'WORK_DUR') {
+    return 'SHORT_WORK_DUR';
+  }
+  return type;
+}
+
+
 /*
  * Helpers
  */
