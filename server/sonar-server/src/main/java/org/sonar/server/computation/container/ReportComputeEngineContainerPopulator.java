@@ -39,9 +39,9 @@ import org.sonar.server.computation.issue.BaseIssuesLoader;
 import org.sonar.server.computation.issue.CloseIssuesOnRemovedComponentsVisitor;
 import org.sonar.server.computation.issue.ComponentIssuesRepositoryImpl;
 import org.sonar.server.computation.issue.ComponentsWithUnprocessedIssues;
-import org.sonar.server.computation.issue.DebtAggregator;
 import org.sonar.server.computation.issue.DebtCalculator;
 import org.sonar.server.computation.issue.DefaultAssignee;
+import org.sonar.server.computation.issue.EffortAggregator;
 import org.sonar.server.computation.issue.IntegrateIssuesVisitor;
 import org.sonar.server.computation.issue.IssueAssigner;
 import org.sonar.server.computation.issue.IssueCache;
@@ -49,8 +49,8 @@ import org.sonar.server.computation.issue.IssueCounter;
 import org.sonar.server.computation.issue.IssueLifecycle;
 import org.sonar.server.computation.issue.IssueVisitors;
 import org.sonar.server.computation.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
-import org.sonar.server.computation.issue.NewDebtAggregator;
-import org.sonar.server.computation.issue.NewDebtCalculator;
+import org.sonar.server.computation.issue.NewEffortAggregator;
+import org.sonar.server.computation.issue.NewEffortCalculator;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
 import org.sonar.server.computation.issue.RuleTagsCopier;
 import org.sonar.server.computation.issue.RuleTypeCopier;
@@ -174,9 +174,9 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
 
       // order is important: DebtAggregator then NewDebtAggregator (new debt requires debt)
       DebtCalculator.class,
-      DebtAggregator.class,
-      NewDebtCalculator.class,
-      NewDebtAggregator.class,
+      EffortAggregator.class,
+      NewEffortCalculator.class,
+      NewEffortAggregator.class,
       IssueAssigner.class,
       RuleTagsCopier.class,
       RuleTypeCopier.class,

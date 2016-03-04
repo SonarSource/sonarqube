@@ -36,9 +36,9 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
-import org.sonar.server.issue.IssueUpdater;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.computation.period.Period;
+import org.sonar.server.issue.IssueUpdater;
 
 import static com.google.common.collect.FluentIterable.from;
 
@@ -46,7 +46,7 @@ import static com.google.common.collect.FluentIterable.from;
  * Gets the issue debt that was introduced on a period. The algorithm
  * is based on the issue changelog.
  */
-public class NewDebtCalculator {
+public class NewEffortCalculator {
 
   public long calculate(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, Period period) {
     if (issue.creationDate().getTime() > period.getSnapshotDate() + 1000L) {

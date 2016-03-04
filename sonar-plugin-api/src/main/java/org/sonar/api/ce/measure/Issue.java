@@ -21,6 +21,7 @@ package org.sonar.api.ce.measure;
 
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 
 /**
@@ -52,5 +53,7 @@ public interface Issue {
 
   @CheckForNull
   Duration debt();
+
+  RuleType type();
 
 }

@@ -2158,11 +2158,13 @@ public final class CoreMetrics {
   /**
    * @since 4.0
    */
+  // TODO should be renamed to MAINTAINABILITY_REMEDIATION_EFFORT_KEY = "maintainability_remediation_effort"
   public static final String TECHNICAL_DEBT_KEY = "sqale_index";
 
   /**
    * @since 4.0
    */
+  // TODO should be renamed to MAINTAINABILITY_REMEDIATION_EFFORT
   public static final Metric<Long> TECHNICAL_DEBT = new Metric.Builder(TECHNICAL_DEBT_KEY, "Technical Debt", Metric.ValueType.WORK_DUR)
     .setDomain(DOMAIN_TECHNICAL_DEBT)
     .setDirection(Metric.DIRECTION_WORST)
@@ -2174,11 +2176,13 @@ public final class CoreMetrics {
   /**
    * @since 4.1
    */
-  public static final String NEW_TECHNICAL_DEBT_KEY = "new_technical_debt";
+  // TODO should be renamed to NEW_MAINTAINABILITY_REMEDIATION_EFFORT_KEY = "new_maintainability_remediation_effort"
+  public static final String NEW_TECHNICAL_DEBT_KEY = "new_maintainabilty_remediation_effort";
 
   /**
    * @since 4.1
    */
+  // TODO should be renamed to NEW_MAINTAINABILITY_REMEDIATION_EFFORT
   public static final Metric<Long> NEW_TECHNICAL_DEBT = new Metric.Builder(NEW_TECHNICAL_DEBT_KEY, "Technical Debt on new code", Metric.ValueType.WORK_DUR)
     .setDescription("Technical Debt of new code")
     .setDomain(DOMAIN_TECHNICAL_DEBT)
