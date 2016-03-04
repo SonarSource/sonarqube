@@ -21,13 +21,10 @@ package org.sonar.api.profiles;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;

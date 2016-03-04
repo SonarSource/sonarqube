@@ -31,9 +31,6 @@ public interface ActiveRuleMapper {
 
   void delete(int activeRuleId);
 
-  @CheckForNull
-  ActiveRuleDto selectById(Integer id);
-
   ActiveRuleDto selectByKey(@Param("profileKey") String profileKey, @Param("repository") String repository, @Param("rule") String rule);
 
   List<ActiveRuleDto> selectByKeys(@Param("keys") List<ActiveRuleKey> keys);

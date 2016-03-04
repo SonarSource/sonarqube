@@ -39,6 +39,7 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleDtoFunctions.ActiveRuleDtoToId;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -233,15 +234,6 @@ public class ActiveRuleCompleter {
     @Override
     public ActiveRuleKey apply(@Nonnull ActiveRule input) {
       return input.key();
-    }
-  }
-
-  private enum ActiveRuleDtoToId implements Function<ActiveRuleDto, Integer> {
-    INSTANCE;
-
-    @Override
-    public Integer apply(@Nonnull ActiveRuleDto input) {
-      return input.getId();
     }
   }
 

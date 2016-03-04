@@ -19,6 +19,9 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.FluentIterable;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Lists;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -42,6 +45,8 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleDtoFunctions.ActiveRuleDtoToId;
+import org.sonar.db.qualityprofile.ActiveRuleDtoFunctions.ActiveRuleParamDtoToActiveRuleId;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
@@ -124,10 +129,15 @@ public class QProfileExporters {
     DbSession dbSession = dbClient.openSession(false);
     RulesProfile target = new RulesProfile(profile.getName(), profile.getLanguage());
     try {
-      for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKey())) {
+      List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKey());
+      List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDtoToId.INSTANCE));
+      ListMultimap<Integer, ActiveRuleParamDto> activeRuleParamsByActiveRuleId = FluentIterable.from(activeRuleParamDtos).index(ActiveRuleParamDtoToActiveRuleId.INSTANCE);
+
+      for (ActiveRuleDto activeRule : activeRuleDtos) {
+        // TODO all rules should be loaded by using one query with all active rule keys as parameter
         Rule rule = ruleFinder.findByKey(activeRule.getKey().ruleKey());
         org.sonar.api.rules.ActiveRule wrappedActiveRule = target.activateRule(rule, RulePriority.valueOf(activeRule.getSeverityString()));
-        List<ActiveRuleParamDto> paramDtos = dbClient.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRule.getId());
+        List<ActiveRuleParamDto> paramDtos = activeRuleParamsByActiveRuleId.get(activeRule.getId());
         for (ActiveRuleParamDto activeRuleParamDto : paramDtos) {
           wrappedActiveRule.setParameter(activeRuleParamDto.getKey(), activeRuleParamDto.getValue());
         }

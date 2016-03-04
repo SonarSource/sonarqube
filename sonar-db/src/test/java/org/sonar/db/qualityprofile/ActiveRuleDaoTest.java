@@ -23,6 +23,8 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
@@ -81,6 +83,29 @@ public class ActiveRuleDaoTest {
     assertThat(underTest.selectByKeys(dbSession, asList(activeRule1.getKey(), activeRule2.getKey()))).hasSize(2);
     assertThat(underTest.selectByKeys(dbSession, asList(activeRule1.getKey()))).hasSize(1);
     assertThat(underTest.selectByKeys(dbSession, asList(ActiveRuleKey.of(QPROFILE_2.getKey(), RULE_1.getKey())))).isEmpty();
+  }
+
+  @Test
+  public void select_by_profile() throws Exception {
+    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(QPROFILE_1, RULE_1).setSeverity(Severity.BLOCKER);
+    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(QPROFILE_1, RULE_2).setSeverity(Severity.BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule1);
+    underTest.insert(dbTester.getSession(), activeRule2);
+    dbSession.commit();
+
+    assertThat(underTest.selectByProfileKey(dbSession, QPROFILE_1.getKey())).hasSize(2);
+    assertThat(underTest.selectByProfileKey(dbSession, QPROFILE_2.getKey())).isEmpty();
+  }
+
+  @Test
+  public void select_by_profile_ignore_removed_rules() throws Exception {
+    RuleDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
+    dbClient.ruleDao().insert(dbTester.getSession(), removedRule);
+    ActiveRuleDto activeRule = ActiveRuleDto.createFor(QPROFILE_1, removedRule).setSeverity(Severity.BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    dbSession.commit();
+
+    assertThat(underTest.selectByProfileKey(dbSession, QPROFILE_1.getKey())).isEmpty();
   }
 
   @Test

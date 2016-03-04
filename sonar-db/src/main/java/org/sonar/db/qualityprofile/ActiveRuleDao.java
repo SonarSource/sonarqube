@@ -73,6 +73,9 @@ public class ActiveRuleDao implements Dao {
     return mapper(dbSession).selectAll();
   }
 
+  /**
+   * Active rule on removed rule are NOT returned
+   */
   public List<ActiveRuleDto> selectByProfileKey(DbSession session, String profileKey) {
     return mapper(session).selectByProfileKey(profileKey);
   }

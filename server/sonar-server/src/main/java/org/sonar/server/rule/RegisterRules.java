@@ -53,7 +53,9 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
+import org.sonar.server.qualityprofile.ActiveRuleChange;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndexer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -70,15 +72,17 @@ public class RegisterRules implements Startable {
   private final RuleActivator ruleActivator;
   private final DbClient dbClient;
   private final RuleIndexer ruleIndexer;
+  private final ActiveRuleIndexer activeRuleIndexer;
   private final Languages languages;
   private final System2 system2;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RuleIndexer ruleIndexer,
-                       Languages languages, System2 system2) {
+                       ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
     this.ruleIndexer = ruleIndexer;
+    this.activeRuleIndexer = activeRuleIndexer;
     this.languages = languages;
     this.system2 = system2;
   }
@@ -100,9 +104,11 @@ public class RegisterRules implements Startable {
         }
       }
       List<RuleDto> activeRules = processRemainingDbRules(allRules.values(), session);
-      removeActiveRulesOnStillExistingRepositories(session, activeRules, context);
+      List<ActiveRuleChange> changes = removeActiveRulesOnStillExistingRepositories(session, activeRules, context);
       session.commit();
       ruleIndexer.setEnabled(true).index();
+      activeRuleIndexer.setEnabled(true);
+      activeRuleIndexer.index(changes);
       profiler.stopDebug();
     } finally {
       session.close();
@@ -309,7 +315,7 @@ public class RegisterRules implements Startable {
           .setType(param.type().toString());
         dbClient.ruleDao().insertRuleParam(session, rule, paramDto);
         if (!StringUtils.isEmpty(param.defaultValue())) {
-          // Propagate the default value to existing active rules
+          // Propagate the default value to existing active rule parameters
           for (ActiveRuleDto activeRule : dbClient.activeRuleDao().selectByRule(session, rule)) {
             ActiveRuleParamDto activeParam = ActiveRuleParamDto.createFor(paramDto).setValue(param.defaultValue());
             dbClient.activeRuleDao().insertParam(session, activeRule, activeParam);
@@ -442,7 +448,7 @@ public class RegisterRules implements Startable {
    * The side effect of this approach is that extended repositories will not be managed the same way.
    * If an extended repository do not exists anymore, then related active rules will be removed.
    */
-  private void removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDto> removedRules, RulesDefinition.Context context) {
+  private List<ActiveRuleChange> removeActiveRulesOnStillExistingRepositories(DbSession session, Collection<RuleDto> removedRules, RulesDefinition.Context context) {
     List<String> repositoryKeys = newArrayList(Iterables.transform(context.repositories(), new Function<RulesDefinition.Repository, String>() {
       @Override
       public String apply(@Nonnull RulesDefinition.Repository input) {
@@ -451,15 +457,17 @@ public class RegisterRules implements Startable {
     }
       ));
 
+    List<ActiveRuleChange> changes = new ArrayList<>();
     for (RuleDto rule : removedRules) {
       // SONAR-4642 Remove active rules only when repository still exists
       if (repositoryKeys.contains(rule.getRepositoryKey())) {
-        ruleActivator.deactivate(session, rule);
+        changes.addAll(ruleActivator.deactivate(session, rule));
       }
     }
+    return changes;
   }
 
-  private void update(DbSession session, RuleDto rule){
+  private void update(DbSession session, RuleDto rule) {
     rule.setUpdatedAt(system2.now());
     dbClient.ruleDao().update(session, rule);
   }

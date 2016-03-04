@@ -42,6 +42,7 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.RuleActivator;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -76,6 +77,7 @@ public class RegisterRulesTest {
   DbClient dbClient = dbTester.getDbClient();
 
   RuleIndexer ruleIndexer;
+  ActiveRuleIndexer activeRuleIndexer;
 
   RuleIndex ruleIndex;
 
@@ -86,6 +88,8 @@ public class RegisterRulesTest {
     ruleIndexer = new RuleIndexer(dbClient, esTester.client());
     ruleIndexer.setEnabled(true);
     ruleIndex = new RuleIndex(esTester.client());
+    activeRuleIndexer = new ActiveRuleIndexer(dbClient, esTester.client());
+    activeRuleIndexer.setEnabled(true);
   }
 
   @Test
@@ -334,7 +338,7 @@ public class RegisterRulesTest {
     Languages languages = mock(Languages.class);
     when(languages.get("java")).thenReturn(mock(Language.class));
 
-    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, languages, system);
+    RegisterRules task = new RegisterRules(loader, ruleActivator, dbClient, ruleIndexer, activeRuleIndexer, languages, system);
     task.start();
     // Execute a commit to refresh session state as the task is using its own session
     dbTester.getSession().commit();

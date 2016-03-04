@@ -51,6 +51,7 @@ import org.sonar.server.platform.Platform;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
@@ -78,6 +79,8 @@ public class RegisterRulesMediumTest {
 
   RuleIndex ruleIndex = TESTER.get(RuleIndex.class);
   RuleDao ruleDao = db.ruleDao();
+
+  ActiveRuleIndex activeRuleIndex = TESTER.get(ActiveRuleIndex.class);
 
   @Before
   public void before() {
@@ -130,6 +133,8 @@ public class RegisterRulesMediumTest {
     });
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X2.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
+    assertThat(ruleIndex.search(new RuleQuery().setActivation(true), new SearchOptions()).getIds()).isEmpty();
+    assertThat(activeRuleIndex.countAllByQualityProfileKey()).isEmpty();
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
   }
 
@@ -157,7 +162,7 @@ public class RegisterRulesMediumTest {
     dbSession.clearCache();
 
     assertThat(ruleIndex.search(new RuleQuery().setKey(RuleTesting.XOO_X1.toString()), new SearchOptions()).getTotal()).isEqualTo(0);
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, QProfileTesting.XOO_P1_KEY)).isEmpty();
 
     // Re-install
     register(rules);
