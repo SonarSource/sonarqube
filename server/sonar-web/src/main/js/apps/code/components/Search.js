@@ -21,6 +21,7 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
 import { search, selectCurrent, selectNext, selectPrev } from '../actions';
+import { translateWithParameters } from '../../../helpers/l10n';
 
 
 class Search extends Component {
@@ -44,7 +45,7 @@ class Search extends Component {
         dispatch(selectNext());
         break;
       default:
-      // do nothing
+        // do nothing
     }
   }
 
@@ -76,6 +77,9 @@ class Search extends Component {
               placeholder="Search"
               maxLength="100"
               autoComplete="off"/>
+          <div className="note">
+            {translateWithParameters('select2.tooShort', 3)}
+          </div>
         </form>
     );
   }
