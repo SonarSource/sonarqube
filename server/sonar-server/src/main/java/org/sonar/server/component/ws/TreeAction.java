@@ -73,6 +73,7 @@ import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STR
 
 public class TreeAction implements ComponentsWsAction {
   private static final int MAX_SIZE = 500;
+  private static final int QUERY_MINIMUM_LENGTH = 3;
   private static final String ALL_STRATEGY = "all";
   private static final String CHILDREN_STRATEGY = "children";
   private static final String LEAVES_STRATEGY = "leaves";
@@ -125,10 +126,11 @@ public class TreeAction implements ComponentsWsAction {
       .setExampleValue(NAME_SORT + ", " + PATH_SORT);
 
     action.createParam(Param.TEXT_QUERY)
-      .setDescription("Limit search to: <ul>" +
+      .setDescription(format("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
-        "</ul>")
+        "</ul>" +
+        "Must have at least %d characters", QUERY_MINIMUM_LENGTH))
       .setExampleValue("FILE_NAM");
 
     createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes));
@@ -292,6 +294,8 @@ public class TreeAction implements ComponentsWsAction {
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
     checkRequest(treeWsRequest.getPageSize() <= MAX_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_SIZE);
+    checkRequest(treeWsRequest.getQuery() == null || treeWsRequest.getQuery().length() >= QUERY_MINIMUM_LENGTH,
+      "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
 
     return treeWsRequest;
   }
