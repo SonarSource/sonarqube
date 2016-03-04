@@ -75,6 +75,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEG
  */
 public class ComponentTreeAction implements MeasuresWsAction {
   private static final int MAX_SIZE = 500;
+  private static final int QUERY_MINIMUM_LENGTH = 3;
   static final String ALL_STRATEGY = "all";
   static final String CHILDREN_STRATEGY = "children";
   static final String LEAVES_STRATEGY = "leaves";
@@ -120,10 +121,11 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setExampleValue(NAME_SORT + ", " + PATH_SORT);
 
     action.createParam(Param.TEXT_QUERY)
-      .setDescription("Limit search to: <ul>" +
+      .setDescription(format("Limit search to: <ul>" +
         "<li>component names that contain the supplied string</li>" +
         "<li>component keys that are exactly the same as the supplied string</li>" +
-        "</ul>")
+        "</ul>" +
+        "Must have at least %d characters.", QUERY_MINIMUM_LENGTH))
       .setExampleValue("FILE_NAM");
 
     action.createParam(PARAM_BASE_COMPONENT_ID)
@@ -243,6 +245,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));
     checkRequest(componentTreeWsRequest.getPageSize() <= MAX_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_SIZE);
+    String searchQuery = componentTreeWsRequest.getQuery();
+    checkRequest(searchQuery == null || searchQuery.length() >= QUERY_MINIMUM_LENGTH,
+      "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
     String metricSortValue = componentTreeWsRequest.getMetricSort();
     checkRequest(!componentTreeWsRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key", PARAM_METRIC_KEYS);
     checkRequest(metricSortValue == null ^ componentTreeWsRequest.getSort().contains(METRIC_SORT),
