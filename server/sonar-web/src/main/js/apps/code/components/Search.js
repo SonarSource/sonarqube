@@ -19,6 +19,7 @@
  */
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import classNames from 'classnames';
 
 import { search, selectCurrent, selectNext, selectPrev } from '../actions';
 import { translateWithParameters } from '../../../helpers/l10n';
@@ -58,6 +59,9 @@ class Search extends Component {
 
   render () {
     const { query } = this.props;
+    const inputClassName = classNames('search-box-input', {
+      'touched': query.length > 0 && query.length < 3
+    });
 
     return (
         <form
@@ -71,7 +75,7 @@ class Search extends Component {
               onKeyDown={this.handleKeyDown.bind(this)}
               onChange={this.handleSearch.bind(this)}
               value={query}
-              className="search-box-input"
+              className={inputClassName}
               type="search"
               name="q"
               placeholder="Search"

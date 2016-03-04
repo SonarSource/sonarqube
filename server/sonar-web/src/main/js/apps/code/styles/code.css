@@ -57,6 +57,6 @@
   transition: opacity 0.3s ease;
 }
 
-.code-search-box input:focus ~ .note {
+.code-search-box input.touched ~ .note {
   opacity: 1;
 }
