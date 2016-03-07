@@ -33,7 +33,6 @@ module.exports = {
     'component-measures': './src/main/js/apps/component-measures/app.js',
     'custom-measures': './src/main/js/apps/custom-measures/app.js',
     'dashboard': './src/main/js/apps/dashboard/app.js',
-    'drilldown': './src/main/js/apps/drilldown/app.js',
     'global-permissions': './src/main/js/apps/global-permissions/app.js',
     'groups': './src/main/js/apps/groups/app.js',
     'issues': './src/main/js/apps/issues/app.js',

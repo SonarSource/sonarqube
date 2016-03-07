@@ -33,7 +33,7 @@ import it.customMeasure.CustomMeasuresTest;
 import it.i18n.I18nTest;
 import it.measure.MeasuresWsTest;
 import it.measure.NewDebtRatioMeasureTest;
-import it.measure.ProjectDrilldownTest;
+import it.measure.ProjectMeasuresPageTest;
 import it.measure.ProjectOverviewTest;
 import it.measure.ProjectWidgetsTest;
 import it.measure.TechnicalDebtMeasureVariationTest;
@@ -92,7 +92,7 @@ import static util.ItUtils.xooPlugin;
   CustomMeasuresTest.class,
   // measure
   NewDebtRatioMeasureTest.class,
-  ProjectDrilldownTest.class,
+  ProjectMeasuresPageTest.class,
   ProjectOverviewTest.class,
   ProjectWidgetsTest.class,
   MeasureFiltersTest.class,

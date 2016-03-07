@@ -30,7 +30,7 @@ import util.selenium.SeleneseTest;
 
 import static util.ItUtils.projectDir;
 
-public class ProjectDrilldownTest {
+public class ProjectMeasuresPageTest {
 
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
@@ -39,15 +39,15 @@ public class ProjectDrilldownTest {
   public static void inspectProject() {
     orchestrator.executeBuild(
       SonarRunner.create(projectDir("shared/xoo-sample"))
-        .setProjectKey("project-drilldown-test-project")
-        .setProjectName("ProjectDrilldownTest Project")
+        .setProjectKey("project-measures-page-test-project")
+        .setProjectName("ProjectMeasuresPageTest Project")
     );
   }
 
   @Test
-  public void should_display_measure_drilldown() {
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_measure_drilldown",
-      "/measure/ProjectDrilldownTest/should_display_measure_drilldown.html"
+  public void should_display_measures_page() {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_measures_page",
+      "/measure/ProjectMeasuresPageTest/should_display_measures_page.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }

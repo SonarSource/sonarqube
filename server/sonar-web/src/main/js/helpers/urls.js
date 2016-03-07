@@ -45,20 +45,10 @@ export function getComponentIssuesUrl (componentKey, query) {
  * Generate URL for a component's drilldown page
  * @param {string} componentKey
  * @param {string} metric
- * @param {string|number} [period]
- * @param {string} [highlightedMetric]
  * @returns {string}
  */
-export function getComponentDrilldownUrl (componentKey, metric, period, highlightedMetric) {
-  let url = '/drilldown/measures?id=' + encodeURIComponent(componentKey) +
-      '&metric=' + encodeURIComponent(metric);
-  if (period) {
-    url += '&period=' + period;
-  }
-  if (highlightedMetric) {
-    url += '&highlight=' + encodeURIComponent(highlightedMetric);
-  }
-  return url;
+export function getComponentDrilldownUrl (componentKey, metric) {
+  return `/component_measures/${metric}?id=${encodeURIComponent(componentKey)}`;
 }
 
 

@@ -56,17 +56,12 @@ describe('URLs', function () {
   describe('#getComponentDrilldownUrl', function () {
     it('should return component drilldown url', function () {
       expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).to.equal(
-          '/drilldown/measures?id=' + SIMPLE_COMPONENT_KEY + '&metric=' + METRIC);
+          '/component_measures/' + METRIC + '?id=' + SIMPLE_COMPONENT_KEY);
     });
 
     it('should encode component key', function () {
       expect(getComponentDrilldownUrl(COMPLEX_COMPONENT_KEY, METRIC)).to.equal(
-          '/drilldown/measures?id=' + COMPLEX_COMPONENT_KEY_ENCODED + '&metric=' + METRIC);
-    });
-
-    it('should work with period', function () {
-      expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC, PERIOD)).to.equal(
-          '/drilldown/measures?id=' + SIMPLE_COMPONENT_KEY + '&metric=' + METRIC + '&period=' + PERIOD);
+          '/component_measures/' + METRIC + '?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
     });
   });
 });

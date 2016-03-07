@@ -132,10 +132,8 @@ export const DrilldownLink = React.createClass({
       return this.renderIssuesLink();
     }
 
-    let highlightedMetric = HIGHLIGHT_MAPPING[this.props.metric];
-    let url = highlightedMetric ?
-        getComponentDrilldownUrl(this.props.component, highlightedMetric, this.props.period, this.props.metric) :
-        getComponentDrilldownUrl(this.props.component, this.props.metric, this.props.period);
+    const highlightedMetric = HIGHLIGHT_MAPPING[this.props.metric] || this.props.metric;
+    const url = getComponentDrilldownUrl(this.props.component, highlightedMetric);
     return <a className={this.props.className} href={url}>{this.props.children}</a>;
   }
 });

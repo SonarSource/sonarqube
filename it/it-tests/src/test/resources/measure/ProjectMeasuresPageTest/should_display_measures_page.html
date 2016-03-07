@@ -3,22 +3,27 @@
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head profile="http://selenium-ide.openqa.org/profiles/test-case">
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
-    <title>display-differential-values</title>
+    <title>should_display_measure_drilldown</title>
 </head>
 <body>
 <table cellpadding="1" cellspacing="1" border="1">
     <tbody>
     <tr>
-        <td>open</td>
-        <td>/widget?id=rules&amp;amp;resource=com.sonarsource.it.samples:multi-modules-sample</td>
-        <td></td>
-    </tr>
-    <tr>
-        <td>waitForText</td>
-        <td>body</td>
-        <td>*Effort*</td>
-    </tr>
-    </tbody>
+	<td>open</td>
+	<td>/component_measures/ncloc?id=project-measures-page-test-project</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*Lines of code*13*</td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>content</td>
+	<td>*src/main/xoo/sample*</td>
+</tr>
+</tbody>
 </table>
 </body>
 </html>

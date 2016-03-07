@@ -73,7 +73,7 @@ public class TechnicalDebtWidgetTest {
     new SeleneseTest(Selenese.builder()
       .setHtmlTestsInClasspath("technical-debt-in-issues-widget",
         "/debt/TechnicalDebtWidgetTest/technical-debt/should-have-correct-values.html",
-        "/debt/TechnicalDebtWidgetTest/technical-debt/should-open-remediationcost-on-drilldown-service.html",
+        "/debt/TechnicalDebtWidgetTest/technical-debt/should-open-remediation-cost-on-measures-service.html",
         "/debt/TechnicalDebtWidgetTest/technical-debt/display-differential-values.html",
         // SONAR-4717
         "/debt/TechnicalDebtWidgetTest/technical-debt/is-in-issues-widget.html"
@@ -88,7 +88,7 @@ public class TechnicalDebtWidgetTest {
     new SeleneseTest(Selenese.builder()
       .setHtmlTestsInClasspath("debt-overview-widget",
         "/debt/TechnicalDebtWidgetTest/debt-overview/should-have-correct-values.html",
-        "/debt/TechnicalDebtWidgetTest/debt-overview/should-open-links-on-drilldown-service.html",
+        "/debt/TechnicalDebtWidgetTest/debt-overview/should-open-links-on-measures-service.html",
         "/debt/TechnicalDebtWidgetTest/debt-overview/display-differential-values.html"
       ).build()).runOn(orchestrator);
   }
