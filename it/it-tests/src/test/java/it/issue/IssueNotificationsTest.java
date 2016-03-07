@@ -61,7 +61,7 @@ public class IssueNotificationsTest extends AbstractIssueTest {
 
   @BeforeClass
   public static void before() throws Exception {
-    smtpServer = new Wiser(NetworkUtils.getNextAvailablePort());
+    smtpServer = new Wiser(0);
     smtpServer.start();
     System.out.println("SMTP Server port: " + smtpServer.getServer().getPort());
 

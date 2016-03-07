@@ -29,7 +29,6 @@ import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.Sonar;
@@ -43,7 +42,6 @@ import org.sonar.wsclient.services.ResourceQuery;
 import org.subethamail.wiser.Wiser;
 import org.subethamail.wiser.WiserMessage;
 import util.ItUtils;
-import util.NetworkUtils;
 import util.QaOnly;
 import util.selenium.SeleneseTest;
 
@@ -82,7 +80,7 @@ public class QualityGateNotificationTest {
 
   @Test
   public void status_on_metric_variation_and_send_notifications() throws Exception {
-    Wiser smtpServer = new Wiser(NetworkUtils.getNextAvailablePort());
+    Wiser smtpServer = new Wiser(0);
     try {
       // Configure SMTP
       smtpServer.start();

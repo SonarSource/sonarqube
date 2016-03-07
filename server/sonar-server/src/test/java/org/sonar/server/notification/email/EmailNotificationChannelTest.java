@@ -19,8 +19,6 @@
  */
 package org.sonar.server.notification.email;
 
-import java.io.IOException;
-import java.net.ServerSocket;
 import java.util.List;
 import javax.mail.internet.MimeMessage;
 import org.apache.commons.mail.EmailException;
@@ -44,44 +42,30 @@ public class EmailNotificationChannelTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private int port;
-  private Wiser server;
+  private Wiser smtpServer;
   private EmailSettings configuration;
-  private EmailNotificationChannel channel;
-
-  private static int getNextAvailablePort() {
-    try {
-      ServerSocket socket = new ServerSocket(0);
-      int unusedPort = socket.getLocalPort();
-      socket.close();
-      return unusedPort;
-    } catch (IOException e) {
-      throw new RuntimeException("Error getting an available port from system", e);
-    }
-  }
+  private EmailNotificationChannel underTest;
 
   @Before
   public void setUp() {
-    port = getNextAvailablePort();
-    server = new Wiser();
-    server.setPort(port);
-    server.start();
+    smtpServer = new Wiser(0);
+    smtpServer.start();
 
     configuration = mock(EmailSettings.class);
-    channel = new EmailNotificationChannel(configuration, null, null);
+    underTest = new EmailNotificationChannel(configuration, null, null);
   }
 
   @After
   public void tearDown() {
-    server.stop();
+    smtpServer.stop();
   }
 
   @Test
   public void shouldSendTestEmail() throws Exception {
     configure();
-    channel.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
+    underTest.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
 
-    List<WiserMessage> messages = server.getMessages();
+    List<WiserMessage> messages = smtpServer.getMessages();
     assertThat(messages).hasSize(1);
 
     MimeMessage email = messages.get(0).getMimeMessage();
@@ -95,10 +79,10 @@ public class EmailNotificationChannelTest {
   @Test
   public void shouldThrowAnExceptionWhenUnableToSendTestEmail() {
     configure();
-    server.stop();
+    smtpServer.stop();
 
     try {
-      channel.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
+      underTest.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
       fail();
     } catch (EmailException e) {
       // expected
@@ -111,8 +95,8 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    channel.deliver(emailMessage);
-    assertThat(server.getMessages()).isEmpty();
+    underTest.deliver(emailMessage);
+    assertThat(smtpServer.getMessages()).isEmpty();
   }
 
   @Test
@@ -124,9 +108,9 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Review #3")
       .setMessage("I'll take care of this violation.");
-    channel.deliver(emailMessage);
+    underTest.deliver(emailMessage);
 
-    List<WiserMessage> messages = server.getMessages();
+    List<WiserMessage> messages = smtpServer.getMessages();
     assertThat(messages).hasSize(1);
 
     MimeMessage email = messages.get(0).getMimeMessage();
@@ -152,9 +136,9 @@ public class EmailNotificationChannelTest {
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    channel.deliver(emailMessage);
+    underTest.deliver(emailMessage);
 
-    List<WiserMessage> messages = server.getMessages();
+    List<WiserMessage> messages = smtpServer.getMessages();
     assertThat(messages).hasSize(1);
 
     MimeMessage email = messages.get(0).getMimeMessage();
@@ -176,24 +160,24 @@ public class EmailNotificationChannelTest {
   @Test
   public void shouldNotThrowAnExceptionWhenUnableToSendEmail() {
     configure();
-    server.stop();
+    smtpServer.stop();
 
     EmailMessage emailMessage = new EmailMessage()
       .setTo("user@nowhere")
       .setSubject("Foo")
       .setMessage("Bar");
-    channel.deliver(emailMessage);
+    underTest.deliver(emailMessage);
   }
 
   @Test
   public void shouldSendTestEmailWithSTARTTLS() {
-    server.getServer().setEnableTLS(true);
-    server.getServer().setRequireTLS(true);
+    smtpServer.getServer().setEnableTLS(true);
+    smtpServer.getServer().setRequireTLS(true);
     configure();
     when(configuration.getSecureConnection()).thenReturn("STARTTLS");
 
     try {
-      channel.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
+      underTest.sendTestEmail("user@nowhere", "Test Message from SonarQube", "This is a test message from SonarQube.");
       fail("An SSL exception was expected a a proof that STARTTLS is enabled");
     } catch (EmailException e) {
       // We don't have a SSL certificate so we are expecting a SSL error
@@ -203,7 +187,7 @@ public class EmailNotificationChannelTest {
 
   private void configure() {
     when(configuration.getSmtpHost()).thenReturn("localhost");
-    when(configuration.getSmtpPort()).thenReturn(port);
+    when(configuration.getSmtpPort()).thenReturn(smtpServer.getServer().getPort());
     when(configuration.getFrom()).thenReturn("server@nowhere");
     when(configuration.getPrefix()).thenReturn("[SONARQUBE]");
     when(configuration.getServerBaseURL()).thenReturn("http://nemo.sonarsource.org");
