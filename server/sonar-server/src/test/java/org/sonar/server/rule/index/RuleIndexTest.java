@@ -206,8 +206,12 @@ public class RuleIndexTest {
     query = new RuleQuery().setQueryText("tag1");
     assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RuleKey.of("java", "S001"));
 
-    // tag1 and tag2 in query
+    // tag1 OR tag2
+    // note: should it be AND instead of OR ?
     query = new RuleQuery().setQueryText("tag1 tag2");
+    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
+    // tag2 OR tag1
+    query = new RuleQuery().setQueryText("tag2 tag1");
     assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
 
     // tag2 in filter
