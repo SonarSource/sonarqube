@@ -52,7 +52,7 @@ public class IssueTesting {
       .setStatus(Issue.STATUS_OPEN)
       .setResolution(null)
       .setSeverity(Severity.MAJOR)
-      .setDebt(10L)
+      .setEffort(10L)
       .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
       .setIssueUpdateDate(DateUtils.parseDate("2014-12-04"))
       .setCreatedAt(1400000000000L)

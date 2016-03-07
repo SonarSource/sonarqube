@@ -63,7 +63,7 @@ public class UpdateConflictResolver {
   }
 
   private void resolveEffortToFix(IssueDto dbIssue, DefaultIssue issue) {
-    issue.setEffortToFix(dbIssue.getEffortToFix());
+    issue.setEffortToFix(dbIssue.getGap());
   }
 
   private void resolveSeverity(IssueDto dbIssue, DefaultIssue issue) {

@@ -64,8 +64,8 @@ public final class IssueDto implements Serializable {
   private boolean manualSeverity;
   private String message;
   private Integer line;
-  private Double effortToFix;
-  private Long debt;
+  private Double gap;
+  private Long effort;
   private String status;
   private String resolution;
   private String checksum;
@@ -109,8 +109,8 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
-      .setEffortToFix(issue.effortToFix())
-      .setDebt(issue.debtInMinutes())
+      .setGap(issue.effortToFix())
+      .setEffort(issue.debtInMinutes())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -158,8 +158,8 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
-      .setEffortToFix(issue.effortToFix())
-      .setDebt(issue.debtInMinutes())
+      .setGap(issue.effortToFix())
+      .setEffort(issue.debtInMinutes())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -297,24 +297,24 @@ public final class IssueDto implements Serializable {
   }
 
   @CheckForNull
-  public Double getEffortToFix() {
-    return effortToFix;
+  public Double getGap() {
+    return gap;
   }
 
-  public IssueDto setEffortToFix(@Nullable Double d) {
+  public IssueDto setGap(@Nullable Double d) {
     checkArgument(d == null || d >= 0, "Value of issue effort to fix must be positive: %d", d);
-    this.effortToFix = d;
+    this.gap = d;
     return this;
   }
 
   @CheckForNull
-  public Long getDebt() {
-    return debt;
+  public Long getEffort() {
+    return effort;
   }
 
-  public IssueDto setDebt(@Nullable Long l) {
+  public IssueDto setEffort(@Nullable Long l) {
     checkArgument(l == null || l >= 0, "Value of issue debt must be positive: %d", l);
-    this.debt = l;
+    this.effort = l;
     return this;
   }
 
@@ -726,8 +726,8 @@ public final class IssueDto implements Serializable {
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setMessage(message);
-    issue.setEffortToFix(effortToFix);
-    issue.setDebt(debt != null ? Duration.create(debt) : null);
+    issue.setEffortToFix(gap);
+    issue.setDebt(effort != null ? Duration.create(effort) : null);
     issue.setLine(line);
     issue.setChecksum(checksum);
     issue.setSeverity(severity);

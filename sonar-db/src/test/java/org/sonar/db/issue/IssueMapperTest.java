@@ -44,8 +44,8 @@ public class IssueMapperTest {
     dto.setType(2);
     dto.setKee("ABCDE");
     dto.setLine(500);
-    dto.setEffortToFix(3.14);
-    dto.setDebt(10L);
+    dto.setGap(3.14);
+    dto.setEffort(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");
@@ -80,8 +80,8 @@ public class IssueMapperTest {
     dto.setType(3);
     dto.setKee("ABCDE");
     dto.setLine(500);
-    dto.setEffortToFix(3.14);
-    dto.setDebt(10L);
+    dto.setGap(3.14);
+    dto.setEffort(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");
@@ -116,8 +116,8 @@ public class IssueMapperTest {
     dto.setType(3);
     dto.setKee("ABCDE");
     dto.setLine(500);
-    dto.setEffortToFix(3.14);
-    dto.setDebt(10L);
+    dto.setGap(3.14);
+    dto.setEffort(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");
@@ -154,8 +154,8 @@ public class IssueMapperTest {
     dto.setRuleId(200);
     dto.setKee("ABCDE");
     dto.setLine(500);
-    dto.setEffortToFix(3.14);
-    dto.setDebt(10L);
+    dto.setGap(3.14);
+    dto.setEffort(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");

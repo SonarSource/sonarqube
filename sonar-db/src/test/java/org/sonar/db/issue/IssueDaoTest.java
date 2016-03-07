@@ -26,6 +26,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
@@ -114,7 +115,8 @@ public class IssueDaoTest {
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.getMessage()).isEqualTo("the message");
     assertThat(issue.getLine()).isEqualTo(500);
-    assertThat(issue.getEffortToFix()).isEqualTo(3.14);
+    assertThat(issue.getEffort()).isEqualTo(10L);
+    assertThat(issue.getGap()).isEqualTo(3.14);
     assertThat(issue.getStatus()).isEqualTo("RESOLVED");
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getChecksum()).isEqualTo("123456789");
@@ -185,7 +187,7 @@ public class IssueDaoTest {
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.getMessage()).isNull();
     assertThat(issue.getLine()).isEqualTo(200);
-    assertThat(issue.getEffortToFix()).isEqualTo(4.2);
+    assertThat(issue.getGap()).isEqualTo(4.2);
     assertThat(issue.getStatus()).isEqualTo("OPEN");
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getChecksum()).isEqualTo("XXX");
@@ -212,8 +214,8 @@ public class IssueDaoTest {
     dto.setKee(key);
     dto.setType(2);
     dto.setLine(500);
-    dto.setEffortToFix(3.14);
-    dto.setDebt(10L);
+    dto.setGap(3.14);
+    dto.setEffort(10L);
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");

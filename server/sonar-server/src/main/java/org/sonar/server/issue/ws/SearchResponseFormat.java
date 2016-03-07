@@ -178,7 +178,7 @@ public class SearchResponseFormat {
     }
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllTags(dto.getTags());
-    Long debt = dto.getDebt();
+    Long debt = dto.getEffort();
     if (debt != null) {
       issueBuilder.setDebt(durations.encode(Duration.create(debt)));
     }
