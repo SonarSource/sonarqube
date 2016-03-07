@@ -29,10 +29,11 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.util.Uuids;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.VisitorsCrawler;
+import org.sonar.server.computation.issue.ComponentIssuesRepositoryRule;
+import org.sonar.server.computation.issue.FillComponentIssuesVisitorRule;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -41,12 +42,17 @@ import org.sonar.server.computation.qualitymodel.RatingGrid.Rating;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.measures.CoreMetrics.BUGS;
 import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING;
@@ -54,7 +60,13 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
+import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.rule.Severity.CRITICAL;
+import static org.sonar.api.rule.Severity.INFO;
+import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.api.rule.Severity.MINOR;
 import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.FILE;
@@ -65,7 +77,9 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.A;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.B;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.C;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.D;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.E;
 
 public class QualityModelMeasuresVisitorForReportTest {
@@ -108,10 +122,18 @@ public class QualityModelMeasuresVisitorForReportTest {
     .add(BUGS)
     .add(VULNERABILITIES)
     .add(SQALE_DEBT_RATIO)
-    .add(SQALE_RATING);
+    .add(SQALE_RATING)
+    .add(RELIABILITY_RATING)
+    .add(SECURITY_RATING);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
+
+  @Rule
+  public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
+
+  @Rule
+  public FillComponentIssuesVisitorRule fillComponentIssuesVisitorRule = new FillComponentIssuesVisitorRule(componentIssuesRepositoryRule, treeRootHolder);
 
   private RatingSettings ratingSettings = mock(RatingSettings.class);
 
@@ -124,8 +146,9 @@ public class QualityModelMeasuresVisitorForReportTest {
     when(ratingSettings.getDevCost(LANGUAGE_KEY_1)).thenReturn(DEV_COST_LANGUAGE_1);
     when(ratingSettings.getDevCost(LANGUAGE_KEY_2)).thenReturn(DEV_COST_LANGUAGE_2);
 
-    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(
-      new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
+    underTest = new VisitorsCrawler(Arrays.asList(
+      fillComponentIssuesVisitorRule,
+      new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings, componentIssuesRepositoryRule)));
   }
 
   @Test
@@ -139,7 +162,9 @@ public class QualityModelMeasuresVisitorForReportTest {
       .containsOnly(
         entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
         entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d, 1)),
-        entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A))
+        entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A)),
+        entryOf(RELIABILITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
+        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A))
       );
   }
 
@@ -276,6 +301,112 @@ public class QualityModelMeasuresVisitorForReportTest {
     verifyAddedRawMeasure(PROJECT_REF, SQALE_RATING_KEY, E);
   }
 
+  @Test
+  public void compute_reliability_rating() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, BLOCKER), newBugIssue(1L, MAJOR),
+      // Should not be taken into account
+      newVulnerabilityIssue(5L, MINOR)
+    );
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newBugIssue(2L, CRITICAL), newBugIssue(3L, MINOR),
+      // Should not be taken into account
+      newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
+    );
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasure(FILE_2_REF, RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasure(DIRECTORY_REF, RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasure(MODULE_REF, RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, E);
+  }
+
+  @Test
+  public void compute_security_rating() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newVulnerabilityIssue(10L, BLOCKER), newVulnerabilityIssue(1L, MAJOR),
+      // Should not be taken into account
+      newBugIssue(1L, MAJOR));
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newVulnerabilityIssue(2L, CRITICAL), newVulnerabilityIssue(3L, MINOR),
+      // Should not be taken into account
+      newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
+    );
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, SECURITY_RATING_KEY, E);
+    verifyAddedRawMeasure(FILE_2_REF, SECURITY_RATING_KEY, D);
+    verifyAddedRawMeasure(DIRECTORY_REF, SECURITY_RATING_KEY, E);
+    verifyAddedRawMeasure(MODULE_REF, SECURITY_RATING_KEY, E);
+    verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, E);
+  }
+
+  @Test
+  public void compute_E_reliability_and_security_rating_on_blocker_issue() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, BLOCKER), newVulnerabilityIssue(1L, BLOCKER),
+      // Should not be taken into account
+      newBugIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, E);
+  }
+
+  @Test
+  public void compute_D_reliability_and_security_rating_on_critical_issue() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, CRITICAL), newVulnerabilityIssue(15L, CRITICAL),
+      // Should not be taken into account
+      newCodeSmellIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, D);
+    verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, D);
+  }
+
+  @Test
+  public void compute_C_reliability_and_security_rating_on_major_issue() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MAJOR), newVulnerabilityIssue(15L, MAJOR),
+      // Should not be taken into account
+      newCodeSmellIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, C);
+    verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, C);
+  }
+
+  @Test
+  public void compute_B_reliability_and_security_rating_on_minor_issue() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MINOR), newVulnerabilityIssue(15L, MINOR),
+      // Should not be taken into account
+      newCodeSmellIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, B);
+    verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, B);
+  }
+
+  @Test
+  public void compute_A_reliability_and_security_rating_on_info_issue() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, INFO), newVulnerabilityIssue(15L, INFO),
+      // Should not be taken into account
+      newCodeSmellIssue(1L, MAJOR));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, A);
+    verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
+  }
+
   private void addRawMeasure(String metricKey, int componentRef, long value) {
     measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
   }
@@ -320,10 +451,18 @@ public class QualityModelMeasuresVisitorForReportTest {
     return newIssue(effort, severity, VULNERABILITY);
   }
 
+  private static DefaultIssue newCodeSmellIssue(long effort, String severity) {
+    return newIssue(effort, severity, CODE_SMELL);
+  }
+
   private static DefaultIssue newIssue(long effort, String severity, RuleType type) {
+    return newIssue(severity, type)
+      .setDebt(Duration.create(effort));
+  }
+
+  private static DefaultIssue newIssue(String severity, RuleType type) {
     return new DefaultIssue()
       .setKey(Uuids.create())
-      .setDebt(Duration.create(effort))
       .setSeverity(severity)
       .setType(type);
   }

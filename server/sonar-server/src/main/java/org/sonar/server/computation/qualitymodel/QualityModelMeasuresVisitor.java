@@ -20,12 +20,14 @@
 package org.sonar.server.computation.qualitymodel;
 
 import com.google.common.base.Optional;
+import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareVisitorAdapter;
+import org.sonar.server.computation.issue.ComponentIssuesRepository;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
@@ -34,9 +36,17 @@ import org.sonar.server.computation.qualitymodel.RatingGrid.Rating;
 
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
+import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.rule.Severity.CRITICAL;
+import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.api.rule.Severity.MINOR;
+import static org.sonar.api.rules.RuleType.BUG;
+import static org.sonar.api.rules.RuleType.VULNERABILITY;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
@@ -45,11 +55,14 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
  * {@link CoreMetrics#DEVELOPMENT_COST_KEY}
  * {@link CoreMetrics#SQALE_DEBT_RATIO_KEY}
  * {@link CoreMetrics#SQALE_RATING_KEY}
+ * {@link CoreMetrics#RELIABILITY_RATING_KEY}
+ * {@link CoreMetrics#SECURITY_RATING_KEY}
  */
 public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<QualityModelMeasuresVisitor.QualityModelCounter> {
   private static final Logger LOG = Loggers.get(QualityModelMeasuresVisitor.class);
 
   private final MeasureRepository measureRepository;
+  private final ComponentIssuesRepository componentIssuesRepository;
   private final RatingSettings ratingSettings;
   private final RatingGrid ratingGrid;
 
@@ -59,10 +72,14 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   private final Metric maintainabilityRemediationEffortMetric;
   private final Metric debtRatioMetric;
   private final Metric maintainabilityRatingMetric;
+  private final Metric reliabilityRatingMetric;
+  private final Metric securityRatingMetric;
 
-  public QualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings) {
+  public QualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings,
+    ComponentIssuesRepository componentIssuesRepository) {
     super(CrawlerDepthLimit.LEAVES, POST_ORDER, DevelopmentCostCounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
+    this.componentIssuesRepository = componentIssuesRepository;
     this.ratingSettings = ratingSettings;
     this.ratingGrid = ratingSettings.getRatingGrid();
 
@@ -74,6 +91,8 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     this.developmentCostMetric = metricRepository.getByKey(DEVELOPMENT_COST_KEY);
     this.debtRatioMetric = metricRepository.getByKey(SQALE_DEBT_RATIO_KEY);
     this.maintainabilityRatingMetric = metricRepository.getByKey(SQALE_RATING_KEY);
+    this.reliabilityRatingMetric = metricRepository.getByKey(RELIABILITY_RATING_KEY);
+    this.securityRatingMetric = metricRepository.getByKey(SECURITY_RATING_KEY);
   }
 
   @Override
@@ -95,6 +114,11 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   public void visitFile(Component file, Path<QualityModelCounter> path) {
     if (!file.getFileAttributes().isUnitTest()) {
       path.current().addDevCosts(computeDevelopmentCost(file));
+      for (Issue issue : componentIssuesRepository.getIssues(file)) {
+        if (issue.resolution() == null) {
+          path.current().addIssue(issue);
+        }
+      }
       computeAndSaveMeasures(file, path);
     }
   }
@@ -125,6 +149,14 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
         LOG.trace("Failed to parse value of metric {} for component {}", developmentCostMetric.getName(), projectView.getKey());
       }
     }
+    Optional<Measure> reliabilityRatingMeasure = measureRepository.getRawMeasure(projectView, reliabilityRatingMetric);
+    if (reliabilityRatingMeasure.isPresent()) {
+      path.parent().addReliabilityRating(Rating.valueOf(reliabilityRatingMeasure.get().getData()));
+    }
+    Optional<Measure> securityRatingMeasure = measureRepository.getRawMeasure(projectView, securityRatingMetric);
+    if (securityRatingMeasure.isPresent()) {
+      path.parent().addSecurityRating(Rating.valueOf(securityRatingMeasure.get().getData()));
+    }
   }
 
   private void computeAndSaveMeasures(Component component, Path<QualityModelCounter> path) {
@@ -133,6 +165,8 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     double density = computeDensity(component, path.current());
     addDebtRatioMeasure(component, density);
     addMaintainabilityRatingMeasure(component, density);
+    addReliabilityRatingMeasure(component, path);
+    addSecurityRatingMeasure(component, path);
 
     addToParent(path);
   }
@@ -160,6 +194,16 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     measureRepository.add(component, maintainabilityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
   }
 
+  private void addReliabilityRatingMeasure(Component component, Path<QualityModelCounter> path) {
+    Rating rating = path.current().reliabilityRating;
+    measureRepository.add(component, reliabilityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
+  }
+
+  private void addSecurityRatingMeasure(Component component, Path<QualityModelCounter> path) {
+    Rating rating = path.current().securityRating;
+    measureRepository.add(component, securityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
+  }
+
   private void addToParent(Path<QualityModelCounter> path) {
     if (!path.isRoot()) {
       path.parent().add(path.current());
@@ -171,6 +215,8 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
    */
   public static final class QualityModelCounter {
     private long devCosts = 0;
+    private Rating reliabilityRating = Rating.A;
+    private Rating securityRating = Rating.A;
 
     private QualityModelCounter() {
       // prevents instantiation
@@ -178,12 +224,49 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
 
     public void add(QualityModelCounter otherCounter) {
       addDevCosts(otherCounter.devCosts);
+      addReliabilityRating(otherCounter.reliabilityRating);
+      addSecurityRating(otherCounter.securityRating);
     }
 
     public void addDevCosts(long developmentCosts) {
       this.devCosts += developmentCosts;
     }
 
+    private void addIssue(Issue issue) {
+      Rating rating = getRatingFromSeverity(issue.severity());
+      if (issue.type().equals(BUG)) {
+        addReliabilityRating(rating);
+      } else if (issue.type().equals(VULNERABILITY)) {
+        addSecurityRating(rating);
+      }
+    }
+
+    private void addReliabilityRating(Rating rating) {
+      if (reliabilityRating.compareTo(rating) > 0) {
+        reliabilityRating = rating;
+      }
+    }
+
+    private void addSecurityRating(Rating rating) {
+      if (securityRating.compareTo(rating) > 0) {
+        securityRating = rating;
+      }
+    }
+
+    private static Rating getRatingFromSeverity(String severity) {
+      switch (severity) {
+        case BLOCKER:
+          return Rating.E;
+        case CRITICAL:
+          return Rating.D;
+        case MAJOR:
+          return Rating.C;
+        case MINOR:
+          return Rating.B;
+        default:
+          return Rating.A;
+      }
+    }
   }
 
   private static final class DevelopmentCostCounterFactory extends SimpleStackElementFactory<QualityModelCounter> {

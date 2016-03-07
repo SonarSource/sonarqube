@@ -40,6 +40,10 @@ import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING;
+import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING;
@@ -56,6 +60,7 @@ import static org.sonar.server.computation.measure.MeasureRepoEntry.entryOf;
 import static org.sonar.server.computation.measure.MeasureRepoEntry.toEntries;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.A;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.B;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.C;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.D;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.E;
 
@@ -100,7 +105,9 @@ public class QualityModelMeasuresVisitorForViewsTest {
     .add(BUGS)
     .add(VULNERABILITIES)
     .add(SQALE_DEBT_RATIO)
-    .add(SQALE_RATING);
+    .add(SQALE_RATING)
+    .add(RELIABILITY_RATING)
+    .add(SECURITY_RATING);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -112,7 +119,7 @@ public class QualityModelMeasuresVisitorForViewsTest {
   @Before
   public void setUp() {
     when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
-    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
+    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings, null)));
   }
 
   @Test
@@ -126,7 +133,9 @@ public class QualityModelMeasuresVisitorForViewsTest {
       .containsOnly(
         entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
         entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d, 1)),
-        entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A))
+        entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A)),
+        entryOf(RELIABILITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
+        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A))
       );
   }
 
@@ -158,6 +167,33 @@ public class QualityModelMeasuresVisitorForViewsTest {
     assertNewRawMeasures(SUB_SUBVIEW_2_REF, debtSubSubView2, 50, E);
     assertNewRawMeasures(SUBVIEW_REF, debtSubView, 160, D);
     assertNewRawMeasures(ROOT_REF, debtRoot, 260, B);
+  }
+
+  @Test
+  public void compute_reliability_and_security_rating() throws Exception {
+    treeRootHolder.setRoot(treeRootHolder.getRoot());
+
+    addRawMeasure(RELIABILITY_RATING_KEY, PROJECT_VIEW_1_REF, B);
+    addRawMeasure(RELIABILITY_RATING_KEY, PROJECT_VIEW_2_REF, C);
+    addRawMeasure(RELIABILITY_RATING_KEY, PROJECT_VIEW_3_REF, D);
+    addRawMeasure(RELIABILITY_RATING_KEY, PROJECT_VIEW_4_REF, E);
+
+    addRawMeasure(SECURITY_RATING_KEY, PROJECT_VIEW_2_REF, B);
+    addRawMeasure(SECURITY_RATING_KEY, PROJECT_VIEW_1_REF, C);
+    addRawMeasure(SECURITY_RATING_KEY, PROJECT_VIEW_3_REF, D);
+    addRawMeasure(SECURITY_RATING_KEY, PROJECT_VIEW_4_REF, E);
+
+    underTest.visit(treeRootHolder.getRoot());
+
+    verifyRawMeasure(SUB_SUBVIEW_1_REF, RELIABILITY_RATING_KEY, C);
+    verifyRawMeasure(SUB_SUBVIEW_2_REF, RELIABILITY_RATING_KEY, D);
+    verifyRawMeasure(SUBVIEW_REF, RELIABILITY_RATING_KEY, D);
+    verifyRawMeasure(ROOT_REF, RELIABILITY_RATING_KEY, E);
+
+    verifyRawMeasure(SUB_SUBVIEW_1_REF, SECURITY_RATING_KEY, C);
+    verifyRawMeasure(SUB_SUBVIEW_2_REF, SECURITY_RATING_KEY, D);
+    verifyRawMeasure(SUBVIEW_REF, SECURITY_RATING_KEY, D);
+    verifyRawMeasure(ROOT_REF, SECURITY_RATING_KEY, E);
   }
 
   private void assertNewRawMeasures(int componentRef, long debt, long devCost, Rating rating) {
