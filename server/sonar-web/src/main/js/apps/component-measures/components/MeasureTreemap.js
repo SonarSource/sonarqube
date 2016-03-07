@@ -23,7 +23,7 @@ import Spinner from './Spinner';
 import { Treemap } from '../../../components/charts/treemap';
 import { getChildren } from '../../../api/components';
 import { formatMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { getComponentUrl } from '../../../helpers/urls';
 import Workspace from '../../../components/workspace/main';
 
@@ -197,6 +197,7 @@ export default class MeasureTreemap extends React.Component {
   }
 
   render () {
+    const { metric } = this.props;
     const { fetching } = this.state;
 
     if (fetching) {
@@ -211,6 +212,14 @@ export default class MeasureTreemap extends React.Component {
 
     return (
         <div className="measure-details-treemap">
+          <ul className="list-inline note measure-details-treemap-legend">
+            <li>
+              {translateWithParameters('component_measures.legend.color_x', metric.name)}
+            </li>
+            <li>
+              {translateWithParameters('component_measures.legend.size_x', translate('metric.ncloc.name'))}
+            </li>
+          </ul>
           {this.renderTreemap()}
         </div>
     );
