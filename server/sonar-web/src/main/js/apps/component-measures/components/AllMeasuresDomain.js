@@ -25,11 +25,13 @@ import { formatMeasure } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 
 export default function AllMeasuresDomain ({ domain, component, displayLeakHeader, leakPeriodLabel }) {
+  const hasLeak = !!leakPeriodLabel;
+
   return (
       <li>
         <header className="page-header">
           <h3 className="page-title">{domain.name}</h3>
-          {displayLeakHeader && (
+          {displayLeakHeader && hasLeak && (
               <div className="measures-domains-leak-header">
                 {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
               </div>
@@ -50,13 +52,15 @@ export default function AllMeasuresDomain ({ domain, component, displayLeakHeade
                         </span>
                     )}
                   </div>
-                  <div className="domain-measures-value domain-measures-leak">
-                    {measure.leak != null && (
-                        <span>
+                  {hasLeak && (
+                      <div className="domain-measures-value domain-measures-leak">
+                        {measure.leak != null && (
+                            <span>
                           {formatLeak(measure.leak, measure.metric)}
                         </span>
-                    )}
-                  </div>
+                        )}
+                      </div>
+                  )}
                 </Link>
               </li>
           ))}

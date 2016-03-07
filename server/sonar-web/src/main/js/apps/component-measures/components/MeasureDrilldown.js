@@ -34,6 +34,8 @@ export default class MeasureDrilldown extends React.Component {
     const { children, metric, ...other } = this.props;
     const { component } = this.context;
 
+    const showListView = ['VW', 'SVW', 'DEV'].indexOf(component.qualifier) === -1;
+
     const child = React.cloneElement(children, { component, metric, ...other });
 
     return (
@@ -48,14 +50,16 @@ export default class MeasureDrilldown extends React.Component {
               </Link>
             </li>
 
-            <li>
-              <Link
-                  activeClassName="active"
-                  to={{ pathname: `${metric.key}/list`, query: { id: component.key } }}>
-                <IconList/>
-                {translate('component_measures.tab.list')}
-              </Link>
-            </li>
+            {showListView && (
+                <li>
+                  <Link
+                      activeClassName="active"
+                      to={{ pathname: `${metric.key}/list`, query: { id: component.key } }}>
+                    <IconList/>
+                    {translate('component_measures.tab.list')}
+                  </Link>
+                </li>
+            )}
 
             {hasBubbleChart(metric.key) && (
                 <li>

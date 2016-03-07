@@ -60,9 +60,11 @@ export default class MeasureDrilldownTree extends React.Component {
       asc
     };
 
+    const componentKey = baseComponent.refKey || baseComponent.key;
+
     this.setState({ fetching: true });
 
-    getChildren(baseComponent.key, [metric.key], options).then(children => {
+    getChildren(componentKey, [metric.key], options).then(children => {
       if (this.mounted) {
         const components = enhanceWithSingleMeasure(children);
 

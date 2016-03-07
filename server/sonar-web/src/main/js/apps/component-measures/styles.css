@@ -20,6 +20,7 @@
 
 .domain-measures > li > a {
   display: flex;
+  justify-content: space-between;
   border: none;
 }
 

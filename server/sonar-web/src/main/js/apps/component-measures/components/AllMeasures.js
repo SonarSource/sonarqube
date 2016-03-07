@@ -24,7 +24,7 @@ import Spinner from './Spinner';
 import AllMeasuresDomain from './AllMeasuresDomain';
 import { getLeakValue } from '../utils';
 import { getMeasuresAndMeta } from '../../../api/measures';
-import { getLeakPeriodLabel } from '../../../helpers/periods';
+import { getLeakPeriod, getLeakPeriodLabel } from '../../../helpers/periods';
 
 export default class AllMeasures extends React.Component {
   state = {
@@ -51,13 +51,18 @@ export default class AllMeasures extends React.Component {
 
     getMeasuresAndMeta(component.key, metricKeys, { additionalFields: 'periods' }).then(r => {
       if (this.mounted) {
+        const leakPeriod = getLeakPeriod(r.periods);
         const measures = r.component.measures
             .map(measure => {
               const metric = metrics.find(metric => metric.key === measure.metric);
               const leak = getLeakValue(measure);
               return { ...measure, metric, leak };
             })
-            .filter(measure => measure.value != null || measure.leak != null);
+            .filter(measure => {
+              const hasValue = measure.value != null;
+              const hasLeakValue = !!leakPeriod && measure.leak != null;
+              return hasValue || hasLeakValue;
+            });
 
         this.setState({
           measures,
