@@ -25,6 +25,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.A;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.B;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.C;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.D;
+import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.E;
 
 public class RatingGridTest {
 
@@ -41,17 +46,17 @@ public class RatingGridTest {
 
   @Test
   public void return_rating_matching_density() {
-    assertThat(ratingGrid.getRatingForDensity(0)).isEqualTo(1);
-    assertThat(ratingGrid.getRatingForDensity(0.05)).isEqualTo(1);
-    assertThat(ratingGrid.getRatingForDensity(0.09999999)).isEqualTo(1);
-    assertThat(ratingGrid.getRatingForDensity(0.1)).isEqualTo(2);
-    assertThat(ratingGrid.getRatingForDensity(0.15)).isEqualTo(2);
-    assertThat(ratingGrid.getRatingForDensity(0.2)).isEqualTo(3);
-    assertThat(ratingGrid.getRatingForDensity(0.25)).isEqualTo(3);
-    assertThat(ratingGrid.getRatingForDensity(0.5)).isEqualTo(4);
-    assertThat(ratingGrid.getRatingForDensity(0.65)).isEqualTo(4);
-    assertThat(ratingGrid.getRatingForDensity(1)).isEqualTo(5);
-    assertThat(ratingGrid.getRatingForDensity(1.01)).isEqualTo(5);
+    assertThat(ratingGrid.getRatingForDensity(0)).isEqualTo(A);
+    assertThat(ratingGrid.getRatingForDensity(0.05)).isEqualTo(A);
+    assertThat(ratingGrid.getRatingForDensity(0.09999999)).isEqualTo(A);
+    assertThat(ratingGrid.getRatingForDensity(0.1)).isEqualTo(B);
+    assertThat(ratingGrid.getRatingForDensity(0.15)).isEqualTo(B);
+    assertThat(ratingGrid.getRatingForDensity(0.2)).isEqualTo(C);
+    assertThat(ratingGrid.getRatingForDensity(0.25)).isEqualTo(C);
+    assertThat(ratingGrid.getRatingForDensity(0.5)).isEqualTo(D);
+    assertThat(ratingGrid.getRatingForDensity(0.65)).isEqualTo(D);
+    assertThat(ratingGrid.getRatingForDensity(1)).isEqualTo(E);
+    assertThat(ratingGrid.getRatingForDensity(1.01)).isEqualTo(E);
   }
 
   @Test

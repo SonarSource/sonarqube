@@ -23,7 +23,6 @@ import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.measures.CoreMetrics;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.ViewsComponent;
@@ -31,14 +30,23 @@ import org.sonar.server.computation.component.VisitorsCrawler;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
+import org.sonar.server.computation.qualitymodel.RatingGrid.Rating;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.BUGS;
+import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS;
+import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC;
+import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO;
 import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
+import static org.sonar.api.measures.CoreMetrics.SQALE_RATING;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
+import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
 import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
@@ -51,9 +59,10 @@ import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.B;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.D;
 import static org.sonar.server.computation.qualitymodel.RatingGrid.Rating.E;
 
-public class ViewsQualityModelMeasuresVisitorTest {
+public class QualityModelMeasuresVisitorForViewsTest {
 
   private static final double[] RATING_GRID = new double[] {34, 50, 362, 900, 36258};
+
   private static final int ROOT_REF = 1;
   private static final int SUBVIEW_REF = 11;
   private static final int SUB_SUBVIEW_1_REF = 111;
@@ -81,27 +90,33 @@ public class ViewsQualityModelMeasuresVisitorTest {
           .build(),
         builder(PROJECT_VIEW, PROJECT_VIEW_4_REF).build())
       .build());
+
   @Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
-    .add(CoreMetrics.NCLOC)
-    .add(CoreMetrics.DEVELOPMENT_COST)
-    .add(CoreMetrics.TECHNICAL_DEBT)
-    .add(CoreMetrics.SQALE_DEBT_RATIO)
-    .add(CoreMetrics.SQALE_RATING);
+    .add(NCLOC)
+    .add(DEVELOPMENT_COST)
+    .add(TECHNICAL_DEBT)
+    .add(CODE_SMELLS)
+    .add(BUGS)
+    .add(VULNERABILITIES)
+    .add(SQALE_DEBT_RATIO)
+    .add(SQALE_RATING);
+
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
   private RatingSettings ratingSettings = mock(RatingSettings.class);
 
-  private VisitorsCrawler underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
+  private VisitorsCrawler underTest;
 
   @Before
   public void setUp() {
     when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
+    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings)));
   }
 
   @Test
-  public void measures_created_for_project_are_all_zero_when_they_have_no_FILE_child() {
+  public void measures_created_for_view_are_all_zero_when_no_child() {
     ViewsComponent root = builder(VIEW, 1).build();
     treeRootHolder.setRoot(root);
 
@@ -111,20 +126,17 @@ public class ViewsQualityModelMeasuresVisitorTest {
       .containsOnly(
         entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
         entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d, 1)),
-        entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(A)));
-  }
-
-  private Measure createSqaleRatingMeasure(RatingGrid.Rating rating) {
-    return newMeasureBuilder().create(rating.getIndex(), rating.name());
+        entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A))
+      );
   }
 
   @Test
   public void verify_aggregation_of_developmentCost_and_value_of_measures_computed_from_that() {
-
     long debtRoot = 9999l;
     long debtSubView = 96325l;
     long debtSubSubView1 = 96325l;
     long debtSubSubView2 = 99633l;
+
     addRawMeasure(TECHNICAL_DEBT_KEY, ROOT_REF, debtRoot);
     addRawMeasure(TECHNICAL_DEBT_KEY, SUBVIEW_REF, debtSubView);
     addRawMeasure(TECHNICAL_DEBT_KEY, SUB_SUBVIEW_1_REF, debtSubSubView1);
@@ -148,11 +160,11 @@ public class ViewsQualityModelMeasuresVisitorTest {
     assertNewRawMeasures(ROOT_REF, debtRoot, 260, B);
   }
 
-  private void assertNewRawMeasures(int componentRef, long debt, long devCost, RatingGrid.Rating rating) {
-    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).containsOnly(
+  private void assertNewRawMeasures(int componentRef, long debt, long devCost, Rating rating) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(
       entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(String.valueOf(devCost))),
       entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(debt / (double) devCost * 100.0, 1)),
-      entryOf(SQALE_RATING_KEY, createSqaleRatingMeasure(rating)));
+      entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(rating)));
   }
 
   private void assertNoNewRawMeasureOnProjectViews() {
@@ -170,8 +182,28 @@ public class ViewsQualityModelMeasuresVisitorTest {
     measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
   }
 
+  private void addRawMeasure(String metricKey, int componentRef, int value) {
+    measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
+  }
+
+  private void addRawMeasure(String metricKey, int componentRef, Rating value) {
+    measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value.getIndex(), value.name()));
+  }
+
   private void assertNoNewRawMeasure(int componentRef) {
     assertThat(measureRepository.getAddedRawMeasures(componentRef).isEmpty()).isTrue();
+  }
+
+  private void verifyRawMeasure(int componentRef, String metricKey, Rating rating) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(entryOf(metricKey, newMeasureBuilder().create(rating.getIndex(), rating.name())));
+  }
+
+  private void verifyRawMeasure(int componentRef, String metricKey, long value) {
+    assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(entryOf(metricKey, newMeasureBuilder().create(value)));
+  }
+
+  private static Measure createMaintainabilityRatingMeasure(Rating rating) {
+    return newMeasureBuilder().create(rating.getIndex(), rating.name());
   }
 
 }

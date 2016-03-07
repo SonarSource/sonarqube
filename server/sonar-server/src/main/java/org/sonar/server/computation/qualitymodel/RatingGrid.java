@@ -31,17 +31,17 @@ public class RatingGrid {
     this.gridValues = Arrays.copyOf(gridValues, gridValues.length);
   }
 
-  public int getRatingForDensity(double density) {
+  public Rating getRatingForDensity(double density) {
     for (Rating rating : Rating.values()) {
       double lowerBound = getGradeLowerBound(rating);
       if (density >= lowerBound) {
-        return rating.getIndex();
+        return rating;
       }
     }
     throw MessageException.of("The SQALE density value should be between 0 and " + Double.MAX_VALUE + " and got " + density);
   }
 
-  private double getGradeLowerBound(Rating rating) {
+  double getGradeLowerBound(Rating rating) {
     if (rating.getIndex() > 1) {
       return gridValues[rating.getIndex() - 2];
     }

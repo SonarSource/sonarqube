@@ -30,7 +30,13 @@ import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
+import org.sonar.server.computation.qualitymodel.RatingGrid.Rating;
 
+import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
+import static org.sonar.api.measures.CoreMetrics.SQALE_DEBT_RATIO_KEY;
+import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
+import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
@@ -40,169 +46,147 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
  * {@link CoreMetrics#SQALE_DEBT_RATIO_KEY}
  * {@link CoreMetrics#SQALE_RATING_KEY}
  */
-public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<QualityModelMeasuresVisitor.DevelopmentCostCounter> {
+public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<QualityModelMeasuresVisitor.QualityModelCounter> {
   private static final Logger LOG = Loggers.get(QualityModelMeasuresVisitor.class);
 
   private final MeasureRepository measureRepository;
   private final RatingSettings ratingSettings;
+  private final RatingGrid ratingGrid;
 
   private final Metric nclocMetric;
   private final Metric developmentCostMetric;
-  private final Metric technicalDebtMetric;
+
+  private final Metric maintainabilityRemediationEffortMetric;
   private final Metric debtRatioMetric;
-  private final Metric sqaleRatingMetric;
+  private final Metric maintainabilityRatingMetric;
 
   public QualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings) {
     super(CrawlerDepthLimit.LEAVES, POST_ORDER, DevelopmentCostCounterFactory.INSTANCE);
     this.measureRepository = measureRepository;
     this.ratingSettings = ratingSettings;
+    this.ratingGrid = ratingSettings.getRatingGrid();
 
     // Input metrics
-    this.nclocMetric = metricRepository.getByKey(CoreMetrics.NCLOC_KEY);
-    this.technicalDebtMetric = metricRepository.getByKey(CoreMetrics.TECHNICAL_DEBT_KEY);
+    this.nclocMetric = metricRepository.getByKey(NCLOC_KEY);
+    this.maintainabilityRemediationEffortMetric = metricRepository.getByKey(TECHNICAL_DEBT_KEY);
 
     // Output metrics
-    this.developmentCostMetric = metricRepository.getByKey(CoreMetrics.DEVELOPMENT_COST_KEY);
-    this.debtRatioMetric = metricRepository.getByKey(CoreMetrics.SQALE_DEBT_RATIO_KEY);
-    this.sqaleRatingMetric = metricRepository.getByKey(CoreMetrics.SQALE_RATING_KEY);
+    this.developmentCostMetric = metricRepository.getByKey(DEVELOPMENT_COST_KEY);
+    this.debtRatioMetric = metricRepository.getByKey(SQALE_DEBT_RATIO_KEY);
+    this.maintainabilityRatingMetric = metricRepository.getByKey(SQALE_RATING_KEY);
   }
 
   @Override
-  public void visitProject(Component project, Path<DevelopmentCostCounter> path) {
+  public void visitProject(Component project, Path<QualityModelCounter> path) {
     computeAndSaveMeasures(project, path);
   }
 
   @Override
-  public void visitDirectory(Component directory, Path<DevelopmentCostCounter> path) {
+  public void visitDirectory(Component directory, Path<QualityModelCounter> path) {
     computeAndSaveMeasures(directory, path);
   }
 
   @Override
-  public void visitModule(Component module, Path<DevelopmentCostCounter> path) {
+  public void visitModule(Component module, Path<QualityModelCounter> path) {
     computeAndSaveMeasures(module, path);
   }
 
   @Override
-  public void visitFile(Component file, Path<DevelopmentCostCounter> path) {
+  public void visitFile(Component file, Path<QualityModelCounter> path) {
     if (!file.getFileAttributes().isUnitTest()) {
-      long developmentCosts = computeDevelopmentCost(file);
-      path.current().add(developmentCosts);
+      path.current().addDevCosts(computeDevelopmentCost(file));
       computeAndSaveMeasures(file, path);
     }
   }
 
+  private long computeDevelopmentCost(Component file) {
+    Optional<Measure> measure = measureRepository.getRawMeasure(file, nclocMetric);
+    long ncloc = measure.isPresent() ? measure.get().getIntValue() : 0;
+    return ncloc * ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
+  }
+
   @Override
-  public void visitView(Component view, Path<DevelopmentCostCounter> path) {
+  public void visitView(Component view, Path<QualityModelCounter> path) {
     computeAndSaveMeasures(view, path);
   }
 
   @Override
-  public void visitSubView(Component subView, Path<DevelopmentCostCounter> path) {
+  public void visitSubView(Component subView, Path<QualityModelCounter> path) {
     computeAndSaveMeasures(subView, path);
   }
 
   @Override
-  public void visitProjectView(Component projectView, Path<DevelopmentCostCounter> path) {
+  public void visitProjectView(Component projectView, Path<QualityModelCounter> path) {
     Optional<Measure> developmentCostMeasure = measureRepository.getRawMeasure(projectView, developmentCostMetric);
     if (developmentCostMeasure.isPresent()) {
       try {
-        path.parent().add(Long.valueOf(developmentCostMeasure.get().getStringValue()));
+        path.parent().addDevCosts(Long.valueOf(developmentCostMeasure.get().getStringValue()));
       } catch (NumberFormatException e) {
         LOG.trace("Failed to parse value of metric {} for component {}", developmentCostMetric.getName(), projectView.getKey());
       }
     }
   }
 
-  private void computeAndSaveMeasures(Component component, Path<DevelopmentCostCounter> path) {
-    saveDevelopmentCostMeasure(component, path.current());
+  private void computeAndSaveMeasures(Component component, Path<QualityModelCounter> path) {
+    addDevelopmentCostMeasure(component, path.current());
 
     double density = computeDensity(component, path.current());
-    saveDebtRatioMeasure(component, density);
-    saveSqaleRatingMeasure(component, density);
+    addDebtRatioMeasure(component, density);
+    addMaintainabilityRatingMeasure(component, density);
 
-    increaseParentDevelopmentCost(path);
+    addToParent(path);
   }
 
-  private void saveDevelopmentCostMeasure(Component component, DevelopmentCostCounter developmentCost) {
-    // the value of this measure is stored as a string because it can exceed the size limit of number storage on some DB
-    measureRepository.add(component, developmentCostMetric, newMeasureBuilder().create(Long.toString(developmentCost.getValue())));
-  }
-
-  private double computeDensity(Component component, DevelopmentCostCounter developmentCost) {
-    double debt = getLongValue(measureRepository.getRawMeasure(component, technicalDebtMetric));
-    if (Double.doubleToRawLongBits(developmentCost.getValue()) != 0L) {
-      return debt / (double) developmentCost.getValue();
+  private double computeDensity(Component component, QualityModelCounter developmentCost) {
+    Optional<Measure> measure = measureRepository.getRawMeasure(component, maintainabilityRemediationEffortMetric);
+    double maintainabilityRemediationEffort = measure.isPresent() ? measure.get().getLongValue() : 0L;
+    if (Double.doubleToRawLongBits(developmentCost.devCosts) != 0L) {
+      return maintainabilityRemediationEffort / (double) developmentCost.devCosts;
     }
     return 0d;
   }
 
-  private void saveDebtRatioMeasure(Component component, double density) {
+  private void addDevelopmentCostMeasure(Component component, QualityModelCounter developmentCost) {
+    // the value of this measure is stored as a string because it can exceed the size limit of number storage on some DB
+    measureRepository.add(component, developmentCostMetric, newMeasureBuilder().create(Long.toString(developmentCost.devCosts)));
+  }
+
+  private void addDebtRatioMeasure(Component component, double density) {
     measureRepository.add(component, debtRatioMetric, newMeasureBuilder().create(100.0 * density, debtRatioMetric.getDecimalScale()));
   }
 
-  private void saveSqaleRatingMeasure(Component component, double density) {
-    RatingGrid ratingGrid = ratingSettings.getRatingGrid();
-    int rating = ratingGrid.getRatingForDensity(density);
-    String ratingLetter = toRatingLetter(rating);
-    measureRepository.add(component, sqaleRatingMetric, newMeasureBuilder().create(rating, ratingLetter));
+  private void addMaintainabilityRatingMeasure(Component component, double density) {
+    Rating rating = ratingGrid.getRatingForDensity(density);
+    measureRepository.add(component, maintainabilityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
   }
 
-  private void increaseParentDevelopmentCost(Path<DevelopmentCostCounter> path) {
+  private void addToParent(Path<QualityModelCounter> path) {
     if (!path.isRoot()) {
-      // increase parent's developmentCost with our own
-      path.parent().add(path.current().getValue());
+      path.parent().add(path.current());
     }
-  }
-
-  private long computeDevelopmentCost(Component file) {
-    long ncloc = getLongValue(measureRepository.getRawMeasure(file, this.nclocMetric));
-    return ncloc * ratingSettings.getDevCost(file.getFileAttributes().getLanguageKey());
-  }
-
-  private static long getLongValue(Optional<Measure> measure) {
-    if (!measure.isPresent()) {
-      return 0L;
-    }
-    return getLongValue(measure.get());
-  }
-
-  private static long getLongValue(Measure measure) {
-    switch (measure.getValueType()) {
-      case INT:
-        return measure.getIntValue();
-      case LONG:
-        return measure.getLongValue();
-      case DOUBLE:
-        return (long) measure.getDoubleValue();
-      default:
-        return 0L;
-    }
-  }
-
-  private static String toRatingLetter(int rating) {
-    return RatingGrid.Rating.createForIndex(rating).name();
   }
 
   /**
    * A wrapper class around a long which can be increased and represents the development cost of a Component
    */
-  public static final class DevelopmentCostCounter {
-    private long value = 0;
+  public static final class QualityModelCounter {
+    private long devCosts = 0;
 
-    private DevelopmentCostCounter() {
-      // prevents instantiation outside SqaleMeasuresVisitor
+    private QualityModelCounter() {
+      // prevents instantiation
     }
 
-    public void add(long developmentCosts) {
-      this.value += developmentCosts;
+    public void add(QualityModelCounter otherCounter) {
+      addDevCosts(otherCounter.devCosts);
     }
 
-    public long getValue() {
-      return value;
+    public void addDevCosts(long developmentCosts) {
+      this.devCosts += developmentCosts;
     }
+
   }
 
-  private static final class DevelopmentCostCounterFactory extends SimpleStackElementFactory<DevelopmentCostCounter> {
+  private static final class DevelopmentCostCounterFactory extends SimpleStackElementFactory<QualityModelCounter> {
     public static final DevelopmentCostCounterFactory INSTANCE = new DevelopmentCostCounterFactory();
 
     private DevelopmentCostCounterFactory() {
@@ -210,13 +194,13 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     }
 
     @Override
-    public DevelopmentCostCounter createForAny(Component component) {
-      return new DevelopmentCostCounter();
+    public QualityModelCounter createForAny(Component component) {
+      return new QualityModelCounter();
     }
 
     /** Counter is not used at ProjectView level, saves on instantiating useless objects */
     @Override
-    public DevelopmentCostCounter createForProjectView(Component projectView) {
+    public QualityModelCounter createForProjectView(Component projectView) {
       return null;
     }
   }
