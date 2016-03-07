@@ -30,12 +30,12 @@ const LEAK_PERIOD = '1';
 
 class App {
   start (options) {
-    let opts = _.extend({}, options, window.sonarqube.overview);
+    const opts = _.extend({}, options, window.sonarqube.overview);
     _.extend(opts.component, options.component);
     opts.urlRoot = '/overview';
 
     $('html').toggleClass('dashboard-page', opts.component.hasSnapshot);
-    let el = document.querySelector(opts.el);
+    const el = document.querySelector(opts.el);
 
     if (opts.component.hasSnapshot) {
       ReactDOM.render(<Overview {...opts} leakPeriodIndex={LEAK_PERIOD}/>, el);

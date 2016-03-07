@@ -34,10 +34,10 @@ export const ComplexityDistribution = React.createClass({
   },
 
   renderBarChart () {
-    let data = this.props.distribution.split(';').map((point, index) => {
-      let tokens = point.split('=');
-      let y = parseInt(tokens[1], 10);
-      let value = parseInt(tokens[0], 10);
+    const data = this.props.distribution.split(';').map((point, index) => {
+      const tokens = point.split('=');
+      const y = parseInt(tokens[1], 10);
+      const value = parseInt(tokens[0], 10);
       return {
         x: index,
         y,
@@ -46,9 +46,9 @@ export const ComplexityDistribution = React.createClass({
       };
     });
 
-    let xTicks = data.map(point => point.value);
+    const xTicks = data.map(point => point.value);
 
-    let xValues = data.map(point => formatMeasure(point.y, 'INT'));
+    const xValues = data.map(point => formatMeasure(point.y, 'INT'));
 
     return <BarChart data={data}
                      xTicks={xTicks}

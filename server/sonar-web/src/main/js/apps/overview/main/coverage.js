@@ -54,7 +54,7 @@ export const GeneralCoverage = React.createClass({
   },
 
   renderNewCoverage () {
-    let newCoverageMetric = this.getNewCoverageMetric();
+    const newCoverageMetric = this.getNewCoverageMetric();
 
     if (this.props.leak[newCoverageMetric] != null) {
       return <DrilldownLink component={this.props.component.key} metric={newCoverageMetric}
@@ -82,7 +82,7 @@ export const GeneralCoverage = React.createClass({
   },
 
   renderTests() {
-    let tests = this.props.measures['tests'];
+    const tests = this.props.measures['tests'];
     if (tests == null) {
       return null;
     }
@@ -94,20 +94,19 @@ export const GeneralCoverage = React.createClass({
   },
 
   render () {
-    let coverageMetric = this.getCoverageMetric();
+    const coverageMetric = this.getCoverageMetric();
     if (this.props.measures[coverageMetric] == null) {
       return null;
     }
 
-    let donutData = [
+    const donutData = [
       { value: this.props.measures[coverageMetric], fill: '#85bb43' },
       { value: 100 - this.props.measures[coverageMetric], fill: '#d4333f' }
     ];
 
     return <Domain>
       <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.coverage')}
-                    linkTo="/coverage"/>
+                    title={translate('overview.domain.coverage')}/>
 
       <DomainPanel>
         <DomainNutshell>

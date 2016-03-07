@@ -51,7 +51,7 @@ export const GeneralDebt = React.createClass({
       return null;
     }
 
-    let createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+    const createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
 
     return <DomainLeak>
       <Legend leakPeriodLabel={this.props.leakPeriodLabel} leakPeriodDate={this.props.leakPeriodDate}/>
@@ -77,8 +77,7 @@ export const GeneralDebt = React.createClass({
   render () {
     return <Domain>
       <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.debt')}
-                    linkTo="/debt"/>
+                    title={translate('overview.domain.debt')}/>
 
       <DomainPanel>
         <DomainNutshell>

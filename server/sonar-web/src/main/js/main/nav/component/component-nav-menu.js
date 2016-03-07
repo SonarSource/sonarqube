@@ -30,15 +30,6 @@ import {
     getComponentDashboardManagementUrl
 } from '../../../helpers/urls';
 
-
-const FIXED_DASHBOARDS = [
-  { link: '', name: 'overview.page' },
-  { link: '/debt', name: 'overview.domain.debt' },
-  { link: '/coverage', name: 'overview.domain.coverage' },
-  { link: '/duplications', name: 'overview.domain.duplications' },
-  { link: '/structure', name: 'overview.domain.structure' }
-];
-
 const SETTINGS_URLS = [
   '/project/settings',
   '/project/profile',
@@ -68,69 +59,67 @@ export default React.createClass({
   },
 
   periodParameter() {
-    let params = qs.parse(window.location.search.substr(1));
+    const params = qs.parse(window.location.search.substr(1));
     return params.period ? `&period=${params.period}` : '';
   },
 
   getPeriod() {
-    let params = qs.parse(window.location.search.substr(1));
+    const params = qs.parse(window.location.search.substr(1));
     return params.period;
   },
 
-  isFixedDashboardActive(fixedDashboard) {
-    let path = window.location.pathname;
-    return path === `/overview${fixedDashboard.link}`;
+  isFixedDashboardActive() {
+    const path = window.location.pathname;
+    return path.indexOf('/overview') === 0;
   },
 
   isCustomDashboardActive(customDashboard) {
-    let path = window.location.pathname;
-    let params = qs.parse(window.location.search.substr(1));
+    const path = window.location.pathname;
+    const params = qs.parse(window.location.search.substr(1));
     return path.indexOf('/dashboard') === 0 && params['did'] === `${customDashboard.key}`;
   },
 
   isCustomDashboardsActive () {
-    let dashboards = this.props.component.dashboards;
+    const dashboards = this.props.component.dashboards;
     return _.any(dashboards, this.isCustomDashboardActive) ||
         this.isDashboardManagementActive() ||
         this.isDefaultDeveloperDashboardActive();
   },
 
   isDefaultDeveloperDashboardActive() {
-    let path = window.location.pathname;
+    const path = window.location.pathname;
     return this.isDeveloper() && path.indexOf('/dashboard') === 0;
   },
 
   isDashboardManagementActive () {
-    let path = window.location.pathname;
+    const path = window.location.pathname;
     return path.indexOf('/dashboards') === 0;
   },
 
-  renderFixedDashboards() {
-    return FIXED_DASHBOARDS.map(fixedDashboard => {
-      let key = 'fixed-dashboard-' + fixedDashboard.link.substr(1);
-      let url = getComponentFixedDashboardUrl(this.props.component.key, fixedDashboard.link);
-      let name = fixedDashboard.link !== '' ?
-          translate(fixedDashboard.name) : <i className="icon-home"/>;
-      let className = classNames({ active: this.isFixedDashboardActive(fixedDashboard) });
-      return <li key={key} className={className}>
-        <a href={url}>{name}</a>
-      </li>;
-    });
+  renderOverviewLink() {
+    const url = getComponentFixedDashboardUrl(this.props.component.key, '');
+    const name = <i className="icon-home"/>;
+    const className = classNames({ active: this.isFixedDashboardActive() });
+    return (
+        <li key="overview" className={className}>
+          <a href={url}>{name}</a>
+        </li>
+    );
   },
 
   renderCustomDashboard(customDashboard) {
-    let key = 'custom-dashboard-' + customDashboard.key;
-    let url = getComponentDashboardUrl(this.props.component.key, customDashboard.key, this.getPeriod());
-    let name = getLocalizedDashboardName(customDashboard.name);
-    let className = classNames({ active: this.isCustomDashboardActive(customDashboard) });
+    const key = 'custom-dashboard-' + customDashboard.key;
+    const url = getComponentDashboardUrl(this.props.component.key, customDashboard.key, this.getPeriod());
+    const name = getLocalizedDashboardName(customDashboard.name);
+    const className = classNames({ active: this.isCustomDashboardActive(customDashboard) });
     return <li key={key} className={className}>
       <a href={url}>{name}</a>
     </li>;
   },
 
   renderCustomDashboards() {
-    let dashboards = this.props.component.dashboards.map(this.renderCustomDashboard);
-    let className = classNames('dropdown', { active: this.isCustomDashboardsActive() });
+    const dashboards = this.props.component.dashboards.map(this.renderCustomDashboard);
+    const className = classNames('dropdown', { active: this.isCustomDashboardsActive() });
     const managementLink = this.renderDashboardsManagementLink();
     return <li className={className}>
       <a className="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -149,10 +138,10 @@ export default React.createClass({
     if (!window.SS.user) {
       return null;
     }
-    let key = 'dashboard-management';
-    let url = getComponentDashboardManagementUrl(this.props.component.key);
-    let name = translate('dashboard.manage_dashboards');
-    let className = classNames('pill-right', { active: this.isDashboardManagementActive() });
+    const key = 'dashboard-management';
+    const url = getComponentDashboardManagementUrl(this.props.component.key);
+    const name = translate('dashboard.manage_dashboards');
+    const className = classNames('pill-right', { active: this.isDashboardManagementActive() });
     return <li key={key} className={className}>
       <a className="note" href={url}>{name}</a>
     </li>;
@@ -187,7 +176,7 @@ export default React.createClass({
   },
 
   renderAdministration() {
-    let shouldShowAdministration =
+    const shouldShowAdministration =
         this.props.conf.showActionPlans ||
         this.props.conf.showBackgroundTasks ||
         this.props.conf.showDeletion ||
@@ -202,10 +191,10 @@ export default React.createClass({
     if (!shouldShowAdministration) {
       return null;
     }
-    let isSettingsActive = SETTINGS_URLS.some(url => {
+    const isSettingsActive = SETTINGS_URLS.some(url => {
       return window.location.href.indexOf(url) !== -1;
     });
-    let className = 'dropdown' + (isSettingsActive ? ' active' : '');
+    const className = 'dropdown' + (isSettingsActive ? ' active' : '');
     return (
         <li className={className}>
           <a className="dropdown-toggle navbar-admin-link" data-toggle="dropdown" href="#">
@@ -319,18 +308,18 @@ export default React.createClass({
   },
 
   renderExtensions() {
-    let extensions = this.props.conf.extensions || [];
+    const extensions = this.props.conf.extensions || [];
     return extensions.map(e => {
       return this.renderLink(e.url, e.name, e.url);
     });
   },
 
   renderTools() {
-    let component = this.props.component;
+    const component = this.props.component;
     if (!component.isComparable && !_.size(component.extensions)) {
       return null;
     }
-    let tools = [];
+    const tools = [];
     (component.extensions || []).forEach(e => {
       tools.push(this.renderLink(e.url, e.name));
     });
@@ -338,17 +327,31 @@ export default React.createClass({
   },
 
   render() {
-    return (
-        <ul className="nav navbar-nav nav-tabs">
-          {!this.isDeveloper() && this.renderFixedDashboards()}
-          {this.renderCustomDashboards()}
-          {this.renderCodeLink()}
-          {this.renderProjectsLink()}
-          {this.renderComponentIssuesLink()}
-          {this.renderComponentMeasuresLink()}
-          {this.renderTools()}
-          {this.renderAdministration()}
-        </ul>
-    );
+    if (this.isDeveloper()) {
+      return (
+          <ul className="nav navbar-nav nav-tabs">
+            {this.renderCustomDashboards()}
+            {this.renderComponentIssuesLink()}
+            {this.renderComponentMeasuresLink()}
+            {this.renderCodeLink()}
+            {this.renderProjectsLink()}
+            {this.renderTools()}
+            {this.renderAdministration()}
+          </ul>
+      );
+    } else {
+      return (
+          <ul className="nav navbar-nav nav-tabs">
+            {this.renderOverviewLink()}
+            {this.renderComponentIssuesLink()}
+            {this.renderComponentMeasuresLink()}
+            {this.renderCodeLink()}
+            {this.renderProjectsLink()}
+            {this.renderCustomDashboards()}
+            {this.renderTools()}
+            {this.renderAdministration()}
+          </ul>
+      );
+    }
   }
 });

@@ -51,36 +51,6 @@ public class ProjectOverviewTest {
   }
 
   @Test
-  public void test_ut_coverage_on_project_overview() throws Exception {
-    executeBuild("testing/xoo-sample-ut-coverage", "project-for-overview-ut-coverage", "Project For Overview UT");
-
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_ut_coverage_on_project_overview",
-      "/measure/ProjectOverviewTest/test_ut_coverage_on_project_overview.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  @Test
-  public void test_it_coverage_on_project_overview() throws Exception {
-    executeBuild("testing/xoo-sample-it-coverage", "project-for-overview-it-coverage", "Project For Overview IT");
-
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_it_coverage_onfi_project_overview",
-      "/measure/ProjectOverviewTest/test_it_coverage_on_project_overview.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  @Test
-  public void test_overall_coverage_on_project_overview() throws Exception {
-    executeBuild("testing/xoo-sample-overall-coverage", "project-for-overview-overall-coverage", "Project For Overview Overall");
-
-    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_overall_coverage_on_project_overview",
-      "/measure/ProjectOverviewTest/test_overall_coverage_on_project_overview.html"
-    ).build();
-    new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  @Test
   public void should_display_a_nice_error_when_requesting_unknown_project() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_a_nice_error_when_requesting_unknown_project",
       "/measure/ProjectOverviewTest/should-display-nice-error-on-unknown-project.html").build();

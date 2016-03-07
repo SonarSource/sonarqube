@@ -65,7 +65,7 @@ export default React.createClass({
   },
 
   render() {
-    let profiles = (this.props.component.profiles || []).map(profile => {
+    const profiles = (this.props.component.profiles || []).map(profile => {
       return (
           <li key={profile.key}>
             <span className="note spacer-right">({profile.language})</span>
@@ -73,8 +73,8 @@ export default React.createClass({
           </li>
       );
     });
-    let links = (this.props.component.links || []).map(link => {
-      let iconClassName = `spacer-right icon-color-link icon-${link.type}`;
+    const links = (this.props.component.links || []).map(link => {
+      const iconClassName = `spacer-right icon-color-link icon-${link.type}`;
       return (
           <li key={link.type}>
             <i className={iconClassName}/>
@@ -83,19 +83,19 @@ export default React.createClass({
       );
     });
 
-    let descriptionCard = this.props.component.description ? (
+    const descriptionCard = this.props.component.description ? (
         <div className="overview-meta-description big-spacer-bottom">
           {this.props.component.description}
         </div>
     ) : null;
 
-    let linksCard = _.size(this.props.component.links) > 0 ? (
+    const linksCard = _.size(this.props.component.links) > 0 ? (
         <ul className="overview-meta-list big-spacer-bottom">
           {links}
         </ul>
     ) : null;
 
-    let keyCard = (
+    const keyCard = (
         <div>
           <h4 className="overview-meta-header">{translate('key')}</h4>
           <input
@@ -106,14 +106,14 @@ export default React.createClass({
         </div>
     );
 
-    let profilesCard = !this.isView() && !this.isDeveloper() && _.size(this.props.component.profiles) > 0 ? (
+    const profilesCard = !this.isView() && !this.isDeveloper() && _.size(this.props.component.profiles) > 0 ? (
         <div>
           <h4 className="overview-meta-header">{translate('overview.quality_profiles')}</h4>
           <ul className="overview-meta-list">{profiles}</ul>
         </div>
     ) : null;
 
-    let gateCard = !this.isView() && !this.isDeveloper() && this.props.component.gate ? (
+    const gateCard = !this.isView() && !this.isDeveloper() && this.props.component.gate ? (
         <div className="big-spacer-bottom">
           <h4 className="overview-meta-header">{translate('overview.quality_gate')}</h4>
           <ul className="overview-meta-list">

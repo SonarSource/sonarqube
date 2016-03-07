@@ -27,7 +27,7 @@ export default React.createClass({
   },
 
   render() {
-    let conditions = this.props.gate.conditions
+    const conditions = this.props.gate.conditions
         .filter(c => c.level !== 'OK')
         .map(c => <GateCondition key={c.metric.name} condition={c} component={this.props.component}/>);
     return <ul className="overview-gate-conditions-list">{conditions}</ul>;

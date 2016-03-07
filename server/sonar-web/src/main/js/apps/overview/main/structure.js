@@ -47,8 +47,8 @@ export const GeneralStructure = React.createClass({
     if (!this.hasLeakPeriod()) {
       return null;
     }
-    let measure = this.props.leak['ncloc'];
-    let formatted = measure != null ? formatMeasureVariation(measure, 'SHORT_INT') : '—';
+    const measure = this.props.leak['ncloc'];
+    const formatted = measure != null ? formatMeasureVariation(measure, 'SHORT_INT') : '—';
     return <DomainLeak>
       <MeasuresList>
         <Measure label={getMetricName('ncloc')}>{formatted}</Measure>
@@ -72,8 +72,7 @@ export const GeneralStructure = React.createClass({
   render () {
     return <Domain>
       <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.structure')}
-                    linkTo="/structure"/>
+                    title={translate('overview.domain.structure')}/>
 
       <DomainPanel>
         <DomainNutshell>

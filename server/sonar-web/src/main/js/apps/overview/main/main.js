@@ -76,7 +76,7 @@ export default React.createClass({
       this.requestIssuesAndDebt(),
       this.requestLeakIssuesAndDebt()
     ]).then(responses => {
-      let measures = this.getMeasuresValues(responses[0]);
+      const measures = this.getMeasuresValues(responses[0]);
       measures.issues = responses[1].issues;
       measures.debt = responses[1].debt;
 
@@ -101,7 +101,7 @@ export default React.createClass({
   },
 
   getMeasuresValues (measures, period) {
-    let values = {};
+    const values = {};
     measures.forEach(measure => {
       const container = period ? _.findWhere(measure.periods, { index: period }) : measure;
       if (container) {
@@ -125,7 +125,7 @@ export default React.createClass({
       return Promise.resolve();
     }
 
-    let createdAfter = moment(this.state.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
+    const createdAfter = moment(this.state.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
 
     // FIXME requesting severities facet only to get debtTotal
     return getIssuesCount({
@@ -137,18 +137,18 @@ export default React.createClass({
   },
 
   requestHistory () {
-    let coverageMetric = this.state.coverageMetricPrefix + 'coverage';
-    let metrics = [].concat(HISTORY_METRICS_LIST, coverageMetric).join(',');
+    const coverageMetric = this.state.coverageMetricPrefix + 'coverage';
+    const metrics = [].concat(HISTORY_METRICS_LIST, coverageMetric).join(',');
     return getTimeMachineData(this.props.component.key, metrics).then(r => {
-      let history = {};
+      const history = {};
       r[0].cols.forEach((col, index) => {
         history[col.metric] = r[0].cells.map(cell => {
-          let date = moment(cell.d).toDate();
-          let value = cell.v[index] || 0;
+          const date = moment(cell.d).toDate();
+          const value = cell.v[index] || 0;
           return { date, value };
         });
       });
-      let historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
+      const historyStartDate = history[HISTORY_METRICS_LIST[0]][0].date;
       this.setState({ history, historyStartDate });
     });
   },
@@ -164,8 +164,8 @@ export default React.createClass({
       return this.renderLoading();
     }
 
-    let coverageMetric = this.state.coverageMetricPrefix + 'coverage';
-    let props = _.extend({}, this.props, this.state);
+    const coverageMetric = this.state.coverageMetricPrefix + 'coverage';
+    const props = _.extend({}, this.props, this.state);
 
     return <div className="overview-domains-list">
       <GeneralDebt {...props} history={this.state.history['sqale_index']}/>

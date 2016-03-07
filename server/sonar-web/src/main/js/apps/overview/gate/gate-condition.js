@@ -30,7 +30,7 @@ const Measure = React.createClass({
     if (this.props.value == null || isNaN(this.props.value)) {
       return null;
     }
-    let formatted = formatMeasure(this.props.value, this.props.type);
+    const formatted = formatMeasure(this.props.value, this.props.type);
     return <span>{formatted}</span>;
   }
 });
@@ -38,14 +38,14 @@ const Measure = React.createClass({
 
 export default React.createClass({
   render() {
-    let metricName = translate('metric', this.props.condition.metric.name, 'name');
-    let threshold = this.props.condition.level === 'ERROR' ?
-                    this.props.condition.error : this.props.condition.warning;
-    let period = this.props.condition.period ?
-                 getPeriodLabel(this.props.component.periods, this.props.condition.period) : null;
-    let periodDate = getPeriodDate(this.props.component.periods, this.props.condition.period);
+    const metricName = translate('metric', this.props.condition.metric.name, 'name');
+    const threshold = this.props.condition.level === 'ERROR' ?
+        this.props.condition.error : this.props.condition.warning;
+    const period = this.props.condition.period ?
+        getPeriodLabel(this.props.component.periods, this.props.condition.period) : null;
+    const periodDate = getPeriodDate(this.props.component.periods, this.props.condition.period);
 
-    let classes = 'alert_' + this.props.condition.level.toUpperCase();
+    const classes = 'alert_' + this.props.condition.level.toUpperCase();
 
     return (
         <li className="overview-gate-condition">

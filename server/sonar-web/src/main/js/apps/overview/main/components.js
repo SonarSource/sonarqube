@@ -21,7 +21,7 @@ import moment from 'moment';
 import React from 'react';
 
 import { Timeline } from './timeline';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import { translateWithParameters } from '../../../helpers/l10n';
 
 
 export const Domain = React.createClass({
@@ -33,20 +33,7 @@ export const Domain = React.createClass({
 
 export const DomainTitle = React.createClass({
   render () {
-    if (this.props.linkTo) {
-      let url = '/overview' + this.props.linkTo + '?id=' + encodeURIComponent(this.props.component.key);
-      return <div>
-        <div className="overview-title">
-          {this.props.children}
-          <a className="small big-spacer-left link-no-underline" href={url}>
-            {translate('more')}&nbsp;
-            <i className="icon-chevron-right" style={{ position: 'relative', top: -1 }}/>
-          </a>
-        </div>
-      </div>;
-    } else {
-      return <div className="overview-title">{this.props.children}</div>;
-    }
+    return <div className="overview-title">{this.props.children}</div>;
   }
 });
 
@@ -63,9 +50,9 @@ export const DomainLeakTitle = React.createClass({
     if (!this.props.label || !this.props.date) {
       return null;
     }
-    let momentDate = moment(this.props.date);
-    let fromNow = momentDate.fromNow();
-    let tooltip = 'Started on ' + momentDate.format('LL');
+    const momentDate = moment(this.props.date);
+    const fromNow = momentDate.fromNow();
+    const tooltip = 'Started on ' + momentDate.format('LL');
     if (this.props.inline) {
       return this.renderInline(tooltip, fromNow);
     }
@@ -156,10 +143,10 @@ export const Measure = React.createClass({
 
 export const DomainMixin = {
   renderTimelineStartDate() {
-    let momentDate = moment(this.props.historyStartDate);
-    let fromNow = momentDate.fromNow();
+    const momentDate = moment(this.props.historyStartDate);
+    const fromNow = momentDate.fromNow();
     return (
-      <span className="overview-domain-timeline-date">
+        <span className="overview-domain-timeline-date">
         {translateWithParameters('overview.started_x', fromNow)}
       </span>
     );
@@ -169,7 +156,7 @@ export const DomainMixin = {
     if (!this.props.history) {
       return null;
     }
-    let props = { history: this.props.history };
+    const props = { history: this.props.history };
     props[range] = this.props.leakPeriodDate;
     return <div className="overview-domain-timeline">
       <Timeline {...props}/>
