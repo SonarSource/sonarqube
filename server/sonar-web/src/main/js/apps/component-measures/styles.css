@@ -1,5 +1,6 @@
 .measures-domains {
-  margin: 20px;
+  max-width: 980px;
+  margin: 20px auto;
   column-count: 2;
   column-gap: 60px;
 }
