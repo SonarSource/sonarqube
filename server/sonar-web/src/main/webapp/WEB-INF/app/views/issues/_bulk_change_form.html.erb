@@ -81,6 +81,23 @@
         <% end %>
       <% end %>
 
+      <%
+        type_options = [
+          [message('issue.type.BUG'), 'BUG'],
+          [message('issue.type.VULNERABILITY'), 'VULNERABILITY'],
+          [message('issue.type.CODE_SMELL'), 'CODE_SMELL']
+        ]
+        type_options = options_for_select(type_options, 'BUG')
+      %>
+      <div class="modal-field">
+        <label for="type">
+          <%= message('issue.set_type') -%>
+        </label>
+        <input id="set-type-action" name="actions[]" type="checkbox" value="set_type"/>
+        <%= dropdown_tag('set_type.type', type_options, {:show_search_box => false}, {:id => 'type'}) -%>
+        <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues_user_can_admin.to_s) -%>)</span>
+      </div>
+
       <div class="modal-field">
         <label for="severity">
           <%= message('issue.set_severity') -%>
@@ -180,6 +197,7 @@
   $j('#assignee').click(function() { check('assign-action'); });
   $j('#plan').click(function() { check('plan-action'); });
   $j('#severity').click(function() { check('set-severity-action'); });
+  $j('#type').click(function() { check('set-type-action'); });
   $j('#add_tags').select2({tags: [ '<%= @tags.join("', '") -%>' ], width: '250px' });
   $j('#add_tags').click(function() { check('add-tags-action'); });
   $j('#remove_tags').select2({tags: [ '<%= @tags.join("', '") -%>' ], width: '250px' });

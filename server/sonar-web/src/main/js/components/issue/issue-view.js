@@ -29,6 +29,7 @@ import AssignFormView from './views/assign-form-view';
 import CommentFormView from './views/comment-form-view';
 import PlanFormView from './views/plan-form-view';
 import SetSeverityFormView from './views/set-severity-form-view';
+import SetTypeFormView from './views/set-type-form-view';
 import MoreActionsView from './views/more-actions-view';
 import TagsFormView from './views/tags-form-view';
 import Workspace from '../workspace/main';
@@ -50,6 +51,7 @@ export default Marionette.ItemView.extend({
       'click .js-issue-comment-delete': 'deleteComment',
       'click .js-issue-transition': 'transition',
       'click .js-issue-set-severity': 'setSeverity',
+      'click .js-issue-set-type': 'setType',
       'click .js-issue-assign': 'assign',
       'click .js-issue-assign-to-me': 'assignToMe',
       'click .js-issue-plan': 'plan',
@@ -176,6 +178,17 @@ export default Marionette.ItemView.extend({
     e.stopPropagation();
     $('body').click();
     this.popup = new SetSeverityFormView({
+      triggerEl: $(e.currentTarget),
+      bottom: true,
+      model: this.model
+    });
+    this.popup.render();
+  },
+
+  setType (e) {
+    e.stopPropagation();
+    $('body').click();
+    this.popup = new SetTypeFormView({
       triggerEl: $(e.currentTarget),
       bottom: true,
       model: this.model
