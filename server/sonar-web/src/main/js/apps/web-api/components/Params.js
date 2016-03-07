@@ -26,7 +26,7 @@ export default function Params ({ params }) {
           <tbody>
           {params.map(param => (
               <tr key={param.key}>
-                <td style={{ width: 150 }}>
+                <td style={{ width: 180 }}>
                   <code>{param.key}</code>
 
                   <div className="note little-spacer-top">
