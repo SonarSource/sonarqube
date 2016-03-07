@@ -774,8 +774,8 @@ public class ComponentDaoTest {
     ComponentDto project = newProjectDto().setKey("project-key").setUuid("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
     SnapshotDto moduleSnapshot = componentDb.insertComponentAndSnapshot(newModuleDto("module-1-uuid", project), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid").setKey("file-key-1"), projectSnapshot);
-    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid").setKey("file-key-2"), moduleSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid").setKey("file-key-1").setName("File one"), projectSnapshot);
+    componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid").setKey("file-key-2").setName("File two"), moduleSnapshot);
     db.commit();
     componentDb.indexProjects();
 
@@ -869,7 +869,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_direct_children_of_a_view() {
+  public void list_direct_children_of_a_view() {
     ComponentDto view = newView("view-uuid");
     SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
     // one subview
@@ -877,6 +877,25 @@ public class ComponentDaoTest {
     componentDb.insertComponentAndSnapshot(subView, viewSnapshot);
     // one project and its copy linked to the view
     ComponentDto project = newProjectDto("project-uuid").setName("project-name");
+    componentDb.insertProjectAndSnapshot(project);
+    componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
+    componentDb.indexProjects();
+    ComponentTreeQuery dbQuery = newTreeQuery(viewSnapshot).build();
+
+    List<ComponentDtoWithSnapshotId> components = underTest.selectDirectChildren(dbSession, dbQuery);
+
+    assertThat(components).extracting("uuid").containsOnly("project-copy-uuid", "subview-uuid");
+  }
+
+  @Test
+  public void search_direct_children_of_a_view() {
+    ComponentDto view = newView("view-uuid");
+    SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
+    // one subview
+    ComponentDto subView = newSubView(view, "subview-uuid", "subview-key").setName("subview name");
+    componentDb.insertComponentAndSnapshot(subView, viewSnapshot);
+    // one project and its copy linked to the view
+    ComponentDto project = newProjectDto("project-uuid").setName("project name");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
     componentDb.indexProjects();
