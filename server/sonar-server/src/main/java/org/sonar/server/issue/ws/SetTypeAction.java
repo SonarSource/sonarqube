@@ -19,10 +19,10 @@
  */
 package org.sonar.server.issue.ws;
 
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.core.issue.IssueType;
 import org.sonar.core.util.Uuids;
 import org.sonar.server.issue.IssueService;
 
@@ -53,13 +53,13 @@ public class SetTypeAction implements IssuesWsAction {
     action.createParam("type")
       .setDescription("New type")
       .setRequired(true)
-      .setPossibleValues(IssueType.ALL_NAMES);
+      .setPossibleValues(RuleType.ALL_NAMES);
   }
 
   @Override
   public void handle(Request request, Response response) throws Exception {
     String key = request.mandatoryParam("issue");
-    issueService.setType(key, IssueType.valueOf(request.mandatoryParam("type")));
+    issueService.setType(key, RuleType.valueOf(request.mandatoryParam("type")));
 
     responseWriter.write(key, request, response);
   }

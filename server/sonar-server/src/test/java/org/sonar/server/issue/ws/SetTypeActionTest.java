@@ -22,9 +22,9 @@ package org.sonar.server.issue.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
-import org.sonar.core.issue.IssueType;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
@@ -51,7 +51,7 @@ public class SetTypeActionTest {
       .setParam("type", "BUG")
       .execute();
 
-    verify(issueService).setType("ABC", IssueType.BUG);
+    verify(issueService).setType("ABC", RuleType.BUG);
     verify(responseWriter).write(eq("ABC"), any(Request.class), any(Response.class));
   }
 

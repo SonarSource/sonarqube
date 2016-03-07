@@ -24,9 +24,9 @@ import java.util.Collection;
 import java.util.Map;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.IsUnResolved;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.IssueType;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -54,13 +54,13 @@ public class SetTypeAction extends Action {
   @Override
   public boolean execute(Map<String, Object> properties, Context context) {
     String type = newValue(properties);
-    return issueUpdater.setType((DefaultIssue) context.issue(), IssueType.valueOf(type), context.issueChangeContext());
+    return issueUpdater.setType((DefaultIssue) context.issue(), RuleType.valueOf(type), context.issueChangeContext());
   }
 
   private String newValue(Map<String, Object> properties) {
     String type = (String) properties.get(TYPE_PARAMETER);
     Preconditions.checkArgument(!isNullOrEmpty(type), "Missing parameter: '%s'", TYPE_PARAMETER);
-    Preconditions.checkArgument(IssueType.ALL_NAMES.contains(type), "Unknown type: %s", type);
+    Preconditions.checkArgument(RuleType.ALL_NAMES.contains(type), "Unknown type: %s", type);
     return type;
   }
 }

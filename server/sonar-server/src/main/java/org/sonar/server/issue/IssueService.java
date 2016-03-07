@@ -44,7 +44,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueType;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -232,7 +231,7 @@ public class IssueService {
     }
   }
 
-  public void setType(String issueKey, IssueType type) {
+  public void setType(String issueKey, RuleType type) {
     userSession.checkLoggedIn();
 
     DbSession session = dbClient.openSession(false);

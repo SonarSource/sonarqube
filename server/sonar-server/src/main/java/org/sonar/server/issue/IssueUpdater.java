@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.issue.ActionPlan;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.user.User;
@@ -40,7 +41,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueType;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
@@ -64,7 +64,7 @@ public class IssueUpdater {
 
   private static final Joiner CHANGELOG_TAG_JOINER = Joiner.on(" ").skipNulls();
 
-  public boolean setType(DefaultIssue issue, IssueType type, IssueChangeContext context) {
+  public boolean setType(DefaultIssue issue, RuleType type, IssueChangeContext context) {
     if (!Objects.equal(type, issue.type())) {
       issue.setFieldChange(context, TYPE, issue.type(), type);
       issue.setType(type);

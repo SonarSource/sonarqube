@@ -25,9 +25,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.core.issue.IssueType;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.UserSession;
@@ -68,7 +68,7 @@ public class SetTypeActionTest {
     when(context.issue()).thenReturn(issue);
 
     underTest.execute(properties, context);
-    verify(issueUpdater).setType(eq(issue), eq(IssueType.BUG), any(IssueChangeContext.class));
+    verify(issueUpdater).setType(eq(issue), eq(RuleType.BUG), any(IssueChangeContext.class));
   }
 
   @Test

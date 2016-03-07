@@ -35,9 +35,9 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.IssueType;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -310,13 +310,13 @@ public class IssueServiceMediumTest {
     ComponentDto file = newFile(project);
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.ISSUE_ADMIN, project.uuid());
 
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setType(IssueType.CODE_SMELL));
+    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setType(RuleType.CODE_SMELL));
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).type()).isEqualTo(IssueType.CODE_SMELL);
+    assertThat(IssueIndex.getByKey(issue.getKey()).type()).isEqualTo(RuleType.CODE_SMELL);
 
-    service.setType(issue.getKey(), IssueType.BUG);
+    service.setType(issue.getKey(), RuleType.BUG);
 
-    assertThat(IssueIndex.getByKey(issue.getKey()).type()).isEqualTo(IssueType.BUG);
+    assertThat(IssueIndex.getByKey(issue.getKey()).type()).isEqualTo(RuleType.BUG);
   }
 
   @Test
