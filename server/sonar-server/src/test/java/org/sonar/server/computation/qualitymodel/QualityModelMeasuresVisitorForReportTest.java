@@ -43,10 +43,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
-import static org.sonar.api.measures.CoreMetrics.BUGS;
-import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
@@ -59,7 +63,6 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
-import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
@@ -118,13 +121,13 @@ public class QualityModelMeasuresVisitorForReportTest {
     .add(NCLOC)
     .add(DEVELOPMENT_COST)
     .add(TECHNICAL_DEBT)
-    .add(CODE_SMELLS)
-    .add(BUGS)
-    .add(VULNERABILITIES)
     .add(SQALE_DEBT_RATIO)
     .add(SQALE_RATING)
+    .add(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A)
     .add(RELIABILITY_RATING)
-    .add(SECURITY_RATING);
+    .add(EFFORT_TO_REACH_RELIABILITY_RATING_A)
+    .add(SECURITY_RATING)
+    .add(EFFORT_TO_REACH_SECURITY_RATING_A);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -163,8 +166,11 @@ public class QualityModelMeasuresVisitorForReportTest {
         entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
         entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d, 1)),
         entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A)),
+        entryOf(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
         entryOf(RELIABILITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A))
+        entryOf(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
+        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
+        entryOf(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, newMeasureBuilder().create(0L))
       );
   }
 
@@ -302,16 +308,76 @@ public class QualityModelMeasuresVisitorForReportTest {
   }
 
   @Test
+  public void compute_effort_to_maintainability_rating_A_measure() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+
+    int file1Ncloc = 10;
+    long file1Effort = 100L;
+    addRawMeasure(NCLOC_KEY, FILE_1_REF, file1Ncloc);
+    addRawMeasure(TECHNICAL_DEBT_KEY, FILE_1_REF, file1Effort);
+
+    int file2Ncloc = 5;
+    long file2Effort = 20L;
+    addRawMeasure(NCLOC_KEY, FILE_2_REF, file2Ncloc);
+    addRawMeasure(TECHNICAL_DEBT_KEY, FILE_2_REF, file2Effort);
+
+    long dirEffort = 120L;
+    addRawMeasure(TECHNICAL_DEBT_KEY, DIRECTORY_REF, dirEffort);
+
+    long moduleEffort = 120L;
+    addRawMeasure(TECHNICAL_DEBT_KEY, MODULE_REF, moduleEffort);
+
+    long projectEffort = 150L;
+    addRawMeasure(TECHNICAL_DEBT_KEY, PROJECT_REF, projectEffort);
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (file1Effort - RATING_GRID[0] * file1Ncloc * DEV_COST_LANGUAGE_1));
+    verifyAddedRawMeasure(FILE_2_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (file2Effort - RATING_GRID[0] * file2Ncloc * DEV_COST_LANGUAGE_1));
+    verifyAddedRawMeasure(DIRECTORY_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (dirEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1));
+    verifyAddedRawMeasure(MODULE_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (moduleEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1));
+    verifyAddedRawMeasure(PROJECT_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (projectEffort - RATING_GRID[0] * (file1Ncloc + file2Ncloc) * DEV_COST_LANGUAGE_1));
+  }
+
+  @Test
+  public void compute_0_effort_to_maintainability_rating_A_when_effort_is_lower_than_dev_cost() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+
+    addRawMeasure(NCLOC_KEY, FILE_1_REF, 10);
+    addRawMeasure(TECHNICAL_DEBT_KEY, FILE_1_REF, 2L);
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY, 0L);
+  }
+
+  @Test
+  public void effort_to_maintainability_rating_A_is_same_as_effort_when_no_dev_cost() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+
+    addRawMeasure(TECHNICAL_DEBT_KEY, FILE_1_REF, 100L);
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY, 100);
+  }
+
+  @Test
   public void compute_reliability_rating() throws Exception {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, BLOCKER), newBugIssue(1L, MAJOR),
       // Should not be taken into account
       newVulnerabilityIssue(5L, MINOR)
-    );
+      );
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newBugIssue(2L, CRITICAL), newBugIssue(3L, MINOR),
       // Should not be taken into account
       newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
-    );
+      );
 
     underTest.visit(ROOT_PROJECT);
 
@@ -331,7 +397,7 @@ public class QualityModelMeasuresVisitorForReportTest {
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newVulnerabilityIssue(2L, CRITICAL), newVulnerabilityIssue(3L, MINOR),
       // Should not be taken into account
       newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
-    );
+      );
 
     underTest.visit(ROOT_PROJECT);
 
@@ -405,6 +471,56 @@ public class QualityModelMeasuresVisitorForReportTest {
 
     verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
+  }
+
+  @Test
+  public void compute_effort_to_reliability_rating_A_measure() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, BLOCKER), newBugIssue(1L, MAJOR),
+      // CODE SMELL should not be taken into account
+      newCodeSmellIssue(4L, MAJOR),
+      // Resolved issue should be ignored
+      newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
+      );
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newBugIssue(2L, CRITICAL), newBugIssue(3L, MINOR),
+      // INFO issue should not be taken into account
+      newBugIssue(5L, INFO),
+      // Issue without debt
+      newIssue(MAJOR, BUG));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 10L + 1L);
+    verifyAddedRawMeasure(FILE_2_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 2L + 3L);
+    verifyAddedRawMeasure(DIRECTORY_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 16L);
+    verifyAddedRawMeasure(MODULE_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 16L);
+    verifyAddedRawMeasure(PROJECT_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 16L);
+  }
+
+  @Test
+  public void compute_effort_to_security_rating_A_measure() throws Exception {
+    treeRootHolder.setRoot(ROOT_PROJECT);
+
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newVulnerabilityIssue(8L, BLOCKER), newVulnerabilityIssue(6L, MAJOR),
+      // CODE SMELL should not be taken into account
+      newCodeSmellIssue(4L, MAJOR),
+      // Resolved issue should be ignored
+      newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
+      );
+    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newVulnerabilityIssue(2L, CRITICAL), newVulnerabilityIssue(1L, MINOR),
+      // INFO issue should not be taken into account
+      newVulnerabilityIssue(5L, INFO),
+      // Issue without debt
+      newIssue(MAJOR, VULNERABILITY));
+
+    underTest.visit(ROOT_PROJECT);
+
+    verifyAddedRawMeasure(FILE_1_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 8L + 6L);
+    verifyAddedRawMeasure(FILE_2_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 2L + 1L);
+    verifyAddedRawMeasure(DIRECTORY_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 17L);
+    verifyAddedRawMeasure(MODULE_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 17L);
+    verifyAddedRawMeasure(PROJECT_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 17L);
   }
 
   private void addRawMeasure(String metricKey, int componentRef, long value) {

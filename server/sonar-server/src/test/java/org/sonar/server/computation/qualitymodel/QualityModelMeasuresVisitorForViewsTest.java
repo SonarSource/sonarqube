@@ -35,10 +35,14 @@ import org.sonar.server.computation.qualitymodel.RatingGrid.Rating;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static org.sonar.api.measures.CoreMetrics.BUGS;
-import static org.sonar.api.measures.CoreMetrics.CODE_SMELLS;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
@@ -50,7 +54,6 @@ import static org.sonar.api.measures.CoreMetrics.SQALE_RATING;
 import static org.sonar.api.measures.CoreMetrics.SQALE_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
-import static org.sonar.api.measures.CoreMetrics.VULNERABILITIES;
 import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
@@ -101,13 +104,13 @@ public class QualityModelMeasuresVisitorForViewsTest {
     .add(NCLOC)
     .add(DEVELOPMENT_COST)
     .add(TECHNICAL_DEBT)
-    .add(CODE_SMELLS)
-    .add(BUGS)
-    .add(VULNERABILITIES)
     .add(SQALE_DEBT_RATIO)
     .add(SQALE_RATING)
+    .add(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A)
     .add(RELIABILITY_RATING)
-    .add(SECURITY_RATING);
+    .add(EFFORT_TO_REACH_RELIABILITY_RATING_A)
+    .add(SECURITY_RATING)
+    .add(EFFORT_TO_REACH_SECURITY_RATING_A);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -134,8 +137,11 @@ public class QualityModelMeasuresVisitorForViewsTest {
         entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create("0")),
         entryOf(SQALE_DEBT_RATIO_KEY, newMeasureBuilder().create(0d, 1)),
         entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A)),
+        entryOf(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
         entryOf(RELIABILITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A))
+        entryOf(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
+        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
+        entryOf(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, newMeasureBuilder().create(0L))
       );
   }
 
@@ -194,6 +200,78 @@ public class QualityModelMeasuresVisitorForViewsTest {
     verifyRawMeasure(SUB_SUBVIEW_2_REF, SECURITY_RATING_KEY, D);
     verifyRawMeasure(SUBVIEW_REF, SECURITY_RATING_KEY, D);
     verifyRawMeasure(ROOT_REF, SECURITY_RATING_KEY, E);
+  }
+
+  @Test
+  public void compute_effort_to_maintainability_rating_A_measure() throws Exception {
+    treeRootHolder.setRoot(treeRootHolder.getRoot());
+
+    long projectView1DevCosts = 40L;
+    addRawMeasure(DEVELOPMENT_COST_KEY, PROJECT_VIEW_1_REF, Long.toString(projectView1DevCosts));
+    long projectView2DevCosts = 70L;
+    addRawMeasure(DEVELOPMENT_COST_KEY, PROJECT_VIEW_2_REF, Long.toString(projectView2DevCosts));
+    long projectView3DevCosts = 50L;
+    addRawMeasure(DEVELOPMENT_COST_KEY, PROJECT_VIEW_3_REF, Long.toString(projectView3DevCosts));
+    long projectView4DevCosts = 100L;
+    addRawMeasure(DEVELOPMENT_COST_KEY, PROJECT_VIEW_4_REF, Long.toString(projectView4DevCosts));
+
+    long subSubView1Effort = 10000L;
+    addRawMeasure(TECHNICAL_DEBT_KEY, SUB_SUBVIEW_1_REF, subSubView1Effort);
+
+    long subSubView2Effort = 20000L;
+    addRawMeasure(TECHNICAL_DEBT_KEY, SUB_SUBVIEW_2_REF, subSubView2Effort);
+
+    long subViewEffort = 30000L;
+    addRawMeasure(TECHNICAL_DEBT_KEY, SUBVIEW_REF, subViewEffort);
+
+    long viewEffort = 35000L;
+    addRawMeasure(TECHNICAL_DEBT_KEY, ROOT_REF, viewEffort);
+
+    underTest.visit(treeRootHolder.getRoot());
+
+    verifyRawMeasure(SUB_SUBVIEW_1_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (subSubView1Effort - RATING_GRID[0] * (projectView1DevCosts + projectView2DevCosts)));
+    verifyRawMeasure(SUB_SUBVIEW_2_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (subSubView2Effort - RATING_GRID[0] * projectView3DevCosts));
+    verifyRawMeasure(SUBVIEW_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (subViewEffort - RATING_GRID[0] * (projectView1DevCosts + projectView2DevCosts + projectView3DevCosts)));
+    verifyRawMeasure(ROOT_REF, EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
+      (long) (viewEffort - RATING_GRID[0] * (projectView1DevCosts + projectView2DevCosts + projectView3DevCosts +
+        projectView4DevCosts)));
+  }
+
+  @Test
+  public void compute_effort_to_reliability_rating_A_measure() throws Exception {
+    treeRootHolder.setRoot(treeRootHolder.getRoot());
+
+    addRawMeasure(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, PROJECT_VIEW_1_REF, 100L);
+    addRawMeasure(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, PROJECT_VIEW_2_REF, 200L);
+    addRawMeasure(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, PROJECT_VIEW_3_REF, 300L);
+    // Nothing on project view 4
+
+    underTest.visit(treeRootHolder.getRoot());
+
+    verifyRawMeasure(SUB_SUBVIEW_1_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 100L + 200L);
+    verifyRawMeasure(SUB_SUBVIEW_2_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 300L);
+    verifyRawMeasure(SUBVIEW_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 600L);
+    verifyRawMeasure(ROOT_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 600L);
+  }
+
+  @Test
+  public void compute_effort_to_security_rating_A_measure() throws Exception {
+    treeRootHolder.setRoot(treeRootHolder.getRoot());
+
+    addRawMeasure(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, PROJECT_VIEW_1_REF, 100L);
+    addRawMeasure(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, PROJECT_VIEW_2_REF, 200L);
+    addRawMeasure(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, PROJECT_VIEW_3_REF, 300L);
+    addRawMeasure(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, PROJECT_VIEW_4_REF, 50L);
+
+    underTest.visit(treeRootHolder.getRoot());
+
+    verifyRawMeasure(SUB_SUBVIEW_1_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 100L + 200L);
+    verifyRawMeasure(SUB_SUBVIEW_2_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 300L);
+    verifyRawMeasure(SUBVIEW_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 600L);
+    verifyRawMeasure(ROOT_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 650L);
   }
 
   private void assertNewRawMeasures(int componentRef, long debt, long devCost, Rating rating) {

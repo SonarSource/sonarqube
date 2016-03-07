@@ -20,6 +20,7 @@
 package org.sonar.server.computation.issue;
 
 import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
@@ -42,7 +43,7 @@ public class FillComponentIssuesVisitorRule extends TypeAwareVisitorAdapter impl
   private MutableComponentIssuesRepository issuesRepository = new ComponentIssuesRepositoryImpl();
   private final TreeRootHolder treeRootHolder;
 
-  private ArrayListMultimap<Component, DefaultIssue> issues = ArrayListMultimap.create();
+  private ListMultimap<Component, DefaultIssue> issues = ArrayListMultimap.create();
 
   public FillComponentIssuesVisitorRule(MutableComponentIssuesRepository issuesRepository, TreeRootHolder treeRootHolder) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);

@@ -22,6 +22,8 @@ package org.sonar.server.computation.qualitymodel;
 import com.google.common.base.Optional;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.rule.Severity;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.component.Component;
@@ -35,6 +37,9 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.qualitymodel.RatingGrid.Rating;
 
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY;
+import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
@@ -55,8 +60,11 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
  * {@link CoreMetrics#DEVELOPMENT_COST_KEY}
  * {@link CoreMetrics#SQALE_DEBT_RATIO_KEY}
  * {@link CoreMetrics#SQALE_RATING_KEY}
+ * {@link CoreMetrics#EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY}
  * {@link CoreMetrics#RELIABILITY_RATING_KEY}
+ * {@link CoreMetrics#EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY}
  * {@link CoreMetrics#SECURITY_RATING_KEY}
+ * {@link CoreMetrics#EFFORT_TO_REACH_SECURITY_RATING_A_KEY}
  */
 public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<QualityModelMeasuresVisitor.QualityModelCounter> {
   private static final Logger LOG = Loggers.get(QualityModelMeasuresVisitor.class);
@@ -72,8 +80,11 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   private final Metric maintainabilityRemediationEffortMetric;
   private final Metric debtRatioMetric;
   private final Metric maintainabilityRatingMetric;
+  private final Metric effortToMaintainabilityRatingAMetric;
   private final Metric reliabilityRatingMetric;
+  private final Metric effortToReliabilityRatingAMetric;
   private final Metric securityRatingMetric;
+  private final Metric effortToSecurityRatingAMetric;
 
   public QualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings,
     ComponentIssuesRepository componentIssuesRepository) {
@@ -93,6 +104,9 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     this.maintainabilityRatingMetric = metricRepository.getByKey(SQALE_RATING_KEY);
     this.reliabilityRatingMetric = metricRepository.getByKey(RELIABILITY_RATING_KEY);
     this.securityRatingMetric = metricRepository.getByKey(SECURITY_RATING_KEY);
+    this.effortToMaintainabilityRatingAMetric = metricRepository.getByKey(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY);
+    this.effortToReliabilityRatingAMetric = metricRepository.getByKey(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY);
+    this.effortToSecurityRatingAMetric = metricRepository.getByKey(EFFORT_TO_REACH_SECURITY_RATING_A_KEY);
   }
 
   @Override
@@ -157,6 +171,14 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     if (securityRatingMeasure.isPresent()) {
       path.parent().addSecurityRating(Rating.valueOf(securityRatingMeasure.get().getData()));
     }
+    Optional<Measure> effortToReliabilityRatingAMeasure = measureRepository.getRawMeasure(projectView, effortToReliabilityRatingAMetric);
+    if (effortToReliabilityRatingAMeasure.isPresent()) {
+      path.parent().addEffortToReachReliabilityRatingA(effortToReliabilityRatingAMeasure.get().getLongValue());
+    }
+    Optional<Measure> effortToSecurityRatingAMeasure = measureRepository.getRawMeasure(projectView, effortToSecurityRatingAMetric);
+    if (effortToSecurityRatingAMeasure.isPresent()) {
+      path.parent().addEffortToReachSecurityRatingA(effortToSecurityRatingAMeasure.get().getLongValue());
+    }
   }
 
   private void computeAndSaveMeasures(Component component, Path<QualityModelCounter> path) {
@@ -165,8 +187,11 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     double density = computeDensity(component, path.current());
     addDebtRatioMeasure(component, density);
     addMaintainabilityRatingMeasure(component, density);
+    addEffortToMaintainabilityRatingAMeasure(component, path);
     addReliabilityRatingMeasure(component, path);
+    addEffortToReliabilityRatingAMeasure(component, path);
     addSecurityRatingMeasure(component, path);
+    addEffortToSecurityRatingAMeasure(component, path);
 
     addToParent(path);
   }
@@ -204,19 +229,35 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     measureRepository.add(component, securityRatingMetric, newMeasureBuilder().create(rating.getIndex(), rating.name()));
   }
 
-  private void addToParent(Path<QualityModelCounter> path) {
+  private void addEffortToMaintainabilityRatingAMeasure(Component component, Path<QualityModelCounter> path) {
+    long developmentCostValue = path.current().devCosts;
+    Optional<Measure> effortMeasure = measureRepository.getRawMeasure(component, maintainabilityRemediationEffortMetric);
+    long effort = effortMeasure.isPresent() ? effortMeasure.get().getLongValue() : 0L;
+    long upperGradeCost = ((Double) (ratingGrid.getGradeLowerBound(Rating.B) * developmentCostValue)).longValue();
+    long effortToRatingA = upperGradeCost < effort ? (effort - upperGradeCost) : 0L;
+    measureRepository.add(component, effortToMaintainabilityRatingAMetric, Measure.newMeasureBuilder().create(effortToRatingA));
+  }
+
+  private void addEffortToReliabilityRatingAMeasure(Component component, Path<QualityModelCounter> path) {
+    measureRepository.add(component, effortToReliabilityRatingAMetric, Measure.newMeasureBuilder().create(path.current().effortToReachReliabilityRatingA));
+  }
+
+  private void addEffortToSecurityRatingAMeasure(Component component, Path<QualityModelCounter> path) {
+    measureRepository.add(component, effortToSecurityRatingAMetric, Measure.newMeasureBuilder().create(path.current().effortToReachSecurityRatingA));
+  }
+
+  private static void addToParent(Path<QualityModelCounter> path) {
     if (!path.isRoot()) {
       path.parent().add(path.current());
     }
   }
 
-  /**
-   * A wrapper class around a long which can be increased and represents the development cost of a Component
-   */
   public static final class QualityModelCounter {
     private long devCosts = 0;
     private Rating reliabilityRating = Rating.A;
+    private long effortToReachReliabilityRatingA = 0L;
     private Rating securityRating = Rating.A;
+    private long effortToReachSecurityRatingA = 0L;
 
     private QualityModelCounter() {
       // prevents instantiation
@@ -226,18 +267,22 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
       addDevCosts(otherCounter.devCosts);
       addReliabilityRating(otherCounter.reliabilityRating);
       addSecurityRating(otherCounter.securityRating);
+      addEffortToReachReliabilityRatingA(otherCounter.effortToReachReliabilityRatingA);
+      addEffortToReachSecurityRatingA(otherCounter.effortToReachSecurityRatingA);
     }
 
     public void addDevCosts(long developmentCosts) {
       this.devCosts += developmentCosts;
     }
 
-    private void addIssue(Issue issue) {
+    public void addIssue(Issue issue) {
       Rating rating = getRatingFromSeverity(issue.severity());
       if (issue.type().equals(BUG)) {
         addReliabilityRating(rating);
+        addEffortToReachReliabilityRatingA(getEffortForNotMinorIssue(issue));
       } else if (issue.type().equals(VULNERABILITY)) {
         addSecurityRating(rating);
+        addEffortToReachSecurityRatingA(getEffortForNotMinorIssue(issue));
       }
     }
 
@@ -251,6 +296,22 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
       if (securityRating.compareTo(rating) > 0) {
         securityRating = rating;
       }
+    }
+
+    public void addEffortToReachReliabilityRatingA(long reliabilityEffort) {
+      this.effortToReachReliabilityRatingA += reliabilityEffort;
+    }
+
+    public void addEffortToReachSecurityRatingA(long securityEffort) {
+      this.effortToReachSecurityRatingA += securityEffort;
+    }
+
+    private static long getEffortForNotMinorIssue(Issue issue) {
+      Duration debt = issue.debt();
+      if (!issue.severity().equals(Severity.INFO) && debt != null) {
+        return debt.toMinutes();
+      }
+      return 0L;
     }
 
     private static Rating getRatingFromSeverity(String severity) {
