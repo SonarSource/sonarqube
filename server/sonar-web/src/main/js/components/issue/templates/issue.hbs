@@ -44,7 +44,13 @@
       <td>
         <ul class="list-inline issue-meta-list">
           <li class="issue-meta">
-            {{issueType this.type}}
+            {{#inArray actions "set_severity"}}
+              <button class="button-link issue-action issue-action-with-options js-issue-set-type">
+                {{issueType this.type}}&nbsp;<i class="icon-dropdown"></i>
+              </button>
+            {{else}}
+              {{issueType this.type}}
+            {{/inArray}}
           </li>
 
           <li class="issue-meta">
