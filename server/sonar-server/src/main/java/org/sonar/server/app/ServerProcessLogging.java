@@ -34,17 +34,23 @@ import org.sonar.server.computation.log.CeLogging;
 import org.sonar.server.platform.ServerLogging;
 
 /**
- * Configure logback for web server process. Logs must be written to console, which is
+ * Configure logback for given server sub process (Web Server or CE). Logs must be written to console, which is
  * forwarded to file logs/sonar.log by the app master process.
  */
-class ServerProcessLogging {
+public class ServerProcessLogging {
 
-  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level web[%logger{20}] %msg%n";
-  public static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
+  private static final String LOG_FORMAT = "%d{yyyy.MM.dd HH:mm:ss} %-5level XXXX[%logger{20}] %msg%n";
 
   private final LogbackHelper helper = new LogbackHelper();
+  private final String processName;
+  private final String logLevelProperty;
 
-  LoggerContext configure(Props props) {
+  public ServerProcessLogging(String processName, String logLevelProperty) {
+    this.processName = processName;
+    this.logLevelProperty = logLevelProperty;
+  }
+
+  public LoggerContext configure(Props props) {
     LoggerContext ctx = helper.getRootContext();
     ctx.reset();
 
@@ -59,14 +65,15 @@ class ServerProcessLogging {
   }
 
   private void configureAppender(LoggerContext ctx, Props props) {
-    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", LOG_FORMAT, new CeLogDenyFilter<ILoggingEvent>());
+    String logFormat = LOG_FORMAT.replace("XXXX", processName);
+    ConsoleAppender<ILoggingEvent> consoleAppender = helper.newConsoleAppender(ctx, "CONSOLE", logFormat, new CeLogDenyFilter<ILoggingEvent>());
     ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(consoleAppender);
     ctx.getLogger(Logger.ROOT_LOGGER_NAME).addAppender(CeLogging.createAppenderConfiguration(ctx, props));
 
   }
 
   private void configureLevels(Props props) {
-    String levelCode = props.value(LOG_LEVEL_PROPERTY, "INFO");
+    String levelCode = props.value(logLevelProperty, "INFO");
     LoggerLevel level;
     if ("TRACE".equals(levelCode)) {
       level = LoggerLevel.TRACE;
@@ -75,7 +82,7 @@ class ServerProcessLogging {
     } else if ("INFO".equals(levelCode)) {
       level = LoggerLevel.INFO;
     } else {
-      throw MessageException.of(String.format("Unsupported log level: %s. Please check property %s", levelCode, LOG_LEVEL_PROPERTY));
+      throw MessageException.of(String.format("Unsupported log level: %s. Please check property %s", levelCode, logLevelProperty));
     }
     ServerLogging.configureLevels(helper, level);
   }

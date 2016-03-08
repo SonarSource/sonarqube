@@ -40,11 +40,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ServerProcessLoggingTest {
 
+  private static final String LOG_LEVEL_PROPERTY = "log.level";
+  private static final String PROCESS_NAME = "pr1";
+
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   Props props = new Props(new Properties());
-  ServerProcessLogging underTest = new ServerProcessLogging();
+  ServerProcessLogging underTest = new ServerProcessLogging(PROCESS_NAME, LOG_LEVEL_PROPERTY);
 
   /**
    * Path to data dir must be set for Compute Engine logging.
@@ -76,14 +79,14 @@ public class ServerProcessLoggingTest {
 
   @Test
   public void enable_debug_logs() {
-    props.set("sonar.log.level", "DEBUG");
+    props.set(LOG_LEVEL_PROPERTY, "DEBUG");
     LoggerContext ctx = underTest.configure(props);
     assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.DEBUG);
   }
 
   @Test
   public void enable_trace_logs() {
-    props.set("sonar.log.level", "TRACE");
+    props.set(LOG_LEVEL_PROPERTY, "TRACE");
     LoggerContext ctx = underTest.configure(props);
     assertThat(ctx.getLogger(Logger.ROOT_LOGGER_NAME).getLevel()).isEqualTo(Level.TRACE);
   }
