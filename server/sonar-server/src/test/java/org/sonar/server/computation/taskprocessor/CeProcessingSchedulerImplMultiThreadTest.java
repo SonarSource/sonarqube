@@ -21,6 +21,7 @@ package org.sonar.server.computation.taskprocessor;
 
 import java.util.HashSet;
 import java.util.Set;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.Timeout;
@@ -38,6 +39,7 @@ public class CeProcessingSchedulerImplMultiThreadTest {
 
   private ThreadNameRecordingCeWorkerCallable ceWorkerRunnable = new ThreadNameRecordingCeWorkerCallable();
 
+  @Ignore("disabled because of instability and until rewritten")
   @Test
   public void when_workerCount_is_more_than_1_CeWorkerCallable_runs_on_as_many_different_threads() throws InterruptedException {
     int workerCount = 2;
