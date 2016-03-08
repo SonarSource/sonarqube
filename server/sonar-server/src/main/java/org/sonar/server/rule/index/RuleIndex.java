@@ -35,7 +35,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -169,7 +168,7 @@ public class RuleIndex extends BaseIndex {
 
     // No contextual query case
     String queryText = query.getQueryText();
-    if (queryText == null || queryText.isEmpty()) {
+    if (StringUtils.isEmpty(queryText)) {
       return QueryBuilders.matchAllQuery();
     }
 
@@ -219,42 +218,42 @@ public class RuleIndex extends BaseIndex {
         FilterBuilders.termFilter(FIELD_RULE_STATUS,
           RuleStatus.REMOVED.toString())));
 
-    if (!StringUtils.isEmpty(query.getInternalKey())) {
+    if (StringUtils.isNotEmpty(query.getInternalKey())) {
       filters.put(FIELD_RULE_INTERNAL_KEY,
         FilterBuilders.termFilter(FIELD_RULE_INTERNAL_KEY, query.getInternalKey()));
     }
 
-    if (!StringUtils.isEmpty(query.getRuleKey())) {
+    if (StringUtils.isNotEmpty(query.getRuleKey())) {
       filters.put(FIELD_RULE_RULE_KEY,
         FilterBuilders.termFilter(FIELD_RULE_RULE_KEY, query.getRuleKey()));
     }
 
-    if (!CollectionUtils.isEmpty(query.getLanguages())) {
+    if (isNotEmpty(query.getLanguages())) {
       filters.put(FIELD_RULE_LANGUAGE,
         FilterBuilders.termsFilter(FIELD_RULE_LANGUAGE, query.getLanguages()));
     }
 
-    if (!CollectionUtils.isEmpty(query.getRepositories())) {
+    if (isNotEmpty(query.getRepositories())) {
       filters.put(FIELD_RULE_REPOSITORY,
         FilterBuilders.termsFilter(FIELD_RULE_REPOSITORY, query.getRepositories()));
     }
 
-    if (!CollectionUtils.isEmpty(query.getSeverities())) {
+    if (isNotEmpty(query.getSeverities())) {
       filters.put(FIELD_RULE_SEVERITY,
         FilterBuilders.termsFilter(FIELD_RULE_SEVERITY, query.getSeverities()));
     }
 
-    if (!StringUtils.isEmpty(query.getKey())) {
+    if (StringUtils.isNotEmpty(query.getKey())) {
       filters.put(FIELD_RULE_KEY,
         FilterBuilders.termFilter(FIELD_RULE_KEY, query.getKey()));
     }
 
-    if (!CollectionUtils.isEmpty(query.getTags())) {
+    if (isNotEmpty(query.getTags())) {
       filters.put(FIELD_RULE_ALL_TAGS,
         FilterBuilders.termsFilter(FIELD_RULE_ALL_TAGS, query.getTags()));
     }
 
-    if (!CollectionUtils.isEmpty(query.getTypes())) {
+    if (isNotEmpty(query.getTypes())) {
       filters.put(FIELD_RULE_TYPE,
         FilterBuilders.termsFilter(FIELD_RULE_TYPE, query.getTypes()));
     }
@@ -264,10 +263,9 @@ public class RuleIndex extends BaseIndex {
         .gte(query.getAvailableSinceLong()));
     }
 
-    Collection<RuleStatus> statusValues = query.getStatuses();
-    if (statusValues != null && !statusValues.isEmpty()) {
+    if (isNotEmpty(query.getStatuses())) {
       Collection<String> stringStatus = new ArrayList<>();
-      for (RuleStatus status : statusValues) {
+      for (RuleStatus status : query.getStatuses()) {
         stringStatus.add(status.name());
       }
       filters.put(FIELD_RULE_STATUS,
@@ -316,7 +314,7 @@ public class RuleIndex extends BaseIndex {
   }
 
   private static BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable Collection<String> values) {
-    if (values != null && !values.isEmpty()) {
+    if (isNotEmpty(values)) {
       BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
       for (String value : values) {
         FilterBuilder valueFilter = FilterBuilders.termFilter(field, value);
@@ -328,7 +326,7 @@ public class RuleIndex extends BaseIndex {
   }
 
   private static BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable String value) {
-    if (value != null && !value.isEmpty()) {
+    if (StringUtils.isNotEmpty(value)) {
       filter.must(FilterBuilders.termFilter(field, value));
     }
     return filter;
@@ -445,7 +443,7 @@ public class RuleIndex extends BaseIndex {
         sort.order(SortOrder.DESC);
       }
       esSearch.addSort(sort);
-    } else if (queryText != null && !queryText.isEmpty()) {
+    } else if (StringUtils.isNotEmpty(queryText)) {
       esSearch.addSort(SortBuilders.scoreSort());
     } else {
       esSearch.addSort(appendSortSuffixIfNeeded(FIELD_RULE_UPDATED_AT), SortOrder.DESC);
@@ -505,8 +503,8 @@ public class RuleIndex extends BaseIndex {
     public RuleKey apply(@Nonnull String input) {
       return RuleKey.parse(input);
     }
-  }
 
+  }
   private enum RuleStatusToString implements Function<RuleStatus, String> {
     INSTANCE;
 
@@ -514,8 +512,8 @@ public class RuleIndex extends BaseIndex {
     public String apply(@Nonnull RuleStatus input) {
       return input.toString();
     }
-  }
 
+  }
   private enum NotRemoved implements Predicate<String> {
     INSTANCE;
 
@@ -523,6 +521,11 @@ public class RuleIndex extends BaseIndex {
     public boolean apply(@Nonnull String input) {
       return !RuleStatus.REMOVED.toString().equals(input);
     }
+
+  }
+
+  private static boolean isNotEmpty(@Nullable Collection list) {
+    return list != null && !list.isEmpty();
   }
 
 }

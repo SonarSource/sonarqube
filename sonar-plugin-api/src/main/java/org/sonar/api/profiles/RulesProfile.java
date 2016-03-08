@@ -19,14 +19,14 @@
  */
 package org.sonar.api.profiles;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
@@ -340,12 +340,7 @@ public class RulesProfile implements Cloneable {
     clone.setDefaultProfile(getDefaultProfile());
     clone.setParentName(getParentName());
     if (activeRules != null && !activeRules.isEmpty()) {
-      clone.setActiveRules(new ArrayList<ActiveRule>(CollectionUtils.collect(activeRules, new Transformer() {
-        @Override
-        public Object transform(Object input) {
-          return ((ActiveRule) input).clone();
-        }
-      })));
+      clone.setActiveRules(Lists.transform(activeRules, CloneFunction.INSTANCE));
     }
     return clone;
   }
@@ -373,6 +368,14 @@ public class RulesProfile implements Cloneable {
     @Override
     public boolean apply(ActiveRule input) {
       return input.getRule().equals(rule);
+    }
+  }
+
+  private enum CloneFunction implements Function<ActiveRule, ActiveRule> {
+    INSTANCE;
+    @Override
+    public ActiveRule apply(ActiveRule input) {
+      return (ActiveRule) input.clone();
     }
   }
 }

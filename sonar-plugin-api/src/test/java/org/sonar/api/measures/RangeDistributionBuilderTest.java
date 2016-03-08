@@ -43,10 +43,10 @@ public class RangeDistributionBuilderTest {
   public void buildIntegerDistribution() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     Measure measure = builder
-        .add(3.2)
-        .add(2.0)
-        .add(6.2)
-        .build();
+      .add(3.2)
+      .add(2.0)
+      .add(6.2)
+      .build();
 
     assertThat(measure.getData()).isEqualTo("0=0;2=2;4=1");
   }
@@ -55,10 +55,10 @@ public class RangeDistributionBuilderTest {
   public void buildDoubleDistribution() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Double[] {0.0, 2.0, 4.0});
     Measure measure = builder
-        .add(3.2)
-        .add(2.0)
-        .add(6.2)
-        .build();
+      .add(3.2)
+      .add(2.0)
+      .add(6.2)
+      .build();
 
     assertThat(measure.getData()).isEqualTo("0=0;2=2;4=1");
   }
@@ -67,10 +67,10 @@ public class RangeDistributionBuilderTest {
   public void valueLesserThanMinimumIsIgnored() {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     Measure measure = builder
-        .add(3.2)
-        .add(2.0)
-        .add(-3.0)
-        .build();
+      .add(3.2)
+      .add(2.0)
+      .add(-3.0)
+      .build();
 
     assertThat(measure.getData()).isEqualTo("0=0;2=2;4=0");
   }
@@ -83,9 +83,9 @@ public class RangeDistributionBuilderTest {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2});
     builder.clear();
     Measure measure = builder
-        .add(1)
-        .add(measureToAdd)
-        .build();
+      .add(1)
+      .add(measureToAdd)
+      .build();
 
     assertThat(measure.getData()).isEqualTo("0=4;2=5");
   }
@@ -98,9 +98,9 @@ public class RangeDistributionBuilderTest {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Integer[] {0, 2, 4});
     builder.clear();
     Measure measure = builder
-        .add(1)
-        .add(measureToAdd)
-        .build();
+      .add(1)
+      .add(measureToAdd)
+      .build();
 
     assertThat(measure).isNull();
   }
@@ -113,8 +113,8 @@ public class RangeDistributionBuilderTest {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, new Double[] {0.0, 2.0, 4.0});
     builder.clear();
     Measure measure = builder
-        .add(measureToAdd)
-        .build();
+      .add(measureToAdd)
+      .build();
 
     assertThat(measure).isNull();
   }
@@ -130,9 +130,9 @@ public class RangeDistributionBuilderTest {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     builder.clear();
     Measure measure = builder
-        .add(m1)
-        .add(m2)
-        .build();
+      .add(m1)
+      .add(m2)
+      .build();
 
     assertThat(measure.getData()).isEqualTo("0.5=3;3.5=7;6.5=10");
   }
@@ -148,9 +148,9 @@ public class RangeDistributionBuilderTest {
     RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
     builder.clear();
     Measure measure = builder
-        .add(m1)
-        .add(m2)
-        .build();
+      .add(m1)
+      .add(m2)
+      .build();
 
     assertThat(measure.getData()).isEqualTo("0=3;3=7;6=10");
   }
