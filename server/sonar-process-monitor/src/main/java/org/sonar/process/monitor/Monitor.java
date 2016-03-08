@@ -26,13 +26,13 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.ProcessCommands;
+import org.sonar.process.ProcessUtils;
 import org.sonar.process.SystemExit;
 
 public class Monitor {
@@ -178,7 +178,7 @@ public class Monitor {
   public void awaitTermination() {
     while (awaitChildProcessesTermination()) {
       trace("await termination of restartor...");
-      awaitTermination(restartor);
+      ProcessUtils.awaitTermination(restartor);
     }
     cleanAfterTermination();
   }
@@ -188,7 +188,7 @@ public class Monitor {
     trace("finished waiting, restartRequested={}", restartRequested);
     if (restartRequested) {
       trace("awaitTermination restartor={}", restartor);
-      awaitTermination(restartor);
+      ProcessUtils.awaitTermination(restartor);
     }
     return restartRequested;
   }
@@ -197,7 +197,7 @@ public class Monitor {
     trace("await termination of child processes...");
     List<WatcherThread> watcherThreadsCopy = new ArrayList<>(this.watcherThreads);
     for (WatcherThread watcherThread : watcherThreadsCopy) {
-      awaitTermination(watcherThread);
+      ProcessUtils.awaitTermination(watcherThread);
     }
     trace("all child processes done");
     return hasRestartBeenRequested(watcherThreadsCopy);
@@ -221,7 +221,7 @@ public class Monitor {
     trace("start hard stop async...");
     stopAsync(State.HARD_STOPPING);
     trace("await termination of terminator...");
-    awaitTermination(terminator);
+    ProcessUtils.awaitTermination(terminator);
     cleanAfterTermination();
     trace("exit...");
     systemExit.exit(0);
@@ -232,7 +232,7 @@ public class Monitor {
     if (lifecycle.tryToMoveTo(State.STOPPED)) {
       trace("await termination of restartWatcher and hardStopWatcher...");
       // wait for restartWatcher and hardStopWatcher to cleanly stop
-      awaitTermination(restartWatcher, hardStopWatcher);
+      ProcessUtils.awaitTermination(restartWatcher, hardStopWatcher);
       trace("restartWatcher done");
       // removing shutdown hook to avoid called stop() unnecessarily unless already in shutdownHook
       if (!systemExit.isInShutdownHook()) {
@@ -441,26 +441,6 @@ public class Monitor {
       trace("calling stop from MonitorShutdownHook...");
       // blocks until everything is corrected terminated
       stop();
-    }
-  }
-
-  private static void awaitTermination(Thread... threads) {
-    for (Thread thread : threads) {
-      awaitTermination(thread);
-    }
-  }
-
-  private static void awaitTermination(@Nullable Thread t) {
-    if (t == null || Thread.currentThread() == t) {
-      return;
-    }
-
-    while (t.isAlive()) {
-      try {
-        t.join();
-      } catch (InterruptedException e) {
-        // ignore and stop blocking
-      }
     }
   }
 
