@@ -18,6 +18,10 @@
   background-color: #fbf3d5;
 }
 
+.domain-measures {
+  line-height: 1.4;
+}
+
 .domain-measures > li > a {
   display: flex;
   justify-content: space-between;
@@ -61,6 +65,22 @@
   margin-top: 10px;
 }
 
+.measure-details-header {
+  position: relative;
+}
+
+.measure-details-see-also {
+  position: absolute;
+  top: 29px;
+  left: 10px;
+  width: 400px;
+  max-height: 450px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+  box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
+  overflow: auto;
+}
+
 .measure-details-metric,
 .measure-details-value {
   margin-left: 20px;
@@ -69,6 +89,15 @@
 
 .measure-details-metric {
   margin-bottom: 10px;
+}
+
+.measure-details-metric > a {
+  border: none;
+  color: #444;
+}
+
+.measure-details-metric > a:hover {
+  color: #236a97;
 }
 
 .measure-details-value {
@@ -135,10 +164,6 @@
 
 .measure-details-drilldown-mode > li > a.active .measure-tab-icon path {
   fill: #4b9fd5;
-}
-
-.measure-details-breadcrumbs {
-  margin-bottom: 10px;
 }
 
 .measure-details-components {

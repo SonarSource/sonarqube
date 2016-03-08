@@ -28,15 +28,16 @@ import { getMeasuresAndMeta } from '../../../api/measures';
 import { getLeakPeriod, getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 
 export default class MeasureDetails extends React.Component {
-  state = {};
+  state = {
+    metricSelectOpen: false
+  };
 
   componentWillMount () {
     const { metrics } = this.props;
     const { metricKey } = this.props.params;
+    const metric = metrics.find(metric => metric.key === metricKey);
 
-    this.metric = metrics.find(metric => metric.key === metricKey);
-
-    if (!this.metric) {
+    if (!metric) {
       const { router, component } = this.context;
 
       router.replace({
@@ -92,14 +93,22 @@ export default class MeasureDetails extends React.Component {
         this.setState({
           measure,
           secondaryMeasure,
-          periods: r.periods
+          periods: r.periods,
+          metricSelectOpen: false
         });
       }
     });
   }
 
+  handleMetricClick() {
+    this.setState({ metricSelectOpen: !this.state.metricSelectOpen });
+  }
+
   render () {
-    const { measure, secondaryMeasure, periods } = this.state;
+    const { metrics } = this.props;
+    const { metricKey } = this.props.params;
+    const { measure, secondaryMeasure, periods, metricSelectOpen } = this.state;
+    const metric = metrics.find(metric => metric.key === metricKey);
 
     if (!measure) {
       return <Spinner/>;
@@ -114,13 +123,15 @@ export default class MeasureDetails extends React.Component {
         <div className="measure-details">
           <MeasureDetailsHeader
               measure={measure}
-              metric={this.metric}
+              metric={metric}
               secondaryMeasure={secondaryMeasure}
-              leakPeriodLabel={leakPeriodLabel}/>
+              leakPeriodLabel={leakPeriodLabel}
+              metricSelectOpen={metricSelectOpen}
+              onMetricClick={this.handleMetricClick.bind(this)}/>
 
           {measure && (
               <MeasureDrilldown
-                  metric={this.metric}
+                  metric={metric}
                   tab={tab}
                   leakPeriodDate={leakPeriodDate}>
                 {this.props.children}
