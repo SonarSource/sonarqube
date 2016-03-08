@@ -63,7 +63,7 @@ public class AppTest {
     ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
     verify(monitor).start(argument.capture());
 
-    assertThat(argument.getValue()).extracting("key").containsExactly("search", "web");
+    assertThat(argument.getValue()).extracting("key").containsExactly("search", "web", "ce");
   }
 
   @Test

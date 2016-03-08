@@ -56,6 +56,12 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-ce</artifactId>
+      <version>${project.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-scanner-engine-shaded</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
@@ -232,8 +238,8 @@
             <configuration>
               <rules>
                 <requireFilesSize>
-                  <minsize>105000000</minsize>
-                  <maxsize>125000000</maxsize>
+                  <minsize>110000000</minsize>
+                  <maxsize>120000000</maxsize>
                   <files>
                     <file>${project.build.directory}/sonarqube-${project.version}.zip</file>
                   </files>

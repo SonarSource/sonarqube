@@ -53,8 +53,20 @@ public class App implements Stoppable {
   }
 
   private static List<JavaCommand> createCommands(Props props) {
-    List<JavaCommand> commands = new ArrayList<>();
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
+    List<JavaCommand> commands = new ArrayList<>(3);
+    commands.add(createESCommand(props, homeDir));
+
+    // do not yet start WebServer nor CE on elasticsearch slaves
+    if (StringUtils.isBlank(props.value(ProcessProperties.CLUSTER_MASTER_HOST))) {
+      commands.add(createWebServerCommand(props, homeDir));
+      commands.add(createCeServerCommand(props, homeDir));
+    }
+
+    return commands;
+  }
+
+  private static JavaCommand createESCommand(Props props, File homeDir) {
     JavaCommand elasticsearch = new JavaCommand("search");
     elasticsearch
       .setWorkDir(homeDir)
@@ -65,28 +77,41 @@ public class App implements Stoppable {
       .setArguments(props.rawProperties())
       .addClasspath("./lib/common/*")
       .addClasspath("./lib/search/*");
-    commands.add(elasticsearch);
+    return elasticsearch;
+  }
 
-    // do not yet start SQ on elasticsearch slaves
-    if (StringUtils.isBlank(props.value(ProcessProperties.CLUSTER_MASTER_HOST))) {
-      JavaCommand webServer = new JavaCommand("web")
-        .setWorkDir(homeDir)
-        .addJavaOptions(ProcessProperties.WEB_ENFORCED_JVM_ARGS)
-        .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_OPTS))
-        .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS))
-          // required for logback tomcat valve
-        .setEnvVariable(ProcessProperties.PATH_LOGS, props.nonNullValue(ProcessProperties.PATH_LOGS))
-        .setClassName("org.sonar.server.app.WebServer")
-        .setArguments(props.rawProperties())
-        .addClasspath("./lib/common/*")
-        .addClasspath("./lib/server/*");
-      String driverPath = props.value(ProcessProperties.JDBC_DRIVER_PATH);
-      if (driverPath != null) {
-        webServer.addClasspath(driverPath);
-      }
-      commands.add(webServer);
+  private static JavaCommand createWebServerCommand(Props props, File homeDir) {
+    JavaCommand webServer = new JavaCommand("web")
+      .setWorkDir(homeDir)
+      .addJavaOptions(ProcessProperties.WEB_ENFORCED_JVM_ARGS)
+      .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_OPTS))
+      .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS))
+      // required for logback tomcat valve
+      .setEnvVariable(ProcessProperties.PATH_LOGS, props.nonNullValue(ProcessProperties.PATH_LOGS))
+      .setClassName("org.sonar.server.app.WebServer")
+      .setArguments(props.rawProperties())
+      .addClasspath("./lib/common/*")
+      .addClasspath("./lib/server/*");
+    String driverPath = props.value(ProcessProperties.JDBC_DRIVER_PATH);
+    if (driverPath != null) {
+      webServer.addClasspath(driverPath);
     }
-    return commands;
+    return webServer;
+  }
+
+  private static JavaCommand createCeServerCommand(Props props, File homeDir) {
+    JavaCommand webServer = new JavaCommand("ce")
+      .setWorkDir(homeDir)
+      .setClassName("org.sonar.ce.app.CeServer")
+      .setArguments(props.rawProperties())
+      .addClasspath("./lib/common/*")
+      .addClasspath("./lib/server/*")
+      .addClasspath("./lib/ce/*");
+    String driverPath = props.value(ProcessProperties.JDBC_DRIVER_PATH);
+    if (driverPath != null) {
+      webServer.addClasspath(driverPath);
+    }
+    return webServer;
   }
 
   static String starPath(File homeDir, String relativePath) {

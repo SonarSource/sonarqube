@@ -23,6 +23,13 @@
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
     </dependency>
+
+    <!-- unit tests -->
+    <dependency>
+      <groupId>${project.groupId}</groupId>
+      <artifactId>sonar-testing-harness</artifactId>
+      <scope>test</scope>
+    </dependency>
   </dependencies>
 
   <build>

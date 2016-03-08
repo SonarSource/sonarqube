@@ -26,6 +26,7 @@ import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
 
 public class WebServer implements Monitored {
+  private static final String LOG_LEVEL_PROPERTY = "sonar.log.level";
 
   private final EmbeddedTomcat tomcat;
 
@@ -63,7 +64,7 @@ public class WebServer implements Monitored {
   public static void main(String[] args) throws Exception {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
-    new ServerProcessLogging().configure(props);
+    new ServerProcessLogging("web", LOG_LEVEL_PROPERTY).configure(props);
     WebServer server = new WebServer(props);
     entryPoint.launch(server);
   }

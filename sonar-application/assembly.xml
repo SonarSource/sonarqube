@@ -68,6 +68,16 @@
       <scope>provided</scope>
     </dependencySet>
 
+    <dependencySet>
+      <outputDirectory>lib/ce</outputDirectory>
+      <useProjectArtifact>false</useProjectArtifact>
+      <useTransitiveDependencies>false</useTransitiveDependencies>
+      <useTransitiveFiltering>false</useTransitiveFiltering>
+      <includes>
+        <include>org.sonarsource.sonarqube:sonar-ce</include>
+      </includes>
+      <scope>provided</scope>
+    </dependencySet>
 
     <dependencySet>
       <outputDirectory>lib/batch</outputDirectory>
