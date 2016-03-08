@@ -105,7 +105,7 @@ class ClassLoaderUtils {
           rootDirectory = StringUtils.substringBeforeLast(rootPath, "/");
         }
         //strip out only the JAR file
-        jarPath = root.getPath().substring(5, root.getPath().indexOf("!"));
+        jarPath = root.getPath().substring(5, root.getPath().indexOf('!'));
         jar = new JarFile(URLDecoder.decode(jarPath, CharEncoding.UTF_8));
         Enumeration<JarEntry> entries = jar.entries();
         while (entries.hasMoreElements()) {

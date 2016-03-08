@@ -100,7 +100,7 @@ public final class Display {
 
     private void validateBackgroundColor() {
       checkArgument(isNotBlank(backgroundColor), "Background color must not be blank");
-      checkArgument(backgroundColor.length() == 7 && backgroundColor.startsWith("#"),
+      checkArgument(backgroundColor.length() == 7 && backgroundColor.indexOf('#') == 0,
         "Background color must begin with a sharp followed by 6 characters");
     }
   }

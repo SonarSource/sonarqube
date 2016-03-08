@@ -356,25 +356,25 @@ public class RuleIndex extends BaseIndex {
       Collection<String> languages = query.getLanguages();
       aggregations.put(FACET_LANGUAGES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_LANGUAGE, FACET_LANGUAGES,
-          (languages == null) ? new String[0] : languages.toArray()));
+          (languages == null) ? (new String[0]) : languages.toArray()));
     }
     if (options.getFacets().contains(FACET_TAGS) || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> tags = query.getTags();
       aggregations.put(FACET_TAGS,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_ALL_TAGS, FACET_TAGS,
-          (tags == null) ? new String[0] : tags.toArray()));
+          (tags == null) ? (new String[0]) : tags.toArray()));
     }
     if (options.getFacets().contains(FACET_TYPES)) {
       Collection<RuleType> types = query.getTypes();
       aggregations.put(FACET_TYPES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_TYPE, FACET_TYPES,
-          (types == null) ? new String[0] : types.toArray()));
+          (types == null) ? (new String[0]) : types.toArray()));
     }
     if (options.getFacets().contains("repositories") || options.getFacets().contains(FACET_OLD_DEFAULT)) {
       Collection<String> repositories = query.getRepositories();
       aggregations.put(FACET_REPOSITORIES,
         stickyFacetBuilder.buildStickyFacet(FIELD_RULE_REPOSITORY, FACET_REPOSITORIES,
-          (repositories == null) ? new String[0] : repositories.toArray()));
+          (repositories == null) ? (new String[0]) : repositories.toArray()));
     }
   }
 

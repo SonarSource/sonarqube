@@ -82,7 +82,7 @@ public class PermissionFinder {
     }
   }
 
-  private List<GroupWithPermissionDto> toGroupQueryResult(List<GroupWithPermissionDto> dtos, PermissionQuery query) {
+  private static List<GroupWithPermissionDto> toGroupQueryResult(List<GroupWithPermissionDto> dtos, PermissionQuery query) {
     addAnyoneGroup(dtos, query);
     List<GroupWithPermissionDto> filteredDtos = filterMembership(dtos, query);
 

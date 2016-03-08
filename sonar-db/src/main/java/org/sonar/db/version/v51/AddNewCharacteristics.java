@@ -117,7 +117,7 @@ public class AddNewCharacteristics extends BaseDataChange {
     return usabilityOder;
   }
 
-  private void createOrUpdateUsabilityCharacteristicAndItsSubCharacteristic(CharacteristicsContext characteristicsContext, int newUsabilityOrder)
+  private static void createOrUpdateUsabilityCharacteristicAndItsSubCharacteristic(CharacteristicsContext characteristicsContext, int newUsabilityOrder)
     throws SQLException {
     String usabilityKey = USABILITY_KEY;
     Characteristic usability = characteristicsContext.findCharacteristicByKey(usabilityKey);

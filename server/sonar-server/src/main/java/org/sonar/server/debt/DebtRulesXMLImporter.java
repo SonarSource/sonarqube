@@ -103,7 +103,7 @@ public class DebtRulesXMLImporter {
     return new SMInputFactory(xmlFactory);
   }
 
-  private void process(List<RuleDebt> ruleDebts,
+  private static void process(List<RuleDebt> ruleDebts,
     ValidationMessages validationMessages, SMInputCursor chcCursor) throws XMLStreamException {
     SMInputCursor cursor = chcCursor.childElementCursor();
     while (cursor.getNext() != null) {

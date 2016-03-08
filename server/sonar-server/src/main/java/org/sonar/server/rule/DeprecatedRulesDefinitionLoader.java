@@ -110,7 +110,7 @@ public class DeprecatedRulesDefinitionLoader {
     }
   }
 
-  private void updateRuleDebtDefinitions(RulesDefinition.NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
+  private static void updateRuleDebtDefinitions(RulesDefinition.NewRule newRule, String repoKey, String ruleKey, List<RuleDebt> ruleDebts) {
     RuleDebt ruleDebt = findRequirement(ruleDebts, repoKey, ruleKey);
     if (ruleDebt != null) {
       newRule.setDebtRemediationFunction(remediationFunction(DebtRemediationFunction.Type.valueOf(ruleDebt.function()),

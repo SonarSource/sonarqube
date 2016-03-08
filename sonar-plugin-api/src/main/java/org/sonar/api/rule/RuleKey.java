@@ -56,7 +56,7 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
    * if the format is not valid.
    */
   public static RuleKey parse(String s) {
-    int semiColonPos = s.indexOf(":");
+    int semiColonPos = s.indexOf(':');
     Preconditions.checkArgument(semiColonPos > 0, "Invalid rule key: " + s);
     String key = s.substring(0, semiColonPos);
     String repo = s.substring(semiColonPos + 1);
