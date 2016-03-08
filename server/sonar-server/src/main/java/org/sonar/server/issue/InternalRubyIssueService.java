@@ -40,8 +40,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.ActionPlanStats;
 import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.core.issue.FieldDiffs;
-import org.sonar.server.issue.workflow.Transition;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 import org.sonar.db.component.ResourceQuery;
@@ -50,6 +48,7 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
+import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.search.QueryContext;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
@@ -127,10 +126,6 @@ public class InternalRubyIssueService {
 
   public IssueChangelog changelog(Issue issue) {
     return changelogService.changelog(issue);
-  }
-
-  public List<String> formatChangelog(FieldDiffs diffs) {
-    return changelogService.formatDiffs(diffs);
   }
 
   public List<DefaultIssueComment> findComments(String issueKey) {

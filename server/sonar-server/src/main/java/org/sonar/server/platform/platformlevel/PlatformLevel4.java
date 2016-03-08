@@ -31,10 +31,6 @@ import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.core.component.DefaultResourceTypes;
-import org.sonar.server.issue.SetTypeAction;
-import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.workflow.FunctionExecutor;
-import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.DeprecatedUserFinder;
@@ -116,15 +112,16 @@ import org.sonar.server.issue.AssignAction;
 import org.sonar.server.issue.CommentAction;
 import org.sonar.server.issue.InternalRubyIssueService;
 import org.sonar.server.issue.IssueBulkChangeService;
-import org.sonar.server.issue.IssueChangelogFormatter;
 import org.sonar.server.issue.IssueChangelogService;
 import org.sonar.server.issue.IssueCommentService;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
+import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.PlanAction;
 import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.SetSeverityAction;
+import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.actionplan.ActionPlanWs;
@@ -140,6 +137,8 @@ import org.sonar.server.issue.notification.MyNewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
 import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
 import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
+import org.sonar.server.issue.workflow.FunctionExecutor;
+import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.ws.IssueWsModule;
 import org.sonar.server.language.ws.LanguageWs;
 import org.sonar.server.measure.MeasureFilterEngine;
@@ -586,7 +585,6 @@ public class PlatformLevel4 extends PlatformLevel {
       ActionService.class,
       Actions.class,
       IssueBulkChangeService.class,
-      IssueChangelogFormatter.class,
       WsResponseCommonFormat.class,
       IssueWsModule.class,
       IssueService.class,

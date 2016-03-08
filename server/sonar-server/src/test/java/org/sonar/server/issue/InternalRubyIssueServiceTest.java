@@ -646,13 +646,6 @@ public class InternalRubyIssueServiceTest {
   }
 
   @Test
-  public void format_changelog() {
-    FieldDiffs fieldDiffs = new FieldDiffs();
-    service.formatChangelog(fieldDiffs);
-    verify(changelogService).formatDiffs(eq(fieldDiffs));
-  }
-
-  @Test
   public void max_query_size() {
     assertThat(service.maxPageSize()).isEqualTo(500);
   }
