@@ -23,7 +23,9 @@ import javax.annotation.CheckForNull;
 
 /**
  * @since 4.3
+ * @deprecated since 5.1 debt model will soon be unavailable on batch side
  */
+@Deprecated
 public interface DebtCharacteristic {
   String key();
 

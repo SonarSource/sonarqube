@@ -38,8 +38,7 @@ import static org.hamcrest.CoreMatchers.notNullValue;
  *
  * TODO must have syntax highlighting
  * TODO must have duplications
- * TODO must have issues with SQALE characteristic and debt
- * TODO must have rules with characteristic
+ * TODO must have issues with debt
  * TODO must have tests
  * TODO must have coverage
  */
