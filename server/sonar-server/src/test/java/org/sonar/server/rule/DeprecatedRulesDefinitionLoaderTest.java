@@ -19,6 +19,9 @@
  */
 package org.sonar.server.rule;
 
+import java.io.Reader;
+import java.util.Arrays;
+import java.util.List;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -36,10 +39,6 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-
-import java.io.Reader;
-import java.util.Arrays;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -181,8 +180,8 @@ public class DeprecatedRulesDefinitionLoaderTest {
     assertThat(rule).isNotNull();
     assertThat(rule.key()).isEqualTo("ConstantName");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1d");
-    assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
+    assertThat(rule.debtRemediationFunction().gapMultiplier()).isEqualTo("1d");
+    assertThat(rule.debtRemediationFunction().baseEffort()).isEqualTo("10min");
   }
 
   @Test

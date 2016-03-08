@@ -19,11 +19,10 @@
  */
 package org.sonar.api.server.rule;
 
+import javax.annotation.Nullable;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.api.utils.MessageException;
-
-import javax.annotation.Nullable;
 
 /**
  * Factory of {@link org.sonar.api.server.debt.DebtRemediationFunction} that keeps
@@ -42,24 +41,24 @@ class DefaultDebtRemediationFunctions implements RulesDefinition.DebtRemediation
   }
 
   @Override
-  public DebtRemediationFunction linear(String coefficient) {
-    return create(DefaultDebtRemediationFunction.Type.LINEAR, coefficient, null);
+  public DebtRemediationFunction linear(String gapMultiplier) {
+    return create(DefaultDebtRemediationFunction.Type.LINEAR, gapMultiplier, null);
   }
 
   @Override
-  public DebtRemediationFunction linearWithOffset(String coefficient, String offset) {
-    return create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, coefficient, offset);
+  public DebtRemediationFunction linearWithOffset(String gapMultiplier, String baseEffort) {
+    return create(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET, gapMultiplier, baseEffort);
   }
 
   @Override
-  public DebtRemediationFunction constantPerIssue(String offset) {
-    return create(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE, null, offset);
+  public DebtRemediationFunction constantPerIssue(String baseEffort) {
+    return create(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE, null, baseEffort);
   }
 
   @Override
-  public DebtRemediationFunction create(DebtRemediationFunction.Type type, @Nullable String coefficient, @Nullable String offset) {
+  public DebtRemediationFunction create(DebtRemediationFunction.Type type, @Nullable String gapMultiplier, @Nullable String baseEffort) {
     try {
-      return new DefaultDebtRemediationFunction(type, coefficient, offset);
+      return new DefaultDebtRemediationFunction(type, gapMultiplier, baseEffort);
     } catch (Exception e) {
       throw MessageException.of(String.format("The rule '%s:%s' is invalid : %s ", this.repoKey, this.key, e.getMessage()));
     }

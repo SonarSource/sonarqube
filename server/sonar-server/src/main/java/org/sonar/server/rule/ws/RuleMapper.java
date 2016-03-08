@@ -23,11 +23,14 @@ package org.sonar.server.rule.ws;
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.server.debt.DebtRemediationFunction;
+import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.markdown.Markdown;
@@ -130,13 +133,13 @@ public class RuleMapper {
     if (shouldReturnField(fieldsToReturn, FIELD_DEFAULT_DEBT_REM_FUNCTION)) {
       DebtRemediationFunction defaultDebtRemediationFunction = defaultDebtRemediationFunction(ruleDto);
       if (defaultDebtRemediationFunction != null) {
-        String gapMultiplier = defaultDebtRemediationFunction.coefficient();
+        String gapMultiplier = defaultDebtRemediationFunction.gapMultiplier();
         if (gapMultiplier != null) {
           ruleResponse.setDefaultRemFnGapMultiplier(gapMultiplier);
           // Set deprecated field
           ruleResponse.setDefaultDebtRemFnCoeff(gapMultiplier);
         }
-        String baseEffort = defaultDebtRemediationFunction.offset();
+        String baseEffort = defaultDebtRemediationFunction.baseEffort();
         if (baseEffort != null) {
           ruleResponse.setDefaultRemFnBaseEffort(baseEffort);
           // Set deprecated field
@@ -160,13 +163,13 @@ public class RuleMapper {
           // Set deprecated field
           ruleResponse.setDebtRemFnType(debtRemediationFunction.type().name());
         }
-        String gapMultiplier = debtRemediationFunction.coefficient();
+        String gapMultiplier = debtRemediationFunction.gapMultiplier();
         if (gapMultiplier != null) {
           ruleResponse.setRemFnGapMultiplier(gapMultiplier);
           // Set deprecated field
           ruleResponse.setDebtRemFnCoeff(gapMultiplier);
         }
-        String baseEffort = debtRemediationFunction.offset();
+        String baseEffort = debtRemediationFunction.baseEffort();
         if (baseEffort != null) {
           ruleResponse.setRemFnBaseEffort(baseEffort);
           // Set deprecated field
@@ -298,51 +301,29 @@ public class RuleMapper {
     return rule.getRemediationFunction() != null;
   }
 
+  @CheckForNull
   private static DebtRemediationFunction defaultDebtRemediationFunction(final RuleDto ruleDto) {
     final String function = ruleDto.getDefaultRemediationFunction();
     if (function == null || function.isEmpty()) {
       return null;
     } else {
-      return new DebtRemediationFunction() {
-        @Override
-        public Type type() {
-          return Type.valueOf(function.toUpperCase());
-        }
-
-        @Override
-        public String coefficient() {
-          return ruleDto.getDefaultRemediationGapMultiplier();
-        }
-
-        @Override
-        public String offset() {
-          return ruleDto.getDefaultRemediationBaseEffort();
-        }
-      };
+      return new DefaultDebtRemediationFunction(
+        DebtRemediationFunction.Type.valueOf(function.toUpperCase(Locale.ENGLISH)),
+        ruleDto.getDefaultRemediationGapMultiplier(),
+        ruleDto.getDefaultRemediationBaseEffort());
     }
   }
 
+  @CheckForNull
   private static DebtRemediationFunction debtRemediationFunction(final RuleDto ruleDto) {
     final String function = ruleDto.getRemediationFunction();
     if (function == null || function.isEmpty()) {
       return defaultDebtRemediationFunction(ruleDto);
     } else {
-      return new DebtRemediationFunction() {
-        @Override
-        public Type type() {
-          return Type.valueOf(function.toUpperCase());
-        }
-
-        @Override
-        public String coefficient() {
-          return ruleDto.getRemediationGapMultiplier();
-        }
-
-        @Override
-        public String offset() {
-          return ruleDto.getRemediationBaseEffort();
-        }
-      };
+      return new DefaultDebtRemediationFunction(
+        DebtRemediationFunction.Type.valueOf(function.toUpperCase(Locale.ENGLISH)),
+        ruleDto.getRemediationGapMultiplier(),
+        ruleDto.getRemediationBaseEffort());
     }
   }
 

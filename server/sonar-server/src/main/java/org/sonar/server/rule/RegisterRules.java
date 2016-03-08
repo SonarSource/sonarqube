@@ -176,7 +176,7 @@ public class RegisterRules implements Startable {
       .setName(ruleDef.name())
       .setSeverity(ruleDef.severity())
       .setStatus(ruleDef.status())
-      .setGapDescription(ruleDef.effortToFixDescription())
+      .setGapDescription(ruleDef.gapDescription())
       .setSystemTags(ruleDef.tags())
       .setType(RuleType.valueOf(ruleDef.type().name()))
       .setCreatedAt(system2.now())
@@ -257,9 +257,9 @@ public class RegisterRules implements Startable {
     if (hasDebt) {
       return mergeDebtDefinitions(dto,
         debtRemediationFunction.type().name(),
-        debtRemediationFunction.coefficient(),
-        debtRemediationFunction.offset(),
-        def.effortToFixDescription());
+        debtRemediationFunction.gapMultiplier(),
+        debtRemediationFunction.baseEffort(),
+        def.gapDescription());
     }
     return mergeDebtDefinitions(dto, null, null, null, null);
   }

@@ -63,7 +63,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setHtmlDescription("An issue is created on a file as soon as the branch coverage on this file is less than the required threshold."
         + "It gives the number of branches to be covered in order to reach the required threshold.")
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("5min"))
-      .setEffortToFixDescription("number of uncovered conditions")
+      .setGapDescription("number of uncovered conditions")
       .setSeverity(Severity.MAJOR);
     rule.createParam(CommonRuleKeys.INSUFFICIENT_BRANCH_COVERAGE_PROPERTY)
       .setName("The minimum required branch coverage ratio")
@@ -78,7 +78,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setHtmlDescription("An issue is created on a file as soon as the line coverage on this file is less than the required threshold. " +
         "It gives the number of lines to be covered in order to reach the required threshold.")
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("2min"))
-      .setEffortToFixDescription("number of lines under the coverage threshold")
+      .setGapDescription("number of lines under the coverage threshold")
       .setSeverity(Severity.MAJOR);
     rule.createParam(CommonRuleKeys.INSUFFICIENT_LINE_COVERAGE_PROPERTY)
       .setName("The minimum required line coverage ratio")
@@ -93,7 +93,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setHtmlDescription("An issue is created on a file as soon as the density of comment lines on this file is less than the required threshold. " +
         "The number of comment lines to be written in order to reach the required threshold is provided by each issue message.")
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("2min"))
-      .setEffortToFixDescription("number of lines required to meet minimum density")
+      .setGapDescription("number of lines required to meet minimum density")
       .setSeverity(Severity.MAJOR);
     rule.createParam(CommonRuleKeys.INSUFFICIENT_COMMENT_DENSITY_PROPERTY)
       .setName("The minimum required comment density")
@@ -107,7 +107,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .addTags("pitfall")
       .setHtmlDescription("An issue is created on a file as soon as there is at least one block of duplicated code on this file")
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset("10min", "10min"))
-      .setEffortToFixDescription("number of duplicate blocks")
+      .setGapDescription("number of duplicate blocks")
       .setSeverity(Severity.MAJOR);
   }
 
@@ -119,7 +119,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .setHtmlDescription(
         "Test failures or errors generally indicate that regressions have been introduced. Those tests should be handled as soon as possible to reduce the cost to fix the corresponding regressions.")
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("10min"))
-      .setEffortToFixDescription("number of failed tests")
+      .setGapDescription("number of failed tests")
       .setSeverity(Severity.MAJOR);
   }
 
@@ -129,7 +129,7 @@ public class CommonRuleDefinitionsImpl implements CommonRuleDefinitions {
       .addTags("pitfall")
       .setHtmlDescription("Skipped unit tests are considered as dead code. Either they should be activated again (and updated) or they should be removed.")
       .setDebtRemediationFunction(rule.debtRemediationFunctions().linear("10min"))
-      .setEffortToFixDescription("number of skipped tests")
+      .setGapDescription("number of skipped tests")
       .setSeverity(Severity.MAJOR);
   }
 }

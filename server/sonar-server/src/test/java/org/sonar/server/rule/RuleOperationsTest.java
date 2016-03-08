@@ -208,7 +208,7 @@ public class RuleOperationsTest {
         authorizedUserSession
       );
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Invalid coefficient: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
+      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Invalid gap multiplier: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
     }
 
     verify(ruleDao, never()).update(eq(session), any(RuleDto.class));

@@ -46,14 +46,16 @@ public class DebtCalculator {
       verifyEffortToFix(issue, fn);
 
       Duration debt = Duration.create(0);
-      if (fn.type().usesCoefficient() && !Strings.isNullOrEmpty(fn.coefficient())) {
+      String gapMultiplier =fn.gapMultiplier();
+      if (fn.type().usesGapMultiplier() && !Strings.isNullOrEmpty(gapMultiplier)) {
         int effortToFixValue = Objects.firstNonNull(issue.effortToFix(), 1).intValue();
         // TODO convert to Duration directly in Rule#remediationFunction -> better performance + error handling
-        debt = durations.decode(fn.coefficient()).multiply(effortToFixValue);
+        debt = durations.decode(gapMultiplier).multiply(effortToFixValue);
       }
-      if (fn.type().usesOffset() && !Strings.isNullOrEmpty(fn.offset())) {
+      String baseEffort= fn.baseEffort();
+      if (fn.type().usesBaseEffort() && !Strings.isNullOrEmpty(baseEffort)) {
         // TODO convert to Duration directly in Rule#remediationFunction -> better performance + error handling
-        debt = debt.add(durations.decode(fn.offset()));
+        debt = debt.add(durations.decode(baseEffort));
       }
       return debt;
     }

@@ -31,32 +31,32 @@ public class DefaultDebtRemediationFunctionTest {
   public void create_linear() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "10h", null);
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.LINEAR);
-    assertThat(function.coefficient()).isEqualTo("10h");
-    assertThat(function.offset()).isNull();
+    assertThat(function.gapMultiplier()).isEqualTo("10h");
+    assertThat(function.baseEffort()).isNull();
   }
 
   @Test
   public void create_linear_with_offset() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min");
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(function.coefficient()).isEqualTo("10h");
-    assertThat(function.offset()).isEqualTo("5min");
+    assertThat(function.gapMultiplier()).isEqualTo("10h");
+    assertThat(function.baseEffort()).isEqualTo("5min");
   }
 
   @Test
   public void create_constant_per_issue() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, "10h");
     assertThat(function.type()).isEqualTo(DefaultDebtRemediationFunction.Type.CONSTANT_ISSUE);
-    assertThat(function.coefficient()).isNull();
-    assertThat(function.offset()).isEqualTo("10h");
+    assertThat(function.gapMultiplier()).isNull();
+    assertThat(function.baseEffort()).isEqualTo("10h");
   }
 
   @Test
   public void sanitize_remediation_coefficient_and_offset() {
     DebtRemediationFunction function = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "  1  h   ", "  10   min");
 
-    assertThat(function.coefficient()).isEqualTo("1h");
-    assertThat(function.offset()).isEqualTo("10min");
+    assertThat(function.gapMultiplier()).isEqualTo("1h");
+    assertThat(function.baseEffort()).isEqualTo("10min");
   }
 
   @Test
@@ -75,7 +75,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, null, "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Linear functions must only have a non empty coefficient");
+      assertThat(e).hasMessage("Linear functions must only have a non empty gap multiplier");
     }
   }
 
@@ -85,7 +85,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "5min", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Linear functions must only have a non empty coefficient");
+      assertThat(e).hasMessage("Linear functions must only have a non empty gap multiplier");
     }
   }
 
@@ -95,7 +95,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "10h", null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Constant/issue functions must only have a non empty offset");
+      assertThat(e).hasMessage("Constant/issue functions must only have a non empty base effort");
     }
   }
 
@@ -105,7 +105,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, "5min", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Constant/issue functions must only have a non empty offset");
+      assertThat(e).hasMessage("Constant/issue functions must only have a non empty base effort");
     }
   }
 
@@ -115,7 +115,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "", "10h");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Linear with offset functions must have both non null coefficient and offset");
+      assertThat(e).hasMessage("Linear with offset functions must have both non null gap multiplier and base effort");
     }
   }
 
@@ -125,7 +125,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "5min", "");
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Linear with offset functions must have both non null coefficient and offset");
+      assertThat(e).hasMessage("Linear with offset functions must have both non null gap multiplier and base effort");
     }
   }
 
@@ -152,7 +152,7 @@ public class DefaultDebtRemediationFunctionTest {
   @Test
   public void test_to_string() {
     assertThat(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET, "10h", "5min").toString())
-      .isEqualTo("DebtRemediationFunction{type=LINEAR_OFFSET, coefficient=10h, offset=5min}");
+      .isEqualTo("DebtRemediationFunction{type=LINEAR_OFFSET, gap multiplier=10h, base effort=5min}");
   }
 
   @Test
@@ -161,7 +161,7 @@ public class DefaultDebtRemediationFunctionTest {
       new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, "foo", null);
       fail();
     } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Invalid coefficient: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
+      assertThat(e).hasMessage("Invalid gap multiplier: foo (Duration 'foo' is invalid, it should use the following sample format : 2d 10h 15min)");
     }
 
   }

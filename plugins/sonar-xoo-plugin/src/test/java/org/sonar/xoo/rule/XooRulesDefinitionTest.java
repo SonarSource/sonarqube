@@ -47,9 +47,9 @@ public class XooRulesDefinitionTest {
     RulesDefinition.Rule rule = repo.rule(OneIssuePerLineSensor.RULE_KEY);
     assertThat(rule.name()).isNotEmpty();
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
-    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1min");
-    assertThat(rule.debtRemediationFunction().offset()).isNull();
-    assertThat(rule.effortToFixDescription()).isNotEmpty();
+    assertThat(rule.debtRemediationFunction().gapMultiplier()).isEqualTo("1min");
+    assertThat(rule.debtRemediationFunction().baseEffort()).isNull();
+    assertThat(rule.gapDescription()).isNotEmpty();
   }
 
   @Test

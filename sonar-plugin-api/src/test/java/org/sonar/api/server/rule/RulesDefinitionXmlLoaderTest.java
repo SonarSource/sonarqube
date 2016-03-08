@@ -139,18 +139,18 @@ public class RulesDefinitionXmlLoaderTest {
       "    <name>One</name>" +
       "    <description>Desc</description>" +
 
-      "    <effortToFixDescription>lines</effortToFixDescription>" +
-      "    <debtRemediationFunction>LINEAR</debtRemediationFunction>" +
-      "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
+      "    <gapDescription>lines</gapDescription>" +
+      "    <remediationFunction>LINEAR</remediationFunction>" +
+      "    <remediationFunctionGapMultiplier>2d 3h</remediationFunctionGapMultiplier>" +
       "  </rule>" +
       "</rules>";
     RulesDefinition.Rule rule = load(xml).rule("1");
-    assertThat(rule.effortToFixDescription()).isEqualTo("lines");
+    assertThat(rule.gapDescription()).isEqualTo("lines");
     DebtRemediationFunction function = rule.debtRemediationFunction();
     assertThat(function).isNotNull();
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR);
-    assertThat(function.coefficient()).isEqualTo("2d3h");
-    assertThat(function.offset()).isNull();
+    assertThat(function.gapMultiplier()).isEqualTo("2d3h");
+    assertThat(function.baseEffort()).isNull();
   }
 
   @Test
@@ -163,18 +163,18 @@ public class RulesDefinitionXmlLoaderTest {
       "    <description>Desc</description>" +
 
       "    <effortToFixDescription>lines</effortToFixDescription>" +
-      "    <debtRemediationFunction>LINEAR_OFFSET</debtRemediationFunction>" +
-      "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
-      "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
+      "    <remediationFunction>LINEAR_OFFSET</remediationFunction>" +
+      "    <remediationFunctionGapMultiplier>2d 3h</remediationFunctionGapMultiplier>" +
+      "    <remediationFunctionBaseEffort>5min</remediationFunctionBaseEffort>" +
       "  </rule>" +
       "</rules>";
     RulesDefinition.Rule rule = load(xml).rule("1");
-    assertThat(rule.effortToFixDescription()).isEqualTo("lines");
+    assertThat(rule.gapDescription()).isEqualTo("lines");
     DebtRemediationFunction function = rule.debtRemediationFunction();
     assertThat(function).isNotNull();
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(function.coefficient()).isEqualTo("2d3h");
-    assertThat(function.offset()).isEqualTo("5min");
+    assertThat(function.gapMultiplier()).isEqualTo("2d3h");
+    assertThat(function.baseEffort()).isEqualTo("5min");
   }
 
   @Test
@@ -185,16 +185,16 @@ public class RulesDefinitionXmlLoaderTest {
       "    <key>1</key>" +
       "    <name>One</name>" +
       "    <description>Desc</description>" +
-      "    <debtRemediationFunction>CONSTANT_ISSUE</debtRemediationFunction>" +
-      "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
+      "    <remediationFunction>CONSTANT_ISSUE</remediationFunction>" +
+      "    <remediationFunctionBaseEffort>5min</remediationFunctionBaseEffort>" +
       "  </rule>" +
       "</rules>";
     RulesDefinition.Rule rule = load(xml).rule("1");
     DebtRemediationFunction function = rule.debtRemediationFunction();
     assertThat(function).isNotNull();
     assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.CONSTANT_ISSUE);
-    assertThat(function.coefficient()).isNull();
-    assertThat(function.offset()).isEqualTo("5min");
+    assertThat(function.gapMultiplier()).isNull();
+    assertThat(function.baseEffort()).isEqualTo("5min");
   }
 
   @Test
@@ -206,7 +206,7 @@ public class RulesDefinitionXmlLoaderTest {
         "    <key>1</key>" +
         "    <name>One</name>" +
         "    <description>Desc</description>" +
-        "    <debtRemediationFunction>UNKNOWN</debtRemediationFunction>" +
+        "    <remediationFunction>UNKNOWN</remediationFunction>" +
         "  </rule>" +
         "</rules>");
       fail();
@@ -226,9 +226,9 @@ public class RulesDefinitionXmlLoaderTest {
       "    <description>Desc</description>" +
       "    <effortToFixDescription>lines</effortToFixDescription>" +
       "    <debtSubCharacteristic>BUG</debtSubCharacteristic>" +
-      "    <debtRemediationFunction>LINEAR_OFFSET</debtRemediationFunction>" +
-      "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
-      "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
+      "    <remediationFunction>LINEAR_OFFSET</remediationFunction>" +
+      "    <remediationFunctionGapMultiplier>2d 3h</remediationFunctionGapMultiplier>" +
+      "    <remediationFunctionBaseEffort>5min</remediationFunctionBaseEffort>" +
       "  </rule>" +
       "</rules>";
     RulesDefinition.Rule rule = load(xml).rule("1");
@@ -270,6 +270,29 @@ public class RulesDefinitionXmlLoaderTest {
       assertThat(e).hasMessageContaining("Fail to load the rule with key [squid:1]");
       assertThat(e.getCause()).hasMessageContaining("No enum constant org.sonar.api.server.rule.RulesDefinitionXmlLoader.DescriptionFormat.UNKNOWN");
     }
+  }
+
+  @Test
+  public void test_deprecated_remediation_function() {
+    String xml = "" +
+      "<rules>" +
+      "  <rule>" +
+      "    <key>1</key>" +
+      "    <name>One</name>" +
+      "    <description>Desc</description>" +
+      "    <effortToFixDescription>lines</effortToFixDescription>" +
+      "    <debtRemediationFunction>LINEAR_OFFSET</debtRemediationFunction>" +
+      "    <debtRemediationFunctionCoefficient>2d 3h</debtRemediationFunctionCoefficient>" +
+      "    <debtRemediationFunctionOffset>5min</debtRemediationFunctionOffset>" +
+      "  </rule>" +
+      "</rules>";
+    RulesDefinition.Rule rule = load(xml).rule("1");
+    assertThat(rule.gapDescription()).isEqualTo("lines");
+    DebtRemediationFunction function = rule.debtRemediationFunction();
+    assertThat(function).isNotNull();
+    assertThat(function.type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
+    assertThat(function.gapMultiplier()).isEqualTo("2d3h");
+    assertThat(function.baseEffort()).isEqualTo("5min");
   }
 
   private RulesDefinition.Repository load(InputStream input, String encoding) {

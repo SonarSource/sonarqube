@@ -196,8 +196,8 @@ public class RuleUpdater {
         context.rule.setRemediationBaseEffort(null);
       } else {
         context.rule.setRemediationFunction(function.type().name());
-        context.rule.setRemediationGapMultiplier(function.coefficient());
-        context.rule.setRemediationBaseEffort(function.offset());
+        context.rule.setRemediationGapMultiplier(function.gapMultiplier());
+        context.rule.setRemediationBaseEffort(function.baseEffort());
       }
     }
   }
@@ -220,8 +220,8 @@ public class RuleUpdater {
   private static boolean isSameAsDefaultFunction(DebtRemediationFunction fn, RuleDto rule) {
     return new EqualsBuilder()
       .append(fn.type().name(), rule.getDefaultRemediationFunction())
-      .append(fn.coefficient(), rule.getDefaultRemediationGapMultiplier())
-      .append(fn.offset(), rule.getDefaultRemediationBaseEffort())
+      .append(fn.gapMultiplier(), rule.getDefaultRemediationGapMultiplier())
+      .append(fn.baseEffort(), rule.getDefaultRemediationBaseEffort())
       .isEquals();
   }
 

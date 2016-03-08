@@ -287,7 +287,7 @@ public class RegisterRulesMediumTest {
           .setInternalKey("new_internal");
         rule
           .setDebtRemediationFunction(rule.debtRemediationFunctions().linearWithOffset("1h", "30min"))
-          .setEffortToFixDescription("Effort");
+          .setGapDescription("Effort");
       }
     });
 

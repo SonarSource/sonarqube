@@ -625,33 +625,33 @@ public interface RulesDefinition {
   interface DebtRemediationFunctions {
 
     /**
-     * Shortcut for {@code create(Type.LINEAR, coefficient, null)}.
-     * @param coefficient the duration to fix one issue. See {@link DebtRemediationFunction} for details about format.
+     * Shortcut for {@code create(Type.LINEAR, gap multiplier, null)}.
+     * @param gapMultiplier the duration to fix one issue. See {@link DebtRemediationFunction} for details about format.
      * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#LINEAR
      */
-    DebtRemediationFunction linear(String coefficient);
+    DebtRemediationFunction linear(String gapMultiplier);
 
     /**
-     * Shortcut for {@code create(Type.LINEAR_OFFSET, coefficient, offset)}.
-     * @param coefficient duration to fix one point of complexity. See {@link DebtRemediationFunction} for details and format.
-     * @param offset duration to make basic analysis. See {@link DebtRemediationFunction} for details and format.
+     * Shortcut for {@code create(Type.LINEAR_OFFSET, gap multiplier, base effort)}.
+     * @param gapMultiplier duration to fix one point of complexity. See {@link DebtRemediationFunction} for details and format.
+     * @param baseEffort duration to make basic analysis. See {@link DebtRemediationFunction} for details and format.
      * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#LINEAR_OFFSET
      */
-    DebtRemediationFunction linearWithOffset(String coefficient, String offset);
+    DebtRemediationFunction linearWithOffset(String gapMultiplier, String baseEffort);
 
     /**
-     * Shortcut for {@code create(Type.CONSTANT_ISSUE, null, constant)}.
-     * @param constant cost per issue. See {@link DebtRemediationFunction} for details and format.
+     * Shortcut for {@code create(Type.CONSTANT_ISSUE, null, base effort)}.
+     * @param baseEffort cost per issue. See {@link DebtRemediationFunction} for details and format.
      * @see org.sonar.api.server.debt.DebtRemediationFunction.Type#CONSTANT_ISSUE
      */
-    DebtRemediationFunction constantPerIssue(String constant);
+    DebtRemediationFunction constantPerIssue(String baseEffort);
 
     /**
      * Flexible way to create a {@link DebtRemediationFunction}. An unchecked exception is thrown if
      * coefficient and/or offset are not valid according to the given @{code type}.
      * @since 5.3
      */
-    DebtRemediationFunction create(DebtRemediationFunction.Type type, @Nullable String coefficient, @Nullable String offset);
+    DebtRemediationFunction create(DebtRemediationFunction.Type type, @Nullable String gapMultiplier, @Nullable String baseEffort);
   }
 
   class NewRule {
@@ -666,7 +666,7 @@ public interface RulesDefinition {
     private boolean template;
     private RuleStatus status = RuleStatus.defaultStatus();
     private DebtRemediationFunction debtRemediationFunction;
-    private String effortToFixDescription;
+    private String gapDescription;
     private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
     private final DebtRemediationFunctions functions;
@@ -811,16 +811,24 @@ public interface RulesDefinition {
     }
 
     /**
+     * @deprecated since 5.5, replaced by {@link #setGapDescription(String)}
+     */
+    @Deprecated
+    public NewRule setEffortToFixDescription(@Nullable String s) {
+      return setGapDescription(s);
+    }
+
+    /**
      * For rules that use LINEAR or LINEAR_OFFSET remediation functions, the meaning
-     * of the function parameter (= "effort to fix") must be set. This description
-     * explains what 1 point of "effort to fix" represents for the rule.
+     * of the function parameter (= "gap") must be set. This description
+     * explains what 1 point of "gap" represents for the rule.
      * <p/>
      * Example: for the "Insufficient condition coverage", this description for the
-     * remediation function coefficient/offset would be something like
+     * remediation function gap multiplier/base effort would be something like
      * "Effort to test one uncovered condition".
      */
-    public NewRule setEffortToFixDescription(@Nullable String s) {
-      this.effortToFixDescription = s;
+    public NewRule setGapDescription(@Nullable String s) {
+      this.gapDescription = s;
       return this;
     }
 
@@ -901,7 +909,7 @@ public interface RulesDefinition {
     private final String severity;
     private final boolean template;
     private final DebtRemediationFunction debtRemediationFunction;
-    private final String effortToFixDescription;
+    private final String gapDescription;
     private final Set<String> tags;
     private final Map<String, Param> params;
     private final RuleStatus status;
@@ -918,7 +926,7 @@ public interface RulesDefinition {
       this.template = newRule.template;
       this.status = newRule.status;
       this.debtRemediationFunction = newRule.debtRemediationFunction;
-      this.effortToFixDescription = newRule.effortToFixDescription;
+      this.gapDescription = newRule.gapDescription;
       this.type = newRule.type == null ? RuleTagsToTypeConverter.convert(newRule.tags) : newRule.type;
       this.tags = ImmutableSortedSet.copyOf(Sets.difference(newRule.tags, RuleTagsToTypeConverter.RESERVED_TAGS));
       ImmutableMap.Builder<String, Param> paramsBuilder = ImmutableMap.builder();
@@ -986,9 +994,18 @@ public interface RulesDefinition {
       return debtRemediationFunction;
     }
 
+    /**
+     * @deprecated since 5.5, replaced by {@link #gapDescription()}
+     */
+    @Deprecated
     @CheckForNull
     public String effortToFixDescription() {
-      return effortToFixDescription;
+      return gapDescription();
+    }
+
+    @CheckForNull
+    public String gapDescription() {
+      return gapDescription;
     }
 
     @CheckForNull

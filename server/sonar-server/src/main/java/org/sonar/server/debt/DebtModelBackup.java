@@ -150,8 +150,8 @@ public class DebtModelBackup {
         boolean hasDebtDefinition = remediationFunction != null;
 
         rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
-        rule.setDefaultRemediationGapMultiplier(hasDebtDefinition ? remediationFunction.coefficient() : null);
-        rule.setDefaultRemediationBaseEffort(hasDebtDefinition ? remediationFunction.offset() : null);
+        rule.setDefaultRemediationGapMultiplier(hasDebtDefinition ? remediationFunction.gapMultiplier() : null);
+        rule.setDefaultRemediationBaseEffort(hasDebtDefinition ? remediationFunction.baseEffort() : null);
       }
 
       // Reset overridden debt definitions

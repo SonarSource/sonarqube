@@ -50,7 +50,7 @@ public class XooRulesDefinition implements RulesDefinition {
       .setHtmlDescription("Generate an issue on each line of a file. It requires the metric \"lines\".");
     oneIssuePerLine
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1min"))
-      .setEffortToFixDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
+      .setGapDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
 
     repo.done();
   }
@@ -80,7 +80,7 @@ public class XooRulesDefinition implements RulesDefinition {
       .setHtmlDescription("Generate an issue on each line of a file. It requires the metric \"lines\".");
     oneIssuePerLine
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("1min"))
-      .setEffortToFixDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
+      .setGapDescription("It takes about 1 minute to an experienced software craftsman to remove a line of code");
 
     repo.createRule(OneIssueOnDirPerFileSensor.RULE_KEY).setName("One Issue On Dir Per File")
       .setHtmlDescription("Generate issues on directories");
@@ -97,7 +97,7 @@ public class XooRulesDefinition implements RulesDefinition {
       .setHtmlDescription("Generate an issue on each module");
     oneIssuePerModule
       .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linearWithOffset("25min", "1h"))
-      .setEffortToFixDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
+      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
         "then it's about one hour per module.");
 
     repo.createRule(OneBlockerIssuePerFileSensor.RULE_KEY).setName("One Blocker Issue Per File")

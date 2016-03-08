@@ -121,32 +121,37 @@ import static org.apache.commons.lang.StringUtils.trim;
  *     &lt;param&gt;
  *       &lt;key&gt;another-param&lt;/key&gt;
  *     &lt;/param&gt;
- **
- *     &lt;!-- SQALE debt - type of debt remediation function --&gt;
+ *
+ *     &lt;!-- Quality Model - type of debt remediation function --&gt;
  *     &lt;!-- See enum {@link org.sonar.api.server.debt.DebtRemediationFunction.Type} for supported values --&gt;
- *     &lt;!-- Since 5.3 --&gt;
- *     &lt;debtRemediationFunction&gt;LINEAR_OFFSET&lt;/debtRemediationFunction&gt;
+ *     &lt;!-- It was previously named 'debtRemediationFunction' which is still supported but deprecated since 5.5 --&gt;
+ *     &lt;!-- Since 5.5 --&gt;
+ *     &lt;remediationFunction&gt;LINEAR_OFFSET&lt;/remediationFunction&gt;
  *
- *     &lt;!-- SQALE debt - raw description of the "effort to fix", used for some types of remediation functions. --&gt;
- *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.NewRule#setEffortToFixDescription(String)} --&gt;
- *     &lt;!-- Since 5.3 --&gt;
- *     &lt;effortToFixDescription&gt;Effort to test one uncovered condition&lt;/effortToFixDescription&gt;
+ *     &lt;!-- Quality Model - raw description of the "gap", used for some types of remediation functions. --&gt;
+ *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.NewRule#setGapDescription(String)} --&gt;
+ *     &lt;!-- It was previously named 'effortToFixDescription' which is still supported but deprecated since 5.5 --&gt;
+ *     &lt;!-- Since 5.5 --&gt;
+ *     &lt;gapDescription&gt;Effort to test one uncovered condition&lt;/gapFixDescription&gt;
  *
- *     &lt;!-- SQALE debt - coefficient of debt remediation function. Must be defined only for some function types. --&gt;
+ *     &lt;!-- Quality Model - gap multiplier of debt remediation function. Must be defined only for some function types. --&gt;
  *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.DebtRemediationFunctions} --&gt;
- *     &lt;!-- Since 5.3 --&gt;
- *     &lt;debtRemediationFunctionCoefficient&gt;10min&lt;/debtRemediationFunctionCoefficient&gt;
+ *     &lt;!-- It was previously named 'debtRemediationFunctionCoefficient' which is still supported but deprecated since 5.5 --&gt;
+ *     &lt;!-- Since 5.5 --&gt;
+ *     &lt;remediationFunctionGapMultiplier&gt;10min&lt;/remediationFunctionGapMultiplier&gt;
  *
- *     &lt;!-- SQALE debt - offset of debt remediation function. Must be defined only for some function types. --&gt;
+ *     &lt;!-- Quality Model - base effort of debt remediation function. Must be defined only for some function types. --&gt;
  *     &lt;!-- See {@link org.sonar.api.server.rule.RulesDefinition.DebtRemediationFunctions} --&gt;
- *     &lt;!-- Since 5.3 --&gt;
- *     &lt;debtRemediationFunctionOffset&gt;2min&lt;/debtRemediationFunctionOffset&gt;
+ *     &lt;!-- It was previously named 'debtRemediationFunctionOffset' which is still supported but deprecated since 5.5 --&gt;
+ *     &lt;!-- Since 5.5 --&gt;
+ *     &lt;remediationFunctionBaseEffort&gt;2min&lt;/remediationFunctionBaseEffort&gt;
  *
  *     &lt;!-- Deprecated field, replaced by "internalKey" --&gt;
  *     &lt;configKey&gt;Checker/TreeWalker/LocalVariableName&lt;/configKey&gt;
  *
  *     &lt;!-- Deprecated field, replaced by "severity" --&gt;
  *     &lt;priority&gt;BLOCKER&lt;/priority&gt;
+ *
  *   &lt;/rule&gt;
  * &lt;/rules&gt;
  * </pre>
@@ -162,7 +167,7 @@ import static org.apache.commons.lang.StringUtils.trim;
  *     &lt;tag&gt;security&lt;/tag&gt;
  *     &lt;tag&gt;user-experience&lt;/tag&gt;
  *     &lt;debtRemediationFunction&gt;CONSTANT_ISSUE&lt;/debtRemediationFunction&gt;
- *     &lt;debtRemediationFunctionOffset&gt;10min&lt;/debtRemediationFunctionOffset&gt;
+ *     &lt;debtRemediationFunctionBaseOffset&gt;10min&lt;/debtRemediationFunctionBaseOffset&gt;
  *   &lt;/rule&gt;
  *
  *   &lt;!-- another rules... --&gt;
@@ -238,10 +243,10 @@ public class RulesDefinitionXmlLoader {
     String type = null;
     RuleStatus status = RuleStatus.defaultStatus();
     boolean template = false;
-    String effortToFixDescription = null;
+    String gapDescription = null;
     String debtRemediationFunction = null;
-    String debtRemediationFunctionOffset = null;
-    String debtRemediationFunctionCoeff = null;
+    String debtRemediationFunctionGapMultiplier = null;
+    String debtRemediationFunctionBaseEffort = null;
     List<ParamStruct> params = new ArrayList<>();
     List<String> tags = new ArrayList<>();
 
@@ -288,17 +293,17 @@ public class RulesDefinitionXmlLoader {
       } else if (equalsIgnoreCase("cardinality", nodeName)) {
         template = Cardinality.MULTIPLE == Cardinality.valueOf(nodeValue(cursor));
 
-      } else if (equalsIgnoreCase("effortToFixDescription", nodeName)) {
-        effortToFixDescription = nodeValue(cursor);
+      } else if (equalsIgnoreCase("gapDescription", nodeName) || equalsIgnoreCase("effortToFixDescription", nodeName)) {
+        gapDescription = nodeValue(cursor);
 
-      } else if (equalsIgnoreCase("debtRemediationFunction", nodeName)) {
+      } else if (equalsIgnoreCase("remediationFunction", nodeName) || equalsIgnoreCase("debtRemediationFunction", nodeName)) {
         debtRemediationFunction = nodeValue(cursor);
 
-      } else if (equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
-        debtRemediationFunctionOffset = nodeValue(cursor);
+      } else if (equalsIgnoreCase("remediationFunctionBaseEffort", nodeName) || equalsIgnoreCase("debtRemediationFunctionOffset", nodeName)) {
+        debtRemediationFunctionGapMultiplier = nodeValue(cursor);
 
-      } else if (equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
-        debtRemediationFunctionCoeff = nodeValue(cursor);
+      } else if (equalsIgnoreCase("remediationFunctionGapMultiplier", nodeName) || equalsIgnoreCase("debtRemediationFunctionCoefficient", nodeName)) {
+        debtRemediationFunctionBaseEffort = nodeValue(cursor);
 
       } else if (equalsIgnoreCase("status", nodeName)) {
         String s = nodeValue(cursor);
@@ -322,12 +327,12 @@ public class RulesDefinitionXmlLoader {
         .setTags(tags.toArray(new String[tags.size()]))
         .setTemplate(template)
         .setStatus(status)
-        .setEffortToFixDescription(effortToFixDescription);
+        .setGapDescription(gapDescription);
       if (type != null) {
         rule.setType(RuleType.valueOf(type));
       }
       fillDescription(rule, descriptionFormat, description);
-      fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionOffset, debtRemediationFunctionCoeff);
+      fillRemediationFunction(rule, debtRemediationFunction, debtRemediationFunctionGapMultiplier, debtRemediationFunctionBaseEffort);
       fillParams(rule, params);
     } catch (Exception e) {
       throw new IllegalArgumentException(format("Fail to load the rule with key [%s:%s]", repo.key(), key), e);

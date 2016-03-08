@@ -34,13 +34,13 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   private static final int HOURS_IN_DAY = 24;
 
   private final Type type;
-  private final String coefficient;
-  private final String offset;
+  private final String gapMultiplier;
+  private final String baseEffort;
 
-  public DefaultDebtRemediationFunction(@Nullable Type type, @Nullable String coefficient, @Nullable String offset) {
+  public DefaultDebtRemediationFunction(@Nullable Type type, @Nullable String gapMultiplier, @Nullable String baseEffort) {
     this.type = type;
-    this.coefficient = sanitizeValue("coefficient", coefficient);
-    this.offset = sanitizeValue("offset", offset);
+    this.gapMultiplier = sanitizeValue("gap multiplier", gapMultiplier);
+    this.baseEffort = sanitizeValue("base effort", baseEffort);
     validate();
   }
 
@@ -62,29 +62,50 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     return type;
   }
 
+  /**
+   * @deprecated since 5.5, replaced by {@link #gapMultiplier}
+   */
   @Override
   @CheckForNull
+  @Deprecated
   public String coefficient() {
-    return coefficient;
+    return gapMultiplier();
   }
+
 
   @Override
   @CheckForNull
-  public String offset() {
-    return offset;
+  public String gapMultiplier() {
+    return gapMultiplier;
   }
+
+  /**
+   * @deprecated since 5.5, replaced by {@link #baseEffort}
+   */
+  @Override
+  @CheckForNull
+  @Deprecated
+  public String offset() {
+    return baseEffort();
+  }
+
+  @Override
+  public String baseEffort() {
+    return baseEffort;
+  }
+
 
   private void validate() {
     checkArgument(type != null, "Remediation function type cannot be null");
     switch (type) {
       case LINEAR:
-        checkArgument(this.coefficient != null && this.offset == null, "Linear functions must only have a non empty coefficient");
+        checkArgument(this.gapMultiplier != null && this.baseEffort == null, "Linear functions must only have a non empty gap multiplier");
         break;
       case LINEAR_OFFSET:
-        checkArgument(this.coefficient != null && this.offset != null, "Linear with offset functions must have both non null coefficient and offset");
+        checkArgument(this.gapMultiplier != null && this.baseEffort != null, "Linear with offset functions must have both non null gap multiplier and base effort");
         break;
       case CONSTANT_ISSUE:
-        checkArgument(this.coefficient == null && this.offset != null, "Constant/issue functions must only have a non empty offset");
+        checkArgument(this.gapMultiplier == null && this.baseEffort != null, "Constant/issue functions must only have a non empty base effort");
         break;
       default:
         throw new IllegalArgumentException(String.format("Unknown type on %s", this));
@@ -101,8 +122,8 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
     }
     DefaultDebtRemediationFunction other = (DefaultDebtRemediationFunction) o;
     return new EqualsBuilder()
-      .append(coefficient, other.coefficient())
-      .append(offset, other.offset())
+      .append(gapMultiplier, other.gapMultiplier())
+      .append(baseEffort, other.baseEffort())
       .append(type, other.type())
       .isEquals();
   }
@@ -110,8 +131,8 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   @Override
   public int hashCode() {
     int result = type.hashCode();
-    result = 31 * result + (coefficient != null ? coefficient.hashCode() : 0);
-    result = 31 * result + (offset != null ? offset.hashCode() : 0);
+    result = 31 * result + (gapMultiplier != null ? gapMultiplier.hashCode() : 0);
+    result = 31 * result + (baseEffort != null ? baseEffort.hashCode() : 0);
     return result;
   }
 
@@ -119,8 +140,8 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
   public String toString() {
     return Objects.toStringHelper(DebtRemediationFunction.class)
       .add("type", type)
-      .add("coefficient", coefficient)
-      .add("offset", offset)
+      .add("gap multiplier", gapMultiplier)
+      .add("base effort", baseEffort)
       .toString();
   }
 }

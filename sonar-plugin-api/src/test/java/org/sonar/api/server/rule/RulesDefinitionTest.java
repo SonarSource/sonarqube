@@ -119,7 +119,7 @@ public class RulesDefinitionTest {
       .setName("Insufficient condition coverage")
       .setHtmlDescription("Insufficient condition coverage by unit tests")
       .setSeverity(Severity.MAJOR)
-      .setEffortToFixDescription("Effort to test one uncovered branch");
+      .setGapDescription("Effort to test one uncovered branch");
     newRule.setDebtRemediationFunction(newRule.debtRemediationFunctions().linearWithOffset("1h", "10min"));
     newRepo.done();
 
@@ -128,9 +128,9 @@ public class RulesDefinitionTest {
 
     RulesDefinition.Rule rule = repo.rule("InsufficientBranchCoverage");
     assertThat(rule.debtRemediationFunction().type()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET);
-    assertThat(rule.debtRemediationFunction().coefficient()).isEqualTo("1h");
-    assertThat(rule.debtRemediationFunction().offset()).isEqualTo("10min");
-    assertThat(rule.effortToFixDescription()).isEqualTo("Effort to test one uncovered branch");
+    assertThat(rule.debtRemediationFunction().gapMultiplier()).isEqualTo("1h");
+    assertThat(rule.debtRemediationFunction().baseEffort()).isEqualTo("10min");
+    assertThat(rule.gapDescription()).isEqualTo("Effort to test one uncovered branch");
   }
 
   @Test
