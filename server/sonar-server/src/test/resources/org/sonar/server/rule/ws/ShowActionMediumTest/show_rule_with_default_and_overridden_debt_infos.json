@@ -7,11 +7,11 @@
     "severity": "MINOR",
     "status": "BETA",
     "isTemplate": false,
-    "debtRemFnType": "LINEAR_OFFSET",
-    "debtRemFnCoeff": "5d",
-    "debtRemFnOffset": "10h",
-    "defaultDebtRemFnType": "LINEAR",
-    "defaultDebtRemFnCoeff": "5min",
+    "remFnType": "LINEAR_OFFSET",
+    "remFnGapMultiplier": "5d",
+    "remFnBaseEffort": "10h",
+    "defaultRemFnType": "LINEAR",
+    "defaultRemFnGapMultiplier": "5min",
     "debtOverloaded": true,
     "lang": "xoo"
   }

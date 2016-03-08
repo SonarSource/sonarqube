@@ -116,6 +116,7 @@ public class RuleMapper {
   private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
     if (shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) && ruleDto.getGapDescription() != null) {
       ruleResponse.setEffortToFixDescription(ruleDto.getGapDescription());
+      ruleResponse.setGapDescription(ruleDto.getGapDescription());
     }
   }
 
@@ -129,13 +130,21 @@ public class RuleMapper {
     if (shouldReturnField(fieldsToReturn, FIELD_DEFAULT_DEBT_REM_FUNCTION)) {
       DebtRemediationFunction defaultDebtRemediationFunction = defaultDebtRemediationFunction(ruleDto);
       if (defaultDebtRemediationFunction != null) {
-        if (defaultDebtRemediationFunction.coefficient() != null) {
-          ruleResponse.setDefaultDebtRemFnCoeff(defaultDebtRemediationFunction.coefficient());
+        String gapMultiplier = defaultDebtRemediationFunction.coefficient();
+        if (gapMultiplier != null) {
+          ruleResponse.setDefaultRemFnGapMultiplier(gapMultiplier);
+          // Set deprecated field
+          ruleResponse.setDefaultDebtRemFnCoeff(gapMultiplier);
         }
-        if (defaultDebtRemediationFunction.offset() != null) {
-          ruleResponse.setDefaultDebtRemFnOffset(defaultDebtRemediationFunction.offset());
+        String baseEffort = defaultDebtRemediationFunction.offset();
+        if (baseEffort != null) {
+          ruleResponse.setDefaultRemFnBaseEffort(baseEffort);
+          // Set deprecated field
+          ruleResponse.setDefaultDebtRemFnOffset(baseEffort);
         }
         if (defaultDebtRemediationFunction.type() != null) {
+          ruleResponse.setDefaultRemFnType(defaultDebtRemediationFunction.type().name());
+          // Set deprecated field
           ruleResponse.setDefaultDebtRemFnType(defaultDebtRemediationFunction.type().name());
         }
       }
@@ -147,13 +156,21 @@ public class RuleMapper {
       DebtRemediationFunction debtRemediationFunction = debtRemediationFunction(ruleDto);
       if (debtRemediationFunction != null) {
         if (debtRemediationFunction.type() != null) {
+          ruleResponse.setRemFnType(debtRemediationFunction.type().name());
+          // Set deprecated field
           ruleResponse.setDebtRemFnType(debtRemediationFunction.type().name());
         }
-        if (debtRemediationFunction.coefficient() != null) {
-          ruleResponse.setDebtRemFnCoeff(debtRemediationFunction.coefficient());
+        String gapMultiplier = debtRemediationFunction.coefficient();
+        if (gapMultiplier != null) {
+          ruleResponse.setRemFnGapMultiplier(gapMultiplier);
+          // Set deprecated field
+          ruleResponse.setDebtRemFnCoeff(gapMultiplier);
         }
-        if (debtRemediationFunction.offset() != null) {
-          ruleResponse.setDebtRemFnOffset(debtRemediationFunction.offset());
+        String baseEffort = debtRemediationFunction.offset();
+        if (baseEffort != null) {
+          ruleResponse.setRemFnBaseEffort(baseEffort);
+          // Set deprecated field
+          ruleResponse.setDebtRemFnOffset(baseEffort);
         }
       }
     }

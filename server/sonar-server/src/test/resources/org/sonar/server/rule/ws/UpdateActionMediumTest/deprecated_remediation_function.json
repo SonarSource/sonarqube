@@ -1,0 +1,19 @@
+{
+  "rule": {
+    "key": "xoo:x1",
+    "defaultDebtRemFnType": "LINEAR_OFFSET",
+    "defaultDebtRemFnCoeff": "10d",
+    "defaultDebtRemFnOffset": "5min",
+    "effortToFixDescription": "xoo.x1.effortToFix",
+    "debtRemFnType": "LINEAR_OFFSET",
+    "debtRemFnCoeff": "11d",
+    "debtRemFnOffset": "6min",
+    "defaultRemFnType": "LINEAR_OFFSET",
+    "defaultRemFnGapMultiplier": "10d",
+    "defaultRemFnBaseEffort": "5min",
+    "remFnType": "LINEAR_OFFSET",
+    "remFnGapMultiplier": "11d",
+    "remFnBaseEffort": "6min",
+    "gapDescription": "xoo.x1.effortToFix",
+  }
+}

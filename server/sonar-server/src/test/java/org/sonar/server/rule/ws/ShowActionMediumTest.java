@@ -233,4 +233,27 @@ public class ShowActionMediumTest {
     request.execute().assertJson(getClass(), "encode_html_description_of_manual_rule.json");
   }
 
+  @Test
+  public void show_deprecated_rule_rem_function_fields() throws Exception {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setSeverity(Severity.MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setConfigKey("InternalKeyS001")
+      .setLanguage("xoo")
+      .setDefaultRemediationFunction("LINEAR_OFFSET")
+      .setDefaultRemediationGapMultiplier("6d")
+      .setDefaultRemediationBaseEffort("11h")
+      .setRemediationFunction("LINEAR_OFFSET")
+      .setRemediationGapMultiplier("5d")
+      .setRemediationBaseEffort("10h");
+    ruleDao.insert(session, ruleDto);
+    session.commit();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", ruleDto.getKey().toString());
+    request.execute().assertJson(getClass(), "show_deprecated_rule_rem_function_fields.json");
+  }
+
 }

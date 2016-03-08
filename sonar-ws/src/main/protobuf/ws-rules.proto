@@ -86,7 +86,7 @@ message Rule {
   optional string lang = 19;
   optional string langName = 20;
   optional Params params = 21;
-  // debt fields, unsupported since 5.5
+  // characteristic fields, unsupported since 5.5
   optional string unusedDefaultDebtChar = 23;
   optional string unusedDefaultDebtSubChar = 24;
   optional string unusedDebtChar = 25;
@@ -94,14 +94,30 @@ message Rule {
   optional string unusedDebtCharName = 27;
   optional string unusedDebtSubCharName = 28;
 
+  // Deprecated since 5.5, replaced by defaultRemFnType
   optional string defaultDebtRemFnType = 29;
+  // Deprecated since 5.5, replaced by defaultRemFnGapMultiplier
   optional string defaultDebtRemFnCoeff = 30;
+  // Deprecated since 5.5, replaced by defaultRemFnBaseEffort
   optional string defaultDebtRemFnOffset = 31;
+  // Deprecated since 5.5, replaced by gapDescription
   optional string effortToFixDescription = 32;
   optional bool debtOverloaded = 33;
+  // Deprecated since 5.5, replaced by remFnType
   optional string debtRemFnType = 34;
+  // Deprecated since 5.5, replaced by remFnGapMultiplier
   optional string debtRemFnCoeff = 35;
+  // Deprecated since 5.5, replaced by remFnBaseEffort
   optional string debtRemFnOffset = 36;
+
+  optional string defaultRemFnType = 38;
+  optional string defaultRemFnGapMultiplier = 39;
+  optional string defaultRemFnBaseEffort = 40;
+  optional string remFnType = 41;
+  optional string remFnGapMultiplier = 42;
+  optional string remFnBaseEffort = 43;
+  optional string gapDescription = 44;
+
   optional sonarqube.ws.commons.RuleType type = 37;
 
   message Params {

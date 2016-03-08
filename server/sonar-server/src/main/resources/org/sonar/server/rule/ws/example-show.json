@@ -11,7 +11,7 @@
     "sysTags": ["brain-overload"],
     "debtSubChar": "39",
     "debtRemFnType": "CONSTANT_ISSUE",
-    "debtRemFnOffset": "10min",
+    "debtRemFnBaseEffort": "10min",
     "lang": "java",
     "langName": "Java",
     "type": "CODE_SMELL",
