@@ -40,6 +40,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.System2;
 import org.sonar.db.component.ComponentDto;
@@ -86,18 +87,21 @@ public class IssueIndexTest {
     when(system.now()).thenReturn(System.currentTimeMillis());
 
     index = new IssueIndex(tester.client(), system, userSessionRule);
-
   }
 
   @Test
   public void get_by_key() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
-    IssueDoc issue = IssueTesting.newDoc("ISSUE1", file);
+    IssueDoc issue = IssueTesting.newDoc("ISSUE1", file)
+      .setEffort(100L);
     indexIssues(issue);
 
     Issue loaded = index.getByKey(issue.key());
     assertThat(loaded).isNotNull();
+
+    assertThat(loaded.key()).isEqualTo("ISSUE1");
+    assertThat(loaded.effort()).isEqualTo(Duration.create(100L));
   }
 
   @Test

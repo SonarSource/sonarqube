@@ -117,6 +117,9 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_LINE);
   }
 
+  /**
+   * @deprecated since 5.5, replaced by {@link #gap()}
+   */
   @Deprecated
   @Override
   @CheckForNull
@@ -127,7 +130,7 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public Double gap() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_EFFORT);
+    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_GAP);
   }
 
   @Override
@@ -222,8 +225,12 @@ public class IssueDoc extends BaseDoc implements Issue {
     throw new IllegalStateException("isNew is only available for batch");
   }
 
+  /**
+   * @deprecated since 5.5, replaced by {@link #effort()}
+   */
   @Override
   @CheckForNull
+  @Deprecated
   public Duration debt() {
     throw new UnsupportedOperationException("debt is replaced by effort");
   }
@@ -231,8 +238,8 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public Duration effort() {
-    Number debt = getNullableField(IssueIndexDefinition.FIELD_ISSUE_DEBT);
-    return (debt != null) ? Duration.create(debt.longValue()) : null;
+    Number effort = getNullableField(IssueIndexDefinition.FIELD_ISSUE_EFFORT);
+    return (effort != null) ? Duration.create(effort.longValue()) : null;
   }
 
   @CheckForNull
@@ -302,7 +309,7 @@ public class IssueDoc extends BaseDoc implements Issue {
   }
 
   public IssueDoc setGap(@Nullable Double d) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_EFFORT, d);
+    setField(IssueIndexDefinition.FIELD_ISSUE_GAP, d);
     return this;
   }
 
@@ -365,8 +372,8 @@ public class IssueDoc extends BaseDoc implements Issue {
     return this;
   }
 
-  public IssueDoc setDebt(@Nullable Long l) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_DEBT, l);
+  public IssueDoc setEffort(@Nullable Long l) {
+    setField(IssueIndexDefinition.FIELD_ISSUE_EFFORT, l);
     return this;
   }
 

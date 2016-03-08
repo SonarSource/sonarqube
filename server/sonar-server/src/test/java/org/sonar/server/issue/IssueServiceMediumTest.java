@@ -341,7 +341,7 @@ public class IssueServiceMediumTest {
     assertThat(manualIssue.message()).isEqualTo("Fix it");
     assertThat(manualIssue.line()).isEqualTo(1);
     assertThat(manualIssue.severity()).isEqualTo(Severity.MINOR);
-    assertThat(manualIssue.effortToFix()).isNull();
+    assertThat(manualIssue.gap()).isNull();
     assertThat(manualIssue.reporter()).isEqualTo("john");
     assertThat(manualIssue.assignee()).isEqualTo("arthur");
   }

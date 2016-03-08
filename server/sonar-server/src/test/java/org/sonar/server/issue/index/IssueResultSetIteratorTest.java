@@ -80,8 +80,8 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
-    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
-    assertThat(issue.effortToFix()).isEqualTo(2d);
+    assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.gap()).isEqualTo(2d);
     assertThat(issue.actionPlanKey()).isEqualTo("PLAN1");
     assertThat(issue.attribute("JIRA")).isEqualTo("http://jira.com");
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
@@ -106,7 +106,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
-    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.type().getDbConstant()).isEqualTo(1);
 
     issue = issuesByKey.get("BCD");
@@ -119,7 +119,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.directoryPath()).isNull();
     assertThat(issue.filePath()).isNull();
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
-    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
 
     issue = issuesByKey.get("DEF");
@@ -132,7 +132,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java/Action.java");
     assertThat(issue.tags()).isEmpty();
-    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.type().getDbConstant()).isEqualTo(1);
 
     issue = issuesByKey.get("EFG");
@@ -145,7 +145,7 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.directoryPath()).isEqualTo("src/main/java");
     assertThat(issue.filePath()).isEqualTo("src/main/java");
     assertThat(issue.tags()).isEmpty();
-    assertThat(issue.debt().toMinutes()).isGreaterThan(0L);
+    assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.type().getDbConstant()).isEqualTo(1);
   }
 

@@ -130,7 +130,7 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(IssueFilterParameters.FACET_MODE)
       .setDefaultValue(IssueFilterParameters.FACET_MODE_COUNT)
       .setDescription("Choose the returned value for facet items, either count of issues or sum of debt.")
-      .setPossibleValues(IssueFilterParameters.FACET_MODE_COUNT, IssueFilterParameters.FACET_MODE_DEBT);
+      .setPossibleValues(IssueFilterParameters.FACET_MODE_COUNT, IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT);
     action.addSortParams(IssueQuery.SORTS, null, true);
     action.createParam(IssueFilterParameters.ADDITIONAL_FIELDS)
       .setSince("5.2")

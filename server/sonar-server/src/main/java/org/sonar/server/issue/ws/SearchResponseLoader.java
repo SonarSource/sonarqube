@@ -40,7 +40,7 @@ import org.sonar.server.es.Facets;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.IssueCommentService;
 import org.sonar.server.issue.IssueService;
-import org.sonar.server.issue.index.IssueIndex;
+import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
@@ -152,7 +152,7 @@ public class SearchResponseLoader {
 
   private void completeTotalDebtFromFacet(@Nullable Facets facets, SearchResponseData result) {
     if (facets != null) {
-      Map<String, Long> debtFacet = facets.get(IssueIndex.DEBT_AGGREGATION_NAME);
+      Map<String, Long> debtFacet = facets.get(IssueFilterParameters.FACET_MODE_EFFORT);
       if (debtFacet != null) {
         result.setDebtTotal(debtFacet.get(Facets.TOTAL));
       }

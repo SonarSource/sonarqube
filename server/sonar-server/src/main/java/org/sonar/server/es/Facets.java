@@ -35,6 +35,8 @@ import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
 
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFFORT;
+
 public class Facets {
 
   public static final String TOTAL = "total";
@@ -75,8 +77,8 @@ public class Facets {
     long docCount = aggregation.getDocCount();
     if (docCount > 0L) {
       LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName().replace("_missing", ""));
-      if (aggregation.getAggregations().getAsMap().containsKey("debt")) {
-        facet.put("", Math.round(((Sum) aggregation.getAggregations().get("debt")).getValue()));
+      if (aggregation.getAggregations().getAsMap().containsKey(FACET_MODE_EFFORT)) {
+        facet.put("", Math.round(((Sum) aggregation.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
       } else {
         facet.put("", docCount);
       }
@@ -92,8 +94,8 @@ public class Facets {
     facetName = facetName.replace("_selected", "");
     LinkedHashMap<String, Long> facet = getOrCreateFacet(facetName);
     for (Terms.Bucket value : aggregation.getBuckets()) {
-      if (value.getAggregations().getAsMap().containsKey("debt")) {
-        facet.put(value.getKey(), Math.round(((Sum) value.getAggregations().get("debt")).getValue()));
+      if (value.getAggregations().getAsMap().containsKey(FACET_MODE_EFFORT)) {
+        facet.put(value.getKey(), Math.round(((Sum) value.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
       } else {
         facet.put(value.getKey(), value.getDocCount());
       }
@@ -109,8 +111,8 @@ public class Facets {
   private void processDateHistogram(DateHistogram aggregation) {
     LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName());
     for (DateHistogram.Bucket value : aggregation.getBuckets()) {
-      if (value.getAggregations().getAsMap().containsKey("debt")) {
-        facet.put(value.getKey(), Math.round(((Sum) value.getAggregations().get("debt")).getValue()));
+      if (value.getAggregations().getAsMap().containsKey(FACET_MODE_EFFORT)) {
+        facet.put(value.getKey(), Math.round(((Sum) value.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
       } else {
         facet.put(value.getKey(), value.getDocCount());
       }

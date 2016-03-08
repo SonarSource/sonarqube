@@ -42,7 +42,6 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQuery.Builder;
 import org.sonar.server.issue.IssueTesting;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
@@ -52,6 +51,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFFORT;
 
 public class IssueIndexDebtTest {
 
@@ -77,7 +78,6 @@ public class IssueIndexDebtTest {
     when(system.now()).thenReturn(System.currentTimeMillis());
 
     index = new IssueIndex(tester.client(), system, userSessionRule);
-
   }
 
   @Test
@@ -86,14 +86,15 @@ public class IssueIndexDebtTest {
     ComponentDto project2 = ComponentTesting.newProjectDto("EFGH");
 
     indexIssues(
-      IssueTesting.newDoc("ISSUE1", ComponentTesting.newFileDto(project)),
-      IssueTesting.newDoc("ISSUE2", ComponentTesting.newFileDto(project)),
-      IssueTesting.newDoc("ISSUE3", ComponentTesting.newFileDto(project2)));
+      IssueTesting.newDoc("ISSUE1", ComponentTesting.newFileDto(project)).setEffort(10L),
+      IssueTesting.newDoc("ISSUE2", ComponentTesting.newFileDto(project)).setEffort(10L),
+      IssueTesting.newDoc("ISSUE3", ComponentTesting.newFileDto(project2)).setEffort(10L));
 
-    SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("projectUuids")));
-    assertThat(result.getFacets().getNames()).containsOnly("projectUuids", "debt");
+    SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(),
+      new SearchOptions().addFacets(newArrayList("projectUuids")));
+    assertThat(result.getFacets().getNames()).containsOnly("projectUuids", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("projectUuids")).containsOnly(entry("ABCD", 20L), entry("EFGH", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 30L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 30L));
   }
 
   @Test
@@ -111,10 +112,10 @@ public class IssueIndexDebtTest {
       IssueTesting.newDoc("ISSUE5", file3));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("fileUuids")));
-    assertThat(result.getFacets().getNames()).containsOnly("fileUuids", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("fileUuids", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("fileUuids"))
       .containsOnly(entry("A", 10L), entry("ABCD", 10L), entry("BCDE", 20L), entry("CDEF", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 50L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 50L));
   }
 
   @Test
@@ -128,9 +129,9 @@ public class IssueIndexDebtTest {
       IssueTesting.newDoc("ISSUE2", file2).setDirectoryPath("/"));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("directories")));
-    assertThat(result.getFacets().getNames()).containsOnly("directories", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("directories", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("directories")).containsOnly(entry("/src/main/xoo", 10L), entry("/", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 20L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 20L));
   }
 
   @Test
@@ -144,9 +145,9 @@ public class IssueIndexDebtTest {
       IssueTesting.newDoc("ISSUE3", file).setSeverity(Severity.MAJOR));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("severities")));
-    assertThat(result.getFacets().getNames()).containsOnly("severities", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("severities", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("severities")).containsOnly(entry("INFO", 20L), entry("MAJOR", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 30L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 30L));
   }
 
   @Test
@@ -160,9 +161,9 @@ public class IssueIndexDebtTest {
       IssueTesting.newDoc("ISSUE3", file).setStatus(Issue.STATUS_OPEN));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("statuses")));
-    assertThat(result.getFacets().getNames()).containsOnly("statuses", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("statuses", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("statuses")).containsOnly(entry("CLOSED", 20L), entry("OPEN", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 30L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 30L));
   }
 
   @Test
@@ -176,9 +177,9 @@ public class IssueIndexDebtTest {
       IssueTesting.newDoc("ISSUE3", file).setResolution(Issue.RESOLUTION_FIXED));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("resolutions")));
-    assertThat(result.getFacets().getNames()).containsOnly("resolutions", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("resolutions", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("resolutions")).containsOnly(entry("FALSE-POSITIVE", 20L), entry("FIXED", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 30L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 30L));
   }
 
   @Test
@@ -191,9 +192,9 @@ public class IssueIndexDebtTest {
       IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("actionPlans")));
-    assertThat(result.getFacets().getNames()).containsOnly("actionPlans", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("actionPlans", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("actionPlans")).containsOnly(entry("plan1", 10L), entry("plan2", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 20L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 20L));
   }
 
   @Test
@@ -202,12 +203,12 @@ public class IssueIndexDebtTest {
     ComponentDto file = ComponentTesting.newFileDto(project);
     RuleKey ruleKey = RuleKey.of("repo", "X1");
 
-    indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo"));
+    indexIssues(IssueTesting.newDoc("ISSUE1", file).setRuleKey(ruleKey.toString()).setLanguage("xoo").setEffort(10L));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("languages")));
-    assertThat(result.getFacets().getNames()).containsOnly("languages", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("languages", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("languages")).containsOnly(entry("xoo", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 10L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 10L));
   }
 
   @Test
@@ -222,9 +223,9 @@ public class IssueIndexDebtTest {
       IssueTesting.newDoc("ISSUE4", file).setAssignee(null));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("assignees")));
-    assertThat(result.getFacets().getNames()).containsOnly("assignees", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("assignees", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("assignees")).containsOnly(entry("steph", 10L), entry("simon", 20L), entry("", 10L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 40L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 40L));
   }
 
   @Test
@@ -239,9 +240,9 @@ public class IssueIndexDebtTest {
       IssueTesting.newDoc("ISSUE4", file).setAuthorLogin(null));
 
     SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("authors")));
-    assertThat(result.getFacets().getNames()).containsOnly("authors", "debt");
+    assertThat(result.getFacets().getNames()).containsOnly("authors", FACET_MODE_EFFORT);
     assertThat(result.getFacets().get("authors")).containsOnly(entry("steph", 10L), entry("simon", 20L));
-    assertThat(result.getFacets().get("debt")).containsOnly(entry("total", 40L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 40L));
   }
 
   @Test
@@ -257,6 +258,23 @@ public class IssueIndexDebtTest {
       entry("2013-01-01T00:00:00+0000", 0L),
       entry("2014-01-01T00:00:00+0000", 50L),
       entry("2015-01-01T00:00:00+0000", 10L));
+  }
+
+  @Test
+  public void deprecated_debt_facets() {
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD");
+    ComponentDto project2 = ComponentTesting.newProjectDto("EFGH");
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", ComponentTesting.newFileDto(project)).setEffort(10L),
+      IssueTesting.newDoc("ISSUE2", ComponentTesting.newFileDto(project)).setEffort(10L),
+      IssueTesting.newDoc("ISSUE3", ComponentTesting.newFileDto(project2)).setEffort(10L));
+
+    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).facetMode(DEPRECATED_FACET_MODE_DEBT).build(),
+      new SearchOptions().addFacets(newArrayList("projectUuids")));
+    assertThat(result.getFacets().getNames()).containsOnly("projectUuids", FACET_MODE_EFFORT);
+    assertThat(result.getFacets().get("projectUuids")).containsOnly(entry("ABCD", 20L), entry("EFGH", 10L));
+    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 30L));
   }
 
   protected SearchOptions fixtureForCreatedAtFacet() {
@@ -288,6 +306,6 @@ public class IssueIndexDebtTest {
   }
 
   private Builder newQueryBuilder() {
-    return IssueQuery.builder(userSessionRule).facetMode(IssueFilterParameters.FACET_MODE_DEBT);
+    return IssueQuery.builder(userSessionRule).facetMode(FACET_MODE_EFFORT);
   }
 }

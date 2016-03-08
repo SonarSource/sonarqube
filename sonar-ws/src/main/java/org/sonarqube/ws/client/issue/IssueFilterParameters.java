@@ -71,7 +71,12 @@ public class IssueFilterParameters {
   public static final String FACET_MODE = "facetMode";
   public static final String FACET_MODE_COUNT = "count";
 
-  public static final String FACET_MODE_DEBT = "debt";
+  /**
+   * @deprecated since 5.5, replaced by {@link #FACET_MODE_EFFORT}
+   */
+  @Deprecated
+  public static final String DEPRECATED_FACET_MODE_DEBT = "debt";
+  public static final String FACET_MODE_EFFORT = "effort";
 
   public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
 

@@ -173,7 +173,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setManualSeverity(rs.getBoolean(12));
     doc.setChecksum(rs.getString(13));
     doc.setStatus(rs.getString(14));
-    doc.setDebt(getLong(rs, 15));
+    doc.setEffort(getLong(rs, 15));
     doc.setReporter(rs.getString(16));
     doc.setAuthorLogin(rs.getString(17));
     doc.setFuncCloseDate(longToDate(getLong(rs, 18)));

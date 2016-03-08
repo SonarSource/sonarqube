@@ -44,8 +44,8 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
   public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
   public static final String FIELD_ISSUE_COMPONENT_UUID = "component";
-  public static final String FIELD_ISSUE_DEBT = "debt";
   public static final String FIELD_ISSUE_EFFORT = "effort";
+  public static final String FIELD_ISSUE_GAP = "gap";
   public static final String FIELD_ISSUE_FILE_PATH = "filePath";
   /**
    * Functional date
@@ -113,8 +113,8 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).docValues().disableSearch().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).docValues().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).docValues().build();
-    issueMapping.createLongField(FIELD_ISSUE_DEBT);
-    issueMapping.createDoubleField(FIELD_ISSUE_EFFORT);
+    issueMapping.createLongField(FIELD_ISSUE_EFFORT);
+    issueMapping.createDoubleField(FIELD_ISSUE_GAP);
     issueMapping.stringFieldBuilder(FIELD_ISSUE_FILE_PATH).enableSorting().build();
     issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_CREATED_AT);
     issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
