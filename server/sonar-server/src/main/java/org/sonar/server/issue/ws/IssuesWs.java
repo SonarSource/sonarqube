@@ -22,6 +22,7 @@ package org.sonar.server.issue.ws;
 import com.google.common.io.Resources;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 
@@ -161,6 +162,11 @@ public class IssuesWs implements WebService {
       .setDescription("To change the severity of the list of issues")
       .setExampleValue(Severity.BLOCKER)
       .setPossibleValues(Severity.ALL);
+    action.createParam("set_type.type")
+      .setDescription("To change the type of the list of issues")
+      .setExampleValue(RuleType.BUG)
+      .setPossibleValues(RuleType.ALL_NAMES)
+      .setSince("5.5");
     action.createParam("plan.plan")
       .setDescription("To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");

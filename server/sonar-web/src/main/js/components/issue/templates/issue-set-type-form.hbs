@@ -1,0 +1,11 @@
+<ul class="menu">
+  {{#each items}}
+    <li>
+      <a href="#" class="js-issue-type" data-value="{{this}}">
+        {{issueType this}}
+      </a>
+    </li>
+  {{/each}}
+</ul>
+
+<div class="bubble-popup-arrow"></div>

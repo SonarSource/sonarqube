@@ -220,10 +220,27 @@ public class IssueService {
     DbSession session = dbClient.openSession(false);
     try {
       DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
-      userSession.checkComponentPermission(UserRole.ISSUE_ADMIN, issue.projectKey());
+      userSession.checkComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
 
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueUpdater.setManualSeverity(issue, severity, context)) {
+        saveIssue(session, issue, context, null);
+      }
+    } finally {
+      session.close();
+    }
+  }
+
+  public void setType(String issueKey, RuleType type) {
+    userSession.checkLoggedIn();
+
+    DbSession session = dbClient.openSession(false);
+    try {
+      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
+      userSession.checkComponentUuidPermission(UserRole.ISSUE_ADMIN, issue.projectUuid());
+
+      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
+      if (issueUpdater.setType(issue, type, context)) {
         saveIssue(session, issue, context, null);
       }
     } finally {

@@ -235,6 +235,21 @@ export default Backbone.Model.extend({
 
 
   /**
+   * Set type of issue
+   * @param {String|null} issueType Issue type
+   * @param {Object|null} options Options for jQuery ajax
+   * @returns {jqXHR}
+   */
+  setType (issueType, options) {
+    const opts = _.extend({
+      url: this.urlRoot() + '/set_type',
+      data: { issue: this.id, type: issueType }
+    }, options);
+    return this._action(opts);
+  },
+
+
+  /**
    * Do a custom (plugin) action
    * @param {String} actionKey Action Key
    * @param {Object|null} options Options for jQuery ajax
