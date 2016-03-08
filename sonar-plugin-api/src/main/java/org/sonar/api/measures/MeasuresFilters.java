@@ -19,14 +19,11 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rules.Rule;
-import org.sonar.api.technicaldebt.batch.Characteristic;
-import org.sonar.api.technicaldebt.batch.Requirement;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.rules.Rule;
 
 /**
  * @since 1.10
@@ -65,7 +62,6 @@ public final class MeasuresFilters {
         for (Measure measure : measures) {
           if (measure.getClass().equals(Measure.class) &&
             measure.getMetricKey().equals(metricKey) &&
-            measure.getCharacteristic() == null &&
             measure.getPersonId() == null) {
             return measure;
           }
@@ -73,64 +69,6 @@ public final class MeasuresFilters {
         return null;
       }
     };
-  }
-
-  public static MeasuresFilter<Measure> characteristic(final Metric metric, final Characteristic characteristic) {
-    return new MetricFilter<Measure>(metric) {
-
-      @Override
-      public Measure filter(Collection<Measure> measures) {
-        if (measures == null) {
-          return null;
-        }
-        for (Measure measure : measures) {
-          if (measure.getClass().equals(Measure.class) &&
-            measure.getMetric().equals(metric) &&
-            measure.getPersonId() == null &&
-            isSameCharacteristic(measure, characteristic)) {
-            return measure;
-          }
-        }
-        return null;
-      }
-    };
-  }
-
-  private static boolean isSameCharacteristic(Measure measure, final Characteristic characteristic) {
-    Characteristic measureCharacteristic = measure.getCharacteristic();
-    return measureCharacteristic != null &&
-      measureCharacteristic.equals(characteristic);
-  }
-
-  /**
-   * @deprecated since 4.3
-   */
-  @Deprecated
-  public static MeasuresFilter<Measure> requirement(final Metric metric, final Requirement requirement) {
-    return new MetricFilter<Measure>(metric) {
-
-      @Override
-      public Measure filter(Collection<Measure> measures) {
-        if (measures == null) {
-          return null;
-        }
-        for (Measure measure : measures) {
-          if (measure.getClass().equals(Measure.class) &&
-            measure.getMetric().equals(metric) &&
-            measure.getPersonId() == null &&
-            isSameRequirement(measure, requirement)) {
-            return measure;
-          }
-        }
-        return null;
-      }
-    };
-  }
-
-  private static boolean isSameRequirement(Measure measure, final Requirement requirement) {
-    Requirement measureRequirement = measure.getRequirement();
-    return measureRequirement != null &&
-      measureRequirement.equals(requirement);
   }
 
   /**

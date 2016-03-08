@@ -19,89 +19,37 @@
  */
 package org.sonar.api.batch.debt.internal;
 
-import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.debt.DebtCharacteristic;
 import org.sonar.api.batch.debt.DebtModel;
 
-import static com.google.common.collect.Lists.newArrayList;
-
 public class DefaultDebtModel implements DebtModel {
-
-  /**
-   * Sub-characteristics list can be retrieved with the characteristic key
-   * Characteristics list can be retrieved by with the null key
-   */
-  private Multimap<String, DebtCharacteristic> characteristicsByKey;
-
-  public DefaultDebtModel() {
-    characteristicsByKey = ArrayListMultimap.create();
-  }
-
-  public DefaultDebtModel addCharacteristic(DebtCharacteristic characteristic) {
-    characteristicsByKey.put(null, characteristic);
-    return this;
-  }
-
-
-  public DefaultDebtModel addSubCharacteristic(DebtCharacteristic subCharacteristic, String characteristicKey) {
-    characteristicsByKey.put(characteristicKey, subCharacteristic);
-    return this;
-  }
 
   @Override
   public List<DebtCharacteristic> characteristics() {
-    return newArrayList(characteristicsByKey.get(null));
+    return Collections.emptyList();
   }
 
   @Override
   public List<DebtCharacteristic> subCharacteristics(String characteristicKey) {
-    return newArrayList(characteristicsByKey.get(characteristicKey));
+    return Collections.emptyList();
   }
 
   @Override
   public List<DebtCharacteristic> allCharacteristics() {
-    return newArrayList(characteristicsByKey.values());
+    return Collections.emptyList();
   }
 
   @Override
   @CheckForNull
   public DebtCharacteristic characteristicByKey(final String key) {
-    return Iterables.find(characteristicsByKey.values(), new MatchDebtCharacteristicKey(key), null);
+    return null;
   }
 
   @CheckForNull
   public DebtCharacteristic characteristicById(int id) {
-    return Iterables.find(characteristicsByKey.values(), new MatchDebtCharacteristicId(id), null);
-  }
-
-  private static class MatchDebtCharacteristicKey implements Predicate<DebtCharacteristic> {
-    private final String key;
-
-    public MatchDebtCharacteristicKey(String key) {
-      this.key = key;
-    }
-
-    @Override
-    public boolean apply(DebtCharacteristic input) {
-      return key.equals(input.key());
-    }
-  }
-
-  private static class MatchDebtCharacteristicId implements Predicate<DebtCharacteristic> {
-    private final int id;
-
-    public MatchDebtCharacteristicId(int id) {
-      this.id = id;
-    }
-
-    @Override
-    public boolean apply(DebtCharacteristic input) {
-      return id == ((DefaultDebtCharacteristic) input).id();
-    }
+    return null;
   }
 }
