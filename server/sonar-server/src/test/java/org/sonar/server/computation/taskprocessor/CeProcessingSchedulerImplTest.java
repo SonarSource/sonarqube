@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.Random;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Delayed;
@@ -44,11 +45,16 @@ import org.junit.Test;
 import org.junit.rules.Timeout;
 import org.sonar.server.computation.configuration.CeConfigurationRule;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-public class CeProcessingSchedulerImplSingleThreadTest {
+public class CeProcessingSchedulerImplTest {
   private static final Error ERROR_TO_INTERRUPT_CHAINING = new Error("Error should stop scheduling");
 
   @Rule
@@ -173,6 +179,24 @@ public class CeProcessingSchedulerImplSingleThreadTest {
       notDelayedPoll,
       regularDelayedPoll
       );
+  }
+
+  @Test
+  public void when_workerCount_is_more_than_1_as_many_CeWorkerCallable_are_scheduled() throws InterruptedException {
+    int workerCount = Math.abs(new Random().nextInt(10)) + 1;
+
+    ceConfiguration.setWorkerCount(workerCount);
+
+    ListenableScheduledFuture listenableScheduledFuture = mock(ListenableScheduledFuture.class);
+    CeProcessingSchedulerExecutorService processingExecutorService = mock(CeProcessingSchedulerExecutorService.class);
+    CeProcessingSchedulerImpl underTest = new CeProcessingSchedulerImpl(ceConfiguration, processingExecutorService, ceWorkerRunnable);
+    when(processingExecutorService.schedule(ceWorkerRunnable, ceConfiguration.getQueuePollingDelay(), MILLISECONDS))
+        .thenReturn(listenableScheduledFuture);
+
+    underTest.startScheduling();
+
+    verify(processingExecutorService, times(workerCount)).schedule(ceWorkerRunnable, ceConfiguration.getQueuePollingDelay(), MILLISECONDS);
+    verify(listenableScheduledFuture, times(workerCount)).addListener(any(Runnable.class), eq(processingExecutorService));
   }
 
   private void startSchedulingAndRun() throws ExecutionException, InterruptedException {
