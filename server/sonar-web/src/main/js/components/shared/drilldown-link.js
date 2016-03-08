@@ -41,7 +41,13 @@ const ISSUE_MEASURES = [
   'open_issues',
   'reopened_issues',
   'confirmed_issues',
-  'false_positive_issues'
+  'false_positive_issues',
+  'code_smells',
+  'new_code_smells',
+  'bugs',
+  'new_bugs',
+  'vulnerabilities',
+  'new_vulnerabilities'
 ];
 
 
@@ -78,10 +84,12 @@ export const DrilldownLink = React.createClass({
   },
 
   propsToIssueParams() {
-    let params = {};
+    const params = {};
+
     if (this.props.periodDate) {
       params.createdAfter = moment(this.props.periodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
     }
+
     switch (this.props.metric) {
       case 'blocker_violations':
       case 'new_blocker_violations':
@@ -114,6 +122,18 @@ export const DrilldownLink = React.createClass({
         break;
       case 'false_positive_issues':
         _.extend(params, { resolutions: 'FALSE-POSITIVE' });
+        break;
+      case 'code_smells':
+      case 'new_code_smells':
+        _.extend(params, { resolved: 'false', types: 'CODE_SMELL' });
+        break;
+      case 'bugs':
+      case 'new_bugs':
+        _.extend(params, { resolved: 'false', types: 'BUG' });
+        break;
+      case 'vulnerabilities':
+      case 'new_vulnerabilities':
+        _.extend(params, { resolved: 'false', types: 'VULNERABILITY' });
         break;
       default:
         _.extend(params, { resolved: 'false' });
