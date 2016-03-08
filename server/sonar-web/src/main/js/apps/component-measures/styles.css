@@ -73,22 +73,32 @@
 
 .measure-details-value {
   font-size: 24px;
-  font-weight: 300;
 }
 
 .measure-details-value-absolute {
   display: inline-block;
+  vertical-align: middle;
   padding: 5px 0;
+  font-weight: 300;
 }
 
 .measure-details-value-leak {
   display: inline-block;
+  vertical-align: middle;
   padding: 4px 10px;
   border: 1px solid #eae3c7;
   background-color: #fbf3d5;
+  font-weight: 300;
 }
 
 .measure-details-value-absolute + .measure-details-value-leak {
+  margin-left: 20px;
+}
+
+.measure-details-secondary {
+  display: inline-block;
+  vertical-align: middle;
+  width: 260px;
   margin-left: 20px;
 }
 

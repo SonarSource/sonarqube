@@ -65,19 +65,33 @@ export default class MeasureDetails extends React.Component {
   fetchMeasure () {
     const { metricKey } = this.props.params;
     const { component } = this.context;
+    const metrics = [metricKey];
+
+    if (metricKey === 'ncloc') {
+      metrics.push('ncloc_language_distribution');
+    }
+
+    if (metricKey === 'function_complexity') {
+      metrics.push('function_complexity_distribution');
+    }
+
+    if (metricKey === 'file_complexity') {
+      metrics.push('file_complexity_distribution');
+    }
 
     getMeasuresAndMeta(
         component.key,
-        [metricKey],
+        metrics,
         { additionalFields: 'periods' }
     ).then(r => {
-      const measures = r.component.measures;
-
-      if (this.mounted && measures.length === 1) {
-        const measure = enhanceWithLeak(measures[0]);
+      if (this.mounted) {
+        const measures = enhanceWithLeak(r.component.measures);
+        const measure = measures.find(measure => measure.metric === metricKey);
+        const secondaryMeasure = measures.find(measure => measure.metric !== metricKey);
 
         this.setState({
           measure,
+          secondaryMeasure,
           periods: r.periods
         });
       }
@@ -85,7 +99,7 @@ export default class MeasureDetails extends React.Component {
   }
 
   render () {
-    const { measure, periods } = this.state;
+    const { measure, secondaryMeasure, periods } = this.state;
 
     if (!measure) {
       return <Spinner/>;
@@ -101,6 +115,7 @@ export default class MeasureDetails extends React.Component {
           <MeasureDetailsHeader
               measure={measure}
               metric={this.metric}
+              secondaryMeasure={secondaryMeasure}
               leakPeriodLabel={leakPeriodLabel}/>
 
           {measure && (

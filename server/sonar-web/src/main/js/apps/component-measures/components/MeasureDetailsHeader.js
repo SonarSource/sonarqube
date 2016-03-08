@@ -19,12 +19,14 @@
  */
 import React from 'react';
 
+import LanguageDistribution from './LanguageDistribution';
+import { ComplexityDistribution } from '../../overview/components/complexity-distribution';
 import { formatLeak } from '../utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
-export default function MeasureDetailsHeader ({ measure, metric, leakPeriodLabel }) {
+export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasure, leakPeriodLabel }) {
   const leakPeriodTooltip = translateWithParameters('overview.leak_period_x', leakPeriodLabel);
 
   return (
@@ -47,6 +49,24 @@ export default function MeasureDetailsHeader ({ measure, metric, leakPeriodLabel
                     title={leakPeriodTooltip}
                     data-toggle="tooltip">
                   {formatLeak(measure.leak, metric)}
+                </div>
+            )}
+
+            {secondaryMeasure && secondaryMeasure.metric === 'ncloc_language_distribution' && (
+                <div className="measure-details-secondary">
+                  <LanguageDistribution distribution={secondaryMeasure.value}/>
+                </div>
+            )}
+
+            {secondaryMeasure && secondaryMeasure.metric === 'function_complexity_distribution' && (
+                <div className="measure-details-secondary">
+                  <ComplexityDistribution distribution={secondaryMeasure.value} of="function"/>
+                </div>
+            )}
+
+            {secondaryMeasure && secondaryMeasure.metric === 'file_complexity_distribution' && (
+                <div className="measure-details-secondary">
+                  <ComplexityDistribution distribution={secondaryMeasure.value} of="file"/>
                 </div>
             )}
           </div>
