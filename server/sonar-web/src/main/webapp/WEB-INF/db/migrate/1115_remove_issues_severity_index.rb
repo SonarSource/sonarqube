@@ -20,12 +20,12 @@
 
 #
 # SonarQube 5.5
-# SONAR-7378
+# SONAR-7379
 #
-class RemoveIssuesStatusIndex < ActiveRecord::Migration
+class RemoveIssuesSeverityIndex < ActiveRecord::Migration
 
   def self.up
-    remove_index :issues, :name => 'issues_status'
+    remove_index :issues, :name => 'issues_severity'
   end
 
 end
