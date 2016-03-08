@@ -84,7 +84,7 @@ public class SearchResponseLoader {
       loadActionPlans(collector, dbSession, result);
       loadComponents(collector, dbSession, result);
       loadActionsAndTransitions(collector, result);
-      completeTotalDebtFromFacet(facets, result);
+      completeTotalEffortFromFacet(facets, result);
       return result;
     } finally {
       dbClient.closeSession(dbSession);
@@ -150,11 +150,11 @@ public class SearchResponseLoader {
     }
   }
 
-  private void completeTotalDebtFromFacet(@Nullable Facets facets, SearchResponseData result) {
+  private void completeTotalEffortFromFacet(@Nullable Facets facets, SearchResponseData result) {
     if (facets != null) {
-      Map<String, Long> debtFacet = facets.get(IssueFilterParameters.FACET_MODE_EFFORT);
-      if (debtFacet != null) {
-        result.setDebtTotal(debtFacet.get(Facets.TOTAL));
+      Map<String, Long> effortFacet = facets.get(IssueFilterParameters.FACET_MODE_EFFORT);
+      if (effortFacet != null) {
+        result.setEffortTotal(effortFacet.get(Facets.TOTAL));
       }
     }
   }

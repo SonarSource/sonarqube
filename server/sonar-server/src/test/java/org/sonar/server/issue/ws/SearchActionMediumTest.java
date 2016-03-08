@@ -54,10 +54,16 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFFORT;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.HIDE_COMMENTS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.PAGE_INDEX;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.PAGE_SIZE;
 
 public class SearchActionMediumTest {
 
@@ -203,7 +209,7 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     userSessionRule.login("john");
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.HIDE_COMMENTS, "true").execute();
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(HIDE_COMMENTS, "true").execute();
     result.assertJson(this.getClass(), "issue_with_comment_hidden.json");
     assertThat(result.outputAsString()).doesNotContain("fabrice");
   }
@@ -320,7 +326,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.COMPONENTS, file.getKey()).execute();
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(COMPONENTS, file.getKey()).execute();
     result.assertJson(this.getClass(), "apply_paging_with_one_component.json");
   }
 
@@ -335,7 +341,7 @@ public class SearchActionMediumTest {
     session.commit();
     tester.get(IssueIndexer.class).indexAll();
 
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(IssueFilterParameters.ADDITIONAL_FIELDS, "_all").execute();
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION).setParam(ADDITIONAL_FIELDS, "_all").execute();
     result.assertJson(this.getClass(), "components_contains_sub_projects.json");
   }
 
@@ -364,7 +370,7 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void display_facets_in_debt_mode() throws Exception {
+  public void display_facets_in_effort_mode() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "FILE_ID").setKey("FILE_KEY"));
@@ -383,9 +389,9 @@ public class SearchActionMediumTest {
     WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam("resolved", "false")
       .setParam(WebService.Param.FACETS, "statuses,severities,resolutions,projectUuids,rules,fileUuids,assignees,languages,actionPlans")
-      .setParam("facetMode", "debt")
+      .setParam("facetMode", FACET_MODE_EFFORT)
       .execute();
-    result.assertJson(this.getClass(), "display_facets_debt.json");
+    result.assertJson(this.getClass(), "display_facets_effort.json");
   }
 
   @Test
@@ -613,8 +619,8 @@ public class SearchActionMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     WsTester.TestRequest request = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION);
-    request.setParam(IssueFilterParameters.PAGE_INDEX, "2");
-    request.setParam(IssueFilterParameters.PAGE_SIZE, "9");
+    request.setParam(PAGE_INDEX, "2");
+    request.setParam(PAGE_SIZE, "9");
 
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "deprecated_paging.json");
@@ -626,6 +632,31 @@ public class SearchActionMediumTest {
 
     WsTester.Result result = request.execute();
     result.assertJson(this.getClass(), "default_page_size_is_100.json");
+  }
+
+  @Test
+  public void display_deprecated_debt_fields() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "FILE_ID").setKey("FILE_KEY"));
+    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
+      .setIssueCreationDate(DateUtils.parseDate("2014-09-04"))
+      .setIssueUpdateDate(DateUtils.parseDate("2017-12-04"))
+      .setEffort(10L)
+      .setStatus("OPEN")
+      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
+      .setSeverity("MAJOR");
+    db.issueDao().insert(session, issue);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    userSessionRule.login("john");
+    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam("resolved", "false")
+      .setParam(WebService.Param.FACETS, "severities")
+      .setParam("facetMode", DEPRECATED_FACET_MODE_DEBT)
+      .execute();
+    result.assertJson(this.getClass(), "display_deprecated_debt_fields.json");
   }
 
   private RuleDto newRule() {

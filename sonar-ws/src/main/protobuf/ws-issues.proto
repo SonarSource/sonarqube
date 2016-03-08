@@ -33,7 +33,9 @@ message SearchWsResponse {
   optional int32 ps = 3;
   optional sonarqube.ws.commons.Paging paging = 4;
 
-  // Total amount of debt, only when the facet "total" is enabled
+  // Total amount of effort, only when the facet "total" is enabled
+  optional int64 effortTotal = 13;
+  // Deprecated since 5.5, replaced by effortTotal
   optional int64 debtTotal = 5;
 
   repeated Issue issues = 6;
@@ -68,7 +70,11 @@ message Issue {
   optional string resolution = 11;
   optional string status = 12;
   optional string message = 13;
+
+  optional string effort = 28;
+  // Deprecated since 5.5, replaced by effort
   optional string debt = 14;
+
   optional string assignee = 15;
   optional string reporter = 16;
 

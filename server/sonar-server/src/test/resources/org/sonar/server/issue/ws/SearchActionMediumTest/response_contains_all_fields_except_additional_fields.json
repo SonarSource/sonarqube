@@ -8,7 +8,7 @@
       "resolution": "FIXED",
       "status": "RESOLVED",
       "message": "the message",
-      "debt": "10min",
+      "effort": "10min",
       "assignee": "simon",
       "reporter": "fabrice",
       "author": "John",

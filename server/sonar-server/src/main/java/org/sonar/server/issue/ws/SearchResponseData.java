@@ -29,13 +29,13 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.server.issue.workflow.Transition;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.issue.workflow.Transition;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -46,7 +46,7 @@ public class SearchResponseData {
 
   private final List<IssueDto> issues;
 
-  private Long debtTotal = null;
+  private Long effortTotal = null;
   private List<UserDto> users = null;
   private List<RuleDto> rules = null;
   private List<ActionPlanDto> actionPlans = null;
@@ -157,11 +157,11 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  public Long getDebtTotal() {
-    return debtTotal;
+  public Long getEffortTotal() {
+    return effortTotal;
   }
 
-  public void setDebtTotal(@Nullable Long debtTotal) {
-    this.debtTotal = debtTotal;
+  public void setEffortTotal(@Nullable Long effortTotal) {
+    this.effortTotal = effortTotal;
   }
 }

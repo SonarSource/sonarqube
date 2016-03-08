@@ -47,7 +47,6 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.Issues.SearchWsResponse;
-import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -73,8 +72,12 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_BEFORE;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.DIRECTORIES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_ASSIGNED_TO_ME;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_COUNT;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFFORT;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.FILE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ISSUES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.LANGUAGES;
@@ -119,7 +122,8 @@ public class SearchAction implements IssuesWsAction {
       .createAction(SEARCH_ACTION)
       .setHandler(this)
       .setDescription(
-        "Search for issues. Requires Browse permission on project(s)")
+        "Search for issues. Requires Browse permission on project(s).<br/>" +
+          "Since 5.5, response field 'debt' has been renamed to 'effort'")
       .setSince("3.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
 
@@ -127,41 +131,42 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
       .setPossibleValues(IssueIndex.SUPPORTED_FACETS);
-    action.createParam(IssueFilterParameters.FACET_MODE)
-      .setDefaultValue(IssueFilterParameters.FACET_MODE_COUNT)
-      .setDescription("Choose the returned value for facet items, either count of issues or sum of debt.")
-      .setPossibleValues(IssueFilterParameters.FACET_MODE_COUNT, IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT);
+    action.createParam(FACET_MODE)
+      .setDefaultValue(FACET_MODE_COUNT)
+      .setDescription("Choose the returned value for facet items, either count of issues or sum of debt.<br/>" +
+        "Since 5.5, 'debt' mode is deprecated and replaced by 'effort'")
+      .setPossibleValues(FACET_MODE_COUNT, FACET_MODE_EFFORT, DEPRECATED_FACET_MODE_DEBT);
     action.addSortParams(IssueQuery.SORTS, null, true);
-    action.createParam(IssueFilterParameters.ADDITIONAL_FIELDS)
+    action.createParam(ADDITIONAL_FIELDS)
       .setSince("5.2")
       .setDescription("Comma-separated list of the optional fields to be returned in response.")
       .setPossibleValues(SearchAdditionalField.possibleValues());
     addComponentRelatedParams(action);
-    action.createParam(IssueFilterParameters.ISSUES)
+    action.createParam(ISSUES)
       .setDescription("Comma-separated list of issue keys")
       .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-    action.createParam(IssueFilterParameters.SEVERITIES)
+    action.createParam(SEVERITIES)
       .setDescription("Comma-separated list of severities")
       .setExampleValue(Severity.BLOCKER + "," + Severity.CRITICAL)
       .setPossibleValues(Severity.ALL);
-    action.createParam(IssueFilterParameters.STATUSES)
+    action.createParam(STATUSES)
       .setDescription("Comma-separated list of statuses")
       .setExampleValue(Issue.STATUS_OPEN + "," + Issue.STATUS_REOPENED)
       .setPossibleValues(Issue.STATUSES);
-    action.createParam(IssueFilterParameters.RESOLUTIONS)
+    action.createParam(RESOLUTIONS)
       .setDescription("Comma-separated list of resolutions")
       .setExampleValue(Issue.RESOLUTION_FIXED + "," + Issue.RESOLUTION_REMOVED)
       .setPossibleValues(Issue.RESOLUTIONS);
-    action.createParam(IssueFilterParameters.RESOLVED)
+    action.createParam(RESOLVED)
       .setDescription("To match resolved or unresolved issues")
       .setBooleanPossibleValues();
-    action.createParam(IssueFilterParameters.RULES)
+    action.createParam(RULES)
       .setDescription("Comma-separated list of coding rule keys. Format is <repository>:<rule>")
       .setExampleValue("squid:AvoidCycles");
-    action.createParam(IssueFilterParameters.TAGS)
+    action.createParam(TAGS)
       .setDescription("Comma-separated list of tags.")
       .setExampleValue("security,convention");
-    action.createParam(IssueFilterParameters.TYPES)
+    action.createParam(TYPES)
       .setDescription("Comma-separated list of types.")
       .setSince("5.5")
       .setPossibleValues(RuleType.values())
@@ -169,34 +174,34 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(ACTION_PLANS)
       .setDescription("Comma-separated list of action plan keys (not names)")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
-    action.createParam(IssueFilterParameters.PLANNED)
+    action.createParam(PLANNED)
       .setDescription("To retrieve issues associated to an action plan or not")
       .setBooleanPossibleValues();
-    action.createParam(IssueFilterParameters.REPORTERS)
+    action.createParam(REPORTERS)
       .setDescription("Comma-separated list of reporter logins")
       .setExampleValue("admin");
-    action.createParam(IssueFilterParameters.AUTHORS)
+    action.createParam(AUTHORS)
       .setDescription("Comma-separated list of SCM accounts")
       .setExampleValue("torvalds@linux-foundation.org");
-    action.createParam(IssueFilterParameters.ASSIGNEES)
+    action.createParam(ASSIGNEES)
       .setDescription("Comma-separated list of assignee logins. The value '__me__' can be used as a placeholder for user who performs the request")
       .setExampleValue("admin,usera,__me__");
-    action.createParam(IssueFilterParameters.ASSIGNED)
+    action.createParam(ASSIGNED)
       .setDescription("To retrieve assigned or unassigned issues")
       .setBooleanPossibleValues();
-    action.createParam(IssueFilterParameters.LANGUAGES)
+    action.createParam(LANGUAGES)
       .setDescription("Comma-separated list of languages. Available since 4.4")
       .setExampleValue("java,js");
-    action.createParam(IssueFilterParameters.CREATED_AT)
+    action.createParam(CREATED_AT)
       .setDescription("To retrieve issues created in a specific analysis, identified by an ISO-formatted datetime stamp.")
       .setExampleValue("2013-05-01T13:00:00+0100");
-    action.createParam(IssueFilterParameters.CREATED_AFTER)
+    action.createParam(CREATED_AFTER)
       .setDescription("To retrieve issues created after the given date (exclusive). Format: date or datetime ISO formats. If this parameter is set, createdSince must not be set")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
-    action.createParam(IssueFilterParameters.CREATED_BEFORE)
+    action.createParam(CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (exclusive). Format: date or datetime ISO formats")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
-    action.createParam(IssueFilterParameters.CREATED_IN_LAST)
+    action.createParam(CREATED_IN_LAST)
       .setDescription("To retrieve issues created during a time span before the current time (exclusive). " +
         "Accepted units are 'y' for year, 'm' for month, 'w' for week and 'd' for day. " +
         "If this parameter is set, createdAfter must not be set")
@@ -204,7 +209,7 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
-    action.createParam(IssueFilterParameters.ON_COMPONENT_ONLY)
+    action.createParam(ON_COMPONENT_ONLY)
       .setDescription("Return only issues at a component's level, not on its descendants (modules, directories, files, etc). " +
         "This parameter is only considered when componentKeys or componentUuids is set. " +
         "Using the deprecated componentRoots or componentRootUuids parameters will set this parameter to false. " +
@@ -212,56 +217,56 @@ public class SearchAction implements IssuesWsAction {
       .setBooleanPossibleValues()
       .setDefaultValue("false");
 
-    action.createParam(IssueFilterParameters.COMPONENT_KEYS)
+    action.createParam(COMPONENT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of components sub-components (comma-separated list of component keys). " +
         "A component can be a view, developer, project, module, directory or file. " +
         "If this parameter is set, componentUuids must not be set.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    action.createParam(IssueFilterParameters.COMPONENTS)
+    action.createParam(COMPONENTS)
       .setDeprecatedSince("5.1")
       .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=true.");
-    action.createParam(IssueFilterParameters.COMPONENT_UUIDS)
+    action.createParam(COMPONENT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "A component can be a project, module, directory or file. " +
         "If this parameter is set, componentKeys must not be set.")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
 
-    action.createParam(IssueFilterParameters.COMPONENT_ROOTS)
+    action.createParam(COMPONENT_ROOTS)
       .setDeprecatedSince("5.1")
       .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=false.");
-    action.createParam(IssueFilterParameters.COMPONENT_ROOT_UUIDS)
+    action.createParam(COMPONENT_ROOT_UUIDS)
       .setDeprecatedSince("5.1")
       .setDescription("If used, will have the same meaning as componentUuids AND onComponentOnly=false.");
 
-    action.createParam(IssueFilterParameters.PROJECTS)
+    action.createParam(PROJECTS)
       .setDeprecatedSince("5.1")
       .setDescription("See projectKeys");
-    action.createParam(IssueFilterParameters.PROJECT_KEYS)
+    action.createParam(PROJECT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project keys). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "If this parameter is set, projectUuids must not be set.")
-      .setDeprecatedKey(IssueFilterParameters.PROJECTS)
+      .setDeprecatedKey(PROJECTS)
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
-    action.createParam(IssueFilterParameters.PROJECT_UUIDS)
+    action.createParam(PROJECT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of projects (comma-separated list of project UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, projectKeys must not be set.")
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
-    action.createParam(IssueFilterParameters.MODULE_UUIDS)
+    action.createParam(MODULE_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of modules (comma-separated list of module UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
         "Views are not supported. If this parameter is set, moduleKeys must not be set.")
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
-    action.createParam(IssueFilterParameters.DIRECTORIES)
+    action.createParam(DIRECTORIES)
       .setDescription("Since 5.1. To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). " +
         "This parameter is only meaningful when a module is selected. " +
         INTERNAL_PARAMETER_DISCLAIMER)
       .setExampleValue("src/main/java/org/sonar/server/");
 
-    action.createParam(IssueFilterParameters.FILE_UUIDS)
+    action.createParam(FILE_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of files (comma-separated list of file UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER)
       .setExampleValue("bdd82933-3070-4903-9188-7d8749e8bb92");
@@ -328,10 +333,10 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private void completeFacets(Facets facets, SearchWsRequest request, Request wsRequest) {
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.SEVERITIES, Severity.ALL);
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.STATUSES, Issue.STATUSES);
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.RESOLUTIONS, concat(singletonList(""), Issue.RESOLUTIONS));
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.PROJECT_UUIDS, request.getProjectUuids());
+    addMandatoryValuesToFacet(facets, SEVERITIES, Severity.ALL);
+    addMandatoryValuesToFacet(facets, STATUSES, Issue.STATUSES);
+    addMandatoryValuesToFacet(facets, RESOLUTIONS, concat(singletonList(""), Issue.RESOLUTIONS));
+    addMandatoryValuesToFacet(facets, PROJECT_UUIDS, request.getProjectUuids());
 
     List<String> assignees = Lists.newArrayList("");
     List<String> assigneesFromRequest = request.getAssignees();
@@ -339,24 +344,24 @@ public class SearchAction implements IssuesWsAction {
       assignees.addAll(assigneesFromRequest);
       assignees.remove(IssueQueryService.LOGIN_MYSELF);
     }
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.ASSIGNEES, assignees);
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.FACET_ASSIGNED_TO_ME, singletonList(userSession.getLogin()));
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.REPORTERS, request.getReporters());
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.RULES, request.getRules());
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.LANGUAGES, request.getLanguages());
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.TAGS, request.getTags());
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.TYPES, RuleType.ALL_NAMES);
+    addMandatoryValuesToFacet(facets, ASSIGNEES, assignees);
+    addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getLogin()));
+    addMandatoryValuesToFacet(facets, REPORTERS, request.getReporters());
+    addMandatoryValuesToFacet(facets, RULES, request.getRules());
+    addMandatoryValuesToFacet(facets, LANGUAGES, request.getLanguages());
+    addMandatoryValuesToFacet(facets, TAGS, request.getTags());
+    addMandatoryValuesToFacet(facets, TYPES, RuleType.ALL_NAMES);
     List<String> actionPlans = Lists.newArrayList("");
     List<String> actionPlansFromRequest = request.getActionPlans();
     if (actionPlansFromRequest != null) {
       actionPlans.addAll(actionPlansFromRequest);
     }
     addMandatoryValuesToFacet(facets, ACTION_PLANS, actionPlans);
-    addMandatoryValuesToFacet(facets, IssueFilterParameters.COMPONENT_UUIDS, request.getComponentUuids());
+    addMandatoryValuesToFacet(facets, COMPONENT_UUIDS, request.getComponentUuids());
 
     for (String facetName : request.getFacets()) {
       LinkedHashMap<String, Long> buckets = facets.get(facetName);
-      if (!IssueFilterParameters.FACET_ASSIGNED_TO_ME.equals(facetName)) {
+      if (!FACET_ASSIGNED_TO_ME.equals(facetName)) {
         if (buckets != null) {
           List<String> requestParams = wsRequest.paramAsStrings(facetName);
           if (requestParams != null) {
@@ -390,16 +395,16 @@ public class SearchAction implements IssuesWsAction {
   }
 
   private void collectFacets(SearchResponseLoader.Collector collector, Facets facets) {
-    Set<String> facetRules = facets.getBucketKeys(IssueFilterParameters.RULES);
+    Set<String> facetRules = facets.getBucketKeys(RULES);
     if (facetRules != null) {
       collector.addAll(SearchAdditionalField.RULES, from(facetRules).transform(RuleKeyFunctions.stringToRuleKey()));
     }
-    collector.addProjectUuids(facets.getBucketKeys(IssueFilterParameters.PROJECT_UUIDS));
-    collector.addComponentUuids(facets.getBucketKeys(IssueFilterParameters.COMPONENT_UUIDS));
-    collector.addComponentUuids(facets.getBucketKeys(IssueFilterParameters.FILE_UUIDS));
-    collector.addComponentUuids(facets.getBucketKeys(IssueFilterParameters.MODULE_UUIDS));
-    collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(IssueFilterParameters.ASSIGNEES));
-    collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(IssueFilterParameters.REPORTERS));
+    collector.addProjectUuids(facets.getBucketKeys(PROJECT_UUIDS));
+    collector.addComponentUuids(facets.getBucketKeys(COMPONENT_UUIDS));
+    collector.addComponentUuids(facets.getBucketKeys(FILE_UUIDS));
+    collector.addComponentUuids(facets.getBucketKeys(MODULE_UUIDS));
+    collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(ASSIGNEES));
+    collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(REPORTERS));
     collector.addAll(SearchAdditionalField.ACTION_PLANS, facets.getBucketKeys(ACTION_PLANS));
   }
 

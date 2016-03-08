@@ -69,7 +69,7 @@ public class SearchResponseFormat {
     Issues.SearchWsResponse.Builder response = Issues.SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
-    formatDebtTotal(data, response);
+    formatEffortTotal(data, response);
     response.addAllIssues(formatIssues(fields, data));
     response.addAllComponents(formatComponents(data));
     if (facets != null) {
@@ -109,10 +109,11 @@ public class SearchResponseFormat {
     return response.build();
   }
 
-  private void formatDebtTotal(SearchResponseData data, Issues.SearchWsResponse.Builder response) {
-    Long debt = data.getDebtTotal();
-    if (debt != null) {
-      response.setDebtTotal(debt);
+  private void formatEffortTotal(SearchResponseData data, Issues.SearchWsResponse.Builder response) {
+    Long effort = data.getEffortTotal();
+    if (effort != null) {
+      response.setDebtTotal(effort);
+      response.setEffortTotal(effort);
     }
   }
 
@@ -178,9 +179,11 @@ public class SearchResponseFormat {
     }
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllTags(dto.getTags());
-    Long debt = dto.getEffort();
-    if (debt != null) {
-      issueBuilder.setDebt(durations.encode(Duration.create(debt)));
+    Long effort = dto.getEffort();
+    if (effort != null) {
+      String effortValue = durations.encode(Duration.create(effort));
+      issueBuilder.setDebt(effortValue);
+      issueBuilder.setEffort(effortValue);
     }
     Integer line = dto.getLine();
     if (line != null) {

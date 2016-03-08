@@ -7,7 +7,7 @@
       "rule": "xoo:x1",
       "status": "OPEN",
       "severity": "MAJOR",
-      "debt": "10min",
+      "effort": "10min",
       "assignee": "john"
     }
   ],

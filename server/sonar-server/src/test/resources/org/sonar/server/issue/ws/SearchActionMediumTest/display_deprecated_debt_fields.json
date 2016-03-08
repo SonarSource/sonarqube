@@ -1,4 +1,6 @@
 {
+  "debtTotal": 10,
+  "effortTotal": 10,
   "issues": [
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
@@ -7,8 +9,8 @@
       "rule": "xoo:x1",
       "status": "OPEN",
       "severity": "MAJOR",
-      "effort": "10min"
+      "effort": "10min",
+      "debt": "10min"
     }
-  ],
-  "rules": []
+  ]
 }
