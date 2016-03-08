@@ -20,13 +20,12 @@
 package org.sonar.server.issue;
 
 import com.google.common.collect.Maps;
-import org.sonar.core.issue.FieldDiffs;
-import org.sonar.api.user.User;
-
-import javax.annotation.CheckForNull;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.api.user.User;
+import org.sonar.core.issue.FieldDiffs;
 
 /**
  * @since 3.6
@@ -38,6 +37,7 @@ public class IssueChangelog {
 
   public IssueChangelog(List<FieldDiffs> changes, Collection<User> users) {
     this.changes = changes;
+    replacedTechnicalDebtByEffort(changes);
     this.usersByLogin = Maps.newHashMap();
     for (User user : users) {
       usersByLogin.put(user.login(), user);
@@ -46,6 +46,19 @@ public class IssueChangelog {
 
   public List<FieldDiffs> changes() {
     return changes;
+  }
+
+  private static void replacedTechnicalDebtByEffort(List<FieldDiffs> changes) {
+    for (FieldDiffs fieldDiffs : changes) {
+      Map<String, FieldDiffs.Diff> diffs = fieldDiffs.diffs();
+      for (Map.Entry<String, FieldDiffs.Diff> entry : diffs.entrySet()) {
+        // As "technicalDebt" couldn't been updated to "effort" in db, we need to convert it here to correctly display "effort" in WS/UI
+        if (entry.getKey().equals(IssueUpdater.TECHNICAL_DEBT)) {
+          diffs.put("effort", entry.getValue());
+          diffs.remove(entry.getKey());
+        }
+      }
+    }
   }
 
   @CheckForNull

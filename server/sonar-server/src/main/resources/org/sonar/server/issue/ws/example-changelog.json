@@ -6,7 +6,7 @@
       "creationDate": "2014-03-04T23:03:44+0100",
       "diffs": [
         {
-          "key": "technicalDebt",
+          "key": "effort",
           "newValue": "2min"
         }
       ]

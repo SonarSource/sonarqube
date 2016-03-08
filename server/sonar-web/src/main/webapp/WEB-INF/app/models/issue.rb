@@ -83,8 +83,8 @@ class Issue
         diff = entry.getValue()
         hash_diff = {}
         hash_diff[:key] = key
-        if key == 'technicalDebt'
-          # debt is store as a number of minutes in the changelog, so we first create a Duration from the value then we decode it
+        if key == 'effort'
+          # effort is store as a number of minutes in the changelog, so we first create a Duration from the value then we decode it
           hash_diff[:newValue] = Internal.durations.encode(Internal.durations.create(diff.newValue().to_i)) if diff.newValue.present?
           hash_diff[:oldValue] = Internal.durations.encode(Internal.durations.create(diff.oldValue().to_i)) if diff.oldValue.present?
         else

@@ -59,6 +59,10 @@ public class IssueUpdater {
   public static final String STATUS = "status";
   public static final String AUTHOR = "author";
   public static final String ACTION_PLAN = "actionPlan";
+
+  /**
+   * It should be renamed to 'effort', but it hasn't been done to prevent a massive update in database
+   */
   public static final String TECHNICAL_DEBT = "technicalDebt";
   public static final String TAGS = "tags";
 

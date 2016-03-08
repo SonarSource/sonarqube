@@ -27,12 +27,12 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.FieldDiffs;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
-import org.sonar.db.issue.IssueChangeDao;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.user.DefaultUser;
+import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -82,6 +82,21 @@ public class IssueChangelogServiceTest {
     assertThat(changelog.changes()).containsOnly(userChange, scanChange);
     assertThat(changelog.user(scanChange)).isNull();
     assertThat(changelog.user(userChange)).isSameAs(arthur);
+  }
+
+  @Test
+  public void rename_technical_debt_change_to_effort() {
+    FieldDiffs userChange = new FieldDiffs().setUserLogin("arthur").setDiff("technicalDebt", "10min", "30min");
+    when(changeDao.selectChangelogByIssue("ABCDE")).thenReturn(Arrays.asList(userChange));
+    User arthur = new DefaultUser().setLogin("arthur").setName("Arthur");
+    when(userFinder.findByLogins(Arrays.asList("arthur"))).thenReturn(Arrays.asList(arthur));
+    when(issueService.getByKey("ABCDE")).thenReturn(new DefaultIssue().setKey("ABCDE"));
+
+    IssueChangelog changelog = service.changelog("ABCDE");
+
+    assertThat(changelog).isNotNull();
+    assertThat(changelog.changes()).hasSize(1);
+    assertThat(changelog.changes().get(0).diffs()).containsKeys("effort");
   }
 
   @Test
