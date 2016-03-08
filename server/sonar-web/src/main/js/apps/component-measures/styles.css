@@ -5,8 +5,9 @@
   column-gap: 60px;
 }
 
-.measures-domains > li + li {
-  margin-top: 40px;
+.measures-domains > li {
+  padding-bottom: 40px;
+  break-inside: avoid;
 }
 
 .measures-domains-leak-header {
@@ -16,7 +17,6 @@
   border: 1px solid #eae3c7;
   background-color: #fbf3d5;
 }
-
 
 .domain-measures > li > a {
   display: flex;
