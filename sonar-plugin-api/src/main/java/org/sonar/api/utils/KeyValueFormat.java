@@ -27,7 +27,6 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.apache.commons.collections.Bag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.rules.RulePriority;
@@ -440,25 +439,4 @@ public final class KeyValueFormat {
     return format(map, newStringConverter(), newIntegerConverter());
   }
 
-  /**
-   * @since 1.11
-   * @deprecated use Multiset from google collections instead of commons-collections bags
-   */
-  @Deprecated
-  public static String format(Bag bag, int var) {
-    StringBuilder sb = new StringBuilder();
-    if (bag != null) {
-      boolean first = true;
-      for (Object obj : bag.uniqueSet()) {
-        if (!first) {
-          sb.append(PAIR_SEPARATOR);
-        }
-        sb.append(obj.toString());
-        sb.append(FIELD_SEPARATOR);
-        sb.append(bag.getCount(obj) + var);
-        first = false;
-      }
-    }
-    return sb.toString();
-  }
 }

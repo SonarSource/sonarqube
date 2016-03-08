@@ -19,17 +19,15 @@
  */
 package org.sonar.api.rules;
 
-import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.collections.Transformer;
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.sonar.api.profiles.RulesProfile;
-
-import javax.annotation.CheckForNull;
-
+import com.google.common.base.Function;
+import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.sonar.api.profiles.RulesProfile;
 
 public class ActiveRule implements Cloneable {
 
@@ -289,15 +287,15 @@ public class ActiveRule implements Cloneable {
   public Object clone() {
     final ActiveRule clone = new ActiveRule(getRulesProfile(), getRule(), getSeverity());
     clone.setInheritance(getInheritance());
-    if (CollectionUtils.isNotEmpty(getActiveRuleParams())) {
-      clone.setActiveRuleParams(new ArrayList<ActiveRuleParam>(CollectionUtils.collect(getActiveRuleParams(), new Transformer() {
+    if (activeRuleParams != null && !activeRuleParams.isEmpty()) {
+      clone.setActiveRuleParams(Lists.transform(activeRuleParams, new Function<ActiveRuleParam, ActiveRuleParam>() {
         @Override
-        public Object transform(Object input) {
-          ActiveRuleParam activeRuleParamClone = (ActiveRuleParam) ((ActiveRuleParam) input).clone();
+        public ActiveRuleParam apply(ActiveRuleParam input) {
+          ActiveRuleParam activeRuleParamClone = (ActiveRuleParam) input.clone();
           activeRuleParamClone.setActiveRule(clone);
           return activeRuleParamClone;
         }
-      })));
+      }));
     }
     return clone;
   }

@@ -19,9 +19,9 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.collect.Multiset;
+import com.google.common.collect.TreeMultiset;
 import java.util.Map;
-import org.apache.commons.collections.SortedBag;
-import org.apache.commons.collections.bag.TreeBag;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.math.NumberUtils;
 import org.sonar.api.utils.KeyValueFormat;
@@ -36,9 +36,8 @@ import org.sonar.api.utils.SonarException;
  */
 public class CountDistributionBuilder implements MeasureBuilder {
 
-  private Metric metric;
-  // TODO to be replaced by com.google.common.collect.SortedMultiset while upgrading to Guava 11+
-  private SortedBag countBag;
+  private final Metric metric;
+  private final Multiset countBag = TreeMultiset.create();
 
   /**
    * Creates an empty CountDistributionBuilder for a specified metric
@@ -46,8 +45,10 @@ public class CountDistributionBuilder implements MeasureBuilder {
    * @param metric the metric
    */
   public CountDistributionBuilder(Metric metric) {
-    setMetric(metric);
-    this.countBag = new TreeBag();
+    if (metric == null || !metric.isDataType()) {
+      throw new SonarException("Metric is null or has invalid type");
+    }
+    this.metric = metric;
   }
 
   /**
@@ -62,8 +63,8 @@ public class CountDistributionBuilder implements MeasureBuilder {
       addZero(value);
 
     } else {
-      if (this.countBag.add(value, count)) {
-        //hack
+      if (this.countBag.add(value, count) == 0) {
+        // hack
         this.countBag.add(value, 1);
       }
     }
@@ -152,16 +153,8 @@ public class CountDistributionBuilder implements MeasureBuilder {
    */
   public Measure build(boolean allowEmptyData) {
     if (!isEmpty() || allowEmptyData) {
-      //-1 is a hack to include zero values
-      return new Measure(metric, KeyValueFormat.format(countBag, -1));
+      return new Measure(metric, MultisetDistributionFormat.format(countBag));
     }
     return null;
-  }
-
-  private void setMetric(Metric metric) {
-    if (metric == null || !metric.isDataType()) {
-      throw new SonarException("Metric is null or has unvalid type");
-    }
-    this.metric = metric;
   }
 }

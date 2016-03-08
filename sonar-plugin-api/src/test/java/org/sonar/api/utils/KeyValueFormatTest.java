@@ -26,7 +26,6 @@ import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
-import org.apache.commons.collections.bag.TreeBag;
 import org.junit.Test;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.test.TestUtils;
@@ -234,22 +233,6 @@ public class KeyValueFormatTest {
   public void not_instantiable() {
     // only static methods. Bad pattern, should be improved.
     TestUtils.hasOnlyPrivateConstructors(KeyValueFormat.class);
-  }
-
-  @Test
-  public void formatBag() {
-    TreeBag bag = new TreeBag();
-    bag.add("hello", 1);
-    bag.add("key", 3);
-    assertThat(KeyValueFormat.format(bag, 0)).isEqualTo("hello=1;key=3");
-  }
-
-  @Test
-  public void formatBagWithVariationHack() {
-    TreeBag bag = new TreeBag();
-    bag.add("hello", 1);
-    bag.add("key", 3);
-    assertThat(KeyValueFormat.format(bag, -1)).isEqualTo("hello=0;key=2");
   }
 
 }

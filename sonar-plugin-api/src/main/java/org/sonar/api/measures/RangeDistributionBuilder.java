@@ -19,18 +19,19 @@
  */
 package org.sonar.api.measures;
 
+import com.google.common.base.Function;
+import com.google.common.collect.SortedMultiset;
+import com.google.common.collect.TreeMultiset;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.apache.commons.collections.SortedBag;
-import org.apache.commons.collections.Transformer;
-import org.apache.commons.collections.bag.TransformedSortedBag;
-import org.apache.commons.collections.bag.TreeBag;
 import org.apache.commons.lang.NumberUtils;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.api.utils.SonarException;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Utility to build a distribution based on defined ranges
@@ -44,10 +45,11 @@ import org.sonar.api.utils.SonarException;
 @Deprecated
 public class RangeDistributionBuilder implements MeasureBuilder {
 
-  private Metric<String> metric;
-  private SortedBag countBag;
+  private final Metric<String> metric;
+  private final SortedMultiset countBag = TreeMultiset.create();
   private boolean isEmpty = true;
   private Number[] bottomLimits;
+  private RangeTransformer rangeValueTransformer;
   private boolean isValid = true;
 
   /**
@@ -58,8 +60,14 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    * @param bottomLimits the bottom limits of ranges to be used
    */
   public RangeDistributionBuilder(Metric<String> metric, Number[] bottomLimits) {
-    setMetric(metric);
+    requireNonNull(metric, "Metric must not be null");
+    checkArgument(metric.isDataType(), "Metric %s must have data type", metric.key());
+    this.metric = metric;
     init(bottomLimits);
+  }
+
+  public RangeDistributionBuilder(Metric<String> metric) {
+    this.metric = metric;
   }
 
   private void init(Number[] bottomLimits) {
@@ -67,8 +75,8 @@ public class RangeDistributionBuilder implements MeasureBuilder {
     System.arraycopy(bottomLimits, 0, this.bottomLimits, 0, this.bottomLimits.length);
     Arrays.sort(this.bottomLimits);
     changeDoublesToInts();
-    countBag = TransformedSortedBag.decorate(new TreeBag(), new RangeTransformer());
     doClear();
+    this.rangeValueTransformer = new RangeTransformer();
   }
 
   private void changeDoublesToInts() {
@@ -83,10 +91,6 @@ public class RangeDistributionBuilder implements MeasureBuilder {
         bottomLimits[i] = bottomLimits[i].intValue();
       }
     }
-  }
-
-  public RangeDistributionBuilder(Metric<String> metric) {
-    this.metric = metric;
   }
 
   /**
@@ -115,9 +119,9 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    * @param count the number by which to increment
    * @return the current object
    */
-  public RangeDistributionBuilder add(Number value, int count) {
+  public RangeDistributionBuilder add(@Nullable Number value, int count) {
     if (value != null && greaterOrEqualsThan(value, bottomLimits[0])) {
-      this.countBag.add(value, count);
+      this.countBag.add(rangeValueTransformer.apply(value), count);
       isEmpty = false;
     }
     return this;
@@ -126,7 +130,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
   private RangeDistributionBuilder addLimitCount(Number limit, int count) {
     for (Number bottomLimit : bottomLimits) {
       if (NumberUtils.compare(bottomLimit.doubleValue(), limit.doubleValue()) == 0) {
-        this.countBag.add(limit, count);
+        this.countBag.add(rangeValueTransformer.apply(limit), count);
         isEmpty = false;
         return this;
       }
@@ -189,9 +193,7 @@ public class RangeDistributionBuilder implements MeasureBuilder {
   }
 
   private void doClear() {
-    if (countBag != null) {
-      countBag.clear();
-    }
+    countBag.clear();
     if (bottomLimits != null) {
       Collections.addAll(countBag, bottomLimits);
     }
@@ -223,15 +225,14 @@ public class RangeDistributionBuilder implements MeasureBuilder {
    */
   public Measure<String> build(boolean allowEmptyData) {
     if (isValid && (!isEmpty || allowEmptyData)) {
-      return new Measure<>(metric, KeyValueFormat.format(countBag, -1));
+      return new Measure<>(metric, MultisetDistributionFormat.format(countBag));
     }
     return null;
   }
 
-  private class RangeTransformer implements Transformer {
+  private class RangeTransformer implements Function<Number, Number> {
     @Override
-    public Object transform(Object o) {
-      Number n = (Number) o;
+    public Number apply(Number n) {
       for (int i = bottomLimits.length - 1; i >= 0; i--) {
         if (greaterOrEqualsThan(n, bottomLimits[i])) {
           return bottomLimits[i];
@@ -243,12 +244,5 @@ public class RangeDistributionBuilder implements MeasureBuilder {
 
   private static boolean greaterOrEqualsThan(Number n1, Number n2) {
     return NumberUtils.compare(n1.doubleValue(), n2.doubleValue()) >= 0;
-  }
-
-  private void setMetric(Metric metric) {
-    if (metric == null || !metric.isDataType()) {
-      throw new SonarException("Metric is null or has unvalid type");
-    }
-    this.metric = metric;
   }
 }
