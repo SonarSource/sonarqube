@@ -25,6 +25,6 @@ import org.sonar.api.web.WidgetCategory;
 public class IssuesWidget extends CoreWidget {
 
   public IssuesWidget() {
-    super("rules", "Issues and Technical Debt", "/org/sonar/server/dashboard/widget/issues.html.erb");
+    super("rules", "Issues and Effort", "/org/sonar/server/dashboard/widget/issues.html.erb");
   }
 }

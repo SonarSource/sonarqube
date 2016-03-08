@@ -65,7 +65,7 @@
   "coverage_viewer.overall_tests": "All Tests",
   "metric.test_failures.description": "Number of unit test failures",
   "dashboard.error_unshare_default": "This dashboard can't be unshared as long as it's defined as a default dashboard",
-  "issue.technical_debt": "Technical Debt:",
+  "issue.effort": "Effort:",
   "background_tasks.failures": "failures",
   "property.category.exclusions.duplications.description": "Configure the files that should be ignored by duplication detection.",
   "widget.treemap-widget.name": "Treemap of Components",
