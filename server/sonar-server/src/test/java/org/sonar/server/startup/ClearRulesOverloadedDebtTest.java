@@ -134,12 +134,12 @@ public class ClearRulesOverloadedDebtTest {
 
     RuleDto ruleDto = ruleDao.selectOrFailByKey(dbSession, ruleKey);
     assertThat(ruleDto.getRemediationFunction()).isNull();
-    assertThat(ruleDto.getRemediationCoefficient()).isNull();
-    assertThat(ruleDto.getRemediationOffset()).isNull();
+    assertThat(ruleDto.getRemediationGapMultiplier()).isNull();
+    assertThat(ruleDto.getRemediationBaseEffort()).isNull();
   }
 
   private RuleDto insertRuleDto(RuleKey ruleKey, @Nullable String function, @Nullable String coeff, @Nullable String offset) {
-    RuleDto ruleDto = RuleTesting.newDto(ruleKey).setRemediationFunction(function).setRemediationOffset(offset).setRemediationCoefficient(coeff);
+    RuleDto ruleDto = RuleTesting.newDto(ruleKey).setRemediationFunction(function).setRemediationBaseEffort(offset).setRemediationGapMultiplier(coeff);
     ruleDao.insert(dbSession,
       ruleDto
       );

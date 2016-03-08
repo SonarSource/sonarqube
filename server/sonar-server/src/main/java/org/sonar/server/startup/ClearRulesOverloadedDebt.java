@@ -82,8 +82,8 @@ public class ClearRulesOverloadedDebt implements Startable {
     for (RuleDto rule : dbClient.ruleDao().selectAll(session)) {
       if (isDebtOverridden(rule)) {
         rule.setRemediationFunction(null);
-        rule.setRemediationCoefficient(null);
-        rule.setRemediationOffset(null);
+        rule.setRemediationGapMultiplier(null);
+        rule.setRemediationBaseEffort(null);
         rule.setUpdatedAt(system2.now());
         dbClient.ruleDao().update(session, rule);
         countClearedRules++;
@@ -96,8 +96,8 @@ public class ClearRulesOverloadedDebt implements Startable {
   }
 
   private static boolean isDebtOverridden(RuleDto ruleDto) {
-    return ruleDto.getRemediationFunction() != null || ruleDto.getRemediationCoefficient() != null
-      || ruleDto.getRemediationOffset() != null;
+    return ruleDto.getRemediationFunction() != null || ruleDto.getRemediationGapMultiplier() != null
+      || ruleDto.getRemediationBaseEffort() != null;
   }
 
   private boolean isSqalePluginInstalled(DbSession session) {

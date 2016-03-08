@@ -114,8 +114,8 @@ public class RuleMapper {
   }
 
   private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) && ruleDto.getEffortToFixDescription() != null) {
-      ruleResponse.setEffortToFixDescription(ruleDto.getEffortToFixDescription());
+    if (shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) && ruleDto.getGapDescription() != null) {
+      ruleResponse.setEffortToFixDescription(ruleDto.getGapDescription());
     }
   }
 
@@ -294,12 +294,12 @@ public class RuleMapper {
 
         @Override
         public String coefficient() {
-          return ruleDto.getDefaultRemediationCoefficient();
+          return ruleDto.getDefaultRemediationGapMultiplier();
         }
 
         @Override
         public String offset() {
-          return ruleDto.getDefaultRemediationOffset();
+          return ruleDto.getDefaultRemediationBaseEffort();
         }
       };
     }
@@ -318,12 +318,12 @@ public class RuleMapper {
 
         @Override
         public String coefficient() {
-          return ruleDto.getRemediationCoefficient();
+          return ruleDto.getRemediationGapMultiplier();
         }
 
         @Override
         public String offset() {
-          return ruleDto.getRemediationOffset();
+          return ruleDto.getRemediationBaseEffort();
         }
       };
     }

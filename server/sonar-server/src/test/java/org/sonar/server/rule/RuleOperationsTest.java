@@ -33,7 +33,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.rule.RuleOperations.RuleChange;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.MockUserSession;
@@ -77,7 +76,7 @@ public class RuleOperationsTest {
   @Test
   public void update_rule() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-      .setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
+      .setRemediationFunction("CONSTANT_ISSUE").setRemediationBaseEffort("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
     when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
@@ -95,8 +94,8 @@ public class RuleOperationsTest {
 
     assertThat(result.getId()).isEqualTo(1);
     assertThat(result.getRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(result.getRemediationCoefficient()).isEqualTo("2h");
-    assertThat(result.getRemediationOffset()).isEqualTo("20min");
+    assertThat(result.getRemediationGapMultiplier()).isEqualTo("2h");
+    assertThat(result.getRemediationBaseEffort()).isEqualTo("20min");
 
     verify(ruleIndexer).index();
   }
@@ -104,8 +103,8 @@ public class RuleOperationsTest {
   @Test
   public void update_rule_set_overridden_values_to_null_when_new_values_are_equals_to_default_values() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-      .setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min")
-      .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
+      .setRemediationFunction("CONSTANT_ISSUE").setRemediationBaseEffort("10min")
+      .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationBaseEffort("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
     when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
@@ -124,14 +123,14 @@ public class RuleOperationsTest {
 
     assertThat(result.getId()).isEqualTo(1);
     assertThat(result.getRemediationFunction()).isNull();
-    assertThat(result.getRemediationCoefficient()).isNull();
-    assertThat(result.getRemediationOffset()).isNull();
+    assertThat(result.getRemediationGapMultiplier()).isNull();
+    assertThat(result.getRemediationBaseEffort()).isNull();
   }
 
   @Test
   public void not_update_rule_if_same_function() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-      .setRemediationFunction("CONSTANT_ISSUE").setRemediationOffset("10min");
+      .setRemediationFunction("CONSTANT_ISSUE").setRemediationBaseEffort("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
     when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
@@ -150,7 +149,7 @@ public class RuleOperationsTest {
   @Test
   public void update_rule_set_remediation_function_if_different_from_default_one() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-      .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
+      .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationBaseEffort("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
     when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
@@ -169,14 +168,14 @@ public class RuleOperationsTest {
 
     assertThat(result.getId()).isEqualTo(1);
     assertThat(result.getRemediationFunction()).isEqualTo("LINEAR");
-    assertThat(result.getRemediationOffset()).isNull();
-    assertThat(result.getRemediationCoefficient()).isEqualTo("10min");
+    assertThat(result.getRemediationBaseEffort()).isNull();
+    assertThat(result.getRemediationGapMultiplier()).isEqualTo("10min");
   }
 
   @Test
   public void disable_rule_debt_when_update_rule_with_no_function() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-      .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationOffset("10min");
+      .setDefaultRemediationFunction("CONSTANT_ISSUE").setDefaultRemediationBaseEffort("10min");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
     when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);
@@ -190,14 +189,14 @@ public class RuleOperationsTest {
 
     assertThat(result.getId()).isEqualTo(1);
     assertThat(result.getRemediationFunction()).isNull();
-    assertThat(result.getRemediationCoefficient()).isNull();
-    assertThat(result.getRemediationOffset()).isNull();
+    assertThat(result.getRemediationGapMultiplier()).isNull();
+    assertThat(result.getRemediationBaseEffort()).isNull();
   }
 
   @Test
   public void fail_to_update_rule_on_invalid_coefficient() {
     RuleDto dto = new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
-      .setRemediationFunction("LINEAR").setRemediationCoefficient("1h");
+      .setRemediationFunction("LINEAR").setRemediationGapMultiplier("1h");
     RuleKey ruleKey = RuleKey.of("squid", "UselessImportCheck");
 
     when(ruleDao.selectOrFailByKey(session, ruleKey)).thenReturn(dto);

@@ -61,11 +61,11 @@ public class RuleDto {
   private Date noteUpdatedAt;
   private String remediationFunction;
   private String defaultRemediationFunction;
-  private String remediationCoefficient;
-  private String defaultRemediationCoefficient;
-  private String remediationOffset;
-  private String defaultRemediationOffset;
-  private String effortToFixDescription;
+  private String remediationGapMultiplier;
+  private String defaultRemediationGapMultiplier;
+  private String remediationBaseEffort;
+  private String defaultRemediationBaseEffort;
+  private String gapDescription;
   private String tags;
   private String systemTags;
   private int type;
@@ -262,52 +262,52 @@ public class RuleDto {
   }
 
   @CheckForNull
-  public String getRemediationCoefficient() {
-    return remediationCoefficient;
+  public String getRemediationGapMultiplier() {
+    return remediationGapMultiplier;
   }
 
-  public RuleDto setRemediationCoefficient(@Nullable String remediationCoefficient) {
-    this.remediationCoefficient = remediationCoefficient;
+  public RuleDto setRemediationGapMultiplier(@Nullable String remediationGapMultiplier) {
+    this.remediationGapMultiplier = remediationGapMultiplier;
     return this;
   }
 
   @CheckForNull
-  public String getDefaultRemediationCoefficient() {
-    return defaultRemediationCoefficient;
+  public String getDefaultRemediationGapMultiplier() {
+    return defaultRemediationGapMultiplier;
   }
 
-  public RuleDto setDefaultRemediationCoefficient(@Nullable String defaultRemediationCoefficient) {
-    this.defaultRemediationCoefficient = defaultRemediationCoefficient;
+  public RuleDto setDefaultRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
+    this.defaultRemediationGapMultiplier = defaultRemediationGapMultiplier;
     return this;
   }
 
   @CheckForNull
-  public String getRemediationOffset() {
-    return remediationOffset;
+  public String getRemediationBaseEffort() {
+    return remediationBaseEffort;
   }
 
-  public RuleDto setRemediationOffset(@Nullable String remediationOffset) {
-    this.remediationOffset = remediationOffset;
+  public RuleDto setRemediationBaseEffort(@Nullable String remediationBaseEffort) {
+    this.remediationBaseEffort = remediationBaseEffort;
     return this;
   }
 
   @CheckForNull
-  public String getDefaultRemediationOffset() {
-    return defaultRemediationOffset;
+  public String getDefaultRemediationBaseEffort() {
+    return defaultRemediationBaseEffort;
   }
 
-  public RuleDto setDefaultRemediationOffset(@Nullable String defaultRemediationOffset) {
-    this.defaultRemediationOffset = defaultRemediationOffset;
+  public RuleDto setDefaultRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
+    this.defaultRemediationBaseEffort = defaultRemediationBaseEffort;
     return this;
   }
 
   @CheckForNull
-  public String getEffortToFixDescription() {
-    return effortToFixDescription;
+  public String getGapDescription() {
+    return gapDescription;
   }
 
-  public RuleDto setEffortToFixDescription(@Nullable String s) {
-    this.effortToFixDescription = s;
+  public RuleDto setGapDescription(@Nullable String s) {
+    this.gapDescription = s;
     return this;
   }
 

@@ -224,11 +224,11 @@ public class SearchActionMediumTest {
   public void search_debt_rules_with_default_and_overridden_debt_values() throws Exception {
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+      .setDefaultRemediationGapMultiplier("1h")
+      .setDefaultRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setRemediationCoefficient("2h")
-      .setRemediationOffset("25min"));
+      .setRemediationGapMultiplier("2h")
+      .setRemediationBaseEffort("25min"));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -242,11 +242,11 @@ public class SearchActionMediumTest {
   public void search_debt_rules_with_default_linear_offset_and_overridden_constant_debt() throws Exception {
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+      .setDefaultRemediationGapMultiplier("1h")
+      .setDefaultRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.name())
-      .setRemediationCoefficient(null)
-      .setRemediationOffset("5min"));
+      .setRemediationGapMultiplier(null)
+      .setRemediationBaseEffort("5min"));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -260,11 +260,11 @@ public class SearchActionMediumTest {
   public void search_debt_rules_with_default_linear_offset_and_overridden_linear_debt() throws Exception {
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("15min")
+      .setDefaultRemediationGapMultiplier("1h")
+      .setDefaultRemediationBaseEffort("15min")
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.name())
-      .setRemediationCoefficient("1h")
-      .setRemediationOffset(null));
+      .setRemediationGapMultiplier("1h")
+      .setRemediationBaseEffort(null));
     dbSession.commit();
     ruleIndexer.index();
 

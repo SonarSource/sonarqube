@@ -176,7 +176,7 @@ public class RegisterRules implements Startable {
       .setName(ruleDef.name())
       .setSeverity(ruleDef.severity())
       .setStatus(ruleDef.status())
-      .setEffortToFixDescription(ruleDef.effortToFixDescription())
+      .setGapDescription(ruleDef.effortToFixDescription())
       .setSystemTags(ruleDef.tags())
       .setType(RuleType.valueOf(ruleDef.type().name()))
       .setCreatedAt(system2.now())
@@ -272,16 +272,16 @@ public class RegisterRules implements Startable {
       dto.setDefaultRemediationFunction(remediationFunction);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDefaultRemediationCoefficient(), remediationCoefficient)) {
-      dto.setDefaultRemediationCoefficient(remediationCoefficient);
+    if (!StringUtils.equals(dto.getDefaultRemediationGapMultiplier(), remediationCoefficient)) {
+      dto.setDefaultRemediationGapMultiplier(remediationCoefficient);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getDefaultRemediationOffset(), remediationOffset)) {
-      dto.setDefaultRemediationOffset(remediationOffset);
+    if (!StringUtils.equals(dto.getDefaultRemediationBaseEffort(), remediationOffset)) {
+      dto.setDefaultRemediationBaseEffort(remediationOffset);
       changed = true;
     }
-    if (!StringUtils.equals(dto.getEffortToFixDescription(), effortToFixDescription)) {
-      dto.setEffortToFixDescription(effortToFixDescription);
+    if (!StringUtils.equals(dto.getGapDescription(), effortToFixDescription)) {
+      dto.setGapDescription(effortToFixDescription);
       changed = true;
     }
     return changed;
@@ -414,16 +414,16 @@ public class RegisterRules implements Startable {
       customRule.setDefaultRemediationFunction(templateRule.getDefaultRemediationFunction());
       changed = true;
     }
-    if (!StringUtils.equals(customRule.getDefaultRemediationCoefficient(), templateRule.getDefaultRemediationCoefficient())) {
-      customRule.setDefaultRemediationCoefficient(templateRule.getDefaultRemediationCoefficient());
+    if (!StringUtils.equals(customRule.getDefaultRemediationGapMultiplier(), templateRule.getDefaultRemediationGapMultiplier())) {
+      customRule.setDefaultRemediationGapMultiplier(templateRule.getDefaultRemediationGapMultiplier());
       changed = true;
     }
-    if (!StringUtils.equals(customRule.getDefaultRemediationOffset(), templateRule.getDefaultRemediationOffset())) {
-      customRule.setDefaultRemediationOffset(templateRule.getDefaultRemediationOffset());
+    if (!StringUtils.equals(customRule.getDefaultRemediationBaseEffort(), templateRule.getDefaultRemediationBaseEffort())) {
+      customRule.setDefaultRemediationBaseEffort(templateRule.getDefaultRemediationBaseEffort());
       changed = true;
     }
-    if (!StringUtils.equals(customRule.getEffortToFixDescription(), templateRule.getEffortToFixDescription())) {
-      customRule.setEffortToFixDescription(templateRule.getEffortToFixDescription());
+    if (!StringUtils.equals(customRule.getGapDescription(), templateRule.getGapDescription())) {
+      customRule.setGapDescription(templateRule.getGapDescription());
       changed = true;
     }
     if (customRule.getStatus() != templateRule.getStatus()) {

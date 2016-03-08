@@ -298,7 +298,7 @@ public class RegisterRulesMediumTest {
     assertThat(customRule.getSeverityString()).isEqualTo(Severity.BLOCKER);
     assertThat(customRule.getStatus()).isEqualTo(RuleStatus.BETA);
     assertThat(customRule.getDefaultRemediationFunction()).isEqualTo(DebtRemediationFunction.Type.LINEAR_OFFSET.name());
-    assertThat(customRule.getEffortToFixDescription()).isEqualTo("Effort");
+    assertThat(customRule.getGapDescription()).isEqualTo("Effort");
 
     assertThat(ruleIndex.search(new RuleQuery().setKey(customRuleKey.toString()), new SearchOptions()).getTotal()).isEqualTo(1);
   }

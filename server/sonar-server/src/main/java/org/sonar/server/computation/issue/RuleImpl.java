@@ -121,11 +121,11 @@ public class RuleImpl implements Rule {
   private static DebtRemediationFunction effectiveRemediationFunction(RuleDto dto) {
     String fn = dto.getRemediationFunction();
     if (fn != null) {
-      return new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(fn), dto.getRemediationCoefficient(), dto.getRemediationOffset());
+      return new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(fn), dto.getRemediationGapMultiplier(), dto.getRemediationBaseEffort());
     }
     String defaultFn = dto.getDefaultRemediationFunction();
     if (defaultFn != null) {
-      return new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(defaultFn), dto.getDefaultRemediationCoefficient(), dto.getDefaultRemediationOffset());
+      return new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(defaultFn), dto.getDefaultRemediationGapMultiplier(), dto.getDefaultRemediationBaseEffort());
     }
     return null;
   }

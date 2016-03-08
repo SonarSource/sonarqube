@@ -107,9 +107,9 @@ public class RuleCreatorMediumTest {
     assertThat(rule.getLanguage()).isEqualTo("java");
     assertThat(rule.getConfigKey()).isEqualTo("S001");
     assertThat(rule.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(rule.getDefaultRemediationCoefficient()).isEqualTo("1h");
-    assertThat(rule.getDefaultRemediationOffset()).isEqualTo("5min");
-    assertThat(rule.getEffortToFixDescription()).isEqualTo("desc");
+    assertThat(rule.getDefaultRemediationGapMultiplier()).isEqualTo("1h");
+    assertThat(rule.getDefaultRemediationBaseEffort()).isEqualTo("5min");
+    assertThat(rule.getGapDescription()).isEqualTo("desc");
     assertThat(rule.getTags()).containsOnly("usertag1", "usertag2");
     assertThat(rule.getSystemTags()).containsOnly("tag1", "tag4");
 
@@ -514,7 +514,7 @@ public class RuleCreatorMediumTest {
     assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(rule.getLanguage()).isNull();
     assertThat(rule.getConfigKey()).isNull();
-    assertThat(rule.getDefaultRemediationOffset()).isNull();
+    assertThat(rule.getDefaultRemediationBaseEffort()).isNull();
     assertThat(rule.getTags()).isEmpty();
     assertThat(rule.getSystemTags()).isEmpty();
 
@@ -685,9 +685,9 @@ public class RuleCreatorMediumTest {
       .setLanguage("java")
       .setConfigKey("S001")
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("5min")
-      .setEffortToFixDescription("desc")
+      .setDefaultRemediationGapMultiplier("1h")
+      .setDefaultRemediationBaseEffort("5min")
+      .setGapDescription("desc")
       .setTags(Sets.newHashSet("usertag1", "usertag2"))
       .setSystemTags(Sets.newHashSet("tag1", "tag4"))
       .setCreatedAt(new Date().getTime())
@@ -706,9 +706,9 @@ public class RuleCreatorMediumTest {
       .setLanguage("java")
       .setConfigKey("S002")
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("5min")
-      .setEffortToFixDescription("desc")
+      .setDefaultRemediationGapMultiplier("1h")
+      .setDefaultRemediationBaseEffort("5min")
+      .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
     dao.insert(dbSession, templateRule);
@@ -726,9 +726,9 @@ public class RuleCreatorMediumTest {
       .setLanguage("java")
       .setConfigKey("S003")
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
-      .setDefaultRemediationCoefficient("1h")
-      .setDefaultRemediationOffset("5min")
-      .setEffortToFixDescription("desc")
+      .setDefaultRemediationGapMultiplier("1h")
+      .setDefaultRemediationBaseEffort("5min")
+      .setGapDescription("desc")
       .setCreatedAt(new Date().getTime())
       .setUpdatedAt(new Date().getTime());
     dao.insert(dbSession, templateRule);

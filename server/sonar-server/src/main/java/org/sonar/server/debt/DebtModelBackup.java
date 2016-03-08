@@ -150,14 +150,14 @@ public class DebtModelBackup {
         boolean hasDebtDefinition = remediationFunction != null;
 
         rule.setDefaultRemediationFunction(hasDebtDefinition ? remediationFunction.type().name() : null);
-        rule.setDefaultRemediationCoefficient(hasDebtDefinition ? remediationFunction.coefficient() : null);
-        rule.setDefaultRemediationOffset(hasDebtDefinition ? remediationFunction.offset() : null);
+        rule.setDefaultRemediationGapMultiplier(hasDebtDefinition ? remediationFunction.coefficient() : null);
+        rule.setDefaultRemediationBaseEffort(hasDebtDefinition ? remediationFunction.offset() : null);
       }
 
       // Reset overridden debt definitions
       rule.setRemediationFunction(null);
-      rule.setRemediationCoefficient(null);
-      rule.setRemediationOffset(null);
+      rule.setRemediationGapMultiplier(null);
+      rule.setRemediationBaseEffort(null);
       rule.setUpdatedAt(updateDate);
       dbClient.ruleDao().update(session, rule);
     }
@@ -246,13 +246,13 @@ public class DebtModelBackup {
     String defaultFunction = rule.getDefaultRemediationFunction();
     if (overriddenFunction != null) {
       ruleDebt.setFunction(overriddenFunction);
-      ruleDebt.setCoefficient(rule.getRemediationCoefficient());
-      ruleDebt.setOffset(rule.getRemediationOffset());
+      ruleDebt.setCoefficient(rule.getRemediationGapMultiplier());
+      ruleDebt.setOffset(rule.getRemediationBaseEffort());
       return ruleDebt;
     } else if (defaultFunction != null) {
       ruleDebt.setFunction(defaultFunction);
-      ruleDebt.setCoefficient(rule.getDefaultRemediationCoefficient());
-      ruleDebt.setOffset(rule.getDefaultRemediationOffset());
+      ruleDebt.setCoefficient(rule.getDefaultRemediationGapMultiplier());
+      ruleDebt.setOffset(rule.getDefaultRemediationBaseEffort());
       return ruleDebt;
     }
     return null;

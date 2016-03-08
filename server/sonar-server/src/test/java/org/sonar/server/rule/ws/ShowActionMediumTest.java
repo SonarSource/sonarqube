@@ -107,11 +107,11 @@ public class ShowActionMediumTest {
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
       .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setDefaultRemediationCoefficient("5d")
-      .setDefaultRemediationOffset("10h")
+      .setDefaultRemediationGapMultiplier("5d")
+      .setDefaultRemediationBaseEffort("10h")
       .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null);
+      .setRemediationGapMultiplier(null)
+      .setRemediationBaseEffort(null);
     ruleDao.insert(session, ruleDto);
     session.commit();
     session.clearCache();
@@ -134,11 +134,11 @@ public class ShowActionMediumTest {
         .setConfigKey("InternalKeyS001")
         .setLanguage("xoo")
         .setDefaultRemediationFunction(null)
-        .setDefaultRemediationCoefficient(null)
-        .setDefaultRemediationOffset(null)
+        .setDefaultRemediationGapMultiplier(null)
+        .setDefaultRemediationBaseEffort(null)
         .setRemediationFunction("LINEAR_OFFSET")
-        .setRemediationCoefficient("5d")
-        .setRemediationOffset("10h");
+        .setRemediationGapMultiplier("5d")
+        .setRemediationBaseEffort("10h");
     ruleDao.insert(session, ruleDto);
     session.commit();
     session.clearCache();
@@ -158,11 +158,11 @@ public class ShowActionMediumTest {
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
       .setDefaultRemediationFunction("LINEAR")
-      .setDefaultRemediationCoefficient("5min")
-      .setDefaultRemediationOffset(null)
+      .setDefaultRemediationGapMultiplier("5min")
+      .setDefaultRemediationBaseEffort(null)
       .setRemediationFunction("LINEAR_OFFSET")
-      .setRemediationCoefficient("5d")
-      .setRemediationOffset("10h");
+      .setRemediationGapMultiplier("5d")
+      .setRemediationBaseEffort("10h");
     ruleDao.insert(session, ruleDto);
     session.commit();
     session.clearCache();
@@ -183,11 +183,11 @@ public class ShowActionMediumTest {
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
       .setDefaultRemediationFunction(null)
-      .setDefaultRemediationCoefficient(null)
-      .setDefaultRemediationOffset(null)
+      .setDefaultRemediationGapMultiplier(null)
+      .setDefaultRemediationBaseEffort(null)
       .setRemediationFunction(null)
-      .setRemediationCoefficient(null)
-      .setRemediationOffset(null);
+      .setRemediationGapMultiplier(null)
+      .setRemediationBaseEffort(null);
     ruleDao.insert(session, ruleDto);
     session.commit();
     session.clearCache();

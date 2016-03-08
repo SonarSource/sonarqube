@@ -76,10 +76,10 @@ public class RuleTesting {
       .setLanguage("js")
       .setRemediationFunction("LINEAR")
       .setDefaultRemediationFunction("LINEAR_OFFSET")
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
+      .setRemediationGapMultiplier("1h")
+      .setDefaultRemediationGapMultiplier("5d")
+      .setDefaultRemediationBaseEffort("10h")
+      .setGapDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
       .setType(RuleType.CODE_SMELL);
   }
 

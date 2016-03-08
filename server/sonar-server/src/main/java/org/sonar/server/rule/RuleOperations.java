@@ -78,16 +78,16 @@ public class RuleOperations {
       // New values are the same as the default values -> set overridden values to null
       if (isRuleDebtSameAsDefaultValues(ruleDto, newFunction, newCoefficient, newOffset)) {
         ruleDto.setRemediationFunction(null);
-        ruleDto.setRemediationCoefficient(null);
-        ruleDto.setRemediationOffset(null);
+        ruleDto.setRemediationGapMultiplier(null);
+        ruleDto.setRemediationBaseEffort(null);
         needUpdate = true;
 
         // New values are not the same as the overridden values -> update overridden values with new values
       } else if (!isRuleDebtSameAsOverriddenValues(ruleDto, newFunction, newCoefficient, newOffset)) {
         DefaultDebtRemediationFunction debtRemediationFunction = new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.valueOf(newFunction), newCoefficient, newOffset);
         ruleDto.setRemediationFunction(debtRemediationFunction.type().name());
-        ruleDto.setRemediationCoefficient(debtRemediationFunction.coefficient());
-        ruleDto.setRemediationOffset(debtRemediationFunction.offset());
+        ruleDto.setRemediationGapMultiplier(debtRemediationFunction.coefficient());
+        ruleDto.setRemediationBaseEffort(debtRemediationFunction.offset());
         needUpdate = true;
       }
 
@@ -95,8 +95,8 @@ public class RuleOperations {
     } else {
       // Rule characteristic is not already disabled -> update it
       ruleDto.setRemediationFunction(null);
-      ruleDto.setRemediationCoefficient(null);
-      ruleDto.setRemediationOffset(null);
+      ruleDto.setRemediationGapMultiplier(null);
+      ruleDto.setRemediationBaseEffort(null);
       needUpdate = true;
     }
 
@@ -108,13 +108,13 @@ public class RuleOperations {
 
   private static boolean isRuleDebtSameAsDefaultValues(RuleDto ruleDto, @Nullable String newFunction,
     @Nullable String newCoefficient, @Nullable String newOffset) {
-    return isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationCoefficient(),
-      ruleDto.getDefaultRemediationOffset());
+    return isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getDefaultRemediationFunction(), ruleDto.getDefaultRemediationGapMultiplier(),
+      ruleDto.getDefaultRemediationBaseEffort());
   }
 
   private static boolean isRuleDebtSameAsOverriddenValues(RuleDto ruleDto, @Nullable String newFunction,
     @Nullable String newCoefficient, @Nullable String newOffset) {
-    return isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getRemediationFunction(), ruleDto.getRemediationCoefficient(), ruleDto.getRemediationOffset());
+    return isSameRemediationFunction(newFunction, newCoefficient, newOffset, ruleDto.getRemediationFunction(), ruleDto.getRemediationGapMultiplier(), ruleDto.getRemediationBaseEffort());
   }
 
   private static boolean isSameRemediationFunction(@Nullable String newFunction, @Nullable String newCoefficient, @Nullable String newOffset,

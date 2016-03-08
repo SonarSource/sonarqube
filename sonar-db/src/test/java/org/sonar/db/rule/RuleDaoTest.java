@@ -136,11 +136,11 @@ public class RuleDaoTest {
     assertThat(ruleDto.getNoteData()).isEqualTo("Rule note with accents \u00e9\u00e8\u00e0");
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
-    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
-    assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
-    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
+    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
+    assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
   }
 
   @Test
@@ -218,11 +218,11 @@ public class RuleDaoTest {
       .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix")
+      .setRemediationGapMultiplier("1h")
+      .setDefaultRemediationGapMultiplier("5d")
+      .setRemediationBaseEffort("5min")
+      .setDefaultRemediationBaseEffort("10h")
+      .setGapDescription("squid.S115.effortToFix")
       .setTags(newHashSet("tag1", "tag2"))
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG)
@@ -250,11 +250,11 @@ public class RuleDaoTest {
     assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
-    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
-    assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
-    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
+    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
+    assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());
@@ -285,11 +285,11 @@ public class RuleDaoTest {
       .setNoteUpdatedAt(DateUtils.parseDate("2013-12-20"))
       .setRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
       .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
-      .setRemediationCoefficient("1h")
-      .setDefaultRemediationCoefficient("5d")
-      .setRemediationOffset("5min")
-      .setDefaultRemediationOffset("10h")
-      .setEffortToFixDescription("squid.S115.effortToFix")
+      .setRemediationGapMultiplier("1h")
+      .setDefaultRemediationGapMultiplier("5d")
+      .setRemediationBaseEffort("5min")
+      .setDefaultRemediationBaseEffort("10h")
+      .setGapDescription("squid.S115.effortToFix")
       .setTags(newHashSet("tag1", "tag2"))
       .setSystemTags(newHashSet("systag1", "systag2"))
       .setType(RuleType.BUG)
@@ -316,11 +316,11 @@ public class RuleDaoTest {
     assertThat(ruleDto.getNoteUpdatedAt()).isNotNull();
     assertThat(ruleDto.getRemediationFunction()).isEqualTo("LINEAR");
     assertThat(ruleDto.getDefaultRemediationFunction()).isEqualTo("LINEAR_OFFSET");
-    assertThat(ruleDto.getRemediationCoefficient()).isEqualTo("1h");
-    assertThat(ruleDto.getDefaultRemediationCoefficient()).isEqualTo("5d");
-    assertThat(ruleDto.getRemediationOffset()).isEqualTo("5min");
-    assertThat(ruleDto.getDefaultRemediationOffset()).isEqualTo("10h");
-    assertThat(ruleDto.getEffortToFixDescription()).isEqualTo("squid.S115.effortToFix");
+    assertThat(ruleDto.getRemediationGapMultiplier()).isEqualTo("1h");
+    assertThat(ruleDto.getDefaultRemediationGapMultiplier()).isEqualTo("5d");
+    assertThat(ruleDto.getRemediationBaseEffort()).isEqualTo("5min");
+    assertThat(ruleDto.getDefaultRemediationBaseEffort()).isEqualTo("10h");
+    assertThat(ruleDto.getGapDescription()).isEqualTo("squid.S115.effortToFix");
     assertThat(ruleDto.getTags()).containsOnly("tag1", "tag2");
     assertThat(ruleDto.getSystemTags()).containsOnly("systag1", "systag2");
     assertThat(ruleDto.getType()).isEqualTo(RuleType.BUG.getDbConstant());

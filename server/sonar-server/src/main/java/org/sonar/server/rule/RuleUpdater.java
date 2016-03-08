@@ -186,18 +186,18 @@ public class RuleUpdater {
     DebtRemediationFunction function = update.getDebtRemediationFunction();
     if (function == null) {
       context.rule.setRemediationFunction(null);
-      context.rule.setRemediationCoefficient(null);
-      context.rule.setRemediationOffset(null);
+      context.rule.setRemediationGapMultiplier(null);
+      context.rule.setRemediationBaseEffort(null);
     } else {
       if (isSameAsDefaultFunction(function, context.rule)) {
         // reset to default
         context.rule.setRemediationFunction(null);
-        context.rule.setRemediationCoefficient(null);
-        context.rule.setRemediationOffset(null);
+        context.rule.setRemediationGapMultiplier(null);
+        context.rule.setRemediationBaseEffort(null);
       } else {
         context.rule.setRemediationFunction(function.type().name());
-        context.rule.setRemediationCoefficient(function.coefficient());
-        context.rule.setRemediationOffset(function.offset());
+        context.rule.setRemediationGapMultiplier(function.coefficient());
+        context.rule.setRemediationBaseEffort(function.offset());
       }
     }
   }
@@ -220,8 +220,8 @@ public class RuleUpdater {
   private static boolean isSameAsDefaultFunction(DebtRemediationFunction fn, RuleDto rule) {
     return new EqualsBuilder()
       .append(fn.type().name(), rule.getDefaultRemediationFunction())
-      .append(fn.coefficient(), rule.getDefaultRemediationCoefficient())
-      .append(fn.offset(), rule.getDefaultRemediationOffset())
+      .append(fn.coefficient(), rule.getDefaultRemediationGapMultiplier())
+      .append(fn.offset(), rule.getDefaultRemediationBaseEffort())
       .isEquals();
   }
 
