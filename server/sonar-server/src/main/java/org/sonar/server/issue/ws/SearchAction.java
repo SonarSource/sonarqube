@@ -42,7 +42,6 @@ import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.issue.IssueQueryService;
-import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.rule.RuleKeyFunctions;
@@ -100,15 +99,15 @@ public class SearchAction implements IssuesWsAction {
   public static final String SEARCH_ACTION = "search";
 
   private final UserSession userSession;
-  private final IssueService service;
+  private final IssueIndex issueIndex;
   private final IssueQueryService issueQueryService;
   private final SearchResponseLoader searchResponseLoader;
   private final SearchResponseFormat searchResponseFormat;
 
-  public SearchAction(UserSession userSession, IssueService service, IssueQueryService issueQueryService,
+  public SearchAction(UserSession userSession, IssueIndex issueIndex, IssueQueryService issueQueryService,
     SearchResponseLoader searchResponseLoader, SearchResponseFormat searchResponseFormat) {
     this.userSession = userSession;
-    this.service = service;
+    this.issueIndex = issueIndex;
     this.issueQueryService = issueQueryService;
     this.searchResponseLoader = searchResponseLoader;
     this.searchResponseFormat = searchResponseFormat;
@@ -283,7 +282,7 @@ public class SearchAction implements IssuesWsAction {
     IssueQuery query = issueQueryService.createFromRequest(request);
 
     // execute request
-    SearchResult<IssueDoc> result = service.search(query, options);
+    SearchResult<IssueDoc> result = issueIndex.search(query, options);
     List<String> issueKeys = from(result.getDocs()).transform(IssueDocToKey.INSTANCE).toList();
 
     // load the additional information to be returned in response

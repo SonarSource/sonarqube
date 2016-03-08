@@ -50,11 +50,8 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.actionplan.ActionPlanService;
-import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.workflow.IssueWorkflow;
@@ -325,10 +322,6 @@ public class IssueService {
     } else {
       return Optional.absent();
     }
-  }
-
-  public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
-    return issueIndex.search(query, options);
   }
 
   /**

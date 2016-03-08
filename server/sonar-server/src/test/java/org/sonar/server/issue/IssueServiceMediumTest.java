@@ -56,13 +56,10 @@ import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.es.SearchOptions;
-import org.sonar.server.es.SearchResult;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
-import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.permission.PermissionChange;
@@ -119,25 +116,6 @@ public class IssueServiceMediumTest {
     IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
 
     assertThat(service.getByKey(issue.getKey())).isNotNull();
-  }
-
-  @Test
-  public void can_facet() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-
-    saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey("P1"));
-    saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey("P2").setResolution("NONE"));
-
-    SearchResult<IssueDoc> result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions());
-    assertThat(result.getDocs()).hasSize(2);
-    assertThat(result.getFacets().getNames()).isEmpty();
-
-    result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets("actionPlans", "assignees"));
-    assertThat(result.getFacets().getNames()).hasSize(2);
-    assertThat(result.getFacets().get("actionPlans")).hasSize(2);
-    assertThat(result.getFacets().get("assignees")).hasSize(1);
   }
 
   @Test
@@ -498,17 +476,6 @@ public class IssueServiceMediumTest {
     userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
 
     service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null);
-  }
-
-  @Test
-  public void search_issues() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    saveIssue(IssueTesting.newDto(rule, file, project));
-
-    List<IssueDoc> result = service.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFields(IssueIndexDefinition.FIELD_ISSUE_KEY)).getDocs();
-    assertThat(result).hasSize(1);
   }
 
   @Test
