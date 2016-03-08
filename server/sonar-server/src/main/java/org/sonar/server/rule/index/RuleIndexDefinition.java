@@ -106,7 +106,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
     ruleMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).docValues().build();
 
-    ruleMapping.stringFieldBuilder(FIELD_RULE_ALL_TAGS).build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_ALL_TAGS).enableGramSearch().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_TYPE).build();
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
