@@ -62,7 +62,7 @@
             <tr id="version_<%= index -%>">
 
               <% if version_event %>
-              <td class="width100"><%= version_event.name if version_event -%></td>
+              <td class="width100"><%= h(version_event.name) if version_event -%></td>
               <td class="small edit_actions" style="padding-left:20px">
                 <a id="version_<%= index -%>_change" href="#" onclick="$j('#version_<%= index -%>').hide();$j('#version_<%= index -%>_form').show();$j('#version_name_<%= index -%>').focus();return false;"><%= message('project_history.rename_version') -%></a>
 
@@ -83,7 +83,7 @@
             <tr id="version_<%= index -%>_form" style="display:none;">
               <td coslpan="2" class="admin">
                 <% form_tag( {:action => 'update_version', :sid => snapshot.id }) do -%>
-                  <input id="version_name_<%= index -%>" name="version_name" type="text" value="<%= version_event ? version_event.name : '' -%>"
+                  <input id="version_name_<%= index -%>" name="version_name" type="text" value="<%= version_event ? h(version_event.name) : '' -%>"
                          onKeyUp="if (this.value=='') $j('#save_version_<%= index -%>').disabled='true'; else $j('#save_version_<%= index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'save_version_' + index.to_s %>
                   <a href="#" onclick="$j('#version_<%= index -%>').show();$j('#version_<%= index -%>_form').hide();"><%= message('cancel') -%></a>
@@ -101,7 +101,7 @@
                  event_index = index.to_s + '-' + index2.to_s
             %>
             <tr id="event_<%= event_index -%>">
-              <td class="width100"><%= event.name -%></td>
+              <td class="width100"><%= h event.name -%></td>
               <td class="small edit_actions" style="padding-left:20px">
                 <a id="event_<%= event_index -%>_change" href="#" onclick="$j('#event_<%= event_index -%>').hide();$j('#event_<%= event_index -%>_form').show();$j('#event_name_<%= event_index -%>').focus();return false;"><%= message('project_history.rename_event') -%></a>
                 <%= link_to( message('project_history.remove_version'),
@@ -112,7 +112,7 @@
             <tr id="event_<%= event_index -%>_form" style="display:none;">
               <td colspan="2" class="admin">
                 <% form_tag( {:action => 'update_event', :id => event.id }) do -%>
-                  <input id="event_name_<%= event_index -%>" name="event_name" type="text" value="<%= event.name -%>"
+                  <input id="event_name_<%= event_index -%>" name="event_name" type="text" value="<%= h event.name -%>"
                          onKeyUp="if (this.value=='') $j('#save_event_<%= event_index -%>').disabled='true'; else $j('#save_event_<%= event_index -%>').disabled='';"/>
                   <%= submit_tag message('save'), :id => 'save_event_' + event_index %>
                   <a href="#" onclick="$j('#event_<%= event_index -%>').show();$j('#event_<%= event_index -%>_form').hide();"><%= message('cancel') -%></a>
