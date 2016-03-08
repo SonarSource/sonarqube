@@ -19,7 +19,7 @@
  */
 import _ from 'underscore';
 
-const DEFAULT_ACTIONS = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity', 'set_tags'];
+const DEFAULT_ACTIONS = ['comment', 'assign', 'assign_to_me', 'plan', 'set_severity', 'set_tags', 'set_type'];
 
 module.exports = function (actions, options) {
   const actionsLeft = _.difference(actions, DEFAULT_ACTIONS);
