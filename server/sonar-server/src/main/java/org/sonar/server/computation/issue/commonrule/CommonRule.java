@@ -49,7 +49,7 @@ public abstract class CommonRule {
       CommonRuleIssue cri = doProcessFile(file, activeRule.get());
       if (cri != null) {
         issue = new DefaultIssue();
-        issue.setEffortToFix(cri.effortToFix);
+        issue.setGap(cri.effortToFix);
         issue.setMessage(cri.message);
         issue.setRuleKey(ruleKey);
         issue.setSeverity(activeRule.get().getSeverity());

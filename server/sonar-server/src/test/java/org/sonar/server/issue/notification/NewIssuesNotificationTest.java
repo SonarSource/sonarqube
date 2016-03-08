@@ -127,7 +127,7 @@ public class NewIssuesNotificationTest {
       .setSeverity(Severity.INFO)
       .setTags(Lists.newArrayList("bug", "owasp"))
       .setRuleKey(RuleKey.of("SonarQube", "rule-the-world"))
-      .setDebt(Duration.create(5L));
+      .setEffort(Duration.create(5L));
   }
 
   private DefaultIssue newIssue2() {
@@ -137,7 +137,7 @@ public class NewIssuesNotificationTest {
       .setSeverity(Severity.BLOCKER)
       .setTags(Lists.newArrayList("owasp"))
       .setRuleKey(RuleKey.of("SonarQube", "rule-the-universe"))
-      .setDebt(Duration.create(10L));
+      .setEffort(Duration.create(10L));
   }
 
   private RuleDto newRule(String name, String language) {

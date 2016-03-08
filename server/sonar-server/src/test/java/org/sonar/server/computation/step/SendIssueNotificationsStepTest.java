@@ -106,7 +106,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_global_new_issues_notification() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setDebt(ISSUE_DURATION)
+      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION)
       ).close();
 
     when(notificationService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
@@ -123,7 +123,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
   @Test
   public void send_new_issues_notification_to_user() throws Exception {
     issueCache.newAppender().append(
-      new DefaultIssue().setSeverity(Severity.BLOCKER).setDebt(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
+      new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setAssignee(ISSUE_ASSIGNEE)
       ).close();
 
     when(notificationService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);
@@ -140,7 +140,7 @@ public class SendIssueNotificationsStepTest extends BaseStepTest {
 
   @Test
   public void send_issues_change_notification() throws Exception {
-    DefaultIssue issue = new DefaultIssue().setSeverity(Severity.BLOCKER).setDebt(ISSUE_DURATION).setChanged(true).setSendNotifications(true);
+    DefaultIssue issue = new DefaultIssue().setSeverity(Severity.BLOCKER).setEffort(ISSUE_DURATION).setChanged(true).setSendNotifications(true);
     issueCache.newAppender().append(issue).close();
 
     when(notificationService.hasProjectSubscribersForTypes(PROJECT_UUID, SendIssueNotificationsStep.NOTIF_TYPES)).thenReturn(true);

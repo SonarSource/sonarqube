@@ -28,11 +28,11 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.scm.ScmInfo;
 import org.sonar.server.computation.scm.ScmInfoRepository;
+import org.sonar.server.issue.IssueUpdater;
 
 import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 import static org.sonar.core.issue.IssueChangeContext.createScan;
@@ -51,7 +51,7 @@ public class IssueAssigner extends IssueVisitor {
   private static final Logger LOGGER = Loggers.get(IssueAssigner.class);
 
   private final ScmInfoRepository scmInfoRepository;
-  private final DefaultAssignee defaultAssigne;
+  private final DefaultAssignee defaultAssignee;
   private final IssueUpdater issueUpdater;
   private final ScmAccountToUser scmAccountToUser;
   private final IssueChangeContext changeContext;
@@ -59,11 +59,11 @@ public class IssueAssigner extends IssueVisitor {
   private String lastCommitAuthor = null;
   private ScmInfo scmChangesets = null;
 
-  public IssueAssigner(AnalysisMetadataHolder analysisMetadataHolder, ScmInfoRepository scmInfoRepository, ScmAccountToUser scmAccountToUser, DefaultAssignee defaultAssigne,
+  public IssueAssigner(AnalysisMetadataHolder analysisMetadataHolder, ScmInfoRepository scmInfoRepository, ScmAccountToUser scmAccountToUser, DefaultAssignee defaultAssignee,
     IssueUpdater issueUpdater) {
     this.scmInfoRepository = scmInfoRepository;
     this.scmAccountToUser = scmAccountToUser;
-    this.defaultAssigne = defaultAssigne;
+    this.defaultAssignee = defaultAssignee;
     this.issueUpdater = issueUpdater;
     this.changeContext = createScan(new Date(analysisMetadataHolder.getAnalysisDate()));
   }
@@ -80,7 +80,7 @@ public class IssueAssigner extends IssueVisitor {
       }
     }
     if (authorWasSet && issue.assignee() == null) {
-      String assigneeLogin = StringUtils.defaultIfEmpty(scmAccountToUser.getNullable(issue.authorLogin()), defaultAssigne.getLogin());
+      String assigneeLogin = StringUtils.defaultIfEmpty(scmAccountToUser.getNullable(issue.authorLogin()), defaultAssignee.getLogin());
       issueUpdater.setNewAssignee(issue, assigneeLogin, changeContext);
     }
   }

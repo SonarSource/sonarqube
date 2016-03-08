@@ -181,7 +181,7 @@ public class IssueAssignerTest {
     underTest.onIssue(FILE, issue);
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly(
-      "No SCM info has been found for issue DefaultIssue[key=<null>,type=VULNERABILITY,componentUuid=<null>,componentKey=<null>,moduleUuid=<null>,moduleUuidPath=<null>,projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>,manualSeverity=false,message=<null>,line=2,effortToFix=<null>,debt=<null>,status=<null>,resolution=<null>,reporter=<null>,assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,actionPlanKey=<null>,comments=<null>,tags=<null>,locations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,beingClosed=false,onDisabledRule=false,isChanged=false,sendNotifications=false,selectedAt=<null>]");
+      "No SCM info has been found for issue DefaultIssue[key=<null>,type=VULNERABILITY,componentUuid=<null>,componentKey=<null>,moduleUuid=<null>,moduleUuidPath=<null>,projectUuid=<null>,projectKey=<null>,ruleKey=<null>,language=<null>,severity=<null>,manualSeverity=false,message=<null>,line=2,gap=<null>,effort=<null>,status=<null>,resolution=<null>,reporter=<null>,assignee=<null>,checksum=<null>,attributes=<null>,authorLogin=<null>,actionPlanKey=<null>,comments=<null>,tags=<null>,locations=<null>,creationDate=<null>,updateDate=<null>,closeDate=<null>,currentChange=<null>,changes=<null>,isNew=true,beingClosed=false,onDisabledRule=false,isChanged=false,sendNotifications=false,selectedAt=<null>]");
   }
 
   private void setSingleChangeset(String author, Long date, String revision) {

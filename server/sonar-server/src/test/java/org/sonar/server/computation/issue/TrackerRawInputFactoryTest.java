@@ -137,7 +137,7 @@ public class TrackerRawInputFactoryTest {
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
       .setMessage("not enough coverage")
-      .setEffortToFix(10.0);
+      .setGap(10.0);
     when(commonRuleEngine.process(FILE)).thenReturn(asList(ceIssue));
 
     Input<DefaultIssue> input = underTest.create(FILE);

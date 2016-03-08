@@ -50,7 +50,7 @@ public class NewEffortCalculator {
 
   public long calculate(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, Period period) {
     if (issue.creationDate().getTime() > period.getSnapshotDate() + 1000L) {
-      return Objects.firstNonNull(issue.debtInMinutes(), 0L);
+      return Objects.firstNonNull(issue.effortInMinutes(), 0L);
     }
     return calculateFromChangelog(issue, debtChangelog, period.getSnapshotDate());
   }
@@ -62,7 +62,7 @@ public class NewEffortCalculator {
       debtDiffs = Lists.newArrayList(debtDiffs);
       debtDiffs.add(currentChange);
     }
-    long newDebt = issue.debtInMinutes();
+    long newDebt = issue.effortInMinutes();
 
     for (Iterator<FieldDiffs> it = debtDiffs.iterator(); it.hasNext();) {
       FieldDiffs diffs = it.next();

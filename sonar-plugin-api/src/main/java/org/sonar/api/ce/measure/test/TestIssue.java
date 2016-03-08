@@ -39,7 +39,7 @@ public class TestIssue implements Issue {
   private String resolution;
   private String severity;
   private RuleKey ruleKey;
-  private Duration debt;
+  private Duration effort;
   private RuleType type;
 
   private TestIssue(Builder builder) {
@@ -48,7 +48,7 @@ public class TestIssue implements Issue {
     this.resolution = builder.resolution;
     this.severity = builder.severity;
     this.ruleKey = builder.ruleKey;
-    this.debt = builder.debt;
+    this.effort = builder.effort;
     this.type = builder.type;
   }
 
@@ -78,16 +78,27 @@ public class TestIssue implements Issue {
     return severity;
   }
 
+  /**
+   * @deprecated since 5.5, replaced by {@link #effort}
+   */
   @Override
   @CheckForNull
+  @Deprecated
   public Duration debt() {
-    return debt;
+    return effort();
   }
 
+  /**
+   * @since 5.5
+   */
+  @Override
   public Duration effort() {
-    return debt;
+    return effort;
   }
 
+  /**
+   * @since 5.5
+   */
   @Override
   public RuleType type() {
     return type;
@@ -99,7 +110,7 @@ public class TestIssue implements Issue {
     private String resolution;
     private String severity;
     private RuleKey ruleKey;
-    private Duration debt;
+    private Duration effort;
     private RuleType type;
 
     public Builder setKey(String key) {
@@ -127,49 +138,63 @@ public class TestIssue implements Issue {
       return this;
     }
 
+    /**
+     * @deprecated since 5.5, use {@link #setEffort(Duration)} instead
+     */
+    @Deprecated
     public Builder setDebt(@Nullable Duration debt) {
-      this.debt = debt;
+      return setEffort(debt);
+    }
+
+    /**
+     * @since 5.5
+     */
+    public Builder setEffort(@Nullable Duration effort) {
+      this.effort = effort;
       return this;
     }
 
+    /**
+     * @since 5.5
+     */
     public Builder setType(RuleType type) {
       this.type = validateType(type);
       return this;
     }
 
-    private static String validateKey(String key){
+    private static String validateKey(String key) {
       checkNotNull(key, "key cannot be null");
       return key;
     }
 
-    private static RuleKey validateRuleKey(RuleKey ruleKey){
+    private static RuleKey validateRuleKey(RuleKey ruleKey) {
       checkNotNull(ruleKey, "ruleKey cannot be null");
       return ruleKey;
     }
 
-    private static String validateResolution(@Nullable String resolution){
+    private static String validateResolution(@Nullable String resolution) {
       checkArgument(resolution == null || org.sonar.api.issue.Issue.RESOLUTIONS.contains(resolution), String.format("resolution '%s' is invalid", resolution));
       return resolution;
     }
 
-    private static String validateSeverity(String severity){
+    private static String validateSeverity(String severity) {
       checkNotNull(severity, "severity cannot be null");
       checkArgument(Severity.ALL.contains(severity), String.format("severity '%s' is invalid", severity));
       return severity;
     }
 
-    private static String validateStatus(String status){
+    private static String validateStatus(String status) {
       checkNotNull(status, "status cannot be null");
       checkArgument(org.sonar.api.issue.Issue.STATUSES.contains(status), String.format("status '%s' is invalid", status));
       return status;
     }
 
-    private static RuleType validateType(RuleType type){
+    private static RuleType validateType(RuleType type) {
       checkNotNull(type, "type cannot be null");
       return type;
     }
 
-    public Issue build(){
+    public Issue build() {
       validateKey(key);
       validateResolution(resolution);
       validateSeverity(severity);

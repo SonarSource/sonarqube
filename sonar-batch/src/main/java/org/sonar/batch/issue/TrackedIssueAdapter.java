@@ -68,8 +68,17 @@ public class TrackedIssueAdapter implements Issue {
     return issue.startLine();
   }
 
+  /**
+   * @deprecated since 5.5, replaced by {@link #gap()}
+   */
   @Override
+  @Deprecated
   public Double effortToFix() {
+    return gap();
+  }
+
+  @Override
+  public Double gap() {
     return issue.effortToFix();
   }
 
@@ -143,8 +152,17 @@ public class TrackedIssueAdapter implements Issue {
     return new ArrayList<>();
   }
 
+  /**
+   * @deprecated since 5.5, replaced by {@link #effort()}
+   */
   @Override
+  @Deprecated
   public Duration debt() {
+    return null;
+  }
+
+  @Override
+  public Duration effort() {
     return null;
   }
 

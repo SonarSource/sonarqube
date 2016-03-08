@@ -81,8 +81,17 @@ public class DeprecatedIssueWrapper implements Issue {
     return textRange != null ? textRange.start().line() : null;
   }
 
+  /**
+   * @deprecated since 5.5, replaced by {@link #gap()}
+   */
   @Override
+  @Deprecated
   public Double effortToFix() {
+    return gap();
+  }
+
+  @Override
+  public Double gap() {
     return newIssue.effortToFix();
   }
 
@@ -153,6 +162,11 @@ public class DeprecatedIssueWrapper implements Issue {
 
   @Override
   public Duration debt() {
+    return null;
+  }
+
+  @Override
+  public Duration effort() {
     return null;
   }
 

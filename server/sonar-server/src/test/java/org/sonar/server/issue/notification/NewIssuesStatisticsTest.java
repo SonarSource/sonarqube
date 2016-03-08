@@ -21,10 +21,10 @@ package org.sonar.server.issue.notification;
 
 import com.google.common.collect.Lists;
 import org.junit.Test;
-import org.sonar.core.issue.DefaultIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.Duration;
+import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.issue.notification.NewIssuesStatistics.Metric;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,6 +76,6 @@ public class NewIssuesStatisticsTest {
       .setSeverity(Severity.INFO)
       .setRuleKey(RuleKey.of("SonarQube", "rule-the-world"))
       .setTags(Lists.newArrayList("bug", "owasp"))
-      .setDebt(Duration.create(5L));
+      .setEffort(Duration.create(5L));
   }
 }

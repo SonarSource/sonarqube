@@ -51,8 +51,17 @@ public interface Issue {
    */
   String severity();
 
-  @CheckForNull
+  /**
+   * @deprecated since 5.5, replaced by {@link #effort()}
+   */
+  @Deprecated
   Duration debt();
+
+  /**
+   * @since 5.5
+   */
+  @CheckForNull
+  Duration effort();
 
   RuleType type();
 

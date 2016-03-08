@@ -126,7 +126,7 @@ public class TrackerRawInputFactory {
         issue.setSeverity(reportIssue.getSeverity().name());
       }
       if (reportIssue.hasEffortToFix()) {
-        issue.setEffortToFix(reportIssue.getEffortToFix());
+        issue.setGap(reportIssue.getEffortToFix());
       }
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
       if (reportIssue.hasTextRange()) {

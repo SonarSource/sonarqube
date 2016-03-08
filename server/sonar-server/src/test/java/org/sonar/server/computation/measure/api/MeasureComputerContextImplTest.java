@@ -256,7 +256,7 @@ public class MeasureComputerContextImplTest {
       .setSeverity("MAJOR")
       .setStatus("CLOSED")
       .setResolution("FIXED")
-      .setDebt(Duration.create(10l));
+      .setEffort(Duration.create(10l));
 
     MeasureComputerContextImpl underTest = newContext(PROJECT_REF, Arrays.asList(issue));
 

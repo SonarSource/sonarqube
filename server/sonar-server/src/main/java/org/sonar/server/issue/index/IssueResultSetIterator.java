@@ -164,7 +164,7 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setTechnicalUpdateDate(new Date(rs.getLong(3)));
     doc.setActionPlanKey(rs.getString(4));
     doc.setAssignee(rs.getString(5));
-    doc.setEffortToFix(DatabaseUtils.getDouble(rs, 6));
+    doc.setGap(DatabaseUtils.getDouble(rs, 6));
     doc.setAttributes(rs.getString(7));
     doc.setLine(DatabaseUtils.getInt(rs, 8));
     doc.setMessage(rs.getString(9));

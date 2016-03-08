@@ -117,9 +117,16 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_LINE);
   }
 
+  @Deprecated
   @Override
   @CheckForNull
   public Double effortToFix() {
+    throw new UnsupportedOperationException("effortToFix is replaced by gap");
+  }
+
+  @Override
+  @CheckForNull
+  public Double gap() {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_EFFORT);
   }
 
@@ -218,6 +225,12 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public Duration debt() {
+    throw new UnsupportedOperationException("debt is replaced by effort");
+  }
+
+  @Override
+  @CheckForNull
+  public Duration effort() {
     Number debt = getNullableField(IssueIndexDefinition.FIELD_ISSUE_DEBT);
     return (debt != null) ? Duration.create(debt.longValue()) : null;
   }
@@ -288,7 +301,7 @@ public class IssueDoc extends BaseDoc implements Issue {
     return this;
   }
 
-  public IssueDoc setEffortToFix(@Nullable Double d) {
+  public IssueDoc setGap(@Nullable Double d) {
     setField(IssueIndexDefinition.FIELD_ISSUE_EFFORT, d);
     return this;
   }

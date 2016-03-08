@@ -255,9 +255,9 @@ public class IssueUpdater {
     }
   }
 
-  public boolean setEffortToFix(DefaultIssue issue, @Nullable Double d, IssueChangeContext context) {
-    if (!Objects.equal(d, issue.effortToFix())) {
-      issue.setEffortToFix(d);
+  public boolean setGap(DefaultIssue issue, @Nullable Double d, IssueChangeContext context) {
+    if (!Objects.equal(d, issue.gap())) {
+      issue.setGap(d);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       // Do not send notifications to prevent spam when installing the SQALE plugin,
@@ -267,16 +267,16 @@ public class IssueUpdater {
     return false;
   }
 
-  public boolean setPastEffortToFix(DefaultIssue issue, @Nullable Double previousEffort, IssueChangeContext context) {
-    Double currentEffort = issue.effortToFix();
-    issue.setEffortToFix(previousEffort);
-    return setEffortToFix(issue, currentEffort, context);
+  public boolean setPastGap(DefaultIssue issue, @Nullable Double previousGap, IssueChangeContext context) {
+    Double currentGap = issue.gap();
+    issue.setGap(previousGap);
+    return setGap(issue, currentGap, context);
   }
 
-  public boolean setTechnicalDebt(DefaultIssue issue, @Nullable Duration value, IssueChangeContext context) {
-    Duration oldValue = issue.debt();
+  public boolean setEffort(DefaultIssue issue, @Nullable Duration value, IssueChangeContext context) {
+    Duration oldValue = issue.effort();
     if (!Objects.equal(value, oldValue)) {
-      issue.setDebt(value != null ? value : null);
+      issue.setEffort(value != null ? value : null);
       issue.setFieldChange(context, TECHNICAL_DEBT, oldValue != null ? oldValue.toMinutes() : null, value != null ? value.toMinutes() : null);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -285,10 +285,10 @@ public class IssueUpdater {
     return false;
   }
 
-  public boolean setPastTechnicalDebt(DefaultIssue issue, @Nullable Duration previousTechnicalDebt, IssueChangeContext context) {
-    Duration currentTechnicalDebt = issue.debt();
-    issue.setDebt(previousTechnicalDebt);
-    return setTechnicalDebt(issue, currentTechnicalDebt, context);
+  public boolean setPastEffort(DefaultIssue issue, @Nullable Duration previousEffort, IssueChangeContext context) {
+    Duration currentEffort = issue.effort();
+    issue.setEffort(previousEffort);
+    return setEffort(issue, currentEffort, context);
   }
 
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {

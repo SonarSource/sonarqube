@@ -66,7 +66,7 @@ public class IssueStorageTest {
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(5000)
-      .setDebt(Duration.create(10L))
+      .setEffort(Duration.create(10L))
       .setReporter("emmerik")
       .setResolution("OPEN")
       .setStatus("OPEN")
@@ -103,7 +103,7 @@ public class IssueStorageTest {
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(5000)
-      .setDebt(Duration.create(10L))
+      .setEffort(Duration.create(10L))
       .setReporter("emmerik")
       .setResolution("OPEN")
       .setStatus("OPEN")
@@ -143,7 +143,7 @@ public class IssueStorageTest {
 
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setLine(5000)
-      .setDebt(Duration.create(10L))
+      .setEffort(Duration.create(10L))
       .setReporter("emmerik")
       .setResolution("OPEN")
       .setStatus("OPEN")
@@ -184,7 +184,7 @@ public class IssueStorageTest {
 
         // updated fields
       .setLine(5000)
-      .setDebt(Duration.create(10L))
+      .setEffort(Duration.create(10L))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssignee("loic")
@@ -231,7 +231,7 @@ public class IssueStorageTest {
 
         // updated fields
       .setLine(5000)
-      .setDebt(Duration.create(10L))
+      .setEffort(Duration.create(10L))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssignee("loic")

@@ -94,7 +94,7 @@ public class ServerIssueStorageTest {
       .setRuleKey(RuleKey.of("squid", "AvoidCycle"))
       .setProjectKey("struts")
       .setLine(5000)
-      .setDebt(Duration.create(10L))
+      .setEffort(Duration.create(10L))
       .setReporter("emmerik")
       .setResolution("OPEN")
       .setStatus("OPEN")
@@ -133,7 +133,7 @@ public class ServerIssueStorageTest {
         // updated fields
       .setLine(5000)
       .setProjectUuid("CDEF")
-      .setDebt(Duration.create(10L))
+      .setEffort(Duration.create(10L))
       .setChecksum("FFFFF")
       .setAuthorLogin("simon")
       .setAssignee("loic")

@@ -19,17 +19,16 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.api.issue.IssueComment;
-import org.sonar.api.resources.Project;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.utils.Duration;
-
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.issue.IssueComment;
+import org.sonar.api.resources.Project;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.utils.Duration;
 
 /**
  * @deprecated since 5.3
@@ -82,7 +81,13 @@ class DeprecatedIssueAdapterForFilter implements Issue {
   }
 
   @Override
+  @Deprecated
   public Double effortToFix() {
+    return gap();
+  }
+
+  @Override
+  public Double gap() {
     return rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null;
   }
 
@@ -151,8 +156,14 @@ class DeprecatedIssueAdapterForFilter implements Issue {
     throw unsupported();
   }
 
+  @Deprecated
   @Override
   public Duration debt() {
+    return effort();
+  }
+
+  @Override
+  public Duration effort() {
     throw unsupported();
   }
 

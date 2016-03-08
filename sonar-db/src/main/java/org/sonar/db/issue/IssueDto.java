@@ -109,8 +109,8 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
-      .setGap(issue.effortToFix())
-      .setEffort(issue.debtInMinutes())
+      .setGap(issue.gap())
+      .setEffort(issue.effortInMinutes())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -158,8 +158,8 @@ public final class IssueDto implements Serializable {
       .setLine(issue.line())
       .setLocations((DbIssues.Locations) issue.getLocations())
       .setMessage(issue.message())
-      .setGap(issue.effortToFix())
-      .setEffort(issue.debtInMinutes())
+      .setGap(issue.gap())
+      .setEffort(issue.effortInMinutes())
       .setResolution(issue.resolution())
       .setStatus(issue.status())
       .setSeverity(issue.severity())
@@ -302,7 +302,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setGap(@Nullable Double d) {
-    checkArgument(d == null || d >= 0, "Value of issue effort to fix must be positive: %d", d);
+    checkArgument(d == null || d >= 0, "Value of issue gap must be positive: %d", d);
     this.gap = d;
     return this;
   }
@@ -313,7 +313,7 @@ public final class IssueDto implements Serializable {
   }
 
   public IssueDto setEffort(@Nullable Long l) {
-    checkArgument(l == null || l >= 0, "Value of issue debt must be positive: %d", l);
+    checkArgument(l == null || l >= 0, "Value of issue effort must be positive: %d", l);
     this.effort = l;
     return this;
   }
@@ -726,8 +726,8 @@ public final class IssueDto implements Serializable {
     issue.setStatus(status);
     issue.setResolution(resolution);
     issue.setMessage(message);
-    issue.setEffortToFix(gap);
-    issue.setDebt(effort != null ? Duration.create(effort) : null);
+    issue.setGap(gap);
+    issue.setEffort(effort != null ? Duration.create(effort) : null);
     issue.setLine(line);
     issue.setChecksum(checksum);
     issue.setSeverity(severity);

@@ -190,7 +190,7 @@ public class IssueIndexBenchmarkTest {
       issue.setFuncCloseDate(null);
       issue.setAttributes(null);
       issue.setDebt(1000L);
-      issue.setEffortToFix(3.14);
+      issue.setGap(3.14);
       issue.setLanguage("php");
       issue.setReporter(users.next());
       issue.setRuleKey(rules.next());

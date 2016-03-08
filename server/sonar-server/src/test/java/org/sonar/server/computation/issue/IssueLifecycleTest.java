@@ -25,10 +25,10 @@ import org.junit.Test;
 import org.sonar.api.utils.Duration;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.workflow.IssueWorkflow;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -121,8 +121,8 @@ public class IssueLifecycleTest {
       .setSelectedAt(1000L)
       .setLine(10)
       .setMessage("message")
-      .setEffortToFix(15d)
-      .setDebt(Duration.create(15L))
+      .setGap(15d)
+      .setEffort(Duration.create(15L))
       .setManualSeverity(false)
       .setLocations(issueLocations);
 
@@ -148,7 +148,7 @@ public class IssueLifecycleTest {
     verify(updater).setPastSeverity(raw, BLOCKER, issueChangeContext);
     verify(updater).setPastLine(raw, 10);
     verify(updater).setPastMessage(raw, "message", issueChangeContext);
-    verify(updater).setPastTechnicalDebt(raw, Duration.create(15L), issueChangeContext);
+    verify(updater).setPastEffort(raw, Duration.create(15L), issueChangeContext);
     verify(updater).setPastLocations(raw, issueLocations);
   }
 

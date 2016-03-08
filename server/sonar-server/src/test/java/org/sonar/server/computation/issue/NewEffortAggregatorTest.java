@@ -247,7 +247,7 @@ public class NewEffortAggregatorTest {
   @Test
   public void no_measures_if_no_periods() {
     periodsHolder.setPeriods();
-    DefaultIssue unresolved = new DefaultIssue().setDebt(Duration.create(10));
+    DefaultIssue unresolved = new DefaultIssue().setEffort(Duration.create(10));
     verifyZeroInteractions(calculator);
 
     underTest.beforeComponent(FILE);
@@ -264,15 +264,15 @@ public class NewEffortAggregatorTest {
   }
 
   private static DefaultIssue newCodeSmellIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(RuleType.CODE_SMELL);
+    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(RuleType.CODE_SMELL);
   }
 
   private static DefaultIssue newBugIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(RuleType.BUG);
+    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(RuleType.BUG);
   }
 
   private static DefaultIssue newVulnerabilityIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(RuleType.VULNERABILITY);
+    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(RuleType.VULNERABILITY);
   }
 
   private static DefaultIssue newCodeSmellIssueWithoutEffort() {

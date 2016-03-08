@@ -573,7 +573,7 @@ public class QualityModelMeasuresVisitorForReportTest {
 
   private static DefaultIssue newIssue(long effort, String severity, RuleType type) {
     return newIssue(severity, type)
-      .setDebt(Duration.create(effort));
+      .setEffort(Duration.create(effort));
   }
 
   private static DefaultIssue newIssue(String severity, RuleType type) {

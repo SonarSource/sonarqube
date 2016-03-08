@@ -49,8 +49,8 @@ public class DefaultIssueTest {
       .setManualSeverity(true)
       .setMessage("a message")
       .setLine(7)
-      .setEffortToFix(1.2d)
-      .setDebt(Duration.create(28800L))
+      .setGap(1.2d)
+      .setEffort(Duration.create(28800L))
       .setActionPlanKey("BCDE")
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
@@ -174,7 +174,7 @@ public class DefaultIssueTest {
 
   @Test
   public void test_nullable_fields() throws Exception {
-    issue.setEffortToFix(null).setSeverity(null).setLine(null);
+    issue.setGap(null).setSeverity(null).setLine(null);
     assertThat(issue.effortToFix()).isNull();
     assertThat(issue.severity()).isNull();
     assertThat(issue.line()).isNull();

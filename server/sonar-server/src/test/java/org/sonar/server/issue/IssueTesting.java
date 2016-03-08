@@ -70,7 +70,7 @@ public class IssueTesting {
     doc.setAuthorLogin("roger");
     doc.setLanguage("xoo");
     doc.setComponentUuid("FILE_1");
-    doc.setEffortToFix(3.14);
+    doc.setGap(3.14);
     doc.setFilePath("src/Foo.xoo");
     doc.setDirectoryPath("/src");
     doc.setMessage("the message");

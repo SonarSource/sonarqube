@@ -411,7 +411,7 @@ public class IssueUpdaterTest {
 
   @Test
   public void set_effort_to_fix() {
-    boolean updated = updater.setEffortToFix(issue, 3.14, context);
+    boolean updated = updater.setGap(issue, 3.14, context);
     assertThat(updated).isTrue();
     assertThat(issue.isChanged()).isTrue();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
@@ -420,8 +420,8 @@ public class IssueUpdaterTest {
 
   @Test
   public void not_set_effort_to_fix_if_unchanged() {
-    issue.setEffortToFix(3.14);
-    boolean updated = updater.setEffortToFix(issue, 3.14, context);
+    issue.setGap(3.14);
+    boolean updated = updater.setGap(issue, 3.14, context);
     assertThat(updated).isFalse();
     assertThat(issue.isChanged()).isFalse();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
@@ -430,8 +430,8 @@ public class IssueUpdaterTest {
 
   @Test
   public void set_past_effort() {
-    issue.setEffortToFix(3.14);
-    boolean updated = updater.setPastEffortToFix(issue, 1.0, context);
+    issue.setGap(3.14);
+    boolean updated = updater.setPastGap(issue, 1.0, context);
     assertThat(updated).isTrue();
     assertThat(issue.effortToFix()).isEqualTo(3.14);
 
@@ -444,8 +444,8 @@ public class IssueUpdaterTest {
   public void set_past_technical_debt() {
     Duration newDebt = Duration.create(15 * 8 * 60);
     Duration previousDebt = Duration.create(10 * 8 * 60);
-    issue.setDebt(newDebt);
-    boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
+    issue.setEffort(newDebt);
+    boolean updated = updater.setPastEffort(issue, previousDebt, context);
     assertThat(updated).isTrue();
     assertThat(issue.debt()).isEqualTo(newDebt);
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -458,8 +458,8 @@ public class IssueUpdaterTest {
   @Test
   public void set_past_technical_debt_without_previous_value() {
     Duration newDebt = Duration.create(15 * 8 * 60);
-    issue.setDebt(newDebt);
-    boolean updated = updater.setPastTechnicalDebt(issue, null, context);
+    issue.setEffort(newDebt);
+    boolean updated = updater.setPastEffort(issue, null, context);
     assertThat(updated).isTrue();
     assertThat(issue.debt()).isEqualTo(newDebt);
     assertThat(issue.mustSendNotifications()).isFalse();
@@ -471,9 +471,9 @@ public class IssueUpdaterTest {
 
   @Test
   public void set_past_technical_debt_with_null_new_value() {
-    issue.setDebt(null);
+    issue.setEffort(null);
     Duration previousDebt = Duration.create(10 * 8 * 60);
-    boolean updated = updater.setPastTechnicalDebt(issue, previousDebt, context);
+    boolean updated = updater.setPastEffort(issue, previousDebt, context);
     assertThat(updated).isTrue();
     assertThat(issue.debt()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();

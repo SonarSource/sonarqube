@@ -54,7 +54,7 @@ public class NewEffortCalculatorTest {
    */
   @Test
   public void total_debt_if_issue_created_during_period() {
-    issue.setDebt(TWO_DAYS).setCreationDate(new Date(PERIOD_DATE + 10000));
+    issue.setEffort(TWO_DAYS).setCreationDate(new Date(PERIOD_DATE + 10000));
 
     long newDebt = underTest.calculate(issue, Collections.<IssueChangeDto>emptyList(), PERIOD);
 
@@ -67,7 +67,7 @@ public class NewEffortCalculatorTest {
     // before period: increased to 2d
     // after period: increased to 5d, decreased to 4d then increased to 10d
     // -> new debt is 10d - 2d = 8d
-    issue.setDebt(TEN_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
+    issue.setEffort(TEN_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
     List<IssueChangeDto> changelog = Arrays.asList(
       newDebtChangelog(ONE_DAY.toMinutes(), TWO_DAYS.toMinutes(), PERIOD_DATE - 9000),
       newDebtChangelog(TWO_DAYS.toMinutes(), FIVE_DAYS.toMinutes(), PERIOD_DATE + 10000),
@@ -86,7 +86,7 @@ public class NewEffortCalculatorTest {
     // before period: increased to 10d
     // after period: decreased to 2d
     // -> new debt is 2d - 10d = -8d -> 0d
-    issue.setDebt(TWO_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
+    issue.setEffort(TWO_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
     List<IssueChangeDto> changelog = Arrays.asList(
       newDebtChangelog(ONE_DAY.toMinutes(), TEN_DAYS.toMinutes(), PERIOD_DATE - 9000),
       newDebtChangelog(TEN_DAYS.toMinutes(), TWO_DAYS.toMinutes(), PERIOD_DATE + 30000)
@@ -102,7 +102,7 @@ public class NewEffortCalculatorTest {
     // creation: 1d
     // after period: increased to 2d, then to 5d
     // -> new debt is 5d - 1d = 4d
-    issue.setDebt(FIVE_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
+    issue.setEffort(FIVE_DAYS).setCreationDate(new Date(PERIOD_DATE - 10000));
     List<IssueChangeDto> changelog = Arrays.asList(
       newDebtChangelog(ONE_DAY.toMinutes(), TWO_DAYS.toMinutes(), PERIOD_DATE + 20000),
       newDebtChangelog(TWO_DAYS.toMinutes(), FIVE_DAYS.toMinutes(), PERIOD_DATE + 30000)

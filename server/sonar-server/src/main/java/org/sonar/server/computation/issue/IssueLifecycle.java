@@ -25,10 +25,10 @@ import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.core.util.Uuids;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
+import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.workflow.IssueWorkflow;
 
 /**
  * Sets the appropriate fields when an issue is :
@@ -62,7 +62,7 @@ public class IssueLifecycle {
     issue.setCreationDate(changeContext.date());
     issue.setUpdateDate(changeContext.date());
     issue.setStatus(Issue.STATUS_OPEN);
-    issue.setDebt(debtCalculator.calculate(issue));
+    issue.setEffort(debtCalculator.calculate(issue));
   }
 
   public void mergeExistingOpenIssue(DefaultIssue raw, DefaultIssue base) {
@@ -79,7 +79,7 @@ public class IssueLifecycle {
     raw.setAuthorLogin(base.authorLogin());
     raw.setTags(base.tags());
     raw.setAttributes(base.attributes());
-    raw.setDebt(debtCalculator.calculate(raw));
+    raw.setEffort(debtCalculator.calculate(raw));
     raw.setOnDisabledRule(base.isOnDisabledRule());
     if (base.manualSeverity()) {
       raw.setManualSeverity(true);
@@ -92,8 +92,8 @@ public class IssueLifecycle {
     updater.setPastLine(raw, base.getLine());
     updater.setPastLocations(raw, base.getLocations());
     updater.setPastMessage(raw, base.getMessage(), changeContext);
-    updater.setPastEffortToFix(raw, base.effortToFix(), changeContext);
-    updater.setPastTechnicalDebt(raw, base.debt(), changeContext);
+    updater.setPastGap(raw, base.effortToFix(), changeContext);
+    updater.setPastEffort(raw, base.debt(), changeContext);
     raw.setSelectedAt(base.selectedAt());
   }
 

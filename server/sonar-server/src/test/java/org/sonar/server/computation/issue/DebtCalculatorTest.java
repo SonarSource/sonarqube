@@ -69,7 +69,7 @@ public class DebtCalculatorTest {
   public void linear_function() {
     double effortToFix = 3.0;
     int coefficient = 2;
-    issue.setEffortToFix(effortToFix);
+    issue.setGap(effortToFix);
     rule.setFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.LINEAR, coefficient + "min", null));
 
     assertThat(underTest.calculate(issue).toMinutes()).isEqualTo((int) (coefficient * effortToFix));
@@ -78,7 +78,7 @@ public class DebtCalculatorTest {
   @Test
   public void constant_function() {
     int constant = 2;
-    issue.setEffortToFix(null);
+    issue.setGap(null);
     rule.setFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, constant + "min"));
 
     assertThat(underTest.calculate(issue).toMinutes()).isEqualTo(2);
@@ -87,7 +87,7 @@ public class DebtCalculatorTest {
   @Test(expected = IllegalArgumentException.class)
   public void effort_to_fix_must_not_be_set_with_constant_function() {
     int constant = 2;
-    issue.setEffortToFix(3.0);
+    issue.setGap(3.0);
     rule.setFunction(new DefaultDebtRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE, null, constant + "min"));
 
     underTest.calculate(issue);
@@ -98,7 +98,7 @@ public class DebtCalculatorTest {
     double effortToFix = 3.0;
     int coefficient = 2;
     int offset = 5;
-    issue.setEffortToFix(effortToFix);
+    issue.setGap(effortToFix);
     rule.setFunction(new DefaultDebtRemediationFunction(
       DebtRemediationFunction.Type.LINEAR_OFFSET, coefficient + "min", offset + "min"));
 

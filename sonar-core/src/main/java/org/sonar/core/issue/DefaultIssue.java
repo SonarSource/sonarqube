@@ -71,8 +71,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private boolean manualSeverity = false;
   private String message;
   private Integer line;
-  private Double effortToFix;
-  private Duration debt;
+  private Double gap;
+  private Duration effort;
   private String status;
   private String resolution;
   private String reporter;
@@ -267,16 +267,36 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  /**
+   * @deprecated since5.5, replaced by {@link #gap()}
+   */
+  @Deprecated
   @Override
   @CheckForNull
   public Double effortToFix() {
-    return effortToFix;
+    return gap();
   }
 
-  public DefaultIssue setEffortToFix(@Nullable Double d) {
-    Preconditions.checkArgument(d == null || d >= 0, format("Effort to fix must be greater than or equal 0 (got %s)", d));
-    this.effortToFix = d;
+  @Override
+  @CheckForNull
+  public Double gap() {
+    return gap;
+  }
+
+  public DefaultIssue setGap(@Nullable Double d) {
+    Preconditions.checkArgument(d == null || d >= 0, format("Gap must be greater than or equal 0 (got %s)", d));
+    this.gap = d;
     return this;
+  }
+
+  /**
+   * @deprecated since5.5, replaced by {@link #effort()}
+   */
+  @Deprecated
+  @Override
+  @CheckForNull
+  public Duration debt() {
+    return effort();
   }
 
   /**
@@ -284,17 +304,18 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
    */
   @Override
   @CheckForNull
-  public Duration debt() {
-    return debt;
+  public Duration effort() {
+    return effort;
   }
+
 
   @CheckForNull
-  public Long debtInMinutes() {
-    return debt != null ? debt.toMinutes() : null;
+  public Long effortInMinutes() {
+    return effort != null ? effort.toMinutes() : null;
   }
 
-  public DefaultIssue setDebt(@Nullable Duration t) {
-    this.debt = t;
+  public DefaultIssue setEffort(@Nullable Duration t) {
+    this.effort = t;
     return this;
   }
 

@@ -126,7 +126,7 @@ public class EffortAggregator extends IssueVisitor {
     private long securityEffort = 0L;
 
     void add(DefaultIssue issue) {
-      Long issueEffort = issue.debtInMinutes();
+      Long issueEffort = issue.effortInMinutes();
       if (issueEffort != null && issueEffort != 0L) {
         switch (issue.type()) {
           case CODE_SMELL :

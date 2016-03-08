@@ -217,15 +217,15 @@ public class EffortAggregatorTest {
   }
 
   private static DefaultIssue newCodeSmellIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(CODE_SMELL);
+    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(CODE_SMELL);
   }
 
   private static DefaultIssue newBugIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(BUG);
+    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(BUG);
   }
 
   private static DefaultIssue newVulnerabilityIssue(long effort) {
-    return newCodeSmellIssueWithoutEffort().setDebt(Duration.create(effort)).setType(VULNERABILITY);
+    return newCodeSmellIssueWithoutEffort().setEffort(Duration.create(effort)).setType(VULNERABILITY);
   }
 
   private static DefaultIssue newCodeSmellIssueWithoutEffort() {

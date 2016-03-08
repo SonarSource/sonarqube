@@ -106,6 +106,13 @@ public interface Issue extends Serializable {
   Integer line();
 
   /**
+   * @deprecated since 5.5, replaced by {@link #gap()}
+   */
+  @Deprecated
+  @CheckForNull
+  Double effortToFix();
+
+  /**
    * Arbitrary distance to threshold for resolving the issue.
    * <p/>
    * For examples:
@@ -114,9 +121,11 @@ public interface Issue extends Serializable {
    *   <li>for the rule "Avoid Duplications" : number of duplicated blocks</li>
    *   <li>for the rule "Insufficient Line Coverage" : number of lines to cover to reach the accepted threshold</li>
    * </ul>
+   *
+   * @since 5.5
    */
   @CheckForNull
-  Double effortToFix();
+  Double gap();
 
   /**
    * See constant values in {@link Issue}.
@@ -186,10 +195,16 @@ public interface Issue extends Serializable {
   boolean isNew();
 
   /**
-   * @since 5.0
+   * @deprecated since 5.5, replaced by {@link #effort()}
+   */
+  @Deprecated
+  Duration debt();
+
+  /**
+   * @since 5.5
    */
   @CheckForNull
-  Duration debt();
+  Duration effort();
 
   /**
    * @since 5.0
