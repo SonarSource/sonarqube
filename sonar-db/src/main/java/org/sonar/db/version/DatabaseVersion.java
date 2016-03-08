@@ -29,7 +29,7 @@ import org.sonar.db.MyBatis;
 
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 1113;
+  public static final int LAST_VERSION = 1114;
 
   /**
    * The minimum supported version which can be upgraded. Lower
