@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -28,7 +27,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
-import org.sonar.process.DefaultProcessCommands;
+import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.UserSessionRule;
@@ -49,10 +48,11 @@ public class RestartActionTest {
   @Rule
   public LogTester logTester = new LogTester();
 
-  Settings settings = new Settings();
-  Platform platform = mock(Platform.class);
-  RestartAction sut = new RestartAction(userSessionRule, settings, platform);
-  WsActionTester actionTester = new WsActionTester(sut);
+  private Settings settings = new Settings();
+  private Platform platform = mock(Platform.class);
+  private ProcessCommandWrapper processCommandWrapper = mock(ProcessCommandWrapper.class);
+  private RestartAction sut = new RestartAction(userSessionRule, settings, platform, processCommandWrapper);
+  private WsActionTester actionTester = new WsActionTester(sut);
 
   @Test
   public void restart_if_dev_mode() throws Exception {
@@ -73,40 +73,12 @@ public class RestartActionTest {
   }
 
   @Test
-  public void fail_process_sharedDir_property_not_set_in_production_mode() throws Exception {
+  public void calls_ProcessCommandWrapper_requestForSQRestart_in_production_mode() throws Exception {
     userSessionRule.login().setGlobalPermissions(UserRole.ADMIN);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.sharedDir is not set");
-
-    actionTester.newRequest().execute();
-  }
-
-  @Test
-  public void fail_process_index_property_not_set_in_production_mode() throws Exception {
-    userSessionRule.login().setGlobalPermissions(UserRole.ADMIN);
-    settings.setProperty("process.sharedDir", temp.newFolder().getAbsolutePath());
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.index is not set");
-
-    actionTester.newRequest().execute();
-  }
-
-  @Test
-  public void askForRestart_in_shared_memory_in_production_mode() throws Exception {
-    int processNumber = 2;
-    File tempFolder = temp.newFolder().getAbsoluteFile();
-
-    userSessionRule.login().setGlobalPermissions(UserRole.ADMIN);
-    settings.setProperty("process.sharedDir", tempFolder.getAbsolutePath());
-    settings.setProperty("process.index", processNumber);
-
-    DefaultProcessCommands processCommands = new DefaultProcessCommands(tempFolder, processNumber);
 
     actionTester.newRequest().execute();
 
-    assertThat(processCommands.askedForRestart()).isTrue();
+    verify(processCommandWrapper).requestSQRestart();
   }
 
   @Test
@@ -114,8 +86,6 @@ public class RestartActionTest {
     String login = "BigBother";
 
     userSessionRule.login(login).setGlobalPermissions(UserRole.ADMIN);
-    settings.setProperty("process.sharedDir", temp.newFolder().getAbsoluteFile().getAbsolutePath());
-    settings.setProperty("process.index", 2);
 
     actionTester.newRequest().execute();
 

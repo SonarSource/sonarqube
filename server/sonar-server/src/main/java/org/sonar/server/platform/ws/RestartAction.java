@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import java.io.File;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -27,12 +26,9 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
-import org.sonar.process.DefaultProcessCommands;
-import org.sonar.process.ProcessCommands;
+import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.user.UserSession;
-
-import static com.google.common.base.Preconditions.checkArgument;
 
 /**
  * Implementation of the {@code restart} action for the System WebService.
@@ -40,17 +36,17 @@ import static com.google.common.base.Preconditions.checkArgument;
 public class RestartAction implements SystemWsAction {
 
   private static final Logger LOGGER = Loggers.get(RestartAction.class);
-  private static final String PROPERTY_SHARED_PATH = "process.sharedDir";
-  private static final String PROPERTY_PROCESS_INDEX = "process.index";
 
   private final UserSession userSession;
   private final Settings settings;
   private final Platform platform;
+  private final ProcessCommandWrapper processCommandWrapper;
 
-  public RestartAction(UserSession userSession, Settings settings, Platform platform) {
+  public RestartAction(UserSession userSession, Settings settings, Platform platform, ProcessCommandWrapper processCommandWrapper) {
     this.userSession = userSession;
     this.settings = settings;
     this.platform = platform;
+    this.processCommandWrapper = processCommandWrapper;
   }
 
   @Override
@@ -74,28 +70,9 @@ public class RestartAction implements SystemWsAction {
     } else {
       userSession.checkPermission(UserRole.ADMIN);
       LOGGER.info("SonarQube restart requested by {}", userSession.getLogin());
-
-      File shareDir = nonNullValueAsFile(PROPERTY_SHARED_PATH);
-      int processNumber = nonNullAsInt(PROPERTY_PROCESS_INDEX);
-      try (ProcessCommands commands = new DefaultProcessCommands(shareDir, processNumber, false)) {
-        commands.askForRestart();
-      } catch (Exception e) {
-        LOGGER.warn("Failed to close ProcessCommands", e);
-      }
+      processCommandWrapper.requestSQRestart();
     }
     response.noContent();
-  }
-
-  private int nonNullAsInt(String key) {
-    String s = settings.getString(key);
-    checkArgument(s != null, "Property %s is not set", key);
-    return Integer.parseInt(s);
-  }
-
-  public File nonNullValueAsFile(String key) {
-    String s = settings.getString(key);
-    checkArgument(s != null, "Property %s is not set", key);
-    return new File(s);
   }
 
 }
