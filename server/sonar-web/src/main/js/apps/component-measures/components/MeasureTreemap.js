@@ -164,6 +164,7 @@ export default class MeasureTreemap extends React.Component {
 
   renderTreemap () {
     const { metric } = this.props;
+    const colorScale = this.getScale();
     const items = this.state.components
         .filter(component => component.measures['ncloc'])
         .map(component => {
@@ -175,7 +176,7 @@ export default class MeasureTreemap extends React.Component {
             name: component.name,
             qualifier: component.qualifier,
             size: component.measures['ncloc'],
-            color: colorMeasure != null ? this.getScale()(colorMeasure) : '#777',
+            color: colorMeasure != null ? colorScale(colorMeasure) : '#777',
             tooltip: this.getTooltip(component),
             label: component.name,
             link: getComponentUrl(component.key)
