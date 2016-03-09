@@ -33,14 +33,19 @@ import org.sonar.process.monitor.JavaCommand;
 import org.sonar.process.monitor.Monitor;
 
 /**
- * Entry-point of process that starts and monitors elasticsearch and web servers
+ * Entry-point of process that starts and monitors ElasticSearch, the Web Server and the Compute Engine.
  */
 public class App implements Stoppable {
+
+  public static final int APP_PROCESS_NUMBER = 0;
+  public static final int ES_PROCESS_INDEX = 1;
+  public static final int WEBSERVER_PROCESS_INDEX = 2;
+  public static final int CESERVER_PROCESS_INDEX = 3;
 
   private final Monitor monitor;
 
   public App(AppFileSystem appFileSystem, boolean watchForHardStop) {
-    this(Monitor.create(appFileSystem, watchForHardStop));
+    this(Monitor.create(APP_PROCESS_NUMBER, appFileSystem, watchForHardStop));
   }
 
   App(Monitor monitor) {
@@ -67,7 +72,7 @@ public class App implements Stoppable {
   }
 
   private static JavaCommand createESCommand(Props props, File homeDir) {
-    JavaCommand elasticsearch = new JavaCommand("search");
+    JavaCommand elasticsearch = new JavaCommand("search", ES_PROCESS_INDEX);
     elasticsearch
       .setWorkDir(homeDir)
       .addJavaOptions("-Djava.awt.headless=true")
@@ -81,7 +86,7 @@ public class App implements Stoppable {
   }
 
   private static JavaCommand createWebServerCommand(Props props, File homeDir) {
-    JavaCommand webServer = new JavaCommand("web")
+    JavaCommand webServer = new JavaCommand("web", WEBSERVER_PROCESS_INDEX)
       .setWorkDir(homeDir)
       .addJavaOptions(ProcessProperties.WEB_ENFORCED_JVM_ARGS)
       .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_OPTS))
@@ -100,7 +105,7 @@ public class App implements Stoppable {
   }
 
   private static JavaCommand createCeServerCommand(Props props, File homeDir) {
-    JavaCommand webServer = new JavaCommand("ce")
+    JavaCommand webServer = new JavaCommand("ce", CESERVER_PROCESS_INDEX)
       .setWorkDir(homeDir)
       .setClassName("org.sonar.ce.app.CeServer")
       .setArguments(props.rawProperties())

@@ -128,6 +128,15 @@ public class DefaultProcessCommandsTest {
   }
 
   @Test
+  public void main_fails_if_processNumber_is_MAX_PROCESSES() throws Exception {
+    int processNumber = MAX_PROCESSES;
+
+    expectProcessNumberNoValidIAE(processNumber);
+
+    DefaultProcessCommands.main(temp.newFolder(), processNumber);
+  }
+
+  @Test
   public void secondary_fails_if_processNumber_is_less_than_0() throws Exception {
     int processNumber = -2;
 

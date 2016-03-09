@@ -31,7 +31,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
-import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessUtils;
 import org.sonar.process.SystemExit;
 
@@ -40,10 +39,10 @@ public class Monitor {
   private static final Logger LOG = LoggerFactory.getLogger(Monitor.class);
   private static final Timeouts TIMEOUTS = new Timeouts();
   private static final long WATCH_DELAY_MS = 500L;
-  private static final int CURRENT_PROCESS_NUMBER = 0;
 
   private static int restartorInstanceCounter = 0;
 
+  private final int processNumber;
   private final FileSystem fileSystem;
   private final SystemExit systemExit;
   private final boolean watchForHardStop;
@@ -62,16 +61,16 @@ public class Monitor {
   private RestartorThread restartor;
   @CheckForNull
   HardStopWatcherThread hardStopWatcher;
-  static int nextProcessId = 1;
 
-  Monitor(FileSystem fileSystem, SystemExit exit, boolean watchForHardStop) {
+  Monitor(int processNumber, FileSystem fileSystem, SystemExit exit, boolean watchForHardStop) {
+    this.processNumber = processNumber;
     this.fileSystem = fileSystem;
     this.systemExit = exit;
     this.watchForHardStop = watchForHardStop;
   }
 
-  public static Monitor create(FileSystem fileSystem, boolean watchForHardStop) {
-    return new Monitor(fileSystem, new SystemExit(), watchForHardStop);
+  public static Monitor create(int processNumber, FileSystem fileSystem, boolean watchForHardStop) {
+    return new Monitor(processNumber, fileSystem, new SystemExit(), watchForHardStop);
   }
 
   /**
@@ -356,7 +355,7 @@ public class Monitor {
 
     private boolean askedForStop() {
       File tempDir = fileSystem.getTempDir();
-      try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tempDir, CURRENT_PROCESS_NUMBER)) {
+      try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tempDir, processNumber)) {
         if (processCommands.askedForStop()) {
           return true;
         }
@@ -452,10 +451,4 @@ public class Monitor {
     LOG.trace(s, args);
   }
 
-  public static int getNextProcessId() {
-    if (nextProcessId >= ProcessCommands.MAX_PROCESSES) {
-      throw new IllegalStateException("The maximum number of processes launched has been reached " + ProcessCommands.MAX_PROCESSES);
-    }
-    return nextProcessId++;
-  }
 }

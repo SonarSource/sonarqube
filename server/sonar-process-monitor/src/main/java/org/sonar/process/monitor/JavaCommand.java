@@ -52,11 +52,11 @@ public class JavaCommand {
 
   private final Map<String, String> envVariables = new HashMap<>(System.getenv());
 
-  private int processIndex = -1;
+  private final int processIndex;
 
-  public JavaCommand(String key) {
+  public JavaCommand(String key, int processIndex) {
     this.key = key;
-    processIndex = Monitor.getNextProcessId();
+    this.processIndex = processIndex;
   }
 
   public String getKey() {

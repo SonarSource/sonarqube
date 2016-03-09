@@ -42,7 +42,6 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.NetworkUtils;
-import org.sonar.process.ProcessCommands;
 import org.sonar.process.SystemExit;
 
 import static java.util.Collections.singletonList;
@@ -58,6 +57,7 @@ public class MonitorTest {
 
   private static File testJar;
 
+  private int processIndex = 0;
   private FileSystem fileSystem = mock(FileSystem.class);
   private SystemExit exit = mock(SystemExit.class);
 
@@ -284,22 +284,9 @@ public class MonitorTest {
   }
 
   @Test
-  public void test_too_many_processes() throws Exception {
-    while (Monitor.getNextProcessId() < ProcessCommands.MAX_PROCESSES - 1) {
-    }
-    try {
-      newDefaultMonitor(tempDir);
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessageStartingWith("The maximum number of processes launched has been reached ");
-    } finally {
-      Monitor.nextProcessId = 0;
-    }
-  }
-
-  @Test
   public void fail_to_start_if_bad_class_name() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    JavaCommand command = new JavaCommand("test")
+    JavaCommand command = new JavaCommand("test", processIndex++)
       .addClasspath(testJar.getAbsolutePath())
       .setClassName("org.sonar.process.test.Unknown");
 
@@ -335,7 +322,7 @@ public class MonitorTest {
 
   private Monitor newDefaultMonitor(File tempDir, boolean watchForHardStop) throws IOException {
     when(fileSystem.getTempDir()).thenReturn(tempDir);
-    return new Monitor(fileSystem, exit, watchForHardStop);
+    return new Monitor(1, fileSystem, exit, watchForHardStop);
   }
 
   /**
@@ -360,7 +347,7 @@ public class MonitorTest {
     }
 
     JavaCommand newCommand() {
-      return new JavaCommand(commandKey)
+      return new JavaCommand(commandKey, processIndex++)
         .addClasspath(testJar.getAbsolutePath())
         .setClassName("org.sonar.process.test.HttpProcess")
         .setArgument("httpPort", String.valueOf(httpPort));
@@ -583,7 +570,7 @@ public class MonitorTest {
   }
 
   private JavaCommand newStandardProcessCommand() throws IOException {
-    return new JavaCommand("standard")
+    return new JavaCommand("standard", processIndex++)
       .addClasspath(testJar.getAbsolutePath())
       .setClassName("org.sonar.process.test.StandardProcess");
   }

@@ -32,10 +32,11 @@ public class JavaCommandTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  private int processIndex = 0;
 
   @Test
   public void test_parameters() throws Exception {
-    JavaCommand command = new JavaCommand("es");
+    JavaCommand command = new JavaCommand("es", processIndex++);
 
     command.setArgument("first_arg", "val1");
     Properties args = new Properties();
@@ -63,7 +64,7 @@ public class JavaCommandTest {
 
   @Test
   public void add_java_options() {
-    JavaCommand command = new JavaCommand("foo");
+    JavaCommand command = new JavaCommand("foo", processIndex++);
     assertThat(command.getJavaOptions()).isEmpty();
 
     command.addJavaOptions("");

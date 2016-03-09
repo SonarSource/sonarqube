@@ -35,7 +35,7 @@ public class JavaProcessLauncherTest {
   @Test
   public void fail_to_launch() throws Exception {
     File tempDir = temp.newFolder();
-    JavaCommand command = new JavaCommand("test");
+    JavaCommand command = new JavaCommand("test", 0);
     JavaProcessLauncher launcher = new JavaProcessLauncher(new Timeouts(), tempDir);
     try {
       // command is not correct (missing options), java.lang.ProcessBuilder#start()

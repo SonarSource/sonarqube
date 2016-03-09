@@ -168,8 +168,7 @@ public class AllProcessesCommands {
   }
 
   public void checkProcessNumber(int processNumber) {
-    boolean result = processNumber >= 0 && processNumber < MAX_PROCESSES;
-    if (!result) {
+    if (processNumber < 0 || processNumber >= MAX_PROCESSES) {
       throw new IllegalArgumentException(String.format("Process number %s is not valid", processNumber));
     }
   }
