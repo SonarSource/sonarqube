@@ -78,7 +78,6 @@ public class UpgradeTest {
     checkSystemStatus(ServerStatusResponse.Status.UP);
 
     assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
-    browseWebapp();
     scanProject();
     assertThat(countFiles(PROJECT_KEY)).isEqualTo(files);
     browseWebapp();
@@ -92,9 +91,9 @@ public class UpgradeTest {
 
   private void browseWebapp() {
     testUrl("/");
-    testUrl("/api/issues/search");
-    testUrl("/api/components/tree");
-    testUrl("/api/measures/component_tree?baseComponentKey=org.apache.struts%3Astruts-core");
+    testUrl("/api/issues/search?projectKeys=org.apache.struts%3Astruts-core");
+    testUrl("/api/components/tree?baseComponentKey=org.apache.struts%3Astruts-core");
+    testUrl("/api/measures/component_tree?baseComponentKey=org.apache.struts%3Astruts-core&metricKeys=ncloc,files,violations");
     testUrl("/api/qualityprofiles/search");
     testUrl("/issues/index");
     testUrl("/dashboard/index/org.apache.struts:struts-parent");
