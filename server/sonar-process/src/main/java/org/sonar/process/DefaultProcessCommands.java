@@ -50,6 +50,16 @@ public class DefaultProcessCommands implements ProcessCommands {
   }
 
   @Override
+  public boolean isOperational() {
+    return delegate.isOperational();
+  }
+
+  @Override
+  public void setOperational() {
+    delegate.setOperational();
+  }
+
+  @Override
   public void ping() {
     delegate.ping();
   }

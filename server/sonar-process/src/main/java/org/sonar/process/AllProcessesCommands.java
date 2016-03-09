@@ -53,6 +53,7 @@ import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
  *   <li>First byte contains {@link #EMPTY} until process is UP and writes {@link #UP}</li>
  *   <li>Second byte contains {@link #EMPTY} until any process requests current one to stop by writing value {@link #STOP}</li>
  *   <li>Third byte contains {@link #EMPTY} until any process requests current one to restart by writing value {@link #RESTART}. Process acknowledges restart by writing back {@link #EMPTY}</li>
+ *   <li>Fourth byte will always contain {@link #EMPTY} unless process declares that it is operational by writing {@link #OPERATIONAL}. This does not imply that is done starting.</li>
  *   <li>The next 8 bytes contains a long (value of {@link System#currentTimeMillis()}) which represents the date of the last ping</li>
  * </ul>
  * </p>
@@ -61,15 +62,17 @@ public class AllProcessesCommands {
   private static final int UP_BYTE_OFFSET = 0;
   private static final int STOP_BYTE_OFFSET = 1;
   private static final int RESTART_BYTE_OFFSET = 2;
-  private static final int PING_BYTE_OFFSET = 3;
+  private static final int OPERATIONAL_BYTE_OFFSET = 3;
+  private static final int PING_BYTE_OFFSET = 4;
 
-  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 8;
+  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 1 + 8;
 
   // With this shared memory we can handle up to MAX_PROCESSES processes
   private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES;
 
   private static final byte STOP = (byte) 0xFF;
   private static final byte RESTART = (byte) 0xAA;
+  private static final byte OPERATIONAL = (byte) 0x59;
   private static final byte UP = (byte) 0x01;
   private static final byte EMPTY = (byte) 0x00;
 
@@ -116,6 +119,17 @@ public class AllProcessesCommands {
    */
   void setUp(int processNumber) {
     writeByte(processNumber, UP_BYTE_OFFSET, UP);
+  }
+
+  boolean isOperational(int processNumber) {
+    return readByte(processNumber, OPERATIONAL_BYTE_OFFSET) == OPERATIONAL;
+  }
+
+  /**
+   * To be executed by child process to declare that it is started and fully operational
+   */
+  void setOperational(int processNumber) {
+    writeByte(processNumber, OPERATIONAL_BYTE_OFFSET, OPERATIONAL);
   }
 
   void ping(int processNumber) {
@@ -203,6 +217,16 @@ public class AllProcessesCommands {
     @Override
     public void setUp() {
       AllProcessesCommands.this.setUp(processNumber);
+    }
+
+    @Override
+    public boolean isOperational() {
+      return AllProcessesCommands.this.isOperational(processNumber);
+    }
+
+    @Override
+    public void setOperational() {
+      AllProcessesCommands.this.setOperational(processNumber);
     }
 
     @Override

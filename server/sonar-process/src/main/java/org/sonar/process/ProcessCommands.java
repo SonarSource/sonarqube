@@ -41,6 +41,15 @@ public interface ProcessCommands extends AutoCloseable {
    */
   void setUp();
 
+  boolean isOperational();
+
+  /**
+   * To be executed by child process to declare that it is done starting and fully operational.
+   *
+   * @throws IllegalStateException if {@link #setUp()} has not been called
+   */
+  void setOperational();
+
   void ping();
 
   long getLastPing();
