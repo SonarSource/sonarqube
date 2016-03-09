@@ -296,7 +296,7 @@ class ProjectController < ApplicationController
 
     unless params[:version_name].blank?
       if Event.already_exists(snapshot.id, params[:version_name], EventCategory::KEY_VERSION)
-        flash[:error] = message('project_history.version_already_exists', :params => params[:version_name])
+        flash[:error] = message('project_history.version_already_exists', :params => h(params[:version_name]))
       else
         snapshots = find_project_snapshots(snapshot.id)
         # We update all the related snapshots to have a version attribute in sync with the new name
@@ -309,7 +309,7 @@ class ProjectController < ApplicationController
           # This is an update: we update all the related events
           Event.update_all({:name => params[:version_name]},
                            ["category = ? AND snapshot_id IN (?)", EventCategory::KEY_VERSION, snapshots.map { |s| s.id }])
-          flash[:notice] = message('project_history.version_updated', :params => params[:version_name])
+          flash[:notice] = message('project_history.version_updated', :params => h(params[:version_name]))
         else
           # We create an event for every concerned snapshot
           snapshots.each do |snapshot|
@@ -317,7 +317,7 @@ class ProjectController < ApplicationController
                                   :resource_id => snapshot.project_id, :category => EventCategory::KEY_VERSION,
                                   :event_date => snapshot.created_at)
           end
-          flash[:notice] = message('project_history.version_created', :params => params[:version_name])
+          flash[:notice] = message('project_history.version_created', :params => h(params[:version_name]))
         end
         reportProjectModification(snapshot.root_project_id)
       end
@@ -352,7 +352,7 @@ class ProjectController < ApplicationController
 
     reportProjectModification(parent_snapshot.root_project_id)
 
-    flash[:notice] = message('project_history.version_removed', :params => old_version_name)
+    flash[:notice] = message('project_history.version_removed', :params => h(old_version_name))
     redirect_to :action => 'history', :id => parent_snapshot.root_project_id
   end
 
@@ -362,7 +362,7 @@ class ProjectController < ApplicationController
     access_denied unless is_admin?(snapshot)
 
     if Event.already_exists(snapshot.id, params[:event_name], EventCategory::KEY_OTHER)
-      flash[:error] = message('project_history.event_already_exists', :params => params[:event_name])
+      flash[:error] = message('project_history.event_already_exists', :params => h(params[:event_name]))
     else
       snapshots = find_project_snapshots(snapshot.id)
       snapshots.each do |s|
@@ -373,7 +373,7 @@ class ProjectController < ApplicationController
                        :event_date => s.created_at})
         e.save!
       end
-      flash[:notice] = message('project_history.event_created', :params => params[:event_name])
+      flash[:notice] = message('project_history.event_created', :params => h(params[:event_name]))
     end
 
     redirect_to :action => 'history', :id => snapshot.project_id
@@ -385,7 +385,7 @@ class ProjectController < ApplicationController
     access_denied unless is_admin?(event.resource)
 
     if Event.already_exists(event.snapshot_id, params[:event_name], EventCategory::KEY_OTHER)
-      flash[:error] = message('project_history.event_already_exists', :params => event.name)
+      flash[:error] = message('project_history.event_already_exists', :params => h(event.name))
     else
       events = find_events(event)
       events.each do |e|
@@ -412,7 +412,7 @@ class ProjectController < ApplicationController
       end
     end
 
-    flash[:notice] = message('project_history.event_deleted', :params => name)
+    flash[:notice] = message('project_history.event_deleted', :params => h(name))
     redirect_to :action => 'history', :id => resource_id
   end
 
