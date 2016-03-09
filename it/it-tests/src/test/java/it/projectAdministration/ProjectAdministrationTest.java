@@ -20,7 +20,7 @@
 package it.projectAdministration;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
 import java.sql.SQLException;
@@ -105,7 +105,7 @@ public class ProjectAdministrationTest {
     String projectAdminUser = "project-deletion-with-admin-permission-on-project";
     SonarClient wsClient = orchestrator.getServer().adminWsClient();
     try {
-      SonarRunner scan = SonarRunner.create(projectDir("shared/xoo-sample"));
+      SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-sample"));
       orchestrator.executeBuild(scan);
 
       // Create user having admin permission on previously analysed project
@@ -129,7 +129,7 @@ public class ProjectAdministrationTest {
   @Test
   public void delete_version_of_multimodule_project() {
     GregorianCalendar today = new GregorianCalendar();
-    SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
+    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"))
       .setProperty("sonar.dynamicAnalysis", "false")
       .setProperty("sonar.projectDate", (today.get(Calendar.YEAR) - 1) + "-01-01");
     orchestrator.executeBuild(build);
@@ -171,7 +171,7 @@ public class ProjectAdministrationTest {
       "/projectAdministration/ProjectAdministrationTest/project-settings/override-global-settings.html",
 
       "/projectAdministration/ProjectAdministrationTest/project-settings/only-on-project-settings.html"
-    ).build();
+      ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
     assertThat(orchestrator.getServer().getAdminWsClient().find(PropertyQuery.createForResource("sonar.skippedModules", "sample")).getValue())
@@ -183,7 +183,7 @@ public class ProjectAdministrationTest {
    */
   @Test
   public void bulk_update_project_keys() {
-    SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"));
+    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"));
     orchestrator.executeBuild(build);
 
     Selenese selenese = Selenese.builder()
@@ -201,7 +201,7 @@ public class ProjectAdministrationTest {
    */
   @Test
   public void fine_grain_update_project_keys() {
-    SonarRunner build = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"));
+    SonarScanner build = SonarScanner.create(projectDir("shared/xoo-multi-modules-sample"));
     orchestrator.executeBuild(build);
 
     Selenese selenese = Selenese.builder()
@@ -217,17 +217,13 @@ public class ProjectAdministrationTest {
    */
   @Test
   public void display_module_settings() {
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+    orchestrator.executeBuild(SonarScanner.create(projectDir("shared/xoo-multi-modules-sample")));
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("module-settings",
       // SONAR-3425
       "/projectAdministration/ProjectAdministrationTest/module-settings/display-module-settings.html"
-    ).build();
+      ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
-  }
-
-  private void scanSample() {
-    scanSample(null, null);
   }
 
   private void scanSampleWithDate(String date) {
@@ -235,7 +231,7 @@ public class ProjectAdministrationTest {
   }
 
   private void scanSample(@Nullable String date, @Nullable String profile) {
-    SonarRunner scan = SonarRunner.create(projectDir("shared/xoo-sample"))
+    SonarScanner scan = SonarScanner.create(projectDir("shared/xoo-sample"))
       .setProperties("sonar.cpd.skip", "true");
     if (date != null) {
       scan.setProperty("sonar.projectDate", date);
