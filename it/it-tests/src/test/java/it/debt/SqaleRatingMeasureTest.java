@@ -160,6 +160,31 @@ public class SqaleRatingMeasureTest {
     assertThat(rating.getData()).isEqualTo("E");
   }
 
+  @Test
+  public void effort_to_reach_maintainability_rating_a() {
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/with-many-rules.xml"));
+    orchestrator.getServer().provisionProject(PROJECT, PROJECT);
+    orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
+
+    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample")));
+
+    assertThat(getMeasure(PROJECT, "sqale_rating").getData()).isEqualTo("C");
+    assertThat(getMeasure(PROJECT, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(292);
+
+    assertThat(getMeasure(MODULE, "sqale_rating").getData()).isEqualTo("C");
+    assertThat(getMeasure(MODULE, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(150);
+
+    assertThat(getMeasure(SUB_MODULE, "sqale_rating").getData()).isEqualTo("C");
+    assertThat(getMeasure(SUB_MODULE, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(77);
+
+    assertThat(getMeasure(DIRECTORY, "sqale_rating").getData()).isEqualTo("A");
+    assertThat(getMeasure(DIRECTORY, "effort_to_reach_maintainability_rating_a").getIntValue()).isEqualTo(0);
+
+    assertThat(getMeasure(FILE, "sqale_rating").getData()).isEqualTo("A");
+    // Best value is 0 => no measure
+    assertThat(getMeasure(FILE, "effort_to_reach_maintainability_rating_a")).isNull();
+  }
+
   private Measure getMeasure(String resource, String metricKey) {
     Resource res = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(resource, metricKey));
     if (res == null) {
