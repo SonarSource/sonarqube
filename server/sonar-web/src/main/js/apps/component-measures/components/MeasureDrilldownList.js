@@ -27,15 +27,11 @@ import { enhanceWithSingleMeasure } from '../utils';
 import { getFiles } from '../../../api/components';
 
 export default class MeasureDrilldownList extends React.Component {
-  state = {
-    components: [],
-    selected: null,
-    fetching: true
-  };
-
   componentDidMount () {
     this.mounted = true;
-    this.fetchComponents(this.context.component);
+    if (this.props.store.list.fetching) {
+      this.fetchComponents(this.context.component);
+    }
   }
 
   componentDidUpdate (nextProps, nextState, nextContext) {
@@ -50,7 +46,7 @@ export default class MeasureDrilldownList extends React.Component {
   }
 
   fetchComponents (baseComponent) {
-    const { metric } = this.props;
+    const { metric, store, updateStore } = this.props;
     const asc = metric.direction === 1;
 
     const options = {
@@ -59,28 +55,42 @@ export default class MeasureDrilldownList extends React.Component {
       asc
     };
 
-    this.setState({ fetching: true });
+    updateStore({
+      list: {
+        ...store.list,
+        fetching: true
+      }
+    });
 
     getFiles(baseComponent.key, [metric.key], options).then(files => {
       if (this.mounted) {
         const components = enhanceWithSingleMeasure(files);
 
-        this.setState({
-          components,
-          selected: null,
-          fetching: false
+        updateStore({
+          list: {
+            ...store.list,
+            components,
+            selected: null,
+            fetching: false
+          }
         });
       }
     });
   }
 
   handleFileClick (selected) {
-    this.setState({ selected });
+    const { store, updateStore } = this.props;
+    updateStore({
+      list: {
+        ...store.list,
+        selected
+      }
+    });
   }
 
   render () {
-    const { metric } = this.props;
-    const { components, selected, fetching } = this.state;
+    const { metric, store } = this.props;
+    const { components, selected, fetching } = store.list;
 
     if (fetching) {
       return <Spinner/>;

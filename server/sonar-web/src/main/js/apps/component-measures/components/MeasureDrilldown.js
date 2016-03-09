@@ -30,13 +30,33 @@ import { hasHistory, hasBubbleChart, hasTreemap } from '../utils';
 import { translate } from '../../../helpers/l10n';
 
 export default class MeasureDrilldown extends React.Component {
+  state = {
+    tree: {
+      components: [],
+      breadcrumbs: [],
+      selected: null,
+      fetching: true
+    },
+    list: {
+      components: [],
+      selected: null,
+      fetching: true
+    }
+  };
+
   render () {
     const { children, metric, ...other } = this.props;
     const { component } = this.context;
 
     const showListView = ['VW', 'SVW', 'DEV'].indexOf(component.qualifier) === -1;
 
-    const child = React.cloneElement(children, { component, metric, ...other });
+    const child = React.cloneElement(children, {
+      component,
+      metric,
+      ...other,
+      store: this.state,
+      updateStore: this.setState.bind(this)
+    });
 
     return (
         <div className="measure-details-drilldown">

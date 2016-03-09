@@ -27,16 +27,11 @@ import { enhanceWithSingleMeasure } from '../utils';
 import { getChildren } from '../../../api/components';
 
 export default class MeasureDrilldownTree extends React.Component {
-  state = {
-    components: [],
-    breadcrumbs: [],
-    selected: null,
-    fetching: true
-  };
-
   componentDidMount () {
     this.mounted = true;
-    this.fetchComponents(this.context.component);
+    if (this.props.store.tree.fetching) {
+      this.fetchComponents(this.context.component);
+    }
   }
 
   componentDidUpdate (nextProps, nextState, nextContext) {
@@ -51,7 +46,7 @@ export default class MeasureDrilldownTree extends React.Component {
   }
 
   fetchComponents (baseComponent) {
-    const { metric } = this.props;
+    const { metric, store, updateStore } = this.props;
     const asc = metric.direction === 1;
 
     const options = {
@@ -62,26 +57,29 @@ export default class MeasureDrilldownTree extends React.Component {
 
     const componentKey = baseComponent.refKey || baseComponent.key;
 
-    this.setState({ fetching: true });
+    updateStore({ tree: { ...store.tree, fetching: true } });
 
     getChildren(componentKey, [metric.key], options).then(children => {
       if (this.mounted) {
         const components = enhanceWithSingleMeasure(children);
 
-        const indexInBreadcrumbs = this.state.breadcrumbs
+        const indexInBreadcrumbs = store.tree.breadcrumbs
             .findIndex(component => component === baseComponent);
 
         const breadcrumbs = indexInBreadcrumbs !== -1 ?
-            this.state.breadcrumbs.slice(0, indexInBreadcrumbs + 1) :
-            [...this.state.breadcrumbs, baseComponent];
+            store.tree.breadcrumbs.slice(0, indexInBreadcrumbs + 1) :
+            [...store.tree.breadcrumbs, baseComponent];
 
-        this.setState({
+        const tree = {
+          ...store.tree,
           baseComponent,
           breadcrumbs,
           components,
           selected: null,
           fetching: false
-        });
+        };
+
+        updateStore({ tree });
       }
     });
   }
@@ -95,12 +93,12 @@ export default class MeasureDrilldownTree extends React.Component {
   }
 
   handleFileOpen (selected) {
-    this.setState({ selected });
+    this.props.updateStore({ tree: { ...this.props.store.tree, selected } });
   }
 
   render () {
-    const { metric } = this.props;
-    const { components, selected, breadcrumbs, fetching } = this.state;
+    const { metric, store } = this.props;
+    const { components, selected, breadcrumbs, fetching } = store.tree;
     const parent = breadcrumbs.length > 1 ? breadcrumbs[breadcrumbs.length - 2] : null;
 
     if (fetching) {
