@@ -30,6 +30,8 @@ import ResolutionsTemplate from './templates/widget-issue-filter-resolutions.hbs
 import SeveritiesTemplate from './templates/widget-issue-filter-severities.hbs';
 import StatusesTemplate from './templates/widget-issue-filter-statuses.hbs';
 
+import { translate } from '../../helpers/l10n';
+
 
 const FACET_LIMIT = 15;
 
@@ -63,6 +65,15 @@ const defaultLink = function (item, property, query, index, items, mode) {
 };
 
 const byDistributionConf = {
+  'types': {
+    comparator (item) {
+      const order = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+      return order.indexOf(item.val);
+    },
+    label (item) {
+      return translate('issue.type', item.val);
+    }
+  },
   'severities': {
     template: SeveritiesTemplate,
     comparator (item) {
