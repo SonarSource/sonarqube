@@ -138,8 +138,8 @@ public class ProcessEntryPoint implements Stoppable {
 
   public static ProcessEntryPoint createForArguments(String[] args) {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
-    ProcessCommands commands = new DefaultProcessCommands(
-      props.nonNullValueAsFile(PROPERTY_SHARED_PATH), Integer.parseInt(props.nonNullValue(PROPERTY_PROCESS_INDEX)));
+    ProcessCommands commands = DefaultProcessCommands.main(
+        props.nonNullValueAsFile(PROPERTY_SHARED_PATH), Integer.parseInt(props.nonNullValue(PROPERTY_PROCESS_INDEX)));
     return new ProcessEntryPoint(props, new SystemExit(), commands);
   }
 }

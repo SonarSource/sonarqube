@@ -52,7 +52,7 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
   private void call(VoidMethod command) {
     File shareDir = nonNullValueAsFile(PROPERTY_SHARED_PATH);
     int processNumber = nonNullAsInt(PROPERTY_PROCESS_INDEX);
-    try (ProcessCommands commands = new DefaultProcessCommands(shareDir, processNumber, false)) {
+    try (ProcessCommands commands = DefaultProcessCommands.secondary(shareDir, processNumber)) {
       command.callOn(commands);
     } catch (Exception e) {
       LOG.warn("Failed to close ProcessCommands", e);

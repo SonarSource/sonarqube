@@ -71,7 +71,7 @@ public class ProcessCommandWrapperImplTest {
     ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings);
     underTest.requestSQRestart();
 
-    try (DefaultProcessCommands processCommands = new DefaultProcessCommands(tmpDir, PROCESS_NUMBER, false)) {
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, PROCESS_NUMBER)) {
       assertThat(processCommands.askedForRestart()).isTrue();
     }
   }
@@ -106,7 +106,7 @@ public class ProcessCommandWrapperImplTest {
     ProcessCommandWrapperImpl underTest = new ProcessCommandWrapperImpl(settings);
     underTest.notifyOperational();
 
-    try (DefaultProcessCommands processCommands = new DefaultProcessCommands(tmpDir, PROCESS_NUMBER, false)) {
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tmpDir, PROCESS_NUMBER)) {
       assertThat(processCommands.isOperational()).isTrue();
     }
   }

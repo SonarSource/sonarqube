@@ -30,13 +30,26 @@ public class DefaultProcessCommands implements ProcessCommands {
   private final AllProcessesCommands allProcessesCommands;
   private final ProcessCommands delegate;
 
-  public DefaultProcessCommands(File directory, int processNumber) {
-    this(directory, processNumber, true);
-  }
-
-  public DefaultProcessCommands(File directory, int processNumber, boolean clean) {
+  private DefaultProcessCommands(File directory, int processNumber, boolean clean) {
     this.allProcessesCommands = new AllProcessesCommands(directory);
     this.delegate = clean ? allProcessesCommands.createAfterClean(processNumber) : allProcessesCommands.create(processNumber);
+  }
+
+  /**
+   * Main DefaultProcessCommands will clear the shared memory space of the specified process number when created and will
+   * then write and/or read to it.
+   * Therefor there should be only one main DefaultProcessCommands.
+   */
+  public static DefaultProcessCommands main(File directory, int processNumber) {
+    return new DefaultProcessCommands(directory, processNumber, true);
+  }
+
+  /**
+   * Secondary DefaultProcessCommands will read and write to the shared memory space but will not clear it. Therefor, there
+   * can be any number of them.
+   */
+  public static DefaultProcessCommands secondary(File directory, int processNumber) {
+    return new DefaultProcessCommands(directory, processNumber, false);
   }
 
   @Override

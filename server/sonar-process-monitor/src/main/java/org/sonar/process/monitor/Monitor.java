@@ -356,7 +356,7 @@ public class Monitor {
 
     private boolean askedForStop() {
       File tempDir = fileSystem.getTempDir();
-      try (DefaultProcessCommands processCommands = new DefaultProcessCommands(tempDir, CURRENT_PROCESS_NUMBER, false)) {
+      try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(tempDir, CURRENT_PROCESS_NUMBER)) {
         if (processCommands.askedForStop()) {
           return true;
         }

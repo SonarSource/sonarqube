@@ -45,7 +45,7 @@ public class DefaultProcessCommandsTest {
     FileUtils.deleteQuietly(dir);
 
     try {
-      new DefaultProcessCommands(dir, PROCESS_NUMBER);
+      DefaultProcessCommands.main(dir, PROCESS_NUMBER);
       fail();
     } catch (IllegalArgumentException e) {
       assertThat(e).hasMessage("Not a valid directory: " + dir.getAbsolutePath());
@@ -56,7 +56,7 @@ public class DefaultProcessCommandsTest {
   public void child_process_update_the_mapped_memory() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
     assertThat(commands.isUp()).isFalse();
 
     commands.setUp();
@@ -67,7 +67,7 @@ public class DefaultProcessCommandsTest {
   public void ask_for_stop() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
     assertThat(commands.askedForStop()).isFalse();
 
     commands.askForStop();
@@ -78,7 +78,7 @@ public class DefaultProcessCommandsTest {
   public void ask_for_restart() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
     assertThat(commands.askedForRestart()).isFalse();
 
     commands.askForRestart();
@@ -89,7 +89,7 @@ public class DefaultProcessCommandsTest {
   public void acknowledgeAskForRestart_has_no_effect_when_no_restart_asked() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
     assertThat(commands.askedForRestart()).isFalse();
 
     commands.acknowledgeAskForRestart();
@@ -100,7 +100,7 @@ public class DefaultProcessCommandsTest {
   public void acknowledgeAskForRestart_resets_askForRestart_has_no_effect_when_no_restart_asked() throws Exception {
     File dir = temp.newFolder();
 
-    DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
+    DefaultProcessCommands commands = DefaultProcessCommands.main(dir, PROCESS_NUMBER);
 
     commands.askForRestart();
     assertThat(commands.askedForRestart()).isTrue();
@@ -110,24 +110,43 @@ public class DefaultProcessCommandsTest {
   }
 
   @Test
-  public void constructor_fails_if_processNumber_is_less_than_0() throws Exception {
-    File dir = temp.newFolder();
+  public void main_fails_if_processNumber_is_less_than_0() throws Exception {
     int processNumber = -2;
 
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Process number " + processNumber + " is not valid");
+    expectProcessNumberNoValidIAE(processNumber);
 
-    new DefaultProcessCommands(dir, processNumber);
+    DefaultProcessCommands.main(temp.newFolder(), processNumber);
   }
 
   @Test
-  public void getProcessCommands_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
-    File dir = temp.newFolder();
+  public void main_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
     int processNumber = MAX_PROCESSES + 1;
 
+    expectProcessNumberNoValidIAE(processNumber);
+
+    DefaultProcessCommands.main(temp.newFolder(), processNumber);
+  }
+
+  @Test
+  public void secondary_fails_if_processNumber_is_less_than_0() throws Exception {
+    int processNumber = -2;
+
+    expectProcessNumberNoValidIAE(processNumber);
+
+    DefaultProcessCommands.secondary(temp.newFolder(), processNumber);
+  }
+
+  @Test
+  public void secondary_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
+    int processNumber = MAX_PROCESSES + 1;
+
+    expectProcessNumberNoValidIAE(processNumber);
+
+    DefaultProcessCommands.secondary(temp.newFolder(), processNumber);
+  }
+
+  private void expectProcessNumberNoValidIAE(int processNumber) {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Process number " + processNumber + " is not valid");
-
-    new DefaultProcessCommands(dir, processNumber);
   }
 }
