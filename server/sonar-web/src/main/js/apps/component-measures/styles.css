@@ -71,6 +71,7 @@
 
 .measure-details-see-also {
   position: absolute;
+  z-index: 50;
   top: 29px;
   left: 10px;
   width: 400px;
