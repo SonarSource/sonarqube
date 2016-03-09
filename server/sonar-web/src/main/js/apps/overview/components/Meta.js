@@ -32,7 +32,7 @@ export default function Meta ({ component }) {
   const isDeveloper = qualifier === 'DEV';
 
   const hasDescription = !!description;
-  const hasLinks = Array.isArray(links) && links.length;
+  const hasLinks = Array.isArray(links) && !!links.length;
   const hasQualityProfiles = Array.isArray(profiles) && profiles.length;
   const hasQualityGate = !!gate;
 
