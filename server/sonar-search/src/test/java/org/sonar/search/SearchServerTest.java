@@ -81,7 +81,7 @@ public class SearchServerTest {
 
     searchServer = new SearchServer(props);
     searchServer.start();
-    assertThat(searchServer.isReady()).isTrue();
+    assertThat(searchServer.isUp()).isTrue();
 
     Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", CLUSTER_NAME).build();
     client = new TransportClient(settings)

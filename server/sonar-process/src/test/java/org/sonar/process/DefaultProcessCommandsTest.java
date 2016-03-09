@@ -57,10 +57,10 @@ public class DefaultProcessCommandsTest {
     File dir = temp.newFolder();
 
     DefaultProcessCommands commands = new DefaultProcessCommands(dir, PROCESS_NUMBER);
-    assertThat(commands.isReady()).isFalse();
+    assertThat(commands.isUp()).isFalse();
 
-    commands.setReady();
-    assertThat(commands.isReady()).isTrue();
+    commands.setUp();
+    assertThat(commands.isUp()).isTrue();
   }
 
   @Test

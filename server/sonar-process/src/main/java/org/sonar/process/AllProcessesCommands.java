@@ -32,46 +32,50 @@ import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
  * Process inter-communication to :
  * <ul>
  *   <li>share status of child process</li>
- *   <li>stop child process</li>
+ *   <li>stop/restart child process</li>
  * </ul>
  *
- * <p/>
- * It relies on files shared by both processes. Following alternatives were considered but not selected :
+ * <p>
+ * It relies on a single file accessed by all processes through a {@link MappedByteBuffer}.<br/>
+ * Following alternatives were considered but not selected :
  * <ul>
  *   <li>JMX beans over RMI: network issues (mostly because of Java reverse-DNS) + requires to configure and open a new port</li>
  *   <li>simple socket protocol: same drawbacks are RMI connection</li>
  *   <li>java.lang.Process#destroy(): shutdown hooks are not executed on some OS (mostly MSWindows)</li>
  *   <li>execute OS-specific commands (for instance kill on *nix): OS-specific, so hell to support. Moreover how to get identify a process ?</li>
  * </ul>
+ * </p>
+ *
+ * <p>
+ * The file contains {@link ProcessCommands#MAX_PROCESSES} groups of {@link #BYTE_LENGTH_FOR_ONE_PROCESS} bits.
+ * Each group of byte is used as follow:
+ * <ul>
+ *   <li>First byte contains {@link #EMPTY} until process is UP and writes {@link #UP}</li>
+ *   <li>Second byte contains {@link #EMPTY} until any process requests current one to stop by writing value {@link #STOP}</li>
+ *   <li>Third byte contains {@link #EMPTY} until any process requests current one to restart by writing value {@link #RESTART}. Process acknowledges restart by writing back {@link #EMPTY}</li>
+ *   <li>The next 8 bytes contains a long (value of {@link System#currentTimeMillis()}) which represents the date of the last ping</li>
+ * </ul>
+ * </p>
  */
 public class AllProcessesCommands {
+  private static final int UP_BYTE_OFFSET = 0;
+  private static final int STOP_BYTE_OFFSET = 1;
+  private static final int RESTART_BYTE_OFFSET = 2;
+  private static final int PING_BYTE_OFFSET = 3;
 
-  /**
-   * The ByteBuffer will contains :
-   * <ul>
-   *   <li>First byte will contains 0x00 until stop command is issued = 0xFF</li>
-   *   <li>Then each 10 bytes will be reserved for each process</li>
-   * </ul>
-   *
-   * Description of ten bytes of each process :
-   * <ul>
-   *   <li>First byte will contains the state 0x00 until READY 0x01</li>
-   *   <li>The second byte will contains the request for stopping 0x00 or STOP (0xFF)</li>
-   *   <li>The second byte will contains the request for restarting 0x00 or RESTART (0xAA)</li>
-   *   <li>The next 8 bytes contains a long (System.currentTimeInMillis for ping)</li>
-   * </ul>
-   */
-  final MappedByteBuffer mappedByteBuffer;
-  private final RandomAccessFile sharedMemory;
   private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 8;
 
   // With this shared memory we can handle up to MAX_PROCESSES processes
   private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES;
 
-  public static final byte STOP = (byte) 0xFF;
-  public static final byte RESTART = (byte) 0xAA;
-  public static final byte READY = (byte) 0x01;
-  public static final byte EMPTY = (byte) 0x00;
+  private static final byte STOP = (byte) 0xFF;
+  private static final byte RESTART = (byte) 0xAA;
+  private static final byte UP = (byte) 0x01;
+  private static final byte EMPTY = (byte) 0x00;
+
+  //VisibleForTesting
+  final MappedByteBuffer mappedByteBuffer;
+  private final RandomAccessFile sharedMemory;
 
   public AllProcessesCommands(File directory) {
     if (!directory.isDirectory() || !directory.exists()) {
@@ -103,54 +107,50 @@ public class AllProcessesCommands {
     return processCommands;
   }
 
-  boolean isReady(int processNumber) {
-    return mappedByteBuffer.get(offset(processNumber)) == READY;
+  boolean isUp(int processNumber) {
+    return readByte(processNumber, UP_BYTE_OFFSET) == UP;
   }
 
   /**
-   * To be executed by child process to declare that it's ready
+   * To be executed by child process to declare that it is done starting
    */
-  void setReady(int processNumber) {
-    mappedByteBuffer.put(offset(processNumber), READY);
+  void setUp(int processNumber) {
+    writeByte(processNumber, UP_BYTE_OFFSET, UP);
   }
 
   void ping(int processNumber) {
-    mappedByteBuffer.putLong(2 + offset(processNumber), System.currentTimeMillis());
+    writeLong(processNumber, PING_BYTE_OFFSET, System.currentTimeMillis());
   }
 
   long getLastPing(int processNumber) {
-    return mappedByteBuffer.getLong(2 + offset(processNumber));
+    return readLong(processNumber, PING_BYTE_OFFSET);
   }
 
   /**
    * To be executed by monitor process to ask for child process termination
    */
   void askForStop(int processNumber) {
-    mappedByteBuffer.put(offset(processNumber) + 1, STOP);
+    writeByte(processNumber, STOP_BYTE_OFFSET, STOP);
   }
 
   boolean askedForStop(int processNumber) {
-    return mappedByteBuffer.get(offset(processNumber) + 1) == STOP;
+    return readByte(processNumber, STOP_BYTE_OFFSET) == STOP;
   }
 
   void askForRestart(int processNumber) {
-    mappedByteBuffer.put(offset(processNumber) + 3, RESTART);
+    writeByte(processNumber, RESTART_BYTE_OFFSET, RESTART);
   }
 
   boolean askedForRestart(int processNumber) {
-    return mappedByteBuffer.get(offset(processNumber) + 3) == RESTART;
+    return readByte(processNumber, RESTART_BYTE_OFFSET) == RESTART;
   }
 
   void acknowledgeAskForRestart(int processNumber) {
-    mappedByteBuffer.put(offset(processNumber) + 3, EMPTY);
+    writeByte(processNumber, RESTART_BYTE_OFFSET, EMPTY);
   }
 
   public void close() {
     IOUtils.closeQuietly(sharedMemory);
-  }
-
-  int offset(int processNumber) {
-    return BYTE_LENGTH_FOR_ONE_PROCESS * processNumber;
   }
 
   public void checkProcessNumber(int processNumber) {
@@ -162,8 +162,29 @@ public class AllProcessesCommands {
 
   private void cleanData(int processNumber) {
     for (int i = 0; i < BYTE_LENGTH_FOR_ONE_PROCESS; i++) {
-      mappedByteBuffer.put(offset(processNumber) + i, EMPTY);
+      writeByte(processNumber, i, EMPTY);
     }
+  }
+
+  private void writeByte(int processNumber, int offset, byte value) {
+    mappedByteBuffer.put(offset(processNumber) + offset, value);
+  }
+
+  private byte readByte(int processNumber, int offset) {
+    return mappedByteBuffer.get(offset(processNumber) + offset);
+  }
+
+  private void writeLong(int processNumber, int offset, long value) {
+    mappedByteBuffer.putLong(offset(processNumber) + offset, value);
+  }
+
+  private long readLong(int processNumber, int offset) {
+    return mappedByteBuffer.getLong(offset(processNumber) + offset);
+  }
+
+  // VisibleForTesting
+  int offset(int processNumber) {
+    return BYTE_LENGTH_FOR_ONE_PROCESS * processNumber;
   }
 
   private class ProcessCommandsImpl implements ProcessCommands {
@@ -175,13 +196,13 @@ public class AllProcessesCommands {
     }
 
     @Override
-    public boolean isReady() {
-      return AllProcessesCommands.this.isReady(processNumber);
+    public boolean isUp() {
+      return AllProcessesCommands.this.isUp(processNumber);
     }
 
     @Override
-    public void setReady() {
-      AllProcessesCommands.this.setReady(processNumber);
+    public void setUp() {
+      AllProcessesCommands.this.setUp(processNumber);
     }
 
     @Override

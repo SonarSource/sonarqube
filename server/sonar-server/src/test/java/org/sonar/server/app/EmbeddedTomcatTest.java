@@ -60,9 +60,9 @@ public class EmbeddedTomcatTest {
     props.set("sonar.web.port", String.valueOf(httpPort));
     props.set("sonar.ajp.port", String.valueOf(ajpPort));
     EmbeddedTomcat tomcat = new EmbeddedTomcat(props);
-    assertThat(tomcat.isReady()).isFalse();
+    assertThat(tomcat.isUp()).isFalse();
     tomcat.start();
-    assertThat(tomcat.isReady()).isTrue();
+    assertThat(tomcat.isUp()).isTrue();
 
     // check that http connector accepts requests
     URL url = new URL("http://" + Inet4Address.getLocalHost().getHostAddress() + ":" + httpPort);
@@ -70,7 +70,7 @@ public class EmbeddedTomcatTest {
 
     // stop server
     tomcat.terminate();
-    // tomcat.isReady() must not be called. It is used to wait for server startup, not shutdown.
+    // tomcat.isUp() must not be called. It is used to wait for server startup, not shutdown.
     try {
       url.openConnection().connect();
       fail();

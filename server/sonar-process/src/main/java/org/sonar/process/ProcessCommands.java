@@ -19,33 +19,27 @@
  */
 package org.sonar.process;
 
+import java.io.File;
+
 /**
  * Process inter-communication to :
  * <ul>
- *   <li>share status of child process</li>
- *   <li>stop child process</li>
- *   <li>restart all child processes</li>
+ *   <li>share status of specific process</li>
+ *   <li>stop/restart a specific processes</li>
  * </ul>
  *
- * <p/>
- * It relies on files shared by both processes. Following alternatives were considered but not selected :
- * <ul>
- *   <li>JMX beans over RMI: network issues (mostly because of Java reverse-DNS) + requires to configure and open a new port</li>
- *   <li>simple socket protocol: same drawbacks are RMI connection</li>
- *   <li>java.lang.Process#destroy(): shutdown hooks are not executed on some OS (mostly MSWindows)</li>
- *   <li>execute OS-specific commands (for instance kill on *nix): OS-specific, so hell to support. Moreover how to get identify a process ?</li>
- * </ul>
+ * @see DefaultProcessCommands#DefaultProcessCommands(File, int)
  */
 public interface ProcessCommands extends AutoCloseable {
 
   int MAX_PROCESSES = 50;
 
-  boolean isReady();
+  boolean isUp();
 
   /**
-   * To be executed by child process to declare that it's ready
+   * To be executed by child process to declare that it is done starting
    */
-  void setReady();
+  void setUp();
 
   void ping();
 

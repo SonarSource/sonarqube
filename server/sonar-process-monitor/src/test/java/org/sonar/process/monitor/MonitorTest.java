@@ -151,7 +151,7 @@ public class MonitorTest {
     // blocks until started
     underTest.start(singletonList(client.newCommand()));
 
-    assertThat(client).isReady()
+    assertThat(client).isUp()
       .wasStartedBefore(System.currentTimeMillis());
 
     // blocks until stopped
@@ -172,10 +172,10 @@ public class MonitorTest {
 
     // start p2 when p1 is fully started (ready)
     assertThat(p1)
-      .isReady()
+      .isUp()
       .wasStartedBefore(p2);
     assertThat(p2)
-      .isReady();
+      .isUp();
 
     underTest.stop();
 
@@ -195,8 +195,8 @@ public class MonitorTest {
     HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
     HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
     underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
-    assertThat(p1).isReady();
-    assertThat(p2).isReady();
+    assertThat(p1).isUp();
+    assertThat(p2).isUp();
 
     // emulate CTRL-C
     underTest.getShutdownHook().run();
@@ -215,8 +215,8 @@ public class MonitorTest {
     HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
     underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
-    assertThat(p1).isReady();
-    assertThat(p2).isReady();
+    assertThat(p1).isUp();
+    assertThat(p2).isUp();
 
     p2.restart();
 
@@ -247,8 +247,8 @@ public class MonitorTest {
     HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
     HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
     underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
-    assertThat(p1.isReady()).isTrue();
-    assertThat(p2.isReady()).isTrue();
+    assertThat(p1.isUp()).isTrue();
+    assertThat(p2.isUp()).isTrue();
 
     // kill p1 -> waiting for detection by monitor than termination of p2
     p1.kill();
@@ -369,7 +369,7 @@ public class MonitorTest {
     /**
      * @see org.sonar.process.test.HttpProcess
      */
-    boolean isReady() {
+    boolean isUp() {
       try {
         HttpRequest httpRequest = HttpRequest.get("http://localhost:" + httpPort + "/" + "ping")
           .readTimeout(2000).connectTimeout(2000);
@@ -538,12 +538,12 @@ public class MonitorTest {
       return this;
     }
 
-    public HttpProcessClientAssert isReady() {
+    public HttpProcessClientAssert isUp() {
       isNotNull();
 
       // check condition
-      if (!actual.isReady()) {
-        failWithMessage("HttpClient %s should be ready", actual.commandKey);
+      if (!actual.isUp()) {
+        failWithMessage("HttpClient %s should be up", actual.commandKey);
       }
 
       return this;
@@ -552,7 +552,7 @@ public class MonitorTest {
     public HttpProcessClientAssert isNotReady() {
       isNotNull();
 
-      if (actual.isReady()) {
+      if (actual.isUp()) {
         failWithMessage("HttpClient %s should not be ready", actual.commandKey);
       }
 

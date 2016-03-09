@@ -44,8 +44,8 @@ public class WebServer implements Monitored {
   }
 
   @Override
-  public boolean isReady() {
-    return tomcat.isReady();
+  public boolean isUp() {
+    return tomcat.isUp();
   }
 
   @Override

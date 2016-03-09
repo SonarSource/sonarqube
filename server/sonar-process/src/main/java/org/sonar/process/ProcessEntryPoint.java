@@ -79,14 +79,14 @@ public class ProcessEntryPoint implements Stoppable {
       stopWatcher.start();
 
       monitored.start();
-      boolean ready = false;
-      while (!ready) {
-        ready = monitored.isReady();
+      boolean up = false;
+      while (!up) {
+        up = monitored.isUp();
         Thread.sleep(20L);
       }
 
       // notify monitor that process is ready
-      commands.setReady();
+      commands.setUp();
 
       if (lifecycle.tryToMoveTo(Lifecycle.State.STARTED)) {
         monitored.awaitStop();

@@ -66,7 +66,7 @@ class EmbeddedTomcat {
     }
   }
 
-  boolean isReady() {
+  boolean isUp() {
     if (webappContext == null) {
       return false;
     }

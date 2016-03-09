@@ -165,7 +165,7 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public boolean isReady() {
+    public boolean isUp() {
       return true;
     }
 
@@ -188,7 +188,7 @@ public class ProcessEntryPointTest {
     }
 
     @Override
-    public boolean isReady() {
+    public boolean isUp() {
       return false;
     }
 

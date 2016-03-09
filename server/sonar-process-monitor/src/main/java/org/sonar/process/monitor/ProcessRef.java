@@ -58,17 +58,17 @@ class ProcessRef {
     return commands;
   }
 
-  void waitForReady() {
-    boolean ready = false;
-    while (!ready) {
+  void waitForUp() {
+    boolean up = false;
+    while (!up) {
       if (isStopped()) {
         throw new MessageException(String.format("%s failed to start", this));
       }
-      ready = commands.isReady();
+      up = commands.isUp();
       try {
         Thread.sleep(200L);
       } catch (InterruptedException e) {
-        throw new IllegalStateException(String.format("Interrupted while waiting for %s to be ready", this), e);
+        throw new IllegalStateException(String.format("Interrupted while waiting for %s to be up", this), e);
       }
     }
   }

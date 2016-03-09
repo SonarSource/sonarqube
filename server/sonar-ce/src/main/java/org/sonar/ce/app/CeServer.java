@@ -87,8 +87,8 @@ public class CeServer implements Monitored {
   }
 
   @Override
-  public boolean isReady() {
-    checkState(ceMainThread != null, "isReady() can not be called before start()");
+  public boolean isUp() {
+    checkState(ceMainThread != null, "isUp() can not be called before start()");
 
     return ceMainThread.isStarted();
   }

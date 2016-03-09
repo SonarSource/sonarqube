@@ -155,7 +155,7 @@ public class Monitor {
     watcherThreads.add(watcherThread);
 
     // wait for process to be ready (accept requests or so on)
-    processRef.waitForReady();
+    processRef.waitForUp();
 
     LOG.info("{} is up", processRef);
   }

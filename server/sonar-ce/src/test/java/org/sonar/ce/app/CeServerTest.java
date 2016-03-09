@@ -91,9 +91,9 @@ public class CeServerTest {
     CeServer ceServer = newCeServer();
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("isReady() can not be called before start()");
+    expectedException.expectMessage("isUp() can not be called before start()");
 
-    ceServer.isReady();
+    ceServer.isUp();
   }
 
   @Test
@@ -103,15 +103,15 @@ public class CeServerTest {
 
     ceServer.start();
 
-    assertThat(ceServer.isReady()).isFalse();
+    assertThat(ceServer.isUp()).isFalse();
 
     // release ComputeEngine startup method
     computeEngine.releaseStartup();
 
-    while (!ceServer.isReady()) {
+    while (!ceServer.isUp()) {
       // wait for isReady to change to true, otherwise test will fail with timeout
     }
-    assertThat(ceServer.isReady()).isTrue();
+    assertThat(ceServer.isUp()).isTrue();
   }
 
   @Test
@@ -123,15 +123,15 @@ public class CeServerTest {
 
     ceServer.start();
 
-    assertThat(ceServer.isReady()).isFalse();
+    assertThat(ceServer.isUp()).isFalse();
 
     // release ComputeEngine startup method which will throw startupException
     computeEngine.releaseStartup();
 
-    while (!ceServer.isReady()) {
+    while (!ceServer.isUp()) {
       // wait for isReady to change to true, otherwise test will fail with timeout
     }
-    assertThat(ceServer.isReady()).isTrue();
+    assertThat(ceServer.isUp()).isTrue();
   }
 
   @Test

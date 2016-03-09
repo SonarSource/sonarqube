@@ -40,13 +40,13 @@ public class DefaultProcessCommands implements ProcessCommands {
   }
 
   @Override
-  public boolean isReady() {
-    return delegate.isReady();
+  public boolean isUp() {
+    return delegate.isUp();
   }
 
   @Override
-  public void setReady() {
-    delegate.setReady();
+  public void setUp() {
+    delegate.setUp();
   }
 
   @Override

@@ -51,7 +51,7 @@ public class InfiniteTerminationProcess implements Monitored {
   }
 
   @Override
-  public boolean isReady() {
+  public boolean isUp() {
     return state == State.STARTED;
   }
 

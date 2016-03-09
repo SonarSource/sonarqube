@@ -27,11 +27,10 @@ public interface Monitored {
   void start();
 
   /**
-   * True if the process is started and operational (-> can accept requests), false if
-   * it's still starting. An exception is thrown is process failed to start (not starting
-   * nor started).
+   * True if the process is done starting, false otherwise.
+   * An exception may be thrown if process fails to start.
    */
-  boolean isReady();
+  boolean isUp();
 
   /**
    * Blocks until the process is terminated

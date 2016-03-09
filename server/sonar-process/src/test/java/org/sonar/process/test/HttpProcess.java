@@ -88,7 +88,7 @@ public class HttpProcess implements Monitored {
   }
 
   @Override
-  public boolean isReady() {
+  public boolean isUp() {
     if (ready) {
       return true;
     }
