@@ -55,7 +55,7 @@ export default function MeasureDetailsHeader (
           </a>
         </h2>
 
-        <TooltipsContainer>
+        <TooltipsContainer options={{ html: false }}>
           <div className="measure-details-value">
             {measure.value != null && (
                 <div className="measure-details-value-absolute">

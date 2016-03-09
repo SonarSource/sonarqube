@@ -57,9 +57,9 @@
           %>
           {
             index: '<%= index -%>',
-            mode: '<%= @snapshot.period_mode(index) -%>',
-            modeParam: '<%= @snapshot.period_param(index) -%>',
-            date: '<%= @snapshot.period_datetime(index) ? @snapshot.period_datetime(index).strftime('%FT%T%z') : "" -%>'
+            mode: '<%= escape_javascript @snapshot.period_mode(index) -%>',
+            modeParam: '<%= escape_javascript @snapshot.period_param(index) -%>',
+            date: '<%= escape_javascript @snapshot.period_datetime(index) ? @snapshot.period_datetime(index).strftime('%FT%T%z') : "" -%>'
           },
           <% end %>
           <% end %>
