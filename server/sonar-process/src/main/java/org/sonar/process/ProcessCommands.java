@@ -28,7 +28,8 @@ import java.io.File;
  *   <li>stop/restart a specific processes</li>
  * </ul>
  *
- * @see DefaultProcessCommands#DefaultProcessCommands(File, int)
+ * @see DefaultProcessCommands#main(File, int)
+ * @see DefaultProcessCommands#secondary(File, int)
  */
 public interface ProcessCommands extends AutoCloseable {
 

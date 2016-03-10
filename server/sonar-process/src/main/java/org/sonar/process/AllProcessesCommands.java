@@ -269,7 +269,7 @@ public class AllProcessesCommands {
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() {
       endWatch();
     }
   }

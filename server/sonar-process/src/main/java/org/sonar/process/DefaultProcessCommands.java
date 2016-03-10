@@ -117,7 +117,7 @@ public class DefaultProcessCommands implements ProcessCommands {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     allProcessesCommands.close();
   }
 }

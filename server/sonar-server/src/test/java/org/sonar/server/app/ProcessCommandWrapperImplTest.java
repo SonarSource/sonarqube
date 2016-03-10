@@ -20,6 +20,7 @@
 package org.sonar.server.app;
 
 import java.io.File;
+import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -63,7 +64,7 @@ public class ProcessCommandWrapperImplTest {
   }
 
   @Test
-  public void requestSQRestart_updates_shareMemory_file() throws Exception {
+  public void requestSQRestart_updates_shareMemory_file() throws IOException {
     File tmpDir = temp.newFolder().getAbsoluteFile();
     settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     settings.setProperty(PROPERTY_PROCESS_INDEX, PROCESS_NUMBER);
@@ -98,7 +99,7 @@ public class ProcessCommandWrapperImplTest {
   }
 
   @Test
-  public void notifyOperational_updates_shareMemory_file() throws Exception {
+  public void notifyOperational_updates_shareMemory_file() throws IOException {
     File tmpDir = temp.newFolder().getAbsoluteFile();
     settings.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     settings.setProperty(PROPERTY_PROCESS_INDEX, PROCESS_NUMBER);

@@ -359,27 +359,8 @@ public class Monitor {
         if (processCommands.askedForStop()) {
           return true;
         }
-      } catch (IllegalArgumentException e) {
-        // DefaultProcessCommand currently wraps IOException into a IllegalArgumentException
-        // accessing the shared memory file may fail if a restart is in progress and the temp directory
-        // is currently deleted and not yet recreated
-        if (e.getCause() instanceof IOException) {
-          ignore((IOException) e.getCause());
-        } else {
-          rethrow(e);
-        }
-      } catch (Exception e) {
-        rethrow(e);
       }
       return false;
-    }
-
-    private void ignore(IOException e) {
-      trace("HardStopWatcherThread: Error checking stop flag in shared memory. Ignoring. Keep on watching.", e);
-    }
-
-    private void rethrow(Exception e) {
-      throw new RuntimeException("Unexpected error occurred while watch for stop flag in shared memory", e);
     }
 
     private void delay() {

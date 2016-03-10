@@ -21,8 +21,6 @@ package org.sonar.server.app;
 
 import java.io.File;
 import org.sonar.api.config.Settings;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.ProcessCommands;
 
@@ -31,8 +29,6 @@ import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
 public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
-  private static final Logger LOG = Loggers.get(ProcessCommandWrapperImpl.class);
-
   private final Settings settings;
 
   public ProcessCommandWrapperImpl(Settings settings) {
@@ -52,10 +48,8 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
   private void call(VoidMethod command) {
     File shareDir = nonNullValueAsFile(PROPERTY_SHARED_PATH);
     int processNumber = nonNullAsInt(PROPERTY_PROCESS_INDEX);
-    try (ProcessCommands commands = DefaultProcessCommands.secondary(shareDir, processNumber)) {
+    try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(shareDir, processNumber)) {
       command.callOn(commands);
-    } catch (Exception e) {
-      LOG.warn("Failed to close ProcessCommands", e);
     }
   }
 
