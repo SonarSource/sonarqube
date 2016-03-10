@@ -22,7 +22,9 @@ package org.sonar.core.util;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.Authenticator;
 import java.net.InetSocketAddress;
+import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.ProxySelector;
 import java.net.SocketAddress;
@@ -33,9 +35,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Properties;
 import java.util.zip.GZIPOutputStream;
-
 import org.hamcrest.BaseMatcher;
 import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Rule;
@@ -52,9 +54,13 @@ import org.simpleframework.transport.connect.SocketConnection;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.SonarException;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultHttpDownloaderTest {
@@ -247,6 +253,46 @@ public class DefaultHttpDownloaderTest {
     String description = new DefaultHttpDownloader(new Settings()).description(new URI("http://sonarsource.org"));
     assertThat(description).matches("http://sonarsource.org \\(.*\\)");
   }
+
+  @Test
+  public void configure_http_proxy() {
+    DefaultHttpDownloader.ProxySystem system = mock(DefaultHttpDownloader.ProxySystem.class);
+    Settings settings = new Settings();
+    settings.setProperty("http.proxyHost", "1.2.3.4");
+    settings.setProperty("http.proxyPort", "80");
+
+    new DefaultHttpDownloader.BaseHttpDownloader(system, settings, null);
+
+    verify(system).setProperty("http.proxyHost", "1.2.3.4");
+    verify(system).setProperty("http.proxyPort", "80");
+    verify(system, never()).setDefaultAuthenticator(any(Authenticator.class));
+  }
+
+  @Test
+  public void configure_http_proxy_credentials() {
+    DefaultHttpDownloader.ProxySystem system = mock(DefaultHttpDownloader.ProxySystem.class);
+    Settings settings = new Settings();
+    settings.setProperty("https.proxyHost", "1.2.3.4");
+    settings.setProperty("http.proxyUser", "the_login");
+    settings.setProperty("http.proxyPassword", "the_passwd");
+
+    new DefaultHttpDownloader.BaseHttpDownloader(system, settings, null);
+
+    verify(system).setDefaultAuthenticator(argThat(new TypeSafeMatcher<Authenticator>() {
+      @Override
+      protected boolean matchesSafely(Authenticator authenticator) {
+        DefaultHttpDownloader.ProxyAuthenticator a = (DefaultHttpDownloader.ProxyAuthenticator) authenticator;
+        PasswordAuthentication authentication = a.getPasswordAuthentication();
+        return authentication.getUserName().equals("the_login") &&
+          new String(authentication.getPassword()).equals("the_passwd");
+      }
+
+      @Override
+      public void describeTo(Description description) {
+      }
+    }));
+  }
+
 }
 
 class FakeProxy extends Proxy {
