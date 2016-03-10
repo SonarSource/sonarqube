@@ -89,12 +89,14 @@ export default class MeasureDrilldownList extends React.Component {
   }
 
   render () {
-    const { metric, store } = this.props;
+    const { metric, store, leakPeriod } = this.props;
     const { components, selected, fetching } = store.list;
 
     if (fetching) {
       return <Spinner/>;
     }
+
+    const sourceViewerPeriod = metric.key.indexOf('new_') === 0 && !!leakPeriod ? leakPeriod : null;
 
     return (
         <div className="measure-details-plain-list">
@@ -106,7 +108,7 @@ export default class MeasureDrilldownList extends React.Component {
 
           {selected && (
               <div className="measure-details-viewer">
-                <SourceViewer component={selected}/>
+                <SourceViewer component={selected} period={sourceViewerPeriod}/>
               </div>
           )}
         </div>

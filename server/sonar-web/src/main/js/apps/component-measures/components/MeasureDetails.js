@@ -133,6 +133,7 @@ export default class MeasureDetails extends React.Component {
               <MeasureDrilldown
                   metric={metric}
                   tab={tab}
+                  leakPeriod={leakPeriod}
                   leakPeriodDate={leakPeriodDate}>
                 {this.props.children}
               </MeasureDrilldown>

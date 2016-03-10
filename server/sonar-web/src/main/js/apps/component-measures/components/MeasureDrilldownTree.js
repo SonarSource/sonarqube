@@ -97,13 +97,15 @@ export default class MeasureDrilldownTree extends React.Component {
   }
 
   render () {
-    const { metric, store } = this.props;
+    const { metric, store, leakPeriod } = this.props;
     const { components, selected, breadcrumbs, fetching } = store.tree;
     const parent = breadcrumbs.length > 1 ? breadcrumbs[breadcrumbs.length - 2] : null;
 
     if (fetching) {
       return <Spinner/>;
     }
+
+    const sourceViewerPeriod = metric.key.indexOf('new_') === 0 && !!leakPeriod ? leakPeriod : null;
 
     return (
         <div className="measure-details-tree">
@@ -116,7 +118,7 @@ export default class MeasureDrilldownTree extends React.Component {
 
           {selected && (
               <div className="measure-details-viewer">
-                <SourceViewer component={selected}/>
+                <SourceViewer component={selected} period={sourceViewerPeriod}/>
               </div>
           )}
         </div>

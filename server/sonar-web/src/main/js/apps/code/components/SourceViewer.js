@@ -20,7 +20,7 @@
 import React, { Component } from 'react';
 
 import BaseSourceViewer from '../../../components/source-viewer/main';
-
+import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 
 export default class SourceViewer extends Component {
   componentDidMount () {
@@ -39,7 +39,7 @@ export default class SourceViewer extends Component {
     this.renderSourceViewer();
   }
 
-  componentWillUnmount() {
+  componentWillUnmount () {
     this.destroySourceViewer();
   }
 
@@ -47,10 +47,22 @@ export default class SourceViewer extends Component {
     this.sourceViewer = new BaseSourceViewer();
     this.sourceViewer.render().$el.appendTo(this.refs.container);
     this.sourceViewer.open(this.props.component.id);
+    this.sourceViewer.on('loaded', this.handleLoad.bind(this));
   }
 
   destroySourceViewer () {
     this.sourceViewer.destroy();
+  }
+
+  handleLoad () {
+    const { period } = this.props;
+
+    if (period) {
+      const periodDate = getPeriodDate(period);
+      const periodLabel = getPeriodLabel(period);
+      console.log(periodDate, periodLabel);
+      this.sourceViewer.filterLinesByDate(periodDate, periodLabel);
+    }
   }
 
   render () {
