@@ -81,7 +81,7 @@ public class TechnicalDebtInIssueChangelogTest {
 
     assertThat(change.diffs()).hasSize(1);
     IssueChangeDiff changeDiff = change.diffs().get(0);
-    assertThat(changeDiff.key()).isEqualTo("technicalDebt");
+    assertThat(changeDiff.key()).isEqualTo("effort");
     assertThat(changeDiff.oldValue()).isEqualTo("10min");
     assertThat(changeDiff.newValue()).isEqualTo("1h40min");
   }
@@ -112,7 +112,7 @@ public class TechnicalDebtInIssueChangelogTest {
 
     assertThat(change.diffs()).hasSize(1);
     IssueChangeDiff changeDiff = change.diffs().get(0);
-    assertThat(changeDiff.key()).isEqualTo("technicalDebt");
+    assertThat(changeDiff.key()).isEqualTo("effort");
     assertThat(changeDiff.oldValue()).isEqualTo("10min");
     assertThat(changeDiff.newValue()).isEqualTo("1d2h");
   }
