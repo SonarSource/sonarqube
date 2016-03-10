@@ -201,7 +201,7 @@
                 <span class="no-transform">
                   <a href="/dashboard/index/<%= s.resource.key -%>"><%= h s.resource.name(true) -%></a>
                   <br/>
-                  <span class="note"><b><%= event ? event.name : message('comparison.version.latest') -%></b></span>
+                  <span class="note"><b><%= event ? h(event.name) : message('comparison.version.latest') -%></b></span>
                   <br/>
                   <span class="note"><%= human_short_date s.created_at -%></span>
                 </span>
