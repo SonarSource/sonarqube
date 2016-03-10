@@ -44,13 +44,14 @@ public class ProfiledDataSourceTest {
 
   @Test
   public void execute_and_log_sql_requests() throws Exception {
+    logTester.setLevel(LoggerLevel.TRACE);
     BasicDataSource originDataSource = mock(BasicDataSource.class);
 
     Connection connection = mock(Connection.class);
     when(originDataSource.getConnection()).thenReturn(connection);
 
-    String sql = "select 'polop' from dual;";
-    String sqlWithParams = "insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?);";
+    String sql = "select 'polop' from dual";
+    String sqlWithParams = "insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?)";
     int param1 = 42;
     String param2 = "plouf";
     Date param3 = new Date(System.currentTimeMillis());
@@ -82,8 +83,10 @@ public class ProfiledDataSourceTest {
     assertThat(statementProxy.execute(sql)).isTrue();
 
     assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(2);
-    assertThat(logTester.logs(LoggerLevel.TRACE).get(0)).containsSequence("sql=insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?);");
-    assertThat(logTester.logs(LoggerLevel.TRACE).get(1)).containsSequence("sql=select 'polop' from dual;");
+    assertThat(logTester.logs(LoggerLevel.TRACE).get(0))
+      .contains("sql=insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?)")
+      .contains("params=42, plouf");
+    assertThat(logTester.logs(LoggerLevel.TRACE).get(1)).contains("sql=select 'polop' from dual");
   }
 
   @Test

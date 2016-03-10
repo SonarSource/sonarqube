@@ -19,43 +19,44 @@
  */
 package org.sonar.db.profiling;
 
-import com.google.common.collect.Lists;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
-import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Profiler;
+
+import static org.sonar.db.profiling.SqlLogFormatter.FORMATTER;
 
 class ProfilingPreparedStatementHandler implements InvocationHandler {
 
   private final PreparedStatement statement;
-  private final List<Object> arguments;
   private final String sql;
+  private final Object[] sqlParams;
 
   ProfilingPreparedStatementHandler(PreparedStatement statement, String sql) {
     this.statement = statement;
     this.sql = sql;
-    this.arguments = Lists.newArrayList();
-    for (int argCount = 0; argCount < StringUtils.countMatches(sql, "?"); argCount++) {
-      arguments.add("!");
-    }
+    int argCount = StringUtils.countMatches(sql, "?");
+    sqlParams = new Object[argCount];
   }
 
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (method.getName().startsWith("execute")) {
-      Profiler profiler = Profiler.create(ProfiledDataSource.SQL_LOGGER).start();
+      Profiler profiler = Profiler.createIfTrace(ProfiledDataSource.SQL_LOGGER).start();
       Object result = null;
       try {
         result = InvocationUtils.invokeQuietly(statement, method, args);
       } finally {
-        profiler.addContext("sql", StringUtils.remove(sql, '\n'));
+        profiler.addContext("sql", FORMATTER.formatSql(sql));
+        if (sqlParams.length > 0) {
+          profiler.addContext("params", FORMATTER.formatParams(sqlParams));
+        }
         profiler.stopTrace("");
       }
       return result;
     } else if (method.getName().startsWith("set") && args.length > 1) {
-      arguments.set((Integer) args[0] - 1, args[1]);
+      sqlParams[(int) args[0] - 1] = args[1];
       return InvocationUtils.invokeQuietly(statement, method, args);
     } else {
       return InvocationUtils.invokeQuietly(statement, method, args);

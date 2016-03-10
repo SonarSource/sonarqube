@@ -22,8 +22,9 @@ package org.sonar.db.profiling;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.Statement;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Profiler;
+
+import static org.sonar.db.profiling.SqlLogFormatter.FORMATTER;
 
 class ProfilingStatementHandler implements InvocationHandler {
 
@@ -36,12 +37,13 @@ class ProfilingStatementHandler implements InvocationHandler {
   @Override
   public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
     if (method.getName().startsWith("execute")) {
-      Profiler profiler = Profiler.create(ProfiledDataSource.SQL_LOGGER).start();
+      Profiler profiler = Profiler.createIfTrace(ProfiledDataSource.SQL_LOGGER).start();
       Object result = null;
       try {
         result = InvocationUtils.invokeQuietly(statement, method, args);
       } finally {
-        profiler.addContext("sql", StringUtils.remove((String) args[0], '\n'));
+        String sql = (String) args[0];
+        profiler.addContext("sql", FORMATTER.formatSql(sql));
         profiler.stopTrace("");
       }
       return result;
