@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
@@ -79,6 +80,7 @@ public class PlatformLevelStartup extends PlatformLevel {
         PlatformLevelStartup.super.start();
         getComponentByType(IndexSynchronizer.class).execute();
         getComponentByType(ServerLifecycleNotifier.class).notifyStart();
+        getComponentByType(ProcessCommandWrapper.class).notifyOperational();
       }
     });
 

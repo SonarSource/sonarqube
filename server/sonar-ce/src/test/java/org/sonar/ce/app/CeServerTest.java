@@ -20,6 +20,7 @@
 package org.sonar.ce.app;
 
 import com.google.common.base.Objects;
+import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -27,6 +28,7 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
 import org.sonar.ce.ComputeEngine;
 
@@ -36,10 +38,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CeServerTest {
   @Rule
-  public Timeout timeout = Timeout.seconds(5);
-
+  public Timeout timeout = Timeout.seconds(50);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
 
   private CeServer underTest = null;
   private Thread waitingThread = null;
@@ -57,7 +60,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void constructor_does_not_start_a_new_Thread() {
+  public void constructor_does_not_start_a_new_Thread() throws IOException {
     int activeCount = Thread.activeCount();
 
     newCeServer();
@@ -66,7 +69,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void start_starts_a_new_Thread() {
+  public void start_starts_a_new_Thread() throws IOException {
     int activeCount = Thread.activeCount();
 
     newCeServer().start();
@@ -75,7 +78,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void start_throws_ISE_when_called_twice() {
+  public void start_throws_ISE_when_called_twice() throws IOException {
     CeServer ceServer = newCeServer();
 
     ceServer.start();
@@ -87,7 +90,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void isReady_throws_ISE_when_called_before_start() {
+  public void isUp_throws_ISE_when_called_before_start() throws IOException {
     CeServer ceServer = newCeServer();
 
     expectedException.expect(IllegalStateException.class);
@@ -97,7 +100,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void isReady_does_not_return_true_until_ComputeEngine_startup_returns() throws InterruptedException {
+  public void isUp_does_not_return_true_until_ComputeEngine_startup_returns() throws InterruptedException, IOException {
     BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(null);
     CeServer ceServer = newCeServer(computeEngine);
 
@@ -115,7 +118,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void isReady_returns_true_when_ComputeEngine_startup_throws_any_Exception_or_Error() throws InterruptedException {
+  public void isUp_returns_true_when_ComputeEngine_startup_throws_any_Exception_or_Error() throws InterruptedException, IOException {
     Throwable startupException = new Throwable("Faking failing ComputeEngine#startup()");
 
     BlockingStartupComputeEngine computeEngine = new BlockingStartupComputeEngine(startupException);
@@ -135,7 +138,23 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_throws_ISE_if_called_before_start() {
+  public void isUp_returns_true_when_waiting_for_WebServer_failed() throws InterruptedException {
+    final CountDownLatch webServerWatcherCalled = new CountDownLatch(1);
+    CeServer ceServer = newCeServer(new WebServerWatcher() {
+      @Override
+      public boolean waitForOperational() {
+        webServerWatcherCalled.countDown();
+        return false;
+      }
+    }, DoNothingComputeEngine.INSTANCE);
+
+    ceServer.start();
+    ceServer.awaitStop();
+    assertThat(ceServer.isUp()).isTrue();
+  }
+
+  @Test
+  public void awaitStop_throws_ISE_if_called_before_start() throws IOException {
     CeServer ceServer = newCeServer();
 
     expectedException.expect(IllegalStateException.class);
@@ -145,7 +164,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_throws_ISE_if_called_twice() throws InterruptedException {
+  public void awaitStop_throws_ISE_if_called_twice() throws InterruptedException, IOException {
     final CeServer ceServer = newCeServer();
     ExceptionCatcherWaitingThread waitingThread1 = new ExceptionCatcherWaitingThread(ceServer);
     ExceptionCatcherWaitingThread waitingThread2 = new ExceptionCatcherWaitingThread(ceServer);
@@ -169,7 +188,7 @@ public class CeServerTest {
   }
 
   @Test
-  public void awaitStop_keeps_blocking_calling_thread_even_if_calling_thread_is_interrupted_but_until_stop_is_called() throws InterruptedException {
+  public void awaitStop_keeps_blocking_calling_thread_even_if_calling_thread_is_interrupted_but_until_stop_is_called() throws InterruptedException, IOException {
     final CeServer ceServer = newCeServer();
     Thread waitingThread = newWaitingThread(new Runnable() {
       @Override
@@ -195,7 +214,43 @@ public class CeServerTest {
   }
 
   @Test
-  public void stop_releases_thread_in_awaitStop_even_when_ComputeEngine_shutdown_fails() throws InterruptedException {
+  public void awaitStop_unblocks_when_waiting_for_WebServer_failed() throws InterruptedException {
+    final CountDownLatch webServerWatcherCalled = new CountDownLatch(1);
+    CeServer ceServer = newCeServer(new WebServerWatcher() {
+      @Override
+      public boolean waitForOperational() {
+        webServerWatcherCalled.countDown();
+        return false;
+      }
+    }, DoNothingComputeEngine.INSTANCE);
+
+    ceServer.start();
+    // if awaitStop does not unblock, the test will fail with timeout
+    ceServer.awaitStop();
+  }
+
+
+  @Test
+  public void awaitStop_unblocks_when_waiting_for_ComputeEngine_startup_fails() throws InterruptedException, IOException {
+    CeServer ceServer = newCeServer(new ComputeEngine() {
+      @Override
+      public void startup() {
+        throw new Error("Faking ComputeEngine.startup() failing");
+      }
+
+      @Override
+      public void shutdown() {
+        throw new UnsupportedOperationException("shutdown() should never be called in this context");
+      }
+    });
+
+    ceServer.start();
+    // if awaitStop does not unblock, the test will fail with timeout
+    ceServer.awaitStop();
+  }
+
+  @Test
+  public void stop_releases_thread_in_awaitStop_even_when_ComputeEngine_shutdown_fails() throws InterruptedException, IOException {
     final CeServer ceServer = newCeServer(new ComputeEngine() {
       @Override
       public void startup() {
@@ -222,23 +277,25 @@ public class CeServerTest {
     waitingThread.join();
   }
 
-  private CeServer newCeServer() {
-    return newCeServer(new ComputeEngine() {
-      @Override
-      public void startup() {
-        // do nothing
-      }
-
-      @Override
-      public void shutdown() {
-        // do nothing
-      }
-    });
+  private CeServer newCeServer() throws IOException {
+    return newCeServer(DoNothingComputeEngine.INSTANCE);
   }
 
-  private CeServer newCeServer(ComputeEngine computeEngine) {
+  private CeServer newCeServer(ComputeEngine computeEngine) throws IOException {
     checkState(this.underTest == null, "Only one CeServer can be created per test method");
-    this.underTest = new CeServer(computeEngine);
+    this.underTest = new CeServer(new WebServerWatcher() {
+      @Override
+      public boolean waitForOperational() {
+        // return instantly simulating WebServer is already operational
+        return true;
+      }
+    }, computeEngine);
+    return underTest;
+  }
+
+  private CeServer newCeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine) {
+    checkState(this.underTest == null, "Only one CeServer can be created per test method");
+    this.underTest = new CeServer(webServerWatcher, computeEngine);
     return underTest;
   }
 
@@ -308,4 +365,17 @@ public class CeServerTest {
     }
   }
 
+  private enum DoNothingComputeEngine implements ComputeEngine {
+    INSTANCE;
+
+    @Override
+    public void startup() {
+      // do nothing
+    }
+
+    @Override
+    public void shutdown() {
+      // do nothing
+    }
+  }
 }

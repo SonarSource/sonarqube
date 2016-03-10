@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import java.io.File;
 import org.slf4j.LoggerFactory;
 
 public class ProcessEntryPoint implements Stoppable {
@@ -29,6 +30,9 @@ public class ProcessEntryPoint implements Stoppable {
   public static final String PROPERTY_SHARED_PATH = "process.sharedDir";
 
   private final Props props;
+  private final String processKey;
+  private final int processNumber;
+  private final File sharedDir;
   private final Lifecycle lifecycle = new Lifecycle();
   private final ProcessCommands commands;
   private final SystemExit exit;
@@ -46,7 +50,14 @@ public class ProcessEntryPoint implements Stoppable {
   });
 
   ProcessEntryPoint(Props props, SystemExit exit, ProcessCommands commands) {
+    this(props, getProcessNumber(props), getSharedDir(props), exit, commands);
+  }
+
+  private ProcessEntryPoint(Props props, int processNumber, File sharedDir, SystemExit exit, ProcessCommands commands) {
     this.props = props;
+    this.processKey = props.nonNullValue(PROPERTY_PROCESS_KEY);
+    this.processNumber = processNumber;
+    this.sharedDir = sharedDir;
     this.exit = exit;
     this.commands = commands;
     this.stopWatcher = new StopWatcher(commands, this);
@@ -61,7 +72,15 @@ public class ProcessEntryPoint implements Stoppable {
   }
 
   public String getKey() {
-    return props.nonNullValue(PROPERTY_PROCESS_KEY);
+    return processKey;
+  }
+
+  public int getProcessNumber() {
+    return processNumber;
+  }
+
+  public File getSharedDir() {
+    return sharedDir;
   }
 
   /**
@@ -138,8 +157,17 @@ public class ProcessEntryPoint implements Stoppable {
 
   public static ProcessEntryPoint createForArguments(String[] args) {
     Props props = ConfigurationUtils.loadPropsFromCommandLineArgs(args);
-    ProcessCommands commands = DefaultProcessCommands.main(
-        props.nonNullValueAsFile(PROPERTY_SHARED_PATH), Integer.parseInt(props.nonNullValue(PROPERTY_PROCESS_INDEX)));
-    return new ProcessEntryPoint(props, new SystemExit(), commands);
+    File sharedDir = getSharedDir(props);
+    int processNumber = getProcessNumber(props);
+    ProcessCommands commands = DefaultProcessCommands.main(sharedDir, processNumber);
+    return new ProcessEntryPoint(props, processNumber, sharedDir, new SystemExit(), commands);
+  }
+
+  private static int getProcessNumber(Props props) {
+    return Integer.parseInt(props.nonNullValue(PROPERTY_PROCESS_INDEX));
+  }
+
+  private static File getSharedDir(Props props) {
+    return props.nonNullValueAsFile(PROPERTY_SHARED_PATH);
   }
 }

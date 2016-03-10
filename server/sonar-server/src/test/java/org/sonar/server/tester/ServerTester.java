@@ -39,6 +39,7 @@ import org.sonar.api.resources.Language;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.EsServerHolder;
 import org.sonar.server.platform.BackendCleanup;
@@ -107,7 +108,10 @@ public class ServerTester extends ExternalResource {
       properties.setProperty(ProcessProperties.SEARCH_HOST, String.valueOf(esServerHolder.getHostName()));
       properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
       properties.setProperty(ProcessProperties.PATH_DATA, new File(homeDir, "data").getAbsolutePath());
-      properties.setProperty(ProcessProperties.PATH_TEMP, createTemporaryFolderIn().getAbsolutePath());
+      File temporaryFolderIn = createTemporaryFolderIn();
+      properties.setProperty(ProcessProperties.PATH_TEMP, temporaryFolderIn.getAbsolutePath());
+      properties.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, temporaryFolderIn.getAbsolutePath());
+      properties.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_INDEX, "2");
       properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:" + homeDir.getAbsolutePath() + "/h2");
       if (updateCenterUrl != null) {
         properties.setProperty(UpdateCenterClient.URL_PROPERTY, updateCenterUrl.toString());

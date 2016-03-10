@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -35,6 +36,10 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT;
 
 public class ProcessEntryPointTest {
 
@@ -61,7 +66,7 @@ public class ProcessEntryPointTest {
 
   @Test
   public void test_initial_state() throws Exception {
-    Props props = new Props(new Properties());
+    Props props = createProps();
     ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
 
     assertThat(entryPoint.getProps()).isSameAs(props);
@@ -70,10 +75,8 @@ public class ProcessEntryPointTest {
   }
 
   @Test
-  public void fail_to_launch_multiple_times() {
-    Props props = new Props(new Properties());
-    props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "test");
-    props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
+  public void fail_to_launch_multiple_times() throws IOException {
+    Props props = createProps();
     ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
 
     entryPoint.launch(new NoopProcess());
@@ -87,9 +90,7 @@ public class ProcessEntryPointTest {
 
   @Test
   public void launch_then_request_graceful_stop() throws Exception {
-    Props props = new Props(new Properties());
-    props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "test");
-    props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
+    Props props = createProps();
     final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
     final StandardProcess process = new StandardProcess();
 
@@ -115,9 +116,7 @@ public class ProcessEntryPointTest {
 
   @Test
   public void terminate_if_unexpected_shutdown() throws Exception {
-    Props props = new Props(new Properties());
-    props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "foo");
-    props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
+    Props props = createProps();
     final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
     final StandardProcess process = new StandardProcess();
 
@@ -146,15 +145,22 @@ public class ProcessEntryPointTest {
   }
 
   @Test
-  public void terminate_if_startup_error() {
-    Props props = new Props(new Properties());
-    props.set(ProcessEntryPoint.PROPERTY_PROCESS_KEY, "foo");
-    props.set(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, "30000");
+  public void terminate_if_startup_error() throws IOException {
+    Props props = createProps();
     final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
     final Monitored process = new StartupErrorProcess();
 
     entryPoint.launch(process);
     assertThat(entryPoint.getState()).isEqualTo(State.STOPPED);
+  }
+
+  private Props createProps() throws IOException {
+    Props props = new Props(new Properties());
+    props.set(PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
+    props.set(PROPERTY_PROCESS_INDEX, "1");
+    props.set(PROPERTY_PROCESS_KEY, "test");
+    props.set(PROPERTY_TERMINATION_TIMEOUT, "30000");
+    return props;
   }
 
   private static class NoopProcess implements Monitored {

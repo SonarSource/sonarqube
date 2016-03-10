@@ -55,11 +55,13 @@ public class CeServer implements Monitored {
   private AtomicReference<Thread> awaitThread = new AtomicReference<>();
   private volatile boolean stopAwait = false;
 
+  private final WebServerWatcher webServerWatcher;
   private final ComputeEngine computeEngine;
   @CheckForNull
   private CeMainThread ceMainThread = null;
 
-  public CeServer(ComputeEngine computeEngine) {
+  protected CeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine) {
+    this.webServerWatcher = webServerWatcher;
     this.computeEngine = computeEngine;
     new MinimumViableSystem()
       .checkJavaVersion()
@@ -74,7 +76,7 @@ public class CeServer implements Monitored {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
     new ServerProcessLogging(PROCESS_NAME, LOG_LEVEL_PROPERTY).configure(props);
-    CeServer server = new CeServer(new ComputeEngineImpl(props));
+    CeServer server = new CeServer(new WebServerWatcherImpl(entryPoint.getSharedDir()), new ComputeEngineImpl(props));
     entryPoint.launch(server);
   }
 
@@ -145,9 +147,21 @@ public class CeServer implements Monitored {
 
     @Override
     public void run() {
+      // wait for WebServer to be operational
+      boolean webServerOperational = webServerWatcher.waitForOperational();
+      if (!webServerOperational) {
+        LOG.debug("Interrupted while waiting for WebServer to be operational. Assuming it will never be. Stopping.");
+        // signal CE is done booting (obviously, since we are about to stop)
+        this.started = true;
+        // release thread (if any) in CeServer#awaitStop()
+        stopAwait();
+        return;
+      }
+
       boolean startupSuccessful = attemptStartup();
       this.started = true;
       if (startupSuccessful) {
+        // call below is blocking
         waitForStopSignal();
       } else {
         stopAwait();
@@ -174,7 +188,7 @@ public class CeServer implements Monitored {
         try {
           Thread.sleep(CHECK_FOR_STOP_DELAY);
         } catch (InterruptedException e) {
-          // Ignored, check the flag
+          // ignore the interruption itself, check the flag
         }
       }
       attemptShutdown();
@@ -201,7 +215,11 @@ public class CeServer implements Monitored {
     }
 
     public void stopIt() {
+      // stop looping indefinitely
       this.stop = true;
+      // interrupt current thread in case its waiting for WebServer
+      interrupt();
     }
   }
+
 }
