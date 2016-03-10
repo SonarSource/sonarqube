@@ -42,15 +42,40 @@ public class ProfiledDataSourceTest {
   @Rule
   public LogTester logTester = new LogTester();
 
+  BasicDataSource originDataSource = mock(BasicDataSource.class);
+
   @Test
-  public void execute_and_log_sql_requests() throws Exception {
+  public void execute_and_log_statement() throws Exception {
     logTester.setLevel(LoggerLevel.TRACE);
-    BasicDataSource originDataSource = mock(BasicDataSource.class);
 
     Connection connection = mock(Connection.class);
     when(originDataSource.getConnection()).thenReturn(connection);
 
-    String sql = "select 'polop' from dual";
+    String sql = "select from dual";
+    Statement stmt = mock(Statement.class);
+    when(connection.createStatement()).thenReturn(stmt);
+    when(stmt.execute(sql)).thenReturn(true);
+
+    ProfiledDataSource underTest = new ProfiledDataSource(originDataSource, ProfiledConnectionInterceptor.INSTANCE);
+
+    assertThat(underTest.getUrl()).isNull();
+    assertThat(underTest.getConnection().getClientInfo()).isNull();
+    final Statement statementProxy = underTest.getConnection().createStatement();
+    assertThat(statementProxy.getConnection()).isNull();
+    assertThat(statementProxy.execute(sql)).isTrue();
+
+    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.TRACE).get(0))
+      .contains("sql=select from dual");
+  }
+
+  @Test
+  public void execute_and_log_prepared_statement_with_parameters() throws Exception {
+    logTester.setLevel(LoggerLevel.TRACE);
+
+    Connection connection = mock(Connection.class);
+    when(originDataSource.getConnection()).thenReturn(connection);
+
     String sqlWithParams = "insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?)";
     int param1 = 42;
     String param2 = "plouf";
@@ -61,10 +86,6 @@ public class ProfiledDataSourceTest {
     PreparedStatement preparedStatement = mock(PreparedStatement.class);
     when(connection.prepareStatement(sqlWithParams)).thenReturn(preparedStatement);
     when(preparedStatement.execute()).thenReturn(true);
-
-    Statement statement = mock(Statement.class);
-    when(connection.createStatement()).thenReturn(statement);
-    when(statement.execute(sql)).thenReturn(true);
 
     ProfiledDataSource ds = new ProfiledDataSource(originDataSource, ProfiledConnectionInterceptor.INSTANCE);
 
@@ -78,21 +99,42 @@ public class ProfiledDataSourceTest {
     preparedStatementProxy.setBlob(5, new ByteArrayInputStream(param5));
     assertThat(preparedStatementProxy.getConnection()).isNull();
     assertThat(preparedStatementProxy.execute()).isTrue();
-    final Statement statementProxy = ds.getConnection().createStatement();
-    assertThat(statementProxy.getConnection()).isNull();
-    assertThat(statementProxy.execute(sql)).isTrue();
 
-    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(2);
+    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
     assertThat(logTester.logs(LoggerLevel.TRACE).get(0))
       .contains("sql=insert into polop (col1, col2, col3, col4) values (?, ?, ?, ?, ?)")
       .contains("params=42, plouf");
-    assertThat(logTester.logs(LoggerLevel.TRACE).get(1)).contains("sql=select 'polop' from dual");
+  }
+
+  @Test
+  public void execute_and_log_prepared_statement_without_parameters() throws Exception {
+    logTester.setLevel(LoggerLevel.TRACE);
+
+    Connection connection = mock(Connection.class);
+    when(originDataSource.getConnection()).thenReturn(connection);
+
+    String sqlWithParams = "select from dual";
+    PreparedStatement preparedStatement = mock(PreparedStatement.class);
+    when(connection.prepareStatement(sqlWithParams)).thenReturn(preparedStatement);
+    when(preparedStatement.execute()).thenReturn(true);
+
+    ProfiledDataSource ds = new ProfiledDataSource(originDataSource, ProfiledConnectionInterceptor.INSTANCE);
+
+    assertThat(ds.getUrl()).isNull();
+    assertThat(ds.getConnection().getClientInfo()).isNull();
+    PreparedStatement preparedStatementProxy = ds.getConnection().prepareStatement(sqlWithParams);
+    assertThat(preparedStatementProxy.getConnection()).isNull();
+    assertThat(preparedStatementProxy.execute()).isTrue();
+
+    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.TRACE).get(0))
+      .contains("sql=select from dual")
+      .doesNotContain("params=");
   }
 
   @Test
   public void delegate_to_underlying_data_source() throws Exception {
-    BasicDataSource delegate = mock(BasicDataSource.class);
-    ProfiledDataSource proxy = new ProfiledDataSource(delegate, ProfiledConnectionInterceptor.INSTANCE);
+    ProfiledDataSource proxy = new ProfiledDataSource(originDataSource, ProfiledConnectionInterceptor.INSTANCE);
 
     // painful to call all methods
     // so using reflection to check that calls does not fail
