@@ -19,27 +19,21 @@
  */
 package org.sonar.db.profiling;
 
-import com.google.common.collect.Lists;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.sql.PreparedStatement;
-import java.util.List;
-import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Profiler;
 
 class ProfilingPreparedStatementHandler implements InvocationHandler {
 
   private final PreparedStatement statement;
-  private final List<Object> arguments;
   private final String sql;
+  private final Object[] sqlParams;
 
   ProfilingPreparedStatementHandler(PreparedStatement statement, String sql) {
     this.statement = statement;
     this.sql = sql;
-    this.arguments = Lists.newArrayList();
-    for (int argCount = 0; argCount < StringUtils.countMatches(sql, "?"); argCount++) {
-      arguments.add("!");
-    }
+    sqlParams = new Object[SqlLogFormatter.countArguments(sql)];
   }
 
   @Override
@@ -50,12 +44,15 @@ class ProfilingPreparedStatementHandler implements InvocationHandler {
       try {
         result = InvocationUtils.invokeQuietly(statement, method, args);
       } finally {
-        profiler.addContext("sql", StringUtils.remove(sql, '\n'));
+        profiler.addContext("sql", SqlLogFormatter.formatSql(sql));
+        if (sqlParams.length > 0) {
+          profiler.addContext("params", SqlLogFormatter.formatParams(sqlParams));
+        }
         profiler.stopTrace("");
       }
       return result;
     } else if (method.getName().startsWith("set") && args.length > 1) {
-      arguments.set((Integer) args[0] - 1, args[1]);
+      sqlParams[(int) args[0] - 1] = args[1];
       return InvocationUtils.invokeQuietly(statement, method, args);
     } else {
       return InvocationUtils.invokeQuietly(statement, method, args);
