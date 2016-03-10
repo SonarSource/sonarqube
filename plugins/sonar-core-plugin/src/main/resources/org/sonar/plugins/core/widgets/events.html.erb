@@ -1,4 +1,4 @@
-<% 
+<%
   if @resource.scope=='PRJ'
 
     conditions = "resource_id=:resource_id"
@@ -11,7 +11,7 @@
     end
 
     events=Event.find(:all, :conditions => [conditions, values], :order => 'event_date desc')
-    
+
     categories = EventCategory.categories(true)
 %>
 
@@ -77,7 +77,7 @@
       <th colspan="4"></th>
     </tr>
   </thead>
-  
+
   <tbody>
 <%
    events.each do |event|
@@ -91,7 +91,7 @@
     <td x="<%= event.event_date -%>"><%= l(event.event_date.to_date) %></td>
     <td><%= h message('event.category.' + categ, :default => categ) %></td>
     <td>
-      <%= link_to_if profile_data['key'] && profile_data['from'] && profile_data['to'], event.name,
+      <%= link_to_if profile_data['key'] && profile_data['from'] && profile_data['to'], h(event.name),
                              :controller => 'profiles', :action => 'changelog', :key => profile_data['key'],
                              :since =>  profile_data['from'], :to => profile_data['to'] -%>
     </td>

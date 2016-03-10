@@ -17,6 +17,8 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+include ERB::Util
+
 class ProjectController < ApplicationController
   verify :method => :post, :only => [:set_links, :set_exclusions, :delete_exclusions, :update_key, :perform_key_bulk_update],
          :redirect_to => {:action => :index}
