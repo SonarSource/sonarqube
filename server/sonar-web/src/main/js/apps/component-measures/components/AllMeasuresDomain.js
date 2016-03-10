@@ -65,13 +65,11 @@ export default function AllMeasuresDomain ({ domain, component, displayLeakHeade
                         </span>
                     )}
                   </div>
-                  {hasLeak && (
+                  {hasLeak && measure.leak != null && (
                       <div className="domain-measures-value domain-measures-leak">
-                        {measure.leak != null && (
-                            <span>
+                        <span>
                           {formatLeak(measure.leak, measure.metric)}
                         </span>
-                        )}
                       </div>
                   )}
                 </Link>
