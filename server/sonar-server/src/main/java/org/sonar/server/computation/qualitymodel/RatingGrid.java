@@ -76,7 +76,7 @@ public class RatingGrid {
           return rating;
         }
       }
-      throw new IllegalArgumentException("A SQALE rating must be in the range [1..5].");
+      throw new IllegalArgumentException("A maintainability rating must be in the range [1..5].");
     }
   }
 

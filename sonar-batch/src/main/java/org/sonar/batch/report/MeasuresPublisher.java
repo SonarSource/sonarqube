@@ -66,7 +66,7 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
       builder.setValueType(getMeasureValueType(measure.getMetric().getType()));
       setValueAccordingToType(builder, measure);
-      // Because some numeric measures also have a data (like Sqale rating)
+      // Because some numeric measures also have a data (like maintainability rating)
       String data = measure.getData();
       if (data != null) {
         builder.setStringValue(data);

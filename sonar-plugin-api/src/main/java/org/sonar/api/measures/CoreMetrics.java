@@ -2206,7 +2206,7 @@ public final class CoreMetrics {
    * @since 4.5
    */
   // TODO should be renamed to MAINTAINABILITY_RATING
-  public static final Metric<Integer> SQALE_RATING = new Metric.Builder(SQALE_RATING_KEY, "SQALE Rating", Metric.ValueType.RATING)
+  public static final Metric<Integer> SQALE_RATING = new Metric.Builder(SQALE_RATING_KEY, "Maintainability Rating", Metric.ValueType.RATING)
     .setDomain(DOMAIN_MAINTAINABILITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
