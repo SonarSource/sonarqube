@@ -19,17 +19,18 @@
  */
 package org.sonar.db.profiling;
 
+import java.util.regex.Pattern;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 
 import static org.apache.commons.lang.StringUtils.abbreviate;
-import static org.apache.commons.lang.StringUtils.replace;
 
 public enum SqlLogFormatter {
   FORMATTER;
 
   public static final String PARAM_NULL = "[null]";
   public static final int PARAM_MAX_WIDTH = 500;
+  private static final Pattern NEWLINE_PATTERN = Pattern.compile("\\n");
 
   public String formatSql(String sql) {
     return StringUtils.replaceChars(sql, '\n', ' ');
@@ -39,7 +40,8 @@ public enum SqlLogFormatter {
     if (param == null) {
       return PARAM_NULL;
     }
-    return replace(abbreviate(param.toString(), PARAM_MAX_WIDTH), "\n", "\\n");
+    String abbreviated = abbreviate(param.toString(), PARAM_MAX_WIDTH);
+    return NEWLINE_PATTERN.matcher(abbreviated).replaceAll("\\\\n");
   }
 
   public String formatParams(Object[] params) {
@@ -51,5 +53,15 @@ public enum SqlLogFormatter {
       sb.append(formatParam(params[i]));
     }
     return sb.toString();
+  }
+
+  public int countArguments(String sql) {
+    int argCount = 0;
+    for (int i = 0; i < sql.length(); i++) {
+      if (sql.charAt(i) == '?') {
+        argCount++;
+      }
+    }
+    return argCount;
   }
 }

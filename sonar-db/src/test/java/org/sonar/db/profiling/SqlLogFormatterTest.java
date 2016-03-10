@@ -47,7 +47,7 @@ public class SqlLogFormatterTest {
 
   @Test
   public void formatParam_escapes_newlines() {
-    assertThat(underTest.formatParam("foo\nbar")).isEqualTo("foo\\nbar");
+    assertThat(underTest.formatParam("foo\nbar\nbaz")).isEqualTo("foo\\nbar\\nbaz");
   }
 
   @Test
@@ -70,5 +70,12 @@ public class SqlLogFormatterTest {
   public void formatParams_returns_blank_if_zero_params() {
     String formattedParams = underTest.formatParams(new Object[0]);
     assertThat(formattedParams).isEqualTo("");
+  }
+
+  @Test
+  public void countArguments() {
+    assertThat(underTest.countArguments("select * from issues")).isEqualTo(0);
+    assertThat(underTest.countArguments("select * from issues where id=?")).isEqualTo(1);
+    assertThat(underTest.countArguments("select * from issues where id=? and kee=?")).isEqualTo(2);
   }
 }
