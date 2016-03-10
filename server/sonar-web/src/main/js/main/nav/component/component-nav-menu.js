@@ -69,7 +69,7 @@ export default React.createClass({
 
   isFixedDashboardActive() {
     const path = window.location.pathname;
-    return path.indexOf(window.baseUrl + '/overview') === 0;
+    return path.indexOf(window.baseUrl + '/overview') === 0|| path.indexOf(window.baseUrl + '/governance') === 0;
   },
 
   isCustomDashboardActive(customDashboard) {

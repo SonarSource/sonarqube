@@ -23,7 +23,9 @@ class OverviewController < ApplicationController
   SECTION=Navigation::SECTION_RESOURCE
 
   def index
-
+    if Project.root_qualifiers.include?('VW') && (@resource.qualifier == 'VW' || @resource.qualifier == 'SVW')
+      return redirect_to(url_for({:controller => 'governance'}) + '?id=' + url_encode(params[:id]))
+    end
   end
 
 end

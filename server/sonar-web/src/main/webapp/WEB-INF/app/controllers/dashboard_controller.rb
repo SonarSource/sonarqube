@@ -38,7 +38,12 @@ class DashboardController < ApplicationController
 
         # redirect to the project overview
         if params[:id] && !params[:did] && !params[:name] && @resource.qualifier != 'DEV'
-          return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
+          # if governance plugin is installed and we are opening a view
+          if Project.root_qualifiers.include?('VW') && (@resource.qualifier == 'VW' || @resource.qualifier == 'SVW')
+            return redirect_to(url_for({:controller => 'governance'}) + '?id=' + url_encode(params[:id]))
+          else
+            return redirect_to(url_for({:controller => 'overview'}) + '?id=' + url_encode(params[:id]))
+          end
         end
 
         load_dashboard()
