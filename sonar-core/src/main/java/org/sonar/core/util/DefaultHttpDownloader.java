@@ -175,6 +175,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
 
     private static final List<String> PROXY_SETTINGS = ImmutableList.of(
       "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
+      "https.proxyHost", "https.proxyPort",
       "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
     private String userAgent;
