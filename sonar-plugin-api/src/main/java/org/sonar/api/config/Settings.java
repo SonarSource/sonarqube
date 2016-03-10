@@ -24,6 +24,7 @@ import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
+import javax.annotation.CheckForNull;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.BatchSide;
@@ -118,6 +119,7 @@ public class Settings {
     return encryption;
   }
 
+  @CheckForNull
   public String getDefaultValue(String key) {
     return definitions.getDefaultValue(key);
   }
@@ -130,6 +132,7 @@ public class Settings {
     return StringUtils.isNotEmpty(getDefaultValue(key));
   }
 
+  @CheckForNull
   public String getString(String key) {
     String value = getClearString(key);
     if (value != null && encryption.isEncrypted(value)) {
@@ -145,6 +148,7 @@ public class Settings {
   /**
    * Does not decrypt value.
    */
+  @CheckForNull
   protected String getClearString(String key) {
     doOnGetProperties(key);
     String validKey = definitions.validKey(key);
@@ -179,6 +183,7 @@ public class Settings {
     return 0L;
   }
 
+  @CheckForNull
   public Date getDate(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -187,6 +192,7 @@ public class Settings {
     return null;
   }
 
+  @CheckForNull
   public Date getDateTime(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -195,6 +201,7 @@ public class Settings {
     return null;
   }
 
+  @CheckForNull
   public Float getFloat(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -207,6 +214,7 @@ public class Settings {
     return null;
   }
 
+  @CheckForNull
   public Double getDouble(String key) {
     String value = getString(key);
     if (StringUtils.isNotEmpty(value)) {
@@ -409,7 +417,8 @@ public class Settings {
   }
 
   /**
-   * @return immutable properties
+   *
+   * @return immutable copy of properties. Encrypted values are kept and not decrypted.
    */
   public Map<String, String> getProperties() {
     return ImmutableMap.copyOf(properties);
