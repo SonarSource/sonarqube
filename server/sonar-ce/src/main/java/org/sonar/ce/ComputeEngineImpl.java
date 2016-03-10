@@ -19,14 +19,16 @@
  */
 package org.sonar.ce;
 
+import org.sonar.ce.container.ComputeEngineContainer;
 import org.sonar.process.Props;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class ComputeEngineImpl implements ComputeEngine {
-  private volatile Status status = Status.INIT;
-
   private final Props props;
+  private final ComputeEngineContainer computeEngineContainer = new ComputeEngineContainer();
+
+  private Status status = Status.INIT;
 
   public ComputeEngineImpl(Props props) {
     this.props = props;
@@ -34,29 +36,24 @@ public class ComputeEngineImpl implements ComputeEngine {
 
   @Override
   public void startup() {
-    checkStateAtStartup(this.status);
+    checkState(this.status == Status.INIT, "startup() can not be called multiple times");
     try {
       this.status = Status.STARTING;
-      if (props.value("sonar.ce.startupFailure") != null) {
-        throw new IllegalStateException("Startup failed!");
-      }
+      this.computeEngineContainer
+        .configure(props)
+        .start();
     } finally {
       this.status = Status.STARTED;
     }
   }
 
-  private static void checkStateAtStartup(Status currentStatus) {
-    checkState(currentStatus == Status.INIT, "startup() can not be called multiple times");
-  }
-
   @Override
   public void shutdown() {
     checkStateAsShutdown(this.status);
+
     try {
       this.status = Status.STOPPING;
-      if (props.value("sonar.ce.shutdownFailure") != null) {
-        throw new IllegalStateException("Shutdown failed!");
-      }
+      this.computeEngineContainer.stop();
     } finally {
       this.status = Status.STOPPED;
     }
