@@ -75,7 +75,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   public DefaultHttpDownloader(Server server, Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
     this.connectTimeout = connectTimeout;
-    downloader = new BaseHttpDownloader(new ProxySystem(), settings, server.getVersion());
+    downloader = new BaseHttpDownloader(new SystemFacade(), settings, server.getVersion());
   }
 
   public DefaultHttpDownloader(Settings settings) {
@@ -89,7 +89,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   public DefaultHttpDownloader(Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
     this.connectTimeout = connectTimeout;
-    downloader = new BaseHttpDownloader(new ProxySystem(), settings, null);
+    downloader = new BaseHttpDownloader(new SystemFacade(), settings, null);
   }
 
   @Override
@@ -157,7 +157,12 @@ public class DefaultHttpDownloader extends HttpDownloader {
     throw new SonarException(String.format("Fail to download: %s (%s)", uri, getProxySynthesis(uri)), e);
   }
 
-  static class ProxySystem {
+  /**
+   * Facade to allow unit tests to verify calls to {@link System}.
+   * This class could be replaced by {@link org.sonar.api.utils.System2},
+   * but it sounds overkill to define {@link #setDefaultAuthenticator(Authenticator)}.
+   */
+  static class SystemFacade {
     public void setProperty(String key, String value) {
       System.setProperty(key, value);
     }
@@ -175,16 +180,17 @@ public class DefaultHttpDownloader extends HttpDownloader {
 
     private static final List<String> PROXY_SETTINGS = ImmutableList.of(
       "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
+      "https.proxyHost", "https.proxyPort",
       "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
     private String userAgent;
 
-    BaseHttpDownloader(ProxySystem system, Settings settings, @Nullable String userAgent) {
+    BaseHttpDownloader(SystemFacade system, Settings settings, @Nullable String userAgent) {
       initProxy(system, settings);
       initUserAgent(userAgent);
     }
 
-    private void initProxy(ProxySystem system, Settings settings) {
+    private void initProxy(SystemFacade system, Settings settings) {
       // propagate system properties
       for (String key : PROXY_SETTINGS) {
         if (settings.hasKey(key)) {
