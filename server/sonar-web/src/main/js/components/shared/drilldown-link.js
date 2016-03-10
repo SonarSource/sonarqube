@@ -51,33 +51,6 @@ const ISSUE_MEASURES = [
 ];
 
 
-const HIGHLIGHT_MAPPING = {
-  'coverage': 'uncovered_lines',
-  'line_coverage': 'uncovered_lines',
-  'branch_coverage': 'uncovered_conditions',
-
-  'new_coverage': 'new_uncovered_lines',
-  'new_line_coverage': 'new_uncovered_lines',
-  'new_branch_coverage': 'new_uncovered_conditions',
-
-  'it_coverage': 'it_uncovered_lines',
-  'it_line_coverage': 'it_uncovered_lines',
-  'it_branch_coverage': 'it_uncovered_conditions',
-
-  'new_it_coverage': 'new_it_uncovered_lines',
-  'new_it_line_coverage': 'new_it_uncovered_lines',
-  'new_it_branch_coverage': 'new_it_uncovered_conditions',
-
-  'overall_coverage': 'overall_uncovered_lines',
-  'overall_line_coverage': 'overall_uncovered_lines',
-  'overall_branch_coverage': 'overall_uncovered_conditions',
-
-  'new_overall_coverage': 'new_overall_uncovered_lines',
-  'new_overall_line_coverage': 'new_overall_uncovered_lines',
-  'new_overall_branch_coverage': 'new_overall_uncovered_conditions'
-};
-
-
 export const DrilldownLink = React.createClass({
   isIssueMeasure() {
     return ISSUE_MEASURES.indexOf(this.props.metric) !== -1;
@@ -152,8 +125,7 @@ export const DrilldownLink = React.createClass({
       return this.renderIssuesLink();
     }
 
-    const highlightedMetric = HIGHLIGHT_MAPPING[this.props.metric] || this.props.metric;
-    const url = getComponentDrilldownUrl(this.props.component, highlightedMetric);
+    const url = getComponentDrilldownUrl(this.props.component, this.props.metric);
     return <a className={this.props.className} href={url}>{this.props.children}</a>;
   }
 });
