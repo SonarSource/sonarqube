@@ -37,6 +37,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.analysis.AnalysisProperties;
@@ -73,7 +74,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfUnexistingSourceDirectory() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project' (base directory = "
       + getResource(this.getClass(), "simple-project-with-unexisting-source-dir") + ")");
 
@@ -82,7 +83,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void fail_if_sources_not_set() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'com.foo.project': sonar.sources");
     loadProjectDefinition("simple-project-with-missing-source-dir");
   }
@@ -94,7 +95,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void modulesDuplicateIds() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Two modules have the same id: 'module1'. Each module must have a unique id.");
 
     loadProjectDefinition("multi-module-duplicate-id");
@@ -242,7 +243,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfUnexistingModuleBaseDir() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("The base directory of the module 'module1' does not exist: "
       + getResource(this.getClass(), "multi-module-with-unexisting-basedir").getAbsolutePath() + File.separator + "module1");
 
@@ -251,7 +252,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfUnexistingSourceFolderInheritedInMultimodule() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("The folder 'unexisting-source-dir' does not exist for 'com.foo.project:module1' (base directory = "
       + getResource(this.getClass(), "multi-module-with-unexisting-source-dir").getAbsolutePath() + File.separator + "module1)");
 
@@ -260,7 +261,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfExplicitUnexistingTestFolder() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("The folder 'tests' does not exist for 'com.foo.project' (base directory = "
       + getResource(this.getClass(), "simple-project-with-unexisting-test-dir").getAbsolutePath());
 
@@ -269,7 +270,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldFailIfExplicitUnexistingTestFolderOnModule() {
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("The folder 'tests' does not exist for 'module1' (base directory = "
       + getResource(this.getClass(), "multi-module-with-explicit-unexisting-test-dir").getAbsolutePath() + File.separator + "module1)");
 
@@ -334,7 +335,7 @@ public class ProjectReactorBuilderTest {
     props.put("foo1", "bla");
     props.put("foo4", "bla");
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'Unknown': foo2, foo3");
 
     ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
@@ -346,7 +347,7 @@ public class ProjectReactorBuilderTest {
     props.put("foo1", "bla");
     props.put("sonar.projectKey", "my-project");
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("You must define the following mandatory properties for 'my-project': foo2, foo3");
 
     ProjectReactorBuilder.checkMandatoryProperties(props, new String[] {"foo1", "foo2", "foo3"});
@@ -465,7 +466,7 @@ public class ProjectReactorBuilderTest {
     // Now, add it and check again
     root.addSubProject(mod2);
 
-    thrown.expect(IllegalStateException.class);
+    thrown.expect(MessageException.class);
     thrown.expectMessage("Project 'root' can't have 2 modules with the following key: mod2");
 
     ProjectReactorBuilder.checkUniquenessOfChildKey(mod2, root);

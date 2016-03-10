@@ -19,11 +19,9 @@
  */
 package org.sonar.batch.analysis;
 
-import org.sonar.batch.bootstrap.UserProperties;
-
-import javax.annotation.Nullable;
-
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.batch.bootstrap.UserProperties;
 
 /**
  * Batch properties that are specific to an analysis (for example
@@ -32,8 +30,9 @@ import java.util.Map;
 public class AnalysisProperties extends UserProperties {
   public AnalysisProperties(Map<String, String> properties) {
     this(properties, null);
+
   }
-  
+
   public AnalysisProperties(Map<String, String> properties, @Nullable String pathToSecretKey) {
     super(properties, pathToSecretKey);
   }

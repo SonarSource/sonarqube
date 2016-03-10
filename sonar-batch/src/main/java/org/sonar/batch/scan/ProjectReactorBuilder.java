@@ -40,6 +40,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -134,7 +135,7 @@ public class ProjectReactorBuilder {
   private static void extractPropertiesByModule(Map<String, Map<String, String>> propertiesByModuleIdPath, String currentModuleId, String currentModuleIdPath,
     Map<String, String> parentProperties) {
     if (propertiesByModuleIdPath.containsKey(currentModuleIdPath)) {
-      throw new IllegalStateException(String.format("Two modules have the same id: '%s'. Each module must have a unique id.", currentModuleId));
+      throw MessageException.of(String.format("Two modules have the same id: '%s'. Each module must have a unique id.", currentModuleId));
     }
 
     Map<String, String> currentModuleProperties = new HashMap<>();
@@ -295,14 +296,14 @@ public class ProjectReactorBuilder {
   protected static void checkUniquenessOfChildKey(ProjectDefinition childProject, ProjectDefinition parentProject) {
     for (ProjectDefinition definition : parentProject.getSubProjects()) {
       if (definition.getKey().equals(childProject.getKey())) {
-        throw new IllegalStateException("Project '" + parentProject.getKey() + "' can't have 2 modules with the following key: " + childProject.getKey());
+        throw MessageException.of("Project '" + parentProject.getKey() + "' can't have 2 modules with the following key: " + childProject.getKey());
       }
     }
   }
 
   protected static void setProjectBaseDir(File baseDir, Map<String, String> childProps, String moduleId) {
     if (!baseDir.isDirectory()) {
-      throw new IllegalStateException("The base directory of the module '" + moduleId + "' does not exist: " + baseDir.getAbsolutePath());
+      throw MessageException.of("The base directory of the module '" + moduleId + "' does not exist: " + baseDir.getAbsolutePath());
     }
     childProps.put(PROPERTY_PROJECT_BASEDIR, baseDir.getAbsolutePath());
   }
@@ -320,7 +321,7 @@ public class ProjectReactorBuilder {
     }
     String moduleKey = StringUtils.defaultIfBlank(props.get(MODULE_KEY_PROPERTY), props.get(CoreProperties.PROJECT_KEY_PROPERTY));
     if (missing.length() != 0) {
-      throw new IllegalStateException("You must define the following mandatory properties for '" + (moduleKey == null ? "Unknown" : moduleKey) + "': " + missing);
+      throw MessageException.of("You must define the following mandatory properties for '" + (moduleKey == null ? "Unknown" : moduleKey) + "': " + missing);
     }
   }
 
@@ -394,7 +395,7 @@ public class ProjectReactorBuilder {
       File sourceFolder = resolvePath(baseDir, path);
       if (!sourceFolder.exists()) {
         LOG.error(MessageFormat.format(INVALID_VALUE_OF_X_FOR_Y, propName, moduleRef));
-        throw new IllegalStateException("The folder '" + path + "' does not exist for '" + moduleRef +
+        throw MessageException.of("The folder '" + path + "' does not exist for '" + moduleRef +
           "' (base directory = " + baseDir.getAbsolutePath() + ")");
       }
     }
