@@ -17,15 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import sortBy from 'lodash/sortBy';
+import partition from 'lodash/partition';
 import React from 'react';
 import { Link } from 'react-router';
 
+import domains from '../config/domains';
 import { formatLeak } from '../utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 
 export default function AllMeasuresDomain ({ domain, component, displayLeakHeader, leakPeriodLabel }) {
   const hasLeak = !!leakPeriodLabel;
+  const { measures } = domain;
+  const knownMetrics = domains[domain.name] || [];
+
+  const [knownMeasures, otherMeasures] =
+      partition(measures, measure => knownMetrics.indexOf(measure.metric.key) !== -1);
+
+  const finalMeasures = [
+    ...sortBy(knownMeasures, measure => knownMetrics.indexOf(measure.metric.key)),
+    ...sortBy(otherMeasures, measure => measure.metric.name)
+  ];
 
   return (
       <li>
@@ -39,7 +52,7 @@ export default function AllMeasuresDomain ({ domain, component, displayLeakHeade
         </header>
 
         <ul className="domain-measures">
-          {domain.measures.map(measure => (
+          {finalMeasures.map(measure => (
               <li key={measure.metric.key}>
                 <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
                   <div className="domain-measures-name">
