@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.debt;
+package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -61,7 +61,7 @@ public class TechnicalDebtInIssueChangelogTest {
 
   @Test
   public void display_debt_in_issue_changelog() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/one-issue-per-file.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-file.xml"));
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-file");
 
@@ -88,7 +88,7 @@ public class TechnicalDebtInIssueChangelogTest {
 
   @Test
   public void use_hours_in_day_property_to_display_debt_in_issue_changelog() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/one-issue-per-file.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-file.xml"));
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-file");
 

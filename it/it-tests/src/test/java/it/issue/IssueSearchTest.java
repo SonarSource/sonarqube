@@ -19,11 +19,13 @@
  */
 package it.issue;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
+import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
 import java.util.Date;
@@ -43,9 +45,14 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
 import org.sonar.wsclient.issue.NewActionPlan;
 import org.sonar.wsclient.issue.NewIssue;
+import org.sonarqube.ws.Common;
+import org.sonarqube.ws.MediaTypes;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 import static util.ItUtils.toDate;
@@ -57,7 +64,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   private static final String PROJECT_KEY2 = "com.sonarsource.it.samples:multi-modules-sample2";
 
   private static int DEFAULT_PAGINATED_RESULTS = 100;
-  private static int TOTAL_NB_ISSUES = 143;
+  private static int TOTAL_NB_ISSUES = 273;
 
   @BeforeClass
   public static void prepareData() {
@@ -102,9 +109,9 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   @Test
   public void search_issues_by_component_roots() {
-    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample")).list()).hasSize(72);
-    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a")).list()).hasSize(44);
-    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")).list()).hasSize(20);
+    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
+    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a")).list()).hasSize(83);
+    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")).list()).hasSize(37);
 
     assertThat(search(IssueQuery.create().componentRoots("unknown")).list()).isEmpty();
   }
@@ -113,15 +120,15 @@ public class IssueSearchTest extends AbstractIssueTest {
   public void search_issues_by_components() {
     assertThat(
       search(IssueQuery.create().components("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")).list())
-      .hasSize(19);
+      .hasSize(35);
     assertThat(search(IssueQuery.create().components("unknown")).list()).isEmpty();
   }
 
   @Test
   public void search_issues_by_severities() {
-    assertThat(search(IssueQuery.create().severities("BLOCKER")).list()).isEmpty();
+    assertThat(search(IssueQuery.create().severities("BLOCKER")).list()).hasSize(8);
     assertThat(search(IssueQuery.create().severities("CRITICAL")).list()).hasSize(9);
-    assertThat(search(IssueQuery.create().severities("MAJOR")).list()).hasSize(8);
+    assertThat(search(IssueQuery.create().severities("MAJOR")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
     assertThat(search(IssueQuery.create().severities("MINOR")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
     assertThat(search(IssueQuery.create().severities("INFO")).list()).hasSize(4);
   }
@@ -239,7 +246,7 @@ public class IssueSearchTest extends AbstractIssueTest {
     Paging paging = issues.paging();
     assertThat(paging.pageIndex()).isEqualTo(2);
     assertThat(paging.pageSize()).isEqualTo(20);
-    assertThat(paging.total()).isEqualTo(143);
+    assertThat(paging.total()).isEqualTo(TOTAL_NB_ISSUES);
 
     // SONAR-3257
     // return max page size results when using negative page size value
@@ -249,11 +256,10 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   @Test
   public void sort_results() {
-    // 9 issue in CRITICAL (including the manual one), following ones are in MAJOR
     List<Issue> issues = search(IssueQuery.create().sort("SEVERITY").asc(false)).list();
-    assertThat(issues.get(0).severity()).isEqualTo("CRITICAL");
+    assertThat(issues.get(0).severity()).isEqualTo("BLOCKER");
     assertThat(issues.get(8).severity()).isEqualTo("CRITICAL");
-    assertThat(issues.get(9).severity()).isEqualTo("MAJOR");
+    assertThat(issues.get(17).severity()).isEqualTo("MAJOR");
   }
 
   /**
@@ -313,6 +319,34 @@ public class IssueSearchTest extends AbstractIssueTest {
     ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("redirect_to_search_url_after_wrong_login",
       "/issue/IssueSearchTest/redirect_to_search_url_after_wrong_login.html" // SONAR-5659
     ).build());
+  }
+
+  @Test
+  public void return_issue_type() throws Exception {
+    List<org.sonarqube.ws.Issues.Issue> issues = searchByRuleKey("xoo:OneBugIssuePerLine");
+    assertThat(issues).isNotEmpty();
+    org.sonarqube.ws.Issues.Issue issue = issues.get(0);
+    assertThat(issue.getType()).isEqualTo(Common.RuleType.BUG);
+
+    issues = searchByRuleKey("xoo:OneVulnerabilityIssuePerModule");
+    assertThat(issues).isNotEmpty();
+    issue = issues.get(0);
+    assertThat(issue.getType()).isEqualTo(Common.RuleType.VULNERABILITY);
+
+    issues = searchByRuleKey("xoo:OneIssuePerLine");
+    assertThat(issues).isNotEmpty();
+    issue = issues.get(0);
+    assertThat(issue.getType()).isEqualTo(Common.RuleType.CODE_SMELL);
+  }
+
+  private List<org.sonarqube.ws.Issues.Issue> searchByRuleKey(String... ruleKey) throws IOException {
+    WsResponse response = newAdminWsClient(ORCHESTRATOR)
+      .wsConnector()
+      .call(new GetRequest("api/issues/search")
+        .setParam("rules", Joiner.on(",").join(ruleKey))
+        .setMediaType(MediaTypes.PROTOBUF));
+    org.sonarqube.ws.Issues.SearchWsResponse searchWsResponse = org.sonarqube.ws.Issues.SearchWsResponse.parseFrom(response.contentStream());
+    return searchWsResponse.getIssuesList();
   }
 
   private static Component findComponent(Collection<Component> components, final String key) {

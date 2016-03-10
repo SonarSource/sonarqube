@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.debt;
+package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category2Suite;
+import javax.annotation.CheckForNull;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -37,7 +38,7 @@ import static util.ItUtils.projectDir;
 /**
  * SONAR-4715
  */
-public class SqaleRatingMeasureTest {
+public class MaintainabilityRatingMeasureTest {
 
   private static final String PROJECT = "com.sonarsource.it.samples:multi-modules-sample";
   private static final String MODULE = "com.sonarsource.it.samples:multi-modules-sample:module_a";
@@ -61,7 +62,7 @@ public class SqaleRatingMeasureTest {
 
   @Test
   public void sqale_rating_measures() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/with-many-rules.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 
@@ -85,7 +86,7 @@ public class SqaleRatingMeasureTest {
 
   @Test
   public void sqale_debt_ratio_measures() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/with-many-rules.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 
@@ -100,7 +101,7 @@ public class SqaleRatingMeasureTest {
 
   @Test
   public void use_development_cost_parameter() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/one-issue-per-line.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -120,7 +121,7 @@ public class SqaleRatingMeasureTest {
 
   @Test
   public void use_language_specific_parameters() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/one-issue-per-line.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "one-issue-per-line");
 
@@ -142,7 +143,7 @@ public class SqaleRatingMeasureTest {
 
   @Test
   public void use_rating_grid_parameter() throws Exception {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/one-issue-per-line.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/one-issue-per-line.xml"));
     orchestrator.getServer().provisionProject("sample", "sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
@@ -162,7 +163,7 @@ public class SqaleRatingMeasureTest {
 
   @Test
   public void effort_to_reach_maintainability_rating_a() {
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/with-many-rules.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
     orchestrator.getServer().provisionProject(PROJECT, PROJECT);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "with-many-rules");
 
@@ -185,6 +186,7 @@ public class SqaleRatingMeasureTest {
     assertThat(getMeasure(FILE, "effort_to_reach_maintainability_rating_a")).isNull();
   }
 
+  @CheckForNull
   private Measure getMeasure(String resource, String metricKey) {
     Resource res = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics(resource, metricKey));
     if (res == null) {

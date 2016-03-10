@@ -39,11 +39,13 @@ import org.sonar.xoo.rule.DeprecatedResourceApiSensor;
 import org.sonar.xoo.rule.HasTagSensor;
 import org.sonar.xoo.rule.MultilineIssuesSensor;
 import org.sonar.xoo.rule.OneBlockerIssuePerFileSensor;
+import org.sonar.xoo.rule.OneBugIssuePerLineSensor;
 import org.sonar.xoo.rule.OneDayDebtPerFileSensor;
 import org.sonar.xoo.rule.OneIssueOnDirPerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerFileSensor;
 import org.sonar.xoo.rule.OneIssuePerLineSensor;
 import org.sonar.xoo.rule.OneIssuePerModuleSensor;
+import org.sonar.xoo.rule.OneVulnerabilityIssuePerModuleSensor;
 import org.sonar.xoo.rule.RandomAccessSensor;
 import org.sonar.xoo.rule.Xoo2BasicProfile;
 import org.sonar.xoo.rule.XooBasicProfile;
@@ -105,6 +107,9 @@ public class XooPlugin extends SonarPlugin {
       CreateIssueByInternalKeySensor.class,
       MultilineIssuesSensor.class,
       CustomMessageSensor.class,
+
+      OneBugIssuePerLineSensor.class,
+      OneVulnerabilityIssuePerModuleSensor.class,
 
       // Coverage
       UtCoverageSensor.class,

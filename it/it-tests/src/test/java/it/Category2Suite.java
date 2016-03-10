@@ -20,12 +20,6 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.debt.SqaleRatingMeasureTest;
-import it.debt.TechnicalDebtInIssueChangelogTest;
-import it.debt.TechnicalDebtMeasureTest;
-import it.debt.TechnicalDebtPurgeTest;
-import it.debt.TechnicalDebtTest;
-import it.debt.TechnicalDebtWidgetTest;
 import it.issue.AutoAssignTest;
 import it.issue.CommonRulesTest;
 import it.issue.CustomRulesTest;
@@ -41,6 +35,12 @@ import it.issue.IssueWorkflowTest;
 import it.issue.ManualIssueRelocationTest;
 import it.issue.ManualIssueTest;
 import it.issue.NewIssuesMeasureTest;
+import it.qualityModel.MaintainabilityMeasureTest;
+import it.qualityModel.MaintainabilityRatingMeasureTest;
+import it.qualityModel.TechnicalDebtInIssueChangelogTest;
+import it.qualityModel.TechnicalDebtPurgeTest;
+import it.qualityModel.TechnicalDebtTest;
+import it.qualityModel.TechnicalDebtWidgetTest;
 import it.rule.ManualRulesTest;
 import it.test.CoverageTest;
 import it.test.CoverageTrackingTest;
@@ -79,9 +79,9 @@ import static util.ItUtils.xooPlugin;
   // rule
   ManualRulesTest.class,
   // debt
-  SqaleRatingMeasureTest.class,
+  MaintainabilityRatingMeasureTest.class,
   TechnicalDebtInIssueChangelogTest.class,
-  TechnicalDebtMeasureTest.class,
+  MaintainabilityMeasureTest.class,
   TechnicalDebtPurgeTest.class,
   TechnicalDebtTest.class,
   TechnicalDebtWidgetTest.class

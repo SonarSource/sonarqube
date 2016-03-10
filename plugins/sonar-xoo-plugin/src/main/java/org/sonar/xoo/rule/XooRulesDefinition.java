@@ -19,6 +19,7 @@
  */
 package org.sonar.xoo.rule;
 
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.server.rule.RulesDefinitionAnnotationLoader;
@@ -114,6 +115,20 @@ public class XooRulesDefinition implements RulesDefinition {
 
     repo.createRule(MultilineIssuesSensor.RULE_KEY).setName("Creates issues with ranges/multiple locations")
       .setHtmlDescription("Issue with range and multiple locations");
+
+    NewRule oneBugIssuePerLine = repo.createRule(OneBugIssuePerLineSensor.RULE_KEY).setName("One Bug Issue Per Line")
+      .setHtmlDescription("Generate a bug issue on each line of a file. It requires the metric \"lines\".")
+      .setType(RuleType.BUG);
+    oneBugIssuePerLine
+      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linear("5min"));
+
+    NewRule oneVulnerabilityIssuePerModule = repo.createRule(OneVulnerabilityIssuePerModuleSensor.RULE_KEY).setName("One Vulnerability Issue Per Module")
+      .setHtmlDescription("Generate an issue on each module")
+      .setType(RuleType.VULNERABILITY);
+    oneVulnerabilityIssuePerModule
+      .setDebtRemediationFunction(hasTag.debtRemediationFunctions().linearWithOffset("25min", "1h"))
+      .setGapDescription("A certified architect will need roughly half an hour to start working on removal of modules, " +
+        "then it's about one hour per module.");
 
     repo.done();
 

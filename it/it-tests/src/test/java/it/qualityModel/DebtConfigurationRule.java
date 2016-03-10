@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.debt;
+package it.qualityModel;
 
 import com.google.common.base.Joiner;
 import com.google.common.collect.ImmutableSet;

@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package it.debt;
+package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
@@ -49,7 +49,7 @@ public class TechnicalDebtWidgetTest {
     // Set rating grid values to not depend from default value
     debtConfiguration.updateRatingGrid(0.1d, 0.2d, 0.5d, 1d);
 
-    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/debt/with-many-rules.xml"));
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/qualityModel/with-many-rules.xml"));
     orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "com.sonarsource.it.samples:multi-modules-sample");
     orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "with-many-rules");
 
@@ -72,11 +72,11 @@ public class TechnicalDebtWidgetTest {
   public void technical_debt_in_issues_widget() {
     new SeleneseTest(Selenese.builder()
       .setHtmlTestsInClasspath("technical-debt-in-issues-widget",
-        "/debt/TechnicalDebtWidgetTest/technical-debt/should-have-correct-values.html",
-        "/debt/TechnicalDebtWidgetTest/technical-debt/should-open-remediation-cost-on-measures-service.html",
-        "/debt/TechnicalDebtWidgetTest/technical-debt/display-differential-values.html",
+        "/qualityModel/TechnicalDebtWidgetTest/technical-debt/should-have-correct-values.html",
+        "/qualityModel/TechnicalDebtWidgetTest/technical-debt/should-open-remediation-cost-on-measures-service.html",
+        "/qualityModel/TechnicalDebtWidgetTest/technical-debt/display-differential-values.html",
         // SONAR-4717
-        "/debt/TechnicalDebtWidgetTest/technical-debt/is-in-issues-widget.html"
+        "/qualityModel/TechnicalDebtWidgetTest/technical-debt/is-in-issues-widget.html"
       ).build()).runOn(orchestrator);
   }
 
@@ -87,9 +87,9 @@ public class TechnicalDebtWidgetTest {
   public void debt_overview_widget() {
     new SeleneseTest(Selenese.builder()
       .setHtmlTestsInClasspath("debt-overview-widget",
-        "/debt/TechnicalDebtWidgetTest/debt-overview/should-have-correct-values.html",
-        "/debt/TechnicalDebtWidgetTest/debt-overview/should-open-links-on-measures-service.html",
-        "/debt/TechnicalDebtWidgetTest/debt-overview/display-differential-values.html"
+        "/qualityModel/TechnicalDebtWidgetTest/debt-overview/should-have-correct-values.html",
+        "/qualityModel/TechnicalDebtWidgetTest/debt-overview/should-open-links-on-measures-service.html",
+        "/qualityModel/TechnicalDebtWidgetTest/debt-overview/display-differential-values.html"
       ).build()).runOn(orchestrator);
   }
 
