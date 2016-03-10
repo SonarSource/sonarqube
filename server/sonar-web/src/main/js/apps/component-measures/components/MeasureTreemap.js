@@ -107,7 +107,7 @@ export default class MeasureTreemap extends React.Component {
   }
 
   getRatingColorScale () {
-    return d3.scale.ordinal()
+    return d3.scale.linear()
         .domain([1, 2, 3, 4, 5])
         .range(['#00aa00', '#80cc00', '#ffee00', '#f77700', '#ee0000']);
   }
