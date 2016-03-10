@@ -10,7 +10,22 @@
     <tbody>
     <tr>
 	<td>open</td>
-	<td>/component_measures/ncloc?id=project-measures-page-test-project</td>
+	<td>/component_measures?id=project-measures-page-test-project</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>id=measure-ncloc</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>id=measure-ncloc</td>
+	<td>*13*</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#measure-ncloc &gt; a</td>
 	<td></td>
 </tr>
 <tr>
