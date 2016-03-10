@@ -161,7 +161,7 @@
          js_events += "),l:["
          e_details.each() do |e|
            js_events += "{n:\""
-           js_events += json_escape(e.name)
+           js_events += escape_javascript(e.name)
            js_events += "\"},"
          end
          js_events = js_events.chomp(',') + "]},"

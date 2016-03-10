@@ -17,6 +17,7 @@
 # along with this program; if not, write to the Free Software Foundation,
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
+include ERB::Util
 module DashboardHelper
   include WidgetPropertiesHelper
   include MetricsHelper
@@ -63,7 +64,7 @@ module DashboardHelper
     label = period_label(snapshot, index)
     if label && snapshot.period_datetime(index)
       selected=(params[:period]==index.to_s ? 'selected' : '')
-      "<option value='#{index}' #{selected} class='#{html_class}'>&Delta; #{label}</option>"
+      "<option value='#{index}' #{selected} class='#{html_class}'>&Delta; #{h(label)}</option>"
     else
       nil
     end
