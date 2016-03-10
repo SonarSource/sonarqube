@@ -19,7 +19,6 @@
  */
 package org.sonar.core.util;
 
-
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
@@ -41,7 +40,6 @@ import java.net.URI;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
 import java.util.zip.GZIPInputStream;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.binary.Base64;
@@ -52,6 +50,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Loggers;
 
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 /**
@@ -60,6 +59,7 @@ import static org.sonar.core.util.FileUtils.deleteQuietly;
  * @since 2.2
  */
 public class DefaultHttpDownloader extends HttpDownloader {
+
   private final BaseHttpDownloader downloader;
   private final Integer readTimeout;
   private final Integer connectTimeout;
@@ -75,7 +75,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   public DefaultHttpDownloader(Server server, Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
     this.connectTimeout = connectTimeout;
-    downloader = new BaseHttpDownloader(settings.getProperties(), server.getVersion());
+    downloader = new BaseHttpDownloader(new ProxySystem(), settings, server.getVersion());
   }
 
   public DefaultHttpDownloader(Settings settings) {
@@ -89,7 +89,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   public DefaultHttpDownloader(Settings settings, @Nullable Integer connectTimeout, @Nullable Integer readTimeout) {
     this.readTimeout = readTimeout;
     this.connectTimeout = connectTimeout;
-    downloader = new BaseHttpDownloader(settings.getProperties(), null);
+    downloader = new BaseHttpDownloader(new ProxySystem(), settings, null);
   }
 
   @Override
@@ -157,7 +157,17 @@ public class DefaultHttpDownloader extends HttpDownloader {
     throw new SonarException(String.format("Fail to download: %s (%s)", uri, getProxySynthesis(uri)), e);
   }
 
-  public static class BaseHttpDownloader {
+  static class ProxySystem {
+    public void setProperty(String key, String value) {
+      System.setProperty(key, value);
+    }
+
+    public void setDefaultAuthenticator(Authenticator authenticator) {
+      Authenticator.setDefault(authenticator);
+    }
+  }
+
+  static class BaseHttpDownloader {
 
     private static final String GET = "GET";
     private static final String HTTP_PROXY_USER = "http.proxyUser";
@@ -169,15 +179,22 @@ public class DefaultHttpDownloader extends HttpDownloader {
 
     private String userAgent;
 
-    public BaseHttpDownloader(Map<String, String> settings, @Nullable String userAgent) {
-      initProxy(settings);
+    BaseHttpDownloader(ProxySystem system, Settings settings, @Nullable String userAgent) {
+      initProxy(system, settings);
       initUserAgent(userAgent);
     }
 
-    private void initProxy(Map<String, String> settings) {
-      propagateProxySystemProperties(settings);
-      if (requiresProxyAuthentication(settings)) {
-        registerProxyCredentials(settings);
+    private void initProxy(ProxySystem system, Settings settings) {
+      // propagate system properties
+      for (String key : PROXY_SETTINGS) {
+        if (settings.hasKey(key)) {
+          system.setProperty(key, settings.getString(key));
+        }
+      }
+      // register credentials
+      String login = settings.getString(HTTP_PROXY_USER);
+      if (isNotEmpty(login)) {
+        system.setDefaultAuthenticator(new ProxyAuthenticator(login, settings.getString(HTTP_PROXY_PASSWORD)));
       }
     }
 
@@ -205,24 +222,6 @@ public class DefaultHttpDownloader extends HttpDownloader {
       }
 
       return Joiner.on(", ").join(descriptions);
-    }
-
-    private static void registerProxyCredentials(Map<String, String> settings) {
-      Authenticator.setDefault(new ProxyAuthenticator(
-        settings.get(HTTP_PROXY_USER),
-        settings.get(HTTP_PROXY_PASSWORD)));
-    }
-
-    private boolean requiresProxyAuthentication(Map<String, String> settings) {
-      return settings.containsKey(HTTP_PROXY_USER);
-    }
-
-    private void propagateProxySystemProperties(Map<String, String> settings) {
-      for (String key : PROXY_SETTINGS) {
-        if (settings.containsKey(key)) {
-          System.setProperty(key, settings.get(key));
-        }
-      }
     }
 
     public InputSupplier<InputStream> newInputSupplier(URI uri) {
@@ -357,18 +356,18 @@ public class DefaultHttpDownloader extends HttpDownloader {
         return resultingInputStream;
       }
     }
+  }
 
-    private static class ProxyAuthenticator extends Authenticator {
-      private final PasswordAuthentication auth;
+  static class ProxyAuthenticator extends Authenticator {
+    private final PasswordAuthentication auth;
 
-      ProxyAuthenticator(String user, String password) {
-        auth = new PasswordAuthentication(user, password == null ? new char[0] : password.toCharArray());
-      }
+    ProxyAuthenticator(String user, @Nullable String password) {
+      auth = new PasswordAuthentication(user, password == null ? new char[0] : password.toCharArray());
+    }
 
-      @Override
-      protected PasswordAuthentication getPasswordAuthentication() {
-        return auth;
-      }
+    @Override
+    protected PasswordAuthentication getPasswordAuthentication() {
+      return auth;
     }
   }
 
