@@ -49,11 +49,19 @@ export default class MeasureDrilldownTree extends React.Component {
     const { metric, store, updateStore } = this.props;
     const asc = metric.direction === 1;
 
-    const options = {
-      s: 'metric,name',
-      metricSort: metric.key,
-      asc
-    };
+    const options = { asc };
+    if (metric.key.indexOf('new_') === 0) {
+      Object.assign(options, {
+        s: 'metricPeriod,name',
+        metricSort: metric.key,
+        metricPeriodSort: 1
+      });
+    } else {
+      Object.assign(options, {
+        s: 'metric,name',
+        metricSort: metric.key
+      });
+    }
 
     const componentKey = baseComponent.refKey || baseComponent.key;
 
