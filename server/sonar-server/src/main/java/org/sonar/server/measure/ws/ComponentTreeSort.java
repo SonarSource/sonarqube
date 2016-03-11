@@ -21,11 +21,13 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Table;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric.ValueType;
@@ -33,15 +35,32 @@ import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static java.lang.String.CASE_INSENSITIVE_ORDER;
+import static java.lang.String.format;
+import static org.sonar.api.measures.Metric.ValueType.BOOL;
+import static org.sonar.api.measures.Metric.ValueType.DATA;
+import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
+import static org.sonar.api.measures.Metric.ValueType.FLOAT;
+import static org.sonar.api.measures.Metric.ValueType.INT;
+import static org.sonar.api.measures.Metric.ValueType.LEVEL;
+import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
+import static org.sonar.api.measures.Metric.ValueType.PERCENT;
+import static org.sonar.api.measures.Metric.ValueType.RATING;
+import static org.sonar.api.measures.Metric.ValueType.STRING;
+import static org.sonar.api.measures.Metric.ValueType.WORK_DUR;
+import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.PATH_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
 
 class ComponentTreeSort {
+
+  private static final Set<ValueType> NUMERIC_VALUE_TYPES = ImmutableSet.of(BOOL, FLOAT, INT, MILLISEC, WORK_DUR, PERCENT, RATING);
+  private static final Set<ValueType> TEXTUAL_VALUE_TYPES = ImmutableSet.of(DATA, DISTRIB, LEVEL, STRING);
 
   private ComponentTreeSort() {
     // static method only
@@ -58,7 +77,8 @@ class ComponentTreeSort {
       .put(NAME_SORT, componentNameOrdering(isAscending))
       .put(QUALIFIER_SORT, componentQualifierOrdering(isAscending))
       .put(PATH_SORT, componentPathOrdering(isAscending))
-      .put(METRIC_SORT, metricOrdering(wsRequest, metrics, measuresByComponentUuidAndMetric))
+      .put(METRIC_SORT, metricValueOrdering(wsRequest, metrics, measuresByComponentUuidAndMetric))
+      .put(METRIC_PERIOD_SORT, metricPeriodOrdering(wsRequest, metrics, measuresByComponentUuidAndMetric))
       .build();
 
     String firstSortParameter = sortParameters.get(0);
@@ -95,10 +115,7 @@ class ComponentTreeSort {
     return ordering.nullsLast().onResultOf(function);
   }
 
-  /**
-   * Order by measure value, taking the metric direction into account
-   */
-  private static Ordering<ComponentDtoWithSnapshotId> metricOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
+  private static Ordering<ComponentDtoWithSnapshotId> metricValueOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     if (wsRequest.getMetricSort() == null) {
       return componentNameOrdering(wsRequest.getAsc());
@@ -107,23 +124,30 @@ class ComponentTreeSort {
     MetricDto metric = metricsByKey.get(wsRequest.getMetricSort());
 
     boolean isAscending = wsRequest.getAsc();
-    switch (ValueType.valueOf(metric.getValueType())) {
-      case BOOL:
-      case INT:
-      case MILLISEC:
-      case WORK_DUR:
-      case FLOAT:
-      case PERCENT:
-      case RATING:
-        return numericalMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
-      case DATA:
-      case DISTRIB:
-      case LEVEL:
-      case STRING:
-        return stringOrdering(isAscending, new ComponentDtoWithSnapshotIdToTextualMeasureValue(metric, measuresByComponentUuidAndMetric));
-      default:
-        throw new IllegalStateException("Unrecognized metric value type: " + metric.getValueType());
+    ValueType metricValueType = ValueType.valueOf(metric.getValueType());
+    if (NUMERIC_VALUE_TYPES.contains(metricValueType)) {
+      return numericalMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
+    } else if (TEXTUAL_VALUE_TYPES.contains(metricValueType)) {
+      return stringOrdering(isAscending, new ComponentDtoWithSnapshotIdToTextualMeasureValue(metric, measuresByComponentUuidAndMetric));
     }
+
+    throw new IllegalStateException("Unrecognized metric value type: " + metric.getValueType());
+  }
+
+  private static Ordering<ComponentDtoWithSnapshotId> metricPeriodOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
+    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
+    if (wsRequest.getMetricSort() == null || wsRequest.getMetricPeriodSort() == null) {
+      return componentNameOrdering(wsRequest.getAsc());
+    }
+    Map<String, MetricDto> metricsByKey = Maps.uniqueIndex(metrics, MetricDtoFunctions.toKey());
+    MetricDto metric = metricsByKey.get(wsRequest.getMetricSort());
+
+    ValueType metricValueType = ValueType.valueOf(metric.getValueType());
+    if (NUMERIC_VALUE_TYPES.contains(metricValueType)) {
+      return numericalMetricPeriodOrdering(wsRequest, metric, measuresByComponentUuidAndMetric);
+    }
+
+    throw new BadRequestException(format("Impossible to sort metric '%s' by measure period.", metric.getKey()));
   }
 
   private static Ordering<ComponentDtoWithSnapshotId> numericalMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
@@ -135,6 +159,17 @@ class ComponentTreeSort {
     }
 
     return ordering.nullsLast().onResultOf(new ComponentDtoWithSnapshotIdToNumericalMeasureValue(metric, measuresByComponentUuidAndMetric));
+  }
+
+  private static Ordering<ComponentDtoWithSnapshotId> numericalMetricPeriodOrdering(ComponentTreeWsRequest request, @Nullable MetricDto metric,
+    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
+    Ordering<Double> ordering = Ordering.natural();
+
+    if (!request.getAsc()) {
+      ordering = ordering.reverse();
+    }
+
+    return ordering.nullsLast().onResultOf(new ComponentDtoWithSnapshotIdToMeasureVariationValue(metric, measuresByComponentUuidAndMetric, request.getMetricPeriodSort()));
   }
 
   private static class ComponentDtoWithSnapshotIdToNumericalMeasureValue implements Function<ComponentDtoWithSnapshotId, Double> {
@@ -155,6 +190,29 @@ class ComponentTreeSort {
       }
 
       return measure.getValue();
+    }
+  }
+
+  private static class ComponentDtoWithSnapshotIdToMeasureVariationValue implements Function<ComponentDtoWithSnapshotId, Double> {
+    private final MetricDto metric;
+    private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
+    private final int variationIndex;
+
+    private ComponentDtoWithSnapshotIdToMeasureVariationValue(@Nullable MetricDto metric,
+      Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, int variationIndex) {
+      this.metric = metric;
+      this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
+      this.variationIndex = variationIndex;
+    }
+
+    @Override
+    public Double apply(@Nonnull ComponentDtoWithSnapshotId input) {
+      MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
+      if (measure == null || measure.getVariation(variationIndex) == null) {
+        return null;
+      }
+
+      return measure.getVariation(variationIndex);
     }
   }
 

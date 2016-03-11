@@ -69,6 +69,7 @@ import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONE
 import static org.sonar.server.measure.ws.ComponentTreeAction.ALL_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.CHILDREN_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
+import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
@@ -232,7 +233,7 @@ public class ComponentTreeDataLoader {
 
   private static List<ComponentDtoWithSnapshotId> sortComponents(List<ComponentDtoWithSnapshotId> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
-    if (!wsRequest.getSort().contains(METRIC_SORT)) {
+    if (!isSortByMetric(wsRequest)) {
       return components;
     }
 
@@ -240,7 +241,7 @@ public class ComponentTreeDataLoader {
   }
 
   private static List<ComponentDtoWithSnapshotId> paginateComponents(List<ComponentDtoWithSnapshotId> components, int componentCount, ComponentTreeWsRequest wsRequest) {
-    if (!wsRequest.getSort().contains(METRIC_SORT)) {
+    if (!isSortByMetric(wsRequest)) {
       return components;
     }
 
@@ -252,6 +253,10 @@ public class ComponentTreeDataLoader {
       .skip(paging.offset())
       .limit(paging.pageSize())
       .toList();
+  }
+
+  private static boolean isSortByMetric(ComponentTreeWsRequest wsRequest) {
+    return wsRequest.getSort().contains(METRIC_SORT) || wsRequest.getSort().contains(METRIC_PERIOD_SORT);
   }
 
   @CheckForNull
@@ -295,7 +300,7 @@ public class ComponentTreeDataLoader {
       dbQuery.setQualifiers(childrenQualifiers);
     }
     // load all components if we must sort by metric value
-    if (wsRequest.getSort().contains(METRIC_SORT)) {
+    if (isSortByMetric(wsRequest)) {
       dbQuery.setPage(1);
       dbQuery.setPageSize(Integer.MAX_VALUE);
     }
@@ -358,7 +363,7 @@ public class ComponentTreeDataLoader {
 
     @Override
     public boolean apply(@Nonnull String input) {
-      return !input.equals(METRIC_SORT);
+      return !input.equals(METRIC_SORT) && !input.equals(METRIC_PERIOD_SORT);
     }
   }
 

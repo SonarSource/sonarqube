@@ -53,6 +53,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIO
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
@@ -84,7 +85,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final String PATH_SORT = "path";
   static final String QUALIFIER_SORT = "qualifier";
   static final String METRIC_SORT = "metric";
-  static final Set<String> SORTS = ImmutableSortedSet.of(NAME_SORT, PATH_SORT, QUALIFIER_SORT, METRIC_SORT);
+  static final String METRIC_PERIOD_SORT = "metricPeriod";
+  static final Set<String> SORTS = ImmutableSortedSet.of(NAME_SORT, PATH_SORT, QUALIFIER_SORT, METRIC_SORT, METRIC_PERIOD_SORT);
 
   private final ComponentTreeDataLoader dataLoader;
   private final UserSession userSession;
@@ -118,7 +120,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     action.createSortParams(SORTS, NAME_SORT, true)
       .setDescription("Comma-separated list of sort fields")
-      .setExampleValue(NAME_SORT + ", " + PATH_SORT);
+      .setExampleValue(NAME_SORT + "," + PATH_SORT);
 
     action.createParam(Param.TEXT_QUERY)
       .setDescription(format("Limit search to: <ul>" +
@@ -140,6 +142,11 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription(
         format("Metric key to sort by. The '%s' parameter must contain the '%s' value. It must be part of the '%s' parameter", Param.SORT, METRIC_SORT, PARAM_METRIC_KEYS))
       .setExampleValue("ncloc");
+
+    action.createParam(PARAM_METRIC_PERIOD_SORT)
+      .setDescription(format("Measure period to sort by. The '%s' parameter must contain the '%s' value.", Param.SORT, METRIC_PERIOD_SORT))
+      .setSince("5.5")
+      .setPossibleValues(1, 2, 3, 4, 5);
 
     createMetricKeysParameter(action);
     createAdditionalFieldsParameter(action);
@@ -241,6 +248,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setSort(request.paramAsStrings(Param.SORT))
       .setAsc(request.paramAsBoolean(Param.ASCENDING))
       .setMetricSort(request.param(PARAM_METRIC_SORT))
+      .setMetricPeriodSort(request.paramAsInt(PARAM_METRIC_PERIOD_SORT))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));
@@ -250,11 +258,14 @@ public class ComponentTreeAction implements MeasuresWsAction {
       "The '%s' parameter must have at least %d characters", Param.TEXT_QUERY, QUERY_MINIMUM_LENGTH);
     String metricSortValue = componentTreeWsRequest.getMetricSort();
     checkRequest(!componentTreeWsRequest.getMetricKeys().isEmpty(), "The '%s' parameter must contain at least one metric key", PARAM_METRIC_KEYS);
-    checkRequest(metricSortValue == null ^ componentTreeWsRequest.getSort().contains(METRIC_SORT),
-      "To sort by a metric, the '%s' parameter must contain '%s' and a metric key must be provided in the '%s' parameter",
-      Param.SORT, METRIC_SORT, PARAM_METRIC_SORT);
+    checkRequest(metricSortValue == null ^ componentTreeWsRequest.getSort().contains(METRIC_SORT)
+      ^ componentTreeWsRequest.getSort().contains(METRIC_PERIOD_SORT),
+      "To sort by a metric, the '%s' parameter must contain '%s' or '%s', and a metric key must be provided in the '%s' parameter",
+      Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT, PARAM_METRIC_SORT);
     checkRequest(metricSortValue == null ^ componentTreeWsRequest.getMetricKeys().contains(metricSortValue),
       "To sort by the '%s' metric, it must be in the list of metric keys in the '%s' parameter", metricSortValue, PARAM_METRIC_KEYS);
+    checkRequest(componentTreeWsRequest.getMetricPeriodSort() == null ^ componentTreeWsRequest.getSort().contains(METRIC_PERIOD_SORT),
+      "To sort by a metric period, the '%s' parameter must contain '%s' and the '%s' must be provided.", Param.SORT, METRIC_PERIOD_SORT, PARAM_METRIC_PERIOD_SORT);
     return componentTreeWsRequest;
   }
 }
