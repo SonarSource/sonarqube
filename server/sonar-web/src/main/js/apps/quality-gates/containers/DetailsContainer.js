@@ -38,15 +38,15 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    onShow: (qualityGate) => dispatch(showQualityGate(qualityGate)),
-    onDelete: (qualityGate) => dispatch(deleteQualityGate(qualityGate)),
+    onShow: qualityGate => dispatch(showQualityGate(qualityGate)),
+    onDelete: qualityGate => dispatch(deleteQualityGate(qualityGate)),
     onRename: (qualityGate, newName) => dispatch(renameQualityGate(qualityGate, newName)),
-    onCopy: (qualityGate) => dispatch(copyQualityGate(qualityGate)),
-    onSetAsDefault: (qualityGate) => dispatch(setQualityGateAsDefault(qualityGate)),
-    onUnsetAsDefault: (qualityGate) => dispatch(unsetQualityGateAsDefault(qualityGate)),
-    onAddCondition: (metric) => dispatch(addCondition(metric)),
+    onCopy: qualityGate => dispatch(copyQualityGate(qualityGate)),
+    onSetAsDefault: qualityGate => dispatch(setQualityGateAsDefault(qualityGate)),
+    onUnsetAsDefault: qualityGate => dispatch(unsetQualityGateAsDefault(qualityGate)),
+    onAddCondition: metric => dispatch(addCondition(metric)),
     onSaveCondition: (oldCondition, newCondition) => dispatch(saveCondition(oldCondition, newCondition)),
-    onDeleteCondition: (condition) => dispatch(deleteCondition(condition))
+    onDeleteCondition: condition => dispatch(deleteCondition(condition))
   };
 }
 

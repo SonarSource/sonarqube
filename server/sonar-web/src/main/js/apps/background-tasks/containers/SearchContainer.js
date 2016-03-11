@@ -48,11 +48,11 @@ function mapDispatchToProps (dispatch) {
   return {
     onRefresh: () => dispatch(filterTasks()),
     onReset: () => dispatch(filterTasks(DEFAULT_FILTERS)),
-    onStatusChange: (status) => dispatch(filterTasks(updateStatusQuery(status))),
-    onTypeChange: (taskType) => dispatch(filterTasks({ taskType })),
-    onCurrentsChange: (currents) => dispatch(filterTasks({ currents, status: STATUSES.ALL_EXCEPT_PENDING })),
-    onDateChange: (date) => dispatch(filterTasks({ date })),
-    onSearch: (query) => dispatch(search(query))
+    onStatusChange: status => dispatch(filterTasks(updateStatusQuery(status))),
+    onTypeChange: taskType => dispatch(filterTasks({ taskType })),
+    onCurrentsChange: currents => dispatch(filterTasks({ currents, status: STATUSES.ALL_EXCEPT_PENDING })),
+    onDateChange: date => dispatch(filterTasks({ date })),
+    onSearch: query => dispatch(search(query))
   };
 }
 

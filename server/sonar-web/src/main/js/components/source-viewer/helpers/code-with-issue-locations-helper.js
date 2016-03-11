@@ -111,7 +111,7 @@ function highlightIssueLocations (tokens, issueLocations, className) {
  */
 function generateHTML (tokens) {
   return tokens.map(function (token) {
-    return '<span class="' + token.className + '">' + _.escape(token.text) + '</span>';
+    return `<span class="${token.className}">${_.escape(token.text)}</span>`;
   }).join('');
 }
 

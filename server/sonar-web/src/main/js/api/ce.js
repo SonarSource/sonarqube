@@ -51,7 +51,7 @@ export function cancelAllTasks () {
 export function getTasksForComponent (componentId) {
   const url = '/api/ce/component';
   const data = { componentId };
-  return new Promise((resolve) => $.get(url, data).done(resolve));
+  return new Promise(resolve => $.get(url, data).done(resolve));
 }
 
 export function getTypes () {

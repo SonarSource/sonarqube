@@ -87,7 +87,7 @@ const DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
 
   onRender () {
     const periodZeroLabel = this.$('[name=period]').children('[value="0"]').html();
-    this.periodZeroOption = '<option value="0">' + periodZeroLabel + '</option>';
+    this.periodZeroOption = `<option value="0">${periodZeroLabel}</option>`;
 
     const value = this.model.get('value') || {};
     this.$('[name=metric]').val(value.metric).select2({

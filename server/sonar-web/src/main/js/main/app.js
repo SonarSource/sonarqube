@@ -80,7 +80,7 @@ window.sonarqube.appStarted = Promise.resolve()
 
 
 // expose libraries
-window.require = (module) => {
+window.require = module => {
   switch (module) {
     case 'backbone':
       return Backbone;

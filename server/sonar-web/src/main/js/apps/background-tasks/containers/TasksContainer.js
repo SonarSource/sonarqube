@@ -33,8 +33,8 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    onCancelTask: (task) => dispatch(cancelTask(task)),
-    onFilterTask: (task) => dispatch(filterTasks(Object.assign({}, DEFAULT_FILTERS, { query: task.componentKey })))
+    onCancelTask: task => dispatch(cancelTask(task)),
+    onFilterTask: task => dispatch(filterTasks(Object.assign({}, DEFAULT_FILTERS, { query: task.componentKey })))
   };
 }
 

@@ -20,7 +20,7 @@
 import { translate, translateWithParameters } from '../../helpers/l10n';
 
 module.exports = function (diff) {
-  let message = '';
+  let message;
   if (diff.newValue != null) {
     message = translateWithParameters('issue.changelog.changed_to',
         translate('issue.changelog.field', diff.key), diff.newValue);

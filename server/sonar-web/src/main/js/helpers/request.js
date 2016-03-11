@@ -45,9 +45,7 @@ const HEADERS = {
  */
 function queryString (parameters) {
   return Object.keys(parameters)
-      .map(key => {
-        return `${encodeURIComponent(key)}=${encodeURIComponent(parameters[key])}`;
-      })
+      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(parameters[key])}`)
       .join('&');
 }
 

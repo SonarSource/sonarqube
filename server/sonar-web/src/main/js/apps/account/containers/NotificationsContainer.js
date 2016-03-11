@@ -31,8 +31,8 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    onAddProject: (project) => dispatch(addProjectNotifications(project)),
-    onRemoveProject: (project) => dispatch(removeProjectNotifications(project))
+    onAddProject: project => dispatch(addProjectNotifications(project)),
+    onRemoveProject: project => dispatch(removeProjectNotifications(project))
   };
 }
 

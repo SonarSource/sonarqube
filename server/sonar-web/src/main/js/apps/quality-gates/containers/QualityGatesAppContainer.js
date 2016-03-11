@@ -28,9 +28,9 @@ function mapStateToProps (state) {
 
 function mapDispatchToProps (dispatch) {
   return {
-    updateStore: (nextState) => dispatch(setState(nextState)),
-    addQualityGate: (qualityGate) => dispatch(addQualityGate(qualityGate)),
-    deleteQualityGate: (qualityGate) => dispatch(deleteQualityGate(qualityGate))
+    updateStore: nextState => dispatch(setState(nextState)),
+    addQualityGate: qualityGate => dispatch(addQualityGate(qualityGate)),
+    deleteQualityGate: qualityGate => dispatch(deleteQualityGate(qualityGate))
   };
 }
 

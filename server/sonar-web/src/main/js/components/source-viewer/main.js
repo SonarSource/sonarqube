@@ -357,8 +357,8 @@ export default Marionette.LayoutView.extend({
 
   addIssue (issue) {
     const line = issue.get('line') || 0;
-    const code = this.$('.source-line-code[data-line-number=' + line + ']');
-    const issueBox = '<div class="issue" id="issue-' + issue.get('key') + '" data-key="' + issue.get('key') + '">';
+    const code = this.$(`.source-line-code[data-line-number=${line}]`);
+    const issueBox = `<div class="issue" id="issue-${issue.get('key')}" data-key="${issue.get('key')}">`;
     code.addClass('has-issues');
     let issueList = code.find('.issue-list');
     if (issueList.length === 0) {
@@ -372,7 +372,7 @@ export default Marionette.LayoutView.extend({
   },
 
   showIssuesForLine (line) {
-    this.$('.source-line-code[data-line-number="' + line + '"]').find('.issue-list').removeClass('hidden');
+    this.$(`.source-line-code[data-line-number="${line}"]`).find('.issue-list').removeClass('hidden');
     const issues = this.issues.filter(function (issue) {
       return (issue.get('line') === line) || (!issue.get('line') && !line);
     });
@@ -386,7 +386,7 @@ export default Marionette.LayoutView.extend({
       const line = +$(this).data('line-number');
       const row = _.findWhere(that.model.get('source'), { line });
       const issue = _.first(row.issues);
-      $(this).html('<i class="icon-severity-' + issue.severity.toLowerCase() + '"></i>');
+      $(this).html(`<i class="icon-severity-${issue.severity.toLowerCase()}"></i>`);
     });
   },
 
@@ -444,7 +444,7 @@ export default Marionette.LayoutView.extend({
 
       // immediately show dropdown popup if there is only one duplicated block
       if (that.model.get('duplications').length === 1) {
-        const dupsBlock = that.$('.source-line[data-line-number=' + lineNumber + ']')
+        const dupsBlock = that.$(`.source-line[data-line-number=${lineNumber}]`)
             .find('.source-line-duplications-extra');
         dupsBlock.click();
       }

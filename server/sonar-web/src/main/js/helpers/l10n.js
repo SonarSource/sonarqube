@@ -30,9 +30,7 @@ export function translate (...keys) {
 export function translateWithParameters (messageKey, ...parameters) {
   const message = messages[messageKey];
   if (message) {
-    return parameters.reduce((acc, parameter, index) => {
-      return acc.replace(`{${index}}`, parameter);
-    }, message);
+    return parameters.reduce((acc, parameter, index) => acc.replace(`{${index}}`, parameter), message);
   } else {
     return `${messageKey}.${parameters.join('.')}`;
   }

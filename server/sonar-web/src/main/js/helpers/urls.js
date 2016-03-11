@@ -34,9 +34,9 @@ export function getComponentUrl (componentKey) {
  * @returns {string}
  */
 export function getComponentIssuesUrl (componentKey, query) {
-  const serializedQuery = Object.keys(query).map(criterion => {
-    return `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`;
-  }).join('|');
+  const serializedQuery = Object.keys(query).map(criterion => (
+      `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`
+  )).join('|');
   return '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
 }
 
