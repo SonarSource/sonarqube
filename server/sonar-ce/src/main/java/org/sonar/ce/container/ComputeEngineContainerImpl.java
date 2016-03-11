@@ -21,10 +21,15 @@ package org.sonar.ce.container;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
+import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.i18n.DefaultI18n;
+import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Module;
+import org.sonar.core.platform.PluginClassloaderFactory;
+import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.SonarQubeVersionProvider;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
@@ -39,9 +44,14 @@ import org.sonar.server.computation.property.CePropertyDefinitions;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
+import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
+import org.sonar.server.plugins.InstalledPluginReferentialFactory;
+import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.ServerPluginJarExploder;
+import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.EsSearchModule;
@@ -84,6 +94,25 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // Classes kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
     org.sonar.core.properties.PropertiesDao.class
   };
+  private static final Object[] LEVEL_2_COMPONENTS = new Object[] {
+    DefaultServerUpgradeStatus.class,
+    // no DatabaseMigrator.class, responsibility of Web Server
+
+    // plugins
+    PluginClassloaderFactory.class,
+    ServerPluginJarExploder.class,
+    PluginLoader.class,
+    ServerPluginRepository.class,
+    InstalledPluginReferentialFactory.class,
+    ServerExtensionInstaller.class,
+
+    // depends on plugins
+    // RailsAppsDeployer.class,
+    // JRubyI18n.class,
+    DefaultI18n.class, // used by RuleI18nManager
+    RuleI18nManager.class, // used by DebtRulesXMLImporter
+    Durations.class, // used in Web Services and DebtCalculator
+  };
 
   private final ComponentContainer componentContainer;
 
@@ -97,7 +126,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       .add(props.rawProperties())
       .add(LEVEL_1_COMPONENTS)
       .add(toArray(CorePropertyDefinitions.all()))
-      .add(toArray(CePropertyDefinitions.all()));
+      .add(toArray(CePropertyDefinitions.all()))
+      .add(LEVEL_2_COMPONENTS);
 
     configureFromModules();
 

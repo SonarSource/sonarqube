@@ -72,6 +72,7 @@ public class ComputeEngineContainerImplTest {
           + 58 // content of CorePropertyDefinitions
           + 1 // content of CePropertyDefinitions
           + 59 // content of MigrationStepModule
+          + 10 // level 2
       );
   }
 
