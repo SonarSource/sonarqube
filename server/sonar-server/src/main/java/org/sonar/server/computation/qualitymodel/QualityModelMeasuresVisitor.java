@@ -128,11 +128,6 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   public void visitFile(Component file, Path<QualityModelCounter> path) {
     if (!file.getFileAttributes().isUnitTest()) {
       path.current().addDevCosts(computeDevelopmentCost(file));
-      for (Issue issue : componentIssuesRepository.getIssues(file)) {
-        if (issue.resolution() == null) {
-          path.current().addIssue(issue);
-        }
-      }
       computeAndSaveMeasures(file, path);
     }
   }
@@ -182,6 +177,7 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   }
 
   private void computeAndSaveMeasures(Component component, Path<QualityModelCounter> path) {
+    addIssues(component, path);
     addDevelopmentCostMeasure(component, path.current());
 
     double density = computeDensity(component, path.current());
@@ -194,6 +190,14 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     addEffortToSecurityRatingAMeasure(component, path);
 
     addToParent(path);
+  }
+
+  private void addIssues(Component component, Path<QualityModelCounter> path){
+    for (Issue issue : componentIssuesRepository.getIssues(component)) {
+      if (issue.resolution() == null) {
+        path.current().addIssue(issue);
+      }
+    }
   }
 
   private double computeDensity(Component component, QualityModelCounter developmentCost) {

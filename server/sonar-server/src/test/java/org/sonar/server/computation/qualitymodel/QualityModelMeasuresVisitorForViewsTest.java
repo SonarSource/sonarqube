@@ -27,6 +27,7 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.ViewsComponent;
 import org.sonar.server.computation.component.VisitorsCrawler;
+import org.sonar.server.computation.issue.ComponentIssuesRepositoryRule;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -115,6 +116,9 @@ public class QualityModelMeasuresVisitorForViewsTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
+  @Rule
+  public ComponentIssuesRepositoryRule componentIssuesRepositoryRule = new ComponentIssuesRepositoryRule(treeRootHolder);
+
   private RatingSettings ratingSettings = mock(RatingSettings.class);
 
   private VisitorsCrawler underTest;
@@ -122,7 +126,7 @@ public class QualityModelMeasuresVisitorForViewsTest {
   @Before
   public void setUp() {
     when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
-    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings, null)));
+    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings, componentIssuesRepositoryRule)));
   }
 
   @Test

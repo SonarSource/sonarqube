@@ -370,7 +370,7 @@ public class QualityModelMeasuresVisitorForReportTest {
   @Test
   public void compute_reliability_rating() throws Exception {
     treeRootHolder.setRoot(ROOT_PROJECT);
-    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, BLOCKER), newBugIssue(1L, MAJOR),
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MAJOR), newBugIssue(1L, MAJOR),
       // Should not be taken into account
       newVulnerabilityIssue(5L, MINOR)
       );
@@ -378,12 +378,13 @@ public class QualityModelMeasuresVisitorForReportTest {
       // Should not be taken into account
       newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
       );
+    fillComponentIssuesVisitorRule.setIssues(MODULE_REF, newBugIssue(7L, BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyAddedRawMeasure(FILE_1_REF, RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasure(FILE_1_REF, RELIABILITY_RATING_KEY, C);
     verifyAddedRawMeasure(FILE_2_REF, RELIABILITY_RATING_KEY, D);
-    verifyAddedRawMeasure(DIRECTORY_REF, RELIABILITY_RATING_KEY, E);
+    verifyAddedRawMeasure(DIRECTORY_REF, RELIABILITY_RATING_KEY, D);
     verifyAddedRawMeasure(MODULE_REF, RELIABILITY_RATING_KEY, E);
     verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, E);
   }
@@ -391,19 +392,20 @@ public class QualityModelMeasuresVisitorForReportTest {
   @Test
   public void compute_security_rating() throws Exception {
     treeRootHolder.setRoot(ROOT_PROJECT);
-    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newVulnerabilityIssue(10L, BLOCKER), newVulnerabilityIssue(1L, MAJOR),
+    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newVulnerabilityIssue(10L, MAJOR), newVulnerabilityIssue(1L, MAJOR),
       // Should not be taken into account
       newBugIssue(1L, MAJOR));
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newVulnerabilityIssue(2L, CRITICAL), newVulnerabilityIssue(3L, MINOR),
       // Should not be taken into account
       newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
       );
+    fillComponentIssuesVisitorRule.setIssues(MODULE_REF, newVulnerabilityIssue(7L, BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
 
-    verifyAddedRawMeasure(FILE_1_REF, SECURITY_RATING_KEY, E);
+    verifyAddedRawMeasure(FILE_1_REF, SECURITY_RATING_KEY, C);
     verifyAddedRawMeasure(FILE_2_REF, SECURITY_RATING_KEY, D);
-    verifyAddedRawMeasure(DIRECTORY_REF, SECURITY_RATING_KEY, E);
+    verifyAddedRawMeasure(DIRECTORY_REF, SECURITY_RATING_KEY, D);
     verifyAddedRawMeasure(MODULE_REF, SECURITY_RATING_KEY, E);
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, E);
   }

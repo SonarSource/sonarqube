@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.issue;
 
+import java.util.Collections;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.junit.rules.ExternalResource;
@@ -30,6 +31,9 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
+import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
+import static org.sonar.server.computation.component.Component.Type.VIEW;
 
 public class ComponentIssuesRepositoryRule extends ExternalResource implements MutableComponentIssuesRepository, ComponentIssuesRepository {
 
@@ -61,6 +65,12 @@ public class ComponentIssuesRepositoryRule extends ExternalResource implements M
   @Override
   public List<DefaultIssue> getIssues(Component component) {
     checkNotNull(component, "component cannot be null");
+    // Views has no issues
+    if (component.getType().equals(PROJECT_VIEW)
+      || component.getType().equals(SUBVIEW)
+      || component.getType().equals(VIEW)) {
+      return Collections.emptyList();
+    }
     return getIssues(component.getReportAttributes().getRef());
   }
 
