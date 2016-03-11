@@ -21,9 +21,20 @@ package org.sonar.ce.container;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
+import org.sonar.api.config.EmailSettings;
+import org.sonar.api.issue.action.Actions;
+import org.sonar.api.profiles.AnnotationProfileParser;
+import org.sonar.api.profiles.XMLProfileParser;
+import org.sonar.api.profiles.XMLProfileSerializer;
+import org.sonar.api.resources.Languages;
+import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.rules.AnnotationRuleParser;
+import org.sonar.api.rules.XMLRuleParser;
+import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
+import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -32,34 +43,95 @@ import org.sonar.core.platform.Module;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.SonarQubeVersionProvider;
+import org.sonar.core.timemachine.Periods;
+import org.sonar.core.user.DefaultUserFinder;
+import org.sonar.core.user.DeprecatedUserFinder;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
 import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
+import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.db.version.MigrationStepModule;
 import org.sonar.process.Props;
+import org.sonar.server.activity.ActivityService;
+import org.sonar.server.activity.index.ActivityIndex;
+import org.sonar.server.activity.index.ActivityIndexer;
+import org.sonar.server.component.ComponentCleanerService;
+import org.sonar.server.component.ComponentFinder;
+import org.sonar.server.component.ComponentService;
+import org.sonar.server.computation.CeModule;
+import org.sonar.server.computation.container.ReportProcessingModule;
 import org.sonar.server.computation.property.CePropertyDefinitions;
+import org.sonar.server.computation.queue.CeQueueModule;
+import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
+import org.sonar.server.debt.DebtModelPluginRepository;
+import org.sonar.server.debt.DebtRulesXMLImporter;
+import org.sonar.server.devcockpit.bridge.DevCockpitBootstrap;
+import org.sonar.server.devcockpit.bridge.DevCockpitStopper;
+import org.sonar.server.event.NewAlerts;
+import org.sonar.server.governance.bridge.GovernanceBootstrap;
+import org.sonar.server.governance.bridge.GovernanceStopper;
+import org.sonar.server.issue.IssueUpdater;
+import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndex;
+import org.sonar.server.issue.index.IssueIndexer;
+import org.sonar.server.issue.notification.ChangesOnMyIssueNotificationDispatcher;
+import org.sonar.server.issue.notification.DoNotFixNotificationDispatcher;
+import org.sonar.server.issue.notification.IssueChangesEmailTemplate;
+import org.sonar.server.issue.notification.MyNewIssuesEmailTemplate;
+import org.sonar.server.issue.notification.MyNewIssuesNotificationDispatcher;
+import org.sonar.server.issue.notification.NewIssuesEmailTemplate;
+import org.sonar.server.issue.notification.NewIssuesNotificationDispatcher;
+import org.sonar.server.issue.notification.NewIssuesNotificationFactory;
+import org.sonar.server.issue.workflow.FunctionExecutor;
+import org.sonar.server.issue.workflow.IssueWorkflow;
+import org.sonar.server.metric.CoreCustomMetrics;
+import org.sonar.server.metric.DefaultMetricFinder;
+import org.sonar.server.notification.DefaultNotificationManager;
+import org.sonar.server.notification.NotificationCenter;
+import org.sonar.server.notification.NotificationService;
+import org.sonar.server.notification.email.AlertsEmailTemplate;
+import org.sonar.server.notification.email.EmailNotificationChannel;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerImpl;
+import org.sonar.server.platform.ServerLifecycleNotifier;
+import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.qualityprofile.BuiltInProfiles;
+import org.sonar.server.qualityprofile.QProfileComparison;
+import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.QProfileProjectLookup;
+import org.sonar.server.qualityprofile.QProfileProjectOperations;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.CommonRuleDefinitionsImpl;
+import org.sonar.server.rule.DefaultRuleFinder;
+import org.sonar.server.rule.DeprecatedRulesDefinitionLoader;
+import org.sonar.server.rule.RuleDefinitionsLoader;
+import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.startup.ServerMetadataPersister;
+import org.sonar.server.test.index.TestIndexer;
+import org.sonar.server.user.index.UserIndex;
+import org.sonar.server.user.index.UserIndexer;
+import org.sonar.server.view.index.ViewIndex;
+import org.sonar.server.view.index.ViewIndexer;
+import org.sonarqube.ws.Rules;
 
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static final Object[] LEVEL_1_COMPONENTS = new Object[] {
@@ -125,6 +197,367 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     UriReader.class,
     ServerIdGenerator.class
   };
+  private static final Object[] LEVEL_4_COMPONENTS = new Object[] {
+    // PluginDownloader.class, no use in CE
+    // Views.class, UI
+    ResourceTypes.class,
+    DefaultResourceTypes.get(),
+    // SettingsChangeNotifier.class, used only by JRuby
+    // PageDecorations.class, used only by JRuby
+    Periods.class, // used by JRuby and EvaluationResultTextConverterImpl
+    // ServerWs.class, no Web Service in CE
+    // BackendCleanup.class, DB maintenance, responsibility of Web Server
+    // IndexDefinitions.class, ES maintenance, responsibility of Web Server
+    // IndexCreator.class, ES maintenance, responsibility of Web Server
+
+    // Activity
+    ActivityIndexer.class,
+    ActivityIndex.class,
+    ActivityService.class,
+    // ActivityIndexDefinition.class, ES maintenance, responsibility of Web Server
+
+    // batch
+    // BatchWsModule.class, no Web Service in CE
+
+    // Dashboard, UI
+    // [...]
+
+    // update center, no Update Center in CE
+
+    // quality profile
+    ActiveRuleIndexer.class,
+    XMLProfileParser.class,
+    XMLProfileSerializer.class,
+    AnnotationProfileParser.class,
+    Rules.QProfiles.class,
+    QProfileLookup.class,
+    QProfileProjectOperations.class,
+    QProfileProjectLookup.class,
+    QProfileComparison.class,
+    BuiltInProfiles.class,
+    // RestoreBuiltInAction.class, no Web Service in CE
+    // org.sonar.server.qualityprofile.ws.SearchAction.class, no Web Service in CE
+    // SearchDataLoader.class, no Web Service in CE
+    // SetDefaultAction.class, no Web Service in CE
+    // ProjectsAction.class, no Web Service in CE
+    // org.sonar.server.qualityprofile.ws.DeleteAction.class, no Web Service in CE
+    // RenameAction.class, no Web Service in CE
+    // CopyAction.class, no Web Service in CE
+    // BackupAction.class, no Web Service in CE
+    // RestoreAction.class, no Web Service in CE
+    // CreateAction.class, no Web Service in CE
+    // ImportersAction.class, no Web Service in
+    // InheritanceAction.class, no Web Service in CE
+    // ChangeParentAction.class, no Web Service in CE
+    // ChangelogAction.class, no Web Service in CE
+    // CompareAction.class, no Web Service in CE
+    // ExportAction.class, no Web Service in CE
+    // ExportersAction.class, no Web Service in CE
+    // QProfilesWs.class, no Web Service in CE
+    // ProfilesWs.class, no Web Service in CE
+    // OldRestoreAction.class, no Web Service in CE
+    // RuleActivationActions.class, no Web Service in CE
+    // BulkRuleActivationActions.class, no Web Service in CE
+    // ProjectAssociationActions.class, no Web Service in CE
+    // RuleActivator.class, indirectly only used in Web Services
+    // QProfileLoader.class, only used in QProfileService
+    // QProfileExporters.class, only used in Web Service and QProfileService
+    // QProfileService.class, depends on UserSession
+    // RuleActivatorContextFactory.class, indirectly only used in Web Services
+    // QProfileFactory.class, indirectly only used in Web Services
+    // QProfileCopier.class, indirectly only used in Web Services
+    // QProfileBackuper.class, indirectly only used in Web Services
+    // QProfileReset.class, indirectly only used in Web Services
+    // RubyQProfileActivityService.class, only used by JRuby
+
+    // rule
+    // RuleIndexDefinition.class, ES maintenance, responsibility of Web Server
+    RuleIndexer.class,
+    AnnotationRuleParser.class,
+    XMLRuleParser.class,
+    DefaultRuleFinder.class,
+    // RuleOperations.class, supposed to be dropped in 4.4
+    // RubyRuleService.class, used by JRuby
+    RuleRepositories.class,
+    DeprecatedRulesDefinitionLoader.class,
+    CommonRuleDefinitionsImpl.class,
+    RuleDefinitionsLoader.class,
+    RulesDefinitionXmlLoader.class,
+    // RuleUpdater.class, only used in Web Services
+    // RuleCreator.class, only used from Ruby or Web Service
+    // RuleDeleter.class, only used from Ruby or Web Service
+    // RuleService.class, only used from Ruby or Web Service
+    // org.sonar.server.rule.ws.UpdateAction.class, no Web Service in CE
+    // RulesWs.class, no Web Service in CE
+    // org.sonar.server.rule.ws.SearchAction.class, no Web Service in CE
+    // org.sonar.server.rule.ws.ShowAction.class, no Web Service in CE
+    // org.sonar.server.rule.ws.CreateAction.class, no Web Service in CE
+    // org.sonar.server.rule.ws.DeleteAction.class, no Web Service in CE
+    // org.sonar.server.rule.ws.ListAction.class, no Web Service in CE
+    // TagsAction.class, no Web Service in CE
+    // RuleMapper.class, only used in Web Services
+    // ActiveRuleCompleter.class, only used in Web Services
+    // RepositoriesAction.class, no Web Service in CE
+    // org.sonar.server.rule.ws.AppAction.class, no Web Service in CE
+
+    // languages
+    Languages.class, // used by CommonRuleDefinitionsImpl
+    // org.sonar.server.language.ws.ListAction.class, no Web Service in CE
+    // LanguageWs.class, no Web Service in CE
+
+    // activity
+    // ActivityMapping.class, no Web Service in CE
+    // org.sonar.server.activity.ws.SearchAction.class, no Web Service in CE
+    // ActivitiesWs.class, no Web Service in CE
+
+    // measure
+    // MeasureFilterFactory.class, used only in MeasureFilterEngine
+    // MeasureFilterExecutor.class, used only in MeasureFilterEngine
+    // MeasureFilterEngine.class, used only in JRubyFacade
+    // MetricsWsModule.class, no Web Service in CE
+    // MeasuresWsModule.class, no Web Service in CE
+    // CustomMeasuresWsModule.class, no Web Service in CE
+    // ProjectFilter.class, used only in GlobalDefaultDashboard
+    // MyFavouritesFilter.class, used only in GlobalDefaultDashboard
+    CoreCustomMetrics.class,
+    DefaultMetricFinder.class,
+    // TimeMachineWs.class, no Web Service in CE
+
+    // quality gates
+    // QualityGates.class, used only in Web Service and RegisterQualityGates
+    // QgateProjectFinder.class, used only in Web Service
+    // org.sonar.server.qualitygate.ws.ListAction.class, no Web Service in CE
+    // org.sonar.server.qualitygate.ws.SearchAction.class, no Web Service in CE
+    // org.sonar.server.qualitygate.ws.ShowAction.class, no Web Service in CE
+    // org.sonar.server.qualitygate.ws.CreateAction.class, no Web Service in CE
+    // org.sonar.server.qualitygate.ws.RenameAction.class, no Web Service in CE
+    // org.sonar.server.qualitygate.ws.CopyAction.class, no Web Service in CE
+    // DestroyAction.class, no Web Service in CE
+    // SetAsDefaultAction.class, no Web Service in CE
+    // UnsetDefaultAction.class, no Web Service in CE
+    // SelectAction.class, no Web Service in CE
+    // DeselectAction.class, no Web Service in CE
+    // CreateConditionAction.class, no Web Service in CE
+    // DeleteConditionAction.class, no Web Service in CE
+    // UpdateConditionAction.class, no Web Service in CE
+    // org.sonar.server.qualitygate.ws.AppAction.class, no Web Service in CE
+    // ProjectStatusAction.class, no Web Service in CE
+    // QGatesWs.class, no Web Service in CE
+
+    // web services
+    // WebServiceEngine.class, no Web Service in CE
+    // WebServicesWs.class, no Web Service in CE
+
+    // localization
+    // L10nWs.class, no Web Service in CE
+
+    // authentication
+    // AuthenticationModule.class, only used for Web Server security
+
+    // users
+    // SecurityRealmFactory.class, only used for Web Server security
+    DeprecatedUserFinder.class,
+    // NewUserNotifier.class, only used in UI or UserUpdater
+    DefaultUserFinder.class,
+    // DefaultUserService.class, used only by Ruby
+    // UserJsonWriter.class, used only in Web Service
+    // UsersWs.class, no Web Service in CE
+    // org.sonar.server.user.ws.CreateAction.class, no Web Service in CE
+    // org.sonar.server.user.ws.UpdateAction.class, no Web Service in CE
+    // org.sonar.server.user.ws.DeactivateAction.class, no Web Service in CE
+    // org.sonar.server.user.ws.ChangePasswordAction.class, no Web Service in CE
+    // CurrentAction.class, no Web Service in CE
+    // org.sonar.server.user.ws.SearchAction.class, no Web Service in CE
+    // org.sonar.server.user.ws.GroupsAction.class, no Web Service in CE
+    // FavoritesWs.class, no Web Service in CE
+    // UserPropertiesWs.class, no Web Service in CE
+    // UserIndexDefinition.class, ES maintenance, responsibility of Web Server
+    UserIndexer.class,
+    UserIndex.class,
+    // UserUpdater.class,
+    // UserTokenModule.class,
+
+    // groups
+    // GroupMembershipFinder.class, // only used byGroupMembershipService
+    // GroupMembershipService.class, // only used by Ruby
+    // UserGroupsModule.class, no Web Service in CE
+
+    // permissions
+    PermissionRepository.class,
+    // PermissionService.class, // depends on UserSession
+    // PermissionUpdater.class, // depends on UserSession
+    // PermissionFinder.class, used only in Web Service
+    // PermissionsWsModule.class, no Web Service in CE
+
+    // components
+    // ProjectsWsModule.class, no Web Service in CE
+    // ComponentsWsModule.class, no Web Service in CE
+    // DefaultComponentFinder.class, only used in DefaultRubyComponentService
+    // DefaultRubyComponentService.class, only used by Ruby
+    ComponentFinder.class, // used in ComponentService
+    ComponentService.class, // used in ReportSubmitter
+    NewAlerts.class,
+    NewAlerts.newMetadata(),
+    ComponentCleanerService.class,
+
+    // views
+    // ViewIndexDefinition.class, ES maintenance, responsibility of Web Server
+    ViewIndexer.class,
+    ViewIndex.class,
+
+    // issues
+    // IssueIndexDefinition.class,
+    IssueIndexer.class,
+    IssueAuthorizationIndexer.class,
+    // ServerIssueStorage.class, indirectly used only in Web Services
+    IssueUpdater.class, // used in Web Services and CE's DebtCalculator
+    FunctionExecutor.class, // used by IssueWorkflow
+    IssueWorkflow.class, // used in Web Services and CE's DebtCalculator
+    // IssueCommentService.class, indirectly used only in Web Services
+    // InternalRubyIssueService.class, indirectly used only in Web Services
+    // IssueChangelogService.class, indirectly used only in Web Services
+    // ActionService.class, indirectly used only in Web Services
+    Actions.class,
+    // IssueBulkChangeService.class, indirectly used only in Web Services
+    // WsResponseCommonFormat.class, indirectly used only in Web Services
+    // IssueWsModule.class, no Web Service in CE
+    // IssueService.class, indirectly used only in Web Services
+    // IssueQueryService.class, used only in Web Services and Ruby
+    NewIssuesEmailTemplate.class,
+    MyNewIssuesEmailTemplate.class,
+    IssueChangesEmailTemplate.class,
+    AlertsEmailTemplate.class,
+    ChangesOnMyIssueNotificationDispatcher.class,
+    ChangesOnMyIssueNotificationDispatcher.newMetadata(),
+    NewIssuesNotificationDispatcher.class,
+    NewIssuesNotificationDispatcher.newMetadata(),
+    MyNewIssuesNotificationDispatcher.class,
+    MyNewIssuesNotificationDispatcher.newMetadata(),
+    DoNotFixNotificationDispatcher.class,
+    DoNotFixNotificationDispatcher.newMetadata(),
+    NewIssuesNotificationFactory.class, // used by SendIssueNotificationsStep
+    EmailNotificationChannel.class,
+
+    // IssueFilterWsModule.class, no Web Service in CE
+
+    // action plan
+    // ActionPlanWs.class, no Web Service in CE
+    // ActionPlanService.class, no Web Service in CE
+
+    // issues actions
+    // AssignAction.class, no Web Service in CE
+    // SetTypeAction.class, no Web Service in CE
+    // PlanAction.class, no Web Service in CE
+    // SetSeverityAction.class, no Web Service in CE
+    // CommentAction.class, no Web Service in CE
+    // TransitionAction.class, no Web Service in CE
+    // AddTagsAction.class, no Web Service in CE
+    // RemoveTagsAction.class, no Web Service in CE
+
+    // technical debt
+    // DebtModelService.class,
+    // DebtModelBackup.class,
+    DebtModelPluginRepository.class,
+    // DebtModelXMLExporter.class,
+    DebtRulesXMLImporter.class,
+
+    // source
+    // HtmlSourceDecorator.class, indirectly used only in Web Service
+    // SourceService.class, indirectly used only in Web Service
+    // SourcesWs.class, no Web Service in CE
+    // org.sonar.server.source.ws.ShowAction.class, no Web Service in CE
+    // LinesAction.class, no Web Service in CE
+    // HashAction.class, no Web Service in CE
+    // RawAction.class, no Web Service in CE
+    // IndexAction.class, no Web Service in CE
+    // ScmAction.class, no Web Service in CE
+
+    // // Duplications
+    // DuplicationsParser.class,
+    // DuplicationsWs.class, no Web Service in CE
+    // DuplicationsJsonWriter.class,
+    // org.sonar.server.duplication.ws.ShowAction.class, no Web Service in CE
+
+    // text
+    // MacroInterpreter.class, only used in Web Services and Ruby
+    // RubyTextService.class,
+
+    // Notifications
+    EmailSettings.class,
+    NotificationService.class,
+    NotificationCenter.class,
+    DefaultNotificationManager.class,
+
+    // Tests
+    // CoverageService.class,
+    // TestsWs.class,
+    // CoveredFilesAction.class,
+    // org.sonar.server.test.ws.ListAction.class,
+    // TestIndexDefinition.class,
+    // TestIndex.class,
+    TestIndexer.class,
+
+    // Properties
+    // PropertiesWs.class, no Web Service in CE
+
+    // TypeValidationModule.class, indirectly used only in Web Service
+
+    // System
+    ServerLogging.class,
+    // RestartAction.class, no Web Service in CE
+    // InfoAction.class, no Web Service in CE
+    // UpgradesAction.class, no Web Service in CE
+    // StatusAction.class, no Web Service in CE
+    // SystemWs.class, no Web Service in CE
+    // SystemMonitor.class, no Monitor in CE, responsibility of Web Server
+    // SonarQubeMonitor.class, no Monitor in CE, responsibility of Web Server
+    // EsMonitor.class, no Monitor in CE, responsibility of Web Server
+    // PluginsMonitor.class, no Monitor in CE, responsibility of Web Server
+    // JvmPropertiesMonitor.class, no Monitor in CE, responsibility of Web Server
+    // DatabaseMonitor.class, no Monitor in CE, responsibility of Web Server
+    // MigrateDbAction.class, no Web Service in CE
+    // LogsAction.class, no Web Service in CE
+    // ChangeLogLevelAction.class, no Web Service in CE
+    // DbMigrationStatusAction.class, no Web Service in CE
+
+    // Plugins WS
+    // PluginWSCommons.class, no Web Service in CE
+    // PluginUpdateAggregator.class, no Web Service in CE
+    // InstalledAction.class, no Web Service in CE
+    // AvailableAction.class, no Web Service in CE
+    // UpdatesAction.class, no Web Service in CE
+    // PendingAction.class, no Web Service in CE
+    // InstallAction.class, no Web Service in CE
+    // org.sonar.server.plugins.ws.UpdateAction.class, no Web Service in CE
+    // UninstallAction.class, no Web Service in CE
+    // CancelAllAction.class, no Web Service in CE
+    // PluginsWs.class, no Web Service in CE
+
+    // Views plugin
+    // ViewsBootstrap.class, Views not supported in 5.5
+    // ViewsStopper.class, Views not supported in 5.5
+
+    // Developer Cockpit plugin
+    DevCockpitBootstrap.class,
+    DevCockpitStopper.class,
+
+    // Governance plugin
+    GovernanceBootstrap.class,
+    GovernanceStopper.class,
+
+    // Compute engine (must be after Views and Developer Cockpit)
+    CeModule.class,
+    CeQueueModule.class,
+    ReportProcessingModule.class,
+    CeTaskProcessorModule.class,
+    // CeWsModule.class, no Web Service in CE
+
+    // UI
+    // GlobalNavigationAction.class, no Web Service in CE
+    // SettingsNavigationAction.class, no Web Service in CE
+    // ComponentNavigationAction.class, no Web Service in CE
+    // NavigationWs.class, no Web Service in CE
+  };
 
   private final ComponentContainer componentContainer;
 
@@ -140,7 +573,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       .add(toArray(CorePropertyDefinitions.all()))
       .add(toArray(CePropertyDefinitions.all()))
       .add(LEVEL_2_COMPONENTS)
-      .add(LEVEL_3_COMPONENTS);
+      .add(LEVEL_3_COMPONENTS)
+      .add(LEVEL_4_COMPONENTS);
 
     configureFromModules();
 
@@ -161,6 +595,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   @Override
   public ComputeEngineContainer start() {
     this.componentContainer.startComponents();
+    ServerLifecycleNotifier serverLifecycleNotifier = this.componentContainer.getComponentByType(ServerLifecycleNotifier.class);
+    if (serverLifecycleNotifier != null) {
+      serverLifecycleNotifier.notifyStart();
+    }
     return this;
   }
 
