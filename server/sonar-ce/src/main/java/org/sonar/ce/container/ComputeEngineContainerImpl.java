@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
+import org.sonar.api.utils.UriReader;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.core.i18n.RuleI18nManager;
@@ -31,6 +32,7 @@ import org.sonar.core.platform.Module;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.SonarQubeVersionProvider;
+import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
@@ -45,6 +47,8 @@ import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
+import org.sonar.server.platform.PersistentSettings;
+import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
@@ -55,6 +59,7 @@ import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.search.EsSearchModule;
+import org.sonar.server.startup.ServerMetadataPersister;
 
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static final Object[] LEVEL_1_COMPONENTS = new Object[] {
@@ -113,6 +118,13 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     RuleI18nManager.class, // used by DebtRulesXMLImporter
     Durations.class, // used in Web Services and DebtCalculator
   };
+  private static final Object[] LEVEL_3_COMPONENTS = new Object[] {
+    PersistentSettings.class,
+    ServerMetadataPersister.class,
+    DefaultHttpDownloader.class,
+    UriReader.class,
+    ServerIdGenerator.class
+  };
 
   private final ComponentContainer componentContainer;
 
@@ -127,7 +139,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       .add(LEVEL_1_COMPONENTS)
       .add(toArray(CorePropertyDefinitions.all()))
       .add(toArray(CePropertyDefinitions.all()))
-      .add(LEVEL_2_COMPONENTS);
+      .add(LEVEL_2_COMPONENTS)
+      .add(LEVEL_3_COMPONENTS);
 
     configureFromModules();
 

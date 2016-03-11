@@ -22,13 +22,16 @@ package org.sonar.ce.container;
 import java.io.File;
 import java.io.IOException;
 import java.util.Properties;
+import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.System2;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.DbTester;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
@@ -39,6 +42,8 @@ public class ComputeEngineContainerImplTest {
 
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   private ComputeEngineContainerImpl underTest = new ComputeEngineContainerImpl();
 
@@ -66,13 +71,14 @@ public class ComputeEngineContainerImplTest {
 
     assertThat(underTest.getComponentContainer().getPicoContainer().getComponentAdapters())
       .hasSize(COMPONENTS_IN_CONTAINER_AT_CONSTRUCTION
-          + 22 // level 1
-          + 47 // content of DaoModule
-          + 1  // content of EsSearchModule
-          + 58 // content of CorePropertyDefinitions
-          + 1 // content of CePropertyDefinitions
-          + 59 // content of MigrationStepModule
-          + 10 // level 2
+        + 22 // level 1
+        + 47 // content of DaoModule
+        + 1 // content of EsSearchModule
+        + 58 // content of CorePropertyDefinitions
+        + 1 // content of CePropertyDefinitions
+        + 59 // content of MigrationStepModule
+        + 10 // level 2
+        + 5 // level 3
       );
   }
 
@@ -85,7 +91,10 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
     properties.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
     properties.setProperty(ProcessProperties.PATH_TEMP, tmpDir.getAbsolutePath());
-    properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:mem:sonar");
+    String url = ((BasicDataSource) dbTester.database().getDataSource()).getUrl();
+    properties.setProperty(DatabaseProperties.PROP_URL, url);
+    properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
+    properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
 
     underTest
       .configure(new Props(properties))
