@@ -61,6 +61,18 @@ public class LanguageVerifierTest {
 
     verifier.stop();
   }
+  
+  @Test
+  public void language_is_empty() {
+    settings.setProperty("sonar.language", "");
+    LanguageVerifier verifier = new LanguageVerifier(settings, languages, fs);
+    verifier.start();
+
+    // no failure and no language is forced
+    assertThat(fs.languages()).isEmpty();
+
+    verifier.stop();
+  }
 
   @Test
   public void language_is_valid() {

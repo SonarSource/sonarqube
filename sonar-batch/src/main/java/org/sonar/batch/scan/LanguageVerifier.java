@@ -21,7 +21,7 @@ package org.sonar.batch.scan;
 
 import org.sonar.batch.repository.language.Language;
 import org.sonar.batch.repository.language.LanguagesRepository;
-
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -49,8 +49,8 @@ public class LanguageVerifier implements Startable {
 
   @Override
   public void start() {
-    if (settings.hasKey(CoreProperties.PROJECT_LANGUAGE_PROPERTY)) {
-      String languageKey = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
+    String languageKey = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
+    if (StringUtils.isNotBlank(languageKey)) {
       LOG.info("Language is forced to {}", languageKey);
       Language language = languages.get(languageKey);
       if (language == null) {
