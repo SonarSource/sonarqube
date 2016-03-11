@@ -256,7 +256,7 @@ public class DefaultHttpDownloaderTest {
 
   @Test
   public void configure_http_and_https_proxies() {
-    DefaultHttpDownloader.ProxySystem system = mock(DefaultHttpDownloader.ProxySystem.class);
+    DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
     Settings settings = new Settings();
     settings.setProperty("http.proxyHost", "1.2.3.4");
     settings.setProperty("http.proxyPort", "80");
@@ -274,7 +274,7 @@ public class DefaultHttpDownloaderTest {
 
   @Test
   public void configure_http_proxy_credentials() {
-    DefaultHttpDownloader.ProxySystem system = mock(DefaultHttpDownloader.ProxySystem.class);
+    DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
     Settings settings = new Settings();
     settings.setProperty("https.proxyHost", "1.2.3.4");
     settings.setProperty("http.proxyUser", "the_login");
