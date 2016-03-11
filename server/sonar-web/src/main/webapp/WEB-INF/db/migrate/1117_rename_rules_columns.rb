@@ -26,10 +26,11 @@ class RenameRulesColumns < ActiveRecord::Migration
 
   def self.up
     rename_column 'rules', 'effort_to_fix_description', 'gap_description'
+    rename_column 'rules', 'default_remediation_function', 'def_remediation_function'
     rename_column 'rules', 'remediation_coeff', 'remediation_gap_mult'
-    rename_column 'rules', 'default_remediation_coeff', 'default_remediation_gap_mult'
+    rename_column 'rules', 'default_remediation_coeff', 'def_remediation_gap_mult'
     rename_column 'rules', 'remediation_offset', 'remediation_base_effort'
-    rename_column 'rules', 'default_remediation_offset', 'default_remediation_base_effort'
+    rename_column 'rules', 'default_remediation_offset', 'def_remediation_base_effort'
   end
 
 end
