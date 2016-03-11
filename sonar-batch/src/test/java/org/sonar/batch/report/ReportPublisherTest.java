@@ -26,12 +26,14 @@ import java.nio.file.Path;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -52,6 +54,9 @@ public class ReportPublisherTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  
+  @Rule
+  public ExpectedException exception = ExpectedException.none();
 
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
   Settings settings = new Settings(new PropertyDefinitions(CorePropertyDefinitions.all()));
@@ -107,6 +112,16 @@ public class ReportPublisherTest {
       "ceTaskId=TASK-123\n" +
       "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n"
     );
+  }
+  
+  @Test
+  public void fail_if_public_url_malformed() throws IOException {
+    settings.setProperty(CoreProperties.SERVER_BASE_URL, "invalid");
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+
+    exception.expect(MessageException.class);
+    exception.expectMessage("Failed to parse public URL set in SonarQube server: invalid");
+    underTest.logSuccess("TASK-123");
   }
 
   @Test

@@ -38,6 +38,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
@@ -176,7 +177,12 @@ public class ReportPublisher implements Startable {
       metadata.put("projectKey", effectiveKey);
       metadata.put("serverUrl", publicUrl());
 
-      URL dashboardUrl = HttpUrl.parse(publicUrl()).newBuilder()
+      HttpUrl publicUrl = HttpUrl.parse(publicUrl());
+      if (publicUrl == null) {
+        throw MessageException.of("Failed to parse public URL set in SonarQube server: " + publicUrl());
+      }
+
+      URL dashboardUrl = publicUrl.newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
         .build()
         .url();
