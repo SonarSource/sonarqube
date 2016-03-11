@@ -26,6 +26,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.ComputeEngine;
 import org.sonar.ce.ComputeEngineImpl;
+import org.sonar.ce.container.ComputeEngineContainerImpl;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
@@ -76,7 +77,7 @@ public class CeServer implements Monitored {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
     new ServerProcessLogging(PROCESS_NAME, LOG_LEVEL_PROPERTY).configure(props);
-    CeServer server = new CeServer(new WebServerWatcherImpl(entryPoint.getSharedDir()), new ComputeEngineImpl(props));
+    CeServer server = new CeServer(new WebServerWatcherImpl(entryPoint.getSharedDir()), new ComputeEngineImpl(props, new ComputeEngineContainerImpl()));
     entryPoint.launch(server);
   }
 

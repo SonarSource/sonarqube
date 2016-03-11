@@ -23,13 +23,15 @@ import java.util.Properties;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.ce.container.ComputeEngineContainer;
 import org.sonar.process.Props;
 
 public class ComputeEngineImplTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private ComputeEngine underTest = new ComputeEngineImpl(new Props(new Properties()));
+  private ComputeEngineContainer computeEngineContainer = new NoOpComputeEngineContainer();
+  private ComputeEngine underTest = new ComputeEngineImpl(new Props(new Properties()), computeEngineContainer);
 
   @Test
   public void startup_throws_ISE_when_called_twice() {
@@ -58,5 +60,22 @@ public class ComputeEngineImplTest {
     expectedException.expectMessage("shutdown() can not be called multiple times");
 
     underTest.shutdown();
+  }
+
+  private static class NoOpComputeEngineContainer implements ComputeEngineContainer {
+    @Override
+    public ComputeEngineContainer configure(Props props) {
+      return this;
+    }
+
+    @Override
+    public ComputeEngineContainer start() {
+      return this;
+    }
+
+    @Override
+    public ComputeEngineContainer stop() {
+      return this;
+    }
   }
 }

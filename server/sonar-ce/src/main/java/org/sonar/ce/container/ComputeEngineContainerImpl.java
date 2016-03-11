@@ -19,12 +19,39 @@
  */
 package org.sonar.ce.container;
 
+import com.google.common.annotations.VisibleForTesting;
+import org.sonar.core.platform.ComponentContainer;
 import org.sonar.process.Props;
 
-public interface ComputeEngineContainer {
-  ComputeEngineContainer configure(Props props);
+public class ComputeEngineContainerImpl implements ComputeEngineContainer {
+  private final ComponentContainer componentContainer;
 
-  ComputeEngineContainer start();
+  public ComputeEngineContainerImpl() {
+    this.componentContainer = new ComponentContainer();
+  }
 
-  ComputeEngineContainer stop();
+  @Override
+  public ComputeEngineContainer configure(Props props) {
+    this.componentContainer.add(
+      props.rawProperties()
+      );
+    return this;
+  }
+
+  @Override
+  public ComputeEngineContainer start() {
+    this.componentContainer.startComponents();
+    return this;
+  }
+
+  @Override
+  public ComputeEngineContainer stop() {
+    this.componentContainer.stopComponents();
+    return this;
+  }
+
+  @VisibleForTesting
+  protected ComponentContainer getComponentContainer() {
+    return componentContainer;
+  }
 }

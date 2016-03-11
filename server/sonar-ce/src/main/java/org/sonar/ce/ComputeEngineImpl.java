@@ -26,12 +26,13 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class ComputeEngineImpl implements ComputeEngine {
   private final Props props;
-  private final ComputeEngineContainer computeEngineContainer = new ComputeEngineContainer();
+  private final ComputeEngineContainer computeEngineContainer;
 
   private Status status = Status.INIT;
 
-  public ComputeEngineImpl(Props props) {
+  public ComputeEngineImpl(Props props, ComputeEngineContainer computeEngineContainer) {
     this.props = props;
+    this.computeEngineContainer = computeEngineContainer;
   }
 
   @Override

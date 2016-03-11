@@ -28,8 +28,10 @@ import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ComputeEngineContainerTest {
-  private ComputeEngineContainer underTest = new ComputeEngineContainer();
+public class ComputeEngineContainerImplTest {
+  private static final int COMPONENTS_IN_CONTAINER_AT_CONSTRUCTION = 2;
+
+  private ComputeEngineContainerImpl underTest = new ComputeEngineContainerImpl();
 
   @Test
   public void constructor_adds_only_container_and_PropertyDefinitions() {
@@ -46,6 +48,15 @@ public class ComputeEngineContainerTest {
     underTest.configure(new Props(properties));
 
     assertThat(underTest.getComponentContainer().getComponentByType(Properties.class)).isSameAs(properties);
+  }
+
+  @Test
+  public void verify_number_of_components_in_container() {
+    Properties properties = new Properties();
+    underTest.configure(new Props(properties));
+
+    assertThat(underTest.getComponentContainer().getPicoContainer().getComponentAdapters())
+        .hasSize(COMPONENTS_IN_CONTAINER_AT_CONSTRUCTION + 1);
   }
 
   @Test
