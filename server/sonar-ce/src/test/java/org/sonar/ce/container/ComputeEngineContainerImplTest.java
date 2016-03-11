@@ -19,17 +19,26 @@
  */
 package org.sonar.ce.container;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Properties;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.database.DatabaseProperties;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComputeEngineContainerImplTest {
   private static final int COMPONENTS_IN_CONTAINER_AT_CONSTRUCTION = 2;
+
+  @Rule
+  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   private ComputeEngineContainerImpl underTest = new ComputeEngineContainerImpl();
 
@@ -56,7 +65,31 @@ public class ComputeEngineContainerImplTest {
     underTest.configure(new Props(properties));
 
     assertThat(underTest.getComponentContainer().getPicoContainer().getComponentAdapters())
-        .hasSize(COMPONENTS_IN_CONTAINER_AT_CONSTRUCTION + 1);
+      .hasSize(COMPONENTS_IN_CONTAINER_AT_CONSTRUCTION
+          + 22 // level 1
+          + 47 // content of DaoModule
+          + 1  // content of EsSearchModule
+          + 58 // content of CorePropertyDefinitions
+          + 1 // content of CePropertyDefinitions
+          + 59 // content of MigrationStepModule
+      );
+  }
+
+  @Test
+  public void real_start() throws IOException {
+    Properties properties = new Properties();
+    File homeDir = tempFolder.newFolder();
+    File dataDir = new File(homeDir, "data");
+    File tmpDir = new File(homeDir, "tmp");
+    properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
+    properties.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
+    properties.setProperty(ProcessProperties.PATH_TEMP, tmpDir.getAbsolutePath());
+    properties.setProperty(DatabaseProperties.PROP_URL, "jdbc:h2:mem:sonar");
+
+    underTest
+      .configure(new Props(properties))
+      .start();
+
   }
 
   @Test
