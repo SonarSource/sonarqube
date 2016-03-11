@@ -20,6 +20,7 @@
 import React from 'react';
 
 import Spinner from './Spinner';
+import { getLeakValue } from '../utils';
 import { Treemap } from '../../../components/charts/treemap';
 import { getChildren } from '../../../api/components';
 import { formatMeasure } from '../../../helpers/measures';
@@ -56,6 +57,7 @@ export default class MeasureTreemap extends React.Component {
 
   fetchComponents (componentKey) {
     const { metric } = this.props;
+    const shouldUseLeak = metric.key.indexOf('new_') === 0;
     const metrics = ['ncloc', metric.key];
     const options = {
       s: 'metric',
@@ -69,7 +71,7 @@ export default class MeasureTreemap extends React.Component {
         const key = component.refKey || component.key;
 
         component.measures.forEach(measure => {
-          measures[measure.metric] = measure.value;
+          measures[measure.metric] = shouldUseLeak ? getLeakValue(measure) : measure.value;
         });
         return { ...component, measures, key };
       });
