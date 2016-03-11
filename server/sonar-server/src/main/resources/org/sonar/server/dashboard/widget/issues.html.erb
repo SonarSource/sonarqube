@@ -15,6 +15,10 @@
 
    technical_debt = @snapshot.measure('sqale_index')
    new_technical_debt = @snapshot.measure('new_technical_debt')
+   reliability_remediation_effort = @snapshot.measure('reliability_remediation_effort')
+   new_reliability_remediation_effort = @snapshot.measure('new_reliability_remediation_effort')
+   security_remediation_effort = @snapshot.measure('security_remediation_effort')
+   new_security_remediation_effort = @snapshot.measure('new_security_remediation_effort')
 
    if @dashboard_configuration.selected_period?
      period_date = @snapshot.period_datetime(@dashboard_configuration.period_index).strftime('%FT%T%z')
@@ -24,44 +28,6 @@
 %>
 
 <div class="widget-row">
-
-  <% if technical_debt %>
-    <div class="widget-span widget-span-3">
-      <div class="widget-measure-container">
-        <div class="widget-measure widget-measure-main">
-          <span class="widget-label"><%= message('metric.sqale_index.short_name') -%></span>
-          <a href="<%= url_for_drilldown('sqale_index') -%>" class="widget-link link-<%= widget.key %>-debt"
-             title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">
-            <%= format_measure(technical_debt) -%>
-          </a>
-          <%= format_variation(technical_debt) if dashboard_configuration.selected_period? -%>
-        </div>
-        <div class="widget-measure-delta">
-          <%
-             if @dashboard_configuration.selected_period?
-               technical_debt_variation = variation_value(technical_debt)
-               new_technical_debt_variation = variation_value(new_technical_debt)
-               estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
-          %>
-            <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
-              <p class="small">
-                <%= message('widget.rules.added') %>
-                <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>"
-                   class="varw widget-link widget-link-red link-<%= widget.key %>-new-debt"
-                   title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
-              </p>
-            <% end %>
-            <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
-              <p class="small">
-                <%= message('widget.rules.removed') %>
-                <span class="varb">-<%= Internal.i18n.formatLongDuration(estimated_cleared_technical_debt, 'SHORT') -%></span>
-              </p>
-            <% end %>
-          <% end %>
-        </div>
-      </div>
-    </div>
-  <% end %>
 
   <div class="widget-span widget-span-3">
     <div class="widget-measure-container">
@@ -101,6 +67,110 @@
         <% end %>
       </div>
     </div>
+  </div>
+
+  <div class="widget-span widget-span-3">
+    <% if technical_debt %>
+      <div class="widget-measure">
+        <span class="widget-label"><%= message('metric.sqale_index.name') -%></span>
+        <a href="<%= url_for_drilldown('sqale_index') -%>" class="widget-link link-<%= widget.key %>-debt"
+           title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">
+          <%= format_measure(technical_debt) -%>
+        </a>
+        <%= format_variation(technical_debt) if dashboard_configuration.selected_period? -%>
+      </div>
+      <div class="widget-measure-delta">
+        <%
+           if @dashboard_configuration.selected_period?
+             technical_debt_variation = variation_value(technical_debt)
+             new_technical_debt_variation = variation_value(new_technical_debt)
+             estimated_cleared_technical_debt = (new_technical_debt_variation - technical_debt_variation).to_i if technical_debt_variation && new_technical_debt_variation
+        %>
+          <% if new_technical_debt_variation && new_technical_debt_variation > 0 %>
+            <p class="small">
+              <%= message('widget.rules.added') %>
+              <a href="<%= url_for_drilldown('new_technical_debt', :period => @dashboard_configuration.period_index) -%>"
+                 class="varw widget-link widget-link-red link-<%= widget.key %>-new-debt"
+                 title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_technical_debt, :style => 'none', :default => '-') -%></a>
+            </p>
+          <% end %>
+          <% if estimated_cleared_technical_debt && estimated_cleared_technical_debt > 0 %>
+            <p class="small">
+              <%= message('widget.rules.removed') %>
+              <span class="varb">-<%= Internal.i18n.formatLongDuration(estimated_cleared_technical_debt, 'SHORT') -%></span>
+            </p>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if reliability_remediation_effort %>
+      <div class="widget-measure">
+        <span class="widget-label"><%= message('metric.reliability_remediation_effort.name') -%></span>
+        <a href="<%= url_for_drilldown('reliability_remediation_effort') -%>" class="widget-link"
+           title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">
+          <%= format_measure(reliability_remediation_effort) -%>
+        </a>
+        <%= format_variation(reliability_remediation_effort) if dashboard_configuration.selected_period? -%>
+      </div>
+      <div class="widget-measure-delta">
+        <%
+           if @dashboard_configuration.selected_period?
+             reliability_remediation_effort_variation = variation_value(reliability_remediation_effort)
+             new_reliability_remediation_effort_variation = variation_value(new_reliability_remediation_effort)
+             estimated_cleared_reliability_remediation_effort = (new_reliability_remediation_effort_variation - reliability_remediation_effort_variation).to_i if reliability_remediation_effort_variation && new_reliability_remediation_effort_variation
+        %>
+          <% if new_reliability_remediation_effort_variation && new_reliability_remediation_effort_variation > 0 %>
+            <p class="small">
+              <%= message('widget.rules.added') %>
+              <a href="<%= url_for_drilldown('new_reliability_remediation_effort', :period => @dashboard_configuration.period_index) -%>"
+                 class="varw widget-link widget-link-red"
+                 title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_reliability_remediation_effort, :style => 'none', :default => '-') -%></a>
+            </p>
+          <% end %>
+          <% if estimated_cleared_reliability_remediation_effort && estimated_cleared_reliability_remediation_effort > 0 %>
+            <p class="small">
+              <%= message('widget.rules.removed') %>
+              <span class="varb">-<%= Internal.i18n.formatLongDuration(estimated_cleared_reliability_remediation_effort, 'SHORT') -%></span>
+            </p>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
+
+    <% if security_remediation_effort %>
+      <div class="widget-measure">
+        <span class="widget-label"><%= message('metric.security_remediation_effort.name') -%></span>
+        <a href="<%= url_for_drilldown('security_remediation_effort') -%>" class="widget-link"
+           title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">
+          <%= format_measure(security_remediation_effort) -%>
+        </a>
+        <%= format_variation(security_remediation_effort) if dashboard_configuration.selected_period? -%>
+      </div>
+      <div class="widget-measure-delta">
+        <%
+           if @dashboard_configuration.selected_period?
+             security_remediation_effort_variation = variation_value(security_remediation_effort)
+             new_security_remediation_effort_variation = variation_value(new_security_remediation_effort)
+             estimated_cleared_security_remediation_effort = (new_security_remediation_effort_variation - security_remediation_effort_variation).to_i if security_remediation_effort_variation && new_security_remediation_effort_variation
+        %>
+          <% if new_security_remediation_effort_variation && new_security_remediation_effort_variation > 0 %>
+            <p class="small">
+              <%= message('widget.rules.added') %>
+              <a href="<%= url_for_drilldown('new_security_remediation_effort', :period => @dashboard_configuration.period_index) -%>"
+                 class="varw widget-link widget-link-red"
+                 title="<%= tooltip -%>" data-toggle="tooltip" data-placement="bottom">+<%= format_variation(new_security_remediation_effort, :style => 'none', :default => '-') -%></a>
+            </p>
+          <% end %>
+          <% if estimated_cleared_security_remediation_effort && estimated_cleared_security_remediation_effort > 0 %>
+            <p class="small">
+              <%= message('widget.rules.removed') %>
+              <span class="varb">-<%= Internal.i18n.formatLongDuration(estimated_cleared_security_remediation_effort, 'SHORT') -%></span>
+            </p>
+          <% end %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
 
   <div class="widget-span widget-span-4">
