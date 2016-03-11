@@ -140,7 +140,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     action.createParam(PARAM_METRIC_SORT)
       .setDescription(
-        format("Metric key to sort by. The '%s' parameter must contain the '%s' value. It must be part of the '%s' parameter", Param.SORT, METRIC_SORT, PARAM_METRIC_KEYS))
+        format("Metric key to sort by. The '%s' parameter must contain the '%s' or '%s' value. It must be part of the '%s' parameter", Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT,
+          PARAM_METRIC_KEYS))
       .setExampleValue("ncloc");
 
     action.createParam(PARAM_METRIC_PERIOD_SORT)
