@@ -17,15 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import Handlebars from 'handlebars/runtime';
-
 import { translate } from '../../helpers/l10n';
 
 module.exports = function (issueType) {
-  const isCodeSmell = issueType === 'CODE_SMELL';
-  const className = 'badge ' + (isCodeSmell ? 'badge-warning' : 'badge-danger');
-
-  return new Handlebars.default.SafeString(
-      `<span class="${className}">${translate('issue.type', issueType)}</span>`
-  );
+  return translate('issue.type', issueType);
 };

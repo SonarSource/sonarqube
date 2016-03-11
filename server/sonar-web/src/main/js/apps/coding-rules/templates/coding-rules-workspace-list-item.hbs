@@ -27,15 +27,16 @@
           &nbsp;&nbsp;&nbsp;
         {{/notEq}}
         <span class="note">{{langName}}</span>
+        &nbsp;&nbsp;&nbsp;
+        <span class="note" data-toggle="tooltip" data-placement="bottom"
+              title="{{t 'coding_rules.type.tooltip' this.type}}">
+          {{issueType this.type}}
+        </span>
         {{#notEmpty tags}}
           &nbsp;&nbsp;&nbsp;
           <i class="icon-tags"></i>
           <span class="note">{{join tags ', '}}</span>
         {{/notEmpty}}
-        &nbsp;&nbsp;&nbsp;
-        <span data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.type.tooltip' this.type}}">
-          {{issueType this.type}}
-        </span>
         <a class="js-rule-filter link-no-underline spacer-left" href="#">
           <i class="icon-filter icon-half-transparent"></i>&nbsp;<i class="icon-dropdown"></i>
         </a>
