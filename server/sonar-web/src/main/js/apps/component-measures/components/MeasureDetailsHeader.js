@@ -39,6 +39,8 @@ export default function MeasureDetailsHeader (
 ) {
   const leakPeriodTooltip = translateWithParameters('overview.leak_period_x', leakPeriodLabel);
 
+  const displayLeak = measure.leak != null && metric.type !== 'RATING' && metric.type !== 'LEVEL';
+
   return (
       <header className="measure-details-header">
         <h2 className="measure-details-metric">
@@ -63,7 +65,7 @@ export default function MeasureDetailsHeader (
                 </div>
             )}
 
-            {measure.leak != null && (
+            {displayLeak && (
                 <div
                     className="measure-details-value-leak"
                     title={leakPeriodTooltip}
