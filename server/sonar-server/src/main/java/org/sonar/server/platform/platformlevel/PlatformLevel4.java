@@ -35,9 +35,6 @@ import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.DeprecatedUserFinder;
 import org.sonar.db.permission.PermissionRepository;
-import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
-import org.sonar.db.qualitygate.QualityGateConditionDao;
-import org.sonar.db.qualitygate.QualityGateDao;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.RubyQProfileActivityService;
 import org.sonar.server.activity.index.ActivityIndex;
@@ -486,12 +483,8 @@ public class PlatformLevel4 extends PlatformLevel {
       TimeMachineWs.class,
 
       // quality gates
-      QualityGateDao.class,
-      QualityGateConditionDao.class,
       QualityGates.class,
-      ProjectQgateAssociationDao.class,
       QgateProjectFinder.class,
-
       org.sonar.server.qualitygate.ws.ListAction.class,
       org.sonar.server.qualitygate.ws.SearchAction.class,
       org.sonar.server.qualitygate.ws.ShowAction.class,
