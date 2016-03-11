@@ -60,11 +60,11 @@ public class RuleDto {
   private Date noteCreatedAt;
   private Date noteUpdatedAt;
   private String remediationFunction;
-  private String defaultRemediationFunction;
+  private String defRemediationFunction;
   private String remediationGapMultiplier;
-  private String defaultRemediationGapMultiplier;
+  private String defRemediationGapMultiplier;
   private String remediationBaseEffort;
-  private String defaultRemediationBaseEffort;
+  private String defRemediationBaseEffort;
   private String gapDescription;
   private String tags;
   private String systemTags;
@@ -253,11 +253,11 @@ public class RuleDto {
 
   @CheckForNull
   public String getDefaultRemediationFunction() {
-    return defaultRemediationFunction;
+    return defRemediationFunction;
   }
 
   public RuleDto setDefaultRemediationFunction(@Nullable String defaultRemediationFunction) {
-    this.defaultRemediationFunction = defaultRemediationFunction;
+    this.defRemediationFunction = defaultRemediationFunction;
     return this;
   }
 
@@ -273,11 +273,11 @@ public class RuleDto {
 
   @CheckForNull
   public String getDefaultRemediationGapMultiplier() {
-    return defaultRemediationGapMultiplier;
+    return defRemediationGapMultiplier;
   }
 
   public RuleDto setDefaultRemediationGapMultiplier(@Nullable String defaultRemediationGapMultiplier) {
-    this.defaultRemediationGapMultiplier = defaultRemediationGapMultiplier;
+    this.defRemediationGapMultiplier = defaultRemediationGapMultiplier;
     return this;
   }
 
@@ -293,11 +293,11 @@ public class RuleDto {
 
   @CheckForNull
   public String getDefaultRemediationBaseEffort() {
-    return defaultRemediationBaseEffort;
+    return defRemediationBaseEffort;
   }
 
   public RuleDto setDefaultRemediationBaseEffort(@Nullable String defaultRemediationBaseEffort) {
-    this.defaultRemediationBaseEffort = defaultRemediationBaseEffort;
+    this.defRemediationBaseEffort = defaultRemediationBaseEffort;
     return this;
   }
 
