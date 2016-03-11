@@ -60,7 +60,13 @@ public class ShowAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("show")
-      .setDescription("Get detailed information about a rule")
+      .setDescription("Get detailed information about a rule" +
+        "Since 5.5, following fields in the response have been deprecated :" +
+        "<ul><li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
+        "<li>\"debtRemFnCoeff\" becomes \"remFnGapMultiplier\"</li>" +
+        "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultRemFnGapMultiplier\"</li>" +
+        "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
+        "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li></ul>")
       .setSince("4.2")
       .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
       .setHandler(this);

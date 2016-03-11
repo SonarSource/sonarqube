@@ -1,11 +1,11 @@
 {"total": 1, "p": 1, "ps": 100, "rules": [
   {
     "key": "xoo:x1",
-    "debtRemFnType": "LINEAR",
-    "debtRemFnCoeff": "1h",
+    "remFnType": "LINEAR",
+    "remFnGapMultiplier": "1h",
     "debtOverloaded": true,
-    "defaultDebtRemFnType": "LINEAR_OFFSET",
-    "defaultDebtRemFnCoeff": "1h",
-    "defaultDebtRemFnOffset": "15min"
+    "defaultRemFnType": "LINEAR_OFFSET",
+    "defaultRemFnGapMultiplier": "1h",
+    "defaultRemFnBaseEffort": "15min"
   }
 ]}

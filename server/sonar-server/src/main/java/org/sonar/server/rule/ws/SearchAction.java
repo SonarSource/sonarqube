@@ -167,10 +167,10 @@ public class SearchAction implements RulesWsAction {
     action.setDescription("Search for a collection of relevant rules matching a specified query.<br/>" +
       "Since 5.5, following fields in the response have been deprecated :" +
       "<ul><li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
-      "<li>\"debtRemFnCoeff\" becomes \"debtRemFnGapMultiplier\"</li>" +
-      "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultDebtRemFnGapMultiplier\"</li>" +
-      "<li>\"debtRemFnOffset\" becomes \"debtRemFnBaseEffort\"</li>" +
-      "<li>\"defaultDebtRemFnOffset\" becomes \"defaultDebtRemFnBaseEffort\"</li></ul>")
+      "<li>\"debtRemFnCoeff\" becomes \"remFnGapMultiplier\"</li>" +
+      "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultRemFnGapMultiplier\"</li>" +
+      "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
+      "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li></ul>")
       .setResponseExample(Resources.getResource(getClass(), "example-search.json"))
       .setSince("4.4")
       .setHandler(this);
