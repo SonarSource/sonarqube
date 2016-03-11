@@ -133,7 +133,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setExampleValue(UUID_EXAMPLE_02);
 
     action.createParam(PARAM_BASE_COMPONENT_KEY)
-      .setDescription("Base component key.The search is based on this component.")
+      .setDescription("Base component key. The search is based on this component.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
 
     action.createParam(PARAM_METRIC_SORT)
