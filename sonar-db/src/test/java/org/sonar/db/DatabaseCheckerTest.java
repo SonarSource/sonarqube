@@ -20,8 +20,9 @@
 package org.sonar.db;
 
 import java.sql.SQLException;
-import org.apache.commons.lang.StringUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.api.utils.MessageException;
 import org.sonar.db.dialect.Dialect;
@@ -30,66 +31,70 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.hamcrest.Matchers.is;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class DatabaseCheckerTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   @Test
   public void requires_oracle_driver_11_2() throws Exception {
-    Database db = mockDb(new Oracle(), "11.2.1", "11.2.0.0.1");
+    Database db = mockDb(new Oracle(), 11, 2, "11.2.0.0.1");
     new DatabaseChecker(db).start();
     // no error
 
-    db = mockDb(new Oracle(), "11.2.1", "11.3.1");
+    db = mockDb(new Oracle(), 11, 2, "11.3.1");
     new DatabaseChecker(db).start();
     // no error
 
-    db = mockDb(new Oracle(), "11.2.1", "12.0.2");
+    db = mockDb(new Oracle(), 11, 2, "12.0.2");
     new DatabaseChecker(db).start();
     // no error
 
-    db = mockDb(new Oracle(), "11.2.1", "11.1.0.2");
+    db = mockDb(new Oracle(), 11, 2, "11.1.0.2");
     try {
       new DatabaseChecker(db).start();
       fail();
     } catch (MessageException e) {
-      assertThat(e).hasMessage("Unsupported Oracle JDBC driver version: 11.1.0.2. Minimal required version is 11.2.");
+      assertThat(e).hasMessage("Unsupported Oracle driver version: 11.1.0.2. Minimal supported version is 11.2.");
     }
   }
 
   @Test
   public void requires_oracle_11g_or_greater() throws Exception {
     // oracle 11.0 is ok
-    Database db = mockDb(new Oracle(), "11.0.1", "11.2.0.0.1");
+    Database db = mockDb(new Oracle(), 11, 0, "11.2.0.0.1");
     new DatabaseChecker(db).start();
 
     // oracle 11.1 is ok
-    db = mockDb(new Oracle(), "11.1.1", "11.2.0.0.1");
+    db = mockDb(new Oracle(), 11, 1, "11.2.0.0.1");
     new DatabaseChecker(db).start();
 
     // oracle 11.2 is ok
-    db = mockDb(new Oracle(), "11.2.1", "11.2.0.0.1");
+    db = mockDb(new Oracle(), 11, 2, "11.2.0.0.1");
     new DatabaseChecker(db).start();
 
     // oracle 12 is ok
-    db = mockDb(new Oracle(), "12.0.1", "11.2.0.0.1");
+    db = mockDb(new Oracle(), 12, 0, "11.2.0.0.1");
     new DatabaseChecker(db).start();
 
     // oracle 10 is not supported
-    db = mockDb(new Oracle(), "10.2.1", "11.2.0.0.1");
+    db = mockDb(new Oracle(), 10, 2, "11.2.0.0.1");
     try {
       new DatabaseChecker(db).start();
       fail();
     } catch (MessageException e) {
-      assertThat(e).hasMessage("Unsupported Oracle version: 10.2.1. Minimal required version is 11.");
+      assertThat(e).hasMessage("Unsupported oracle version: 10.2. Minimal supported version is 11.0.");
     }
   }
 
   @Test
   public void log_warning_if_h2() throws Exception {
-    Database db = mockDb(new H2(), "13.4", "13.4");
+    Database db = mockDb(new H2(), 13, 4, "13.4");
     DatabaseChecker checker = new DatabaseChecker(db);
     checker.start();
     checker.stop();
@@ -97,17 +102,39 @@ public class DatabaseCheckerTest {
   }
 
   @Test
-  public void do_not_fail_if_mysql() throws Exception {
-    Database db = mockDb(new MySql(), "5.7", "5.7");
+  public void test_mysql() throws Exception {
+    Database db = mockDb(new MySql(), 5, 7, "5.7");
     new DatabaseChecker(db).start();
     // no error
   }
 
-  private Database mockDb(Dialect dialect, String dbVersion, String driverVersion) throws SQLException {
+  @Test
+  public void fail_if_mysql_less_than_5_6() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Unsupported mysql version: 5.5. Minimal supported version is 5.6.");
+
+    Database db = mockDb(new MySql(), 5, 5, "5.6");
+    new DatabaseChecker(db).start();
+  }
+
+  @Test
+  public void fail_if_cant_get_db_version() throws Exception {
+    SQLException sqlException = new SQLException();
+    expectedException.expect(RuntimeException.class);
+    expectedException.expectCause(is(sqlException));
+
+    Database db = mock(Database.class, Mockito.RETURNS_DEEP_STUBS);
+    when(db.getDialect()).thenReturn(new MySql());
+    when(db.getDataSource().getConnection().getMetaData()).thenThrow(sqlException);
+
+    new DatabaseChecker(db).start();
+  }
+
+  private Database mockDb(Dialect dialect, int dbMajorVersion, int dbMinorVersion, String driverVersion) throws SQLException {
     Database db = mock(Database.class, Mockito.RETURNS_DEEP_STUBS);
     when(db.getDialect()).thenReturn(dialect);
-    when(db.getDataSource().getConnection().getMetaData().getDatabaseMajorVersion()).thenReturn(Integer.parseInt(StringUtils.substringBefore(dbVersion, ".")));
-    when(db.getDataSource().getConnection().getMetaData().getDatabaseProductVersion()).thenReturn(dbVersion);
+    when(db.getDataSource().getConnection().getMetaData().getDatabaseMajorVersion()).thenReturn(dbMajorVersion);
+    when(db.getDataSource().getConnection().getMetaData().getDatabaseMinorVersion()).thenReturn(dbMinorVersion);
     when(db.getDataSource().getConnection().getMetaData().getDriverVersion()).thenReturn(driverVersion);
     return db;
   }
