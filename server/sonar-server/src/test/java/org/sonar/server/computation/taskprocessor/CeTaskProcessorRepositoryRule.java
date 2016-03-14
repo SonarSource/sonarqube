@@ -24,8 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import org.junit.rules.ExternalResource;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.computation.queue.CeTaskResult;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Objects.requireNonNull;

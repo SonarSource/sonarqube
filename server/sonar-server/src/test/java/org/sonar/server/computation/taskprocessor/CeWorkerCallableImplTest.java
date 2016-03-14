@@ -24,12 +24,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.log.CeLogging;
-import org.sonar.server.computation.queue.CeQueue;
-import org.sonar.server.computation.queue.CeQueueImpl;
-import org.sonar.server.computation.queue.CeTask;
+import org.sonar.server.computation.queue.InternalCeQueue;
 import org.sonar.server.computation.taskprocessor.report.ReportTaskProcessor;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +42,7 @@ public class CeWorkerCallableImplTest {
   @Rule
   public CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
 
-  CeQueue queue = mock(CeQueueImpl.class);
+  InternalCeQueue queue = mock(InternalCeQueue.class);
   ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
   CeLogging ceLogging = mock(CeLogging.class);
   CeWorkerCallable underTest = new CeWorkerCallableImpl(queue, ceLogging, taskProcessorRepository);

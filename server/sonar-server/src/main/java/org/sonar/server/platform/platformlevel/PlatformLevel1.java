@@ -35,7 +35,7 @@ import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
-import org.sonar.server.computation.property.CePropertyDefinitions;
+import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.DatabaseServerCompatibility;

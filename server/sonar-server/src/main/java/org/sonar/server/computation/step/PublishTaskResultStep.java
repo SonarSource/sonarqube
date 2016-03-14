@@ -22,7 +22,7 @@ package org.sonar.server.computation.step;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
-import org.sonar.server.computation.queue.CeTaskResult;
+import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolder;
 
 public class PublishTaskResultStep implements ComputationStep {

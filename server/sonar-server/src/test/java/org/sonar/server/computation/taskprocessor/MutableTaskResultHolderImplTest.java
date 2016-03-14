@@ -22,7 +22,7 @@ package org.sonar.server.computation.taskprocessor;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.server.computation.queue.CeTaskResult;
+import org.sonar.ce.queue.CeTaskResult;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -34,6 +34,7 @@ import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
+import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.DefaultI18n;
@@ -65,7 +66,6 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.computation.CeModule;
 import org.sonar.server.computation.container.ReportProcessingModule;
-import org.sonar.server.computation.property.CePropertyDefinitions;
 import org.sonar.server.computation.queue.CeQueueModule;
 import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
@@ -111,6 +111,7 @@ import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileComparison;
 import org.sonar.server.qualityprofile.QProfileLookup;
@@ -553,6 +554,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     ReportProcessingModule.class,
     CeTaskProcessorModule.class,
     // CeWsModule.class, no Web Service in CE
+
+    ProjectSettingsFactory.class,
 
     // UI
     // GlobalNavigationAction.class, no Web Service in CE

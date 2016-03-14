@@ -20,9 +20,10 @@
 package org.sonar.server.computation.queue.report;
 
 import org.junit.Test;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.queue.CeTask;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;

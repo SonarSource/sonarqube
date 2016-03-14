@@ -22,12 +22,14 @@ package org.sonar.server.computation.taskprocessor;
 import com.google.common.base.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.server.computation.log.CeLogging;
-import org.sonar.server.computation.queue.CeQueue;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.computation.queue.CeTaskResult;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.queue.CeQueue;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.server.computation.queue.InternalCeQueue;
 
 import static java.lang.String.format;
 
@@ -35,11 +37,11 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
 
   private static final Logger LOG = Loggers.get(CeWorkerCallableImpl.class);
 
-  private final CeQueue queue;
+  private final InternalCeQueue queue;
   private final CeLogging ceLogging;
   private final CeTaskProcessorRepository taskProcessorRepository;
 
-  public CeWorkerCallableImpl(CeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository) {
+  public CeWorkerCallableImpl(InternalCeQueue queue, CeLogging ceLogging, CeTaskProcessorRepository taskProcessorRepository) {
     this.queue = queue;
     this.ceLogging = ceLogging;
     this.taskProcessorRepository = taskProcessorRepository;

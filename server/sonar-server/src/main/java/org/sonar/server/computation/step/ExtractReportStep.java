@@ -26,8 +26,8 @@ import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.computation.queue.report.ReportFiles;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.server.computation.batch.MutableBatchReportDirectoryHolder;
 
 /**

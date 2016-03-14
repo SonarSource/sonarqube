@@ -79,8 +79,8 @@ public class ComputeEngineContainerImplTest {
         + 59 // content of MigrationStepModule
         + 10 // level 2
         + 5 // level 3
-        + 76 // level 4
-        + 6 // content of CeModule
+        + 77 // level 4
+        + 5 // content of CeModule
         + 7 // content of CeQueueModule
         + 4 // content of ReportProcessingModule
         + 4 // content of CeTaskProcessorModule

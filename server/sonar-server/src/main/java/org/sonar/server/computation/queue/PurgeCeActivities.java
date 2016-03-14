@@ -30,8 +30,8 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.server.computation.log.CeLogging;
-import org.sonar.server.computation.log.LogFileRef;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.log.LogFileRef;
 
 @ServerSide
 public class PurgeCeActivities implements ServerStartHandler {

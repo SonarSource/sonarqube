@@ -26,10 +26,10 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.computation.queue.CeTaskResult;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.server.computation.step.ComputationStepExecutor;
-import org.sonar.server.computation.taskprocessor.CeTaskProcessor;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.server.computation.taskprocessor.TaskResultHolder;
 import org.sonar.server.devcockpit.DevCockpitBridge;
 

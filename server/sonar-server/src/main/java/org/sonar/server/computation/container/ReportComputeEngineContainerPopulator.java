@@ -81,7 +81,7 @@ import org.sonar.server.computation.qualitymodel.NewQualityModelMeasuresVisitor;
 import org.sonar.server.computation.qualitymodel.QualityModelMeasuresVisitor;
 import org.sonar.server.computation.qualitymodel.RatingSettings;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
-import org.sonar.server.computation.queue.CeTask;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.server.computation.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.source.LastCommitVisitor;
 import org.sonar.server.computation.source.SourceHashRepositoryImpl;

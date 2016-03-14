@@ -50,7 +50,7 @@ import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.server.computation.ws.ActivityAction;
+import org.sonar.server.ce.ws.ActivityAction;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;

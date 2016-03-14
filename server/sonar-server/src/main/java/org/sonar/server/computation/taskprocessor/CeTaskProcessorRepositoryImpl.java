@@ -29,7 +29,8 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.sonar.server.computation.queue.CeTask;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;

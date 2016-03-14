@@ -20,8 +20,9 @@
 package org.sonar.server.computation.monitoring;
 
 import org.junit.Test;
+import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.server.computation.configuration.CeConfiguration;
-import org.sonar.server.computation.queue.CeQueueImpl;
+import org.sonar.ce.queue.CeQueueImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;

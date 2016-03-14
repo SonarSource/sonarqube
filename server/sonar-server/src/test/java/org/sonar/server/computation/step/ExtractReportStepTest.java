@@ -33,8 +33,8 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.batch.MutableBatchReportDirectoryHolder;
-import org.sonar.server.computation.queue.CeTask;
-import org.sonar.server.computation.queue.report.ReportFiles;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.report.ReportFiles;
 
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;

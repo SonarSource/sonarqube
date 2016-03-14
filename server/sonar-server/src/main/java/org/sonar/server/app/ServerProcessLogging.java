@@ -29,8 +29,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.Props;
-import org.sonar.server.computation.log.CeLogDenyFilter;
-import org.sonar.server.computation.log.CeLogging;
+import org.sonar.ce.log.CeLogDenyFilter;
+import org.sonar.ce.log.CeLogging;
 import org.sonar.server.platform.ServerLogging;
 
 /**

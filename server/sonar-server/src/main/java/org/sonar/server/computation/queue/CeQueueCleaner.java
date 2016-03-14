@@ -25,11 +25,11 @@ import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.queue.report.ReportFiles;
 
 /**
  * Cleans-up the Compute Engine queue and resets the JMX counters.
@@ -43,9 +43,9 @@ public class CeQueueCleaner {
   private final DbClient dbClient;
   private final ServerUpgradeStatus serverUpgradeStatus;
   private final ReportFiles reportFiles;
-  private final CeQueueImpl queue;
+  private final InternalCeQueue queue;
 
-  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, ReportFiles reportFiles, CeQueueImpl queue) {
+  public CeQueueCleaner(DbClient dbClient, ServerUpgradeStatus serverUpgradeStatus, ReportFiles reportFiles, InternalCeQueue queue) {
     this.dbClient = dbClient;
     this.serverUpgradeStatus = serverUpgradeStatus;
     this.reportFiles = reportFiles;

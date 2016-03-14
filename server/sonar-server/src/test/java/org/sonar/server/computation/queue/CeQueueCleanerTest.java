@@ -27,11 +27,11 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.queue.report.ReportFiles;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -51,7 +51,7 @@ public class CeQueueCleanerTest {
 
   ServerUpgradeStatus serverUpgradeStatus = mock(ServerUpgradeStatus.class);
   ReportFiles reportFiles = mock(ReportFiles.class, Mockito.RETURNS_DEEP_STUBS);
-  CeQueueImpl queue = mock(CeQueueImpl.class);
+  InternalCeQueue queue = mock(InternalCeQueue.class);
   CeQueueCleaner underTest = new CeQueueCleaner(dbTester.getDbClient(), serverUpgradeStatus, reportFiles, queue);
 
   @Test

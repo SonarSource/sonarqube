@@ -21,7 +21,7 @@ package org.sonar.server.computation.container;
 
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.server.computation.queue.CeTask;
+import org.sonar.ce.queue.CeTask;
 
 /**
  * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link CeTask}.

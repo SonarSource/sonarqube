@@ -28,7 +28,7 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.queue.CeTask;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.PersistComponentsStep;
 import org.sonar.server.computation.step.PersistDevelopersStep;

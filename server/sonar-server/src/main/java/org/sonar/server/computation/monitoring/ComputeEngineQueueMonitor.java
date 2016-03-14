@@ -20,8 +20,9 @@
 package org.sonar.server.computation.monitoring;
 
 import java.util.LinkedHashMap;
+import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.server.computation.configuration.CeConfiguration;
-import org.sonar.server.computation.queue.CeQueue;
+import org.sonar.ce.queue.CeQueue;
 import org.sonar.server.platform.monitoring.BaseMonitorMBean;
 
 public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements ComputeEngineQueueMonitorMBean {

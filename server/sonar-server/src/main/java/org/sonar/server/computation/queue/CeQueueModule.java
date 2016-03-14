@@ -19,18 +19,18 @@
  */
 package org.sonar.server.computation.queue;
 
+import org.sonar.server.computation.queue.report.CleanReportQueueListener;
+import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.core.platform.Module;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
-import org.sonar.server.computation.queue.report.ReportFiles;
 
 public class CeQueueModule extends Module {
   @Override
   protected void configureModule() {
     add(
       // queue state
-      CeQueueImpl.class,
+      InternalCeQueueImpl.class,
 
       // queue monitoring
       CEQueueStatusImpl.class,

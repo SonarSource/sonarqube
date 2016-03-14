@@ -21,7 +21,7 @@ package org.sonar.server.computation.container;
 
 import javax.annotation.Nullable;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.computation.queue.CeTask;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.server.devcockpit.DevCockpitBridge;
 
 public class ContainerFactoryImpl implements ContainerFactory {

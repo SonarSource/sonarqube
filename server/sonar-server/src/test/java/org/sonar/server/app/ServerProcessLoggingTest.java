@@ -32,6 +32,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.ce.log.CeFileAppenderFactory;
 import org.sonar.process.LogbackHelper;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -51,7 +52,7 @@ public class ServerProcessLoggingTest {
 
   /**
    * Path to data dir must be set for Compute Engine logging.
-   * @see org.sonar.server.computation.log.CeFileAppenderFactory
+   * @see CeFileAppenderFactory
    */
   @Before
   public void setUp() throws IOException {

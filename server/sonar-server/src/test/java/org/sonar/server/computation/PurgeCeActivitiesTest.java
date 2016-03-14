@@ -27,8 +27,8 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.log.CeLogging;
-import org.sonar.server.computation.log.LogFileRef;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.log.LogFileRef;
 import org.sonar.server.computation.queue.PurgeCeActivities;
 
 import static org.assertj.core.api.Assertions.assertThat;

@@ -26,7 +26,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
-import org.sonar.server.computation.queue.CeTask;
+import org.sonar.ce.queue.CeTask;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;

@@ -30,6 +30,7 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.rules.AnnotationRuleParser;
 import org.sonar.api.rules.XMLRuleParser;
 import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
+import org.sonar.ce.CeModule;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
@@ -44,17 +45,13 @@ import org.sonar.server.activity.ws.ActivitiesWs;
 import org.sonar.server.activity.ws.ActivityMapping;
 import org.sonar.server.authentication.AuthenticationModule;
 import org.sonar.server.batch.BatchWsModule;
+import org.sonar.server.ce.ws.CeWsModule;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.DefaultComponentFinder;
 import org.sonar.server.component.DefaultRubyComponentService;
 import org.sonar.server.component.ws.ComponentsWsModule;
-import org.sonar.server.computation.CeModule;
-import org.sonar.server.computation.container.ReportProcessingModule;
-import org.sonar.server.computation.queue.CeQueueModule;
-import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
-import org.sonar.server.computation.ws.CeWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
 import org.sonar.server.dashboard.template.ProjectCustomDashboard;
@@ -193,6 +190,7 @@ import org.sonar.server.plugins.ws.PluginsWs;
 import org.sonar.server.plugins.ws.UninstallAction;
 import org.sonar.server.plugins.ws.UpdatesAction;
 import org.sonar.server.project.ws.ProjectsWsModule;
+import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualitygate.QgateProjectFinder;
 import org.sonar.server.qualitygate.QualityGates;
 import org.sonar.server.qualitygate.ws.CreateConditionAction;
@@ -706,10 +704,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       // Compute engine (must be after Views and Developer Cockpit)
       CeModule.class,
-      CeQueueModule.class,
-      CeTaskProcessorModule.class,
       CeWsModule.class,
-      ReportProcessingModule.class,
+
+      ProjectSettingsFactory.class,
 
       // UI
       GlobalNavigationAction.class,

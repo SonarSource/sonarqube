@@ -19,13 +19,12 @@
  */
 package org.sonar.server.computation;
 
+import org.sonar.ce.log.CeLogging;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.server.computation.configuration.CeConfigurationImpl;
 import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;
-import org.sonar.server.computation.log.CeLogging;
-import org.sonar.server.properties.ProjectSettingsFactory;
 
 /**
  * Globally available components in CE
@@ -39,7 +38,6 @@ public class CeModule extends Module {
 
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,
-      ProjectSettingsFactory.class,
       IndexPurgeListener.class);
   }
 }

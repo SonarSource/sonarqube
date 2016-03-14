@@ -32,9 +32,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.server.computation.monitoring.CEQueueStatus;
+import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.queue.report.ReportFiles;
+import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
 
 import static org.assertj.core.api.Assertions.assertThat;

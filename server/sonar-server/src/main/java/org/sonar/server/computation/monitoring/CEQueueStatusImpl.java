@@ -20,6 +20,7 @@
 package org.sonar.server.computation.monitoring;
 
 import java.util.concurrent.atomic.AtomicLong;
+import org.sonar.ce.monitoring.CEQueueStatus;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;

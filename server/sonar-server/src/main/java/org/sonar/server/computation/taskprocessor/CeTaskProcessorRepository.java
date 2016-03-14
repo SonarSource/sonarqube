@@ -20,7 +20,8 @@
 package org.sonar.server.computation.taskprocessor;
 
 import com.google.common.base.Optional;
-import org.sonar.server.computation.queue.CeTask;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 
 public interface CeTaskProcessorRepository {
 
