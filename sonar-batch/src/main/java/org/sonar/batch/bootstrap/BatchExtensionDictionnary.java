@@ -78,7 +78,7 @@ public class BatchExtensionDictionnary {
     return result;
   }
 
-  private Phase.Name evaluatePhase(Object extension) {
+  private static Phase.Name evaluatePhase(Object extension) {
     Object extensionToEvaluate;
     if (extension instanceof SensorWrapper) {
       extensionToEvaluate = ((SensorWrapper) extension).wrappedSensor();
@@ -172,7 +172,7 @@ public class BatchExtensionDictionnary {
     return result;
   }
 
-  private void completePhaseDependencies(DirectAcyclicGraph dag, Object extension) {
+  private static void completePhaseDependencies(DirectAcyclicGraph dag, Object extension) {
     Phase.Name phase = evaluatePhase(extension);
     dag.add(extension, phase);
     for (Phase.Name name : Phase.Name.values()) {
