@@ -29,7 +29,7 @@ import java.nio.channels.OverlappingFileLockException;
 import java.nio.file.Path;
 
 public class ProjectLock implements Startable {
-  static final String LOCK_FILE_NAME = ".sonar_lock";
+  public static final String LOCK_FILE_NAME = ".sonar_lock";
 
   private DirectoryLock lock;
 

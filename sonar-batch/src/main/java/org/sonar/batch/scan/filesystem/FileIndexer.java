@@ -20,27 +20,32 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.apache.commons.io.filefilter.HiddenFileFilter;
-import org.apache.commons.io.filefilter.IOFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Type;
 import org.sonar.api.batch.fs.InputFileFilter;
 import org.sonar.api.batch.fs.internal.DefaultInputDir;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.scan.ProjectLock;
 import org.sonar.batch.util.ProgressReport;
 
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.FileSystemLoopException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.FileVisitor;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -58,10 +63,6 @@ import java.util.concurrent.TimeUnit;
 public class FileIndexer {
 
   private static final Logger LOG = LoggerFactory.getLogger(FileIndexer.class);
-
-  private static final IOFileFilter DIR_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.prefixFileFilter(".")));
-  private static final IOFileFilter FILE_FILTER = FileFilterUtils.and(HiddenFileFilter.VISIBLE, FileFilterUtils.notFileFilter(FileFilterUtils.nameFileFilter(".sonar_lock")));
-
   private final List<InputFileFilter> filters;
   private final boolean isAggregator;
   private final ExclusionFilters exclusionFilters;
@@ -123,18 +124,22 @@ public class FileIndexer {
   private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, InputFileBuilder inputFileBuilder, List<File> sources, InputFile.Type type) {
     for (File dirOrFile : sources) {
       if (dirOrFile.isDirectory()) {
-        indexDirectory(inputFileBuilder, fileSystem, progress, dirOrFile, type);
+        try {
+          indexDirectory(inputFileBuilder, fileSystem, progress, dirOrFile, type);
+        } catch (IOException e) {
+          throw new IllegalStateException("Failed to index files", e);
+        }
       } else {
         indexFile(inputFileBuilder, fileSystem, progress, dirOrFile, type);
       }
     }
   }
 
-  private void indexDirectory(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, File dirToIndex, InputFile.Type type) {
-    Collection<File> files = FileUtils.listFiles(dirToIndex, FILE_FILTER, DIR_FILTER);
-    for (File file : files) {
-      indexFile(inputFileBuilder, fileSystem, status, file, type);
-    }
+  private void indexDirectory(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fileSystem, final Progress status,
+    final File dirToIndex, final InputFile.Type type) throws IOException {
+    final Path absDir = dirToIndex.toPath().normalize();
+    Files.walkFileTree(absDir, Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+      new IndexFileVisitor(inputFileBuilder, fileSystem, status, type));
   }
 
   private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, File sourceFile, InputFile.Type type) {
@@ -181,6 +186,56 @@ public class FileIndexer {
       }
     }
     return true;
+  }
+
+  private class IndexFileVisitor implements FileVisitor<Path> {
+    private InputFileBuilder inputFileBuilder;
+    private DefaultModuleFileSystem fileSystem;
+    private Progress status;
+    private Type type;
+
+    IndexFileVisitor(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress status, InputFile.Type type) {
+      this.inputFileBuilder = inputFileBuilder;
+      this.fileSystem = fileSystem;
+      this.status = status;
+      this.type = type;
+    }
+
+    @Override
+    public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+      Path fileName = dir.getFileName();
+      
+      if (fileName != null && StringUtils.isNotEmpty(fileName.toString()) && fileName.toString().charAt(0) == '.') {
+        return FileVisitResult.SKIP_SUBTREE;
+      }
+      if (Files.isHidden(dir)) {
+        return FileVisitResult.SKIP_SUBTREE;
+      }
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+      if (!Files.isHidden(file) && !ProjectLock.LOCK_FILE_NAME.equals(file.getFileName().toString())) {
+        indexFile(inputFileBuilder, fileSystem, status, file.toFile(), type);
+      }
+      return FileVisitResult.CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
+      if (exc != null && exc instanceof FileSystemLoopException) {
+        LOG.warn("Not indexing due to symlink loop: {}", file.toFile());
+        return FileVisitResult.CONTINUE;
+      }
+
+      throw exc;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+      return FileVisitResult.CONTINUE;
+    }
   }
 
   private class Progress {
