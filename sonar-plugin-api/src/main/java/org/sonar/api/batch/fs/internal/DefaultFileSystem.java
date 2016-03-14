@@ -35,6 +35,7 @@ import javax.annotation.Nullable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -73,7 +74,11 @@ public class DefaultFileSystem implements FileSystem {
 
   protected DefaultFileSystem(@Nullable File baseDir, Cache cache) {
     // Basedir can be null with views
-    this.baseDir = baseDir != null ? baseDir.toPath().toAbsolutePath().normalize() : new File(".").toPath();
+    try {
+      this.baseDir = baseDir != null ? baseDir.toPath().toRealPath(LinkOption.NOFOLLOW_LINKS) : new File(".").toPath().toAbsolutePath().normalize();
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
+    }
     this.cache = cache;
     this.predicates = new DefaultFilePredicates(this.baseDir);
   }

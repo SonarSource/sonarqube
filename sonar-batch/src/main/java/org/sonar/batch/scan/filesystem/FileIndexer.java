@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.filesystem;
 
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
@@ -42,6 +41,7 @@ import java.nio.file.FileVisitOption;
 import java.nio.file.FileVisitResult;
 import java.nio.file.FileVisitor;
 import java.nio.file.Files;
+import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
@@ -122,28 +122,29 @@ public class FileIndexer {
   }
 
   private void indexFiles(DefaultModuleFileSystem fileSystem, Progress progress, InputFileBuilder inputFileBuilder, List<File> sources, InputFile.Type type) {
-    for (File dirOrFile : sources) {
-      if (dirOrFile.isDirectory()) {
-        try {
+    try {
+      for (File dirOrFile : sources) {
+        if (dirOrFile.isDirectory()) {
           indexDirectory(inputFileBuilder, fileSystem, progress, dirOrFile, type);
-        } catch (IOException e) {
-          throw new IllegalStateException("Failed to index files", e);
+        } else {
+          indexFile(inputFileBuilder, fileSystem, progress, dirOrFile.toPath(), type);
         }
-      } else {
-        indexFile(inputFileBuilder, fileSystem, progress, dirOrFile, type);
       }
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to index files", e);
     }
   }
 
   private void indexDirectory(final InputFileBuilder inputFileBuilder, final DefaultModuleFileSystem fileSystem, final Progress status,
     final File dirToIndex, final InputFile.Type type) throws IOException {
-    final Path absDir = dirToIndex.toPath().normalize();
-    Files.walkFileTree(absDir, Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
+    Files.walkFileTree(dirToIndex.toPath().normalize(), Collections.singleton(FileVisitOption.FOLLOW_LINKS), Integer.MAX_VALUE,
       new IndexFileVisitor(inputFileBuilder, fileSystem, status, type));
   }
 
-  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, File sourceFile, InputFile.Type type) {
-    DefaultInputFile inputFile = inputFileBuilder.create(sourceFile);
+  private void indexFile(InputFileBuilder inputFileBuilder, DefaultModuleFileSystem fileSystem, Progress progress, Path sourceFile, InputFile.Type type) throws IOException {
+    // get case of real file without resolving link
+    Path realFile = sourceFile.toRealPath(LinkOption.NOFOLLOW_LINKS);
+    DefaultInputFile inputFile = inputFileBuilder.create(realFile.toFile());
     if (inputFile != null) {
       // Set basedir on input file prior to adding it to the FS since exclusions filters may require the absolute path
       inputFile.setModuleBaseDir(fileSystem.baseDirPath());
@@ -204,8 +205,8 @@ public class FileIndexer {
     @Override
     public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
       Path fileName = dir.getFileName();
-      
-      if (fileName != null && StringUtils.isNotEmpty(fileName.toString()) && fileName.toString().charAt(0) == '.') {
+
+      if (fileName != null && fileName.toString().length() > 1 && fileName.toString().charAt(0) == '.') {
         return FileVisitResult.SKIP_SUBTREE;
       }
       if (Files.isHidden(dir)) {
@@ -217,7 +218,7 @@ public class FileIndexer {
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
       if (!Files.isHidden(file) && !ProjectLock.LOCK_FILE_NAME.equals(file.getFileName().toString())) {
-        indexFile(inputFileBuilder, fileSystem, status, file.toFile(), type);
+        indexFile(inputFileBuilder, fileSystem, status, file, type);
       }
       return FileVisitResult.CONTINUE;
     }
