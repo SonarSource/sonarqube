@@ -395,7 +395,7 @@ public class FixMsSqlCollation extends DdlChange {
     new UpdateTableCollation(context, db, "activities")
       .addUniqueIndex("activities_log_key", "log_key")
       .addVarcharColumn("log_key", 250)
-      .addVarcharColumn("user_login", 30)
+      .addVarcharColumn("user_login", 255)
       .addVarcharColumn("log_type", 250)
       .addVarcharColumn("log_action", 250)
       .addVarcharColumn("log_message", 250)
