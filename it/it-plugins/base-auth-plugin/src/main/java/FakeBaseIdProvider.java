@@ -21,6 +21,7 @@ import java.io.IOException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.Display;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 
 public class FakeBaseIdProvider implements BaseIdentityProvider {
@@ -28,6 +29,8 @@ public class FakeBaseIdProvider implements BaseIdentityProvider {
   private static final String ENABLED = "sonar.auth.fake-base-id-provider.enabled";
   private static final String ALLOWS_USERS_TO_SIGN_UP = "sonar.auth.fake-base-id-provider.allowsUsersToSignUp";
   private static final String USER_INFO = "sonar.auth.fake-base-id-provider.user";
+
+  private static final String THROW_UNAUTHORIZED_EXCEPTION = "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage";
 
   private final Settings settings;
 
@@ -41,6 +44,11 @@ public class FakeBaseIdProvider implements BaseIdentityProvider {
     if (userInfoProperty == null) {
       throw new IllegalStateException(String.format("The property %s is required", USER_INFO));
     }
+    boolean throwUnauthorizedException = settings.getBoolean(THROW_UNAUTHORIZED_EXCEPTION);
+    if (throwUnauthorizedException) {
+      throw new UnauthorizedException("A functional error has happened");
+    }
+
     String[] userInfos = userInfoProperty.split(",");
     context.authenticate(UserIdentity.builder()
       .setLogin(userInfos[0])

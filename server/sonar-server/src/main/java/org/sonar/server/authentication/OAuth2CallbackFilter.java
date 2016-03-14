@@ -29,11 +29,12 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.web.ServletFilter;
 
-import static org.sonar.server.authentication.AuthenticationError.handleEmailAlreadyExistsError;
+import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
-import static org.sonar.server.authentication.AuthenticationError.handleNotAllowedToSignUpError;
+import static org.sonar.server.authentication.AuthenticationError.handleUnauthorizedError;
 
 public class OAuth2CallbackFilter extends ServletFilter {
 
@@ -64,14 +65,12 @@ public class OAuth2CallbackFilter extends ServletFilter {
         OAuth2IdentityProvider oauthProvider = (OAuth2IdentityProvider) provider;
         oauthProvider.callback(oAuth2ContextFactory.newCallback(httpRequest, (HttpServletResponse) response, oauthProvider));
       } else {
-        handleError((HttpServletResponse) response, String.format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
+        handleError((HttpServletResponse) response, format("Not an OAuth2IdentityProvider: %s", provider.getClass()));
       }
-    } catch (NotAllowUserToSignUpException e) {
-      handleNotAllowedToSignUpError(e, (HttpServletResponse) response);
-    } catch (EmailAlreadyExistsException e) {
-      handleEmailAlreadyExistsError(e, (HttpServletResponse) response);
+    } catch (UnauthorizedException e) {
+      handleUnauthorizedError(e, (HttpServletResponse) response);
     } catch (Exception e) {
-      handleError(e, (HttpServletResponse) response, String.format("Fail to callback authentication with %s", keyProvider));
+      handleError(e, (HttpServletResponse) response, format("Fail to callback authentication with %s", keyProvider));
     }
   }
 

@@ -30,6 +30,7 @@ import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
@@ -144,33 +145,22 @@ public class InitFilterTest {
   }
 
   @Test
-  public void redirect_when_failing_because_of_NotAllowUserToSignUpException() throws Exception {
-    IdentityProvider identityProvider = new FailWithNotAllowUserToSignUpIdProvider("failing");
+  public void redirect_when_failing_because_of_UnauthorizedExceptionException() throws Exception {
+    IdentityProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider("failing");
     when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
     identityProviderRepository.addIdentityProvider(identityProvider);
 
     underTest.doFilter(request, response, chain);
 
-    verify(response).sendRedirect("/sessions/not_allowed_to_sign_up?providerName=Failing provider");
+    verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
   }
 
-  @Test
-  public void redirect_when_failing_because_of_EmailAlreadyExistsException() throws Exception {
-    IdentityProvider identityProvider = new FailWithEmailAlreadyExistsExceptionIdProvider("failing");
-    when(request.getRequestURI()).thenReturn("/sessions/init/" + identityProvider.getKey());
-    identityProviderRepository.addIdentityProvider(identityProvider);
-
-    underTest.doFilter(request, response, chain);
-
-    verify(response).sendRedirect("/sessions/email_already_exists?email=john@email.com");
-  }
-
-  private void assertOAuth2InitCalled(){
+  private void assertOAuth2InitCalled() {
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isInitCalled()).isTrue();
   }
 
-  private void assertBasicInitCalled(){
+  private void assertBasicInitCalled() {
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(baseIdentityProvider.isInitCalled()).isTrue();
   }
@@ -181,32 +171,15 @@ public class InitFilterTest {
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
   }
 
-  private static class FailWithNotAllowUserToSignUpIdProvider extends FakeBasicIdentityProvider {
+  private static class FailWithUnauthorizedExceptionIdProvider extends FakeBasicIdentityProvider {
 
-    public FailWithNotAllowUserToSignUpIdProvider(String key) {
-      super(key, true);
-    }
-
-    @Override
-    public String getName() {
-      return "Failing provider";
-    }
-
-    @Override
-    public void init(Context context) {
-      throw new NotAllowUserToSignUpException(this);
-    }
-  }
-
-  private static class FailWithEmailAlreadyExistsExceptionIdProvider extends FakeBasicIdentityProvider {
-
-    public FailWithEmailAlreadyExistsExceptionIdProvider(String key) {
+    public FailWithUnauthorizedExceptionIdProvider(String key) {
       super(key, true);
     }
 
     @Override
     public void init(Context context) {
-      throw new EmailAlreadyExistsException("john@email.com");
+      throw new UnauthorizedException("Email john@email.com is already used");
     }
   }
 }

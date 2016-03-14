@@ -27,6 +27,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
@@ -100,6 +101,19 @@ public class OAuth2CallbackFilterTest {
     assertError("Fail to callback authentication with github");
   }
 
+  @Test
+  public void redirect_when_failing_because_of_UnauthorizedExceptionException() throws Exception {
+    TestIdentityProvider identityProvider = new FailWithUnauthorizedExceptionIdProvider()
+      .setKey("failing")
+      .setEnabled(true);
+    when(request.getRequestURI()).thenReturn("/oauth2/callback/" + identityProvider.getKey());
+    identityProviderRepository.addIdentityProvider(identityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+  }
+
   private void assertCallbackCalled(){
     assertThat(logTester.logs(LoggerLevel.ERROR)).isEmpty();
     assertThat(oAuth2IdentityProvider.isCallbackCalled()).isTrue();
@@ -109,6 +123,19 @@ public class OAuth2CallbackFilterTest {
     assertThat(logTester.logs(LoggerLevel.ERROR)).contains(expectedError);
     verify(response).sendRedirect("/sessions/unauthorized");
     assertThat(oAuth2IdentityProvider.isInitCalled()).isFalse();
+  }
+
+  private static class FailWithUnauthorizedExceptionIdProvider extends TestIdentityProvider implements OAuth2IdentityProvider {
+
+    @Override
+    public void init(InitContext context) {
+
+    }
+
+    @Override
+    public void callback(CallbackContext context) {
+      throw new UnauthorizedException("Email john@email.com is already used");
+    }
   }
 
 }

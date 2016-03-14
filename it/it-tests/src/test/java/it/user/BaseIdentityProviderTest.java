@@ -23,10 +23,11 @@ import com.google.common.base.Optional;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
+import java.io.File;
+import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.client.GetRequest;
@@ -119,7 +120,6 @@ public class BaseIdentityProviderTest {
   }
 
   @Test
-  @Ignore("Do not understand why it's failing...")
   public void fail_to_authenticate_when_not_allowed_to_sign_up() throws Exception {
     enablePlugin();
     setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
@@ -180,6 +180,23 @@ public class BaseIdentityProviderTest {
     userRule.verifyUserDoesNotExist(USER_LOGIN);
 
     // TODO Add Selenium test to check login form
+  }
+
+  @Test
+  public void display_message_in_ui_but_not_in_log_when_unauthorized_exception() throws Exception {
+    enablePlugin();
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", "true");
+
+    ORCHESTRATOR.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("fail_to_authenticate_when_not_allowed_to_sign_up",
+      "/user/BaseIdentityProviderTest/fail_to_authenticate_when_not_allowed_to_sign_up.html"
+    ).build());
+
+    File logFile = ORCHESTRATOR.getServer().getLogs();
+    assertThat(FileUtils.readFileToString(logFile)).doesNotContain("A functional error has happened");
+    assertThat(FileUtils.readFileToString(logFile)).doesNotContain("UnauthorizedException");
+
+    userRule.verifyUserDoesNotExist(USER_LOGIN);
   }
 
   private static void setUserCreatedByAuthPlugin(String login, String providerId, String name, String email) {

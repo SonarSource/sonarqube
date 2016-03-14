@@ -21,6 +21,7 @@ package org.sonar.server.authentication;
 
 import javax.servlet.http.HttpSession;
 import org.sonar.api.server.authentication.IdentityProvider;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -29,6 +30,8 @@ import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
+
+import static java.lang.String.format;
 
 public class UserIdentityAuthenticator {
 
@@ -62,12 +65,13 @@ public class UserIdentityAuthenticator {
       }
 
       if (!provider.allowsUsersToSignUp()) {
-        throw new NotAllowUserToSignUpException(provider);
+        throw new UnauthorizedException(format("'%s' users are not allowed to sign up", provider.getKey()));
       }
 
       String email = user.getEmail();
       if (email != null && dbClient.userDao().doesEmailExist(dbSession, email)) {
-        throw new EmailAlreadyExistsException(email);
+        throw new UnauthorizedException(format(
+          "You can't sign up because email '%s' is already used by an existing user. This means that you probably already registered with another account.", email));
       }
 
       userUpdater.create(dbSession, NewUser.create()

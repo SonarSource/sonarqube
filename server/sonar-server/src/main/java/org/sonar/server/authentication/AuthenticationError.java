@@ -21,18 +21,16 @@ package org.sonar.server.authentication;
 
 import java.io.IOException;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
-import static org.sonar.server.authentication.EmailAlreadyExistsException.EMAIL_ALREADY_EXISTS_PATH;
-import static org.sonar.server.authentication.NotAllowUserToSignUpException.NOT_ALLOWED_TO_SIGHNUP_PATH;
+import static org.sonar.api.server.authentication.UnauthorizedException.UNAUTHORIZED_PATH;
 
 public class AuthenticationError {
 
   private static final Logger LOGGER = Loggers.get(AuthenticationError.class);
-
-  private static final String UNAUTHORIZED_PATH = "/sessions/unauthorized";
 
   private AuthenticationError() {
     // Utility class
@@ -48,12 +46,8 @@ public class AuthenticationError {
     redirectToUnauthorized(response);
   }
 
-  public static void handleNotAllowedToSignUpError(NotAllowUserToSignUpException e, HttpServletResponse response) {
-    redirectTo(response, format(NOT_ALLOWED_TO_SIGHNUP_PATH, e.getProvider().getName()));
-  }
-
-  public static void handleEmailAlreadyExistsError(EmailAlreadyExistsException e, HttpServletResponse response) {
-    redirectTo(response, format(EMAIL_ALREADY_EXISTS_PATH, e.getEmail()));
+  public static void handleUnauthorizedError(UnauthorizedException e, HttpServletResponse response) {
+    redirectTo(response, e.getPath());
   }
 
   private static void redirectToUnauthorized(HttpServletResponse response) {

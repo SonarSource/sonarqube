@@ -25,6 +25,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
+import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -144,7 +145,8 @@ public class UserIdentityAuthenticatorTest {
       .setEnabled(true)
       .setAllowsUsersToSignUp(false);
 
-    thrown.expect(NotAllowUserToSignUpException.class);
+    thrown.expect(UnauthorizedException.class);
+    thrown.expectMessage("'github' users are not allowed to sign up");
     underTest.authenticate(USER_IDENTITY, identityProvider, httpSession);
   }
 
@@ -154,7 +156,8 @@ public class UserIdentityAuthenticatorTest {
     when(userDao.selectOrFailByLogin(dbSession, USER_IDENTITY.getLogin())).thenReturn(ACTIVE_USER);
     when(userDao.doesEmailExist(dbSession, USER_IDENTITY.getEmail())).thenReturn(true);
 
-    thrown.expect(EmailAlreadyExistsException.class);
+    thrown.expect(UnauthorizedException.class);
+    thrown.expectMessage("You can't sign up because email 'john@email.com' is already used by an existing user. This means that you probably already registered with another account.");
     underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, httpSession);
   }
 }
