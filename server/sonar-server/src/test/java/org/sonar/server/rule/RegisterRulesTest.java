@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.Sets;
 import java.util.Date;
 import java.util.List;
 import org.junit.Before;
@@ -48,6 +47,7 @@ import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -131,7 +131,7 @@ public class RegisterRulesTest {
 
     // user adds tags and sets markdown note
     RuleDto rule1 = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY1);
-    rule1.setTags(Sets.newHashSet("usertag1", "usertag2"));
+    rule1.setTags(newHashSet("usertag1", "usertag2"));
     rule1.setNoteData("user *note*");
     rule1.setNoteUserLogin("marius");
     dbClient.ruleDao().update(dbTester.getSession(), rule1);
@@ -173,6 +173,39 @@ public class RegisterRulesTest {
     assertThat(rule3.getStatus()).isEqualTo(RuleStatus.READY);
 
     assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(RULE_KEY1, RULE_KEY3);
+  }
+
+  @Test
+  public void add_new_tag() {
+    execute(new RulesDefinition() {
+      @Override
+      public void define(RulesDefinition.Context context) {
+        RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
+        repo.createRule("rule1")
+          .setName("Rule One")
+          .setHtmlDescription("Description of Rule One")
+          .setTags("tag1");
+        repo.done();
+      }
+    });
+
+    RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY1);
+    assertThat(rule.getSystemTags()).containsOnly("tag1");
+
+    execute(new RulesDefinition() {
+      @Override
+      public void define(RulesDefinition.Context context) {
+        RulesDefinition.NewRepository repo = context.createRepository("fake", "java");
+        repo.createRule("rule1")
+          .setName("Rule One")
+          .setHtmlDescription("Description of Rule One")
+          .setTags("tag1", "tag2");
+        repo.done();
+      }
+    });
+
+    rule = dbClient.ruleDao().selectOrFailByKey(dbTester.getSession(), RULE_KEY1);
+    assertThat(rule.getSystemTags()).containsOnly("tag1", "tag2");
   }
 
   @Test
@@ -331,6 +364,29 @@ public class RegisterRulesTest {
     for (RuleDto rule : rules) {
       assertThat(rule.getRepositoryKey()).isEqualTo("findbugs");
     }
+  }
+
+  @Test
+  public void remove_system_tags_when_plugin_does_not_provide_any() {
+    // Rule already exists in DB, with some system tags
+    dbClient.ruleDao().insert(dbTester.getSession(), new RuleDto()
+      .setRuleKey("rule1")
+      .setRepositoryKey("findbugs")
+      .setName("Rule One")
+      .setDescription("Rule one description")
+      .setDescriptionFormat(RuleDto.Format.HTML)
+      .setSystemTags(newHashSet("tag1", "tag2"))
+      );
+    dbTester.getSession().commit();
+
+    // Synchronize rule without tag
+    execute(new FindbugsRepository());
+
+    List<RuleDto> rules = dbClient.ruleDao().selectAll(dbTester.getSession());
+    assertThat(rules).hasSize(1);
+    RuleDto result = rules.get(0);
+    assertThat(result.getKey()).isEqualTo(RuleKey.of("findbugs", "rule1"));
+    assertThat(result.getSystemTags()).isEmpty();
   }
 
   private void execute(RulesDefinition... defs) {

@@ -24,7 +24,6 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Maps;
-import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -60,6 +59,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Sets.intersection;
 
 /**
  * Register rules at server startup
@@ -77,7 +77,7 @@ public class RegisterRules implements Startable {
   private final System2 system2;
 
   public RegisterRules(RuleDefinitionsLoader defLoader, RuleActivator ruleActivator, DbClient dbClient, RuleIndexer ruleIndexer,
-                       ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2) {
+    ActiveRuleIndexer activeRuleIndexer, Languages languages, System2 system2) {
     this.defLoader = defLoader;
     this.ruleActivator = ruleActivator;
     this.dbClient = dbClient;
@@ -200,10 +200,6 @@ public class RegisterRules implements Startable {
       changed = true;
     }
     if (mergeDescription(def, dto)) {
-      changed = true;
-    }
-    if (!dto.getSystemTags().containsAll(def.tags())) {
-      dto.setSystemTags(def.tags());
       changed = true;
     }
     if (!StringUtils.equals(dto.getConfigKey(), def.internalKey())) {
@@ -348,8 +344,9 @@ public class RegisterRules implements Startable {
     if (RuleStatus.REMOVED == ruleDef.status()) {
       dto.setSystemTags(Collections.<String>emptySet());
       changed = true;
-    } else if (!dto.getSystemTags().containsAll(ruleDef.tags())
-      || !Sets.intersection(dto.getTags(), ruleDef.tags()).isEmpty()) {
+    } else if (dto.getSystemTags().size() != ruleDef.tags().size() ||
+      !dto.getSystemTags().containsAll(ruleDef.tags())
+      || !intersection(dto.getTags(), ruleDef.tags()).isEmpty()) {
       dto.setSystemTags(ruleDef.tags());
       // remove end-user tags that are now declared as system
       RuleTagHelper.applyTags(dto, ImmutableSet.copyOf(dto.getTags()));
