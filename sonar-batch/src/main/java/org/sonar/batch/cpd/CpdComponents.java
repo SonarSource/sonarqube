@@ -31,8 +31,8 @@ public final class CpdComponents {
     return ImmutableList.of(
       CpdSensor.class,
       CpdMappings.class,
-      JavaCpdIndexer.class,
-      DefaultCpdIndexer.class);
+      JavaCpdBlockIndexer.class,
+      DefaultCpdBlockIndexer.class);
   }
 
 }

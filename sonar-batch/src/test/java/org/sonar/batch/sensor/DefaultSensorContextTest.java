@@ -71,7 +71,6 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.activeRules()).isEqualTo(activeRules);
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.settings()).isEqualTo(settings);
-    assertThat(adaptor.analysisMode()).isEqualTo(analysisMode);
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();

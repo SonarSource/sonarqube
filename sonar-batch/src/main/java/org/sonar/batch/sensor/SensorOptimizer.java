@@ -21,7 +21,6 @@ package org.sonar.batch.sensor;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.FileSystem;
@@ -37,13 +36,11 @@ public class SensorOptimizer {
   private final FileSystem fs;
   private final ActiveRules activeRules;
   private final Settings settings;
-  private final AnalysisMode analysisMode;
 
-  public SensorOptimizer(FileSystem fs, ActiveRules activeRules, Settings settings, AnalysisMode analysisMode) {
+  public SensorOptimizer(FileSystem fs, ActiveRules activeRules, Settings settings) {
     this.fs = fs;
     this.activeRules = activeRules;
     this.settings = settings;
-    this.analysisMode = analysisMode;
   }
 
   /**
@@ -60,10 +57,6 @@ public class SensorOptimizer {
     }
     if (!settingsCondition(descriptor)) {
       LOG.debug("'{}' skipped because one of the required properties is missing", descriptor.name());
-      return false;
-    }
-    if (descriptor.isDisabledInIssues() && analysisMode.isIssues()) {
-      LOG.debug("'{}' skipped in issues mode", descriptor.name());
       return false;
     }
     return true;

@@ -82,13 +82,6 @@ public class SensorContextTesterTest {
   }
 
   @Test
-  public void testAnalysisMode() {
-    assertThat(tester.analysisMode().isPreview()).isFalse();
-    tester.analysisMode().setPreview(true);
-    assertThat(tester.analysisMode().isPreview()).isTrue();
-  }
-
-  @Test
   public void testIssues() {
     assertThat(tester.allIssues()).isEmpty();
     NewIssue newIssue = tester.newIssue();

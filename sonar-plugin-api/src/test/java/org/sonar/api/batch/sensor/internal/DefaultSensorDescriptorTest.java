@@ -43,13 +43,4 @@ public class DefaultSensorDescriptorTest {
     assertThat(descriptor.ruleRepositories()).containsOnly("squid-java");
   }
 
-  @Test
-  public void disabledAnalysisModes() {
-    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor();
-    descriptor
-      .disabledInIssues();
-
-    assertThat(descriptor.isDisabledInIssues()).isTrue();
-  }
-
 }

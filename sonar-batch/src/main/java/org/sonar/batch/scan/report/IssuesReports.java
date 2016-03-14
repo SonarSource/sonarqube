@@ -19,26 +19,20 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-
 import org.sonar.api.batch.BatchSide;
 
 @BatchSide
 public class IssuesReports {
 
-  private final DefaultAnalysisMode analysisMode;
   private final Reporter[] reporters;
 
-  public IssuesReports(DefaultAnalysisMode analysisMode, Reporter... reporters) {
+  public IssuesReports(Reporter... reporters) {
     this.reporters = reporters;
-    this.analysisMode = analysisMode;
   }
 
   public void execute() {
-    if (analysisMode.isIssues() || analysisMode.isMediumTest()) {
-      for (Reporter reporter : reporters) {
-        reporter.execute();
-      }
+    for (Reporter reporter : reporters) {
+      reporter.execute();
     }
   }
 }

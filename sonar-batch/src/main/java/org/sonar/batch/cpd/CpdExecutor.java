@@ -26,7 +26,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
+import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReport;
@@ -64,7 +64,7 @@ public class CpdExecutor {
   static final int MAX_CLONE_GROUP_PER_FILE = 100;
   static final int MAX_CLONE_PART_PER_GROUP = 100;
 
-  private final SonarDuplicationsIndex index;
+  private final SonarCpdBlockIndex index;
   private final ReportPublisher publisher;
   private final BatchComponentCache batchComponentCache;
   private final Settings settings;
@@ -73,7 +73,7 @@ public class CpdExecutor {
   private int count;
   private int total;
 
-  public CpdExecutor(Settings settings, SonarDuplicationsIndex index, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
+  public CpdExecutor(Settings settings, SonarCpdBlockIndex index, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;

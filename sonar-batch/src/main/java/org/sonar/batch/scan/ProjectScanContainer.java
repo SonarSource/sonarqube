@@ -42,7 +42,7 @@ import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
 import org.sonar.batch.cache.ProjectPersistentCacheProvider;
 import org.sonar.batch.cpd.CpdExecutor;
-import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
+import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.events.EventBus;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.index.Caches;
@@ -209,7 +209,7 @@ public class ProjectScanContainer extends ComponentContainer {
 
       // Cpd
       CpdExecutor.class,
-      SonarDuplicationsIndex.class,
+      SonarCpdBlockIndex.class,
 
       ScanTaskObservers.class,
       UserRepositoryLoader.class);

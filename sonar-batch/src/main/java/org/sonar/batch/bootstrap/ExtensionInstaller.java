@@ -23,6 +23,7 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
@@ -30,15 +31,17 @@ import org.sonar.core.platform.PluginRepository;
 public class ExtensionInstaller {
 
   private final PluginRepository pluginRepository;
+  private final AnalysisMode analysisMode;
 
-  public ExtensionInstaller(PluginRepository pluginRepository) {
+  public ExtensionInstaller(PluginRepository pluginRepository, AnalysisMode analysisMode) {
     this.pluginRepository = pluginRepository;
+    this.analysisMode = analysisMode;
   }
 
   public ExtensionInstaller install(ComponentContainer container, ExtensionMatcher matcher) {
 
     // core components
-    for (Object o : BatchComponents.all()) {
+    for (Object o : BatchComponents.all(analysisMode)) {
       doInstall(container, matcher, null, o);
     }
 

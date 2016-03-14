@@ -17,36 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.internal;
+package org.sonar.api.batch.sensor.cpd;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
+import com.google.common.annotations.Beta;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 
 /**
- * Interface for storing data computed by sensors.
- * @since 5.1
+ * This builder is used to define tokens used by CPD algorithm on files.
+ * @since 5.5
  */
-@BatchSide
-public interface SensorStorage {
-
-  void store(Measure measure);
-
-  void store(Issue issue);
-
-  void store(DefaultHighlighting highlighting);
+@Beta
+public interface NewCpdTokens {
 
   /**
-   * @since 5.2
+   * The tokenized file.
    */
-  void store(DefaultCoverage defaultCoverage);
+  NewCpdTokens onFile(InputFile inputFile);
 
   /**
-   * @since 5.5 
+   * Call this method to register a token in a range. Tokens should be registered in order.
+   * @param range Token position. Use {@link InputFile#newRange(int, int, int, int)} to get a valid range.
+   * @param image Text content of the token. Can be replaced by a constant placeholder for some tokens (like litterals).
    */
-  void store(DefaultCpdTokens defaultCpdTokens);
+  NewCpdTokens addToken(TextRange range, String image);
 
+  /**
+   * Call this method only once when your are done with defining tokens of the file.
+   */
+  void save();
 }

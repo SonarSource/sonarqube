@@ -44,6 +44,8 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
+import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
+import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
@@ -71,7 +73,6 @@ public class SensorContextTester implements SensorContext {
   private Settings settings;
   private DefaultFileSystem fs;
   private ActiveRules activeRules;
-  private MockAnalysisMode analysisMode;
   private InMemorySensorStorage sensorStorage;
   private InputModule module;
 
@@ -79,7 +80,6 @@ public class SensorContextTester implements SensorContext {
     this.settings = new Settings();
     this.fs = new DefaultFileSystem(moduleBaseDir);
     this.activeRules = new ActiveRulesBuilder().build();
-    this.analysisMode = new MockAnalysisMode();
     this.sensorStorage = new InMemorySensorStorage();
     this.module = new DefaultInputModule("projectKey");
   }
@@ -113,11 +113,6 @@ public class SensorContextTester implements SensorContext {
 
   public void setActiveRules(ActiveRules activeRules) {
     this.activeRules = activeRules;
-  }
-
-  @Override
-  public MockAnalysisMode analysisMode() {
-    return analysisMode;
   }
 
   @Override
@@ -197,6 +192,11 @@ public class SensorContextTester implements SensorContext {
     return new DefaultCoverage(sensorStorage);
   }
 
+  @Override
+  public NewCpdTokens newCpdTokens() {
+    return new DefaultCpdTokens(sensorStorage);
+  }
+
   public List<TypeOfText> highlightingTypeAt(String componentKey, int line, int lineOffset) {
     DefaultHighlighting syntaxHighlightingData = sensorStorage.highlightingByComponent.get(componentKey);
     if (syntaxHighlightingData == null) {
@@ -247,6 +247,7 @@ public class SensorContextTester implements SensorContext {
     private Collection<Issue> allIssues = new ArrayList<>();
 
     private Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
+    private Map<String, DefaultCpdTokens> cpdTokensByComponent = new HashMap<>();
     private Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
 
     @Override
@@ -271,6 +272,11 @@ public class SensorContextTester implements SensorContext {
         coverageByComponent.put(key, new EnumMap<CoverageType, DefaultCoverage>(CoverageType.class));
       }
       coverageByComponent.get(key).put(defaultCoverage.type(), defaultCoverage);
+    }
+
+    @Override
+    public void store(DefaultCpdTokens defaultCpdTokens) {
+      cpdTokensByComponent.put(defaultCpdTokens.inputFile().key(), defaultCpdTokens);
     }
 
   }

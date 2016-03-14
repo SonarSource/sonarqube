@@ -81,9 +81,4 @@ public interface SensorDescriptor {
    */
   SensorDescriptor requireProperties(String... propertyKeys);
 
-  /**
-   * Should this sensor be disabled in issues mode. Default is to run all sensors in issues mode.
-   */
-  SensorDescriptor disabledInIssues();
-
 }

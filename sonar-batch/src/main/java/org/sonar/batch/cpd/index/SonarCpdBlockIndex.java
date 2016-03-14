@@ -22,8 +22,9 @@ package org.sonar.batch.cpd.index;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.Iterator;
-
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
@@ -38,14 +39,16 @@ import org.sonar.duplications.index.CloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex;
 import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 
-public class SonarDuplicationsIndex extends AbstractCloneIndex {
+public class SonarCpdBlockIndex extends AbstractCloneIndex {
 
   private final CloneIndex mem = new PackedMemoryCloneIndex();
   private final ReportPublisher publisher;
   private final BatchComponentCache batchComponentCache;
   private final Settings settings;
+  // Files already tokenized
+  private final Set<InputFile> indexedFiles = new HashSet<>();
 
-  public SonarDuplicationsIndex(ReportPublisher publisher, BatchComponentCache batchComponentCache, Settings settings) {
+  public SonarCpdBlockIndex(ReportPublisher publisher, BatchComponentCache batchComponentCache, Settings settings) {
     this.publisher = publisher;
     this.batchComponentCache = batchComponentCache;
     this.settings = settings;
@@ -71,6 +74,11 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
     for (Block block : blocks) {
       mem.insert(block);
     }
+    indexedFiles.add(inputFile);
+  }
+
+  public boolean isIndexed(InputFile inputFile) {
+    return indexedFiles.contains(inputFile);
   }
 
   public static boolean isCrossProjectDuplicationEnabled(Settings settings) {

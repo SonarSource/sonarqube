@@ -27,6 +27,7 @@ import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
+import org.sonar.xoo.lang.CpdTokenizerSensor;
 import org.sonar.xoo.lang.MeasureSensor;
 import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
@@ -97,6 +98,7 @@ public class XooPlugin extends SonarPlugin {
       ChecksSensor.class,
       RandomAccessSensor.class,
       DeprecatedResourceApiSensor.class,
+      CpdTokenizerSensor.class,
 
       OneBlockerIssuePerFileSensor.class,
       OneIssuePerLineSensor.class,

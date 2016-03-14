@@ -40,7 +40,7 @@ public class CpdSensor implements Sensor {
   private Settings settings;
   private FileSystem fs;
 
-  public CpdSensor(JavaCpdIndexer sonarEngine, DefaultCpdIndexer sonarBridgeEngine, Settings settings, FileSystem fs) {
+  public CpdSensor(JavaCpdBlockIndexer sonarEngine, DefaultCpdBlockIndexer sonarBridgeEngine, Settings settings, FileSystem fs) {
     this.sonarEngine = sonarEngine;
     this.sonarBridgeEngine = sonarBridgeEngine;
     this.settings = settings;
@@ -49,8 +49,7 @@ public class CpdSensor implements Sensor {
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("CPD Sensor")
-      .disabledInIssues();
+    descriptor.name("CPD Sensor");
   }
 
   @VisibleForTesting

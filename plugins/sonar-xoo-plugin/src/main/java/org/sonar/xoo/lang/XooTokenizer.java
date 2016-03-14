@@ -20,6 +20,8 @@
 package org.sonar.xoo.lang;
 
 import com.google.common.base.Splitter;
+import java.io.File;
+import java.io.IOException;
 import net.sourceforge.pmd.cpd.SourceCode;
 import net.sourceforge.pmd.cpd.TokenEntry;
 import net.sourceforge.pmd.cpd.Tokenizer;
@@ -27,12 +29,13 @@ import net.sourceforge.pmd.cpd.Tokens;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.fs.FileSystem;
-
-import java.io.File;
-import java.io.IOException;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 @BatchSide
 public class XooTokenizer implements Tokenizer {
+
+  private static final Logger LOG = Loggers.get(XooTokenizer.class);
 
   private FileSystem fs;
 
@@ -43,6 +46,7 @@ public class XooTokenizer implements Tokenizer {
   @Override
   public final void tokenize(SourceCode source, Tokens cpdTokens) {
     String fileName = source.getFileName();
+    LOG.info("Using deprecated tokenizer extension point to tokenize {}", fileName);
     int lineIdx = 1;
     try {
       for (String line : FileUtils.readLines(new File(fileName), fs.encoding())) {

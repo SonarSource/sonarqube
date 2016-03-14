@@ -22,6 +22,7 @@ package org.sonar.batch.bootstrap;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.batch.cpd.CpdComponents;
 import org.sonar.batch.issue.tracking.ServerIssueFromWs;
 import org.sonar.batch.issue.tracking.TrackedIssue;
@@ -48,27 +49,9 @@ public class BatchComponents {
     // only static stuff
   }
 
-  public static Collection<Object> all() {
+  public static Collection<Object> all(AnalysisMode analysisMode) {
     List<Object> components = Lists.newArrayList(
       DefaultResourceTypes.get(),
-      // SCM
-      ScmConfiguration.class,
-      ScmSensor.class,
-
-      LinesSensor.class,
-      ZeroCoverageSensor.class,
-      CodeColorizerSensor.class,
-
-      // Issues tracking
-      new Tracker<TrackedIssue, ServerIssueFromWs>(),
-
-      // Reports
-      ConsoleReport.class,
-      JSONReport.class,
-      HtmlReport.class,
-      IssuesReportBuilder.class,
-      SourceProvider.class,
-      RuleNameProvider.class,
 
       // Tasks
       Tasks.class,
@@ -77,8 +60,29 @@ public class BatchComponents {
       ScanTask.DEFINITION,
       ScanTask.class);
     components.addAll(CorePropertyDefinitions.all());
-    // CPD
-    components.addAll(CpdComponents.all());
+    if (!analysisMode.isIssues()) {
+      // SCM
+      components.add(ScmConfiguration.class);
+      components.add(ScmSensor.class);
+
+      components.add(LinesSensor.class);
+      components.add(ZeroCoverageSensor.class);
+      components.add(CodeColorizerSensor.class);
+
+      // CPD
+      components.addAll(CpdComponents.all());
+    } else {
+      // Issues tracking
+      components.add(new Tracker<TrackedIssue, ServerIssueFromWs>());
+
+      // Issues report
+      components.add(ConsoleReport.class);
+      components.add(JSONReport.class);
+      components.add(HtmlReport.class);
+      components.add(IssuesReportBuilder.class);
+      components.add(SourceProvider.class);
+      components.add(RuleNameProvider.class);
+    }
     return components;
   }
 }

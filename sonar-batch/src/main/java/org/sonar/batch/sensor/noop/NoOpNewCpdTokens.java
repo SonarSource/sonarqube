@@ -17,36 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.internal;
+package org.sonar.batch.sensor.noop;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 
-/**
- * Interface for storing data computed by sensors.
- * @since 5.1
- */
-@BatchSide
-public interface SensorStorage {
+public class NoOpNewCpdTokens implements NewCpdTokens {
+  @Override
+  public void save() {
+    // Do nothing
+  }
 
-  void store(Measure measure);
+  @Override
+  public NoOpNewCpdTokens onFile(InputFile inputFile) {
+    // Do nothing
+    return this;
+  }
 
-  void store(Issue issue);
-
-  void store(DefaultHighlighting highlighting);
-
-  /**
-   * @since 5.2
-   */
-  void store(DefaultCoverage defaultCoverage);
-
-  /**
-   * @since 5.5 
-   */
-  void store(DefaultCpdTokens defaultCpdTokens);
-
+  @Override
+  public NewCpdTokens addToken(TextRange range, String image) {
+    // Do nothing
+    return this;
+  }
 }

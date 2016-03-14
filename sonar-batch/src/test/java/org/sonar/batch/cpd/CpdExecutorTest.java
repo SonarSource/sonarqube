@@ -29,7 +29,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
+import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.protocol.output.BatchReportReader;
@@ -55,7 +55,7 @@ import static org.mockito.Mockito.when;
 public class CpdExecutorTest {
   private CpdExecutor executor;
   private Settings settings;
-  private SonarDuplicationsIndex index;
+  private SonarCpdBlockIndex index;
   private ReportPublisher publisher;
   private BatchComponentCache componentCache;
 
@@ -77,7 +77,7 @@ public class CpdExecutorTest {
     File outputDir = temp.newFolder();
 
     settings = new Settings();
-    index = mock(SonarDuplicationsIndex.class);
+    index = mock(SonarCpdBlockIndex.class);
     publisher = mock(ReportPublisher.class);
     when(publisher.getWriter()).thenReturn(new BatchReportWriter(outputDir));
     componentCache = new BatchComponentCache();

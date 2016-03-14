@@ -31,15 +31,15 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
-public class DefaultCpdIndexerTest {
+public class DefaultCpdBlockIndexerTest {
 
-  private DefaultCpdIndexer engine;
+  private DefaultCpdBlockIndexer engine;
   private Settings settings;
 
   @Before
   public void init() {
     settings = new Settings();
-    engine = new DefaultCpdIndexer(null, null, settings, null);
+    engine = new DefaultCpdBlockIndexer(null, null, settings, null);
   }
 
   @Test
@@ -59,9 +59,9 @@ public class DefaultCpdIndexerTest {
 
   @Test
   public void shouldReturnDefaultBlockSize() {
-    assertThat(DefaultCpdIndexer.getDefaultBlockSize("cobol")).isEqualTo(30);
-    assertThat(DefaultCpdIndexer.getDefaultBlockSize("abap")).isEqualTo(20);
-    assertThat(DefaultCpdIndexer.getDefaultBlockSize("other")).isEqualTo(10);
+    assertThat(DefaultCpdBlockIndexer.getDefaultBlockSize("cobol")).isEqualTo(30);
+    assertThat(DefaultCpdBlockIndexer.getDefaultBlockSize("abap")).isEqualTo(20);
+    assertThat(DefaultCpdBlockIndexer.getDefaultBlockSize("other")).isEqualTo(10);
   }
 
   @Test

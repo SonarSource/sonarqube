@@ -17,36 +17,5 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.batch.sensor.internal;
-
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-
-/**
- * Interface for storing data computed by sensors.
- * @since 5.1
- */
-@BatchSide
-public interface SensorStorage {
-
-  void store(Measure measure);
-
-  void store(Issue issue);
-
-  void store(DefaultHighlighting highlighting);
-
-  /**
-   * @since 5.2
-   */
-  void store(DefaultCoverage defaultCoverage);
-
-  /**
-   * @since 5.5 
-   */
-  void store(DefaultCpdTokens defaultCpdTokens);
-
-}
+@javax.annotation.ParametersAreNonnullByDefault
+package org.sonar.batch.sensor.noop;

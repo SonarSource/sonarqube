@@ -21,11 +21,11 @@ package org.sonar.api.batch.sensor;
 
 import com.google.common.annotations.Beta;
 import java.io.Serializable;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
+import org.sonar.api.batch.sensor.cpd.NewCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
@@ -56,11 +56,6 @@ public interface SensorContext {
    * Get list of active rules.
    */
   ActiveRules activeRules();
-
-  /**
-   * Get analysis mode.
-   */
-  AnalysisMode analysisMode();
 
   /**
    * @since 5.5
@@ -99,5 +94,14 @@ public interface SensorContext {
    * Don't forget to call {@link NewCoverage#save()}.
    */
   NewCoverage newCoverage();
+
+  // ------------ CPD ------------
+
+  /**
+   * Builder to define CPD tokens in a file.
+   * Don't forget to call {@link NewCpdTokens#save()}.
+   * @since 5.5
+   */
+  NewCpdTokens newCpdTokens();
 
 }

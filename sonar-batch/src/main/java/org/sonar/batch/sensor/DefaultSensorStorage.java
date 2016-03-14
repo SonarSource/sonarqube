@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.sensor;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Arrays;
@@ -37,6 +38,7 @@ import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
+import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
 import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
 import org.sonar.api.batch.sensor.highlighting.internal.SyntaxHighlightingRule;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
@@ -51,6 +53,8 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.cpd.DefaultCpdBlockIndexer;
+import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.ModuleIssues;
@@ -61,6 +65,8 @@ import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.batch.source.DefaultSymbol;
+import org.sonar.duplications.block.Block;
+import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 
 public class DefaultSensorStorage implements SensorStorage {
 
@@ -90,16 +96,20 @@ public class DefaultSensorStorage implements SensorStorage {
   private final BatchComponentCache componentCache;
   private final ReportPublisher reportPublisher;
   private final MeasureCache measureCache;
+  private final SonarCpdBlockIndex index;
+  private final Settings settings;
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
     Settings settings, FileSystem fs, ActiveRules activeRules,
-    CoverageExclusions coverageExclusions, BatchComponentCache componentCache, ReportPublisher reportPublisher, MeasureCache measureCache) {
+    CoverageExclusions coverageExclusions, BatchComponentCache componentCache, ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;
+    this.settings = settings;
     this.coverageExclusions = coverageExclusions;
     this.componentCache = componentCache;
     this.reportPublisher = reportPublisher;
     this.measureCache = measureCache;
+    this.index = index;
   }
 
   private Metric findMetricOrFail(String metricKey) {
@@ -254,4 +264,22 @@ public class DefaultSensorStorage implements SensorStorage {
       return builder.build();
     }
   }
+
+  @Override
+  public void store(DefaultCpdTokens defaultCpdTokens) {
+    InputFile inputFile = defaultCpdTokens.inputFile();
+    PmdBlockChunker blockChunker = new PmdBlockChunker(getBlockSize(inputFile.language()));
+    List<Block> blocks = blockChunker.chunk(inputFile.key(), defaultCpdTokens.getTokenLines());
+    index.insert(inputFile, blocks);
+  }
+
+  @VisibleForTesting
+  int getBlockSize(String languageKey) {
+    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
+    if (blockSize == 0) {
+      blockSize = DefaultCpdBlockIndexer.getDefaultBlockSize(languageKey);
+    }
+    return blockSize;
+  }
+
 }

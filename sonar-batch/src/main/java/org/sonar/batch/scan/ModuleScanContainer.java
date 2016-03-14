@@ -21,6 +21,7 @@ package org.sonar.batch.scan;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.FileMetadata;
@@ -46,10 +47,12 @@ import org.sonar.batch.issue.ignore.pattern.IssueExclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.pattern.IssueInclusionPatternInitializer;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsLoader;
 import org.sonar.batch.issue.ignore.scanner.IssueExclusionsRegexpScanner;
+import org.sonar.batch.phases.AbstractPhaseExecutor;
 import org.sonar.batch.phases.InitializersExecutor;
-import org.sonar.batch.phases.PhaseExecutor;
+import org.sonar.batch.phases.IssuesPhaseExecutor;
 import org.sonar.batch.phases.PostJobsExecutor;
 import org.sonar.batch.phases.ProjectInitializer;
+import org.sonar.batch.phases.PublishPhaseExecutor;
 import org.sonar.batch.phases.SensorsExecutor;
 import org.sonar.batch.postjob.DefaultPostJobContext;
 import org.sonar.batch.postjob.PostJobOptimizer;
@@ -104,9 +107,15 @@ public class ModuleScanContainer extends ComponentContainer {
     ModuleSettings moduleSettings = getComponentByType(ModuleSettings.class);
     module.setSettings(moduleSettings);
 
+    if (getComponentByType(AnalysisMode.class).isIssues()) {
+      add(IssuesPhaseExecutor.class,
+        IssuesReports.class);
+    } else {
+      add(PublishPhaseExecutor.class);
+    }
+
     add(
       EventBus.class,
-      PhaseExecutor.class,
       RuleFinderCompatibility.class,
       PostJobsExecutor.class,
       SensorsExecutor.class,
@@ -145,9 +154,6 @@ public class ModuleScanContainer extends ComponentContainer {
       QProfileSensor.class,
       CheckFactory.class,
 
-      // report
-      IssuesReports.class,
-
       // issues
       IssuableFactory.class,
       ModuleIssues.class,
@@ -182,7 +188,7 @@ public class ModuleScanContainer extends ComponentContainer {
     DefaultIndex index = getComponentByType(DefaultIndex.class);
     index.setCurrentProject(module, getComponentByType(DefaultSensorStorage.class));
 
-    getComponentByType(PhaseExecutor.class).execute(module);
+    getComponentByType(AbstractPhaseExecutor.class).execute(module);
 
     // Free memory since module settings are no more used
     module.setSettings(null);

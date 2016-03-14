@@ -33,7 +33,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
-import org.sonar.batch.cpd.index.SonarDuplicationsIndex;
+import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.duplications.block.Block;
 
@@ -47,17 +47,17 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 
-public class JavaCpdIndexerTest {
+public class JavaCpdBlockIndexerTest {
   private static final String JAVA = "java";
 
   @Mock
-  private SonarDuplicationsIndex index;
+  private SonarCpdBlockIndex index;
 
   @Captor
   private ArgumentCaptor<List<Block>> blockCaptor;
 
   private Settings settings;
-  private JavaCpdIndexer engine;
+  private JavaCpdBlockIndexer engine;
   private DefaultInputFile file;
 
   @Rule
@@ -77,12 +77,12 @@ public class JavaCpdIndexerTest {
     FileUtils.copyURLToFile(this.getClass().getResource("ManyStatements.java"), ioFile);
 
     settings = new Settings();
-    engine = new JavaCpdIndexer(fs, settings, index);
+    engine = new JavaCpdBlockIndexer(fs, settings, index);
   }
 
   @Test
   public void languageSupported() {
-    JavaCpdIndexer engine = new JavaCpdIndexer(mock(FileSystem.class), new Settings(), index);
+    JavaCpdBlockIndexer engine = new JavaCpdBlockIndexer(mock(FileSystem.class), new Settings(), index);
     assertThat(engine.isLanguageSupported(JAVA)).isTrue();
     assertThat(engine.isLanguageSupported("php")).isFalse();
   }

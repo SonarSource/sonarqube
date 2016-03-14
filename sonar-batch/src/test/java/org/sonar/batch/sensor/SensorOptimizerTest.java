@@ -24,7 +24,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
@@ -35,8 +34,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class SensorOptimizerTest {
 
@@ -49,14 +46,12 @@ public class SensorOptimizerTest {
   private DefaultFileSystem fs;
   private SensorOptimizer optimizer;
   private Settings settings;
-  private AnalysisMode analysisMode;
 
   @Before
   public void prepare() throws Exception {
     fs = new DefaultFileSystem(temp.newFolder().toPath());
     settings = new Settings();
-    analysisMode = mock(AnalysisMode.class);
-    optimizer = new SensorOptimizer(fs, new ActiveRulesBuilder().build(), settings, analysisMode);
+    optimizer = new SensorOptimizer(fs, new ActiveRulesBuilder().build(), settings);
   }
 
   @Test
@@ -114,7 +109,7 @@ public class SensorOptimizerTest {
       .create(RuleKey.of("repo1", "foo"))
       .activate()
       .build();
-    optimizer = new SensorOptimizer(fs, activeRules, settings, analysisMode);
+    optimizer = new SensorOptimizer(fs, activeRules, settings);
 
     assertThat(optimizer.shouldExecute(descriptor)).isFalse();
 
@@ -124,7 +119,7 @@ public class SensorOptimizerTest {
       .create(RuleKey.of("squid", "rule"))
       .activate()
       .build();
-    optimizer = new SensorOptimizer(fs, activeRules, settings, analysisMode);
+    optimizer = new SensorOptimizer(fs, activeRules, settings);
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
   }
 
@@ -136,17 +131,6 @@ public class SensorOptimizerTest {
 
     settings.setProperty("sonar.foo.reportPath", "foo");
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
-  }
-
-  @Test
-  public void should_disabled_in_issues_mode() {
-    DefaultSensorDescriptor descriptor = new DefaultSensorDescriptor()
-      .disabledInIssues();
-    assertThat(optimizer.shouldExecute(descriptor)).isTrue();
-
-    when(analysisMode.isIssues()).thenReturn(true);
-
-    assertThat(optimizer.shouldExecute(descriptor)).isFalse();
   }
 
 }
