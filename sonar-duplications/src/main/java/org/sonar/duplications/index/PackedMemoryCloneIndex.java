@@ -120,7 +120,7 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
   private Block createBlock(int index, String resourceId, @Nullable ByteArray byteHash) {
     int offset = index * blockInts;
     ByteArray blockHash;
-    
+
     if (byteHash == null) {
       int[] hash = new int[hashInts];
       for (int j = 0; j < hashInts; j++) {
@@ -371,4 +371,22 @@ public class PackedMemoryCloneIndex extends AbstractCloneIndex {
     }
   };
 
+  @Override
+  /**
+   * Computation is O(N)
+   */
+  public int noResources() {
+    ensureSorted();
+    int count = 0;
+    String lastResource = null;
+
+    for (int i = 0; i < size; i++) {
+      String resource = resourceIds[resourceIdsIndex[i]];
+      if (resource != null && !resource.equals(lastResource)) {
+        count++;
+        lastResource = resource;
+      }
+    }
+    return count;
+  }
 }

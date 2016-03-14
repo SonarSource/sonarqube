@@ -54,6 +54,7 @@ public class PackedMemoryCloneIndexTest {
     index.insert(newBlock("e", 2));
     index.insert(newBlock("e", 3));
 
+    assertThat(index.noResources()).isEqualTo(5);
     assertThat(index.getBySequenceHash(new ByteArray(1L)).size(), is(5));
     assertThat(index.getBySequenceHash(new ByteArray(2L)).size(), is(2));
     assertThat(index.getBySequenceHash(new ByteArray(3L)).size(), is(1));

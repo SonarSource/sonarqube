@@ -54,4 +54,9 @@ public class MemoryCloneIndex implements CloneIndex {
     throw new UnsupportedOperationException();
   }
 
+  @Override
+  public int noResources() {
+    return byResource.keySet().size();
+  }
+
 }

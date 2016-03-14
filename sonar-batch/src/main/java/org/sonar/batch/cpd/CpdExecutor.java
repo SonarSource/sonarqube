@@ -33,6 +33,7 @@ import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.batch.protocol.output.BatchReport.Duplicate;
 import org.sonar.batch.protocol.output.BatchReport.Duplication;
 import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.util.ProgressReport;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.detector.suffixtree.SuffixTreeCloneDetectionAlgorithm;
 import org.sonar.duplications.index.CloneGroup;
@@ -42,6 +43,12 @@ import org.sonar.duplications.index.PackedMemoryCloneIndex.ResourceBlocks;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import static com.google.common.collect.FluentIterable.from;
 
@@ -52,6 +59,8 @@ import static com.google.common.collect.FluentIterable.from;
  */
 public class CpdExecutor {
   private static final Logger LOG = Loggers.get(CpdExecutor.class);
+  // timeout for the computation of duplicates in a file (seconds)
+  private static final int TIMEOUT = 5 * 60;
   static final int MAX_CLONE_GROUP_PER_FILE = 100;
   static final int MAX_CLONE_PART_PER_GROUP = 100;
 
@@ -59,24 +68,39 @@ public class CpdExecutor {
   private final ReportPublisher publisher;
   private final BatchComponentCache batchComponentCache;
   private final Settings settings;
+  private final ExecutorService executorService;
+  private final ProgressReport progressReport;
+  private int count;
+  private int total;
 
   public CpdExecutor(Settings settings, SonarDuplicationsIndex index, ReportPublisher publisher, BatchComponentCache batchComponentCache) {
     this.settings = settings;
     this.index = index;
     this.publisher = publisher;
     this.batchComponentCache = batchComponentCache;
+    this.executorService = Executors.newSingleThreadExecutor();
+    this.progressReport = new ProgressReport("CPD computation", TimeUnit.SECONDS.toMillis(10));
   }
 
   public void execute() {
-    Iterator<ResourceBlocks> it = index.iterator();
+    total = index.noResources();
+    progressReport.start(String.format("Calculating CPD for %d files", total));
+    try {
+      Iterator<ResourceBlocks> it = index.iterator();
 
-    while (it.hasNext()) {
-      ResourceBlocks resourceBlocks = it.next();
-      runCpdAnalysis(resourceBlocks.resourceId(), resourceBlocks.blocks());
+      while (it.hasNext()) {
+        ResourceBlocks resourceBlocks = it.next();
+        runCpdAnalysis(resourceBlocks.resourceId(), resourceBlocks.blocks());
+        count++;
+      }
+      progressReport.stop("CPD calculation finished");
+    } catch (Exception e) {
+      progressReport.stop("");
+      throw e;
     }
   }
 
-  private void runCpdAnalysis(String resource, Collection<Block> fileBlocks) {
+  private void runCpdAnalysis(String resource, final Collection<Block> fileBlocks) {
     LOG.debug("Detection of duplications for {}", resource);
 
     BatchComponent component = batchComponentCache.get(resource);
@@ -85,14 +109,28 @@ public class CpdExecutor {
       return;
     }
 
-    List<CloneGroup> duplications;
-    try {
-      duplications = SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail during detection of duplication for " + resource, e);
-    }
-
     InputFile inputFile = (InputFile) component.inputComponent();
+    progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile));
+
+    List<CloneGroup> duplications;
+    Future<List<CloneGroup>> futureResult = null;
+    try {
+      futureResult = executorService.submit(new Callable<List<CloneGroup>>() {
+        @Override
+        public List<CloneGroup> call() throws Exception {
+          return SuffixTreeCloneDetectionAlgorithm.detect(index, fileBlocks);
+        }
+      });
+      duplications = futureResult.get(TIMEOUT, TimeUnit.SECONDS);
+    } catch (TimeoutException e) {
+      LOG.warn("Timeout during detection of duplications for " + inputFile, e);
+      if (futureResult != null) {
+        futureResult.cancel(true);
+      }
+      return;
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail during detection of duplication for " + inputFile, e);
+    }
 
     List<CloneGroup> filtered;
     if (!"java".equalsIgnoreCase(inputFile.language())) {

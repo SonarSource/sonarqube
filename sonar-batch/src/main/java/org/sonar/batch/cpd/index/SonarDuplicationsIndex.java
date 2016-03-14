@@ -102,5 +102,10 @@ public class SonarDuplicationsIndex extends AbstractCloneIndex {
   public Iterator<ResourceBlocks> iterator() {
     return mem.iterator();
   }
+  
+  @Override
+  public int noResources() {
+    return mem.noResources();
+  }
 
 }

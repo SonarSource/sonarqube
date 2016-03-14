@@ -52,4 +52,6 @@ public interface CloneIndex {
    */
   Iterator<ResourceBlocks> iterator();
 
+  
+  int noResources();
 }
