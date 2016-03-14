@@ -67,6 +67,7 @@ import org.sonar.server.computation.CeModule;
 import org.sonar.server.computation.container.ReportProcessingModule;
 import org.sonar.server.computation.property.CePropertyDefinitions;
 import org.sonar.server.computation.queue.CeQueueModule;
+import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
@@ -125,6 +126,7 @@ import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.EsSearchModule;
+import org.sonar.server.startup.LogServerId;
 import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndex;
@@ -558,6 +560,26 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // ComponentNavigationAction.class, no Web Service in CE
     // NavigationWs.class, no Web Service in CE
   };
+  private static final Object[] STARTUP_COMPONENTS = new Object[] {
+    // IndexSynchronizer.class, ES maintenance, responsibility of Web Server
+    // RegisterMetrics.class, DB maintenance, responsibility of Web Server
+    // RegisterQualityGates.class, DB maintenance, responsibility of Web Server
+    // RegisterRules.class, DB maintenance, responsibility of Web Server
+    // RegisterQualityProfiles.class, DB maintenance, responsibility of Web Server
+    // GeneratePluginIndex.class, ES maintenance, responsibility of Web Server
+    // RegisterNewMeasureFilters.class, DB maintenance, responsibility of Web Server
+    // RegisterDashboards.class, UI related, anyway, DB maintenance, responsibility of Web Server
+    // RegisterPermissionTemplates.class, DB maintenance, responsibility of Web Server
+    // RenameDeprecatedPropertyKeys.class, DB maintenance, responsibility of Web Server
+    LogServerId.class,
+    // RegisterServletFilters.class, Web Server only
+    // RegisterIssueFilters.class, DB maintenance, responsibility of Web Server
+    // RenameIssueWidgets.class, UI related, anyway, DB maintenance, responsibility of Web Server
+    ServerLifecycleNotifier.class,
+    PurgeCeActivities.class,
+    // DisplayLogOnDeprecatedProjects.class, responsibility of Web Server
+    // ClearRulesOverloadedDebt.class, DB maintenance, responsibility of Web Server
+  };
 
   private final ComponentContainer componentContainer;
 
@@ -574,7 +596,8 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
       .add(toArray(CePropertyDefinitions.all()))
       .add(LEVEL_2_COMPONENTS)
       .add(LEVEL_3_COMPONENTS)
-      .add(LEVEL_4_COMPONENTS);
+      .add(LEVEL_4_COMPONENTS)
+      .add(STARTUP_COMPONENTS);
 
     configureFromModules();
 
