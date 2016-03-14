@@ -69,7 +69,7 @@ public class OAuth2ContextFactory {
       if (publicRootUrl.startsWith("http:") && !server.isDev()) {
         throw MessageException.of(format("The server url should be configured in https, please update the property '%s'", SERVER_BASE_URL));
       }
-      return publicRootUrl +  CALLBACK_PATH + "/" + identityProvider.getKey();
+      return publicRootUrl + CALLBACK_PATH + identityProvider.getKey();
     }
 
     @Override

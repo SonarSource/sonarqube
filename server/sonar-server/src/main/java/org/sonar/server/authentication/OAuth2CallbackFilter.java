@@ -27,18 +27,20 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.web.ServletFilter;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
 import static org.sonar.server.authentication.AuthenticationError.handleError;
 import static org.sonar.server.authentication.AuthenticationError.handleUnauthorizedError;
 
 public class OAuth2CallbackFilter extends ServletFilter {
 
-  public static final String CALLBACK_PATH = "/oauth2/callback";
+  public static final String CALLBACK_PATH = "/oauth2/callback/";
 
   private final IdentityProviderRepository identityProviderRepository;
   private final OAuth2ContextFactory oAuth2ContextFactory;
@@ -50,16 +52,16 @@ public class OAuth2CallbackFilter extends ServletFilter {
 
   @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create(CALLBACK_PATH + "/*");
+    return UrlPattern.create(CALLBACK_PATH + "*");
   }
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
     String requestUri = httpRequest.getRequestURI();
-    String keyProvider = requestUri.replace(CALLBACK_PATH + "/", "");
-
+    String keyProvider = "";
     try {
+      keyProvider = extractKeyProvider(requestUri, CALLBACK_PATH);
       IdentityProvider provider = identityProviderRepository.getEnabledByKey(keyProvider);
       if (provider instanceof OAuth2IdentityProvider) {
         OAuth2IdentityProvider oauthProvider = (OAuth2IdentityProvider) provider;
@@ -70,8 +72,20 @@ public class OAuth2CallbackFilter extends ServletFilter {
     } catch (UnauthorizedException e) {
       handleUnauthorizedError(e, (HttpServletResponse) response);
     } catch (Exception e) {
-      handleError(e, (HttpServletResponse) response, format("Fail to callback authentication with %s", keyProvider));
+      handleError(e, (HttpServletResponse) response,
+        keyProvider.isEmpty() ? "Fail to callback authentication" :
+          format("Fail to callback authentication with '%s'", keyProvider));
     }
+  }
+
+  public static String extractKeyProvider(String requestUri, String context) {
+    if (requestUri.contains(context)) {
+      String key = requestUri.replace(context, "");
+      if (!isNullOrEmpty(key)) {
+        return key;
+      }
+    }
+    throw new IllegalArgumentException(String.format("A valid identity provider key is required. Please check that property '%s' is valid.", CoreProperties.SERVER_BASE_URL));
   }
 
   @Override

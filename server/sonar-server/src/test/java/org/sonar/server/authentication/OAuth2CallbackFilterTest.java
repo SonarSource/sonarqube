@@ -98,7 +98,7 @@ public class OAuth2CallbackFilterTest {
 
     underTest.doFilter(request, response, chain);
 
-    assertError("Fail to callback authentication with github");
+    assertError("Fail to callback authentication with 'github'");
   }
 
   @Test
@@ -112,6 +112,17 @@ public class OAuth2CallbackFilterTest {
     underTest.doFilter(request, response, chain);
 
     verify(response).sendRedirect("/sessions/unauthorized?message=Email+john%40email.com+is+already+used");
+  }
+
+  @Test
+  public void fail_when_no_oauth2_provider_provided() throws Exception {
+    String providerKey = "openid";
+    when(request.getRequestURI()).thenReturn("/oauth2/callback");
+    identityProviderRepository.addIdentityProvider(new FakeBasicIdentityProvider(providerKey, true));
+
+    underTest.doFilter(request, response, chain);
+
+    assertError("Fail to callback authentication");
   }
 
   private void assertCallbackCalled(){

@@ -109,7 +109,16 @@ public class InitFilterTest {
   }
 
   @Test
-  public void fail_if_identity_provider_class_is_unsuported() throws Exception {
+  public void fail_if_uri_doesnt_contains_callback() throws Exception {
+    when(request.getRequestURI()).thenReturn("/sessions/init");
+
+    underTest.doFilter(request, response, chain);
+
+    assertError("Fail to initialize authentication with provider ''");
+  }
+
+  @Test
+  public void fail_if_identity_provider_class_is_unsupported() throws Exception {
     final String unsupportedKey = "unsupported";
     when(request.getRequestURI()).thenReturn("/sessions/init/" + unsupportedKey);
     identityProviderRepository.addIdentityProvider(new IdentityProvider() {

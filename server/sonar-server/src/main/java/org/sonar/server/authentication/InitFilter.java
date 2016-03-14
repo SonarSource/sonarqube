@@ -40,7 +40,7 @@ import static org.sonar.server.authentication.AuthenticationError.handleUnauthor
 
 public class InitFilter extends ServletFilter {
 
-  private static final String INIT_CONTEXT = "/sessions/init";
+  private static final String INIT_CONTEXT = "/sessions/init/";
 
   private final IdentityProviderRepository identityProviderRepository;
   private final BaseContextFactory baseContextFactory;
@@ -54,19 +54,16 @@ public class InitFilter extends ServletFilter {
 
   @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create(INIT_CONTEXT + "/*");
+    return UrlPattern.create(INIT_CONTEXT + "*");
   }
 
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
     HttpServletRequest httpRequest = (HttpServletRequest) request;
-    String requestUri = httpRequest.getRequestURI();
-    final String keyProvider = requestUri.replace(INIT_CONTEXT + "/", "");
+    String requestURI = httpRequest.getRequestURI();
+    String keyProvider = "";
     try {
-      if (isNullOrEmpty(keyProvider)) {
-        throw new IllegalArgumentException("A valid identity provider key is required");
-      }
-
+      keyProvider = extractKeyProvider(requestURI, INIT_CONTEXT);
       IdentityProvider provider = identityProviderRepository.getEnabledByKey(keyProvider);
       if (provider instanceof BaseIdentityProvider) {
         BaseIdentityProvider baseIdentityProvider = (BaseIdentityProvider) provider;
@@ -82,6 +79,16 @@ public class InitFilter extends ServletFilter {
     } catch (Exception e) {
       handleError(e, (HttpServletResponse) response, format("Fail to initialize authentication with provider '%s'", keyProvider));
     }
+  }
+
+  public static String extractKeyProvider(String requestUri, String context) {
+    if (requestUri.contains(context)) {
+      String key = requestUri.replace(context, "");
+      if (!isNullOrEmpty(key)) {
+        return key;
+      }
+    }
+    throw new IllegalArgumentException("A valid identity provider key is required.");
   }
 
   @Override
