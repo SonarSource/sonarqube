@@ -42,7 +42,6 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
-import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -53,7 +52,6 @@ import org.sonar.server.ws.WsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 public class CreateActionTest {
 
@@ -99,7 +97,7 @@ public class CreateActionTest {
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
     tester = new WsTester(new UsersWs(new CreateAction(dbClient,
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)),
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2),
       i18n, userSessionRule, new UserJsonWriter(userSessionRule))));
     controller = tester.controller("api/users");
   }

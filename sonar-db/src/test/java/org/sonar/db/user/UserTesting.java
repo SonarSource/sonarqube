@@ -34,6 +34,7 @@ public class UserTesting {
   public static UserDto newUserDto(String login, String name, String email) {
     return new UserDto()
       .setActive(true)
+      .setLocal(true)
       .setName(name)
       .setEmail(email)
       .setLogin(login)
@@ -44,6 +45,46 @@ public class UserTesting {
       .setRememberTokenExpiresAt(new Date((long)nextInt()))
       .setSalt(randomAlphanumeric(40))
       .setCryptedPassword(randomAlphanumeric(40))
+      .setCreatedAt(nextLong())
+      .setUpdatedAt(nextLong());
+  }
+
+  public static UserDto newLocalUser(String login, String name, String email) {
+    return new UserDto()
+      .setActive(true)
+      .setLocal(true)
+      .setName(name)
+      .setEmail(email)
+      .setLogin(login)
+      .setScmAccounts(randomAlphanumeric(40))
+      .setExternalIdentity(login)
+      .setExternalIdentityProvider("sonarqube")
+      .setRememberToken(randomAlphanumeric(500))
+      .setRememberTokenExpiresAt(new Date((long)nextInt()))
+      .setSalt(randomAlphanumeric(40))
+      .setCryptedPassword(randomAlphanumeric(40))
+      .setCreatedAt(nextLong())
+      .setUpdatedAt(nextLong());
+  }
+
+  public static UserDto newExternalUser(String login, String name, String email) {
+    return new UserDto()
+      .setActive(true)
+      .setLocal(false)
+      .setName(name)
+      .setEmail(email)
+      .setLogin(login)
+      .setScmAccounts(randomAlphanumeric(40))
+      .setExternalIdentity(randomAlphanumeric(40))
+      .setExternalIdentityProvider(randomAlphanumeric(40))
+      .setCreatedAt(nextLong())
+      .setUpdatedAt(nextLong());
+  }
+
+  public static UserDto newDisabledUser(String login){
+    return new UserDto()
+      .setLogin(login)
+      .setActive(false)
       .setCreatedAt(nextLong())
       .setUpdatedAt(nextLong());
   }
