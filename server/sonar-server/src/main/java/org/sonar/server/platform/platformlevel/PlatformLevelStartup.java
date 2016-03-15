@@ -28,6 +28,7 @@ import org.sonar.server.rule.RegisterRules;
 import org.sonar.server.search.IndexSynchronizer;
 import org.sonar.server.startup.ClearRulesOverloadedDebt;
 import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
+import org.sonar.server.startup.FeedUsersLocalStartupTask;
 import org.sonar.server.startup.GeneratePluginIndex;
 import org.sonar.server.startup.LogServerId;
 import org.sonar.server.startup.RegisterDashboards;
@@ -65,7 +66,8 @@ public class PlatformLevelStartup extends PlatformLevel {
       ServerLifecycleNotifier.class,
       PurgeCeActivities.class,
       DisplayLogOnDeprecatedProjects.class,
-      ClearRulesOverloadedDebt.class
+      ClearRulesOverloadedDebt.class,
+      FeedUsersLocalStartupTask.class
     );
   }
 

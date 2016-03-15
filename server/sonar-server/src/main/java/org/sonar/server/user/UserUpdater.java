@@ -55,7 +55,7 @@ import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_LOCAL_USERS;
 @ServerSide
 public class UserUpdater {
 
-  private static final String SQ_AUTHORITY = "sonarqube";
+  public static final String SQ_AUTHORITY = "sonarqube";
 
   private static final String LOGIN_PARAM = "Login";
   private static final String PASSWORD_PARAM = "Password";
