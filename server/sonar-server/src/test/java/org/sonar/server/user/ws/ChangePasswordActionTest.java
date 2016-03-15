@@ -40,6 +40,7 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.user.ExternalIdentity;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
@@ -99,7 +100,7 @@ public class ChangePasswordActionTest {
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
-    userUpdater = new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, realmFactory);
+    userUpdater = new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2);
     tester = new WsTester(new UsersWs(new ChangePasswordAction(userUpdater, userSessionRule)));
     controller = tester.controller("api/users");
   }
@@ -190,7 +191,12 @@ public class ChangePasswordActionTest {
 
   @Test(expected = BadRequestException.class)
   public void fail_to_update_password_on_external_auth() throws Exception {
-    createUser();
+    userUpdater.create(NewUser.create()
+      .setEmail("john@email.com")
+      .setLogin("john")
+      .setName("John")
+      .setScmAccounts(newArrayList("jn"))
+      .setExternalIdentity(new ExternalIdentity("gihhub", "john")));
     session.clearCache();
     when(realmFactory.hasExternalAuthentication()).thenReturn(true);
 

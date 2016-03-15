@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import com.google.common.collect.Iterables;
 import java.net.HttpURLConnection;
 import java.security.SecureRandom;
@@ -48,9 +47,8 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Arrays.asList;
-import static org.sonar.api.CoreProperties.CORE_AUTHENTICATOR_LOCAL_USERS;
 
 @ServerSide
 public class UserUpdater {
@@ -72,17 +70,13 @@ public class UserUpdater {
   private final DbClient dbClient;
   private final UserIndexer userIndexer;
   private final System2 system2;
-  private final SecurityRealmFactory realmFactory;
-  private final List<String> technicalUsers;
 
-  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2, SecurityRealmFactory realmFactory) {
+  public UserUpdater(NewUserNotifier newUserNotifier, Settings settings, DbClient dbClient, UserIndexer userIndexer, System2 system2) {
     this.newUserNotifier = newUserNotifier;
     this.settings = settings;
     this.dbClient = dbClient;
     this.userIndexer = userIndexer;
     this.system2 = system2;
-    this.realmFactory = realmFactory;
-    this.technicalUsers = asList(settings.getStringArray(CORE_AUTHENTICATOR_LOCAL_USERS));
   }
 
   /**
@@ -126,6 +120,8 @@ public class UserUpdater {
     if (newUser.password() != null) {
       updateUser.setPassword(newUser.password());
     }
+    // Hack to allow to change the password of the user
+    existingUser.setLocal(true);
     updateUserDto(dbSession, updateUser, existingUser);
     updateUser(dbSession, existingUser);
     addDefaultGroup(dbSession, existingUser);
@@ -230,14 +226,15 @@ public class UserUpdater {
       userDto.setEmail(email);
     }
 
-    String password = updateUser.password();
-    if (updateUser.isPasswordChanged()) {
-      validatePasswords(password, messages);
-      checkPasswordChangeAllowed(updateUser.login(), messages);
-      if (Strings.isNullOrEmpty(password)) {
-        userDto.setSalt(null);
-        userDto.setCryptedPassword(null);
-      } else {
+    if (isNewExternalIdentityNotEqualsToSonaQube(updateUser)) {
+      setExternalIdentity(userDto, updateUser.externalIdentity());
+      userDto.setSalt(null);
+      userDto.setCryptedPassword(null);
+    } else {
+      String password = updateUser.password();
+      if (updateUser.isPasswordChanged()) {
+        validatePasswords(password, messages);
+        checkPasswordChangeAllowed(userDto, messages);
         setEncryptedPassWord(password, userDto);
       }
     }
@@ -252,7 +249,9 @@ public class UserUpdater {
       }
     }
 
-    setExternalIdentity(userDto, updateUser.externalIdentity());
+    if (updateUser.isExternalIdentityChanged()) {
+      setExternalIdentity(userDto, updateUser.externalIdentity());
+    }
 
     if (!messages.isEmpty()) {
       throw new BadRequestException(messages);
@@ -263,21 +262,23 @@ public class UserUpdater {
     if (externalIdentity == null) {
       dto.setExternalIdentity(dto.getLogin());
       dto.setExternalIdentityProvider(SQ_AUTHORITY);
+      dto.setLocal(true);
     } else {
       dto.setExternalIdentity(externalIdentity.getId());
       dto.setExternalIdentityProvider(externalIdentity.getProvider());
+      dto.setLocal(false);
     }
   }
 
   private static void checkNotEmptyParam(@Nullable String value, String param, List<Message> messages) {
-    if (Strings.isNullOrEmpty(value)) {
+    if (isNullOrEmpty(value)) {
       messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, param));
     }
   }
 
   private static String validateLoginFormat(@Nullable String login, List<Message> messages) {
     checkNotEmptyParam(login, LOGIN_PARAM, messages);
-    if (!Strings.isNullOrEmpty(login)) {
+    if (!isNullOrEmpty(login)) {
       if (login.length() < LOGIN_MIN_LENGTH) {
         messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, LOGIN_MIN_LENGTH));
       } else if (login.length() > LOGIN_MAX_LENGTH) {
@@ -302,14 +303,22 @@ public class UserUpdater {
     }
   }
 
-  private void checkPasswordChangeAllowed(String login, List<Message> messages) {
-    if (realmFactory.hasExternalAuthentication() && !technicalUsers.contains(login)) {
+  private static void checkPasswordChangeAllowed(UserDto userDto, List<Message> messages) {
+    if (!userDto.isLocal()) {
       messages.add(Message.of("user.password_cant_be_changed_on_external_auth"));
     }
   }
 
+  private static boolean isNewExternalIdentityNotEqualsToSonaQube(UpdateUser updateUser) {
+    ExternalIdentity externalIdentity = updateUser.externalIdentity();
+    if (updateUser.isExternalIdentityChanged() && externalIdentity != null) {
+      return !externalIdentity.getProvider().equals(SQ_AUTHORITY);
+    }
+    return false;
+  }
+
   private static void validatePasswords(@Nullable String password, List<Message> messages) {
-    if (password != null && password.length() == 0) {
+    if (password == null || password.length() == 0) {
       messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, PASSWORD_PARAM));
     }
   }
