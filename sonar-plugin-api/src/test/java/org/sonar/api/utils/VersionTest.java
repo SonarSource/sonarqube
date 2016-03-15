@@ -57,6 +57,7 @@ public class VersionTest {
     assertThat(one).isEqualTo(parse("1.0"));
     assertThat(one).isEqualTo(parse("1.0.0"));
     assertThat(one).isNotEqualTo(parse("1.2.3"));
+    assertThat(one).isNotEqualTo("1");
 
     assertThat(parse("1.2.3")).isEqualTo(parse("1.2.3"));
     assertThat(parse("1.2.3")).isNotEqualTo(parse("1.2.4"));
@@ -98,8 +99,18 @@ public class VersionTest {
     assertThat(parse("1.2.3-b1").toString()).isEqualTo("1.2.3-b1");
   }
 
+  @Test
+  public void test_create() {
+    assertVersion(Version.create(1, 2), 1, 2, 0, "");
+    assertVersion(Version.create(1, 2, 3), 1, 2, 3, "");
+    assertVersion(Version.create(1, 2, 0, ""), 1, 2, 0, "");
+    assertVersion(Version.create(1, 2, 3, "build1"), 1, 2, 3, "build1");
+    assertThat(Version.create(1, 2, 3, "build1").toString()).isEqualTo("1.2.3-build1");
+
+  }
+
   private static void assertVersion(Version version,
-    int expectedMajor, int expectedMinor, int expectedPatch, String expectedQualifier) {
+                                    int expectedMajor, int expectedMinor, int expectedPatch, String expectedQualifier) {
     assertThat(version.major()).isEqualTo(expectedMajor);
     assertThat(version.minor()).isEqualTo(expectedMinor);
     assertThat(version.patch()).isEqualTo(expectedPatch);
