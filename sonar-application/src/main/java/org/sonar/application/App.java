@@ -107,6 +107,9 @@ public class App implements Stoppable {
   private static JavaCommand createCeServerCommand(Props props, File homeDir) {
     JavaCommand webServer = new JavaCommand("ce", CESERVER_PROCESS_INDEX)
       .setWorkDir(homeDir)
+      .addJavaOptions(ProcessProperties.CE_ENFORCED_JVM_ARGS)
+      .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_OPTS))
+      .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_ADDITIONAL_OPTS))
       .setClassName("org.sonar.ce.app.CeServer")
       .setArguments(props.rawProperties())
       .addClasspath("./lib/common/*")

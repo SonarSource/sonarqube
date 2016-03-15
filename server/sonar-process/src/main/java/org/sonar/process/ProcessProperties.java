@@ -60,6 +60,9 @@ public class ProcessProperties {
   public static final String WEB_JAVA_OPTS = "sonar.web.javaOpts";
   public static final String WEB_JAVA_ADDITIONAL_OPTS = "sonar.web.javaAdditionalOpts";
 
+  public static final String CE_JAVA_OPTS = "sonar.ce.javaOpts";
+  public static final String CE_JAVA_ADDITIONAL_OPTS = "sonar.ce.javaAdditionalOpts";
+
   /**
    * Used by Orchestrator to ask for shutdown of monitor process
    */
@@ -73,6 +76,8 @@ public class ProcessProperties {
   public static final String WEB_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false " +
     // jruby is slow with java 8: https://jira.sonarsource.com/browse/SONAR-6115
     "-Djruby.compile.invokedynamic=false";
+
+  public static final String CE_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8";
 
   private ProcessProperties() {
     // only static stuff
@@ -111,6 +116,8 @@ public class ProcessProperties {
 
     defaults.put(ProcessProperties.WEB_JAVA_OPTS, "-Xmx768m -Xms256m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
     defaults.put(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS, "");
+    defaults.put(ProcessProperties.CE_JAVA_OPTS, "-Xmx768m -Xms256m -XX:MaxPermSize=160m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
+    defaults.put(ProcessProperties.CE_JAVA_ADDITIONAL_OPTS, "");
     defaults.put(ProcessProperties.JDBC_URL, "jdbc:h2:tcp://localhost:9092/sonar");
     defaults.put(ProcessProperties.JDBC_MAX_ACTIVE, "60");
     defaults.put(ProcessProperties.JDBC_MAX_IDLE, "5");
