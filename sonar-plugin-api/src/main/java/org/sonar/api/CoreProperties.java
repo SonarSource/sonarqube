@@ -468,7 +468,9 @@ public interface CoreProperties {
 
   /**
    * @since 4.2
+   * @deprecated no more used since 5.5
    */
+  @Deprecated
   String CORE_AUTHENTICATOR_LOCAL_USERS = "sonar.security.localUsers";
 
   /**
