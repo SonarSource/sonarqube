@@ -234,6 +234,23 @@ public class FileSystemMediumTest {
         .start();
 
       assertThat(result.inputFiles()).hasSize(3);
+      // check that symlink was not resolved to target
+      assertThat(result.inputFiles()).extractingResultOf("path").toString().startsWith(projectDir.toString());
+    }
+  }
+
+  // SONAR-6719
+  @Test
+  public void scanProjectWithWrongCase() {
+    if (System2.INSTANCE.isOsWindows()) {
+      File projectDir = new File("src/test/resources/mediumtest/xoo/sample");
+      TaskResult result = tester
+        .newScanTask(new File(projectDir, "sonar-project.properties"))
+        .property("sonar.sources", "SRC")
+        .start();
+
+      assertThat(result.inputFiles()).hasSize(3);
+      assertThat(result.inputFiles()).extractingResultOf("relativePath").startsWith("src");
     }
   }
 

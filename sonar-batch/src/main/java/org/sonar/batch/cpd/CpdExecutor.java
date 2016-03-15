@@ -110,7 +110,7 @@ public class CpdExecutor {
     }
 
     InputFile inputFile = (InputFile) component.inputComponent();
-    progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile));
+    progressReport.message(String.format("%d/%d - current file: %s", count, total, inputFile.absolutePath()));
 
     List<CloneGroup> duplications;
     Future<List<CloneGroup>> futureResult = null;
@@ -123,13 +123,13 @@ public class CpdExecutor {
       });
       duplications = futureResult.get(TIMEOUT, TimeUnit.SECONDS);
     } catch (TimeoutException e) {
-      LOG.warn("Timeout during detection of duplications for " + inputFile, e);
+      LOG.warn("Timeout during detection of duplications for " + inputFile.absolutePath());
       if (futureResult != null) {
         futureResult.cancel(true);
       }
       return;
     } catch (Exception e) {
-      throw new IllegalStateException("Fail during detection of duplication for " + inputFile, e);
+      throw new IllegalStateException("Fail during detection of duplication for " + inputFile.absolutePath(), e);
     }
 
     List<CloneGroup> filtered;
