@@ -20,9 +20,12 @@
 package org.sonar.server.db;
 
 import com.google.common.annotations.VisibleForTesting;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;
+
+import static org.apache.commons.lang.StringUtils.startsWith;
 
 public class EmbeddedDatabaseFactory implements Startable {
   private final Settings settings;
@@ -36,7 +39,7 @@ public class EmbeddedDatabaseFactory implements Startable {
   public void start() {
     if (embeddedDatabase == null) {
       String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
-      if (jdbcUrl.startsWith("jdbc:h2:tcp:")) {
+      if (startsWith(jdbcUrl, "jdbc:h2:tcp:")) {
         embeddedDatabase = getEmbeddedDatabase(settings);
         embeddedDatabase.start();
       }

@@ -28,6 +28,8 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.MessageException;
 
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+
 @BatchSide
 public class QProfileVerifier {
 
@@ -57,7 +59,7 @@ public class QProfileVerifier {
         logger.warn("No Quality profile found for language " + lang);
       } else {
         logger.info("Quality profile for {}: {}", lang, profile.getName());
-        if (StringUtils.isNotBlank(defaultName) && defaultName.equals(profile.getName())) {
+        if (isNotEmpty(defaultName) && defaultName.equals(profile.getName())) {
           defaultNameUsed = true;
         }
       }
