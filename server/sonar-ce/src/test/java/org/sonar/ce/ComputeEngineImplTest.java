@@ -64,12 +64,7 @@ public class ComputeEngineImplTest {
 
   private static class NoOpComputeEngineContainer implements ComputeEngineContainer {
     @Override
-    public ComputeEngineContainer configure(Props props) {
-      return this;
-    }
-
-    @Override
-    public ComputeEngineContainer start() {
+    public ComputeEngineContainer start(Props props) {
       return this;
     }
 

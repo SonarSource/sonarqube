@@ -27,10 +27,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.picocontainer.MutablePicoContainer;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.DbTester;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -38,7 +36,8 @@ import org.sonar.process.Props;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComputeEngineContainerImplTest {
-  private static final int COMPONENTS_IN_CONTAINER_AT_CONSTRUCTION = 2;
+  private static final int CONTAINER_ITSELF = 1;
+  private static final int COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION = CONTAINER_ITSELF + 1;
 
   @Rule
   public TemporaryFolder tempFolder = new TemporaryFolder();
@@ -48,44 +47,8 @@ public class ComputeEngineContainerImplTest {
   private ComputeEngineContainerImpl underTest = new ComputeEngineContainerImpl();
 
   @Test
-  public void constructor_adds_only_container_and_PropertyDefinitions() {
-    ComponentContainer componentContainer = underTest.getComponentContainer();
-
-    assertThat(componentContainer.getComponentsByType(Object.class)).hasSize(2);
-    assertThat(componentContainer.getComponentByType(PropertyDefinitions.class)).isNotNull();
-    assertThat(componentContainer.getComponentByType(ComponentContainer.class)).isSameAs(componentContainer);
-  }
-
-  @Test
-  public void configure_adds_raw_properties_from_Props_to_container() {
-    Properties properties = new Properties();
-    underTest.configure(new Props(properties));
-
-    assertThat(underTest.getComponentContainer().getComponentByType(Properties.class)).isSameAs(properties);
-  }
-
-  @Test
-  public void verify_number_of_components_in_container() {
-    Properties properties = new Properties();
-    underTest.configure(new Props(properties));
-
-    assertThat(underTest.getComponentContainer().getPicoContainer().getComponentAdapters())
-      .hasSize(COMPONENTS_IN_CONTAINER_AT_CONSTRUCTION
-        + 22 // level 1
-        + 47 // content of DaoModule
-        + 1 // content of EsSearchModule
-        + 58 // content of CorePropertyDefinitions
-        + 1 // content of CePropertyDefinitions
-        + 59 // content of MigrationStepModule
-        + 10 // level 2
-        + 5 // level 3
-        + 77 // level 4
-        + 5 // content of CeModule
-        + 7 // content of CeQueueModule
-        + 4 // content of ReportProcessingModule
-        + 4 // content of CeTaskProcessorModule
-        + 4 // level startup
-      );
+  public void constructor_does_not_create_container() {
+    assertThat(underTest.getComponentContainer()).isNull();
   }
 
   @Test
@@ -103,30 +66,36 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(DatabaseProperties.PROP_PASSWORD, "sonar");
 
     underTest
-      .configure(new Props(properties))
-      .start();
+      .start(new Props(properties));
 
-  }
-
-  @Test
-  public void start_starts_pico_container() {
     MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
-
-    assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();
-
-    underTest.start();
-
-    assertThat(picoContainer.getLifecycleState().isStarted()).isTrue();
-  }
-
-  @Test
-  public void stop_stops_and_dispose_pico_container() {
-    MutablePicoContainer picoContainer = underTest.getComponentContainer().getPicoContainer();
-
-    assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();
-    assertThat(picoContainer.getLifecycleState().isStopped()).isFalse();
-
-    underTest.start();
+    assertThat(picoContainer.getComponentAdapters())
+      .hasSize(
+        CONTAINER_ITSELF
+          + 77 // level 4
+          + 5 // content of CeModule
+          + 7 // content of CeQueueModule
+          + 4 // content of ReportProcessingModule
+          + 4 // content of CeTaskProcessorModule
+      );
+    assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
+      CONTAINER_ITSELF
+      + 5 // level 3
+      );
+    assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
+      CONTAINER_ITSELF
+      + 10 // level 2
+      );
+    assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
+      COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
+        + 22 // level 1
+        + 47 // content of DaoModule
+        + 1 // content of EsSearchModule
+        + 58 // content of CorePropertyDefinitions
+        + 1 // content of CePropertyDefinitions
+        + 59 // content of MigrationStepModule
+    );
+    assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
     underTest.stop();
 
     assertThat(picoContainer.getLifecycleState().isStarted()).isFalse();

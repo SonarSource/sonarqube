@@ -21,6 +21,7 @@ package org.sonar.ce.container;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
+import javax.annotation.CheckForNull;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
@@ -586,58 +587,75 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // ClearRulesOverloadedDebt.class, DB maintenance, responsibility of Web Server
   };
 
-  private final ComponentContainer componentContainer;
-
-  public ComputeEngineContainerImpl() {
-    this.componentContainer = new ComponentContainer();
-  }
+  @CheckForNull
+  private ComponentContainer level1;
+  @CheckForNull
+  private ComponentContainer level4;
 
   @Override
-  public ComputeEngineContainer configure(Props props) {
-    this.componentContainer
+  public ComputeEngineContainer start(Props props) {
+    this.level1 = new ComponentContainer();
+    this.level1
       .add(props.rawProperties())
       .add(LEVEL_1_COMPONENTS)
       .add(toArray(CorePropertyDefinitions.all()))
-      .add(toArray(CePropertyDefinitions.all()))
-      .add(LEVEL_2_COMPONENTS)
-      .add(LEVEL_3_COMPONENTS)
-      .add(LEVEL_4_COMPONENTS)
-      .add(STARTUP_COMPONENTS);
+      .add(toArray(CePropertyDefinitions.all()));
+    configureFromModules(this.level1);
+    this.level1.startComponents();
 
-    configureFromModules();
+    ComponentContainer level2 = this.level1.createChild();
+    level2.add(LEVEL_2_COMPONENTS);
+    configureFromModules(level2);
+    level2.startComponents();
+
+    ComponentContainer level3 = level2.createChild();
+    level3.add(LEVEL_3_COMPONENTS);
+    configureFromModules(level3);
+    level3.startComponents();
+
+    this.level4 = level3.createChild();
+    this.level4.add(LEVEL_4_COMPONENTS);
+    configureFromModules(this.level4);
+    ServerExtensionInstaller extensionInstaller = this.level4.getComponentByType(ServerExtensionInstaller.class);
+    extensionInstaller.installExtensions(this.level4);
+    this.level4.startComponents();
+
+    startupTasks();
 
     return this;
+  }
+
+  private void startupTasks() {
+    ComponentContainer startupLevel = this.level4.createChild();
+    startupLevel.add(STARTUP_COMPONENTS);
+    startupLevel.startComponents();
+    // done in PlatformLevelStartup
+    ServerLifecycleNotifier serverLifecycleNotifier = startupLevel.getComponentByType(ServerLifecycleNotifier.class);
+    if (serverLifecycleNotifier != null) {
+      serverLifecycleNotifier.notifyStart();
+    }
+    startupLevel.stopComponents();
+  }
+
+  @Override
+  public ComputeEngineContainer stop() {
+    this.level1.stopComponents();
+    return this;
+  }
+
+  @VisibleForTesting
+  protected ComponentContainer getComponentContainer() {
+    return level4;
   }
 
   private static Object[] toArray(List<?> list) {
     return list.toArray(new Object[list.size()]);
   }
 
-  private void configureFromModules() {
-    List<Module> modules = this.componentContainer.getComponentsByType(Module.class);
+  private static void configureFromModules(ComponentContainer container) {
+    List<Module> modules = container.getComponentsByType(Module.class);
     for (Module module : modules) {
-      module.configure(this.componentContainer);
+      module.configure(container);
     }
-  }
-
-  @Override
-  public ComputeEngineContainer start() {
-    this.componentContainer.startComponents();
-    ServerLifecycleNotifier serverLifecycleNotifier = this.componentContainer.getComponentByType(ServerLifecycleNotifier.class);
-    if (serverLifecycleNotifier != null) {
-      serverLifecycleNotifier.notifyStart();
-    }
-    return this;
-  }
-
-  @Override
-  public ComputeEngineContainer stop() {
-    this.componentContainer.stopComponents();
-    return this;
-  }
-
-  @VisibleForTesting
-  protected ComponentContainer getComponentContainer() {
-    return componentContainer;
   }
 }
