@@ -14,6 +14,7 @@
     u.crypted_password as "cryptedPassword",
     u.external_identity as "externalIdentity",
     u.external_identity_provider as "externalIdentityProvider",
+    u.user_local as "local",
     u.remember_token as "rememberToken",
     u.remember_token_expires_at as "rememberTokenExpiresAt",
     u.created_at as "createdAt",
@@ -147,10 +148,11 @@
   </update>
 
   <insert id="insert" parameterType="User" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO users (login, name, email, active, scm_accounts, external_identity, external_identity_provider, salt, crypted_password,
+    INSERT INTO users (login, name, email, active, scm_accounts, external_identity, external_identity_provider, user_local, salt, crypted_password,
     remember_token, remember_token_expires_at, created_at, updated_at)
     VALUES (#{login,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{email,jdbcType=VARCHAR}, #{active,jdbcType=BOOLEAN},
     #{scmAccounts,jdbcType=VARCHAR}, #{externalIdentity,jdbcType=VARCHAR}, #{externalIdentityProvider,jdbcType=VARCHAR},
+    #{local,jdbcType=BOOLEAN},
     #{salt,jdbcType=VARCHAR}, #{cryptedPassword,jdbcType=VARCHAR},
     #{rememberToken,jdbcType=VARCHAR}, #{rememberTokenExpiresAt,jdbcType=TIMESTAMP},
     #{createdAt,jdbcType=BIGINT}, #{updatedAt,jdbcType=BIGINT})
@@ -159,6 +161,7 @@
   <insert id="update" parameterType="User" useGeneratedKeys="false">
     UPDATE users set name=#{name,jdbcType=VARCHAR}, email=#{email,jdbcType=VARCHAR}, active=#{active,jdbcType=BOOLEAN},
     scm_accounts=#{scmAccounts,jdbcType=VARCHAR}, external_identity=#{externalIdentity,jdbcType=VARCHAR}, external_identity_provider=#{externalIdentityProvider,jdbcType=VARCHAR},
+    user_local=#{local,jdbcType=BOOLEAN},
     salt=#{salt,jdbcType=VARCHAR}, crypted_password=#{cryptedPassword,jdbcType=BIGINT},
     remember_token=#{rememberToken,jdbcType=VARCHAR}, remember_token_expires_at=#{rememberTokenExpiresAt,jdbcType=TIMESTAMP},
     updated_at=#{updatedAt,jdbcType=BIGINT}

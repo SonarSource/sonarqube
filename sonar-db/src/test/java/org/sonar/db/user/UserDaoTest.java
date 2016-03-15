@@ -187,6 +187,7 @@ public class UserDaoTest {
       .setCryptedPassword("abcd")
       .setExternalIdentity("johngithub")
       .setExternalIdentityProvider("github")
+      .setLocal(true)
       .setRememberToken("1234")
       .setRememberTokenExpiresAt(new Date())
       .setCreatedAt(date)
@@ -206,6 +207,7 @@ public class UserDaoTest {
     assertThat(user.getCryptedPassword()).isEqualTo("abcd");
     assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.isLocal()).isTrue();
     assertThat(user.getRememberToken()).isEqualTo("1234");
     assertThat(user.getRememberTokenExpiresAt()).isNotNull();
     assertThat(user.getCreatedAt()).isEqualTo(date);
@@ -214,9 +216,16 @@ public class UserDaoTest {
 
   @Test
   public void update_user() {
-    db.prepareDbUnit(getClass(), "update_user.xml");
-
-    Long date = DateUtils.parseDate("2014-06-21").getTime();
+    UserDto existingUser = new UserDto()
+      .setLogin("john")
+      .setName("John")
+      .setEmail("jo@hn.com")
+      .setCreatedAt(1418215735482L)
+      .setUpdatedAt(1418215735482L)
+      .setActive(true)
+      .setLocal(true);
+    db.getDbClient().userDao().insert(db.getSession(), existingUser);
+    db.getSession().commit();
 
     UserDto userDto = new UserDto()
       .setId(1L)
@@ -229,13 +238,14 @@ public class UserDaoTest {
       .setCryptedPassword("abcde")
       .setExternalIdentity("johngithub")
       .setExternalIdentityProvider("github")
-      .setUpdatedAt(date);
+      .setLocal(false)
+      .setUpdatedAt(1500000000000L);
     underTest.update(db.getSession(), userDto);
     db.getSession().commit();
 
-    UserDto user = underTest.selectUserById(1);
+    UserDto user = underTest.selectUserById(db.getSession(), existingUser.getId());
     assertThat(user).isNotNull();
-    assertThat(user.getId()).isEqualTo(1L);
+    assertThat(user.getId()).isEqualTo(existingUser.getId());
     assertThat(user.getLogin()).isEqualTo("john");
     assertThat(user.getName()).isEqualTo("John Doo");
     assertThat(user.getEmail()).isEqualTo("jodoo@hn.com");
@@ -245,8 +255,9 @@ public class UserDaoTest {
     assertThat(user.getCryptedPassword()).isEqualTo("abcde");
     assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
+    assertThat(user.isLocal()).isFalse();
     assertThat(user.getCreatedAt()).isEqualTo(1418215735482L);
-    assertThat(user.getUpdatedAt()).isEqualTo(date);
+    assertThat(user.getUpdatedAt()).isEqualTo(1500000000000L);
   }
 
   @Test

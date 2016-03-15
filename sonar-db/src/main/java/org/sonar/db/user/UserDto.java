@@ -49,6 +49,7 @@ public class UserDto {
   private Date rememberTokenExpiresAt;
   private Long createdAt;
   private Long updatedAt;
+  private boolean local = true;
 
   public Long getId() {
     return id;
@@ -153,6 +154,15 @@ public class UserDto {
 
   public UserDto setExternalIdentityProvider(String externalIdentityProvider) {
     this.externalIdentityProvider = externalIdentityProvider;
+    return this;
+  }
+
+  public boolean isLocal() {
+    return local;
+  }
+
+  public UserDto setLocal(boolean local) {
+    this.local = local;
     return this;
   }
 

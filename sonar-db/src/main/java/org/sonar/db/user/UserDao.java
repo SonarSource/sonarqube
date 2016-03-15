@@ -108,13 +108,17 @@ public class UserDao implements Dao {
   }
 
   public List<UserDto> selectUsers(UserQuery query) {
-    SqlSession session = mybatis.openSession(false);
+    DbSession session = mybatis.openSession(false);
     try {
-      UserMapper mapper = session.getMapper(UserMapper.class);
-      return mapper.selectUsers(query);
+      return selectUsers(session, query);
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  public List<UserDto> selectUsers(DbSession dbSession, UserQuery query) {
+    UserMapper mapper = dbSession.getMapper(UserMapper.class);
+    return mapper.selectUsers(query);
   }
 
   public UserDto insert(SqlSession session, UserDto dto) {
@@ -177,7 +181,7 @@ public class UserDao implements Dao {
    *
    * Please note that email is case insensitive, result for searching 'mail@email.com' or 'Mail@Email.com' will be the same
    */
-  public boolean doesEmailExist(DbSession dbSession, String email){
+  public boolean doesEmailExist(DbSession dbSession, String email) {
     return mapper(dbSession).countByEmail(email.toLowerCase()) > 0;
   }
 
