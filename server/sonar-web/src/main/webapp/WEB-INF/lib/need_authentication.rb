@@ -49,8 +49,8 @@ class PluginRealm
   end
 
   def authenticate?(username, password, servlet_request)
-    local_users = Api::Utils.java_facade.getSettings().getStringArray('sonar.security.localUsers')
-    if local_users.include? username
+    countUserLocal = User.count('id', :conditions => ['login=? and user_local=?', username, true])
+    if countUserLocal > 0
       local_auth(username, password)
     else
       auth(username, password, servlet_request)
@@ -134,6 +134,7 @@ class PluginRealm
         user = User.new(:login => username, :name => username, :email => '', :created_at => now, :updated_at => now)
         user.external_identity = username
         user.external_identity_provider = 'sonarqube'
+        user.user_local = false
 
         if details
           user.name = details.getName()
