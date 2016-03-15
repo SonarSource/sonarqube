@@ -20,12 +20,13 @@
 package org.sonar.batch.phases;
 
 import org.sonar.api.batch.BatchSide;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
-import org.sonar.api.utils.SonarException;
+import org.sonar.api.utils.MessageException;
 
 /**
  * Should be dropped when org.sonar.api.resources.Project is fully refactored.
@@ -49,10 +50,10 @@ public class ProjectInitializer {
 
   private void initDeprecatedLanguage(Project project) {
     String languageKey = settings.getString(CoreProperties.PROJECT_LANGUAGE_PROPERTY);
-    if (languageKey != null) {
+    if (StringUtils.isNotBlank(languageKey)) {
       Language language = languages.get(languageKey);
       if (language == null) {
-        throw new SonarException("Language with key '" + languageKey + "' not found");
+        throw MessageException.of("Language with key '" + languageKey + "' not found");
       }
       project.setLanguage(language);
     } else {
