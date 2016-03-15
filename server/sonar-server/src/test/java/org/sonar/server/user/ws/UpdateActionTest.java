@@ -31,19 +31,15 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.user.GroupDao;
 import org.sonar.db.user.GroupDto;
-import org.sonar.db.user.GroupMembershipDao;
-import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
-import org.sonar.db.user.UserGroupDao;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.NewUserNotifier;
 import org.sonar.server.user.SecurityRealmFactory;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.ws.WsTester;
@@ -56,43 +52,36 @@ public class UpdateActionTest {
 
   static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
 
+  System2 system2 = new System2();
+
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(system2);
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
   @Rule
   public final UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin")
     .setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
+  DbClient dbClient = dbTester.getDbClient();
+
+  DbSession session = dbTester.getSession();
+
   WebService.Controller controller;
 
   WsTester tester;
 
-  UserIndex index;
-
-  DbClient dbClient;
-
   UserIndexer userIndexer;
-
-  DbSession session;
 
   @Before
   public void setUp() {
     dbTester.truncateTables();
     esTester.truncateIndices();
 
-    System2 system2 = new System2();
-    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
-    UserGroupDao userGroupDao = new UserGroupDao();
-    GroupDao groupDao = new GroupDao(system2);
-    dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao, new GroupMembershipDao(dbTester.myBatis()));
-    session = dbClient.openSession(false);
-    groupDao.insert(session, new GroupDto().setName("sonar-users"));
+    dbClient.groupDao().insert(session, new GroupDto().setName("sonar-users"));
     session.commit();
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
-    index = new UserIndex(esTester.client());
-    tester = new WsTester(new UsersWs(new UpdateAction(index,
+    tester = new WsTester(new UsersWs(new UpdateAction(
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)), userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
     controller = tester.controller("api/users");
@@ -182,6 +171,13 @@ public class UpdateActionTest {
       .setParam("scm_accounts", "jon.snow")
       .execute()
       .assertJson(getClass(), "update_scm_accounts.json");
+  }
+
+  @Test(expected = NotFoundException.class)
+  public void fail_on_unknown_user() throws Exception {
+    tester.newPostRequest("api/users", "update")
+      .setParam("login", "john")
+      .execute();
   }
 
   private void createUser() {

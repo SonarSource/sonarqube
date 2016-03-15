@@ -6,6 +6,7 @@
     "active": true,
     "scmAccounts": [
       "jon.snow"
-    ]
+    ],
+    "local": true
   }
 }

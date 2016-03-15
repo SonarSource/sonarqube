@@ -4,6 +4,7 @@
     "name": "John",
     "email": "john@email.com",
     "scmAccounts": ["jn"],
-    "active": true
+    "active": true,
+    "local": true
   }
 }

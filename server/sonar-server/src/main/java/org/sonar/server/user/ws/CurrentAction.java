@@ -94,6 +94,7 @@ public class CurrentAction implements UsersWsAction {
       if (!isNullOrEmpty(user.getEmail())) {
         json.prop("email", user.getEmail());
       }
+      json.prop("local", user.isLocal());
     }
 
     writeScmAccounts(json, optionalUser);

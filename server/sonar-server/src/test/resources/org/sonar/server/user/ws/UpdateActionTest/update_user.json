@@ -4,6 +4,7 @@
     "name": "Jon Snow",
     "email": "jon.snow@thegreatw.all",
     "scmAccounts": ["jon.snow"],
-    "active": true
+    "active": true,
+    "local": true
   }
 }

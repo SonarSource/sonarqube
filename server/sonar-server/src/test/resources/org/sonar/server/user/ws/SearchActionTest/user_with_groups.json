@@ -10,7 +10,8 @@
       "scmAccounts": [
         "user-0"
       ],
-      "groups": ["sonar-admins", "sonar-users"]
+      "groups": ["sonar-admins", "sonar-users"],
+      "local": true
     }
   ]
 }

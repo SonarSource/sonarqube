@@ -30,31 +30,31 @@ public class JsonWriterUtils {
     // Utility class
   }
 
-  public static void writeIfNeeded(JsonWriter json, @Nullable String value, String field, Collection<String> fields) {
+  public static void writeIfNeeded(JsonWriter json, @Nullable String value, String field, @Nullable Collection<String> fields) {
     if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
     }
   }
 
-  public static void writeIfNeeded(JsonWriter json, @Nullable Boolean value, String field, Collection<String> fields) {
+  public static void writeIfNeeded(JsonWriter json, @Nullable Boolean value, String field, @Nullable Collection<String> fields) {
     if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
     }
   }
 
-  public static void writeIfNeeded(JsonWriter json, @Nullable Integer value, String field, Collection<String> fields) {
+  public static void writeIfNeeded(JsonWriter json, @Nullable Integer value, String field, @Nullable Collection<String> fields) {
     if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
     }
   }
 
-  public static void writeIfNeeded(JsonWriter json, @Nullable Long value, String field, Collection<String> fields) {
+  public static void writeIfNeeded(JsonWriter json, @Nullable Long value, String field, @Nullable Collection<String> fields) {
     if (isFieldNeeded(field, fields)) {
       json.prop(field, value);
     }
   }
 
-  public static void writeIfNeeded(JsonWriter json, @Nullable Date value, String field, Collection<String> fields) {
+  public static void writeIfNeeded(JsonWriter json, @Nullable Date value, String field, @Nullable Collection<String> fields) {
     if (isFieldNeeded(field, fields)) {
       json.propDateTime(field, value);
     }

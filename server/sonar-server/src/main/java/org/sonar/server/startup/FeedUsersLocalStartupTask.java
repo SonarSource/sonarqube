@@ -68,44 +68,44 @@ public class FeedUsersLocalStartupTask implements Startable {
 
   @Override
   public void start() {
-    DbSession session = dbClient.openSession(false);
+    DbSession dbSession = dbClient.openSession(false);
     try {
-      if (hasAlreadyBeenExecuted(session)) {
+      if (hasAlreadyBeenExecuted(dbSession)) {
         return;
       }
-      updateUsersLocal(session);
-      markAsExecuted(session);
-      session.commit();
+      updateUsersLocal(dbSession);
+      markAsExecuted(dbSession);
+      dbSession.commit();
 
       if (settings.hasKey(LOCAL_USERS_PROPERTY)) {
         LOG.info("NOTE : The property '{}' is now no more needed, you can safely remove it.", LOCAL_USERS_PROPERTY);
       }
     } finally {
-      dbClient.closeSession(session);
+      dbClient.closeSession(dbSession);
     }
   }
 
-  private void updateUsersLocal(DbSession session) {
+  private void updateUsersLocal(DbSession dbSession) {
     long now = system2.now();
     Set<String> localUsers = new HashSet<>(asList(settings.getStringArray(LOCAL_USERS_PROPERTY)));
     boolean isRealmExist = settings.getString(CORE_AUTHENTICATOR_REALM) != null;
-    for (UserDto user : dbClient.userDao().selectUsers(session, UserQuery.ALL_ACTIVES)) {
+    for (UserDto user : dbClient.userDao().selectUsers(dbSession, UserQuery.ALL_ACTIVES)) {
       if (user.getExternalIdentityProvider().equals(UserUpdater.SQ_AUTHORITY)) {
         user.setLocal(!isRealmExist || localUsers.contains(user.getLogin()));
       } else {
         user.setLocal(false);
       }
       user.setUpdatedAt(now);
-      dbClient.userDao().update(session, user);
+      dbClient.userDao().update(dbSession, user);
     }
   }
 
-  private boolean hasAlreadyBeenExecuted(DbSession session) {
-    return dbClient.loadedTemplateDao().countByTypeAndKey(ONE_SHOT_TASK_TYPE, TEMPLATE_KEY, session) > 0;
+  private boolean hasAlreadyBeenExecuted(DbSession dbSession) {
+    return dbClient.loadedTemplateDao().countByTypeAndKey(ONE_SHOT_TASK_TYPE, TEMPLATE_KEY, dbSession) > 0;
   }
 
-  private void markAsExecuted(DbSession session) {
-    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(TEMPLATE_KEY, ONE_SHOT_TASK_TYPE), session);
+  private void markAsExecuted(DbSession dbSession) {
+    dbClient.loadedTemplateDao().insert(new LoadedTemplateDto(TEMPLATE_KEY, ONE_SHOT_TASK_TYPE), dbSession);
   }
 
   @Override

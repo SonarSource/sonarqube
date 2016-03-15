@@ -21,9 +21,7 @@ package org.sonar.server.measure.custom.ws;
 
 import java.util.Date;
 import org.apache.commons.lang.StringUtils;
-import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
@@ -38,22 +36,17 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotDao;
 import org.sonar.db.component.SnapshotTesting;
-import org.sonar.db.measure.custom.CustomMeasureDao;
 import org.sonar.db.measure.custom.CustomMeasureDto;
-import org.sonar.db.metric.MetricDao;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.ws.WsTester;
@@ -81,34 +74,25 @@ public class SearchActionTest {
   public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
 
   WsTester ws;
-  DbClient dbClient;
-  DbSession dbSession;
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
   ComponentDto defaultProject;
-
-  @BeforeClass
-  public static void setUpClass() throws Exception {
-    es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, new UserDoc()
-      .setLogin("login")
-      .setName("Login")
-      .setEmail("login@login.com")
-      .setActive(true));
-  }
 
   @Before
   public void setUp() {
-    dbClient = new DbClient(db.database(), db.myBatis(), new CustomMeasureDao(), new ComponentDao(), new MetricDao(), new SnapshotDao());
-    dbSession = dbClient.openSession(false);
     db.truncateTables();
     CustomMeasureJsonWriter customMeasureJsonWriter = new CustomMeasureJsonWriter(new UserJsonWriter(userSessionRule));
-    UserIndex userIndex = new UserIndex(es.client());
-    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, userIndex, customMeasureJsonWriter, userSessionRule, new ComponentFinder(dbClient))));
+    ws = new WsTester(new CustomMeasuresWs(new SearchAction(dbClient, customMeasureJsonWriter, userSessionRule, new ComponentFinder(dbClient))));
     defaultProject = insertDefaultProject();
     userSessionRule.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-  }
 
-  @After
-  public void tearDown() {
-    dbSession.close();
+    db.getDbClient().userDao().insert(dbSession, new UserDto()
+      .setLogin("login")
+      .setName("Login")
+      .setEmail("login@login.com")
+      .setActive(true)
+      );
+    dbSession.commit();
   }
 
   @Test
@@ -301,7 +285,8 @@ public class SearchActionTest {
   }
 
   private static MetricDto newCustomMetric(String metricKey) {
-    return newMetricDto().setEnabled(true).setUserManaged(true).setKey(metricKey).setDomain(metricKey + "-domain").setShortName(metricKey + "-name").setValueType(ValueType.STRING.name());
+    return newMetricDto().setEnabled(true).setUserManaged(true).setKey(metricKey).setDomain(metricKey + "-domain").setShortName(metricKey + "-name")
+      .setValueType(ValueType.STRING.name());
   }
 
   private CustomMeasureDto insertCustomMeasure(int id, MetricDto metric) {
