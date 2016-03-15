@@ -42,6 +42,7 @@ import org.sonar.batch.task.Tasks;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.issue.tracking.Tracker;
+import org.sonar.core.platform.SonarQubeVersionProvider;
 
 public class BatchComponents {
   private BatchComponents() {
@@ -50,6 +51,7 @@ public class BatchComponents {
 
   public static Collection<Object> all() {
     List<Object> components = Lists.newArrayList(
+      new SonarQubeVersionProvider(),
       DefaultResourceTypes.get(),
       // SCM
       ScmConfiguration.class,

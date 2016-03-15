@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.core.config.CorePropertyDefinitions;
+import org.sonar.core.platform.SonarQubeVersionProvider;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
@@ -66,6 +67,7 @@ public class PlatformLevel1 extends PlatformLevel {
     add(platform, properties);
     addExtraRootComponents();
     add(
+      new SonarQubeVersionProvider(),
       ServerSettings.class,
       ServerImpl.class,
       UuidFactoryImpl.INSTANCE,
