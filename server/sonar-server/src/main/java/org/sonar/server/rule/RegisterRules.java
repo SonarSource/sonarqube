@@ -342,7 +342,7 @@ public class RegisterRules implements Startable {
     return changed;
   }
 
-  private boolean mergeTags(RulesDefinition.Rule ruleDef, RuleDto dto) {
+  private static boolean mergeTags(RulesDefinition.Rule ruleDef, RuleDto dto) {
     boolean changed = false;
 
     if (RuleStatus.REMOVED == ruleDef.status()) {

@@ -55,7 +55,7 @@ public class NewEffortCalculator {
     return calculateFromChangelog(issue, debtChangelog, period.getSnapshotDate());
   }
 
-  private long calculateFromChangelog(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, long periodDate) {
+  private static long calculateFromChangelog(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, long periodDate) {
     List<FieldDiffs> debtDiffs = from(debtChangelog).transform(ToFieldDiffs.INSTANCE).filter(HasDebtChange.INSTANCE).toSortedList(CHANGE_ORDERING);
     FieldDiffs currentChange = issue.currentChange();
     if (currentChange != null && HasDebtChange.INSTANCE.apply(currentChange)) {

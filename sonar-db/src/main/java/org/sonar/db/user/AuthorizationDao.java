@@ -73,7 +73,7 @@ public class AuthorizationDao implements Dao {
     }
   }
 
-  private List<String> keepAuthorizedComponentKeys(final DbSession session, final String componentKey, @Nullable final Integer userId, final String role) {
+  private static List<String> keepAuthorizedComponentKeys(final DbSession session, final String componentKey, @Nullable final Integer userId, final String role) {
     if (userId == null) {
       return session.getMapper(AuthorizationMapper.class).keepAuthorizedComponentKeysForAnonymous(role, Sets.newHashSet(componentKey));
     } else {
