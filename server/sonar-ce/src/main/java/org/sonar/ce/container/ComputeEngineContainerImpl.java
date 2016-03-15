@@ -34,6 +34,7 @@ import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
+import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
@@ -565,6 +566,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   };
   private static final Object[] STARTUP_COMPONENTS = new Object[] {
     // IndexSynchronizer.class, ES maintenance, responsibility of Web Server
+    EsIndexerEnabler.class,
     // RegisterMetrics.class, DB maintenance, responsibility of Web Server
     // RegisterQualityGates.class, DB maintenance, responsibility of Web Server
     // RegisterRules.class, DB maintenance, responsibility of Web Server
