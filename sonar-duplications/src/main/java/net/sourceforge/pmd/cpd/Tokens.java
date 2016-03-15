@@ -30,7 +30,9 @@ import java.util.List;
  * <p>Not intended to be instantiated by clients.</p>
  *
  * @since 2.2
+ * @deprecated since 5.5
  */
+@Deprecated
 public class Tokens {
 
   private List<TokenEntry> entries = new ArrayList<>();

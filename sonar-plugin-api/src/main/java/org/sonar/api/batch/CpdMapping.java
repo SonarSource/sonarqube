@@ -19,20 +19,21 @@
  */
 package org.sonar.api.batch;
 
+import java.io.File;
+import java.util.List;
 import net.sourceforge.pmd.cpd.Tokenizer;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.Resource;
 
-import java.io.File;
-import java.util.List;
-
 /**
  * Implement this extension to get Copy/Paste detection for your language.
  * @since 1.10
+ * @deprecated since 5.5
  */
 @BatchSide
 @ExtensionPoint
+@Deprecated
 public interface CpdMapping {
 
   Tokenizer getTokenizer();

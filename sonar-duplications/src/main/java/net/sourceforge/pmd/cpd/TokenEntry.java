@@ -27,7 +27,9 @@ import java.util.Map;
 
 /**
  * @since 2.2
+ * @deprecated since 5.5
  */
+@Deprecated
 public class TokenEntry implements Comparable<TokenEntry> {
 
   private static final Map<String, Integer> TOKENS = new HashMap<>();

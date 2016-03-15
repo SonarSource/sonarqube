@@ -36,7 +36,9 @@ import java.util.List;
  * <p>Not intended to be instantiated by clients.</p>
  *
  * @since 2.2
+ * @deprecated since 5.5
  */
+@Deprecated
 public class SourceCode {
 
   public static final String EOL = System.getProperty("line.separator", "\n");

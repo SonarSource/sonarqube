@@ -45,7 +45,9 @@ import java.io.IOException;
  * in this case the two files will be considered as duplicate.
  * 
  * @since 2.2
+ * @deprecated since 5.5
  */
+@Deprecated
 public interface Tokenizer {
 
   void tokenize(SourceCode sourceFile, Tokens tokenEntries) throws IOException;
