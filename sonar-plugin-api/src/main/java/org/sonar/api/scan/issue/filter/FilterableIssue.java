@@ -19,9 +19,8 @@
  */
 package org.sonar.api.scan.issue.filter;
 
-import org.sonar.api.rule.RuleKey;
-
 import java.util.Date;
+import org.sonar.api.rule.RuleKey;
 
 /**
  * @since 5.3
@@ -38,7 +37,16 @@ public interface FilterableIssue {
 
   Integer line();
 
+  /**
+   * @deprecated since 5.5 use {@link #gap()}
+   */
+  @Deprecated
   Double effortToFix();
+
+  /**
+   * @since 5.5
+   */
+  Double gap();
 
   Date creationDate();
 

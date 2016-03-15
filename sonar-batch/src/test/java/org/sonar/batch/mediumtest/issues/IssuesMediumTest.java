@@ -106,7 +106,7 @@ public class IssuesMediumTest {
       .start();
 
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/HelloJava.xoo"));
-    assertThat(issues).hasSize(8 /* lines */+ 1 /* file */);
+    assertThat(issues).hasSize(8 /* lines */ + 1 /* file */);
   }
 
   @Test
@@ -170,7 +170,7 @@ public class IssuesMediumTest {
       if (issue.getLine() == 1) {
         foundIssueAtLine1 = true;
         assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.hasEffortToFix()).isFalse();
+        assertThat(issue.hasGap()).isFalse();
       }
     }
     assertThat(foundIssueAtLine1).isTrue();

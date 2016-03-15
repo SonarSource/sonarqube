@@ -53,7 +53,7 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   private RuleKey ruleKey;
-  private Double effortToFix;
+  private Double gap;
   private Severity overriddenSeverity;
   private IssueLocation primaryLocation;
   private List<List<IssueLocation>> flows = new ArrayList<>();
@@ -74,8 +74,13 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
 
   @Override
   public DefaultIssue effortToFix(@Nullable Double effortToFix) {
-    Preconditions.checkArgument(effortToFix == null || effortToFix >= 0, format("Effort to fix must be greater than or equal 0 (got %s)", effortToFix));
-    this.effortToFix = effortToFix;
+    return gap(effortToFix);
+  }
+
+  @Override
+  public DefaultIssue gap(@Nullable Double gap) {
+    Preconditions.checkArgument(gap == null || gap >= 0, format("Gap must be greater than or equal 0 (got %s)", gap));
+    this.gap = gap;
     return this;
   }
 
@@ -125,8 +130,13 @@ public class DefaultIssue extends DefaultStorable implements Issue, NewIssue {
   }
 
   @Override
+  public Double gap() {
+    return this.gap;
+  }
+
+  @Override
   public Double effortToFix() {
-    return this.effortToFix;
+    return this.gap;
   }
 
   @Override

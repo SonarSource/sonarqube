@@ -61,7 +61,7 @@ public class DefaultPostJobContextTest {
 
     TrackedIssue defaultIssue = new TrackedIssue();
     defaultIssue.setComponentKey("foo:src/Foo.php");
-    defaultIssue.setEffortToFix(2.0);
+    defaultIssue.setGap(2.0);
     defaultIssue.setNew(true);
     defaultIssue.setKey("xyz");
     defaultIssue.setStartLine(1);

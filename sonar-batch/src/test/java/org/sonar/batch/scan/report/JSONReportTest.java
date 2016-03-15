@@ -111,7 +111,7 @@ public class JSONReportTest {
     issue.setEndLine(2);
     issue.setStartLineOffset(3);
     issue.setEndLineOffset(4);
-    issue.setEffortToFix(3.14);
+    issue.setGap(3.14);
     issue.setReporter("julien");
     issue.setAssignee("simon");
     issue.setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"));

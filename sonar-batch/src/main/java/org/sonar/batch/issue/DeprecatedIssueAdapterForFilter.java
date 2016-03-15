@@ -88,7 +88,7 @@ class DeprecatedIssueAdapterForFilter implements Issue {
 
   @Override
   public Double gap() {
-    return rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null;
+    return rawIssue.hasGap() ? rawIssue.getGap() : null;
   }
 
   @Override

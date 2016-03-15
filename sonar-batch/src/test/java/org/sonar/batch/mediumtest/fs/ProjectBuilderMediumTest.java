@@ -19,9 +19,11 @@
  */
 package org.sonar.batch.mediumtest.fs;
 
-import org.sonar.api.utils.MessageException;
-
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -29,16 +31,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.MessageException;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -46,7 +44,7 @@ public class ProjectBuilderMediumTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  
+
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
@@ -71,7 +69,7 @@ public class ProjectBuilderMediumTest {
   @Test
   public void testProjectBuilder() throws IOException {
     File baseDir = prepareProject();
-    
+
     TaskResult result = tester.newTask()
       .properties(ImmutableMap.<String, String>builder()
         .put("sonar.task", "scan")
@@ -92,18 +90,18 @@ public class ProjectBuilderMediumTest {
       if (issue.getLine() == 1) {
         foundIssueAtLine1 = true;
         assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.hasEffortToFix()).isFalse();
+        assertThat(issue.hasGap()).isFalse();
       }
     }
     assertThat(foundIssueAtLine1).isTrue();
 
   }
-  
+
   @Test
   // SONAR-6976
   public void testProjectBuilderWithNewLine() throws IOException {
     File baseDir = prepareProject();
-    
+
     exception.expect(MessageException.class);
     exception.expectMessage("is not a valid branch name");
     tester.newTask()
@@ -147,12 +145,12 @@ public class ProjectBuilderMediumTest {
       if (issue.getLine() == 1) {
         foundIssueAtLine1 = true;
         assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.hasEffortToFix()).isFalse();
+        assertThat(issue.hasGap()).isFalse();
       }
     }
     assertThat(foundIssueAtLine1).isTrue();
   }
-  
+
   private File prepareProject() throws IOException {
     File baseDir = temp.getRoot();
     File module1Dir = new File(baseDir, "module1");
@@ -163,7 +161,7 @@ public class ProjectBuilderMediumTest {
 
     File xooFile = new File(srcDir, "sample.xoo");
     FileUtils.write(xooFile, "1\n2\n3\n4\n5\n6\n7\n8\n9\n10");
-    
+
     return baseDir;
   }
 

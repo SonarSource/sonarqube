@@ -47,7 +47,7 @@ public class DefaultFilterableIssueTest {
   private Issue createIssue() {
     Issue.Builder builder = Issue.newBuilder();
 
-    builder.setEffortToFix(3.0);
+    builder.setGap(3.0);
     builder.setLine(30);
     builder.setSeverity(Severity.MAJOR);
     return builder.build();

@@ -39,7 +39,7 @@ public class TrackedIssueAdapterTest {
       .setSeverity("MAJOR")
       .setMessage("msg")
       .setStartLine(1)
-      .setEffortToFix(2.0)
+      .setGap(2.0)
       .setStatus("RESOLVED")
       .setResolution("FIXED")
       .setReporter("toto")

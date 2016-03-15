@@ -48,9 +48,18 @@ public interface Issue {
 
   /**
    * Effort to fix the issue. Used by technical debt model.
+   * @deprecated since 5.5 use {@link #gap()}
    */
   @CheckForNull
+  @Deprecated
   Double effortToFix();
+
+  /**
+   * Gap used to compute the effort for fixing the issue.
+   * @since 5.5
+   */
+  @CheckForNull
+  Double gap();
 
   /**
    * Overridden severity.

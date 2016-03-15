@@ -39,7 +39,7 @@ public class TrackedIssue implements Trackable, Serializable {
   private Integer startLineOffset;
   private Integer endLine;
   private Integer endLineOffset;
-  private Double effortToFix;
+  private Double gap;
   private boolean isNew;
   private Date creationDate;
   private String resolution;
@@ -186,8 +186,8 @@ public class TrackedIssue implements Trackable, Serializable {
     return severity;
   }
 
-  public Double effortToFix() {
-    return effortToFix;
+  public Double gap() {
+    return gap;
   }
 
   public Date getCreationDate() {
@@ -222,8 +222,8 @@ public class TrackedIssue implements Trackable, Serializable {
     return this;
   }
 
-  public TrackedIssue setEffortToFix(Double effortToFix) {
-    this.effortToFix = effortToFix;
+  public TrackedIssue setGap(Double gap) {
+    this.gap = gap;
     return this;
   }
 

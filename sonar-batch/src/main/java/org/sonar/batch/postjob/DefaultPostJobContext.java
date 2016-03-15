@@ -108,7 +108,7 @@ public class DefaultPostJobContext implements PostJobContext {
 
     @Override
     public Double effortToFix() {
-      return wrapped.effortToFix();
+      return wrapped.gap();
     }
 
     @Override

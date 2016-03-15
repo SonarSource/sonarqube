@@ -40,8 +40,16 @@ public interface NewIssue {
 
   /**
    * Effort to fix the issue.
+   * @deprecated since 5.5 use {@link #gap(Double)}
    */
+  @Deprecated
   NewIssue effortToFix(@Nullable Double effortToFix);
+
+  /**
+   * Gap used for the computation of the effort. 
+   * @since 5.5
+   */
+  NewIssue gap(@Nullable Double gap);
 
   /**
    * Override severity of the issue.

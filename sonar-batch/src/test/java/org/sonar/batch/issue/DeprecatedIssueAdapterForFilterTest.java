@@ -52,7 +52,7 @@ public class DeprecatedIssueAdapterForFilterTest {
         .setSeverity(Severity.BLOCKER)
         .setMsg("msg")
         .setLine(1)
-        .setEffortToFix(2.0)
+        .setGap(2.0)
         .build(),
       COMPONENT_KEY);
 

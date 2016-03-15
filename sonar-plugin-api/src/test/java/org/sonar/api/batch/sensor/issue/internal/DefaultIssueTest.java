@@ -46,12 +46,12 @@ public class DefaultIssueTest {
         .at(inputFile.selectLine(1))
         .message("Wrong way!"))
       .forRule(RuleKey.of("repo", "rule"))
-      .effortToFix(10.0);
+      .gap(10.0);
 
     assertThat(issue.primaryLocation().inputComponent()).isEqualTo(inputFile);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("repo", "rule"));
     assertThat(issue.primaryLocation().textRange().start().line()).isEqualTo(1);
-    assertThat(issue.effortToFix()).isEqualTo(10.0);
+    assertThat(issue.gap()).isEqualTo(10.0);
     assertThat(issue.primaryLocation().message()).isEqualTo("Wrong way!");
 
     issue.save();

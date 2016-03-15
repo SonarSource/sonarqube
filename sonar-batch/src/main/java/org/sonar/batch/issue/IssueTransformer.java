@@ -19,25 +19,22 @@
  */
 package org.sonar.batch.issue;
 
-import org.sonar.batch.issue.tracking.SourceHashHolder;
-
-import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import com.google.common.base.Preconditions;
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.index.BatchComponent;
-import org.sonar.batch.issue.tracking.TrackedIssue;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.TextRange;
-import org.sonar.core.component.ComponentKeys;
-import org.sonar.core.util.Uuids;
-
-import javax.annotation.Nullable;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nullable;
+import org.sonar.api.issue.Issue;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.issue.tracking.SourceHashHolder;
+import org.sonar.batch.issue.tracking.TrackedIssue;
+import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
+import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.batch.protocol.output.BatchReport.TextRange;
+import org.sonar.core.component.ComponentKeys;
+import org.sonar.core.util.Uuids;
 
 public class IssueTransformer {
   private IssueTransformer() {
@@ -96,7 +93,7 @@ public class IssueTransformer {
     issue.setKey(Uuids.createFast());
     issue.setComponentKey(component.key());
     issue.setRuleKey(ruleKey);
-    issue.setEffortToFix(rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null);
+    issue.setGap(rawIssue.hasGap() ? rawIssue.getGap() : null);
     issue.setSeverity(rawIssue.getSeverity().name());
     issue.setMessage(rawIssue.hasMsg() ? rawIssue.getMsg() : null);
     issue.setResolution(null);

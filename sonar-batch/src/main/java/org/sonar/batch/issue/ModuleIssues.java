@@ -91,9 +91,9 @@ public class ModuleIssues {
       builder.setLine(primaryTextRange.start().line());
       builder.setTextRange(toProtobufTextRange(primaryTextRange));
     }
-    Double effortToFix = issue.effortToFix();
-    if (effortToFix != null) {
-      builder.setEffortToFix(effortToFix);
+    Double gap = issue.gap();
+    if (gap != null) {
+      builder.setGap(gap);
     }
     applyFlows(issue);
     BatchReport.Issue rawIssue = builder.build();

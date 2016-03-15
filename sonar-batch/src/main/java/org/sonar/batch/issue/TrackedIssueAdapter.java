@@ -79,7 +79,7 @@ public class TrackedIssueAdapter implements Issue {
 
   @Override
   public Double gap() {
-    return issue.effortToFix();
+    return issue.gap();
   }
 
   @Override

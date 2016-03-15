@@ -19,16 +19,13 @@
  */
 package org.sonar.batch.issue;
 
+import java.util.Date;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
-
-import java.util.Date;
-
-import org.sonar.batch.protocol.output.BatchReport.Issue;
 import org.sonar.api.scan.issue.filter.FilterableIssue;
+import org.sonar.batch.protocol.output.BatchReport.Issue;
 
 public class DefaultFilterableIssue implements FilterableIssue {
   private final Issue rawIssue;
@@ -68,8 +65,13 @@ public class DefaultFilterableIssue implements FilterableIssue {
   }
 
   @Override
+  public Double gap() {
+    return rawIssue.hasGap() ? rawIssue.getGap() : null;
+  }
+
+  @Override
   public Double effortToFix() {
-    return rawIssue.hasEffortToFix() ? rawIssue.getEffortToFix() : null;
+    return gap();
   }
 
   @Override
