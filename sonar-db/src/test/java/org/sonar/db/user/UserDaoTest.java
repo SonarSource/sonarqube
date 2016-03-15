@@ -51,6 +51,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupMembershipQuery.builder;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 
 public class UserDaoTest {
@@ -110,6 +111,21 @@ public class UserDaoTest {
     // no need to access db
     Collection<UserDto> users = underTest.selectByLogins(Collections.<String>emptyList());
     assertThat(users).isEmpty();
+  }
+
+  @Test
+  public void selectByOrderedLogins() {
+    underTest.insert(session, newUserDto().setLogin("U1").setActive(true));
+    underTest.insert(session, newUserDto().setLogin("U2").setActive(true));
+    session.commit();
+
+    Iterable<UserDto> users = underTest.selectByOrderedLogins(session, asList("U1", "U2", "U3"));
+    assertThat(users).extracting("login").containsExactly("U1", "U2");
+
+    users = underTest.selectByOrderedLogins(session, asList("U2", "U3", "U1"));
+    assertThat(users).extracting("login").containsExactly("U2", "U1");
+
+    assertThat(underTest.selectByOrderedLogins(session, Collections.<String>emptyList())).isEmpty();
   }
 
   @Test
@@ -447,7 +463,7 @@ public class UserDaoTest {
   }
 
   private UserDto newUser(boolean active){
-    UserDto dto = UserTesting.newUserDto().setActive(active);
+    UserDto dto = newUserDto().setActive(active);
     underTest.insert(session, dto);
     return dto;
   }

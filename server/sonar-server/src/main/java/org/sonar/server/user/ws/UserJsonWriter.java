@@ -24,11 +24,10 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.Nullable;
-import org.sonar.api.user.User;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserDoc;
 
 import static org.sonar.server.ws.JsonWriterUtils.isFieldNeeded;
 import static org.sonar.server.ws.JsonWriterUtils.writeIfNeeded;
@@ -42,8 +41,9 @@ public class UserJsonWriter {
   private static final String FIELD_GROUPS = "groups";
   private static final String FIELD_ACTIVE = "active";
   private static final String FIELD_TOKENS_COUNT = "tokensCount";
+  private static final String FIELD_LOCAL = "local";
 
-  public static final Set<String> FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_EMAIL, FIELD_SCM_ACCOUNTS, FIELD_GROUPS, FIELD_ACTIVE);
+  public static final Set<String> FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_EMAIL, FIELD_SCM_ACCOUNTS, FIELD_GROUPS, FIELD_ACTIVE, FIELD_LOCAL);
   private static final Set<String> CONCISE_FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_EMAIL, FIELD_ACTIVE);
 
   private final UserSession userSession;
@@ -55,19 +55,20 @@ public class UserJsonWriter {
   /**
    * Serializes a user to the passed JsonWriter.
    */
-  public void write(JsonWriter json, User user, Collection<String> groups, @Nullable Collection<String> fields) {
+  public void write(JsonWriter json, UserDto user, Collection<String> groups, @Nullable Collection<String> fields) {
     write(json, user, null, groups, fields);
   }
 
   /**
    * Serializes a user to the passed JsonWriter.
    */
-  public void write(JsonWriter json, User user, @Nullable Integer tokensCount, Collection<String> groups, @Nullable Collection<String> fields) {
+  public void write(JsonWriter json, UserDto user, @Nullable Integer tokensCount, Collection<String> groups, @Nullable Collection<String> fields) {
     json.beginObject();
-    json.prop(FIELD_LOGIN, user.login());
-    writeIfNeeded(json, user.name(), FIELD_NAME, fields);
-    writeIfNeeded(json, user.email(), FIELD_EMAIL, fields);
-    writeIfNeeded(json, user.active(), FIELD_ACTIVE, fields);
+    json.prop(FIELD_LOGIN, user.getLogin());
+    writeIfNeeded(json, user.getName(), FIELD_NAME, fields);
+    writeIfNeeded(json, user.getEmail(), FIELD_EMAIL, fields);
+    writeIfNeeded(json, user.isActive(), FIELD_ACTIVE, fields);
+    writeIfNeeded(json, user.isLocal(), FIELD_LOCAL, fields);
     writeGroupsIfNeeded(json, groups, fields);
     writeScmAccountsIfNeeded(json, fields, user);
     writeTokensCount(json, tokensCount);
@@ -75,9 +76,9 @@ public class UserJsonWriter {
   }
 
   /**
-   * A shortcut to {@link #write(JsonWriter, User, Collection, Collection)} with preselected fields and without group information
+   * A shortcut to {@link #write(JsonWriter, UserDto, Collection, Collection)} with preselected fields and without group information
    */
-  public void write(JsonWriter json, @Nullable User user) {
+  public void write(JsonWriter json, @Nullable UserDto user) {
     if (user == null) {
       json.beginObject().endObject();
     } else {
@@ -95,11 +96,11 @@ public class UserJsonWriter {
     }
   }
 
-  private static void writeScmAccountsIfNeeded(JsonWriter json, Collection<String> fields, User user) {
+  private static void writeScmAccountsIfNeeded(JsonWriter json, Collection<String> fields, UserDto user) {
     if (isFieldNeeded(FIELD_SCM_ACCOUNTS, fields)) {
       json.name(FIELD_SCM_ACCOUNTS)
         .beginArray()
-        .values(((UserDoc) user).scmAccounts())
+        .values(user.getScmAccountsAsList())
         .endArray();
     }
   }

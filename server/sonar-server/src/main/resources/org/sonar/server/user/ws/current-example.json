@@ -3,6 +3,7 @@
   "login": "obiwan.kenobi",
   "name": "Obiwan Kenobi",
   "email": "obiwan.kenobi@starwars.com",
+  "local": true,
   "scmAccounts": [
     "obiwan:github",
     "obiwan:bitbucket"

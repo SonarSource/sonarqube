@@ -27,15 +27,13 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.custom.CustomMeasureDto;
 import org.sonar.db.metric.MetricDto;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.server.component.ComponentFinder.ParamNames.PROJECT_ID_AND_KEY;
@@ -57,17 +55,15 @@ public class CreateAction implements CustomMeasuresWsAction {
   private final System2 system;
   private final CustomMeasureValidator validator;
   private final CustomMeasureJsonWriter customMeasureJsonWriter;
-  private final UserIndex userIndex;
   private final ComponentFinder componentFinder;
 
   public CreateAction(DbClient dbClient, UserSession userSession, System2 system, CustomMeasureValidator validator, CustomMeasureJsonWriter customMeasureJsonWriter,
-    UserIndex userIndex, ComponentFinder componentFinder) {
+    ComponentFinder componentFinder) {
     this.dbClient = dbClient;
     this.userSession = userSession;
     this.system = system;
     this.validator = validator;
     this.customMeasureJsonWriter = customMeasureJsonWriter;
-    this.userIndex = userIndex;
     this.componentFinder = componentFinder;
   }
 
@@ -120,12 +116,12 @@ public class CreateAction implements CustomMeasuresWsAction {
       checkPermissions(userSession, component);
       checkIsProjectOrModule(component);
       checkMeasureDoesNotExistAlready(dbSession, component, metric);
-      UserDoc user = userIndex.getByLogin(userSession.getLogin());
+      UserDto user = dbClient.userDao().selectOrFailByLogin(dbSession, userSession.getLogin());
       CustomMeasureDto measure = new CustomMeasureDto()
         .setComponentUuid(component.uuid())
         .setMetricId(metric.getId())
         .setDescription(description)
-        .setUserLogin(user.login())
+        .setUserLogin(user.getLogin())
         .setCreatedAt(now)
         .setUpdatedAt(now);
       validator.setMeasureValue(measure, valueAsString, metric);
@@ -136,7 +132,7 @@ public class CreateAction implements CustomMeasuresWsAction {
       customMeasureJsonWriter.write(json, measure, metric, component, user, true, CustomMeasureJsonWriter.OPTIONAL_FIELDS);
       json.close();
     } finally {
-      MyBatis.closeQuietly(dbSession);
+      dbClient.closeSession(dbSession);
     }
   }
 

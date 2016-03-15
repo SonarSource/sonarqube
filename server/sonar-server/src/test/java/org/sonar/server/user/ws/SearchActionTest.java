@@ -191,6 +191,7 @@ public class SearchActionTest {
         .setLogin(login)
         .setName(name)
         .setScmAccounts(scmAccounts)
+        .setLocal(true)
         .setUpdatedAt(createdAt)));
 
       users[index] = new UserDoc()

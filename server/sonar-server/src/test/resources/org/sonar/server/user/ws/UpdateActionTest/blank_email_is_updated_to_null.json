@@ -5,6 +5,7 @@
     "active": true,
     "scmAccounts": [
       "jn"
-    ]
+    ],
+    "local": true
   }
 }

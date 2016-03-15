@@ -98,11 +98,10 @@ public class CreateActionTest {
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
-    tester = new WsTester(new UsersWs(new CreateAction(index,
+    tester = new WsTester(new UsersWs(new CreateAction(dbClient,
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)),
       i18n, userSessionRule, new UserJsonWriter(userSessionRule))));
     controller = tester.controller("api/users");
-
   }
 
   @After

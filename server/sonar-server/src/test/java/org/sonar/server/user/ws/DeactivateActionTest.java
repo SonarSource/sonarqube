@@ -52,7 +52,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
 
-
 public class DeactivateActionTest {
 
   static final Settings settings = new Settings();
@@ -84,11 +83,10 @@ public class DeactivateActionTest {
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
-    ws = new WsTester(new UsersWs(new DeactivateAction(index,
+    ws = new WsTester(new UsersWs(new DeactivateAction(
       new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2, mock(SecurityRealmFactory.class)), userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
     controller = ws.controller("api/users");
-
   }
 
   @Test

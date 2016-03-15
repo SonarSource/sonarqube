@@ -20,11 +20,9 @@
 package org.sonar.server.user.ws;
 
 import com.google.common.base.Function;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -36,6 +34,7 @@ import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.user.index.UserDoc;
@@ -79,36 +78,38 @@ public class SearchAction implements UsersWsAction {
     List<String> fields = request.paramAsStrings(Param.FIELDS);
     SearchResult<UserDoc> result = userIndex.search(request.param(Param.TEXT_QUERY), options);
 
-    Multimap<String, String> groupsByLogin = ArrayListMultimap.create();
-    Map<String, Integer> tokenCountsByLogin = new HashMap<>();
     DbSession dbSession = dbClient.openSession(false);
     try {
-      List<String> logins = Lists.transform(result.getDocs(), new Function<UserDoc, String>() {
-        @Override
-        public String apply(@Nonnull UserDoc input) {
-          return input.login();
-        }
-      });
-      groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
-      tokenCountsByLogin = dbClient.userTokenDao().countTokensByLogins(dbSession, logins);
+      List<String> logins = Lists.transform(result.getDocs(), UserDocToLogin.INSTANCE);
+      Multimap<String, String> groupsByLogin = dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, logins);
+      Map<String, Integer> tokenCountsByLogin = dbClient.userTokenDao().countTokensByLogins(dbSession, logins);
+      JsonWriter json = response.newJsonWriter().beginObject();
+      options.writeJson(json, result.getTotal());
+      List<UserDto> userDtos = dbClient.userDao().selectByOrderedLogins(dbSession, logins);
+      writeUsers(json, userDtos, groupsByLogin, tokenCountsByLogin, fields);
+      json.endObject().close();
     } finally {
       dbClient.closeSession(dbSession);
     }
-
-    JsonWriter json = response.newJsonWriter().beginObject();
-    options.writeJson(json, result.getTotal());
-    writeUsers(json, result, groupsByLogin, tokenCountsByLogin, fields);
-    json.endObject().close();
   }
 
-  private void writeUsers(JsonWriter json, SearchResult<UserDoc> result, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
+  private void writeUsers(JsonWriter json, List<UserDto> userDtos, Multimap<String, String> groupsByLogin, Map<String, Integer> tokenCountsByLogin,
     @Nullable List<String> fields) {
 
     json.name("users").beginArray();
-    for (UserDoc user : result.getDocs()) {
-      Collection<String> groups = groupsByLogin.get(user.login());
-      userWriter.write(json, user, firstNonNull(tokenCountsByLogin.get(user.login()), 0), groups, fields);
+    for (UserDto user : userDtos) {
+      Collection<String> groups = groupsByLogin.get(user.getLogin());
+      userWriter.write(json, user, firstNonNull(tokenCountsByLogin.get(user.getLogin()), 0), groups, fields);
     }
     json.endArray();
+  }
+
+  private enum UserDocToLogin implements Function<UserDoc, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull UserDoc input) {
+      return input.login();
+    }
   }
 }

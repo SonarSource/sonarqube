@@ -9,7 +9,8 @@
       "email": "user@mail.com",
       "active": true,
       "scmAccounts": ["user1"],
-      "tokensCount": 0
+      "tokensCount": 0,
+      "local": true
     }
   ]
 }

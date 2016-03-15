@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import com.google.common.collect.Sets;
-import java.util.Arrays;
 import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -29,14 +28,15 @@ import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
+import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 
 import static com.google.common.base.Strings.emptyToNull;
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
 
 public class UpdateAction implements UsersWsAction {
 
@@ -46,14 +46,12 @@ public class UpdateAction implements UsersWsAction {
   private static final String PARAM_SCM_ACCOUNTS = "scmAccounts";
   private static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
 
-  private final UserIndex index;
   private final UserUpdater userUpdater;
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
   private final DbClient dbClient;
 
-  public UpdateAction(UserIndex index, UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter, DbClient dbClient) {
-    this.index = index;
+  public UpdateAction(UserUpdater userUpdater, UserSession userSession, UserJsonWriter userWriter, DbClient dbClient) {
     this.userUpdater = userUpdater;
     this.userSession = userSession;
     this.userWriter = userWriter;
@@ -110,21 +108,24 @@ public class UpdateAction implements UsersWsAction {
   }
 
   private void writeResponse(Response response, String login) {
-    UserDoc user = index.getByLogin(login);
     JsonWriter json = response.newJsonWriter().beginObject();
-    writeUser(json, user);
+    writeUser(json, login);
     json.endObject().close();
   }
 
-  private void writeUser(JsonWriter json, UserDoc user) {
+  private void writeUser(JsonWriter json, String login) {
     json.name("user");
     Set<String> groups = Sets.newHashSet();
     DbSession dbSession = dbClient.openSession(false);
     try {
-      groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, Arrays.asList(user.login())).get(user.login()));
+      UserDto user = dbClient.userDao().selectByLogin(dbSession, login);
+      if (user == null) {
+        throw new NotFoundException(format("User '%s' doesn't exist", login));
+      }
+      groups.addAll(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(login)).get(login));
+      userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
     } finally {
-      MyBatis.closeQuietly(dbSession);
+      dbClient.closeSession(dbSession);
     }
-    userWriter.write(json, user, groups, UserJsonWriter.FIELDS);
   }
 }

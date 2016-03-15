@@ -26,11 +26,12 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.UserUpdater;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 
 public class CreateAction implements UsersWsAction {
 
@@ -41,14 +42,14 @@ public class CreateAction implements UsersWsAction {
   private static final String PARAM_SCM_ACCOUNTS = "scmAccounts";
   private static final String PARAM_SCM_ACCOUNTS_DEPRECATED = "scm_accounts";
 
-  private final UserIndex index;
+  private final DbClient dbClient;
   private final UserUpdater userUpdater;
   private final I18n i18n;
   private final UserSession userSession;
   private final UserJsonWriter userWriter;
 
-  public CreateAction(UserIndex index, UserUpdater userUpdater, I18n i18n, UserSession userSession, UserJsonWriter userWriter) {
-    this.index = index;
+  public CreateAction(DbClient dbClient, UserUpdater userUpdater, I18n i18n, UserSession userSession, UserJsonWriter userWriter) {
+    this.dbClient = dbClient;
     this.userUpdater = userUpdater;
     this.i18n = i18n;
     this.userSession = userSession;
@@ -107,7 +108,7 @@ public class CreateAction implements UsersWsAction {
   }
 
   private void writeResponse(Response response, String login, boolean isUserReactivated) {
-    UserDoc user = index.getByLogin(login);
+    UserDto user = loadUser(login);
     JsonWriter json = response.newJsonWriter().beginObject();
     writeUser(json, user);
     if (isUserReactivated) {
@@ -116,7 +117,7 @@ public class CreateAction implements UsersWsAction {
     json.endObject().close();
   }
 
-  private void writeUser(JsonWriter json, UserDoc user) {
+  private void writeUser(JsonWriter json, UserDto user) {
     json.name("user");
     userWriter.write(json, user, ImmutableSet.<String>of(), UserJsonWriter.FIELDS);
   }
@@ -128,5 +129,14 @@ public class CreateAction implements UsersWsAction {
     json.prop("msg", text);
     json.endObject();
     json.endArray();
+  }
+
+  private UserDto loadUser(String login){
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      return dbClient.userDao().selectOrFailByLogin(dbSession, login);
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 }

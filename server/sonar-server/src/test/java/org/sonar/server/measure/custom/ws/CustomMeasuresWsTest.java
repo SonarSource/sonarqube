@@ -26,7 +26,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -42,8 +41,8 @@ public class CustomMeasuresWsTest {
     UserSession userSession = mock(UserSession.class);
     ws = new WsTester(new CustomMeasuresWs(
       new DeleteAction(dbClient, userSession),
-      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(CustomMeasureValidator.class), mock(CustomMeasureJsonWriter.class), mock(UserIndex.class), mock(ComponentFinder.class)),
-      new UpdateAction(dbClient, userSession, System2.INSTANCE, mock(CustomMeasureValidator.class), mock(CustomMeasureJsonWriter.class), mock(UserIndex.class))
+      new CreateAction(dbClient, userSession, System2.INSTANCE, mock(CustomMeasureValidator.class), mock(CustomMeasureJsonWriter.class), mock(ComponentFinder.class)),
+      new UpdateAction(dbClient, userSession, System2.INSTANCE, mock(CustomMeasureValidator.class), mock(CustomMeasureJsonWriter.class))
     ));
   }
 

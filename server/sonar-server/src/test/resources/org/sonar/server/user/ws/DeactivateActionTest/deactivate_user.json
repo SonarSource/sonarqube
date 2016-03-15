@@ -3,6 +3,7 @@
     "login": "john",
     "name": "John",
     "scmAccounts": [],
-    "active": false
+    "active": false,
+    "local": true
   }
 }

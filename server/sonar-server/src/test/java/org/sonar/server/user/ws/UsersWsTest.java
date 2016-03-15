@@ -41,10 +41,10 @@ public class UsersWsTest {
   @Before
   public void setUp() {
     WsTester tester = new WsTester(new UsersWs(
-      new CreateAction(mock(UserIndex.class), mock(UserUpdater.class), mock(I18n.class), userSessionRule, mock(UserJsonWriter.class)),
-      new UpdateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
+      new CreateAction(mock(DbClient.class), mock(UserUpdater.class), mock(I18n.class), userSessionRule, mock(UserJsonWriter.class)),
+      new UpdateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new CurrentAction(userSessionRule, mock(org.sonar.db.DbClient.class)),
-      new DeactivateAction(mock(UserIndex.class), mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
+      new DeactivateAction(mock(UserUpdater.class), userSessionRule, mock(UserJsonWriter.class), mock(DbClient.class)),
       new ChangePasswordAction(mock(UserUpdater.class), userSessionRule),
       new SearchAction(mock(UserIndex.class), mock(DbClient.class), mock(UserJsonWriter.class))));
     controller = tester.controller("api/users");
