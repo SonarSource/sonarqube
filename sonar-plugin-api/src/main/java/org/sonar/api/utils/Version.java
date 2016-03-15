@@ -24,12 +24,25 @@ import java.util.List;
 import javax.annotation.concurrent.Immutable;
 
 import static java.lang.Integer.parseInt;
+import static java.util.Objects.requireNonNull;
 import static org.apache.commons.lang.StringUtils.substringAfter;
 import static org.apache.commons.lang.StringUtils.substringBefore;
 import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
 /**
- * TODO document equals/comparison without qualifier
+ * Version composed of 3 integer-sequences (major, minor and patch fields) and optionally a qualifier.
+ * <p></p>
+ * Examples: 1.0, 1.0.0, 1.2.3, 1.2-beta1, 1.2.1-beta-1
+ * <p></p>
+ * <h3>IMPORTANT NOTE</h3>
+ * Qualifier is ignored when comparing objects (methods {@link #equals(Object)}, {@link #hashCode()}
+ * and {@link #compareTo(Version)}).
+ * <p></p>
+ * <pre>
+ *   assertThat(Version.parse("1.2")).isEqualTo(Version.parse("1.2-beta1"));
+ *   assertThat(Version.parse("1.2").compareTo(Version.parse("1.2-beta1"))).isZero();
+ * </pre>
+ *
  * @since 5.5
  */
 @Immutable
@@ -45,6 +58,7 @@ public class Version implements Comparable<Version> {
   private final String qualifier;
 
   private Version(int major, int minor, int patch, String qualifier) {
+    requireNonNull(qualifier, "Version qualifier must not be null");
     this.major = major;
     this.minor = minor;
     this.patch = patch;
@@ -64,12 +78,27 @@ public class Version implements Comparable<Version> {
   }
 
   /**
-   * @return non-null suffix
+   * @return non-null suffix. Empty if absent, else the suffix without the first character "-"
    */
   public String qualifier() {
     return qualifier;
   }
 
+  /**
+   * Convert a {@link String} to a Version. Supported formats:
+   * <ul>
+   *   <li>1</li>
+   *   <li>1.2</li>
+   *   <li>1.2.3</li>
+   *   <li>1-beta-1</li>
+   *   <li>1.2-beta-1</li>
+   *   <li>1.2.3-beta-1</li>
+   * </ul>
+   * Note that the optional qualifier is the part after the first "-".
+   *
+   * @throws IllegalArgumentException if parameter is badly formatted, for example
+   * if it defines 4 integer-sequences.
+   */
   public static Version parse(String text) {
     String s = trimToEmpty(text);
     String qualifier = substringAfter(s, QUALIFIER_SEPARATOR);

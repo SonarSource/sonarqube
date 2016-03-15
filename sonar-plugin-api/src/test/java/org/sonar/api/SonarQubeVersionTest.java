@@ -31,8 +31,8 @@ public class SonarQubeVersionTest {
     Version version = Version.parse("1.2.3");
     SonarQubeVersion qubeVersion = new SonarQubeVersion(version);
     assertThat(qubeVersion.get()).isEqualTo(version);
-    assertThat(qubeVersion.greaterThanOrEqual(version)).isTrue();
-    assertThat(qubeVersion.greaterThanOrEqual(Version.parse("1.1"))).isTrue();
-    assertThat(qubeVersion.greaterThanOrEqual(Version.parse("1.3"))).isFalse();
+    assertThat(qubeVersion.isGreaterThanOrEqual(version)).isTrue();
+    assertThat(qubeVersion.isGreaterThanOrEqual(Version.parse("1.1"))).isTrue();
+    assertThat(qubeVersion.isGreaterThanOrEqual(Version.parse("1.3"))).isFalse();
   }
 }
