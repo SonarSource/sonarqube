@@ -58,7 +58,6 @@ import org.sonar.db.DefaultDatabase;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.version.DatabaseVersion;
-import org.sonar.db.version.MigrationStepModule;
 import org.sonar.process.Props;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.activity.index.ActivityIndex;
@@ -161,7 +160,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // DB
     DbClient.class,
     DaoModule.class,
-    MigrationStepModule.class,
+   // MigrationStepModule.class, DB maintenance, responsibility of Web Server
 
     // Elasticsearch
     EsSearchModule.class,
