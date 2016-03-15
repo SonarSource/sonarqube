@@ -57,6 +57,7 @@ public class SearchWsRequest {
   private List<String> resolutions;
   private Boolean resolved;
   private List<String> rules;
+  private Boolean sinceLeakPeriod;
   private String sort;
   private List<String> severities;
   private List<String> statuses;
@@ -350,6 +351,16 @@ public class SearchWsRequest {
 
   public SearchWsRequest setRules(@Nullable List<String> rules) {
     this.rules = rules;
+    return this;
+  }
+
+  @CheckForNull
+  public Boolean getSinceLeakPeriod() {
+    return sinceLeakPeriod;
+  }
+
+  public SearchWsRequest setSinceLeakPeriod(@Nullable Boolean sinceLeakPeriod) {
+    this.sinceLeakPeriod = sinceLeakPeriod;
     return this;
   }
 

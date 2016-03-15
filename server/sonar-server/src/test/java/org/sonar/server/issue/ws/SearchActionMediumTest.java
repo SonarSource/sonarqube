@@ -94,14 +94,14 @@ public class SearchActionMediumTest {
   public void define_action() {
     WebService.Controller controller = wsTester.controller("api/issues");
 
-    WebService.Action show = controller.action("search");
-    assertThat(show).isNotNull();
-    assertThat(show.handler()).isNotNull();
-    assertThat(show.since()).isEqualTo("3.6");
-    assertThat(show.isPost()).isFalse();
-    assertThat(show.isInternal()).isFalse();
-    assertThat(show.responseExampleAsString()).isNotEmpty();
-    assertThat(show.params()).hasSize(38);
+    WebService.Action search = controller.action("search");
+    assertThat(search).isNotNull();
+    assertThat(search.handler()).isNotNull();
+    assertThat(search.since()).isEqualTo("3.6");
+    assertThat(search.isPost()).isFalse();
+    assertThat(search.isInternal()).isFalse();
+    assertThat(search.responseExampleAsString()).isNotEmpty();
+    assertThat(search.params()).hasSize(39);
   }
 
   @Test
