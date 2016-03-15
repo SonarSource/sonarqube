@@ -91,6 +91,12 @@ public class System2Test {
   }
 
   @Test
+  public void testGetResource() throws Exception {
+    String name = "META-INF/MANIFEST.MF";
+    assertThat(System2.INSTANCE.getResource(name)).isEqualTo(getClass().getResource(name));
+  }
+
+  @Test
   public void close() {
     class MyCloseable implements Closeable {
       boolean isClosed = false;
