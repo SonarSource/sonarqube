@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.Version;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
@@ -44,10 +45,10 @@ public class DatabaseChecker implements Startable {
     // MsSQL 2012 is 11.x
     // MsSQL 2014 is 12.x
     // https://support.microsoft.com/en-us/kb/321185
-    MsSql.ID, new Version(10, 0),
-    MySql.ID, new Version(5, 6),
-    Oracle.ID, new Version(11, 0),
-    PostgreSql.ID, new Version(8, 0));
+    MsSql.ID, Version.create(10, 0, 0),
+    MySql.ID, Version.create(5, 6, 0),
+    Oracle.ID, Version.create(11, 0, 0),
+    PostgreSql.ID, Version.create(8, 0, 0));
 
   private final Database db;
 
@@ -82,8 +83,8 @@ public class DatabaseChecker implements Startable {
       try (Connection connection = db.getDataSource().getConnection()) {
         int dbMajorVersion = connection.getMetaData().getDatabaseMajorVersion();
         int dbMinorVersion = connection.getMetaData().getDatabaseMinorVersion();
-        Version dbVersion = new Version(dbMajorVersion, dbMinorVersion);
-        if (!dbVersion.isGreaterThanOrEqual(minDbVersion)) {
+        Version dbVersion = Version.create(dbMajorVersion, dbMinorVersion, 0);
+        if (dbVersion.compareTo(minDbVersion) < 0) {
           throw MessageException.of(String.format(
             "Unsupported %s version: %s. Minimal supported version is %s.", db.getDialect().getId(), dbVersion, minDbVersion));
         }
@@ -100,25 +101,6 @@ public class DatabaseChecker implements Startable {
         throw MessageException.of(String.format(
           "Unsupported Oracle driver version: %s. Minimal supported version is 11.2.", driverVersion));
       }
-    }
-  }
-
-  private static class Version {
-    private final int major;
-    private final int minor;
-
-    public Version(int major, int minor) {
-      this.major = major;
-      this.minor = minor;
-    }
-
-    public boolean isGreaterThanOrEqual(Version other) {
-      return major >= other.major && (major != other.major || minor >= other.minor);
-    }
-
-    @Override
-    public String toString() {
-      return new StringBuilder().append(major).append(".").append(minor).toString();
     }
   }
 }
