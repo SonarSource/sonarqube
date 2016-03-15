@@ -52,6 +52,7 @@ import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
+import static org.apache.commons.lang.StringUtils.trimToEmpty;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 @BatchSide
@@ -230,7 +231,7 @@ public class ReportPublisher implements Startable {
    * See https://jira.sonarsource.com/browse/SONAR-4239
    */
   private String publicUrl() {
-    String baseUrl = settings.getString(CoreProperties.SERVER_BASE_URL);
+    String baseUrl = trimToEmpty(settings.getString(CoreProperties.SERVER_BASE_URL));
     if (baseUrl.equals(settings.getDefaultValue(CoreProperties.SERVER_BASE_URL))) {
       // crap workaround for https://jira.sonarsource.com/browse/SONAR-7109
       // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
