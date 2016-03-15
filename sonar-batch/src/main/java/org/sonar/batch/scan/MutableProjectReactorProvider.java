@@ -19,11 +19,8 @@
  */
 package org.sonar.batch.scan;
 
-import java.io.File;
-import java.io.IOException;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
-import org.sonar.core.util.FileUtils;
 
 public class MutableProjectReactorProvider extends ProviderAdapter {
   private ProjectReactor reactor = null;
@@ -31,16 +28,7 @@ public class MutableProjectReactorProvider extends ProviderAdapter {
   public ProjectReactor provide(ProjectReactorBuilder builder) {
     if (reactor == null) {
       reactor = builder.execute();
-      cleanDirectory(reactor.getRoot().getWorkDir());
     }
     return reactor;
-  }
-
-  private static void cleanDirectory(File dir) {
-    try {
-      FileUtils.cleanDirectory(dir);
-    } catch (IOException e) {
-      throw new IllegalStateException("Failed to recreate working directory: " + dir.getAbsolutePath(), e);
-    }
   }
 }

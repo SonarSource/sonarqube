@@ -20,16 +20,13 @@
 package org.sonar.home.cache;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.RandomAccessFile;
-import java.io.StringWriter;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
-import java.nio.file.Files;
 import java.nio.file.Path;
 
 public class DirectoryLock {
-  static final String LOCK_FILE_NAME = ".sonar_lock";
+  public static final String LOCK_FILE_NAME = ".sonar_lock";
   private final Path lockFilePath;
   private final Logger logger;
 
@@ -92,15 +89,6 @@ public class DirectoryLock {
       } catch (IOException e) {
         logger.error("Error closing file", e);
       }
-    }
-
-    try {
-      Files.delete(lockFilePath);
-    } catch (IOException e) {
-      // ignore, as an error happens if another process just started to acquire the same lock
-      StringWriter errors = new StringWriter();
-      e.printStackTrace(new PrintWriter(errors));
-      logger.debug("Couldn't delete lock file: " + lockFilePath.toString() + " " + errors.toString());
     }
   }
 }

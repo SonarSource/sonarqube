@@ -111,6 +111,7 @@ public class ProjectScanContainer extends ComponentContainer {
     addBatchComponents();
     lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
+    getComponentByType(WorkDirectoryCleaner.class).execute();
     addBatchExtensions();
     Settings settings = getComponentByType(Settings.class);
     if (settings != null && settings.getBoolean(CoreProperties.PROFILING_LOG_PROPERTY)) {
@@ -139,6 +140,7 @@ public class ProjectScanContainer extends ComponentContainer {
       props,
       DefaultAnalysisMode.class,
       ProjectReactorBuilder.class,
+      WorkDirectoryCleaner.class,
       new MutableProjectReactorProvider(),
       new ImmutableProjectReactorProvider(),
       ProjectBuildersExecutor.class,

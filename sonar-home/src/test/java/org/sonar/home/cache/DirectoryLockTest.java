@@ -50,7 +50,6 @@ public class DirectoryLockTest {
     lock.lock();
     assertThat(temp.getRoot().toPath().resolve(".sonar_lock")).exists();
     lock.unlock();
-    assertThat(temp.getRoot().list()).isEmpty();
   }
 
   @Test
@@ -59,7 +58,6 @@ public class DirectoryLockTest {
     lock.tryLock();
     assertThat(temp.getRoot().toPath().resolve(".sonar_lock")).exists();
     lock.unlock();
-    assertThat(temp.getRoot().list()).isEmpty();
   }
 
   @Test(expected = OverlappingFileLockException.class)

@@ -390,20 +390,22 @@ public class IssuesModeTest {
   }
 
   @Test
-  @Ignore
-  // Disabled until SONAR-7124 is fixed
   public void concurrent_issue_mode_on_existing_project() throws Exception {
     restoreProfile("one-issue-per-line.xml");
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-issue-per-line");
 
-    SonarRunner runner = configureRunner("shared/xoo-sample");
+    // use same working dir, because lock file is in it
+    String workDirPath = temp.newFolder().getAbsolutePath();
+    SonarRunner runner = configureRunner("shared/xoo-sample",
+      "sonar.working.directory", workDirPath);
+
     orchestrator.executeBuild(runner);
 
-    runConcurrentIssues();
+    runConcurrentIssues(workDirPath);
   }
 
-  private void runConcurrentIssues() throws Exception {
+  private void runConcurrentIssues(final String workDirPath) throws Exception {
     // Install sonar-runner in advance to avoid concurrent unzip issues
     FileSystem fileSystem = orchestrator.getConfiguration().fileSystem();
     new SonarScannerInstaller(fileSystem).install(Version.create(SonarScanner.DEFAULT_RUNNER_VERSION), fileSystem.workspace());
@@ -415,7 +417,9 @@ public class IssuesModeTest {
       tasks.add(new Callable<BuildResult>() {
 
         public BuildResult call() throws Exception {
-          SonarScanner runner = configureRunnerIssues("shared/xoo-sample", homeDir, "sonar.it.enableWaitingSensor", "true");
+          SonarScanner runner = configureRunnerIssues("shared/xoo-sample", homeDir,
+            "sonar.it.enableWaitingSensor", "true",
+            "sonar.working.directory", workDirPath);
           return orchestrator.executeBuild(runner);
         }
       });
