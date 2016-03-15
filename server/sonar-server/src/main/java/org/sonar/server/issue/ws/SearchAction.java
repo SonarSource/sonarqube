@@ -92,6 +92,7 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLVED;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RULES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.SINCE_LEAK_PERIOD;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.STATUSES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.TAGS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.TYPES;
@@ -206,6 +207,11 @@ public class SearchAction implements IssuesWsAction {
         "Accepted units are 'y' for year, 'm' for month, 'w' for week and 'd' for day. " +
         "If this parameter is set, createdAfter must not be set")
       .setExampleValue("1m2w (1 month 2 weeks)");
+    action.createParam(SINCE_LEAK_PERIOD)
+      .setDescription("To retrieve issues created since the leak period.<br>" +
+        "If this parameter is set to a truthy value, createdAfter must not be set and one component id or key must be provided.")
+      .setBooleanPossibleValues()
+      .setDefaultValue("false");
   }
 
   private static void addComponentRelatedParams(WebService.NewAction action) {
@@ -453,6 +459,7 @@ public class SearchAction implements IssuesWsAction {
       .setResolutions(request.paramAsStrings(RESOLUTIONS))
       .setResolved(request.paramAsBoolean(RESOLVED))
       .setRules(request.paramAsStrings(RULES))
+      .setSinceLeakPeriod(request.mandatoryParamAsBoolean(SINCE_LEAK_PERIOD))
       .setSort(request.param(Param.SORT))
       .setSeverities(request.paramAsStrings(SEVERITIES))
       .setStatuses(request.paramAsStrings(STATUSES))

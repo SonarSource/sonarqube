@@ -55,6 +55,7 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLVED;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RULES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.SEVERITIES;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.SINCE_LEAK_PERIOD;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.STATUSES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.TAGS;
 
@@ -102,6 +103,7 @@ public class IssuesService extends BaseService {
         .setParam(RULES, inlineMultipleParamValue(request.getRules()))
         .setParam("s", request.getSort())
         .setParam(SEVERITIES, inlineMultipleParamValue(request.getSeverities()))
+        .setParam(SINCE_LEAK_PERIOD, request.getSinceLeakPeriod())
         .setParam(STATUSES, inlineMultipleParamValue(request.getStatuses()))
         .setParam(TAGS, inlineMultipleParamValue(request.getTags())),
       SearchWsResponse.parser());

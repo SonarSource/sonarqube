@@ -24,12 +24,14 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import org.assertj.core.api.Fail;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.mockito.Matchers;
 import org.mockito.Mock;
@@ -47,7 +49,9 @@ import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.user.AuthorDao;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
@@ -65,6 +69,8 @@ public class IssueQueryServiceTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Mock
   DbClient dbClient;
@@ -444,7 +450,7 @@ public class IssueQueryServiceTest {
       issueQueryService.createFromMap(map);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("createdAfter and createdSince cannot be set simultaneously");
+      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("createdAfter and createdInLast cannot be set simultaneously");
     }
   }
 
@@ -456,6 +462,35 @@ public class IssueQueryServiceTest {
 
     map.put("createdInLast", "1y2m3w4d");
     assertThat(issueQueryService.createFromMap(map).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
+  }
 
+  @Test
+  public void fail_if_since_leak_period_and_created_after_set_at_the_same_time() {
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("'createdAfter' and 'sinceLeakPeriod' cannot be set simultaneously");
+
+    issueQueryService.createFromRequest(new SearchWsRequest()
+      .setSinceLeakPeriod(true)
+      .setCreatedAfter("2013-07-25T07:35:00+0100"));
+  }
+
+  @Test
+  public void fail_if_no_component_provided_with_since_leak_period() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("One and only one component must be provided when searching since leak period");
+
+    issueQueryService.createFromRequest(new SearchWsRequest().setSinceLeakPeriod(true));
+  }
+
+  @Test
+  public void fail_if_several_components_provided_with_since_leak_period() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("One and only one component must be provided when searching since leak period");
+
+    issueQueryService.createFromRequest(new SearchWsRequest()
+      .setSinceLeakPeriod(true)
+      .setComponentUuids(Collections.singletonList("component-uuid"))
+      .setProjectUuids(Collections.singletonList("project-uuid"))
+    );
   }
 }

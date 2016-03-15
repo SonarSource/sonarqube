@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
@@ -30,6 +29,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -46,20 +46,29 @@ import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentService;
+import org.sonar.server.rule.RuleKeyFunctions;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.RubyUtils;
 import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
+import static org.sonar.api.utils.DateUtils.longToDate;
 import static org.sonar.db.component.ComponentDtoFunctions.toCopyResourceId;
 import static org.sonar.db.component.ComponentDtoFunctions.toProjectUuid;
 import static org.sonar.db.component.ComponentDtoFunctions.toUuid;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AFTER;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.SINCE_LEAK_PERIOD;
 
 /**
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
@@ -103,7 +112,7 @@ public class IssueQueryService {
         .planned(RubyUtils.toBoolean(params.get(IssueFilterParameters.PLANNED)))
         .hideRules(RubyUtils.toBoolean(params.get(IssueFilterParameters.HIDE_RULES)))
         .createdAt(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AT)))
-        .createdAfter(buildCreatedAfter(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_AFTER)), (String) params.get(IssueFilterParameters.CREATED_IN_LAST)))
+        .createdAfter(buildCreatedAfterFromDates(RubyUtils.toDate(params.get(CREATED_AFTER)), (String) params.get(CREATED_IN_LAST)))
         .createdBefore(RubyUtils.toDate(params.get(IssueFilterParameters.CREATED_BEFORE)));
 
       Set<String> allComponentUuids = Sets.newHashSet();
@@ -147,12 +156,12 @@ public class IssueQueryService {
     }
   }
 
-  private Date buildCreatedAfter(@Nullable Date createdAfter, @Nullable String createdSince) {
-    Preconditions.checkArgument(createdAfter == null || createdSince == null, "createdAfter and createdSince cannot be set simultaneously");
+  private Date buildCreatedAfterFromDates(@Nullable Date createdAfter, @Nullable String createdInLast) {
+    checkArgument(createdAfter == null || createdInLast == null, format("%s and %s cannot be set simultaneously", CREATED_AFTER, CREATED_IN_LAST));
 
     Date actualCreatedAfter = createdAfter;
-    if (createdSince != null) {
-      actualCreatedAfter = new DateTime(system.now()).minus(ISOPeriodFormat.standard().parsePeriod("P" + createdSince.toUpperCase())).toDate();
+    if (createdInLast != null) {
+      actualCreatedAfter = new DateTime(system.now()).minus(ISOPeriodFormat.standard().parsePeriod("P" + createdInLast.toUpperCase())).toDate();
     }
     return actualCreatedAfter;
   }
@@ -176,7 +185,6 @@ public class IssueQueryService {
         .assigned(request.getAssigned())
         .planned(request.getPlanned())
         .createdAt(parseAsDateTime(request.getCreatedAt()))
-        .createdAfter(buildCreatedAfter(parseAsDateTime(request.getCreatedAfter()), request.getCreatedInLast()))
         .createdBefore(parseAsDateTime(request.getCreatedBefore()))
         .facetMode(request.getFacetMode());
 
@@ -200,6 +208,8 @@ public class IssueQueryService {
         request.getFileUuids(),
         request.getAuthors());
 
+      builder.createdAfter(buildCreatedAfterFromRequest(session, request, allComponentUuids, effectiveOnComponentOnly));
+
       String sort = request.getSort();
       if (!Strings.isNullOrEmpty(sort)) {
         builder.sort(sort);
@@ -210,6 +220,40 @@ public class IssueQueryService {
     } finally {
       session.close();
     }
+  }
+
+  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, Set<String> componentUuids, boolean effectiveOnComponentOnly) {
+    Date createdAfter = parseAsDateTime(request.getCreatedAfter());
+    String createdInLast = request.getCreatedInLast();
+
+    if (request.getSinceLeakPeriod() == null || !request.getSinceLeakPeriod()) {
+      return buildCreatedAfterFromDates(createdAfter, createdInLast);
+    }
+
+    checkRequest(createdAfter == null, "'%s' and '%s' cannot be set simultaneously", CREATED_AFTER, SINCE_LEAK_PERIOD);
+    Set<String> allComponentUuids = new HashSet<>(componentUuids);
+    if (!effectiveOnComponentOnly) {
+      if (request.getProjectKeys() != null) {
+        allComponentUuids.addAll(componentUuids(dbSession, request.getProjectKeys()));
+      }
+      if (request.getProjectUuids() != null) {
+        allComponentUuids.addAll(request.getProjectUuids());
+      }
+      if (request.getModuleUuids() != null) {
+        allComponentUuids.addAll(request.getModuleUuids());
+      }
+      if (request.getFileUuids() != null) {
+        allComponentUuids.addAll(request.getFileUuids());
+      }
+    }
+
+    checkArgument(allComponentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
+    String uuid = allComponentUuids.iterator().next();
+    // TODO use ComponentFinder instead
+    ComponentDto component = checkFoundWithOptional(componentService.getByUuid(uuid), "Component with id '%s' not found", uuid);
+    SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, component.getId());
+    Date createdAfterFromSnapshot = snapshot == null ? null : longToDate(snapshot.getPeriodDate(1));
+    return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
   }
 
   private List<String> buildAssignees(@Nullable List<String> assigneesFromParams) {

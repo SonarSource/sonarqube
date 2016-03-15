@@ -62,6 +62,7 @@ public class IssueFilterParameters {
   public static final String CREATED_AT = "createdAt";
   public static final String CREATED_BEFORE = "createdBefore";
   public static final String CREATED_IN_LAST = "createdInLast";
+  public static final String SINCE_LEAK_PERIOD = "sinceLeakPeriod";
   public static final String PAGE_SIZE = "pageSize";
   public static final String PAGE_INDEX = "pageIndex";
   public static final String SORT = "sort";

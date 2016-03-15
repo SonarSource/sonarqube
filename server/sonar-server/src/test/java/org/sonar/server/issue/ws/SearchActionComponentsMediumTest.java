@@ -37,6 +37,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
@@ -54,11 +56,16 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 import org.sonarqube.ws.Issues;
+import org.sonarqube.ws.Issues.SearchWsResponse;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
+import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 
 public class SearchActionComponentsMediumTest {
 
@@ -133,7 +140,7 @@ public class SearchActionComponentsMediumTest {
     TestResponse response = actionTester.newRequest()
       .setMediaType(MediaTypes.PROTOBUF)
       .execute();
-    Issues.SearchWsResponse searchResponse = Issues.SearchWsResponse.parseFrom(response.getInputStream());
+    SearchWsResponse searchResponse = SearchWsResponse.parseFrom(response.getInputStream());
     assertThat(searchResponse.getIssuesCount()).isEqualTo(2);
 
     for (Issues.Issue issue : searchResponse.getIssuesList()) {
@@ -175,6 +182,38 @@ public class SearchActionComponentsMediumTest {
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, "unknown")
       .execute()
       .assertJson(this.getClass(), "no_issue.json");
+  }
+
+  @Test
+  public void search_since_leak_period() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("PK1"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("FK1"));
+    SnapshotDto projectSnapshot = db.snapshotDao().insert(session, 
+      newSnapshotForProject(project)
+        .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
+    db.snapshotDao().insert(session,
+      SnapshotTesting.createForComponent(file, projectSnapshot)
+        .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime())
+    );
+    RuleDto rule = newRule();
+    IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
+      .setKee(UUID_EXAMPLE_01)
+      .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100"));
+    IssueDto issueBeforeLeak = IssueTesting.newDto(rule, file, project)
+      .setKee(UUID_EXAMPLE_02)
+      .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100"));
+    db.issueDao().insert(session, issueAfterLeak, issueBeforeLeak);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
+      .setParam(IssueFilterParameters.SINCE_LEAK_PERIOD, "true")
+      .execute()
+      .assertJson(this.getClass(), "search_since_leak_period.json");
   }
 
   @Test
@@ -256,7 +295,6 @@ public class SearchActionComponentsMediumTest {
       .setParam(IssueFilterParameters.COMPONENTS, unitTest.key())
       .execute()
       .assertJson(this.getClass(), "search_by_test_key.json");
-
   }
 
   @Test
