@@ -19,16 +19,15 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.lang.SystemUtils;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
-import javax.annotation.CheckForNull;
-
+import java.net.URL;
 import java.util.Date;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TimeZone;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.SystemUtils;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * Proxy over {@link java.lang.System}. It aims to improve testability of classes
@@ -139,6 +138,14 @@ public class System2 {
    */
   public TimeZone getDefaultTimeZone() {
     return TimeZone.getDefault();
+  }
+
+  /**
+   * @since 5.5
+   * @see Class#getResource(String)
+   */
+  public URL getResource(String name) {
+    return getClass().getResource(name);
   }
 
   /**
