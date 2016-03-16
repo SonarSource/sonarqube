@@ -21,6 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.UriReader;
 import org.sonar.core.util.DefaultHttpDownloader;
+import org.sonar.db.CollationChecker;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.startup.ServerMetadataPersister;
@@ -33,6 +34,7 @@ public class PlatformLevel3 extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
+      CollationChecker.class,
       PersistentSettings.class,
       ServerMetadataPersister.class,
       DefaultHttpDownloader.class,

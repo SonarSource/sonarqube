@@ -27,6 +27,7 @@ import org.sonar.api.database.DatabaseProperties;
 import static org.apache.commons.lang.StringUtils.startsWith;
 
 public class EmbeddedDatabaseFactory implements Startable {
+  private static final String URL_PREFIX = "jdbc:h2:tcp:";
   private final Settings settings;
   private EmbeddedDatabase embeddedDatabase;
 
@@ -38,7 +39,7 @@ public class EmbeddedDatabaseFactory implements Startable {
   public void start() {
     if (embeddedDatabase == null) {
       String jdbcUrl = settings.getString(DatabaseProperties.PROP_URL);
-      if (startsWith(jdbcUrl, "jdbc:h2:tcp:")) {
+      if (startsWith(jdbcUrl, URL_PREFIX)) {
         embeddedDatabase = getEmbeddedDatabase(settings);
         embeddedDatabase.start();
       }
