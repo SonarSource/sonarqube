@@ -246,11 +246,15 @@ public class FileSystemMediumTest {
       File projectDir = new File("src/test/resources/mediumtest/xoo/sample");
       TaskResult result = tester
         .newScanTask(new File(projectDir, "sonar-project.properties"))
-        .property("sonar.sources", "SRC")
+        .property("sonar.sources", "XOURCES")
+        .property("sonar.tests", "TESTX")
         .start();
 
       assertThat(result.inputFiles()).hasSize(3);
-      assertThat(result.inputFiles()).extractingResultOf("relativePath").startsWith("src");
+      assertThat(result.inputFiles()).extractingResultOf("relativePath").containsOnly(
+        "xources/hello/HelloJava.xoo",
+        "xources/hello/helloscala.xoo",
+        "testx/ClassOneTest.xoo");
     }
   }
 
