@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.platformlevel;
 
+import org.sonar.db.CollationChecker;
 import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
@@ -48,6 +49,7 @@ public class PlatformLevelStartup extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
+      CollationChecker.class,
       IndexSynchronizer.class,
       RegisterMetrics.class,
       RegisterQualityGates.class,
