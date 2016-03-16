@@ -46,7 +46,7 @@ public class ModuleSettings extends Settings {
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
     init(moduleDefinition, batchSettings);
-    contextReportPublisher.dumpSettings(moduleDefinition, this);
+    contextReportPublisher.dumpSettings(moduleDefinition);
   }
 
   private ModuleSettings init(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
@@ -55,9 +55,8 @@ public class ModuleSettings extends Settings {
     return this;
   }
 
-  private void addProjectProperties(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
+  private void addProjectProperties(ProjectDefinition def, GlobalSettings batchSettings) {
     addProperties(batchSettings.getProperties());
-    ProjectDefinition def = moduleDefinition;
     do {
       if (projectRepos.moduleExists(def.getKeyWithBranch())) {
         addProperties(projectRepos.settings(def.getKeyWithBranch()));

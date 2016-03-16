@@ -25,18 +25,19 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.core.platform.PluginInfo;
 
 @BatchSide
@@ -49,13 +50,15 @@ public class AnalysisContextReportPublisher {
   private final BatchPluginRepository pluginRepo;
   private final AnalysisMode mode;
   private final System2 system;
+  private final ProjectRepositories projectRepos;
 
   private BatchReportWriter writer;
 
-  public AnalysisContextReportPublisher(AnalysisMode mode, BatchPluginRepository pluginRepo, System2 system) {
+  public AnalysisContextReportPublisher(AnalysisMode mode, BatchPluginRepository pluginRepo, System2 system, ProjectRepositories projectRepos) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;
+    this.projectRepos = projectRepos;
   }
 
   public void init(BatchReportWriter writer) {
@@ -101,23 +104,46 @@ public class AnalysisContextReportPublisher {
     }
   }
 
-  public void dumpSettings(ProjectDefinition moduleDefinition, Settings settings) {
+  public void dumpSettings(ProjectDefinition moduleDefinition) {
     if (mode.isIssues()) {
       return;
     }
+
     File analysisLog = writer.getFileStructure().analysisLog();
     try (BufferedWriter fileWriter = Files.newBufferedWriter(analysisLog.toPath(), StandardCharsets.UTF_8, StandardOpenOption.WRITE, StandardOpenOption.APPEND)) {
+      Map<String, String> moduleSpecificProps = collectModuleSpecificProps(moduleDefinition);
       fileWriter.append(String.format("Settings for module: %s", moduleDefinition.getKey())).append('\n');
-      Map<String, String> moduleSettings = settings.getProperties();
-      for (String prop : new TreeSet<>(moduleSettings.keySet())) {
+      for (String prop : new TreeSet<>(moduleSpecificProps.keySet())) {
         if (isSystemProp(prop) || isEnvVariable(prop) || !isSqProp(prop)) {
           continue;
         }
-        fileWriter.append(String.format("  - %s=%s", prop, sensitive(prop) ? "******" : moduleSettings.get(prop))).append('\n');
+        fileWriter.append(String.format("  - %s=%s", prop, sensitive(prop) ? "******" : moduleSpecificProps.get(prop))).append('\n');
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);
     }
+  }
+
+  /**
+   * Only keep props that are not in parent
+   */
+  private Map<String, String> collectModuleSpecificProps(ProjectDefinition moduleDefinition) {
+    Map<String, String> moduleSpecificProps = new HashMap<>();
+    if (projectRepos.moduleExists(moduleDefinition.getKeyWithBranch())) {
+      moduleSpecificProps.putAll(projectRepos.settings(moduleDefinition.getKeyWithBranch()));
+    }
+    ProjectDefinition parent = moduleDefinition.getParent();
+    if (parent == null) {
+      moduleSpecificProps.putAll(moduleDefinition.properties());
+    } else {
+      Map<String, String> parentProps = parent.properties();
+      for (Map.Entry<String, String> entry : moduleDefinition.properties().entrySet()) {
+        if (!parentProps.containsKey(entry.getKey()) || !parentProps.get(entry.getKey()).equals(entry.getValue())) {
+          moduleSpecificProps.put(entry.getKey(), entry.getValue());
+        }
+      }
+    }
+    return moduleSpecificProps;
   }
 
   private static boolean isSqProp(String propKey) {

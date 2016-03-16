@@ -19,6 +19,7 @@
  */
 package org.sonar.batch.report;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,12 +31,12 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
-import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.protocol.output.BatchReportWriter;
+import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.updatecenter.common.Version;
 
@@ -61,13 +62,15 @@ public class AnalysisContextReportPublisherTest {
   private AnalysisContextReportPublisher publisher;
   private AnalysisMode analysisMode = mock(AnalysisMode.class);
   private System2 system2;
+  private ProjectRepositories projectRepos;
 
   @Before
   public void prepare() throws Exception {
     logTester.setLevel(LoggerLevel.INFO);
     system2 = mock(System2.class);
     when(system2.properties()).thenReturn(new Properties());
-    publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo, system2);
+    projectRepos = mock(ProjectRepositories.class);
+    publisher = new AnalysisContextReportPublisher(analysisMode, pluginRepo, system2, projectRepos);
   }
 
   @Test
@@ -89,9 +92,26 @@ public class AnalysisContextReportPublisherTest {
 
     BatchReportWriter writer = new BatchReportWriter(temp.newFolder());
     publisher.init(writer);
-    publisher.dumpSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"), new Settings());
+    publisher.dumpSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"));
 
     assertThat(writer.getFileStructure().analysisLog()).doesNotExist();
+  }
+
+  @Test
+  public void dumpServerSideProps() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    BatchReportWriter writer = new BatchReportWriter(temp.newFolder());
+    publisher.init(writer);
+
+    when(projectRepos.moduleExists("foo")).thenReturn(true);
+    when(projectRepos.settings("foo")).thenReturn(ImmutableMap.of(COM_FOO, "bar", SONAR_SKIP, "true"));
+
+    publisher.dumpSettings(ProjectDefinition.create()
+      .setProperty("sonar.projectKey", "foo"));
+
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    assertThat(content).doesNotContain(COM_FOO);
+    assertThat(content).containsOnlyOnce(SONAR_SKIP);
   }
 
   @Test
@@ -108,11 +128,10 @@ public class AnalysisContextReportPublisherTest {
     assertThat(content).containsOnlyOnce(COM_FOO);
     assertThat(content).doesNotContain(SONAR_SKIP);
 
-    Settings settings = new Settings();
-    settings.setProperty(COM_FOO, "bar");
-    settings.setProperty(SONAR_SKIP, "true");
-
-    publisher.dumpSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"), settings);
+    publisher.dumpSettings(ProjectDefinition.create()
+      .setProperty("sonar.projectKey", "foo")
+      .setProperty(COM_FOO, "bar")
+      .setProperty(SONAR_SKIP, "true"));
 
     content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).containsOnlyOnce(COM_FOO);
@@ -135,10 +154,9 @@ public class AnalysisContextReportPublisherTest {
     assertThat(content).containsOnlyOnce(BIZ);
     assertThat(content).containsSequence(BIZ, FOO);
 
-    Settings settings = new Settings();
-    settings.setProperty("env." + FOO, "BAR");
-
-    publisher.dumpSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"), settings);
+    publisher.dumpSettings(ProjectDefinition.create()
+      .setProperty("sonar.projectKey", "foo")
+      .setProperty("env." + FOO, "BAR"));
 
     content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
     assertThat(content).containsOnlyOnce(FOO);
@@ -153,15 +171,37 @@ public class AnalysisContextReportPublisherTest {
 
     assertThat(writer.getFileStructure().analysisLog()).exists();
 
-    Settings settings = new Settings();
-    settings.setProperty("sonar.projectKey", "foo");
-    settings.setProperty("sonar.password", "azerty");
-    settings.setProperty("sonar.cpp.license.secured", "AZERTY");
-    publisher.dumpSettings(ProjectDefinition.create().setProperty("sonar.projectKey", "foo"), settings);
+    publisher.dumpSettings(ProjectDefinition.create()
+      .setProperty("sonar.projectKey", "foo")
+      .setProperty("sonar.projectKey", "foo")
+      .setProperty("sonar.password", "azerty")
+      .setProperty("sonar.cpp.license.secured", "AZERTY"));
 
     assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSequence(
       "sonar.cpp.license.secured=******",
       "sonar.password=******",
       "sonar.projectKey=foo");
+  }
+
+  // SONAR-7371
+  @Test
+  public void dontDumpParentProps() throws Exception {
+    logTester.setLevel(LoggerLevel.DEBUG);
+    BatchReportWriter writer = new BatchReportWriter(temp.newFolder());
+    publisher.init(writer);
+
+    ProjectDefinition module = ProjectDefinition.create()
+      .setProperty("sonar.projectKey", "foo")
+      .setProperty(SONAR_SKIP, "true");
+
+    ProjectDefinition.create()
+      .setProperty("sonar.projectKey", "parent")
+      .setProperty(SONAR_SKIP, "true")
+      .addSubProject(module);
+
+    publisher.dumpSettings(module);
+
+    String content = FileUtils.readFileToString(writer.getFileStructure().analysisLog());
+    assertThat(content).doesNotContain(SONAR_SKIP);
   }
 }
