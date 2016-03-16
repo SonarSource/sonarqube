@@ -68,12 +68,18 @@ public class UserRule extends ExternalResource {
     return adminWsClient;
   }
 
-  public void verifyUserExists(String login, String name, @Nullable String email) {
+  public Users.User verifyUserExists(String login, String name, @Nullable String email) {
     Optional<Users.User> user = getUserByLogin(login);
     assertThat(user).as("User with login '%s' hasn't been found", login).isPresent();
     Assertions.assertThat(user.get().getLogin()).isEqualTo(login);
     Assertions.assertThat(user.get().getName()).isEqualTo(name);
     Assertions.assertThat(user.get().getEmail()).isEqualTo(email);
+    return user.get();
+  }
+
+  public void verifyUserExists(String login, String name, @Nullable String email, boolean local) {
+    Users.User user = verifyUserExists(login, name, email);
+    Assertions.assertThat(user.isLocal()).isEqualTo(local);
   }
 
   public void verifyUserDoesNotExist(String login) {

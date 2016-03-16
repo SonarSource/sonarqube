@@ -25,6 +25,7 @@ import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.util.Map;
+import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -39,7 +40,6 @@ import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.connectors.ConnectionException;
 import org.sonar.wsclient.connectors.HttpClient4Connector;
 import org.sonar.wsclient.services.AuthenticationQuery;
-import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.UserPropertyCreateQuery;
 import org.sonar.wsclient.services.UserPropertyQuery;
 import org.sonar.wsclient.user.UserParameters;
@@ -76,7 +76,6 @@ public class RailsExternalAuthenticationTest {
   public static final Orchestrator orchestrator = Orchestrator.builderEnv()
     .addPlugin(pluginArtifact("security-plugin"))
     .setServerProperty("sonar.security.realm", "FakeRealm")
-    .setServerProperty("sonar.security.localUsers", "admin," + TECH_USER)
     .build();
 
   @Before
@@ -86,7 +85,6 @@ public class RailsExternalAuthenticationTest {
     setServerProperty(orchestrator, "sonar.security.updateUserAttributes", null);
     setServerProperty(orchestrator, "sonar.security.savePassword", null);
     setServerProperty(orchestrator, "sonar.authenticator.createUsers", null);
-    setServerProperty(orchestrator, "sonar.security.localUsers", null);
     resetUsers(USER_LOGIN, TECH_USER);
   }
 
@@ -233,36 +231,6 @@ public class RailsExternalAuthenticationTest {
    * SONAR-4543
    */
   @Test
-  public void shouldNotAccessExternalSystemForLocalAccounts() {
-    // Given clean Sonar installation and no users in external system
-    setServerProperty(orchestrator, "sonar.security.savePassword", "false");
-    String login = "localuser";
-    String localPassword = "1234567";
-    String remotePassword = "7654321";
-    Map<String, String> users = Maps.newHashMap();
-
-    // When user created in external system
-    users.put(login + ".password", remotePassword);
-    updateUsersInExtAuth(users);
-    // And user exists in local database
-    createUserInDb(login, localPassword);
-
-    // Then this is external system that should be used
-    assertThat(loginAttempt(login, remotePassword)).isEqualTo(AUTHORIZED);
-    assertThat(loginAttempt(login, localPassword)).isEqualTo(NOT_AUTHORIZED);
-
-    // Now set this user as technical account
-    orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.security.localUsers", "admin," + login));
-
-    // Then this is local DB that should be used
-    assertThat(loginAttempt(login, remotePassword)).isEqualTo(NOT_AUTHORIZED);
-    assertThat(loginAttempt(login, localPassword)).isEqualTo(AUTHORIZED);
-  }
-
-  /**
-   * SONAR-4543
-   */
-  @Test
   public void adminIsLocalAccountByDefault() {
     // Given clean Sonar installation and no users in external system
     setServerProperty(orchestrator, "sonar.security.savePassword", "false");
@@ -306,11 +274,12 @@ public class RailsExternalAuthenticationTest {
    * SONAR-1334 (createUsers=false)
    */
   @Test
-  @Ignore("Fails because user is disable and rails doesn't handle this case (it's using User.find_by_login to know if user exists or not)")
   public void shouldNotCreateNewUsers() {
     // Given clean Sonar installation and no users in external system
     setServerProperty(orchestrator, "sonar.authenticator.createUsers", "false");
-    String username = USER_LOGIN;
+    // Use a random user name because if we use existing disabled user then it doesn't work because rails doesn't handle this case
+    // (it's using User.find_by_login to know if user exists or not
+    String username = RandomStringUtils.randomAlphanumeric(20);
     String password = "1234567";
     Map<String, String> users = Maps.newHashMap();
 
