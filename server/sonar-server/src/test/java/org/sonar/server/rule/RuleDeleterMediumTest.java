@@ -40,7 +40,9 @@ import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
 import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -49,6 +51,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 // TODO replace ServerTester by EsTester / DbTester
 public class RuleDeleterMediumTest {
+
+  static final long PAST = 10000L;
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withEsIndexes();
@@ -59,12 +63,16 @@ public class RuleDeleterMediumTest {
   DbClient db = tester.get(DbClient.class);
   RuleDao dao = tester.get(RuleDao.class);
   RuleIndex index = tester.get(RuleIndex.class);
+  RuleIndexer ruleIndexer = tester.get(RuleIndexer.class);
+  ActiveRuleIndexer activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
   RuleDeleter deleter = tester.get(RuleDeleter.class);
   DbSession dbSession = tester.get(DbClient.class).openSession(false);
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
+    ruleIndexer.setEnabled(true);
+    activeRuleIndexer.setEnabled(true);
   }
 
   @After
@@ -75,11 +83,17 @@ public class RuleDeleterMediumTest {
   @Test
   public void delete_custom_rule() {
     // Create template rule
-    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("xoo", "T1")).setLanguage("xoo");
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("xoo", "T1"))
+      .setLanguage("xoo")
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST);
     dao.insert(dbSession, templateRule);
 
     // Create custom rule
-    RuleDto customRule = RuleTesting.newCustomRule(templateRule).setLanguage("xoo");
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule)
+      .setLanguage("xoo")
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST);
     dao.insert(dbSession, customRule);
 
     // Create a quality profile
@@ -87,6 +101,8 @@ public class RuleDeleterMediumTest {
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
     dbSession.clearCache();
+    ruleIndexer.index();
+    activeRuleIndexer.index();
 
     // Activate the custom rule
     activate(new RuleActivation(customRule.getKey()).setSeverity(Severity.BLOCKER), QProfileTesting.XOO_P1_KEY);
@@ -98,6 +114,7 @@ public class RuleDeleterMediumTest {
     RuleDto customRuleReloaded = dao.selectOrFailByKey(dbSession, customRule.getKey());
     assertThat(customRuleReloaded).isNotNull();
     assertThat(customRuleReloaded.getStatus()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(customRuleReloaded.getUpdatedAt()).isNotEqualTo(PAST);
 
     // Verify there's no more active rule from custom rule
     List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey()));
@@ -110,10 +127,12 @@ public class RuleDeleterMediumTest {
   @Test
   public void delete_manual_rule() {
     // Create manual rule
-    RuleDto manualRule = RuleTesting.newManualRule("Manual_Rule");
+    RuleDto manualRule = RuleTesting.newManualRule("Manual_Rule")
+      .setCreatedAt(PAST)
+      .setUpdatedAt(PAST);
     dao.insert(dbSession, manualRule);
-
     dbSession.commit();
+    ruleIndexer.index();
 
     // Delete manual rule
     deleter.delete(manualRule.getKey());
@@ -122,6 +141,7 @@ public class RuleDeleterMediumTest {
     RuleDto result = dao.selectOrFailByKey(dbSession, manualRule.getKey());
     assertThat(result).isNotNull();
     assertThat(result.getStatus()).isEqualTo(RuleStatus.REMOVED);
+    assertThat(result.getUpdatedAt()).isNotEqualTo(PAST);
 
     // Verify in index
     assertThat(index.search(new RuleQuery(), new SearchOptions()).getIds()).isEmpty();

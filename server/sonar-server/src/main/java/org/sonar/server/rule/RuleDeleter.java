@@ -22,6 +22,7 @@ package org.sonar.server.rule;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
@@ -32,11 +33,13 @@ import org.sonar.server.rule.index.RuleIndexer;
 @ServerSide
 public class RuleDeleter {
 
+  private final System2 system2;
   private final RuleIndexer ruleIndexer;
   private final DbClient dbClient;
   private final RuleActivator ruleActivator;
 
-  public RuleDeleter(RuleIndexer ruleIndexer, DbClient dbClient, RuleActivator ruleActivator) {
+  public RuleDeleter(System2 system2, RuleIndexer ruleIndexer, DbClient dbClient, RuleActivator ruleActivator) {
+    this.system2 = system2;
     this.ruleIndexer = ruleIndexer;
     this.dbClient = dbClient;
     this.ruleActivator = ruleActivator;
@@ -56,10 +59,11 @@ public class RuleDeleter {
       }
 
       rule.setStatus(RuleStatus.REMOVED);
+      rule.setUpdatedAt(system2.now());
       dbClient.ruleDao().update(dbSession, rule);
 
       dbSession.commit();
-      ruleIndexer.setEnabled(true).index();
+      ruleIndexer.index();
 
     } finally {
       dbSession.close();
