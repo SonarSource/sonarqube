@@ -17,31 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.process.jmx;
 
-import org.sonar.ce.queue.report.ReportFiles;
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.ComputeEngine;
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
+public interface ComputeEngineMBean {
 
-public class CeQueueModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
+  /**
+   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
+   */
+  long getPendingCount();
 
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      ComputeEngine.class,
+  /**
+   * Count of batch reports under processing.
+   */
+  long getInProgressCount();
 
-      // queue cleaning
-      CeQueueCleaner.class,
-      CleanReportQueueListener.class,
-      ReportFiles.class,
+  /**
+   * Count of batch reports which processing ended with an error since instance startup.
+   */
+  long getErrorCount();
 
-      // init queue state and queue processing
-      CeQueueInitializer.class);
-  }
+  /**
+   * Count of batch reports which processing ended successfully since instance startup.
+   */
+  long getSuccessCount();
+
+  /**
+   * Time spent processing reports since startup.
+   */
+  long getProcessingTimeInMs();
+
+  /**
+   * Configured number of Workers.
+   */
+  int getWorkerCount();
 }

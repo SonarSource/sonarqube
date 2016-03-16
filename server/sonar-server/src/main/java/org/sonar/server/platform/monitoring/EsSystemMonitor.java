@@ -19,19 +19,28 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.junit.Test;
-
 import java.util.LinkedHashMap;
+import org.sonar.process.ProcessId;
+import org.sonar.process.jmx.Jmx;
+import org.sonar.process.jmx.JmxConnection;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class EsSystemMonitor implements Monitor {
 
-public class JvmPropertiesMonitorTest {
+  private final Jmx jmx;
 
-  @Test
-  public void attributes() {
-    JvmPropertiesMonitor underTest = new JvmPropertiesMonitor();
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+  public EsSystemMonitor(Jmx jmx) {
+    this.jmx = jmx;
+  }
 
-    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
+  @Override
+  public String name() {
+    return "Elasticsearch System";
+  }
+
+  @Override
+  public LinkedHashMap<String, Object> attributes() {
+    try (JmxConnection connection = jmx.connect(ProcessId.ELASTICSEARCH)) {
+      return new LinkedHashMap<>(connection.getSystemState());
+    }
   }
 }

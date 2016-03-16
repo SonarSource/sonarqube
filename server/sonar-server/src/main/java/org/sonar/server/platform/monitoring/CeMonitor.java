@@ -17,31 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.server.platform.monitoring;
 
-import org.sonar.ce.queue.report.ReportFiles;
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.ComputeEngine;
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
+import java.util.LinkedHashMap;
+import org.sonar.process.ProcessId;
+import org.sonar.process.jmx.Jmx;
+import org.sonar.process.jmx.JmxConnection;
 
-public class CeQueueModule extends Module {
+public class CeMonitor implements Monitor {
+
+  private final Jmx jmx;
+
+  public CeMonitor(Jmx jmx) {
+    this.jmx = jmx;
+  }
+
   @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
+  public String name() {
+    return "Compute Engine";
+  }
 
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      ComputeEngine.class,
-
-      // queue cleaning
-      CeQueueCleaner.class,
-      CleanReportQueueListener.class,
-      ReportFiles.class,
-
-      // init queue state and queue processing
-      CeQueueInitializer.class);
+  @Override
+  public LinkedHashMap<String, Object> attributes() {
+    try (JmxConnection connection = jmx.connect(ProcessId.COMPUTE_ENGINE)) {
+      return new LinkedHashMap<>(connection.getSystemState());
+    }
   }
 }

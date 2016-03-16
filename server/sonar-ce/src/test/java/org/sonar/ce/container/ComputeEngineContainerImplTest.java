@@ -31,6 +31,7 @@ import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -65,6 +66,7 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
     properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
     properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
+    properties.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     String url = ((BasicDataSource) dbTester.database().getDataSource()).getUrl();
     properties.setProperty(DatabaseProperties.PROP_URL, url);
     properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
@@ -93,7 +95,7 @@ public class ComputeEngineContainerImplTest {
     );
     assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
-        + 22 // level 1
+        + 23 // level 1
         + 47 // content of DaoModule
         + 1 // content of EsSearchModule
         + 56 // content of CorePropertyDefinitions

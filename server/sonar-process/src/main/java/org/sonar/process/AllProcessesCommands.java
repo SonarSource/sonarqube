@@ -22,10 +22,15 @@ package org.sonar.process;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.nio.ByteBuffer;
 import java.nio.MappedByteBuffer;
 import java.nio.channels.FileChannel;
+import java.nio.charset.StandardCharsets;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
 
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.rightPad;
 import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
 
 /**
@@ -60,14 +65,17 @@ import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
  * </ul>
  * </p>
  */
-public class AllProcessesCommands {
+public class AllProcessesCommands implements AutoCloseable {
   private static final int UP_BYTE_OFFSET = 0;
   private static final int STOP_BYTE_OFFSET = 1;
   private static final int RESTART_BYTE_OFFSET = 2;
   private static final int OPERATIONAL_BYTE_OFFSET = 3;
   private static final int PING_BYTE_OFFSET = 4;
+  private static final int JMX_URL_BYTE_OFFSET = PING_BYTE_OFFSET + 8;
 
-  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 1 + 8;
+  private static final int JMX_URL_SIZE_IN_BYTES = 500;
+
+  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 1 + 8 + JMX_URL_SIZE_IN_BYTES;
 
   // With this shared memory we can handle up to MAX_PROCESSES processes
   private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES;
@@ -142,6 +150,19 @@ public class AllProcessesCommands {
     return readLong(processNumber, PING_BYTE_OFFSET);
   }
 
+  String getJmxUrl(int processNumber) {
+    byte[] urlBytes = readBytes(processNumber, JMX_URL_BYTE_OFFSET, JMX_URL_SIZE_IN_BYTES);
+    return new String(urlBytes, StandardCharsets.US_ASCII).trim();
+  }
+
+  void setJmxUrl(int processNumber, String jmxUrl) {
+    byte[] urlBytes = rightPad(jmxUrl, JMX_URL_SIZE_IN_BYTES).getBytes(StandardCharsets.US_ASCII);
+    if (urlBytes.length > JMX_URL_SIZE_IN_BYTES) {
+      throw new IllegalArgumentException(format("JMX URL is too long. Max is %d bytes. Got: %s", JMX_URL_SIZE_IN_BYTES, jmxUrl));
+    }
+    writeBytes(processNumber, JMX_URL_BYTE_OFFSET, urlBytes);
+  }
+
   /**
    * To be executed by monitor process to ask for child process termination
    */
@@ -165,13 +186,14 @@ public class AllProcessesCommands {
     writeByte(processNumber, RESTART_BYTE_OFFSET, EMPTY);
   }
 
+  @Override
   public void close() {
     IOUtils.closeQuietly(sharedMemory);
   }
 
   public void checkProcessNumber(int processNumber) {
     if (processNumber < 0 || processNumber >= MAX_PROCESSES) {
-      throw new IllegalArgumentException(String.format("Process number %s is not valid", processNumber));
+      throw new IllegalArgumentException(format("Process number %s is not valid", processNumber));
     }
   }
 
@@ -185,8 +207,24 @@ public class AllProcessesCommands {
     mappedByteBuffer.put(offset(processNumber) + offset, value);
   }
 
+  private void writeBytes(int processNumber, int offset, byte[] value) {
+    int bufferOffset = offset(processNumber) + offset;
+    for (int i = 0; i < value.length; i++) {
+      mappedByteBuffer.put(bufferOffset + i, value[i]);
+    }
+  }
+
   private byte readByte(int processNumber, int offset) {
     return mappedByteBuffer.get(offset(processNumber) + offset);
+  }
+
+  private byte[] readBytes(int processNumber, int offset, int length) {
+    int bufferOffset = offset(processNumber) + offset;
+    byte[] bytes = new byte[length];
+    for (int i = 0; i < length; i++) {
+      bytes[i] = mappedByteBuffer.get(bufferOffset + i);
+    }
+    return bytes;
   }
 
   private void writeLong(int processNumber, int offset, long value) {
@@ -238,6 +276,16 @@ public class AllProcessesCommands {
     @Override
     public long getLastPing() {
       return AllProcessesCommands.this.getLastPing(processNumber);
+    }
+
+    @Override
+    public void setJmxUrl(String s) {
+      AllProcessesCommands.this.setJmxUrl(processNumber, s);
+    }
+
+    @Override
+    public String getJmxUrl() {
+      return AllProcessesCommands.this.getJmxUrl(processNumber);
     }
 
     @Override

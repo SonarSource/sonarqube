@@ -26,14 +26,18 @@ import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
+import org.sonar.process.jmx.EsSettingsMBean;
+import org.sonar.process.jmx.Jmx;
 
 public class SearchServer implements Monitored {
 
-  private final SearchSettings settings;
+  private final EsSettings settings;
+  private final Jmx jmx;
   private InternalNode node;
 
   public SearchServer(Props props) {
-    this.settings = new SearchSettings(props);
+    this.settings = new EsSettings(props);
+    this.jmx = new Jmx(props);
     new MinimumViableSystem()
       .checkJavaVersion()
       .checkWritableTempDir();
@@ -41,6 +45,7 @@ public class SearchServer implements Monitored {
 
   @Override
   public void start() {
+    jmx.register(EsSettingsMBean.OBJECT_NAME, settings);
     node = new InternalNode(settings.build(), false);
     node.start();
   }
@@ -70,6 +75,7 @@ public class SearchServer implements Monitored {
     if (node != null && !node.isClosed()) {
       node.close();
     }
+    jmx.unregister(EsSettingsMBean.OBJECT_NAME);
   }
 
   public static void main(String... args) {

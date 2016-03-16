@@ -21,20 +21,24 @@ package org.sonar.server.computation.monitoring;
 
 import java.util.LinkedHashMap;
 import org.sonar.ce.monitoring.CEQueueStatus;
-import org.sonar.server.computation.configuration.CeConfiguration;
 import org.sonar.ce.queue.CeQueue;
+import org.sonar.process.jmx.ComputeEngineMBean;
+import org.sonar.process.jmx.Jmx;
+import org.sonar.server.computation.configuration.CeConfiguration;
 import org.sonar.server.platform.monitoring.BaseMonitorMBean;
 
-public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements ComputeEngineQueueMonitorMBean {
+public class ComputeEngine extends BaseMonitorMBean implements ComputeEngineMBean {
   private final CEQueueStatus queueStatus;
   private final CeConfiguration ceConfiguration;
 
-  public ComputeEngineQueueMonitor(CEQueueStatus queueStatus,
+  public ComputeEngine(CEQueueStatus queueStatus,
     // ReportQueue initializes CEQueueStatus and is therefor a dependency of
-    // ComputeEngineQueueMonitor.
+    // ComputeEngine.
     // Do not remove this parameter, it ensures start order of components
     CeQueue ceQueue,
+    Jmx jmx,
     CeConfiguration ceConfiguration) {
+    super(jmx);
     this.queueStatus = queueStatus;
     this.ceConfiguration = ceConfiguration;
   }
@@ -47,19 +51,13 @@ public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements Compu
   @Override
   public LinkedHashMap<String, Object> attributes() {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
-    attributes.put("Received", getReceivedCount());
     attributes.put("Pending", getPendingCount());
     attributes.put("In progress", getInProgressCount());
     attributes.put("Successfully processed", getSuccessCount());
     attributes.put("Processed with error", getErrorCount());
-    attributes.put("Processing time", getProcessingTime());
+    attributes.put("Processing time (ms)", getProcessingTimeInMs());
     attributes.put("Worker count", getWorkerCount());
     return attributes;
-  }
-
-  @Override
-  public long getReceivedCount() {
-    return queueStatus.getReceivedCount();
   }
 
   @Override
@@ -83,7 +81,7 @@ public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements Compu
   }
 
   @Override
-  public long getProcessingTime() {
+  public long getProcessingTimeInMs() {
     return queueStatus.getProcessingTime();
   }
 

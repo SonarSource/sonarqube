@@ -33,17 +33,18 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+import org.sonar.process.jmx.EsSettingsMBean;
 
-class SearchSettings {
+public class EsSettings implements EsSettingsMBean {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(SearchSettings.class);
+  private static final Logger LOGGER = LoggerFactory.getLogger(EsSettings.class);
 
   public static final String PROP_MARVEL_HOSTS = "sonar.search.marvelHosts";
 
   private final Props props;
   private final Set<String> masterHosts = new LinkedHashSet<>();
 
-  SearchSettings(Props props) {
+  EsSettings(Props props) {
     this.props = props;
     masterHosts.addAll(Arrays.asList(StringUtils.split(props.value(ProcessProperties.CLUSTER_MASTER_HOST, ""), ",")));
   }
@@ -54,6 +55,21 @@ class SearchSettings {
 
   boolean isMaster() {
     return props.valueAsBoolean(ProcessProperties.CLUSTER_MASTER, false);
+  }
+
+  @Override
+  public int getHttpPort() {
+    return props.valueAsInt(ProcessProperties.SEARCH_HTTP_PORT, -1);
+  }
+
+  @Override
+  public String getClusterName() {
+    return props.value(ProcessProperties.CLUSTER_NAME);
+  }
+
+  @Override
+  public String getNodeName() {
+    return props.value(ProcessProperties.CLUSTER_NODE_NAME);
   }
 
   Settings build() {
@@ -115,8 +131,8 @@ class SearchSettings {
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
     builder.put("network.tcp.reuse_address", true);
 
-    Integer httpPort = props.valueAsInt(ProcessProperties.SEARCH_HTTP_PORT);
-    if (httpPort == null || httpPort < 0) {
+    int httpPort = getHttpPort();
+    if (httpPort < 0) {
       // standard configuration
       builder.put("http.enabled", false);
     } else {
@@ -156,10 +172,10 @@ class SearchSettings {
       }
     }
     builder.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor);
-    builder.put("cluster.name", props.value(ProcessProperties.CLUSTER_NAME));
+    builder.put("cluster.name", getClusterName());
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-    builder.put("node.rack_id", props.value(ProcessProperties.CLUSTER_NODE_NAME, "unknown"));
-    builder.put("node.name", props.value(ProcessProperties.CLUSTER_NODE_NAME));
+    builder.put("node.rack_id", getNodeName());
+    builder.put("node.name", getNodeName());
   }
 
   private void configureMarvel(ImmutableSettings.Builder builder) {

@@ -93,7 +93,19 @@
           <skipTests>${skipServerTests}</skipTests>
         </configuration>
       </plugin>
-
     </plugins>
+    <pluginManagement>
+      <plugins>
+        <plugin>
+          <groupId>org.codehaus.mojo</groupId>
+          <artifactId>animal-sniffer-maven-plugin</artifactId>
+          <configuration>
+            <ignores>
+              <ignore>sun.misc.VMSupport</ignore>
+            </ignores>
+          </configuration>
+        </plugin>
+      </plugins>
+    </pluginManagement>
   </build>
 </project>

@@ -17,31 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.process.jmx;
 
-import org.sonar.ce.queue.report.ReportFiles;
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.ComputeEngine;
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
+import org.junit.Test;
 
-public class CeQueueModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
+import static org.assertj.core.api.Assertions.assertThat;
 
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      ComputeEngine.class,
+public class JmxConnectionTest {
 
-      // queue cleaning
-      CeQueueCleaner.class,
-      CleanReportQueueListener.class,
-      ReportFiles.class,
-
-      // init queue state and queue processing
-      CeQueueInitializer.class);
+  @Test
+  public void toMegaBytes() {
+    assertThat(JmxConnection.toMegaBytes(-1)).isNull();
+    assertThat(JmxConnection.toMegaBytes(0L)).isEqualTo(0L);
+    assertThat(JmxConnection.toMegaBytes(500L)).isEqualTo(0L);
+    assertThat(JmxConnection.toMegaBytes(500_000L)).isEqualTo(0L);
+    assertThat(JmxConnection.toMegaBytes(500_000_000L)).isEqualTo(476L);
   }
 }

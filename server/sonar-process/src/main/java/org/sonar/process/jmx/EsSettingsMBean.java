@@ -17,42 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.monitoring;
+package org.sonar.process.jmx;
 
-public interface ComputeEngineQueueMonitorMBean {
+/**
+ * MBean registered in the Elasticsearch process
+ */
+public interface EsSettingsMBean {
 
-  /**
-   * Count of received batch reports since instance startup
-   */
-  long getReceivedCount();
-
-  /**
-   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
-   */
-  long getPendingCount();
+  String OBJECT_NAME = "SonarQube:name=ElasticsearchConfig";
 
   /**
-   * Count of batch reports under processing.
+   * @return the enabled HTTP port, -1 if disabled
    */
-  long getInProgressCount();
+  int getHttpPort();
 
-  /**
-   * Count of batch reports which processing ended with an error since instance startup.
-   */
-  long getErrorCount();
+  String getClusterName();
 
-  /**
-   * Count of batch reports which processing ended successfully since instance startup.
-   */
-  long getSuccessCount();
+  String getNodeName();
 
-  /**
-   * Time spent processing reports since startup.
-   */
-  long getProcessingTime();
-
-  /**
-   * Configured number of Workers.
-   */
-  int getWorkerCount();
 }

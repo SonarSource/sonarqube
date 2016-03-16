@@ -17,31 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.queue;
+package org.sonar.process.jmx;
 
-import org.sonar.ce.queue.report.ReportFiles;
-import org.sonar.core.platform.Module;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.ComputeEngine;
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
-
-public class CeQueueModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      // queue state
-      InternalCeQueueImpl.class,
-
-      // queue monitoring
-      CEQueueStatusImpl.class,
-      ComputeEngine.class,
-
-      // queue cleaning
-      CeQueueCleaner.class,
-      CleanReportQueueListener.class,
-      ReportFiles.class,
-
-      // init queue state and queue processing
-      CeQueueInitializer.class);
-  }
+public interface FakeMBean {
+  void foo();
 }

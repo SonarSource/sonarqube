@@ -21,6 +21,7 @@ package org.sonar.process;
 
 import java.io.File;
 import org.slf4j.LoggerFactory;
+import sun.misc.VMSupport;
 
 public class ProcessEntryPoint implements Stoppable {
 
@@ -103,6 +104,13 @@ public class ProcessEntryPoint implements Stoppable {
         up = monitored.isUp();
         Thread.sleep(20L);
       }
+
+      // this property is set by the agent management-agent.jar enabled by org.sonar.process.monitor.JavaProcessLauncher.
+      String jmxUrl = VMSupport.getAgentProperties().getProperty("com.sun.management.jmxremote.localConnectorAddress");
+      if (jmxUrl == null) {
+        throw new IllegalStateException("Fail to load the JMX URL of JVM " + System.getProperty("java.vm.name"));
+      }
+      commands.setJmxUrl(jmxUrl);
 
       // notify monitor that process is ready
       commands.setUp();

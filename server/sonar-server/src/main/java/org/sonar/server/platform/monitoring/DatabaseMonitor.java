@@ -19,18 +19,18 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.apache.commons.dbcp.BasicDataSource;
-import org.apache.commons.dbutils.DbUtils;
-import org.sonar.db.version.DatabaseVersion;
-import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
-import org.sonar.db.DbClient;
-
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.commons.dbcp.BasicDataSource;
+import org.apache.commons.dbutils.DbUtils;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.MyBatis;
+import org.sonar.db.version.DatabaseVersion;
+import org.sonar.process.jmx.Jmx;
 
 /**
  * Information about database and connection pool
@@ -40,7 +40,8 @@ public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitor
   private final DatabaseVersion dbVersion;
   private final DbClient dbClient;
 
-  public DatabaseMonitor(DatabaseVersion dbVersion, DbClient dbClient) {
+  public DatabaseMonitor(Jmx jmx, DatabaseVersion dbVersion, DbClient dbClient) {
+    super(jmx);
     this.dbVersion = dbVersion;
     this.dbClient = dbClient;
   }

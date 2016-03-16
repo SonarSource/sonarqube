@@ -54,6 +54,8 @@ public class ProcessEntryPointTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  ProcessCommands commands = mock(ProcessCommands.class);
+
   @Test
   public void load_properties_from_file() throws Exception {
     File propsFile = temp.newFile();
@@ -67,7 +69,7 @@ public class ProcessEntryPointTest {
   @Test
   public void test_initial_state() throws Exception {
     Props props = createProps();
-    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
+    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands);
 
     assertThat(entryPoint.getProps()).isSameAs(props);
     assertThat(entryPoint.isStarted()).isFalse();
@@ -77,7 +79,7 @@ public class ProcessEntryPointTest {
   @Test
   public void fail_to_launch_multiple_times() throws IOException {
     Props props = createProps();
-    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
+    ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands);
 
     entryPoint.launch(new NoopProcess());
     try {
@@ -91,7 +93,7 @@ public class ProcessEntryPointTest {
   @Test
   public void launch_then_request_graceful_stop() throws Exception {
     Props props = createProps();
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands);
     final StandardProcess process = new StandardProcess();
 
     Thread runner = new Thread() {
@@ -117,7 +119,7 @@ public class ProcessEntryPointTest {
   @Test
   public void terminate_if_unexpected_shutdown() throws Exception {
     Props props = createProps();
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands);
     final StandardProcess process = new StandardProcess();
 
     Thread runner = new Thread() {
@@ -147,7 +149,7 @@ public class ProcessEntryPointTest {
   @Test
   public void terminate_if_startup_error() throws IOException {
     Props props = createProps();
-    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, mock(ProcessCommands.class));
+    final ProcessEntryPoint entryPoint = new ProcessEntryPoint(props, exit, commands);
     final Monitored process = new StartupErrorProcess();
 
     entryPoint.launch(process);

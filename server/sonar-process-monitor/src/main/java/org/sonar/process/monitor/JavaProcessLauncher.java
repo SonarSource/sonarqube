@@ -33,18 +33,19 @@ import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessUtils;
 
-public class JavaProcessLauncher {
+class JavaProcessLauncher implements AutoCloseable {
 
   private final Timeouts timeouts;
   private final File tempDir;
   private final AllProcessesCommands allProcessesCommands;
 
-  public JavaProcessLauncher(Timeouts timeouts, File tempDir) {
+  JavaProcessLauncher(Timeouts timeouts, File tempDir) {
     this.timeouts = timeouts;
     this.tempDir = tempDir;
     this.allProcessesCommands = new AllProcessesCommands(tempDir);
   }
 
+  @Override
   public void close() {
     allProcessesCommands.close();
   }
@@ -52,21 +53,21 @@ public class JavaProcessLauncher {
   ProcessRef launch(JavaCommand command) {
     Process process = null;
     try {
-      ProcessCommands commands = allProcessesCommands.createAfterClean(command.getProcessIndex());
+      ProcessCommands commands = allProcessesCommands.createAfterClean(command.getProcessId().getIpcIndex());
 
       ProcessBuilder processBuilder = create(command);
       LoggerFactory.getLogger(getClass()).info("Launch process[{}]: {}",
-        command.getKey(), StringUtils.join(processBuilder.command(), " "));
+        command.getProcessId().getKey(), StringUtils.join(processBuilder.command(), " "));
       process = processBuilder.start();
-      StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), command.getKey());
+      StreamGobbler inputGobbler = new StreamGobbler(process.getInputStream(), command.getProcessId().getKey());
       inputGobbler.start();
 
-      return new ProcessRef(command.getKey(), commands, process, inputGobbler);
+      return new ProcessRef(command.getProcessId().getKey(), commands, process, inputGobbler);
 
     } catch (Exception e) {
       // just in case
       ProcessUtils.sendKillSignal(process);
-      throw new IllegalStateException("Fail to launch " + command.getKey(), e);
+      throw new IllegalStateException("Fail to launch [" + command.getProcessId().getKey() + "]", e);
     }
   }
 
@@ -76,6 +77,7 @@ public class JavaProcessLauncher {
     commands.addAll(javaCommand.getJavaOptions());
     // TODO warning - does it work if temp dir contains a whitespace ?
     commands.add(String.format("-Djava.io.tmpdir=%s", tempDir.getAbsolutePath()));
+    commands.add(getJmxAgentCommand());
     commands.addAll(buildClasspath(javaCommand));
     commands.add(javaCommand.getClassName());
     commands.add(buildPropertiesFile(javaCommand).getAbsolutePath());
@@ -86,6 +88,15 @@ public class JavaProcessLauncher {
     processBuilder.environment().putAll(javaCommand.getEnvVariables());
     processBuilder.redirectErrorStream(true);
     return processBuilder;
+  }
+
+  /**
+   * JVM option to enable the agent that allows inter-process communication through JMX without
+   * opening new ports. The agent is available in JRE of OpenJDK/OracleJDK only.
+   * @see ProcessEntryPoint
+   */
+  private String getJmxAgentCommand() {
+    return "-javaagent:" + System.getProperty("java.home") + File.separator + "lib" + File.separator + "management-agent.jar";
   }
 
   private String buildJavaPath() {
@@ -104,12 +115,12 @@ public class JavaProcessLauncher {
       propertiesFile = File.createTempFile("sq-process", "properties");
       Properties props = new Properties();
       props.putAll(javaCommand.getArguments());
-      props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_KEY, javaCommand.getKey());
-      props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_INDEX, Integer.toString(javaCommand.getProcessIndex()));
+      props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_KEY, javaCommand.getProcessId().getKey());
+      props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_INDEX, Integer.toString(javaCommand.getProcessId().getIpcIndex()));
       props.setProperty(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, String.valueOf(timeouts.getTerminationTimeout()));
       props.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, tempDir.getAbsolutePath());
       OutputStream out = new FileOutputStream(propertiesFile);
-      props.store(out, String.format("Temporary properties file for command [%s]", javaCommand.getKey()));
+      props.store(out, String.format("Temporary properties file for command [%s]", javaCommand.getProcessId().getKey()));
       out.close();
       return propertiesFile;
     } catch (Exception e) {

@@ -19,25 +19,28 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.collect.Maps;
+import java.io.File;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.config.Settings;
+import org.sonar.process.jmx.Jmx;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.SortedMap;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
-public class JvmPropertiesMonitor implements Monitor {
-  @Override
-  public String name() {
-    return "JvmProperties";
+public class JmxProvider extends ProviderAdapter {
+
+  private Jmx singleton = null;
+
+  public synchronized Jmx provide(Settings settings) {
+    if (singleton == null) {
+      singleton = new Jmx(nonNullValueAsFile(settings, PROPERTY_SHARED_PATH));
+    }
+    return singleton;
   }
 
-  @Override
-  public LinkedHashMap<String, Object> attributes() {
-    SortedMap<String, Object> sortedProps = Maps.newTreeMap();
-    for (Map.Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
-      sortedProps.put(Objects.toString(systemProp.getKey()), Objects.toString(systemProp.getValue()));
-    }
-    return new LinkedHashMap<>(sortedProps);
+  private static File nonNullValueAsFile(Settings settings, String key) {
+    String s = settings.getString(key);
+    checkArgument(s != null, "Property %s is not set", key);
+    return new File(s);
   }
 }

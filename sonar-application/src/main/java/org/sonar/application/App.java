@@ -27,6 +27,7 @@ import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.process.MinimumViableSystem;
+import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.Stoppable;
@@ -38,15 +39,10 @@ import org.sonar.process.monitor.Monitor;
  */
 public class App implements Stoppable {
 
-  public static final int APP_PROCESS_NUMBER = 0;
-  public static final int ES_PROCESS_INDEX = 1;
-  public static final int WEBSERVER_PROCESS_INDEX = 2;
-  public static final int CESERVER_PROCESS_INDEX = 3;
-
   private final Monitor monitor;
 
   public App(AppFileSystem appFileSystem, boolean watchForHardStop) {
-    this(Monitor.create(APP_PROCESS_NUMBER, appFileSystem, watchForHardStop));
+    this(Monitor.create(ProcessId.APP.getIpcIndex(), appFileSystem, watchForHardStop));
   }
 
   App(Monitor monitor) {
@@ -74,7 +70,7 @@ public class App implements Stoppable {
   }
 
   private static JavaCommand createESCommand(Props props, File homeDir) {
-    JavaCommand elasticsearch = new JavaCommand("search", ES_PROCESS_INDEX);
+    JavaCommand elasticsearch = new JavaCommand(ProcessId.ELASTICSEARCH);
     elasticsearch
       .setWorkDir(homeDir)
       .addJavaOptions("-Djava.awt.headless=true")
@@ -88,7 +84,7 @@ public class App implements Stoppable {
   }
 
   private static JavaCommand createWebServerCommand(Props props, File homeDir) {
-    JavaCommand webServer = new JavaCommand("web", WEBSERVER_PROCESS_INDEX)
+    JavaCommand webServer = new JavaCommand(ProcessId.WEB_SERVER)
       .setWorkDir(homeDir)
       .addJavaOptions(ProcessProperties.WEB_ENFORCED_JVM_ARGS)
       .addJavaOptions(props.nonNullValue(ProcessProperties.WEB_JAVA_OPTS))
@@ -107,7 +103,7 @@ public class App implements Stoppable {
   }
 
   private static JavaCommand createCeServerCommand(Props props, File homeDir) {
-    JavaCommand webServer = new JavaCommand("ce", CESERVER_PROCESS_INDEX)
+    JavaCommand webServer = new JavaCommand(ProcessId.COMPUTE_ENGINE)
       .setWorkDir(homeDir)
       .addJavaOptions(ProcessProperties.CE_ENFORCED_JVM_ARGS)
       .addJavaOptions(props.nonNullValue(ProcessProperties.CE_JAVA_OPTS))

@@ -20,14 +20,7 @@
 package org.sonar.server.platform.monitoring;
 
 import org.picocontainer.Startable;
-
-import javax.management.InstanceNotFoundException;
-import javax.management.MBeanRegistrationException;
-import javax.management.MalformedObjectNameException;
-import javax.management.ObjectName;
-import javax.management.OperationsException;
-
-import java.lang.management.ManagementFactory;
+import org.sonar.process.jmx.Jmx;
 
 /**
  * Base implementation of {@link org.sonar.server.platform.monitoring.Monitor}
@@ -35,16 +28,18 @@ import java.lang.management.ManagementFactory;
  */
 public abstract class BaseMonitorMBean implements Monitor, Startable {
 
+  private final Jmx jmx;
+
+  public BaseMonitorMBean(Jmx jmx) {
+    this.jmx = jmx;
+  }
+
   /**
    * Auto-registers to MBean server
    */
   @Override
   public void start() {
-    try {
-      ManagementFactory.getPlatformMBeanServer().registerMBean(this, objectName());
-    } catch (OperationsException | MBeanRegistrationException e) {
-      throw new IllegalStateException("Fail to register MBean " + name(), e);
-    }
+    jmx.register(objectName(), this);
   }
 
   /**
@@ -52,16 +47,14 @@ public abstract class BaseMonitorMBean implements Monitor, Startable {
    */
   @Override
   public void stop() {
-    try {
-      ManagementFactory.getPlatformMBeanServer().unregisterMBean(objectName());
-    } catch (InstanceNotFoundException ignored) {
-      // ignore, was not correctly started
-    } catch (Exception e) {
-      throw new IllegalStateException("Fail to unregister MBean " + name(), e);
-    }
+    jmx.unregister(objectName());
   }
 
-  ObjectName objectName() throws MalformedObjectNameException {
-    return new ObjectName(String.format("SonarQube:name=%s", name()));
+  String objectName() {
+    return String.format("SonarQube:name=%s", name());
+  }
+
+  protected Jmx jmx() {
+    return jmx;
   }
 }

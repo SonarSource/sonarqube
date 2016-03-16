@@ -28,6 +28,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
+import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.JavaCommand;
@@ -52,7 +53,7 @@ public class AppTest {
   }
 
   @Test
-  public void start_elasticsearch_and_tomcat_by_default() throws Exception {
+  public void start_all_processes_by_default() throws Exception {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
     Props props = initDefaultProps();
@@ -61,7 +62,7 @@ public class AppTest {
     ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
 
-    assertThat(argument.getValue()).extracting("key").containsExactly("search", "web", "ce");
+    assertThat(argument.getValue()).extracting("processId").containsExactly(ProcessId.ELASTICSEARCH, ProcessId.WEB_SERVER, ProcessId.COMPUTE_ENGINE);
   }
 
   @Test
@@ -75,7 +76,7 @@ public class AppTest {
     ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
 
-    assertThat(argument.getValue()).extracting("key").containsOnly("search");
+    assertThat(argument.getValue()).extracting("processId").containsOnly(ProcessId.ELASTICSEARCH);
   }
 
   @Test
