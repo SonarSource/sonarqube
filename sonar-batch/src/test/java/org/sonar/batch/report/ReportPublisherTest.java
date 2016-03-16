@@ -118,10 +118,10 @@ public class ReportPublisherTest {
   public void fail_if_public_url_malformed() throws IOException {
     settings.setProperty(CoreProperties.SERVER_BASE_URL, "invalid");
     ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
-
+    
     exception.expect(MessageException.class);
     exception.expectMessage("Failed to parse public URL set in SonarQube server: invalid");
-    underTest.logSuccess("TASK-123");
+    underTest.start();
   }
 
   @Test

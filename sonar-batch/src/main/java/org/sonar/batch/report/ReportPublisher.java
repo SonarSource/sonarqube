@@ -90,6 +90,13 @@ public class ReportPublisher implements Startable {
     reportDir = new File(projectReactor.getRoot().getWorkDir(), "batch-report");
     writer = new BatchReportWriter(reportDir);
     contextPublisher.init(writer);
+
+    if (!analysisMode.isIssues() && !analysisMode.isMediumTest()) {
+      String publicUrl = publicUrl();
+      if (HttpUrl.parse(publicUrl) == null) {
+        throw MessageException.of("Failed to parse public URL set in SonarQube server: " + publicUrl);
+      }
+    }
   }
 
   @Override
@@ -172,23 +179,21 @@ public class ReportPublisher implements Startable {
     if (taskId == null) {
       LOG.info("ANALYSIS SUCCESSFUL");
     } else {
+      String publicUrl = publicUrl();
+      HttpUrl httpUrl = HttpUrl.parse(publicUrl);
+
       Map<String, String> metadata = new LinkedHashMap<>();
       String effectiveKey = projectReactor.getRoot().getKeyWithBranch();
       metadata.put("projectKey", effectiveKey);
-      metadata.put("serverUrl", publicUrl());
+      metadata.put("serverUrl", publicUrl);
 
-      HttpUrl publicUrl = HttpUrl.parse(publicUrl());
-      if (publicUrl == null) {
-        throw MessageException.of("Failed to parse public URL set in SonarQube server: " + publicUrl());
-      }
-
-      URL dashboardUrl = publicUrl.newBuilder()
+      URL dashboardUrl = httpUrl.newBuilder()
         .addPathSegment("dashboard").addPathSegment("index").addPathSegment(effectiveKey)
         .build()
         .url();
       metadata.put("dashboardUrl", dashboardUrl.toExternalForm());
 
-      URL taskUrl = HttpUrl.parse(publicUrl()).newBuilder()
+      URL taskUrl = HttpUrl.parse(publicUrl).newBuilder()
         .addPathSegment("api").addPathSegment("ce").addPathSegment("task")
         .addQueryParameter("id", taskId)
         .build()
