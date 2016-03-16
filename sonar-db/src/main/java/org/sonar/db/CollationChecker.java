@@ -97,7 +97,7 @@ public class CollationChecker implements Startable {
   }
 
   /**
-   * Only database metadata is checked. Oracle does not allow to override character set on tables.
+   * Oracle does not allow to override character set on tables. Only global charset is verified.
    */
   private void checkOracle(Connection connection) throws SQLException {
     String charset = selectSingleCell(connection, "select value  from nls_database_parameters where parameter='NLS_CHARACTERSET'");
@@ -111,7 +111,7 @@ public class CollationChecker implements Startable {
    * PostgreSQL does not support case-insensitive collations. Only character set must be verified.
    */
   private void checkPostgreSql(Connection connection) throws SQLException {
-    // character set is defined globally and can be overridden on each column
+    // Character set is defined globally and can be overridden on each column.
     // This request returns all VARCHAR columns. Collation may be empty.
     // Examples:
     // issues | key | ''
@@ -127,7 +127,7 @@ public class CollationChecker implements Startable {
       if (StringUtils.isBlank(row[2])) {
         mustCheckGlobalCollation = true;
       } else if (!containsIgnoreCase(row[2], "utf8")) {
-        errors.add(row[0] + "." + row[1]);
+        errors.add(format("%s.%s", row[0], row[1]));
       }
     }
 
@@ -138,7 +138,7 @@ public class CollationChecker implements Startable {
       }
     }
     if (!errors.isEmpty()) {
-      throw MessageException.of("UTF8 charset is required for database columns [" + Joiner.on(", ").join(errors) + "]");
+      throw MessageException.of(format("UTF8 charset is required for database columns [%s]", Joiner.on(", ").join(errors)));
     }
   }
 
@@ -156,11 +156,11 @@ public class CollationChecker implements Startable {
     List<String> errors = new ArrayList<>();
     for (String[] row : rows) {
       if (!containsIgnoreCase(row[2], "utf8") || endsWithIgnoreCase(row[3], "_ci")) {
-        errors.add(row[0] + "." + row[1]);
+        errors.add(format("%s.%s", row[0], row[1]));
       }
     }
     if (!errors.isEmpty()) {
-      throw MessageException.of("UTF8 charset and case-sensitive collation are required for database columns [" + Joiner.on(", ").join(errors) + "]");
+      throw MessageException.of(format("UTF8 charset and case-sensitive collation are required for database columns [%s]", Joiner.on(", ").join(errors)));
     }
   }
 
@@ -180,7 +180,7 @@ public class CollationChecker implements Startable {
       }
     }
     if (!errors.isEmpty()) {
-      throw MessageException.of("Case-sensitive and accent-sensitive charset (CS_AS) is required for database columns [" + Joiner.on(", ").join(errors) + "]");
+      throw MessageException.of(format("Case-sensitive and accent-sensitive charset (CS_AS) is required for database columns [%s]", Joiner.on(", ").join(errors)));
     }
   }
 
@@ -217,7 +217,7 @@ public class CollationChecker implements Startable {
         while (rs.next()) {
           String[] row = new String[columns];
           for (int i = 0; i < columns; i++) {
-            row[i] = rs.getString(i + 1);
+            row[i] = DatabaseUtils.getString(rs, i + 1);
           }
           result.add(row);
         }
