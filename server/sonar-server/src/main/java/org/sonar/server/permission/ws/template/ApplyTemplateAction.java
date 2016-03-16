@@ -56,8 +56,9 @@ public class ApplyTemplateAction implements PermissionsWsAction {
   @Override
   public void define(WebService.NewController context) {
     WebService.NewAction action = context.createAction("apply_template")
-      .setDescription("Apply a permission template to one or several projects.<br />" +
+      .setDescription("Apply a permission template to one project.<br />" +
         "The project id or project key must be provided.<br />" +
+        "The template id or name must be provided.<br />" +
         "It requires administration permissions to access.")
       .setPost(true)
       .setSince("5.2")
