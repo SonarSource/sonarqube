@@ -34,11 +34,11 @@ import java.util.Map;
  */
 public class PersistentSettings implements Startable {
   private final PropertiesDao propertiesDao;
-  private final ServerSettings settings;
+  private final ServerSettings serverSettings;
 
-  public PersistentSettings(PropertiesDao propertiesDao, ServerSettings settings) {
+  public PersistentSettings(PropertiesDao propertiesDao, ServerSettings serverSettings) {
     this.propertiesDao = propertiesDao;
-    this.settings = settings;
+    this.serverSettings = serverSettings;
   }
 
   @Override
@@ -47,7 +47,7 @@ public class PersistentSettings implements Startable {
     for (PropertyDto property : getGlobalProperties()) {
       databaseProperties.put(property.getKey(), property.getValue());
     }
-    settings.activateDatabaseSettings(databaseProperties);
+    serverSettings.activateDatabaseSettings(databaseProperties);
   }
 
   @Override
@@ -56,39 +56,39 @@ public class PersistentSettings implements Startable {
   }
 
   public PersistentSettings saveProperty(String key, @Nullable String value) {
-    settings.setProperty(key, value);
+    serverSettings.setProperty(key, value);
     propertiesDao.insertProperty(new PropertyDto().setKey(key).setValue(value));
     return this;
   }
 
   public PersistentSettings deleteProperty(String key) {
-    settings.removeProperty(key);
+    serverSettings.removeProperty(key);
     propertiesDao.deleteGlobalProperty(key);
     return this;
   }
 
   public PersistentSettings deleteProperties() {
-    settings.clear();
+    serverSettings.clear();
     propertiesDao.deleteGlobalProperties();
     return this;
   }
 
   public PersistentSettings saveProperties(Map<String, String> properties) {
-    settings.addProperties(properties);
+    serverSettings.addProperties(properties);
     propertiesDao.insertGlobalProperties(properties);
     return this;
   }
 
   public String getString(String key) {
-    return settings.getString(key);
+    return serverSettings.getString(key);
   }
 
   public Map<String, String> getProperties() {
-    return settings.getProperties();
+    return serverSettings.getProperties();
   }
 
   public Settings getSettings() {
-    return settings;
+    return serverSettings.getSettings();
   }
 
   public List<PropertyDto> getGlobalProperties() {

@@ -37,6 +37,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.property.CePropertyDefinitions;
+import org.sonar.ce.settings.ComputeEngineSettings;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.DefaultI18n;
@@ -106,7 +107,6 @@ import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.ServerLogging;
-import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
@@ -139,8 +139,8 @@ import org.sonarqube.ws.Rules;
 
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static final Object[] LEVEL_1_COMPONENTS = new Object[] {
+    ComputeEngineSettings.class,
     new SonarQubeVersionProvider(),
-    ServerSettings.class,
     ServerImpl.class,
     UuidFactoryImpl.INSTANCE,
     // no EmbeddedDatabaseFactory.class, creating H2 DB if responsibility of WebServer
@@ -160,7 +160,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // DB
     DbClient.class,
     DaoModule.class,
-   // MigrationStepModule.class, DB maintenance, responsibility of Web Server
+    // MigrationStepModule.class, DB maintenance, responsibility of Web Server
 
     // Elasticsearch
     EsSearchModule.class,

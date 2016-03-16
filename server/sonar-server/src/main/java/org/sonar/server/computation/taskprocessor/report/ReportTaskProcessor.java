@@ -22,14 +22,15 @@ package org.sonar.server.computation.taskprocessor.report;
 import java.util.Collections;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.ce.settings.ThreadLocalSettings;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.container.ContainerFactory;
-import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.server.computation.step.ComputationStepExecutor;
-import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.server.computation.taskprocessor.TaskResultHolder;
 import org.sonar.server.devcockpit.DevCockpitBridge;
 
@@ -68,10 +69,17 @@ public class ReportTaskProcessor implements CeTaskProcessor {
   @Override
   public CeTaskResult process(CeTask task) {
     ComputeEngineContainer ceContainer = containerFactory.create(serverContainer, task, devCockpitBridge);
+    ThreadLocalSettings ceSettings = null;
     try {
+      ceSettings = ceContainer.getComponentByType(ThreadLocalSettings.class);
+      ceSettings.load();
+
       ceContainer.getComponentByType(ComputationStepExecutor.class).execute();
       return ceContainer.getComponentByType(TaskResultHolder.class).getResult();
     } finally {
+      if (ceSettings != null) {
+        ceSettings.remove();
+      }
       ceContainer.cleanup();
     }
   }

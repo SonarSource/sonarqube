@@ -31,6 +31,7 @@ import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.ComponentMonitorHelper;
 import org.picocontainer.monitors.NullComponentMonitor;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.platform.ComponentContainer;
@@ -47,7 +48,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
   private static final Logger LOG = Loggers.get(ComputeEngineContainerImpl.class);
 
   public ComputeEngineContainerImpl(ComponentContainer parent, ContainerPopulator<ComputeEngineContainer> populator) {
-    super(createContainer(requireNonNull(parent)));
+    super(createContainer(requireNonNull(parent)), parent.getComponentByType(PropertyDefinitions.class));
 
     populateContainer(requireNonNull(populator));
     startComponents();

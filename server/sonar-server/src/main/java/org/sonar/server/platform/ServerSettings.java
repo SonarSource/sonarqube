@@ -19,48 +19,50 @@
  */
 package org.sonar.server.platform;
 
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.PropertyDefinitions;
+import java.util.Map;
 import org.sonar.api.config.Settings;
 
-import java.util.Collections;
-import java.util.Map;
-import java.util.Properties;
-
 /**
- * Load settings in the following order (the last override the first) :
- * <ol>
- * <li>general settings persisted in database</li>
- * <li>file $SONAR_HOME/conf/sonar.properties</li>
- * <li>environment variables</li>
- * <li>system properties</li>
- * </ol>
- *
- * @since 2.12
+ * Defines some of the methods of {@link Settings} plus some specific to load db properties on the server side
+ * (see {@link PersistentSettings}).
  */
-public class ServerSettings extends Settings {
+public interface ServerSettings {
+  ServerSettings activateDatabaseSettings(Map<String, String> databaseProperties);
 
-  private final Properties properties;
+  Settings getSettings();
 
-  public ServerSettings(PropertyDefinitions definitions, Properties properties) {
-    super(definitions);
-    this.properties = properties;
-    load(Collections.<String, String>emptyMap());
-    // Secret key is loaded from conf/sonar.properties
-    getEncryption().setPathToSecretKey(getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
-  }
+  /**
+   * @see Settings#getString(String)
+   */
+  String getString(String key);
 
-  public ServerSettings activateDatabaseSettings(Map<String, String> databaseProperties) {
-    return load(databaseProperties);
-  }
+  /**
+   * @see Settings#getProperties()
+   */
+  Map<String, String> getProperties();
 
-  private ServerSettings load(Map<String, String> databaseSettings) {
-    clear();
+  /**
+   * @see Settings#hasKey(String)
+   */
+  boolean hasKey(String foo);
 
-    // order is important : the last override the first
-    addProperties(databaseSettings);
-    addProperties(properties);
+  /**
+   * @see Settings#setProperty(String, String)
+   */
+  Settings setProperty(String key, String value);
 
-    return this;
-  }
+  /**
+   * @see Settings#removeProperty(String)
+   */
+  Settings removeProperty(String key);
+
+  /**
+   * @see Settings#clear()
+   */
+  Settings clear();
+
+  /**
+   * @see Settings#addProperties(Map)
+   */
+  Settings addProperties(Map<String, String> properties);
 }

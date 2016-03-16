@@ -90,10 +90,15 @@ public class ComponentContainer implements ContainerPopulator.Container {
   }
 
   protected ComponentContainer(MutablePicoContainer picoContainer) {
+    this(picoContainer, new PropertyDefinitions());
+  }
+
+  protected ComponentContainer(MutablePicoContainer picoContainer, PropertyDefinitions propertyDefinitions) {
+    requireNonNull(propertyDefinitions, "PropertyDefinitions can not be null");
     this.parent = null;
     this.pico = picoContainer;
     this.componentKeys = new ComponentKeys();
-    propertyDefinitions = new PropertyDefinitions();
+    this.propertyDefinitions = propertyDefinitions;
     addSingleton(propertyDefinitions);
     addSingleton(this);
   }

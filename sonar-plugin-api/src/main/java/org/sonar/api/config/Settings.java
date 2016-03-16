@@ -110,9 +110,9 @@ public class Settings {
    * @since 3.1
    */
   public Settings(Settings other) {
-    this.properties = Maps.newHashMap(other.properties);
-    this.definitions = other.definitions;
-    this.encryption = other.encryption;
+    this.properties = Maps.newHashMap(other.getProperties());
+    this.definitions = other.getDefinitions();
+    this.encryption = other.getEncryption();
   }
 
   public Encryption getEncryption() {

@@ -45,7 +45,7 @@ public class PersistentSettingsTest {
   public void init() {
     dao = mock(PropertiesDao.class);
 
-    settings = new ServerSettings(
+    settings = new WebServerSettings(
       new PropertyDefinitions(),
       new Properties());
   }

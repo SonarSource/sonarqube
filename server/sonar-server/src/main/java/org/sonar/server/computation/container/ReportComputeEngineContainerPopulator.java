@@ -22,6 +22,7 @@ package org.sonar.server.computation.container;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderImpl;
@@ -81,7 +82,6 @@ import org.sonar.server.computation.qualitymodel.NewQualityModelMeasuresVisitor;
 import org.sonar.server.computation.qualitymodel.QualityModelMeasuresVisitor;
 import org.sonar.server.computation.qualitymodel.RatingSettings;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderImpl;
-import org.sonar.ce.queue.CeTask;
 import org.sonar.server.computation.scm.ScmInfoRepositoryImpl;
 import org.sonar.server.computation.source.LastCommitVisitor;
 import org.sonar.server.computation.source.SourceHashRepositoryImpl;
@@ -121,6 +121,8 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
   private static List componentClasses() {
     return Arrays.asList(
       ComputationStepExecutor.class,
+
+      // File System
       new ComputationTempFolderProvider(),
 
       MetricModule.class,
@@ -172,7 +174,8 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       TestErrorRule.class,
       SkippedTestRule.class,
 
-      // order is important: RuleTypeCopier must be the first one. And DebtAggregator must be before NewDebtAggregator (new debt requires debt)
+      // order is important: RuleTypeCopier must be the first one. And DebtAggregator must be before NewDebtAggregator (new debt requires
+      // debt)
       RuleTypeCopier.class,
       RuleTagsCopier.class,
       DebtCalculator.class,
