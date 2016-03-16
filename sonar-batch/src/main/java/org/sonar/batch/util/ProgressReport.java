@@ -69,7 +69,7 @@ public class ProgressReport implements Runnable {
     }
   }
 
-  private void log(String message) {
+  private static void log(String message) {
     synchronized (LOG) {
       LOG.info(message);
       LOG.notifyAll();

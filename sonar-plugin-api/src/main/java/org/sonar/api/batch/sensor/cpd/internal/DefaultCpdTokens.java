@@ -56,11 +56,12 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   }
 
   @Override
-  public NewCpdTokens addToken(TextRange range, String image) {
+  public DefaultCpdTokens addToken(TextRange range, String image) {
     Preconditions.checkNotNull(range, "Range should not be null");
+    Preconditions.checkNotNull(image, "Image should not be null");
     Preconditions.checkState(inputFile != null, "Call onFile() first");
-    Preconditions.checkState(lastRange == null || lastRange.end().compareTo(range.start()) >= 0,
-      "Tokens of file %s should be provided in order. \nPrevious token: %s\nLast token: %s", inputFile, lastRange, range);
+    Preconditions.checkState(lastRange == null || lastRange.end().compareTo(range.start()) <= 0,
+      "Tokens of file %s should be provided in order.\nPrevious token: %s\nLast token: %s", inputFile, lastRange, range);
 
     String value = image;
 
@@ -72,6 +73,7 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
     }
     currentIndex++;
     sb.append(value);
+    lastRange = range;
 
     return this;
   }

@@ -19,8 +19,6 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
 import com.google.common.annotations.VisibleForTesting;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Properties;
@@ -31,11 +29,12 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 
 @Properties({
-  @Property(key = ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, name = "Enable console report", description = "Set this to true to generate a report in console output",
-    type = PropertyType.BOOLEAN, defaultValue = "false")})
+  @Property(key = ConsoleReport.CONSOLE_REPORT_ENABLED_KEY, defaultValue = "false", name = "Enable console report",
+    description = "Set this to true to generate a report in console output", type = PropertyType.BOOLEAN)})
 public class ConsoleReport implements Reporter {
 
   @VisibleForTesting
@@ -122,7 +121,7 @@ public class ConsoleReport implements Reporter {
     LOG.info(sb.toString());
   }
 
-  private void printNewIssues(Report r, StringBuilder sb) {
+  private static void printNewIssues(Report r, StringBuilder sb) {
     int newIssues = r.totalNewIssues;
     if (newIssues > 0) {
       sb.append(StringUtils.leftPad("+" + newIssues, LEFT_PAD)).append(" issue" + (newIssues > 1 ? "s" : "")).append("\n\n");

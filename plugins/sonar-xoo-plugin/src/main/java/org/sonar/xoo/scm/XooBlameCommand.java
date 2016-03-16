@@ -20,18 +20,17 @@
 package org.sonar.xoo.scm;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.scm.BlameCommand;
-import org.sonar.api.batch.scm.BlameLine;
-import org.sonar.api.utils.DateUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.scm.BlameCommand;
+import org.sonar.api.batch.scm.BlameLine;
+import org.sonar.api.utils.DateUtils;
 
 public class XooBlameCommand extends BlameCommand {
 

@@ -87,7 +87,7 @@ public class PhaseProfiling extends AbstractTimeProfiling {
    * @param o
    * @return
    */
-  private String toStringOrSimpleName(Object o) {
+  private static String toStringOrSimpleName(Object o) {
     String toString = o.toString();
     if (toString == null || toString.startsWith(o.getClass().getName())) {
       return o.getClass().getSimpleName();

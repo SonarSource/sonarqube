@@ -22,6 +22,7 @@ package org.sonar.batch.scm;
 import com.google.common.base.Joiner;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Properties;
@@ -40,13 +41,13 @@ import org.sonar.batch.scan.ImmutableProjectReactor;
   @Property(
     key = ScmConfiguration.FORCE_RELOAD_KEY,
     defaultValue = "false",
-    type = PropertyType.BOOLEAN,
     name = "Force reloading of SCM information for all files",
     description = "By default only files modified since previous analysis are inspected. Set this parameter to true to force the reloading.",
-    module = false,
+    category = CoreProperties.CATEGORY_SCM,
     project = false,
+    module = false,
     global = false,
-    category = CoreProperties.CATEGORY_SCM)
+    type = PropertyType.BOOLEAN)
 })
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @BatchSide
@@ -103,7 +104,7 @@ public final class ScmConfiguration implements Startable {
     if (providerPerKey.containsKey(forcedProviderKey)) {
       this.provider = providerPerKey.get(forcedProviderKey);
     } else {
-      String supportedProviders = providerPerKey.isEmpty() ? "No SCM provider installed" : "Supported SCM providers are " + Joiner.on(",").join(providerPerKey.keySet());
+      String supportedProviders = providerPerKey.isEmpty() ? "No SCM provider installed" : ("Supported SCM providers are " + Joiner.on(",").join(providerPerKey.keySet()));
       throw new IllegalArgumentException("SCM provider was set to \"" + forcedProviderKey + "\" but no SCM provider found for this key. " + supportedProviders);
     }
   }
@@ -111,7 +112,7 @@ public final class ScmConfiguration implements Startable {
   private void considerOldScmUrl() {
     if (settings.hasKey(CoreProperties.LINKS_SOURCES_DEV)) {
       String url = settings.getString(CoreProperties.LINKS_SOURCES_DEV);
-      if (url.startsWith("scm:")) {
+      if (StringUtils.startsWith(url, "scm:")) {
         String[] split = url.split(":");
         if (split.length > 1) {
           setProviderIfSupported(split[1]);

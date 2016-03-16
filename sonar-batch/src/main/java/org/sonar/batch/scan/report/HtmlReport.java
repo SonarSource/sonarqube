@@ -21,16 +21,6 @@ package org.sonar.batch.scan.report;
 
 import com.google.common.collect.Maps;
 import freemarker.template.Template;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.sonar.api.Properties;
-import org.sonar.api.Property;
-import org.sonar.api.PropertyType;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.config.Settings;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -40,19 +30,26 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.URISyntaxException;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.sonar.api.Properties;
+import org.sonar.api.Property;
+import org.sonar.api.PropertyType;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.config.Settings;
 
 @Properties({
-  @Property(key = HtmlReport.HTML_REPORT_ENABLED_KEY, name = "Enable HTML report", description = "Set this to true to generate an HTML report",
-    type = PropertyType.BOOLEAN, defaultValue = "false"),
-  @Property(key = HtmlReport.HTML_REPORT_LOCATION_KEY, name = "HTML Report location",
-    description = "Location of the generated report. Can be absolute or relative to working directory",
-    type = PropertyType.STRING, defaultValue = HtmlReport.HTML_REPORT_LOCATION_DEFAULT, global = false, project = false),
-  @Property(key = HtmlReport.HTML_REPORT_NAME_KEY, name = "HTML Report name",
-    description = "Name of the generated report. Will be suffixed by .html or -light.html",
-    type = PropertyType.STRING, defaultValue = HtmlReport.HTML_REPORT_NAME_DEFAULT, global = false, project = false),
-  @Property(key = HtmlReport.HTML_REPORT_LIGHTMODE_ONLY, name = "Html report in light mode only", project = true,
-    description = "Set this to true to only generate the new issues report (light report)",
-    type = PropertyType.BOOLEAN, defaultValue = "false")})
+  @Property(key = HtmlReport.HTML_REPORT_ENABLED_KEY, defaultValue = "false", name = "Enable HTML report", description = "Set this to true to generate an HTML report",
+    type = PropertyType.BOOLEAN),
+  @Property(key = HtmlReport.HTML_REPORT_LOCATION_KEY, defaultValue = HtmlReport.HTML_REPORT_LOCATION_DEFAULT, name = "HTML Report location",
+    description = "Location of the generated report. Can be absolute or relative to working directory", project = false, global = false, type = PropertyType.STRING),
+  @Property(key = HtmlReport.HTML_REPORT_NAME_KEY, defaultValue = HtmlReport.HTML_REPORT_NAME_DEFAULT, name = "HTML Report name",
+    description = "Name of the generated report. Will be suffixed by .html or -light.html", project = false, global = false, type = PropertyType.STRING),
+  @Property(key = HtmlReport.HTML_REPORT_LIGHTMODE_ONLY, defaultValue = "false", name = "Html report in light mode only",
+    description = "Set this to true to only generate the new issues report (light report)", project = true, type = PropertyType.BOOLEAN)})
 public class HtmlReport implements Reporter {
   private static final Logger LOG = LoggerFactory.getLogger(HtmlReport.class);
 
@@ -111,7 +108,7 @@ public class HtmlReport implements Reporter {
     if (!reportFileDir.isAbsolute()) {
       reportFileDir = new File(fs.workDir(), reportFileDirStr);
     }
-    if (reportFileDirStr.endsWith(".html")) {
+    if (StringUtils.endsWith(reportFileDirStr, ".html")) {
       LOG.warn(HTML_REPORT_LOCATION_KEY + " should indicate a directory. Using parent folder.");
       reportFileDir = reportFileDir.getParentFile();
     }

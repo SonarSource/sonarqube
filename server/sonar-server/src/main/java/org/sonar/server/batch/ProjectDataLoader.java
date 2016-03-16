@@ -93,8 +93,7 @@ public class ProjectDataLoader {
   }
 
   private List<FilePathWithHashDto> searchFilesWithHashAndRevision(DbSession session, ComponentDto module) {
-    return module.isRootProject() ?
-      dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid())
+    return module.isRootProject() ? dbClient.componentDao().selectEnabledFilesFromProject(session, module.uuid())
       : dbClient.componentDao().selectEnabledDescendantFiles(session, module.uuid());
   }
 
@@ -129,7 +128,7 @@ public class ProjectDataLoader {
     }
   }
 
-  private void addSettingsToChildrenModules(ProjectRepositories ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
+  private static void addSettingsToChildrenModules(ProjectRepositories ref, String moduleKey, Map<String, String> parentProperties, TreeModuleSettings treeModuleSettings,
     boolean hasScanPerm) {
     Map<String, String> currentParentProperties = newHashMap();
     currentParentProperties.putAll(parentProperties);

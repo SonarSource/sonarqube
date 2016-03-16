@@ -139,7 +139,7 @@ class FileSourceDto {
     return result;
   }
 
-  private void addBlock(int blockId, Block block, Map<Integer, StringBuilder> dupPerLine) {
+  private static void addBlock(int blockId, Block block, Map<Integer, StringBuilder> dupPerLine) {
     int currentLine = block.start;
     for (int i = 0; i < block.length; i++) {
       if (dupPerLine.get(currentLine) == null) {

@@ -202,7 +202,7 @@ public class BatchExtensionDictionnary {
     return results;
   }
 
-  private void evaluateClass(Class extensionClass, Class annotationClass, List<Object> results) {
+  private static void evaluateClass(Class extensionClass, Class annotationClass, List<Object> results) {
     Annotation annotation = extensionClass.getAnnotation(annotationClass);
     if (annotation != null) {
       if (annotation.annotationType().isAssignableFrom(DependsUpon.class)) {

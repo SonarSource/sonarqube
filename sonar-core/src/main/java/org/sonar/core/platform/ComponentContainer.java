@@ -244,7 +244,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
     return this;
   }
 
-  private String getName(Object extension) {
+  private static String getName(Object extension) {
     if (extension instanceof Class) {
       return ((Class<?>) extension).getName();
     }

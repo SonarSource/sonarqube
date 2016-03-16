@@ -24,7 +24,7 @@ import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.batch.sensor.Sensor;
