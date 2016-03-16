@@ -97,6 +97,20 @@ public class AllProcessesCommandsTest {
   }
 
   @Test
+  public void write_and_read_jmx_url() throws IOException {
+    AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
+
+    int offset = 12;
+    for (int i = 0; i < 500; i++) {
+      assertThat(readByte(commands, offset + i)).isEqualTo(EMPTY);
+    }
+
+    commands.setJmxUrl(PROCESS_NUMBER, "jmx:foo");
+    assertThat(readByte(commands, offset)).isNotEqualTo(EMPTY);
+    assertThat(commands.getJmxUrl(PROCESS_NUMBER)).isEqualTo("jmx:foo");
+  }
+
+  @Test
   public void ask_for_stop() throws Exception {
     AllProcessesCommands commands = new AllProcessesCommands(temp.newFolder());
     int offset = 1;

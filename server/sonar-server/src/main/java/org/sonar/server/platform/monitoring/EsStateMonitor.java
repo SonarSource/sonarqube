@@ -19,25 +19,28 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.collect.Maps;
-
 import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
-import java.util.SortedMap;
+import org.sonar.process.ProcessId;
+import org.sonar.process.jmx.JmxConnection;
+import org.sonar.process.jmx.JmxConnectionFactory;
 
-public class JvmPropertiesMonitor implements Monitor {
+public class EsStateMonitor implements Monitor {
+
+  private final JmxConnectionFactory jmxConnectionFactory;
+
+  public EsStateMonitor(JmxConnectionFactory jmxConnectionFactory) {
+    this.jmxConnectionFactory = jmxConnectionFactory;
+  }
+
   @Override
   public String name() {
-    return "JvmProperties";
+    return "Elasticsearch State";
   }
 
   @Override
   public LinkedHashMap<String, Object> attributes() {
-    SortedMap<String, Object> sortedProps = Maps.newTreeMap();
-    for (Map.Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
-      sortedProps.put(Objects.toString(systemProp.getKey()), Objects.toString(systemProp.getValue()));
+    try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.ELASTICSEARCH)) {
+      return new LinkedHashMap<>(connection.getSystemState());
     }
-    return new LinkedHashMap<>(sortedProps);
   }
 }

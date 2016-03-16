@@ -19,12 +19,12 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.junit.Test;
-
+import java.lang.management.ManagementFactory;
 import javax.annotation.CheckForNull;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
-import java.lang.management.ManagementFactory;
+import javax.management.ObjectName;
+import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -52,7 +52,7 @@ public class BaseMonitorMBeanTest {
   @CheckForNull
   private ObjectInstance getMBean() throws Exception {
     try {
-      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(underTest.objectName());
+      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(underTest.objectName()));
     } catch (InstanceNotFoundException e) {
       return null;
     }

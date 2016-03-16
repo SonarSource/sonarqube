@@ -17,42 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.monitoring;
+package org.sonar.server.platform.monitoring;
 
-public interface ComputeEngineQueueMonitorMBean {
+import java.util.LinkedHashMap;
+import org.junit.Test;
 
-  /**
-   * Count of received batch reports since instance startup
-   */
-  long getReceivedCount();
+import static org.assertj.core.api.Assertions.assertThat;
 
-  /**
-   * Count of batch reports waiting for processing since startup, including reports received before instance startup.
-   */
-  long getPendingCount();
+public class JvmPropsMonitorTest {
 
-  /**
-   * Count of batch reports under processing.
-   */
-  long getInProgressCount();
+  JvmPropsMonitor underTest = new JvmPropsMonitor();
 
-  /**
-   * Count of batch reports which processing ended with an error since instance startup.
-   */
-  long getErrorCount();
+  @Test
+  public void name_is_not_empty() {
+    assertThat(underTest.name()).isNotEmpty();
+  }
 
-  /**
-   * Count of batch reports which processing ended successfully since instance startup.
-   */
-  long getSuccessCount();
+  @Test
+  public void attributes() {
+    LinkedHashMap<String, Object> attributes = underTest.attributes();
 
-  /**
-   * Time spent processing reports since startup.
-   */
-  long getProcessingTime();
-
-  /**
-   * Configured number of Workers.
-   */
-  int getWorkerCount();
+    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
+  }
 }

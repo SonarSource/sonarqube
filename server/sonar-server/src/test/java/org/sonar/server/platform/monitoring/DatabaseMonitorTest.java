@@ -43,6 +43,11 @@ public class DatabaseMonitorTest {
   }
 
   @Test
+  public void name_is_not_empty() {
+    assertThat(underTest.name()).isNotEmpty();
+  }
+
+  @Test
   public void db_info() {
     LinkedHashMap<String, Object> attributes = underTest.attributes();
     assertThat(attributes.get("Database")).isEqualTo("H2");

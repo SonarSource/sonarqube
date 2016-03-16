@@ -37,37 +37,41 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
 
   @Override
   public void requestSQRestart() {
-    call(VoidMethod.ASK_FOR_RESTART);
+    call(VoidMethod.ASK_FOR_RESTART, selfProcessNumber());
   }
 
   @Override
   public void notifyOperational() {
-    call(VoidMethod.SET_OPERATIONAL);
+    call(VoidMethod.SET_OPERATIONAL, selfProcessNumber());
   }
 
-  private void call(VoidMethod command) {
+  private int selfProcessNumber() {
+    return nonNullAsInt(PROPERTY_PROCESS_INDEX);
+  }
+
+  private <T> T call(VoidMethod command, int processNumber) {
     File shareDir = nonNullValueAsFile(PROPERTY_SHARED_PATH);
-    int processNumber = nonNullAsInt(PROPERTY_PROCESS_INDEX);
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(shareDir, processNumber)) {
-      command.callOn(commands);
+      return command.callOn(commands);
     }
   }
 
   private enum VoidMethod {
     SET_OPERATIONAL() {
       @Override
-      void callOn(ProcessCommands processCommands) {
+      <T> T callOn(ProcessCommands processCommands) {
         processCommands.setOperational();
+        return null;
       }
     },
     ASK_FOR_RESTART() {
       @Override
-      void callOn(ProcessCommands processCommands) {
+      <T> T callOn(ProcessCommands processCommands) {
         processCommands.askForRestart();
+        return null;
       }
     };
-
-    abstract void callOn(ProcessCommands processCommands);
+    abstract <T> T callOn(ProcessCommands processCommands);
   }
 
   private int nonNullAsInt(String key) {
@@ -76,7 +80,7 @@ public class ProcessCommandWrapperImpl implements ProcessCommandWrapper {
     return Integer.parseInt(s);
   }
 
-  public File nonNullValueAsFile(String key) {
+  private File nonNullValueAsFile(String key) {
     String s = settings.getString(key);
     checkArgument(s != null, "Property %s is not set", key);
     return new File(s);

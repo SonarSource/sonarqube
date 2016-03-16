@@ -158,9 +158,14 @@ import org.sonar.server.permission.ws.PermissionsWsModule;
 import org.sonar.server.platform.BackendCleanup;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.SettingsChangeNotifier;
+import org.sonar.server.platform.monitoring.CeDatabaseMonitor;
+import org.sonar.server.platform.monitoring.CeStateMonitor;
+import org.sonar.server.platform.monitoring.CeTasksMonitor;
 import org.sonar.server.platform.monitoring.DatabaseMonitor;
 import org.sonar.server.platform.monitoring.EsMonitor;
-import org.sonar.server.platform.monitoring.JvmPropertiesMonitor;
+import org.sonar.server.platform.monitoring.EsStateMonitor;
+import org.sonar.server.platform.monitoring.JmxConnectorProvider;
+import org.sonar.server.platform.monitoring.JvmPropsMonitor;
 import org.sonar.server.platform.monitoring.PluginsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
@@ -658,6 +663,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TypeValidationModule.class,
 
       // System
+      new JmxConnectorProvider(),
       ServerLogging.class,
       RestartAction.class,
       InfoAction.class,
@@ -668,8 +674,12 @@ public class PlatformLevel4 extends PlatformLevel {
       SonarQubeMonitor.class,
       EsMonitor.class,
       PluginsMonitor.class,
-      JvmPropertiesMonitor.class,
+      JvmPropsMonitor.class,
       DatabaseMonitor.class,
+      EsStateMonitor.class,
+      CeStateMonitor.class,
+      CeTasksMonitor.class,
+      CeDatabaseMonitor.class,
       MigrateDbAction.class,
       LogsAction.class,
       ChangeLogLevelAction.class,

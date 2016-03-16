@@ -24,6 +24,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.CeQueueListener;
 import org.sonar.ce.queue.CeTask;
@@ -33,7 +34,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.ce.monitoring.CEQueueStatus;
 
 import static java.lang.String.format;
 
@@ -49,7 +49,7 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
 
   public InternalCeQueueImpl(System2 system2, DbClient dbClient, UuidFactory uuidFactory,
     CEQueueStatus queueStatus, CeQueueListener[] listeners) {
-    super(dbClient, uuidFactory, queueStatus, listeners);
+    super(dbClient, uuidFactory, listeners);
     this.system2 = system2;
     this.dbClient = dbClient;
     this.queueStatus = queueStatus;
@@ -114,12 +114,12 @@ public class InternalCeQueueImpl extends CeQueueImpl implements InternalCeQueue 
       return;
     }
     activityDto.setExecutedAt(system2.now());
-    long executionTime = activityDto.getExecutedAt() - startedAt;
-    activityDto.setExecutionTimeMs(executionTime);
+    long executionTimeInMs = activityDto.getExecutedAt() - startedAt;
+    activityDto.setExecutionTimeMs(executionTimeInMs);
     if (status == CeActivityDto.Status.SUCCESS) {
-      queueStatus.addSuccess(executionTime);
+      queueStatus.addSuccess(executionTimeInMs);
     } else {
-      queueStatus.addError(executionTime);
+      queueStatus.addError(executionTimeInMs);
     }
   }
 

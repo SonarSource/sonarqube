@@ -19,10 +19,6 @@
  */
 package org.sonar.process.monitor;
 
-import org.apache.commons.lang.StringUtils;
-
-import javax.annotation.Nullable;
-
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -30,11 +26,14 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.process.ProcessId;
 
 public class JavaCommand {
 
   // unique key among the group of commands to launch
-  private final String key;
+  private final ProcessId id;
 
   private File workDir;
 
@@ -52,19 +51,12 @@ public class JavaCommand {
 
   private final Map<String, String> envVariables = new HashMap<>(System.getenv());
 
-  private final int processIndex;
-
-  public JavaCommand(String key, int processIndex) {
-    this.key = key;
-    this.processIndex = processIndex;
+  public JavaCommand(ProcessId id) {
+    this.id = id;
   }
 
-  public String getKey() {
-    return key;
-  }
-
-  public int getProcessIndex() {
-    return processIndex;
+  public ProcessId getProcessId() {
+    return id;
   }
 
   public File getWorkDir() {

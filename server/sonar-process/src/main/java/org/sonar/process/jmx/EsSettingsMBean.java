@@ -17,21 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.process.jmx;
 
-import org.junit.Test;
+/**
+ * MBean registered in the Elasticsearch process
+ */
+public interface EsSettingsMBean {
 
-import java.util.LinkedHashMap;
+  String OBJECT_NAME = "SonarQube:name=ElasticsearchSettings";
 
-import static org.assertj.core.api.Assertions.assertThat;
+  /**
+   * @return the enabled HTTP port, -1 if disabled
+   */
+  int getHttpPort();
 
-public class JvmPropertiesMonitorTest {
+  String getClusterName();
 
-  @Test
-  public void attributes() {
-    JvmPropertiesMonitor underTest = new JvmPropertiesMonitor();
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+  String getNodeName();
 
-    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
-  }
 }

@@ -19,47 +19,32 @@
  */
 package org.sonar.server.computation.monitoring;
 
-import java.util.LinkedHashMap;
+import org.picocontainer.Startable;
 import org.sonar.ce.monitoring.CEQueueStatus;
+import org.sonar.process.jmx.CeTasksMBean;
+import org.sonar.process.jmx.Jmx;
 import org.sonar.server.computation.configuration.CeConfiguration;
-import org.sonar.ce.queue.CeQueue;
-import org.sonar.server.platform.monitoring.BaseMonitorMBean;
 
-public class ComputeEngineQueueMonitor extends BaseMonitorMBean implements ComputeEngineQueueMonitorMBean {
+public class CeTasksMBeanImpl implements CeTasksMBean, Startable {
   private final CEQueueStatus queueStatus;
   private final CeConfiguration ceConfiguration;
 
-  public ComputeEngineQueueMonitor(CEQueueStatus queueStatus,
-    // ReportQueue initializes CEQueueStatus and is therefor a dependency of
-    // ComputeEngineQueueMonitor.
-    // Do not remove this parameter, it ensures start order of components
-    CeQueue ceQueue,
-    CeConfiguration ceConfiguration) {
+  public CeTasksMBeanImpl(CEQueueStatus queueStatus, CeConfiguration ceConfiguration) {
     this.queueStatus = queueStatus;
     this.ceConfiguration = ceConfiguration;
   }
 
   @Override
-  public String name() {
-    return "ComputeEngine";
+  public void start() {
+    Jmx.register(OBJECT_NAME, this);
   }
 
+  /**
+   * Unregister, if needed
+   */
   @Override
-  public LinkedHashMap<String, Object> attributes() {
-    LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
-    attributes.put("Received", getReceivedCount());
-    attributes.put("Pending", getPendingCount());
-    attributes.put("In progress", getInProgressCount());
-    attributes.put("Successfully processed", getSuccessCount());
-    attributes.put("Processed with error", getErrorCount());
-    attributes.put("Processing time", getProcessingTime());
-    attributes.put("Worker count", getWorkerCount());
-    return attributes;
-  }
-
-  @Override
-  public long getReceivedCount() {
-    return queueStatus.getReceivedCount();
+  public void stop() {
+    Jmx.unregister(OBJECT_NAME);
   }
 
   @Override

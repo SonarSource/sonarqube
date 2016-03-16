@@ -20,7 +20,6 @@
 package org.sonar.ce;
 
 import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.monitoring.DummyCEQueueStatusImpl;
 import org.sonar.ce.queue.CeQueueImpl;
 import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.ce.queue.report.ReportSubmitter;
@@ -31,9 +30,6 @@ public class CeModule extends Module {
   @Override
   protected void configureModule() {
     add(CeLogging.class,
-
-      // queue monitoring
-      DummyCEQueueStatusImpl.class,
 
       // Queue
       CeQueueImpl.class,

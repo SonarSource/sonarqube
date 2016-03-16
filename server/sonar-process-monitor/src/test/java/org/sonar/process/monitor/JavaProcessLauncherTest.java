@@ -23,6 +23,7 @@ import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.process.ProcessId;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -35,7 +36,7 @@ public class JavaProcessLauncherTest {
   @Test
   public void fail_to_launch() throws Exception {
     File tempDir = temp.newFolder();
-    JavaCommand command = new JavaCommand("test", 0);
+    JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH);
     JavaProcessLauncher launcher = new JavaProcessLauncher(new Timeouts(), tempDir);
     try {
       // command is not correct (missing options), java.lang.ProcessBuilder#start()
@@ -43,7 +44,7 @@ public class JavaProcessLauncherTest {
       launcher.launch(command);
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Fail to launch test");
+      assertThat(e).hasMessage("Fail to launch [es]");
     }
   }
 }

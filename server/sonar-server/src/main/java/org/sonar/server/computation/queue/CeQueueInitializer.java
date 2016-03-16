@@ -24,7 +24,6 @@ import org.sonar.api.platform.ServerStartHandler;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
 
 /**
@@ -36,14 +35,12 @@ import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
 public class CeQueueInitializer implements ServerStartHandler {
 
   private final DbClient dbClient;
-  private final CEQueueStatus queueStatus;
   private final CeQueueCleaner cleaner;
   private final CeProcessingScheduler scheduler;
   private boolean done = false;
 
-  public CeQueueInitializer(DbClient dbClient, CEQueueStatus queueStatus, CeQueueCleaner cleaner, CeProcessingScheduler scheduler) {
+  public CeQueueInitializer(DbClient dbClient, CeQueueCleaner cleaner, CeProcessingScheduler scheduler) {
     this.dbClient = dbClient;
-    this.queueStatus = queueStatus;
     this.cleaner = cleaner;
     this.scheduler = scheduler;
   }
@@ -59,16 +56,11 @@ public class CeQueueInitializer implements ServerStartHandler {
   private void initCe() {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      initJmxCounters(dbSession);
       cleaner.clean(dbSession);
       scheduler.startScheduling();
 
     } finally {
       dbClient.closeSession(dbSession);
     }
-  }
-
-  private void initJmxCounters(DbSession dbSession) {
-    queueStatus.initPendingCount(dbClient.ceQueueDao().countAll(dbSession));
   }
 }
