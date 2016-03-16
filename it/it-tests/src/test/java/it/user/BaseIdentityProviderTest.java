@@ -92,7 +92,7 @@ public class BaseIdentityProviderTest {
     // First connection, user is created
     authenticateWithFakeAuthProvider();
 
-    userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL);
+    userRule.verifyUserExists(USER_LOGIN, USER_NAME, USER_EMAIL, false);
   }
 
   @Test

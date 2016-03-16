@@ -46,9 +46,10 @@ public class Users {
     private final List<String> groups;
     private final List<String> scmAccounts;
     private final boolean active;
+    private final boolean local;
     private int tokensCount;
 
-    private User(String login, String name, String email, List<String> groups, List<String> scmAccounts, boolean active, int tokensCount) {
+    private User(String login, String name, String email, List<String> groups, List<String> scmAccounts, boolean active, boolean local, int tokensCount) {
       this.login = login;
       this.name = name;
       this.email = email;
@@ -56,6 +57,7 @@ public class Users {
       this.scmAccounts = scmAccounts;
       this.active = active;
       this.tokensCount = tokensCount;
+      this.local = local;
     }
 
     public String getLogin() {
@@ -80,6 +82,10 @@ public class Users {
 
     public boolean isActive() {
       return active;
+    }
+
+    public boolean isLocal() {
+      return local;
     }
 
     public int getTokensCount() {
