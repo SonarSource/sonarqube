@@ -19,12 +19,20 @@
  */
 package org.sonar.api.server.authentication;
 
+import com.google.common.base.Predicate;
+import java.util.HashSet;
+import java.util.Set;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.CoreProperties;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.FluentIterable.from;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.user.UserGroupValidation.validateGroupName;
 
 /**
  * User information provided by the Identity Provider to be register into the platform.
@@ -38,12 +46,16 @@ public final class UserIdentity {
   private final String login;
   private final String name;
   private final String email;
+  private final boolean groupsProvided;
+  private final Set<String> groups;
 
   private UserIdentity(Builder builder) {
     this.providerLogin = builder.providerLogin;
     this.login = builder.login;
     this.name = builder.name;
     this.email = builder.email;
+    this.groupsProvided = builder.groupsProvided;
+    this.groups = builder.groups;
   }
 
   /**
@@ -78,6 +90,24 @@ public final class UserIdentity {
     return email;
   }
 
+  /**
+   * Return true if groups should be synchronized for this user.
+   *
+   * @since 5.5
+   */
+  public boolean shouldSyncGroups() {
+    return groupsProvided;
+  }
+
+  /**
+   * List of group membership of the user. Only existing groups in SonarQube will be synchronized.
+   *
+   * @since 5.5
+   */
+  public Set<String> getGroups() {
+    return groups;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -87,6 +117,8 @@ public final class UserIdentity {
     private String login;
     private String name;
     private String email;
+    private boolean groupsProvided = false;
+    private Set<String> groups = new HashSet<>();
 
     private Builder() {
     }
@@ -123,6 +155,29 @@ public final class UserIdentity {
       return this;
     }
 
+    /**
+     * Set group membership of the user. This method should only be used when synchronization of groups should be done.
+     * <ul>
+     *   <li>When groups are not empty, group membership is synchronized when user logs in :
+     *   <ul>
+     *     <li>User won't belong anymore to a group that is not in the list (even the default group defined in {@link CoreProperties.CORE_DEFAULT_GROUP})</li>
+     *     <li>User will belong only to groups that exist in SonarQube</li>
+     *     <li>Groups that don't exist in SonarQube are silently ignored</li>
+     *   </ul>
+     *   <li>When groups are empty, user won't belong to any group</li>
+     * </ul>
+     *
+     * @throws NullPointerException when groups is null
+     * @since 5.5
+     */
+    public Builder setGroups(Set<String> groups) {
+      checkNotNull(groups, "Groups cannot be null, please don't this method if groups should not be synchronized.");
+      from(groups).filter(ValidateGroupName.INSTANCE).toList();
+      this.groupsProvided = true;
+      this.groups = groups;
+      return this;
+    }
+
     public UserIdentity build() {
       validateProviderLogin(providerLogin);
       validateLogin(login);
@@ -131,23 +186,33 @@ public final class UserIdentity {
       return new UserIdentity(this);
     }
 
-    private static void validateProviderLogin(String providerLogin){
+    private static void validateProviderLogin(String providerLogin) {
       checkArgument(isNotBlank(providerLogin), "Provider login must not be blank");
       checkArgument(providerLogin.length() <= 255, "Provider login size is incorrect (maximum 255 characters)");
     }
 
-    private static void validateLogin(String login){
+    private static void validateLogin(String login) {
       checkArgument(isNotBlank(login), "User login must not be blank");
       checkArgument(login.length() <= 255 && login.length() >= 3, "User login size is incorrect (Between 3 and 255 characters)");
     }
 
-    private static void validateName(String name){
+    private static void validateName(String name) {
       checkArgument(isNotBlank(name), "User name must not be blank");
       checkArgument(name.length() <= 200, "User name size is too big (200 characters max)");
     }
 
-    private static void validateEmail(@Nullable String email){
+    private static void validateEmail(@Nullable String email) {
       checkArgument(email == null || email.length() <= 100, "User email size is too big (100 characters max)");
+    }
+  }
+
+  private enum ValidateGroupName implements Predicate<String> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull String input) {
+      validateGroupName(input);
+      return true;
     }
   }
 }

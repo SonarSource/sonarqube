@@ -19,6 +19,7 @@
  */
 package org.sonar.db.user;
 
+import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,6 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -77,6 +80,19 @@ public class GroupDaoTest {
 
     assertThat(underTest.selectByUserLogin(dbSession, "john")).hasSize(2);
     assertThat(underTest.selectByUserLogin(dbSession, "max")).isEmpty();
+  }
+
+  @Test
+  public void select_by_names() {
+    underTest.insert(dbSession, new GroupDto().setName("group1"));
+    underTest.insert(dbSession, new GroupDto().setName("group2"));
+    underTest.insert(dbSession, new GroupDto().setName("group3"));
+    dbSession.commit();
+
+    assertThat(underTest.selectByNames(dbSession, asList("group1", "group2", "group3"))).hasSize(3);
+    assertThat(underTest.selectByNames(dbSession, singletonList("group1"))).hasSize(1);
+    assertThat(underTest.selectByNames(dbSession, asList("group1", "unknown"))).hasSize(1);
+    assertThat(underTest.selectByNames(dbSession, Collections.<String>emptyList())).isEmpty();
   }
 
   @Test

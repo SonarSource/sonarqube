@@ -17,32 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.api.user;
 
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.session.RowBounds;
+import org.sonar.api.security.DefaultGroups;
 
-public interface GroupMapper {
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 
-  @CheckForNull
-  GroupDto selectByKey(String name);
+public class UserGroupValidation {
 
-  @CheckForNull
-  GroupDto selectById(long groupId);
+  private static final int GROUP_NAME_MAX_LENGTH = 255;
 
-  List<GroupDto> selectByUserLogin(String userLogin);
+  private UserGroupValidation() {
+    // Only static methods
+  }
 
-  List<GroupDto> selectByNames(@Param("names") List<String> names);
-
-  void insert(GroupDto groupDto);
-
-  void update(GroupDto item);
-
-  List<GroupDto> selectByQuery(@Param("query") String query, RowBounds rowBounds);
-
-  int countByQuery(@Param("query") String query);
-
-  void deleteById(long groupId);
+  public static void validateGroupName(String groupName) {
+    checkArgument(!isNullOrEmpty(groupName) && groupName.trim().length() > 0, "Group cannot contain empty group name");
+    checkArgument(groupName.length() <= GROUP_NAME_MAX_LENGTH, "Group name cannot be longer than %s characters", GROUP_NAME_MAX_LENGTH);
+    checkArgument(!DefaultGroups.isAnyone(groupName), "Anyone group cannot be used");
+  }
 }

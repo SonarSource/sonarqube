@@ -19,10 +19,13 @@
  */
 package org.sonar.db.user;
 
+import com.google.common.base.Function;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.RowBounds;
@@ -32,6 +35,8 @@ import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.WildcardPosition;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class GroupDao implements Dao {
 
@@ -52,6 +57,10 @@ public class GroupDao implements Dao {
   @CheckForNull
   public GroupDto selectByName(DbSession session, String key) {
     return mapper(session).selectByKey(key);
+  }
+
+  public List<GroupDto> selectByNames(DbSession session, Collection<String> names) {
+    return executeLargeInputs(names, new SelectByNames(mapper(session)));
   }
 
   public GroupDto selectOrFailById(DbSession dbSession, long groupId) {
@@ -109,5 +118,18 @@ public class GroupDao implements Dao {
 
   private GroupMapper mapper(DbSession session) {
     return session.getMapper(GroupMapper.class);
+  }
+
+  private static class SelectByNames implements Function<List<String>, List<GroupDto>> {
+    private final GroupMapper mapper;
+
+    private SelectByNames(GroupMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<GroupDto> apply(@Nonnull List<String> partitionOfNames) {
+      return mapper.selectByNames(partitionOfNames);
+    }
   }
 }

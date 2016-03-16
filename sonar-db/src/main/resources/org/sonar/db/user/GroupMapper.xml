@@ -48,6 +48,18 @@
     </where>
   </select>
 
+  <select id="selectByNames" parameterType="map" resultType="Group">
+    SELECT
+    <include refid="groupColumns"/>
+    FROM groups g
+    <where>
+      g.name IN
+      <foreach item="name" index="index" collection="names" open="(" separator="," close=")">
+        #{name}
+      </foreach>
+    </where>
+  </select>
+
   <insert id="insert" parameterType="Group" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO groups (name, description, created_at, updated_at)
     VALUES (#{name}, #{description}, #{createdAt}, #{updatedAt})

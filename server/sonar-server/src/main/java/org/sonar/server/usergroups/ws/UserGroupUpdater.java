@@ -22,6 +22,7 @@ package org.sonar.server.usergroups.ws;
 import com.google.common.base.Preconditions;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.user.UserGroupValidation;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -48,8 +49,7 @@ public class UserGroupUpdater {
   }
 
   protected void validateName(String name) {
-    checkNameLength(name);
-    checkNameNotAnyone(name);
+    UserGroupValidation.validateGroupName(name);
   }
 
   private static void checkNameLength(String name) {
