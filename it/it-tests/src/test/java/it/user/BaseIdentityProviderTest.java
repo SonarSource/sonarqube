@@ -79,6 +79,7 @@ public class BaseIdentityProviderTest {
     userRule.deactivateUsers(USER_LOGIN);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", null);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", null);
   }
 
   @Test
