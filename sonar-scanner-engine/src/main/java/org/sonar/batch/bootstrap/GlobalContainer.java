@@ -21,7 +21,7 @@ package org.sonar.batch.bootstrap;
 
 import java.util.List;
 import java.util.Map;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.batch.cache.GlobalPersistentCacheProvider;
@@ -39,6 +39,7 @@ import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
+import org.sonar.core.platform.SonarQubeVersionProvider;
 import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 
@@ -89,6 +90,7 @@ public class GlobalContainer extends ComponentContainer {
       BatchPluginPredicate.class,
       ExtensionInstaller.class,
 
+      new SonarQubeVersionProvider(),
       CachesManager.class,
       GlobalSettings.class,
       new BatchWsClientProvider(),
@@ -113,7 +115,7 @@ public class GlobalContainer extends ComponentContainer {
   private void installPlugins() {
     PluginRepository pluginRepository = getComponentByType(PluginRepository.class);
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
-      SonarPlugin instance = pluginRepository.getPluginInstance(pluginInfo.getKey());
+      Plugin instance = pluginRepository.getPluginInstance(pluginInfo.getKey());
       addExtension(pluginInfo, instance);
     }
   }

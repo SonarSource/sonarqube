@@ -17,26 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.bootstrap;
+package org.sonar.api;
 
-import java.util.Map;
-import org.sonar.api.Plugin;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.core.platform.PluginInfo;
+import java.util.Arrays;
+import org.junit.Test;
 
-@BatchSide
-public interface PluginInstaller {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.SonarQubeVersion.V5_5;
 
-  /**
-   * Gets the list of plugins installed on server and downloads them if not
-   * already in local cache.
-   * @return information about all installed plugins, grouped by key
-   */
-  Map<String, PluginInfo> installRemotes();
+public class PluginTest {
 
-  /**
-   * Used only by tests.
-   * @see org.sonar.batch.mediumtest.BatchMediumTester
-   */
-  Map<String, Plugin> installLocals();
+  @Test
+  public void test_context() {
+    Plugin.Context context = new Plugin.Context(new SonarQubeVersion(V5_5));
+
+    assertThat(context.getSonarQubeVersion().get()).isEqualTo(V5_5);
+    assertThat(context.getExtensions()).isEmpty();
+
+    context.addExtension("foo");
+    assertThat(context.getExtensions()).containsOnly("foo");
+
+    context.addExtensions(Arrays.asList("bar", "baz"));
+    assertThat(context.getExtensions()).containsOnly("foo", "bar", "baz");
+
+    context.addExtensions("one", "two", "three", "four");
+    assertThat(context.getExtensions()).containsOnly("foo", "bar", "baz", "one", "two", "three", "four");
+  }
 }

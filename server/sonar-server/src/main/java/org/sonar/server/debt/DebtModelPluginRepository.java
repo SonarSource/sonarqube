@@ -28,6 +28,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Map;
 import org.picocontainer.Startable;
+import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginInfo;
@@ -88,7 +89,7 @@ public class DebtModelPluginRepository implements Startable {
       contributingPluginKeyToClassLoader.put(DEFAULT_MODEL, getClass().getClassLoader());
       for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
         String pluginKey = pluginInfo.getKey();
-        SonarPlugin plugin = pluginRepository.getPluginInstance(pluginKey);
+        Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
         ClassLoader classLoader = plugin.getClass().getClassLoader();
         if (classLoader.getResource(getXMLFilePath(pluginKey)) != null) {
           contributingPluginKeyToClassLoader.put(pluginKey, classLoader);

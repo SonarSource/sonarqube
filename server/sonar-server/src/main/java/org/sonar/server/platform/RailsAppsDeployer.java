@@ -27,6 +27,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
+import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.log.Logger;
@@ -60,7 +61,7 @@ public class RailsAppsDeployer implements Startable {
 
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
       String pluginKey = pluginInfo.getKey();
-      SonarPlugin plugin = pluginRepository.getPluginInstance(pluginKey);
+      Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
       try {
         deployRailsApp(appsDir, pluginKey, plugin.getClass().getClassLoader());
       } catch (Exception e) {

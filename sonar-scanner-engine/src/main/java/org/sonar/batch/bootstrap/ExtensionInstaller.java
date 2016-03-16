@@ -22,7 +22,9 @@ package org.sonar.batch.bootstrap;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.ExtensionProvider;
+import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
@@ -30,10 +32,12 @@ import org.sonar.core.platform.PluginRepository;
 
 public class ExtensionInstaller {
 
+  private final SonarQubeVersion sonarQubeVersion;
   private final PluginRepository pluginRepository;
   private final AnalysisMode analysisMode;
 
-  public ExtensionInstaller(PluginRepository pluginRepository, AnalysisMode analysisMode) {
+  public ExtensionInstaller(SonarQubeVersion sonarQubeVersion, PluginRepository pluginRepository, AnalysisMode analysisMode) {
+    this.sonarQubeVersion = sonarQubeVersion;
     this.pluginRepository = pluginRepository;
     this.analysisMode = analysisMode;
   }
@@ -47,8 +51,10 @@ public class ExtensionInstaller {
 
     // plugin extensions
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
-      SonarPlugin plugin = pluginRepository.getPluginInstance(pluginInfo.getKey());
-      for (Object extension : plugin.getExtensions()) {
+      Plugin plugin = pluginRepository.getPluginInstance(pluginInfo.getKey());
+      Plugin.Context context = new Plugin.Context(sonarQubeVersion);
+      plugin.define(context);
+      for (Object extension : context.getExtensions()) {
         doInstall(container, matcher, pluginInfo, extension);
       }
     }

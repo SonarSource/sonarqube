@@ -24,7 +24,9 @@ import com.google.common.collect.ListMultimap;
 import java.util.Map;
 import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;
+import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
+import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.core.platform.ComponentContainer;
@@ -37,9 +39,11 @@ import org.sonar.core.platform.PluginRepository;
 @ServerSide
 public class ServerExtensionInstaller {
 
+  private final SonarQubeVersion sonarQubeVersion;
   private final PluginRepository pluginRepository;
 
-  public ServerExtensionInstaller(PluginRepository pluginRepository) {
+  public ServerExtensionInstaller(SonarQubeVersion sonarQubeVersion, PluginRepository pluginRepository) {
+    this.sonarQubeVersion = sonarQubeVersion;
     this.pluginRepository = pluginRepository;
   }
 
@@ -49,10 +53,12 @@ public class ServerExtensionInstaller {
     for (PluginInfo pluginInfo : pluginRepository.getPluginInfos()) {
       try {
         String pluginKey = pluginInfo.getKey();
-        SonarPlugin plugin = pluginRepository.getPluginInstance(pluginKey);
+        Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
         container.addExtension(pluginInfo, plugin);
 
-        for (Object extension : plugin.getExtensions()) {
+        Plugin.Context context = new Plugin.Context(sonarQubeVersion);
+        plugin.define(context);
+        for (Object extension : context.getExtensions()) {
           if (installExtension(container, pluginInfo, extension, true) != null) {
             installedExtensionsByPlugin.put(pluginInfo, extension);
           } else {
