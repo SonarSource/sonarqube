@@ -57,7 +57,6 @@ import org.sonar.server.util.RubyUtils;
 import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
-import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -252,8 +251,10 @@ public class IssueQueryService {
     String uuid = allComponentUuids.iterator().next();
     // TODO use ComponentFinder instead
     ComponentDto component = checkFoundWithOptional(componentService.getByUuid(uuid), "Component with id '%s' not found", uuid);
-    SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, firstNonNull(component.parentProjectId(), component.getId()));
-    Date createdAfterFromSnapshot = snapshot == null ? null : longToDate(snapshot.getPeriodDate(1));
+    SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, component.getId());
+    Long projectSnapshotId = snapshot == null ? null : snapshot.getRootId();
+    SnapshotDto projectSnapshot = projectSnapshotId == null ? snapshot : dbClient.snapshotDao().selectById(dbSession, projectSnapshotId);
+    Date createdAfterFromSnapshot = projectSnapshot == null ? null : longToDate(projectSnapshot.getPeriodDate(1));
     return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
   }
 
