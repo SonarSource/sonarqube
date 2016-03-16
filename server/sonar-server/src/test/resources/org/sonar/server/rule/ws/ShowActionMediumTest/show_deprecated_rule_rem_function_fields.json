@@ -9,19 +9,20 @@
     "severity": "MINOR",
     "status": "BETA",
     "remFnType": "LINEAR_OFFSET",
+    "remFnGapMultiplier": "5d",
+    "remFnBaseEffort": "10h",
+    "defaultRemFnType": "LINEAR_OFFSET",
+    "defaultRemFnGapMultiplier": "6d",
+    "defaultRemFnBaseEffort": "11h",
+    "remFnOverloaded": true,
+    "gapDescription": "java.S001.effortToFix",
     "debtRemFnType": "LINEAR_OFFSET",
     "debtRemFnCoeff": "5d",
-    "remFnGapMultiplier": "5d",
     "debtRemFnOffset": "10h",
-    "remFnBaseEffort": "10h",
     "defaultDebtRemFnType": "LINEAR_OFFSET",
-    "defaultRemFnType": "LINEAR_OFFSET",
     "defaultDebtRemFnCoeff": "6d",
-    "defaultRemFnGapMultiplier": "6d",
     "defaultDebtRemFnOffset": "11h",
-    "defaultRemFnBaseEffort": "11h",
     "debtOverloaded": true,
-    "effortToFixDescription": "java.S001.effortToFix",
-    "gapDescription": "java.S001.effortToFix"
+    "effortToFixDescription": "java.S001.effortToFix"
   }
 }

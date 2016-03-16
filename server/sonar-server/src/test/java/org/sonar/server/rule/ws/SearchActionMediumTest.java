@@ -605,6 +605,26 @@ public class SearchActionMediumTest {
     result.assertJson("{\"total\":0,\"p\":1,\"ps\":100,\"rules\":[]}");
   }
 
+  @Test
+  public void search_rules_with_deprecated_fields() throws Exception {
+    ruleDao.insert(dbSession, RuleTesting.newXooX1()
+      .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setDefaultRemediationGapMultiplier("1h")
+      .setDefaultRemediationBaseEffort("15min")
+      .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.name())
+      .setRemediationGapMultiplier("2h")
+      .setRemediationBaseEffort("25min"));
+    dbSession.commit();
+    ruleIndexer.index();
+
+    WsTester.TestRequest request = tester.wsTester()
+      .newGetRequest(API_ENDPOINT, API_SEARCH_METHOD)
+      .setParam(WebService.Param.FIELDS, "name,defaultDebtRemFn,debtRemFn,effortToFixDescription,debtOverloaded");
+    WsTester.Result result = request.execute();
+
+    result.assertJson(getClass(), "search_rules_with_deprecated_fields.json");
+  }
+
   private ActiveRuleDto newActiveRule(QualityProfileDto profile, RuleDto rule) {
     return ActiveRuleDto.createFor(profile, rule)
       .setInheritance(null)

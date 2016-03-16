@@ -102,6 +102,7 @@ message Rule {
   optional string defaultDebtRemFnOffset = 31;
   // Deprecated since 5.5, replaced by gapDescription
   optional string effortToFixDescription = 32;
+  // Deprecated since 5.5, replaced by remFnOverloaded
   optional bool debtOverloaded = 33;
   // Deprecated since 5.5, replaced by remFnType
   optional string debtRemFnType = 34;
@@ -116,6 +117,7 @@ message Rule {
   optional string remFnType = 41;
   optional string remFnGapMultiplier = 42;
   optional string remFnBaseEffort = 43;
+  optional bool remFnOverloaded = 45;
   optional string gapDescription = 44;
 
   optional sonarqube.ws.commons.RuleType type = 37;

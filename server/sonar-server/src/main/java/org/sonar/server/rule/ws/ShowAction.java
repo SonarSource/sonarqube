@@ -62,11 +62,14 @@ public class ShowAction implements RulesWsAction {
       .createAction("show")
       .setDescription("Get detailed information about a rule" +
         "Since 5.5, following fields in the response have been deprecated :" +
-        "<ul><li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
+        "<ul>" +
+        "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
         "<li>\"debtRemFnCoeff\" becomes \"remFnGapMultiplier\"</li>" +
         "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultRemFnGapMultiplier\"</li>" +
         "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
-        "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li></ul>")
+        "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
+        "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
+        "</ul>")
       .setSince("4.2")
       .setResponseExample(Resources.getResource(getClass(), "example-show.json"))
       .setHandler(this);

@@ -125,7 +125,14 @@ public class SearchAction implements RulesWsAction {
     }
 
     WebService.NewParam paramFields = action.createParam(Param.FIELDS)
-      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default, except actives.")
+      .setDescription("Comma-separated list of the fields to be returned in response. All the fields are returned by default, except actives." +
+        "Since 5.5, following fields have been deprecated :" +
+        "<ul>" +
+        "<li>\"defaultDebtRemFn\" becomes \"defaultRemFn\"</li>" +
+        "<li>\"debtRemFn\" becomes \"remFn\"</li>" +
+        "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
+        "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
+        "</ul>")
       .setPossibleValues(OPTIONAL_FIELDS);
     Iterator<String> it = OPTIONAL_FIELDS.iterator();
     paramFields.setExampleValue(String.format("%s,%s", it.next(), it.next()));
@@ -166,11 +173,14 @@ public class SearchAction implements RulesWsAction {
   protected void doDefinition(WebService.NewAction action) {
     action.setDescription("Search for a collection of relevant rules matching a specified query.<br/>" +
       "Since 5.5, following fields in the response have been deprecated :" +
-      "<ul><li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
+      "<ul>" +
+      "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
       "<li>\"debtRemFnCoeff\" becomes \"remFnGapMultiplier\"</li>" +
       "<li>\"defaultDebtRemFnCoeff\" becomes \"defaultRemFnGapMultiplier\"</li>" +
       "<li>\"debtRemFnOffset\" becomes \"remFnBaseEffort\"</li>" +
-      "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li></ul>")
+      "<li>\"defaultDebtRemFnOffset\" becomes \"defaultRemFnBaseEffort\"</li>" +
+      "<li>\"debtOverloaded\" becomes \"remFnOverloaded\"</li>" +
+      "</ul>")
       .setResponseExample(Resources.getResource(getClass(), "example-search.json"))
       .setSince("4.4")
       .setHandler(this);

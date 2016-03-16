@@ -45,7 +45,9 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_CREATED_AT;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_DEBT_OVERLOADED;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_DEBT_REM_FUNCTION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_DEFAULT_DEBT_REM_FUNCTION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_DEFAULT_REM_FUNCTION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_EFFORT_TO_FIX_DESCRIPTION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_GAP_DESCRIPTION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_HTML_DESCRIPTION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_INTERNAL_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_IS_TEMPLATE;
@@ -55,6 +57,8 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_MARKDOWN_DESC
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_NAME;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_NOTE_LOGIN;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_PARAMS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_REM_FUNCTION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_REM_FUNCTION_OVERLOADED;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_REPO;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_SEVERITY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.FIELD_STATUS;
@@ -104,7 +108,7 @@ public class RuleMapper {
     setTemplateKey(ruleResponse, ruleDto, result, fieldsToReturn);
     setDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
     setDefaultDebtRemediationFunctionFields(ruleResponse, ruleDto, fieldsToReturn);
-    setIsDebtOverloaded(ruleResponse, ruleDto, fieldsToReturn);
+    setIsRemediationFunctionOverloaded(ruleResponse, ruleDto, fieldsToReturn);
     setEffortToFixDescription(ruleResponse, ruleDto, fieldsToReturn);
 
     return ruleResponse.build();
@@ -117,20 +121,22 @@ public class RuleMapper {
   }
 
   private static void setEffortToFixDescription(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) && ruleDto.getGapDescription() != null) {
+    if ((shouldReturnField(fieldsToReturn, FIELD_EFFORT_TO_FIX_DESCRIPTION) || shouldReturnField(fieldsToReturn, FIELD_GAP_DESCRIPTION))
+      && ruleDto.getGapDescription() != null) {
       ruleResponse.setEffortToFixDescription(ruleDto.getGapDescription());
       ruleResponse.setGapDescription(ruleDto.getGapDescription());
     }
   }
 
-  private static void setIsDebtOverloaded(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_DEBT_OVERLOADED)) {
-      ruleResponse.setDebtOverloaded(ruleToOverloaded(ruleDto));
+  private static void setIsRemediationFunctionOverloaded(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
+    if (shouldReturnField(fieldsToReturn, FIELD_DEBT_OVERLOADED) || shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION_OVERLOADED)) {
+      ruleResponse.setDebtOverloaded(isRemediationFunctionOverloaded(ruleDto));
+      ruleResponse.setRemFnOverloaded(isRemediationFunctionOverloaded(ruleDto));
     }
   }
 
   private static void setDefaultDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_DEFAULT_DEBT_REM_FUNCTION)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_DEFAULT_DEBT_REM_FUNCTION) || shouldReturnField(fieldsToReturn, FIELD_DEFAULT_REM_FUNCTION)) {
       DebtRemediationFunction defaultDebtRemediationFunction = defaultDebtRemediationFunction(ruleDto);
       if (defaultDebtRemediationFunction != null) {
         String gapMultiplier = defaultDebtRemediationFunction.gapMultiplier();
@@ -155,7 +161,7 @@ public class RuleMapper {
   }
 
   private static void setDebtRemediationFunctionFields(Rules.Rule.Builder ruleResponse, RuleDto ruleDto, Set<String> fieldsToReturn) {
-    if (shouldReturnField(fieldsToReturn, FIELD_DEBT_REM_FUNCTION)) {
+    if (shouldReturnField(fieldsToReturn, FIELD_DEBT_REM_FUNCTION) || shouldReturnField(fieldsToReturn, FIELD_REM_FUNCTION)) {
       DebtRemediationFunction debtRemediationFunction = debtRemediationFunction(ruleDto);
       if (debtRemediationFunction != null) {
         if (debtRemediationFunction.type() != null) {
@@ -297,7 +303,7 @@ public class RuleMapper {
     return fieldsToReturn.isEmpty() || fieldsToReturn.contains(fieldName);
   }
 
-  private static boolean ruleToOverloaded(RuleDto rule) {
+  private static boolean isRemediationFunctionOverloaded(RuleDto rule) {
     return rule.getRemediationFunction() != null;
   }
 
