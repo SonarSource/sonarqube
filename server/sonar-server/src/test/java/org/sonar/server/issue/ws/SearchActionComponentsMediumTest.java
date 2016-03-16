@@ -185,17 +185,14 @@ public class SearchActionComponentsMediumTest {
   }
 
   @Test
-  public void search_since_leak_period() throws Exception {
+  public void search_since_leak_period_on_project() throws Exception {
     ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("PK1"));
     setDefaultProjectPermission(project);
     ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("FK1"));
-    SnapshotDto projectSnapshot = db.snapshotDao().insert(session, 
+    SnapshotDto projectSnapshot = db.snapshotDao().insert(session,
       newSnapshotForProject(project)
         .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
-    db.snapshotDao().insert(session,
-      SnapshotTesting.createForComponent(file, projectSnapshot)
-        .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime())
-    );
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
     RuleDto rule = newRule();
     IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
       .setKee(UUID_EXAMPLE_01)
@@ -211,6 +208,35 @@ public class SearchActionComponentsMediumTest {
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
       .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
+      .setParam(IssueFilterParameters.SINCE_LEAK_PERIOD, "true")
+      .execute()
+      .assertJson(this.getClass(), "search_since_leak_period.json");
+  }
+
+  @Test
+  public void search_since_leak_period_on_file() throws Exception {
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("P1").setKey("PK1"));
+    setDefaultProjectPermission(project);
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "F1").setKey("FK1"));
+    SnapshotDto projectSnapshot = db.snapshotDao().insert(session,
+      newSnapshotForProject(project)
+        .setPeriodDate(1, parseDateTime("2015-09-03T00:00:00+0100").getTime()));
+    db.snapshotDao().insert(session, SnapshotTesting.createForComponent(file, projectSnapshot));
+    RuleDto rule = newRule();
+    IssueDto issueAfterLeak = IssueTesting.newDto(rule, file, project)
+      .setKee(UUID_EXAMPLE_01)
+      .setIssueCreationDate(parseDateTime("2015-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100"));
+    IssueDto issueBeforeLeak = IssueTesting.newDto(rule, file, project)
+      .setKee(UUID_EXAMPLE_02)
+      .setIssueCreationDate(parseDateTime("2014-09-04T00:00:00+0100"))
+      .setIssueUpdateDate(parseDateTime("2015-10-04T00:00:00+0100"));
+    db.issueDao().insert(session, issueAfterLeak, issueBeforeLeak);
+    session.commit();
+    tester.get(IssueIndexer.class).indexAll();
+
+    wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.FILE_UUIDS, file.uuid())
       .setParam(IssueFilterParameters.SINCE_LEAK_PERIOD, "true")
       .execute()
       .assertJson(this.getClass(), "search_since_leak_period.json");
