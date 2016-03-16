@@ -38,7 +38,7 @@ public class RatingGrid {
         return rating;
       }
     }
-    throw MessageException.of("The SQALE density value should be between 0 and " + Double.MAX_VALUE + " and got " + density);
+    throw MessageException.of("The rating density value should be between 0 and " + Double.MAX_VALUE + " and got " + density);
   }
 
   double getGradeLowerBound(Rating rating) {

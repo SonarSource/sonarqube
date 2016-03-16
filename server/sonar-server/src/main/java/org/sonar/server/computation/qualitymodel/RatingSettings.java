@@ -64,7 +64,7 @@ public class RatingSettings {
       }
       return new RatingGrid(grid);
     } catch (Exception e) {
-      throw new IllegalArgumentException("The SQALE rating grid is incorrect. Expected something similar to '"
+      throw new IllegalArgumentException("The rating grid is incorrect. Expected something similar to '"
         + RATING_GRID_DEF_VALUES + "' and got '"
         + settings.getString(RATING_GRID) + "'", e);
     }
@@ -89,7 +89,7 @@ public class RatingSettings {
     try {
       return Long.parseLong(settings.getString(DEVELOPMENT_COST));
     } catch (NumberFormatException e) {
-      throw new IllegalArgumentException("The value of the SQALE property '" + DEVELOPMENT_COST
+      throw new IllegalArgumentException("The value of the development cost property '" + DEVELOPMENT_COST
         + "' is incorrect. Expected long but got '" + settings.getString(DEVELOPMENT_COST) + "'", e);
     }
   }
