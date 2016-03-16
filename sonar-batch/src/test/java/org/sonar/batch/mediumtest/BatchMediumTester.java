@@ -19,29 +19,9 @@
  */
 package org.sonar.batch.mediumtest;
 
-import org.sonar.api.rule.RuleKey;
-
-import org.sonar.batch.rule.LoadedActiveRule;
-import org.sonar.batch.repository.FileData;
-import org.sonar.api.utils.DateUtils;
-import com.google.common.collect.Table;
-import com.google.common.collect.HashBasedTable;
-import org.sonar.batch.repository.ProjectRepositories;
-import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonar.batch.repository.QualityProfileLoader;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.mutable.MutableBoolean;
-
-import javax.annotation.Nullable;
-
-import org.sonarqube.ws.Rules.ListResponse.Rule;
-import org.sonar.batch.bootstrapper.IssueListener;
-import org.sonar.api.server.rule.RulesDefinition.Repository;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.batch.rule.RulesLoader;
 import com.google.common.base.Function;
-
+import com.google.common.collect.HashBasedTable;
+import com.google.common.collect.Table;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -56,22 +36,37 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-
+import javax.annotation.Nullable;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.rule.RuleKey;
+import org.sonar.api.server.rule.RulesDefinition;
+import org.sonar.api.server.rule.RulesDefinition.Repository;
+import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
+import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.repository.FileData;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
+import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
+import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
+import org.sonar.batch.rule.ActiveRulesLoader;
+import org.sonar.batch.rule.LoadedActiveRule;
+import org.sonar.batch.rule.RulesLoader;
+import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
+import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 /**
  * Main utility class for writing batch medium tests.
@@ -151,7 +146,7 @@ public class BatchMediumTester {
       return this;
     }
 
-    public BatchMediumTesterBuilder registerPlugin(String pluginKey, SonarPlugin instance) {
+    public BatchMediumTesterBuilder registerPlugin(String pluginKey, Plugin instance) {
       pluginInstaller.add(pluginKey, instance);
       return this;
     }
@@ -234,7 +229,7 @@ public class BatchMediumTester {
       r.setTemplateRuleKey(templateRuleKey);
       r.setLanguage(languag);
       r.setSeverity(severity);
-      
+
       activeRules.addActiveRule(r);
       return this;
     }

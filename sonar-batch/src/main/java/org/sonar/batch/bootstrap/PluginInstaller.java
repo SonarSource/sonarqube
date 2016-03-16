@@ -20,7 +20,7 @@
 package org.sonar.batch.bootstrap;
 
 import java.util.Map;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.core.platform.PluginInfo;
 
@@ -38,5 +38,5 @@ public interface PluginInstaller {
    * Used only by tests.
    * @see org.sonar.batch.mediumtest.BatchMediumTester
    */
-  Map<String, SonarPlugin> installLocals();
+  Map<String, Plugin> installLocals();
 }

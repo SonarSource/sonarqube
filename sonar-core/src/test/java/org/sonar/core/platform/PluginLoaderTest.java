@@ -30,6 +30,7 @@ import org.assertj.core.data.MapEntry;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.Plugin;
 import org.sonar.api.SonarPlugin;
 import org.sonar.updatecenter.common.Version;
 
@@ -51,7 +52,7 @@ public class PluginLoaderTest {
     PluginClassLoaderDef def = new PluginClassLoaderDef("fake");
     def.addMainClass("fake", FakePlugin.class.getName());
 
-    Map<String, SonarPlugin> instances = loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
+    Map<String, Plugin> instances = loader.instantiatePluginClasses(ImmutableMap.of(def, getClass().getClassLoader()));
     assertThat(instances).containsOnlyKeys("fake");
     assertThat(instances.get("fake")).isInstanceOf(FakePlugin.class);
   }
@@ -168,7 +169,7 @@ public class PluginLoaderTest {
   public void plugin_is_not_recognised_as_system_extension_if_key_is_views_and_extends_another_plugin() throws IOException {
     PluginInfo foo = create52PluginInfo("foo");
     PluginInfo views = create52PluginInfo("views")
-        .setBasePlugin("foo");
+      .setBasePlugin("foo");
 
     Collection<PluginClassLoaderDef> defs = loader.defineClassloaders(ImmutableMap.of("foo", foo, "views", views));
 
@@ -178,9 +179,9 @@ public class PluginLoaderTest {
   private PluginInfo create52PluginInfo(String pluginKey) throws IOException {
     File jarFile = temp.newFile();
     return new PluginInfo(pluginKey)
-        .setJarFile(jarFile)
-        .setMainClass("org.foo." + pluginKey + "Plugin")
-        .setMinimalSqVersion(Version.create("5.2"));
+      .setJarFile(jarFile)
+      .setMainClass("org.foo." + pluginKey + "Plugin")
+      .setMinimalSqVersion(Version.create("5.2"));
   }
 
   /**

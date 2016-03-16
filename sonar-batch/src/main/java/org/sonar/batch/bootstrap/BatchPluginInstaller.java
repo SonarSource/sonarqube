@@ -31,7 +31,7 @@ import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -94,7 +94,7 @@ public class BatchPluginInstaller implements PluginInstaller {
    * @see org.sonar.batch.mediumtest.BatchMediumTester
    */
   @Override
-  public Map<String, SonarPlugin> installLocals() {
+  public Map<String, Plugin> installLocals() {
     return Collections.emptyMap();
   }
 

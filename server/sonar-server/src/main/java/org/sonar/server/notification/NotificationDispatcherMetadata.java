@@ -28,7 +28,7 @@ import org.sonar.api.server.ServerSide;
  * Notification dispatchers (see {@link NotificationDispatcher}) can define their own metadata class in order
  * to tell more about them.
  * <p/>
- * Instances of these classes must be declared in {@link org.sonar.api.SonarPlugin#getExtensions()}.
+ * Instances of these classes must be declared by {@link org.sonar.api.Plugin}.
  */
 @ServerSide
 public final class NotificationDispatcherMetadata {

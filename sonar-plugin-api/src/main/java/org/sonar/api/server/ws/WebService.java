@@ -56,7 +56,7 @@ import static java.lang.String.format;
  * the ws is fully implemented in Java and does not require any Ruby on Rails code.
  * <p/>
  * <p/>
- * The classes implementing this extension point must be declared in {@link org.sonar.api.SonarPlugin#getExtensions()}.
+ * The classes implementing this extension point must be declared by {@link org.sonar.api.Plugin}.
  * <p/>
  * <h3>How to use</h3>
  * <pre>

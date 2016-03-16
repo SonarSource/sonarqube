@@ -23,14 +23,15 @@ import com.sonarsource.decimal_scale_of_measures.DecimalScaleMeasureComputer;
 import com.sonarsource.decimal_scale_of_measures.DecimalScaleMetric;
 import com.sonarsource.decimal_scale_of_measures.DecimalScaleProperty;
 import com.sonarsource.decimal_scale_of_measures.DecimalScaleSensor;
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 
-public class BatchPlugin extends SonarPlugin {
+import static java.util.Arrays.asList;
 
-  public List getExtensions() {
-    return Arrays.asList(
+public class BatchPlugin implements Plugin {
+
+  @Override
+  public void define(Context context) {
+    context.addExtensions(asList(
       // SONAR-6939 decimal_scale_of_measures
       DecimalScaleMeasureComputer.class,
       DecimalScaleMetric.class,
@@ -40,7 +41,7 @@ public class BatchPlugin extends SonarPlugin {
       DumpSettingsInitializer.class,
       RaiseMessageException.class,
       TempFolderExtension.class,
-      WaitingSensor.class);
+      WaitingSensor.class
+      ));
   }
-
 }

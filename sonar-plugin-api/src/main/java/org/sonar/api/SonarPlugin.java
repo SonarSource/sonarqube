@@ -29,7 +29,7 @@ import java.util.List;
  * 
  * @since 2.8
  */
-public abstract class SonarPlugin {
+public abstract class SonarPlugin implements Plugin {
 
   /**
    * Classes of the implemented extensions.
@@ -44,4 +44,8 @@ public abstract class SonarPlugin {
     return getClass().getSimpleName();
   }
 
+  @Override
+  public void define(Context context) {
+    context.addExtensions(getExtensions());
+  }
 }
