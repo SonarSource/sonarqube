@@ -50,7 +50,6 @@ import org.sonar.core.platform.SonarQubeVersionProvider;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.DeprecatedUserFinder;
-import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
@@ -197,7 +196,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static final Object[] LEVEL_3_COMPONENTS = new Object[] {
     PersistentSettings.class,
     ServerMetadataPersister.class,
-    DefaultHttpDownloader.class,
+//    DefaultHttpDownloader.class, does not make sense to use it from Compute Engine
     UriReader.class,
     ServerIdGenerator.class
   };
