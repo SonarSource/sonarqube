@@ -134,11 +134,11 @@ public class CollationChecker implements Startable {
     if (mustCheckGlobalCollation) {
       String charset = selectSingleCell(connection, "SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()");
       if (!containsIgnoreCase(charset, "UTF8")) {
-        throw MessageException.of("");
+        throw MessageException.of(format("Database charset is %s. It must be UTF8.", charset));
       }
     }
     if (!errors.isEmpty()) {
-      throw MessageException.of(format("UTF8 charset is required for database columns [%s]", Joiner.on(", ").join(errors)));
+      throw MessageException.of(format("Database columns [%s] must have UTF8 charset.", Joiner.on(", ").join(errors)));
     }
   }
 

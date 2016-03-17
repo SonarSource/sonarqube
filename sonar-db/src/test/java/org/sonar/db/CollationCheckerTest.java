@@ -107,7 +107,7 @@ public class CollationCheckerTest {
   @Test
   public void fail_if_postgresql_has_non_utf8_column() throws Exception {
     expectedException.expect(MessageException.class);
-    expectedException.expectMessage("UTF8 charset is required for database columns [projects.kee, projects.name]");
+    expectedException.expectMessage("Database columns [projects.kee, projects.name] must have UTF8 charset.");
 
     when(db.getDialect()).thenReturn(new PostgreSql());
     answerSql(asList(
@@ -121,6 +121,7 @@ public class CollationCheckerTest {
   @Test
   public void fail_if_postgresql_has_non_utf8_db() throws Exception {
     expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Database charset is latin. It must be UTF8.");
 
     when(db.getDialect()).thenReturn(new PostgreSql());
     answerSql(
