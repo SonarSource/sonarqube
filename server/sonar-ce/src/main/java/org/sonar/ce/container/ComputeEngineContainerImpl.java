@@ -102,7 +102,6 @@ import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.ServerLogging;
@@ -128,7 +127,6 @@ import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.search.EsSearchModule;
 import org.sonar.server.startup.LogServerId;
-import org.sonar.server.startup.ServerMetadataPersister;
 import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexer;
@@ -195,10 +193,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   };
   private static final Object[] LEVEL_3_COMPONENTS = new Object[] {
     PersistentSettings.class,
-    ServerMetadataPersister.class,
-//    DefaultHttpDownloader.class, does not make sense to use it from Compute Engine
+    // ServerMetadataPersister.class, server id is the responsibility of Web Server
+    // DefaultHttpDownloader.class, does not make sense to use it from Compute Engine
     UriReader.class,
-    ServerIdGenerator.class
+    // ServerIdGenerator.class, server id is the responsibility of Web Server
   };
   private static final Object[] LEVEL_4_COMPONENTS = new Object[] {
     // PluginDownloader.class, no use in CE

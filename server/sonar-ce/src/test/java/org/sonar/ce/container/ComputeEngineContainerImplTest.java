@@ -80,7 +80,7 @@ public class ComputeEngineContainerImplTest {
       );
     assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
-      + 4 // level 3
+      + 2 // level 3
       );
     assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
