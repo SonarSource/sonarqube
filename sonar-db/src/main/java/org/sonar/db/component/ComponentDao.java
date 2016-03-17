@@ -211,26 +211,6 @@ public class ComponentDao implements Dao {
     return mapper(session).selectProjects();
   }
 
-  /**
-   * Does not return component copies
-   */
-  public List<ComponentDto> selectComponents(DbSession session, Collection<String> qualifiers, int offset, int limit, @Nullable String query) {
-    Map<String, Object> parameters = newHashMapWithExpectedSize(3);
-    addProjectQualifier(parameters);
-    addPartialQueryParameterIfNotNull(parameters, query);
-    addQualifiers(parameters, qualifiers);
-
-    return mapper(session).selectComponents(parameters, new RowBounds(offset, limit));
-  }
-
-  public int countRootComponents(DbSession session, Collection<String> qualifiers, @Nullable String query) {
-    Map<String, Object> parameters = newHashMapWithExpectedSize(2);
-    addPartialQueryParameterIfNotNull(parameters, query);
-    addQualifiers(parameters, qualifiers);
-
-    return mapper(session).countRootComponents(parameters);
-  }
-
   public List<ComponentDto> selectProvisionedProjects(DbSession session, int offset, int limit, @Nullable String query) {
     Map<String, Object> parameters = newHashMapWithExpectedSize(2);
     addProjectQualifier(parameters);
@@ -290,10 +270,6 @@ public class ComponentDao implements Dao {
 
   private static void addProjectQualifier(Map<String, Object> parameters) {
     parameters.put("qualifier", Qualifiers.PROJECT);
-  }
-
-  private static void addQualifiers(Map<String, Object> parameters, Collection<String> qualifiers) {
-    parameters.put("qualifiers", qualifiers);
   }
 
   public void insert(DbSession session, ComponentDto item) {

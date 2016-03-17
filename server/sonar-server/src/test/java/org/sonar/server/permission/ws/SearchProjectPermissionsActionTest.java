@@ -32,6 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.user.GroupDto;
@@ -71,6 +72,7 @@ public class SearchProjectPermissionsActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  ComponentDbTester componentDb = new ComponentDbTester(db);
 
   WsActionTester ws;
   I18nRule i18n = new I18nRule();
@@ -180,9 +182,9 @@ public class SearchProjectPermissionsActionTest {
 
   @Test
   public void search_by_query_on_name() {
-    insertComponent(newProjectDto().setName("project-name"));
-    insertComponent(newProjectDto().setName("another-name"));
-    commit();
+    componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-name"));
+    componentDb.insertProjectAndSnapshot(newProjectDto().setName("another-name"));
+    componentDb.indexProjects();
 
     String result = ws.newRequest()
       .setParam(TEXT_QUERY, "project")
@@ -193,13 +195,13 @@ public class SearchProjectPermissionsActionTest {
   }
 
   @Test
-  public void search_by_query_on_key() {
-    insertComponent(newProjectDto().setKey("project-key"));
-    insertComponent(newProjectDto().setKey("another-key"));
-    commit();
+  public void search_by_query_on_key_must_match_exactly() {
+    componentDb.insertProjectAndSnapshot(newProjectDto().setKey("project-key"));
+    componentDb.insertProjectAndSnapshot(newProjectDto().setKey("another-key"));
+    componentDb.indexProjects();
 
     String result = ws.newRequest()
-      .setParam(TEXT_QUERY, "project")
+      .setParam(TEXT_QUERY, "project-key")
       .execute().getInput();
 
     assertThat(result).contains("project-key")
@@ -209,9 +211,9 @@ public class SearchProjectPermissionsActionTest {
   @Test
   public void handle_more_than_1000_projects() {
     for (int i = 1; i <= 1001; i++) {
-      insertComponent(newProjectDto("project-uuid-" + i));
+      componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid-" + i));
     }
-    commit();
+    componentDb.indexProjects();
 
     String result = ws.newRequest()
       .setParam(TEXT_QUERY, "project")

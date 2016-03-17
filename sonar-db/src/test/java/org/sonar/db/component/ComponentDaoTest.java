@@ -656,21 +656,6 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void select_components_with_paging_query_and_qualifiers() {
-    underTest.insert(dbSession, newProjectDto().setName("aaaa-name"));
-    underTest.insert(dbSession, newView());
-    underTest.insert(dbSession, newDeveloper("project-name"));
-    for (int i = 9; i >= 1; i--) {
-      underTest.insert(dbSession, newProjectDto().setName("project-" + i));
-    }
-
-    List<ComponentDto> result = underTest.selectComponents(dbSession, singleton(Qualifiers.PROJECT), 1, 3, "project");
-
-    assertThat(result).hasSize(3);
-    assertThat(result).extracting("name").containsExactly("project-2", "project-3", "project-4");
-  }
-
-  @Test
   public void select_by_query_with_paging_query_and_qualifiers() {
     componentDb.insertProjectAndSnapshot(newProjectDto().setName("aaaa-name"));
     componentDb.insertProjectAndSnapshot(newView());

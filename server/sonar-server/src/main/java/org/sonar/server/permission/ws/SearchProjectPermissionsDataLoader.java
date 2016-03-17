@@ -25,7 +25,6 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
-import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -36,10 +35,10 @@ import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentQuery;
 import org.sonar.db.permission.CountByProjectAndPermissionDto;
 import org.sonarqube.ws.client.permission.SearchProjectPermissionsWsRequest;
 
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
@@ -49,19 +48,19 @@ import static org.sonar.server.permission.ws.WsProjectRef.newOptionalWsProjectRe
 public class SearchProjectPermissionsDataLoader {
   private final DbClient dbClient;
   private final PermissionDependenciesFinder finder;
-  private final Collection<String> rootQualifiers;
+  private final String[] rootQualifiers;
 
   public SearchProjectPermissionsDataLoader(DbClient dbClient, PermissionDependenciesFinder finder, ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.finder = finder;
-    this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER);
+    this.rootQualifiers = Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER).toArray(new String[resourceTypes.getRoots().size()]);
   }
 
   SearchProjectPermissionsData load(SearchProjectPermissionsWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       SearchProjectPermissionsData.Builder data = newBuilder();
-      int countRootComponents = countRootComponents(dbSession, qualifiers(request.getQualifier()), request);
+      int countRootComponents = countRootComponents(dbSession, request);
       List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
       List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentToIdFunction.INSTANCE);
 
@@ -82,25 +81,31 @@ public class SearchProjectPermissionsDataLoader {
       .andTotal(total);
   }
 
-  private int countRootComponents(DbSession dbSession, Collection<String> qualifiers, SearchProjectPermissionsWsRequest request) {
-    return dbClient.componentDao().countRootComponents(dbSession, qualifiers, request.getQuery());
+  private int countRootComponents(DbSession dbSession, SearchProjectPermissionsWsRequest request) {
+    return dbClient.componentDao().countByQuery(dbSession, toDbQuery(request));
   }
 
   private List<ComponentDto> searchRootComponents(DbSession dbSession, SearchProjectPermissionsWsRequest request, Paging paging) {
-    String query = request.getQuery();
     Optional<WsProjectRef> project = newOptionalWsProjectRef(request.getProjectId(), request.getProjectKey());
 
     if (project.isPresent()) {
       return singletonList(finder.getRootComponentOrModule(dbSession, project.get()));
     }
 
-    return dbClient.componentDao().selectComponents(dbSession, qualifiers(request.getQualifier()), paging.offset(), paging.pageSize(), query);
+    return dbClient.componentDao().selectByQuery(dbSession, toDbQuery(request), paging.offset(), paging.pageSize());
   }
 
-  private Collection<String> qualifiers(@Nullable String requestQualifier) {
+  private ComponentQuery toDbQuery(SearchProjectPermissionsWsRequest wsRequest) {
+    return ComponentQuery.builder()
+      .setQualifiers(qualifiers(wsRequest.getQualifier()))
+      .setNameOrKeyQuery(wsRequest.getQuery())
+      .build();
+  }
+
+  private String[] qualifiers(@Nullable String requestQualifier) {
     return requestQualifier == null
       ? rootQualifiers
-      : singleton(requestQualifier);
+      : new String[] {requestQualifier};
   }
 
   private Table<Long, String, Integer> userCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
