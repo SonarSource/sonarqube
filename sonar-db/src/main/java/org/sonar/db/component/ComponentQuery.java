@@ -89,7 +89,7 @@ public class ComponentQuery {
     }
 
     public Builder setQualifiers(String... qualifiers) {
-      this.qualifiers = validateQualifiers(qualifiers);
+      this.qualifiers = qualifiers;
       return this;
     }
 

@@ -280,10 +280,12 @@
     <where>
       AND p.enabled=${_true}
       AND p.copy_resource_id is null
+      <if test="query.qualifiers!=null">
       AND p.qualifier in
-      <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
-        #{qualifier}
-      </foreach>
+        <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+          #{qualifier}
+        </foreach>
+      </if>
       <if test="query.language!=null">
         AND p.language = #{query.language}
       </if>
@@ -295,10 +297,12 @@
             SELECT ri.resource_id
             FROM resource_index ri
             WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
+            <if test="query.qualifiers!=null">
             AND ri.qualifier in
-            <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
-              #{qualifier}
-            </foreach>
+              <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
+                #{qualifier}
+              </foreach>
+            </if>
           )
         )
       </if>

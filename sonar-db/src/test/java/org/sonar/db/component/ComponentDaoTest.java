@@ -46,7 +46,6 @@ import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
 
-
 public class ComponentDaoTest {
 
   @Rule
@@ -679,7 +678,6 @@ public class ComponentDaoTest {
     for (int i = 9; i >= 1; i--) {
       componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-" + i));
     }
-    db.commit();
     componentDb.indexProjects();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(Qualifiers.PROJECT).build();
@@ -693,7 +691,6 @@ public class ComponentDaoTest {
   @Test
   public void select_by_query_name_with_special_characters() {
     componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-\\_%/-name"));
-    db.commit();
     componentDb.indexProjects();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
@@ -705,9 +702,7 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_key_with_special_characters() {
-    componentDb.insertProjectAndSnapshot(newProjectDto()
-      .setKey("project-_%-key"));
-    db.commit();
+    componentDb.insertProjectAndSnapshot(newProjectDto().setKey("project-_%-key"));
     componentDb.indexProjects();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
@@ -721,7 +716,6 @@ public class ComponentDaoTest {
   public void select_by_query_filter_on_language() {
     componentDb.insertComponent(newProjectDto().setKey("java-project-key").setLanguage("java"));
     componentDb.insertComponent(newProjectDto().setKey("cpp-project-key").setLanguage("cpp"));
-    db.commit();
 
     ComponentQuery query = ComponentQuery.builder().setLanguage("java").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);

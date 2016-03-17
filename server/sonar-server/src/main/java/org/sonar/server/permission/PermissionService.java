@@ -85,20 +85,25 @@ public class PermissionService {
   public void applyPermissionTemplate(ApplyPermissionTemplateQuery query) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      if (query.getComponentKeys().size() == 1) {
-        checkProjectAdminUserByComponentKey(userSession, query.getComponentKeys().get(0));
-      } else {
-        checkGlobalAdminUser(userSession);
-      }
-
-      for (String componentKey : query.getComponentKeys()) {
-        ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
-        permissionRepository.applyPermissionTemplate(dbSession, query.getTemplateUuid(), component.getId());
-      }
-      dbSession.commit();
+      applyPermissionTemplate(dbSession, query);
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  public void applyPermissionTemplate(DbSession dbSession, ApplyPermissionTemplateQuery query) {
+    if (query.getComponentKeys().size() == 1) {
+      checkProjectAdminUserByComponentKey(userSession, query.getComponentKeys().get(0));
+    } else {
+      checkGlobalAdminUser(userSession);
+    }
+
+    // TODO apply permission templates in on query instead of on on each project
+    for (String componentKey : query.getComponentKeys()) {
+      ComponentDto component = componentFinder.getByKey(dbSession, componentKey);
+      permissionRepository.applyPermissionTemplate(dbSession, query.getTemplateUuid(), component.getId());
+    }
+    dbSession.commit();
 
     indexProjectPermissions();
   }
