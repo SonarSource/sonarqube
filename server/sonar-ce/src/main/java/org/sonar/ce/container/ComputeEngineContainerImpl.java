@@ -38,6 +38,7 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.ce.settings.ComputeEngineSettings;
+import org.sonar.ce.user.CeUserSession;
 import org.sonar.core.component.DefaultResourceTypes;
 import org.sonar.core.config.CorePropertyDefinitions;
 import org.sonar.core.i18n.DefaultI18n;
@@ -153,6 +154,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // no TempFolderCleaner.class, responsibility of Web Server
     new TempFolderProvider(),
     System2.INSTANCE,
+
+    // user session
+    CeUserSession.class,
 
     // DB
     DbClient.class,

@@ -82,7 +82,6 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Objects.requireNonNull;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.AUTHORS;
@@ -157,17 +156,9 @@ public class IssueIndex extends BaseIndex {
 
   private final Sorting sorting;
   private final System2 system;
-  @CheckForNull
   private final UserSession userSession;
 
-  /**
-   * Constructor for Pico when no UserSession is available such as in the Compute Engine.
-   */
-  public IssueIndex(EsClient client, System2 system) {
-    this(client, system, null);
-  }
-
-  public IssueIndex(EsClient client, System2 system, @Nullable UserSession userSession) {
+  public IssueIndex(EsClient client, System2 system, UserSession userSession) {
     super(client);
 
     this.system = system;
@@ -196,8 +187,6 @@ public class IssueIndex extends BaseIndex {
    */
   @CheckForNull
   public IssueDoc getNullableByKey(String key) {
-    checkNotCalledFromCE();
-
     SearchResult<IssueDoc> result = search(IssueQuery.builder(userSession).issueKeys(newArrayList(key)).build(), new SearchOptions());
     if (result.getTotal() == 1) {
       return result.getDocs().get(0);
@@ -218,8 +207,6 @@ public class IssueIndex extends BaseIndex {
   }
 
   public SearchResult<IssueDoc> search(IssueQuery query, SearchOptions options) {
-    checkNotCalledFromCE();
-
     SearchRequestBuilder requestBuilder = getClient()
       .prepareSearch(IssueIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE);
@@ -769,8 +756,6 @@ public class IssueIndex extends BaseIndex {
    * Only fields needed for the batch are returned.
    */
   public Iterator<IssueDoc> selectIssuesForBatch(ComponentDto component) {
-    checkNotCalledFromCE();
-
     BoolFilterBuilder filter = FilterBuilders.boolFilter()
       .must(createAuthorizationFilter(true, userSession.getLogin(), userSession.getUserGroups()))
       .mustNot(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
@@ -803,9 +788,5 @@ public class IssueIndex extends BaseIndex {
     SearchResponse response = requestBuilder.get();
 
     return EsUtils.scroll(getClient(), response.getScrollId(), DOC_CONVERTER);
-  }
-
-  private void checkNotCalledFromCE() {
-    requireNonNull(userSession, "getNullableByKey can not be used from the Compute Engine");
   }
 }
