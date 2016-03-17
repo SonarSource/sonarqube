@@ -31,12 +31,12 @@ import org.junit.rules.TemporaryFolder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportWriter;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
@@ -88,14 +88,14 @@ public class PersistFileSourcesStepTest {
 
     long start = System.currentTimeMillis();
 
-    BatchReportDirectoryHolderImpl batchReportDirectoryHolder = new BatchReportDirectoryHolderImpl();
-    batchReportDirectoryHolder.setDirectory(reportDir);
-    org.sonar.server.computation.batch.BatchReportReader batchReportReader = new BatchReportReaderImpl(batchReportDirectoryHolder);
+    BatchReportDirectoryHolderImpl ScannerReportDirectoryHolder = new BatchReportDirectoryHolderImpl();
+    ScannerReportDirectoryHolder.setDirectory(reportDir);
+    org.sonar.server.computation.batch.BatchReportReader ScannerReportReader = new BatchReportReaderImpl(ScannerReportDirectoryHolder);
     analysisMetadataHolder.setBaseProjectSnapshot(null);
-    SourceLinesRepositoryImpl sourceLinesRepository = new SourceLinesRepositoryImpl(batchReportReader);
+    SourceLinesRepositoryImpl sourceLinesRepository = new SourceLinesRepositoryImpl(ScannerReportReader);
     SourceHashRepositoryImpl sourceHashRepository = new SourceHashRepositoryImpl(sourceLinesRepository);
-    ScmInfoRepositoryImpl scmInfoRepository = new ScmInfoRepositoryImpl(batchReportReader, analysisMetadataHolder, dbClient, sourceHashRepository);
-    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, batchReportReader, sourceLinesRepository, scmInfoRepository,
+    ScmInfoRepositoryImpl scmInfoRepository = new ScmInfoRepositoryImpl(ScannerReportReader, analysisMetadataHolder, dbClient, sourceHashRepository);
+    PersistFileSourcesStep step = new PersistFileSourcesStep(dbClient, System2.INSTANCE, treeRootHolder, ScannerReportReader, sourceLinesRepository, scmInfoRepository,
       duplicationRepository);
     step.execute();
 
@@ -112,11 +112,11 @@ public class PersistFileSourcesStepTest {
     LOGGER.info("Create report");
     File reportDir = temp.newFolder();
 
-    BatchReportWriter writer = new BatchReportWriter(reportDir);
-    writer.writeMetadata(BatchReport.Metadata.newBuilder()
+    ScannerReportWriter writer = new ScannerReportWriter(reportDir);
+    writer.writeMetadata(ScannerReport.Metadata.newBuilder()
       .setRootComponentRef(1)
       .build());
-    BatchReport.Component.Builder project = BatchReport.Component.newBuilder()
+    ScannerReport.Component.Builder project = ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT);
 
@@ -140,7 +140,7 @@ public class PersistFileSourcesStepTest {
     return reportDir;
   }
 
-  private Component generateFileReport(BatchReportWriter writer, int fileRef) throws IOException {
+  private Component generateFileReport(ScannerReportWriter writer, int fileRef) throws IOException {
     LineData lineData = new LineData();
     for (int line = 1; line <= NUMBER_OF_LINES; line++) {
       lineData.generateLineData(line);
@@ -148,11 +148,9 @@ public class PersistFileSourcesStepTest {
         fileRef,
         new Duplication(
           new TextBlock(line, line),
-          Arrays.<Duplicate>asList(new InnerDuplicate(new TextBlock(line + 1, line + 1)))
-        )
-        );
+          Arrays.<Duplicate>asList(new InnerDuplicate(new TextBlock(line + 1, line + 1)))));
     }
-    writer.writeComponent(BatchReport.Component.newBuilder()
+    writer.writeComponent(ScannerReport.Component.newBuilder()
       .setRef(fileRef)
       .setType(Constants.ComponentType.FILE)
       .setLines(NUMBER_OF_LINES)
@@ -169,22 +167,22 @@ public class PersistFileSourcesStepTest {
 
   private static class LineData {
     List<String> lines = new ArrayList<>();
-    BatchReport.Changesets.Builder changesetsBuilder = BatchReport.Changesets.newBuilder();
-    List<BatchReport.Coverage> coverages = new ArrayList<>();
-    List<BatchReport.SyntaxHighlighting> highlightings = new ArrayList<>();
-    List<BatchReport.Symbol> symbols = new ArrayList<>();
+    ScannerReport.Changesets.Builder changesetsBuilder = ScannerReport.Changesets.newBuilder();
+    List<ScannerReport.Coverage> coverages = new ArrayList<>();
+    List<ScannerReport.SyntaxHighlighting> highlightings = new ArrayList<>();
+    List<ScannerReport.Symbol> symbols = new ArrayList<>();
 
     void generateLineData(int line) {
       lines.add("line-" + line);
 
-      changesetsBuilder.addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      changesetsBuilder.addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("author-" + line)
         .setDate(123456789L)
         .setRevision("rev-" + line)
         .build())
         .addChangesetIndexByLine(line - 1);
 
-      coverages.add(BatchReport.Coverage.newBuilder()
+      coverages.add(ScannerReport.Coverage.newBuilder()
         .setLine(line)
         .setConditions(10)
         .setUtHits(true)
@@ -194,19 +192,19 @@ public class PersistFileSourcesStepTest {
         .setOverallCoveredConditions(4)
         .build());
 
-      highlightings.add(BatchReport.SyntaxHighlighting.newBuilder()
-        .setRange(BatchReport.TextRange.newBuilder()
+      highlightings.add(ScannerReport.SyntaxHighlighting.newBuilder()
+        .setRange(ScannerReport.TextRange.newBuilder()
           .setStartLine(line).setEndLine(line)
           .setStartOffset(1).setEndOffset(3)
           .build())
         .setType(Constants.HighlightingType.ANNOTATION)
         .build());
 
-      symbols.add(BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
+      symbols.add(ScannerReport.Symbol.newBuilder()
+        .setDeclaration(ScannerReport.TextRange.newBuilder()
           .setStartLine(line).setEndLine(line).setStartOffset(2).setEndOffset(4)
           .build())
-        .addReference(BatchReport.TextRange.newBuilder()
+        .addReference(ScannerReport.TextRange.newBuilder()
           .setStartLine(line + 1).setEndLine(line + 1).setStartOffset(1).setEndOffset(3)
           .build())
         .build());

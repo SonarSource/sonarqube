@@ -27,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -38,6 +37,7 @@ import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.block.ByteArray;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -134,7 +134,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
 
-    BatchReport.CpdTextBlock originBlock = BatchReport.CpdTextBlock.newBuilder()
+    ScannerReport.CpdTextBlock originBlock = ScannerReport.CpdTextBlock.newBuilder()
       .setHash(hash)
       .setStartLine(30)
       .setEndLine(45)
@@ -177,14 +177,14 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     ComponentDto otherFIle = createFile("OTHER_FILE_KEY", otherProject);
     SnapshotDto otherFileSnapshot = createFileSnapshot(otherFIle, otherProjectSnapshot);
 
-    BatchReport.CpdTextBlock originBlock1 = BatchReport.CpdTextBlock.newBuilder()
+    ScannerReport.CpdTextBlock originBlock1 = ScannerReport.CpdTextBlock.newBuilder()
       .setHash("a8998353e96320ec")
       .setStartLine(30)
       .setEndLine(45)
       .setStartTokenIndex(0)
       .setEndTokenIndex(10)
       .build();
-    BatchReport.CpdTextBlock originBlock2 = BatchReport.CpdTextBlock.newBuilder()
+    ScannerReport.CpdTextBlock originBlock2 = ScannerReport.CpdTextBlock.newBuilder()
       .setHash("b1234353e96320ff")
       .setStartLine(10)
       .setEndLine(25)
@@ -281,7 +281,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
 
-    BatchReport.CpdTextBlock originBlock = BatchReport.CpdTextBlock.newBuilder()
+    ScannerReport.CpdTextBlock originBlock = ScannerReport.CpdTextBlock.newBuilder()
       .setHash(hash)
       .setStartLine(30)
       .setEndLine(45)
@@ -300,7 +300,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
 
-    batchReportReader.putDuplicationBlocks(FILE_REF, Collections.<BatchReport.CpdTextBlock>emptyList());
+    batchReportReader.putDuplicationBlocks(FILE_REF, Collections.<ScannerReport.CpdTextBlock>emptyList());
 
     underTest.execute();
 
@@ -312,7 +312,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     analysisMetadataHolder.setBaseProjectSnapshot(baseProjectSnapshot);
 
-    BatchReport.CpdTextBlock originBlock = BatchReport.CpdTextBlock.newBuilder()
+    ScannerReport.CpdTextBlock originBlock = ScannerReport.CpdTextBlock.newBuilder()
       .setHash("a8998353e96320ec")
       .setStartLine(30)
       .setEndLine(45)

@@ -37,7 +37,6 @@ import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -46,6 +45,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
@@ -185,9 +185,9 @@ public class PersistTestsStep implements ComputationStep {
     private Multimap<String, DbFileSources.Test.Builder> buildDbTests(int componentRed) {
       Multimap<String, DbFileSources.Test.Builder> tests = ArrayListMultimap.create();
 
-      try (CloseableIterator<BatchReport.Test> testIterator = reportReader.readTests(componentRed)) {
+      try (CloseableIterator<ScannerReport.Test> testIterator = reportReader.readTests(componentRed)) {
         while (testIterator.hasNext()) {
-          BatchReport.Test batchTest = testIterator.next();
+          ScannerReport.Test batchTest = testIterator.next();
           DbFileSources.Test.Builder dbTest = DbFileSources.Test.newBuilder();
           dbTest.setUuid(Uuids.create());
           dbTest.setName(batchTest.getName());
@@ -217,10 +217,10 @@ public class PersistTestsStep implements ComputationStep {
     private Table<String, String, DbFileSources.Test.CoveredFile.Builder> loadCoverageDetails(int testFileRef) {
       Table<String, String, DbFileSources.Test.CoveredFile.Builder> nameToCoveredFiles = HashBasedTable.create();
 
-      try (CloseableIterator<BatchReport.CoverageDetail> coverageIterator = reportReader.readCoverageDetails(testFileRef)) {
+      try (CloseableIterator<ScannerReport.CoverageDetail> coverageIterator = reportReader.readCoverageDetails(testFileRef)) {
         while (coverageIterator.hasNext()) {
-          BatchReport.CoverageDetail batchCoverageDetail = coverageIterator.next();
-          for (BatchReport.CoverageDetail.CoveredFile batchCoveredFile : batchCoverageDetail.getCoveredFileList()) {
+          ScannerReport.CoverageDetail batchCoverageDetail = coverageIterator.next();
+          for (ScannerReport.CoverageDetail.CoveredFile batchCoveredFile : batchCoverageDetail.getCoveredFileList()) {
             String testName = batchCoverageDetail.getTestName();
             String mainFileUuid = getUuid(batchCoveredFile.getFileRef());
             DbFileSources.Test.CoveredFile.Builder existingDbCoveredFile = nameToCoveredFiles.get(testName, mainFileUuid);

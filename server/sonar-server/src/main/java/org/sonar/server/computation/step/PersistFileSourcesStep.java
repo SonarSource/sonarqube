@@ -32,7 +32,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -40,6 +39,7 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
@@ -123,7 +123,7 @@ public class PersistFileSourcesStep implements ComputationStep {
     @Override
     public void visitFile(Component file) {
       int fileRef = file.getReportAttributes().getRef();
-      BatchReport.Component component = reportReader.readComponent(fileRef);
+      ScannerReport.Component component = reportReader.readComponent(fileRef);
       CloseableIterator<String> linesIterator = sourceLinesRepository.readLines(file);
       LineReaders lineReaders = new LineReaders(reportReader, scmInfoRepository, duplicationRepository, file);
       try {
@@ -206,7 +206,7 @@ public class PersistFileSourcesStep implements ComputationStep {
 
     LineReaders(BatchReportReader reportReader, ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository, Component component) {
       int componentRef = component.getReportAttributes().getRef();
-      CloseableIterator<BatchReport.Coverage> coverageIt = reportReader.readComponentCoverage(componentRef);
+      CloseableIterator<ScannerReport.Coverage> coverageIt = reportReader.readComponentCoverage(componentRef);
       closeables.add(coverageIt);
       readers.add(new CoverageLineReader(coverageIt));
 
@@ -219,11 +219,11 @@ public class PersistFileSourcesStep implements ComputationStep {
       }
 
       RangeOffsetConverter rangeOffsetConverter = new RangeOffsetConverter();
-      CloseableIterator<BatchReport.SyntaxHighlighting> highlightingIt = reportReader.readComponentSyntaxHighlighting(componentRef);
+      CloseableIterator<ScannerReport.SyntaxHighlighting> highlightingIt = reportReader.readComponentSyntaxHighlighting(componentRef);
       closeables.add(highlightingIt);
       readers.add(new HighlightingLineReader(component, highlightingIt, rangeOffsetConverter));
 
-      CloseableIterator<BatchReport.Symbol> symbolsIt = reportReader.readComponentSymbols(componentRef);
+      CloseableIterator<ScannerReport.Symbol> symbolsIt = reportReader.readComponentSymbols(componentRef);
       closeables.add(symbolsIt);
       readers.add(new SymbolsLineReader(component, symbolsIt, rangeOffsetConverter));
 

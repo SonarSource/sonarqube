@@ -20,7 +20,7 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.queue.CeTask;
@@ -44,7 +44,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
 
   @Override
   public void execute() {
-    BatchReport.Metadata reportMetadata = reportReader.readMetadata();
+    ScannerReport.Metadata reportMetadata = reportReader.readMetadata();
 
     checkProjectKeyConsistency(reportMetadata);
 
@@ -54,7 +54,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.hasCrossProjectDuplicationActivated() && reportMetadata.getCrossProjectDuplicationActivated());
   }
 
-  private void checkProjectKeyConsistency(BatchReport.Metadata reportMetadata) {
+  private void checkProjectKeyConsistency(ScannerReport.Metadata reportMetadata) {
     String reportProjectKey = projectKeyFromReport(reportMetadata);
     String componentKey = ceTask.getComponentKey();
     if (componentKey == null) {
@@ -72,7 +72,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     }
   }
 
-  private static String projectKeyFromReport(BatchReport.Metadata reportMetadata) {
+  private static String projectKeyFromReport(ScannerReport.Metadata reportMetadata) {
     if (reportMetadata.hasBranch()) {
       return reportMetadata.getProjectKey() + ":" + reportMetadata.getBranch();
     }

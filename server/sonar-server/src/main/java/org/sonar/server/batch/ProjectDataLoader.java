@@ -27,14 +27,14 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import org.sonar.api.server.ServerSide;
-import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectRepositories;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.scanner.protocol.input.FileData;
+import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 

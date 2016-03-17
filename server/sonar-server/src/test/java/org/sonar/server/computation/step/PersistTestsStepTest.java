@@ -27,13 +27,13 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.CoverageDetail;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.CoverageDetail;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -110,7 +110,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Test
   public void insert_several_tests_in_a_report() {
-    List<BatchReport.Test> batchTests = Arrays.asList(
+    List<ScannerReport.Test> batchTests = Arrays.asList(
       newTest(1), newTest(2));
     reportReader.putTests(TEST_FILE_REF_1, batchTests);
     List<CoverageDetail> coverageDetails = Arrays.asList(
@@ -163,7 +163,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Test
   public void insert_tests_without_coverage_details() {
-    List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
+    List<ScannerReport.Test> batchTests = Arrays.asList(newTest(1));
     reportReader.putTests(TEST_FILE_REF_1, batchTests);
 
     underTest.execute();
@@ -178,7 +178,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Test
   public void insert_coverage_details_not_taken_into_account() {
-    List<BatchReport.Test> batchTests = Arrays.asList(newTest(1));
+    List<ScannerReport.Test> batchTests = Arrays.asList(newTest(1));
     reportReader.putTests(TEST_FILE_REF_1, batchTests);
     List<CoverageDetail> coverageDetails = Arrays.asList(newCoverageDetail(1, MAIN_FILE_REF_1), newCoverageDetail(2, MAIN_FILE_REF_2));
     reportReader.putCoverageDetails(TEST_FILE_REF_1, coverageDetails);
@@ -227,7 +227,7 @@ public class PersistTestsStepTest extends BaseStepTest {
     db.getSession().commit();
     assertThat(dbClient.fileSourceDao().selectTest(TEST_FILE_UUID_1)).isNotNull();
 
-    BatchReport.Test newBatchTest = newTest(1);
+    ScannerReport.Test newBatchTest = newTest(1);
     reportReader.putTests(TEST_FILE_REF_1, Arrays.asList(newBatchTest));
 
     CoverageDetail newCoverageDetail = newCoverageDetail(1, MAIN_FILE_REF_1);
@@ -254,8 +254,8 @@ public class PersistTestsStepTest extends BaseStepTest {
     assertThat(test.getCoveredFile(0).getFileUuid()).isEqualTo(MAIN_FILE_UUID_1);
   }
 
-  private BatchReport.Test newTest(int id) {
-    return BatchReport.Test.newBuilder()
+  private ScannerReport.Test newTest(int id) {
+    return ScannerReport.Test.newBuilder()
       .setStatus(Constants.TestStatus.FAILURE)
       .setName("name#" + id)
       .setStacktrace("stacktrace#" + id)
@@ -264,11 +264,11 @@ public class PersistTestsStepTest extends BaseStepTest {
       .build();
   }
 
-  private BatchReport.CoverageDetail newCoverageDetail(int id, int covered_file_ref) {
+  private ScannerReport.CoverageDetail newCoverageDetail(int id, int covered_file_ref) {
     return newCoverageDetailWithLines(id, covered_file_ref, 1, 2, 3);
   }
 
-  private BatchReport.CoverageDetail newCoverageDetailWithLines(int id, int covered_file_ref, Integer... lines) {
+  private ScannerReport.CoverageDetail newCoverageDetailWithLines(int id, int covered_file_ref, Integer... lines) {
     return CoverageDetail.newBuilder()
       .setTestName("name#" + id)
       .addCoveredFile(CoverageDetail.CoveredFile.newBuilder()

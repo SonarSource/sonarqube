@@ -23,11 +23,11 @@ import com.google.common.base.Optional;
 import com.google.common.collect.SetMultimap;
 import java.util.HashSet;
 import java.util.Set;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.measure.MeasureDto;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.measure.MapBasedRawMeasureRepository.OverridePolicy;
@@ -113,9 +113,9 @@ public class MeasureRepositoryImpl implements MeasureRepository {
       return;
     }
 
-    try (CloseableIterator<BatchReport.Measure> readIt = reportReader.readComponentMeasures(component.getReportAttributes().getRef())) {
+    try (CloseableIterator<ScannerReport.Measure> readIt = reportReader.readComponentMeasures(component.getReportAttributes().getRef())) {
       while (readIt.hasNext()) {
-        BatchReport.Measure batchMeasure = readIt.next();
+        ScannerReport.Measure batchMeasure = readIt.next();
         String metricKey = batchMeasure.getMetricKey();
         if (reportMetricValidator.validate(metricKey)) {
           Metric metric = metricRepository.getByKey(metricKey);

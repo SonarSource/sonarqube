@@ -27,10 +27,10 @@ import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.TextRange;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
@@ -40,11 +40,11 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
-import static org.sonar.batch.protocol.Constants.HighlightingType.ANNOTATION;
-import static org.sonar.batch.protocol.Constants.HighlightingType.COMMENT;
-import static org.sonar.batch.protocol.Constants.HighlightingType.CONSTANT;
-import static org.sonar.batch.protocol.Constants.HighlightingType.HIGHLIGHTING_STRING;
 import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
+import static org.sonar.scanner.protocol.Constants.HighlightingType.ANNOTATION;
+import static org.sonar.scanner.protocol.Constants.HighlightingType.COMMENT;
+import static org.sonar.scanner.protocol.Constants.HighlightingType.CONSTANT;
+import static org.sonar.scanner.protocol.Constants.HighlightingType.HIGHLIGHTING_STRING;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class HighlightingLineReaderTest {
@@ -242,9 +242,9 @@ public class HighlightingLineReaderTest {
   }
 
   private HighlightingLineReader newReader(Map<TextRange, Constants.HighlightingType> textRangeByType) {
-    List<BatchReport.SyntaxHighlighting> syntaxHighlightingList = new ArrayList<>();
+    List<ScannerReport.SyntaxHighlighting> syntaxHighlightingList = new ArrayList<>();
     for (Map.Entry<TextRange, Constants.HighlightingType> entry : textRangeByType.entrySet()) {
-      syntaxHighlightingList.add(BatchReport.SyntaxHighlighting.newBuilder()
+      syntaxHighlightingList.add(ScannerReport.SyntaxHighlighting.newBuilder()
         .setRange(entry.getKey())
         .setType(entry.getValue())
         .build());

@@ -29,7 +29,6 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
@@ -41,6 +40,7 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.issue.IssueCache;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
@@ -84,7 +84,7 @@ public class PersistIssuesStepTest extends BaseStepTest {
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(NOW);
-    reportReader.setMetadata(BatchReport.Metadata.getDefaultInstance());
+    reportReader.setMetadata(ScannerReport.Metadata.getDefaultInstance());
 
     step = new PersistIssuesStep(dbClient, system2, new UpdateConflictResolver(), new RuleRepositoryImpl(dbClient), issueCache);
   }

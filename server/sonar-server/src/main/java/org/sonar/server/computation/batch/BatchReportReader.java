@@ -21,41 +21,41 @@ package org.sonar.server.computation.batch;
 
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 public interface BatchReportReader {
-  BatchReport.Metadata readMetadata();
+  ScannerReport.Metadata readMetadata();
 
   CloseableIterator<String> readScannerLogs();
 
-  CloseableIterator<BatchReport.ActiveRule> readActiveRules();
+  CloseableIterator<ScannerReport.ActiveRule> readActiveRules();
 
-  CloseableIterator<BatchReport.Measure> readComponentMeasures(int componentRef);
+  CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef);
 
   @CheckForNull
-  BatchReport.Changesets readChangesets(int componentRef);
+  ScannerReport.Changesets readChangesets(int componentRef);
 
-  BatchReport.Component readComponent(int componentRef);
+  ScannerReport.Component readComponent(int componentRef);
 
-  CloseableIterator<BatchReport.Issue> readComponentIssues(int componentRef);
+  CloseableIterator<ScannerReport.Issue> readComponentIssues(int componentRef);
 
-  CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef);
+  CloseableIterator<ScannerReport.Duplication> readComponentDuplications(int componentRef);
 
-  CloseableIterator<BatchReport.CpdTextBlock> readCpdTextBlocks(int componentRef);
+  CloseableIterator<ScannerReport.CpdTextBlock> readCpdTextBlocks(int componentRef);
 
-  CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef);
+  CloseableIterator<ScannerReport.Symbol> readComponentSymbols(int componentRef);
 
-  CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef);
+  CloseableIterator<ScannerReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef);
 
-  CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef);
+  CloseableIterator<ScannerReport.Coverage> readComponentCoverage(int fileRef);
 
   /**
    * Reads file source line by line. Return an absent optional if the file doest not exist
    */
   Optional<CloseableIterator<String>> readFileSource(int fileRef);
 
-  CloseableIterator<BatchReport.Test> readTests(int testFileRef);
+  CloseableIterator<ScannerReport.Test> readTests(int testFileRef);
 
-  CloseableIterator<BatchReport.CoverageDetail> readCoverageDetails(int testFileRef);
+  CloseableIterator<ScannerReport.CoverageDetail> readCoverageDetails(int testFileRef);
 }

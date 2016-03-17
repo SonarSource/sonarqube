@@ -23,9 +23,9 @@ import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReport.TextRange;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 import org.sonar.server.computation.component.Component;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -299,8 +299,8 @@ public class SymbolsLineReaderTest {
     assertThat(logTester.logs(WARN)).containsOnly("Inconsistency detected in Symbols data. Symbols will be ignored for file 'FILE_KEY'");
   }
 
-  private BatchReport.Symbol newSymbol(TextRange declaration, TextRange... references) {
-    BatchReport.Symbol.Builder builder = BatchReport.Symbol.newBuilder()
+  private ScannerReport.Symbol newSymbol(TextRange declaration, TextRange... references) {
+    ScannerReport.Symbol.Builder builder = ScannerReport.Symbol.newBuilder()
       .setDeclaration(declaration);
     for (TextRange reference : references) {
       builder.addReference(reference);
@@ -308,7 +308,7 @@ public class SymbolsLineReaderTest {
     return builder.build();
   }
 
-  private SymbolsLineReader newReader(BatchReport.Symbol... symbols) {
+  private SymbolsLineReader newReader(ScannerReport.Symbol... symbols) {
     return new SymbolsLineReader(FILE, Arrays.asList(symbols).iterator(), rangeOffsetConverter);
   }
 

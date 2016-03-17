@@ -24,10 +24,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.batch.protocol.output.BatchReport;
-import org.sonar.batch.protocol.output.BatchReportWriter;
-import org.sonar.batch.protocol.output.FileStructure;
-
+import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.protocol.output.FileStructure;
 import java.io.File;
 import java.util.NoSuchElementException;
 
@@ -41,15 +40,15 @@ public class ReportIteratorTest {
 
   File file;
 
-  ReportIterator<BatchReport.Coverage> underTest;
+  ReportIterator<ScannerReport.Coverage> underTest;
 
   @Before
   public void setUp() throws Exception {
     File dir = temp.newFolder();
-    BatchReportWriter writer = new BatchReportWriter(dir);
+    ScannerReportWriter writer = new ScannerReportWriter(dir);
 
     writer.writeComponentCoverage(1, newArrayList(
-      BatchReport.Coverage.newBuilder()
+      ScannerReport.Coverage.newBuilder()
         .setLine(1)
         .build()
     ));
@@ -66,13 +65,13 @@ public class ReportIteratorTest {
 
   @Test
   public void read_report() {
-    underTest = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    underTest = new ReportIterator<>(file, ScannerReport.Coverage.PARSER);
     assertThat(underTest.next().getLine()).isEqualTo(1);
   }
 
   @Test
   public void do_not_fail_when_calling_has_next_with_iterator_already_closed() {
-    underTest = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    underTest = new ReportIterator<>(file, ScannerReport.Coverage.PARSER);
     assertThat(underTest.next().getLine()).isEqualTo(1);
     assertThat(underTest.hasNext()).isFalse();
 
@@ -82,7 +81,7 @@ public class ReportIteratorTest {
 
   @Test(expected = NoSuchElementException.class)
   public void test_error() throws Exception {
-    underTest = new ReportIterator<>(file, BatchReport.Coverage.PARSER);
+    underTest = new ReportIterator<>(file, ScannerReport.Coverage.PARSER);
     underTest.next();
 
     // fail !

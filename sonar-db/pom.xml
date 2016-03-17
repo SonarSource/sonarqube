@@ -34,7 +34,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-batch-protocol</artifactId>
+      <artifactId>sonar-scanner-protocol</artifactId>
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>

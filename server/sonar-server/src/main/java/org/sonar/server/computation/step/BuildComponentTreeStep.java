@@ -24,12 +24,12 @@ import com.google.common.collect.Iterables;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.component.SnapshotQuery;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
@@ -61,7 +61,7 @@ public class BuildComponentTreeStep implements ComputationStep {
   @Override
   public void execute() {
     String branch = analysisMetadataHolder.getBranch();
-    BatchReport.Component reportProject = reportReader.readComponent(analysisMetadataHolder.getRootComponentRef());
+    ScannerReport.Component reportProject = reportReader.readComponent(analysisMetadataHolder.getRootComponentRef());
     UuidFactory uuidFactory = new UuidFactory(dbClient, moduleKey(reportProject, branch));
     Component project = new ComponentRootBuilder(reportProject, uuidFactory, branch).build();
     treeRootHolder.setRoot(project);
@@ -92,14 +92,14 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   private class ComponentRootBuilder {
 
-    private final BatchReport.Component reportProject;
+    private final ScannerReport.Component reportProject;
 
     private final UuidFactory uuidFactory;
 
     @CheckForNull
     private final String branch;
 
-    public ComponentRootBuilder(BatchReport.Component reportProject, UuidFactory uuidFactory, @Nullable String branch) {
+    public ComponentRootBuilder(ScannerReport.Component reportProject, UuidFactory uuidFactory, @Nullable String branch) {
       this.reportProject = reportProject;
       this.uuidFactory = uuidFactory;
       this.branch = branch;
@@ -109,7 +109,7 @@ public class BuildComponentTreeStep implements ComputationStep {
       return buildComponent(reportProject, moduleKey(reportProject, branch));
     }
 
-    private ComponentImpl buildComponent(BatchReport.Component reportComponent, String latestModuleKey) {
+    private ComponentImpl buildComponent(ScannerReport.Component reportComponent, String latestModuleKey) {
       switch (reportComponent.getType()) {
         case PROJECT:
         case MODULE:
@@ -123,7 +123,7 @@ public class BuildComponentTreeStep implements ComputationStep {
       }
     }
 
-    private ComponentImpl buildComponent(BatchReport.Component reportComponent, String componentKey, String latestModuleKey) {
+    private ComponentImpl buildComponent(ScannerReport.Component reportComponent, String componentKey, String latestModuleKey) {
       return builder(reportComponent)
         .addChildren(toArray(buildChildren(reportComponent, latestModuleKey), Component.class))
         .setKey(componentKey)
@@ -131,7 +131,7 @@ public class BuildComponentTreeStep implements ComputationStep {
         .build();
     }
 
-    private Iterable<Component> buildChildren(BatchReport.Component component, final String latestModuleKey) {
+    private Iterable<Component> buildChildren(ScannerReport.Component component, final String latestModuleKey) {
       return Iterables.transform(
         component.getChildRefList(),
         new Function<Integer, Component>() {
@@ -144,7 +144,7 @@ public class BuildComponentTreeStep implements ComputationStep {
     }
   }
 
-  private static String moduleKey(BatchReport.Component reportComponent, @Nullable String branch) {
+  private static String moduleKey(ScannerReport.Component reportComponent, @Nullable String branch) {
     return ComponentKeys.createKey(reportComponent.getKey(), branch);
   }
 

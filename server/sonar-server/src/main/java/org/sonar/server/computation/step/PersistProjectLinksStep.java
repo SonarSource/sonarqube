@@ -28,12 +28,12 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentLinkDto;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
@@ -100,18 +100,18 @@ public class PersistProjectLinksStep implements ComputationStep {
     }
 
     private void processComponent(Component component) {
-      BatchReport.Component batchComponent = reportReader.readComponent(component.getReportAttributes().getRef());
+      ScannerReport.Component batchComponent = reportReader.readComponent(component.getReportAttributes().getRef());
       processLinks(component.getUuid(), batchComponent.getLinkList());
     }
 
-    private void processLinks(String componentUuid, List<BatchReport.ComponentLink> links) {
+    private void processLinks(String componentUuid, List<ScannerReport.ComponentLink> links) {
       List<ComponentLinkDto> previousLinks = dbClient.componentLinkDao().selectByComponentUuid(session, componentUuid);
       mergeLinks(session, componentUuid, links, previousLinks);
     }
 
-    private void mergeLinks(DbSession session, String componentUuid, List<BatchReport.ComponentLink> links, List<ComponentLinkDto> previousLinks) {
+    private void mergeLinks(DbSession session, String componentUuid, List<ScannerReport.ComponentLink> links, List<ComponentLinkDto> previousLinks) {
       Set<String> linkType = newHashSet();
-      for (final BatchReport.ComponentLink link : links) {
+      for (final ScannerReport.ComponentLink link : links) {
         String type = convertType(link.getType());
         if (!linkType.contains(type)) {
           linkType.add(type);

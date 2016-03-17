@@ -33,21 +33,21 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.LineIterator;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.core.util.LineReaderIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class BatchReportReaderImpl implements BatchReportReader {
-  private final org.sonar.batch.protocol.output.BatchReportReader delegate;
+  private final org.sonar.scanner.protocol.output.ScannerReportReader delegate;
   // caching of metadata which are read often
-  private BatchReport.Metadata metadata;
+  private ScannerReport.Metadata metadata;
 
   public BatchReportReaderImpl(BatchReportDirectoryHolder batchReportDirectoryHolder) {
-    this.delegate = new org.sonar.batch.protocol.output.BatchReportReader(batchReportDirectoryHolder.getDirectory());
+    this.delegate = new org.sonar.scanner.protocol.output.ScannerReportReader(batchReportDirectoryHolder.getDirectory());
   }
 
   @Override
-  public BatchReport.Metadata readMetadata() {
+  public ScannerReport.Metadata readMetadata() {
     if (this.metadata == null) {
       this.metadata = delegate.readMetadata();
     }
@@ -69,53 +69,53 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public CloseableIterator<BatchReport.ActiveRule> readActiveRules() {
+  public CloseableIterator<ScannerReport.ActiveRule> readActiveRules() {
     return delegate.readActiveRules();
   }
 
   @Override
-  public CloseableIterator<BatchReport.Measure> readComponentMeasures(int componentRef) {
+  public CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef) {
     return delegate.readComponentMeasures(componentRef);
   }
 
   @Override
   @CheckForNull
-  public BatchReport.Changesets readChangesets(int componentRef) {
+  public ScannerReport.Changesets readChangesets(int componentRef) {
     return delegate.readChangesets(componentRef);
   }
 
   @Override
-  public BatchReport.Component readComponent(int componentRef) {
+  public ScannerReport.Component readComponent(int componentRef) {
     return delegate.readComponent(componentRef);
   }
 
   @Override
-  public CloseableIterator<BatchReport.Issue> readComponentIssues(int componentRef) {
+  public CloseableIterator<ScannerReport.Issue> readComponentIssues(int componentRef) {
     return delegate.readComponentIssues(componentRef);
   }
 
   @Override
-  public CloseableIterator<BatchReport.Duplication> readComponentDuplications(int componentRef) {
+  public CloseableIterator<ScannerReport.Duplication> readComponentDuplications(int componentRef) {
     return delegate.readComponentDuplications(componentRef);
   }
 
   @Override
-  public CloseableIterator<BatchReport.CpdTextBlock> readCpdTextBlocks(int componentRef) {
+  public CloseableIterator<ScannerReport.CpdTextBlock> readCpdTextBlocks(int componentRef) {
     return delegate.readCpdTextBlocks(componentRef);
   }
 
   @Override
-  public CloseableIterator<BatchReport.Symbol> readComponentSymbols(int componentRef) {
+  public CloseableIterator<ScannerReport.Symbol> readComponentSymbols(int componentRef) {
     return delegate.readComponentSymbols(componentRef);
   }
 
   @Override
-  public CloseableIterator<BatchReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
+  public CloseableIterator<ScannerReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
     return delegate.readComponentSyntaxHighlighting(fileRef);
   }
 
   @Override
-  public CloseableIterator<BatchReport.Coverage> readComponentCoverage(int fileRef) {
+  public CloseableIterator<ScannerReport.Coverage> readComponentCoverage(int fileRef) {
     return delegate.readComponentCoverage(fileRef);
   }
 
@@ -163,14 +163,14 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public CloseableIterator<BatchReport.Test> readTests(int testFileRef) {
+  public CloseableIterator<ScannerReport.Test> readTests(int testFileRef) {
     File file = delegate.readTests(testFileRef);
     if (file == null) {
       return CloseableIterator.emptyCloseableIterator();
     }
 
     try {
-      return new ParserCloseableIterator<>(BatchReport.Test.parser(), FileUtils.openInputStream(file));
+      return new ParserCloseableIterator<>(ScannerReport.Test.parser(), FileUtils.openInputStream(file));
     } catch (IOException e) {
       Throwables.propagate(e);
       // actually never reached
@@ -179,14 +179,14 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public CloseableIterator<BatchReport.CoverageDetail> readCoverageDetails(int testFileRef) {
+  public CloseableIterator<ScannerReport.CoverageDetail> readCoverageDetails(int testFileRef) {
     File file = delegate.readCoverageDetails(testFileRef);
     if (file == null) {
       return CloseableIterator.emptyCloseableIterator();
     }
 
     try {
-      return new ParserCloseableIterator<>(BatchReport.CoverageDetail.parser(), FileUtils.openInputStream(file));
+      return new ParserCloseableIterator<>(ScannerReport.CoverageDetail.parser(), FileUtils.openInputStream(file));
     } catch (IOException e) {
       Throwables.propagate(e);
       // actually never reached

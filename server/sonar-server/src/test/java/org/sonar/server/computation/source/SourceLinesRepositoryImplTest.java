@@ -22,8 +22,8 @@ package org.sonar.server.computation.source;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 
@@ -121,8 +121,8 @@ public class SourceLinesRepositoryImplTest {
     underTest.readLines(builder(Component.Type.PROJECT, 123).setKey("NotFile").build());
   }
 
-  private static BatchReport.Component createFileBatchComponent(int lineCount) {
-    return BatchReport.Component.newBuilder().setRef(FILE_REF).setLines(lineCount).build();
+  private static ScannerReport.Component createFileBatchComponent(int lineCount) {
+    return ScannerReport.Component.newBuilder().setRef(FILE_REF).setLines(lineCount).build();
   }
 
   private static void consume(CloseableIterator<String> stringCloseableIterator) {

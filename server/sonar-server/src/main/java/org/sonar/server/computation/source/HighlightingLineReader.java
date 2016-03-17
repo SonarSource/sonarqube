@@ -26,9 +26,9 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
@@ -56,13 +56,13 @@ public class HighlightingLineReader implements LineReader {
     .build();
 
   private final Component file;
-  private final Iterator<BatchReport.SyntaxHighlighting> lineHighlightingIterator;
+  private final Iterator<ScannerReport.SyntaxHighlighting> lineHighlightingIterator;
   private final RangeOffsetConverter rangeOffsetConverter;
-  private final List<BatchReport.SyntaxHighlighting> highlightingList;
+  private final List<ScannerReport.SyntaxHighlighting> highlightingList;
 
-  private BatchReport.SyntaxHighlighting currentItem;
+  private ScannerReport.SyntaxHighlighting currentItem;
 
-  public HighlightingLineReader(Component file, Iterator<BatchReport.SyntaxHighlighting> lineHighlightingIterator, RangeOffsetConverter rangeOffsetConverter) {
+  public HighlightingLineReader(Component file, Iterator<ScannerReport.SyntaxHighlighting> lineHighlightingIterator, RangeOffsetConverter rangeOffsetConverter) {
     this.file = file;
     this.lineHighlightingIterator = lineHighlightingIterator;
     this.rangeOffsetConverter = rangeOffsetConverter;
@@ -87,7 +87,7 @@ public class HighlightingLineReader implements LineReader {
     StringBuilder highlighting = new StringBuilder();
 
     incrementHighlightingListMatchingLine(line);
-    for (Iterator<BatchReport.SyntaxHighlighting> syntaxHighlightingIterator = highlightingList.iterator(); syntaxHighlightingIterator.hasNext();) {
+    for (Iterator<ScannerReport.SyntaxHighlighting> syntaxHighlightingIterator = highlightingList.iterator(); syntaxHighlightingIterator.hasNext();) {
       processHighlighting(syntaxHighlightingIterator, highlighting, lineBuilder);
     }
     if (highlighting.length() > 0) {
@@ -95,11 +95,11 @@ public class HighlightingLineReader implements LineReader {
     }
   }
 
-  private void processHighlighting(Iterator<BatchReport.SyntaxHighlighting> syntaxHighlightingIterator, StringBuilder highlighting,
+  private void processHighlighting(Iterator<ScannerReport.SyntaxHighlighting> syntaxHighlightingIterator, StringBuilder highlighting,
     DbFileSources.Line.Builder lineBuilder) {
-    BatchReport.SyntaxHighlighting syntaxHighlighting = syntaxHighlightingIterator.next();
+    ScannerReport.SyntaxHighlighting syntaxHighlighting = syntaxHighlightingIterator.next();
     int line = lineBuilder.getLine();
-    BatchReport.TextRange range = syntaxHighlighting.getRange();
+    ScannerReport.TextRange range = syntaxHighlighting.getRange();
     if (range.getStartLine() <= line) {
       String offsets = rangeOffsetConverter.offsetToString(syntaxHighlighting.getRange(), line, lineBuilder.getSource().length());
       if (offsets.isEmpty()) {
@@ -128,7 +128,7 @@ public class HighlightingLineReader implements LineReader {
   }
 
   private void incrementHighlightingListMatchingLine(int line) {
-    BatchReport.SyntaxHighlighting syntaxHighlighting = getNextHighlightingMatchingLine(line);
+    ScannerReport.SyntaxHighlighting syntaxHighlighting = getNextHighlightingMatchingLine(line);
     while (syntaxHighlighting != null) {
       highlightingList.add(syntaxHighlighting);
       this.currentItem = null;
@@ -137,7 +137,7 @@ public class HighlightingLineReader implements LineReader {
   }
 
   @CheckForNull
-  private BatchReport.SyntaxHighlighting getNextHighlightingMatchingLine(int line) {
+  private ScannerReport.SyntaxHighlighting getNextHighlightingMatchingLine(int line) {
     // Get next element (if exists)
     if (currentItem == null && lineHighlightingIterator.hasNext()) {
       currentItem = lineHighlightingIterator.next();

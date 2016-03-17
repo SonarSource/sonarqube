@@ -28,9 +28,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -54,7 +54,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     .build();
   static final long PROJECT_SNAPSHOT_ID = 10L;
 
-  static final BatchReport.CpdTextBlock CPD_TEXT_BLOCK = BatchReport.CpdTextBlock.newBuilder()
+  static final ScannerReport.CpdTextBlock CPD_TEXT_BLOCK = ScannerReport.CpdTextBlock.newBuilder()
     .setHash("a8998353e96320ec")
     .setStartLine(30)
     .setEndLine(45)
@@ -105,7 +105,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
     reportReader.putDuplicationBlocks(FILE_REF, Arrays.asList(
       CPD_TEXT_BLOCK,
-      BatchReport.CpdTextBlock.newBuilder()
+      ScannerReport.CpdTextBlock.newBuilder()
         .setHash("b1234353e96320ff")
         .setStartLine(20)
         .setEndLine(15)
@@ -126,7 +126,7 @@ public class PersistCrossProjectDuplicationIndexStepTest {
   @Test
   public void nothing_to_persist_when_no_cpd_text_blocks_in_report() throws Exception {
     when(crossProjectDuplicationStatusHolder.isEnabled()).thenReturn(true);
-    reportReader.putDuplicationBlocks(FILE_REF, Collections.<BatchReport.CpdTextBlock>emptyList());
+    reportReader.putDuplicationBlocks(FILE_REF, Collections.<ScannerReport.CpdTextBlock>emptyList());
 
     underTest.execute();
 

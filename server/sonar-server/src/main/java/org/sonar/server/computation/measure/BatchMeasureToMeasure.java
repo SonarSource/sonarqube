@@ -22,14 +22,14 @@ package org.sonar.server.computation.measure;
 import com.google.common.base.Optional;
 import java.util.Objects;
 import javax.annotation.Nullable;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.metric.Metric;
 
 import static com.google.common.base.Optional.of;
 
 public class BatchMeasureToMeasure {
 
-  public Optional<Measure> toMeasure(@Nullable BatchReport.Measure batchMeasure, Metric metric) {
+  public Optional<Measure> toMeasure(@Nullable ScannerReport.Measure batchMeasure, Metric metric) {
     Objects.requireNonNull(metric);
     if (batchMeasure == null) {
       return Optional.absent();
@@ -57,21 +57,21 @@ public class BatchMeasureToMeasure {
     }
   }
 
-  private static Optional<Measure> toIntegerMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
+  private static Optional<Measure> toIntegerMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasIntValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
     return of(builder.create(batchMeasure.getIntValue(), data));
   }
 
-  private static Optional<Measure> toLongMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
+  private static Optional<Measure> toLongMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasLongValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
     return of(builder.create(batchMeasure.getLongValue(), data));
   }
 
-  private static Optional<Measure> toDoubleMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
+  private static Optional<Measure> toDoubleMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasDoubleValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
@@ -81,21 +81,21 @@ public class BatchMeasureToMeasure {
       data));
   }
 
-  private static Optional<Measure> toBooleanMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure, @Nullable String data) {
+  private static Optional<Measure> toBooleanMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure, @Nullable String data) {
     if (!batchMeasure.hasBooleanValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
     return of(builder.create(batchMeasure.getBooleanValue(), data));
   }
 
-  private static Optional<Measure> toStringMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
+  private static Optional<Measure> toStringMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     if (!batchMeasure.hasStringValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
     return of(builder.create(batchMeasure.getStringValue()));
   }
 
-  private static Optional<Measure> toLevelMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
+  private static Optional<Measure> toLevelMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     if (!batchMeasure.hasStringValue()) {
       return toNoValueMeasure(builder, batchMeasure);
     }
@@ -106,7 +106,7 @@ public class BatchMeasureToMeasure {
     return of(builder.create(level.get()));
   }
 
-  private static Optional<Measure> toNoValueMeasure(Measure.NewMeasureBuilder builder, BatchReport.Measure batchMeasure) {
+  private static Optional<Measure> toNoValueMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
     return of(builder.createNoValue());
   }
 }

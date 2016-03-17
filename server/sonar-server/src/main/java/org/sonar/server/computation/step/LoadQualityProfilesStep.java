@@ -28,8 +28,8 @@ import java.util.Map;
 import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.issue.Rule;
 import org.sonar.server.computation.issue.RuleRepository;
@@ -53,9 +53,9 @@ public class LoadQualityProfilesStep implements ComputationStep {
   @Override
   public void execute() {
     List<ActiveRule> activeRules = new ArrayList<>();
-    try (CloseableIterator<BatchReport.ActiveRule> batchActiveRules = batchReportReader.readActiveRules()) {
+    try (CloseableIterator<ScannerReport.ActiveRule> batchActiveRules = batchReportReader.readActiveRules()) {
       while (batchActiveRules.hasNext()) {
-        BatchReport.ActiveRule batchActiveRule = batchActiveRules.next();
+        ScannerReport.ActiveRule batchActiveRule = batchActiveRules.next();
         activeRules.add(convert(batchActiveRule));
       }
     }
@@ -77,10 +77,10 @@ public class LoadQualityProfilesStep implements ComputationStep {
     return "Load quality profiles";
   }
 
-  private static ActiveRule convert(BatchReport.ActiveRule input) {
+  private static ActiveRule convert(ScannerReport.ActiveRule input) {
     RuleKey key = RuleKey.of(input.getRuleRepository(), input.getRuleKey());
     Map<String, String> params = new HashMap<>();
-    for (BatchReport.ActiveRule.ActiveRuleParam inputParam : input.getParamList()) {
+    for (ScannerReport.ActiveRule.ActiveRuleParam inputParam : input.getParamList()) {
       params.put(inputParam.getKey(), inputParam.getValue());
     }
     return new ActiveRule(key, input.getSeverity().name(), params);

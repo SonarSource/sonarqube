@@ -33,12 +33,12 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.LogTester;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.hash.SourceHashComputer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReader;
@@ -234,9 +234,9 @@ public class ScmInfoRepositoryImplTest {
   }
 
   private void addChangesetInReport(String author, Long date, String revision) {
-    reportReader.putChangesets(BatchReport.Changesets.newBuilder()
+    reportReader.putChangesets(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor(author)
         .setDate(date)
         .setRevision(revision)
@@ -247,7 +247,7 @@ public class ScmInfoRepositoryImplTest {
 
   private void addFileSourceInReport(int lineCount) {
     reportReader.putFileSourceLines(FILE_REF, generateLines(lineCount));
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setLines(lineCount)
       .build());

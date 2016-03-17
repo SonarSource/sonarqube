@@ -26,7 +26,7 @@ import java.util.List;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.batch.protocol.input.BatchInput;
+import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
@@ -66,7 +66,7 @@ public class UsersAction implements BatchWsAction {
     List<String> logins = request.mandatoryParamAsStrings(PARAM_LOGINS);
 
     response.stream().setMediaType(MediaTypes.PROTOBUF);
-    BatchInput.User.Builder userBuilder = BatchInput.User.newBuilder();
+    ScannerInput.User.Builder userBuilder = ScannerInput.User.newBuilder();
     OutputStream output = response.stream().output();
     try {
       for (Iterator<UserDoc> userDocIterator = userIndex.selectUsersForBatch(logins); userDocIterator.hasNext();) {
@@ -77,7 +77,7 @@ public class UsersAction implements BatchWsAction {
     }
   }
 
-  private static void handleUser(UserDoc user, BatchInput.User.Builder userBuilder, OutputStream out) {
+  private static void handleUser(UserDoc user, ScannerInput.User.Builder userBuilder, OutputStream out) {
     userBuilder
       .clear()
       .setLogin(user.login())

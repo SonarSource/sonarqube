@@ -28,11 +28,11 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.batch.protocol.input.BatchInput;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
@@ -86,7 +86,7 @@ public class IssuesAction implements BatchWsAction {
       ComponentDto component = componentFinder.getByKey(session, componentKey);
       Map<String, String> keysByUUid = keysByUUid(session, component);
 
-      BatchInput.ServerIssue.Builder issueBuilder = BatchInput.ServerIssue.newBuilder();
+      ScannerInput.ServerIssue.Builder issueBuilder = ScannerInput.ServerIssue.newBuilder();
       for (Iterator<IssueDoc> issueDocIterator = issueIndex.selectIssuesForBatch(component); issueDocIterator.hasNext();) {
         handleIssue(issueDocIterator.next(), issueBuilder, keysByUUid, response.stream().output());
       }
@@ -95,7 +95,7 @@ public class IssuesAction implements BatchWsAction {
     }
   }
 
-  private static void handleIssue(IssueDoc issue, BatchInput.ServerIssue.Builder issueBuilder, Map<String, String> keysByUUid, OutputStream out) {
+  private static void handleIssue(IssueDoc issue, ScannerInput.ServerIssue.Builder issueBuilder, Map<String, String> keysByUUid, OutputStream out) {
     issueBuilder.setKey(issue.key());
     issueBuilder.setModuleKey(keysByUUid.get(issue.moduleUuid()));
     String path = issue.filePath();
@@ -120,7 +120,7 @@ public class IssuesAction implements BatchWsAction {
     if (message != null) {
       issueBuilder.setMsg(message);
     }
-    issueBuilder.setSeverity(org.sonar.batch.protocol.Constants.Severity.valueOf(issue.severity()));
+    issueBuilder.setSeverity(org.sonar.scanner.protocol.Constants.Severity.valueOf(issue.severity()));
     issueBuilder.setManualSeverity(issue.isManualSeverity());
     issueBuilder.setStatus(issue.status());
     String resolution = issue.resolution();

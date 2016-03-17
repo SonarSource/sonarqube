@@ -18,9 +18,9 @@
   <modules>
     <module>sonar-plugin-api-deps</module>
     <module>sonar-application</module>
-    <module>sonar-batch</module>
-    <module>sonar-batch-protocol</module>
-    <module>sonar-batch-shaded</module>
+    <module>sonar-scanner-engine</module>
+    <module>sonar-scanner-protocol</module>
+    <module>sonar-scanner-engine-shaded</module>
     <module>sonar-check-api</module>
     <module>sonar-colorizer</module>
     <module>sonar-core</module>
@@ -442,7 +442,7 @@
       </dependency>
       <dependency>
         <groupId>${project.groupId}</groupId>
-        <artifactId>sonar-batch-protocol</artifactId>
+        <artifactId>sonar-scanner-protocol</artifactId>
         <version>${project.version}</version>
       </dependency>
       <dependency>
@@ -1436,7 +1436,7 @@
 
     <!--
     The following profiles optimize the build for each team, according to their
-     stack layers (batch, server and web teams)
+     stack layers (scanner, server and web teams)
     -->
     <profile>
       <!-- disable all tests -->
@@ -1453,7 +1453,7 @@
     </profile>
 
     <profile>
-      <id>batch</id>
+      <id>scanner</id>
       <properties>
         <skipServerTests>true</skipServerTests>
       </properties>

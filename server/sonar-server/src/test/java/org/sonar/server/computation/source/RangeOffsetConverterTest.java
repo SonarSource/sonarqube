@@ -22,7 +22,7 @@ package org.sonar.server.computation.source;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -115,8 +115,8 @@ public class RangeOffsetConverterTest {
       LINE_1, DEFAULT_LINE_LENGTH);
   }
 
-  private static BatchReport.TextRange createTextRange(int startLine, int enLine, int startOffset, int endOffset) {
-    return BatchReport.TextRange.newBuilder()
+  private static ScannerReport.TextRange createTextRange(int startLine, int enLine, int startOffset, int endOffset) {
+    return ScannerReport.TextRange.newBuilder()
       .setStartLine(startLine).setEndLine(enLine)
       .setStartOffset(startOffset).setEndOffset(endOffset)
       .build();

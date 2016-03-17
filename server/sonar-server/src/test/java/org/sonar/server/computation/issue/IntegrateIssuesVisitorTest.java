@@ -30,8 +30,6 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.db.DbTester;
@@ -40,6 +38,8 @@ import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -126,7 +126,7 @@ public class IntegrateIssuesVisitorTest {
   public void process_new_issue() throws Exception {
     componentsWithUnprocessedIssues.setUuids(Collections.<String>emptySet());
 
-    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
       .setRuleKey("S001")
@@ -156,7 +156,7 @@ public class IntegrateIssuesVisitorTest {
     addBaseIssue(ruleKey);
 
     // Issue from report has severity blocker
-    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(ruleKey.repository())
       .setRuleKey(ruleKey.rule())
@@ -205,7 +205,7 @@ public class IntegrateIssuesVisitorTest {
   @Test
   public void execute_issue_visitors() throws Exception {
     componentsWithUnprocessedIssues.setUuids(Collections.<String>emptySet());
-    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
       .setRuleKey("S001")
@@ -244,7 +244,7 @@ public class IntegrateIssuesVisitorTest {
   public void feed_component_issues_repo() throws Exception {
     componentsWithUnprocessedIssues.setUuids(Collections.<String>emptySet());
 
-    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
       .setRuleKey("S001")
@@ -262,7 +262,7 @@ public class IntegrateIssuesVisitorTest {
   public void empty_component_issues_repo_when_no_issue() throws Exception {
     componentsWithUnprocessedIssues.setUuids(Collections.<String>emptySet());
 
-    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository("xoo")
       .setRuleKey("S001")

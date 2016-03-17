@@ -25,14 +25,14 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -135,7 +135,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_coverage() {
     initBasicReport(1);
 
-    reportReader.putCoverage(FILE_REF, newArrayList(BatchReport.Coverage.newBuilder()
+    reportReader.putCoverage(FILE_REF, newArrayList(ScannerReport.Coverage.newBuilder()
       .setLine(1)
       .setConditions(10)
       .setUtHits(true)
@@ -193,8 +193,8 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_highlighting() {
     initBasicReport(1);
 
-    reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(BatchReport.SyntaxHighlighting.newBuilder()
-      .setRange(BatchReport.TextRange.newBuilder()
+    reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(ScannerReport.SyntaxHighlighting.newBuilder()
+      .setRange(ScannerReport.TextRange.newBuilder()
         .setStartLine(1).setEndLine(1)
         .setStartOffset(2).setEndOffset(4)
         .build())
@@ -217,11 +217,11 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     initBasicReport(3);
 
     reportReader.putSymbols(FILE_REF, newArrayList(
-      BatchReport.Symbol.newBuilder()
-        .setDeclaration(BatchReport.TextRange.newBuilder()
+      ScannerReport.Symbol.newBuilder()
+        .setDeclaration(ScannerReport.TextRange.newBuilder()
           .setStartLine(1).setEndLine(1).setStartOffset(2).setEndOffset(4)
           .build())
-        .addReference(BatchReport.TextRange.newBuilder()
+        .addReference(ScannerReport.TextRange.newBuilder()
           .setStartLine(3).setEndLine(3).setStartOffset(1).setEndOffset(3)
           .build())
         .build()));
@@ -439,17 +439,17 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
         .build())
       .build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .addChildRef(2)
       .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .addChildRef(FILE_REF)
       .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(FILE_REF)
       .setType(Constants.ComponentType.FILE)
       .build());

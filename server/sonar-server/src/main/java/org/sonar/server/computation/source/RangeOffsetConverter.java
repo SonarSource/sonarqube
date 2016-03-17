@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.source;
 
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static java.lang.String.format;
 
@@ -28,7 +28,7 @@ public class RangeOffsetConverter {
   static final String OFFSET_SEPARATOR = ",";
   static final String SYMBOLS_SEPARATOR = ";";
 
-  public String offsetToString(BatchReport.TextRange range, int lineIndex, int lineLength) {
+  public String offsetToString(ScannerReport.TextRange range, int lineIndex, int lineLength) {
     StringBuilder element = new StringBuilder();
 
     validateOffsetOrder(range, lineIndex);
@@ -46,17 +46,17 @@ public class RangeOffsetConverter {
     return element.toString();
   }
 
-  private static void validateOffsetOrder(BatchReport.TextRange range, int line) {
+  private static void validateOffsetOrder(ScannerReport.TextRange range, int line) {
     checkExpression(range.getStartLine() != range.getEndLine() || range.getStartOffset() <= range.getEndOffset(),
       "End offset %s cannot be defined before start offset %s on line %s", range.getEndOffset(), range.getStartOffset(), line);
   }
 
-  private static void validateStartOffsetNotGreaterThanLineLength(BatchReport.TextRange range, int lineLength, int line) {
+  private static void validateStartOffsetNotGreaterThanLineLength(ScannerReport.TextRange range, int lineLength, int line) {
     checkExpression(range.getStartLine() != line || range.getStartOffset() <= lineLength,
       "Start offset %s is defined outside the length (%s) of the line %s", range.getStartOffset(), lineLength, line);
   }
 
-  private static void validateEndOffsetNotGreaterThanLineLength(BatchReport.TextRange range, int lineLength, int line) {
+  private static void validateEndOffsetNotGreaterThanLineLength(ScannerReport.TextRange range, int lineLength, int line) {
     checkExpression(range.getEndLine() != line || range.getEndOffset() <= lineLength,
       "End offset %s is defined outside the length (%s) of the line %s", range.getEndOffset(), lineLength, line);
   }

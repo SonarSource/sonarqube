@@ -29,12 +29,12 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
@@ -43,15 +43,15 @@ import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableTreeRootHolderRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.batch.protocol.Constants.ComponentType.DIRECTORY;
-import static org.sonar.batch.protocol.Constants.ComponentType.FILE;
-import static org.sonar.batch.protocol.Constants.ComponentType.MODULE;
-import static org.sonar.batch.protocol.Constants.ComponentType.PROJECT;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.scanner.protocol.Constants.ComponentType.DIRECTORY;
+import static org.sonar.scanner.protocol.Constants.ComponentType.FILE;
+import static org.sonar.scanner.protocol.Constants.ComponentType.MODULE;
+import static org.sonar.scanner.protocol.Constants.ComponentType.PROJECT;
 
 
 @RunWith(DataProviderRunner.class)
@@ -316,20 +316,20 @@ public class BuildComponentTreeStepTest {
     }
   }
 
-  private static BatchReport.Component component(int componentRef, Constants.ComponentType componentType, int... children) {
+  private static ScannerReport.Component component(int componentRef, Constants.ComponentType componentType, int... children) {
     return component(componentRef, componentType, null, null, children);
   }
 
-  private static BatchReport.Component componentWithKey(int componentRef, Constants.ComponentType componentType, String key, int... children) {
+  private static ScannerReport.Component componentWithKey(int componentRef, Constants.ComponentType componentType, String key, int... children) {
     return component(componentRef, componentType, key, null, children);
   }
 
-  private static BatchReport.Component componentWithPath(int componentRef, Constants.ComponentType componentType, String path, int... children) {
+  private static ScannerReport.Component componentWithPath(int componentRef, Constants.ComponentType componentType, String path, int... children) {
     return component(componentRef, componentType, null, path, children);
   }
 
-  private static BatchReport.Component component(int componentRef, Constants.ComponentType componentType, @Nullable String key, @Nullable String path, int... children) {
-    BatchReport.Component.Builder builder = BatchReport.Component.newBuilder()
+  private static ScannerReport.Component component(int componentRef, Constants.ComponentType componentType, @Nullable String key, @Nullable String path, int... children) {
+    ScannerReport.Component.Builder builder = ScannerReport.Component.newBuilder()
       .setType(componentType)
       .setRef(componentRef);
     if (key != null) {

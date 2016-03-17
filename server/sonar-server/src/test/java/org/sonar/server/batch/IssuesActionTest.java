@@ -32,11 +32,11 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
-import org.sonar.batch.protocol.Constants.Severity;
-import org.sonar.batch.protocol.input.BatchInput.ServerIssue;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
+import org.sonar.scanner.protocol.Constants.Severity;
+import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
@@ -53,7 +53,6 @@ import org.sonar.server.ws.WsTester;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-
 
 public class IssuesActionTest {
 
@@ -336,7 +335,7 @@ public class IssuesActionTest {
     issueAuthorizationIndexer.index(newArrayList(new IssueAuthorizationDao.Dto(projectUuid, 1).addGroup(group).addUser(user)));
   }
 
-  private void addBrowsePermissionOnComponent(String componentKey){
+  private void addBrowsePermissionOnComponent(String componentKey) {
     userSessionRule.addComponentPermission(UserRole.USER, PROJECT_KEY, componentKey);
   }
 }

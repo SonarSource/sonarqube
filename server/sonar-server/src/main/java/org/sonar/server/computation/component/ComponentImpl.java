@@ -26,8 +26,8 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -107,7 +107,7 @@ public class ComponentImpl implements Component {
     throw new IllegalStateException("Only component of type PROJECT_VIEW have a FileAttributes object");
   }
 
-  public static Builder builder(BatchReport.Component component) {
+  public static Builder builder(ScannerReport.Component component) {
     return new Builder(component);
   }
 
@@ -122,7 +122,7 @@ public class ComponentImpl implements Component {
     private FileAttributes fileAttributes;
     private final List<Component> children = new ArrayList<>();
 
-    private Builder(BatchReport.Component component) {
+    private Builder(ScannerReport.Component component) {
       checkNotNull(component);
       this.type = convertType(component.getType());
       this.name = checkNotNull(component.getName());
@@ -155,7 +155,7 @@ public class ComponentImpl implements Component {
       return new ComponentImpl(this);
     }
 
-    private static ReportAttributes createBatchAttributes(BatchReport.Component component) {
+    private static ReportAttributes createBatchAttributes(ScannerReport.Component component) {
       return ReportAttributes.newBuilder(component.getRef())
         .setVersion(component.hasVersion() ? component.getVersion() : null)
         .setPath(component.hasPath() ? component.getPath() : null)
@@ -163,7 +163,7 @@ public class ComponentImpl implements Component {
     }
 
     @CheckForNull
-    private static FileAttributes createFileAttributes(BatchReport.Component component) {
+    private static FileAttributes createFileAttributes(ScannerReport.Component component) {
       if (component.getType() != Constants.ComponentType.FILE) {
         return null;
       }

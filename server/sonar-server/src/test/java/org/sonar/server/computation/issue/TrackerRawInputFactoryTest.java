@@ -26,10 +26,10 @@ import org.junit.Test;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -87,7 +87,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void load_issues() throws Exception {
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
-    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setLine(2)
       .setMsg("the message")
       .setRuleRepository("java")
@@ -119,7 +119,7 @@ public class TrackerRawInputFactoryTest {
   @Test
   public void ignore_report_issues_on_common_rules() throws Exception {
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
-    BatchReport.Issue reportIssue = BatchReport.Issue.newBuilder()
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setMsg("the message")
       .setRuleRepository(CommonRuleKeys.commonRepositoryForLang("java"))
       .setRuleKey("S001")

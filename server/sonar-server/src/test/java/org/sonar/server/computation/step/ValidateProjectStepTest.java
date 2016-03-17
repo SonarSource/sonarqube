@@ -27,13 +27,13 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
@@ -77,7 +77,7 @@ public class ValidateProjectStepTest {
   @Test
   public void not_fail_on_valid_branch() {
     analysisMetadataHolder.setBranch(DEFAULT_BRANCH);
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -94,7 +94,7 @@ public class ValidateProjectStepTest {
       "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
 
     analysisMetadataHolder.setBranch("bran#ch");
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -113,13 +113,13 @@ public class ValidateProjectStepTest {
       "  o \"Project\\Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.\n" +
       "  o \"Module$Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit");
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(invalidProjectKey)
       .addChildRef(2)
       .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey("Module$Key")
@@ -139,13 +139,13 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey(MODULE_KEY)
@@ -169,13 +169,13 @@ public class ValidateProjectStepTest {
     thrown.expectMessage("Validation of project failed:\n" +
       "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey(MODULE_KEY)
@@ -204,13 +204,13 @@ public class ValidateProjectStepTest {
       "If you really want to stop directly analysing project \"" + anotherProjectKey + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
       + PROJECT_KEY + "\".");
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
       .setKey(MODULE_KEY)
@@ -231,7 +231,7 @@ public class ValidateProjectStepTest {
 
   @Test
   public void not_fail_if_analysis_date_is_after_last_analysis() {
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
@@ -257,7 +257,7 @@ public class ValidateProjectStepTest {
 
     analysisMetadataHolder.setAnalysisDate(DateUtils.parseDate("2015-01-01"));
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .setKey(PROJECT_KEY)

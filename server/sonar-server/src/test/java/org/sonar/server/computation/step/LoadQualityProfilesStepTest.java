@@ -25,8 +25,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.issue.DumbRule;
 import org.sonar.server.computation.issue.RuleRepositoryRule;
@@ -54,12 +54,12 @@ public class LoadQualityProfilesStepTest {
     ruleRepository.add(XOO_X1);
     ruleRepository.add(XOO_X2);
 
-    BatchReport.ActiveRule.Builder batch1 = BatchReport.ActiveRule.newBuilder()
+    ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X1.repository()).setRuleKey(XOO_X1.rule())
       .setSeverity(Constants.Severity.BLOCKER);
     batch1.addParamBuilder().setKey("p1").setValue("v1").build();
 
-    BatchReport.ActiveRule.Builder batch2 = BatchReport.ActiveRule.newBuilder()
+    ScannerReport.ActiveRule.Builder batch2 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X2.repository()).setRuleKey(XOO_X2.rule()).setSeverity(Constants.Severity.MAJOR);
     batchReportReader.putActiveRules(asList(batch1.build(), batch2.build()));
 
@@ -80,7 +80,7 @@ public class LoadQualityProfilesStepTest {
   public void ignore_rules_with_status_REMOVED() throws Exception {
     ruleRepository.add(new DumbRule(XOO_X1).setStatus(RuleStatus.REMOVED));
 
-    BatchReport.ActiveRule.Builder batch1 = BatchReport.ActiveRule.newBuilder()
+    ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X1.repository()).setRuleKey(XOO_X1.rule())
       .setSeverity(Constants.Severity.BLOCKER);
     batchReportReader.putActiveRules(asList(batch1.build()));
@@ -92,7 +92,7 @@ public class LoadQualityProfilesStepTest {
 
   @Test
   public void ignore_not_found_rules() throws Exception {
-    BatchReport.ActiveRule.Builder batch1 = BatchReport.ActiveRule.newBuilder()
+    ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X1.repository()).setRuleKey(XOO_X1.rule())
       .setSeverity(Constants.Severity.BLOCKER);
     batchReportReader.putActiveRules(asList(batch1.build()));

@@ -23,13 +23,13 @@ import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.batch.protocol.input.GlobalRepositories;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
+import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
@@ -82,7 +82,7 @@ public class GlobalAction implements BatchWsAction {
   private void addMetrics(GlobalRepositories ref, DbSession session) {
     for (MetricDto metric : dbClient.metricDao().selectEnabled(session)) {
       ref.addMetric(
-        new org.sonar.batch.protocol.input.Metric(metric.getId(), metric.getKey(),
+        new org.sonar.scanner.protocol.input.Metric(metric.getId(), metric.getKey(),
           metric.getValueType(),
           metric.getDescription(),
           metric.getDirection(),

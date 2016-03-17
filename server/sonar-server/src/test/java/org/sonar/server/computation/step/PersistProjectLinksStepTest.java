@@ -25,9 +25,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.Constants;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbTester;
+import org.sonar.scanner.protocol.Constants;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -79,20 +79,20 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       .build());
 
     // project and 1 module
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .addChildRef(2)
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar").build())
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM_DEV).setHref("scm:git:git@github.com:SonarSource/sonar.git/sonar").build())
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.ISSUE).setHref("http://jira.sonarsource.com/").build())
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.CI).setHref("http://bamboo.ci.codehaus.org/browse/SONAR").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM_DEV).setHref("scm:git:git@github.com:SonarSource/sonar.git/sonar").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.ISSUE).setHref("http://jira.sonarsource.com/").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.CI).setHref("http://bamboo.ci.codehaus.org/browse/SONAR").build())
       .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.MODULE)
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar/server").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.SCM).setHref("https://github.com/SonarSource/sonar/server").build())
       .build());
 
     step.execute();
@@ -106,10 +106,10 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
     step.execute();
@@ -125,15 +125,15 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
       ReportComponent.builder(Component.Type.FILE, 2).setUuid("BCDE").build())
       .build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .addChildRef(2)
       .build());
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
       .setType(Constants.ComponentType.FILE)
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
     step.execute();
@@ -147,10 +147,10 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
     step.execute();
@@ -164,7 +164,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .build());
@@ -180,7 +180,7 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
       .build());
@@ -196,11 +196,11 @@ public class PersistProjectLinksStepTest extends BaseStepTest {
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
 
-    reportReader.putComponent(BatchReport.Component.newBuilder()
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(Constants.ComponentType.PROJECT)
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
-      .addLink(BatchReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
+      .addLink(ScannerReport.ComponentLink.newBuilder().setType(Constants.ComponentLinkType.HOME).setHref("http://www.sonarqube.org").build())
       .build());
 
     try {

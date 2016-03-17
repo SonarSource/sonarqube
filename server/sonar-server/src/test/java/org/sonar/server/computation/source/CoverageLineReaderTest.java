@@ -21,8 +21,8 @@ package org.sonar.server.computation.source;
 
 import java.util.Collections;
 import org.junit.Test;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -31,7 +31,7 @@ public class CoverageLineReaderTest {
 
   @Test
   public void set_coverage() {
-    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.Coverage.newBuilder()
       .setLine(1)
       .setConditions(10)
       .setUtHits(true)
@@ -55,7 +55,7 @@ public class CoverageLineReaderTest {
 
   @Test
   public void set_coverage_on_uncovered_lines() {
-    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.Coverage.newBuilder()
       .setLine(1)
       .setUtHits(false)
       .setItHits(false)
@@ -74,7 +74,7 @@ public class CoverageLineReaderTest {
 
   @Test
   public void set_coverage_without_line_hits() {
-    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.Coverage.newBuilder()
       .setLine(1)
       .build()).iterator());
 
@@ -88,7 +88,7 @@ public class CoverageLineReaderTest {
 
   @Test
   public void set_overall_line_hits_with_only_ut() {
-    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.Coverage.newBuilder()
       .setLine(1)
       .setUtHits(true)
       .setItHits(false)
@@ -102,7 +102,7 @@ public class CoverageLineReaderTest {
 
   @Test
   public void set_overall_line_hits_with_only_it() {
-    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.Coverage.newBuilder()
       .setLine(1)
       .setUtHits(false)
       .setItHits(true)
@@ -116,7 +116,7 @@ public class CoverageLineReaderTest {
 
   @Test
   public void set_overall_line_hits_with_ut_and_it() {
-    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(BatchReport.Coverage.newBuilder()
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.Coverage.newBuilder()
       .setLine(1)
       .setUtHits(true)
       .setItHits(true)
@@ -130,7 +130,7 @@ public class CoverageLineReaderTest {
 
   @Test
   public void nothing_to_do_when_no_coverage_info() {
-    CoverageLineReader computeCoverageLine = new CoverageLineReader(Collections.<BatchReport.Coverage>emptyList().iterator());
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(Collections.<ScannerReport.Coverage>emptyList().iterator());
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
     computeCoverageLine.read(lineBuilder);
@@ -147,7 +147,7 @@ public class CoverageLineReaderTest {
   @Test
   public void nothing_to_do_when_no_coverage_info_for_current_line() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(
-      BatchReport.Coverage.newBuilder()
+      ScannerReport.Coverage.newBuilder()
         .setLine(1)
         .setConditions(10)
         .setUtHits(true)
@@ -174,7 +174,7 @@ public class CoverageLineReaderTest {
   @Test
   public void nothing_to_do_when_no_coverage_info_for_next_line() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(
-      BatchReport.Coverage.newBuilder()
+      ScannerReport.Coverage.newBuilder()
         .setLine(1)
         .setConditions(10)
         .setUtHits(true)

@@ -73,7 +73,7 @@
       <outputDirectory>lib/batch</outputDirectory>
       <useTransitiveDependencies>false</useTransitiveDependencies>
       <includes>
-        <include>org.sonarsource.sonarqube:sonar-batch-shaded</include>
+        <include>org.sonarsource.sonarqube:sonar-scanner-engine-shaded</include>
       </includes>
       <scope>provided</scope>
     </dependencySet>

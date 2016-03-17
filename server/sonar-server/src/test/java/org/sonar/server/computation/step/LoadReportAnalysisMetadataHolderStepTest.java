@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.queue.CeTask;
@@ -138,7 +138,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   public void execute_fails_with_MessageException_if_projectKey_is_null_in_CE_task() {
     CeTask res = mock(CeTask.class);
     when(res.getComponentUuid()).thenReturn("prj_uuid");
-    reportReader.setMetadata(BatchReport.Metadata.newBuilder().build());
+    reportReader.setMetadata(ScannerReport.Metadata.newBuilder().build());
 
     ComputationStep underTest = new LoadReportAnalysisMetadataHolderStep(res, reportReader, analysisMetadataHolder);
 
@@ -151,7 +151,7 @@ public class LoadReportAnalysisMetadataHolderStepTest {
   @Test
   public void execute_fails_with_MessageException_when_projectKey_in_report_is_different_from_componentKey_in_CE_task() {
     reportReader.setMetadata(
-      BatchReport.Metadata.newBuilder()
+      ScannerReport.Metadata.newBuilder()
         .setProjectKey("some other key")
         .build());
 
@@ -161,8 +161,8 @@ public class LoadReportAnalysisMetadataHolderStepTest {
     underTest.execute();
   }
 
-  private static BatchReport.Metadata.Builder newBatchReportBuilder() {
-    return BatchReport.Metadata.newBuilder()
+  private static ScannerReport.Metadata.Builder newBatchReportBuilder() {
+    return ScannerReport.Metadata.newBuilder()
       .setProjectKey(PROJECT_KEY);
   }
 

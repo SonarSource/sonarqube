@@ -24,10 +24,10 @@ import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
@@ -81,7 +81,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   }
 
   private ScmInfo getScmInfoForComponent(Component component) {
-    BatchReport.Changesets changesets = batchReportReader.readChangesets(component.getReportAttributes().getRef());
+    ScannerReport.Changesets changesets = batchReportReader.readChangesets(component.getReportAttributes().getRef());
     if (changesets == null) {
       return getScmInfoFromDb(component);
     }
@@ -106,7 +106,7 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
     }
   }
 
-  private static ScmInfo getScmInfoFromReport(Component file, BatchReport.Changesets changesets) {
+  private static ScmInfo getScmInfoFromReport(Component file, ScannerReport.Changesets changesets) {
     LOGGER.trace("Reading SCM info from report for file '{}'", file.getKey());
     return new ReportScmInfo(changesets);
   }

@@ -21,7 +21,7 @@ package org.sonar.server.computation.component;
 
 public interface TreeRootHolder {
   /**
-   * The root of the tree of Component representing the component in the current BatchReport.
+   * The root of the tree of Component representing the component in the current ScannerReport.
    *
    * @throws IllegalStateException if the holder is empty (ie. there is no root yet)
    */

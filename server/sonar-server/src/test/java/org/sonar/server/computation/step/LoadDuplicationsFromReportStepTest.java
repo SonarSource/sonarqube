@@ -23,7 +23,7 @@ import java.util.Arrays;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -200,30 +200,30 @@ public class LoadDuplicationsFromReportStepTest {
     return new DetailedTextBlock(id, line, line);
   }
 
-  private static BatchReport.Duplication createDuplication(BatchReport.TextRange original, BatchReport.Duplicate... duplicates) {
-    BatchReport.Duplication.Builder builder = BatchReport.Duplication.newBuilder()
+  private static ScannerReport.Duplication createDuplication(ScannerReport.TextRange original, ScannerReport.Duplicate... duplicates) {
+    ScannerReport.Duplication.Builder builder = ScannerReport.Duplication.newBuilder()
       .setOriginPosition(original);
-    for (BatchReport.Duplicate duplicate : duplicates) {
+    for (ScannerReport.Duplicate duplicate : duplicates) {
       builder.addDuplicate(duplicate);
     }
     return builder.build();
   }
 
-  private static BatchReport.Duplicate createInnerDuplicate(int line) {
-    return BatchReport.Duplicate.newBuilder()
+  private static ScannerReport.Duplicate createInnerDuplicate(int line) {
+    return ScannerReport.Duplicate.newBuilder()
       .setRange(singleLineTextRange(line))
       .build();
   }
 
-  private static BatchReport.Duplicate createInProjectDuplicate(int componentRef, int line) {
-    return BatchReport.Duplicate.newBuilder()
+  private static ScannerReport.Duplicate createInProjectDuplicate(int componentRef, int line) {
+    return ScannerReport.Duplicate.newBuilder()
       .setOtherFileRef(componentRef)
       .setRange(singleLineTextRange(line))
       .build();
   }
 
-  private static BatchReport.TextRange singleLineTextRange(int line) {
-    return BatchReport.TextRange.newBuilder()
+  private static ScannerReport.TextRange singleLineTextRange(int line) {
+    return ScannerReport.TextRange.newBuilder()
       .setStartLine(line)
       .setEndLine(line)
       .build();

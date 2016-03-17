@@ -25,8 +25,8 @@ import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.batch.protocol.input.FileData;
-import org.sonar.batch.protocol.input.ProjectRepositories;
+import org.sonar.scanner.protocol.input.FileData;
+import org.sonar.scanner.protocol.input.ProjectRepositories;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.FileData.Builder;
 

@@ -37,12 +37,12 @@ import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
@@ -354,7 +354,7 @@ public class MeasureRepositoryImplTest {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
 
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
-      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(value).build()
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(value).build()
       ));
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
@@ -373,8 +373,8 @@ public class MeasureRepositoryImplTest {
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(false);
 
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
-      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("value1").build(),
-      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("value2").build()
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("value1").build(),
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("value2").build()
       ));
 
     assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1)).isPresent();
@@ -385,7 +385,7 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasure_retrieves_added_measure_over_batch_measure() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
-      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
       ));
 
     Measure addedMeasure = SOME_MEASURE;
@@ -401,7 +401,7 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasure_retrieves_measure_from_batch_and_caches_it_locally_so_that_it_can_be_updated() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
-      BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
       ));
 
     Optional<Measure> measure = underTest.getRawMeasure(FILE_COMPONENT, metric1);
@@ -441,8 +441,8 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasures_returns_added_measures_over_batch_measures() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(true);
-    BatchReport.Measure batchMeasure1 = BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build();
-    BatchReport.Measure batchMeasure2 = BatchReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("some value").build();
+    ScannerReport.Measure batchMeasure1 = ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build();
+    ScannerReport.Measure batchMeasure2 = ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("some value").build();
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(batchMeasure1, batchMeasure2));
 
     Measure addedMeasure = SOME_MEASURE;

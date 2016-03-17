@@ -56,7 +56,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-batch-shaded</artifactId>
+      <artifactId>sonar-scanner-engine-shaded</artifactId>
       <version>${project.version}</version>
       <scope>provided</scope>
     </dependency>

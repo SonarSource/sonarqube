@@ -26,7 +26,7 @@ import java.util.Map;
 import java.util.NoSuchElementException;
 import javax.annotation.Nonnull;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -40,12 +40,12 @@ import static java.util.Objects.requireNonNull;
 class ReportScmInfo implements ScmInfo {
   private final ScmInfo delegate;
 
-  ReportScmInfo(BatchReport.Changesets changesets) {
+  ReportScmInfo(ScannerReport.Changesets changesets) {
     requireNonNull(changesets);
     this.delegate = convertToScmInfo(changesets);
   }
 
-  private static ScmInfo convertToScmInfo(BatchReport.Changesets changesets) {
+  private static ScmInfo convertToScmInfo(ScannerReport.Changesets changesets) {
     return new ScmInfoImpl(
       from(new IntRangeIterable(changesets.getChangesetIndexByLineCount()))
         .transform(new LineIndexToChangeset(changesets)));
@@ -72,11 +72,11 @@ class ReportScmInfo implements ScmInfo {
   }
 
   private static class LineIndexToChangeset implements Function<Integer, Changeset> {
-    private final BatchReport.Changesets changesets;
+    private final ScannerReport.Changesets changesets;
     private final Map<Integer, Changeset> changesetCache;
     private final Changeset.Builder builder = Changeset.newChangesetBuilder();
 
-    public LineIndexToChangeset(BatchReport.Changesets changesets) {
+    public LineIndexToChangeset(ScannerReport.Changesets changesets) {
       this.changesets = changesets;
       changesetCache = new HashMap<>(changesets.getChangesetCount());
     }
@@ -94,7 +94,7 @@ class ReportScmInfo implements ScmInfo {
       return res;
     }
 
-    private Changeset convert(BatchReport.Changesets.Changeset changeset, int line) {
+    private Changeset convert(ScannerReport.Changesets.Changeset changeset, int line) {
       checkState(changeset.hasRevision(), "Changeset on line %s must have a revision", line);
       checkState(changeset.hasDate(), "Changeset on line %s must have a date", line);
       return builder

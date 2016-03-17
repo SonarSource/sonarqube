@@ -21,8 +21,8 @@ package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
 import javax.annotation.Nonnull;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
@@ -66,7 +66,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
       new TypeAwareVisitorAdapter(CrawlerDepthLimit.FILE, POST_ORDER) {
         @Override
         public void visitFile(Component file) {
-          CloseableIterator<BatchReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef());
+          CloseableIterator<ScannerReport.Duplication> duplications = batchReportReader.readComponentDuplications(file.getReportAttributes().getRef());
           try {
             int idGenerator = 1;
             while (duplications.hasNext()) {
@@ -80,7 +80,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
       }).visit(treeRootHolder.getRoot());
   }
 
-  private void loadDuplications(Component file, BatchReport.Duplication duplication, int id) {
+  private void loadDuplications(Component file, ScannerReport.Duplication duplication, int id) {
     duplicationRepository.add(file,
       new Duplication(
         convert(duplication.getOriginPosition(), id),
@@ -89,15 +89,15 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
       ));
   }
 
-  private static TextBlock convert(BatchReport.TextRange textRange) {
+  private static TextBlock convert(ScannerReport.TextRange textRange) {
     return new TextBlock(textRange.getStartLine(), textRange.getEndLine());
   }
 
-  private static DetailedTextBlock convert(BatchReport.TextRange textRange, int id) {
+  private static DetailedTextBlock convert(ScannerReport.TextRange textRange, int id) {
     return new DetailedTextBlock(id, textRange.getStartLine(), textRange.getEndLine());
   }
 
-  private class BatchDuplicateToCeDuplicate implements Function<BatchReport.Duplicate, Duplicate> {
+  private class BatchDuplicateToCeDuplicate implements Function<ScannerReport.Duplicate, Duplicate> {
     private final Component file;
 
     private BatchDuplicateToCeDuplicate(Component file) {
@@ -106,7 +106,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
 
     @Override
     @Nonnull
-    public Duplicate apply(@Nonnull BatchReport.Duplicate input) {
+    public Duplicate apply(@Nonnull ScannerReport.Duplicate input) {
       if (input.hasOtherFileRef()) {
         checkArgument(input.getOtherFileRef() != file.getReportAttributes().getRef(), "file and otherFile references can not be the same");
         return new InProjectDuplicate(

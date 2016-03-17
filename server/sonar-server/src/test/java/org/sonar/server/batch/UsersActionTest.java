@@ -29,7 +29,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.batch.protocol.input.BatchInput.User;
+import org.sonar.scanner.protocol.input.ScannerInput.User;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.tester.UserSessionRule;

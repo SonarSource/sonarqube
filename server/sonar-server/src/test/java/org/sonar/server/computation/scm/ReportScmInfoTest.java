@@ -22,7 +22,7 @@ package org.sonar.server.computation.scm;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.batch.protocol.output.BatchReport;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -35,14 +35,14 @@ public class ReportScmInfoTest {
 
   @Test
   public void create_scm_info_with_some_changesets() throws Exception {
-    ScmInfo scmInfo = new ReportScmInfo(BatchReport.Changesets.newBuilder()
+    ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
         .setDate(123456789L)
         .setRevision("rev-1")
         .build())
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("henry")
         .setDate(1234567810L)
         .setRevision("rev-2")
@@ -58,14 +58,14 @@ public class ReportScmInfoTest {
 
   @Test
   public void return_changeset_for_a_given_line() throws Exception {
-    ScmInfo scmInfo = new ReportScmInfo(BatchReport.Changesets.newBuilder()
+    ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
         .setDate(123456789L)
         .setRevision("rev-1")
         .build())
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("henry")
         .setDate(1234567810L)
         .setRevision("rev-2")
@@ -86,15 +86,15 @@ public class ReportScmInfoTest {
 
   @Test
   public void return_latest_changeset() throws Exception {
-    ScmInfo scmInfo = new ReportScmInfo(BatchReport.Changesets.newBuilder()
+    ScmInfo scmInfo = new ReportScmInfo(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
         .setDate(123456789L)
         .setRevision("rev-1")
         .build())
       // Older changeset
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("henry")
         .setDate(1234567810L)
         .setRevision("rev-2")
@@ -114,7 +114,7 @@ public class ReportScmInfoTest {
   public void fail_with_ISE_when_no_changeset() throws Exception {
     thrown.expect(IllegalStateException.class);
 
-    new ReportScmInfo(BatchReport.Changesets.newBuilder().build());
+    new ReportScmInfo(ScannerReport.Changesets.newBuilder().build());
   }
 
   @Test
@@ -129,9 +129,9 @@ public class ReportScmInfoTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Changeset on line 1 must have a revision");
 
-    new ReportScmInfo(BatchReport.Changesets.newBuilder()
+    new ReportScmInfo(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
         .setDate(123456789L)
         .build())
@@ -144,9 +144,9 @@ public class ReportScmInfoTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Changeset on line 1 must have a date");
 
-    new ReportScmInfo(BatchReport.Changesets.newBuilder()
+    new ReportScmInfo(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
-      .addChangeset(BatchReport.Changesets.Changeset.newBuilder()
+      .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor("john")
         .setRevision("rev-1")
         .build())

@@ -25,7 +25,6 @@ import java.util.List;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -33,6 +32,7 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
@@ -86,11 +86,11 @@ public class TrackerRawInputFactory {
       for (DefaultIssue commonRuleIssue : commonRuleEngine.process(component)) {
         result.add(init(commonRuleIssue));
       }
-      try (CloseableIterator<BatchReport.Issue> reportIssues = reportReader.readComponentIssues(component.getReportAttributes().getRef())) {
+      try (CloseableIterator<ScannerReport.Issue> reportIssues = reportReader.readComponentIssues(component.getReportAttributes().getRef())) {
         // optimization - do not load line hashes if there are no issues -> getLineHashSequence() is executed
         // as late as possible
         while (reportIssues.hasNext()) {
-          BatchReport.Issue reportIssue = reportIssues.next();
+          ScannerReport.Issue reportIssue = reportIssues.next();
           if (isIssueOnUnsupportedCommonRule(reportIssue)) {
             DefaultIssue issue = toIssue(getLineHashSequence(), reportIssue);
             result.add(issue);
@@ -103,13 +103,13 @@ public class TrackerRawInputFactory {
       return result;
     }
 
-    private boolean isIssueOnUnsupportedCommonRule(BatchReport.Issue issue) {
+    private boolean isIssueOnUnsupportedCommonRule(ScannerReport.Issue issue) {
       // issues on batch common rules are ignored. This feature
       // is natively supported by compute engine since 5.2.
       return !issue.getRuleRepository().startsWith(CommonRuleKeys.REPOSITORY_PREFIX);
     }
 
-    private DefaultIssue toIssue(LineHashSequence lineHashSeq, BatchReport.Issue reportIssue) {
+    private DefaultIssue toIssue(LineHashSequence lineHashSeq, ScannerReport.Issue reportIssue) {
       DefaultIssue issue = new DefaultIssue();
       init(issue);
       issue.setRuleKey(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
@@ -132,10 +132,10 @@ public class TrackerRawInputFactory {
       if (reportIssue.hasTextRange()) {
         dbLocationsBuilder.setTextRange(convertTextRange(reportIssue.getTextRange()));
       }
-      for (BatchReport.Flow flow : reportIssue.getFlowList()) {
+      for (ScannerReport.Flow flow : reportIssue.getFlowList()) {
         if (flow.getLocationCount() > 0) {
           DbIssues.Flow.Builder dbFlowBuilder = DbIssues.Flow.newBuilder();
-          for (BatchReport.IssueLocation location : flow.getLocationList()) {
+          for (ScannerReport.IssueLocation location : flow.getLocationList()) {
             dbFlowBuilder.addLocation(convertLocation(location));
           }
           dbLocationsBuilder.addFlow(dbFlowBuilder);
@@ -155,7 +155,7 @@ public class TrackerRawInputFactory {
       return issue;
     }
 
-    private DbIssues.Location convertLocation(BatchReport.IssueLocation source) {
+    private DbIssues.Location convertLocation(ScannerReport.IssueLocation source) {
       DbIssues.Location.Builder target = DbIssues.Location.newBuilder();
       if (source.hasComponentRef() && source.getComponentRef() != component.getReportAttributes().getRef()) {
         target.setComponentId(treeRootHolder.getComponentByRef(source.getComponentRef()).getUuid());
@@ -164,14 +164,14 @@ public class TrackerRawInputFactory {
         target.setMsg(source.getMsg());
       }
       if (source.hasTextRange()) {
-        BatchReport.TextRange sourceRange = source.getTextRange();
+        ScannerReport.TextRange sourceRange = source.getTextRange();
         DbCommons.TextRange.Builder targetRange = convertTextRange(sourceRange);
         target.setTextRange(targetRange);
       }
       return target.build();
     }
 
-    private DbCommons.TextRange.Builder convertTextRange(BatchReport.TextRange sourceRange) {
+    private DbCommons.TextRange.Builder convertTextRange(ScannerReport.TextRange sourceRange) {
       DbCommons.TextRange.Builder targetRange = DbCommons.TextRange.newBuilder();
       if (sourceRange.hasStartLine()) {
         targetRange.setStartLine(sourceRange.getStartLine());

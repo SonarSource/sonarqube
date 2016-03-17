@@ -1,0 +1,213 @@
+// SonarQube, open source software quality management tool.
+// Copyright (C) 2008-2015 SonarSource
+// mailto:contact AT sonarsource DOT com
+//
+// SonarQube is free software; you can redistribute it and/or
+// modify it under the terms of the GNU Lesser General Public
+// License as published by the Free Software Foundation; either
+// version 3 of the License, or (at your option) any later version.
+//
+// SonarQube is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+// Lesser General Public License for more details.
+//
+// You should have received a copy of the GNU Lesser General Public License
+// along with this program; if not, write to the Free Software Foundation,
+// Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
+/*
+Notes
+
+  - "required" fields are not used as recommended by Google to keep forward-compatibility:
+    https://developers.google.com/protocol-buffers/docs/proto#simple
+
+  - this is beta version of specification. It will evolve during next releases and is
+    not forward-compatible yet.
+*/
+
+syntax = "proto2";
+
+import "constants.proto";
+
+option java_package = "org.sonar.scanner.protocol.output";
+
+option optimize_for = SPEED;
+
+message Metadata {
+  optional int64 analysis_date = 1;
+  // TODO should we keep this project_key here or not ? Because it's a duplication of Component.key
+  optional string project_key = 2;
+  optional string branch = 3;
+  optional int32 root_component_ref = 4;
+  optional bool cross_project_duplication_activated = 5;
+}
+
+message ActiveRule {
+  optional string rule_repository = 1;
+  optional string rule_key = 2;
+  optional Severity severity = 3;
+  repeated ActiveRuleParam param = 4;
+
+  // TODO replace by map
+  message ActiveRuleParam {
+    optional string key = 1;
+    optional string value = 2;
+  }
+}
+
+message ComponentLink {
+  optional ComponentLinkType type = 1;
+  optional string href = 2;
+}
+
+message Component {
+  optional int32 ref = 1;
+  optional string path = 2;
+  optional string name = 3;
+  optional ComponentType type = 4;
+  optional bool is_test = 5;
+  optional string language = 6;
+  repeated int32 child_ref = 7 [packed = true];
+  repeated ComponentLink link = 8;
+  // Only available on PROJECT and MODULE types
+  optional string version = 9;
+  // Only available on PROJECT and MODULE types
+  // TODO rename this property -> batchKey ? moduleKey ?
+  optional string key = 10;
+  // Only available on FILE type
+  optional int32 lines = 11;
+  // Only available on PROJECT and MODULE types
+  optional string description = 12;
+}
+
+message Measure {
+  optional MeasureValueType value_type = 1;
+  // all values may be unset for "new_xxx" measures (only variations are populated)
+  optional bool boolean_value = 2;
+  optional int32 int_value = 3;
+  optional int64 long_value = 4;
+  optional double double_value = 5;
+  optional string string_value = 6;
+  optional string metric_key = 7;
+}
+
+message Issue {
+  optional string rule_repository = 1;
+  optional string rule_key = 2;
+  // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
+  //TODO To be removed. Use first line of text_range instead
+  optional int32 line = 3;
+  optional string msg = 4;
+  optional Severity severity = 5;
+  optional double gap = 6;
+  // Only when issue component is a file. Can also be empty for a file if this is an issue global to the file.
+  optional TextRange text_range = 7;
+  repeated Flow flow = 8;
+}
+
+message IssueLocation {
+  optional int32 component_ref = 1;
+  // Only when component is a file. Can be empty for a file if this is an issue global to the file.
+  optional TextRange text_range = 2;
+  optional string msg = 3;
+}
+
+message Flow {
+  repeated IssueLocation location = 1;
+}
+
+message Changesets {
+  optional int32 component_ref = 1;
+  repeated Changeset changeset = 2;
+  // if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
+  repeated int32 changesetIndexByLine = 3 [packed = true];
+
+  message Changeset {
+    optional string revision = 1;
+    optional string author = 2;
+    optional int64 date = 3;
+  }
+}
+
+message Duplicate {
+  // Will be null when duplicate is in the same file
+  optional int32 other_file_ref = 1;
+  optional TextRange range = 2;
+}
+
+message Duplication {
+  // Origin position in current file
+  optional TextRange origin_position = 1;
+  repeated Duplicate duplicate = 2;
+}
+
+// Used for cross project duplication
+message CpdTextBlock {
+  optional string hash = 1;
+  optional int32 start_line = 2;
+  optional int32 end_line = 3;
+  optional int32 start_token_index = 4;
+  optional int32 end_token_index = 5;
+}
+
+// Lines start at 1 and line offsets start at 0
+message TextRange {
+  // Should never be null
+  optional int32 start_line = 1;
+  // End line (inclusive)
+  optional int32 end_line = 2;
+  // If null it means range starts at the first offset of start line
+  optional int32 start_offset = 3;
+  // If null it means range ends at the last offset of end line
+  optional int32 end_offset = 4;
+}
+
+message Symbol {
+  optional TextRange declaration = 1;
+  repeated TextRange reference = 2;
+}
+
+// Only FILE component has coverage information, and only executable lines should contains this information.
+// TODO rename it LineCoverage ?
+message Coverage {
+  optional int32 line = 1;
+
+  // Number of conditions to cover (if set, the value must be greater than 0)
+  optional int32 conditions = 2;
+  // Is the line has been touched by a unit test ? Returning false means that no test has touched this executable line.
+  optional bool ut_hits = 3;
+  // Is the line has been touched by a integration test ? Returning false means that no test has touched this executable line.
+  optional bool it_hits = 4;
+  // Number of conditions covered by unit tests
+  optional int32 ut_covered_conditions = 5;
+  // Number of conditions covered by integration tests
+  optional int32 it_covered_conditions = 6;
+  // Number of conditions covered by overall tests
+  optional int32 overall_covered_conditions = 7;
+}
+
+// Must be sorted by line and start offset
+// TODO rename it SyntaxHighlightingRule ?
+message SyntaxHighlighting {
+  optional TextRange range = 1;
+  optional HighlightingType type = 2;
+}
+
+message Test {
+  optional string name = 1;
+  optional TestStatus status = 2;
+  optional int64 duration_in_ms = 3;
+  optional string stacktrace = 4;
+  optional string msg = 5;
+}
+
+message CoverageDetail {
+  optional string test_name = 1;
+  repeated CoveredFile covered_file = 2;
+
+  message CoveredFile {
+    optional int32 file_ref = 1;
+    repeated int32 covered_line = 2 [packed = true];
+  }
+}

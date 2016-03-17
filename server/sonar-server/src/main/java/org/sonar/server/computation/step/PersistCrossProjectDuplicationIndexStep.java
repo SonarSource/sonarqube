@@ -19,11 +19,11 @@
  */
 package org.sonar.server.computation.step;
 
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.duplication.DuplicationUnitDto;
+import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
@@ -88,10 +88,10 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
     private void visitComponent(Component component) {
       int indexInFile = 0;
-      CloseableIterator<BatchReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef());
+      CloseableIterator<ScannerReport.CpdTextBlock> blocks = reportReader.readCpdTextBlocks(component.getReportAttributes().getRef());
       try {
         while (blocks.hasNext()) {
-          BatchReport.CpdTextBlock block = blocks.next();
+          ScannerReport.CpdTextBlock block = blocks.next();
           dbClient.duplicationDao().insert(
             session,
             new DuplicationUnitDto()

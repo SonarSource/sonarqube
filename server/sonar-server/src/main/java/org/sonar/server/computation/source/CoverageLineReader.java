@@ -21,21 +21,21 @@ package org.sonar.server.computation.source;
 
 import java.util.Iterator;
 import javax.annotation.CheckForNull;
-import org.sonar.batch.protocol.output.BatchReport;
 import org.sonar.db.protobuf.DbFileSources;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class CoverageLineReader implements LineReader {
 
-  private final Iterator<BatchReport.Coverage> coverageIterator;
-  private BatchReport.Coverage coverage;
+  private final Iterator<ScannerReport.Coverage> coverageIterator;
+  private ScannerReport.Coverage coverage;
 
-  public CoverageLineReader(Iterator<BatchReport.Coverage> coverageIterator) {
+  public CoverageLineReader(Iterator<ScannerReport.Coverage> coverageIterator) {
     this.coverageIterator = coverageIterator;
   }
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
-    BatchReport.Coverage reportCoverage = getNextLineCoverageIfMatchLine(lineBuilder.getLine());
+    ScannerReport.Coverage reportCoverage = getNextLineCoverageIfMatchLine(lineBuilder.getLine());
     if (reportCoverage != null) {
       processUnitTest(lineBuilder, reportCoverage);
       processIntegrationTest(lineBuilder, reportCoverage);
@@ -44,7 +44,7 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static void processUnitTest(DbFileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage) {
+  private static void processUnitTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.Coverage reportCoverage) {
     if (reportCoverage.hasUtHits()) {
       lineBuilder.setUtLineHits(reportCoverage.getUtHits() ? 1 : 0);
     }
@@ -54,7 +54,7 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static void processIntegrationTest(DbFileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage) {
+  private static void processIntegrationTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.Coverage reportCoverage) {
     if (reportCoverage.hasItHits()) {
       lineBuilder.setItLineHits(reportCoverage.getItHits() ? 1 : 0);
     }
@@ -64,7 +64,7 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static void processOverallTest(DbFileSources.Line.Builder lineBuilder, BatchReport.Coverage reportCoverage) {
+  private static void processOverallTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.Coverage reportCoverage) {
     if (reportCoverage.hasUtHits() || reportCoverage.hasItHits()) {
       lineBuilder.setOverallLineHits((reportCoverage.getUtHits() || reportCoverage.getItHits()) ? 1 : 0);
     }
@@ -75,7 +75,7 @@ public class CoverageLineReader implements LineReader {
   }
 
   @CheckForNull
-  private BatchReport.Coverage getNextLineCoverageIfMatchLine(int line) {
+  private ScannerReport.Coverage getNextLineCoverageIfMatchLine(int line) {
     // Get next element (if exists)
     if (coverage == null && coverageIterator.hasNext()) {
       coverage = coverageIterator.next();
