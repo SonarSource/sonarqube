@@ -38,7 +38,7 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.QualityGateStatus;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.notification.NotificationService;
 
 /**
  * This step must be executed after computation of quality gate measure {@link QualityGateMeasuresStep}
@@ -50,16 +50,16 @@ public class QualityGateEventsStep implements ComputationStep {
   private final MetricRepository metricRepository;
   private final MeasureRepository measureRepository;
   private final EventRepository eventRepository;
-  private final NotificationManager notificationManager;
+  private final NotificationService notificationService;
 
   public QualityGateEventsStep(TreeRootHolder treeRootHolder,
     MetricRepository metricRepository, MeasureRepository measureRepository, EventRepository eventRepository,
-    NotificationManager notificationManager) {
+    NotificationService notificationService) {
     this.treeRootHolder = treeRootHolder;
     this.metricRepository = metricRepository;
     this.measureRepository = measureRepository;
     this.eventRepository = eventRepository;
-    this.notificationManager = notificationManager;
+    this.notificationService = notificationService;
   }
 
   @Override
@@ -128,7 +128,7 @@ public class QualityGateEventsStep implements ComputationStep {
       .setFieldValue("alertText", rawStatus.getText())
       .setFieldValue("alertLevel", rawStatus.getStatus().toString())
       .setFieldValue("isNewAlert", Boolean.toString(isNewAlert));
-    notificationManager.scheduleForSending(notification);
+    notificationService.deliver(notification);
   }
 
   private void createEvent(Component project, String name, @Nullable String description) {

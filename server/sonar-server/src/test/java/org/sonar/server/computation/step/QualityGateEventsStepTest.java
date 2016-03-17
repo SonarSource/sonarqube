@@ -35,7 +35,7 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.measure.QualityGateStatus;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
-import org.sonar.server.notification.NotificationManager;
+import org.sonar.server.notification.NotificationService;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.eq;
@@ -70,8 +70,8 @@ public class QualityGateEventsStepTest {
   private MetricRepository metricRepository = mock(MetricRepository.class);
   private MeasureRepository measureRepository = mock(MeasureRepository.class);
   private EventRepository eventRepository = mock(EventRepository.class);
-  private NotificationManager notificationManager = mock(NotificationManager.class);
-  private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationManager);
+  private NotificationService notificationService = mock(NotificationService.class);
+  private QualityGateEventsStep underTest = new QualityGateEventsStep(treeRootHolder, metricRepository, measureRepository, eventRepository, notificationService);
 
   @Before
   public void setUp() {
@@ -176,7 +176,7 @@ public class QualityGateEventsStepTest {
     assertThat(event.getDescription()).isEqualTo(ALERT_TEXT);
     assertThat(event.getData()).isNull();
 
-    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
     assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
@@ -227,7 +227,7 @@ public class QualityGateEventsStepTest {
     assertThat(event.getDescription()).isEqualTo(ALERT_TEXT);
     assertThat(event.getData()).isNull();
 
-    verify(notificationManager).scheduleForSending(notificationArgumentCaptor.capture());
+    verify(notificationService).deliver(notificationArgumentCaptor.capture());
     Notification notification = notificationArgumentCaptor.getValue();
     assertThat(notification.getType()).isEqualTo("alerts");
     assertThat(notification.getFieldValue("projectKey")).isEqualTo(PROJECT_COMPONENT.getKey());
@@ -236,7 +236,7 @@ public class QualityGateEventsStepTest {
     assertThat(notification.getFieldValue("alertLevel")).isEqualTo(newQualityGateStatus.getStatus().name());
     assertThat(notification.getFieldValue("alertName")).isEqualTo(expectedLabel);
 
-    reset(measureRepository, eventRepository, notificationManager);
+    reset(measureRepository, eventRepository, notificationService);
   }
 
 }
