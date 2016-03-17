@@ -76,9 +76,11 @@ public class NotificationService implements Startable {
 
   private ScheduledExecutorService executorService;
   private boolean stopping = false;
+  private final boolean disabled;
 
   public NotificationService(Settings settings, DefaultNotificationManager manager, DbClient dbClient,
     NotificationDispatcher[] dispatchers) {
+    this.disabled = "ComputeEngineSettings".equals(settings.getClass().getSimpleName());
     this.delayInSeconds = settings.getLong(PROPERTY_DELAY);
     this.delayBeforeReportingStatusInSeconds = settings.getLong(PROPERTY_DELAY_BEFORE_REPORTING_STATUS);
     this.manager = manager;
@@ -95,35 +97,39 @@ public class NotificationService implements Startable {
 
   @Override
   public void start() {
-    executorService =
-      Executors.newSingleThreadScheduledExecutor(
-        new ThreadFactoryBuilder()
-          .setNameFormat(THREAD_NAME_PREFIX + "%d")
-          .setPriority(Thread.MIN_PRIORITY)
-          .build());
-    executorService.scheduleWithFixedDelay(new Runnable() {
-      @Override
-      public void run() {
-        try {
-          processQueue();
-        } catch (Exception e) {
-          LOG.error("Error in NotificationService", e);
+    if (!disabled) {
+      executorService =
+          Executors.newSingleThreadScheduledExecutor(
+              new ThreadFactoryBuilder()
+                  .setNameFormat(THREAD_NAME_PREFIX + "%d")
+                  .setPriority(Thread.MIN_PRIORITY)
+                  .build());
+      executorService.scheduleWithFixedDelay(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            processQueue();
+          } catch (Exception e) {
+            LOG.error("Error in NotificationService", e);
+          }
         }
-      }
-    }, 0, delayInSeconds, TimeUnit.SECONDS);
-    LOG.info("Notification service started (delay {} sec.)", delayInSeconds);
+      }, 0, delayInSeconds, TimeUnit.SECONDS);
+      LOG.info("Notification service started (delay {} sec.)", delayInSeconds);
+    }
   }
 
   @Override
   public void stop() {
-    try {
-      stopping = true;
-      executorService.shutdown();
-      executorService.awaitTermination(5, TimeUnit.SECONDS);
-    } catch (InterruptedException e) {
-      LOG.error("Error during stop of notification service", e);
+    if (!disabled) {
+      try {
+        stopping = true;
+        executorService.shutdown();
+        executorService.awaitTermination(5, TimeUnit.SECONDS);
+      } catch (InterruptedException e) {
+        LOG.error("Error during stop of notification service", e);
+      }
+      LOG.info("Notification service stopped");
     }
-    LOG.info("Notification service stopped");
   }
 
   @VisibleForTesting
