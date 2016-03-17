@@ -23,7 +23,8 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
 import java.io.File;
-import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -399,19 +400,14 @@ public class ProjectReactorBuilder {
           "' (base directory = " + baseDir.getAbsolutePath() + ")");
       }
     }
-
   }
 
   protected static File resolvePath(File baseDir, String path) {
-    File file = new File(path);
-    if (!file.isAbsolute()) {
-      try {
-        file = new File(baseDir, path).getCanonicalFile();
-      } catch (IOException e) {
-        throw new IllegalStateException("Unable to resolve path \"" + path + "\"", e);
-      }
+    Path filePath = Paths.get(path);
+    if (!filePath.isAbsolute()) {
+      filePath = baseDir.toPath().resolve(path);
     }
-    return file;
+    return filePath.normalize().toFile();
   }
 
   /**
