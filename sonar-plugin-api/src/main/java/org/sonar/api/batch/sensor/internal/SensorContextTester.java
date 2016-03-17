@@ -58,6 +58,7 @@ import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.Metric;
+import org.sonar.duplications.internal.pmd.TokensLine;
 
 /**
  * Utility class to help testing {@link Sensor}.
@@ -180,6 +181,12 @@ public class SensorContextTester implements SensorContext {
       return defaultCoverageByType.get(type).coveredConditionsByLine().get(line);
     }
     return null;
+  }
+
+  @CheckForNull
+  public List<TokensLine> cpdTokens(String componentKey) {
+    DefaultCpdTokens defaultCpdTokens = sensorStorage.cpdTokensByComponent.get(componentKey);
+    return defaultCpdTokens != null ? defaultCpdTokens.getTokenLines() : null;
   }
 
   @Override

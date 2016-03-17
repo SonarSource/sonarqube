@@ -41,6 +41,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class SensorContextTesterTest {
 
@@ -191,5 +192,24 @@ public class SensorContextTesterTest {
 
     assertThat(tester.conditions("foo:src/Foo.java", CoverageType.IT, 1)).isNull();
     assertThat(tester.coveredConditions("foo:src/Foo.java", CoverageType.IT, 1)).isNull();
+  }
+
+  @Test
+  public void testCpdTokens() {
+    assertThat(tester.cpdTokens("foo:src/Foo.java")).isNull();
+    DefaultInputFile inputFile =
+      new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("public class Foo {\n\n}")));
+    tester.newCpdTokens()
+      .onFile(inputFile)
+      .addToken(inputFile.newRange(0, 6), "public")
+      .addToken(inputFile.newRange(7, 12), "class")
+      .addToken(inputFile.newRange(13, 16), "$IDENTIFIER")
+      .addToken(inputFile.newRange(17, 18), "{")
+      .addToken(inputFile.newRange(3, 0, 3, 1), "}")
+      .save();
+    assertThat(tester.cpdTokens("foo:src/Foo.java")).extracting("value", "startLine", "startUnit", "endUnit")
+      .containsExactly(
+        tuple("publicclass$IDENTIFIER{", 1, 1, 4),
+        tuple("}", 3, 5, 5));
   }
 }
