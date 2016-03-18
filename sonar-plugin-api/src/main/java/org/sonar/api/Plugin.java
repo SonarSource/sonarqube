@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -108,6 +109,16 @@ public interface Plugin {
      */
     public Context addExtensions(Collection extensions) {
       this.extensions.addAll(extensions);
+      return this;
+    }
+
+    /**
+     * @see #addExtension(Object)
+     */
+    public Context addExtensions(Object first, Object second, Object... others) {
+      addExtension(first);
+      addExtension(second);
+      addExtensions(asList(others));
       return this;
     }
 
