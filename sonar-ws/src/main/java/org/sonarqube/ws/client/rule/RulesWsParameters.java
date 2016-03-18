@@ -25,7 +25,7 @@ import java.util.Set;
 
 public class RulesWsParameters {
   public static final String PARAM_REPOSITORIES = "repositories";
-  public static final String PARAM_KEY = "rule_key";
+  public static final String PARAM_RULE_KEY = "rule_key";
   public static final String PARAM_ACTIVATION = "activation";
   public static final String PARAM_QPROFILE = "qprofile";
   public static final String PARAM_SEVERITIES = "severities";

@@ -58,7 +58,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
@@ -116,13 +116,13 @@ public class SearchActionMediumTest {
     ruleIndexer.index();
 
     WsTester.TestRequest request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(PARAM_KEY, RuleTesting.XOO_X1.toString());
+    request.setParam(PARAM_RULE_KEY, RuleTesting.XOO_X1.toString());
     request.setParam(WebService.Param.FIELDS, "actives");
     WsTester.Result result = request.execute();
     result.assertJson("{\"total\":1,\"p\":1,\"ps\":100,\"rules\":[{\"key\":\"xoo:x1\"}]}");
 
     request = tester.wsTester().newGetRequest(API_ENDPOINT, API_SEARCH_METHOD);
-    request.setParam(PARAM_KEY, RuleKey.of("xoo", "unknown").toString());
+    request.setParam(PARAM_RULE_KEY, RuleKey.of("xoo", "unknown").toString());
     request.setParam(WebService.Param.FIELDS, "actives");
     result = request.execute();
     result.assertJson("{\"total\":0,\"p\":1,\"ps\":100,\"rules\":[],\"actives\":{}}");

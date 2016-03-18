@@ -79,7 +79,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERI
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
@@ -212,7 +212,7 @@ public class SearchAction implements RulesWsAction {
       .setExampleValue("xpath");
 
     action
-      .createParam(PARAM_KEY)
+      .createParam(PARAM_RULE_KEY)
       .setDescription("Key of rule to search for")
       .setExampleValue("squid:S001");
 
@@ -321,7 +321,7 @@ public class SearchAction implements RulesWsAction {
     query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
     query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
     query.setTypes(request.paramAsEnums(PARAM_TYPES, RuleType.class));
-    query.setKey(request.param(PARAM_KEY));
+    query.setKey(request.param(PARAM_RULE_KEY));
 
     String sortParam = request.param(Param.SORT);
     if (sortParam != null) {

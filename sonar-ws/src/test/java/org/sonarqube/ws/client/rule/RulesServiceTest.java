@@ -37,7 +37,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERI
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
@@ -127,7 +127,7 @@ public class RulesServiceTest {
       .hasParam("q", QUERY_VALUE)
       .hasParam(PARAM_QPROFILE, QPROFILE_VALUE)
       .hasParam(PARAM_REPOSITORIES, REPOSITORIES_VALUE_INLINED)
-      .hasParam(PARAM_KEY, RULE_KEY_VALUE)
+      .hasParam(PARAM_RULE_KEY, RULE_KEY_VALUE)
       .hasParam(PARAM_LANGUAGES, LANGUAGES_VALUE_INLINED)
       .hasParam("s", SORT_VALUE)
       .hasParam(PARAM_SEVERITIES, SEVERITIES_VALUE_INLINED)

@@ -30,7 +30,7 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERI
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
@@ -63,7 +63,7 @@ public class RulesService extends BaseService {
         .setParam("q", request.getQuery())
         .setParam(PARAM_QPROFILE, request.getQProfile())
         .setParam(PARAM_REPOSITORIES, inlineMultipleParamValue(request.getRepositories()))
-        .setParam(PARAM_KEY, request.getRuleKey())
+        .setParam(PARAM_RULE_KEY, request.getRuleKey())
         .setParam("s", request.getSort())
         .setParam(PARAM_SEVERITIES, inlineMultipleParamValue(request.getSeverities()))
         .setParam(PARAM_STATUSES, inlineMultipleParamValue(request.getStatuses()))
