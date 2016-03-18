@@ -269,7 +269,7 @@ public class SearchAction implements RulesWsAction {
 
     action
       .createParam(PARAM_INHERITANCE)
-      .setDescription("Value of inheritance for a rule within a quality profile Used only if the parameter '" +
+      .setDescription("Comma-separated list of values of inheritance for a rule within a quality profile. Used only if the parameter '" +
         PARAM_ACTIVATION + "' is set.")
       .setPossibleValues(ActiveRule.Inheritance.NONE.name(),
         ActiveRule.Inheritance.INHERITED.name(),
