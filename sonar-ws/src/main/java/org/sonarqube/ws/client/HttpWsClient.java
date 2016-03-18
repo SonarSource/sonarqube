@@ -26,6 +26,7 @@ import org.sonarqube.ws.client.measure.MeasuresService;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
+import org.sonarqube.ws.client.rule.RulesService;
 import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 
@@ -46,6 +47,7 @@ public class HttpWsClient implements WsClient {
   private final MeasuresService measuresService;
   private final SystemService systemService;
   private final CeService ceService;
+  private final RulesService rulesService;
 
   public HttpWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
@@ -58,6 +60,7 @@ public class HttpWsClient implements WsClient {
     this.measuresService = new MeasuresService(wsConnector);
     this.systemService = new SystemService(wsConnector);
     this.ceService = new CeService(wsConnector);
+    this.rulesService = new RulesService(wsConnector);
   }
 
   @Override
@@ -108,5 +111,10 @@ public class HttpWsClient implements WsClient {
   @Override
   public CeService ce() {
     return ceService;
+  }
+
+  @Override
+  public RulesService rules() {
+    return rulesService;
   }
 }
