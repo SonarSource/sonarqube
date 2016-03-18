@@ -24,7 +24,7 @@ import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class ActivityWsRequestTest {
+public class SearchWsRequestTest {
   private static final ImmutableList<String> LIST_OF_STRINGS = ImmutableList.of("A", "B");
   private static final String SOME_STRING = "some string";
   public static final int SOME_INT = 894352;
