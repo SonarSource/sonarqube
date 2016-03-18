@@ -206,6 +206,25 @@ public class PermissionsServiceTest {
   }
 
   @Test
+  public void bulk_apply_template() {
+    underTest.bulkApplyTemplate(new BulkApplyTemplateWsRequest()
+      .setTemplateId(TEMPLATE_ID_VALUE)
+      .setTemplateName(TEMPLATE_NAME_VALUE)
+      .setQualifier(QUALIFIER_VALUE)
+      .setQuery(QUERY_VALUE));
+
+    assertThat(serviceTester.getPostParser()).isNull();
+    PostRequest postRequest = serviceTester.getPostRequest();
+    serviceTester.assertThat(postRequest)
+      .hasPath("bulk_apply_template")
+      .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
+      .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
+      .hasParam("q", QUERY_VALUE)
+      .hasParam(PARAM_QUALIFIER, QUALIFIER_VALUE)
+      .andNoOtherParam();
+  }
+
+  @Test
   public void createTemplate_does_POST_on_Ws_create_template() {
     underTest.createTemplate(new CreateTemplateWsRequest()
       .setName(NAME_VALUE)

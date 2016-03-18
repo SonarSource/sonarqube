@@ -105,6 +105,15 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
   }
 
+  public void bulkApplyTemplate(BulkApplyTemplateWsRequest request) {
+    call(new PostRequest(path("bulk_apply_template"))
+      .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
+      .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName())
+      .setParam("q", request.getQuery())
+      .setParam(PARAM_QUALIFIER, request.getQualifier())
+    );
+  }
+
   public CreateTemplateWsResponse createTemplate(CreateTemplateWsRequest request) {
     PostRequest post = new PostRequest(path("create_template"))
       .setParam(PARAM_NAME, request.getName())
