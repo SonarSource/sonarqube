@@ -55,14 +55,17 @@ import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.Facets;
 import org.sonar.server.es.SearchIdResult;
+import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleQuery;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.Rules.SearchResponse;
+import org.sonarqube.ws.client.rule.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
@@ -72,6 +75,7 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
+import static org.sonar.server.util.EnumUtils.toEnums;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
@@ -79,10 +83,10 @@ import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERI
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_SEVERITIES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
@@ -144,17 +148,18 @@ public class SearchAction implements RulesWsAction {
   public void handle(Request request, Response response) throws Exception {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      org.sonar.server.es.SearchOptions context = getQueryContext(request);
-      RuleQuery query = doQuery(request);
+      SearchWsRequest searchWsRequest = toSearchWsRequest(request);
+      org.sonar.server.es.SearchOptions context = getQueryContext(searchWsRequest);
+      RuleQuery query = doQuery(searchWsRequest);
       SearchResult searchResult = doSearch(dbSession, query, context);
-      SearchResponse responseBuilder = buildResponse(dbSession, request, context, searchResult);
+      SearchResponse responseBuilder = buildResponse(dbSession, searchWsRequest, context, searchResult);
       writeProtobuf(responseBuilder, request, response);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private SearchResponse buildResponse(DbSession dbSession, Request request, org.sonar.server.es.SearchOptions context, SearchResult result) {
+  private SearchResponse buildResponse(DbSession dbSession, SearchWsRequest request, SearchOptions context, SearchResult result) {
     SearchResponse.Builder responseBuilder = SearchResponse.newBuilder();
     writeStatistics(responseBuilder, result, context);
     doContextResponse(dbSession, request, result, responseBuilder);
@@ -306,27 +311,27 @@ public class SearchAction implements RulesWsAction {
       .setDefaultValue(true);
   }
 
-  public static RuleQuery createRuleQuery(RuleQuery query, Request request) {
-    query.setQueryText(request.param(Param.TEXT_QUERY));
-    query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
-    query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
-    query.setAvailableSince(request.hasParam(PARAM_AVAILABLE_SINCE) ? request.paramAsDate(PARAM_AVAILABLE_SINCE).getTime() : null);
-    query.setStatuses(request.paramAsEnums(PARAM_STATUSES, RuleStatus.class));
-    query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
-    query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
-    query.setQProfileKey(request.param(PARAM_QPROFILE));
-    query.setTags(request.paramAsStrings(PARAM_TAGS));
-    query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
-    query.setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES));
-    query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
-    query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
-    query.setTypes(request.paramAsEnums(PARAM_TYPES, RuleType.class));
-    query.setKey(request.param(PARAM_RULE_KEY));
+  private static RuleQuery createRuleQuery(RuleQuery query, SearchWsRequest request) {
+    query.setQueryText(request.getQuery());
+    query.setSeverities(request.getSeverities());
+    query.setRepositories(request.getRepositories());
+    query.setAvailableSince(request.getAvailableSince() != null ? parseDate(request.getAvailableSince()).getTime() : null);
+    query.setStatuses(toEnums(request.getStatuses(), RuleStatus.class));
+    query.setLanguages(request.getLanguages());
+    query.setActivation(request.getActivation());
+    query.setQProfileKey(request.getQProfile());
+    query.setTags(request.getTags());
+    query.setInheritance(request.getInheritance());
+    query.setActiveSeverities(request.getActiveSeverities());
+    query.setIsTemplate(request.getIsTemplate());
+    query.setTemplateKey(request.getTemplateKey());
+    query.setTypes(toEnums(request.getTypes(), RuleType.class));
+    query.setKey(request.getRuleKey());
 
-    String sortParam = request.param(Param.SORT);
+    String sortParam = request.getSort();
     if (sortParam != null) {
       query.setSortField(sortParam);
-      query.setAscendingSort(request.mandatoryParamAsBoolean(Param.ASCENDING));
+      query.setAscendingSort(request.getAsc());
     }
     return query;
   }
@@ -337,7 +342,7 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  protected org.sonar.server.es.SearchOptions getQueryContext(Request request) {
+  protected org.sonar.server.es.SearchOptions getQueryContext(SearchWsRequest request) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 1/2
     org.sonar.server.es.SearchOptions context = loadCommonContext(request);
     org.sonar.server.es.SearchOptions searchQueryContext = new org.sonar.server.es.SearchOptions()
@@ -351,17 +356,16 @@ public class SearchAction implements RulesWsAction {
     return searchQueryContext;
   }
 
-  private static org.sonar.server.es.SearchOptions loadCommonContext(Request request) {
-    int pageSize = request.mandatoryParamAsInt(Param.PAGE_SIZE);
-    org.sonar.server.es.SearchOptions context = new org.sonar.server.es.SearchOptions().addFields(request.paramAsStrings(Param.FIELDS));
-    List<String> facets = request.paramAsStrings(Param.FACETS);
-    if (facets != null) {
-      context.addFacets(facets);
+  private static org.sonar.server.es.SearchOptions loadCommonContext(SearchWsRequest request) {
+    int pageSize = request.getPageSize();
+    org.sonar.server.es.SearchOptions context = new org.sonar.server.es.SearchOptions().addFields(request.getFields());
+    if (request.getFacets() != null) {
+      context.addFacets(request.getFacets());
     }
     if (pageSize < 1) {
-      context.setPage(request.mandatoryParamAsInt(Param.PAGE), 0).setLimit(org.sonar.server.es.SearchOptions.MAX_LIMIT);
+      context.setPage(request.getPage(), 0).setLimit(org.sonar.server.es.SearchOptions.MAX_LIMIT);
     } else {
-      context.setPage(request.mandatoryParamAsInt(Param.PAGE), pageSize);
+      context.setPage(request.getPage(), pageSize);
     }
     return context;
   }
@@ -400,10 +404,10 @@ public class SearchAction implements RulesWsAction {
       .setTotal(result.getTotal());
   }
 
-  protected RuleQuery doQuery(Request request) {
+  protected RuleQuery doQuery(SearchWsRequest request) {
     RuleQuery plainQuery = createRuleQuery(new RuleQuery(), request);
 
-    String qProfileKey = request.param(PARAM_QPROFILE);
+    String qProfileKey = request.getQProfile();
     if (qProfileKey != null) {
       QualityProfileDto qProfile = activeRuleCompleter.loadProfile(qProfileKey);
       if (qProfile != null) {
@@ -414,7 +418,7 @@ public class SearchAction implements RulesWsAction {
     return plainQuery;
   }
 
-  protected void doContextResponse(DbSession dbSession, Request request, SearchResult result, SearchResponse.Builder response) {
+  protected void doContextResponse(DbSession dbSession, SearchWsRequest request, SearchResult result, SearchResponse.Builder response) {
     // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 2/2
     org.sonar.server.es.SearchOptions contextForResponse = loadCommonContext(request);
     writeRules(response, result, contextForResponse);
@@ -423,17 +427,26 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  protected void writeFacets(SearchResponse.Builder response, Request request, org.sonar.server.es.SearchOptions context, SearchResult results) {
-    addMandatoryFacetValues(results, FACET_LANGUAGES, request.paramAsStrings(PARAM_LANGUAGES));
-    addMandatoryFacetValues(results, FACET_REPOSITORIES, request.paramAsStrings(PARAM_REPOSITORIES));
+  protected void writeFacets(SearchResponse.Builder response, SearchWsRequest request, SearchOptions context, SearchResult results) {
+    addMandatoryFacetValues(results, FACET_LANGUAGES, request.getLanguages());
+    addMandatoryFacetValues(results, FACET_REPOSITORIES, request.getRepositories());
     addMandatoryFacetValues(results, FACET_STATUSES, ALL_STATUSES_EXCEPT_REMOVED);
     addMandatoryFacetValues(results, FACET_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, FACET_ACTIVE_SEVERITIES, Severity.ALL);
-    addMandatoryFacetValues(results, FACET_TAGS, request.paramAsStrings(PARAM_TAGS));
+    addMandatoryFacetValues(results, FACET_TAGS, request.getTags());
     addMandatoryFacetValues(results, FACET_TYPES, RuleType.ALL_NAMES);
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
+    Map<String, List<String>> facetValuesByFacetKey = new HashMap<>();
+    facetValuesByFacetKey.put(FACET_LANGUAGES, request.getLanguages());
+    facetValuesByFacetKey.put(FACET_REPOSITORIES, request.getRepositories());
+    facetValuesByFacetKey.put(FACET_STATUSES, request.getStatuses());
+    facetValuesByFacetKey.put(FACET_SEVERITIES, request.getSeverities());
+    facetValuesByFacetKey.put(FACET_ACTIVE_SEVERITIES, request.getActiveSeverities());
+    facetValuesByFacetKey.put(FACET_TAGS, request.getTags());
+    facetValuesByFacetKey.put(FACET_TYPES, request.getTypes());
+
     for (String facetName : context.getFacets()) {
       facet.clear().setProperty(facetName);
       Map<String, Long> facets = results.facets.get(facetName);
@@ -446,14 +459,13 @@ public class SearchAction implements RulesWsAction {
             .setVal(facetValue.getKey())
             .setCount(facetValue.getValue()));
         }
-        addZeroFacetsForSelectedItems(facet, request, facetName, itemsFromFacets);
+        addZeroFacetsForSelectedItems(facet, facetValuesByFacetKey.get(facetName), itemsFromFacets);
       }
       response.getFacetsBuilder().addFacets(facet);
     }
   }
 
-  private static void addZeroFacetsForSelectedItems(Common.Facet.Builder facet, Request request, String facetName, Set<String> itemsFromFacets) {
-    List<String> requestParams = request.paramAsStrings(facetName);
+  private static void addZeroFacetsForSelectedItems(Common.Facet.Builder facet, @Nullable List<String> requestParams, Set<String> itemsFromFacets) {
     if (requestParams != null) {
       Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
       for (String param : requestParams) {
@@ -476,6 +488,31 @@ public class SearchAction implements RulesWsAction {
         }
       }
     }
+  }
+
+  private static SearchWsRequest toSearchWsRequest(Request request) {
+    return new SearchWsRequest()
+      .setActivation(request.paramAsBoolean(PARAM_ACTIVATION))
+      .setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES))
+      .setAsc(request.mandatoryParamAsBoolean(Param.ASCENDING))
+      .setAvailableSince(request.param(PARAM_AVAILABLE_SINCE))
+      .setFields(request.paramAsStrings(Param.FIELDS))
+      .setFacets(request.paramAsStrings(Param.FACETS))
+      .setInheritance(request.paramAsStrings(PARAM_INHERITANCE))
+      .setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE))
+      .setLanguages(request.paramAsStrings(PARAM_LANGUAGES))
+      .setPage(request.mandatoryParamAsInt(Param.PAGE))
+      .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
+      .setQuery(request.param(Param.TEXT_QUERY))
+      .setQProfile(request.param(PARAM_QPROFILE))
+      .setRepositories(request.paramAsStrings(PARAM_REPOSITORIES))
+      .setRuleKey(request.param(PARAM_RULE_KEY))
+      .setSort(request.param(Param.SORT))
+      .setSeverities(request.paramAsStrings(PARAM_SEVERITIES))
+      .setStatuses(request.paramAsStrings(PARAM_STATUSES))
+      .setTags(request.paramAsStrings(PARAM_TAGS))
+      .setTemplateKey(request.param(PARAM_TEMPLATE_KEY))
+      .setTypes(request.paramAsStrings(PARAM_TYPES));
   }
 
   static class SearchResult {

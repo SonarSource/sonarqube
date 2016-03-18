@@ -19,19 +19,38 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.rules.RuleType;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.rule.ws.SearchAction;
 import org.sonar.server.user.UserSession;
+
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVE_SEVERITIES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_INHERITANCE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_REPOSITORIES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_SEVERITIES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_STATUSES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TEMPLATE_KEY;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TYPES;
 
 @ServerSide
 public class BulkRuleActivationActions {
@@ -106,7 +125,7 @@ public class BulkRuleActivationActions {
 
   private void bulkActivate(Request request, Response response) {
     BulkChangeResult result = profileService.bulkActivate(
-      SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
+      createRuleQuery(ruleService.newRuleQuery(), request),
       request.mandatoryParam(PROFILE_KEY),
       request.param(SEVERITY));
     writeResponse(result, response);
@@ -114,9 +133,34 @@ public class BulkRuleActivationActions {
 
   private void bulkDeactivate(Request request, Response response) {
     BulkChangeResult result = profileService.bulkDeactivate(
-      SearchAction.createRuleQuery(ruleService.newRuleQuery(), request),
+      createRuleQuery(ruleService.newRuleQuery(), request),
       request.mandatoryParam(PROFILE_KEY));
     writeResponse(result, response);
+  }
+
+  private static RuleQuery createRuleQuery(RuleQuery query, Request request) {
+    query.setQueryText(request.param(Param.TEXT_QUERY));
+    query.setSeverities(request.paramAsStrings(PARAM_SEVERITIES));
+    query.setRepositories(request.paramAsStrings(PARAM_REPOSITORIES));
+    query.setAvailableSince(request.hasParam(PARAM_AVAILABLE_SINCE) ? request.paramAsDate(PARAM_AVAILABLE_SINCE).getTime() : null);
+    query.setStatuses(request.paramAsEnums(PARAM_STATUSES, RuleStatus.class));
+    query.setLanguages(request.paramAsStrings(PARAM_LANGUAGES));
+    query.setActivation(request.paramAsBoolean(PARAM_ACTIVATION));
+    query.setQProfileKey(request.param(PARAM_QPROFILE));
+    query.setTags(request.paramAsStrings(PARAM_TAGS));
+    query.setInheritance(request.paramAsStrings(PARAM_INHERITANCE));
+    query.setActiveSeverities(request.paramAsStrings(PARAM_ACTIVE_SEVERITIES));
+    query.setIsTemplate(request.paramAsBoolean(PARAM_IS_TEMPLATE));
+    query.setTemplateKey(request.param(PARAM_TEMPLATE_KEY));
+    query.setTypes(request.paramAsEnums(PARAM_TYPES, RuleType.class));
+    query.setKey(request.param(PARAM_RULE_KEY));
+
+    String sortParam = request.param(Param.SORT);
+    if (sortParam != null) {
+      query.setSortField(sortParam);
+      query.setAscendingSort(request.mandatoryParamAsBoolean(Param.ASCENDING));
+    }
+    return query;
   }
 
   private void writeResponse(BulkChangeResult result, Response response) {

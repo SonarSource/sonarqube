@@ -195,6 +195,7 @@ public abstract class Request {
     for (String s : values) {
       result.add(Enum.valueOf(enumClass, s));
     }
+
     return result;
   }
 
