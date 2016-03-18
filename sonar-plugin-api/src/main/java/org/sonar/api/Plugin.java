@@ -85,7 +85,17 @@ public interface Plugin {
     }
 
     /**
-     * TODO list constraints
+     * Add an extension as :
+     * <ul>
+     *   <li>a Class that is annotated with {@link org.sonar.api.batch.BatchSide} or {@link org.sonar.api.server.ServerSide}.
+     *   The extension will be instantiated once. Its dependencies are injected through constructor parameters.</li>
+     *   <li>an instance that is annotated with {@link org.sonar.api.batch.BatchSide} or {@link org.sonar.api.server.ServerSide}</li>
+     * </ul>
+     * Only a single component can be registered for a class. It's not allowed for example to register:
+     * <ul>
+     *   <li>two MyExtension.class</li>
+     *   <li>MyExtension.class and new MyExtension()</li>
+     * </ul>
      */
     public Context addExtension(Object extension) {
       requireNonNull(extension);
