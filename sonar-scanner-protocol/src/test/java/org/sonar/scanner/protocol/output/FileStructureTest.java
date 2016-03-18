@@ -19,12 +19,11 @@
  */
 package org.sonar.scanner.protocol.output;
 
+import java.io.File;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.sonar.scanner.protocol.output.FileStructure;
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -62,8 +61,8 @@ public class FileStructureTest {
   public void locate_files() throws Exception {
     File dir = temp.newFolder();
     FileUtils.write(new File(dir, "metadata.pb"), "metadata content");
-    FileUtils.write(new File(dir, "issues-3.pb"), "issues of component 3");
-    FileUtils.write(new File(dir, "component-42.pb"), "details of component 42");
+    FileUtils.write(new File(dir, "3/issues-3.pb"), "issues of component 3");
+    FileUtils.write(new File(dir, "4/2/component-42.pb"), "details of component 42");
 
     FileStructure structure = new FileStructure(dir);
     assertThat(structure.metadataFile()).exists().isFile();
@@ -71,4 +70,5 @@ public class FileStructureTest {
     assertThat(structure.fileFor(FileStructure.Domain.ISSUES, 3)).exists().isFile();
     assertThat(structure.fileFor(FileStructure.Domain.ISSUES, 42)).doesNotExist();
   }
+
 }
