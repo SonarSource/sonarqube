@@ -77,9 +77,14 @@ public class SearchProjectPermissionsAction implements PermissionsWsAction {
       .setResponseExample(getClass().getResource("search_project_permissions-example.json"))
       .setSince("5.2")
       .addPagingParams(25)
-      .addSearchQuery("sonarq", "project names", "project keys")
       .setHandler(this);
 
+    action.createParam(Param.TEXT_QUERY)
+      .setDescription("Limit search to: <ul>" +
+        "<li>project names that contain the supplied string</li>" +
+        "<li>project keys that are exactly the same as the supplied string</li>" +
+        "</ul>")
+      .setExampleValue("apac");
     createProjectParameters(action);
     createRootQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
       .setSince("5.3");
