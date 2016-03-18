@@ -35,6 +35,8 @@ import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
+import org.sonar.ce.db.CeDbClient;
+import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.ce.settings.ComputeEngineSettings;
@@ -54,7 +56,6 @@ import org.sonar.core.user.DeprecatedUserFinder;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
-import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.purge.PurgeProfiler;
@@ -159,8 +160,10 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     CeUserSession.class,
 
     // DB
-    DbClient.class,
     DaoModule.class,
+    // DbClient.class, replaced by CeDbClient to use ReadOnlyPropertiesDao instead of PropertiesDao
+    ReadOnlyPropertiesDao.class,
+    CeDbClient.class,
     // MigrationStepModule.class, DB maintenance, responsibility of Web Server
 
     // Elasticsearch
@@ -174,9 +177,11 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     IssueIndex.class,
 
     // Classes kept for backward compatibility of plugins/libs (like sonar-license) that are directly calling classes from the core
-    org.sonar.core.properties.PropertiesDao.class
+    // org.sonar.core.properties.PropertiesDao.class, replaced by ReadOnlyPropertiesDao (declared above) which is a ReadOnly implementation
   };
   private static final Object[] LEVEL_2_COMPONENTS = new Object[] {
+    // add ReadOnlyPropertiesDao at level2 again so that it shadows PropertiesDao
+    ReadOnlyPropertiesDao.class,
     DefaultServerUpgradeStatus.class,
     // no DatabaseMigrator.class, responsibility of Web Server
 
