@@ -20,6 +20,9 @@
 package org.sonar.server.platform;
 
 import java.io.File;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,48 +40,88 @@ public class ServerImplTest {
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
-
   @Rule
   public TemporaryFolder sonarHome = new TemporaryFolder();
 
-  Settings settings;
+  private Date someDate;
+  private Settings settings;
 
-  ServerImpl server;
+  ServerImpl underTest;
 
   @Before
-  public void setUp() {
-    settings = new Settings().setProperty(ProcessProperties.PATH_HOME, sonarHome.getRoot().getAbsolutePath());
+  public void setUp() throws ParseException {
+    this.someDate = new SimpleDateFormat("ddMMyyyy").parse("24101236");
+    this.settings = new Settings().setProperty(ProcessProperties.PATH_HOME, sonarHome.getRoot().getAbsolutePath());
+    this.settings.setProperty(ProcessProperties.STARTED_AT, someDate.getTime());
     new File(sonarHome.getRoot(), "web/deploy").mkdirs();
 
-    server = new ServerImpl(settings, "/org/sonar/server/platform/ServerImplTest/build.properties", "/org/sonar/server/platform/ServerImplTest/version.txt");
+    underTest = new ServerImpl(settings, "/org/sonar/server/platform/ServerImplTest/build.properties", "/org/sonar/server/platform/ServerImplTest/version.txt");
+  }
+
+  @Test
+  public void getStartedAt_throws_NPE_if_start_has_not_been_called() {
+    exception.expect(NullPointerException.class);
+    exception.expectMessage("start() method has not been called");
+
+    underTest.getStartedAt();
+  }
+
+  @Test
+  public void getStartedAt_is_date_from_sonar_core_startedAt() throws ParseException {
+    underTest.start();
+
+    assertThat(underTest.getStartedAt()).isEqualTo(someDate);
+  }
+
+  @Test
+  public void start_fails_with_NFE_if_date_from_sonar_core_startedAt_is_invalid() throws ParseException {
+    settings.setProperty(ProcessProperties.STARTED_AT, "aasasa");
+
+    ServerImpl server = new ServerImpl(settings, "/org/sonar/server/platform/ServerImplTest/build.properties", "/org/sonar/server/platform/ServerImplTest/version.txt");
+
+    exception.expect(NumberFormatException.class);
+
+    server.start();
+  }
+
+  @Test
+  public void start_fails_with_ISE_sonar_core_startedAt_is_not_set() throws ParseException {
+    settings.removeProperty(ProcessProperties.STARTED_AT);
+
+    ServerImpl server = new ServerImpl(settings, "/org/sonar/server/platform/ServerImplTest/build.properties", "/org/sonar/server/platform/ServerImplTest/version.txt");
+
+    exception.expect(IllegalStateException.class);
+    exception.expectMessage("property sonar.core.startedAt must be set");
+
+    server.start();
   }
 
   @Test
   public void always_return_the_same_values() {
-    server.start();
+    underTest.start();
 
-    assertThat(server.getId()).isNotNull();
-    assertThat(server.getId()).isEqualTo(server.getId());
+    assertThat(underTest.getId()).isNotNull();
+    assertThat(underTest.getId()).isEqualTo(underTest.getId());
 
-    assertThat(server.getVersion()).isNotNull();
-    assertThat(server.getVersion()).isEqualTo(server.getVersion());
+    assertThat(underTest.getVersion()).isNotNull();
+    assertThat(underTest.getVersion()).isEqualTo(underTest.getVersion());
 
-    assertThat(server.getStartedAt()).isNotNull();
-    assertThat(server.getStartedAt()).isEqualTo(server.getStartedAt());
+    assertThat(underTest.getStartedAt()).isNotNull();
+    assertThat(underTest.getStartedAt()).isEqualTo(underTest.getStartedAt());
   }
 
   @Test
   public void read_version_from_file() {
-    server.start();
+    underTest.start();
 
-    assertThat(server.getVersion()).isEqualTo("1.0");
+    assertThat(underTest.getVersion()).isEqualTo("1.0");
   }
 
   @Test
   public void read_implementation_build_from_manifest() {
-    server.start();
+    underTest.start();
 
-    assertThat(server.getImplementationBuild()).isEqualTo("0b9545a8b74aca473cb776275be4dc93a327c363");
+    assertThat(underTest.getImplementationBuild()).isEqualTo("0b9545a8b74aca473cb776275be4dc93a327c363");
   }
 
   @Test
@@ -120,41 +163,41 @@ public class ServerImplTest {
 
   @Test
   public void use_default_context_path() {
-    server.start();
-    assertThat(server.getContextPath()).isEqualTo("");
+    underTest.start();
+    assertThat(underTest.getContextPath()).isEqualTo("");
   }
 
   @Test
   public void is_dev() throws Exception {
     settings.setProperty("sonar.web.dev", true);
-    server.start();
-    assertThat(server.isDev()).isTrue();
+    underTest.start();
+    assertThat(underTest.isDev()).isTrue();
   }
 
   @Test
   public void get_default_public_root_url() throws Exception {
-    server.start();
-    assertThat(server.getPublicRootUrl()).isEqualTo("http://localhost:9000");
+    underTest.start();
+    assertThat(underTest.getPublicRootUrl()).isEqualTo("http://localhost:9000");
   }
 
   @Test
   public void get_public_root_url() throws Exception {
     settings.setProperty("sonar.core.serverBaseURL", "http://mydomain.com");
-    server.start();
-    assertThat(server.getPublicRootUrl()).isEqualTo("http://mydomain.com");
+    underTest.start();
+    assertThat(underTest.getPublicRootUrl()).isEqualTo("http://mydomain.com");
   }
 
   @Test
   public void is_secured_on_secured_server() throws Exception {
     settings.setProperty("sonar.core.serverBaseURL", "https://mydomain.com");
-    server.start();
-    assertThat(server.isSecured()).isTrue();
+    underTest.start();
+    assertThat(underTest.isSecured()).isTrue();
   }
 
   @Test
   public void is_secured_on_not_secured_server() throws Exception {
     settings.setProperty("sonar.core.serverBaseURL", "http://mydomain.com");
-    server.start();
-    assertThat(server.isSecured()).isFalse();
+    underTest.start();
+    assertThat(underTest.isSecured()).isFalse();
   }
 }

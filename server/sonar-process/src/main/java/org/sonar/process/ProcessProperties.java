@@ -27,6 +27,7 @@ import java.util.Map;
  * They are almost all the properties defined in conf/sonar.properties.
  */
 public class ProcessProperties {
+  public static final String STARTED_AT = "sonar.core.startedAt";
 
   public static final String CLUSTER_ACTIVATE = "sonar.cluster.activate";
   public static final String CLUSTER_MASTER = "sonar.cluster.master";

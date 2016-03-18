@@ -21,6 +21,7 @@ package org.sonar.ce.container;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Date;
 import java.util.Properties;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.junit.Rule;
@@ -30,10 +31,13 @@ import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessProperties.PATH_DATA;
+import static org.sonar.process.ProcessProperties.PATH_HOME;
+import static org.sonar.process.ProcessProperties.PATH_TEMP;
+import static org.sonar.process.ProcessProperties.STARTED_AT;
 
 public class ComputeEngineContainerImplTest {
   private static final int CONTAINER_ITSELF = 1;
@@ -57,9 +61,10 @@ public class ComputeEngineContainerImplTest {
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
     File tmpDir = new File(homeDir, "tmp");
-    properties.setProperty(ProcessProperties.PATH_HOME, homeDir.getAbsolutePath());
-    properties.setProperty(ProcessProperties.PATH_DATA, dataDir.getAbsolutePath());
-    properties.setProperty(ProcessProperties.PATH_TEMP, tmpDir.getAbsolutePath());
+    properties.setProperty(STARTED_AT, String.valueOf(new Date().getTime()));
+    properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
+    properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
+    properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
     String url = ((BasicDataSource) dbTester.database().getDataSource()).getUrl();
     properties.setProperty(DatabaseProperties.PROP_URL, url);
     properties.setProperty(DatabaseProperties.PROP_USER, "sonar");

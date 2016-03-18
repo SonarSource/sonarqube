@@ -43,16 +43,20 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.app.TomcatContexts;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
 
 public final class ServerImpl extends Server implements Startable {
+  private static final String PROPERTY_SONAR_CORE_STARTED_AT = "sonar.core.startedAt";
+
   private static final Logger LOG = Loggers.get(ServerImpl.class);
 
   private final Settings settings;
-  private final Date startedAt;
   private final String buildProperties;
   private final String versionPath;
+  private Date startedAt;
   private String id;
   private String version;
   private String implementationBuild;
@@ -66,7 +70,6 @@ public final class ServerImpl extends Server implements Startable {
   @VisibleForTesting
   ServerImpl(Settings settings, String buildProperties, String versionPath) {
     this.settings = settings;
-    this.startedAt = new Date();
     this.buildProperties = buildProperties;
     this.versionPath = versionPath;
   }
@@ -74,6 +77,9 @@ public final class ServerImpl extends Server implements Startable {
   @Override
   public void start() {
     try {
+      String startedAtString = settings.getString(PROPERTY_SONAR_CORE_STARTED_AT);
+      checkState(startedAtString != null, "property %s must be set", PROPERTY_SONAR_CORE_STARTED_AT);
+      startedAt = new Date(Long.valueOf(startedAtString));
       id = new SimpleDateFormat("yyyyMMddHHmmss").format(startedAt);
 
       version = readVersion(versionPath);
@@ -119,7 +125,7 @@ public final class ServerImpl extends Server implements Startable {
 
   @Override
   public Date getStartedAt() {
-    return startedAt;
+    return checkNotNull(startedAt, "start() method has not been called");
   }
 
   @Override

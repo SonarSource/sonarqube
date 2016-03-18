@@ -19,6 +19,10 @@
  */
 package org.sonar.application;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.List;
+import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,11 +32,6 @@ import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.JavaCommand;
 import org.sonar.process.monitor.Monitor;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -59,26 +58,40 @@ public class AppTest {
     Props props = initDefaultProps();
     app.start(props);
 
-    Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>)(Class)List.class;
-    ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
+    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
 
     assertThat(argument.getValue()).extracting("key").containsExactly("search", "web", "ce");
   }
 
   @Test
-  public void do_not_start_tomcat_if_elasticsearch_slave() throws Exception {
+  public void do_not_start_WebServer_nor_CE_if_elasticsearch_slave() throws Exception {
     Monitor monitor = mock(Monitor.class);
     App app = new App(monitor);
     Props props = initDefaultProps();
     props.set("sonar.cluster.masterHost", "1.2.3.4");
     app.start(props);
 
-    Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>)(Class)List.class;
-    ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
+    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
 
     assertThat(argument.getValue()).extracting("key").containsOnly("search");
+  }
+
+  @Test
+  public void all_JavaCommand_have_a_sonar_core_startedAt_property_argument() throws IOException {
+    Monitor monitor = mock(Monitor.class);
+    App app = new App(monitor);
+    Props props = initDefaultProps();
+    app.start(props);
+
+    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
+    verify(monitor).start(argument.capture());
+
+    List<JavaCommand> javaCommands = argument.getValue();
+    for (JavaCommand javaCommand : javaCommands) {
+      assertThat(javaCommand.getArguments()).containsKey(ProcessProperties.STARTED_AT);
+    }
   }
 
   @Test
@@ -89,8 +102,7 @@ public class AppTest {
     props.set("sonar.jdbc.driverPath", "oracle/ojdbc6.jar");
     app.start(props);
 
-    Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>)(Class)List.class;
-    ArgumentCaptor<List<JavaCommand>> argument = ArgumentCaptor.forClass(listClass);
+    ArgumentCaptor<List<JavaCommand>> argument = newJavaCommandArgumentCaptor();
     verify(monitor).start(argument.capture());
 
     assertThat(argument.getValue().get(1).getClasspath()).contains("oracle/ojdbc6.jar");
@@ -103,5 +115,10 @@ public class AppTest {
     props.set(ProcessProperties.PATH_TEMP, temp.newFolder().getAbsolutePath());
     props.set(ProcessProperties.PATH_LOGS, temp.newFolder().getAbsolutePath());
     return props;
+  }
+
+  private ArgumentCaptor<List<JavaCommand>> newJavaCommandArgumentCaptor() {
+    Class<List<JavaCommand>> listClass = (Class<List<JavaCommand>>) (Class) List.class;
+    return ArgumentCaptor.forClass(listClass);
   }
 }

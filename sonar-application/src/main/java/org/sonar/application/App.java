@@ -21,6 +21,7 @@ package org.sonar.application;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
@@ -59,6 +60,7 @@ public class App implements Stoppable {
 
   private static List<JavaCommand> createCommands(Props props) {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
+    props.set(ProcessProperties.STARTED_AT, String.valueOf(new Date().getTime()));
     List<JavaCommand> commands = new ArrayList<>(3);
     commands.add(createESCommand(props, homeDir));
 
