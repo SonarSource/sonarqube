@@ -72,7 +72,6 @@ import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.OVERALL_UNCOVERED_LINES;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_API;
 import static org.sonar.api.measures.CoreMetrics.PUBLIC_UNDOCUMENTED_API;
-import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;
 import static org.sonar.api.measures.CoreMetrics.SKIPPED_TESTS;
 import static org.sonar.api.measures.CoreMetrics.STATEMENTS;
 import static org.sonar.api.measures.CoreMetrics.TESTS;
@@ -146,9 +145,7 @@ public class BatchMetrics {
     OVERALL_CONDITIONS_TO_COVER,
     OVERALL_UNCOVERED_CONDITIONS,
     OVERALL_COVERED_CONDITIONS_BY_LINE,
-    OVERALL_CONDITIONS_BY_LINE,
-
-    QUALITY_PROFILES);
+    OVERALL_CONDITIONS_BY_LINE);
 
   private final Set<Metric> metrics;
 

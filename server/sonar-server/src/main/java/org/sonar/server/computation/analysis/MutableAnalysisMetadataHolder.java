@@ -19,7 +19,9 @@
  */
 package org.sonar.server.computation.analysis;
 
+import java.util.Map;
 import javax.annotation.Nullable;
+import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.computation.snapshot.Snapshot;
 
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
@@ -48,5 +50,10 @@ public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
    * @throws IllegalStateException if root component ref has already been set
    */
   MutableAnalysisMetadataHolder setRootComponentRef(int rootComponentRef);
+
+  /**
+   * @throws IllegalStateException if QProfile by language has already been set
+   */
+  MutableAnalysisMetadataHolder setQProfilesByLanguage(Map<String, QualityProfile> qprofilesByLanguage);
 
 }

@@ -19,9 +19,11 @@
  */
 package org.sonar.server.computation.analysis;
 
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
+import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.computation.snapshot.Snapshot;
 
 public class MutableAnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
@@ -91,5 +93,16 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   @Override
   public int getRootComponentRef() {
     return delegate.getRootComponentRef();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setQProfilesByLanguage(Map<String, QualityProfile> qprofilesByLanguage) {
+    delegate.setQProfilesByLanguage(qprofilesByLanguage);
+    return this;
+  }
+
+  @Override
+  public Map<String, QualityProfile> getQProfilesByLanguage() {
+    return delegate.getQProfilesByLanguage();
   }
 }

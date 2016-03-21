@@ -90,8 +90,7 @@ public class MeasuresMediumTest {
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
-    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "stringValue.value").containsOnly(
-      tuple(CoreMetrics.QUALITY_PROFILES_KEY, "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
+    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "stringValue.value").isEmpty();
 
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value").containsOnly(
       tuple(CoreMetrics.LINES_KEY, 2));

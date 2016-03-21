@@ -324,7 +324,7 @@ public class CpdMediumTest {
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
-    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey").containsOnly(CoreMetrics.QUALITY_PROFILES_KEY);
+    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey").isEmpty();
 
     assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value").containsOnly(
       tuple(CoreMetrics.LINES_KEY, blockCount * 2 + 1));

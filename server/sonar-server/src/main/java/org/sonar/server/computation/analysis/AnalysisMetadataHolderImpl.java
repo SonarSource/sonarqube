@@ -19,8 +19,11 @@
  */
 package org.sonar.server.computation.analysis;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.computation.snapshot.Snapshot;
 import org.sonar.server.computation.util.InitializedProperty;
 
@@ -37,6 +40,8 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   private InitializedProperty<String> branch = new InitializedProperty<>();
 
   private InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
+
+  private InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
 
   @Override
   public MutableAnalysisMetadataHolder setAnalysisDate(long date) {
@@ -107,6 +112,19 @@ public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder
   public int getRootComponentRef() {
     checkState(rootComponentRef.isInitialized(), "Root component ref has not been set");
     return rootComponentRef.getProperty();
+  }
+
+  @Override
+  public MutableAnalysisMetadataHolder setQProfilesByLanguage(Map<String, QualityProfile> qprofilesByLanguage) {
+    checkState(!this.qProfilesPerLanguage.isInitialized(), "QProfiles by language has already been set");
+    this.qProfilesPerLanguage.setProperty(ImmutableMap.copyOf(qprofilesByLanguage));
+    return this;
+  }
+
+  @Override
+  public Map<String, QualityProfile> getQProfilesByLanguage() {
+    checkState(qProfilesPerLanguage.isInitialized(), "QProfiles by language has not been set");
+    return qProfilesPerLanguage.getProperty();
   }
 
 }

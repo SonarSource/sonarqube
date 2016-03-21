@@ -19,10 +19,10 @@
  */
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Optional;
 import java.util.HashMap;
 import java.util.Map;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.PathAwareCrawler;
@@ -38,33 +38,36 @@ import org.sonar.server.computation.qualityprofile.QualityProfile;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 /**
- * Aggregates quality profile on lower-level module nodes on their parent modules and project
+ * Compute quality profile measure per module  based on present languages
  */
 public class ComputeQProfileMeasureStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public ComputeQProfileMeasureStep(TreeRootHolder treeRootHolder, MeasureRepository measureRepository, MetricRepository metricRepository) {
+  public ComputeQProfileMeasureStep(TreeRootHolder treeRootHolder, MeasureRepository measureRepository, MetricRepository metricRepository,
+    AnalysisMetadataHolder analysisMetadataHolder) {
     this.treeRootHolder = treeRootHolder;
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
   public void execute() {
     Metric qProfilesMetric = metricRepository.getByKey(CoreMetrics.QUALITY_PROFILES_KEY);
-    new PathAwareCrawler<>(new NewCoverageAggregationComponentVisitor(qProfilesMetric))
+    new PathAwareCrawler<>(new QProfileAggregationComponentVisitor(qProfilesMetric))
       .visit(treeRootHolder.getRoot());
   }
 
-  private class NewCoverageAggregationComponentVisitor extends PathAwareVisitorAdapter<QProfiles> {
+  private class QProfileAggregationComponentVisitor extends PathAwareVisitorAdapter<QProfiles> {
 
     private final Metric qProfilesMetric;
 
-    public NewCoverageAggregationComponentVisitor(Metric qProfilesMetric) {
-      super(CrawlerDepthLimit.MODULE, POST_ORDER, new SimpleStackElementFactory<QProfiles>() {
+    public QProfileAggregationComponentVisitor(Metric qProfilesMetric) {
+      super(CrawlerDepthLimit.FILE, POST_ORDER, new SimpleStackElementFactory<QProfiles>() {
         @Override
         public QProfiles createForAny(Component component) {
           return new QProfiles();
@@ -74,19 +77,33 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
     }
 
     @Override
+    public void visitFile(Component file, Path<QProfiles> path) {
+      String languageKey = file.getFileAttributes().getLanguageKey();
+      if (languageKey == null) {
+        // No qprofile for unknown languages
+        return;
+      }
+      if (!analysisMetadataHolder.getQProfilesByLanguage().containsKey(languageKey)) {
+        throw new IllegalStateException("Report contains a file with language '" + languageKey + "' but no matching quality profile");
+      }
+      path.parent().add(analysisMetadataHolder.getQProfilesByLanguage().get(languageKey));
+    }
+
+    @Override
+    public void visitDirectory(Component directory, Path<QProfiles> path) {
+      QProfiles qProfiles = path.current();
+      path.parent().add(qProfiles);
+    }
+
+    @Override
     public void visitProject(Component project, Path<QProfiles> path) {
       addMeasure(project, path.current());
     }
 
     @Override
     public void visitModule(Component module, Path<QProfiles> path) {
-      Optional<Measure> measure = measureRepository.getRawMeasure(module, qProfilesMetric);
       QProfiles qProfiles = path.current();
-      if (measure.isPresent()) {
-        qProfiles.add(measure.get());
-      } else {
-        addMeasure(module, path.current());
-      }
+      addMeasure(module, path.current());
       path.parent().add(qProfiles);
     }
 
@@ -100,12 +117,12 @@ public class ComputeQProfileMeasureStep implements ComputationStep {
   private static class QProfiles {
     private final Map<String, QualityProfile> profilesByKey = new HashMap<>();
 
-    public void add(Measure measure) {
-      profilesByKey.putAll(QPMeasureData.fromJson(measure.getStringValue()).getProfilesByKey());
-    }
-
     public void add(QProfiles qProfiles) {
       profilesByKey.putAll(qProfiles.profilesByKey);
+    }
+
+    public void add(QualityProfile qProfile) {
+      profilesByKey.put(qProfile.getQpKey(), qProfile);
     }
 
     public Measure createMeasure() {

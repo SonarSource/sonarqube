@@ -2554,12 +2554,16 @@ public final class CoreMetrics {
 
   /**
    * @since 4.4
+   * @deprecated since 5.5
    */
+  @Deprecated
   public static final String QUALITY_PROFILES_KEY = "quality_profiles";
 
   /**
    * @since 4.4
+   * @deprecated since 5.5
    */
+  @Deprecated
   public static final Metric<String> QUALITY_PROFILES = new Metric.Builder(QUALITY_PROFILES_KEY, "Profiles", Metric.ValueType.DATA)
     .setDescription("Details of quality profiles used during analysis")
     .setQualitative(false)

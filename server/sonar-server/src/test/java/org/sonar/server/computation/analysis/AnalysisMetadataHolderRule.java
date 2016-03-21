@@ -20,9 +20,11 @@
 package org.sonar.server.computation.analysis;
 
 import java.util.Date;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.junit.rules.ExternalResource;
+import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.computation.snapshot.Snapshot;
 import org.sonar.server.computation.util.InitializedProperty;
 
@@ -40,6 +42,8 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
   private InitializedProperty<String> branch = new InitializedProperty<>();
 
   private InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
+
+  private InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
 
   public AnalysisMetadataHolderRule setAnalysisDate(Date date) {
     checkNotNull(date, "Date must not be null");
@@ -107,5 +111,16 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
   public int getRootComponentRef() {
     checkState(rootComponentRef.isInitialized(), "Root component ref has not been set");
     return rootComponentRef.getProperty();
+  }
+
+  public AnalysisMetadataHolderRule setQProfilesByLanguage(Map<String, QualityProfile> qProfilesPerLanguage) {
+    this.qProfilesPerLanguage.setProperty(qProfilesPerLanguage);
+    return this;
+  }
+
+  @Override
+  public Map<String, QualityProfile> getQProfilesByLanguage() {
+    checkState(qProfilesPerLanguage.isInitialized(), "QProfile per language has not been set");
+    return qProfilesPerLanguage.getProperty();
   }
 }

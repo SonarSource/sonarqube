@@ -19,7 +19,9 @@
  */
 package org.sonar.server.computation.analysis;
 
+import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.computation.snapshot.Snapshot;
 
 public interface AnalysisMetadataHolder {
@@ -59,5 +61,7 @@ public interface AnalysisMetadataHolder {
    * @throws IllegalStateException if root component ref has not been set
    */
   int getRootComponentRef();
+
+  Map<String, QualityProfile> getQProfilesByLanguage();
 
 }

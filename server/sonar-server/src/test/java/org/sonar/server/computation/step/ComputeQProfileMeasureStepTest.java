@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -26,8 +27,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.FileAttributes;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
@@ -36,9 +39,12 @@ import org.sonar.server.computation.qualityprofile.QPMeasureData;
 import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES;
 import static org.sonar.api.measures.CoreMetrics.QUALITY_PROFILES_KEY;
+import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
+import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.MODULE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
@@ -47,22 +53,38 @@ public class ComputeQProfileMeasureStepTest {
 
   private static final String QP_NAME_1 = "qp1";
   private static final String QP_NAME_2 = "qp1";
-  private static final String LANGUAGE_KEY_1 = "language_key1";
-  private static final String LANGUAGE_KEY_2 = "language_key2";
+  private static final String LANGUAGE_KEY_1 = "java";
+  private static final String LANGUAGE_KEY_2 = "php";
 
   private static final String PROJECT_KEY = "PROJECT KEY";
   private static final int PROJECT_REF = 1;
   private static final int MODULE_REF = 11;
   private static final int SUB_MODULE_REF = 111;
+  private static final int FOLDER_1_REF = 1111;
+  private static final int FOLDER_2_REF = 1112;
+  private static final int FILE_1_1_REF = 11111;
+  private static final int FILE_1_2_REF = 11112;
+  private static final int FILE_2_1_REF = 11121;
+  private static final int FILE_2_2_REF = 11122;
 
   private static final Component MULTI_MODULE_PROJECT = ReportComponent.builder(PROJECT, PROJECT_REF).setKey(PROJECT_KEY)
     .addChildren(
       ReportComponent.builder(MODULE, MODULE_REF)
         .addChildren(
-          ReportComponent.builder(MODULE, SUB_MODULE_REF).build()
-        )
-        .build()
-    ).build();
+          ReportComponent.builder(MODULE, SUB_MODULE_REF)
+            .addChildren(ReportComponent.builder(DIRECTORY, FOLDER_1_REF)
+              .addChildren(
+                ReportComponent.builder(FILE, FILE_1_1_REF).setFileAttributes(new FileAttributes(false, "java")).build(),
+                ReportComponent.builder(FILE, FILE_1_2_REF).setFileAttributes(new FileAttributes(false, "java")).build())
+              .build(),
+              ReportComponent.builder(DIRECTORY, FOLDER_2_REF)
+                .addChildren(
+                  ReportComponent.builder(FILE, FILE_2_1_REF).setFileAttributes(new FileAttributes(false, null)).build(),
+                  ReportComponent.builder(FILE, FILE_2_2_REF).setFileAttributes(new FileAttributes(false, "php")).build())
+                .build())
+            .build())
+        .build())
+    .build();
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -76,80 +98,52 @@ public class ComputeQProfileMeasureStepTest {
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
+
   ComputeQProfileMeasureStep underTest;
 
   @Before
   public void setUp() throws Exception {
-    underTest = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository);
+    underTest = new ComputeQProfileMeasureStep(treeRootHolder, measureRepository, metricRepository, analysisMetadataHolder);
   }
 
   @Test
   public void add_quality_profile_measure_on_project() throws Exception {
     treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
-
-    QualityProfile qp = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
-    addMeasure(SUB_MODULE_REF, qp);
-
-    underTest.execute();
-
-    assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).get(QUALITY_PROFILES_KEY)).extracting("data").containsOnly(toJson(qp));
-  }
-
-  @Test
-  public void add_quality_profile_measure_from_multiple_modules() throws Exception {
-    ReportComponent project = ReportComponent.builder(PROJECT, PROJECT_REF)
-      .addChildren(
-        ReportComponent.builder(MODULE, MODULE_REF)
-          .addChildren(
-            ReportComponent.builder(MODULE, SUB_MODULE_REF).build()
-          )
-          .build(),
-        ReportComponent.builder(MODULE, 12).build()
-      ).build();
-
-    treeRootHolder.setRoot(project);
-
-    QualityProfile qp1 = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
-    addMeasure(SUB_MODULE_REF, qp1);
-    QualityProfile qp2 = createQProfile(QP_NAME_2, LANGUAGE_KEY_2);
-    addMeasure(12, qp2);
+    QualityProfile qpJava = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
+    QualityProfile qpPhp = createQProfile(QP_NAME_2, LANGUAGE_KEY_2);
+    analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of(LANGUAGE_KEY_1, qpJava, LANGUAGE_KEY_2, qpPhp));
 
     underTest.execute();
 
-    assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).get(QUALITY_PROFILES_KEY)).extracting("data").containsOnly(toJson(qp1, qp2));
+    assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF).get(QUALITY_PROFILES_KEY))
+      .extracting("data").containsOnly(toJson(qpJava, qpPhp));
   }
 
   @Test
-  public void nothing_to_add_when_measure_already_exists_on_project() throws Exception {
+  public void nothing_to_add_when_no_files() throws Exception {
     ReportComponent project = ReportComponent.builder(PROJECT, PROJECT_REF).build();
-
     treeRootHolder.setRoot(project);
 
-    QualityProfile qp = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
-    addMeasure(PROJECT_REF, qp);
-
     underTest.execute();
 
     assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF)).isEmpty();
   }
 
   @Test
-  public void nothing_to_add_when_no_qprofile_computed_on_project() throws Exception {
+  public void fail_if_report_inconsistant() throws Exception {
     treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
+    QualityProfile qpJava = createQProfile(QP_NAME_1, LANGUAGE_KEY_1);
+    analysisMetadataHolder.setQProfilesByLanguage(ImmutableMap.of(LANGUAGE_KEY_1, qpJava));
 
-    underTest.execute();
+    try {
+      underTest.execute();
+      fail("Expected exception");
+    } catch (Exception e) {
+      assertThat(e).hasCause(new IllegalStateException("Report contains a file with language 'php' but no matching quality profile"));
+    }
 
-    assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF)).isEmpty();
-  }
-
-  @Test
-  public void nothing_to_add_when_qprofiles_computed_on_project_are_empty() throws Exception {
-    treeRootHolder.setRoot(MULTI_MODULE_PROJECT);
-    measureRepository.addRawMeasure(PROJECT_REF, QUALITY_PROFILES_KEY, newMeasureBuilder().create(toJson()));
-
-    underTest.execute();
-
-    assertThat(measureRepository.getAddedRawMeasures(PROJECT_REF)).isEmpty();
   }
 
   private static QualityProfile createQProfile(String qpName, String languageKey) {
@@ -165,4 +159,5 @@ public class ComputeQProfileMeasureStepTest {
     List<QualityProfile> qualityProfiles = Arrays.asList(qps);
     return QPMeasureData.toJson(new QPMeasureData(qualityProfiles));
   }
+
 }

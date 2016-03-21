@@ -72,6 +72,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Must be executed after computation of differential measures
     QualityGateMeasuresStep.class,
+    // Must be executed after computation of language distribution
     ComputeQProfileMeasureStep.class,
     // Must be executed after computation of quality profile measure
     QualityProfileEventsStep.class,
@@ -104,8 +105,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     // notifications are sent at the end, so that webapp displays up-to-date information
     SendIssueNotificationsStep.class,
 
-    PublishTaskResultStep.class
-    );
+    PublishTaskResultStep.class);
 
   private final ComputeEngineContainer computeEngineContainer;
 

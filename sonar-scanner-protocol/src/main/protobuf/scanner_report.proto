@@ -41,6 +41,14 @@ message Metadata {
   string branch = 3;
   int32 root_component_ref = 4;
   bool cross_project_duplication_activated = 5;
+  map<string, QProfile> qprofiles_per_language = 6;
+
+  message QProfile {
+    string key = 1;
+    string name = 2;
+    string language = 3;
+    int64 rulesUpdatedAt = 4;
+  }
 }
 
 message ActiveRule {
@@ -90,6 +98,7 @@ message Component {
 	  DIRECTORY = 3;
 	  FILE = 4;
 	}
+	
 }
 
 message Measure {

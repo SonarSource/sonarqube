@@ -19,12 +19,17 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Function;
+import java.util.Date;
 import org.sonar.api.utils.MessageException;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
+import org.sonar.server.computation.qualityprofile.QualityProfile;
 
+import static com.google.common.collect.Maps.transformValues;
 import static java.lang.String.format;
 import static org.elasticsearch.common.lang3.StringUtils.isNotEmpty;
 
@@ -32,6 +37,15 @@ import static org.elasticsearch.common.lang3.StringUtils.isNotEmpty;
  * Feed analysis metadata holder with metadata from the analysis report.
  */
 public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
+
+  private static final ToComputeQProfile TO_COMPUTE_QPROFILE = new ToComputeQProfile();
+
+  private static final class ToComputeQProfile implements Function<QProfile, QualityProfile> {
+    @Override
+    public QualityProfile apply(QProfile input) {
+      return new QualityProfile(input.getKey(), input.getName(), input.getLanguage(), new Date(input.getRulesUpdatedAt()));
+    }
+  }
 
   private final CeTask ceTask;
   private final BatchReportReader reportReader;
@@ -53,6 +67,7 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     mutableAnalysisMetadataHolder.setBranch(isNotEmpty(reportMetadata.getBranch()) ? reportMetadata.getBranch() : null);
     mutableAnalysisMetadataHolder.setAnalysisDate(reportMetadata.getAnalysisDate());
     mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
+    mutableAnalysisMetadataHolder.setQProfilesByLanguage(transformValues(reportMetadata.getQprofilesPerLanguage(), TO_COMPUTE_QPROFILE));
   }
 
   private void checkProjectKeyConsistency(ScannerReport.Metadata reportMetadata) {

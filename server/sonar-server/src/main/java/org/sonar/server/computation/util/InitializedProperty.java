@@ -26,7 +26,7 @@ public class InitializedProperty<E> {
   private E property;
   private boolean initialized = false;
 
-  public InitializedProperty setProperty(@Nullable E property) {
+  public InitializedProperty<E> setProperty(@Nullable E property) {
     this.property = property;
     this.initialized = true;
     return this;

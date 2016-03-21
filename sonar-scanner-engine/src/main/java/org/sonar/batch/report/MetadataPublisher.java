@@ -26,6 +26,8 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.rule.ModuleQProfiles;
+import org.sonar.batch.rule.QProfile;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
@@ -35,11 +37,13 @@ public class MetadataPublisher implements ReportPublisherStep {
   private final BatchComponentCache componentCache;
   private final ImmutableProjectReactor reactor;
   private final Settings settings;
+  private final ModuleQProfiles qProfiles;
 
-  public MetadataPublisher(BatchComponentCache componentCache, ImmutableProjectReactor reactor, Settings settings) {
+  public MetadataPublisher(BatchComponentCache componentCache, ImmutableProjectReactor reactor, Settings settings, ModuleQProfiles qProfiles) {
     this.componentCache = componentCache;
     this.reactor = reactor;
     this.settings = settings;
+    this.qProfiles = qProfiles;
   }
 
   @Override
@@ -55,6 +59,13 @@ public class MetadataPublisher implements ReportPublisherStep {
     String branch = root.properties().get(CoreProperties.PROJECT_BRANCH_PROPERTY);
     if (branch != null) {
       builder.setBranch(branch);
+    }
+    for (QProfile qp : qProfiles.findAll()) {
+      builder.getMutableQprofilesPerLanguage().put(qp.getLanguage(), org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
+        .setKey(qp.getKey())
+        .setLanguage(qp.getLanguage())
+        .setName(qp.getName())
+        .setRulesUpdatedAt(qp.getRulesUpdatedAt().getTime()).build());
     }
     writer.writeMetadata(builder.build());
   }

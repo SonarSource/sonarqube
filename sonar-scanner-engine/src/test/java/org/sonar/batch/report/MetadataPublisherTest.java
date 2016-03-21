@@ -30,12 +30,18 @@ import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.rule.ModuleQProfiles;
+import org.sonar.batch.rule.QProfile;
 import org.sonar.batch.scan.ImmutableProjectReactor;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.entry;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class MetadataPublisherTest {
 
@@ -46,6 +52,7 @@ public class MetadataPublisherTest {
   private Project project;
   private MetadataPublisher underTest;
   private Settings settings;
+  private ModuleQProfiles qProfiles;
 
   @Before
   public void prepare() {
@@ -56,12 +63,19 @@ public class MetadataPublisherTest {
     componentCache.add(project, null);
     componentCache.add(sampleFile, project);
     settings = new Settings();
-    underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef), settings);
+    qProfiles = mock(ModuleQProfiles.class);
+    underTest = new MetadataPublisher(componentCache, new ImmutableProjectReactor(projectDef), settings, qProfiles);
   }
 
   @Test
   public void write_metadata() throws Exception {
     settings.setProperty(CoreProperties.CPD_CROSS_PROJECT, "true");
+    Date date = new Date();
+    when(qProfiles.findAll()).thenReturn(asList(new QProfile()
+      .setKey("q1")
+      .setName("Q1")
+      .setLanguage("java")
+      .setRulesUpdatedAt(date)));
     File outputDir = temp.newFolder();
     ScannerReportWriter writer = new ScannerReportWriter(outputDir);
 
@@ -73,6 +87,12 @@ public class MetadataPublisherTest {
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getProjectKey()).isEqualTo("foo");
     assertThat(metadata.getCrossProjectDuplicationActivated()).isTrue();
+    assertThat(metadata.getQprofilesPerLanguage()).containsOnly(entry("java", org.sonar.scanner.protocol.output.ScannerReport.Metadata.QProfile.newBuilder()
+      .setKey("q1")
+      .setName("Q1")
+      .setLanguage("java")
+      .setRulesUpdatedAt(date.getTime())
+      .build()));
   }
 
   @Test
