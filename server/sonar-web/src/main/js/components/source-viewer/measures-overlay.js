@@ -123,7 +123,7 @@ export default ModalView.extend({
 
   calcAdditionalMeasures (measures) {
     if (measures.lines_to_cover && measures.uncovered_lines) {
-      measures.covered_lines = measures.lines_to_cover - measures.uncovered_lines;
+      measures.covered_lines = measures.lines_to_cover_raw - measures.uncovered_lines_raw;
     }
     if (measures.conditions_to_cover && measures.uncovered_conditions) {
       measures.covered_conditions = measures.conditions_to_cover - measures.uncovered_conditions;

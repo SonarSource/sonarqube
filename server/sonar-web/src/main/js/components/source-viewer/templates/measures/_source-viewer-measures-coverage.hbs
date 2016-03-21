@@ -22,7 +22,7 @@
         </div>
         <div class="measure measure-one-line" data-metric="lines_to_cover">
           <span class="measure-name">Lines</span>
-          <span class="measure-value">{{measures.covered_lines}}/{{measures.lines_to_cover}}</span>
+          <span class="measure-value">{{formatMeasure measures.covered_lines 'INT'}}/{{measures.lines_to_cover}}</span>
         </div>
         {{#if measures.conditions_to_cover}}
           <div class="measure measure-one-line" data-metric="conditions_to_cover">
