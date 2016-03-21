@@ -20,6 +20,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { translate } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
 
 
 export default React.createClass({
@@ -57,7 +58,7 @@ export default React.createClass({
     let className = classNames('spacer-top note text-center', { 'new-loading': !this.props.ready });
     return (
         <footer className={className}>
-          {this.props.count}/{this.props.total} shown
+          {formatMeasure(this.props.count, 'INT')} of {formatMeasure(this.props.total, 'INT')} shown
           {this.canLoadMore() && hasMore ? loadMoreLink : null}
         </footer>
     );
