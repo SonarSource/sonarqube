@@ -30,7 +30,8 @@ export function addCondition (qualityGate, metric) {
     warning: '',
     error: ''
   };
-  const conditions = [...qualityGate.conditions, condition];
+  const oldConditions = qualityGate.conditions || [];
+  const conditions = [...oldConditions, condition];
 
   return { ...qualityGate, conditions };
 }
