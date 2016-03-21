@@ -119,8 +119,8 @@ const byDistributionConf = {
   },
   'projectUuids': {
     label (item, r) {
-      if (_.isArray(r.projects)) {
-        const project = _.findWhere(r.projects, { uuid: item.val });
+      if (_.isArray(r.components)) {
+        const project = _.findWhere(r.components, { uuid: item.val });
         if (project != null) {
           return project.name;
         }
