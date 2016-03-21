@@ -17,24 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+import { getMetrics } from '../../../api/metrics';
 
-const middlewares = [thunk];
-const composed = [];
+/*
+ * Actions
+ */
 
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
+export const DISPLAY_HOME = 'app/DISPLAY_HOME';
+export const RECEIVE_METRICS = 'app/RECEIVE_METRICS';
 
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
+
+/*
+ * Action Creators
+ */
+
+export function displayHome () {
+  return { type: DISPLAY_HOME };
 }
 
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
+function receiveMetrics (metrics) {
+  return { type: RECEIVE_METRICS, metrics };
+}
 
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
+
+/*
+ * Workflow
+ */
+
+export function fetchMetrics () {
+  return dispatch => {
+    getMetrics().then(metrics => {
+      dispatch(receiveMetrics(metrics));
+    });
+  };
 }

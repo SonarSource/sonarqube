@@ -17,8 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import bubbles from './bubbles';
+import bubbles from './config/bubbles';
 import { formatMeasure, formatMeasureVariation } from '../../helpers/measures';
+
+export function isDiffMetric (metric) {
+  return metric.key.indexOf('new_') === 0;
+}
 
 export function getLeakValue (measure) {
   if (!measure) {
@@ -53,7 +57,7 @@ export function getSingleLeakValue (measures) {
 }
 
 export function formatLeak (value, metric) {
-  if (metric.key.indexOf('new_') === 0) {
+  if (isDiffMetric(metric)) {
     return formatMeasure(value, metric.type);
   } else {
     return formatMeasureVariation(value, metric.type);
@@ -80,8 +84,7 @@ export function enhanceWithSingleMeasure (components) {
           value: getSingleMeasureValue(component.measures),
           leak: getSingleLeakValue(component.measures)
         };
-      })
-      .filter(component => component.value != null || component.leak != null);
+      });
 }
 
 export function hasHistory (metricKey) {

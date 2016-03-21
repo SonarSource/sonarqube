@@ -45,24 +45,22 @@ export function createProject (data) {
   return postJSON(url, data);
 }
 
-export function getChildren (componentKey, metrics = [], additional = {}) {
+export function getComponentTree (strategy, componentKey, metrics = [], additional = {}) {
   const url = '/api/measures/component_tree';
   const data = Object.assign({}, additional, {
     baseComponentKey: componentKey,
     metricKeys: metrics.join(','),
-    strategy: 'children'
+    strategy
   });
-  return getJSON(url, data).then(r => r.components);
+  return getJSON(url, data);
 }
 
-export function getFiles (componentKey, metrics = [], additional = {}) {
-  const url = '/api/measures/component_tree';
-  const data = Object.assign({}, additional, {
-    baseComponentKey: componentKey,
-    metricKeys: metrics.join(','),
-    strategy: 'leaves'
-  });
-  return getJSON(url, data).then(r => r.components);
+export function getChildren (componentKey, metrics, additional) {
+  return getComponentTree('children', componentKey, metrics, additional).then(r => r.components);
+}
+
+export function getComponentLeaves (componentKey, metrics, additional) {
+  return getComponentTree('leaves', componentKey, metrics, additional);
 }
 
 export function getComponent (componentKey, metrics = []) {

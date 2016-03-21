@@ -17,24 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+export const START_FETCHING = 'status/START_FETCHING';
+export const STOP_FETCHING = 'status/STOP_FETCHING';
 
-const middlewares = [thunk];
-const composed = [];
-
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
-
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
+export function startFetching () {
+  return { type: START_FETCHING };
 }
 
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
-
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
+export function stopFetching () {
+  return { type: STOP_FETCHING };
 }

@@ -21,15 +21,18 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, Redirect, IndexRedirect, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
+import { Provider } from 'react-redux';
 
-import ComponentMeasuresApp from './components/ComponentMeasuresApp';
-import AllMeasuresList from './components/AllMeasures';
-import MeasureDetails from './components/MeasureDetails';
-import MeasureDrilldownTree from './components/MeasureDrilldownTree';
-import MeasureDrilldownList from './components/MeasureDrilldownList';
-import MeasureHistory from './components/MeasureHistory';
-import MeasureBubbleChart from './components/MeasureBubbleChart';
-import MeasureTreemap from './components/MeasureTreemap';
+import AppContainer from './app/AppContainer';
+import AllMeasuresContainer from './home/AllMeasuresContainer';
+import MeasureDetailsContainer from './details/MeasureDetailsContainer';
+import ListViewContainer from './details/drilldown/ListViewContainer';
+import TreeViewContainer from './details/drilldown/TreeViewContainer';
+import MeasureHistoryContainer from './details/history/MeasureHistoryContainer';
+import MeasureBubbleChartContainer from './details/bubbleChart/MeasureBubbleChartContainer';
+import MeasureTreemapContainer from './details/treemap/MeasureTreemapContainer';
+
+import configureStore from './store/configureStore';
 
 import { checkHistoryExistence, checkBubbleChartExistence } from './hooks';
 
@@ -42,31 +45,33 @@ window.sonarqube.appStarted.then(options => {
     basename: '/component_measures'
   });
 
-  const Container = (props) => (
-      <ComponentMeasuresApp {...props} component={options.component}/>
-  );
+  const store = configureStore({
+    app: { component: options.component }
+  });
 
   const handleRouteUpdate = () => {
     window.scrollTo(0, 0);
   };
 
   render((
-      <Router history={history} onUpdate={handleRouteUpdate}>
-        <Redirect from="/index" to="/"/>
+      <Provider store={store}>
+        <Router history={history} onUpdate={handleRouteUpdate}>
+          <Redirect from="/index" to="/"/>
 
-        <Route path="/" component={Container}>
-          <IndexRoute component={AllMeasuresList}/>
-          <Route path=":metricKey" component={MeasureDetails}>
-            <IndexRedirect to="tree"/>
-            <Route path="tree" component={MeasureDrilldownTree}/>
-            <Route path="list" component={MeasureDrilldownList}/>
-            <Route path="history" component={MeasureHistory} onEnter={checkHistoryExistence}/>
-            <Route path="bubbles" component={MeasureBubbleChart} onEnter={checkBubbleChartExistence}/>
-            <Route path="treemap" component={MeasureTreemap}/>
+          <Route path="/" component={AppContainer}>
+            <IndexRoute component={AllMeasuresContainer}/>
+            <Route path=":metricKey" component={MeasureDetailsContainer}>
+              <IndexRedirect to="list"/>
+              <Route path="list" component={ListViewContainer}/>
+              <Route path="tree" component={TreeViewContainer}/>
+              <Route path="history" component={MeasureHistoryContainer} onEnter={checkHistoryExistence}/>
+              <Route path="bubbles" component={MeasureBubbleChartContainer} onEnter={checkBubbleChartExistence}/>
+              <Route path="treemap" component={MeasureTreemapContainer}/>
+            </Route>
           </Route>
-        </Route>
 
-        <Redirect from="*" to="/"/>
-      </Router>
+          <Redirect from="*" to="/"/>
+        </Router>
+      </Provider>
   ), el);
 });

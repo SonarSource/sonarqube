@@ -493,7 +493,7 @@ $.widget.bridge = function( name, object ) {
 			args = slice.call( arguments, 1 ),
 			returnValue = this;
 
-		// allow multiple hashes to be passed on init
+		// allow multiple hashes to be passed on start
 		options = !isMethodCall && args.length ?
 			$.widget.extend.apply( null, [ options ].concat(args) ) :
 			options;

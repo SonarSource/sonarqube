@@ -94,3 +94,16 @@ export function fileFromPath (path) {
     return null;
   }
 }
+
+
+export function splitPath (path) {
+  if (typeof path === 'string') {
+    const tokens = path.split('/');
+    return {
+      head: _.initial(tokens).join('/'),
+      tail: _.last(tokens)
+    };
+  } else {
+    return null;
+  }
+}

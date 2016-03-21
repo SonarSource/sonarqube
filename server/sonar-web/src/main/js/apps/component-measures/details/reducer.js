@@ -17,24 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+import { DISPLAY_HOME } from '../app/actions';
+import { REQUEST_MEASURE, RECEIVE_MEASURE } from './actions';
 
-const middlewares = [thunk];
-const composed = [];
+const initialState = {
+  metric: undefined,
+  secondaryMeasure: undefined,
+  measure: undefined,
+  periods: undefined
+};
 
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
-
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
+export default function appReducer (state = initialState, action = {}) {
+  switch (action.type) {
+    case DISPLAY_HOME:
+      return initialState;
+    case REQUEST_MEASURE:
+      return { ...state, metric: action.metric };
+    case RECEIVE_MEASURE:
+      return { ...state, measure: action.measure, secondaryMeasure: action.secondaryMeasure, periods: action.periods };
+    default:
+      return state;
+  }
 }
 
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
-
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
-}

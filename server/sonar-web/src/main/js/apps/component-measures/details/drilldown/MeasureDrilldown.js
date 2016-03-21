@@ -20,47 +20,33 @@
 import React from 'react';
 import { Link } from 'react-router';
 
-import IconList from './IconList';
-import IconTree from './IconTree';
-import IconBubbles from './IconBubbles';
-import IconTreemap from './IconTreemap';
-import IconHistory from './IconHistory';
+import IconList from './../../components/IconList';
+import IconTree from './../../components/IconTree';
+import IconBubbles from './../../components/IconBubbles';
+import IconTreemap from './../../components/IconTreemap';
+import IconHistory from './../../components/IconHistory';
 
-import { hasHistory, hasBubbleChart, hasTreemap } from '../utils';
-import { translate } from '../../../helpers/l10n';
+import { hasHistory, hasBubbleChart, hasTreemap } from '../../utils';
+import { translate } from '../../../../helpers/l10n';
 
 export default class MeasureDrilldown extends React.Component {
-  state = {
-    tree: {
-      components: [],
-      breadcrumbs: [],
-      selected: null,
-      fetching: true
-    },
-    list: {
-      components: [],
-      selected: null,
-      fetching: true
-    }
-  };
-
   render () {
-    const { children, metric, ...other } = this.props;
-    const { component } = this.context;
+    const { children, component, metric, ...other } = this.props;
 
-    const showListView = ['VW', 'SVW', 'DEV'].indexOf(component.qualifier) === -1;
-
-    const child = React.cloneElement(children, {
-      component,
-      metric,
-      ...other,
-      store: this.state,
-      updateStore: this.setState.bind(this)
-    });
+    const child = React.cloneElement(children, { ...other });
 
     return (
         <div className="measure-details-drilldown">
           <ul className="measure-details-drilldown-mode">
+            <li>
+              <Link
+                  activeClassName="active"
+                  to={{ pathname: `${metric.key}/list`, query: { id: component.key } }}>
+                <IconList/>
+                {translate('component_measures.tab.list')}
+              </Link>
+            </li>
+
             <li>
               <Link
                   activeClassName="active"
@@ -69,17 +55,6 @@ export default class MeasureDrilldown extends React.Component {
                 {translate('component_measures.tab.tree')}
               </Link>
             </li>
-
-            {showListView && (
-                <li>
-                  <Link
-                      activeClassName="active"
-                      to={{ pathname: `${metric.key}/list`, query: { id: component.key } }}>
-                    <IconList/>
-                    {translate('component_measures.tab.list')}
-                  </Link>
-                </li>
-            )}
 
             {hasBubbleChart(metric.key) && (
                 <li>
@@ -120,7 +95,3 @@ export default class MeasureDrilldown extends React.Component {
     );
   }
 }
-
-MeasureDrilldown.contextTypes = {
-  component: React.PropTypes.object
-};

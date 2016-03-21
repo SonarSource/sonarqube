@@ -41,6 +41,7 @@ export default React.createClass({
 
   handleLoadMore(e) {
     e.preventDefault();
+    e.target.blur();
     if (this.canLoadMore()) {
       this.props.loadMore();
     }

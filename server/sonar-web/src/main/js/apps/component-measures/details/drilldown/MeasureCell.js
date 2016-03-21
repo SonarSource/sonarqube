@@ -17,24 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+import React from 'react';
 
-const middlewares = [thunk];
-const composed = [];
+import { formatMeasure } from '../../../../helpers/measures';
+import { isDiffMetric, formatLeak } from '../../utils';
 
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
+const MeasureCell = ({ component, metric }) => {
+  const value = isDiffMetric(metric) ?
+      formatLeak(component.leak, metric) :
+      formatMeasure(component.value, metric.type);
 
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
-}
+  return (
+      <td className="thin nowrap text-right">
+        <span id={'component-measures-component-measure-' + component.key}>
+          {value != null ? value : '–'}
+        </span>
+      </td>
+  );
+};
 
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
-
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
-}
+export default MeasureCell;

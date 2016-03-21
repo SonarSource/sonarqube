@@ -21,13 +21,13 @@ import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
 
-import Spinner from './Spinner';
-import Timeline from '../../../components/charts/Timeline';
-import { getTimeMachineData } from '../../../api/time-machine';
-import { getEvents } from '../../../api/events';
-import { formatMeasure, getShortType } from '../../../helpers/measures';
+import Spinner from './../../components/Spinner';
+import Timeline from '../../../../components/charts/Timeline';
+import { getTimeMachineData } from '../../../../api/time-machine';
+import { getEvents } from '../../../../api/events';
+import { formatMeasure, getShortType } from '../../../../helpers/measures';
 
-const HEIGHT = 360;
+const HEIGHT = 500;
 
 function parseValue (value, type) {
   return type === 'RATING' && typeof value === 'string' ? value.charCodeAt(0) - 'A'.charCodeAt(0) + 1 : value;
@@ -45,9 +45,8 @@ export default class MeasureHistory extends React.Component {
     this.fetchHistory();
   }
 
-  componentDidUpdate (nextProps, nextState, nextContext) {
-    if ((nextProps.metric !== this.props.metric) ||
-        (nextContext.component !== this.context.component)) {
+  componentDidUpdate (nextProps) {
+    if (nextProps.metric !== this.props.metric) {
       this.fetchHistory();
     }
   }
@@ -176,7 +175,3 @@ export default class MeasureHistory extends React.Component {
     );
   }
 }
-
-MeasureHistory.contextTypes = {
-  component: React.PropTypes.object
-};
