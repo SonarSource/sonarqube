@@ -17,24 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+import { connect } from 'react-redux';
 
-const middlewares = [thunk];
-const composed = [];
+import MeasureDetails from './MeasureDetails';
+import { fetchMeasure } from './actions';
 
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
+const mapStateToProps = state => {
+  return {
+    component: state.app.component,
+    metrics: state.app.metrics,
+    metric: state.details.metric,
+    measure: state.details.measure,
+    periods: state.details.periods
+  };
+};
 
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
-}
+const mapDispatchToProps = dispatch => {
+  return {
+    fetchMeasure: metricKey => dispatch(fetchMeasure(metricKey))
+  };
+};
 
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
-
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
-}
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(MeasureDetails);

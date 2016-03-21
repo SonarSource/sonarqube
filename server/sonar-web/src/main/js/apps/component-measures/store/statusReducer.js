@@ -17,14 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import { START_FETCHING, STOP_FETCHING } from './statusActions';
 
-import { translate } from '../../../helpers/l10n';
+const initialState = {
+  fetching: false
+};
 
-export default function MeasureDrilldownEmpty () {
-  return (
-      <div className="measures-details-components-empty note">
-        {translate('no_results')}
-      </div>
-  );
+export default function drilldownReducer (state = initialState, action = {}) {
+  switch (action.type) {
+    case START_FETCHING:
+      return { ...state, fetching: true };
+    case STOP_FETCHING:
+      return { ...state, fetching: false };
+    default:
+      return state;
+  }
 }
+

@@ -19,24 +19,14 @@
  */
 import React from 'react';
 
-import MeasureDetailsSeeAlso from './MeasureDetailsSeeAlso';
-import LanguageDistribution from './LanguageDistribution';
+import LanguageDistribution from './../components/LanguageDistribution';
 import { ComplexityDistribution } from '../../overview/components/complexity-distribution';
 import { formatLeak } from '../utils';
 import { formatMeasure } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
-export default function MeasureDetailsHeader (
-    {
-        measure,
-        metric,
-        secondaryMeasure,
-        leakPeriodLabel,
-        metricSelectOpen,
-        onMetricClick
-    }
-) {
+export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasure, leakPeriodLabel }) {
   const leakPeriodTooltip = translateWithParameters('overview.leak_period_x', leakPeriodLabel);
 
   const displayLeak = measure.leak != null && metric.type !== 'RATING' && metric.type !== 'LEVEL';
@@ -44,17 +34,7 @@ export default function MeasureDetailsHeader (
   return (
       <header className="measure-details-header">
         <h2 className="measure-details-metric">
-          <a
-              href="#"
-              onClick={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                onMetricClick();
-              }}>
-            {metric.name}
-            &nbsp;
-            <i className="icon-dropdown"/>
-          </a>
+          {metric.name}
         </h2>
 
         <TooltipsContainer options={{ html: false }}>
@@ -93,10 +73,6 @@ export default function MeasureDetailsHeader (
             )}
           </div>
         </TooltipsContainer>
-
-        {metricSelectOpen && (
-            <MeasureDetailsSeeAlso metric={metric} onClose={onMetricClick}/>
-        )}
       </header>
   );
 }

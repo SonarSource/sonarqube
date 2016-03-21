@@ -17,24 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+import React from 'react';
 
-const middlewares = [thunk];
-const composed = [];
+import ComponentCell from './ComponentCell';
+import MeasureCell from './MeasureCell';
 
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
+const ComponentsListRow = ({ component, isSelected, metric, onClick }) => {
+  const handleClick = () => {
+    onClick(component);
+  };
 
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
-}
+  return (
+      <tr>
+        <ComponentCell
+            component={component}
+            isSelected={isSelected}
+            onClick={handleClick.bind(this, component)}/>
 
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
+        <MeasureCell
+            component={component}
+            metric={metric}/>
+      </tr>
+  );
+};
 
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
-}
+export default ComponentsListRow;

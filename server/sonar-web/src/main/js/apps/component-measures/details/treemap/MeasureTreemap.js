@@ -19,16 +19,16 @@
  */
 import React from 'react';
 
-import Spinner from './Spinner';
-import { getLeakValue } from '../utils';
-import { Treemap } from '../../../components/charts/treemap';
-import { getChildren } from '../../../api/components';
-import { formatMeasure } from '../../../helpers/measures';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
-import { getComponentUrl } from '../../../helpers/urls';
-import Workspace from '../../../components/workspace/main';
+import Spinner from './../../components/Spinner';
+import { getLeakValue } from '../../utils';
+import { Treemap } from '../../../../components/charts/treemap';
+import { getChildren } from '../../../../api/components';
+import { formatMeasure } from '../../../../helpers/measures';
+import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { getComponentUrl } from '../../../../helpers/urls';
+import Workspace from '../../../../components/workspace/main';
 
-const HEIGHT = 360;
+const HEIGHT = 500;
 
 export default class MeasureTreemap extends React.Component {
   state = {
@@ -38,16 +38,15 @@ export default class MeasureTreemap extends React.Component {
   };
 
   componentDidMount () {
-    const { component } = this.context;
+    const { component } = this.props;
 
     this.mounted = true;
     this.fetchComponents(component.key);
   }
 
-  componentDidUpdate (nextProps, nextState, nextContext) {
-    if ((nextProps.metric !== this.props.metric) ||
-        (nextContext.component !== this.context.component)) {
-      this.fetchComponents(nextContext.component.key);
+  componentDidUpdate (nextProps) {
+    if (nextProps.metric !== this.props.metric) {
+      this.fetchComponents(this.props.component.key);
     }
   }
 
@@ -158,7 +157,7 @@ export default class MeasureTreemap extends React.Component {
   }
 
   handleReset () {
-    const { component } = this.context;
+    const { component } = this.props;
     this.fetchComponents(component.key).then(() => {
       this.setState({ breadcrumbs: [] });
     });
@@ -185,14 +184,11 @@ export default class MeasureTreemap extends React.Component {
           };
         });
 
-    // FIXME remove this magic number
-    const height = HEIGHT - 35;
-
     return (
         <Treemap
             items={items}
             breadcrumbs={this.state.breadcrumbs}
-            height={height}
+            height={HEIGHT}
             canBeClicked={() => true}
             onRectangleClick={this.handleRectangleClick.bind(this)}
             onReset={this.handleReset.bind(this)}/>
@@ -228,8 +224,3 @@ export default class MeasureTreemap extends React.Component {
     );
   }
 }
-
-MeasureTreemap.contextTypes = {
-  component: React.PropTypes.object,
-  metrics: React.PropTypes.array
-};

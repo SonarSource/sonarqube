@@ -108,6 +108,7 @@ export default Marionette.LayoutView.extend({
     });
     this.issueViews = [];
     this.clearTooltips();
+    this.unbindScrollEvents();
   },
 
   clearTooltips () {

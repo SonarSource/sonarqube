@@ -19,57 +19,24 @@
  */
 import React from 'react';
 
-import Spinner from './Spinner';
-import { getMetrics } from '../../../api/metrics';
+import Spinner from './../components/Spinner';
 
-export default class ComponentMeasuresApp extends React.Component {
-  state = {
-    fetching: true,
-    metrics: []
-  };
-
-  getChildContext () {
-    return {
-      component: this.props.component,
-      metrics: this.state.metrics
-    };
-  }
-
+export default class App extends React.Component {
   componentDidMount () {
-    this.mounted = true;
-    this.fetchMetrics();
-  }
-
-  componentWillUnmount () {
-    this.mounted = false;
-  }
-
-  fetchMetrics () {
-    getMetrics().then(metrics => {
-      if (this.mounted) {
-        this.setState({ metrics, fetching: false });
-      }
-    });
+    this.props.fetchMetrics();
   }
 
   render () {
-    const { fetching, metrics } = this.state;
+    const { metrics } = this.props;
 
-    if (fetching) {
+    if (metrics == null) {
       return <Spinner/>;
     }
 
-    const child = React.cloneElement(this.props.children, { metrics });
-
     return (
-        <div id="component-measures">
-          {child}
-        </div>
+        <main id="component-measures">
+          {this.props.children}
+        </main>
     );
   }
 }
-
-ComponentMeasuresApp.childContextTypes = {
-  component: React.PropTypes.object,
-  metrics: React.PropTypes.array
-};

@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import sortBy from 'lodash/sortBy';
-import partition from 'lodash/partition';
+import sortBy from '../../../../../../node_modules/lodash/sortBy';
+import partition from '../../../../../../node_modules/lodash/partition';
 import React from 'react';
 import { Link } from 'react-router';
 

@@ -17,24 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, compose } from 'redux';
-import thunk from 'redux-thunk';
+import React from 'react';
 
-const middlewares = [thunk];
-const composed = [];
+import ComponentsListRow from './ComponentsListRow';
+import EmptyComponentsList from './EmptyComponentsList';
 
-if (process.env.NODE_ENV !== 'production') {
-  const createLogger = require('redux-logger');
-  middlewares.push(createLogger());
+const ComponentsList = ({ components, selected, metric, onClick }) => {
+  if (!components.length) {
+    return <EmptyComponentsList/>;
+  }
 
-  composed.push(window.devToolsExtension ? window.devToolsExtension() : f => f);
-}
+  return (
+      <table className="data zebra zebra-hover">
+        <tbody>
+        {components.map(component => (
+            <ComponentsListRow
+                key={component.id}
+                component={component}
+                isSelected={component === selected}
+                metric={metric}
+                onClick={onClick}/>
+        ))}
+        </tbody>
+      </table>
+  );
+};
 
-const finalCreateStore = compose(
-    applyMiddleware(...middlewares),
-    ...composed
-)(createStore);
-
-export default function configureStore (rootReducer, initialState) {
-  return finalCreateStore(rootReducer, initialState);
-}
+export default ComponentsList;

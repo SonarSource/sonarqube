@@ -19,29 +19,28 @@
  */
 import React from 'react';
 
-import Spinner from './Spinner';
-import { BubbleChart } from '../../../components/charts/bubble-chart';
-import bubbles from '../bubbles';
-import { getFiles } from '../../../api/components';
-import { formatMeasure } from '../../../helpers/measures';
-import Workspace from '../../../components/workspace/main';
+import Spinner from './../../components/Spinner';
+import { BubbleChart as OriginalBubbleChart } from '../../../../components/charts/bubble-chart';
+import bubbles from '../../config/bubbles';
+import { getComponentLeaves } from '../../../../api/components';
+import { formatMeasure } from '../../../../helpers/measures';
+import Workspace from '../../../../components/workspace/main';
 
-const HEIGHT = 360;
+const HEIGHT = 500;
 const BUBBLES_LIMIT = 500;
 
 function getMeasure (component, metric) {
   return Number(component.measures[metric]) || 0;
 }
 
-export default class MeasureBubbleChart extends React.Component {
+export default class BubbleChart extends React.Component {
   state = {
     fetching: true,
     files: []
   };
 
   componentWillMount () {
-    const { metric } = this.props;
-    const { metrics } = this.context;
+    const { metric, metrics } = this.props;
     const conf = bubbles[metric.key];
 
     this.xMetric = metrics.find(m => m.key === conf.x);
@@ -54,9 +53,8 @@ export default class MeasureBubbleChart extends React.Component {
     this.fetchFiles();
   }
 
-  componentDidUpdate (nextProps, nextState, nextContext) {
-    if ((nextProps.metric !== this.props.metric) ||
-        (nextContext.component !== this.context.component)) {
+  componentDidUpdate (nextProps) {
+    if (nextProps.metric !== this.props.metric) {
       this.fetchFiles();
     }
   }
@@ -66,7 +64,7 @@ export default class MeasureBubbleChart extends React.Component {
   }
 
   fetchFiles () {
-    const { component } = this.context;
+    const { component } = this.props;
     const metrics = [this.xMetric.key, this.yMetric.key, this.sizeMetric.key];
     const options = {
       s: 'metric',
@@ -75,8 +73,8 @@ export default class MeasureBubbleChart extends React.Component {
       ps: BUBBLES_LIMIT
     };
 
-    getFiles(component.key, metrics, options).then(r => {
-      const files = r.map(file => {
+    getComponentLeaves(component.key, metrics, options).then(r => {
+      const files = r.components.map(file => {
         const measures = {};
 
         file.measures.forEach(measure => {
@@ -123,7 +121,7 @@ export default class MeasureBubbleChart extends React.Component {
     const formatYTick = (tick) => formatMeasure(tick, this.yMetric.type);
 
     return (
-        <BubbleChart
+        <OriginalBubbleChart
             items={items}
             height={HEIGHT}
             padding={[25, 60, 50, 60]}
@@ -148,7 +146,9 @@ export default class MeasureBubbleChart extends React.Component {
 
     return (
         <div className="measure-details-bubble-chart">
-          {this.renderBubbleChart()}
+          <div>
+            {this.renderBubbleChart()}
+          </div>
 
           <div className="measure-details-bubble-chart-axis x">{this.xMetric.name}</div>
           <div className="measure-details-bubble-chart-axis y">{this.yMetric.name}</div>
@@ -157,8 +157,3 @@ export default class MeasureBubbleChart extends React.Component {
     );
   }
 }
-
-MeasureBubbleChart.contextTypes = {
-  component: React.PropTypes.object,
-  metrics: React.PropTypes.array
-};

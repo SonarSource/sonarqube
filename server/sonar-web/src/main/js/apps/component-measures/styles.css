@@ -1,8 +1,4 @@
 .measures-domains {
-  max-width: 980px;
-  margin: 20px auto;
-  column-count: 2;
-  column-gap: 60px;
 }
 
 .measures-domains > li {
@@ -67,25 +63,12 @@
 
 .measure-details-header {
   position: relative;
-}
-
-.measure-details-see-also {
-  position: absolute;
-  z-index: 50;
-  top: 29px;
-  left: 10px;
-  width: 400px;
-  max-height: 450px;
-  border: 1px solid #e6e6e6;
-  background-color: #fff;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, .175);
-  overflow: auto;
+  margin-top: 10px;
+  margin-bottom: 30px;
 }
 
 .measure-details-metric,
 .measure-details-value {
-  margin-left: 20px;
-  margin-right: 20px;
 }
 
 .measure-details-metric {
@@ -138,8 +121,7 @@
 
 .measure-details-drilldown-mode {
   display: flex;
-  padding-left: 10px;
-  padding-right: 10px;
+  margin-bottom: 10px;
   border-bottom: 1px solid #e6e6e6;
 }
 
@@ -167,14 +149,13 @@
   fill: #4b9fd5;
 }
 
+.measure-details-plain-list {
+}
+
 .measure-details-components {
   width: 300px;
   padding: 10px;
   box-sizing: border-box;
-}
-
-.measure-details-components-parent {
-  padding-bottom: 6px;
 }
 
 .measure-details-components > li > a {
@@ -209,16 +190,23 @@
   text-align: right;
 }
 
-.measure-details-tree,
-.measure-details-plain-list {
-  display: flex;
+.measure-details-viewer {
+  min-height: 100vh;
 }
 
-.measure-details-viewer {
-  width: calc(100% - 300px);
-  margin-top: -1px;
-  margin-bottom: -1px;
-  box-sizing: border-box;
+.measure-details-viewer-header {
+  margin-bottom: 10px;
+  line-height: 24px;
+}
+
+.measure-details-viewer-header .button-group {
+  vertical-align: top;
+}
+
+.measure-details-header-container {
+  display: inline-block;
+  line-height: 16px;
+  padding-right: 10px;
 }
 
 .measure-tab-icon {
@@ -233,28 +221,17 @@
   transition: fill 0.3s ease;
 }
 
-.measure-details-components-up-icon {
-  display: inline-block;
-  height: 14px;
-  padding: 2px 4px 0;
-}
-
 .measure-details-components-up-icon path {
   fill: #aeaeae;
 }
 
-.measures-details-components-empty {
-  padding: 10px;
-}
-
 .measure-details-history {
-  padding: 10px;
+  padding: 10px 0;
 }
 
 .measure-details-bubble-chart {
   position: relative;
-  max-width: 960px;
-  margin: 10px auto;
+  margin: 10px 0;
   padding: 30px 0 30px 50px;
 }
 
@@ -281,10 +258,36 @@
 }
 
 .measure-details-treemap {
-  max-width: 960px;
-  margin: 20px auto;
+  margin: 20px 0;
 }
 
 .measure-details-treemap-legend {
   margin-bottom: 10px;
+}
+
+
+.component-measures-breadcrumbs {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.component-measures-breadcrumbs > li {
+  padding: 5px 5px 3px;
+}
+
+.component-measures-breadcrumbs > li:first-child {
+  padding-left: 0;
+}
+
+.component-measures-breadcrumbs > li::after {
+  position: relative;
+  top: -1px;
+  padding-left: 10px;
+  color: #777;
+  font-size: 11px;
+  content: ">";
+}
+
+.component-measures-breadcrumbs > li:last-child::after {
+  display: none;
 }
