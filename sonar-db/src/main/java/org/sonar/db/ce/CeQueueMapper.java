@@ -35,7 +35,7 @@ public interface CeQueueMapper {
 
   int countByQuery(@Param("query") CeTaskQuery query);
 
-  List<String> selectEligibleForPeek();
+  List<String> selectEligibleForPeek(RowBounds rowBounds);
 
   @CheckForNull
   CeQueueDto selectByUuid(@Param("uuid") String uuid);

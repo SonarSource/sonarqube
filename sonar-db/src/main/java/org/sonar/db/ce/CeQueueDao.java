@@ -33,6 +33,8 @@ import static org.sonar.db.ce.CeQueueDto.Status.PENDING;
 
 public class CeQueueDao implements Dao {
 
+  private static final RowBounds ONE_ROW_LIMIT = new RowBounds(0, 1);
+
   private final System2 system2;
 
   public CeQueueDao(System2 system2) {
@@ -107,7 +109,7 @@ public class CeQueueDao implements Dao {
   }
 
   public Optional<CeQueueDto> peek(DbSession session) {
-    List<String> taskUuids = mapper(session).selectEligibleForPeek();
+    List<String> taskUuids = mapper(session).selectEligibleForPeek(ONE_ROW_LIMIT);
     if (taskUuids.isEmpty()) {
       return Optional.absent();
     }

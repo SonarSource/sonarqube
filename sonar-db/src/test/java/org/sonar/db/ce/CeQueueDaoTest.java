@@ -55,7 +55,7 @@ public class CeQueueDaoTest {
   public DbTester db = DbTester.create(system2);
 
   private CeQueueDao underTest = new CeQueueDao(system2);
-  public static final String SELECT_QUEUE_UUID_AND_STATUS_QUERY = "select uuid,status from ce_queue";
+  private static final String SELECT_QUEUE_UUID_AND_STATUS_QUERY = "select uuid,status from ce_queue";
 
   @Test
   public void test_insert() {
