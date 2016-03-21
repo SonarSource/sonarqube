@@ -29,7 +29,6 @@ import { GeneralStructure } from './structure';
 import { CoverageSelectionMixin } from '../components/coverage-selection-mixin';
 import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { getMeasures } from '../../../api/measures';
-import { getFacet } from '../../../api/issues';
 import { getTimeMachineData } from '../../../api/time-machine';
 
 
@@ -48,9 +47,15 @@ const METRICS_LIST = [
 
   'sqale_index',
   'new_technical_debt',
+  'code_smells',
+  'new_code_smells',
   'sqale_rating',
   'reliability_rating',
-  'security_rating'
+  'bugs',
+  'new_bugs',
+  'security_rating',
+  'vulnerabilities',
+  'new_vulnerabilities'
 ];
 
 const HISTORY_METRICS_LIST = [
@@ -77,24 +82,12 @@ export default React.createClass({
   },
 
   componentDidMount() {
-    Promise.all([
-      this.requestMeasures(),
-      this.requestIssues(),
-      this.requestNewIssues()
-    ]).then(responses => {
-      const measures = this.getMeasuresValues(responses[0]);
-      const typesFacet = responses[1];
-      measures['code_smells'] = this.getFacetCount(typesFacet, 'CODE_SMELL');
-      measures['bugs'] = this.getFacetCount(typesFacet, 'BUG');
-      measures['vulnerabilities'] = this.getFacetCount(typesFacet, 'VULNERABILITY');
+    this.requestMeasures().then(r => {
+      const measures = this.getMeasuresValues(r);
 
       let leak;
       if (this.state.leakPeriodDate) {
-        const newTypesFacet = responses[2];
-        leak = this.getMeasuresValues(responses[0], Number(this.props.leakPeriodIndex));
-        leak['new_code_smells'] = this.getFacetCount(newTypesFacet, 'CODE_SMELL');
-        leak['new_bugs'] = this.getFacetCount(newTypesFacet, 'BUG');
-        leak['new_vulnerabilities'] = this.getFacetCount(newTypesFacet, 'VULNERABILITY');
+        leak = this.getMeasuresValues(r, Number(this.props.leakPeriodIndex));
       }
 
       this.setState({
@@ -119,31 +112,6 @@ export default React.createClass({
       }
     });
     return values;
-  },
-
-  requestIssues (criteria = {}) {
-    const { component } = this.props;
-    const query = {
-      componentUuids: component.id,
-      resolved: false,
-      ...criteria
-    };
-    return getFacet(query, 'types').then(r => r.facet);
-  },
-
-  requestNewIssues () {
-    const { leakPeriodDate } = this.state;
-
-    if (!leakPeriodDate) {
-      return Promise.resolve();
-    }
-
-    const createdAfter = moment(leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
-    return this.requestIssues({ createdAfter });
-  },
-
-  getFacetCount (facet, value) {
-    return facet.find(item => item.val === value).count;
   },
 
   requestHistory () {

@@ -36,7 +36,7 @@ import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 
 export const CodeSmells = React.createClass({
@@ -52,6 +52,8 @@ export const CodeSmells = React.createClass({
       return null;
     }
 
+    const { snapshotDate } = this.props.component;
+    const formattedSnapshotDate = moment(snapshotDate).format('LLL');
     const createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
     const newDebt = this.props.leak['new_technical_debt'] || 0;
     const newCodeSmells = this.props.leak['new_code_smells'] || 0;
@@ -62,14 +64,22 @@ export const CodeSmells = React.createClass({
           <IssuesLink
               component={this.props.component.key}
               params={{ resolved: 'false', createdAfter, types: 'CODE_SMELL', facetMode: 'debt' }}>
-            {formatMeasure(newDebt, 'SHORT_WORK_DUR')}
+            <span
+                title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                data-toggle="tooltip">
+              {formatMeasure(newDebt, 'SHORT_WORK_DUR')}
+            </span>
           </IssuesLink>
         </Measure>
         <Measure label={getMetricName('new_code_smells')}>
           <IssuesLink
               component={this.props.component.key}
               params={{ resolved: 'false', types: 'CODE_SMELL', createdAfter }}>
-            {formatMeasure(newCodeSmells, 'SHORT_INT')}
+            <span
+                title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                data-toggle="tooltip">
+              {formatMeasure(newCodeSmells, 'SHORT_INT')}
+            </span>
           </IssuesLink>
         </Measure>
       </MeasuresList>
@@ -80,6 +90,8 @@ export const CodeSmells = React.createClass({
   render () {
     const debt = this.props.measures['sqale_index'] || 0;
     const codeSmells = this.props.measures['code_smells'] || 0;
+    const { snapshotDate } = this.props.component;
+    const formattedSnapshotDate = moment(snapshotDate).format('LLL');
 
     return <Domain>
       <DomainHeader component={this.props.component}
@@ -91,14 +103,20 @@ export const CodeSmells = React.createClass({
 
             <Measure composite={true}>
               <div className="display-inline-block text-middle big-spacer-right">
-                <div className="overview-domain-measure-value">
+                <div
+                    className="overview-domain-measure-value"
+                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                    data-toggle="tooltip">
                   <DrilldownLink component={this.props.component.key} metric="sqale_rating">
                     <Rating value={this.props.measures['sqale_rating']}/>
                   </DrilldownLink>
                 </div>
               </div>
               <div className="display-inline-block text-middle">
-                <div className="overview-domain-measure-value">
+                <div
+                    className="overview-domain-measure-value"
+                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                    data-toggle="tooltip">
                   <IssuesLink
                       component={this.props.component.key}
                       params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt' }}>
@@ -113,7 +131,11 @@ export const CodeSmells = React.createClass({
               <IssuesLink
                   component={this.props.component.key}
                   params={{ resolved: 'false', types: 'CODE_SMELL' }}>
-                {formatMeasure(codeSmells, 'SHORT_INT')}
+                <span
+                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                    data-toggle="tooltip">
+                  {formatMeasure(codeSmells, 'SHORT_INT')}
+                </span>
               </IssuesLink>
             </Measure>
           </MeasuresList>

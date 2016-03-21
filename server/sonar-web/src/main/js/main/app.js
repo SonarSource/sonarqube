@@ -60,7 +60,8 @@ function prepareAppOptions (navResponse) {
         key: navResponse.component.key,
         name: navResponse.component.name,
         qualifier: _.last(navResponse.component.breadcrumbs).qualifier,
-        breadcrumbs: navResponse.component.breadcrumbs
+        breadcrumbs: navResponse.component.breadcrumbs,
+        snapshotDate: navResponse.component.snapshotDate
       };
     }
   }

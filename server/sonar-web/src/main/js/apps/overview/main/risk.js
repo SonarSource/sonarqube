@@ -36,7 +36,7 @@ import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { Legend } from '../components/legend';
 import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 
 export const Risk = React.createClass({
@@ -52,6 +52,8 @@ export const Risk = React.createClass({
       return null;
     }
 
+    const { snapshotDate } = this.props.component;
+    const formattedSnapshotDate = moment(snapshotDate).format('LLL');
     const createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
     const newBugs = this.props.leak['new_bugs'] || 0;
     const newVulnerabilities = this.props.leak['new_vulnerabilities'] || 0;
@@ -64,14 +66,22 @@ export const Risk = React.createClass({
           <IssuesLink
               component={this.props.component.key}
               params={{ resolved: 'false', types: 'BUG', createdAfter }}>
-            {formatMeasure(newBugs, 'SHORT_INT')}
+            <span
+                title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                data-toggle="tooltip">
+              {formatMeasure(newBugs, 'SHORT_INT')}
+            </span>
           </IssuesLink>
         </Measure>
         <Measure label={getMetricName('new_vulnerabilities')}>
           <IssuesLink
               component={this.props.component.key}
               params={{ resolved: 'false', types: 'VULNERABILITY', createdAfter }}>
-            {formatMeasure(newVulnerabilities, 'SHORT_INT')}
+            <span
+                title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                data-toggle="tooltip">
+              {formatMeasure(newVulnerabilities, 'SHORT_INT')}
+            </span>
           </IssuesLink>
         </Measure>
       </MeasuresList>
@@ -79,6 +89,8 @@ export const Risk = React.createClass({
   },
 
   render () {
+    const { snapshotDate } = this.props.component;
+    const formattedSnapshotDate = moment(snapshotDate).format('LLL');
     const bugs = this.props.measures['bugs'] || 0;
     const vulnerabilities = this.props.measures['vulnerabilities'] || 0;
 
@@ -92,7 +104,10 @@ export const Risk = React.createClass({
 
             <Measure composite={true}>
               <div className="display-inline-block text-middle big-spacer-right">
-                <div className="overview-domain-measure-value">
+                <div
+                    className="overview-domain-measure-value"
+                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                    data-toggle="tooltip">
                   <DrilldownLink component={this.props.component.key} metric="reliability_rating">
                     <Rating value={this.props.measures['reliability_rating']}/>
                   </DrilldownLink>
@@ -103,7 +118,11 @@ export const Risk = React.createClass({
                   <IssuesLink
                       component={this.props.component.key}
                       params={{ resolved: 'false', types: 'BUG' }}>
-                    {formatMeasure(bugs, 'SHORT_INT')}
+                    <span
+                        title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                        data-toggle="tooltip">
+                      {formatMeasure(bugs, 'SHORT_INT')}
+                    </span>
                   </IssuesLink>
                 </div>
                 <div className="overview-domain-measure-label">{getMetricName('bugs')}</div>
@@ -112,7 +131,10 @@ export const Risk = React.createClass({
 
             <Measure composite={true}>
               <div className="display-inline-block text-middle big-spacer-right">
-                <div className="overview-domain-measure-value">
+                <div
+                    className="overview-domain-measure-value"
+                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                    data-toggle="tooltip">
                   <DrilldownLink component={this.props.component.key} metric="security_rating">
                     <Rating value={this.props.measures['security_rating']}/>
                   </DrilldownLink>
@@ -123,7 +145,11 @@ export const Risk = React.createClass({
                   <IssuesLink
                       component={this.props.component.key}
                       params={{ resolved: 'false', types: 'VULNERABILITY' }}>
-                    {formatMeasure(vulnerabilities, 'SHORT_INT')}
+                    <span
+                        title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                        data-toggle="tooltip">
+                      {formatMeasure(vulnerabilities, 'SHORT_INT')}
+                    </span>
                   </IssuesLink>
                 </div>
                 <div className="overview-domain-measure-label">{getMetricName('vulnerabilities')}</div>
