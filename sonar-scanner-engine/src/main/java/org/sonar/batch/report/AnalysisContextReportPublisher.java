@@ -38,10 +38,13 @@ import org.sonar.api.utils.log.Loggers;
 import org.sonar.batch.bootstrap.BatchPluginRepository;
 import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.core.platform.PluginInfo;
+import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 @BatchSide
 public class AnalysisContextReportPublisher {
+
+  private static final String KEY_VALUE_FORMAT = "  - %s=%s";
 
   private static final Logger LOG = Loggers.get(AnalysisContextReportPublisher.class);
 
@@ -51,14 +54,17 @@ public class AnalysisContextReportPublisher {
   private final AnalysisMode mode;
   private final System2 system;
   private final ProjectRepositories projectRepos;
+  private final GlobalRepositories globalRepositories;
 
   private ScannerReportWriter writer;
 
-  public AnalysisContextReportPublisher(AnalysisMode mode, BatchPluginRepository pluginRepo, System2 system, ProjectRepositories projectRepos) {
+  public AnalysisContextReportPublisher(AnalysisMode mode, BatchPluginRepository pluginRepo, System2 system,
+    ProjectRepositories projectRepos, GlobalRepositories globalRepositories) {
     this.mode = mode;
     this.pluginRepo = pluginRepo;
     this.system = system;
     this.projectRepos = projectRepos;
+    this.globalRepositories = globalRepositories;
   }
 
   public void init(ScannerReportWriter writer) {
@@ -73,6 +79,7 @@ public class AnalysisContextReportPublisher {
         writeSystemProps(fileWriter);
       }
       writePlugins(fileWriter);
+      writeGlobalSettings(fileWriter);
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);
     }
@@ -92,7 +99,7 @@ public class AnalysisContextReportPublisher {
       if (prop.startsWith(SONAR_PROP_PREFIX)) {
         continue;
       }
-      fileWriter.append(String.format("  - %s=%s", prop, sysProps.getProperty(prop))).append('\n');
+      fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, sysProps.getProperty(prop))).append('\n');
     }
   }
 
@@ -100,11 +107,19 @@ public class AnalysisContextReportPublisher {
     fileWriter.append("Environment variables:\n");
     Map<String, String> envVariables = system.envVariables();
     for (String env : new TreeSet<>(envVariables.keySet())) {
-      fileWriter.append(String.format("  - %s=%s", env, envVariables.get(env))).append('\n');
+      fileWriter.append(String.format(KEY_VALUE_FORMAT, env, envVariables.get(env))).append('\n');
     }
   }
 
-  public void dumpSettings(ProjectDefinition moduleDefinition) {
+  private void writeGlobalSettings(BufferedWriter fileWriter) throws IOException {
+    fileWriter.append("Global properties:\n");
+    Map<String, String> props = globalRepositories.globalSettings();
+    for (String env : new TreeSet<>(props.keySet())) {
+      fileWriter.append(String.format(KEY_VALUE_FORMAT, env, props.get(env))).append('\n');
+    }
+  }
+
+  public void dumpModuleSettings(ProjectDefinition moduleDefinition) {
     if (mode.isIssues()) {
       return;
     }
@@ -117,7 +132,7 @@ public class AnalysisContextReportPublisher {
         if (isSystemProp(prop) || isEnvVariable(prop) || !isSqProp(prop)) {
           continue;
         }
-        fileWriter.append(String.format("  - %s=%s", prop, sensitive(prop) ? "******" : moduleSpecificProps.get(prop))).append('\n');
+        fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, sensitive(prop) ? "******" : moduleSpecificProps.get(prop))).append('\n');
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);

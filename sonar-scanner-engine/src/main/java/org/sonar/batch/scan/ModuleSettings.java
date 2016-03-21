@@ -46,7 +46,7 @@ public class ModuleSettings extends Settings {
     getEncryption().setPathToSecretKey(batchSettings.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
 
     init(moduleDefinition, batchSettings);
-    contextReportPublisher.dumpSettings(moduleDefinition);
+    contextReportPublisher.dumpModuleSettings(moduleDefinition);
   }
 
   private ModuleSettings init(ProjectDefinition moduleDefinition, GlobalSettings batchSettings) {
