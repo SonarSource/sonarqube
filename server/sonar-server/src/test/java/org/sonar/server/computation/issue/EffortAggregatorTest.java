@@ -28,7 +28,6 @@ import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.guava.api.Assertions.assertThat;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_REMEDIATION_EFFORT;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_REMEDIATION_EFFORT_KEY;
@@ -39,17 +38,11 @@ import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
 import static org.sonar.api.rules.RuleType.BUG;
 import static org.sonar.api.rules.RuleType.CODE_SMELL;
 import static org.sonar.api.rules.RuleType.VULNERABILITY;
-import static org.sonar.db.rule.RuleTesting.XOO_X1;
 
 public class EffortAggregatorTest {
 
   static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).build();
   static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 2).addChildren(FILE).build();
-
-  static final DumbRule RULE = new DumbRule(XOO_X1).setId(100);
-
-  @org.junit.Rule
-  public RuleRepositoryRule ruleRepository = new RuleRepositoryRule().add(RULE);
 
   @org.junit.Rule
   public MetricRepositoryRule metricRepository = new MetricRepositoryRule()
@@ -60,7 +53,7 @@ public class EffortAggregatorTest {
   @org.junit.Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(PROJECT, metricRepository);
 
-  EffortAggregator underTest = new EffortAggregator(ruleRepository, metricRepository, measureRepository);
+  EffortAggregator underTest = new EffortAggregator(metricRepository, measureRepository);
 
   @Test
   public void sum_maintainability_effort_of_unresolved_issues() {
@@ -78,9 +71,6 @@ public class EffortAggregatorTest {
 
     // total maintainability effort
     assertMeasure(FILE, TECHNICAL_DEBT_KEY, 10L + 30L);
-
-    // maintainability effort by rule
-    assertMaintainabilityRuleMeasure(FILE, RULE, 10L + 30L);
   }
 
   @Test
@@ -184,9 +174,6 @@ public class EffortAggregatorTest {
     assertMeasure(PROJECT, TECHNICAL_DEBT_KEY, 10L + 30L);
     assertMeasure(PROJECT, RELIABILITY_REMEDIATION_EFFORT_KEY, 8L + 38L);
     assertMeasure(PROJECT, SECURITY_REMEDIATION_EFFORT_KEY, 12L + 42L);
-
-    // maintainability effort by rule
-    assertMaintainabilityRuleMeasure(PROJECT, RULE, 10L + 30L);
   }
 
   @Test
@@ -203,17 +190,10 @@ public class EffortAggregatorTest {
     assertMeasure(PROJECT, TECHNICAL_DEBT_KEY, 0L);
     assertMeasure(PROJECT, RELIABILITY_REMEDIATION_EFFORT_KEY, 0L);
     assertMeasure(PROJECT, SECURITY_REMEDIATION_EFFORT_KEY, 0L);
-
-    // maintainability effort by rule
-    assertThat(measureRepository.getAddedRawRuleMeasure(PROJECT, TECHNICAL_DEBT_KEY, RULE.getId())).isAbsent();
   }
 
   private void assertMeasure(Component component, String metricKey, long expectedValue) {
     assertThat(measureRepository.getAddedRawMeasure(component, metricKey).get().getLongValue()).isEqualTo(expectedValue);
-  }
-
-  private void assertMaintainabilityRuleMeasure(Component component, Rule rule, long expectedValue) {
-    assertThat(measureRepository.getAddedRawRuleMeasure(component, TECHNICAL_DEBT_KEY, rule.getId()).get().getLongValue()).isEqualTo(expectedValue);
   }
 
   private static DefaultIssue newCodeSmellIssue(long effort) {
@@ -229,15 +209,15 @@ public class EffortAggregatorTest {
   }
 
   private static DefaultIssue newCodeSmellIssueWithoutEffort() {
-    return new DefaultIssue().setRuleKey(RULE.getKey()).setType(CODE_SMELL);
+    return new DefaultIssue().setType(CODE_SMELL);
   }
 
   private static DefaultIssue newBugIssueWithoutEffort() {
-    return new DefaultIssue().setRuleKey(RULE.getKey()).setType(BUG);
+    return new DefaultIssue().setType(BUG);
   }
 
   private static DefaultIssue newVulnerabilityIssueWithoutEffort() {
-    return new DefaultIssue().setRuleKey(RULE.getKey()).setType(VULNERABILITY);
+    return new DefaultIssue().setType(VULNERABILITY);
   }
 
 }

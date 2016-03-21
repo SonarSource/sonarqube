@@ -21,9 +21,6 @@ package org.sonar.server.computation.issue;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Set;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
@@ -32,7 +29,6 @@ import org.sonar.server.computation.measure.MeasureRepository;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 
-import static com.google.common.collect.Maps.newHashMap;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_REMEDIATION_EFFORT_KEY;
 import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
@@ -45,7 +41,6 @@ import static org.sonar.api.measures.CoreMetrics.TECHNICAL_DEBT_KEY;
  */
 public class EffortAggregator extends IssueVisitor {
 
-  private final RuleRepository ruleRepository;
   private final MeasureRepository measureRepository;
 
   private final Metric maintainabilityEffortMetric;
@@ -55,9 +50,7 @@ public class EffortAggregator extends IssueVisitor {
   private final Map<Integer, EffortCounter> effortsByComponentRef = new HashMap<>();
   private EffortCounter effortCounter;
 
-  public EffortAggregator(RuleRepository ruleRepository,
-    MetricRepository metricRepository, MeasureRepository measureRepository) {
-    this.ruleRepository = ruleRepository;
+  public EffortAggregator(MetricRepository metricRepository, MeasureRepository measureRepository) {
     this.measureRepository = measureRepository;
     this.maintainabilityEffortMetric = metricRepository.getByKey(TECHNICAL_DEBT_KEY);
     this.reliabilityEffortMetric = metricRepository.getByKey(RELIABILITY_REMEDIATION_EFFORT_KEY);
@@ -95,33 +88,20 @@ public class EffortAggregator extends IssueVisitor {
     this.effortCounter = null;
   }
 
-  private void computeMaintainabilityEffortMeasure(Component component){
-    // total value
+  private void computeMaintainabilityEffortMeasure(Component component) {
     measureRepository.add(component, maintainabilityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.maintainabilityEffort));
-
-    // TODO delete following lines when working on SONAR-7425
-    // distribution by rule
-    for (Map.Entry<Integer, Long> entry : effortCounter.maintainabilityEffortByRuleId.entrySet()) {
-      int ruleId = entry.getKey();
-      long ruleDebt = entry.getValue();
-      // debt can't be zero.
-      measureRepository.add(component, maintainabilityEffortMetric, Measure.newMeasureBuilder().forRule(ruleId).create(ruleDebt));
-    }
   }
 
-  private void computeReliabilityEffortMeasure(Component component){
-    // total value
+  private void computeReliabilityEffortMeasure(Component component) {
     measureRepository.add(component, reliabilityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.reliabilityEffort));
   }
 
-  private void computeSecurityEffortMeasure(Component component){
-    // total value
+  private void computeSecurityEffortMeasure(Component component) {
     measureRepository.add(component, securityEffortMetric, Measure.newMeasureBuilder().create(effortCounter.securityEffort));
   }
 
   private class EffortCounter {
     private long maintainabilityEffort = 0L;
-    private final SumMap<Integer> maintainabilityEffortByRuleId = new SumMap<>();
     private long reliabilityEffort = 0L;
     private long securityEffort = 0L;
 
@@ -129,10 +109,8 @@ public class EffortAggregator extends IssueVisitor {
       Long issueEffort = issue.effortInMinutes();
       if (issueEffort != null && issueEffort != 0L) {
         switch (issue.type()) {
-          case CODE_SMELL :
+          case CODE_SMELL:
             maintainabilityEffort += issueEffort;
-            Rule rule = ruleRepository.getByKey(issue.ruleKey());
-            maintainabilityEffortByRuleId.add(rule.getId(), issueEffort);
             break;
           case BUG:
             reliabilityEffort += issueEffort;
@@ -148,35 +126,8 @@ public class EffortAggregator extends IssueVisitor {
 
     public void add(EffortCounter effortCounter) {
       maintainabilityEffort += effortCounter.maintainabilityEffort;
-      maintainabilityEffortByRuleId.add(effortCounter.maintainabilityEffortByRuleId);
       reliabilityEffort += effortCounter.reliabilityEffort;
       securityEffort += effortCounter.securityEffort;
-    }
-  }
-
-  private static class SumMap<E> {
-    private final Map<E, Long> sumByKeys = newHashMap();
-
-    void add(SumMap<E> other) {
-      for (Map.Entry<E, Long> entry : other.entrySet()) {
-        add(entry.getKey(), entry.getValue());
-      }
-    }
-
-    void add(@Nullable E key, Long value) {
-      if (key != null) {
-        Long currentValue = sumByKeys.get(key);
-        sumByKeys.put(key, currentValue != null ? (currentValue + value) : value);
-      }
-    }
-
-    @CheckForNull
-    Long get(E key) {
-      return sumByKeys.get(key);
-    }
-
-    Set<Map.Entry<E, Long>> entrySet() {
-      return sumByKeys.entrySet();
     }
   }
 }
