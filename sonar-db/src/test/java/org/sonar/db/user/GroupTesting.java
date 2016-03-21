@@ -22,7 +22,6 @@ package org.sonar.db.user;
 import java.util.Date;
 
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class GroupTesting {
 
@@ -30,8 +29,8 @@ public class GroupTesting {
     GroupDto group = new GroupDto()
       .setName(randomAlphanumeric(255))
       .setDescription(randomAlphanumeric(200));
-    group.setCreatedAt(new Date(nextLong()));
-    group.setUpdatedAt(new Date(nextLong()));
+    group.setCreatedAt(new Date());
+    group.setUpdatedAt(new Date());
     return group;
   }
 }

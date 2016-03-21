@@ -32,6 +32,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
@@ -43,11 +44,14 @@ import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.ws.WsTester;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
 import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.db.user.UserTokenTesting.newUserToken;
-
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
@@ -58,6 +62,7 @@ public class SearchActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   UserDbTester userDb = new UserDbTester(db);
+  GroupDbTester groupDb = new GroupDbTester(db);
   DbClient dbClient = db.getDbClient();
   final DbSession dbSession = db.getSession();
 
@@ -69,6 +74,37 @@ public class SearchActionTest {
     esTester.truncateIndices();
     index = new UserIndex(esTester.client());
     ws = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
+  }
+
+  @Test
+  public void search_json_example() throws Exception {
+    UserDto fmallet = userDb.insertUser(newUserDto("fmallet", "Freddy Mallet", "f@m.com")
+      .setActive(true)
+      .setLocal(true)
+      .setScmAccounts(emptyList()));
+    UserDto simon = userDb.insertUser(newUserDto("sbrandhof", "Simon", "s.brandhof@company.tld")
+      .setActive(true)
+      .setLocal(false)
+      .setExternalIdentity("sbrandhof@ldap.com")
+      .setExternalIdentityProvider("LDAP")
+      .setScmAccounts(newArrayList("simon.brandhof", "s.brandhof@company.tld")));
+    GroupDto sonarUsers = groupDb.insertGroup(newGroupDto().setName("sonar-users"));
+    GroupDto sonarAdministrators = groupDb.insertGroup(newGroupDto().setName("sonar-administrators"));
+    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(simon.getId()).setGroupId(sonarUsers.getId()));
+    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(fmallet.getId()).setGroupId(sonarUsers.getId()));
+    dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setUserId(fmallet.getId()).setGroupId(sonarAdministrators.getId()));
+
+    for (int i = 0; i < 3; i++) {
+      dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(simon.getLogin()));
+    }
+    dbClient.userTokenDao().insert(dbSession, newUserToken().setLogin(fmallet.getLogin()));
+    db.commit();
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, toUserDoc(fmallet), toUserDoc(simon));
+    loginAsAdmin();
+
+    String response = ws.newGetRequest("api/users", "search").execute().outputAsString();
+
+    assertJson(response).isSimilarTo(getClass().getResource("search-example.json"));
   }
 
   @Test
@@ -88,8 +124,7 @@ public class SearchActionTest {
     injectUsers(5);
     UserDto user = userDb.insertUser(
       newUserDto("user-%_%-login", "user-name", "user@mail.com")
-      .setScmAccounts("user1")
-    );
+        .setScmAccounts("user1"));
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER,
       new UserDoc()
         .setActive(true)
@@ -184,7 +219,7 @@ public class SearchActionTest {
       String name = String.format("User %d", index);
       List<String> scmAccounts = singletonList(String.format("user-%d", index));
 
-      userDtos.add(dbClient.userDao().insert(dbSession, new UserDto()
+      UserDto userDto = dbClient.userDao().insert(dbSession, new UserDto()
         .setActive(true)
         .setCreatedAt(createdAt)
         .setEmail(email)
@@ -192,16 +227,12 @@ public class SearchActionTest {
         .setName(name)
         .setScmAccounts(scmAccounts)
         .setLocal(true)
-        .setUpdatedAt(createdAt)));
+        .setExternalIdentity(login)
+        .setExternalIdentityProvider("sonarqube")
+        .setUpdatedAt(createdAt));
+      userDtos.add(userDto);
 
-      users[index] = new UserDoc()
-        .setActive(true)
-        .setCreatedAt(createdAt)
-        .setEmail(email)
-        .setLogin(login)
-        .setName(name)
-        .setScmAccounts(scmAccounts)
-        .setUpdatedAt(createdAt);
+      users[index] = toUserDoc(userDto);
 
       for (int tokenIndex = 0; tokenIndex < index; tokenIndex++) {
         dbClient.userTokenDao().insert(dbSession, newUserToken()
@@ -212,6 +243,17 @@ public class SearchActionTest {
     dbSession.commit();
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, users);
     return userDtos;
+  }
+
+  private static UserDoc toUserDoc(UserDto dto) {
+    return new UserDoc()
+      .setActive(dto.isActive())
+      .setCreatedAt(dto.getCreatedAt())
+      .setEmail(dto.getEmail())
+      .setLogin(dto.getLogin())
+      .setName(dto.getName())
+      .setScmAccounts(dto.getScmAccountsAsList())
+      .setUpdatedAt(dto.getUpdatedAt());
   }
 
   private void loginAsAdmin() {

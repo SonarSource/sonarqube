@@ -11,7 +11,9 @@
         "sonar-administrators"
       ],
       "tokensCount": 1,
-      "local": true
+      "local": true,
+      "externalIdentity": "fmallet",
+      "externalProvider": "sonarqube"
     },
     {
       "login": "sbrandhof",
@@ -26,7 +28,9 @@
         "sonar-users"
       ],
       "tokensCount": 3,
-      "local": false
+      "local": false,
+      "externalIdentity": "sbrandhof@ldap.com",
+      "externalProvider": "LDAP"
     }
   ]
 }
