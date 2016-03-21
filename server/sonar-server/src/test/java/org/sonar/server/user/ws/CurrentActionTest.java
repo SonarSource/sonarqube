@@ -61,6 +61,9 @@ public class CurrentActionTest {
       .setGlobalPermissions(GlobalPermissions.ALL.toArray(new String[0]));
     UserDto obiwan = userDb.insertUser(
       newUserDto("obiwan.kenobi", "Obiwan Kenobi", "obiwan.kenobi@starwars.com")
+        .setLocal(true)
+        .setExternalIdentity("obiwan.kenobi")
+        .setExternalIdentityProvider("sonarqube")
         .setScmAccounts(newArrayList("obiwan:github", "obiwan:bitbucket")));
     GroupDto jedi = groupDb.insertGroup(newGroupDto().setName("Jedi"));
     GroupDto rebel = groupDb.insertGroup(newGroupDto().setName("Rebel"));
