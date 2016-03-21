@@ -38,36 +38,22 @@ public class MeasureKeyTest {
   public void fail_with_NPE_when_metric_key_is_null() {
     thrown.expect(NullPointerException.class);
 
-    new MeasureKey(null, 1, DEVELOPER);
-  }
-
-  @Test
-  public void fail_with_IAE_when_rule_id_is_default_value() {
-    thrown.expect(IllegalArgumentException.class);
-
-    new MeasureKey("metricKey", -6253, DEVELOPER);
+    new MeasureKey(null, DEVELOPER);
   }
 
   @Test
   public void test_equals_and_hashcode() throws Exception {
-    MeasureKey measureKey = new MeasureKey("metricKey", null, null);
-    MeasureKey measureKey2 = new MeasureKey("metricKey", null, null);
-    MeasureKey anotherMeasureKey = new MeasureKey("anotherMetricKey", null, null);
+    MeasureKey measureKey = new MeasureKey("metricKey", null);
+    MeasureKey measureKey2 = new MeasureKey("metricKey", null);
+    MeasureKey anotherMeasureKey = new MeasureKey("anotherMetricKey", null);
 
-    MeasureKey ruleMeasureKey = new MeasureKey("metricKey", 1, null);
-    MeasureKey ruleMeasureKey2 = new MeasureKey("metricKey", 1, null);
-    MeasureKey anotherRuleMeasureKey = new MeasureKey("metricKey", 2, null);
-
-    MeasureKey developerMeasureKey = new MeasureKey("metricKey", null, DEVELOPER);
-    MeasureKey developerMeasureKey2 = new MeasureKey("metricKey", null, DEVELOPER);
+    MeasureKey developerMeasureKey = new MeasureKey("metricKey", DEVELOPER);
+    MeasureKey developerMeasureKey2 = new MeasureKey("metricKey", DEVELOPER);
 
     assertThat(measureKey).isEqualTo(measureKey);
     assertThat(measureKey).isEqualTo(measureKey2);
     assertThat(measureKey).isNotEqualTo(null);
     assertThat(measureKey).isNotEqualTo(anotherMeasureKey);
-
-    assertThat(ruleMeasureKey).isEqualTo(ruleMeasureKey2);
-    assertThat(ruleMeasureKey).isNotEqualTo(anotherRuleMeasureKey);
 
     assertThat(developerMeasureKey).isEqualTo(developerMeasureKey2);
 
@@ -75,15 +61,13 @@ public class MeasureKeyTest {
     assertThat(measureKey.hashCode()).isEqualTo(measureKey2.hashCode());
     assertThat(measureKey.hashCode()).isNotEqualTo(anotherMeasureKey.hashCode());
 
-    assertThat(ruleMeasureKey.hashCode()).isEqualTo(ruleMeasureKey2.hashCode());
     assertThat(developerMeasureKey.hashCode()).isEqualTo(developerMeasureKey2.hashCode());
   }
 
   @Test
   public void to_string() {
-    assertThat(new MeasureKey("metricKey", 1, DEVELOPER).toString()).isEqualTo(
-      "MeasureKey{metricKey='metricKey', ruleId=1, developer=Developer{key='DEV1'}}");
-    assertThat(new MeasureKey("metricKey", 1, null).toString()).isEqualTo("MeasureKey{metricKey='metricKey', ruleId=1, developer=null}");
-    assertThat(new MeasureKey("metricKey", null, null).toString()).isEqualTo("MeasureKey{metricKey='metricKey', ruleId=-6253, developer=null}");
+    assertThat(new MeasureKey("metricKey", DEVELOPER).toString()).isEqualTo(
+      "MeasureKey{metricKey='metricKey', developer=Developer{key='DEV1'}}");
+    assertThat(new MeasureKey("metricKey", null).toString()).isEqualTo("MeasureKey{metricKey='metricKey', developer=null}");
   }
 }

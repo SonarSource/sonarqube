@@ -119,10 +119,6 @@ public class MeasureDtoToMeasure {
     if (hasAnyVariation(measureDto)) {
       builder.setVariations(createVariations(measureDto));
     }
-    Integer ruleId = measureDto.getRuleId();
-    if (ruleId != null) {
-      builder.forRule(ruleId);
-    }
     return builder;
   }
 

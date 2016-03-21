@@ -77,10 +77,9 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         format(
-          "a measure can be set only once for a specific Component (key=%s), Metric (key=%s)%s. Use update method",
+          "a measure can be set only once for a specific Component (key=%s), Metric (key=%s). Use update method",
           component.getKey(),
-          metric.getKey(),
-          buildRuleOrCharacteristicMsgPart(measure)));
+          metric.getKey()));
     }
     add(component, metric, measure, OverridePolicy.OVERRIDE);
   }
@@ -94,10 +93,9 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (!existingMeasure.isPresent()) {
       throw new UnsupportedOperationException(
         format(
-          "a measure can be updated only if one already exists for a specific Component (key=%s), Metric (key=%s)%s. Use add method",
+          "a measure can be updated only if one already exists for a specific Component (key=%s), Metric (key=%s). Use add method",
           component.getKey(),
-          metric.getKey(),
-          buildRuleOrCharacteristicMsgPart(measure)));
+          metric.getKey()));
     }
     add(component, metric, measure, OverridePolicy.OVERRIDE);
   }
@@ -108,13 +106,6 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
       format(
         "Measure's ValueType (%s) is not consistent with the Metric's ValueType (%s)",
         measure.getValueType(), metric.getType().getValueType()));
-  }
-
-  private static String buildRuleOrCharacteristicMsgPart(Measure measure) {
-    if (measure.getRuleId() != null) {
-      return " and rule (id=" + measure.getRuleId() + ")";
-    }
-    return "";
   }
 
   @Override
@@ -150,7 +141,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (measuresPerMetric == null) {
       return Optional.absent();
     }
-    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), null, null)));
+    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), null)));
   }
 
   private Optional<Measure> find(Component component, Metric metric, Measure measure) {
@@ -159,7 +150,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
     if (measuresPerMetric == null) {
       return Optional.absent();
     }
-    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getDeveloper())));
+    return Optional.fromNullable(measuresPerMetric.get(new MeasureKey(metric.getKey(), measure.getDeveloper())));
   }
 
   public void add(Component component, Metric metric, Measure measure, OverridePolicy overridePolicy) {
@@ -174,7 +165,7 @@ public final class MapBasedRawMeasureRepository<T> implements MeasureRepository 
       measuresPerMetric = new HashMap<>();
       measures.put(componentKey, measuresPerMetric);
     }
-    MeasureKey key = new MeasureKey(metric.getKey(), measure.getRuleId(), measure.getDeveloper());
+    MeasureKey key = new MeasureKey(metric.getKey(), measure.getDeveloper());
     if (!measuresPerMetric.containsKey(key) || overridePolicy == OverridePolicy.OVERRIDE) {
       measuresPerMetric.put(key, measure);
     }

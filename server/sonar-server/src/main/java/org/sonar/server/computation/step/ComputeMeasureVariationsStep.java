@@ -71,7 +71,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     @Override
     public MeasureKey apply(@Nonnull PastMeasureDto input) {
       Metric metric = metricRepository.getById(input.getMetricId());
-      return new MeasureKey(metric.getKey(), input.getRuleId(), null);
+      return new MeasureKey(metric.getKey(), null);
     }
   };
 
@@ -146,7 +146,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
       for (Map.Entry<String, Measure> entry : from(measureRepository.getRawMeasures(component).entries()).filter(NotDeveloperMeasure.INSTANCE)) {
         String metricKey = entry.getKey();
         Measure measure = entry.getValue();
-        PastMeasureDto pastMeasure = pastMeasuresByMeasureKey.get(new MeasureKey(metricKey, measure.getRuleId(), null));
+        PastMeasureDto pastMeasure = pastMeasuresByMeasureKey.get(new MeasureKey(metricKey, null));
         if (pastMeasure != null && pastMeasure.hasValue()) {
           Metric metric = metricByKeys.get(metricKey);
           measuresWithVariationRepository.add(metric, measure, period, computeVariation(measure, pastMeasure.getValue()));
@@ -176,7 +176,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
 
     public void add(Metric metric, final Measure measure, int variationIndex, double variationValue) {
       checkArgument(measure.getDeveloper() == null, "%s does not support computing variations of Measures for Developer", getClass().getSimpleName());
-      MeasureKey measureKey = new MeasureKey(metric.getKey(), measure.getRuleId(), null);
+      MeasureKey measureKey = new MeasureKey(metric.getKey(), null);
       MeasureWithVariations measureWithVariations = measuresWithVariations.get(measureKey);
       if (measureWithVariations == null) {
         measureWithVariations = new MeasureWithVariations(metric, measure);

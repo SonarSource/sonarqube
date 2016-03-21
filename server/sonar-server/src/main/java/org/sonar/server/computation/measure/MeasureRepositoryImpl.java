@@ -35,7 +35,6 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.metric.ReportMetricValidator;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.server.computation.component.ComponentFunctions.toReportRef;
 
@@ -66,11 +65,7 @@ public class MeasureRepositoryImpl implements MeasureRepository {
 
     try (DbSession dbSession = dbClient.openSession(false)) {
       MeasureDto measureDto = dbClient.measureDao().selectByComponentKeyAndMetricKey(dbSession, component.getKey(), metric.getKey());
-      Optional<Measure> measureOptional = underTest.toMeasure(measureDto, metric);
-      if (measureOptional.isPresent()) {
-        checkArgument(measureOptional.get().getRuleId() == null, "Measures with ruleId are not supported");
-      }
-      return measureOptional;
+      return underTest.toMeasure(measureDto, metric);
     }
   }
 

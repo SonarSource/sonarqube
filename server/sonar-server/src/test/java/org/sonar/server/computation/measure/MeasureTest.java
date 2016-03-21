@@ -106,30 +106,17 @@ public class MeasureTest {
       .toArray(Object[].class);
   }
 
-
-  @Test
-  public void getRuleId_returns_null_when_ruleKey_has_not_been_set() {
-    assertThat(newMeasureBuilder().createNoValue().getRuleId()).isNull();
-  }
-
-  @Test
-  public void getRuleId_returns_key_set_in_builder() {
-    assertThat(newMeasureBuilder().forRule(SOME_RULE_ID).createNoValue().getRuleId()).isEqualTo(SOME_RULE_ID);
-  }
-
   @Test
   public void getDeveloper_returns_dev_set_in_builder() {
     assertThat(newMeasureBuilder().forDeveloper(SOME_DEVELOPER).createNoValue().getDeveloper()).isEqualTo(SOME_DEVELOPER);
   }
 
   @Test
-  public void create_measure_for_dev_and_rule() {
+  public void create_measure_for_dev() {
     Measure measure = newMeasureBuilder()
       .forDeveloper(SOME_DEVELOPER)
-      .forRule(SOME_RULE_ID)
       .createNoValue();
     assertThat(measure.getDeveloper()).isEqualTo(SOME_DEVELOPER);
-    assertThat(measure.getRuleId()).isEqualTo(SOME_RULE_ID);
   }
 
   @Test(expected = NullPointerException.class)
@@ -306,7 +293,6 @@ public class MeasureTest {
     Measure newMeasure = Measure.updatedMeasureBuilder(measure).create();
 
     assertThat(newMeasure.getValueType()).isEqualTo(measure.getValueType());
-    assertThat(newMeasure.getRuleId()).isEqualTo(measure.getRuleId());
     assertThat(newMeasure.getDescription()).isEqualTo(measure.getDescription());
     assertThat(newMeasure.hasQualityGateStatus()).isEqualTo(measure.hasQualityGateStatus());
     assertThat(newMeasure.hasVariations()).isEqualTo(measure.hasVariations());

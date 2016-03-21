@@ -44,7 +44,6 @@ import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
-
 public class MeasureDaoTest {
 
   private static final int SNAPSHOT_ID = 5;
@@ -181,7 +180,6 @@ public class MeasureDaoTest {
     PastMeasureDto fileMeasure1 = fileMeasures.get(5L);
     assertThat(fileMeasure1.getValue()).isEqualTo(5d);
     assertThat(fileMeasure1.getMetricId()).isEqualTo(1);
-    assertThat(fileMeasure1.getRuleId()).isNull();
     assertThat(fileMeasure1.getPersonId()).isNull();
 
     PastMeasureDto fileMeasure2 = fileMeasures.get(6L);
@@ -202,35 +200,6 @@ public class MeasureDaoTest {
     assertThat(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "UNKNOWN", 1000L, ImmutableSet.of(1, 2))).isEmpty();
     assertThat(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "CDEF", 987654L, ImmutableSet.of(1, 2))).isEmpty();
     assertThat(underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "CDEF", 1000L, ImmutableSet.of(123, 456))).isEmpty();
-  }
-
-  @Test
-  public void select_past_measures_on_rule_by_component_uuid_and_root_snapshot_id_and_metric_keys() {
-    db.prepareDbUnit(getClass(), "past_measures_with_rule_id.xml");
-    dbSession.commit();
-
-    List<PastMeasureDto> measures = underTest.selectByComponentUuidAndProjectSnapshotIdAndMetricIds(dbSession, "ABCD", 1000L, ImmutableSet.of(1));
-    assertThat(measures).hasSize(3);
-
-    Map<Long, PastMeasureDto> pastMeasuresById = pastMeasuresById(measures);
-
-    PastMeasureDto measure1 = pastMeasuresById.get(1L);
-    assertThat(measure1.getValue()).isEqualTo(60d);
-    assertThat(measure1.getMetricId()).isEqualTo(1);
-    assertThat(measure1.getRuleId()).isNull();
-    assertThat(measure1.getPersonId()).isNull();
-
-    PastMeasureDto measure2 = pastMeasuresById.get(2L);
-    assertThat(measure2.getValue()).isEqualTo(20d);
-    assertThat(measure2.getMetricId()).isEqualTo(1);
-    assertThat(measure2.getRuleId()).isEqualTo(30);
-    assertThat(measure2.getPersonId()).isNull();
-
-    PastMeasureDto measure3 = pastMeasuresById.get(3L);
-    assertThat(measure3.getValue()).isEqualTo(40d);
-    assertThat(measure3.getMetricId()).isEqualTo(1);
-    assertThat(measure3.getRuleId()).isEqualTo(31);
-    assertThat(measure3.getPersonId()).isNull();
   }
 
   @Test
@@ -267,19 +236,6 @@ public class MeasureDaoTest {
 
     assertThat(underTest.selectBySnapshotIdAndMetricKeys(123, newHashSet("ncloc"), dbSession)).isEmpty();
     assertThat(underTest.selectBySnapshotIdAndMetricKeys(SNAPSHOT_ID, Collections.<String>emptySet(), dbSession)).isEmpty();
-  }
-
-  @Test
-  public void select_by_snapshot_and_metric_keys_return_measures_with_rule_id() throws Exception {
-    db.prepareDbUnit(getClass(), "select_by_snapshot_and_metric_keys_with_rule_id.xml");
-
-    List<MeasureDto> results = underTest.selectBySnapshotIdAndMetricKeys(SNAPSHOT_ID, newHashSet("ncloc"), dbSession);
-    assertThat(results).hasSize(3);
-
-    Map<Long, MeasureDto> measuresById = measuresById(results);
-    assertThat(measuresById.get(1L).getRuleId()).isNull();
-    assertThat(measuresById.get(2L).getRuleId()).isEqualTo(30);
-    assertThat(measuresById.get(3L).getRuleId()).isEqualTo(31);
   }
 
   @Test

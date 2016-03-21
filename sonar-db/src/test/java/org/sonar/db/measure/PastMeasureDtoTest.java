@@ -31,14 +31,12 @@ public class PastMeasureDtoTest {
       .setId(10L)
       .setValue(1d)
       .setMetricId(2)
-      .setRuleId(3)
       .setPersonId(5);
 
     assertThat(dto.getId()).isEqualTo(10L);
     assertThat(dto.hasValue()).isTrue();
     assertThat(dto.getValue()).isEqualTo(1d);
     assertThat(dto.getMetricId()).isEqualTo(2);
-    assertThat(dto.getRuleId()).isEqualTo(3);
     assertThat(dto.getPersonId()).isEqualTo(5);
   }
 
@@ -48,14 +46,12 @@ public class PastMeasureDtoTest {
       .setId(10L)
       .setValue(1d)
       .setMetricId(2)
-      .setRuleId(3)
       .setPersonId(5);
     assertThat(measureWithValue.hasValue()).isTrue();
 
     PastMeasureDto measureWithoutValue = new PastMeasureDto()
       .setId(10L)
       .setMetricId(2)
-      .setRuleId(3)
       .setPersonId(5);
     assertThat(measureWithoutValue.hasValue()).isFalse();
   }

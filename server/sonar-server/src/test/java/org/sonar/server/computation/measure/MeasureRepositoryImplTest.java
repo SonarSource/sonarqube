@@ -28,7 +28,6 @@ import com.tngtech.java.junit.dataprovider.DataProvider;
 import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import com.tngtech.java.junit.dataprovider.UseDataProvider;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -157,15 +156,6 @@ public class MeasureRepositoryImplTest {
     res = underTest.getBaseMeasure(FILE_COMPONENT, metric2);
 
     assertThat(res).isAbsent();
-  }
-
-  @Test
-  public void getBaseMeasure_does_not_return_measure_with_rule() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
-    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, LAST_SNAPSHOT_ID).setRuleId(10));
-    dbSession.commit();
-
-    assertThat(underTest.getBaseMeasure(FILE_COMPONENT, metric1)).isAbsent();
   }
 
   @Test
@@ -303,17 +293,6 @@ public class MeasureRepositoryImplTest {
   }
 
   @Test
-  public void update_updates_the_stored_value_for_rule() {
-    Measure initialMeasure = Measure.newMeasureBuilder().forRule(123).createNoValue();
-    Measure newMeasure = Measure.updatedMeasureBuilder(initialMeasure).create();
-
-    underTest.add(FILE_COMPONENT, metric1, initialMeasure);
-    underTest.update(FILE_COMPONENT, metric1, newMeasure);
-
-    assertThat(underTest.getRawMeasures(FILE_COMPONENT).get(metric1.getKey()).iterator().next()).isSameAs(newMeasure);
-  }
-
-  @Test
   public void getRawMeasure_throws_NPE_without_reading_batch_report_if_component_arg_is_null() {
     try {
       underTestWithMock.getRawMeasure(null, metric1);
@@ -427,17 +406,6 @@ public class MeasureRepositoryImplTest {
   }
 
   @Test
-  public void getRawMeasures_for_metric_returns_rule_measure() {
-    Measure measure = Measure.newMeasureBuilder().forRule(SOME_RULE.getId()).createNoValue();
-
-    underTest.add(FILE_COMPONENT, metric1, measure);
-
-    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
-    assertThat(measures).hasSize(1);
-    assertThat(measures.iterator().next()).isSameAs(measure);
-  }
-
-  @Test
   public void getRawMeasures_returns_added_measures_over_batch_measures() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(true);
@@ -447,13 +415,11 @@ public class MeasureRepositoryImplTest {
 
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
-    Measure addedMeasure2 = Measure.newMeasureBuilder().forRule(SOME_RULE.getId()).createNoValue();
-    underTest.add(FILE_COMPONENT, metric1, addedMeasure2);
 
     SetMultimap<String, Measure> rawMeasures = underTest.getRawMeasures(FILE_COMPONENT);
 
     assertThat(rawMeasures.keySet()).hasSize(2);
-    assertThat(rawMeasures.get(METRIC_KEY_1)).containsOnly(addedMeasure, addedMeasure2);
+    assertThat(rawMeasures.get(METRIC_KEY_1)).containsOnly(addedMeasure);
     assertThat(rawMeasures.get(METRIC_KEY_2)).containsOnly(Measure.newMeasureBuilder().create("some value"));
   }
 

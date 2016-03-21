@@ -60,7 +60,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(DataProviderRunner.class)
-
 public class MapBasedRawMeasureRepositoryTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -233,17 +232,6 @@ public class MapBasedRawMeasureRepositoryTest {
   }
 
   @Test
-  public void update_updates_the_stored_value_for_rule() {
-    Measure initialMeasure = Measure.newMeasureBuilder().forRule(123).createNoValue();
-    Measure newMeasure = Measure.updatedMeasureBuilder(initialMeasure).create();
-
-    underTest.add(FILE_COMPONENT, metric1, initialMeasure);
-    underTest.update(FILE_COMPONENT, metric1, newMeasure);
-
-    assertThat(underTest.getRawMeasures(FILE_COMPONENT).get(metric1.getKey()).iterator().next()).isSameAs(newMeasure);
-  }
-
-  @Test
   public void getRawMeasure_throws_NPE_without_reading_batch_report_if_component_arg_is_null() {
     try {
       underTestWithMock.getRawMeasure(null, metric1);
@@ -293,17 +281,6 @@ public class MapBasedRawMeasureRepositoryTest {
   }
 
   @Test
-  public void getRawMeasures_for_metric_returns_rule_measure() {
-    Measure ruleMeasure = Measure.newMeasureBuilder().forRule(SOME_RULE.getId()).createNoValue();
-
-    underTest.add(FILE_COMPONENT, metric1, ruleMeasure);
-
-    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
-    assertThat(measures).hasSize(1);
-    assertThat(measures.iterator().next()).isSameAs(ruleMeasure);
-  }
-
-  @Test
   public void getRawMeasures_for_metric_returns_developer_measure() {
     Measure devMeasure = Measure.newMeasureBuilder().forDeveloper(SOME_DEVELOPER).createNoValue();
 
@@ -314,17 +291,4 @@ public class MapBasedRawMeasureRepositoryTest {
     assertThat(measures.iterator().next()).isSameAs(devMeasure);
   }
 
-  @Test
-  public void getRawMeasures_for_metric_returns_developer_with_rule_measure() {
-    Measure devMeasure = Measure.newMeasureBuilder()
-      .forDeveloper(SOME_DEVELOPER)
-      .forRule(SOME_RULE.getId())
-      .createNoValue();
-
-    underTest.add(FILE_COMPONENT, metric1, devMeasure);
-
-    Set<Measure> measures = underTest.getRawMeasures(FILE_COMPONENT, metric1);
-    assertThat(measures).hasSize(1);
-    assertThat(measures.iterator().next()).isSameAs(devMeasure);
-  }
 }

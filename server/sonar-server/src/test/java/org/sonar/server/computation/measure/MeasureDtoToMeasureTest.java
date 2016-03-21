@@ -59,13 +59,6 @@ public class MeasureDtoToMeasureTest {
     assertThat(underTest.toMeasure(null, SOME_INT_METRIC)).isAbsent();
   }
 
-  @Test
-  public void toMeasure_returns_rule_measure() {
-    Optional<Measure> measure = underTest.toMeasure(new MeasureDto().setRuleId(10), SOME_INT_METRIC);
-    assertThat(measure).isPresent();
-    assertThat(measure.get().getRuleId()).isEqualTo(10);
-  }
-
   @Test(expected = NullPointerException.class)
   public void toMeasure_throws_NPE_if_metric_argument_is_null() {
     underTest.toMeasure(EMPTY_MEASURE_DTO, null);

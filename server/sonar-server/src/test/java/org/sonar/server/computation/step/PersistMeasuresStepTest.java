@@ -60,7 +60,6 @@ import static org.sonar.server.computation.component.Component.Type.VIEW;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVariationsBuilder;
 
-
 public class PersistMeasuresStepTest extends BaseStepTest {
 
   private static final String STRING_METRIC_KEY = "string-metric-key";
@@ -281,35 +280,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("variation_value_3")).isEqualTo(3.3d);
     assertThat(dto.get("variation_value_4")).isEqualTo(4.4d);
     assertThat(dto.get("variation_value_5")).isEqualTo(5.5d);
-  }
-
-  @Test
-  public void insert_rule_measure_from_report() {
-    setupReportComponents();
-
-    insertRuleMeasure();
-  }
-
-  @Test
-  public void insert_rule_measure_from_view() {
-    setupViewsComponents();
-
-    insertRuleMeasure();
-  }
-
-  private void insertRuleMeasure() {
-    metricRepository.add(1, INT_METRIC);
-
-    measureRepository.addRawMeasure(ROOT_REF, INT_METRIC_KEY, newMeasureBuilder().forRule(10).create(1));
-
-    underTest.execute();
-
-    assertThat(dbTester.countRowsOfTable("project_measures")).isEqualTo(1);
-    List<Map<String, Object>> dtos = selectSnapshots();
-    Map<String, Object> dto = dtos.get(0);
-
-    assertValue(dto, 1d);
-    assertThat(dto.get("ruleId")).isEqualTo(10L);
   }
 
   @Test

@@ -44,7 +44,6 @@ public class MeasureDto {
   private Long componentId;
   private Long snapshotId;
   private Integer metricId;
-  private Integer ruleId;
   private Long developerId;
 
   // TODO to delete – not in db
@@ -190,13 +189,11 @@ public class MeasureDto {
     return this;
   }
 
-  @CheckForNull
-  public Integer getRuleId() {
-    return ruleId;
-  }
-
+  /**
+   * @deprecated in 5.5. Does nothing. Kept for compatibility with developer cockpit plugin, version 1.10
+   */
+  @Deprecated
   public MeasureDto setRuleId(@Nullable Integer ruleId) {
-    this.ruleId = ruleId;
     return this;
   }
 
@@ -245,7 +242,6 @@ public class MeasureDto {
       .add("componentId", componentId)
       .add("snapshotId", snapshotId)
       .add("metricId", metricId)
-      .add("ruleId", ruleId)
       .add("developerId", developerId)
       .add("metricKey", metricKey)
       .toString();

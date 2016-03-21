@@ -28,7 +28,6 @@ public class PastMeasureDto {
   private Long id;
   private Double value;
   private Integer metricId;
-  private Integer ruleId;
   private Integer personId;
 
   public Long getId() {
@@ -73,13 +72,4 @@ public class PastMeasureDto {
     return this;
   }
 
-  @CheckForNull
-  public Integer getRuleId() {
-    return ruleId;
-  }
-
-  public PastMeasureDto setRuleId(@Nullable Integer ruleId) {
-    this.ruleId = ruleId;
-    return this;
-  }
 }

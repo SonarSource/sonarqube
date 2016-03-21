@@ -78,12 +78,12 @@ public class MeasureToMeasureDtoTest {
   @DataProvider
   public static Object[][] all_types_Measures() {
     return new Object[][] {
-        { Measure.newMeasureBuilder().create(true, SOME_DATA), SOME_BOOLEAN_METRIC},
-        { Measure.newMeasureBuilder().create(1, SOME_DATA), SOME_INT_METRIC},
-        { Measure.newMeasureBuilder().create((long) 1, SOME_DATA), SOME_LONG_METRIC},
-        { Measure.newMeasureBuilder().create((double) 2, 1, SOME_DATA), SOME_DOUBLE_METRIC},
-        { Measure.newMeasureBuilder().create(SOME_STRING), SOME_STRING_METRIC},
-        { Measure.newMeasureBuilder().create(Measure.Level.OK), SOME_LEVEL_METRIC}
+      {Measure.newMeasureBuilder().create(true, SOME_DATA), SOME_BOOLEAN_METRIC},
+      {Measure.newMeasureBuilder().create(1, SOME_DATA), SOME_INT_METRIC},
+      {Measure.newMeasureBuilder().create((long) 1, SOME_DATA), SOME_LONG_METRIC},
+      {Measure.newMeasureBuilder().create((double) 2, 1, SOME_DATA), SOME_DOUBLE_METRIC},
+      {Measure.newMeasureBuilder().create(SOME_STRING), SOME_STRING_METRIC},
+      {Measure.newMeasureBuilder().create(Measure.Level.OK), SOME_LEVEL_METRIC}
     };
   }
 
@@ -127,19 +127,6 @@ public class MeasureToMeasureDtoTest {
 
     assertThat(measureDto.getAlertStatus()).isEqualTo(Measure.Level.ERROR.name());
     assertThat(measureDto.getAlertText()).isEqualTo(alertText);
-  }
-
-  @Test
-  @UseDataProvider("all_types_Measures")
-  public void toMeasureDto_does_no_set_ruleId_if_not_set_in_Measure(Measure measure, Metric metric) {
-    assertThat(underTest.toMeasureDto(measure, metric, SOME_COMPONENT).getRuleId()).isNull();
-  }
-
-  @Test
-  public void toMeasureDto_sets_ruleId_if_set_in_Measure() {
-    Measure measure = Measure.newMeasureBuilder().forRule(42).createNoValue();
-
-    assertThat(underTest.toMeasureDto(measure, SOME_BOOLEAN_METRIC, SOME_COMPONENT).getRuleId()).isEqualTo(42);
   }
 
   @Test

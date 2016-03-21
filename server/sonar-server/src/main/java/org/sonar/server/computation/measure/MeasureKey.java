@@ -25,34 +25,22 @@ import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.server.computation.component.Developer;
 
-import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 @Immutable
 public final class MeasureKey {
-  private static final int DEFAULT_INT_VALUE = -6253;
 
   private final String metricKey;
-  private final int ruleId;
   @CheckForNull
   private final Developer developer;
 
-  public MeasureKey(String metricKey, @Nullable Integer ruleId, @Nullable Developer developer) {
-    // defensive code in case we badly chose the default value, we want to know it right away!
-    checkArgument(ruleId == null || ruleId != DEFAULT_INT_VALUE, "Unsupported rule id");
-
+  public MeasureKey(String metricKey, @Nullable Developer developer) {
     this.metricKey = requireNonNull(metricKey, "MetricKey can not be null");
-    this.ruleId = ruleId == null ? DEFAULT_INT_VALUE : ruleId;
     this.developer = developer;
   }
 
-
   public String getMetricKey() {
     return metricKey;
-  }
-
-  public int getRuleId() {
-    return ruleId;
   }
 
   @CheckForNull
@@ -70,20 +58,18 @@ public final class MeasureKey {
     }
     MeasureKey that = (MeasureKey) o;
     return metricKey.equals(that.metricKey)
-      && ruleId == that.ruleId
       && developer == that.developer;
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(metricKey, ruleId);
+    return Objects.hash(metricKey);
   }
 
   @Override
   public String toString() {
     return "MeasureKey{" +
       "metricKey='" + metricKey + '\'' +
-      ", ruleId=" + ruleId +
       ", developer=" + developer +
       '}';
   }

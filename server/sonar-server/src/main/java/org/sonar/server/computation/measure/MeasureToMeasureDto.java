@@ -41,7 +41,6 @@ public class MeasureToMeasureDto {
     out.setMetricId(metric.getId());
     out.setComponentId(dbIdsRepository.getComponentId(component));
     out.setSnapshotId(dbIdsRepository.getSnapshotId(component));
-    out.setRuleId(measure.getRuleId());
     if (measure.hasVariations()) {
       setVariations(out, measure.getVariations());
     }
