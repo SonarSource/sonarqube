@@ -30,11 +30,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
+import org.mockito.Mockito;
 import org.sonar.ce.ComputeEngine;
+import org.sonar.process.MinimumViableSystem;
 
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class CeServerTest {
   @Rule
@@ -46,6 +49,7 @@ public class CeServerTest {
 
   private CeServer underTest = null;
   private Thread waitingThread = null;
+  private MinimumViableSystem minimumViableSystem = mock(MinimumViableSystem.class, Mockito.RETURNS_MOCKS);
 
   @After
   public void tearDown() throws Exception {
@@ -289,13 +293,13 @@ public class CeServerTest {
         // return instantly simulating WebServer is already operational
         return true;
       }
-    }, computeEngine);
+    }, computeEngine, minimumViableSystem);
     return underTest;
   }
 
   private CeServer newCeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine) {
     checkState(this.underTest == null, "Only one CeServer can be created per test method");
-    this.underTest = new CeServer(webServerWatcher, computeEngine);
+    this.underTest = new CeServer(webServerWatcher, computeEngine, minimumViableSystem);
     return underTest;
   }
 

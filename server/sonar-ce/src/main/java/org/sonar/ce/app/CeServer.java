@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.app;
 
+import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.ImmutableMap;
 import java.util.concurrent.atomic.AtomicReference;
 import javax.annotation.CheckForNull;
@@ -62,9 +63,14 @@ public class CeServer implements Monitored {
   private CeMainThread ceMainThread = null;
 
   protected CeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine) {
+    this(webServerWatcher, computeEngine, new MinimumViableSystem());
+  }
+
+  @VisibleForTesting
+  protected CeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine, MinimumViableSystem mvs) {
     this.webServerWatcher = webServerWatcher;
     this.computeEngine = computeEngine;
-    new MinimumViableSystem()
+    mvs
       .checkJavaVersion()
       .checkWritableTempDir()
       .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
