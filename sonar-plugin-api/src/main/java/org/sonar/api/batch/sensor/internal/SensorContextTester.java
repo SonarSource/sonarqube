@@ -201,7 +201,7 @@ public class SensorContextTester implements SensorContext {
 
   @Override
   public NewCpdTokens newCpdTokens() {
-    return new DefaultCpdTokens(sensorStorage);
+    return new DefaultCpdTokens(settings, sensorStorage);
   }
 
   public List<TypeOfText> highlightingTypeAt(String componentKey, int line, int lineOffset) {

@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.cpd;
+package org.sonar.batch.cpd.deprecated;
 
 import com.google.common.annotations.VisibleForTesting;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.Phase;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.sensor.Sensor;
@@ -30,34 +31,40 @@ import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.config.Settings;
 
+/**
+ * Feed block index using deprecated {@link CpdMapping} extension point if not already
+ * fed by another Sensor using {@link SensorContext#newCpdTokens()}. Special case for Java
+ * that use a dedicated block indexer.
+ * Can be removed when {@link CpdMapping} extension is removed and Java specific part moved to Java plugin.
+ */
 @Phase(name = Phase.Name.POST)
-public class CpdSensor implements Sensor {
+public class DeprecatedCpdBlockIndexerSensor implements Sensor {
 
-  private static final Logger LOG = LoggerFactory.getLogger(CpdSensor.class);
+  private static final Logger LOG = LoggerFactory.getLogger(DeprecatedCpdBlockIndexerSensor.class);
 
-  private CpdIndexer sonarEngine;
-  private CpdIndexer sonarBridgeEngine;
+  private CpdBlockIndexer javaCpdBlockIndexer;
+  private CpdBlockIndexer defaultCpdBlockIndexer;
   private Settings settings;
   private FileSystem fs;
 
-  public CpdSensor(JavaCpdBlockIndexer sonarEngine, DefaultCpdBlockIndexer sonarBridgeEngine, Settings settings, FileSystem fs) {
-    this.sonarEngine = sonarEngine;
-    this.sonarBridgeEngine = sonarBridgeEngine;
+  public DeprecatedCpdBlockIndexerSensor(JavaCpdBlockIndexer javaCpdBlockIndexer, DefaultCpdBlockIndexer defaultCpdBlockIndexer, Settings settings, FileSystem fs) {
+    this.javaCpdBlockIndexer = javaCpdBlockIndexer;
+    this.defaultCpdBlockIndexer = defaultCpdBlockIndexer;
     this.settings = settings;
     this.fs = fs;
   }
 
   @Override
   public void describe(SensorDescriptor descriptor) {
-    descriptor.name("CPD Sensor");
+    descriptor.name("CPD Block Indexer");
   }
 
   @VisibleForTesting
-  CpdIndexer getEngine(String language) {
-    if (sonarEngine.isLanguageSupported(language)) {
-      return sonarEngine;
+  CpdBlockIndexer getBlockIndexer(String language) {
+    if (javaCpdBlockIndexer.isLanguageSupported(language)) {
+      return javaCpdBlockIndexer;
     }
-    return sonarBridgeEngine;
+    return defaultCpdBlockIndexer;
   }
 
   @VisibleForTesting
@@ -86,13 +93,13 @@ public class CpdSensor implements Sensor {
         continue;
       }
 
-      CpdIndexer engine = getEngine(language);
-      if (!engine.isLanguageSupported(language)) {
+      CpdBlockIndexer blockIndexer = getBlockIndexer(language);
+      if (!blockIndexer.isLanguageSupported(language)) {
         LOG.debug("Detection of duplicated code is not supported for {}", language);
         continue;
       }
-      LOG.info("{} is used for {}", engine, language);
-      engine.index(language);
+      LOG.info("{} is used for {}", blockIndexer, language);
+      blockIndexer.index(language);
     }
   }
 

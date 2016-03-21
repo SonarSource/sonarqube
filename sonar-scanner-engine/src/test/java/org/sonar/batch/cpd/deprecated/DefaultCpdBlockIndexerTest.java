@@ -17,12 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.cpd;
+package org.sonar.batch.cpd.deprecated;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.slf4j.Logger;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.cpd.deprecated.DefaultCpdBlockIndexer;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;

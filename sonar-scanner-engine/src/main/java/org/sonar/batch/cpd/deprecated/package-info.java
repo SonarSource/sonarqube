@@ -17,36 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.cpd;
+@ParametersAreNonnullByDefault
+package org.sonar.batch.cpd.deprecated;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.CpdMapping;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-import javax.annotation.CheckForNull;
-
-@BatchSide
-public class CpdMappings {
-
-  private final CpdMapping[] mappings;
-
-  public CpdMappings(CpdMapping[] mappings) {
-    this.mappings = mappings;
-  }
-
-  public CpdMappings() {
-    this(new CpdMapping[0]);
-  }
-
-  @CheckForNull
-  public CpdMapping getMapping(String language) {
-    if (mappings != null) {
-      for (CpdMapping cpdMapping : mappings) {
-        if (cpdMapping.getLanguage().getKey().equals(language)) {
-          return cpdMapping;
-        }
-      }
-    }
-    return null;
-  }
-
-}

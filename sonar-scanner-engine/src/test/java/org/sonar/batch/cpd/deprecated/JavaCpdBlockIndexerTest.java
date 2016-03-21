@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.cpd;
+package org.sonar.batch.cpd.deprecated;
 
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
@@ -33,6 +33,7 @@ import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.cpd.deprecated.JavaCpdBlockIndexer;
 import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.duplications.block.Block;

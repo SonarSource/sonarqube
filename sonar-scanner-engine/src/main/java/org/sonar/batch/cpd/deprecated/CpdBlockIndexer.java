@@ -17,26 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.cpd;
+package org.sonar.batch.cpd.deprecated;
 
-import com.google.common.collect.ImmutableList;
-import java.util.List;
-import org.sonar.batch.cpd.deprecated.CpdMappings;
-import org.sonar.batch.cpd.deprecated.DefaultCpdBlockIndexer;
-import org.sonar.batch.cpd.deprecated.DeprecatedCpdBlockIndexerSensor;
-import org.sonar.batch.cpd.deprecated.JavaCpdBlockIndexer;
+import org.slf4j.Logger;
+import org.sonar.api.batch.BatchSide;
 
-public final class CpdComponents {
+@BatchSide
+public abstract class CpdBlockIndexer {
 
-  private CpdComponents() {
+  abstract boolean isLanguageSupported(String language);
+
+  abstract void index(String language);
+
+  protected void logExclusions(String[] exclusions, Logger logger) {
+    if (exclusions.length > 0) {
+      StringBuilder message = new StringBuilder("Copy-paste detection exclusions:");
+      for (String exclusion : exclusions) {
+        message.append("\n  ");
+        message.append(exclusion);
+      }
+
+      logger.info(message.toString());
+    }
   }
 
-  public static List<Class<? extends Object>> all() {
-    return ImmutableList.of(
-      DeprecatedCpdBlockIndexerSensor.class,
-      CpdMappings.class,
-      JavaCpdBlockIndexer.class,
-      DefaultCpdBlockIndexer.class);
+  @Override
+  public String toString() {
+    return getClass().getSimpleName();
   }
 
 }

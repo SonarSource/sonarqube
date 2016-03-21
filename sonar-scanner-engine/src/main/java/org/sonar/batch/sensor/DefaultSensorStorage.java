@@ -53,7 +53,7 @@ import org.sonar.api.resources.Resource;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
-import org.sonar.batch.cpd.DefaultCpdBlockIndexer;
+import org.sonar.batch.cpd.deprecated.DefaultCpdBlockIndexer;
 import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;

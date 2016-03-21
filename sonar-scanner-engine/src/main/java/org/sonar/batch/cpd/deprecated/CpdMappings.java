@@ -17,33 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.cpd;
+package org.sonar.batch.cpd.deprecated;
 
-import org.slf4j.Logger;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.CpdMapping;
+
+import javax.annotation.CheckForNull;
 
 @BatchSide
-public abstract class CpdIndexer {
+public class CpdMappings {
 
-  abstract boolean isLanguageSupported(String language);
+  private final CpdMapping[] mappings;
 
-  abstract void index(String language);
-
-  protected void logExclusions(String[] exclusions, Logger logger) {
-    if (exclusions.length > 0) {
-      StringBuilder message = new StringBuilder("Copy-paste detection exclusions:");
-      for (String exclusion : exclusions) {
-        message.append("\n  ");
-        message.append(exclusion);
-      }
-
-      logger.info(message.toString());
-    }
+  public CpdMappings(CpdMapping[] mappings) {
+    this.mappings = mappings;
   }
 
-  @Override
-  public String toString() {
-    return getClass().getSimpleName();
+  public CpdMappings() {
+    this(new CpdMapping[0]);
+  }
+
+  @CheckForNull
+  public CpdMapping getMapping(String language) {
+    if (mappings != null) {
+      for (CpdMapping cpdMapping : mappings) {
+        if (cpdMapping.getLanguage().getKey().equals(language)) {
+          return cpdMapping;
+        }
+      }
+    }
+    return null;
   }
 
 }

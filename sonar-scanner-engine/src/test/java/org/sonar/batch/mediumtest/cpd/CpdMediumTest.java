@@ -220,6 +220,43 @@ public class CpdMediumTest {
   }
 
   @Test
+  public void testExclusions() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    String duplicatedStuff = "Sample xoo\ncontent\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti\n"
+      + "bar\ntoto\ntiti\n"
+      + "foo\nbar\ntoto\ntiti";
+
+    File xooFile1 = new File(srcDir, "sample1.xoo");
+    FileUtils.write(xooFile1, duplicatedStuff);
+
+    File xooFile2 = new File(srcDir, "sample2.xoo");
+    FileUtils.write(xooFile2, duplicatedStuff);
+
+    TaskResult result = tester.newTask()
+      .properties(builder
+        .put("sonar.sources", "src")
+        .put("sonar.cpd.xoo.minimumTokens", "10")
+        .put("sonar.cpd.exclusions", "src/sample1.xoo")
+        .build())
+      .start();
+
+    assertThat(result.inputFiles()).hasSize(2);
+
+    InputFile inputFile1 = result.inputFile("src/sample1.xoo");
+    InputFile inputFile2 = result.inputFile("src/sample2.xoo");
+
+    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile1 = result.duplicationsFor(inputFile1);
+    assertThat(duplicationGroupsFile1).isEmpty();
+
+    List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroupsFile2 = result.duplicationsFor(inputFile2);
+    assertThat(duplicationGroupsFile2).isEmpty();
+  }
+
+  @Test
   public void enableCrossProjectDuplication() throws IOException {
     File srcDir = new File(baseDir, "src");
     srcDir.mkdir();

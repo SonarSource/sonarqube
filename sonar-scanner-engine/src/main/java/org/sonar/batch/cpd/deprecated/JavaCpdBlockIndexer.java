@@ -17,15 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.cpd;
+package org.sonar.batch.cpd.deprecated;
 
-import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Lists;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.CpdMapping;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -33,19 +36,24 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.duplications.block.Block;
-import org.sonar.duplications.internal.pmd.TokenizerBridge;
+import org.sonar.duplications.block.BlockChunker;
+import org.sonar.duplications.java.JavaStatementBuilder;
+import org.sonar.duplications.java.JavaTokenProducer;
+import org.sonar.duplications.statement.Statement;
+import org.sonar.duplications.statement.StatementChunker;
+import org.sonar.duplications.token.TokenChunker;
 
-public class DefaultCpdBlockIndexer extends CpdIndexer {
+public class JavaCpdBlockIndexer extends CpdBlockIndexer {
 
-  private static final Logger LOG = LoggerFactory.getLogger(DefaultCpdBlockIndexer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JavaCpdBlockIndexer.class);
 
-  private final CpdMappings mappings;
+  private static final int BLOCK_SIZE = 10;
+
   private final FileSystem fs;
   private final Settings settings;
   private final SonarCpdBlockIndex index;
 
-  public DefaultCpdBlockIndexer(CpdMappings mappings, FileSystem fs, Settings settings, SonarCpdBlockIndex index) {
-    this.mappings = mappings;
+  public JavaCpdBlockIndexer(FileSystem fs, Settings settings, SonarCpdBlockIndex index) {
     this.fs = fs;
     this.settings = settings;
     this.index = index;
@@ -53,17 +61,11 @@ public class DefaultCpdBlockIndexer extends CpdIndexer {
 
   @Override
   public boolean isLanguageSupported(String language) {
-    return true;
+    return "java".equals(language);
   }
 
   @Override
   public void index(String languageKey) {
-    CpdMapping mapping = mappings.getMapping(languageKey);
-    if (mapping == null) {
-      LOG.debug("No CpdMapping for language " + languageKey);
-      return;
-    }
-
     String[] cpdExclusions = settings.getStringArray(CoreProperties.CPD_EXCLUSIONS);
     logExclusions(cpdExclusions, LOG);
     FilePredicates p = fs.predicates();
@@ -74,41 +76,30 @@ public class DefaultCpdBlockIndexer extends CpdIndexer {
     if (sourceFiles.isEmpty()) {
       return;
     }
-
-    // Create index
-    populateIndex(languageKey, sourceFiles, mapping);
+    createIndex(sourceFiles);
   }
 
-  private void populateIndex(String languageKey, List<InputFile> sourceFiles, CpdMapping mapping) {
-    TokenizerBridge bridge = new TokenizerBridge(mapping.getTokenizer(), fs.encoding().name(), getBlockSize(languageKey));
+  private void createIndex(Iterable<InputFile> sourceFiles) {
+    TokenChunker tokenChunker = JavaTokenProducer.build();
+    StatementChunker statementChunker = JavaStatementBuilder.build();
+    BlockChunker blockChunker = new BlockChunker(BLOCK_SIZE);
+
     for (InputFile inputFile : sourceFiles) {
-      if (!index.isIndexed(inputFile)) {
-        LOG.debug("Populating index from {}", inputFile);
-        String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
-        List<Block> blocks = bridge.chunk(resourceEffectiveKey, inputFile.file());
-        index.insert(inputFile, blocks);
+      LOG.debug("Populating index from {}", inputFile);
+      String resourceEffectiveKey = ((DefaultInputFile) inputFile).key();
+
+      List<Statement> statements;
+
+      try(Reader reader = new InputStreamReader(new FileInputStream(inputFile.file()), fs.encoding())) {
+        statements = statementChunker.chunk(tokenChunker.chunk(reader));
+      } catch (FileNotFoundException e) {
+        throw new IllegalStateException("Cannot find file " + inputFile.file(), e);
+      } catch (IOException e ) {
+        throw new IllegalStateException("Exception hnadling file: " + inputFile.file(), e);
       }
+
+      List<Block> blocks = blockChunker.chunk(resourceEffectiveKey, statements);
+      index.insert(inputFile, blocks);
     }
   }
-
-  @VisibleForTesting
-  int getBlockSize(String languageKey) {
-    int blockSize = settings.getInt("sonar.cpd." + languageKey + ".minimumLines");
-    if (blockSize == 0) {
-      blockSize = getDefaultBlockSize(languageKey);
-    }
-    return blockSize;
-  }
-
-  @VisibleForTesting
-  public static int getDefaultBlockSize(String languageKey) {
-    if ("cobol".equals(languageKey)) {
-      return 30;
-    } else if ("abap".equals(languageKey)) {
-      return 20;
-    } else {
-      return 10;
-    }
-  }
-
 }

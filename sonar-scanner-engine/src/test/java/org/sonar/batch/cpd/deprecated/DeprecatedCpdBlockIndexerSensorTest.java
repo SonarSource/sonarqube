@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.batch.cpd;
+package org.sonar.batch.cpd.deprecated;
 
 import java.io.IOException;
 import org.junit.Before;
@@ -28,17 +28,18 @@ import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Java;
+import org.sonar.batch.cpd.CpdComponents;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class CpdSensorTest {
+public class DeprecatedCpdBlockIndexerSensorTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
   JavaCpdBlockIndexer sonarEngine;
   DefaultCpdBlockIndexer sonarBridgeEngine;
-  CpdSensor sensor;
+  DeprecatedCpdBlockIndexerSensor sensor;
   Settings settings;
 
   @Before
@@ -48,7 +49,7 @@ public class CpdSensorTest {
     settings = new Settings(new PropertyDefinitions(CpdComponents.class));
 
     DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());
-    sensor = new CpdSensor(sonarEngine, sonarBridgeEngine, settings, fs);
+    sensor = new DeprecatedCpdBlockIndexerSensor(sonarEngine, sonarBridgeEngine, settings, fs);
   }
 
   @Test
@@ -73,8 +74,8 @@ public class CpdSensorTest {
 
   @Test
   public void test_engine() {
-    assertThat(sensor.getEngine(Java.KEY)).isSameAs(sonarEngine);
-    assertThat(sensor.getEngine("PHP")).isSameAs(sonarBridgeEngine);
+    assertThat(sensor.getBlockIndexer(Java.KEY)).isSameAs(sonarEngine);
+    assertThat(sensor.getBlockIndexer("PHP")).isSameAs(sonarBridgeEngine);
   }
 
 }

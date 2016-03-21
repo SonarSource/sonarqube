@@ -109,7 +109,7 @@ public class DefaultSensorContext implements SensorContext {
     if (analysisMode.isIssues()) {
       return NO_OP_NEW_CPD_TOKENS;
     }
-    return new DefaultCpdTokens(sensorStorage);
+    return new DefaultCpdTokens(settings, sensorStorage);
   }
 
 }
