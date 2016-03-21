@@ -26,15 +26,12 @@ public class ImmutableProjectReactorProvider extends ProviderAdapter {
 
   private ImmutableProjectReactor singleton;
 
-  public ImmutableProjectReactor provide(ProjectReactor reactor, ProjectBuildersExecutor projectBuildersExecutor, ProjectExclusions exclusions, ProjectReactorValidator validator) {
+  public ImmutableProjectReactor provide(ProjectReactor reactor, ProjectBuildersExecutor projectBuildersExecutor, ProjectReactorValidator validator) {
     if (singleton == null) {
       // 1 Apply project builders
       projectBuildersExecutor.execute(reactor);
 
-      // 2 Apply project exclusions
-      exclusions.apply(reactor);
-
-      // 3 Validate final reactor
+      // 2 Validate final reactor
       validator.validate(reactor);
 
       singleton = new ImmutableProjectReactor(reactor.getRoot());

@@ -149,7 +149,6 @@ public class ProjectScanContainer extends ComponentContainer {
       PhasesTimeProfiler.class,
       ResourceTypes.class,
       DefaultProjectTree.class,
-      ProjectExclusions.class,
       ProjectReactorValidator.class,
       new AnalysisWSLoaderProvider(),
       CodeColorizers.class,

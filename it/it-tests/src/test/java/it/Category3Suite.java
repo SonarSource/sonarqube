@@ -20,7 +20,18 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.analysis.*;
+import it.analysis.BatchTest;
+import it.analysis.ExtensionLifecycleTest;
+import it.analysis.IssueJsonReportTest;
+import it.analysis.IssuesModeTest;
+import it.analysis.LinksTest;
+import it.analysis.MavenTest;
+import it.analysis.MultiLanguageTest;
+import it.analysis.ProjectBuilderTest;
+import it.analysis.ProjectProvisioningTest;
+import it.analysis.ReportDumpTest;
+import it.analysis.SettingsEncryptionTest;
+import it.analysis.TempFolderTest;
 import it.measure.DecimalScaleMetricTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
@@ -36,7 +47,6 @@ import static util.ItUtils.xooPlugin;
   LinksTest.class,
   MavenTest.class,
   ProjectBuilderTest.class,
-  ProjectExclusionsTest.class,
   TempFolderTest.class,
   MultiLanguageTest.class,
   IssueJsonReportTest.class,

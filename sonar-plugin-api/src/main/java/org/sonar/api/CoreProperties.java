@@ -206,19 +206,6 @@ public interface CoreProperties {
 
   String CORE_VIOLATION_LOCALE_DEFAULT_VALUE = "en";
 
-  /**
-   * @deprecated since 4.3. See http://jira.sonarsource.com/browse/SONAR-5109
-   */
-  @Deprecated
-  String CORE_SKIPPED_MODULES_PROPERTY = "sonar.skippedModules";
-
-  /**
-   * @since 4.0
-   * @deprecated since 4.3. See http://jira.sonarsource.com/browse/SONAR-5109
-   */
-  @Deprecated
-  String CORE_INCLUDED_MODULES_PROPERTY = "sonar.includedModules";
-
   String CORE_FORCE_AUTHENTICATION_PROPERTY = "sonar.forceAuthentication";
   boolean CORE_FORCE_AUTHENTICATION_DEFAULT_VALUE = false;
   String CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY = "sonar.allowUsersToSignUp";

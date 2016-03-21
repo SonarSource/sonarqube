@@ -20,13 +20,20 @@
 package it.analysis;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.BuildFailureException;
 import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category3Suite;
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
 import org.apache.commons.io.FileUtils;
-import org.junit.*;
+import org.junit.Assume;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
@@ -36,10 +43,6 @@ import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 import util.ItUtils;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Date;
 import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -87,34 +90,6 @@ public class BatchTest {
       "sonar.verbose", "true");
     Resource r = orchestrator.getServer().getWsClient().find(ResourceQuery.createForMetrics("com.sonarsource.it.samples:multi-modules-sample", "violations"));
     assertThat(r.getMeasureIntValue("violations")).isEqualTo(61);
-  }
-
-  /**
-   * SONAR-2907
-   */
-  @Test
-  public void branch_should_load_own_settings_from_database() {
-    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
-    scan("shared/xoo-multi-modules-sample");
-    assertThat(getResource("com.sonarsource.it.samples:multi-modules-sample:module_b")).isNotNull();
-
-    Sonar sonar = orchestrator.getServer().getAdminWsClient();
-    // The parameter skippedModule considers key after first colon
-    sonar.update(new PropertyUpdateQuery("sonar.skippedModules", "multi-modules-sample:module_b",
-      "com.sonarsource.it.samples:multi-modules-sample"));
-
-    try {
-      scan("shared/xoo-multi-modules-sample");
-      assertThat(getResource("com.sonarsource.it.samples:multi-modules-sample:module_b")).isNull();
-
-      scan("shared/xoo-multi-modules-sample",
-        "sonar.branch", "mybranch");
-
-      assertThat(getResource("com.sonarsource.it.samples:multi-modules-sample:module_b:mybranch")).isNotNull();
-    } finally {
-      sonar.delete(new PropertyDeleteQuery("sonar.skippedModules", "com.sonarsource.it.samples:multi-modules-sample"));
-    }
   }
 
   // SONAR-4680
@@ -170,20 +145,6 @@ public class BatchTest {
     assertThat(result.getLogs()).contains(rootModuleKey + ":" + propKey + " = project");
     // Module should inherit from parent
     assertThat(result.getLogs()).contains(moduleBKey + ":" + propKey + " = project");
-  }
-
-  /**
-   * SONAR-3116
-   */
-  @Test
-  @Category(QaOnly.class)
-  public void should_not_exclude_root_module() {
-    orchestrator.getServer().provisionProject("com.sonarsource.it.samples:multi-modules-sample", "Sonar :: Integration Tests :: Multi-modules Sample");
-    orchestrator.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "one-issue-per-line");
-
-    thrown.expect(BuildFailureException.class);
-    scan("shared/xoo-multi-modules-sample",
-      "sonar.skippedModules", "multi-modules-sample");
   }
 
   /**
@@ -329,7 +290,7 @@ public class BatchTest {
 
     File cache = new File(userHome, "cache");
     assertThat(cache).exists().isDirectory();
-    int cachedFiles = FileUtils.listFiles(cache, new String[]{"jar"}, true).size();
+    int cachedFiles = FileUtils.listFiles(cache, new String[] {"jar"}, true).size();
     assertThat(cachedFiles).isGreaterThan(5);
     assertThat(result.getLogs()).contains("User cache: " + cache.getAbsolutePath());
     assertThat(result.getLogs()).contains("Download sonar-xoo-plugin-");
