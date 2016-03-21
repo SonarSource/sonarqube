@@ -61,8 +61,8 @@ class User < ActiveRecord::Base
   # HACK HACK HACK -- how to do attr_accessible from here?
   # prevents a user from submitting a crafted form that bypasses activation
   # anything else you want your user to change should be added here.
-  attr_accessible :login, :email, :name, :password, :password_confirmation, :external_identity, :external_identity_provider, :user_local
-  attr_accessor :token_authenticated, :external_identity, :external_identity_provider, :user_local
+  attr_accessible :login, :email, :name, :password, :password_confirmation
+  attr_accessor :token_authenticated
 
   ####
   # As now dates are saved in long they should be no more automatically managed by Rails
@@ -83,18 +83,6 @@ class User < ActiveRecord::Base
 
   def email=(value)
     write_attribute :email, (value && value.downcase)
-  end
-
-  def external_identity=(value)
-    write_attribute :external_identity, value
-  end
-
-  def external_identity_provider=(value)
-    write_attribute :external_identity_provider, value
-  end
-
-  def user_local=(value)
-    write_attribute :user_local, value
   end
 
   # SCM accounts should also contain login and email

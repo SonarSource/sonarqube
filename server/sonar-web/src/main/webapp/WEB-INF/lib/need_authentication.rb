@@ -132,9 +132,9 @@ class PluginRealm
         return nil if !Api::Utils.java_facade.getSettings().getBoolean('sonar.authenticator.createUsers')
         # Automatically create a user in the sonar db if authentication has been successfully done
         user = User.new(:login => username, :name => username, :email => '', :created_at => now, :updated_at => now)
-        user.external_identity = username
-        user.external_identity_provider = 'sonarqube'
-        user.user_local = false
+        user.external_identity= username
+        user.external_identity_provider= 'sonarqube'
+        user.user_local= false
 
         if details
           user.name = details.getName()
@@ -153,6 +153,11 @@ class PluginRealm
           user.name = details.getName()
           user.email = details.getEmail()
         end
+
+        # Update external identity and local info for existing users
+        user.external_identity= username
+        user.external_identity_provider= 'sonarqube'
+        user.user_local= false
 
         # Force the update of updated_at in order to execute an SQL update to block other session
         user.updated_at = now

@@ -26,6 +26,8 @@ class AddUsersLocalColumn < ActiveRecord::Migration
 
   def self.up
     add_column 'users', 'user_local', :boolean
+    # As user table was already loaded, we need to reset rails cache in order for rails to 'see' this new column
+    User.reset_column_information
   end
 
 end
