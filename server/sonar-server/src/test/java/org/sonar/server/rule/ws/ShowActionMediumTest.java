@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.ws;
 
+import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -26,23 +27,30 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleParamDto;
+import org.sonar.db.qualityprofile.QualityProfileDao;
+import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.NewRule;
 import org.sonar.server.rule.RuleService;
+import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static com.google.common.collect.Sets.newHashSet;
+import static org.sonar.api.rule.Severity.MINOR;
 
 public class ShowActionMediumTest {
 
@@ -79,7 +87,7 @@ public class ShowActionMediumTest {
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setDescriptionFormat(Format.HTML)
-      .setSeverity(Severity.MINOR)
+      .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
@@ -102,7 +110,7 @@ public class ShowActionMediumTest {
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
-      .setSeverity(Severity.MINOR)
+      .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
@@ -129,7 +137,7 @@ public class ShowActionMediumTest {
       RuleTesting.newDto(RuleKey.of("java", "S001"))
         .setName("Rule S001")
         .setDescription("Rule S001 <b>description</b>")
-        .setSeverity(Severity.MINOR)
+        .setSeverity(MINOR)
         .setStatus(RuleStatus.BETA)
         .setConfigKey("InternalKeyS001")
         .setLanguage("xoo")
@@ -153,7 +161,7 @@ public class ShowActionMediumTest {
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
-      .setSeverity(Severity.MINOR)
+      .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
@@ -178,7 +186,7 @@ public class ShowActionMediumTest {
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
       .setDescriptionFormat(Format.HTML)
-      .setSeverity(Severity.MINOR)
+      .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
@@ -207,7 +215,7 @@ public class ShowActionMediumTest {
     // Custom rule
     NewRule customRule = NewRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
       .setName("My custom")
-      .setSeverity(Severity.MINOR)
+      .setSeverity(MINOR)
       .setStatus(RuleStatus.READY)
       .setMarkdownDescription("<div>line1\nline2</div>");
     RuleKey customRuleKey = ruleService.create(customRule);
@@ -223,7 +231,7 @@ public class ShowActionMediumTest {
     // Manual rule
     NewRule manualRule = NewRule.createForManualRule("MY_MANUAL")
       .setName("My manual")
-      .setSeverity(Severity.MINOR)
+      .setSeverity(MINOR)
       .setMarkdownDescription("<div>line1\nline2</div>");
     RuleKey customRuleKey = ruleService.create(manualRule);
     session.clearCache();
@@ -238,7 +246,7 @@ public class ShowActionMediumTest {
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
       .setName("Rule S001")
       .setDescription("Rule S001 <b>description</b>")
-      .setSeverity(Severity.MINOR)
+      .setSeverity(MINOR)
       .setStatus(RuleStatus.BETA)
       .setConfigKey("InternalKeyS001")
       .setLanguage("xoo")
@@ -254,6 +262,48 @@ public class ShowActionMediumTest {
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", ruleDto.getKey().toString());
     request.execute().assertJson(getClass(), "show_deprecated_rule_rem_function_fields.json");
+  }
+
+  @Test
+  public void show_rule_when_activated() throws Exception {
+    RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("java", "S001"))
+      .setName("Rule S001")
+      .setDescription("Rule S001 <b>description</b>")
+      .setDescriptionFormat(Format.HTML)
+      .setSeverity(MINOR)
+      .setStatus(RuleStatus.BETA)
+      .setLanguage("xoo")
+      .setType(RuleType.BUG)
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
+    ruleDao.insert(session, ruleDto);
+    RuleParamDto regexParam = RuleParamDto.createFor(ruleDto).setName("regex").setType("STRING").setDescription("Reg *exp*").setDefaultValue(".*");
+    ruleDao.insertRuleParam(session, ruleDto, regexParam);
+
+    QualityProfileDto profile = QualityProfileDto.createFor("profile").setName("Profile").setLanguage("xoo");
+    tester.get(QualityProfileDao.class).insert(session, profile);
+    ActiveRuleDto activeRuleDto = new ActiveRuleDto()
+      .setProfileId(profile.getId())
+      .setRuleId(ruleDto.getId())
+      .setSeverity(MINOR)
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
+    tester.get(ActiveRuleDao.class).insert(session, activeRuleDto);
+    tester.get(ActiveRuleDao.class).insertParam(session, activeRuleDto, new ActiveRuleParamDto()
+      .setRulesParameterId(regexParam.getId())
+      .setKey(regexParam.getName())
+      .setValue(".*?")
+      );
+    session.commit();
+    session.clearCache();
+
+    tester.get(RuleIndexer.class).setEnabled(true).index();
+    tester.get(ActiveRuleIndexer.class).setEnabled(true).index();
+
+    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
+      .setParam("key", ruleDto.getKey().toString())
+      .setParam("actives", "true");
+    request.execute().assertJson(getClass(), "show_rule_when_activated.json");
   }
 
 }

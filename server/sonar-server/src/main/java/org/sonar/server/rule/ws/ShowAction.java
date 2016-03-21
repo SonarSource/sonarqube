@@ -113,7 +113,6 @@ public class ShowAction implements RulesWsAction {
     } finally {
       dbClient.closeSession(dbSession);
     }
-
   }
 
   private ShowResponse buildResponse(DbSession dbSession, Request request, SearchAction.SearchResult searchResult) {

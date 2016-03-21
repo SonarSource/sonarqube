@@ -151,7 +151,7 @@ public class ActiveRuleCompleter {
     List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, Lists.transform(activeRuleDtos, ActiveRuleDtoToId.INSTANCE));
     ListMultimap<ActiveRuleKey, ActiveRuleParamDto> activeRuleParamsByActiveRuleKey = ArrayListMultimap.create(activeRules.size(), 10);
     for (ActiveRuleParamDto activeRuleParamDto : activeRuleParamDtos) {
-      ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getId());
+      ActiveRuleKey activeRuleKey = activeRuleIdsByKey.get(activeRuleParamDto.getActiveRuleId());
       activeRuleParamsByActiveRuleKey.put(activeRuleKey, activeRuleParamDto);
     }
 
