@@ -24,10 +24,15 @@ import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
 
+import static com.google.common.collect.Sets.newHashSet;
+
 public class FakeBaseIdProvider implements BaseIdentityProvider {
 
   private static final String ENABLED = "sonar.auth.fake-base-id-provider.enabled";
   private static final String ALLOWS_USERS_TO_SIGN_UP = "sonar.auth.fake-base-id-provider.allowsUsersToSignUp";
+  private static final String ENABLED_GROUPS_SYNC = "sonar.auth.fake-base-id-provider.enabledGroupsSync";
+  private static final String GROUPS = "sonar.auth.fake-base-id-provider.groups";
+
   private static final String USER_INFO = "sonar.auth.fake-base-id-provider.user";
 
   private static final String THROW_UNAUTHORIZED_EXCEPTION = "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage";
@@ -50,13 +55,17 @@ public class FakeBaseIdProvider implements BaseIdentityProvider {
     }
 
     String[] userInfos = userInfoProperty.split(",");
-    context.authenticate(UserIdentity.builder()
+    UserIdentity.Builder builder = UserIdentity.builder()
       .setLogin(userInfos[0])
       .setProviderLogin(userInfos[1])
       .setName(userInfos[2])
-      .setEmail(userInfos[3])
-      .build());
+      .setEmail(userInfos[3]);
 
+    if (settings.getBoolean(ENABLED_GROUPS_SYNC)) {
+      builder.setGroups(newHashSet(settings.getStringArray(GROUPS)));
+    }
+
+    context.authenticate(builder.build());
     try {
       context.getResponse().sendRedirect("/");
     } catch (IOException e) {

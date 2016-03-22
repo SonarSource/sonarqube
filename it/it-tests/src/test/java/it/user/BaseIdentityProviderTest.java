@@ -19,6 +19,7 @@
  */
 package it.user;
 
+import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
@@ -66,6 +67,10 @@ public class BaseIdentityProviderTest {
   static String USER_NAME_UPDATED = "John Doe";
   static String USER_EMAIL_UPDATED = "john.doe@email.com";
 
+  static String GROUP1 = "group1";
+  static String GROUP2 = "group2";
+  static String GROUP3 = "group3";
+
   static WsClient adminWsClient;
 
   @BeforeClass
@@ -75,11 +80,14 @@ public class BaseIdentityProviderTest {
   }
 
   @After
-  public void removeUserAndCleanPluginProperties() throws Exception {
+  public void cleanUpUsersAndGroupsAndProperties() throws Exception {
     userRule.deactivateUsers(USER_LOGIN);
+    userRule.removeGroups(GROUP1, GROUP2, GROUP3);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", null);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", null);
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.throwUnauthorizedMessage", null);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabledGroupsSync", null);
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.groups", null);
   }
 
   @Test
@@ -200,18 +208,70 @@ public class BaseIdentityProviderTest {
     userRule.verifyUserDoesNotExist(USER_LOGIN);
   }
 
+  @Test
+  public void synchronize_groups_for_new_user() throws Exception {
+    enablePlugin();
+    userRule.createGroup(GROUP1);
+    userRule.createGroup(GROUP2);
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+    // Group3 doesn't exist in DB, user won't belong to this group
+    setGroupsReturnedByAuthPlugin(GROUP1, GROUP2, GROUP3);
+
+    authenticateWithFakeAuthProvider();
+
+    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP1, GROUP2);
+  }
+
+  @Test
+  public void synchronize_groups_for_existing_user() throws Exception {
+    enablePlugin();
+    userRule.createGroup(GROUP1);
+    userRule.createGroup(GROUP2);
+    userRule.createGroup(GROUP3);
+    userRule.createUser(USER_LOGIN, "password");
+    userRule.associateGroupsToUser(USER_LOGIN, GROUP1, GROUP2);
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+    // Group1 is not returned by the plugin, user won't belong anymore to this group
+    setGroupsReturnedByAuthPlugin(GROUP2, GROUP3);
+
+    authenticateWithFakeAuthProvider();
+
+    userRule.verifyUserGroupMembership(USER_LOGIN, GROUP2, GROUP3);
+  }
+
+  @Test
+  public void remove_user_groups_when_groups_provided_by_plugin_are_empty() throws Exception {
+    enablePlugin();
+    userRule.createGroup(GROUP1);
+    userRule.createUser(USER_LOGIN, "password");
+    userRule.associateGroupsToUser(USER_LOGIN, GROUP1);
+    setUserCreatedByAuthPlugin(USER_LOGIN, USER_PROVIDER_ID, USER_NAME, USER_EMAIL);
+    // No group is returned by the plugin
+    setGroupsReturnedByAuthPlugin();
+
+    authenticateWithFakeAuthProvider();
+
+    // User is not member to any group
+    userRule.verifyUserGroupMembership(USER_LOGIN);
+  }
+
+  private static void enablePlugin() {
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
+  }
+
   private static void setUserCreatedByAuthPlugin(String login, String providerId, String name, String email) {
     setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.user", login + "," + providerId + "," + name + "," + email);
+  }
+
+  private static void setGroupsReturnedByAuthPlugin(String... groups) {
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabledGroupsSync", "true");
+    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.groups", Joiner.on(",").join(groups));
   }
 
   private static void authenticateWithFakeAuthProvider() {
     WsResponse response = adminWsClient.wsConnector().call(
       new GetRequest(("/sessions/init/" + FAKE_PROVIDER_KEY)));
     assertThat(response.code()).isEqualTo(200);
-  }
-
-  private static void enablePlugin() {
-    setServerProperty(ORCHESTRATOR, "sonar.auth.fake-base-id-provider.enabled", "true");
   }
 
 }

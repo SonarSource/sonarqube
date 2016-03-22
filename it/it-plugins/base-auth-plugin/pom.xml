@@ -28,6 +28,18 @@
       <version>3.0.1</version>
       <scope>provided</scope>
     </dependency>
+    <dependency>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>17.0</version>
+      <exclusions>
+        <exclusion>
+          <!-- should be declared with scope provided -->
+          <groupId>com.google.code.findbugs</groupId>
+          <artifactId>jsr305</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
   </dependencies>
 
   <build>
