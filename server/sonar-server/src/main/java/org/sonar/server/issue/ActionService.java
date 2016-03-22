@@ -40,7 +40,6 @@ import org.sonar.server.user.UserSession;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Iterables.find;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
@@ -97,18 +96,8 @@ public class ActionService {
           availableActions.add("set_severity");
         }
       }
-      for (String action : loadPluginActions(issue)) {
-        availableActions.add(action);
-      }
     }
     return availableActions;
-  }
-
-  private List<String> loadPluginActions(final Issue issue) {
-    return from(actions.list())
-      .filter(new SupportIssue(issue))
-      .transform(ActionToKey.INSTANCE)
-      .toList();
   }
 
   public Issue execute(String issueKey, String actionKey) {
@@ -174,28 +163,6 @@ public class ActionService {
         updater.addComment(issue, text, changeContext);
       }
       return this;
-    }
-  }
-
-  private static class SupportIssue implements Predicate<Action> {
-    private final Issue issue;
-
-    public SupportIssue(Issue issue) {
-      this.issue = issue;
-    }
-
-    @Override
-    public boolean apply(@Nonnull Action action) {
-      return action.supports(issue);
-    }
-  }
-
-  private enum ActionToKey implements com.google.common.base.Function<Action, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull Action action) {
-      return action.key();
     }
   }
 

@@ -224,27 +224,6 @@ public class IssueActionTest extends AbstractIssueTest {
    * SONAR-4315
    */
   @Test
-  public void apply_action_from_plugin() {
-    // The condition on the action defined by the plugin is that the status must be resolved
-    adminIssueClient().doTransition(issue.key(), "resolve");
-    Assertions.assertThat(adminIssueClient().actions(issue.key())).contains("fake");
-
-    adminIssueClient().doAction(issue.key(), "fake");
-
-    // reload issue
-    Issue reloaded = searchIssue(issue.key(), true);
-
-    assertThat(reloaded.comments()).hasSize(1);
-    assertThat(reloaded.comments().get(0).htmlText()).isEqualTo("New Comment from fake action");
-
-    // The action is no more available when already executed (because an issue attribute is used to check if the action is available or not)
-    Assertions.assertThat(adminIssueClient().actions(issue.key())).doesNotContain("fake");
-  }
-
-  /**
-   * SONAR-4315
-   */
-  @Test
   public void issue_attribute_are_kept_on_new_analysis() {
     // The condition on the action defined by the plugin is that the status must be resolved
     adminIssueClient().doTransition(issue.key(), "resolve");

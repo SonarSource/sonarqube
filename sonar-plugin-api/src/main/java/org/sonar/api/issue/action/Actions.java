@@ -25,7 +25,9 @@ import org.sonar.api.server.ServerSide;
 
 /**
  * @since 3.6
+ * @deprecated in 5.5. Webapp cannot be customized anymore to define actions on issues
  */
+@Deprecated
 @ServerSide
 public class Actions {
 

@@ -153,22 +153,6 @@ public class ActionServiceTest {
   }
 
   @Test
-  public void return_plugin_actions() {
-    actions.add(PLUGIN_ACTION).setConditions(new AlwaysMatch());
-    actions.add("tweet").setConditions(new NeverMatch());
-    assertThat(actionService.listAvailableActions(issue.toDefaultIssue())).contains(PLUGIN_ACTION);
-  }
-
-  @Test
-  public void return_plugin_actions_on_resolved_issue() {
-    actions.add(PLUGIN_ACTION).setConditions(new AlwaysMatch());
-    actions.add("tweet").setConditions(new NeverMatch());
-    issue = IssueTesting.newDto(newXooX1().setId(10), newFileDto(project), project).setKee(ISSUE_KEY).setResolution(RESOLUTION_FIXED);
-
-    assertThat(actionService.listAvailableActions(issue.toDefaultIssue())).contains(PLUGIN_ACTION);
-  }
-
-  @Test
   public void return_provided_actions_without_set_severity_when_not_issue_admin() {
     assertThat(actionService.listAvailableActions(issue.toDefaultIssue())).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me", "plan");
   }
