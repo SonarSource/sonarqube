@@ -14,6 +14,9 @@
     <module>test-libs-plugin</module>
     <module>test-require-plugin</module>
     <module>test-requirenew-plugin</module>
+    <module>fake-report-plugin</module>
+    <module>fake-sqale-plugin</module>
+    <module>fake-views-plugin</module>
   </modules>
 
 </project>

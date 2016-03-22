@@ -72,7 +72,10 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   private static final Logger LOG = Loggers.get(ServerPluginRepository.class);
   private static final String[] JAR_FILE_EXTENSIONS = new String[] {"jar"};
+  // List of plugins that are silently removed if installed
   private static final Set<String> DEFAULT_BLACKLISTED_PLUGINS = ImmutableSet.of("scmactivity", "issuesreport");
+  // List of plugins that should prevent the server to finish its startup
+  private static final Set<String> FORBIDDEN_COMPATIBLE_PLUGINS = ImmutableSet.of("sqale", "report", "views");
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
 
   private final Server server;
@@ -157,15 +160,19 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   }
 
   private void registerPluginInfo(PluginInfo info) {
-    if (blacklistedPluginKeys.contains(info.getKey())) {
-      LOG.warn("Plugin {} [{}] is blacklisted and is being uninstalled.", info.getName(), info.getKey());
+    String pluginKey = info.getKey();
+    if (blacklistedPluginKeys.contains(pluginKey)) {
+      LOG.warn("Plugin {} [{}] is blacklisted and is being uninstalled.", info.getName(), pluginKey);
       org.sonar.core.util.FileUtils.deleteQuietly(info.getNonNullJarFile());
       return;
     }
-    PluginInfo existing = pluginInfosByKeys.put(info.getKey(), info);
+    if (FORBIDDEN_COMPATIBLE_PLUGINS.contains(pluginKey)) {
+      throw MessageException.of(String.format("Plugin '%s' is no more compatible with this version of SonarQube", pluginKey));
+    }
+    PluginInfo existing = pluginInfosByKeys.put(pluginKey, info);
     if (existing != null) {
       throw MessageException.of(format("Found two files for the same plugin [%s]: %s and %s",
-        info.getKey(), info.getNonNullJarFile().getName(), existing.getNonNullJarFile().getName()));
+        pluginKey, info.getNonNullJarFile().getName(), existing.getNonNullJarFile().getName()));
     }
 
   }

@@ -30,6 +30,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.platform.Server;
@@ -47,6 +48,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 public class ServerPluginRepositoryTest {
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -307,6 +311,33 @@ public class ServerPluginRepositoryTest {
     PluginInfo plugin = new PluginInfo("foo").setName("Foo");
     assertThat(ServerPluginRepository.isCompatible(plugin, server, Collections.<String, PluginInfo>emptyMap())).isFalse();
     assertThat(logs.logs()).contains("Plugin Foo [foo] is ignored because entry point class is not defined");
+  }
+
+  @Test
+  public void fail_when_views_is_installed() throws Exception {
+    copyTestPluginTo("fake-views-plugin", fs.getInstalledPluginsDir());
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Plugin 'views' is no more compatible with this version of SonarQube");
+    underTest.start();
+  }
+
+  @Test
+  public void fail_when_sqale_plugin_is_installed() throws Exception {
+    copyTestPluginTo("fake-sqale-plugin", fs.getInstalledPluginsDir());
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Plugin 'sqale' is no more compatible with this version of SonarQube");
+    underTest.start();
+  }
+
+  @Test
+  public void fail_when_report_is_installed() throws Exception {
+    copyTestPluginTo("fake-report-plugin", fs.getInstalledPluginsDir());
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Plugin 'report' is no more compatible with this version of SonarQube");
+    underTest.start();
   }
 
   /**
