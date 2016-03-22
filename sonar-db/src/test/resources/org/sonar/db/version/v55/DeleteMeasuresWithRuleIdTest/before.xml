@@ -1,0 +1,7 @@
+<dataset>
+
+  <project_measures id="10" rule_id="[null]" metric_id="1"/>
+  <project_measures id="11" rule_id="10" metric_id="1" />
+  <project_measures id="12" rule_id="11" metric_id="1" />
+
+</dataset>
