@@ -174,8 +174,8 @@ public class ProjectAdministrationTest {
       ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
-    assertThat(orchestrator.getServer().getAdminWsClient().find(PropertyQuery.createForResource("sonar.skippedModules", "sample")).getValue())
-      .isEqualTo("my-excluded-module");
+    assertThat(orchestrator.getServer().getAdminWsClient().find(PropertyQuery.createForResource("sonar.exclusions", "sample")).getValue())
+      .isEqualTo("my-exclusions");
   }
 
   /**

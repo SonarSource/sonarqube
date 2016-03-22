@@ -20,11 +20,12 @@
 package it.measureHistory;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category1Suite;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
@@ -47,7 +48,7 @@ public class SinceXDaysHistoryTest {
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 
-  private static final String PROJECT = "com.sonarsource.it.samples:multi-modules-sample";
+  private static final String PROJECT = "multi-files-sample";
 
   @BeforeClass
   public static void analyseProjectWithHistory() {
@@ -59,13 +60,13 @@ public class SinceXDaysHistoryTest {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT, "xoo", "one-issue-per-line");
 
     // Execute a analysis in the past before since 30 days period -> 0 issue, 0 file
-    analyzeProject("2013-01-01", "multi-modules-sample:module_b,multi-modules-sample:module_a");
+    analyzeProject("2013-01-01", "**/File1*,**/File2*,**/File3*,**/File4*");
 
     // Execute a analysis 20 days ago, after since 30 days period -> 16 issues, 1 file
-    analyzeProject(getPastDate(20), "multi-modules-sample:module_b,multi-modules-sample:module_a:module_a2");
+    analyzeProject(getPastDate(20), "**/File2*,**/File3*,**/File4*");
 
     // Execute a analysis 10 days ago, after since 30 days period -> 28 issues, 2 files
-    analyzeProject(getPastDate(10), "multi-modules-sample:module_b");
+    analyzeProject(getPastDate(10), "**/File3*,**/File4*");
 
     // Execute a analysis in the present with all modules -> 52 issues, 4 files
     analyzeProject();
@@ -123,13 +124,13 @@ public class SinceXDaysHistoryTest {
     analyzeProject(null, null);
   }
 
-  private static void analyzeProject(String date, String skippedModules) {
-    SonarRunner runner = SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"));
+  private static void analyzeProject(@Nullable String date, @Nullable String exclusions) {
+    SonarScanner runner = SonarScanner.create(projectDir("measureHistory/xoo-multi-files-sample"));
     if (date != null) {
       runner.setProperty("sonar.projectDate", date);
     }
-    if (skippedModules != null) {
-      runner.setProperties("sonar.skippedModules", skippedModules);
+    if (exclusions != null) {
+      runner.setProperties("sonar.exclusions", exclusions);
     }
     orchestrator.executeBuild(runner);
   }
