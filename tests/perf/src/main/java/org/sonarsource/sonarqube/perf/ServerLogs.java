@@ -29,7 +29,7 @@ import java.util.List;
 
 public class ServerLogs {
 
-  static Date extractDate(String line) {
+  public static Date extractDate(String line) {
     String pattern = "yyyy.MM.dd HH:mm:ss";
     SimpleDateFormat format = new SimpleDateFormat(pattern);
     if (line.length() > 19) {

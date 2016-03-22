@@ -79,7 +79,7 @@ public class CeServer implements Monitored {
   /**
    * Can't be started as is. Needs to be bootstrapped by sonar-application
    */
-  public static void main(String[] args) throws Exception {
+  public static void main(String[] args) {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
     new ServerProcessLogging(PROCESS_NAME, LOG_LEVEL_PROPERTY).configure(props);
@@ -188,6 +188,7 @@ public class CeServer implements Monitored {
     private void startup() {
       LOG.info("Compute Engine Server starting up...");
       computeEngine.startup();
+      LOG.info("Compute Engine Server is up");
     }
 
     private void waitForStopSignal() {

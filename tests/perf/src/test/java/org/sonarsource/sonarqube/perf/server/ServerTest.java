@@ -20,16 +20,22 @@
 package org.sonarsource.sonarqube.perf.server;
 
 import com.sonar.orchestrator.Orchestrator;
-import org.sonarsource.sonarqube.perf.PerfTestCase;
-import org.sonarsource.sonarqube.perf.ServerLogs;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.Timeout;
+import org.sonarsource.sonarqube.perf.PerfTestCase;
+import org.sonarsource.sonarqube.perf.ServerLogs;
 
 public class ServerTest extends PerfTestCase {
+  private static final int TIMEOUT_3_MINUTES = 1000 * 60 * 3;
+
+  @Rule
+  public Timeout timeout = new Timeout(TIMEOUT_3_MINUTES);
 
   // ES + TOMCAT
   @Test
@@ -46,39 +52,60 @@ public class ServerTest extends PerfTestCase {
       .setServerProperty("sonar.web.javaOpts", defaultWebJavaOptions + " -Djava.security.egd=file:/dev/./urandom")
       .build();
     try {
-      long startupDuration = start(orchestrator);
-      assertDurationAround(startupDuration, 41000);
+      ServerLogs.clear(orchestrator);
+      orchestrator.start();
 
-      long shutdownDuration = stop(orchestrator);
-      // can't use percent margins because logs are second-grained but not milliseconds
-      assertDurationLessThan(shutdownDuration, 4000);
+      // compare dates of first and last log
+      long firstLogDate = ServerLogs.extractFirstDate(readLogLines(orchestrator)).getTime();
+      long startedAtDate = extractStartedAtDate(orchestrator);
+      assertDurationAround(startedAtDate - firstLogDate, 45000);
+
+      ServerLogs.clear(orchestrator);
+      orchestrator.stop();
+
+      List<String> lines = readLogLines(orchestrator);
+      long firstStopLogDate = ServerLogs.extractFirstDate(lines).getTime();
+      long stopDate = extractStopDate(lines);
+      assertDurationLessThan(stopDate - firstStopLogDate, 10000);
 
     } finally {
       orchestrator.stop();
     }
   }
 
-  long start(Orchestrator orchestrator) throws IOException {
-    ServerLogs.clear(orchestrator);
-    orchestrator.start();
-    return logsPeriod(orchestrator);
-  }
-
-  long stop(Orchestrator orchestrator) throws Exception {
-    ServerLogs.clear(orchestrator);
-    orchestrator.stop();
-    return logsPeriod(orchestrator);
-  }
-
-  private long logsPeriod(Orchestrator orchestrator) throws IOException {
-    // compare dates of first and last log
-    List<String> lines = FileUtils.readLines(orchestrator.getServer().getLogs());
-    if (lines.size() < 2) {
-      throw new IllegalStateException("Fail to estimate server shutdown or startup duration. Not enough logs.");
+  private static long extractStartedAtDate(Orchestrator orchestrator) throws IOException {
+    Date startedAtDate = extractStartedDate(readLogLines(orchestrator));
+    // if SQ never starts, the test will fail with timeout
+    while (startedAtDate == null) {
+      try {
+        Thread.sleep(100);
+        startedAtDate = extractStartedDate(readLogLines(orchestrator));
+      } catch (InterruptedException e) {
+        // ignored
+      }
     }
-    Date start = ServerLogs.extractFirstDate(lines);
+    return startedAtDate.getTime();
+  }
+
+  private static Date extractStartedDate(List<String> lines) {
+    Collections.reverse(lines);
+    Date end = null;
+    for (String line : lines) {
+      if (line.contains("Compute Engine Server is up")) {
+        end = ServerLogs.extractDate(line);
+        break;
+      }
+    }
+    return end;
+  }
+
+  private static long extractStopDate(List<String> lines) throws IOException {
     Collections.reverse(lines);
     Date end = ServerLogs.extractFirstDate(lines);
-    return end.getTime() - start.getTime();
+    return end.getTime();
+  }
+
+  private static List<String> readLogLines(Orchestrator orchestrator) throws IOException {
+    return FileUtils.readLines(orchestrator.getServer().getLogs());
   }
 }
