@@ -163,7 +163,7 @@ public class DefaultRuleFinder implements RuleFinder {
     return rules;
   }
 
-  private org.sonar.api.rules.Rule toRule(RuleDto rule, List<RuleParamDto> params) {
+  private static org.sonar.api.rules.Rule toRule(RuleDto rule, List<RuleParamDto> params) {
     String severity = rule.getSeverityString();
     String description = rule.getDescription();
     RuleDto.Format descriptionFormat = rule.getDescriptionFormat();

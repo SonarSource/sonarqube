@@ -232,7 +232,7 @@ public class RulesDefinitionXmlLoader {
     }
   }
 
-  private void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
+  private static void processRule(RulesDefinition.NewRepository repo, SMInputCursor ruleC) throws XMLStreamException {
     String key = null;
     String name = null;
     String description = null;

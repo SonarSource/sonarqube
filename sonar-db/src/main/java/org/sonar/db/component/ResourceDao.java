@@ -64,7 +64,7 @@ public class ResourceDao extends AbstractDao {
     return null;
   }
 
-  private List<ResourceDto> getResources(ResourceQuery query, SqlSession session) {
+  private static List<ResourceDto> getResources(ResourceQuery query, SqlSession session) {
     return session.getMapper(ResourceMapper.class).selectResources(query);
   }
 

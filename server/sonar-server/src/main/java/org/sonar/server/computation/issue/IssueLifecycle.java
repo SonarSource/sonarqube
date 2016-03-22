@@ -92,8 +92,8 @@ public class IssueLifecycle {
     updater.setPastLine(raw, base.getLine());
     updater.setPastLocations(raw, base.getLocations());
     updater.setPastMessage(raw, base.getMessage(), changeContext);
-    updater.setPastGap(raw, base.effortToFix(), changeContext);
-    updater.setPastEffort(raw, base.debt(), changeContext);
+    updater.setPastGap(raw, base.gap(), changeContext);
+    updater.setPastEffort(raw, base.effort(), changeContext);
     raw.setSelectedAt(base.selectedAt());
   }
 

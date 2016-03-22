@@ -311,9 +311,9 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     }
 
     private static long getEffortForNotMinorIssue(Issue issue) {
-      Duration debt = issue.debt();
-      if (!issue.severity().equals(Severity.INFO) && debt != null) {
-        return debt.toMinutes();
+      Duration effort = issue.effort();
+      if (!issue.severity().equals(Severity.INFO) && effort != null) {
+        return effort.toMinutes();
       }
       return 0L;
     }

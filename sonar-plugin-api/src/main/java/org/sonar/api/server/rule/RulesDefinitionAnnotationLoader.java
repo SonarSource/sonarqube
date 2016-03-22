@@ -74,7 +74,7 @@ public class RulesDefinitionAnnotationLoader {
     }
   }
 
-  private RulesDefinition.NewRule loadRule(RulesDefinition.NewExtendedRepository repo, Class clazz, org.sonar.check.Rule ruleAnnotation) {
+  private static RulesDefinition.NewRule loadRule(RulesDefinition.NewExtendedRepository repo, Class clazz, org.sonar.check.Rule ruleAnnotation) {
     String ruleKey = StringUtils.defaultIfEmpty(ruleAnnotation.key(), clazz.getCanonicalName());
     String ruleName = StringUtils.defaultIfEmpty(ruleAnnotation.name(), null);
     String description = StringUtils.defaultIfEmpty(ruleAnnotation.description(), null);

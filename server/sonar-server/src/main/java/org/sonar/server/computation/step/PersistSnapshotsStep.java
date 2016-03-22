@@ -188,10 +188,10 @@ public class PersistSnapshotsStep implements ComputationStep {
     private void addToCache(Component component, SnapshotDto snapshotDto) {
       dbIdsRepository.setSnapshotId(component, snapshotDto.getId());
     }
-  }
 
-  private void persist(SnapshotDto snapshotDto, DbSession dbSession) {
-    dbClient.snapshotDao().insert(dbSession, snapshotDto);
+    private void persist(SnapshotDto snapshotDto, DbSession dbSession) {
+      dbClient.snapshotDao().insert(dbSession, snapshotDto);
+    }
   }
 
   private static String getFileQualifier(Component component) {
