@@ -62,10 +62,6 @@ public class CeServer implements Monitored {
   @CheckForNull
   private CeMainThread ceMainThread = null;
 
-  protected CeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine) {
-    this(webServerWatcher, computeEngine, new MinimumViableSystem());
-  }
-
   @VisibleForTesting
   protected CeServer(WebServerWatcher webServerWatcher, ComputeEngine computeEngine, MinimumViableSystem mvs) {
     this.webServerWatcher = webServerWatcher;
@@ -83,7 +79,10 @@ public class CeServer implements Monitored {
     ProcessEntryPoint entryPoint = ProcessEntryPoint.createForArguments(args);
     Props props = entryPoint.getProps();
     new ServerProcessLogging(PROCESS_NAME, LOG_LEVEL_PROPERTY).configure(props);
-    CeServer server = new CeServer(new WebServerWatcherImpl(entryPoint.getSharedDir()), new ComputeEngineImpl(props, new ComputeEngineContainerImpl()));
+    CeServer server = new CeServer(
+      new WebServerWatcherImpl(entryPoint.getSharedDir()),
+      new ComputeEngineImpl(props, new ComputeEngineContainerImpl()),
+      new MinimumViableSystem());
     entryPoint.launch(server);
   }
 
