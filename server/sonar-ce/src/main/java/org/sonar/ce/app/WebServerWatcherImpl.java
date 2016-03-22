@@ -51,8 +51,6 @@ public class WebServerWatcherImpl implements WebServerWatcher {
         try {
           Thread.sleep(POLL_DELAY);
         } catch (InterruptedException e) {
-          // propagate interrupted state and return that WebServer is not operational
-          Thread.interrupted();
           return false;
         }
       }
