@@ -23,7 +23,7 @@ import org.picocontainer.Startable;
 import org.sonar.process.jmx.Jmx;
 
 /**
- * Base implementation of {@link org.sonar.server.platform.monitoring.Monitor}
+ * Base implementation of a {@link org.sonar.server.platform.monitoring.Monitor}
  * that is exported as a JMX bean
  */
 public abstract class BaseMonitorMBean implements Monitor, Startable {
@@ -51,7 +51,7 @@ public abstract class BaseMonitorMBean implements Monitor, Startable {
   }
 
   String objectName() {
-    return String.format("SonarQube:name=%s", name());
+    return "SonarQube:name=" + name();
   }
 
   protected Jmx jmx() {
