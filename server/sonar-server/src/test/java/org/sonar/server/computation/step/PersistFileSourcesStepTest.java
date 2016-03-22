@@ -31,8 +31,9 @@ import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.db.source.FileSourceDto.Type;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
+import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -50,7 +51,6 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 public class PersistFileSourcesStepTest extends BaseStepTest {
 
@@ -135,7 +135,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_coverage() {
     initBasicReport(1);
 
-    reportReader.putCoverage(FILE_REF, newArrayList(ScannerReport.Coverage.newBuilder()
+    reportReader.putCoverage(FILE_REF, newArrayList(ScannerReport.LineCoverage.newBuilder()
       .setLine(1)
       .setConditions(10)
       .setUtHits(true)
@@ -193,12 +193,12 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
   public void persist_highlighting() {
     initBasicReport(1);
 
-    reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(ScannerReport.SyntaxHighlighting.newBuilder()
+    reportReader.putSyntaxHighlighting(FILE_REF, newArrayList(ScannerReport.SyntaxHighlightingRule.newBuilder()
       .setRange(ScannerReport.TextRange.newBuilder()
         .setStartLine(1).setEndLine(1)
         .setStartOffset(2).setEndOffset(4)
         .build())
-      .setType(Constants.HighlightingType.ANNOTATION)
+      .setType(HighlightingType.ANNOTATION)
       .build()));
 
     underTest.execute();
@@ -245,8 +245,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     duplicationRepository.add(
       FILE_REF,
-      new Duplication(new TextBlock(1, 2), Arrays.<Duplicate>asList(new InnerDuplicate(new TextBlock(3, 4))))
-      );
+      new Duplication(new TextBlock(1, 2), Arrays.<Duplicate>asList(new InnerDuplicate(new TextBlock(3, 4)))));
 
     underTest.execute();
 
@@ -441,17 +440,17 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .addChildRef(2)
       .build());
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
+      .setType(ComponentType.MODULE)
       .addChildRef(FILE_REF)
       .build());
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(FILE_REF)
-      .setType(Constants.ComponentType.FILE)
+      .setType(ComponentType.FILE)
       .build());
 
     for (int i = 1; i <= numberOfLines; i++) {

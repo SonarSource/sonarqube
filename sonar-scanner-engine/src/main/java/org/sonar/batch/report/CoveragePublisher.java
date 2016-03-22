@@ -32,9 +32,9 @@ import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.measure.MeasureCache;
+import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage;
+import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage.Builder;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.protocol.output.ScannerReport.Coverage;
-import org.sonar.scanner.protocol.output.ScannerReport.Coverage.Builder;
 
 public class CoveragePublisher implements ReportPublisherStep {
 
@@ -52,48 +52,48 @@ public class CoveragePublisher implements ReportPublisherStep {
       if (!resource.isFile()) {
         continue;
       }
-      Map<Integer, Coverage.Builder> coveragePerLine = new LinkedHashMap<>();
+      Map<Integer, LineCoverage.Builder> coveragePerLine = new LinkedHashMap<>();
 
       int lineCount = ((InputFile) resource.inputComponent()).lines();
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
-          public void apply(String value, Coverage.Builder builder) {
+          public void apply(String value, LineCoverage.Builder builder) {
             builder.setUtHits(Integer.parseInt(value) > 0);
           }
         });
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.CONDITIONS_BY_LINE_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
-          public void apply(String value, Coverage.Builder builder) {
+          public void apply(String value, LineCoverage.Builder builder) {
             builder.setConditions(Integer.parseInt(value));
           }
         });
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
-          public void apply(String value, Coverage.Builder builder) {
+          public void apply(String value, LineCoverage.Builder builder) {
             builder.setUtCoveredConditions(Integer.parseInt(value));
           }
         });
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
-          public void apply(String value, Coverage.Builder builder) {
+          public void apply(String value, LineCoverage.Builder builder) {
             builder.setItHits(Integer.parseInt(value) > 0);
           }
         });
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
-          public void apply(String value, Coverage.Builder builder) {
+          public void apply(String value, LineCoverage.Builder builder) {
             builder.setItCoveredConditions(Integer.parseInt(value));
           }
         });
       applyLineMeasure(resource.key(), lineCount, CoreMetrics.OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, coveragePerLine,
         new MeasureOperation() {
           @Override
-          public void apply(String value, Coverage.Builder builder) {
+          public void apply(String value, LineCoverage.Builder builder) {
             builder.setOverallCoveredConditions(Integer.parseInt(value));
           }
         });
@@ -101,7 +101,7 @@ public class CoveragePublisher implements ReportPublisherStep {
     }
   }
 
-  void applyLineMeasure(String inputFileKey, int lineCount, String metricKey, Map<Integer, Coverage.Builder> coveragePerLine, MeasureOperation op) {
+  void applyLineMeasure(String inputFileKey, int lineCount, String metricKey, Map<Integer, LineCoverage.Builder> coveragePerLine, MeasureOperation op) {
     Measure measure = measureCache.byMetric(inputFileKey, metricKey);
     if (measure != null) {
       Map<Integer, String> lineMeasures = KeyValueFormat.parseIntString((String) measure.value());
@@ -110,9 +110,9 @@ public class CoveragePublisher implements ReportPublisherStep {
         if (lineIdx <= lineCount) {
           String value = lineMeasure.getValue();
           if (StringUtils.isNotEmpty(value)) {
-            Coverage.Builder coverageBuilder = coveragePerLine.get(lineIdx);
+            LineCoverage.Builder coverageBuilder = coveragePerLine.get(lineIdx);
             if (coverageBuilder == null) {
-              coverageBuilder = Coverage.newBuilder();
+              coverageBuilder = LineCoverage.newBuilder();
               coverageBuilder.setLine(lineIdx);
               coveragePerLine.put(lineIdx, coverageBuilder);
             }
@@ -124,14 +124,14 @@ public class CoveragePublisher implements ReportPublisherStep {
   }
 
   interface MeasureOperation {
-    void apply(String value, Coverage.Builder builder);
+    void apply(String value, LineCoverage.Builder builder);
   }
 
-  private enum BuildCoverage implements Function<Coverage.Builder, Coverage> {
+  private enum BuildCoverage implements Function<LineCoverage.Builder, LineCoverage> {
     INSTANCE;
 
     @Override
-    public Coverage apply(@Nonnull Builder input) {
+    public LineCoverage apply(@Nonnull Builder input) {
       return input.build();
     }
   }

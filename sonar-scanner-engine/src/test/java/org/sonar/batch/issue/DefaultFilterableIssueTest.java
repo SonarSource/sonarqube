@@ -19,18 +19,17 @@
  */
 package org.sonar.batch.issue;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.when;
-
 import java.util.Date;
-
-import static org.mockito.Mockito.mock;
-
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.resources.Project;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport.Issue;
+import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class DefaultFilterableIssueTest {
   private DefaultFilterableIssue issue;
@@ -48,7 +47,7 @@ public class DefaultFilterableIssueTest {
     Issue.Builder builder = Issue.newBuilder();
 
     builder.setGap(3.0);
-    builder.setLine(30);
+    builder.setTextRange(TextRange.newBuilder().setStartLine(30));
     builder.setSeverity(Severity.MAJOR);
     return builder.build();
   }

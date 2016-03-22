@@ -21,7 +21,6 @@ package org.sonar.batch.report;
 
 import com.google.common.base.Function;
 import com.google.common.collect.FluentIterable;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -52,10 +51,7 @@ public class ActiveRulesPublisher implements ReportPublisherStep {
       builder.setRuleRepository(input.ruleKey().repository());
       builder.setRuleKey(input.ruleKey().rule());
       builder.setSeverity(Constants.Severity.valueOf(input.severity()));
-      for (Map.Entry<String, String> entry : input.params().entrySet()) {
-        builder.addParamBuilder().setKey(entry.getKey()).setValue(entry.getValue()).build();
-
-      }
+      builder.getMutableParamsByKey().putAll(input.params());
       return builder.build();
     }
   }

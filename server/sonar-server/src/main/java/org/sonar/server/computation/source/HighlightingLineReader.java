@@ -27,8 +27,8 @@ import javax.annotation.CheckForNull;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
 
@@ -43,26 +43,26 @@ public class HighlightingLineReader implements LineReader {
 
   private boolean isHighlightingValid = true;
 
-  private static final Map<Constants.HighlightingType, String> cssClassByType = ImmutableMap.<Constants.HighlightingType, String>builder()
-    .put(Constants.HighlightingType.ANNOTATION, "a")
-    .put(Constants.HighlightingType.CONSTANT, "c")
-    .put(Constants.HighlightingType.COMMENT, "cd")
-    .put(Constants.HighlightingType.CPP_DOC, "cppd")
-    .put(Constants.HighlightingType.STRUCTURED_COMMENT, "j")
-    .put(Constants.HighlightingType.KEYWORD, "k")
-    .put(Constants.HighlightingType.KEYWORD_LIGHT, "h")
-    .put(Constants.HighlightingType.HIGHLIGHTING_STRING, "s")
-    .put(Constants.HighlightingType.PREPROCESS_DIRECTIVE, "p")
+  private static final Map<HighlightingType, String> cssClassByType = ImmutableMap.<HighlightingType, String>builder()
+    .put(HighlightingType.ANNOTATION, "a")
+    .put(HighlightingType.CONSTANT, "c")
+    .put(HighlightingType.COMMENT, "cd")
+    .put(HighlightingType.CPP_DOC, "cppd")
+    .put(HighlightingType.STRUCTURED_COMMENT, "j")
+    .put(HighlightingType.KEYWORD, "k")
+    .put(HighlightingType.KEYWORD_LIGHT, "h")
+    .put(HighlightingType.HIGHLIGHTING_STRING, "s")
+    .put(HighlightingType.PREPROCESS_DIRECTIVE, "p")
     .build();
 
   private final Component file;
-  private final Iterator<ScannerReport.SyntaxHighlighting> lineHighlightingIterator;
+  private final Iterator<ScannerReport.SyntaxHighlightingRule> lineHighlightingIterator;
   private final RangeOffsetConverter rangeOffsetConverter;
-  private final List<ScannerReport.SyntaxHighlighting> highlightingList;
+  private final List<ScannerReport.SyntaxHighlightingRule> highlightingList;
 
-  private ScannerReport.SyntaxHighlighting currentItem;
+  private ScannerReport.SyntaxHighlightingRule currentItem;
 
-  public HighlightingLineReader(Component file, Iterator<ScannerReport.SyntaxHighlighting> lineHighlightingIterator, RangeOffsetConverter rangeOffsetConverter) {
+  public HighlightingLineReader(Component file, Iterator<ScannerReport.SyntaxHighlightingRule> lineHighlightingIterator, RangeOffsetConverter rangeOffsetConverter) {
     this.file = file;
     this.lineHighlightingIterator = lineHighlightingIterator;
     this.rangeOffsetConverter = rangeOffsetConverter;
@@ -87,7 +87,7 @@ public class HighlightingLineReader implements LineReader {
     StringBuilder highlighting = new StringBuilder();
 
     incrementHighlightingListMatchingLine(line);
-    for (Iterator<ScannerReport.SyntaxHighlighting> syntaxHighlightingIterator = highlightingList.iterator(); syntaxHighlightingIterator.hasNext();) {
+    for (Iterator<ScannerReport.SyntaxHighlightingRule> syntaxHighlightingIterator = highlightingList.iterator(); syntaxHighlightingIterator.hasNext();) {
       processHighlighting(syntaxHighlightingIterator, highlighting, lineBuilder);
     }
     if (highlighting.length() > 0) {
@@ -95,9 +95,9 @@ public class HighlightingLineReader implements LineReader {
     }
   }
 
-  private void processHighlighting(Iterator<ScannerReport.SyntaxHighlighting> syntaxHighlightingIterator, StringBuilder highlighting,
+  private void processHighlighting(Iterator<ScannerReport.SyntaxHighlightingRule> syntaxHighlightingIterator, StringBuilder highlighting,
     DbFileSources.Line.Builder lineBuilder) {
-    ScannerReport.SyntaxHighlighting syntaxHighlighting = syntaxHighlightingIterator.next();
+    ScannerReport.SyntaxHighlightingRule syntaxHighlighting = syntaxHighlightingIterator.next();
     int line = lineBuilder.getLine();
     ScannerReport.TextRange range = syntaxHighlighting.getRange();
     if (range.getStartLine() <= line) {
@@ -118,7 +118,7 @@ public class HighlightingLineReader implements LineReader {
     }
   }
 
-  private static String getCssClass(Constants.HighlightingType type) {
+  private static String getCssClass(HighlightingType type) {
     String cssClass = cssClassByType.get(type);
     if (cssClass != null) {
       return cssClass;
@@ -128,7 +128,7 @@ public class HighlightingLineReader implements LineReader {
   }
 
   private void incrementHighlightingListMatchingLine(int line) {
-    ScannerReport.SyntaxHighlighting syntaxHighlighting = getNextHighlightingMatchingLine(line);
+    ScannerReport.SyntaxHighlightingRule syntaxHighlighting = getNextHighlightingMatchingLine(line);
     while (syntaxHighlighting != null) {
       highlightingList.add(syntaxHighlighting);
       this.currentItem = null;
@@ -137,7 +137,7 @@ public class HighlightingLineReader implements LineReader {
   }
 
   @CheckForNull
-  private ScannerReport.SyntaxHighlighting getNextHighlightingMatchingLine(int line) {
+  private ScannerReport.SyntaxHighlightingRule getNextHighlightingMatchingLine(int line) {
     // Get next element (if exists)
     if (currentItem == null && lineHighlightingIterator.hasNext()) {
       currentItem = lineHighlightingIterator.next();

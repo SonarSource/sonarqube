@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchComponent;
@@ -93,9 +94,9 @@ public class IssueTransformer {
     issue.setKey(Uuids.createFast());
     issue.setComponentKey(component.key());
     issue.setRuleKey(ruleKey);
-    issue.setGap(rawIssue.hasGap() ? rawIssue.getGap() : null);
+    issue.setGap(rawIssue.getGap() != 0 ? rawIssue.getGap() : null);
     issue.setSeverity(rawIssue.getSeverity().name());
-    issue.setMessage(rawIssue.hasMsg() ? rawIssue.getMsg() : null);
+    issue.setMessage(StringUtils.trimToNull(rawIssue.getMsg()));
     issue.setResolution(null);
     issue.setStatus(Issue.STATUS_OPEN);
     issue.setNew(true);
@@ -103,10 +104,10 @@ public class IssueTransformer {
     if (rawIssue.hasTextRange()) {
       TextRange r = rawIssue.getTextRange();
 
-      issue.setStartLine(r.hasStartLine() ? rawIssue.getTextRange().getStartLine() : null);
-      issue.setStartLineOffset(r.hasStartOffset() ? r.getStartOffset() : null);
-      issue.setEndLine(r.hasEndLine() ? r.getEndLine() : issue.startLine());
-      issue.setEndLineOffset(r.hasEndOffset() ? r.getEndOffset() : null);
+      issue.setStartLine(r.getStartLine());
+      issue.setStartLineOffset(r.getStartOffset());
+      issue.setEndLine(r.getEndLine());
+      issue.setEndLineOffset(r.getEndOffset());
     }
 
     return issue;

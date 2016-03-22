@@ -40,6 +40,7 @@ import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class ChecksMediumTest {
 
@@ -89,22 +90,12 @@ public class ChecksMediumTest {
       .start();
 
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
-    assertThat(issues).hasSize(2);
+    assertThat(issues)
+      .extracting("msg", "textRange.startLine")
+      .containsOnly(
+        tuple("A template rule", 1),
+        tuple("Another template rule", 2));
 
-    boolean foundIssueAtLine1 = false;
-    boolean foundIssueAtLine2 = false;
-    for (Issue issue : issues) {
-      if (issue.getLine() == 1) {
-        foundIssueAtLine1 = true;
-        assertThat(issue.getMsg()).isEqualTo("A template rule");
-      }
-      if (issue.getLine() == 2) {
-        foundIssueAtLine2 = true;
-        assertThat(issue.getMsg()).isEqualTo("Another template rule");
-      }
-    }
-    assertThat(foundIssueAtLine1).isTrue();
-    assertThat(foundIssueAtLine2).isTrue();
   }
 
   private LoadedActiveRule createActiveRuleWithParam(String repositoryKey, String ruleKey, @Nullable String templateRuleKey, String name, @Nullable String severity,

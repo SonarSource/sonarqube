@@ -20,12 +20,13 @@
 package org.sonar.server.computation.step;
 
 import org.sonar.api.utils.MessageException;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
-import org.sonar.ce.queue.CeTask;
 
 import static java.lang.String.format;
+import static org.elasticsearch.common.lang3.StringUtils.isNotEmpty;
 
 /**
  * Feed analysis metadata holder with metadata from the analysis report.
@@ -49,9 +50,9 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     checkProjectKeyConsistency(reportMetadata);
 
     mutableAnalysisMetadataHolder.setRootComponentRef(reportMetadata.getRootComponentRef());
-    mutableAnalysisMetadataHolder.setBranch(reportMetadata.hasBranch() ? reportMetadata.getBranch() : null);
+    mutableAnalysisMetadataHolder.setBranch(isNotEmpty(reportMetadata.getBranch()) ? reportMetadata.getBranch() : null);
     mutableAnalysisMetadataHolder.setAnalysisDate(reportMetadata.getAnalysisDate());
-    mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.hasCrossProjectDuplicationActivated() && reportMetadata.getCrossProjectDuplicationActivated());
+    mutableAnalysisMetadataHolder.setCrossProjectDuplicationEnabled(reportMetadata.getCrossProjectDuplicationActivated());
   }
 
   private void checkProjectKeyConsistency(ScannerReport.Metadata reportMetadata) {
@@ -60,20 +61,18 @@ public class LoadReportAnalysisMetadataHolderStep implements ComputationStep {
     if (componentKey == null) {
       throw MessageException.of(format(
         "Compute Engine task component key is null. Project with UUID %s must have been deleted since report was uploaded. Can not proceed.",
-        ceTask.getComponentUuid()
-        ));
+        ceTask.getComponentUuid()));
     }
     if (!componentKey.equals(reportProjectKey)) {
       throw MessageException.of(format(
         "ProjectKey in report (%s) is not consistent with projectKey under which the report as been submitted (%s)",
         reportProjectKey,
-        componentKey
-        ));
+        componentKey));
     }
   }
 
   private static String projectKeyFromReport(ScannerReport.Metadata reportMetadata) {
-    if (reportMetadata.hasBranch()) {
+    if (isNotEmpty(reportMetadata.getBranch())) {
       return reportMetadata.getProjectKey() + ":" + reportMetadata.getBranch();
     }
     return reportMetadata.getProjectKey();

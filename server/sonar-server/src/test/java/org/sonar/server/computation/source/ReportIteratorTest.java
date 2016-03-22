@@ -19,16 +19,16 @@
  */
 package org.sonar.server.computation.source;
 
+import java.io.File;
+import java.util.NoSuchElementException;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.protocol.output.FileStructure;
-import java.io.File;
-import java.util.NoSuchElementException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -40,7 +40,7 @@ public class ReportIteratorTest {
 
   File file;
 
-  ReportIterator<ScannerReport.Coverage> underTest;
+  ReportIterator<ScannerReport.LineCoverage> underTest;
 
   @Before
   public void setUp() throws Exception {
@@ -48,10 +48,9 @@ public class ReportIteratorTest {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
 
     writer.writeComponentCoverage(1, newArrayList(
-      ScannerReport.Coverage.newBuilder()
+      ScannerReport.LineCoverage.newBuilder()
         .setLine(1)
-        .build()
-    ));
+        .build()));
 
     file = new FileStructure(dir).fileFor(FileStructure.Domain.COVERAGES, 1);
   }
@@ -65,13 +64,13 @@ public class ReportIteratorTest {
 
   @Test
   public void read_report() {
-    underTest = new ReportIterator<>(file, ScannerReport.Coverage.PARSER);
+    underTest = new ReportIterator<>(file, ScannerReport.LineCoverage.parser());
     assertThat(underTest.next().getLine()).isEqualTo(1);
   }
 
   @Test
   public void do_not_fail_when_calling_has_next_with_iterator_already_closed() {
-    underTest = new ReportIterator<>(file, ScannerReport.Coverage.PARSER);
+    underTest = new ReportIterator<>(file, ScannerReport.LineCoverage.parser());
     assertThat(underTest.next().getLine()).isEqualTo(1);
     assertThat(underTest.hasNext()).isFalse();
 
@@ -81,7 +80,7 @@ public class ReportIteratorTest {
 
   @Test(expected = NoSuchElementException.class)
   public void test_error() throws Exception {
-    underTest = new ReportIterator<>(file, ScannerReport.Coverage.PARSER);
+    underTest = new ReportIterator<>(file, ScannerReport.LineCoverage.parser());
     underTest.next();
 
     // fail !

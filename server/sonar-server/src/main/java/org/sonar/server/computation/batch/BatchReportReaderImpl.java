@@ -110,12 +110,12 @@ public class BatchReportReaderImpl implements BatchReportReader {
   }
 
   @Override
-  public CloseableIterator<ScannerReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
+  public CloseableIterator<ScannerReport.SyntaxHighlightingRule> readComponentSyntaxHighlighting(int fileRef) {
     return delegate.readComponentSyntaxHighlighting(fileRef);
   }
 
   @Override
-  public CloseableIterator<ScannerReport.Coverage> readComponentCoverage(int fileRef) {
+  public CloseableIterator<ScannerReport.LineCoverage> readComponentCoverage(int fileRef) {
     return delegate.readComponentCoverage(fileRef);
   }
 

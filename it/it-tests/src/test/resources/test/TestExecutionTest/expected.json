@@ -4,9 +4,7 @@
       "name": "success",
       "status": "OK",
       "durationInMs": 4,
-      "coveredLines": 0,
-      "message": "",
-      "stacktrace": ""
+      "coveredLines": 0
     },
     {
       "name": "error",
@@ -21,15 +19,13 @@
       "status": "FAILURE",
       "durationInMs": 2,
       "coveredLines": 0,
-      "message": "Failure",
-      "stacktrace": ""
+      "message": "Failure"
     },
     {
       "name": "skipped",
       "status": "SKIPPED",
       "coveredLines": 0,
-      "message": "",
-      "stacktrace": ""
+      "durationInMs": 0
     }
   ]
 }

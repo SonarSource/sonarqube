@@ -34,8 +34,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
+import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
@@ -118,7 +119,7 @@ public class PersistFileSourcesStepTest {
       .build());
     ScannerReport.Component.Builder project = ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT);
+      .setType(ComponentType.PROJECT);
 
     List<Component> components = new ArrayList<>();
     for (int fileRef = 2; fileRef <= NUMBER_OF_FILES + 1; fileRef++) {
@@ -152,7 +153,7 @@ public class PersistFileSourcesStepTest {
     }
     writer.writeComponent(ScannerReport.Component.newBuilder()
       .setRef(fileRef)
-      .setType(Constants.ComponentType.FILE)
+      .setType(ComponentType.FILE)
       .setLines(NUMBER_OF_LINES)
       .build());
 
@@ -168,8 +169,8 @@ public class PersistFileSourcesStepTest {
   private static class LineData {
     List<String> lines = new ArrayList<>();
     ScannerReport.Changesets.Builder changesetsBuilder = ScannerReport.Changesets.newBuilder();
-    List<ScannerReport.Coverage> coverages = new ArrayList<>();
-    List<ScannerReport.SyntaxHighlighting> highlightings = new ArrayList<>();
+    List<ScannerReport.LineCoverage> coverages = new ArrayList<>();
+    List<ScannerReport.SyntaxHighlightingRule> highlightings = new ArrayList<>();
     List<ScannerReport.Symbol> symbols = new ArrayList<>();
 
     void generateLineData(int line) {
@@ -182,7 +183,7 @@ public class PersistFileSourcesStepTest {
         .build())
         .addChangesetIndexByLine(line - 1);
 
-      coverages.add(ScannerReport.Coverage.newBuilder()
+      coverages.add(ScannerReport.LineCoverage.newBuilder()
         .setLine(line)
         .setConditions(10)
         .setUtHits(true)
@@ -192,12 +193,12 @@ public class PersistFileSourcesStepTest {
         .setOverallCoveredConditions(4)
         .build());
 
-      highlightings.add(ScannerReport.SyntaxHighlighting.newBuilder()
+      highlightings.add(ScannerReport.SyntaxHighlightingRule.newBuilder()
         .setRange(ScannerReport.TextRange.newBuilder()
           .setStartLine(line).setEndLine(line)
           .setStartOffset(1).setEndOffset(3)
           .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
+        .setType(HighlightingType.ANNOTATION)
         .build());
 
       symbols.add(ScannerReport.Symbol.newBuilder()

@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.assertj.core.groups.Tuple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -91,12 +90,11 @@ public class MeasuresMediumTest {
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
-    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "intValue", "doubleValue", "stringValue").containsOnly(
-      Tuple.tuple(CoreMetrics.QUALITY_PROFILES_KEY, 0, 0.0,
-        "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
+    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "stringValue.value").containsOnly(
+      tuple(CoreMetrics.QUALITY_PROFILES_KEY, "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
 
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue").containsOnly(
-      Tuple.tuple(CoreMetrics.LINES_KEY, 2));
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value").containsOnly(
+      tuple(CoreMetrics.LINES_KEY, 2));
   }
 
   @Test
@@ -122,9 +120,9 @@ public class MeasuresMediumTest {
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue")
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value")
       .contains(tuple("lines", 3));
-    assertThat(allMeasures.get("com.foo.project:src/sample.other")).extracting("metricKey", "intValue")
+    assertThat(allMeasures.get("com.foo.project:src/sample.other")).extracting("metricKey", "intValue.value")
       .contains(tuple("lines", 3), tuple("ncloc", 2));
   }
 

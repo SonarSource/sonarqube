@@ -33,8 +33,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolder;
 import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
@@ -42,17 +42,22 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.MutableTreeRootHolderRule;
 
+import static com.google.common.base.Predicates.in;
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
-import static org.sonar.scanner.protocol.Constants.ComponentType.DIRECTORY;
-import static org.sonar.scanner.protocol.Constants.ComponentType.FILE;
-import static org.sonar.scanner.protocol.Constants.ComponentType.MODULE;
-import static org.sonar.scanner.protocol.Constants.ComponentType.PROJECT;
-
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.DIRECTORY;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.FILE;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.MODULE;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.PROJECT;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNRECOGNIZED;
+import static org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType.UNSET;
 
 @RunWith(DataProviderRunner.class)
 public class BuildComponentTreeStepTest {
@@ -100,9 +105,9 @@ public class BuildComponentTreeStepTest {
 
   @DataProvider
   public static Object[][] allComponentTypes() {
-    Object[][] res = new Object[Constants.ComponentType.values().length][1];
+    Object[][] res = new Object[ComponentType.values().length - 2][1];
     int i = 0;
-    for (Constants.ComponentType componentType : Constants.ComponentType.values()) {
+    for (ComponentType componentType : from(asList(ComponentType.values())).filter(not(in(asList(UNSET, UNRECOGNIZED))))) {
       res[i][0] = componentType;
       i++;
     }
@@ -111,7 +116,7 @@ public class BuildComponentTreeStepTest {
 
   @Test
   @UseDataProvider("allComponentTypes")
-  public void verify_ref_and_type(Constants.ComponentType componentType) {
+  public void verify_ref_and_type(ComponentType componentType) {
     int componentRef = 1;
     reportReader.putComponent(component(componentRef, componentType));
 
@@ -316,19 +321,19 @@ public class BuildComponentTreeStepTest {
     }
   }
 
-  private static ScannerReport.Component component(int componentRef, Constants.ComponentType componentType, int... children) {
+  private static ScannerReport.Component component(int componentRef, ComponentType componentType, int... children) {
     return component(componentRef, componentType, null, null, children);
   }
 
-  private static ScannerReport.Component componentWithKey(int componentRef, Constants.ComponentType componentType, String key, int... children) {
+  private static ScannerReport.Component componentWithKey(int componentRef, ComponentType componentType, String key, int... children) {
     return component(componentRef, componentType, key, null, children);
   }
 
-  private static ScannerReport.Component componentWithPath(int componentRef, Constants.ComponentType componentType, String path, int... children) {
+  private static ScannerReport.Component componentWithPath(int componentRef, ComponentType componentType, String path, int... children) {
     return component(componentRef, componentType, null, path, children);
   }
 
-  private static ScannerReport.Component component(int componentRef, Constants.ComponentType componentType, @Nullable String key, @Nullable String path, int... children) {
+  private static ScannerReport.Component component(int componentRef, ComponentType componentType, @Nullable String key, @Nullable String path, int... children) {
     ScannerReport.Component.Builder builder = ScannerReport.Component.newBuilder()
       .setType(componentType)
       .setRef(componentRef);

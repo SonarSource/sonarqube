@@ -32,14 +32,13 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotTesting;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
-
 
 public class ValidateProjectStepTest {
 
@@ -79,7 +78,7 @@ public class ValidateProjectStepTest {
     analysisMetadataHolder.setBranch(DEFAULT_BRANCH);
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":origin/master").build());
@@ -96,7 +95,7 @@ public class ValidateProjectStepTest {
     analysisMetadataHolder.setBranch("bran#ch");
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .build());
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":bran#ch").build());
@@ -115,13 +114,13 @@ public class ValidateProjectStepTest {
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .setKey(invalidProjectKey)
       .addChildRef(2)
       .build());
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
+      .setType(ComponentType.MODULE)
       .setKey("Module$Key")
       .build());
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(invalidProjectKey).addChildren(
@@ -141,13 +140,13 @@ public class ValidateProjectStepTest {
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
+      .setType(ComponentType.MODULE)
       .setKey(MODULE_KEY)
       .build());
 
@@ -171,13 +170,13 @@ public class ValidateProjectStepTest {
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
+      .setType(ComponentType.MODULE)
       .setKey(MODULE_KEY)
       .build());
 
@@ -206,13 +205,13 @@ public class ValidateProjectStepTest {
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(2)
-      .setType(Constants.ComponentType.MODULE)
+      .setType(ComponentType.MODULE)
       .setKey(MODULE_KEY)
       .build());
 
@@ -233,7 +232,7 @@ public class ValidateProjectStepTest {
   public void not_fail_if_analysis_date_is_after_last_analysis() {
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());
@@ -259,7 +258,7 @@ public class ValidateProjectStepTest {
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
-      .setType(Constants.ComponentType.PROJECT)
+      .setType(ComponentType.PROJECT)
       .setKey(PROJECT_KEY)
       .addChildRef(2)
       .build());

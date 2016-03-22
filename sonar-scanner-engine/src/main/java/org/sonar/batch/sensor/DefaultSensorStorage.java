@@ -58,8 +58,8 @@ import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.ModuleIssues;
-import org.sonar.batch.report.ScannerReportUtils;
 import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.report.ScannerReportUtils;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 import org.sonar.batch.source.DefaultSymbol;
@@ -249,12 +249,12 @@ public class DefaultSensorStorage implements SensorStorage {
     }
   }
 
-  private static class BuildSyntaxHighlighting implements Function<SyntaxHighlightingRule, ScannerReport.SyntaxHighlighting> {
-    private ScannerReport.SyntaxHighlighting.Builder builder = ScannerReport.SyntaxHighlighting.newBuilder();
+  private static class BuildSyntaxHighlighting implements Function<SyntaxHighlightingRule, ScannerReport.SyntaxHighlightingRule> {
+    private ScannerReport.SyntaxHighlightingRule.Builder builder = ScannerReport.SyntaxHighlightingRule.newBuilder();
     private ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();
 
     @Override
-    public ScannerReport.SyntaxHighlighting apply(@Nonnull SyntaxHighlightingRule input) {
+    public ScannerReport.SyntaxHighlightingRule apply(@Nonnull SyntaxHighlightingRule input) {
       builder.setRange(rangeBuilder.setStartLine(input.range().start().line())
         .setStartOffset(input.range().start().lineOffset())
         .setEndLine(input.range().end().line())

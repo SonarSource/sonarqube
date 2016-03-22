@@ -28,8 +28,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.db.protobuf.DbFileSources;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.source.RangeOffsetConverter.RangeOffsetConverterException;
@@ -41,10 +41,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.log.LoggerLevel.WARN;
 import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
-import static org.sonar.scanner.protocol.Constants.HighlightingType.ANNOTATION;
-import static org.sonar.scanner.protocol.Constants.HighlightingType.COMMENT;
-import static org.sonar.scanner.protocol.Constants.HighlightingType.CONSTANT;
-import static org.sonar.scanner.protocol.Constants.HighlightingType.HIGHLIGHTING_STRING;
+import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.ANNOTATION;
+import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.COMMENT;
+import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.CONSTANT;
+import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.HIGHLIGHTING_STRING;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class HighlightingLineReaderTest {
@@ -77,7 +77,7 @@ public class HighlightingLineReaderTest {
 
   @Test
   public void nothing_to_read() {
-    HighlightingLineReader highlightingLineReader = newReader(Collections.<TextRange, Constants.HighlightingType>emptyMap());
+    HighlightingLineReader highlightingLineReader = newReader(Collections.<TextRange, HighlightingType>emptyMap());
 
     DbFileSources.Line.Builder lineBuilder = newBuilder().addLinesBuilder().setLine(1);
     highlightingLineReader.read(lineBuilder);
@@ -88,8 +88,7 @@ public class HighlightingLineReaderTest {
   @Test
   public void read_one_line() {
     HighlightingLineReader highlightingLineReader = newReader(of(
-      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1),
-      ANNOTATION));
+      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1), ANNOTATION));
 
     highlightingLineReader.read(line1);
 
@@ -101,8 +100,7 @@ public class HighlightingLineReaderTest {
     HighlightingLineReader highlightingLineReader = newReader(of(
       newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1), ANNOTATION,
       newSingleLineTextRangeWithExpectingLabel(LINE_2, RANGE_LABEL_2), COMMENT,
-      newSingleLineTextRangeWithExpectingLabel(LINE_4, RANGE_LABEL_3), CONSTANT
-      ));
+      newSingleLineTextRangeWithExpectingLabel(LINE_4, RANGE_LABEL_3), CONSTANT));
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
@@ -118,8 +116,7 @@ public class HighlightingLineReaderTest {
   public void read_many_syntax_highlighting_on_same_line() {
     HighlightingLineReader highlightingLineReader = newReader(of(
       newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1), ANNOTATION,
-      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_2), COMMENT
-      ));
+      newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_2), COMMENT));
 
     highlightingLineReader.read(line1);
 
@@ -164,8 +161,7 @@ public class HighlightingLineReaderTest {
     HighlightingLineReader highlightingLineReader = newReader(of(
       textRange1, ANNOTATION,
       textRange2, HIGHLIGHTING_STRING,
-      textRange3, COMMENT
-      ));
+      textRange3, COMMENT));
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
@@ -202,7 +198,7 @@ public class HighlightingLineReaderTest {
     doThrow(RangeOffsetConverterException.class).when(rangeOffsetConverter).offsetToString(textRange1, LINE_1, DEFAULT_LINE_LENGTH);
 
     HighlightingLineReader highlightingLineReader = newReader(of(
-      textRange1, ANNOTATION,
+      textRange1, HighlightingType.ANNOTATION,
       newSingleLineTextRangeWithExpectingLabel(LINE_2, RANGE_LABEL_1), HIGHLIGHTING_STRING));
 
     highlightingLineReader.read(line1);
@@ -219,8 +215,7 @@ public class HighlightingLineReaderTest {
 
     HighlightingLineReader highlightingLineReader = newReader(of(
       newSingleLineTextRangeWithExpectingLabel(LINE_1, RANGE_LABEL_1), ANNOTATION,
-      textRange2, HIGHLIGHTING_STRING
-      ));
+      textRange2, HIGHLIGHTING_STRING));
 
     highlightingLineReader.read(line1);
     highlightingLineReader.read(line2);
@@ -241,10 +236,10 @@ public class HighlightingLineReaderTest {
     assertThat(logTester.logs(WARN)).containsOnly("Inconsistency detected in Highlighting data. Highlighting will be ignored for file 'FILE_KEY'");
   }
 
-  private HighlightingLineReader newReader(Map<TextRange, Constants.HighlightingType> textRangeByType) {
-    List<ScannerReport.SyntaxHighlighting> syntaxHighlightingList = new ArrayList<>();
-    for (Map.Entry<TextRange, Constants.HighlightingType> entry : textRangeByType.entrySet()) {
-      syntaxHighlightingList.add(ScannerReport.SyntaxHighlighting.newBuilder()
+  private HighlightingLineReader newReader(Map<TextRange, HighlightingType> textRangeByType) {
+    List<ScannerReport.SyntaxHighlightingRule> syntaxHighlightingList = new ArrayList<>();
+    for (Map.Entry<TextRange, HighlightingType> entry : textRangeByType.entrySet()) {
+      syntaxHighlightingList.add(ScannerReport.SyntaxHighlightingRule.newBuilder()
         .setRange(entry.getKey())
         .setType(entry.getValue())
         .build());

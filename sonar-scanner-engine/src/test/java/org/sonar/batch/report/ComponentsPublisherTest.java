@@ -34,11 +34,11 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.ImmutableProjectReactor;
-import org.sonar.scanner.protocol.Constants.ComponentLinkType;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
-import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.protocol.output.FileStructure;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
+import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

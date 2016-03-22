@@ -206,7 +206,7 @@ public class PersistFileSourcesStep implements ComputationStep {
 
     LineReaders(BatchReportReader reportReader, ScmInfoRepository scmInfoRepository, DuplicationRepository duplicationRepository, Component component) {
       int componentRef = component.getReportAttributes().getRef();
-      CloseableIterator<ScannerReport.Coverage> coverageIt = reportReader.readComponentCoverage(componentRef);
+      CloseableIterator<ScannerReport.LineCoverage> coverageIt = reportReader.readComponentCoverage(componentRef);
       closeables.add(coverageIt);
       readers.add(new CoverageLineReader(coverageIt));
 
@@ -219,7 +219,7 @@ public class PersistFileSourcesStep implements ComputationStep {
       }
 
       RangeOffsetConverter rangeOffsetConverter = new RangeOffsetConverter();
-      CloseableIterator<ScannerReport.SyntaxHighlighting> highlightingIt = reportReader.readComponentSyntaxHighlighting(componentRef);
+      CloseableIterator<ScannerReport.SyntaxHighlightingRule> highlightingIt = reportReader.readComponentSyntaxHighlighting(componentRef);
       closeables.add(highlightingIt);
       readers.add(new HighlightingLineReader(component, highlightingIt, rangeOffsetConverter));
 

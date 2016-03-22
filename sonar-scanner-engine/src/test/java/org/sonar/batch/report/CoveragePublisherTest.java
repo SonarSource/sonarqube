@@ -33,9 +33,9 @@ import org.sonar.api.resources.Project;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.util.CloseableIterator;
+import org.sonar.scanner.protocol.output.ScannerReport.LineCoverage;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.protocol.output.ScannerReport.Coverage;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
@@ -90,13 +90,13 @@ public class CoveragePublisherTest {
 
     publisher.publish(writer);
 
-    try (CloseableIterator<Coverage> it = new ScannerReportReader(outputDir).readComponentCoverage(2)) {
-      assertThat(it.next()).isEqualTo(Coverage.newBuilder()
+    try (CloseableIterator<LineCoverage> it = new ScannerReportReader(outputDir).readComponentCoverage(2)) {
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
         .setLine(2)
         .setUtHits(true)
         .setItHits(false)
         .build());
-      assertThat(it.next()).isEqualTo(Coverage.newBuilder()
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
         .setLine(3)
         .setUtHits(true)
         .setItHits(false)
@@ -105,7 +105,7 @@ public class CoveragePublisherTest {
         .setItCoveredConditions(1)
         .setOverallCoveredConditions(2)
         .build());
-      assertThat(it.next()).isEqualTo(Coverage.newBuilder()
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
         .setLine(5)
         .setUtHits(false)
         .setItHits(true)

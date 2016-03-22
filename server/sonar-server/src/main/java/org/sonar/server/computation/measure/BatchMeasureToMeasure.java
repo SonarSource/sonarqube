@@ -23,9 +23,11 @@ import com.google.common.base.Optional;
 import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.ValueCase;
 import org.sonar.server.computation.metric.Metric;
 
 import static com.google.common.base.Optional.of;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 public class BatchMeasureToMeasure {
 
@@ -36,16 +38,15 @@ public class BatchMeasureToMeasure {
     }
 
     Measure.NewMeasureBuilder builder = Measure.newMeasureBuilder();
-    String data = batchMeasure.hasStringValue() ? batchMeasure.getStringValue() : null;
     switch (metric.getType().getValueType()) {
       case INT:
-        return toIntegerMeasure(builder, batchMeasure, data);
+        return toIntegerMeasure(builder, batchMeasure);
       case LONG:
-        return toLongMeasure(builder, batchMeasure, data);
+        return toLongMeasure(builder, batchMeasure);
       case DOUBLE:
-        return toDoubleMeasure(builder, batchMeasure, data);
+        return toDoubleMeasure(builder, batchMeasure);
       case BOOLEAN:
-        return toBooleanMeasure(builder, batchMeasure, data);
+        return toBooleanMeasure(builder, batchMeasure);
       case STRING:
         return toStringMeasure(builder, batchMeasure);
       case LEVEL:
@@ -57,49 +58,48 @@ public class BatchMeasureToMeasure {
     }
   }
 
-  private static Optional<Measure> toIntegerMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure, @Nullable String data) {
-    if (!batchMeasure.hasIntValue()) {
+  private static Optional<Measure> toIntegerMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
+    if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(builder.create(batchMeasure.getIntValue(), data));
+    return of(builder.create(batchMeasure.getIntValue().getValue(), trimToNull(batchMeasure.getIntValue().getData())));
   }
 
-  private static Optional<Measure> toLongMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure, @Nullable String data) {
-    if (!batchMeasure.hasLongValue()) {
+  private static Optional<Measure> toLongMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
+    if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(builder.create(batchMeasure.getLongValue(), data));
+    return of(builder.create(batchMeasure.getLongValue().getValue(), trimToNull(batchMeasure.getLongValue().getData())));
   }
 
-  private static Optional<Measure> toDoubleMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure, @Nullable String data) {
-    if (!batchMeasure.hasDoubleValue()) {
+  private static Optional<Measure> toDoubleMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
+    if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(builder.create(batchMeasure.getDoubleValue(),
+    return of(builder.create(batchMeasure.getDoubleValue().getValue(),
       // Decimals are not truncated in scanner report, so an arbitrary decimal scale is applied when reading values from report
-      org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE,
-      data));
+      org.sonar.api.measures.Metric.MAX_DECIMAL_SCALE, trimToNull(batchMeasure.getDoubleValue().getData())));
   }
 
-  private static Optional<Measure> toBooleanMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure, @Nullable String data) {
-    if (!batchMeasure.hasBooleanValue()) {
+  private static Optional<Measure> toBooleanMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
+    if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(builder.create(batchMeasure.getBooleanValue(), data));
+    return of(builder.create(batchMeasure.getBooleanValue().getValue(), trimToNull(batchMeasure.getBooleanValue().getData())));
   }
 
   private static Optional<Measure> toStringMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
-    if (!batchMeasure.hasStringValue()) {
+    if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    return of(builder.create(batchMeasure.getStringValue()));
+    return of(builder.create(batchMeasure.getStringValue().getValue()));
   }
 
   private static Optional<Measure> toLevelMeasure(Measure.NewMeasureBuilder builder, ScannerReport.Measure batchMeasure) {
-    if (!batchMeasure.hasStringValue()) {
+    if (batchMeasure.getValueCase() == ValueCase.VALUE_NOT_SET) {
       return toNoValueMeasure(builder, batchMeasure);
     }
-    Optional<Measure.Level> level = Measure.Level.toLevel(batchMeasure.getStringValue());
+    Optional<Measure.Level> level = Measure.Level.toLevel(batchMeasure.getStringValue().getValue());
     if (!level.isPresent()) {
       return toNoValueMeasure(builder, batchMeasure);
     }

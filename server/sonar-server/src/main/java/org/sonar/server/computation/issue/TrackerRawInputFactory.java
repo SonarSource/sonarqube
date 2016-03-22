@@ -32,6 +32,7 @@ import org.sonar.core.issue.tracking.LineHashSequence;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.protobuf.DbCommons;
 import org.sonar.db.protobuf.DbIssues;
+import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
@@ -41,6 +42,7 @@ import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.elasticsearch.common.lang3.StringUtils.isNotEmpty;
 
 public class TrackerRawInputFactory {
 
@@ -113,19 +115,20 @@ public class TrackerRawInputFactory {
       DefaultIssue issue = new DefaultIssue();
       init(issue);
       issue.setRuleKey(RuleKey.of(reportIssue.getRuleRepository(), reportIssue.getRuleKey()));
-      if (reportIssue.hasLine()) {
-        issue.setLine(reportIssue.getLine());
-        issue.setChecksum(lineHashSeq.getHashForLine(reportIssue.getLine()));
+      if (reportIssue.hasTextRange()) {
+        int startLine = reportIssue.getTextRange().getStartLine();
+        issue.setLine(startLine);
+        issue.setChecksum(lineHashSeq.getHashForLine(startLine));
       } else {
         issue.setChecksum("");
       }
-      if (reportIssue.hasMsg()) {
+      if (isNotEmpty(reportIssue.getMsg())) {
         issue.setMessage(reportIssue.getMsg());
       }
-      if (reportIssue.hasSeverity()) {
+      if (reportIssue.getSeverity() != Severity.UNSET_SEVERITY) {
         issue.setSeverity(reportIssue.getSeverity().name());
       }
-      if (reportIssue.hasGap()) {
+      if (reportIssue.getGap() != 0) {
         issue.setGap(reportIssue.getGap());
       }
       DbIssues.Locations.Builder dbLocationsBuilder = DbIssues.Locations.newBuilder();
@@ -157,10 +160,10 @@ public class TrackerRawInputFactory {
 
     private DbIssues.Location convertLocation(ScannerReport.IssueLocation source) {
       DbIssues.Location.Builder target = DbIssues.Location.newBuilder();
-      if (source.hasComponentRef() && source.getComponentRef() != component.getReportAttributes().getRef()) {
+      if (source.getComponentRef() != 0 && source.getComponentRef() != component.getReportAttributes().getRef()) {
         target.setComponentId(treeRootHolder.getComponentByRef(source.getComponentRef()).getUuid());
       }
-      if (source.hasMsg()) {
+      if (isNotEmpty(source.getMsg())) {
         target.setMsg(source.getMsg());
       }
       if (source.hasTextRange()) {
@@ -173,18 +176,10 @@ public class TrackerRawInputFactory {
 
     private DbCommons.TextRange.Builder convertTextRange(ScannerReport.TextRange sourceRange) {
       DbCommons.TextRange.Builder targetRange = DbCommons.TextRange.newBuilder();
-      if (sourceRange.hasStartLine()) {
-        targetRange.setStartLine(sourceRange.getStartLine());
-      }
-      if (sourceRange.hasStartOffset()) {
-        targetRange.setStartOffset(sourceRange.getStartOffset());
-      }
-      if (sourceRange.hasEndLine()) {
-        targetRange.setEndLine(sourceRange.getEndLine());
-      }
-      if (sourceRange.hasEndOffset()) {
-        targetRange.setEndOffset(sourceRange.getEndOffset());
-      }
+      targetRange.setStartLine(sourceRange.getStartLine());
+      targetRange.setStartOffset(sourceRange.getStartOffset());
+      targetRange.setEndLine(sourceRange.getEndLine());
+      targetRange.setEndOffset(sourceRange.getEndOffset());
       return targetRange;
     }
   }

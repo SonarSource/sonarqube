@@ -20,7 +20,7 @@
 package org.sonar.batch.report;
 
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
-import org.sonar.scanner.protocol.Constants.HighlightingType;
+import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
 
 public class ScannerReportUtils {
 

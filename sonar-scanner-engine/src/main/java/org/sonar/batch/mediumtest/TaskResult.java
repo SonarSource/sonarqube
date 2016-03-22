@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -43,16 +42,18 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.batch.issue.IssueCache;
 import org.sonar.batch.issue.tracking.TrackedIssue;
-import org.sonar.batch.report.ScannerReportUtils;
 import org.sonar.batch.report.ReportPublisher;
+import org.sonar.batch.report.ScannerReportUtils;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.batch.scan.filesystem.InputPathCache;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata;
 import org.sonar.scanner.protocol.output.ScannerReport.Symbol;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
+
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
 
@@ -76,22 +77,22 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     if (!container.getComponentByType(AnalysisMode.class).isIssues()) {
       Metadata readMetadata = getReportReader().readMetadata();
       int rootComponentRef = readMetadata.getRootComponentRef();
-      storeReportComponents(rootComponentRef, null, readMetadata.hasBranch() ? readMetadata.getBranch() : null);
+      storeReportComponents(rootComponentRef, null, readMetadata.getBranch());
     }
 
     storeFs(container);
 
   }
 
-  private void storeReportComponents(int componentRef, String parentModuleKey, @Nullable String branch) {
+  private void storeReportComponents(int componentRef, String parentModuleKey, String branch) {
     Component component = getReportReader().readComponent(componentRef);
-    if (component.hasKey()) {
-      reportComponents.put(component.getKey() + (branch != null ? ":" + branch : ""), component);
+    if (isNotEmpty(component.getKey())) {
+      reportComponents.put(component.getKey() + (isNotEmpty(branch) ? ":" + branch : ""), component);
     } else {
-      reportComponents.put(parentModuleKey + (branch != null ? ":" + branch : "") + ":" + component.getPath(), component);
+      reportComponents.put(parentModuleKey + (isNotEmpty(branch) ? ":" + branch : "") + ":" + component.getPath(), component);
     }
     for (int childId : component.getChildRefList()) {
-      storeReportComponents(childId, component.hasKey() ? component.getKey() : parentModuleKey, branch);
+      storeReportComponents(childId, isNotEmpty(component.getKey()) ? component.getKey() : parentModuleKey, branch);
     }
 
   }
@@ -179,9 +180,9 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
     }
     TextPointer pointer = file.newPointer(line, lineOffset);
     List<TypeOfText> result = new ArrayList<>();
-    try (CloseableIterator<ScannerReport.SyntaxHighlighting> it = reader.readComponentSyntaxHighlighting(ref)) {
+    try (CloseableIterator<ScannerReport.SyntaxHighlightingRule> it = reader.readComponentSyntaxHighlighting(ref)) {
       while (it.hasNext()) {
-        ScannerReport.SyntaxHighlighting rule = it.next();
+        ScannerReport.SyntaxHighlightingRule rule = it.next();
         TextRange ruleRange = toRange(file, rule.getRange());
         if (ruleRange.start().compareTo(pointer) <= 0 && ruleRange.end().compareTo(pointer) > 0) {
           result.add(ScannerReportUtils.toBatchType(rule.getType()));
@@ -243,11 +244,11 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   }
 
   @CheckForNull
-  public ScannerReport.Coverage coverageFor(InputFile file, int line) {
+  public ScannerReport.LineCoverage coverageFor(InputFile file, int line) {
     int ref = reportComponents.get(((DefaultInputFile) file).key()).getRef();
-    try (CloseableIterator<ScannerReport.Coverage> it = getReportReader().readComponentCoverage(ref)) {
+    try (CloseableIterator<ScannerReport.LineCoverage> it = getReportReader().readComponentCoverage(ref)) {
       while (it.hasNext()) {
-        ScannerReport.Coverage coverage = it.next();
+        ScannerReport.LineCoverage coverage = it.next();
         if (coverage.getLine() == line) {
           return coverage;
         }
@@ -261,12 +262,12 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   public ScannerReport.Test testExecutionFor(InputFile testFile, String testName) {
     int ref = reportComponents.get(((DefaultInputFile) testFile).key()).getRef();
     try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readTests(ref))) {
-      ScannerReport.Test test = ScannerReport.Test.PARSER.parseDelimitedFrom(inputStream);
+      ScannerReport.Test test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
       while (test != null) {
         if (test.getName().equals(testName)) {
           return test;
         }
-        test = ScannerReport.Test.PARSER.parseDelimitedFrom(inputStream);
+        test = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
       }
     } catch (Exception e) {
       throw new IllegalStateException(e);
@@ -277,12 +278,12 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   public ScannerReport.CoverageDetail coveragePerTestFor(InputFile testFile, String testName) {
     int ref = reportComponents.get(((DefaultInputFile) testFile).key()).getRef();
     try (InputStream inputStream = FileUtils.openInputStream(getReportReader().readCoverageDetails(ref))) {
-      ScannerReport.CoverageDetail details = ScannerReport.CoverageDetail.PARSER.parseDelimitedFrom(inputStream);
+      ScannerReport.CoverageDetail details = ScannerReport.CoverageDetail.parser().parseDelimitedFrom(inputStream);
       while (details != null) {
         if (details.getTestName().equals(testName)) {
           return details;
         }
-        details = ScannerReport.CoverageDetail.PARSER.parseDelimitedFrom(inputStream);
+        details = ScannerReport.CoverageDetail.parser().parseDelimitedFrom(inputStream);
       }
     } catch (Exception e) {
       throw new IllegalStateException(e);

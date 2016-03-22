@@ -69,7 +69,7 @@
     <orchestrator.version>3.11-build315</orchestrator.version>
     <okhttp.version>2.6.0</okhttp.version>
 
-    <protobuf.version>3.0.0-beta-1</protobuf.version>
+    <protobuf.version>3.0.0-beta-2</protobuf.version>
     <protobuf.compiler>${settings.localRepository}/com/google/protobuf/protoc/${protobuf.version}/protoc-${protobuf.version}-${os.detected.classifier}.exe</protobuf.compiler>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

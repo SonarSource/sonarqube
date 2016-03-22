@@ -19,6 +19,12 @@
  */
 package org.sonar.batch.cpd;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -36,16 +42,10 @@ import org.sonar.batch.report.ReportPublisher;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.duplications.index.CloneGroup;
 import org.sonar.duplications.index.ClonePart;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
-import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplicate;
 import org.sonar.scanner.protocol.output.ScannerReport.Duplication;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -195,44 +195,44 @@ public class CpdExecutorTest {
     assertDuplication(dups[0], 5, 204, batchComponent2.batchId(), 15, 214);
     assertDuplication(dups[1], 15, 214, batchComponent3.batchId(), 15, 214);
   }
-  
+
   private Duplication[] readDuplications(int expected) {
     assertThat(reader.readComponentDuplications(batchComponent1.batchId())).hasSize(expected);
     Duplication[] duplications = new Duplication[expected];
     CloseableIterator<Duplication> dups = reader.readComponentDuplications(batchComponent1.batchId());
-    
-    for(int i = 0; i< expected; i++) {
+
+    for (int i = 0; i < expected; i++) {
       duplications[i] = dups.next();
     }
     dups.close();
     return duplications;
   }
-  
+
   private void assertDuplicate(Duplicate d, int otherFileRef, int rangeStartLine, int rangeEndLine) {
     assertThat(d.getOtherFileRef()).isEqualTo(otherFileRef);
     assertThat(d.getRange().getStartLine()).isEqualTo(rangeStartLine);
     assertThat(d.getRange().getEndLine()).isEqualTo(rangeEndLine);
   }
-  
+
   private void assertDuplication(Duplication d, int originStartLine, int originEndLine, int numDuplicates) {
     assertThat(d.getOriginPosition().getStartLine()).isEqualTo(originStartLine);
     assertThat(d.getOriginPosition().getEndLine()).isEqualTo(originEndLine);
     assertThat(d.getDuplicateList()).hasSize(numDuplicates);
   }
-  
+
   private void assertDuplication(Duplication d, int originStartLine, int originEndLine, Integer otherFileRef, int rangeStartLine, int rangeEndLine) {
     assertThat(d.getOriginPosition().getStartLine()).isEqualTo(originStartLine);
     assertThat(d.getOriginPosition().getEndLine()).isEqualTo(originEndLine);
     assertThat(d.getDuplicateList()).hasSize(1);
-    if(otherFileRef != null) {
-    assertThat(d.getDuplicate(0).getOtherFileRef()).isEqualTo(otherFileRef);
+    if (otherFileRef != null) {
+      assertThat(d.getDuplicate(0).getOtherFileRef()).isEqualTo(otherFileRef);
     } else {
-      assertThat(d.getDuplicate(0).hasOtherFileRef()).isFalse();
+      assertThat(d.getDuplicate(0).getOtherFileRef()).isEqualTo(0);
     }
     assertThat(d.getDuplicate(0).getRange().getStartLine()).isEqualTo(rangeStartLine);
     assertThat(d.getDuplicate(0).getRange().getEndLine()).isEqualTo(rangeEndLine);
   }
-  
+
   private CloneGroup newCloneGroup(ClonePart... parts) {
     return CloneGroup.builder().setLength(0).setOrigin(parts[0]).setParts(Arrays.asList(parts)).build();
   }

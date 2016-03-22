@@ -26,13 +26,16 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.batch.measure.Metric;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.core.metric.BatchMetrics;
-import org.sonar.scanner.protocol.Constants.MeasureValueType;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.BoolValue;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.DoubleValue;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.IntValue;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.LongValue;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 import static com.google.common.collect.Iterables.filter;
@@ -63,61 +66,38 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
     private ScannerReport.Measure toReportMeasure(ScannerReport.Measure.Builder builder, Measure measure) {
       builder.clear();
-
-      builder.setValueType(getMeasureValueType(measure.getMetric().getType()));
-      setValueAccordingToType(builder, measure);
-      // Because some numeric measures also have a data (like maintainability rating)
-      String data = measure.getData();
-      if (data != null) {
-        builder.setStringValue(data);
-      }
       builder.setMetricKey(measure.getMetricKey());
+      setValueAccordingToType(builder, measure);
       return builder.build();
     }
 
     private void setValueAccordingToType(ScannerReport.Measure.Builder builder, Measure measure) {
       Serializable value = measure.value();
-      switch (builder.getValueType()) {
-        case BOOLEAN:
-          builder.setBooleanValue((Boolean) value);
-          break;
-        case DOUBLE:
-          builder.setDoubleValue(((Number) value).doubleValue());
-          break;
-        case INT:
-          builder.setIntValue(((Number) value).intValue());
-          break;
-        case LONG:
-          builder.setLongValue(((Number) value).longValue());
-          break;
-        case STRING:
-          builder.setStringValue((String) value);
-          break;
-        default:
-          throw new IllegalStateException("Unknown value type: " + builder.getValueType());
-      }
-    }
-
-    private MeasureValueType getMeasureValueType(ValueType type) {
-      switch (type) {
+      String data = measure.getData() != null ? measure.getData() : "";
+      switch (measure.getMetric().getType()) {
         case INT:
         case RATING:
-          return MeasureValueType.INT;
+          builder.setIntValue(IntValue.newBuilder().setValue(((Number) value).intValue()).setData(data));
+          break;
         case FLOAT:
         case PERCENT:
-          return MeasureValueType.DOUBLE;
+          builder.setDoubleValue(DoubleValue.newBuilder().setValue(((Number) value).doubleValue()).setData(data));
+          break;
         case BOOL:
-          return MeasureValueType.BOOLEAN;
+          builder.setBooleanValue(BoolValue.newBuilder().setValue(((Boolean) value).booleanValue()).setData(data));
+          break;
+        case WORK_DUR:
+        case MILLISEC:
+          builder.setLongValue(LongValue.newBuilder().setValue(((Number) value).longValue()).setData(data));
+          break;
         case STRING:
         case DATA:
         case LEVEL:
         case DISTRIB:
-          return MeasureValueType.STRING;
-        case WORK_DUR:
-        case MILLISEC:
-          return MeasureValueType.LONG;
+          builder.setStringValue(StringValue.newBuilder().setValue((String) value));
+          break;
         default:
-          throw new IllegalStateException("Unknown value type: " + type);
+          throw new IllegalStateException("Unknown metric type: " + measure.getMetric().getType());
       }
     }
 

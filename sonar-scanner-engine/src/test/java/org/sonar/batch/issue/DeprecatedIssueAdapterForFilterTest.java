@@ -25,6 +25,7 @@ import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Project;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.scanner.protocol.Constants.Severity;
+import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
@@ -51,7 +52,7 @@ public class DeprecatedIssueAdapterForFilterTest {
         .setRuleKey("key")
         .setSeverity(Severity.BLOCKER)
         .setMsg("msg")
-        .setLine(1)
+        .setTextRange(TextRange.newBuilder().setStartLine(1))
         .setGap(2.0)
         .build(),
       COMPONENT_KEY);

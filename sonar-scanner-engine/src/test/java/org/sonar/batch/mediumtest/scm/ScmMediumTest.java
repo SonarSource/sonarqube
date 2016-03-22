@@ -36,9 +36,9 @@ import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.BatchMediumTester.TaskBuilder;
 import org.sonar.batch.repository.FileData;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
-import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Changeset;
+import org.sonar.scanner.protocol.output.ScannerReport.Component;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.xoo.XooPlugin;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -101,7 +101,7 @@ public class ScmMediumTest {
     assertThat(fileScm.getChangesetIndexByLineList()).hasSize(5);
 
     Changeset changesetLine1 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(0));
-    assertThat(changesetLine1.hasAuthor()).isFalse();
+    assertThat(changesetLine1.getAuthor()).isEmpty();
 
     Changeset changesetLine2 = fileScm.getChangeset(fileScm.getChangesetIndexByLine(1));
     assertThat(changesetLine2.getAuthor()).isEqualTo("julien");

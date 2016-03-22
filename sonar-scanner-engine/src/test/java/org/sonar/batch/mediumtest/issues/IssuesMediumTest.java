@@ -37,6 +37,7 @@ import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class IssuesMediumTest {
 
@@ -90,8 +91,7 @@ public class IssuesMediumTest {
     assertThat(issues).hasSize(8 /* lines */);
 
     Issue issue = issues.get(0);
-    assertThat(issue.getTextRange().getStartLine()).isEqualTo(issue.getLine());
-    assertThat(issue.getTextRange().getEndLine()).isEqualTo(issue.getLine());
+    assertThat(issue.getTextRange().getStartLine()).isEqualTo(issue.getTextRange().getStartLine());
   }
 
   @Test
@@ -164,16 +164,9 @@ public class IssuesMediumTest {
 
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
     assertThat(issues).hasSize(10);
-
-    boolean foundIssueAtLine1 = false;
-    for (Issue issue : issues) {
-      if (issue.getLine() == 1) {
-        foundIssueAtLine1 = true;
-        assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.hasGap()).isFalse();
-      }
-    }
-    assertThat(foundIssueAtLine1).isTrue();
+    assertThat(issues)
+      .extracting("msg", "textRange.startLine", "gap")
+      .contains(tuple("This issue is generated on each line", 1, 0.0));
   }
 
   private class IssueRecorder implements IssueListener {

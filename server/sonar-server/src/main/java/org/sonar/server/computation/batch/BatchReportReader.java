@@ -46,9 +46,9 @@ public interface BatchReportReader {
 
   CloseableIterator<ScannerReport.Symbol> readComponentSymbols(int componentRef);
 
-  CloseableIterator<ScannerReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef);
+  CloseableIterator<ScannerReport.SyntaxHighlightingRule> readComponentSyntaxHighlighting(int fileRef);
 
-  CloseableIterator<ScannerReport.Coverage> readComponentCoverage(int fileRef);
+  CloseableIterator<ScannerReport.LineCoverage> readComponentCoverage(int fileRef);
 
   /**
    * Reads file source line by line. Return an absent optional if the file doest not exist

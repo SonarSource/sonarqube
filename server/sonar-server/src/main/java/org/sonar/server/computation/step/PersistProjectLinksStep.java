@@ -32,8 +32,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentLinkDto;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
@@ -54,12 +54,12 @@ public class PersistProjectLinksStep implements ComputationStep {
   private final TreeRootHolder treeRootHolder;
   private final BatchReportReader reportReader;
 
-  private static final Map<Constants.ComponentLinkType, String> typesConverter = ImmutableMap.of(
-    Constants.ComponentLinkType.HOME, ComponentLinkDto.TYPE_HOME_PAGE,
-    Constants.ComponentLinkType.SCM, ComponentLinkDto.TYPE_SOURCES,
-    Constants.ComponentLinkType.SCM_DEV, ComponentLinkDto.TYPE_SOURCES_DEV,
-    Constants.ComponentLinkType.CI, ComponentLinkDto.TYPE_CI,
-    Constants.ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER);
+  private static final Map<ComponentLinkType, String> typesConverter = ImmutableMap.of(
+    ComponentLinkType.HOME, ComponentLinkDto.TYPE_HOME_PAGE,
+    ComponentLinkType.SCM, ComponentLinkDto.TYPE_SOURCES,
+    ComponentLinkType.SCM_DEV, ComponentLinkDto.TYPE_SOURCES_DEV,
+    ComponentLinkType.CI, ComponentLinkDto.TYPE_CI,
+    ComponentLinkType.ISSUE, ComponentLinkDto.TYPE_ISSUE_TRACKER);
 
   public PersistProjectLinksStep(DbClient dbClient, I18n i18n, TreeRootHolder treeRootHolder, BatchReportReader reportReader) {
     this.dbClient = dbClient;
@@ -145,7 +145,7 @@ public class PersistProjectLinksStep implements ComputationStep {
       }
     }
 
-    private String convertType(Constants.ComponentLinkType reportType) {
+    private String convertType(ComponentLinkType reportType) {
       String type = typesConverter.get(reportType);
       if (type != null) {
         return type;

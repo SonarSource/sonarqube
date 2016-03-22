@@ -20,6 +20,8 @@
 package org.sonar.batch.mediumtest.tests;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -28,11 +30,8 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
-import org.sonar.scanner.protocol.Constants.TestStatus;
+import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
 import org.sonar.xoo.XooPlugin;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 

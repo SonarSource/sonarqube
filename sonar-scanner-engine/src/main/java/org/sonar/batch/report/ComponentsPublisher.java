@@ -30,11 +30,11 @@ import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.ImmutableProjectReactor;
-import org.sonar.scanner.protocol.Constants;
-import org.sonar.scanner.protocol.Constants.ComponentLinkType;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReportWriter;
+import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink;
+import org.sonar.scanner.protocol.output.ScannerReport.ComponentLink.ComponentLinkType;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 /**
  * Adds components and analysis metadata to output report
@@ -159,15 +159,15 @@ public class ComponentsPublisher implements ReportPublisherStep {
     return ResourceUtils.isProject(r) ? r.getDescription() : null;
   }
 
-  private Constants.ComponentType getType(Resource r) {
+  private ComponentType getType(Resource r) {
     if (ResourceUtils.isFile(r)) {
-      return Constants.ComponentType.FILE;
+      return ComponentType.FILE;
     } else if (ResourceUtils.isDirectory(r)) {
-      return Constants.ComponentType.DIRECTORY;
+      return ComponentType.DIRECTORY;
     } else if (ResourceUtils.isModuleProject(r)) {
-      return Constants.ComponentType.MODULE;
+      return ComponentType.MODULE;
     } else if (ResourceUtils.isRootProject(r)) {
-      return Constants.ComponentType.PROJECT;
+      return ComponentType.PROJECT;
     }
     throw new IllegalArgumentException("Unknown resource type: " + r);
   }

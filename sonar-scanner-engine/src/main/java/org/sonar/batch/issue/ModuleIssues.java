@@ -36,7 +36,6 @@ import org.sonar.batch.report.ReportPublisher;
 import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation;
-import org.sonar.scanner.protocol.output.ScannerReport.IssueLocation.Builder;
 
 /**
  * Initialize the issues raised during scan.
@@ -48,10 +47,6 @@ public class ModuleIssues {
   private final IssueFilters filters;
   private final ReportPublisher reportPublisher;
   private final BatchComponentCache componentCache;
-  private final ScannerReport.Issue.Builder builder = ScannerReport.Issue.newBuilder();
-  private final Builder locationBuilder = IssueLocation.newBuilder();
-  private final org.sonar.scanner.protocol.output.ScannerReport.TextRange.Builder textRangeBuilder = org.sonar.scanner.protocol.output.ScannerReport.TextRange.newBuilder();
-  private final ScannerReport.Flow.Builder flowBuilder = ScannerReport.Flow.newBuilder();
 
   public ModuleIssues(ActiveRules activeRules, Rules rules, IssueFilters filters, ReportPublisher reportPublisher, BatchComponentCache componentCache) {
     this.activeRules = activeRules;
@@ -76,8 +71,9 @@ public class ModuleIssues {
     org.sonar.api.batch.rule.Severity overriddenSeverity = issue.overriddenSeverity();
     Severity severity = overriddenSeverity != null ? Severity.valueOf(overriddenSeverity.name()) : Severity.valueOf(activeRule.severity());
 
-    builder.clear();
-    locationBuilder.clear();
+    ScannerReport.Issue.Builder builder = ScannerReport.Issue.newBuilder();
+    ScannerReport.IssueLocation.Builder locationBuilder = IssueLocation.newBuilder();
+    ScannerReport.TextRange.Builder textRangeBuilder = ScannerReport.TextRange.newBuilder();
     // non-null fields
     builder.setSeverity(severity);
     builder.setRuleRepository(issue.ruleKey().repository());
@@ -88,14 +84,13 @@ public class ModuleIssues {
     locationBuilder.setComponentRef(component.batchId());
     TextRange primaryTextRange = issue.primaryLocation().textRange();
     if (primaryTextRange != null) {
-      builder.setLine(primaryTextRange.start().line());
-      builder.setTextRange(toProtobufTextRange(primaryTextRange));
+      builder.setTextRange(toProtobufTextRange(textRangeBuilder, primaryTextRange));
     }
     Double gap = issue.gap();
     if (gap != null) {
       builder.setGap(gap);
     }
-    applyFlows(issue);
+    applyFlows(builder, locationBuilder, textRangeBuilder, issue);
     ScannerReport.Issue rawIssue = builder.build();
 
     if (filters.accept(inputComponent.key(), rawIssue)) {
@@ -105,7 +100,8 @@ public class ModuleIssues {
     return false;
   }
 
-  private void applyFlows(Issue issue) {
+  private void applyFlows(ScannerReport.Issue.Builder builder, ScannerReport.IssueLocation.Builder locationBuilder, ScannerReport.TextRange.Builder textRangeBuilder, Issue issue) {
+    ScannerReport.Flow.Builder flowBuilder = ScannerReport.Flow.newBuilder();
     for (Flow flow : issue.flows()) {
       if (!flow.locations().isEmpty()) {
         flowBuilder.clear();
@@ -118,7 +114,7 @@ public class ModuleIssues {
           }
           TextRange textRange = location.textRange();
           if (textRange != null) {
-            locationBuilder.setTextRange(toProtobufTextRange(textRange));
+            locationBuilder.setTextRange(toProtobufTextRange(textRangeBuilder, textRange));
           }
           flowBuilder.addLocation(locationBuilder.build());
         }
@@ -127,7 +123,7 @@ public class ModuleIssues {
     }
   }
 
-  private org.sonar.scanner.protocol.output.ScannerReport.TextRange toProtobufTextRange(TextRange primaryTextRange) {
+  private ScannerReport.TextRange toProtobufTextRange(ScannerReport.TextRange.Builder textRangeBuilder, TextRange primaryTextRange) {
     textRangeBuilder.clear();
     textRangeBuilder.setStartLine(primaryTextRange.start().line());
     textRangeBuilder.setStartOffset(primaryTextRange.start().lineOffset());

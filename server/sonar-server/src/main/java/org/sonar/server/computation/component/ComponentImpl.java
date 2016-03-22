@@ -26,13 +26,14 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Component.ComponentType;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
+import static org.elasticsearch.common.lang3.StringUtils.trimToNull;
 
 @Immutable
 public class ComponentImpl implements Component {
@@ -125,8 +126,8 @@ public class ComponentImpl implements Component {
     private Builder(ScannerReport.Component component) {
       checkNotNull(component);
       this.type = convertType(component.getType());
-      this.name = checkNotNull(component.getName());
-      this.description = component.hasDescription() ? component.getDescription() : null;
+      this.name = component.getName();
+      this.description = trimToNull(component.getDescription());
       this.reportAttributes = createBatchAttributes(component);
       this.fileAttributes = createFileAttributes(component);
     }
@@ -157,24 +158,24 @@ public class ComponentImpl implements Component {
 
     private static ReportAttributes createBatchAttributes(ScannerReport.Component component) {
       return ReportAttributes.newBuilder(component.getRef())
-        .setVersion(component.hasVersion() ? component.getVersion() : null)
-        .setPath(component.hasPath() ? component.getPath() : null)
+        .setVersion(trimToNull(component.getVersion()))
+        .setPath(trimToNull(component.getPath()))
         .build();
     }
 
     @CheckForNull
     private static FileAttributes createFileAttributes(ScannerReport.Component component) {
-      if (component.getType() != Constants.ComponentType.FILE) {
+      if (component.getType() != ComponentType.FILE) {
         return null;
       }
 
       return new FileAttributes(
-        component.hasIsTest() && component.getIsTest(),
-        component.hasLanguage() ? component.getLanguage() : null);
+        component.getIsTest(),
+        trimToNull(component.getLanguage()));
     }
 
     @VisibleForTesting
-    static Type convertType(Constants.ComponentType type) {
+    static Type convertType(ComponentType type) {
       switch (type) {
         case PROJECT:
           return Type.PROJECT;
@@ -185,7 +186,7 @@ public class ComponentImpl implements Component {
         case FILE:
           return Type.FILE;
         default:
-          throw new IllegalArgumentException("Unsupported Constants.ComponentType value " + type);
+          throw new IllegalArgumentException("Unsupported ComponentType value " + type);
       }
     }
   }

@@ -39,7 +39,7 @@ public class ScannerReportReader {
     if (!fileExists(file)) {
       throw new IllegalStateException("Metadata file is missing in analysis report: " + file);
     }
-    return Protobuf.read(file, ScannerReport.Metadata.PARSER);
+    return Protobuf.read(file, ScannerReport.Metadata.parser());
   }
 
   public CloseableIterator<ScannerReport.ActiveRule> readActiveRules() {
@@ -47,13 +47,13 @@ public class ScannerReportReader {
     if (!fileExists(file)) {
       return emptyCloseableIterator();
     }
-    return Protobuf.readStream(file, ScannerReport.ActiveRule.PARSER);
+    return Protobuf.readStream(file, ScannerReport.ActiveRule.parser());
   }
 
   public CloseableIterator<ScannerReport.Measure> readComponentMeasures(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.MEASURES, componentRef);
     if (fileExists(file)) {
-      return Protobuf.readStream(file, ScannerReport.Measure.PARSER);
+      return Protobuf.readStream(file, ScannerReport.Measure.parser());
     }
     return emptyCloseableIterator();
   }
@@ -62,7 +62,7 @@ public class ScannerReportReader {
   public ScannerReport.Changesets readChangesets(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.CHANGESETS, componentRef);
     if (fileExists(file)) {
-      return Protobuf.read(file, ScannerReport.Changesets.PARSER);
+      return Protobuf.read(file, ScannerReport.Changesets.parser());
     }
     return null;
   }
@@ -72,13 +72,13 @@ public class ScannerReportReader {
     if (!fileExists(file)) {
       throw new IllegalStateException("Unable to find report for component #" + componentRef + ". File does not exist: " + file);
     }
-    return Protobuf.read(file, ScannerReport.Component.PARSER);
+    return Protobuf.read(file, ScannerReport.Component.parser());
   }
 
   public CloseableIterator<ScannerReport.Issue> readComponentIssues(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.ISSUES, componentRef);
     if (fileExists(file)) {
-      return Protobuf.readStream(file, ScannerReport.Issue.PARSER);
+      return Protobuf.readStream(file, ScannerReport.Issue.parser());
     }
     return emptyCloseableIterator();
   }
@@ -86,7 +86,7 @@ public class ScannerReportReader {
   public CloseableIterator<ScannerReport.Duplication> readComponentDuplications(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.DUPLICATIONS, componentRef);
     if (fileExists(file)) {
-      return Protobuf.readStream(file, ScannerReport.Duplication.PARSER);
+      return Protobuf.readStream(file, ScannerReport.Duplication.parser());
     }
     return emptyCloseableIterator();
   }
@@ -102,7 +102,7 @@ public class ScannerReportReader {
   public CloseableIterator<ScannerReport.Symbol> readComponentSymbols(int componentRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYMBOLS, componentRef);
     if (fileExists(file)) {
-      return Protobuf.readStream(file, ScannerReport.Symbol.PARSER);
+      return Protobuf.readStream(file, ScannerReport.Symbol.parser());
     }
     return emptyCloseableIterator();
   }
@@ -112,10 +112,10 @@ public class ScannerReportReader {
     return file.exists();
   }
 
-  public CloseableIterator<ScannerReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
+  public CloseableIterator<ScannerReport.SyntaxHighlightingRule> readComponentSyntaxHighlighting(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, fileRef);
     if (fileExists(file)) {
-      return Protobuf.readStream(file, ScannerReport.SyntaxHighlighting.PARSER);
+      return Protobuf.readStream(file, ScannerReport.SyntaxHighlightingRule.parser());
     }
     return emptyCloseableIterator();
   }
@@ -125,10 +125,10 @@ public class ScannerReportReader {
     return file.exists();
   }
 
-  public CloseableIterator<ScannerReport.Coverage> readComponentCoverage(int fileRef) {
+  public CloseableIterator<ScannerReport.LineCoverage> readComponentCoverage(int fileRef) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, fileRef);
     if (fileExists(file)) {
-      return Protobuf.readStream(file, ScannerReport.Coverage.PARSER);
+      return Protobuf.readStream(file, ScannerReport.LineCoverage.parser());
     }
     return emptyCloseableIterator();
   }

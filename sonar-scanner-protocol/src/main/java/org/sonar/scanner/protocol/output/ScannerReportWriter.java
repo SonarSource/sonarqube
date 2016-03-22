@@ -110,13 +110,13 @@ public class ScannerReportWriter {
     return file;
   }
 
-  public File writeComponentSyntaxHighlighting(int componentRef, Iterable<ScannerReport.SyntaxHighlighting> syntaxHighlightingRules) {
+  public File writeComponentSyntaxHighlighting(int componentRef, Iterable<ScannerReport.SyntaxHighlightingRule> syntaxHighlightingRules) {
     File file = fileStructure.fileFor(FileStructure.Domain.SYNTAX_HIGHLIGHTINGS, componentRef);
     Protobuf.writeStream(syntaxHighlightingRules, file, false);
     return file;
   }
 
-  public File writeComponentCoverage(int componentRef, Iterable<ScannerReport.Coverage> coverageList) {
+  public File writeComponentCoverage(int componentRef, Iterable<ScannerReport.LineCoverage> coverageList) {
     File file = fileStructure.fileFor(FileStructure.Domain.COVERAGES, componentRef);
     Protobuf.writeStream(coverageList, file, false);
     return file;

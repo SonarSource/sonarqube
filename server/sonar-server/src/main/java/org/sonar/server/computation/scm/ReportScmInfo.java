@@ -32,6 +32,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
+import static org.elasticsearch.common.lang3.StringUtils.isNotEmpty;
 
 /**
  * ScmInfo implementation based on the changeset information from the Report
@@ -95,11 +96,11 @@ class ReportScmInfo implements ScmInfo {
     }
 
     private Changeset convert(ScannerReport.Changesets.Changeset changeset, int line) {
-      checkState(changeset.hasRevision(), "Changeset on line %s must have a revision", line);
-      checkState(changeset.hasDate(), "Changeset on line %s must have a date", line);
+      checkState(isNotEmpty(changeset.getRevision()), "Changeset on line %s must have a revision", line);
+      checkState(changeset.getDate() != 0, "Changeset on line %s must have a date", line);
       return builder
         .setRevision(changeset.getRevision())
-        .setAuthor(changeset.hasAuthor() ? changeset.getAuthor() : null)
+        .setAuthor(isNotEmpty(changeset.getAuthor()) ? changeset.getAuthor() : null)
         .setDate(changeset.getDate())
         .build();
     }

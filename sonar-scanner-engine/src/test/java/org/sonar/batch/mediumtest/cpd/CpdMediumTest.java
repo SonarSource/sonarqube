@@ -27,7 +27,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
-import org.assertj.core.groups.Tuple;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -48,6 +47,7 @@ import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 
 @RunWith(Parameterized.class)
 public class CpdMediumTest {
@@ -324,12 +324,10 @@ public class CpdMediumTest {
 
     Map<String, List<Measure>> allMeasures = result.allMeasures();
 
-    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey", "intValue", "doubleValue", "stringValue").containsOnly(
-      Tuple.tuple(CoreMetrics.QUALITY_PROFILES_KEY, 0, 0.0,
-        "[{\"key\":\"Sonar Way\",\"language\":\"xoo\",\"name\":\"Sonar Way\",\"rulesUpdatedAt\":\"2009-02-13T23:31:31+0000\"}]"));
+    assertThat(allMeasures.get("com.foo.project")).extracting("metricKey").containsOnly(CoreMetrics.QUALITY_PROFILES_KEY);
 
-    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue").containsOnly(
-      Tuple.tuple(CoreMetrics.LINES_KEY, blockCount * 2 + 1));
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value").containsOnly(
+      tuple(CoreMetrics.LINES_KEY, blockCount * 2 + 1));
 
     List<org.sonar.scanner.protocol.output.ScannerReport.Duplication> duplicationGroups = result.duplicationsFor(result.inputFile("src/sample.xoo"));
     assertThat(duplicationGroups).hasSize(1);

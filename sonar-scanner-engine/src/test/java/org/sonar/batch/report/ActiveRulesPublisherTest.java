@@ -25,7 +25,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.DefaultActiveRules;
 import org.sonar.api.batch.rule.internal.NewActiveRule;
@@ -60,9 +59,9 @@ public class ActiveRulesPublisherTest {
       assertThat(reportAr.getRuleRepository()).isEqualTo("java");
       assertThat(reportAr.getRuleKey()).isEqualTo("S001");
       assertThat(reportAr.getSeverity()).isEqualTo(Constants.Severity.BLOCKER);
-      assertThat(reportAr.getParamCount()).isEqualTo(1);
-      assertThat(reportAr.getParam(0).getKey()).isEqualTo("p1");
-      assertThat(reportAr.getParam(0).getValue()).isEqualTo("v1");
+      assertThat(reportAr.getParamsByKey()).hasSize(1);
+      assertThat(reportAr.getParamsByKey().entrySet().iterator().next().getKey()).isEqualTo("p1");
+      assertThat(reportAr.getParamsByKey().entrySet().iterator().next().getValue()).isEqualTo("v1");
 
       assertThat(readIt.hasNext()).isFalse();
     }

@@ -85,8 +85,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
       new Duplication(
         convert(duplication.getOriginPosition(), id),
         from(duplication.getDuplicateList())
-          .transform(new BatchDuplicateToCeDuplicate(file))
-      ));
+          .transform(new BatchDuplicateToCeDuplicate(file))));
   }
 
   private static TextBlock convert(ScannerReport.TextRange textRange) {
@@ -107,7 +106,7 @@ public class LoadDuplicationsFromReportStep implements ComputationStep {
     @Override
     @Nonnull
     public Duplicate apply(@Nonnull ScannerReport.Duplicate input) {
-      if (input.hasOtherFileRef()) {
+      if (input.getOtherFileRef() != 0) {
         checkArgument(input.getOtherFileRef() != file.getReportAttributes().getRef(), "file and otherFile references can not be the same");
         return new InProjectDuplicate(
           treeRootHolder.getComponentByRef(input.getOtherFileRef()),

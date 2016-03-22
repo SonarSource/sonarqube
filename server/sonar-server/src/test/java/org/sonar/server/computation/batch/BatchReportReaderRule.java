@@ -45,8 +45,8 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   private Map<Integer, List<ScannerReport.Duplication>> duplications = new HashMap<>();
   private Map<Integer, List<ScannerReport.CpdTextBlock>> duplicationBlocks = new HashMap<>();
   private Map<Integer, List<ScannerReport.Symbol>> symbols = new HashMap<>();
-  private Map<Integer, List<ScannerReport.SyntaxHighlighting>> syntaxHighlightings = new HashMap<>();
-  private Map<Integer, List<ScannerReport.Coverage>> coverages = new HashMap<>();
+  private Map<Integer, List<ScannerReport.SyntaxHighlightingRule>> syntaxHighlightings = new HashMap<>();
+  private Map<Integer, List<ScannerReport.LineCoverage>> coverages = new HashMap<>();
   private Map<Integer, List<String>> fileSources = new HashMap<>();
   private Map<Integer, List<ScannerReport.Test>> tests = new HashMap<>();
   private Map<Integer, List<ScannerReport.CoverageDetail>> coverageDetails = new HashMap<>();
@@ -201,8 +201,8 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
   }
 
   @Override
-  public CloseableIterator<ScannerReport.SyntaxHighlighting> readComponentSyntaxHighlighting(int fileRef) {
-    List<ScannerReport.SyntaxHighlighting> res = this.syntaxHighlightings.get(fileRef);
+  public CloseableIterator<ScannerReport.SyntaxHighlightingRule> readComponentSyntaxHighlighting(int fileRef) {
+    List<ScannerReport.SyntaxHighlightingRule> res = this.syntaxHighlightings.get(fileRef);
     if (res == null) {
       return CloseableIterator.emptyCloseableIterator();
     }
@@ -210,14 +210,14 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(res.iterator());
   }
 
-  public BatchReportReaderRule putSyntaxHighlighting(int fileRef, List<ScannerReport.SyntaxHighlighting> syntaxHighlightings) {
+  public BatchReportReaderRule putSyntaxHighlighting(int fileRef, List<ScannerReport.SyntaxHighlightingRule> syntaxHighlightings) {
     this.syntaxHighlightings.put(fileRef, syntaxHighlightings);
     return this;
   }
 
   @Override
-  public CloseableIterator<ScannerReport.Coverage> readComponentCoverage(int fileRef) {
-    List<ScannerReport.Coverage> res = this.coverages.get(fileRef);
+  public CloseableIterator<ScannerReport.LineCoverage> readComponentCoverage(int fileRef) {
+    List<ScannerReport.LineCoverage> res = this.coverages.get(fileRef);
     if (res == null) {
       return CloseableIterator.emptyCloseableIterator();
     }
@@ -225,7 +225,7 @@ public class BatchReportReaderRule implements TestRule, BatchReportReader {
     return CloseableIterator.from(res.iterator());
   }
 
-  public BatchReportReaderRule putCoverage(int fileRef, List<ScannerReport.Coverage> coverages) {
+  public BatchReportReaderRule putCoverage(int fileRef, List<ScannerReport.LineCoverage> coverages) {
     this.coverages.put(fileRef, coverages);
     return this;
   }

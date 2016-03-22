@@ -43,10 +43,10 @@ public class BatchReportReaderImplTest {
   private static final ScannerReport.Duplication DUPLICATION = ScannerReport.Duplication.newBuilder().build();
   private static final ScannerReport.CpdTextBlock DUPLICATION_BLOCK = ScannerReport.CpdTextBlock.newBuilder().build();
   private static final ScannerReport.Symbol SYMBOL = ScannerReport.Symbol.newBuilder().build();
-  private static final ScannerReport.SyntaxHighlighting SYNTAX_HIGHLIGHTING_1 = ScannerReport.SyntaxHighlighting.newBuilder().build();
-  private static final ScannerReport.SyntaxHighlighting SYNTAX_HIGHLIGHTING_2 = ScannerReport.SyntaxHighlighting.newBuilder().build();
-  private static final ScannerReport.Coverage COVERAGE_1 = ScannerReport.Coverage.newBuilder().build();
-  private static final ScannerReport.Coverage COVERAGE_2 = ScannerReport.Coverage.newBuilder().build();
+  private static final ScannerReport.SyntaxHighlightingRule SYNTAX_HIGHLIGHTING_1 = ScannerReport.SyntaxHighlightingRule.newBuilder().build();
+  private static final ScannerReport.SyntaxHighlightingRule SYNTAX_HIGHLIGHTING_2 = ScannerReport.SyntaxHighlightingRule.newBuilder().build();
+  private static final ScannerReport.LineCoverage COVERAGE_1 = ScannerReport.LineCoverage.newBuilder().build();
+  private static final ScannerReport.LineCoverage COVERAGE_2 = ScannerReport.LineCoverage.newBuilder().build();
   private static final ScannerReport.Test TEST_1 = ScannerReport.Test.newBuilder().setName("1").build();
   private static final ScannerReport.Test TEST_2 = ScannerReport.Test.newBuilder().setName("2").build();
   private static final ScannerReport.CoverageDetail COVERAGE_DETAIL_1 = ScannerReport.CoverageDetail.newBuilder().setTestName("1").build();
@@ -254,7 +254,7 @@ public class BatchReportReaderImplTest {
   public void verify_readComponentSyntaxHighlighting() {
     writer.writeComponentSyntaxHighlighting(COMPONENT_REF, of(SYNTAX_HIGHLIGHTING_1, SYNTAX_HIGHLIGHTING_2));
 
-    CloseableIterator<ScannerReport.SyntaxHighlighting> res = underTest.readComponentSyntaxHighlighting(COMPONENT_REF);
+    CloseableIterator<ScannerReport.SyntaxHighlightingRule> res = underTest.readComponentSyntaxHighlighting(COMPONENT_REF);
     assertThat(res).containsExactly(SYNTAX_HIGHLIGHTING_1, SYNTAX_HIGHLIGHTING_2);
     res.close();
   }
@@ -268,7 +268,7 @@ public class BatchReportReaderImplTest {
   public void verify_readComponentCoverage() {
     writer.writeComponentCoverage(COMPONENT_REF, of(COVERAGE_1, COVERAGE_2));
 
-    CloseableIterator<ScannerReport.Coverage> res = underTest.readComponentCoverage(COMPONENT_REF);
+    CloseableIterator<ScannerReport.LineCoverage> res = underTest.readComponentCoverage(COMPONENT_REF);
     assertThat(res).containsExactly(COVERAGE_1, COVERAGE_2);
     res.close();
   }

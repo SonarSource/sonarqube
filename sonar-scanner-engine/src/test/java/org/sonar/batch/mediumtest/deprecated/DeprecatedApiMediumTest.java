@@ -82,15 +82,15 @@ public class DeprecatedApiMediumTest {
         .build())
       .start();
 
-    assertThat(result.issuesFor(result.inputFile("src/sample.xoo"))).extracting("msg", "line").containsOnly(
+    assertThat(result.issuesFor(result.inputFile("src/sample.xoo"))).extracting("msg", "textRange.startLine").containsOnly(
       tuple("Issue created using deprecated API", 0),
       tuple("Issue created using deprecated API", 1));
-    assertThat(result.issuesFor(result.inputFile("src/package/sample.xoo"))).extracting("msg", "line").containsOnly(
+    assertThat(result.issuesFor(result.inputFile("src/package/sample.xoo"))).extracting("msg", "textRange.startLine").containsOnly(
       tuple("Issue created using deprecated API", 0),
       tuple("Issue created using deprecated API", 1));
-    assertThat(result.issuesFor(result.inputDir("src"))).extracting("msg", "line").containsOnly(
+    assertThat(result.issuesFor(result.inputDir("src"))).extracting("msg", "textRange.startLine").containsOnly(
       tuple("Issue created using deprecated API", 0));
-    assertThat(result.issuesFor(result.inputDir("src/package"))).extracting("msg", "line").containsOnly(
+    assertThat(result.issuesFor(result.inputDir("src/package"))).extracting("msg", "textRange.startLine").containsOnly(
       tuple("Issue created using deprecated API", 0));
 
   }
@@ -118,15 +118,15 @@ public class DeprecatedApiMediumTest {
         .build())
       .start();
 
-    assertThat(result.issuesFor(result.inputFile("sample.xoo"))).extracting("msg", "line").containsOnly(
+    assertThat(result.issuesFor(result.inputFile("sample.xoo"))).extracting("msg", "textRange.startLine").containsOnly(
       tuple("Issue created using deprecated API", 0),
       tuple("Issue created using deprecated API", 1));
-    assertThat(result.issuesFor(result.inputFile("package/sample.xoo"))).extracting("msg", "line").containsOnly(
+    assertThat(result.issuesFor(result.inputFile("package/sample.xoo"))).extracting("msg", "textRange.startLine").containsOnly(
       tuple("Issue created using deprecated API", 0),
       tuple("Issue created using deprecated API", 1));
-    assertThat(result.issuesFor(result.inputDir(""))).extracting("msg", "line").containsOnly(
+    assertThat(result.issuesFor(result.inputDir(""))).extracting("msg", "textRange.startLine").containsOnly(
       tuple("Issue created using deprecated API", 0));
-    assertThat(result.issuesFor(result.inputDir("package"))).extracting("msg", "line").containsOnly(
+    assertThat(result.issuesFor(result.inputDir("package"))).extracting("msg", "textRange.startLine").containsOnly(
       tuple("Issue created using deprecated API", 0));
 
   }

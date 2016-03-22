@@ -31,14 +31,14 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
-import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.CoverageDetail;
+import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.FileAttributes;
+import org.sonar.server.computation.component.ReportComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -256,7 +256,7 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   private ScannerReport.Test newTest(int id) {
     return ScannerReport.Test.newBuilder()
-      .setStatus(Constants.TestStatus.FAILURE)
+      .setStatus(TestStatus.FAILURE)
       .setName("name#" + id)
       .setStacktrace("stacktrace#" + id)
       .setMsg("message#" + id)

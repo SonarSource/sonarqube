@@ -25,6 +25,11 @@ import com.tngtech.java.junit.dataprovider.DataProviderRunner;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.BoolValue;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.DoubleValue;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.IntValue;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.LongValue;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 
@@ -70,7 +75,7 @@ public class BatchMeasureToMeasureTest {
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_invalid_string_value_for_LEVEL_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setStringValue("trololo").build(), SOME_LEVEL_METRIC);
+    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setStringValue(StringValue.newBuilder().setValue("trololo")).build(), SOME_LEVEL_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
@@ -78,7 +83,7 @@ public class BatchMeasureToMeasureTest {
 
   @Test
   public void toMeasure_returns_no_value_if_dto_has_value_in_wrong_case_for_LEVEL_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setStringValue("waRn").build(), SOME_LEVEL_METRIC);
+    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setStringValue(StringValue.newBuilder().setValue("waRn")).build(), SOME_LEVEL_METRIC);
 
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.NO_VALUE);
@@ -92,7 +97,8 @@ public class BatchMeasureToMeasureTest {
   }
 
   private void verify_toMeasure_returns_value_for_LEVEL_Metric(Measure.Level expectedQualityGateStatus) {
-    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setStringValue(expectedQualityGateStatus.name()).build(), SOME_LEVEL_METRIC);
+    Optional<Measure> measure =
+      underTest.toMeasure(ScannerReport.Measure.newBuilder().setStringValue(StringValue.newBuilder().setValue(expectedQualityGateStatus.name())).build(), SOME_LEVEL_METRIC);
     assertThat(measure).isPresent();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.LEVEL);
     assertThat(measure.get().getLevelValue()).isEqualTo(expectedQualityGateStatus);
@@ -101,7 +107,7 @@ public class BatchMeasureToMeasureTest {
   @Test
   public void toMeasure_for_LEVEL_Metric_maps_QualityGateStatus() {
     ScannerReport.Measure batchMeasure = ScannerReport.Measure.newBuilder()
-      .setStringValue(Measure.Level.OK.name())
+      .setStringValue(StringValue.newBuilder().setValue(Measure.Level.OK.name()))
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_LEVEL_METRIC);
@@ -120,7 +126,7 @@ public class BatchMeasureToMeasureTest {
 
   private void verify_toMeasure_for_LEVEL_Metric_parses_level_from_data(Measure.Level expectedLevel) {
     ScannerReport.Measure batchMeasure = ScannerReport.Measure.newBuilder()
-      .setStringValue(expectedLevel.name())
+      .setStringValue(StringValue.newBuilder().setValue(expectedLevel.name()))
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_LEVEL_METRIC);
@@ -140,8 +146,7 @@ public class BatchMeasureToMeasureTest {
   @Test
   public void toMeasure_maps_data_and_alert_properties_in_dto_for_Int_Metric() {
     ScannerReport.Measure batchMeasure = ScannerReport.Measure.newBuilder()
-      .setIntValue(10)
-      .setStringValue(SOME_DATA)
+      .setIntValue(IntValue.newBuilder().setValue(10).setData(SOME_DATA))
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_INT_METRIC);
@@ -162,7 +167,7 @@ public class BatchMeasureToMeasureTest {
 
   @Test
   public void toMeasure_returns_long_part_of_value_in_dto_for_Long_Metric() {
-    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setLongValue(15l).build(), SOME_LONG_METRIC);
+    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setLongValue(LongValue.newBuilder().setValue(15l)).build(), SOME_LONG_METRIC);
 
     assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.LONG);
@@ -172,8 +177,7 @@ public class BatchMeasureToMeasureTest {
   @Test
   public void toMeasure_maps_data_and_alert_properties_in_dto_for_Long_Metric() {
     ScannerReport.Measure batchMeasure = ScannerReport.Measure.newBuilder()
-      .setLongValue(10l)
-      .setStringValue(SOME_DATA)
+      .setLongValue(LongValue.newBuilder().setValue(10l).setData(SOME_DATA))
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_LONG_METRIC);
@@ -195,8 +199,7 @@ public class BatchMeasureToMeasureTest {
   @Test
   public void toMeasure_maps_data_and_alert_properties_in_dto_for_Double_Metric() {
     ScannerReport.Measure batchMeasure = ScannerReport.Measure.newBuilder()
-      .setDoubleValue(10.6395d)
-      .setStringValue(SOME_DATA)
+      .setDoubleValue(DoubleValue.newBuilder().setValue(10.6395d).setData(SOME_DATA))
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_DOUBLE_METRIC);
@@ -222,7 +225,7 @@ public class BatchMeasureToMeasureTest {
   }
 
   private void verify_toMeasure_returns_false_value_if_dto_has_invalid_value_for_Boolean_metric(boolean expected) {
-    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setBooleanValue(expected).build(), SOME_BOOLEAN_METRIC);
+    Optional<Measure> measure = underTest.toMeasure(ScannerReport.Measure.newBuilder().setBooleanValue(BoolValue.newBuilder().setValue(expected)).build(), SOME_BOOLEAN_METRIC);
 
     assertThat(measure.isPresent()).isTrue();
     assertThat(measure.get().getValueType()).isEqualTo(Measure.ValueType.BOOLEAN);
@@ -232,7 +235,7 @@ public class BatchMeasureToMeasureTest {
   @Test
   public void toMeasure_maps_data_and_alert_properties_in_dto_for_Boolean_metric() {
     ScannerReport.Measure batchMeasure = ScannerReport.Measure.newBuilder()
-      .setBooleanValue(true).setStringValue(SOME_DATA).build();
+      .setBooleanValue(BoolValue.newBuilder().setValue(true).setData(SOME_DATA)).build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_BOOLEAN_METRIC);
 
@@ -253,7 +256,7 @@ public class BatchMeasureToMeasureTest {
   @Test
   public void toMeasure_maps_alert_properties_in_dto_for_String_Metric() {
     ScannerReport.Measure batchMeasure = ScannerReport.Measure.newBuilder()
-      .setStringValue(SOME_DATA)
+      .setStringValue(StringValue.newBuilder().setValue(SOME_DATA))
       .build();
 
     Optional<Measure> measure = underTest.toMeasure(batchMeasure, SOME_STRING_METRIC);
@@ -267,12 +270,12 @@ public class BatchMeasureToMeasureTest {
   @DataProvider
   public static Object[][] all_types_batch_measure_builders() {
     return new Object[][] {
-      {ScannerReport.Measure.newBuilder().setBooleanValue(true), SOME_BOOLEAN_METRIC},
-      {ScannerReport.Measure.newBuilder().setIntValue(1), SOME_INT_METRIC},
-      {ScannerReport.Measure.newBuilder().setLongValue(1), SOME_LONG_METRIC},
-      {ScannerReport.Measure.newBuilder().setDoubleValue(1), SOME_DOUBLE_METRIC},
-      {ScannerReport.Measure.newBuilder().setStringValue("1"), SOME_STRING_METRIC},
-      {ScannerReport.Measure.newBuilder().setStringValue(Measure.Level.OK.name()), SOME_LEVEL_METRIC}
+      {ScannerReport.Measure.newBuilder().setBooleanValue(BoolValue.newBuilder().setValue(true)), SOME_BOOLEAN_METRIC},
+      {ScannerReport.Measure.newBuilder().setIntValue(IntValue.newBuilder().setValue(1)), SOME_INT_METRIC},
+      {ScannerReport.Measure.newBuilder().setLongValue(LongValue.newBuilder().setValue(1)), SOME_LONG_METRIC},
+      {ScannerReport.Measure.newBuilder().setDoubleValue(DoubleValue.newBuilder().setValue(1)), SOME_DOUBLE_METRIC},
+      {ScannerReport.Measure.newBuilder().setStringValue(StringValue.newBuilder().setValue("1")), SOME_STRING_METRIC},
+      {ScannerReport.Measure.newBuilder().setStringValue(StringValue.newBuilder().setValue(Measure.Level.OK.name())), SOME_LEVEL_METRIC}
     };
   }
 }

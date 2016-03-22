@@ -57,7 +57,7 @@ public class LoadQualityProfilesStepTest {
     ScannerReport.ActiveRule.Builder batch1 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X1.repository()).setRuleKey(XOO_X1.rule())
       .setSeverity(Constants.Severity.BLOCKER);
-    batch1.addParamBuilder().setKey("p1").setValue("v1").build();
+    batch1.getMutableParamsByKey().put("p1", "v1");
 
     ScannerReport.ActiveRule.Builder batch2 = ScannerReport.ActiveRule.newBuilder()
       .setRuleRepository(XOO_X2.repository()).setRuleKey(XOO_X2.rule()).setSeverity(Constants.Severity.MAJOR);

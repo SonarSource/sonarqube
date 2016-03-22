@@ -42,6 +42,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.component.Component;
@@ -216,8 +217,7 @@ public class MeasureRepositoryImplTest {
     Measure.newMeasureBuilder().create(false),
     Measure.newMeasureBuilder().create("sds"),
     Measure.newMeasureBuilder().create(Measure.Level.OK),
-    Measure.newMeasureBuilder().createNoValue()
-    );
+    Measure.newMeasureBuilder().createNoValue());
 
   @DataProvider
   public static Object[][] measures() {
@@ -333,8 +333,7 @@ public class MeasureRepositoryImplTest {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
 
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
-      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(value).build()
-      ));
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(StringValue.newBuilder().setValue(value)).build()));
 
     Optional<Measure> res = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
@@ -352,9 +351,8 @@ public class MeasureRepositoryImplTest {
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(false);
 
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
-      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("value1").build(),
-      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("value2").build()
-      ));
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(StringValue.newBuilder().setValue("value1")).build(),
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue(StringValue.newBuilder().setValue("value2")).build()));
 
     assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric1)).isPresent();
     assertThat(underTest.getRawMeasure(FILE_COMPONENT, metric2)).isAbsent();
@@ -364,8 +362,7 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasure_retrieves_added_measure_over_batch_measure() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
-      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-      ));
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(StringValue.newBuilder().setValue("some value")).build()));
 
     Measure addedMeasure = SOME_MEASURE;
     underTest.add(FILE_COMPONENT, metric1, addedMeasure);
@@ -380,8 +377,7 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasure_retrieves_measure_from_batch_and_caches_it_locally_so_that_it_can_be_updated() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(
-      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build()
-      ));
+      ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(StringValue.newBuilder().setValue("some value")).build()));
 
     Optional<Measure> measure = underTest.getRawMeasure(FILE_COMPONENT, metric1);
 
@@ -409,8 +405,8 @@ public class MeasureRepositoryImplTest {
   public void getRawMeasures_returns_added_measures_over_batch_measures() {
     when(reportMetricValidator.validate(METRIC_KEY_1)).thenReturn(true);
     when(reportMetricValidator.validate(METRIC_KEY_2)).thenReturn(true);
-    ScannerReport.Measure batchMeasure1 = ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue("some value").build();
-    ScannerReport.Measure batchMeasure2 = ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue("some value").build();
+    ScannerReport.Measure batchMeasure1 = ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_1).setStringValue(StringValue.newBuilder().setValue("some value")).build();
+    ScannerReport.Measure batchMeasure2 = ScannerReport.Measure.newBuilder().setMetricKey(METRIC_KEY_2).setStringValue(StringValue.newBuilder().setValue("some value")).build();
     reportReader.putMeasures(FILE_COMPONENT.getReportAttributes().getRef(), ImmutableList.of(batchMeasure1, batchMeasure2));
 
     Measure addedMeasure = SOME_MEASURE;

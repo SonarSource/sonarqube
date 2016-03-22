@@ -30,6 +30,7 @@ import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.scanner.protocol.Constants;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.scanner.protocol.output.ScannerReport.TextRange;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
@@ -88,7 +89,7 @@ public class TrackerRawInputFactoryTest {
   public void load_issues() throws Exception {
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
-      .setLine(2)
+      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
       .setMsg("the message")
       .setRuleRepository("java")
       .setRuleKey("S001")

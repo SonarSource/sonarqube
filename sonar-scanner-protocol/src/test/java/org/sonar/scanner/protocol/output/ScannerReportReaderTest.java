@@ -30,10 +30,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.scanner.protocol.Constants;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
-import org.sonar.scanner.protocol.output.ScannerReportWriter;
-import org.sonar.scanner.protocol.output.FileStructure;
+import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
+import org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType;
+import org.sonar.scanner.protocol.output.ScannerReport.Test.TestStatus;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
@@ -98,7 +97,6 @@ public class ScannerReportReaderTest {
   public void read_issues() {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     ScannerReport.Issue issue = ScannerReport.Issue.newBuilder()
-      .setLine(50)
       .build();
     writer.writeComponentIssues(1, asList(issue));
 
@@ -115,7 +113,7 @@ public class ScannerReportReaderTest {
   public void read_measures() {
     ScannerReportWriter writer = new ScannerReportWriter(dir);
     ScannerReport.Measure.Builder measure = ScannerReport.Measure.newBuilder()
-      .setStringValue("value_a");
+      .setStringValue(StringValue.newBuilder().setValue("value_a"));
     writer.writeComponentMeasures(1, asList(measure.build()));
 
     assertThat(underTest.readComponentMeasures(1)).hasSize(1);
@@ -211,20 +209,20 @@ public class ScannerReportReaderTest {
       .setRef(1).build());
 
     writer.writeComponentSyntaxHighlighting(1, asList(
-      ScannerReport.SyntaxHighlighting.newBuilder()
+      ScannerReport.SyntaxHighlightingRule.newBuilder()
         .setRange(ScannerReport.TextRange.newBuilder()
           .setStartLine(1)
           .setEndLine(10)
           .build())
-        .setType(Constants.HighlightingType.ANNOTATION)
+        .setType(HighlightingType.ANNOTATION)
         .build()));
 
-    try (CloseableIterator<ScannerReport.SyntaxHighlighting> it = underTest.readComponentSyntaxHighlighting(1)) {
-      ScannerReport.SyntaxHighlighting syntaxHighlighting = it.next();
+    try (CloseableIterator<ScannerReport.SyntaxHighlightingRule> it = underTest.readComponentSyntaxHighlighting(1)) {
+      ScannerReport.SyntaxHighlightingRule syntaxHighlighting = it.next();
       assertThat(syntaxHighlighting.getRange()).isNotNull();
       assertThat(syntaxHighlighting.getRange().getStartLine()).isEqualTo(1);
       assertThat(syntaxHighlighting.getRange().getEndLine()).isEqualTo(10);
-      assertThat(syntaxHighlighting.getType()).isEqualTo(Constants.HighlightingType.ANNOTATION);
+      assertThat(syntaxHighlighting.getType()).isEqualTo(HighlightingType.ANNOTATION);
     }
   }
 
@@ -276,7 +274,7 @@ public class ScannerReportReaderTest {
       .setRef(1).build());
 
     writer.writeComponentCoverage(1, asList(
-      ScannerReport.Coverage.newBuilder()
+      ScannerReport.LineCoverage.newBuilder()
         .setLine(1)
         .setConditions(1)
         .setUtHits(true)
@@ -285,7 +283,7 @@ public class ScannerReportReaderTest {
         .setItCoveredConditions(1)
         .setOverallCoveredConditions(1)
         .build(),
-      ScannerReport.Coverage.newBuilder()
+      ScannerReport.LineCoverage.newBuilder()
         .setLine(2)
         .setConditions(5)
         .setUtHits(false)
@@ -296,8 +294,8 @@ public class ScannerReportReaderTest {
         .build()));
 
     underTest = new ScannerReportReader(dir);
-    try (CloseableIterator<ScannerReport.Coverage> it = new ScannerReportReader(dir).readComponentCoverage(1)) {
-      ScannerReport.Coverage coverage = it.next();
+    try (CloseableIterator<ScannerReport.LineCoverage> it = new ScannerReportReader(dir).readComponentCoverage(1)) {
+      ScannerReport.LineCoverage coverage = it.next();
       assertThat(coverage.getLine()).isEqualTo(1);
       assertThat(coverage.getConditions()).isEqualTo(1);
       assertThat(coverage.getUtHits()).isTrue();
@@ -331,15 +329,15 @@ public class ScannerReportReaderTest {
         .setDurationInMs(60_000)
         .setStacktrace("stacktrace")
         .setMsg("message")
-        .setStatus(Constants.TestStatus.OK)
+        .setStatus(TestStatus.OK)
         .build()));
 
     try (InputStream inputStream = FileUtils.openInputStream(underTest.readTests(1))) {
-      ScannerReport.Test testResult = ScannerReport.Test.PARSER.parseDelimitedFrom(inputStream);
+      ScannerReport.Test testResult = ScannerReport.Test.parser().parseDelimitedFrom(inputStream);
       assertThat(testResult.getDurationInMs()).isEqualTo(60_000);
       assertThat(testResult.getStacktrace()).isEqualTo("stacktrace");
       assertThat(testResult.getMsg()).isEqualTo("message");
-      assertThat(testResult.getStatus()).isEqualTo(Constants.TestStatus.OK);
+      assertThat(testResult.getStatus()).isEqualTo(TestStatus.OK);
     }
   }
 
@@ -360,7 +358,7 @@ public class ScannerReportReaderTest {
         .build()));
 
     try (InputStream inputStream = FileUtils.openInputStream(underTest.readCoverageDetails(1))) {
-      ScannerReport.CoverageDetail coverageDetail = ScannerReport.CoverageDetail.PARSER.parseDelimitedFrom(inputStream);
+      ScannerReport.CoverageDetail coverageDetail = ScannerReport.CoverageDetail.parser().parseDelimitedFrom(inputStream);
       assertThat(coverageDetail.getTestName()).isEqualTo("test-name");
       assertThat(coverageDetail.getCoveredFile(0).getFileRef()).isEqualTo(2);
       assertThat(coverageDetail.getCoveredFile(0).getCoveredLineList()).containsExactly(1, 2, 3, 5, 7);

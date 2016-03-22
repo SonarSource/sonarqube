@@ -47,12 +47,13 @@ import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import javax.swing.tree.TreeSelectionModel;
+import org.apache.commons.lang.StringUtils;
 import org.sonar.core.util.CloseableIterator;
-import org.sonar.scanner.protocol.output.ScannerReportReader;
 import org.sonar.scanner.protocol.output.FileStructure.Domain;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Component;
 import org.sonar.scanner.protocol.output.ScannerReport.Metadata;
+import org.sonar.scanner.protocol.output.ScannerReportReader;
 
 public class ScannerReportViewerApp {
 
@@ -179,7 +180,8 @@ public class ScannerReportViewerApp {
   }
 
   private void updateTitle() {
-    frame.setTitle(metadata.getProjectKey() + (metadata.hasBranch() ? (" (" + metadata.getBranch() + ")") : "") + " " + sdf.format(new Date(metadata.getAnalysisDate())));
+    frame.setTitle(metadata.getProjectKey() + (StringUtils.isNotEmpty(metadata.getBranch()) ? (" (" + metadata.getBranch() + ")") : "") + " "
+      + sdf.format(new Date(metadata.getAnalysisDate())));
   }
 
   private void updateDetails(Component component) {
@@ -207,9 +209,9 @@ public class ScannerReportViewerApp {
 
   private void updateCoverage(Component component) {
     coverageEditor.setText("");
-    try (CloseableIterator<ScannerReport.Coverage> it = reader.readComponentCoverage(component.getRef())) {
+    try (CloseableIterator<ScannerReport.LineCoverage> it = reader.readComponentCoverage(component.getRef())) {
       while (it.hasNext()) {
-        ScannerReport.Coverage coverage = it.next();
+        ScannerReport.LineCoverage coverage = it.next();
         coverageEditor.getDocument().insertString(coverageEditor.getDocument().getEndPosition().getOffset(), coverage.toString() + "\n", null);
       }
     } catch (Exception e) {
@@ -236,9 +238,9 @@ public class ScannerReportViewerApp {
 
   private void updateHighlighting(Component component) {
     highlightingEditor.setText("");
-    try (CloseableIterator<ScannerReport.SyntaxHighlighting> it = reader.readComponentSyntaxHighlighting(component.getRef())) {
+    try (CloseableIterator<ScannerReport.SyntaxHighlightingRule> it = reader.readComponentSyntaxHighlighting(component.getRef())) {
       while (it.hasNext()) {
-        ScannerReport.SyntaxHighlighting rule = it.next();
+        ScannerReport.SyntaxHighlightingRule rule = it.next();
         highlightingEditor.getDocument().insertString(highlightingEditor.getDocument().getEndPosition().getOffset(), rule.toString() + "\n", null);
       }
     } catch (Exception e) {

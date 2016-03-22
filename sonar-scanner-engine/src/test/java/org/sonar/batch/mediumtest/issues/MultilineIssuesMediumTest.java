@@ -73,7 +73,6 @@ public class MultilineIssuesMediumTest {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Single.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
-    assertThat(issue.getLine()).isEqualTo(6);
     assertThat(issue.getMsg()).isEqualTo("Primary location");
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
     assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);
@@ -86,7 +85,6 @@ public class MultilineIssuesMediumTest {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiline.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
-    assertThat(issue.getLine()).isEqualTo(6);
     assertThat(issue.getMsg()).isEqualTo("Primary location");
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
     assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);
@@ -99,7 +97,6 @@ public class MultilineIssuesMediumTest {
     List<Issue> issues = result.issuesFor(result.inputFile("xources/hello/Multiple.xoo"));
     assertThat(issues).hasSize(1);
     Issue issue = issues.get(0);
-    assertThat(issue.getLine()).isEqualTo(6);
     assertThat(issue.getMsg()).isEqualTo("Primary location");
     assertThat(issue.getTextRange().getStartLine()).isEqualTo(6);
     assertThat(issue.getTextRange().getStartOffset()).isEqualTo(23);

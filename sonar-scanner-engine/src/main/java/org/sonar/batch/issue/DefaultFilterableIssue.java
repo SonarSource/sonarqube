@@ -61,12 +61,12 @@ public class DefaultFilterableIssue implements FilterableIssue {
 
   @Override
   public Integer line() {
-    return rawIssue.hasLine() ? rawIssue.getLine() : null;
+    return rawIssue.hasTextRange() ? rawIssue.getTextRange().getStartLine() : null;
   }
 
   @Override
   public Double gap() {
-    return rawIssue.hasGap() ? rawIssue.getGap() : null;
+    return rawIssue.getGap() != 0 ? rawIssue.getGap() : null;
   }
 
   @Override

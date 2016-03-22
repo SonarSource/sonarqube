@@ -39,6 +39,7 @@ import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 
 public class ProjectBuilderMediumTest {
 
@@ -85,15 +86,9 @@ public class ProjectBuilderMediumTest {
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
     assertThat(issues).hasSize(10);
 
-    boolean foundIssueAtLine1 = false;
-    for (Issue issue : issues) {
-      if (issue.getLine() == 1) {
-        foundIssueAtLine1 = true;
-        assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.hasGap()).isFalse();
-      }
-    }
-    assertThat(foundIssueAtLine1).isTrue();
+    assertThat(issues)
+      .extracting("msg", "textRange.startLine", "gap")
+      .contains(tuple("This issue is generated on each line", 1, 0.0));
 
   }
 
@@ -140,15 +135,9 @@ public class ProjectBuilderMediumTest {
     List<Issue> issues = result.issuesFor(result.inputFile("src/sample.xoo"));
     assertThat(issues).hasSize(10);
 
-    boolean foundIssueAtLine1 = false;
-    for (Issue issue : issues) {
-      if (issue.getLine() == 1) {
-        foundIssueAtLine1 = true;
-        assertThat(issue.getMsg()).isEqualTo("This issue is generated on each line");
-        assertThat(issue.hasGap()).isFalse();
-      }
-    }
-    assertThat(foundIssueAtLine1).isTrue();
+    assertThat(issues)
+      .extracting("msg", "textRange.startLine", "gap")
+      .contains(tuple("This issue is generated on each line", 1, 0.0));
   }
 
   private File prepareProject() throws IOException {

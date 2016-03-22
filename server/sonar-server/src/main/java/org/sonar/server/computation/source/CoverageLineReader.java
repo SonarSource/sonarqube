@@ -26,16 +26,16 @@ import org.sonar.scanner.protocol.output.ScannerReport;
 
 public class CoverageLineReader implements LineReader {
 
-  private final Iterator<ScannerReport.Coverage> coverageIterator;
-  private ScannerReport.Coverage coverage;
+  private final Iterator<ScannerReport.LineCoverage> coverageIterator;
+  private ScannerReport.LineCoverage coverage;
 
-  public CoverageLineReader(Iterator<ScannerReport.Coverage> coverageIterator) {
+  public CoverageLineReader(Iterator<ScannerReport.LineCoverage> coverageIterator) {
     this.coverageIterator = coverageIterator;
   }
 
   @Override
   public void read(DbFileSources.Line.Builder lineBuilder) {
-    ScannerReport.Coverage reportCoverage = getNextLineCoverageIfMatchLine(lineBuilder.getLine());
+    ScannerReport.LineCoverage reportCoverage = getNextLineCoverageIfMatchLine(lineBuilder.getLine());
     if (reportCoverage != null) {
       processUnitTest(lineBuilder, reportCoverage);
       processIntegrationTest(lineBuilder, reportCoverage);
@@ -44,38 +44,32 @@ public class CoverageLineReader implements LineReader {
     }
   }
 
-  private static void processUnitTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.Coverage reportCoverage) {
-    if (reportCoverage.hasUtHits()) {
-      lineBuilder.setUtLineHits(reportCoverage.getUtHits() ? 1 : 0);
-    }
-    if (reportCoverage.hasConditions() && reportCoverage.hasUtCoveredConditions()) {
+  private static void processUnitTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
+    lineBuilder.setUtLineHits(reportCoverage.getUtHits() ? 1 : 0);
+    if (reportCoverage.getConditions() > 0) {
       lineBuilder.setUtConditions(reportCoverage.getConditions());
       lineBuilder.setUtCoveredConditions(reportCoverage.getUtCoveredConditions());
     }
   }
 
-  private static void processIntegrationTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.Coverage reportCoverage) {
-    if (reportCoverage.hasItHits()) {
-      lineBuilder.setItLineHits(reportCoverage.getItHits() ? 1 : 0);
-    }
-    if (reportCoverage.hasConditions() && reportCoverage.hasItCoveredConditions()) {
+  private static void processIntegrationTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
+    lineBuilder.setItLineHits(reportCoverage.getItHits() ? 1 : 0);
+    if (reportCoverage.getConditions() > 0) {
       lineBuilder.setItConditions(reportCoverage.getConditions());
       lineBuilder.setItCoveredConditions(reportCoverage.getItCoveredConditions());
     }
   }
 
-  private static void processOverallTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.Coverage reportCoverage) {
-    if (reportCoverage.hasUtHits() || reportCoverage.hasItHits()) {
-      lineBuilder.setOverallLineHits((reportCoverage.getUtHits() || reportCoverage.getItHits()) ? 1 : 0);
-    }
-    if (reportCoverage.hasConditions() && reportCoverage.hasOverallCoveredConditions()) {
+  private static void processOverallTest(DbFileSources.Line.Builder lineBuilder, ScannerReport.LineCoverage reportCoverage) {
+    lineBuilder.setOverallLineHits((reportCoverage.getUtHits() || reportCoverage.getItHits()) ? 1 : 0);
+    if (reportCoverage.getConditions() > 0) {
       lineBuilder.setOverallConditions(reportCoverage.getConditions());
       lineBuilder.setOverallCoveredConditions(reportCoverage.getOverallCoveredConditions());
     }
   }
 
   @CheckForNull
-  private ScannerReport.Coverage getNextLineCoverageIfMatchLine(int line) {
+  private ScannerReport.LineCoverage getNextLineCoverageIfMatchLine(int line) {
     // Get next element (if exists)
     if (coverage == null && coverageIterator.hasNext()) {
       coverage = coverageIterator.next();
