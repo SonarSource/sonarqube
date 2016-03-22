@@ -93,7 +93,6 @@ public class Category2Suite {
     .addPlugin(xooPlugin())
 
     // issue
-    .addPlugin(pluginArtifact("issue-action-plugin"))
     .addPlugin(pluginArtifact("issue-filter-plugin"))
 
     // 1 second. Required for notification test.
