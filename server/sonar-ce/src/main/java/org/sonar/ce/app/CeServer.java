@@ -129,19 +129,6 @@ public class CeServer implements Monitored {
     }
   }
 
-  private void stopAwait() {
-    stopAwait = true;
-    Thread t = awaitThread.get();
-    if (t != null) {
-      t.interrupt();
-      try {
-        t.join(1000);
-      } catch (InterruptedException e) {
-        // Ignored
-      }
-    }
-  }
-
   private class CeMainThread extends Thread {
     private static final int CHECK_FOR_STOP_DELAY = 50;
     private volatile boolean stop = false;
@@ -226,6 +213,19 @@ public class CeServer implements Monitored {
       this.stop = true;
       // interrupt current thread in case its waiting for WebServer
       interrupt();
+    }
+
+    private void stopAwait() {
+      stopAwait = true;
+      Thread t = awaitThread.get();
+      if (t != null) {
+        t.interrupt();
+        try {
+          t.join(1000);
+        } catch (InterruptedException e) {
+          // Ignored
+        }
+      }
     }
   }
 

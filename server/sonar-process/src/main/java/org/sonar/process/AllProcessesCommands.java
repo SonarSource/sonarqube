@@ -52,8 +52,10 @@ import static org.sonar.process.ProcessCommands.MAX_PROCESSES;
  * <ul>
  *   <li>First byte contains {@link #EMPTY} until process is UP and writes {@link #UP}</li>
  *   <li>Second byte contains {@link #EMPTY} until any process requests current one to stop by writing value {@link #STOP}</li>
- *   <li>Third byte contains {@link #EMPTY} until any process requests current one to restart by writing value {@link #RESTART}. Process acknowledges restart by writing back {@link #EMPTY}</li>
- *   <li>Fourth byte will always contain {@link #EMPTY} unless process declares that it is operational by writing {@link #OPERATIONAL}. This does not imply that is done starting.</li>
+ *   <li>Third byte contains {@link #EMPTY} until any process requests current one to restart by writing value {@link #RESTART}.
+ *       Process acknowledges restart by writing back {@link #EMPTY}</li>
+ *   <li>Fourth byte will always contain {@link #EMPTY} unless process declares that it is operational by writing {@link #OPERATIONAL}.
+ *       This does not imply that is done starting.</li>
  *   <li>The next 8 bytes contains a long (value of {@link System#currentTimeMillis()}) which represents the date of the last ping</li>
  * </ul>
  * </p>
@@ -76,7 +78,7 @@ public class AllProcessesCommands {
   private static final byte UP = (byte) 0x01;
   private static final byte EMPTY = (byte) 0x00;
 
-  //VisibleForTesting
+  // VisibleForTesting
   final MappedByteBuffer mappedByteBuffer;
   private final RandomAccessFile sharedMemory;
 

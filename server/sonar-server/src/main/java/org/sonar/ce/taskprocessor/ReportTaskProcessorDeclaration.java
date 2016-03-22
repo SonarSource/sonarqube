@@ -39,6 +39,6 @@ public class ReportTaskProcessorDeclaration implements CeTaskProcessor {
 
   @Override
   public CeTaskResult process(CeTask task) {
-   throw new UnsupportedOperationException("process must not be called in WebServer");
+    throw new UnsupportedOperationException("process must not be called in WebServer");
   }
 }

@@ -22,7 +22,6 @@ package org.sonar.server.platform.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
@@ -43,8 +42,6 @@ public class RestartActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
   @Rule
   public LogTester logTester = new LogTester();
 

@@ -75,7 +75,7 @@ public final class EvaluationResultTextConverterImpl implements EvaluationResult
     stringBuilder.append(metric);
 
     if (alertPeriod != null && !condition.getMetric().getKey().startsWith(VARIATION_METRIC_PREFIX)) {
-      String variation = i18n.message(Locale.ENGLISH, VARIATION, VARIATION).toLowerCase();
+      String variation = i18n.message(Locale.ENGLISH, VARIATION, VARIATION).toLowerCase(Locale.ENGLISH);
       stringBuilder.append(" ").append(variation);
     }
 

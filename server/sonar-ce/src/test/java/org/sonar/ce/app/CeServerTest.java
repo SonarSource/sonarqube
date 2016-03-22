@@ -28,7 +28,6 @@ import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 import org.junit.rules.Timeout;
 import org.mockito.Mockito;
 import org.sonar.ce.ComputeEngine;
@@ -44,8 +43,6 @@ public class CeServerTest {
   public Timeout timeout = Timeout.seconds(50);
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   private CeServer underTest = null;
   private Thread waitingThread = null;

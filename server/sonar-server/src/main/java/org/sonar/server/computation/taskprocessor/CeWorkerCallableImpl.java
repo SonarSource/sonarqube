@@ -22,13 +22,12 @@ package org.sonar.server.computation.taskprocessor;
 import com.google.common.base.Optional;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.util.logs.Profiler;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.queue.CeQueue;
-import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.CeTaskResult;
 import org.sonar.server.computation.queue.InternalCeQueue;
 
 import static java.lang.String.format;
