@@ -82,21 +82,21 @@ public class ComputeEngineContainerImplTest {
           + 7 // content of CeQueueModule
           + 4 // content of ReportProcessingModule
           + 4 // content of CeTaskProcessorModule
-      );
+    );
     assertThat(picoContainer.getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
-      + 2 // level 3
-      );
+        + 2 // level 3
+    );
     assertThat(picoContainer.getParent().getParent().getComponentAdapters()).hasSize(
       CONTAINER_ITSELF
-      + 11 // level 2
-      );
+        + 11 // level 2
+    );
     assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
         + 22 // level 1
         + 47 // content of DaoModule
         + 1 // content of EsSearchModule
-        + 58 // content of CorePropertyDefinitions
+        + 56 // content of CorePropertyDefinitions
         + 1 // content of CePropertyDefinitions
     );
     assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
