@@ -90,9 +90,36 @@ public class WebServerWatcherImplTest {
     assertThat(logTester.logs(LoggerLevel.INFO)).contains("Waiting for Web Server to be operational...");
   }
 
+  @Test
+  public void waitForOperational_returns_false_if_thread_is_interrupted() throws InterruptedException {
+    WaitingThread waitingThread = new WaitingThread(new CountDownLatch(1));
+    waitingThread.start();
+
+    assertThat(waitingThread.latch.await(50, MILLISECONDS)).isTrue();
+    waitingThread.interrupt();
+
+    assertThat(waitingThread.result).isFalse();
+  }
+
   private void setWebServerOperational() {
     try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(sharedDir, WEB_SERVER_PROCESS_NUMBER)) {
       processCommands.setOperational();
+    }
+  }
+
+  private class WaitingThread extends Thread {
+    CountDownLatch latch;
+    boolean result = true;
+
+    public WaitingThread(CountDownLatch latch) {
+      this.latch = latch;
+      result = false;
+    }
+
+    @Override
+    public void run() {
+      latch.countDown();
+      this.result = underTest.waitForOperational();
     }
   }
 }

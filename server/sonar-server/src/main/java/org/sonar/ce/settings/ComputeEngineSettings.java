@@ -120,18 +120,18 @@ public class ComputeEngineSettings extends Settings implements ThreadLocalSettin
     public ServerSettingsImpl(PropertyDefinitions definitions, Properties rootProperties) {
       super(definitions);
       this.rootProperties = rootProperties;
-      addProperties(rootProperties);
+      super.addProperties(rootProperties);
       // Secret key is loaded from conf/sonar.properties
-      getEncryption().setPathToSecretKey(getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
+      super.getEncryption().setPathToSecretKey(super.getString(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
     }
 
     @Override
     public ServerSettings activateDatabaseSettings(Map<String, String> databaseProperties) {
-      clear();
+      super.clear();
 
       // order is important : the last override the first
-      addProperties(databaseProperties);
-      addProperties(rootProperties);
+      super.addProperties(databaseProperties);
+      super.addProperties(rootProperties);
 
       return this;
     }
