@@ -148,7 +148,7 @@ public class NewIssuesMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/NewIssuesMeasureTest/profile1.xml"));
     ORCHESTRATOR.getServer().associateProjectToQualityProfile("com.sonarsource.it.samples:multi-modules-sample", "xoo", "profile1");
     ORCHESTRATOR.executeBuild(SonarRunner.create(projectDir("shared/xoo-multi-modules-sample"))
-      .setProperties("sonar.skippedModules", "multi-modules-sample:module_b"));
+      .setProperties("sonar.modules", "module_a"));
 
     // Second analysis with module b and with a new rule activated to have new issues on module a since last analysis
     ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/NewIssuesMeasureTest/profile2.xml"));
