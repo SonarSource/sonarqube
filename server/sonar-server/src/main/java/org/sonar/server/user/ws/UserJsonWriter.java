@@ -34,16 +34,16 @@ import static org.sonar.server.ws.JsonWriterUtils.writeIfNeeded;
 
 public class UserJsonWriter {
 
-  private static final String FIELD_LOGIN = "login";
-  private static final String FIELD_NAME = "name";
-  private static final String FIELD_EMAIL = "email";
-  private static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
-  private static final String FIELD_GROUPS = "groups";
-  private static final String FIELD_ACTIVE = "active";
-  private static final String FIELD_TOKENS_COUNT = "tokensCount";
-  private static final String FIELD_LOCAL = "local";
-  private static final String FIELD_EXTERNAL_IDENTITY = "externalIdentity";
-  private static final String FIELD_EXTERNAL_PROVIDER = "externalProvider";
+  static final String FIELD_LOGIN = "login";
+  static final String FIELD_NAME = "name";
+  static final String FIELD_EMAIL = "email";
+  static final String FIELD_SCM_ACCOUNTS = "scmAccounts";
+  static final String FIELD_GROUPS = "groups";
+  static final String FIELD_ACTIVE = "active";
+  static final String FIELD_TOKENS_COUNT = "tokensCount";
+  static final String FIELD_LOCAL = "local";
+  static final String FIELD_EXTERNAL_IDENTITY = "externalIdentity";
+  static final String FIELD_EXTERNAL_PROVIDER = "externalProvider";
 
   public static final Set<String> FIELDS = ImmutableSet.of(FIELD_NAME, FIELD_EMAIL, FIELD_SCM_ACCOUNTS, FIELD_GROUPS, FIELD_ACTIVE, FIELD_LOCAL, FIELD_EXTERNAL_IDENTITY,
     FIELD_EXTERNAL_PROVIDER);

@@ -33,6 +33,8 @@ import org.sonar.server.user.UserSession;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_IDENTITY;
+import static org.sonar.server.user.ws.UserJsonWriter.FIELD_EXTERNAL_PROVIDER;
 
 public class CurrentAction implements UsersWsAction {
   private final UserSession userSession;
@@ -95,6 +97,8 @@ public class CurrentAction implements UsersWsAction {
         json.prop("email", user.getEmail());
       }
       json.prop("local", user.isLocal());
+      json.prop(FIELD_EXTERNAL_IDENTITY, user.getExternalIdentity());
+      json.prop(FIELD_EXTERNAL_PROVIDER, user.getExternalIdentityProvider());
     }
 
     writeScmAccounts(json, optionalUser);

@@ -4,6 +4,8 @@
   "name": "Obiwan Kenobi",
   "email": "obiwan.kenobi@starwars.com",
   "local": true,
+  "externalIdentity": "obiwan.kenobi",
+  "externalProvider": "sonarqube",
   "scmAccounts": [
     "obiwan:github",
     "obiwan:bitbucket"
