@@ -311,16 +311,6 @@ public class InternalRubyIssueService {
     return result;
   }
 
-  public Result<Issue> executeAction(String issueKey, String actionKey) {
-    Result<Issue> result = Result.of();
-    try {
-      result.set(actionService.execute(issueKey, actionKey));
-    } catch (Exception e) {
-      result.addError(e.getMessage());
-    }
-    return result;
-  }
-
   public List<String> listActions(String issueKey) {
     return actionService.listAvailableActions(issueKey);
   }
