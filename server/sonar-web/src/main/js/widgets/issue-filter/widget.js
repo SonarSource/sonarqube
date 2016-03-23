@@ -154,16 +154,6 @@ const byDistributionConf = {
       }
     }
   },
-  'reporters': {
-    label (item, r) {
-      if (_.isArray(r.users)) {
-        const reporter = _.findWhere(r.users, { login: item.val });
-        if (reporter != null) {
-          return reporter.name;
-        }
-      }
-    }
-  },
   'createdAt': {
     comparator (item) {
       return -moment(item.val).unix();

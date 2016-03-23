@@ -6,14 +6,10 @@
       <td class="thin text-left text-top" nowrap>{{dt issue.creationDate}}</td>
       <td class="thin text-left text-top" nowrap></td>
       <td class="text-left text-top">
-        {{#if issue.reporter}}
-          {{t 'issue.reported_by'}} {{default issue.reporterName issue.reporter}}
+        {{#if issue.author}}
+          {{t 'created_by'}} {{issue.author}}
         {{else}}
-          {{#if issue.author}}
-            {{t 'created_by'}} {{issue.author}}
-          {{else}}
-            {{t 'created'}}
-          {{/if}}
+          {{t 'created'}}
         {{/if}}
       </td>
     </tr>

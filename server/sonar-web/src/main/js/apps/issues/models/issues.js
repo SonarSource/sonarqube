@@ -88,7 +88,6 @@ export default Backbone.Collection.extend({
       issue = that._injectRelational(issue, r.components, 'subProject', 'key');
       issue = that._injectRelational(issue, r.rules, 'rule', 'key');
       issue = that._injectRelational(issue, r.users, 'assignee', 'login');
-      issue = that._injectRelational(issue, r.users, 'reporter', 'login');
       issue = that._injectCommentsRelational(issue, r.users);
       issue = that._prepareClosed(issue);
       issue = that.ensureTextRange(issue);

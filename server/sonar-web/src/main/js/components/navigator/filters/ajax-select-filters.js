@@ -453,38 +453,6 @@ const AssigneeFilterView = AjaxSelectFilterView.extend({
 });
 
 
-const ReporterFilterView = AjaxSelectFilterView.extend({
-
-  initialize () {
-    BaseFilters.BaseFilterView.prototype.initialize.call(this, {
-      projectsView: AjaxSelectDetailsFilterView
-    });
-
-    this.selection = new UserSuggestions();
-    this.choices = new UserSuggestions();
-  },
-
-
-  createRequest (v) {
-    const that = this;
-    return $
-        .ajax({
-          url: '/api/users/search',
-          type: 'GET',
-          data: { q: v }
-        })
-        .done(function (r) {
-          that.choices.add(new Backbone.Model({
-            id: r.users[0].login,
-            text: r.users[0].name + ' (' + r.users[0].login + ')',
-            checked: true
-          }));
-        });
-  }
-
-});
-
-
 /*
  * Export public classes
  */
@@ -495,8 +463,7 @@ export default {
   AjaxSelectFilterView,
   ProjectFilterView,
   ComponentFilterView,
-  AssigneeFilterView,
-  ReporterFilterView
+  AssigneeFilterView
 };
 
 

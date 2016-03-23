@@ -42,7 +42,6 @@ export default State.extend({
       'directories',
       'fileUuids',
       'assignees',
-      'reporters',
       'authors',
       'languages'
     ],
@@ -57,7 +56,6 @@ export default State.extend({
       'moduleUuids',
       'tags',
       'assignees',
-      'reporters',
       'authors',
       'fileUuids',
       'languages',

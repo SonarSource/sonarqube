@@ -30,7 +30,6 @@ import TagFacet from './facets/tag-facet';
 import ResolutionFacet from './facets/resolution-facet';
 import CreationDateFacet from './facets/creation-date-facet';
 import FileFacet from './facets/file-facet';
-import ReporterFacet from './facets/reporter-facet';
 import LanguageFacet from './facets/language-facet';
 import AuthorFacet from './facets/author-facet';
 import IssueKeyFacet from './facets/issue-key-facet';
@@ -49,7 +48,6 @@ const viewsMapping = {
   rules: RuleFacet,
   tags: TagFacet,
   fileUuids: FileFacet,
-  reporters: ReporterFacet,
   languages: LanguageFacet,
   authors: AuthorFacet,
   issues: IssueKeyFacet,
