@@ -46,5 +46,33 @@ exclude:
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-it-released-plugins
     SLAVE_TYPE: performance
+
   - RUN_ACTIVITY: run-perf-tests
-    SLAVE_TYPE: gva
+    SLAVE_TYPE: dblinux
+
+  - RUN_ACTIVITY: run-db-unit-tests-mysql56
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-unit-tests-mssql2012
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-unit-tests-mssql2014
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-unit-tests-oracle11g
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-unit-tests-oracle12c
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-unit-tests-postgresql93
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category1
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category2
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category3
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category4
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-db-integration-tests-mssql2014-Category5
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-upgrade-tests-mssql2014
+    SLAVE_TYPE: windows
+  - RUN_ACTIVITY: run-perf-tests
+    SLAVE_TYPE: windows
