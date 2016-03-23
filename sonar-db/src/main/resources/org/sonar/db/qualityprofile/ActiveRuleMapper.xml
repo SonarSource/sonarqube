@@ -28,8 +28,6 @@
 
   <update id="update" parameterType="ActiveRule">
     UPDATE active_rules SET
-    profile_id=#{profileId},
-    rule_id=#{ruleId},
     failure_level=#{severity},
     inheritance=#{inheritance},
     updated_at=#{updatedAt}
@@ -118,9 +116,6 @@
 
   <update id="updateParameter" parameterType="ActiveRuleParam">
     UPDATE active_rule_parameters SET
-    active_rule_id=#{activeRuleId},
-    rules_parameter_id=#{rulesParameterId},
-    rules_parameter_key=#{key},
     value=#{value}
     WHERE id=#{id}
   </update>

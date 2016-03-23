@@ -23,104 +23,402 @@ import java.util.Collections;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
+import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.RowNotFoundException;
 import org.sonar.db.rule.RuleDto;
+import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.rule.Severity.BLOCKER;
+import static org.sonar.api.rule.Severity.MAJOR;
+import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
+import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
+import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 
 // TODO add missing tests
 
 public class ActiveRuleDaoTest {
 
-  static final long NOW = 10000000L;
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
 
-  QualityProfileDto QPROFILE_1 = QualityProfileDto.createFor("qp1").setName("QProile1");
-  QualityProfileDto QPROFILE_2 = QualityProfileDto.createFor("qp2").setName("QProile2");
+  private static final long NOW = 10000000L;
 
-  RuleDto RULE_1 = RuleTesting.newDto(RuleTesting.XOO_X1);
-  RuleDto RULE_2 = RuleTesting.newDto(RuleTesting.XOO_X2);
+  private QualityProfileDto profile1 = QualityProfileDto.createFor("qp1").setName("QProile1");
+  private QualityProfileDto profile2 = QualityProfileDto.createFor("qp2").setName("QProile2");
 
-  System2 system = mock(System2.class);
+  private RuleDto rule1 = RuleTesting.newDto(RuleTesting.XOO_X1);
+  private RuleDto rule2 = RuleTesting.newDto(RuleTesting.XOO_X2);
+  private RuleDto rule3 = RuleTesting.newDto(RuleTesting.XOO_X3);
+
+  private RuleParamDto rule1Param1;
+  private RuleParamDto rule1Param2;
+  private RuleParamDto rule2Param1;
+
+  private System2 system = mock(System2.class);
 
   @Rule
   public DbTester dbTester = DbTester.create(system);
 
-  DbClient dbClient = dbTester.getDbClient();
-  DbSession dbSession = dbTester.getSession();
+  private DbClient dbClient = dbTester.getDbClient();
+  private DbSession dbSession = dbTester.getSession();
 
-  ActiveRuleDao underTest = dbTester.getDbClient().activeRuleDao();
+  private ActiveRuleDao underTest = dbTester.getDbClient().activeRuleDao();
 
   @Before
   public void setUp() {
     when(system.now()).thenReturn(NOW);
 
-    dbClient.qualityProfileDao().insert(dbTester.getSession(), QPROFILE_1);
-    dbClient.qualityProfileDao().insert(dbTester.getSession(), QPROFILE_2);
-    dbClient.ruleDao().insert(dbTester.getSession(), RULE_1);
-    dbClient.ruleDao().insert(dbTester.getSession(), RULE_2);
+    dbClient.qualityProfileDao().insert(dbSession, profile1);
+    dbClient.qualityProfileDao().insert(dbSession, profile2);
+    dbClient.ruleDao().insert(dbSession, rule1);
+    dbClient.ruleDao().insert(dbSession, rule2);
+    dbClient.ruleDao().insert(dbSession, rule3);
+
+    rule1Param1 = new RuleParamDto()
+      .setName("param1")
+      .setDefaultValue("value1")
+      .setType(RuleParamType.STRING.toString());
+    dbClient.ruleDao().insertRuleParam(dbSession, rule1, rule1Param1);
+
+    rule1Param2 = new RuleParamDto()
+      .setRuleId(rule1.getId())
+      .setName("param2")
+      .setDefaultValue("2")
+      .setType(RuleParamType.INTEGER.toString());
+    dbClient.ruleDao().insertRuleParam(dbSession, rule1, rule1Param2);
+
+    rule2Param1 = new RuleParamDto()
+      .setRuleId(rule2.getId())
+      .setName("param1")
+      .setDefaultValue("1")
+      .setType(RuleParamType.INTEGER.toString());
+    dbClient.ruleDao().insertRuleParam(dbSession, rule2, rule2Param1);
+
     dbSession.commit();
   }
 
   @Test
+  public void select_by_key() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    dbSession.commit();
+
+    assertThat(underTest.selectByKey(dbSession, activeRule.getKey())).isPresent();
+    assertThat(underTest.selectByKey(dbSession, ActiveRuleKey.of(profile2.getKey(), rule2.getKey()))).isAbsent();
+  }
+
+  @Test
+  public void select_or_fail_by_key() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    dbSession.commit();
+
+    assertThat(underTest.selectOrFailByKey(dbSession, activeRule.getKey())).isNotNull();
+
+    thrown.expect(RowNotFoundException.class);
+    thrown.expectMessage("Active rule with key 'qp2:xoo:x2' does not exist");
+    underTest.selectOrFailByKey(dbSession, ActiveRuleKey.of(profile2.getKey(), rule2.getKey()));
+  }
+
+  @Test
   public void select_by_keys() throws Exception {
-    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(QPROFILE_1, RULE_1).setSeverity(Severity.BLOCKER);
-    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(QPROFILE_1, RULE_2).setSeverity(Severity.BLOCKER);
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule1);
     underTest.insert(dbTester.getSession(), activeRule2);
     dbSession.commit();
 
     assertThat(underTest.selectByKeys(dbSession, asList(activeRule1.getKey(), activeRule2.getKey()))).hasSize(2);
     assertThat(underTest.selectByKeys(dbSession, asList(activeRule1.getKey()))).hasSize(1);
-    assertThat(underTest.selectByKeys(dbSession, asList(ActiveRuleKey.of(QPROFILE_2.getKey(), RULE_1.getKey())))).isEmpty();
+    assertThat(underTest.selectByKeys(dbSession, asList(ActiveRuleKey.of(profile2.getKey(), rule1.getKey())))).isEmpty();
   }
 
   @Test
-  public void select_by_profile() throws Exception {
-    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(QPROFILE_1, RULE_1).setSeverity(Severity.BLOCKER);
-    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(QPROFILE_1, RULE_2).setSeverity(Severity.BLOCKER);
+  public void select_by_rule() throws Exception {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule2 = createFor(profile2, rule1).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule1);
     underTest.insert(dbTester.getSession(), activeRule2);
     dbSession.commit();
 
-    assertThat(underTest.selectByProfileKey(dbSession, QPROFILE_1.getKey())).hasSize(2);
-    assertThat(underTest.selectByProfileKey(dbSession, QPROFILE_2.getKey())).isEmpty();
+    assertThat(underTest.selectByRule(dbSession, rule1)).extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey());
+    assertThat(underTest.selectByRule(dbSession, rule3)).isEmpty();
+  }
+
+  @Test
+  public void select_by_rule_ids() {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule3 = createFor(profile2, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbSession, activeRule1);
+    underTest.insert(dbSession, activeRule2);
+    underTest.insert(dbSession, activeRule3);
+    dbSession.commit();
+
+    assertThat(underTest.selectByRuleIds(dbSession, Collections.singletonList(rule1.getId())))
+      .extracting("key").containsOnly(activeRule1.getKey(), activeRule3.getKey());
+    assertThat(underTest.selectByRuleIds(dbSession, newArrayList(rule1.getId(), rule2.getId())))
+      .extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey(), activeRule3.getKey());
+  }
+
+  @Test
+  public void select_all() {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule3 = createFor(profile2, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbSession, activeRule1);
+    underTest.insert(dbSession, activeRule2);
+    underTest.insert(dbSession, activeRule3);
+    dbSession.commit();
+
+    assertThat(underTest.selectAll(dbSession)).hasSize(3);
+  }
+
+  @Test
+  public void select_by_profile() throws Exception {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule1);
+    underTest.insert(dbTester.getSession(), activeRule2);
+    dbSession.commit();
+
+    assertThat(underTest.selectByProfileKey(dbSession, profile1.getKey())).hasSize(2);
+    assertThat(underTest.selectByProfileKey(dbSession, profile2.getKey())).isEmpty();
   }
 
   @Test
   public void select_by_profile_ignore_removed_rules() throws Exception {
     RuleDto removedRule = RuleTesting.newDto(RuleKey.of("removed", "rule")).setStatus(RuleStatus.REMOVED);
     dbClient.ruleDao().insert(dbTester.getSession(), removedRule);
-    ActiveRuleDto activeRule = ActiveRuleDto.createFor(QPROFILE_1, removedRule).setSeverity(Severity.BLOCKER);
+    ActiveRuleDto activeRule = createFor(profile1, removedRule).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule);
     dbSession.commit();
 
-    assertThat(underTest.selectByProfileKey(dbSession, QPROFILE_1.getKey())).isEmpty();
+    assertThat(underTest.selectByProfileKey(dbSession, profile1.getKey())).isEmpty();
   }
 
   @Test
-  public void select_by_rule_ids() {
-    ActiveRuleDto activeRule1 = ActiveRuleDto.createFor(QPROFILE_1, RULE_1).setSeverity(Severity.BLOCKER);
-    ActiveRuleDto activeRule2 = ActiveRuleDto.createFor(QPROFILE_1, RULE_2).setSeverity(Severity.BLOCKER);
-    ActiveRuleDto activeRule3 = ActiveRuleDto.createFor(QPROFILE_2, RULE_1).setSeverity(Severity.BLOCKER);
-    underTest.insert(dbSession, activeRule1);
-    underTest.insert(dbSession, activeRule2);
-    underTest.insert(dbSession, activeRule3);
+  public void insert() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1)
+      .setSeverity(BLOCKER)
+      .setInheritance(INHERITED)
+      .setCreatedAt(1000L)
+      .setUpdatedAt(2000L);
+    underTest.insert(dbTester.getSession(), activeRule);
     dbSession.commit();
 
-    assertThat(underTest.selectByRuleIds(dbSession, Collections.singletonList(RULE_1.getId())))
-      .extracting("key").containsOnly(activeRule1.getKey(), activeRule3.getKey());
-    assertThat(underTest.selectByRuleIds(dbSession, newArrayList(RULE_1.getId(), RULE_2.getId())))
-      .extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey(), activeRule3.getKey());
+    ActiveRuleDto result = underTest.selectOrFailByKey(dbSession, activeRule.getKey());
+    assertThat(result.getId()).isEqualTo(activeRule.getId());
+    assertThat(result.getKey()).isEqualTo(ActiveRuleKey.of(profile1.getKey(), rule1.getKey()));
+    assertThat(result.getRuleId()).isEqualTo(rule1.getId());
+    assertThat(result.getProfileId()).isEqualTo(profile1.getId());
+    assertThat(result.getSeverityString()).isEqualTo(BLOCKER);
+    assertThat(result.getInheritance()).isEqualTo(INHERITED);
+    assertThat(result.getCreatedAt()).isEqualTo(1000L);
+    assertThat(result.getUpdatedAt()).isEqualTo(2000L);
+  }
+
+  @Test
+  public void update() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1)
+      .setSeverity(BLOCKER)
+      .setInheritance(INHERITED)
+      .setCreatedAt(1000L)
+      .setUpdatedAt(2000L);
+    underTest.insert(dbTester.getSession(), activeRule);
+    dbSession.commit();
+
+    ActiveRuleDto activeRuleUpdated = activeRule
+      .setSeverity(MAJOR)
+      .setInheritance(OVERRIDES)
+      // created at should not be updated
+      .setCreatedAt(3000L)
+      .setUpdatedAt(4000L);
+    underTest.update(dbTester.getSession(), activeRuleUpdated);
+    dbSession.commit();
+
+    ActiveRuleDto result = underTest.selectOrFailByKey(dbSession, ActiveRuleKey.of(profile1.getKey(), rule1.getKey()));
+    assertThat(result.getId()).isEqualTo(activeRule.getId());
+    assertThat(result.getKey()).isEqualTo(ActiveRuleKey.of(profile1.getKey(), rule1.getKey()));
+    assertThat(result.getRuleId()).isEqualTo(rule1.getId());
+    assertThat(result.getProfileId()).isEqualTo(profile1.getId());
+    assertThat(result.getSeverityString()).isEqualTo(MAJOR);
+    assertThat(result.getInheritance()).isEqualTo(OVERRIDES);
+    assertThat(result.getCreatedAt()).isEqualTo(1000L);
+    assertThat(result.getUpdatedAt()).isEqualTo(4000L);
+  }
+
+  @Test
+  public void delete() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1)
+      .setSeverity(BLOCKER)
+      .setInheritance(INHERITED)
+      .setCreatedAt(1000L)
+      .setUpdatedAt(2000L);
+    underTest.insert(dbTester.getSession(), activeRule);
+    dbSession.commit();
+
+    underTest.delete(dbSession, activeRule.getKey());
+    dbSession.commit();
+
+    assertThat(underTest.selectByKey(dbSession,  ActiveRuleKey.of(profile1.getKey(), rule1.getKey()))).isAbsent();
+  }
+
+  @Test
+  public void select_params_by_active_rule_id() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1);
+    underTest.insertParam(dbSession, activeRule, activeRuleParam1);
+    ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(rule1Param2);
+    underTest.insertParam(dbSession, activeRule, activeRuleParam2);
+    dbSession.commit();
+
+    assertThat(underTest.selectParamsByActiveRuleId(dbSession, activeRule.getId())).hasSize(2);
+  }
+
+  @Test
+  public void select_params_by_active_rule_ids() throws Exception {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule1);
+    underTest.insertParam(dbSession, activeRule1, ActiveRuleParamDto.createFor(rule1Param1));
+    underTest.insertParam(dbSession, activeRule1, ActiveRuleParamDto.createFor(rule1Param2));
+
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule2);
+    underTest.insertParam(dbSession, activeRule2, ActiveRuleParamDto.createFor(rule2Param1));
+    dbSession.commit();
+
+    assertThat(underTest.selectParamsByActiveRuleIds(dbSession, asList(activeRule1.getId(), activeRule2.getId()))).hasSize(3);
+  }
+
+  @Test
+  public void select_param_by_key_and_name() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1");
+    underTest.insertParam(dbSession, activeRule, activeRuleParam1);
+    underTest.insertParam(dbSession, activeRule, ActiveRuleParamDto.createFor(rule1Param2));
+    dbSession.commit();
+
+    assertThat(underTest.selectParamByKeyAndName(activeRule.getKey(), activeRuleParam1.getKey(), dbSession)).isNotNull();
+
+    assertThat(underTest.selectParamByKeyAndName(activeRule.getKey(), "unknown", dbSession)).isNull();
+    assertThat(underTest.selectParamByKeyAndName(ActiveRuleKey.of(profile2.getKey(), rule1.getKey()), "unknown", dbSession)).isNull();
+  }
+
+  @Test
+  public void select_all_params() throws Exception {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule1);
+    underTest.insertParam(dbSession, activeRule1, ActiveRuleParamDto.createFor(rule1Param1));
+    underTest.insertParam(dbSession, activeRule1, ActiveRuleParamDto.createFor(rule1Param2));
+
+    ActiveRuleDto activeRule2 = createFor(profile1, rule2).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule2);
+    underTest.insertParam(dbSession, activeRule2, ActiveRuleParamDto.createFor(rule2Param1));
+    dbSession.commit();
+
+    assertThat(underTest.selectAllParams(dbSession)).hasSize(3);
+  }
+
+  @Test
+  public void insert_param() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1");
+    underTest.insertParam(dbSession, activeRule, activeRuleParam1);
+    dbSession.commit();
+
+    ActiveRuleParamDto result = underTest.selectParamByKeyAndName(activeRule.getKey(), activeRuleParam1.getKey(), dbSession);
+    assertThat(result).isNotNull();
+
+    assertThat(result.getId()).isEqualTo(activeRuleParam1.getId());
+    assertThat(result.getKey()).isEqualTo(activeRuleParam1.getKey());
+    assertThat(result.getActiveRuleId()).isEqualTo(activeRule.getId());
+    assertThat(result.getRulesParameterId()).isEqualTo(rule1Param1.getId());
+    assertThat(result.getValue()).isEqualTo("activeValue1");
+  }
+
+  @Test
+  public void update_param() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue");
+    underTest.insertParam(dbSession, activeRule, activeRuleParam1);
+    dbSession.commit();
+
+    underTest.updateParam(dbSession, activeRule, activeRuleParam1.setValue("updatedActiveValue"));
+    dbSession.commit();
+
+    ActiveRuleParamDto result = underTest.selectParamByKeyAndName(activeRule.getKey(), activeRuleParam1.getKey(), dbSession);
+    assertThat(result.getId()).isEqualTo(activeRuleParam1.getId());
+    assertThat(result.getKey()).isEqualTo(activeRuleParam1.getKey());
+    assertThat(result.getActiveRuleId()).isEqualTo(activeRule.getId());
+    assertThat(result.getRulesParameterId()).isEqualTo(rule1Param1.getId());
+    assertThat(result.getValue()).isEqualTo("updatedActiveValue");
+  }
+
+  @Test
+  public void delete_param() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1");
+    underTest.insertParam(dbSession, activeRule, activeRuleParam1);
+    dbSession.commit();
+
+    underTest.deleteParam(dbSession, activeRule, activeRuleParam1);
+    dbSession.commit();
+
+    assertThat(underTest.selectParamByKeyAndName(activeRule.getKey(), activeRuleParam1.getKey(), dbSession)).isNull();
+  }
+
+  @Test
+  public void delete_param_by_key_and_name() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1");
+    underTest.insertParam(dbSession, activeRule, activeRuleParam1);
+    dbSession.commit();
+
+    underTest.deleteParamByKeyAndName(dbSession, activeRule.getKey(), rule1Param1.getName());
+    dbSession.commit();
+
+    assertThat(underTest.selectParamByKeyAndName(activeRule.getKey(), activeRuleParam1.getKey(), dbSession)).isNull();
+  }
+
+  @Test
+  public void delete_param_by_rule_param() throws Exception {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule1);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1");
+    underTest.insertParam(dbSession, activeRule1, activeRuleParam1);
+
+    ActiveRuleDto activeRule2 = createFor(profile2, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule2);
+    ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue2");
+    underTest.insertParam(dbSession, activeRule2, activeRuleParam2);
+
+    dbSession.commit();
+
+    underTest.deleteParamsByRuleParam(dbSession, rule1, rule1Param1.getName());
+    dbSession.commit();
+
+    assertThat(underTest.selectParamByKeyAndName(activeRule1.getKey(), activeRuleParam1.getKey(), dbSession)).isNull();
+    assertThat(underTest.selectParamByKeyAndName(activeRule2.getKey(), activeRuleParam2.getKey(), dbSession)).isNull();
   }
 }

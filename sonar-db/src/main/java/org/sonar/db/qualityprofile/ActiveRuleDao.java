@@ -116,15 +116,6 @@ public class ActiveRuleDao implements Dao {
     return DatabaseUtils.executeLargeInputs(activeRuleIds, new ParamIdToDto(mapper(dbSession)));
   }
 
-  /**
-   * Warning ! This method is executing 2 queries : one to get the active rule from the key, and another one to get parameters
-   */
-  private List<ActiveRuleParamDto> selectParamsByActiveRuleKey(DbSession session, ActiveRuleKey key) {
-    Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
-    ActiveRuleDto activeRule = selectOrFailByKey(session, key);
-    return mapper(session).selectParamsByActiveRuleId(activeRule.getId());
-  }
-
   @CheckForNull
   public ActiveRuleParamDto selectParamByKeyAndName(ActiveRuleKey key, String name, DbSession session) {
     Preconditions.checkNotNull(key, ACTIVE_RULE_KEY_CANNOT_BE_NULL);
@@ -150,17 +141,6 @@ public class ActiveRuleDao implements Dao {
     return activeRuleParam;
   }
 
-  public void deleteParamByKeyAndName(DbSession session, ActiveRuleKey key, String param) {
-    // TODO SQL rewrite to delete by key
-    Optional<ActiveRuleDto> activeRule = selectByKey(session, key);
-    if (activeRule.isPresent()) {
-      ActiveRuleParamDto activeRuleParam = mapper(session).selectParamByActiveRuleAndKey(activeRule.get().getId(), param);
-      if (activeRuleParam != null) {
-        mapper(session).deleteParameter(activeRuleParam.getId());
-      }
-    }
-  }
-
   public void updateParam(DbSession session, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
     Preconditions.checkNotNull(activeRule.getId(), ACTIVE_RULE_IS_NOT_PERSISTED);
     Preconditions.checkNotNull(activeRuleParam.getId(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
@@ -173,10 +153,21 @@ public class ActiveRuleDao implements Dao {
     mapper(session).deleteParameter(activeRuleParam.getId());
   }
 
+  public void deleteParamByKeyAndName(DbSession session, ActiveRuleKey key, String param) {
+    // TODO SQL rewrite to delete by key
+    Optional<ActiveRuleDto> activeRule = selectByKey(session, key);
+    if (activeRule.isPresent()) {
+      ActiveRuleParamDto activeRuleParam = mapper(session).selectParamByActiveRuleAndKey(activeRule.get().getId(), param);
+      if (activeRuleParam != null) {
+        mapper(session).deleteParameter(activeRuleParam.getId());
+      }
+    }
+  }
+
   public void deleteParamsByRuleParam(DbSession dbSession, RuleDto rule, String paramKey) {
     List<ActiveRuleDto> activeRules = selectByRule(dbSession, rule);
     for (ActiveRuleDto activeRule : activeRules) {
-      for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleKey(dbSession, activeRule.getKey())) {
+      for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
         if (activeParam.getKey().equals(paramKey)) {
           deleteParam(dbSession, activeRule, activeParam);
         }
