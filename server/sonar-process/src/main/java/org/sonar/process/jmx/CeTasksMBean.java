@@ -19,7 +19,9 @@
  */
 package org.sonar.process.jmx;
 
-public interface ComputeEngineMBean {
+public interface CeTasksMBean {
+
+  String OBJECT_NAME = "SonarQube:name=ComputeEngineTasks";
 
   /**
    * Count of batch reports waiting for processing since startup, including reports received before instance startup.

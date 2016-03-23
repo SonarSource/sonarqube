@@ -30,7 +30,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.version.DatabaseVersion;
-import org.sonar.process.jmx.Jmx;
 
 /**
  * Information about database and connection pool
@@ -40,8 +39,7 @@ public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitor
   private final DatabaseVersion dbVersion;
   private final DbClient dbClient;
 
-  public DatabaseMonitor(Jmx jmx, DatabaseVersion dbVersion, DbClient dbClient) {
-    super(jmx);
+  public DatabaseMonitor(DatabaseVersion dbVersion, DbClient dbClient) {
     this.dbVersion = dbVersion;
     this.dbClient = dbClient;
   }

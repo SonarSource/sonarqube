@@ -26,7 +26,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
 import org.sonar.process.ProcessProperties;
-import org.sonar.process.jmx.Jmx;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -39,9 +38,8 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   private final Server server;
   private final ServerLogging serverLogging;
 
-  public SonarQubeMonitor(Jmx jmx, Settings settings, SecurityRealmFactory securityRealmFactory,
+  public SonarQubeMonitor(Settings settings, SecurityRealmFactory securityRealmFactory,
     Server server, ServerLogging serverLogging) {
-    super(jmx);
     this.settings = settings;
     this.securityRealmFactory = securityRealmFactory;
     this.server = server;

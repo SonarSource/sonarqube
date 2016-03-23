@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.queue;
 
-import java.io.File;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
@@ -30,19 +29,12 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.ce.CeQueueDto;
-import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.ce.monitoring.CEQueueStatus;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 public class CeQueueInitializerTest {
 
@@ -53,30 +45,9 @@ public class CeQueueInitializerTest {
   public TemporaryFolder tempFolder = new TemporaryFolder();
 
   Server server = mock(Server.class);
-  ReportFiles reportFiles = mock(ReportFiles.class, Mockito.RETURNS_DEEP_STUBS);
-  CEQueueStatus queueStatus = new CEQueueStatusImpl();
   CeQueueCleaner cleaner = mock(CeQueueCleaner.class);
   CeProcessingScheduler scheduler = mock(CeProcessingScheduler.class);
-  CeQueueInitializer underTest = new CeQueueInitializer(dbTester.getDbClient(), queueStatus, cleaner, scheduler);
-
-  @Test
-  public void init_jmx_counters() throws IOException {
-    insertInQueue("TASK_1", CeQueueDto.Status.PENDING);
-    insertInQueue("TASK_2", CeQueueDto.Status.PENDING);
-    // this in-progress task is going to be moved to PENDING
-    insertInQueue("TASK_3", CeQueueDto.Status.IN_PROGRESS);
-
-    underTest.onServerStart(server);
-
-    assertThat(queueStatus.getPendingCount()).isEqualTo(3);
-  }
-
-  @Test
-  public void init_jmx_counters_when_queue_is_empty() {
-    underTest.onServerStart(server);
-
-    assertThat(queueStatus.getPendingCount()).isEqualTo(0);
-  }
+  CeQueueInitializer underTest = new CeQueueInitializer(dbTester.getDbClient(), cleaner, scheduler);
 
   @Test
   public void clean_queue_then_start_scheduler_of_workers() throws IOException {
@@ -99,26 +70,5 @@ public class CeQueueInitializerTest {
 
     verifyZeroInteractions(cleaner, scheduler);
 
-  }
-
-  private void insertInQueue(String taskUuid, CeQueueDto.Status status) throws IOException {
-    insertInQueue(taskUuid, status, true);
-  }
-
-  private CeQueueDto insertInQueue(String taskUuid, CeQueueDto.Status status, boolean createFile) throws IOException {
-    CeQueueDto queueDto = new CeQueueDto();
-    queueDto.setTaskType(CeTaskTypes.REPORT);
-    queueDto.setComponentUuid("PROJECT_1");
-    queueDto.setUuid(taskUuid);
-    queueDto.setStatus(status);
-    dbTester.getDbClient().ceQueueDao().insert(dbTester.getSession(), queueDto);
-    dbTester.getSession().commit();
-
-    File file = tempFolder.newFile();
-    when(reportFiles.fileForUuid(taskUuid)).thenReturn(file);
-    if (!createFile) {
-      file.delete();
-    }
-    return queueDto;
   }
 }

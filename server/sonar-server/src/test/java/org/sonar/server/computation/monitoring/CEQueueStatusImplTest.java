@@ -23,159 +23,54 @@ import java.util.Random;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.Mockito;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeQueueDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 public class CEQueueStatusImplTest {
   private static final int SOME_RANDOM_MAX = 96535;
   private static final int SOME_PROCESSING_TIME = 8723;
-  private static final long INITIAL_PENDING_COUNT = 996L;
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private CEQueueStatusImpl underTest = new CEQueueStatusImpl();
+  DbClient dbClient = mock(DbClient.class, Mockito.RETURNS_DEEP_STUBS);
+  private CEQueueStatusImpl underTest = new CEQueueStatusImpl(dbClient);
 
   @Test
   public void verify_just_created_instance_metrics() {
-    assertThat(underTest.getReceivedCount()).isEqualTo(0);
-    assertThat(underTest.getPendingCount()).isEqualTo(0);
     assertThat(underTest.getInProgressCount()).isEqualTo(0);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTime()).isEqualTo(0);
+    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(0);
   }
 
   @Test
-  public void initPendingCount_sets_value_of_pendingCount() {
-    underTest.initPendingCount(10);
-
-    assertThat(underTest.getPendingCount()).isEqualTo(10);
-  }
-
-  @Test
-  public void initPendingCount_throws_ISE_if_called_twice() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Method initPendingCount must be used before any other method and can not be called twice");
-
-    underTest.initPendingCount(10);
-    underTest.initPendingCount(10);
-  }
-
-  @Test
-  public void addReceived_throws_ISE_if_called_before_initPendingCount() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Method initPendingCount must be used before addReceived can be called");
-
-    underTest.addReceived();
-  }
-
-  @Test
-  public void addReceived_sets_received_to_1_and_pending_counts_to_initial_value_plus_1() {
-    underTest.initPendingCount(INITIAL_PENDING_COUNT);
-
-    underTest.addReceived();
-
-    assertThat(underTest.getReceivedCount()).isEqualTo(1);
-    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + 1);
-  }
-
-  @Test
-  public void addReceived_any_number_of_call_adds_1_per_call() {
-    underTest.initPendingCount(INITIAL_PENDING_COUNT);
-
-    int calls = new Random().nextInt(SOME_RANDOM_MAX);
-    for (int i = 0; i < calls; i++) {
-      underTest.addReceived();
-    }
-
-    assertThat(underTest.getReceivedCount()).isEqualTo(calls);
-    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + calls);
-  }
-
-  @Test
-  public void addReceived_with_argument_throws_IAE_if_parameter_is_0() {
-    underTest.initPendingCount(INITIAL_PENDING_COUNT);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("numberOfReceived must be > 0");
-
-    underTest.addReceived(0);
-  }
-
-  @Test
-  public void addReceived_with_argument_throws_IAE_if_parameter_less_than_0() {
-    underTest.initPendingCount(INITIAL_PENDING_COUNT);
-
-    expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("numberOfReceived must be > 0");
-
-    underTest.addReceived(-1 * (new Random().nextInt(SOME_RANDOM_MAX)));
-  }
-
-  @Test
-  public void addReceived_with_argument_sets_received_to_value_and_pending_counts_to_initial_value_plus_value() {
-    long value = 123;
-    underTest.initPendingCount(INITIAL_PENDING_COUNT);
-
-    underTest.addReceived(value);
-
-    assertThat(underTest.getReceivedCount()).isEqualTo(value);
-    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + value);
-  }
-
-  @Test
-  public void addReceived_with_argument_any_number_of_call_adds_some_number_per_call() {
-    underTest.initPendingCount(INITIAL_PENDING_COUNT);
-
-    Random random = new Random();
-    int calls = random.nextInt(SOME_RANDOM_MAX);
-    long added = 0;
-    for (int i = 0; i < calls; i++) {
-      // adding 1 to random number because value can not be 0
-      long numberOfReceived = random.nextInt(SOME_RANDOM_MAX) + 1;
-      underTest.addReceived(numberOfReceived);
-      added += numberOfReceived;
-    }
-
-    assertThat(underTest.getReceivedCount()).isEqualTo(added);
-    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT + added);
-  }
-
-  @Test
-  public void addInProgress_throws_ISE_if_called_before_initPendingCount() {
-    expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Method initPendingCount must be used before addInProgress can be called");
-
-    underTest.addInProgress();
-  }
-
-  @Test
-  public void addInProgress_increases_InProgress_and_decreases_Pending_by_1_without_check_on_Pending() {
-    underTest.initPendingCount(INITIAL_PENDING_COUNT);
-
+  public void addInProgress_increases_InProgress() {
     underTest.addInProgress();
 
-    assertThat(underTest.getReceivedCount()).isEqualTo(0);
-    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT - 1);
     assertThat(underTest.getInProgressCount()).isEqualTo(1);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTime()).isEqualTo(0);
+    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(0);
   }
 
   @Test
   public void addInProgress_any_number_of_call_change_by_1_per_call() {
-    underTest.initPendingCount(INITIAL_PENDING_COUNT);
-
     int calls = new Random().nextInt(SOME_RANDOM_MAX);
     for (int i = 0; i < calls; i++) {
       underTest.addInProgress();
     }
 
     assertThat(underTest.getInProgressCount()).isEqualTo(calls);
-    assertThat(underTest.getPendingCount()).isEqualTo(INITIAL_PENDING_COUNT - calls);
-    assertThat(underTest.getProcessingTime()).isEqualTo(0);
+    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(0);
   }
 
   @Test
@@ -190,12 +85,10 @@ public class CEQueueStatusImplTest {
   public void addError_increases_Error_and_decreases_InProgress_by_1_without_check_on_InProgress() {
     underTest.addError(SOME_PROCESSING_TIME);
 
-    assertThat(underTest.getReceivedCount()).isEqualTo(0);
-    assertThat(underTest.getPendingCount()).isEqualTo(0);
     assertThat(underTest.getInProgressCount()).isEqualTo(-1);
     assertThat(underTest.getErrorCount()).isEqualTo(1);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
+    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(SOME_PROCESSING_TIME);
   }
 
   @Test
@@ -207,7 +100,7 @@ public class CEQueueStatusImplTest {
 
     assertThat(underTest.getErrorCount()).isEqualTo(calls);
     assertThat(underTest.getInProgressCount()).isEqualTo(-calls);
-    assertThat(underTest.getProcessingTime()).isEqualTo(calls);
+    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(calls);
   }
 
   @Test
@@ -222,12 +115,10 @@ public class CEQueueStatusImplTest {
   public void addSuccess_increases_Error_and_decreases_InProgress_by_1_without_check_on_InProgress() {
     underTest.addSuccess(SOME_PROCESSING_TIME);
 
-    assertThat(underTest.getReceivedCount()).isEqualTo(0);
-    assertThat(underTest.getPendingCount()).isEqualTo(0);
     assertThat(underTest.getInProgressCount()).isEqualTo(-1);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(1);
-    assertThat(underTest.getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
+    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(SOME_PROCESSING_TIME);
   }
 
   @Test
@@ -239,6 +130,13 @@ public class CEQueueStatusImplTest {
 
     assertThat(underTest.getSuccessCount()).isEqualTo(calls);
     assertThat(underTest.getInProgressCount()).isEqualTo(-calls);
-    assertThat(underTest.getProcessingTime()).isEqualTo(calls);
+    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(calls);
+  }
+
+  @Test
+  public void count_Pending_from_database() {
+    when(dbClient.ceQueueDao().countByStatus(any(DbSession.class), eq(CeQueueDto.Status.PENDING))).thenReturn(42);
+
+    assertThat(underTest.getPendingCount()).isEqualTo(42);
   }
 }

@@ -28,18 +28,12 @@ import org.sonar.process.jmx.Jmx;
  */
 public abstract class BaseMonitorMBean implements Monitor, Startable {
 
-  private final Jmx jmx;
-
-  public BaseMonitorMBean(Jmx jmx) {
-    this.jmx = jmx;
-  }
-
   /**
    * Auto-registers to MBean server
    */
   @Override
   public void start() {
-    jmx.register(objectName(), this);
+    Jmx.register(objectName(), this);
   }
 
   /**
@@ -47,14 +41,10 @@ public abstract class BaseMonitorMBean implements Monitor, Startable {
    */
   @Override
   public void stop() {
-    jmx.unregister(objectName());
+    Jmx.unregister(objectName());
   }
 
   String objectName() {
     return "SonarQube:name=" + name();
-  }
-
-  protected Jmx jmx() {
-    return jmx;
   }
 }

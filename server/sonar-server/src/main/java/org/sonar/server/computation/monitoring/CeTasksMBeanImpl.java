@@ -19,45 +19,32 @@
  */
 package org.sonar.server.computation.monitoring;
 
-import java.util.LinkedHashMap;
+import org.picocontainer.Startable;
 import org.sonar.ce.monitoring.CEQueueStatus;
-import org.sonar.ce.queue.CeQueue;
-import org.sonar.process.jmx.ComputeEngineMBean;
+import org.sonar.process.jmx.CeTasksMBean;
 import org.sonar.process.jmx.Jmx;
 import org.sonar.server.computation.configuration.CeConfiguration;
-import org.sonar.server.platform.monitoring.BaseMonitorMBean;
 
-public class ComputeEngine extends BaseMonitorMBean implements ComputeEngineMBean {
+public class CeTasksMBeanImpl implements CeTasksMBean, Startable {
   private final CEQueueStatus queueStatus;
   private final CeConfiguration ceConfiguration;
 
-  public ComputeEngine(CEQueueStatus queueStatus,
-    // ReportQueue initializes CEQueueStatus and is therefor a dependency of
-    // ComputeEngine.
-    // Do not remove this parameter, it ensures start order of components
-    CeQueue ceQueue,
-    Jmx jmx,
-    CeConfiguration ceConfiguration) {
-    super(jmx);
+  public CeTasksMBeanImpl(CEQueueStatus queueStatus, CeConfiguration ceConfiguration) {
     this.queueStatus = queueStatus;
     this.ceConfiguration = ceConfiguration;
   }
 
   @Override
-  public String name() {
-    return "ComputeEngine";
+  public void start() {
+    Jmx.register(OBJECT_NAME, this);
   }
 
+  /**
+   * Unregister, if needed
+   */
   @Override
-  public LinkedHashMap<String, Object> attributes() {
-    LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
-    attributes.put("Pending", getPendingCount());
-    attributes.put("In progress", getInProgressCount());
-    attributes.put("Successfully processed", getSuccessCount());
-    attributes.put("Processed with error", getErrorCount());
-    attributes.put("Processing time (ms)", getProcessingTimeInMs());
-    attributes.put("Worker count", getWorkerCount());
-    return attributes;
+  public void stop() {
+    Jmx.unregister(OBJECT_NAME);
   }
 
   @Override
@@ -82,7 +69,7 @@ public class ComputeEngine extends BaseMonitorMBean implements ComputeEngineMBea
 
   @Override
   public long getProcessingTimeInMs() {
-    return queueStatus.getProcessingTime();
+    return queueStatus.getProcessingTimeInMs();
   }
 
   @Override

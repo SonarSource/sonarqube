@@ -37,7 +37,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.ce.monitoring.CEQueueStatus;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Predicates.notNull;
@@ -49,7 +48,6 @@ public class CeQueueImpl implements CeQueue {
 
   private final DbClient dbClient;
   private final UuidFactory uuidFactory;
-  private final CEQueueStatus queueStatus;
   private final CeQueueListener[] listeners;
 
   // state
@@ -58,14 +56,13 @@ public class CeQueueImpl implements CeQueue {
   /**
    * Constructor in case there is no CeQueueListener
    */
-  public CeQueueImpl(DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus) {
-    this(dbClient, uuidFactory, queueStatus, new CeQueueListener[]{});
+  public CeQueueImpl(DbClient dbClient, UuidFactory uuidFactory) {
+    this(dbClient, uuidFactory, new CeQueueListener[] {});
   }
 
-  public CeQueueImpl(DbClient dbClient, UuidFactory uuidFactory, CEQueueStatus queueStatus, CeQueueListener[] listeners) {
+  public CeQueueImpl(DbClient dbClient, UuidFactory uuidFactory, CeQueueListener[] listeners) {
     this.dbClient = dbClient;
     this.uuidFactory = uuidFactory;
-    this.queueStatus = queueStatus;
     this.listeners = listeners;
   }
 
@@ -83,7 +80,6 @@ public class CeQueueImpl implements CeQueue {
       CeQueueDto dto = new CeTaskSubmitToInsertedCeQueueDto(dbSession, dbClient).apply(submission);
       CeTask task = loadTask(dbSession, dto);
       dbSession.commit();
-      queueStatus.addReceived();
       return task;
 
     } finally {
@@ -105,7 +101,6 @@ public class CeQueueImpl implements CeQueue {
         .toList();
       List<CeTask> tasks = loadTasks(dbSession, ceQueueDtos);
       dbSession.commit();
-      queueStatus.addReceived(tasks.size());
       return tasks;
 
     } finally {

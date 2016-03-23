@@ -24,11 +24,9 @@ import javax.annotation.CheckForNull;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -37,52 +35,43 @@ public class JmxTest {
   static final String FAKE_NAME = "SonarQube:name=Fake";
 
   @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   FakeMBean mbean = new Fake();
-  Jmx underTest;
-
-  @Before
-  public void setUp() throws Exception {
-    underTest = new Jmx(temp.newFolder());
-  }
 
   @Test
   public void register_and_unregister() throws Exception {
     assertThat(lookupMBean()).isNull();
 
-    underTest.register(FAKE_NAME, mbean);
+    Jmx.register(FAKE_NAME, mbean);
     assertThat(lookupMBean()).isNotNull();
 
-    underTest.unregister(FAKE_NAME);
+    Jmx.unregister(FAKE_NAME);
     assertThat(lookupMBean()).isNull();
   }
 
   @Test
   public void do_not_fail_when_unregistering_a_non_registered_bean() throws Exception {
-    underTest.unregister(FAKE_NAME);
+    Jmx.unregister(FAKE_NAME);
     assertThat(lookupMBean()).isNull();
   }
 
   @Test
-  public void fail_if_mbean_interface_can_not_be_found() {
+  public void register_fails_if_mbean_interface_can_not_be_found() {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Can not find the MBean interface of class java.lang.String");
 
-    underTest.register(FAKE_NAME, "not a mbean");
+    Jmx.register(FAKE_NAME, "not a mbean");
   }
 
   @Test
   public void support_implementation_in_different_package_than_interface() throws Exception {
     assertThat(lookupMBean()).isNull();
 
-    underTest.register(FAKE_NAME, new org.sonar.process.jmx.test.Fake());
+    Jmx.register(FAKE_NAME, new org.sonar.process.jmx.test.Fake());
     assertThat(lookupMBean()).isNotNull();
 
-    underTest.unregister(FAKE_NAME);
+    Jmx.unregister(FAKE_NAME);
     assertThat(lookupMBean()).isNull();
   }
 

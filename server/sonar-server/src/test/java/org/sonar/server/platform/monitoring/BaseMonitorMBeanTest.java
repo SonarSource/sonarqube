@@ -24,27 +24,13 @@ import javax.annotation.CheckForNull;
 import javax.management.InstanceNotFoundException;
 import javax.management.ObjectInstance;
 import javax.management.ObjectName;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.process.jmx.Jmx;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BaseMonitorMBeanTest {
 
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
-
-  Jmx jmx;
-  FakeMonitor underTest;
-
-  @Before
-  public void setUp() throws Exception {
-    jmx = new Jmx(temp.newFolder());
-    underTest = new FakeMonitor(jmx);
-  }
+  FakeMonitor underTest = new FakeMonitor();
 
   @Test
   public void test_registration() throws Exception {

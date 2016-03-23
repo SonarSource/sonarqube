@@ -19,28 +19,28 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.io.File;
-import org.picocontainer.injectors.ProviderAdapter;
-import org.sonar.api.config.Settings;
-import org.sonar.process.jmx.Jmx;
+import java.util.LinkedHashMap;
+import org.sonar.process.ProcessId;
+import org.sonar.process.jmx.JmxConnection;
+import org.sonar.process.jmx.JmxConnector;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
+public class CeStateMonitor implements Monitor {
 
-public class JmxProvider extends ProviderAdapter {
+  private final JmxConnector jmxConnector;
 
-  private Jmx singleton = null;
-
-  public synchronized Jmx provide(Settings settings) {
-    if (singleton == null) {
-      singleton = new Jmx(nonNullValueAsFile(settings, PROPERTY_SHARED_PATH));
-    }
-    return singleton;
+  public CeStateMonitor(JmxConnector jmxConnector) {
+    this.jmxConnector = jmxConnector;
   }
 
-  private static File nonNullValueAsFile(Settings settings, String key) {
-    String s = settings.getString(key);
-    checkArgument(s != null, "Property %s is not set", key);
-    return new File(s);
+  @Override
+  public String name() {
+    return "Compute Engine State";
+  }
+
+  @Override
+  public LinkedHashMap<String, Object> attributes() {
+    try (JmxConnection connection = jmxConnector.connect(ProcessId.COMPUTE_ENGINE)) {
+      return new LinkedHashMap<>(connection.getSystemState());
+    }
   }
 }

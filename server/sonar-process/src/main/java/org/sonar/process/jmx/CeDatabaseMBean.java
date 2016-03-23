@@ -17,30 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.process.jmx;
 
-import java.util.LinkedHashMap;
-import org.sonar.process.ProcessId;
-import org.sonar.process.jmx.Jmx;
-import org.sonar.process.jmx.JmxConnection;
+public interface CeDatabaseMBean {
 
-public class EsSystemMonitor implements Monitor {
+  String OBJECT_NAME = "SonarQube:name=ComputeEngineDatabase";
 
-  private final Jmx jmx;
+  int getPoolActiveConnections();
 
-  public EsSystemMonitor(Jmx jmx) {
-    this.jmx = jmx;
-  }
+  int getPoolMaxActiveConnections();
 
-  @Override
-  public String name() {
-    return "Elasticsearch System";
-  }
+  int getPoolIdleConnections();
 
-  @Override
-  public LinkedHashMap<String, Object> attributes() {
-    try (JmxConnection connection = jmx.connect(ProcessId.ELASTICSEARCH)) {
-      return new LinkedHashMap<>(connection.getSystemState());
-    }
-  }
+  int getPoolMaxIdleConnections();
+
+  int getPoolMinIdleConnections();
+
+  int getPoolInitialSize();
+
+  long getPoolMaxWaitMillis();
+
+  boolean getPoolRemoveAbandoned();
+
+  int getPoolRemoveAbandonedTimeoutSeconds();
 }

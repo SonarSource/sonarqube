@@ -20,13 +20,8 @@
 package org.sonar.server.platform.monitoring;
 
 import java.util.LinkedHashMap;
-import org.sonar.process.jmx.Jmx;
 
 public class FakeMonitor extends BaseMonitorMBean implements FakeMonitorMBean {
-
-  public FakeMonitor(Jmx jmx) {
-    super(jmx);
-  }
 
   @Override
   public int getFake() {

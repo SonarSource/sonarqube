@@ -19,24 +19,28 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.LinkedHashMap;
-import org.junit.Test;
+import java.io.File;
+import org.picocontainer.injectors.ProviderAdapter;
+import org.sonar.api.config.Settings;
+import org.sonar.process.jmx.JmxConnector;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
-public class JvmPropsMonitorTest {
+public class JmxConnectorProvider extends ProviderAdapter {
 
-  JvmPropsMonitor underTest = new JvmPropsMonitor();
+  private JmxConnector singleton = null;
 
-  @Test
-  public void name_is_not_empty() {
-    assertThat(underTest.name()).isNotEmpty();
+  public synchronized JmxConnector provide(Settings settings) {
+    if (singleton == null) {
+      singleton = new JmxConnector(nonNullValueAsFile(settings, PROPERTY_SHARED_PATH));
+    }
+    return singleton;
   }
 
-  @Test
-  public void attributes() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
-
-    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
+  private static File nonNullValueAsFile(Settings settings, String key) {
+    String s = settings.getString(key);
+    checkArgument(s != null, "Property %s is not set", key);
+    return new File(s);
   }
 }

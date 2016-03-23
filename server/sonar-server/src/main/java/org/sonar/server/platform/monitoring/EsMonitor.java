@@ -30,24 +30,25 @@ import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.common.breaker.CircuitBreaker;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.EsSettingsMBean;
-import org.sonar.process.jmx.Jmx;
 import org.sonar.process.jmx.JmxConnection;
+import org.sonar.process.jmx.JmxConnector;
 import org.sonar.server.es.EsClient;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 
 public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
 
+  private final JmxConnector jmxConnector;
   private final EsClient esClient;
 
-  public EsMonitor(Jmx jmx, EsClient esClient) {
-    super(jmx);
+  public EsMonitor(JmxConnector jmxConnector, EsClient esClient) {
+    this.jmxConnector = jmxConnector;
     this.esClient = esClient;
   }
 
   @Override
   public String name() {
-    return "ElasticSearch";
+    return "Elasticsearch";
   }
 
   /**
@@ -72,7 +73,7 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
   public LinkedHashMap<String, Object> attributes() {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
 
-    try (JmxConnection connection = jmx().connect(ProcessId.ELASTICSEARCH)) {
+    try (JmxConnection connection = jmxConnector.connect(ProcessId.ELASTICSEARCH)) {
       EsSettingsMBean mbean = connection.getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class);
       attributes.put("Cluster Name", mbean.getClusterName());
       attributes.put("Node Name", mbean.getNodeName());

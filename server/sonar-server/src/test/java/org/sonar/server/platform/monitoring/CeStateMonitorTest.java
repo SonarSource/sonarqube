@@ -25,15 +25,16 @@ import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
-import org.sonar.process.jmx.Jmx;
+import org.sonar.process.jmx.JmxConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class EsSystemMonitorTest {
-  Jmx jmx = mock(Jmx.class, Mockito.RETURNS_DEEP_STUBS);
-  EsSystemMonitor underTest = new EsSystemMonitor(jmx);
+public class CeStateMonitorTest {
+
+  JmxConnector jmxConnector = mock(JmxConnector.class, Mockito.RETURNS_DEEP_STUBS);
+  CeStateMonitor underTest = new CeStateMonitor(jmxConnector);
 
   @Test
   public void testName() {
@@ -42,12 +43,11 @@ public class EsSystemMonitorTest {
 
   @Test
   public void testAttributes() {
-    when(jmx.connect(ProcessId.ELASTICSEARCH).getSystemState()).thenReturn(ImmutableSortedMap.<String, Object>of(
+    when(jmxConnector.connect(ProcessId.COMPUTE_ENGINE).getSystemState()).thenReturn(ImmutableSortedMap.<String, Object>of(
       "foo", "foo_val", "bar", "bar_val"));
     LinkedHashMap<String, Object> attributes = underTest.attributes();
     assertThat(attributes).containsExactly(
       MapEntry.entry("bar", "bar_val"),
-      MapEntry.entry("foo", "foo_val")
-      );
+      MapEntry.entry("foo", "foo_val"));
   }
 }

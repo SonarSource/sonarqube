@@ -25,6 +25,7 @@ import org.sonar.db.purge.period.DefaultPeriodCleaner;
 import org.sonar.server.computation.configuration.CeConfigurationImpl;
 import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
 import org.sonar.server.computation.dbcleaner.ProjectCleaner;
+import org.sonar.server.computation.monitoring.CeDatabaseMBeanImpl;
 
 /**
  * Globally available components in CE
@@ -35,6 +36,7 @@ public class CeModule extends Module {
     add(
       CeConfigurationImpl.class,
       CeLogging.class,
+      CeDatabaseMBeanImpl.class,
 
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,

@@ -29,7 +29,7 @@ import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.EsSettingsMBean;
-import org.sonar.process.jmx.Jmx;
+import org.sonar.process.jmx.JmxConnector;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.NewIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -43,18 +43,18 @@ public class EsMonitorTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
-  Jmx jmx = mock(Jmx.class, Mockito.RETURNS_DEEP_STUBS);
+  JmxConnector jmxConnector = mock(JmxConnector.class, Mockito.RETURNS_DEEP_STUBS);
   EsSettingsMBean settingsMBean = mock(EsSettingsMBean.class);
-  EsMonitor underTest = new EsMonitor(jmx, esTester.client());
+  EsMonitor underTest = new EsMonitor(jmxConnector, esTester.client());
 
   @Before
   public void setUp() throws Exception {
-    when(jmx.connect(ProcessId.ELASTICSEARCH).getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class)).thenReturn(settingsMBean);
+    when(jmxConnector.connect(ProcessId.ELASTICSEARCH).getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class)).thenReturn(settingsMBean);
   }
 
   @Test
   public void name() {
-    assertThat(underTest.name()).isEqualTo("ElasticSearch");
+    assertThat(underTest.name()).isEqualTo("Elasticsearch");
   }
 
   @Test

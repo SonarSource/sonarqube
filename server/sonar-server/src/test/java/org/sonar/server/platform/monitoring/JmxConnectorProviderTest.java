@@ -19,36 +19,38 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.collect.ImmutableSortedMap;
-import java.util.LinkedHashMap;
-import org.assertj.core.data.MapEntry;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.Mockito;
-import org.sonar.process.ProcessId;
-import org.sonar.process.jmx.Jmx;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.config.Settings;
+import org.sonar.process.ProcessEntryPoint;
+import org.sonar.process.jmx.JmxConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
-public class CeMonitorTest {
+public class JmxConnectorProviderTest {
 
-  Jmx jmx = mock(Jmx.class, Mockito.RETURNS_DEEP_STUBS);
-  CeMonitor underTest = new CeMonitor(jmx);
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  Settings settings = new Settings();
+  JmxConnectorProvider underTest = new JmxConnectorProvider();
 
   @Test
-  public void testName() {
-    assertThat(underTest.name()).isNotEmpty();
+  public void provide_JmxConnector() {
+    settings.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, "path/");
+    JmxConnector connector = underTest.provide(settings);
+
+    assertThat(connector).isNotNull();
+    // cache
+    assertThat(underTest.provide(settings)).isSameAs(connector);
   }
 
   @Test
-  public void testAttributes() {
-    when(jmx.connect(ProcessId.COMPUTE_ENGINE).getSystemState()).thenReturn(ImmutableSortedMap.<String, Object>of(
-      "foo", "foo_val", "bar", "bar_val"));
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsExactly(
-      MapEntry.entry("bar", "bar_val"),
-      MapEntry.entry("foo", "foo_val")
-      );
+  public void throw_IAE_if_ipc_shared_path_is_not_set() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property process.sharedDir is not set");
+
+    underTest.provide(settings);
   }
 }

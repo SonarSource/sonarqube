@@ -21,25 +21,25 @@ package org.sonar.server.platform.monitoring;
 
 import java.util.LinkedHashMap;
 import org.sonar.process.ProcessId;
-import org.sonar.process.jmx.Jmx;
 import org.sonar.process.jmx.JmxConnection;
+import org.sonar.process.jmx.JmxConnector;
 
-public class CeMonitor implements Monitor {
+public class EsStateMonitor implements Monitor {
 
-  private final Jmx jmx;
+  private final JmxConnector jmxConnector;
 
-  public CeMonitor(Jmx jmx) {
-    this.jmx = jmx;
+  public EsStateMonitor(JmxConnector jmxConnector) {
+    this.jmxConnector = jmxConnector;
   }
 
   @Override
   public String name() {
-    return "Compute Engine";
+    return "Elasticsearch State";
   }
 
   @Override
   public LinkedHashMap<String, Object> attributes() {
-    try (JmxConnection connection = jmx.connect(ProcessId.COMPUTE_ENGINE)) {
+    try (JmxConnection connection = jmxConnector.connect(ProcessId.ELASTICSEARCH)) {
       return new LinkedHashMap<>(connection.getSystemState());
     }
   }

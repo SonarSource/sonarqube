@@ -30,7 +30,6 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LoggerLevel;
-import org.sonar.process.jmx.Jmx;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -43,7 +42,6 @@ public class SonarQubeMonitorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
-  Jmx jmx = mock(Jmx.class);
   Settings settings = new Settings();
   Server server = mock(Server.class);
   ServerLogging serverLogging = mock(ServerLogging.class);
@@ -54,9 +52,14 @@ public class SonarQubeMonitorTest {
   }
 
   @Test
+  public void name_is_not_empty() {
+    assertThat(new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging).name()).isNotEmpty();
+  }
+
+  @Test
   public void getServerId() {
     when(server.getStartedAt()).thenReturn(DateUtils.parseDate("2015-01-01"));
-    SonarQubeMonitor monitor = new SonarQubeMonitor(jmx, settings, new SecurityRealmFactory(settings), server, serverLogging);
+    SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
     LinkedHashMap<String, Object> attributes = monitor.attributes();
     assertThat(attributes).containsKeys("Server ID", "Version");
@@ -68,7 +71,7 @@ public class SonarQubeMonitorTest {
     FileUtils.write(new File(rootDir, SonarQubeMonitor.BRANDING_FILE_PATH), "1.2");
 
     when(server.getRootDir()).thenReturn(rootDir);
-    SonarQubeMonitor monitor = new SonarQubeMonitor(jmx, settings, new SecurityRealmFactory(settings), server, serverLogging);
+    SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
     LinkedHashMap<String, Object> attributes = monitor.attributes();
     assertThat(attributes).containsEntry("Official Distribution", Boolean.TRUE);
@@ -79,7 +82,7 @@ public class SonarQubeMonitorTest {
     File rootDir = temp.newFolder();
     // branding file is missing
     when(server.getRootDir()).thenReturn(rootDir);
-    SonarQubeMonitor monitor = new SonarQubeMonitor(jmx, settings, new SecurityRealmFactory(settings), server, serverLogging);
+    SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
     LinkedHashMap<String, Object> attributes = monitor.attributes();
     assertThat(attributes).containsEntry("Official Distribution", Boolean.FALSE);
@@ -87,7 +90,7 @@ public class SonarQubeMonitorTest {
 
   @Test
   public void get_log_level() throws Exception {
-    SonarQubeMonitor monitor = new SonarQubeMonitor(jmx, settings, new SecurityRealmFactory(settings), server, serverLogging);
+    SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
     LinkedHashMap<String, Object> attributes = monitor.attributes();
     assertThat(attributes).containsEntry("Logs Level", "DEBUG");

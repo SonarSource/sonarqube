@@ -21,86 +21,53 @@ package org.sonar.server.computation.monitoring;
 
 import java.util.concurrent.atomic.AtomicLong;
 import org.sonar.ce.monitoring.CEQueueStatus;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.ce.CeQueueDto;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
 
 public class CEQueueStatusImpl implements CEQueueStatus {
-  private static final long PENDING_INITIAL_VALUE = Long.MIN_VALUE;
 
-  private final AtomicLong received = new AtomicLong(0);
-  private final AtomicLong pending = new AtomicLong(PENDING_INITIAL_VALUE);
+  private final DbClient dbClient;
   private final AtomicLong inProgress = new AtomicLong(0);
   private final AtomicLong error = new AtomicLong(0);
   private final AtomicLong success = new AtomicLong(0);
   private final AtomicLong processingTime = new AtomicLong(0);
 
-  @Override
-  public long initPendingCount(long initialPendingCount) {
-    checkArgument(initialPendingCount >= 0, "Initial pending count must be >= 0");
-    checkState(
-      pending.compareAndSet(PENDING_INITIAL_VALUE, initialPendingCount),
-      "Method initPendingCount must be used before any other method and can not be called twice");
-    return initialPendingCount;
-  }
-
-  @Override
-  public long addReceived() {
-    ensurePendingInitialized("addReceived");
-
-    pending.incrementAndGet();
-    return received.incrementAndGet();
-  }
-
-  @Override
-  public long addReceived(long numberOfReceived) {
-    ensurePendingInitialized("addReceived");
-    checkArgument(numberOfReceived > 0, "numberOfReceived must be > 0");
-
-    pending.addAndGet(numberOfReceived);
-    return received.addAndGet(numberOfReceived);
+  public CEQueueStatusImpl(DbClient dbClient) {
+    this.dbClient = dbClient;
   }
 
   @Override
   public long addInProgress() {
-    ensurePendingInitialized("addInProgress");
-
-    pending.decrementAndGet();
     return inProgress.incrementAndGet();
   }
 
-  private void ensurePendingInitialized(String methodName) {
-    checkState(pending.get() != PENDING_INITIAL_VALUE, "Method initPendingCount must be used before %s can be called", methodName);
-  }
-
   @Override
-  public long addError(long processingTime) {
-    addProcessingTime(processingTime);
+  public long addError(long processingTimeInMs) {
+    addProcessingTimeInMs(processingTimeInMs);
     inProgress.decrementAndGet();
     return error.incrementAndGet();
   }
 
   @Override
-  public long addSuccess(long processingTime) {
-    addProcessingTime(processingTime);
+  public long addSuccess(long processingTimeInMs) {
+    addProcessingTimeInMs(processingTimeInMs);
     inProgress.decrementAndGet();
     return success.incrementAndGet();
   }
 
-  private void addProcessingTime(long time) {
-    checkArgument(time >= 0, "Processing time can not be < 0");
-    processingTime.addAndGet(time);
-  }
-
-  @Override
-  public long getReceivedCount() {
-    return received.get();
+  private void addProcessingTimeInMs(long ms) {
+    checkArgument(ms >= 0, "Processing time can not be < 0");
+    processingTime.addAndGet(ms);
   }
 
   @Override
   public long getPendingCount() {
-    long currentValue = pending.get();
-    return currentValue == PENDING_INITIAL_VALUE ? 0 : currentValue;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return dbClient.ceQueueDao().countByStatus(dbSession, CeQueueDto.Status.PENDING);
+    }
   }
 
   @Override
@@ -119,7 +86,7 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   }
 
   @Override
-  public long getProcessingTime() {
+  public long getProcessingTimeInMs() {
     return processingTime.get();
   }
 }

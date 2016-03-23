@@ -24,7 +24,7 @@ package org.sonar.process.jmx;
  */
 public interface EsSettingsMBean {
 
-  String OBJECT_NAME = "SonarQube:name=ElasticsearchConfig";
+  String OBJECT_NAME = "SonarQube:name=ElasticsearchSettings";
 
   /**
    * @return the enabled HTTP port, -1 if disabled

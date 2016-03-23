@@ -28,9 +28,11 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import org.junit.After;
 import org.junit.Test;
+import org.sonar.db.DbClient;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
 
 public class CEQueueStatusImplConcurrentTest {
   private ExecutorService executorService = Executors.newFixedThreadPool(10, new ThreadFactory() {
@@ -41,7 +43,7 @@ public class CEQueueStatusImplConcurrentTest {
       return new Thread(r, CEQueueStatusImplConcurrentTest.class.getSimpleName() + cnt++);
     }
   });
-  private CEQueueStatusImpl underTest = new CEQueueStatusImpl();
+  private CEQueueStatusImpl underTest = new CEQueueStatusImpl(mock(DbClient.class));
 
   @After
   public void tearDown() throws Exception {
@@ -50,28 +52,20 @@ public class CEQueueStatusImplConcurrentTest {
 
   @Test
   public void test_concurrent_modifications_in_any_order() throws InterruptedException {
-    long initialPendingCount = 9963L;
-    underTest.initPendingCount(initialPendingCount);
-
     for (Runnable runnable : buildShuffleCallsToUnderTest()) {
       executorService.submit(runnable);
     }
 
     executorService.awaitTermination(1, TimeUnit.SECONDS);
 
-    assertThat(underTest.getReceivedCount()).isEqualTo(100);
-    assertThat(underTest.getPendingCount()).isEqualTo(initialPendingCount + 2);
     assertThat(underTest.getInProgressCount()).isEqualTo(1);
     assertThat(underTest.getErrorCount()).isEqualTo(17);
     assertThat(underTest.getSuccessCount()).isEqualTo(80);
-    assertThat(underTest.getProcessingTime()).isEqualTo(177);
+    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(177);
   }
 
   private List<Runnable> buildShuffleCallsToUnderTest() {
     List<Runnable> res = new ArrayList<>();
-    for (int i = 0; i < 100; i++) {
-      res.add(new AddReceivedRunnable());
-    }
     for (int i = 0; i < 98; i++) {
       res.add(new AddInProgressRunnable());
     }
@@ -83,13 +77,6 @@ public class CEQueueStatusImplConcurrentTest {
     }
     Collections.shuffle(res);
     return res;
-  }
-
-  private class AddReceivedRunnable implements Runnable {
-    @Override
-    public void run() {
-      underTest.addReceived();
-    }
   }
 
   private class AddInProgressRunnable implements Runnable {

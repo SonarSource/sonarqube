@@ -20,45 +20,34 @@
 package org.sonar.server.platform.monitoring;
 
 import java.util.LinkedHashMap;
-import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
-import org.sonar.db.version.DatabaseVersion;
+import org.mockito.Mockito;
+import org.sonar.process.ProcessId;
+import org.sonar.process.jmx.CeTasksMBean;
+import org.sonar.process.jmx.JmxConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-public class DatabaseMonitorTest {
+public class CeTasksMonitorTest {
 
-  @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  DatabaseMonitor underTest;
-
-  @Before
-  public void setUp() {
-    DatabaseVersion dbVersion = new DatabaseVersion(dbTester.myBatis());
-    underTest = new DatabaseMonitor(dbVersion, dbTester.getDbClient());
-  }
+  JmxConnector jmxConnector = mock(JmxConnector.class, Mockito.RETURNS_DEEP_STUBS);
+  CeTasksMonitor underTest = new CeTasksMonitor(jmxConnector);
 
   @Test
-  public void name_is_not_empty() {
+  public void testName() {
     assertThat(underTest.name()).isNotEmpty();
   }
 
   @Test
-  public void db_info() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
-    assertThat(attributes.get("Database")).isEqualTo("H2");
-    assertThat(attributes.get("Database Version").toString()).startsWith("1.");
-    assertThat(attributes.get("Username")).isEqualTo("SONAR");
-    assertThat(attributes.get("Driver Version").toString()).startsWith("1.");
-  }
+  public void testAttributes() {
+    CeTasksMBean mbean = mock(CeTasksMBean.class, Mockito.RETURNS_DEFAULTS);
 
-  @Test
-  public void pool_info() {
+    when(jmxConnector.connect(ProcessId.COMPUTE_ENGINE).getMBean(CeTasksMBean.OBJECT_NAME, CeTasksMBean.class))
+      .thenReturn(mbean);
     LinkedHashMap<String, Object> attributes = underTest.attributes();
-    assertThat((int) attributes.get("Pool Max Connections")).isGreaterThan(0);
+    assertThat(attributes).containsKeys("Pending");
+    assertThat(attributes).hasSize(6);
   }
 }
