@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import java.io.File;
@@ -34,6 +35,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Nonnull;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
@@ -49,6 +51,8 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -77,11 +81,13 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   // List of plugins that should prevent the server to finish its startup
   private static final Set<String> FORBIDDEN_COMPATIBLE_PLUGINS = ImmutableSet.of("sqale", "report", "views");
   private static final Joiner SLASH_JOINER = Joiner.on(" / ").skipNulls();
+  private static final String NOT_STARTED_YET = "not started yet";
 
   private final Server server;
   private final DefaultServerFileSystem fs;
   private final ServerUpgradeStatus upgradeStatus;
   private final PluginLoader loader;
+  private final AtomicBoolean started = new AtomicBoolean(false);
   private Set<String> blacklistedPluginKeys = DEFAULT_BLACKLISTED_PLUGINS;
 
   // following fields are available after startup
@@ -109,15 +115,16 @@ public class ServerPluginRepository implements PluginRepository, Startable {
     unloadIncompatiblePlugins();
     logInstalledPlugins();
     loadInstances();
+    started.set(true);
   }
 
   @Override
   public void stop() {
     // close classloaders
     loader.unload(pluginInstancesByKeys.values());
-
     pluginInstancesByKeys.clear();
     pluginInfosByKeys.clear();
+    started.set(true);
   }
 
   /**
@@ -285,6 +292,8 @@ public class ServerPluginRepository implements PluginRepository, Startable {
    * Uninstall a plugin and its dependents
    */
   public void uninstall(String pluginKey) {
+    checkState(started.get(), NOT_STARTED_YET);
+
     Set<String> uninstallKeys = new HashSet<>();
     uninstallKeys.add(pluginKey);
     appendDependentPluginKeys(pluginKey, uninstallKeys);
@@ -342,11 +351,13 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public Collection<PluginInfo> getPluginInfos() {
-    return pluginInfosByKeys.values();
+    checkState(started.get(), NOT_STARTED_YET);
+    return ImmutableList.copyOf(pluginInfosByKeys.values());
   }
 
   @Override
   public PluginInfo getPluginInfo(String key) {
+    checkState(started.get(), NOT_STARTED_YET);
     PluginInfo info = pluginInfosByKeys.get(key);
     if (info == null) {
       throw new IllegalArgumentException(format("Plugin [%s] does not exist", key));
@@ -356,15 +367,15 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public Plugin getPluginInstance(String key) {
+    checkState(started.get(), NOT_STARTED_YET);
     Plugin plugin = pluginInstancesByKeys.get(key);
-    if (plugin == null) {
-      throw new IllegalArgumentException(format("Plugin [%s] does not exist", key));
-    }
+    checkArgument(plugin != null, "Plugin [%s] does not exist", key);
     return plugin;
   }
 
   @Override
   public boolean hasPlugin(String key) {
+    checkState(started.get(), NOT_STARTED_YET);
     return pluginInfosByKeys.containsKey(key);
   }
 

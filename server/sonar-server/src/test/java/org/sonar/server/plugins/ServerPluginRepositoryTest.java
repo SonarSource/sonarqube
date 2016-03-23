@@ -50,7 +50,7 @@ import static org.mockito.Mockito.when;
 public class ServerPluginRepositoryTest {
 
   @Rule
-  public ExpectedException thrown = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -291,6 +291,7 @@ public class ServerPluginRepositoryTest {
 
   @Test
   public void fail_to_get_missing_plugins() {
+    underTest.start();
     try {
       underTest.getPluginInfo("unknown");
       fail();
@@ -317,8 +318,8 @@ public class ServerPluginRepositoryTest {
   public void fail_when_views_is_installed() throws Exception {
     copyTestPluginTo("fake-views-plugin", fs.getInstalledPluginsDir());
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Plugin 'views' is no more compatible with this version of SonarQube");
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Plugin 'views' is no more compatible with this version of SonarQube");
     underTest.start();
   }
 
@@ -326,8 +327,8 @@ public class ServerPluginRepositoryTest {
   public void fail_when_sqale_plugin_is_installed() throws Exception {
     copyTestPluginTo("fake-sqale-plugin", fs.getInstalledPluginsDir());
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Plugin 'sqale' is no more compatible with this version of SonarQube");
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Plugin 'sqale' is no more compatible with this version of SonarQube");
     underTest.start();
   }
 
@@ -335,8 +336,8 @@ public class ServerPluginRepositoryTest {
   public void fail_when_report_is_installed() throws Exception {
     copyTestPluginTo("fake-report-plugin", fs.getInstalledPluginsDir());
 
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Plugin 'report' is no more compatible with this version of SonarQube");
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Plugin 'report' is no more compatible with this version of SonarQube");
     underTest.start();
   }
 
@@ -352,6 +353,38 @@ public class ServerPluginRepositoryTest {
     assertThat(ServerPluginRepository.isCompatible(plugin, server, plugins)).isTrue();
   }
 
+  @Test
+  public void getPluginInstance_throws_ISE_if_repo_is_not_started() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("not started yet");
+
+    underTest.getPluginInstance("foo");
+  }
+
+  @Test
+  public void getPluginInfo_throws_ISE_if_repo_is_not_started() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("not started yet");
+
+    underTest.getPluginInfo("foo");
+  }
+
+  @Test
+  public void hasPlugin_throws_ISE_if_repo_is_not_started() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("not started yet");
+
+    underTest.hasPlugin("foo");
+  }
+
+  @Test
+  public void getPluginInfos_throws_ISE_if_repo_is_not_started() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("not started yet");
+
+    underTest.getPluginInfos();
+  }
+  
   private File copyTestPluginTo(String testPluginName, File toDir) throws IOException {
     File jar = TestProjectUtils.jarOf(testPluginName);
     // file is copied because it's supposed to be moved by the test
