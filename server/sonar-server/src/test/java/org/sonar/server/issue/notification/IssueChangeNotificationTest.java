@@ -34,7 +34,6 @@ public class IssueChangeNotificationTest {
   public void set_issue() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
-      .setReporter("arthur")
       .setAssignee("simon")
       .setMessage("Remove this useless method")
       .setComponentKey("MyService")
@@ -43,7 +42,6 @@ public class IssueChangeNotificationTest {
     IssueChangeNotification result = notification.setIssue(issue);
 
     assertThat(result.getFieldValue("key")).isEqualTo("ABCD");
-    assertThat(result.getFieldValue("reporter")).isEqualTo("arthur");
     assertThat(result.getFieldValue("assignee")).isEqualTo("simon");
     assertThat(result.getFieldValue("message")).isEqualTo("Remove this useless method");
     assertThat(result.getFieldValue("componentKey")).isEqualTo("MyService");
@@ -55,7 +53,6 @@ public class IssueChangeNotificationTest {
   public void set_issue_with_current_change_having_no_old_value() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
-      .setReporter("arthur")
       .setAssignee("simon")
       .setMessage("Remove this useless method")
       .setComponentKey("MyService");
@@ -73,7 +70,6 @@ public class IssueChangeNotificationTest {
   public void set_issue_with_current_change_having_no_new_value() {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCD")
-      .setReporter("arthur")
       .setAssignee("simon")
       .setMessage("Remove this useless method")
       .setComponentKey("MyService");

@@ -20,16 +20,14 @@
 package org.sonar.server.issue.notification;
 
 import com.google.common.base.Strings;
-import org.sonar.api.component.Component;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.FieldDiffs;
-import org.sonar.api.notifications.Notification;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.component.Component;
+import org.sonar.api.notifications.Notification;
+import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.FieldDiffs;
 
 public class IssueChangeNotification extends Notification {
 
@@ -41,7 +39,6 @@ public class IssueChangeNotification extends Notification {
 
   public IssueChangeNotification setIssue(DefaultIssue issue) {
     setFieldValue("key", issue.key());
-    setFieldValue("reporter", issue.reporter());
     setFieldValue("assignee", issue.assignee());
     setFieldValue("message", issue.message());
     setFieldValue("componentKey", issue.componentKey());
