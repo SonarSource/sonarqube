@@ -56,7 +56,7 @@ public class ResourceDao extends AbstractDao {
   }
 
   @CheckForNull
-  private ResourceDto selectResource(ResourceQuery query, DbSession session) {
+  private static ResourceDto selectResource(ResourceQuery query, DbSession session) {
     List<ResourceDto> resources = getResources(query, session);
     if (!resources.isEmpty()) {
       return resources.get(0);

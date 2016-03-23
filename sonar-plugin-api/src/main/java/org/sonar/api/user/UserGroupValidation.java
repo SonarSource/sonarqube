@@ -26,7 +26,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
 
 public class UserGroupValidation {
 
-  private static final int GROUP_NAME_MAX_LENGTH = 255;
+  public static final int GROUP_NAME_MAX_LENGTH = 255;
 
   private UserGroupValidation() {
     // Only static methods

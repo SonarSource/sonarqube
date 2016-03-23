@@ -23,15 +23,15 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.Arrays;
 import org.sonar.api.utils.MessageException;
 
-public class RatingGrid {
+class RatingGrid {
 
   private final double[] gridValues;
 
-  public RatingGrid(double[] gridValues) {
+  RatingGrid(double[] gridValues) {
     this.gridValues = Arrays.copyOf(gridValues, gridValues.length);
   }
 
-  public Rating getRatingForDensity(double density) {
+  Rating getRatingForDensity(double density) {
     for (Rating rating : Rating.values()) {
       double lowerBound = getGradeLowerBound(rating);
       if (density >= lowerBound) {
@@ -53,7 +53,7 @@ public class RatingGrid {
     return gridValues;
   }
 
-  public enum Rating {
+  enum Rating {
     E(5),
     D(4),
     C(3),
@@ -68,15 +68,6 @@ public class RatingGrid {
 
     public int getIndex() {
       return index;
-    }
-
-    public static Rating createForIndex(int index) {
-      for (Rating rating : values()) {
-        if (rating.getIndex() == index) {
-          return rating;
-        }
-      }
-      throw new IllegalArgumentException("A maintainability rating must be in the range [1..5].");
     }
   }
 

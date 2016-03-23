@@ -30,9 +30,9 @@ import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.user.UserSession;
 
+import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.db.MyBatis.closeQuietly;
 import static org.sonar.server.usergroups.ws.UserGroupUpdater.DESCRIPTION_MAX_LENGTH;
-import static org.sonar.server.usergroups.ws.UserGroupUpdater.NAME_MAX_LENGTH;
 import static org.sonar.server.usergroups.ws.UserGroupUpdater.PARAM_DESCRIPTION;
 import static org.sonar.server.usergroups.ws.UserGroupUpdater.PARAM_NAME;
 
@@ -59,7 +59,7 @@ public class CreateAction implements UserGroupsWsAction {
 
     action.createParam(PARAM_NAME)
       .setDescription(String.format("Name for the new group. A group name cannot be larger than %d characters and must be unique. " +
-        "The value 'anyone' (whatever the case) is reserved and cannot be used.", NAME_MAX_LENGTH))
+        "The value 'anyone' (whatever the case) is reserved and cannot be used.", GROUP_NAME_MAX_LENGTH))
       .setExampleValue("sonar-users")
       .setRequired(true);
 

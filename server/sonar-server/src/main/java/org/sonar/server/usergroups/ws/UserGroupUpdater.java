@@ -20,7 +20,6 @@
 package org.sonar.server.usergroups.ws;
 
 import com.google.common.base.Preconditions;
-import org.sonar.api.security.DefaultGroups;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.UserGroupValidation;
 import org.sonar.api.utils.text.JsonWriter;
@@ -39,7 +38,6 @@ public class UserGroupUpdater {
   // Database column size should be 500 (since migration #353),
   // but on some instances, column size is still 255,
   // hence the validation is done with 255
-  static final int NAME_MAX_LENGTH = 255;
   static final int DESCRIPTION_MAX_LENGTH = 200;
 
   private final DbClient dbClient;
@@ -50,15 +48,6 @@ public class UserGroupUpdater {
 
   protected void validateName(String name) {
     UserGroupValidation.validateGroupName(name);
-  }
-
-  private static void checkNameLength(String name) {
-    Preconditions.checkArgument(!name.isEmpty(), "Name cannot be empty");
-    Preconditions.checkArgument(name.length() <= NAME_MAX_LENGTH, String.format("Name cannot be longer than %d characters", NAME_MAX_LENGTH));
-  }
-
-  private static void checkNameNotAnyone(String name) {
-    Preconditions.checkArgument(!DefaultGroups.isAnyone(name), String.format("Name '%s' is reserved (regardless of case)", DefaultGroups.ANYONE));
   }
 
   protected void checkNameIsUnique(String name, DbSession session) {
