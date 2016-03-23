@@ -299,8 +299,6 @@ import org.sonar.server.user.ws.UsersWs;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
 import org.sonar.server.usertoken.UserTokenModule;
 import org.sonar.server.util.TypeValidationModule;
-import org.sonar.server.view.bridge.ViewsBootstrap;
-import org.sonar.server.view.bridge.ViewsStopper;
 import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
@@ -689,10 +687,6 @@ public class PlatformLevel4 extends PlatformLevel {
       UninstallAction.class,
       CancelAllAction.class,
       PluginsWs.class,
-
-      // Views plugin
-      ViewsBootstrap.class,
-      ViewsStopper.class,
 
       // Developer Cockpit plugin
       DevCockpitBootstrap.class,
