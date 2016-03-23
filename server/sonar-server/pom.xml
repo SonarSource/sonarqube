@@ -171,10 +171,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-views-bridge</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>sonar-dev-cockpit-bridge</artifactId>
     </dependency>
     <dependency>

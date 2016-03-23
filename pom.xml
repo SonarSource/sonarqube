@@ -520,11 +520,6 @@
       </dependency>
       <dependency>
         <groupId>org.sonarsource.sonarqube</groupId>
-        <artifactId>sonar-views-bridge</artifactId>
-        <version>${project.version}</version>
-      </dependency>
-      <dependency>
-        <groupId>org.sonarsource.sonarqube</groupId>
         <artifactId>sonar-dev-cockpit-bridge</artifactId>
         <version>${project.version}</version>
       </dependency>

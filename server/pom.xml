@@ -16,7 +16,6 @@
     <module>sonar-search</module>
     <module>sonar-server</module>
     <module>sonar-ce</module>
-    <module>sonar-views-bridge</module>
     <module>sonar-dev-cockpit-bridge</module>
     <module>sonar-governance-bridge</module>
     <module>sonar-web</module>
