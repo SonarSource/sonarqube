@@ -110,8 +110,6 @@ import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
-import org.sonar.server.plugins.ServerPluginJarExploder;
-import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileComparison;
@@ -187,9 +185,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
 
     // plugins
     PluginClassloaderFactory.class,
-    ServerPluginJarExploder.class,
+    CePluginJarExploder.class,
     PluginLoader.class,
-    ServerPluginRepository.class,
+    CePluginRepository.class,
     InstalledPluginReferentialFactory.class,
     ServerExtensionInstaller.class,
 
