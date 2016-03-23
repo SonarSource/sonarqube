@@ -20,49 +20,31 @@
 package org.sonar.ce.container;
 
 import java.io.File;
-import java.io.IOException;
 import org.apache.commons.io.FileUtils;
-import org.picocontainer.Startable;
-import org.sonar.api.utils.TempFolder;
+import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginJarExploder;
 
-import static org.apache.commons.io.FileUtils.forceMkdir;
-
 /**
- * Explode plugin JARs into a temporary directory
+ * Explodes the plugin JARs of extensions/plugins/ into a temporary directory
+ * dedicated to compute engine.
  */
-public class CePluginJarExploder extends PluginJarExploder implements Startable {
+public class CePluginJarExploder extends PluginJarExploder {
 
-  private final TempFolder tempFolder;
-  private File rootDir;
+  private final ServerFileSystem fs;
 
-  public CePluginJarExploder(TempFolder tempFolder) {
-    this.tempFolder = tempFolder;
-  }
-
-  @Override
-  public void start() {
-    this.rootDir = tempFolder.newDir("ce-exploded-plugins");
-    try {
-      org.sonar.core.util.FileUtils.cleanDirectory(rootDir);
-    } catch (IOException e) {
-      throw new IllegalStateException("Can not clean " + rootDir, e);
-    }
-  }
-
-  @Override
-  public void stop() {
-
+  public CePluginJarExploder(ServerFileSystem fs) {
+    this.fs = fs;
   }
 
   @Override
   public ExplodedPlugin explode(PluginInfo pluginInfo) {
-    File toDir = new File(rootDir, pluginInfo.getKey());
+    File tempDir = new File(fs.getTempDir(), "ce-exploded-plugins");
+    File toDir = new File(tempDir, pluginInfo.getKey());
     try {
-      forceMkdir(toDir);
+      org.sonar.core.util.FileUtils.cleanDirectory(toDir);
 
       File jarSource = pluginInfo.getNonNullJarFile();
       File jarTarget = new File(toDir, jarSource.getName());
