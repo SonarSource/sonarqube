@@ -128,7 +128,6 @@ public class SearchActionMediumTest {
       .setSeverity("MAJOR")
       .setAuthorLogin("John")
       .setAssignee("simon")
-      .setReporter("fabrice")
       .setTags(asList("bug", "owasp"))
       .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));
@@ -222,8 +221,7 @@ public class SearchActionMediumTest {
     IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setAuthorLogin("John")
-      .setAssignee("simon")
-      .setReporter("fabrice");
+      .setAssignee("simon");
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();

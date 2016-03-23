@@ -171,7 +171,6 @@ public class SearchResponseLoader {
         componentUuids.add(issue.getComponentUuid());
         projectUuids.add(issue.getProjectUuid());
         add(RULES, issue.getRuleKey());
-        add(USERS, issue.getReporter());
         add(USERS, issue.getAssignee());
         collectComponentsFromIssueLocations(issue);
       }

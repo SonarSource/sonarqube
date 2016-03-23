@@ -52,7 +52,6 @@ public class SearchWsRequest {
   private List<String> projectKeys;
   private List<String> projectUuids;
   private List<String> projects;
-  private List<String> reporters;
   private List<String> resolutions;
   private Boolean resolved;
   private List<String> rules;
@@ -300,16 +299,6 @@ public class SearchWsRequest {
 
   public SearchWsRequest setProjectUuids(@Nullable List<String> projectUuids) {
     this.projectUuids = projectUuids;
-    return this;
-  }
-
-  @CheckForNull
-  public List<String> getReporters() {
-    return reporters;
-  }
-
-  public SearchWsRequest setReporters(@Nullable List<String> reporters) {
-    this.reporters = reporters;
     return this;
   }
 

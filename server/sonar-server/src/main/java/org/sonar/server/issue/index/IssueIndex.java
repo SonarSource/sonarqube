@@ -127,7 +127,9 @@ public class IssueIndex extends BaseIndex {
     LANGUAGES,
     TAGS,
     TYPES,
-    CREATED_AT);
+    CREATED_AT
+  );
+
 
   // TODO to be documented
   // TODO move to Facets ?
@@ -275,7 +277,6 @@ public class IssueIndex extends BaseIndex {
     filters.put(IssueIndexDefinition.FIELD_ISSUE_TAGS, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TAGS, query.tags()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_TYPE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_TYPE, query.types()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, query.resolutions()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_REPORTER, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_REPORTER, query.reporters()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_SEVERITY, query.severities()));
@@ -404,8 +405,6 @@ public class IssueIndex extends BaseIndex {
         LANGUAGES, IssueIndexDefinition.FIELD_ISSUE_LANGUAGE, query.languages().toArray());
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         RULES, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, query.rules().toArray());
-      addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
-        REPORTERS, IssueIndexDefinition.FIELD_ISSUE_REPORTER);
 
       addSimpleStickyFacetIfNeeded(options, stickyFacetBuilder, esSearch,
         AUTHORS, IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, query.authors().toArray());

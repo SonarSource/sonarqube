@@ -321,22 +321,6 @@ public class SearchWsRequestTest {
   }
 
   @Test
-  public void getReporters_returns_null_when_SearchWsRequest_has_just_been_instantiated() {
-    assertThat(underTest.getReporters()).isNull();
-  }
-
-  @Test
-  public void setReporters_accepts_null() {
-    underTest.setReporters(null);
-  }
-
-  @Test
-  public void getReporters_returns_object_from_setReporters() {
-    underTest.setReporters(LIST_OF_STRINGS);
-    assertThat(underTest.getReporters()).isSameAs(LIST_OF_STRINGS);
-  }
-
-  @Test
   public void getResolutions_returns_null_when_SearchWsRequest_has_just_been_instantiated() {
     assertThat(underTest.getResolutions()).isNull();
   }

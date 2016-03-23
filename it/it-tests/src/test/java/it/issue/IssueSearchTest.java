@@ -61,7 +61,7 @@ public class IssueSearchTest extends AbstractIssueTest {
   private static final String PROJECT_KEY2 = "com.sonarsource.it.samples:multi-modules-sample2";
 
   private static int DEFAULT_PAGINATED_RESULTS = 100;
-  private static int TOTAL_NB_ISSUES = 273;
+  private static int TOTAL_NB_ISSUES = 272;
 
   @BeforeClass
   public static void prepareData() {
@@ -83,15 +83,6 @@ public class IssueSearchTest extends AbstractIssueTest {
 
     // Resolve a issue to test search by status and by resolution
     adminIssueClient().doTransition(searchRandomIssue().key(), "resolve");
-
-    // Create a manual issue to test search by reporter
-    createManualRule();
-    adminIssueClient().create(
-      NewIssue.create().component("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")
-        .rule("manual:invalidclassname")
-        .line(3)
-        .severity("CRITICAL")
-        .message("The name of the class is invalid"));
   }
 
   @After
@@ -107,8 +98,8 @@ public class IssueSearchTest extends AbstractIssueTest {
   @Test
   public void search_issues_by_component_roots() {
     assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
-    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a")).list()).hasSize(83);
-    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")).list()).hasSize(37);
+    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a")).list()).hasSize(82);
+    assertThat(search(IssueQuery.create().componentRoots("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1")).list()).hasSize(36);
 
     assertThat(search(IssueQuery.create().componentRoots("unknown")).list()).isEmpty();
   }
@@ -117,14 +108,14 @@ public class IssueSearchTest extends AbstractIssueTest {
   public void search_issues_by_components() {
     assertThat(
       search(IssueQuery.create().components("com.sonarsource.it.samples:multi-modules-sample:module_a:module_a1:src/main/xoo/com/sonar/it/samples/modules/a1/HelloA1.xoo")).list())
-      .hasSize(35);
+        .hasSize(34);
     assertThat(search(IssueQuery.create().components("unknown")).list()).isEmpty();
   }
 
   @Test
   public void search_issues_by_severities() {
     assertThat(search(IssueQuery.create().severities("BLOCKER")).list()).hasSize(8);
-    assertThat(search(IssueQuery.create().severities("CRITICAL")).list()).hasSize(9);
+    assertThat(search(IssueQuery.create().severities("CRITICAL")).list()).hasSize(8);
     assertThat(search(IssueQuery.create().severities("MAJOR")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
     assertThat(search(IssueQuery.create().severities("MINOR")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
     assertThat(search(IssueQuery.create().severities("INFO")).list()).hasSize(4);
@@ -154,16 +145,9 @@ public class IssueSearchTest extends AbstractIssueTest {
   }
 
   @Test
-  public void search_issues_by_reporters() {
-    assertThat(search(IssueQuery.create().reporters("admin")).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().reporters("unknown")).list()).isEmpty();
-  }
-
-  @Test
   public void search_issues_by_rules() {
     assertThat(search(IssueQuery.create().rules("xoo:OneIssuePerLine")).list()).hasSize(DEFAULT_PAGINATED_RESULTS);
     assertThat(search(IssueQuery.create().rules("xoo:OneIssuePerFile")).list()).hasSize(8);
-    assertThat(search(IssueQuery.create().rules("manual:invalidclassname")).list()).hasSize(1);
 
     try {
       assertThat(search(IssueQuery.create().rules("unknown")).list()).isEmpty();
@@ -345,8 +329,7 @@ public class IssueSearchTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().adminWsClient().post("/api/rules/create", ImmutableMap.<String, Object>of(
       "manual_key", "invalidclassname",
       "name", "InvalidClassName",
-      "markdown_description", "Invalid class name"
-      ));
+      "markdown_description", "Invalid class name"));
   }
 
 }

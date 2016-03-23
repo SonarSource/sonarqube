@@ -202,19 +202,20 @@ public class IssueIndexTest {
 
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      .isEmpty();
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs())
-        .hasSize(1);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
-      .getDocs())
-        .hasSize(2);
+      .hasSize(1);
+    assertThat(
+      index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
+        .getDocs())
+      .hasSize(2);
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      .isEmpty();
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test
@@ -428,7 +429,7 @@ public class IssueIndexTest {
 
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions()).getDocs())
-        .hasSize(2);
+      .hasSize(2);
     assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -562,20 +563,6 @@ public class IssueIndexTest {
     assertThat(index.search(IssueQuery.builder(userSessionRule).assigned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder(userSessionRule).assigned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(index.search(IssueQuery.builder(userSessionRule).assigned(null).build(), new SearchOptions()).getDocs()).hasSize(3);
-  }
-
-  @Test
-  public void filter_by_reporters() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project);
-
-    indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setReporter("fabrice"),
-      IssueTesting.newDoc("ISSUE2", file).setReporter("stephane"));
-
-    assertThat(index.search(IssueQuery.builder(userSessionRule).reporters(newArrayList("fabrice", "stephane")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).reporters(newArrayList("fabrice")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).reporters(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -1047,7 +1034,7 @@ public class IssueIndexTest {
       IssueTesting.newDoc("F1_1", file1).setLine(null),
       IssueTesting.newDoc("F1_3", file1).setLine(25),
 
-    // file F2
+      // file F2
       IssueTesting.newDoc("F2_1", file2).setLine(9),
       IssueTesting.newDoc("F2_2", file2).setLine(109),
       // two issues on the same line -> sort by key

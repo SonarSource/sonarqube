@@ -64,7 +64,7 @@ public class SearchResponseFormat {
   }
 
   public Issues.SearchWsResponse formatSearch(Set<SearchAdditionalField> fields, SearchResponseData data,
-                                              Paging paging, @Nullable Facets facets) {
+    Paging paging, @Nullable Facets facets) {
     Issues.SearchWsResponse.Builder response = Issues.SearchWsResponse.newBuilder();
 
     formatPaging(paging, response);
@@ -161,9 +161,6 @@ public class SearchResponseFormat {
     issueBuilder.setSeverity(Common.Severity.valueOf(dto.getSeverity()));
     if (!Strings.isNullOrEmpty(dto.getAssignee())) {
       issueBuilder.setAssignee(dto.getAssignee());
-    }
-    if (!Strings.isNullOrEmpty(dto.getReporter())) {
-      issueBuilder.setReporter(dto.getReporter());
     }
     if (!Strings.isNullOrEmpty(dto.getResolution())) {
       issueBuilder.setResolution(dto.getResolution());

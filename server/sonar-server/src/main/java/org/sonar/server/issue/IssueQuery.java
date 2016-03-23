@@ -66,7 +66,6 @@ public class IssueQuery {
   private final Collection<String> files;
   private final Collection<String> views;
   private final Collection<RuleKey> rules;
-  private final Collection<String> reporters;
   private final Collection<String> assignees;
   private final Collection<String> authors;
   private final Collection<String> languages;
@@ -101,7 +100,6 @@ public class IssueQuery {
     this.files = defaultCollection(builder.files);
     this.views = defaultCollection(builder.views);
     this.rules = defaultCollection(builder.rules);
-    this.reporters = defaultCollection(builder.reporters);
     this.assignees = defaultCollection(builder.assignees);
     this.authors = defaultCollection(builder.authors);
     this.languages = defaultCollection(builder.languages);
@@ -169,10 +167,6 @@ public class IssueQuery {
 
   public Collection<RuleKey> rules() {
     return rules;
-  }
-
-  public Collection<String> reporters() {
-    return reporters;
   }
 
   public Collection<String> assignees() {
@@ -290,7 +284,6 @@ public class IssueQuery {
     private Collection<String> files;
     private Collection<String> views;
     private Collection<RuleKey> rules;
-    private Collection<String> reporters;
     private Collection<String> assignees;
     private Collection<String> authors;
     private Collection<String> languages;
@@ -373,11 +366,6 @@ public class IssueQuery {
 
     public Builder rules(@Nullable Collection<RuleKey> rules) {
       this.rules = rules;
-      return this;
-    }
-
-    public Builder reporters(@Nullable Collection<String> l) {
-      this.reporters = l;
       return this;
     }
 

@@ -53,6 +53,11 @@ public class IssueFilterParameters {
    */
   @Deprecated
   public static final String DEPRECATED_ACTION_PLANS = "actionPlans";
+
+  /**
+   * @deprecated since 5.5, manual issue feature has been dropped.
+   */
+  @Deprecated
   public static final String REPORTERS = "reporters";
   public static final String ASSIGNEES = "assignees";
   public static final String AUTHORS = "authors";

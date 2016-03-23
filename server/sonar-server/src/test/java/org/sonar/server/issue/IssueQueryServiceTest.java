@@ -162,7 +162,6 @@ public class IssueQueryServiceTest {
     assertThat(query.projectUuids()).containsOnly("ABCD");
     assertThat(query.moduleUuids()).containsOnly("BCDE");
     assertThat(query.fileUuids()).containsOnly("CDEF");
-    assertThat(query.reporters()).containsOnly("marilyn");
     assertThat(query.assignees()).containsOnly("joanna");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
@@ -490,6 +489,6 @@ public class IssueQueryServiceTest {
       .setSinceLeakPeriod(true)
       .setComponentUuids(Collections.singletonList("component-uuid"))
       .setProjectUuids(Collections.singletonList("project-uuid"))
-    );
+      );
   }
 }

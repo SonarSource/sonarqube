@@ -3,7 +3,6 @@
     {
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
       "assignee": "simon",
-      "reporter": "fabrice",
       "actions": [
         "comment", "assign", "set_tags", "set_type", "assign_to_me"
       ],
@@ -13,12 +12,6 @@
     }
   ],
   "users": [
-    {
-      "login": "fabrice",
-      "name": "Fabrice",
-      "email": "fabrice@email.com",
-      "active": true
-    },
     {
       "login": "simon",
       "name": "Simon",

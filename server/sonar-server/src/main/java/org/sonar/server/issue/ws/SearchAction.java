@@ -87,7 +87,6 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.PLANNED;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECTS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECT_UUIDS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.REPORTERS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLVED;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RULES;
@@ -125,14 +124,16 @@ public class SearchAction implements IssuesWsAction {
       .setDescription(
         "Search for issues. Requires Browse permission on project(s).<br/>" +
           "Since 5.5, response field 'debt' has been renamed to 'effort'.<br/>" +
-          "Since 5.5, response field 'actionPlan' has been removed")
+          "Since 5.5, response field 'actionPlan' has been removed.<br/>" +
+          "Since 5.5, response field 'reporter' has been removed, as manual issue feature has been dropped")
       .setSince("3.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
     action.createParam(Param.FACETS)
       .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.<br/>" +
-        "Since 5.5, facet 'actionPlans' is deprecated.")
+        "Since 5.5, facet 'actionPlans' is deprecated.<br/>" +
+        "Since 5.5, facet 'reporters' is deprecated.")
       .setPossibleValues(IssueIndex.SUPPORTED_FACETS);
     action.createParam(FACET_MODE)
       .setDefaultValue(FACET_MODE_COUNT)
@@ -182,9 +183,10 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("Since 5.5 this parameter is no more used, as action plan feature has been dropped")
       .setDeprecatedSince("5.5")
       .setBooleanPossibleValues();
-    action.createParam(REPORTERS)
-      .setDescription("Comma-separated list of reporter logins")
-      .setExampleValue("admin");
+    action.createParam("reporters")
+      .setDescription("Since 5.5 this parameter is no more used, as manual issue feature has been dropped")
+      .setExampleValue("admin")
+      .setDeprecatedSince("5.5");
     action.createParam(AUTHORS)
       .setDescription("Comma-separated list of SCM accounts")
       .setExampleValue("torvalds@linux-foundation.org");
@@ -356,7 +358,6 @@ public class SearchAction implements IssuesWsAction {
     }
     addMandatoryValuesToFacet(facets, ASSIGNEES, assignees);
     addMandatoryValuesToFacet(facets, FACET_ASSIGNED_TO_ME, singletonList(userSession.getLogin()));
-    addMandatoryValuesToFacet(facets, REPORTERS, request.getReporters());
     addMandatoryValuesToFacet(facets, RULES, request.getRules());
     addMandatoryValuesToFacet(facets, LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, TAGS, request.getTags());
@@ -414,7 +415,6 @@ public class SearchAction implements IssuesWsAction {
     collector.addComponentUuids(facets.getBucketKeys(FILE_UUIDS));
     collector.addComponentUuids(facets.getBucketKeys(MODULE_UUIDS));
     collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(ASSIGNEES));
-    collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(REPORTERS));
   }
 
   private void collectRequestParams(SearchResponseLoader.Collector collector, SearchWsRequest request) {
@@ -423,7 +423,6 @@ public class SearchAction implements IssuesWsAction {
     collector.addComponentUuids(request.getModuleUuids());
     collector.addComponentUuids(request.getComponentRootUuids());
     collector.addAll(SearchAdditionalField.USERS, request.getAssignees());
-    collector.addAll(SearchAdditionalField.USERS, request.getReporters());
   }
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
@@ -455,7 +454,6 @@ public class SearchAction implements IssuesWsAction {
       .setProjectKeys(request.paramAsStrings(PROJECT_KEYS))
       .setProjectUuids(request.paramAsStrings(PROJECT_UUIDS))
       .setProjects(request.paramAsStrings(PROJECTS))
-      .setReporters(request.paramAsStrings(REPORTERS))
       .setResolutions(request.paramAsStrings(RESOLUTIONS))
       .setResolved(request.paramAsBoolean(RESOLVED))
       .setRules(request.paramAsStrings(RULES))

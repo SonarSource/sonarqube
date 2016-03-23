@@ -10,7 +10,6 @@
       "message": "the message",
       "effort": "10min",
       "assignee": "simon",
-      "reporter": "fabrice",
       "author": "John",
       "tags": [
         "bug",

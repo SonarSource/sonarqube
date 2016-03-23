@@ -45,7 +45,6 @@ public class IssueQueryTest {
       .componentUuids(newArrayList("org/struts/Action.java"))
       .moduleUuids(newArrayList("org.struts:core"))
       .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
-      .reporters(newArrayList("crunky"))
       .assignees(newArrayList("gargantua"))
       .languages(newArrayList("xoo"))
       .tags(newArrayList("tag1", "tag2"))
@@ -65,7 +64,6 @@ public class IssueQueryTest {
     assertThat(query.resolutions()).containsOnly(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(query.componentUuids()).containsOnly("org/struts/Action.java");
     assertThat(query.moduleUuids()).containsOnly("org.struts:core");
-    assertThat(query.reporters()).containsOnly("crunky");
     assertThat(query.assignees()).containsOnly("gargantua");
     assertThat(query.languages()).containsOnly("xoo");
     assertThat(query.tags()).containsOnly("tag1", "tag2");
@@ -115,7 +113,6 @@ public class IssueQueryTest {
       .moduleUuids(null)
       .statuses(null)
       .assignees(null)
-      .reporters(null)
       .resolutions(null)
       .rules(null)
       .severities(null)
@@ -128,7 +125,6 @@ public class IssueQueryTest {
     assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
     assertThat(query.assignees()).isEmpty();
-    assertThat(query.reporters()).isEmpty();
     assertThat(query.resolutions()).isEmpty();
     assertThat(query.rules()).isEmpty();
     assertThat(query.severities()).isEmpty();
@@ -145,7 +141,6 @@ public class IssueQueryTest {
     assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
     assertThat(query.assignees()).isEmpty();
-    assertThat(query.reporters()).isEmpty();
     assertThat(query.resolutions()).isEmpty();
     assertThat(query.rules()).isEmpty();
     assertThat(query.severities()).isEmpty();

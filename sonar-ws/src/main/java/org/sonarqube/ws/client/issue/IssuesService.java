@@ -49,7 +49,6 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.ON_COMPONENT_O
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECTS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECT_UUIDS;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.REPORTERS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLUTIONS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RESOLVED;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.RULES;
@@ -95,7 +94,6 @@ public class IssuesService extends BaseService {
         .setParam(PROJECT_KEYS, inlineMultipleParamValue(request.getProjectKeys()))
         .setParam(PROJECT_UUIDS, inlineMultipleParamValue(request.getProjectUuids()))
         .setParam(PROJECTS, inlineMultipleParamValue(request.getProjects()))
-        .setParam(REPORTERS, inlineMultipleParamValue(request.getReporters()))
         .setParam(RESOLUTIONS, inlineMultipleParamValue(request.getResolutions()))
         .setParam(RESOLVED, request.getResolved())
         .setParam(RULES, inlineMultipleParamValue(request.getRules()))
