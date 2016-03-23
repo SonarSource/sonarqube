@@ -64,7 +64,6 @@ public class IssueTesting {
     doc.setKey("ABC");
     doc.setRuleKey(RuleTesting.XOO_X1.toString());
     doc.setType(RuleType.CODE_SMELL);
-    doc.setReporter(null);
     doc.setAssignee("steve");
     doc.setAuthorLogin("roger");
     doc.setLanguage("xoo");

@@ -24,7 +24,7 @@
       component_uuid="FILE1"
       project_uuid="PROJECT1"
       rule_id="200"
-      reporter="john"
+      reporter="[null]"
       issue_attributes="JIRA=http://jira.com"
       action_plan_key="PLAN1"
       tags="tag1,tag2,tag3"

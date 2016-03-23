@@ -144,10 +144,14 @@ public class IssueDoc extends BaseDoc implements Issue {
     return getNullableField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION);
   }
 
+  /**
+   * @deprecated since 5.5
+   */
+  @Deprecated
   @Override
   @CheckForNull
   public String reporter() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_REPORTER);
+    throw new UnsupportedOperationException("manual issue feature has been dropped");
   }
 
   @Override
@@ -321,11 +325,6 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   public IssueDoc setResolution(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION, s);
-    return this;
-  }
-
-  public IssueDoc setReporter(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_REPORTER, s);
     return this;
   }
 

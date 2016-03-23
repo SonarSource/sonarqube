@@ -191,7 +191,6 @@ public class IssueIndexBenchmarkTest {
       issue.setEffort(1000L);
       issue.setGap(3.14);
       issue.setLanguage("php");
-      issue.setReporter(users.next());
       issue.setRuleKey(rules.next());
       issue.setResolution(resolutions.next());
       issue.setStatus(statuses.next());

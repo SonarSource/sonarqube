@@ -69,7 +69,6 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.isManualSeverity()).isFalse();
     assertThat(issue.assignee()).isEqualTo("guy1");
     assertThat(issue.authorLogin()).isEqualTo("guy2");
-    assertThat(issue.reporter()).isEqualTo("john");
     assertThat(issue.checksum()).isEqualTo("FFFFF");
     assertThat(issue.line()).isEqualTo(444);
     assertThat(issue.ruleKey()).isEqualTo(RuleKey.of("squid", "AvoidCycles"));

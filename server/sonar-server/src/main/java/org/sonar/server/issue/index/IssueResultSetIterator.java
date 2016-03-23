@@ -66,15 +66,14 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "i.checksum",
     "i.status",
     "i.effort",
-    "i.reporter",
     "i.author_login",
     "i.issue_close_date",
     "i.issue_creation_date",
     "i.issue_update_date",
     "r.plugin_name",
+    "r.plugin_rule_key",
 
     // column 21
-    "r.plugin_rule_key",
     "r.language",
     "p.uuid",
     "p.module_uuid_path",
@@ -172,26 +171,25 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setChecksum(rs.getString(12));
     doc.setStatus(rs.getString(13));
     doc.setEffort(getLong(rs, 14));
-    doc.setReporter(rs.getString(15));
-    doc.setAuthorLogin(rs.getString(16));
-    doc.setFuncCloseDate(longToDate(getLong(rs, 17)));
-    doc.setFuncCreationDate(longToDate(getLong(rs, 18)));
-    doc.setFuncUpdateDate(longToDate(getLong(rs, 19)));
-    String ruleRepo = rs.getString(20);
-    String ruleKey = rs.getString(21);
+    doc.setAuthorLogin(rs.getString(15));
+    doc.setFuncCloseDate(longToDate(getLong(rs, 16)));
+    doc.setFuncCreationDate(longToDate(getLong(rs, 17)));
+    doc.setFuncUpdateDate(longToDate(getLong(rs, 18)));
+    String ruleRepo = rs.getString(19);
+    String ruleKey = rs.getString(20);
     doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
-    doc.setLanguage(rs.getString(22));
-    doc.setComponentUuid(rs.getString(23));
-    String moduleUuidPath = rs.getString(24);
+    doc.setLanguage(rs.getString(21));
+    doc.setComponentUuid(rs.getString(22));
+    String moduleUuidPath = rs.getString(23);
     doc.setModuleUuid(extractModule(moduleUuidPath));
     doc.setModuleUuidPath(moduleUuidPath);
-    String scope = rs.getString(26);
-    String filePath = extractFilePath(rs.getString(25), scope);
+    String scope = rs.getString(25);
+    String filePath = extractFilePath(rs.getString(24), scope);
     doc.setFilePath(filePath);
     doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
-    String tags = rs.getString(27);
+    String tags = rs.getString(26);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
-    doc.setType(RuleType.valueOf(rs.getInt(28)));
+    doc.setType(RuleType.valueOf(rs.getInt(27)));
     return doc;
   }
 }
