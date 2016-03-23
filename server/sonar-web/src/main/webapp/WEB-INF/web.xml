@@ -30,6 +30,14 @@
     <param-name>jruby.rack.logging</param-name>
     <param-value>slf4j</param-value>
   </context-param>
+  <context-param>
+    <param-name>jruby.rack.error</param-name>
+    <param-value>true</param-value>
+  </context-param>
+  <context-param>
+    <param-name>jruby.rack.exception</param-name>
+    <param-value>true</param-value>
+  </context-param>
 
   <filter>
     <filter-name>ServletFilters</filter-name>
