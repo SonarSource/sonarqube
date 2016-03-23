@@ -24,6 +24,7 @@ import com.google.common.collect.Iterables;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -32,6 +33,7 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
+@ComputeEngineSide
 public class QProfileLookup {
 
   private final DbClient db;

@@ -35,6 +35,7 @@ import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RuleFinder;
 import org.sonar.api.rules.RulePriority;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
 
@@ -42,6 +43,7 @@ import org.sonar.api.utils.ValidationMessages;
  * @since 2.3
  */
 @ServerSide
+@ComputeEngineSide
 public class XMLProfileParser {
 
   private final RuleFinder ruleFinder;

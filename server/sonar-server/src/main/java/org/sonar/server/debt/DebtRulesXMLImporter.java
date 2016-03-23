@@ -37,6 +37,7 @@ import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.ValidationMessages;
@@ -68,6 +69,7 @@ import static org.sonar.server.debt.DebtModelXMLExporter.RULE_KEY;
  * Import rules debt definitions from an XML
  */
 @ServerSide
+@ComputeEngineSide
 public class DebtRulesXMLImporter {
 
   public List<RuleDebt> importXML(String xml, ValidationMessages validationMessages) {

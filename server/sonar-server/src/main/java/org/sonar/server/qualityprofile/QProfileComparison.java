@@ -31,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -39,6 +40,7 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 
 @ServerSide
+@ComputeEngineSide
 public class QProfileComparison {
 
   private final DbClient dbClient;

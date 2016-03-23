@@ -19,12 +19,14 @@
  */
 package org.sonar.server.issue.notification;
 
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Durations;
 import org.sonar.db.DbClient;
 import org.sonar.server.user.index.UserIndex;
 
 @ServerSide
+@ComputeEngineSide
 public class NewIssuesNotificationFactory {
   private final UserIndex userIndex;
   private final DbClient dbClient;

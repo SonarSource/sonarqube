@@ -20,8 +20,9 @@
 package org.sonar.api.server.rule;
 
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.i18n.RuleI18n;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * Loads the English bundles of rules (name, description and parameters) that are
@@ -36,6 +37,7 @@ import org.sonar.api.i18n.RuleI18n;
  * @since 4.3
  */
 @ServerSide
+@ComputeEngineSide
 public class RulesDefinitionI18nLoader {
 
   private final RuleI18n i18n;

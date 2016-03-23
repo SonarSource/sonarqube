@@ -25,6 +25,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.HasResolution;
 import org.sonar.api.issue.condition.NotCondition;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
@@ -32,6 +33,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueUpdater;
 
 @ServerSide
+@ComputeEngineSide
 public class IssueWorkflow implements Startable {
 
   public static final String AUTOMATIC_CLOSE_TRANSITION = "automaticclose";

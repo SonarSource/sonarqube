@@ -27,6 +27,7 @@ import java.util.TimeZone;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.SystemUtils;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -64,6 +65,7 @@ import org.sonar.api.server.ServerSide;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public class System2 {
 
   public static final System2 INSTANCE = new System2();

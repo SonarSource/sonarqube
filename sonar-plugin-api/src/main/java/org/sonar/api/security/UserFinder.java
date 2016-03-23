@@ -20,6 +20,7 @@
 package org.sonar.api.security;
 
 import org.sonar.api.database.model.User;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -28,6 +29,7 @@ import org.sonar.api.server.ServerSide;
  */
 @Deprecated
 @ServerSide
+@ComputeEngineSide
 public interface UserFinder {
 
   User findById(int id);

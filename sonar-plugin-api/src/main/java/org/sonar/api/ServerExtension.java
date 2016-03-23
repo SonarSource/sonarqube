@@ -19,13 +19,14 @@
  */
 package org.sonar.api;
 
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
  * Server extension point.
  *
  * @since 1.10
- * @deprecated since 5.2 replaced by {@link ServerSide} and {@link ExtensionPoint} annotations
+ * @deprecated since 5.2. Use annotations {@link ServerSide} or {@link ComputeEngineSide} and {@link ExtensionPoint}
  */
 @Deprecated
 public interface ServerExtension extends Extension, ServerComponent {

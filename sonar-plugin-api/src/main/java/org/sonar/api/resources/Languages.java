@@ -20,17 +20,17 @@
 package org.sonar.api.resources;
 
 import com.google.common.collect.Maps;
-import org.apache.commons.lang.ArrayUtils;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.ArrayUtils;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * A class to store the list of languages
@@ -39,6 +39,7 @@ import java.util.Map;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public class Languages {
 
   private static final Logger LOG = Loggers.get(Languages.class);

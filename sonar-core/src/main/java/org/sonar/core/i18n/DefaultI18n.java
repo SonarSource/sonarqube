@@ -43,6 +43,7 @@ import org.apache.commons.io.IOUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.System2;
@@ -53,6 +54,7 @@ import org.sonar.core.platform.PluginRepository;
 
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public class DefaultI18n implements I18n, Startable {
 
   private static final Logger LOG = Loggers.get(DefaultI18n.class);

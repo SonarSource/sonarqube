@@ -25,9 +25,6 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.io.Files;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -35,6 +32,9 @@ import java.nio.charset.Charset;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * Reads different types of URI. Supported schemes are http and file.
@@ -43,6 +43,7 @@ import java.util.Map;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public class UriReader {
 
   private final Map<String, SchemeProcessor> processorsByScheme = Maps.newHashMap();

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
@@ -35,6 +36,7 @@ import org.sonar.server.user.UserSession;
  * Permission checks should also be done in the upper service.
  */
 @ServerSide
+@ComputeEngineSide
 public class QProfileProjectOperations {
 
   private final DbClient db;

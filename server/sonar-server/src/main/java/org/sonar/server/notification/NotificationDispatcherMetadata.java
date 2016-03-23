@@ -21,6 +21,7 @@ package org.sonar.server.notification;
 
 import com.google.common.collect.Maps;
 import java.util.Map;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -31,6 +32,7 @@ import org.sonar.api.server.ServerSide;
  * Instances of these classes must be declared by {@link org.sonar.api.Plugin}.
  */
 @ServerSide
+@ComputeEngineSide
 public final class NotificationDispatcherMetadata {
 
   public static final String GLOBAL_NOTIFICATION = "globalNotification";

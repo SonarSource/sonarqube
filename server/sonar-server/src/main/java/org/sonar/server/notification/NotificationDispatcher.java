@@ -23,6 +23,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -39,6 +40,7 @@ import org.sonar.api.server.ServerSide;
  * </ul> 
   */
 @ServerSide
+@ComputeEngineSide
 @ExtensionPoint
 public abstract class NotificationDispatcher {
 

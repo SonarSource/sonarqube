@@ -28,12 +28,12 @@ import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.config.Settings;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.process.ProcessProperties;
 
 import static java.lang.String.format;
 
-@ServerSide
+@ComputeEngineSide
 public class ReportFiles {
 
   private static final String ZIP_EXTENSION = "zip";

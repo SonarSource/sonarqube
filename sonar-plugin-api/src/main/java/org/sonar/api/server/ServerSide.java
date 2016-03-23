@@ -26,7 +26,7 @@ import java.lang.annotation.Target;
 import org.sonar.api.batch.BatchSide;
 
 /**
- * Same than {@link BatchSide} but for server-side components.
+ * Same as {@link BatchSide} but for server-side components.
  *
  * @since 5.2
  */

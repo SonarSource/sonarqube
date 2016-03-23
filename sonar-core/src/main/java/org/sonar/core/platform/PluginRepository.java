@@ -22,6 +22,7 @@ package org.sonar.core.platform;
 import java.util.Collection;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -29,6 +30,7 @@ import org.sonar.api.server.ServerSide;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public interface PluginRepository {
 
   Collection<PluginInfo> getPluginInfos();

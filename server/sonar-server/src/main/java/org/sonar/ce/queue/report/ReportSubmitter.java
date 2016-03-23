@@ -23,21 +23,21 @@ import java.io.InputStream;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.ce.queue.CeQueue;
+import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
 import org.sonar.server.component.NewComponent;
-import org.sonar.ce.queue.CeQueue;
-import org.sonar.ce.queue.CeTask;
-import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
-@ServerSide
+@ComputeEngineSide
 public class ReportSubmitter {
 
   private final CeQueue queue;

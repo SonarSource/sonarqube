@@ -19,13 +19,12 @@
  */
 package org.sonar.api.i18n;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
-import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.Locale;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * Main component that provides translation facilities.
@@ -34,6 +33,7 @@ import java.util.Locale;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public interface I18n {
 
   /**

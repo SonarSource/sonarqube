@@ -21,7 +21,8 @@ package org.sonar.server.computation.queue;
 
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
@@ -31,7 +32,7 @@ import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;
  * the execution of workers. That allows to not prevent workers
  * from peeking the queue before it's ready.
  */
-@ServerSide
+@ComputeEngineSide
 public class CeQueueInitializer implements ServerStartHandler {
 
   private final DbClient dbClient;

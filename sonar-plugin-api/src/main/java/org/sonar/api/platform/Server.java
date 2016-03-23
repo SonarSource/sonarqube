@@ -23,6 +23,7 @@ import java.io.File;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -30,6 +31,7 @@ import org.sonar.api.server.ServerSide;
   */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public abstract class Server {
 
   public abstract String getId();

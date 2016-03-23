@@ -21,6 +21,7 @@ package org.sonar.api.user;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -29,6 +30,7 @@ import org.sonar.api.server.ServerSide;
  */
 @Deprecated
 @ServerSide
+@ComputeEngineSide
 public interface UserFinder {
 
   @CheckForNull

@@ -21,6 +21,7 @@ package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Optional;
 import java.util.Map;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.platform.ws.InfoAction;
 
@@ -28,6 +29,7 @@ import org.sonar.server.platform.ws.InfoAction;
  * Any component that is involved in the information returned by the web service api/system/info
  */
 @ServerSide
+@ComputeEngineSide
 public interface Monitor {
   /**
    * Name of section in System Info page

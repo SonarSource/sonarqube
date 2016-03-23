@@ -21,6 +21,7 @@ package org.sonar.server.issue.workflow;
 
 import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
 import org.sonar.core.issue.DefaultIssue;
@@ -28,6 +29,7 @@ import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.server.issue.IssueUpdater;
 
 @ServerSide
+@ComputeEngineSide
 public class FunctionExecutor {
 
   private final IssueUpdater updater;

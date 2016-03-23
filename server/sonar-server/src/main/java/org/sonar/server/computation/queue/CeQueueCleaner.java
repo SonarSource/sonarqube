@@ -22,7 +22,7 @@ package org.sonar.server.computation.queue;
 import java.util.HashSet;
 import java.util.Set;
 import org.sonar.api.platform.ServerUpgradeStatus;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.ce.queue.report.ReportFiles;
@@ -35,7 +35,7 @@ import org.sonar.db.ce.CeTaskTypes;
  * Cleans-up the Compute Engine queue and resets the JMX counters.
  * CE workers must not be started before execution of this class.
  */
-@ServerSide
+@ComputeEngineSide
 public class CeQueueCleaner {
 
   private static final Logger LOGGER = Loggers.get(CeQueueCleaner.class);

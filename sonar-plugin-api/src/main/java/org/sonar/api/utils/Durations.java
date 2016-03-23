@@ -25,6 +25,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -34,6 +35,7 @@ import org.sonar.api.server.ServerSide;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public class Durations {
 
   public enum DurationFormat {

@@ -24,7 +24,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition.Builder;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.ce.ComputeEngineSide;
 
 /**
  * Define how to compute new measures on some metrics declared by {@link org.sonar.api.measures.Metrics}.
@@ -88,7 +88,7 @@ import org.sonar.api.server.ServerSide;
  *
  * @since 5.2
  */
-@ServerSide
+@ComputeEngineSide
 @ExtensionPoint
 public interface MeasureComputer {
 

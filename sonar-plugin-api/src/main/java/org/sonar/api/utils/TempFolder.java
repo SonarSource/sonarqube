@@ -19,12 +19,11 @@
  */
 package org.sonar.api.utils;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
-import javax.annotation.Nullable;
-
 import java.io.File;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * Use this component to deal with temp files/folders. Root location of temp files/folders
@@ -38,6 +37,7 @@ import java.io.File;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public interface TempFolder {
 
   /**

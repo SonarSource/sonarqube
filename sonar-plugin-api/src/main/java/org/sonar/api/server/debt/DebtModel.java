@@ -19,16 +19,17 @@
  */
 package org.sonar.api.server.debt;
 
-import javax.annotation.CheckForNull;
-import org.sonar.api.server.ServerSide;
-
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 4.3
  * @deprecated in 5.2. It will be dropped in version 6.0 (see https://jira.sonarsource.com/browse/SONAR-6393)
  */
 @ServerSide
+@ComputeEngineSide
 @Deprecated
 public interface DebtModel {
 

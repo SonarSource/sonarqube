@@ -23,10 +23,12 @@ import org.sonar.api.batch.BatchSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypeTree;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public final class DefaultResourceTypes {
 
   private static final String SUPPORTS_MEASURE_FILTERS = "supportsMeasureFilters";

@@ -24,8 +24,12 @@ import com.google.common.base.Function;
 import com.google.common.base.Functions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Lists;
+import java.lang.reflect.Field;
+import java.util.Collection;
+import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.PropertyType;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.api.utils.FieldUtils2;
@@ -33,16 +37,13 @@ import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
-import java.lang.reflect.Field;
-import java.util.Collection;
-import java.util.List;
-
 /**
  * @since 2.3
  * @deprecated in 4.2. Replaced by {@link org.sonar.api.server.rule.RulesDefinitionAnnotationLoader}
  */
 @Deprecated
 @ServerSide
+@ComputeEngineSide
 public final class AnnotationRuleParser {
 
   private static final Logger LOG = Loggers.get(AnnotationRuleParser.class);

@@ -23,15 +23,14 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSetMultimap;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.SetMultimap;
-import org.apache.commons.lang.builder.CompareToBuilder;
-import org.sonar.api.server.ServerSide;
-import org.sonar.api.server.rule.RulesDefinition;
-
-import javax.annotation.CheckForNull;
-
 import java.util.Collection;
 import java.util.Map;
 import java.util.SortedSet;
+import javax.annotation.CheckForNull;
+import org.apache.commons.lang.builder.CompareToBuilder;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.rule.RulesDefinition;
 
 /**
  * This component keeps metadata of rule repositories.
@@ -42,6 +41,7 @@ import java.util.SortedSet;
  * @since 4.2
  */
 @ServerSide
+@ComputeEngineSide
 public class RuleRepositories {
 
   public static class Repository implements Comparable<Repository> {

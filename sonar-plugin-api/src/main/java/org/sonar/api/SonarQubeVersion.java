@@ -21,6 +21,7 @@ package org.sonar.api;
 
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
 
@@ -104,6 +105,7 @@ import static java.util.Objects.requireNonNull;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 @Immutable
 public class SonarQubeVersion {
 

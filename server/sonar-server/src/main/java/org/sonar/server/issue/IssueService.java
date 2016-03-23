@@ -36,6 +36,7 @@ import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
@@ -61,6 +62,7 @@ import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
 @ServerSide
+@ComputeEngineSide
 public class IssueService {
 
   private final DbClient dbClient;

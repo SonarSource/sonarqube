@@ -20,8 +20,9 @@
 package org.sonar.api.config;
 
 import com.google.common.base.Objects;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -31,6 +32,7 @@ import org.sonar.api.server.ServerSide;
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public class EmailSettings {
   public static final String SMTP_HOST = "email.smtp_host.secured";
   public static final String SMTP_HOST_DEFAULT = "";

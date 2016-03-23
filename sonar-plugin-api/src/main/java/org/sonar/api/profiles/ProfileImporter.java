@@ -19,13 +19,12 @@
  */
 package org.sonar.api.profiles;
 
+import java.io.Reader;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ValidationMessages;
-
-import java.io.Reader;
 
 /**
  * @since 2.3

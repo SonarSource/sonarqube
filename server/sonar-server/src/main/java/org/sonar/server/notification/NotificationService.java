@@ -40,6 +40,7 @@ import org.sonar.api.Property;
 import org.sonar.api.config.Settings;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -60,6 +61,7 @@ import org.sonar.db.DbClient;
     global = false)
 })
 @ServerSide
+@ComputeEngineSide
 public class NotificationService implements Startable {
   private static final String THREAD_NAME_PREFIX = "sq-notification-service-";
 

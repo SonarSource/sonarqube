@@ -23,6 +23,7 @@ import java.util.Date;
 import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
@@ -39,6 +40,7 @@ import org.sonar.server.issue.index.IssueIndex;
 import static org.sonar.db.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
 @ServerSide
+@ComputeEngineSide
 public class ProjectCleaner {
   private static final Logger LOG = Loggers.get(ProjectCleaner.class);
 

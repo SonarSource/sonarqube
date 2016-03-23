@@ -26,19 +26,20 @@ import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableListMultimap;
 import com.google.common.collect.ListMultimap;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.server.ServerSide;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.14
  */
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public class ResourceTypeTree {
 
   private final List<ResourceType> types;

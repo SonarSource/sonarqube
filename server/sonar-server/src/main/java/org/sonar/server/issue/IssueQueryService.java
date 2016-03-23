@@ -41,6 +41,7 @@ import org.joda.time.DateTime;
 import org.joda.time.format.ISOPeriodFormat;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
@@ -74,6 +75,7 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.SINCE_LEAK_PER
  * This component is used to create an IssueQuery, in order to transform the component and component roots keys into uuid.
  */
 @ServerSide
+@ComputeEngineSide
 public class IssueQueryService {
 
   public static final String LOGIN_MYSELF = "__me__";

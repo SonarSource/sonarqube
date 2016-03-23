@@ -23,17 +23,17 @@ import java.util.Calendar;
 import java.util.List;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.log.LogFileRef;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
-import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
 
-@ServerSide
+@ComputeEngineSide
 public class PurgeCeActivities implements ServerStartHandler {
 
   private static final Logger LOGGER = Loggers.get(PurgeCeActivities.class);

@@ -25,6 +25,7 @@ import org.apache.commons.lang.StringUtils;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.i18n.RuleI18n;
 import org.sonar.api.rules.Rule;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -33,6 +34,7 @@ import org.sonar.api.server.ServerSide;
 @Deprecated
 @BatchSide
 @ServerSide
+@ComputeEngineSide
 public class RuleI18nManager implements RuleI18n {
 
   private static final String NAME_SUFFIX = ".name";

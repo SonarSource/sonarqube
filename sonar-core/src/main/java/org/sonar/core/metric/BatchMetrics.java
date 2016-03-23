@@ -28,7 +28,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-import org.sonar.api.server.ServerSide;
+import org.sonar.api.ce.ComputeEngineSide;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
@@ -86,7 +86,7 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
  * <p/>
  * The batch should not send other metrics, and the Compute Engine should not allow other metrics.
  */
-@ServerSide
+@ComputeEngineSide
 @BatchSide
 public class BatchMetrics {
 

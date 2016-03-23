@@ -79,7 +79,7 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getComponentAdapters())
       .hasSize(
         CONTAINER_ITSELF
-          + 78 // level 4
+          + 77 // level 4
           + 5 // content of CeModule
           + 7 // content of CeQueueModule
           + 4 // content of ReportProcessingModule

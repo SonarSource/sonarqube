@@ -33,6 +33,7 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.user.User;
@@ -48,6 +49,7 @@ import static com.google.common.base.Strings.isNullOrEmpty;
  * Updates issue fields and chooses if changes must be kept in history.
  */
 @ServerSide
+@ComputeEngineSide
 public class IssueUpdater {
 
   public static final String UNUSED = "";

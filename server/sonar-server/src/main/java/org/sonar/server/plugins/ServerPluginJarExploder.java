@@ -21,6 +21,7 @@ package org.sonar.server.plugins;
 
 import java.io.File;
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.ZipUtils;
 import org.sonar.core.platform.ExplodedPlugin;
@@ -31,6 +32,7 @@ import org.sonar.server.platform.DefaultServerFileSystem;
 import static org.apache.commons.io.FileUtils.forceMkdir;
 
 @ServerSide
+@ComputeEngineSide
 public class ServerPluginJarExploder extends PluginJarExploder {
 
   private final DefaultServerFileSystem fs;

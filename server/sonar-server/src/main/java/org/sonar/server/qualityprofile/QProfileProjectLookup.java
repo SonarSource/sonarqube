@@ -19,25 +19,24 @@
  */
 package org.sonar.server.qualityprofile;
 
+import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
-
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.component.Component;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.qualityprofile.QualityProfileDto;
-import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
 
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-
 @ServerSide
+@ComputeEngineSide
 public class QProfileProjectLookup {
 
   private final DbClient db;

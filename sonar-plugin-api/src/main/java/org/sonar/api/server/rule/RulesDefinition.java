@@ -43,6 +43,7 @@ import org.sonar.api.ExtensionPoint;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.Loggers;
@@ -147,6 +148,7 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  * @since 4.3
  */
 @ServerSide
+@ComputeEngineSide
 @ExtensionPoint
 public interface RulesDefinition {
 

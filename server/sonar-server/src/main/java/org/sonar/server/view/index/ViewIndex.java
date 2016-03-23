@@ -19,6 +19,8 @@
  */
 package org.sonar.server.view.index;
 
+import java.util.Collection;
+import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
@@ -26,15 +28,14 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.es.EsClient;
-
-import java.util.Collection;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
+@ComputeEngineSide
 public class ViewIndex {
 
   private static final int SCROLL_TIME_IN_MINUTES = 3;

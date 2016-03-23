@@ -33,6 +33,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -50,6 +51,7 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 
 @ServerSide
+@ComputeEngineSide
 public class ComponentService {
 
   private final DbClient dbClient;

@@ -31,6 +31,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 import static com.google.common.base.Objects.firstNonNull;
@@ -40,6 +41,7 @@ import static org.apache.commons.lang.StringUtils.isNotBlank;
 @BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide
+@ComputeEngineSide
 public class Metric<G extends Serializable> implements Serializable, org.sonar.api.batch.measure.Metric<G> {
 
   /**
