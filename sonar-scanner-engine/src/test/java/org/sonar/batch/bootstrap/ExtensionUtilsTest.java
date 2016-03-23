@@ -23,6 +23,7 @@ import org.junit.Test;
 import org.sonar.api.BatchComponent;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.InstantiationStrategy;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,6 +58,8 @@ public class ExtensionUtilsTest {
 
     assertThat(ExtensionUtils.isBatchSide(ServerService.class)).isFalse();
     assertThat(ExtensionUtils.isBatchSide(new ServerService())).isFalse();
+    assertThat(ExtensionUtils.isBatchSide(new WebServerService())).isFalse();
+    assertThat(ExtensionUtils.isBatchSide(new ComputeEngineService())).isFalse();
   }
 
   @BatchSide
@@ -82,6 +85,16 @@ public class ExtensionUtilsTest {
 
   @ServerSide
   public static class ServerService {
+
+  }
+
+  @ServerSide
+  public static class WebServerService {
+
+  }
+
+  @ComputeEngineSide
+  public static class ComputeEngineService {
 
   }
 

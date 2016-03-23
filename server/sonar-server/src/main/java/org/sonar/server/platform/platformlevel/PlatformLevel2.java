@@ -30,9 +30,9 @@ import org.sonar.server.db.migrations.PlatformDatabaseMigrationExecutorServiceIm
 import org.sonar.server.platform.DefaultServerUpgradeStatus;
 import org.sonar.server.platform.RailsAppsDeployer;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.ServerPluginJarExploder;
 import org.sonar.server.plugins.ServerPluginRepository;
+import org.sonar.server.plugins.WebServerExtensionInstaller;
 import org.sonar.server.ruby.PlatformRubyBridge;
 import org.sonar.server.ui.JRubyI18n;
 
@@ -56,7 +56,7 @@ public class PlatformLevel2 extends PlatformLevel {
       PluginLoader.class,
       PluginClassloaderFactory.class,
       InstalledPluginReferentialFactory.class,
-      ServerExtensionInstaller.class,
+      WebServerExtensionInstaller.class,
 
       // depends on plugins
       RailsAppsDeployer.class,

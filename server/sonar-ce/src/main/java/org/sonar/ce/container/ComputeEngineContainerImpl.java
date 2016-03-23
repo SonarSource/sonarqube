@@ -38,6 +38,7 @@ import org.sonar.api.utils.UriReader;
 import org.sonar.ce.db.CeDbClient;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.es.EsIndexerEnabler;
+import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
 import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.ce.settings.ComputeEngineSettings;
 import org.sonar.ce.user.CeUserSession;
@@ -191,7 +192,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     PluginLoader.class,
     CePluginRepository.class,
     InstalledPluginReferentialFactory.class,
-    ServerExtensionInstaller.class,
+    ComputeEngineExtensionInstaller.class,
 
     // depends on plugins
     // RailsAppsDeployer.class,

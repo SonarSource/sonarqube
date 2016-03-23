@@ -21,30 +21,34 @@ package org.sonar.server.plugins;
 
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
+import java.lang.annotation.Annotation;
 import java.util.Map;
 import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarPlugin;
 import org.sonar.api.SonarQubeVersion;
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 
+import static java.util.Objects.requireNonNull;
+
 /**
  * Loads the plugins server extensions and injects them to DI container
  */
-@ServerSide
-public class ServerExtensionInstaller {
+public abstract class ServerExtensionInstaller {
 
   private final SonarQubeVersion sonarQubeVersion;
   private final PluginRepository pluginRepository;
+  private final Class<? extends Annotation> supportedAnnotationType;
 
-  public ServerExtensionInstaller(SonarQubeVersion sonarQubeVersion, PluginRepository pluginRepository) {
+  protected ServerExtensionInstaller(SonarQubeVersion sonarQubeVersion, PluginRepository pluginRepository,
+    Class<? extends Annotation> supportedAnnotationType) {
+    requireNonNull(supportedAnnotationType, "At least one supported annotation type must be specified");
     this.sonarQubeVersion = sonarQubeVersion;
     this.pluginRepository = pluginRepository;
+    this.supportedAnnotationType = supportedAnnotationType;
   }
 
   public void installExtensions(ComponentContainer container) {
@@ -99,7 +103,7 @@ public class ServerExtensionInstaller {
   }
 
   Object installExtension(ComponentContainer container, PluginInfo pluginInfo, Object extension, boolean acceptProvider) {
-    if (AnnotationUtils.getAnnotation(extension, ServerSide.class) != null) {
+    if (AnnotationUtils.getAnnotation(extension, supportedAnnotationType) != null) {
       if (!acceptProvider && isExtensionProvider(extension)) {
         throw new IllegalStateException("ExtensionProvider can not include providers itself: " + extension);
       }
