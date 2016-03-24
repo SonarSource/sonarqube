@@ -1,11 +1,6 @@
 {
   "repositories": [
     {
-      "key": "manual",
-      "name": "Manual Rule",
-      "language": "None"
-    },
-    {
       "key": "squid",
       "name": "SonarQube",
       "language": "ws"

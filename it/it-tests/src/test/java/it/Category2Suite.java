@@ -39,7 +39,6 @@ import it.qualityModel.MaintainabilityRatingMeasureTest;
 import it.qualityModel.TechnicalDebtInIssueChangelogTest;
 import it.qualityModel.TechnicalDebtTest;
 import it.qualityModel.TechnicalDebtWidgetTest;
-import it.rule.ManualRulesTest;
 import it.test.CoverageTest;
 import it.test.CoverageTrackingTest;
 import it.test.NewCoverageTest;
@@ -73,8 +72,6 @@ import static util.ItUtils.xooPlugin;
   IssueWorkflowTest.class,
   ManualIssueRelocationTest.class,
   NewIssuesMeasureTest.class,
-  // rule
-  ManualRulesTest.class,
   // debt
   MaintainabilityRatingMeasureTest.class,
   TechnicalDebtInIssueChangelogTest.class,

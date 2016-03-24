@@ -86,13 +86,8 @@ public class IssueWorkflow implements Startable {
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
         .functions(new SetResolution(null))
         .build())
-      .transition(Transition.builder(DefaultTransitions.REOPEN)
-        .conditions(IsManual.INSTANCE)
-        .from(Issue.STATUS_CLOSED).to(Issue.STATUS_REOPENED)
-        .functions(new SetResolution(null), new SetCloseDate(false))
-        .build())
 
-    // resolve as false-positive
+      // resolve as false-positive
       .transition(Transition.builder(DefaultTransitions.FALSE_POSITIVE)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_FALSE_POSITIVE), UnsetAssignee.INSTANCE)
@@ -109,7 +104,7 @@ public class IssueWorkflow implements Startable {
         .requiredProjectPermission(UserRole.ISSUE_ADMIN)
         .build())
 
-    // resolve as won't fix
+      // resolve as won't fix
       .transition(Transition.builder(DefaultTransitions.WONT_FIX)
         .from(Issue.STATUS_OPEN).to(Issue.STATUS_RESOLVED)
         .functions(new SetResolution(Issue.RESOLUTION_WONT_FIX), UnsetAssignee.INSTANCE)
@@ -151,16 +146,16 @@ public class IssueWorkflow implements Startable {
         .build())
       .transition(Transition.builder(AUTOMATIC_CLOSE_TRANSITION)
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_CLOSED)
-        .conditions(new OrCondition(IsBeingClosed.INSTANCE, IsManual.INSTANCE))
+        .conditions(IsBeingClosed.INSTANCE)
         .functions(SetClosed.INSTANCE, new SetCloseDate(true))
         .automatic()
         .build())
 
-    // Reopen issues that are marked as resolved but that are still alive.
-    // Manual issues are kept resolved.
+      // Reopen issues that are marked as resolved but that are still alive.
+      // Manual issues are kept resolved.
       .transition(Transition.builder("automaticreopen")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
-        .conditions(new NotCondition(IsBeingClosed.INSTANCE), new HasResolution(Issue.RESOLUTION_FIXED), new NotCondition(IsManual.INSTANCE))
+        .conditions(new NotCondition(IsBeingClosed.INSTANCE), new HasResolution(Issue.RESOLUTION_FIXED))
         .functions(new SetResolution(null), new SetCloseDate(false))
         .automatic()
         .build());

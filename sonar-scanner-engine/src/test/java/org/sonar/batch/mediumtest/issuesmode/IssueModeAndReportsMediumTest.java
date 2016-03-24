@@ -19,13 +19,7 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
-import org.apache.commons.lang.StringUtils;
-
-import org.sonar.api.utils.log.LoggerLevel;
-import org.assertj.core.api.Condition;
-import org.sonar.batch.issue.tracking.TrackedIssue;
 import com.google.common.collect.ImmutableMap;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
@@ -33,17 +27,20 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
-
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.apache.commons.lang.StringUtils;
+import org.assertj.core.api.Condition;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.bootstrapper.IssueListener;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.batch.mediumtest.TaskResult;
 import org.sonar.batch.scan.report.ConsoleReport;
@@ -51,6 +48,7 @@ import org.sonar.scanner.protocol.Constants.Severity;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import org.sonar.xoo.XooPlugin;
 import org.sonar.xoo.rule.XooRulesDefinition;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class IssueModeAndReportsMediumTest {
@@ -76,12 +74,9 @@ public class IssueModeAndReportsMediumTest {
     .registerPlugin("xoo", new XooPlugin())
     .addDefaultQProfile("xoo", "Sonar Way")
     .addRules(new XooRulesDefinition())
-    .addRule("manual:MyManualIssue", "manual", "MyManualIssue", "My manual issue")
-    .addRule("manual:MyManualIssueDup", "manual", "MyManualIssue", "My manual issue")
     .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo")
     .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo")
     .addActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo")
-    .addActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null)
     .setPreviousAnalysisDate(new Date())
     // Existing issue that is still detected
     .mockServerIssue(ServerIssue.newBuilder().setKey("xyz")
@@ -114,18 +109,6 @@ public class IssueModeAndReportsMediumTest {
       .setRuleKey("OneIssuePerModule")
       .setSeverity(Severity.CRITICAL)
       .setCreationDate(date("14/03/2004"))
-      .setStatus("OPEN")
-      .build())
-    // Manual issue
-    .mockServerIssue(ServerIssue.newBuilder().setKey("manual")
-      .setModuleKey("sample")
-      .setPath("xources/hello/HelloJava.xoo")
-      .setRuleRepository("manual")
-      .setRuleKey("MyManualIssue")
-      .setLine(1)
-      .setSeverity(Severity.MAJOR)
-      .setCreationDate(date("14/03/2004"))
-      .setChecksum(DigestUtils.md5Hex("packagehello;"))
       .setStatus("OPEN")
       .build())
     .build();
@@ -172,7 +155,7 @@ public class IssueModeAndReportsMediumTest {
     }
     System.out.println("new: " + newIssues + " open: " + openIssues + " resolved " + resolvedIssue);
     assertThat(newIssues).isEqualTo(16);
-    assertThat(openIssues).isEqualTo(3);
+    assertThat(openIssues).isEqualTo(2);
     assertThat(resolvedIssue).isEqualTo(1);
     
     // progress report
@@ -214,7 +197,7 @@ public class IssueModeAndReportsMediumTest {
       .property("sonar.xoo.enablePostJob", "true")
       .start();
 
-    assertThat(logTester.logs()).contains("Resolved issues: 1", "Open issues: 19");
+    assertThat(logTester.logs()).contains("Resolved issues: 1", "Open issues: 18");
   }
 
   private String getReportLog() {
@@ -272,8 +255,8 @@ public class IssueModeAndReportsMediumTest {
       .setIssueListener(issueListener)
       .start();
 
-    assertThat(result.trackedIssues()).hasSize(20);
-    assertThat(issueListener.issueList).hasSize(20);
+    assertThat(result.trackedIssues()).hasSize(19);
+    assertThat(issueListener.issueList).hasSize(19);
   }
 
   private class IssueRecorder implements IssueListener {

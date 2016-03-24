@@ -45,7 +45,6 @@ import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
 import static org.sonar.api.issue.Issue.STATUS_RESOLVED;
-import static org.sonar.api.rule.RuleKey.MANUAL_REPOSITORY_KEY;
 
 public class IssueWorkflowTest {
 
@@ -115,20 +114,6 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue().setStatus(STATUS_CLOSED).setRuleKey(RuleKey.of("java", "R1  "));
     List<Transition> transitions = workflow.outTransitions(issue);
     assertThat(transitions).isEmpty();
-  }
-
-  @Test
-  public void list_out_transitions_from_status_closed_on_manual_issue() {
-    workflow.start();
-
-    // Manual issue because of reporter
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setStatus(STATUS_CLOSED)
-      .setRuleKey(RuleKey.of("manual", "Performance"));
-
-    List<Transition> transitions = workflow.outTransitions(issue);
-    assertThat(keys(transitions)).containsOnly("reopen");
   }
 
   @Test
@@ -269,81 +254,6 @@ public class IssueWorkflowTest {
 
     // should remove assignee
     assertThat(issue.assignee()).isNull();
-  }
-
-  /**
-   * User marks the manual issue as resolved -> issue is automatically
-   * closed.
-   */
-  @Test
-  public void automatically_close_resolved_manual_issue() {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setStatus(STATUS_OPEN)
-      .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"));
-
-    workflow.start();
-
-    assertThat(workflow.outTransitions(issue)).containsOnly(
-      Transition.create("confirm", "OPEN", "CONFIRMED"),
-      Transition.create("resolve", "OPEN", "RESOLVED"),
-      Transition.create("falsepositive", "OPEN", "RESOLVED"),
-      Transition.create("wontfix", "OPEN", "RESOLVED"));
-
-    workflow.doTransition(issue, "resolve", mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo("RESOLVED");
-
-    assertThat(workflow.outTransitions(issue)).containsOnly(
-      Transition.create("reopen", "RESOLVED", "REOPENED"));
-
-    workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
-  }
-
-  /**
-   * Manual issue is fixed because the file does not exist anymore
-   * or the tracking engine did not find the associated code
-   * -> the issue is closed
-   */
-  @Test
-  public void automatically_close_manual_issue_on_deleted_code() {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setStatus(STATUS_OPEN)
-      .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"))
-      .setBeingClosed(true);
-
-    workflow.start();
-
-    workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
-  }
-
-  /**
-   * Corner-case : the manual issue was marked as resolved by user but at the same 
-   * time the file or the associated line was deleted.
-   */
-  @Test
-  public void automatically_close_resolved_manual_issue_on_deleted_code() {
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"))
-
-      // resolved by user
-      .setResolution(RESOLUTION_FIXED)
-      .setStatus(STATUS_RESOLVED)
-
-      // but unmatched by tracking engine
-      .setBeingClosed(true);
-
-    workflow.start();
-
-    workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
   }
 
   @Test

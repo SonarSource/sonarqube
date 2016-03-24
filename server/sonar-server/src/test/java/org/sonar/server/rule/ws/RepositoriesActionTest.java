@@ -66,7 +66,6 @@ public class RepositoriesActionTest {
 
   @Test
   public void should_list_repositories() throws Exception {
-
     tester = new WsTester(new RulesWs(new RepositoriesAction(repositories)));
 
     newRequest().execute().assertJson(this.getClass(), "repositories.json");
@@ -75,7 +74,6 @@ public class RepositoriesActionTest {
     newRequest().setParam("q", "common").execute().assertJson(this.getClass(), "repositories_common.json");
     newRequest().setParam("q", "squid").execute().assertJson(this.getClass(), "repositories_squid.json");
     newRequest().setParam("q", "sonar").execute().assertJson(this.getClass(), "repositories_sonar.json");
-    newRequest().setParam("q", "manu").execute().assertJson(this.getClass(), "repositories_manual.json");
     newRequest().setParam("q", "sonar").setParam("ps", "2").execute().assertJson(this.getClass(), "repositories_limited.json");
     newRequest().setParam("ps", "4").execute().assertJson(this.getClass(), "repositories.json");
     newRequest().setParam("ps", "100").execute().assertJson(this.getClass(), "repositories.json");

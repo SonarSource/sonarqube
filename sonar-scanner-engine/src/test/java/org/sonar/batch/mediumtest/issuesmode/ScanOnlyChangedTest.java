@@ -19,33 +19,31 @@
  */
 package org.sonar.batch.mediumtest.issuesmode;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
-import org.assertj.core.api.Condition;
-import com.google.common.io.Resources;
-import org.sonar.batch.repository.FileData;
-import org.sonar.scanner.protocol.Constants.Severity;
-import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import com.google.common.collect.ImmutableMap;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.filefilter.FileFilterUtils;
-import org.junit.After;
-import org.junit.Before;
-import org.sonar.api.CoreProperties;
-import org.sonar.batch.mediumtest.BatchMediumTester;
-import org.sonar.xoo.XooPlugin;
-import org.sonar.xoo.rule.XooRulesDefinition;
-import org.junit.rules.TemporaryFolder;
-import org.sonar.api.utils.log.LogTester;
-import org.junit.Test;
-import org.sonar.batch.mediumtest.TaskResult;
-
+import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.filefilter.FileFilterUtils;
+import org.assertj.core.api.Condition;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.CoreProperties;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.batch.issue.tracking.TrackedIssue;
+import org.sonar.batch.mediumtest.BatchMediumTester;
+import org.sonar.batch.mediumtest.TaskResult;
+import org.sonar.batch.repository.FileData;
+import org.sonar.scanner.protocol.Constants.Severity;
+import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
+import org.sonar.xoo.XooPlugin;
+import org.sonar.xoo.rule.XooRulesDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -79,12 +77,9 @@ public class ScanOnlyChangedTest {
       .registerPlugin("xoo", new XooPlugin())
       .addDefaultQProfile("xoo", "Sonar Way")
       .addRules(new XooRulesDefinition())
-      .addRule("manual:MyManualIssue", "manual", "MyManualIssue", "My manual issue")
-      .addRule("manual:MyManualIssueDup", "manual", "MyManualIssue", "My manual issue")
       .addActiveRule("xoo", "OneIssuePerLine", null, "One issue per line", "MAJOR", null, "xoo")
       .addActiveRule("xoo", "OneIssueOnDirPerFile", null, "OneIssueOnDirPerFile", "MAJOR", null, "xoo")
       .addActiveRule("xoo", "OneIssuePerModule", null, "OneIssuePerModule", "MAJOR", null, "xoo")
-      .addActiveRule("manual", "MyManualIssue", null, "My manual issue", "MAJOR", null, null)
       // this will cause the file to have status==SAME
       .addFileData("sample", filePath, new FileData(md5sum, null))
       .setPreviousAnalysisDate(new Date())
@@ -108,18 +103,6 @@ public class ScanOnlyChangedTest {
         .setRuleKey("OneIssuePerModule")
         .setSeverity(Severity.CRITICAL)
         .setCreationDate(date("14/03/2004"))
-        .setStatus("OPEN")
-        .build())
-      // Manual issue
-      .mockServerIssue(ServerIssue.newBuilder().setKey("manual")
-        .setModuleKey("sample")
-        .setPath("xources/hello/HelloJava.xoo")
-        .setRuleRepository("manual")
-        .setRuleKey("MyManualIssue")
-        .setLine(1)
-        .setSeverity(Severity.MAJOR)
-        .setCreationDate(date("14/03/2004"))
-        .setChecksum(DigestUtils.md5Hex("packagehello;"))
         .setStatus("OPEN")
         .build())
       .build();
@@ -147,13 +130,12 @@ public class ScanOnlyChangedTest {
       .property("sonar.scanAllFiles", "true")
       .start();
 
-    assertNumberIssues(result, 16, 3, 0);
+    assertNumberIssues(result, 16, 2, 0);
 
     /*
      * 8 new per line
-     * 1 manual
      */
-    assertNumberIssuesOnFile(result, "HelloJava.xoo", 9);
+    assertNumberIssuesOnFile(result, "HelloJava.xoo", 8);
   }
 
   @Test
@@ -172,10 +154,10 @@ public class ScanOnlyChangedTest {
      * 1 manual issue (open, not new) in HelloJava.xoo
      * 1 existing issue on the project (open, not new)
      */
-    assertNumberIssues(result, 8, 3, 0);
+    assertNumberIssues(result, 8, 2, 0);
 
     // should only have server issues (HelloJava.xoo should not have been analyzed)
-    assertNumberIssuesOnFile(result, "HelloJava.xoo", 2);
+    assertNumberIssuesOnFile(result, "HelloJava.xoo", 1);
   }
 
   private static void assertNumberIssuesOnFile(TaskResult result, final String fileNameEndsWith, int issues) {

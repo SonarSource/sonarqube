@@ -34,7 +34,6 @@ import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.ResourceUtils;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.index.BatchComponent;
@@ -90,7 +89,7 @@ public class LocalIssueTracking {
 
         Tracking<TrackedIssue, ServerIssueFromWs> track = tracker.track(rawIssues, baseIssues);
 
-        addUnmatchedFromServer(track.getUnmatchedBases(), sourceHashHolder, trackedIssues);
+        addUnmatchedFromServer(track.getUnmatchedBases(), trackedIssues);
         mergeMatched(track, trackedIssues, rIssues);
         addUnmatchedFromReport(track.getUnmatchedRaws(), trackedIssues, analysisDate);
       }
@@ -201,14 +200,11 @@ public class LocalIssueTracking {
     }
   }
 
-  private void addUnmatchedFromServer(Iterable<ServerIssueFromWs> unmatchedIssues, SourceHashHolder sourceHashHolder, Collection<TrackedIssue> mergeTo) {
+  private void addUnmatchedFromServer(Iterable<ServerIssueFromWs> unmatchedIssues, Collection<TrackedIssue> mergeTo) {
     for (ServerIssueFromWs unmatchedIssue : unmatchedIssues) {
       org.sonar.scanner.protocol.input.ScannerInput.ServerIssue unmatchedPreviousIssue = unmatchedIssue.getDto();
       TrackedIssue unmatched = IssueTransformer.toTrackedIssue(unmatchedPreviousIssue);
-      if (unmatchedIssue.getRuleKey().isManual() && !Issue.STATUS_CLOSED.equals(unmatchedPreviousIssue.getStatus())) {
-        relocateManualIssue(unmatched, unmatchedIssue, sourceHashHolder);
-      }
-      updateUnmatchedIssue(unmatched, false /* manual issues can be kept open */);
+      updateUnmatchedIssue(unmatched);
       mergeTo.add(unmatched);
     }
   }
@@ -223,40 +219,21 @@ public class LocalIssueTracking {
   private void addIssuesOnDeletedComponents(Collection<TrackedIssue> issues) {
     for (org.sonar.scanner.protocol.input.ScannerInput.ServerIssue previous : serverIssueRepository.issuesOnMissingComponents()) {
       TrackedIssue dead = IssueTransformer.toTrackedIssue(previous);
-      updateUnmatchedIssue(dead, true);
+      updateUnmatchedIssue(dead);
       issues.add(dead);
     }
   }
 
-  private void updateUnmatchedIssue(TrackedIssue issue, boolean forceEndOfLife) {
+  private void updateUnmatchedIssue(TrackedIssue issue) {
     ActiveRule activeRule = activeRules.find(issue.getRuleKey());
     issue.setNew(false);
 
-    boolean manualIssue = issue.getRuleKey().isManual();
     boolean isRemovedRule = activeRule == null;
 
     if (isRemovedRule) {
       IssueTransformer.resolveRemove(issue);
-    } else if (forceEndOfLife || !manualIssue) {
+    } else {
       IssueTransformer.close(issue);
-    }
-  }
-
-  private static void relocateManualIssue(TrackedIssue newIssue, ServerIssueFromWs oldIssue, SourceHashHolder sourceHashHolder) {
-    Integer previousLine = oldIssue.getLine();
-    if (previousLine == null) {
-      return;
-    }
-
-    Collection<Integer> newLinesWithSameHash = sourceHashHolder.getNewLinesMatching(previousLine);
-    if (newLinesWithSameHash.isEmpty()) {
-      if (previousLine > sourceHashHolder.getHashedSource().length()) {
-        IssueTransformer.resolveRemove(newIssue);
-      }
-    } else if (newLinesWithSameHash.size() == 1) {
-      Integer newLine = newLinesWithSameHash.iterator().next();
-      newIssue.setStartLine(newLine);
-      newIssue.setEndLine(newLine);
     }
   }
 }

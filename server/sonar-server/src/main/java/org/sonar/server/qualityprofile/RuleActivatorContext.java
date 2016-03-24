@@ -20,6 +20,11 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Maps;
+import java.util.Collection;
+import java.util.Date;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
@@ -29,13 +34,6 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.Map;
 
 class RuleActivatorContext {
 
@@ -231,9 +229,6 @@ class RuleActivatorContext {
     }
     if (rule.isTemplate()) {
       throw new BadRequestException("Rule template can't be activated on a Quality profile: " + rule.getKey());
-    }
-    if (rule.getKey().isManual()) {
-      throw new BadRequestException("Manual rule can't be activated on a Quality profile: " + rule.getKey());
     }
     if (!profile.getLanguage().equals(rule.getLanguage())) {
       throw new BadRequestException(String.format("Rule %s and profile %s have different languages", rule.getKey(), profile.getKey()));

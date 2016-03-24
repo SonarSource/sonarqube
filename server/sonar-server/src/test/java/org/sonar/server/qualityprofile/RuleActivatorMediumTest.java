@@ -78,7 +78,6 @@ import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P3_KEY;
 // TODO Replace ServerTester by EsTester and DbTester
 public class RuleActivatorMediumTest {
 
-  static final RuleKey MANUAL_RULE_KEY = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "m1");
   static final RuleKey TEMPLATE_RULE_KEY = RuleKey.of("xoo", "template1");
   static final RuleKey CUSTOM_RULE_KEY = RuleKey.of("xoo", "custom1");
 
@@ -119,12 +118,10 @@ public class RuleActivatorMediumTest {
     RuleDto xooRule2 = newXooX2().setSeverity("INFO");
     RuleDto xooTemplateRule1 = newTemplateRule(TEMPLATE_RULE_KEY)
       .setSeverity("MINOR").setLanguage("xoo");
-    RuleDto manualRule = newDto(MANUAL_RULE_KEY);
     db.ruleDao().insert(dbSession, javaRule);
     db.ruleDao().insert(dbSession, xooRule1);
     db.ruleDao().insert(dbSession, xooRule2);
     db.ruleDao().insert(dbSession, xooTemplateRule1);
-    db.ruleDao().insert(dbSession, manualRule);
     db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
       .setName("max").setDefaultValue("10").setType(RuleParamType.INTEGER.type()));
     db.ruleDao().insertRuleParam(dbSession, xooRule1, RuleParamDto.createFor(xooRule1)
@@ -435,19 +432,6 @@ public class RuleActivatorMediumTest {
       fail();
     } catch (BadRequestException e) {
       assertThat(e).hasMessage("Rule was removed: xoo:x1");
-      verifyZeroActiveRules(XOO_P1_KEY);
-    }
-  }
-
-  @Test
-  public void fail_to_activate_if_manual_rule() {
-    RuleActivation activation = new RuleActivation(MANUAL_RULE_KEY);
-
-    try {
-      activate(activation, XOO_P1_KEY);
-      fail();
-    } catch (BadRequestException e) {
-      assertThat(e).hasMessage("Manual rule can't be activated on a Quality profile: manual:m1");
       verifyZeroActiveRules(XOO_P1_KEY);
     }
   }
@@ -878,7 +862,7 @@ public class RuleActivatorMediumTest {
     verifyZeroActiveRules(XOO_P1_KEY);
     assertThat(tester.get(RuleIndex.class)
       .search(new RuleQuery().setRepositories(Arrays.asList("bulk")), new SearchOptions()).getTotal())
-      .isEqualTo(bulkSize);
+        .isEqualTo(bulkSize);
 
     // 1. bulk activate all the rules
     BulkChangeResult result = ruleActivator.bulkActivate(
@@ -1119,8 +1103,7 @@ public class RuleActivatorMediumTest {
       if (activeRule.key().equals(activeRuleKey)) {
         found = true;
         assertThat(activeRule.severity()).isEqualTo(expectedSeverity);
-        assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE :
-          ActiveRule.Inheritance.valueOf(expectedInheritance));
+        assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE : ActiveRule.Inheritance.valueOf(expectedInheritance));
 
         // Dates should be set
         assertThat(activeRule.createdAt()).isNotNull();

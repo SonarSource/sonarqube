@@ -81,7 +81,7 @@ public class BaseIssuesLoader {
   }
 
   private boolean isActive(RuleKey ruleKey) {
-    return ruleKey.isManual() || activeRulesHolder.get(ruleKey).isPresent();
+    return activeRulesHolder.get(ruleKey).isPresent();
   }
 
   /**

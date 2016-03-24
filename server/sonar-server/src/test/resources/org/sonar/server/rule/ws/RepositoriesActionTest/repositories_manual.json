@@ -1,9 +1,0 @@
-{
-  "repositories": [
-    {
-      "key": "manual",
-      "name": "Manual Rule",
-      "language": "None"
-    }
-  ]
-}

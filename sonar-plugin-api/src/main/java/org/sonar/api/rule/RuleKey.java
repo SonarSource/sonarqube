@@ -33,7 +33,12 @@ import javax.annotation.concurrent.Immutable;
 @Immutable
 public class RuleKey implements Serializable, Comparable<RuleKey> {
 
+  /**
+   * @deprecated since 5.5, manual rule feature has been dropped
+   */
+  @Deprecated
   public static final String MANUAL_REPOSITORY_KEY = "manual";
+
   private final String repository;
   private final String rule;
 
@@ -77,8 +82,12 @@ public class RuleKey implements Serializable, Comparable<RuleKey> {
     return rule;
   }
 
+  /**
+   * @deprecated since 5.5, manual rule feature has been dropped
+   */
+  @Deprecated
   public boolean isManual() {
-    return MANUAL_REPOSITORY_KEY.equals(repository);
+    return false;
   }
 
   @Override

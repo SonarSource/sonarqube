@@ -26,8 +26,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.SortedMap;
 import java.util.regex.Pattern;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -102,14 +102,11 @@ public class RepositoriesAction implements RulesWsAction {
     return result;
   }
 
-  private Collection<Repo> listRepositories(String languageKey) {
+  private Collection<Repo> listRepositories(@CheckForNull String languageKey) {
     List<Repo> allRepos = Lists.newArrayList();
     Collection<Repository> reposFromPlugins = languageKey == null ? repositories.repositories() : repositories.repositoriesForLang(languageKey);
     for (Repository repo : reposFromPlugins) {
       allRepos.add(new Repo(repo));
-    }
-    if (languageKey == null) {
-      allRepos.add(new Repo(RuleKey.MANUAL_REPOSITORY_KEY, "Manual Rule", "None"));
     }
     return allRepos;
   }
