@@ -61,7 +61,7 @@ public class CEQueueStatusImplConcurrentTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(1);
     assertThat(underTest.getErrorCount()).isEqualTo(17);
     assertThat(underTest.getSuccessCount()).isEqualTo(80);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(177);
+    assertThat(underTest.getProcessingTime()).isEqualTo(177);
   }
 
   private List<Runnable> buildShuffleCallsToUnderTest() {

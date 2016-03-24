@@ -58,7 +58,7 @@ public class CeTasksMBeanImplTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(IN_PROGRESS_COUNT);
     assertThat(underTest.getErrorCount()).isEqualTo(ERROR_COUNT);
     assertThat(underTest.getSuccessCount()).isEqualTo(SUCCESS_COUNT);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(PROCESSING_TIME);
+    assertThat(underTest.getProcessingTime()).isEqualTo(PROCESSING_TIME);
   }
 
   @Test
@@ -108,7 +108,7 @@ public class CeTasksMBeanImplTest {
     }
 
     @Override
-    public long getProcessingTimeInMs() {
+    public long getProcessingTime() {
       return PROCESSING_TIME;
     }
 

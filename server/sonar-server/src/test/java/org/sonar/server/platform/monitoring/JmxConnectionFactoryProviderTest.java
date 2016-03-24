@@ -24,11 +24,11 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessEntryPoint;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class JmxConnectorProviderTest {
+public class JmxConnectionFactoryProviderTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
@@ -39,7 +39,7 @@ public class JmxConnectorProviderTest {
   @Test
   public void provide_JmxConnector() {
     settings.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, "path/");
-    JmxConnector connector = underTest.provide(settings);
+    JmxConnectionFactory connector = underTest.provide(settings);
 
     assertThat(connector).isNotNull();
     // cache

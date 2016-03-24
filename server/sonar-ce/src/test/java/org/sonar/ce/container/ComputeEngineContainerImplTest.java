@@ -31,10 +31,10 @@ import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
-import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
 import static org.sonar.process.ProcessProperties.PATH_TEMP;
@@ -66,7 +66,7 @@ public class ComputeEngineContainerImplTest {
     properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
     properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
     properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
-    properties.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
+    properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     String url = ((BasicDataSource) dbTester.database().getDataSource()).getUrl();
     properties.setProperty(DatabaseProperties.PROP_URL, url);
     properties.setProperty(DatabaseProperties.PROP_USER, "sonar");
@@ -79,9 +79,9 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getComponentAdapters())
       .hasSize(
         CONTAINER_ITSELF
-          + 77 // level 4
+          + 78 // level 4
           + 5 // content of CeModule
-          + 8 // content of CeQueueModule
+          + 7 // content of CeQueueModule
           + 4 // content of ReportProcessingModule
           + 4 // content of CeTaskProcessorModule
     );

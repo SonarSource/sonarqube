@@ -34,6 +34,8 @@ import org.sonar.process.Stoppable;
 import org.sonar.process.monitor.JavaCommand;
 import org.sonar.process.monitor.Monitor;
 
+import static org.sonar.process.ProcessId.APP;
+
 /**
  * Entry-point of process that starts and monitors ElasticSearch, the Web Server and the Compute Engine.
  */
@@ -42,7 +44,7 @@ public class App implements Stoppable {
   private final Monitor monitor;
 
   public App(AppFileSystem appFileSystem, boolean watchForHardStop) {
-    this(Monitor.create(ProcessId.APP.getIpcIndex(), appFileSystem, watchForHardStop));
+    this(Monitor.create(APP.getIpcIndex(), appFileSystem, watchForHardStop));
   }
 
   App(Monitor monitor) {

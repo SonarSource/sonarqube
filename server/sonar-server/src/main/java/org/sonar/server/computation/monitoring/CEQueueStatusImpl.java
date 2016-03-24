@@ -46,19 +46,19 @@ public class CEQueueStatusImpl implements CEQueueStatus {
 
   @Override
   public long addError(long processingTimeInMs) {
-    addProcessingTimeInMs(processingTimeInMs);
+    addProcessingTime(processingTimeInMs);
     inProgress.decrementAndGet();
     return error.incrementAndGet();
   }
 
   @Override
   public long addSuccess(long processingTimeInMs) {
-    addProcessingTimeInMs(processingTimeInMs);
+    addProcessingTime(processingTimeInMs);
     inProgress.decrementAndGet();
     return success.incrementAndGet();
   }
 
-  private void addProcessingTimeInMs(long ms) {
+  private void addProcessingTime(long ms) {
     checkArgument(ms >= 0, "Processing time can not be < 0");
     processingTime.addAndGet(ms);
   }
@@ -86,7 +86,7 @@ public class CEQueueStatusImpl implements CEQueueStatus {
   }
 
   @Override
-  public long getProcessingTimeInMs() {
+  public long getProcessingTime() {
     return processingTime.get();
   }
 }

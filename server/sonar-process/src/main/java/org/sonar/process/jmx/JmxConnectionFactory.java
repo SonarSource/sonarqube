@@ -33,18 +33,18 @@ import org.sonar.process.Props;
  * Connects to JMX of other JVM processes
  */
 @Immutable
-public class JmxConnector {
+public class JmxConnectionFactory {
   private final File ipcSharedDir;
 
-  public JmxConnector(File ipcSharedDir) {
+  public JmxConnectionFactory(File ipcSharedDir) {
     this.ipcSharedDir = ipcSharedDir;
   }
 
-  public JmxConnector(Props props) {
+  public JmxConnectionFactory(Props props) {
     this.ipcSharedDir = props.nonNullValueAsFile(ProcessEntryPoint.PROPERTY_SHARED_PATH);
   }
 
-  public JmxConnection connect(ProcessId processId) {
+  public JmxConnection create(ProcessId processId) {
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(ipcSharedDir, processId.getIpcIndex())) {
       String url = commands.getJmxUrl();
       JMXConnector jmxConnector = JMXConnectorFactory.newJMXConnector(new JMXServiceURL(url), null);

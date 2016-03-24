@@ -22,18 +22,18 @@ package org.sonar.server.platform.monitoring;
 import java.io.File;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.config.Settings;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
 public class JmxConnectorProvider extends ProviderAdapter {
 
-  private JmxConnector singleton = null;
+  private JmxConnectionFactory singleton = null;
 
-  public synchronized JmxConnector provide(Settings settings) {
+  public synchronized JmxConnectionFactory provide(Settings settings) {
     if (singleton == null) {
-      singleton = new JmxConnector(nonNullValueAsFile(settings, PROPERTY_SHARED_PATH));
+      singleton = new JmxConnectionFactory(nonNullValueAsFile(settings, PROPERTY_SHARED_PATH));
     }
     return singleton;
   }

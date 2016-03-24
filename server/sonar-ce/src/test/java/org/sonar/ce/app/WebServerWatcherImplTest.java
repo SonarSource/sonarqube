@@ -30,12 +30,12 @@ import org.junit.rules.Timeout;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.process.DefaultProcessCommands;
+import org.sonar.process.ProcessId;
 
 import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class WebServerWatcherImplTest {
-  private static final int WEB_SERVER_PROCESS_NUMBER = 2;
 
   @Rule
   public Timeout timeout = Timeout.seconds(1);
@@ -102,7 +102,7 @@ public class WebServerWatcherImplTest {
   }
 
   private void setWebServerOperational() {
-    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(sharedDir, WEB_SERVER_PROCESS_NUMBER)) {
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(sharedDir, ProcessId.WEB_SERVER.getIpcIndex())) {
       processCommands.setOperational();
     }
   }

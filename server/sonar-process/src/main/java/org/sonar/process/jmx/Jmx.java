@@ -42,28 +42,35 @@ public class Jmx {
    */
   public static void register(String name, Object instance) {
     try {
-      // MBeans have multiple conventions, including:
-      // 1. name of interface is suffixed by "MBean"
-      // 2. name of implementation is the name of the interface without "MBean"
-      // 3. implementation and interface must be in the same package
-      // To avoid the last convention, we wrap the mbean within a StandardMBean. That
-      // requires to find the related interface.
-      Class mbeanInterface = null;
-      Class<?>[] interfaces = instance.getClass().getInterfaces();
-      for (Class<?> anInterface : interfaces) {
-        if (anInterface.getName().endsWith("MBean")) {
-          mbeanInterface = anInterface;
-          break;
-        }
-      }
-      if (mbeanInterface == null) {
-        throw new IllegalArgumentException("Can not find the MBean interface of class " + instance.getClass().getName());
-      }
+      Class mbeanInterface = guessMBeanInterface(instance);
       ManagementFactory.getPlatformMBeanServer().registerMBean(new StandardMBean(instance, mbeanInterface), new ObjectName(name));
 
     } catch (MalformedObjectNameException | NotCompliantMBeanException | InstanceAlreadyExistsException | MBeanRegistrationException e) {
       throw new IllegalStateException("Can not register MBean [" + name + "]", e);
     }
+  }
+
+  /**
+   * MBeans have multiple conventions, including:
+   * 1. name of interface is suffixed by "MBean"
+   * 2. name of implementation is the name of the interface without "MBean"
+   * 3. implementation and interface must be in the same package
+   * To avoid the last convention, we wrap the mbean within a StandardMBean. That
+   * requires to find the related interface.
+   */
+  private static Class guessMBeanInterface(Object instance) {
+    Class mbeanInterface = null;
+    Class<?>[] interfaces = instance.getClass().getInterfaces();
+    for (Class<?> anInterface : interfaces) {
+      if (anInterface.getName().endsWith("MBean")) {
+        mbeanInterface = anInterface;
+        break;
+      }
+    }
+    if (mbeanInterface == null) {
+      throw new IllegalArgumentException("Can not find the MBean interface of class " + instance.getClass().getName());
+    }
+    return mbeanInterface;
   }
 
   /**

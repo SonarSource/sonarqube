@@ -23,14 +23,14 @@ import java.util.LinkedHashMap;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.CeTasksMBean;
 import org.sonar.process.jmx.JmxConnection;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 
 public class CeTasksMonitor implements Monitor {
 
-  private final JmxConnector jmxConnector;
+  private final JmxConnectionFactory jmxConnectionFactory;
 
-  public CeTasksMonitor(JmxConnector jmxConnector) {
-    this.jmxConnector = jmxConnector;
+  public CeTasksMonitor(JmxConnectionFactory jmxConnectionFactory) {
+    this.jmxConnectionFactory = jmxConnectionFactory;
   }
 
   @Override
@@ -40,14 +40,14 @@ public class CeTasksMonitor implements Monitor {
 
   @Override
   public LinkedHashMap<String, Object> attributes() {
-    try (JmxConnection connection = jmxConnector.connect(ProcessId.COMPUTE_ENGINE)) {
+    try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE)) {
       LinkedHashMap<String, Object> result = new LinkedHashMap<>();
       CeTasksMBean ceMBean = connection.getMBean(CeTasksMBean.OBJECT_NAME, CeTasksMBean.class);
       result.put("Pending", ceMBean.getPendingCount());
       result.put("In Progress", ceMBean.getInProgressCount());
       result.put("Processed With Success", ceMBean.getSuccessCount());
       result.put("Processed With Error", ceMBean.getErrorCount());
-      result.put("Processing Time (ms)", ceMBean.getProcessingTimeInMs());
+      result.put("Processing Time (ms)", ceMBean.getProcessingTime());
       result.put("Worker Count", ceMBean.getWorkerCount());
       return result;
     }

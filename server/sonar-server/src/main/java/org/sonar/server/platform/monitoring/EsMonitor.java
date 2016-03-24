@@ -27,22 +27,23 @@ import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsResponse;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
+import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.breaker.CircuitBreaker;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.EsSettingsMBean;
 import org.sonar.process.jmx.JmxConnection;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 import org.sonar.server.es.EsClient;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 
 public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
 
-  private final JmxConnector jmxConnector;
+  private final JmxConnectionFactory jmxConnectionFactory;
   private final EsClient esClient;
 
-  public EsMonitor(JmxConnector jmxConnector, EsClient esClient) {
-    this.jmxConnector = jmxConnector;
+  public EsMonitor(JmxConnectionFactory jmxConnectionFactory, EsClient esClient) {
+    this.jmxConnectionFactory = jmxConnectionFactory;
     this.esClient = esClient;
   }
 
@@ -73,7 +74,7 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
   public LinkedHashMap<String, Object> attributes() {
     LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
 
-    try (JmxConnection connection = jmxConnector.connect(ProcessId.ELASTICSEARCH)) {
+    try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.ELASTICSEARCH)) {
       EsSettingsMBean mbean = connection.getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class);
       attributes.put("Cluster Name", mbean.getClusterName());
       attributes.put("Node Name", mbean.getNodeName());
@@ -110,9 +111,10 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
 
       LinkedHashMap<String, Object> nodeAttributes = new LinkedHashMap<>();
       NodeStats stats = entry.getValue();
-      nodes.put(stats.getNode().getName(), nodeAttributes);
-      nodeAttributes.put("Address", stats.getNode().getAddress().toString());
-      nodeAttributes.put("Type", stats.getNode().isMasterNode() ? "Master" : "Slave");
+      DiscoveryNode node = stats.getNode();
+      nodes.put(node.getName(), nodeAttributes);
+      nodeAttributes.put("Address", node.getAddress().toString());
+      nodeAttributes.put("Type", node.isMasterNode() ? "Master" : "Slave");
       nodeAttributes.put("Disk Available", byteCountToDisplaySize(stats.getFs().getTotal().getAvailable().bytes()));
       nodeAttributes.put("Store Size", byteCountToDisplaySize(stats.getIndices().getStore().getSizeInBytes()));
       nodeAttributes.put("Open Files", stats.getProcess().getOpenFileDescriptors());

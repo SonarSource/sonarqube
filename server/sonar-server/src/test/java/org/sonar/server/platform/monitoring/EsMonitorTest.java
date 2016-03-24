@@ -29,7 +29,7 @@ import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.EsSettingsMBean;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.NewIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -43,13 +43,13 @@ public class EsMonitorTest {
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
-  JmxConnector jmxConnector = mock(JmxConnector.class, Mockito.RETURNS_DEEP_STUBS);
+  JmxConnectionFactory jmxConnectionFactory = mock(JmxConnectionFactory.class, Mockito.RETURNS_DEEP_STUBS);
   EsSettingsMBean settingsMBean = mock(EsSettingsMBean.class);
-  EsMonitor underTest = new EsMonitor(jmxConnector, esTester.client());
+  EsMonitor underTest = new EsMonitor(jmxConnectionFactory, esTester.client());
 
   @Before
   public void setUp() throws Exception {
-    when(jmxConnector.connect(ProcessId.ELASTICSEARCH).getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class)).thenReturn(settingsMBean);
+    when(jmxConnectionFactory.create(ProcessId.ELASTICSEARCH).getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class)).thenReturn(settingsMBean);
   }
 
   @Test

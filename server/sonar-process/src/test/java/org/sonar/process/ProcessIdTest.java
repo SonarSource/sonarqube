@@ -19,6 +19,8 @@
  */
 package org.sonar.process;
 
+import java.util.HashSet;
+import java.util.Set;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -26,8 +28,20 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ProcessIdTest {
 
   @Test
-  public void test() {
+  public void test_constants() {
     assertThat(ProcessId.COMPUTE_ENGINE.getKey()).isEqualTo("ce");
     assertThat(ProcessId.COMPUTE_ENGINE.getIpcIndex()).isEqualTo(3);
+  }
+
+  @Test
+  public void all_values_are_unique() {
+    Set<Integer> ipcIndices = new HashSet<>();
+    Set<String> keys = new HashSet<>();
+    for (ProcessId processId : ProcessId.values()) {
+      ipcIndices.add(processId.getIpcIndex());
+      keys.add(processId.getKey());
+    }
+    assertThat(ipcIndices).hasSize(ProcessId.values().length);
+    assertThat(keys).hasSize(ProcessId.values().length);
   }
 }

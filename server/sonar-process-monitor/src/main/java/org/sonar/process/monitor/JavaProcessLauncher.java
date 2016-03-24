@@ -33,6 +33,11 @@ import org.sonar.process.ProcessCommands;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessUtils;
 
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT;
+
 class JavaProcessLauncher implements AutoCloseable {
 
   private final Timeouts timeouts;
@@ -115,10 +120,10 @@ class JavaProcessLauncher implements AutoCloseable {
       propertiesFile = File.createTempFile("sq-process", "properties");
       Properties props = new Properties();
       props.putAll(javaCommand.getArguments());
-      props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_KEY, javaCommand.getProcessId().getKey());
-      props.setProperty(ProcessEntryPoint.PROPERTY_PROCESS_INDEX, Integer.toString(javaCommand.getProcessId().getIpcIndex()));
-      props.setProperty(ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT, String.valueOf(timeouts.getTerminationTimeout()));
-      props.setProperty(ProcessEntryPoint.PROPERTY_SHARED_PATH, tempDir.getAbsolutePath());
+      props.setProperty(PROPERTY_PROCESS_KEY, javaCommand.getProcessId().getKey());
+      props.setProperty(PROPERTY_PROCESS_INDEX, Integer.toString(javaCommand.getProcessId().getIpcIndex()));
+      props.setProperty(PROPERTY_TERMINATION_TIMEOUT, String.valueOf(timeouts.getTerminationTimeout()));
+      props.setProperty(PROPERTY_SHARED_PATH, tempDir.getAbsolutePath());
       OutputStream out = new FileOutputStream(propertiesFile);
       props.store(out, String.format("Temporary properties file for command [%s]", javaCommand.getProcessId().getKey()));
       out.close();

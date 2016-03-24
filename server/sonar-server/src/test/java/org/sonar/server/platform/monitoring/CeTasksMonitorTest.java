@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.CeTasksMBean;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,8 +32,8 @@ import static org.mockito.Mockito.when;
 
 public class CeTasksMonitorTest {
 
-  JmxConnector jmxConnector = mock(JmxConnector.class, Mockito.RETURNS_DEEP_STUBS);
-  CeTasksMonitor underTest = new CeTasksMonitor(jmxConnector);
+  JmxConnectionFactory jmxConnectionFactory = mock(JmxConnectionFactory.class, Mockito.RETURNS_DEEP_STUBS);
+  CeTasksMonitor underTest = new CeTasksMonitor(jmxConnectionFactory);
 
   @Test
   public void testName() {
@@ -44,7 +44,7 @@ public class CeTasksMonitorTest {
   public void testAttributes() {
     CeTasksMBean mbean = mock(CeTasksMBean.class, Mockito.RETURNS_DEFAULTS);
 
-    when(jmxConnector.connect(ProcessId.COMPUTE_ENGINE).getMBean(CeTasksMBean.OBJECT_NAME, CeTasksMBean.class))
+    when(jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE).getMBean(CeTasksMBean.OBJECT_NAME, CeTasksMBean.class))
       .thenReturn(mbean);
     LinkedHashMap<String, Object> attributes = underTest.attributes();
     assertThat(attributes).containsKeys("Pending");

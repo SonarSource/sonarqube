@@ -174,8 +174,9 @@ public class EsSettings implements EsSettingsMBean {
     builder.put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicationFactor);
     builder.put("cluster.name", getClusterName());
     builder.put("cluster.routing.allocation.awareness.attributes", "rack_id");
-    builder.put("node.rack_id", getNodeName());
-    builder.put("node.name", getNodeName());
+    String nodeName = getNodeName();
+    builder.put("node.rack_id", nodeName);
+    builder.put("node.name", nodeName);
   }
 
   private void configureMarvel(ImmutableSettings.Builder builder) {

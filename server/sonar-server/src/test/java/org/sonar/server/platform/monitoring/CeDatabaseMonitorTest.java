@@ -24,7 +24,7 @@ import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.CeDatabaseMBean;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -32,8 +32,8 @@ import static org.mockito.Mockito.when;
 
 public class CeDatabaseMonitorTest {
 
-  JmxConnector jmxConnector = mock(JmxConnector.class, Mockito.RETURNS_DEEP_STUBS);
-  CeDatabaseMonitor underTest = new CeDatabaseMonitor(jmxConnector);
+  JmxConnectionFactory jmxConnectionFactory = mock(JmxConnectionFactory.class, Mockito.RETURNS_DEEP_STUBS);
+  CeDatabaseMonitor underTest = new CeDatabaseMonitor(jmxConnectionFactory);
 
   @Test
   public void testName() {
@@ -44,7 +44,7 @@ public class CeDatabaseMonitorTest {
   public void testAttributes() {
     CeDatabaseMBean mbean = mock(CeDatabaseMBean.class, Mockito.RETURNS_DEFAULTS);
 
-    when(jmxConnector.connect(ProcessId.COMPUTE_ENGINE).getMBean(CeDatabaseMBean.OBJECT_NAME, CeDatabaseMBean.class))
+    when(jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE).getMBean(CeDatabaseMBean.OBJECT_NAME, CeDatabaseMBean.class))
       .thenReturn(mbean);
     LinkedHashMap<String, Object> attributes = underTest.attributes();
     assertThat(attributes).containsKeys("Pool Initial Size", "Pool Active Connections");

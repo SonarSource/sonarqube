@@ -68,8 +68,8 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable {
   }
 
   @Override
-  public long getProcessingTimeInMs() {
-    return queueStatus.getProcessingTimeInMs();
+  public long getProcessingTime() {
+    return queueStatus.getProcessingTime();
   }
 
   @Override

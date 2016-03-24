@@ -22,14 +22,14 @@ package org.sonar.server.platform.monitoring;
 import java.util.LinkedHashMap;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.JmxConnection;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 
 public class EsStateMonitor implements Monitor {
 
-  private final JmxConnector jmxConnector;
+  private final JmxConnectionFactory jmxConnectionFactory;
 
-  public EsStateMonitor(JmxConnector jmxConnector) {
-    this.jmxConnector = jmxConnector;
+  public EsStateMonitor(JmxConnectionFactory jmxConnectionFactory) {
+    this.jmxConnectionFactory = jmxConnectionFactory;
   }
 
   @Override
@@ -39,7 +39,7 @@ public class EsStateMonitor implements Monitor {
 
   @Override
   public LinkedHashMap<String, Object> attributes() {
-    try (JmxConnection connection = jmxConnector.connect(ProcessId.ELASTICSEARCH)) {
+    try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.ELASTICSEARCH)) {
       return new LinkedHashMap<>(connection.getSystemState());
     }
   }

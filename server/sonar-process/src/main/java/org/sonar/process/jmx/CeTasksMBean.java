@@ -44,9 +44,9 @@ public interface CeTasksMBean {
   long getSuccessCount();
 
   /**
-   * Time spent processing reports since startup.
+   * Time spent processing reports since startup, in milliseconds.
    */
-  long getProcessingTimeInMs();
+  long getProcessingTime();
 
   /**
    * Configured number of Workers.

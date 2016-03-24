@@ -23,10 +23,10 @@ import java.io.File;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.DefaultProcessCommands;
+import org.sonar.process.ProcessId;
 
 public class WebServerWatcherImpl implements WebServerWatcher {
   private static final Logger LOG = Loggers.get(WebServerWatcherImpl.class);
-  private static final int WEB_SERVER_PROCESS_NUMBER = 2;
   private static final int POLL_DELAY = 200;
   // accounting only every 5 log calls so that only one every second (because delay is 200ms) is taken into account
   private static final int CALL_RATIO = 5;
@@ -39,7 +39,7 @@ public class WebServerWatcherImpl implements WebServerWatcher {
 
   @Override
   public boolean waitForOperational() {
-    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(sharedDir, WEB_SERVER_PROCESS_NUMBER)) {
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(sharedDir, ProcessId.WEB_SERVER.getIpcIndex())) {
       if (processCommands.isOperational()) {
         return true;
       }

@@ -23,14 +23,14 @@ import java.util.LinkedHashMap;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.CeDatabaseMBean;
 import org.sonar.process.jmx.JmxConnection;
-import org.sonar.process.jmx.JmxConnector;
+import org.sonar.process.jmx.JmxConnectionFactory;
 
 public class CeDatabaseMonitor implements Monitor {
 
-  private final JmxConnector jmxConnector;
+  private final JmxConnectionFactory jmxConnectionFactory;
 
-  public CeDatabaseMonitor(JmxConnector jmxConnector) {
-    this.jmxConnector = jmxConnector;
+  public CeDatabaseMonitor(JmxConnectionFactory jmxConnectionFactory) {
+    this.jmxConnectionFactory = jmxConnectionFactory;
   }
 
   @Override
@@ -40,7 +40,7 @@ public class CeDatabaseMonitor implements Monitor {
 
   @Override
   public LinkedHashMap<String, Object> attributes() {
-    try (JmxConnection connection = jmxConnector.connect(ProcessId.COMPUTE_ENGINE)) {
+    try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE)) {
       LinkedHashMap<String, Object> result = new LinkedHashMap<>();
       CeDatabaseMBean mbean = connection.getMBean(CeDatabaseMBean.OBJECT_NAME, CeDatabaseMBean.class);
       result.put("Pool Initial Size", mbean.getPoolInitialSize());

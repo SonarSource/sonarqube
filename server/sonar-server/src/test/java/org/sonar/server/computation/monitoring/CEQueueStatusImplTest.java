@@ -49,7 +49,7 @@ public class CEQueueStatusImplTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(0);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(0);
+    assertThat(underTest.getProcessingTime()).isEqualTo(0);
   }
 
   @Test
@@ -59,7 +59,7 @@ public class CEQueueStatusImplTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(1);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(0);
+    assertThat(underTest.getProcessingTime()).isEqualTo(0);
   }
 
   @Test
@@ -70,7 +70,7 @@ public class CEQueueStatusImplTest {
     }
 
     assertThat(underTest.getInProgressCount()).isEqualTo(calls);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(0);
+    assertThat(underTest.getProcessingTime()).isEqualTo(0);
   }
 
   @Test
@@ -88,7 +88,7 @@ public class CEQueueStatusImplTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(-1);
     assertThat(underTest.getErrorCount()).isEqualTo(1);
     assertThat(underTest.getSuccessCount()).isEqualTo(0);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(SOME_PROCESSING_TIME);
+    assertThat(underTest.getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
   }
 
   @Test
@@ -100,7 +100,7 @@ public class CEQueueStatusImplTest {
 
     assertThat(underTest.getErrorCount()).isEqualTo(calls);
     assertThat(underTest.getInProgressCount()).isEqualTo(-calls);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(calls);
+    assertThat(underTest.getProcessingTime()).isEqualTo(calls);
   }
 
   @Test
@@ -118,7 +118,7 @@ public class CEQueueStatusImplTest {
     assertThat(underTest.getInProgressCount()).isEqualTo(-1);
     assertThat(underTest.getErrorCount()).isEqualTo(0);
     assertThat(underTest.getSuccessCount()).isEqualTo(1);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(SOME_PROCESSING_TIME);
+    assertThat(underTest.getProcessingTime()).isEqualTo(SOME_PROCESSING_TIME);
   }
 
   @Test
@@ -130,7 +130,7 @@ public class CEQueueStatusImplTest {
 
     assertThat(underTest.getSuccessCount()).isEqualTo(calls);
     assertThat(underTest.getInProgressCount()).isEqualTo(-calls);
-    assertThat(underTest.getProcessingTimeInMs()).isEqualTo(calls);
+    assertThat(underTest.getProcessingTime()).isEqualTo(calls);
   }
 
   @Test

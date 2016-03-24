@@ -82,7 +82,7 @@ public interface CEQueueStatus {
   long getSuccessCount();
 
   /**
-   * Time spent processing batch reports since startup.
+   * Time spent processing batch reports since startup, in milliseconds.
    */
-  long getProcessingTimeInMs();
+  long getProcessingTime();
 }
