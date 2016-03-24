@@ -144,6 +144,10 @@ public class Version implements Comparable<Version> {
     return parseInt(sequence);
   }
 
+  public boolean isGreaterThanOrEqual(Version than) {
+    return this.compareTo(than) >= 0;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

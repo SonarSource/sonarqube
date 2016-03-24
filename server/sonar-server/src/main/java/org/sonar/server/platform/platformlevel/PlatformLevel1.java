@@ -21,10 +21,11 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Properties;
 import javax.annotation.Nullable;
+import org.sonar.api.internal.SonarQubeVersionFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TempFolderCleaner;
+import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.core.config.CorePropertyDefinitions;
-import org.sonar.core.platform.SonarQubeVersionProvider;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
@@ -35,15 +36,14 @@ import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
-import org.sonar.ce.property.CePropertyDefinitions;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.DatabaseServerCompatibility;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.platform.ServerImpl;
-import org.sonar.server.platform.WebServerSettings;
 import org.sonar.server.platform.TempFolderProvider;
+import org.sonar.server.platform.WebServerSettings;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.ruby.PlatformRackBridge;
 import org.sonar.server.rule.index.RuleIndex;
@@ -68,7 +68,7 @@ public class PlatformLevel1 extends PlatformLevel {
     add(platform, properties);
     addExtraRootComponents();
     add(
-      new SonarQubeVersionProvider(),
+      SonarQubeVersionFactory.create(System2.INSTANCE),
       ProcessCommandWrapperImpl.class,
       WebServerSettings.class,
       ServerImpl.class,

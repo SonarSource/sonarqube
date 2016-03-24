@@ -33,6 +33,7 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.Version;
 
 /**
  * See {@link Sensor#execute(SensorContext)}
@@ -61,6 +62,11 @@ public interface SensorContext {
    * @since 5.5
    */
   InputModule module();
+
+  /**
+   * @since 5.5
+   */
+  Version getSonarQubeVersion();
 
   // ----------- MEASURES --------------
 

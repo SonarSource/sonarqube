@@ -20,6 +20,7 @@
 package org.sonar.batch.sensor;
 
 import java.io.Serializable;
+import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputModule;
@@ -37,6 +38,7 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.Version;
 import org.sonar.batch.sensor.noop.NoOpNewCpdTokens;
 import org.sonar.batch.sensor.noop.NoOpNewHighlighting;
 
@@ -51,14 +53,17 @@ public class DefaultSensorContext implements SensorContext {
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
   private final InputModule module;
+  private final SonarQubeVersion sqVersion;
 
-  public DefaultSensorContext(InputModule module, Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage) {
+  public DefaultSensorContext(InputModule module, Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage,
+    SonarQubeVersion sqVersion) {
     this.module = module;
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.analysisMode = analysisMode;
     this.sensorStorage = sensorStorage;
+    this.sqVersion = sqVersion;
   }
 
   @Override
@@ -79,6 +84,11 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public InputModule module() {
     return module;
+  }
+
+  @Override
+  public Version getSonarQubeVersion() {
+    return sqVersion.get();
   }
 
   @Override

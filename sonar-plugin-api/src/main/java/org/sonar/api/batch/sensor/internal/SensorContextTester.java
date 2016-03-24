@@ -24,6 +24,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 import java.io.File;
 import java.io.Serializable;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -32,6 +33,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -57,7 +59,10 @@ import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
+import org.sonar.api.internal.SonarQubeVersionFactory;
 import org.sonar.api.measures.Metric;
+import org.sonar.api.utils.System2;
+import org.sonar.api.utils.Version;
 import org.sonar.duplications.internal.pmd.TokensLine;
 
 /**
@@ -76,16 +81,22 @@ public class SensorContextTester implements SensorContext {
   private ActiveRules activeRules;
   private InMemorySensorStorage sensorStorage;
   private InputModule module;
+  private SonarQubeVersion sqVersion;
 
-  private SensorContextTester(File moduleBaseDir) {
+  private SensorContextTester(Path moduleBaseDir) {
     this.settings = new Settings();
     this.fs = new DefaultFileSystem(moduleBaseDir);
     this.activeRules = new ActiveRulesBuilder().build();
     this.sensorStorage = new InMemorySensorStorage();
     this.module = new DefaultInputModule("projectKey");
+    this.sqVersion = SonarQubeVersionFactory.create(System2.INSTANCE);
   }
 
   public static SensorContextTester create(File moduleBaseDir) {
+    return new SensorContextTester(moduleBaseDir.toPath());
+  }
+
+  public static SensorContextTester create(Path moduleBaseDir) {
     return new SensorContextTester(moduleBaseDir);
   }
 
@@ -94,8 +105,9 @@ public class SensorContextTester implements SensorContext {
     return settings;
   }
 
-  public void setSettings(Settings settings) {
+  public SensorContextTester setSettings(Settings settings) {
     this.settings = settings;
+    return this;
   }
 
   @Override
@@ -103,8 +115,9 @@ public class SensorContextTester implements SensorContext {
     return fs;
   }
 
-  public void setFileSystem(DefaultFileSystem fs) {
+  public SensorContextTester setFileSystem(DefaultFileSystem fs) {
     this.fs = fs;
+    return this;
   }
 
   @Override
@@ -112,8 +125,27 @@ public class SensorContextTester implements SensorContext {
     return activeRules;
   }
 
-  public void setActiveRules(ActiveRules activeRules) {
+  public SensorContextTester setActiveRules(ActiveRules activeRules) {
     this.activeRules = activeRules;
+    return this;
+  }
+
+  /**
+   * Default value is the version of this API. You can override it
+   * using {@link #setSonarQubeVersion(Version)} to test your Sensor behavior.
+   * @since 5.5
+   */
+  @Override
+  public Version getSonarQubeVersion() {
+    return sqVersion.get();
+  }
+
+  /**
+   * @since 5.5
+   */
+  public SensorContextTester setSonarQubeVersion(Version version) {
+    this.sqVersion = new SonarQubeVersion(version);
+    return this;
   }
 
   @Override

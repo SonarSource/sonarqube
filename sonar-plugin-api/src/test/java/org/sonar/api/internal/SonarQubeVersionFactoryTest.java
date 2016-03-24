@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.platform;
+package org.sonar.api.internal;
 
 import java.io.File;
 import org.junit.Rule;
@@ -28,28 +28,19 @@ import org.sonar.api.utils.System2;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
-import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class SonarQubeVersionProviderTest {
+public class SonarQubeVersionFactoryTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  SonarQubeVersionProvider underTest = new SonarQubeVersionProvider();
-
   @Test
   public void create() {
-    SonarQubeVersion version = underTest.provide(System2.INSTANCE);
+    SonarQubeVersion version = SonarQubeVersionFactory.create(System2.INSTANCE);
     assertThat(version).isNotNull();
     assertThat(version.get().major()).isGreaterThanOrEqualTo(5);
-  }
-
-  @Test
-  public void cache_version() {
-    SonarQubeVersion version1 = underTest.provide(System2.INSTANCE);
-    SonarQubeVersion version2 = underTest.provide(System2.INSTANCE);
-    assertThat(version1).isSameAs(version2);
   }
 
   @Test
@@ -57,8 +48,9 @@ public class SonarQubeVersionProviderTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Can not load /sq-version.txt from classpath");
 
-    System2 system = mock(System2.class);
-    when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURL());
-    underTest.provide(system);
+    System2 system = spy(System2.class);
+    when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
+    SonarQubeVersionFactory.create(system);
   }
+
 }

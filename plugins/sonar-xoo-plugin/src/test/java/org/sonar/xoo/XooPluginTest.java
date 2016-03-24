@@ -20,13 +20,24 @@
 package org.sonar.xoo;
 
 import org.junit.Test;
+import org.sonar.api.Plugin;
+import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.utils.Version;
+import org.sonar.xoo.lang.CpdTokenizerSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.SonarQubeVersion.V5_5;
 
 public class XooPluginTest {
 
   @Test
-  public void provide_extensions() {
-    assertThat(new XooPlugin().getExtensions().size()).isGreaterThan(0);
+  public void provide_extensions_for_5_5() {
+    Plugin.Context context = new Plugin.Context(new SonarQubeVersion(V5_5));
+    new XooPlugin().define(context);
+    assertThat(context.getExtensions()).hasSize(39).contains(CpdTokenizerSensor.class);
+
+    context = new Plugin.Context(new SonarQubeVersion(Version.parse("5.4")));
+    new XooPlugin().define(context);
+    assertThat(context.getExtensions()).hasSize(38).doesNotContain(CpdTokenizerSensor.class);
   }
 }

@@ -24,26 +24,16 @@ import java.io.StringReader;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-import org.mockito.ArgumentCaptor;
-import org.mockito.invocation.InvocationOnMock;
-import org.mockito.stubbing.Answer;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.Severity;
-import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
-import org.sonar.api.batch.sensor.internal.SensorStorage;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
-import org.sonar.api.config.Settings;
+import org.sonar.api.utils.Version;
 import org.sonar.xoo.Xoo;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class OneIssuePerLineSensorTest {
 
@@ -61,54 +51,69 @@ public class OneIssuePerLineSensorTest {
 
   @Test
   public void testRule() throws IOException {
-    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY)
       .initMetadata(new FileMetadata().readMetadata(new StringReader("a\nb\nc\nd\ne\nf\ng\nh\ni\n")));
-    fs.add(inputFile);
 
-    SensorContext context = mock(SensorContext.class);
-    final SensorStorage sensorStorage = mock(SensorStorage.class);
-    when(context.settings()).thenReturn(new Settings());
-    when(context.fileSystem()).thenReturn(fs);
-    when(context.newIssue()).thenAnswer(new Answer<Issue>() {
-      @Override
-      public Issue answer(InvocationOnMock invocation) throws Throwable {
-        return new DefaultIssue(sensorStorage);
-      }
-    });
+    SensorContextTester context = SensorContextTester.create(temp.newFolder());
+    context.fileSystem().add(inputFile);
     sensor.execute(context);
 
-    ArgumentCaptor<DefaultIssue> argCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(sensorStorage, times(10)).store(argCaptor.capture());
-    assertThat(argCaptor.getAllValues()).hasSize(10); // One issue per line
-    assertThat(argCaptor.getValue().overriddenSeverity()).isNull();
+    assertThat(context.allIssues()).hasSize(10); // One issue per line
+    for (Issue issue : context.allIssues()) {
+      assertThat(issue.gap()).isNull();
+    }
   }
 
   @Test
   public void testForceSeverity() throws IOException {
-    DefaultFileSystem fs = new DefaultFileSystem(temp.newFolder().toPath());
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY)
       .initMetadata(new FileMetadata().readMetadata(new StringReader("a\nb\nc\nd\ne\nf\ng\nh\ni\n")));
-    fs.add(inputFile);
 
-    SensorContext context = mock(SensorContext.class);
-    final SensorStorage sensorStorage = mock(SensorStorage.class);
-    Settings settings = new Settings();
-    settings.setProperty(OneIssuePerLineSensor.FORCE_SEVERITY_PROPERTY, "MINOR");
-    when(context.settings()).thenReturn(settings);
-    when(context.fileSystem()).thenReturn(fs);
-    when(context.newIssue()).thenAnswer(new Answer<Issue>() {
-      @Override
-      public Issue answer(InvocationOnMock invocation) throws Throwable {
-        return new DefaultIssue(sensorStorage);
-      }
-    });
+    SensorContextTester context = SensorContextTester.create(temp.newFolder());
+    context.fileSystem().add(inputFile);
+    context.settings().setProperty(OneIssuePerLineSensor.FORCE_SEVERITY_PROPERTY, "MINOR");
+
     sensor.execute(context);
 
-    ArgumentCaptor<DefaultIssue> argCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
-    verify(sensorStorage, times(10)).store(argCaptor.capture());
-    assertThat(argCaptor.getAllValues()).hasSize(10); // One issue per line
-    assertThat(argCaptor.getValue().overriddenSeverity()).isEqualTo(Severity.MINOR);
+    assertThat(context.allIssues()).hasSize(10); // One issue per line
+    for (Issue issue : context.allIssues()) {
+      assertThat(issue.overriddenSeverity()).isEqualTo(Severity.MINOR);
+    }
+  }
+
+  @Test
+  public void testProvideGap() throws IOException {
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY)
+      .initMetadata(new FileMetadata().readMetadata(new StringReader("a\nb\nc\nd\ne\nf\ng\nh\ni\n")));
+
+    SensorContextTester context = SensorContextTester.create(temp.newFolder());
+    context.fileSystem().add(inputFile);
+    context.settings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2");
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(10); // One issue per line
+    for (Issue issue : context.allIssues()) {
+      assertThat(issue.gap()).isEqualTo(1.2d);
+    }
+  }
+
+  @Test
+  public void testProvideGap_before_5_5() throws IOException {
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.xoo").setLanguage(Xoo.KEY)
+      .initMetadata(new FileMetadata().readMetadata(new StringReader("a\nb\nc\nd\ne\nf\ng\nh\ni\n")));
+
+    SensorContextTester context = SensorContextTester.create(temp.newFolder());
+    context.fileSystem().add(inputFile);
+    context.settings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2");
+    context.setSonarQubeVersion(Version.parse("5.4"));
+
+    sensor.execute(context);
+
+    assertThat(context.allIssues()).hasSize(10); // One issue per line
+    for (Issue issue : context.allIssues()) {
+      assertThat(issue.gap()).isEqualTo(1.2d);
+    }
   }
 
 }

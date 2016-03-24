@@ -24,6 +24,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
@@ -33,6 +34,7 @@ import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
+import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -52,6 +54,7 @@ public class DefaultSensorContextTest {
   private Settings settings;
   private SensorStorage sensorStorage;
   private AnalysisMode analysisMode;
+  private SonarQubeVersion sqVersion;
 
   @Before
   public void prepare() throws Exception {
@@ -63,7 +66,8 @@ public class DefaultSensorContextTest {
     settings = new Settings();
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
-    adaptor = new DefaultSensorContext(mock(InputModule.class), settings, fs, activeRules, analysisMode, sensorStorage);
+    sqVersion = new SonarQubeVersion(Version.parse("5.5"));
+    adaptor = new DefaultSensorContext(mock(InputModule.class), settings, fs, activeRules, analysisMode, sensorStorage, sqVersion);
   }
 
   @Test
@@ -71,6 +75,7 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.activeRules()).isEqualTo(activeRules);
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.settings()).isEqualTo(settings);
+    assertThat(adaptor.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();

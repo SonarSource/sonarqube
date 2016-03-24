@@ -23,6 +23,7 @@ import java.io.Serializable;
 import java.util.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.SonarIndex;
@@ -55,9 +56,8 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   private final CoverageExclusions coverageFilter;
 
   public DeprecatedSensorContext(InputModule module, SonarIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, CoverageExclusions coverageFilter,
-    SensorStorage sensorStorage) {
-    super(module, settings, fs, activeRules, analysisMode, sensorStorage);
+    AnalysisMode analysisMode, CoverageExclusions coverageFilter, SensorStorage sensorStorage, SonarQubeVersion sqVersion) {
+    super(module, settings, fs, activeRules, analysisMode, sensorStorage, sqVersion);
     this.index = index;
     this.project = project;
     this.coverageFilter = coverageFilter;

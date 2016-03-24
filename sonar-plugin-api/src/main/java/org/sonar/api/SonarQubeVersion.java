@@ -21,6 +21,7 @@ package org.sonar.api;
 
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
@@ -31,10 +32,24 @@ import static java.util.Objects.requireNonNull;
  * Version of SonarQube at runtime. This component can be injected as a dependency
  * of plugin extensions. The main usage for a plugin is to benefit from new APIs
  * while keeping backward-compatibility with previous versions of SonarQube.
-
- * Example: a plugin needs to use an API introduced in version 5.6 ({@code AnApi} in the following
+ * <br><br>
+ * 
+ * Example 1: a {@link Sensor} wants to use an API introduced in version 5.5 and still requires to support older versions
+ * at runtime.
+ * <pre>
+ * public class MySensor implements Sensor {
+ *
+ *   public void execute(SensorContext context) {
+ *     if (context.getSonarQubeVersion().isGreaterThanOrEqual(SonarQubeVersion.V5_5)) {
+ *       context.newMethodIntroducedIn5_5();
+ *     }
+ *   }
+ * }
+ * </pre>
+ *
+ * Example 2: a plugin needs to use an API introduced in version 5.6 ({@code AnApi} in the following
  * snippet) and still requires to support version 5.5 at runtime.
- * <p></p>
+ * <br>
  * <pre>
  * // Component provided by sonar-plugin-api
  * // @since 5.5
@@ -45,7 +60,7 @@ import static java.util.Objects.requireNonNull;
  *   // @since 5.6
  *   public void bar();
  * }
- *
+ * 
  * // Component provided by plugin
  * public class MyExtension {
  *   private final SonarQubeVersion sonarQubeVersion;
@@ -131,6 +146,7 @@ public class SonarQubeVersion {
   }
 
   public boolean isGreaterThanOrEqual(Version than) {
-    return this.version.compareTo(than) >= 0;
+    return this.version.isGreaterThanOrEqual(than);
   }
+
 }

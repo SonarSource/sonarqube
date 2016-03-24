@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.EmailSettings;
+import org.sonar.api.internal.SonarQubeVersionFactory;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -49,7 +50,6 @@ import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.Module;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
-import org.sonar.core.platform.SonarQubeVersionProvider;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.core.user.DefaultUserFinder;
 import org.sonar.core.user.DeprecatedUserFinder;
@@ -138,7 +138,7 @@ import org.sonarqube.ws.Rules;
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static final Object[] LEVEL_1_COMPONENTS = new Object[] {
     ComputeEngineSettings.class,
-    new SonarQubeVersionProvider(),
+    SonarQubeVersionFactory.create(System2.INSTANCE),
     new JmxConnectionFactoryProvider(),
     ServerImpl.class,
     UuidFactoryImpl.INSTANCE,

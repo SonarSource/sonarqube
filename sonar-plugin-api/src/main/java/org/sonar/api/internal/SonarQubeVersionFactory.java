@@ -17,33 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.platform;
+package org.sonar.api.internal;
 
 import com.google.common.io.Resources;
 import java.io.IOException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
 
-public class SonarQubeVersionProvider extends ProviderAdapter {
+/**
+ * For internal use only.
+ */
+public class SonarQubeVersionFactory {
 
   private static final String FILE_PATH = "/sq-version.txt";
 
-  private SonarQubeVersion version = null;
+  private SonarQubeVersionFactory() {
+    // prevents instantiation
+  }
 
-  public SonarQubeVersion provide(System2 system) {
-    if (version == null) {
-      try {
-        URL url = system.getResource(FILE_PATH);
-        String versionInFile = Resources.toString(url, StandardCharsets.UTF_8);
-        version = new SonarQubeVersion(Version.parse(versionInFile));
-      } catch (IOException e) {
-        throw new IllegalStateException("Can not load " + FILE_PATH + " from classpath", e);
-      }
+  public static SonarQubeVersion create(System2 system) {
+    try {
+      URL url = system.getResource(FILE_PATH);
+      String versionInFile = Resources.toString(url, StandardCharsets.UTF_8);
+      return new SonarQubeVersion(Version.parse(versionInFile));
+    } catch (IOException e) {
+      throw new IllegalStateException("Can not load " + FILE_PATH + " from classpath", e);
     }
-    return version;
   }
 }

@@ -19,12 +19,17 @@
  */
 package org.sonar.api;
 
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.Version;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class SonarQubeVersionTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void isGte() {
@@ -35,4 +40,5 @@ public class SonarQubeVersionTest {
     assertThat(qubeVersion.isGreaterThanOrEqual(Version.parse("1.1"))).isTrue();
     assertThat(qubeVersion.isGreaterThanOrEqual(Version.parse("1.3"))).isFalse();
   }
+
 }

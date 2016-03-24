@@ -19,8 +19,7 @@
  */
 package org.sonar.xoo.rule;
 
-import org.sonar.xoo.Xoo2;
-
+import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.fs.FilePredicates;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputFile;
@@ -32,11 +31,12 @@ import org.sonar.api.batch.sensor.SensorDescriptor;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.xoo.Xoo;
+import org.sonar.xoo.Xoo2;
 
 public class OneIssuePerLineSensor implements Sensor {
 
   public static final String RULE_KEY = "OneIssuePerLine";
-  private static final String EFFORT_TO_FIX_PROPERTY = "sonar.oneIssuePerLine.effortToFix";
+  public static final String EFFORT_TO_FIX_PROPERTY = "sonar.oneIssuePerLine.effortToFix";
   public static final String FORCE_SEVERITY_PROPERTY = "sonar.oneIssuePerLine.forceSeverity";
 
   @Override
@@ -72,9 +72,13 @@ public class OneIssuePerLineSensor implements Sensor {
           .on(file)
           .at(file.selectLine(line))
           .message("This issue is generated on each line"))
-        .effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY))
-        .overrideSeverity(severity != null ? Severity.valueOf(severity) : null)
-        .save();
+        .overrideSeverity(severity != null ? Severity.valueOf(severity) : null);
+      if (context.getSonarQubeVersion().isGreaterThanOrEqual(SonarQubeVersion.V5_5)) {
+        newIssue.gap(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
+      } else {
+        newIssue.effortToFix(context.settings().getDouble(EFFORT_TO_FIX_PROPERTY));
+      }
+      newIssue.save();
     }
   }
 

@@ -19,9 +19,7 @@
  */
 package org.sonar.xoo;
 
-import java.util.Arrays;
-import java.util.List;
-import org.sonar.api.SonarPlugin;
+import org.sonar.api.Plugin;
 import org.sonar.xoo.coverage.ItCoverageSensor;
 import org.sonar.xoo.coverage.OverallCoverageSensor;
 import org.sonar.xoo.coverage.UtCoverageSensor;
@@ -60,17 +58,16 @@ import org.sonar.xoo.scm.XooScmProvider;
 import org.sonar.xoo.test.CoveragePerTestSensor;
 import org.sonar.xoo.test.TestExecutionSensor;
 
+import static org.sonar.api.SonarQubeVersion.V5_5;
+
 /**
  * Plugin entry-point, as declared in pom.xml.
  */
-public class XooPlugin extends SonarPlugin {
+public class XooPlugin implements Plugin {
 
-  /**
-   * Declares all the extensions implemented in the plugin
-   */
   @Override
-  public List getExtensions() {
-    return Arrays.asList(
+  public void define(Context context) {
+    context.addExtensions(
       Xoo.class,
       Xoo2.class,
       XooRulesDefinition.class,
@@ -98,7 +95,6 @@ public class XooPlugin extends SonarPlugin {
       ChecksSensor.class,
       RandomAccessSensor.class,
       DeprecatedResourceApiSensor.class,
-      CpdTokenizerSensor.class,
 
       OneBlockerIssuePerFileSensor.class,
       OneIssuePerLineSensor.class,
@@ -125,6 +121,10 @@ public class XooPlugin extends SonarPlugin {
       // Other
       XooProjectBuilder.class,
       XooPostJob.class);
+
+    if (context.getSonarQubeVersion().isGreaterThanOrEqual(V5_5)) {
+      context.addExtension(CpdTokenizerSensor.class);
+    }
   }
 
 }
