@@ -23,6 +23,11 @@
     <% end %>
 
     <div id="<%= container_id -%>"></div>
+
+    <% if distribution_axis == 'reporters' %>
+      <p class="note spacer-bottom">The distribution by rReporter is no more supported. Please update this widget.</p>
+    <% end %>
+
     <script>
       jQuery(function () {
         var query = '<%= filter.data -%>';

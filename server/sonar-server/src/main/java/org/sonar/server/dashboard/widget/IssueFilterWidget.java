@@ -32,7 +32,7 @@ import static org.sonar.api.web.WidgetScope.GLOBAL;
 @WidgetProperties({
   @WidgetProperty(key = IssueFilterWidget.FILTER_PROPERTY, type = WidgetPropertyType.ISSUE_FILTER, optional = false),
   @WidgetProperty(key = IssueFilterWidget.DISTRIBUTION_AXIS_PROPERTY, type = WidgetPropertyType.SINGLE_SELECT_LIST, defaultValue = "severities",
-    options = {"types", "severities", "resolutions", "statuses", "rules", "tags", "projectUuids", "assignees", "reporters",
+    options = {"types", "severities", "resolutions", "statuses", "rules", "tags", "projectUuids", "assignees",
       "authors", "languages", "createdAt"}),
   @WidgetProperty(key = IssueFilterWidget.DISPLAY_FILTER_DESCRIPTION, type = WidgetPropertyType.BOOLEAN, defaultValue = "false"),
   @WidgetProperty(key = IssueFilterWidget.DISPLAY_MODE, type = WidgetPropertyType.SINGLE_SELECT_LIST, defaultValue = "count", options = {"count", "debt"})
