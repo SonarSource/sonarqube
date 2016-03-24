@@ -24,6 +24,7 @@ import com.google.common.base.Throwables;
 import com.google.protobuf.Message;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.nio.charset.StandardCharsets;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.sonar.api.server.ws.Request;
@@ -54,7 +55,7 @@ public class WsUtils {
         msg.writeTo(output);
       } else {
         response.stream().setMediaType(MediaTypes.JSON);
-        try (OutputStreamWriter writer = new OutputStreamWriter(output)) {
+        try (OutputStreamWriter writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
           ProtobufJsonFormat.write(msg, JsonWriter.of(writer));
         }
       }

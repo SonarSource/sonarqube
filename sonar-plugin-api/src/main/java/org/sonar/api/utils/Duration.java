@@ -19,15 +19,13 @@
  */
 package org.sonar.api.utils;
 
-import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang.builder.ToStringBuilder;
-import org.apache.commons.lang.builder.ToStringStyle;
-
-import javax.annotation.Nullable;
-
 import java.io.Serializable;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang.builder.ToStringBuilder;
+import org.apache.commons.lang.builder.ToStringStyle;
 
 /**
  * @since 4.3
@@ -47,7 +45,7 @@ public class Duration implements Serializable {
   }
 
   private Duration(int days, int hours, int minutes, int hoursInDay) {
-    this((days * hoursInDay * MINUTES_IN_ONE_HOUR) + (hours * MINUTES_IN_ONE_HOUR) + minutes);
+    this(((long) days * hoursInDay * MINUTES_IN_ONE_HOUR) + (hours * MINUTES_IN_ONE_HOUR) + minutes);
   }
 
   /**
