@@ -24,7 +24,7 @@ class DrilldownController < ApplicationController
 
   def measures
     metric = params[:metric] || 'ncloc'
-    return redirect_to("/component_measures/#{metric}?id=#{url_encode(@resource.key)}")
+    return redirect_to("/component_measures/metric/#{metric}?id=#{url_encode(@resource.key)}")
   end
 
   def issues

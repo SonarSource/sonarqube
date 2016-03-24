@@ -17,48 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import React from 'react';
 
-import Spinner from './../components/Spinner';
 import AllMeasuresDomain from './AllMeasuresDomain';
 import { getLeakPeriodLabel } from '../../../helpers/periods';
 
 export default class AllMeasures extends React.Component {
   componentDidMount () {
     this.props.onDisplay();
-    this.props.fetchMeasures();
+  }
+
+  componentDidUpdate () {
+    this.props.onDisplay();
   }
 
   render () {
-    const { component, measures, periods, fetching } = this.props;
-
-    if (fetching) {
-      return <Spinner/>;
-    }
-
-    const domains = _.sortBy(_.pairs(_.groupBy(measures, measure => measure.metric.domain)).map(r => {
-      const [name, measures] = r;
-      const sortedMeasures = _.sortBy(measures, measure => measure.metric.name);
-
-      return { name, measures: sortedMeasures };
-    }), 'name');
-
+    const { component, domains, periods } = this.props;
     const leakPeriodLabel = getLeakPeriodLabel(periods);
 
     return (
-        <section id="component-measures-home" className="page page-container page-limited">
-          <ul className="measures-domains">
-            {domains.map((domain, index) => (
-                <AllMeasuresDomain
-                    key={domain.name}
-                    domain={domain}
-                    component={component}
-                    displayLeakHeader={index === 0}
-                    leakPeriodLabel={leakPeriodLabel}/>
-            ))}
-          </ul>
-        </section>
+        <ul className="measures-domains">
+          {domains.map(domain => (
+              <AllMeasuresDomain
+                  key={domain.name}
+                  domain={domain}
+                  component={component}
+                  leakPeriodLabel={leakPeriodLabel}/>
+          ))}
+        </ul>
     );
   }
 }

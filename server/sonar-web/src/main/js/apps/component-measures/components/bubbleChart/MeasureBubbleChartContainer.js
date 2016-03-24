@@ -17,42 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getMetrics } from '../../../api/metrics';
+import { connect } from 'react-redux';
 
-/*
- * Actions
- */
+import MeasureBubbleChart from './BubbleChart';
 
-export const DISPLAY_HOME = 'app/DISPLAY_HOME';
-export const DISPLAY_DOMAIN = 'app/DISPLAY_DOMAIN';
-export const RECEIVE_METRICS = 'app/RECEIVE_METRICS';
-
-
-/*
- * Action Creators
- */
-
-export function displayHome () {
-  return { type: DISPLAY_HOME };
-}
-
-export function displayDomain (domainName) {
-  return { type: DISPLAY_DOMAIN, domainName };
-}
-
-function receiveMetrics (metrics) {
-  return { type: RECEIVE_METRICS, metrics };
-}
-
-
-/*
- * Workflow
- */
-
-export function fetchMetrics () {
-  return dispatch => {
-    getMetrics().then(metrics => {
-      dispatch(receiveMetrics(metrics));
-    });
+const mapStateToProps = state => {
+  return {
+    component: state.app.component,
+    metrics: state.app.metrics
   };
-}
+};
+
+const mapDispatchToProps = () => {
+  return {};
+};
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(MeasureBubbleChart);

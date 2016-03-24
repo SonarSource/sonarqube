@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-import Spinner from './../../components/Spinner';
+import Spinner from './../Spinner';
 import { BubbleChart as OriginalBubbleChart } from '../../../../components/charts/bubble-chart';
 import bubbles from '../../config/bubbles';
 import { getComponentLeaves } from '../../../../api/components';
@@ -35,17 +35,12 @@ function getMeasure (component, metric) {
 
 export default class BubbleChart extends React.Component {
   state = {
-    fetching: true,
+    fetching: 0,
     files: []
   };
 
   componentWillMount () {
-    const { metric, metrics } = this.props;
-    const conf = bubbles[metric.key];
-
-    this.xMetric = metrics.find(m => m.key === conf.x);
-    this.yMetric = metrics.find(m => m.key === conf.y);
-    this.sizeMetric = metrics.find(m => m.key === conf.size);
+    this.updateMetrics(this.props);
   }
 
   componentDidMount () {
@@ -53,14 +48,26 @@ export default class BubbleChart extends React.Component {
     this.fetchFiles();
   }
 
+  componentWillUpdate (nextProps) {
+    this.updateMetrics(nextProps);
+  }
+
   componentDidUpdate (nextProps) {
-    if (nextProps.metric !== this.props.metric) {
+    if (nextProps.domainName !== this.props.domainName) {
       this.fetchFiles();
     }
   }
 
   componentWillUnmount () {
     this.mounted = false;
+  }
+
+  updateMetrics (props) {
+    const { metrics, domainName } = props;
+    const conf = bubbles[domainName];
+    this.xMetric = metrics.find(m => m.key === conf.x);
+    this.yMetric = metrics.find(m => m.key === conf.y);
+    this.sizeMetric = metrics.find(m => m.key === conf.size);
   }
 
   fetchFiles () {
@@ -73,6 +80,10 @@ export default class BubbleChart extends React.Component {
       ps: BUBBLES_LIMIT
     };
 
+    if (this.mounted) {
+      this.setState({ fetching: this.state.fetching + 1 });
+    }
+
     getComponentLeaves(component.key, metrics, options).then(r => {
       const files = r.components.map(file => {
         const measures = {};
@@ -83,11 +94,13 @@ export default class BubbleChart extends React.Component {
         return { ...file, measures };
       });
 
-      this.setState({
-        files,
-        fetching: false,
-        total: files.length
-      });
+      if (this.mounted) {
+        this.setState({
+          files,
+          fetching: this.state.fetching - 1,
+          total: files.length
+        });
+      }
     });
   }
 

@@ -17,17 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import _ from 'underscore';
+import sortBy from '../../../../../../node_modules/lodash/sortBy';
+import partition from '../../../../../../node_modules/lodash/partition';
+
 import { RECEIVE_MEASURES } from './actions';
 
 const initialState = {
   measures: undefined,
+  domains: undefined,
   periods: undefined
 };
+
+function groupByDomains (measures) {
+  const KNOWN_DOMAINS = ['Reliability', 'Security', 'Maintainability', 'Tests', 'Duplication', 'Size', 'Complexity'];
+
+  const domains = _.sortBy(_.pairs(_.groupBy(measures, measure => measure.metric.domain)).map(r => {
+    const [name, measures] = r;
+    const sortedMeasures = _.sortBy(measures, measure => measure.metric.name);
+
+    return { name, measures: sortedMeasures };
+  }), 'name');
+  const [knownDomains, unknownDomains] =
+      partition(domains, domain => KNOWN_DOMAINS.includes(domain.name));
+  return [
+    ...sortBy(knownDomains, domain => KNOWN_DOMAINS.indexOf(domain.name)),
+    ...sortBy(unknownDomains, domain => domain.name)
+  ];
+}
 
 export default function (state = initialState, action = {}) {
   switch (action.type) {
     case RECEIVE_MEASURES:
-      return { ...state, measures: action.measures, periods: action.periods };
+      return {
+        ...state,
+        measures: action.measures,
+        domains: groupByDomains(action.measures),
+        periods: action.periods
+      };
     default:
       return state;
   }

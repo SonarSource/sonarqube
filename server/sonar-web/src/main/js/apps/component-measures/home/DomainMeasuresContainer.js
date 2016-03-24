@@ -19,21 +19,24 @@
  */
 import { connect } from 'react-redux';
 
-import MeasureBubbleChart from './BubbleChart';
+import DomainMeasures from './DomainMeasures';
+import { displayDomain } from '../app/actions';
 
 const mapStateToProps = state => {
   return {
     component: state.app.component,
-    metrics: state.app.metrics,
-    metric: state.details.metric
+    domains: state.home.domains,
+    periods: state.home.periods
   };
 };
 
-const mapDispatchToProps = () => {
-  return {};
+const mapDispatchToProps = dispatch => {
+  return {
+    onDisplay: domainName => dispatch(displayDomain(domainName))
+  };
 };
 
 export default connect(
     mapStateToProps,
     mapDispatchToProps
-)(MeasureBubbleChart);
+)(DomainMeasures);

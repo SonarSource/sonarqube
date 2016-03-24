@@ -18,14 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { IndexLink } from 'react-router';
+import { Link, IndexLink } from 'react-router';
 
 import Spinner from './../components/Spinner';
 import MeasureDetailsHeader from './MeasureDetailsHeader';
 import MeasureDrilldown from './drilldown/MeasureDrilldown';
-
 import { getLeakPeriod, getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
-import { translate } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class MeasureDetails extends React.Component {
   componentWillMount () {
@@ -55,7 +54,7 @@ export default class MeasureDetails extends React.Component {
   }
 
   render () {
-    const { component, metric, secondaryMeasure, measure, periods, children } = this.props;
+    const { component, metric, secondaryMeasure, measure, periods, lastDisplayedDomain, children } = this.props;
 
     if (measure == null) {
       return <Spinner/>;
@@ -68,12 +67,20 @@ export default class MeasureDetails extends React.Component {
 
     return (
         <section id="component-measures-details" className="page page-container page-limited">
-          <IndexLink
-              to={{ pathname: '/', query: { id: component.key } }}
-              id="component-measures-back-to-all-measures"
-              className="small text-muted">
-            {translate('component_measures.back_to_all_measures')}
-          </IndexLink>
+          {lastDisplayedDomain ? (
+              <Link
+                  to={{ pathname: `domain/${lastDisplayedDomain}`, query: { id: component.key } }}
+                  className="small text-muted">
+                {translateWithParameters('component_measures.back_to_domain_measures', lastDisplayedDomain)}
+              </Link>
+          ) : (
+              <IndexLink
+                  to={{ pathname: '/', query: { id: component.key } }}
+                  id="component-measures-back-to-all-measures"
+                  className="small text-muted">
+                {translate('component_measures.back_to_all_measures')}
+              </IndexLink>
+          )}
 
           <MeasureDetailsHeader
               measure={measure}

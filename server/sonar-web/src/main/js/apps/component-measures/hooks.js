@@ -17,23 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { hasHistory, hasBubbleChart } from './utils';
+import { hasHistory } from './utils';
 
 export function checkHistoryExistence (nextState, replace) {
   const { metricKey } = nextState.params;
 
   if (!hasHistory(metricKey)) {
-    replace({
-      pathname: metricKey,
-      query: nextState.location.query
-    });
-  }
-}
-
-export function checkBubbleChartExistence (nextState, replace) {
-  const { metricKey } = nextState.params;
-
-  if (!hasBubbleChart(metricKey)) {
     replace({
       pathname: metricKey,
       query: nextState.location.query

@@ -48,7 +48,7 @@ export function getComponentIssuesUrl (componentKey, query) {
  * @returns {string}
  */
 export function getComponentDrilldownUrl (componentKey, metric) {
-  return `/component_measures/${metric}?id=${encodeURIComponent(componentKey)}`;
+  return `/component_measures/metric/${metric}?id=${encodeURIComponent(componentKey)}`;
 }
 
 

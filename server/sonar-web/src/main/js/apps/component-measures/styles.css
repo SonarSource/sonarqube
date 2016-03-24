@@ -1,17 +1,23 @@
+.home-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 30px;
+}
+
 .measures-domains {
 }
 
 .measures-domains > li {
-  padding-bottom: 40px;
-  break-inside: avoid;
+  padding-bottom: 20px;
 }
 
 .measures-domains-leak-header {
-  float: right;
   line-height: 22px;
   padding: 0 10px;
   border: 1px solid #eae3c7;
   background-color: #fbf3d5;
+  white-space: nowrap;
 }
 
 .domain-measures {
@@ -26,6 +32,10 @@
 
 .domain-measures > li:nth-child(odd) > a {
   background-color: #f8f8f8;
+}
+
+.domain-measures > li > a:hover {
+  background-color: #ecf6fe !important;
 }
 
 .domain-measures-name,
@@ -55,6 +65,32 @@
 
 .domain-measures > li:nth-child(odd) .domain-measures-leak {
   background-color: #f5eed0;
+}
+
+.domain-main-measures {
+  display: flex;
+  flex-wrap: wrap;
+  padding: 0 10px;
+}
+
+.domain-main-measures > li {
+  margin-right: 40px;
+  margin-bottom: 30px;
+}
+
+.domain-main-measures-value {
+  line-height: 1;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.domain-main-measures-leak {
+
+}
+
+.domain-main-measures-label {
+  margin-top: 4px;
+  white-space: nowrap;
 }
 
 .measure-details {
@@ -232,7 +268,7 @@
 .measure-details-bubble-chart {
   position: relative;
   margin: 10px 0;
-  padding: 30px 0 30px 50px;
+  padding: 30px 0 30px 60px;
 }
 
 .measure-details-bubble-chart-axis {
@@ -264,7 +300,6 @@
 .measure-details-treemap-legend {
   margin-bottom: 10px;
 }
-
 
 .component-measures-breadcrumbs {
   display: flex;

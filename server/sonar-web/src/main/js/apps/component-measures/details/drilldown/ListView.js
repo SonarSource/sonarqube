@@ -22,6 +22,7 @@ import classNames from 'classnames';
 
 import ComponentsList from './ComponentsList';
 import ListHeader from './ListHeader';
+import Spinner from '../../components/Spinner';
 import SourceViewer from '../../../code/components/SourceViewer';
 import ListFooter from '../../../../components/shared/list-footer';
 
@@ -104,11 +105,15 @@ export default class ListView extends React.Component {
 
           {!selected && (
               <div className={classNames({ 'new-loading': fetching })}>
-                <ComponentsList
-                    components={components}
-                    selected={selected}
-                    metric={metric}
-                    onClick={this.handleClick.bind(this)}/>
+                {(!fetching || components.length !== 0) ? (
+                    <ComponentsList
+                        components={components}
+                        selected={selected}
+                        metric={metric}
+                        onClick={this.handleClick.bind(this)}/>
+                ) : (
+                    <Spinner/>
+                )}
                 <ListFooter
                     count={components.length}
                     total={total}

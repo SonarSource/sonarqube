@@ -60,7 +60,6 @@ export default class SourceViewer extends Component {
     if (period) {
       const periodDate = getPeriodDate(period);
       const periodLabel = getPeriodLabel(period);
-      console.log(periodDate, periodLabel);
       this.sourceViewer.filterLinesByDate(periodDate, periodLabel);
     }
   }

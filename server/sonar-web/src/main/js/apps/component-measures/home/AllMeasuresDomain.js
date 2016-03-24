@@ -20,64 +20,55 @@
 import sortBy from '../../../../../../node_modules/lodash/sortBy';
 import partition from '../../../../../../node_modules/lodash/partition';
 import React from 'react';
-import { Link } from 'react-router';
 
-import domains from '../config/domains';
-import { formatLeak } from '../utils';
-import { formatMeasure } from '../../../helpers/measures';
-import { translateWithParameters } from '../../../helpers/l10n';
+import MeasuresList from './MeasuresList';
+import { domains } from '../config/domains';
 
-export default function AllMeasuresDomain ({ domain, component, displayLeakHeader, leakPeriodLabel }) {
-  const hasLeak = !!leakPeriodLabel;
-  const { measures } = domain;
-  const knownMetrics = domains[domain.name] || [];
-
-  const [knownMeasures, otherMeasures] =
-      partition(measures, measure => knownMetrics.indexOf(measure.metric.key) !== -1);
-
-  const finalMeasures = [
-    ...sortBy(knownMeasures, measure => knownMetrics.indexOf(measure.metric.key)),
-    ...sortBy(otherMeasures, measure => measure.metric.name)
+const sortMeasures = (measures, order) => {
+  const [known, unknown] = partition(measures, measure => order.includes(measure.metric.key));
+  return [
+    ...sortBy(known, measure => order.indexOf(measure.metric.key)),
+    ...sortBy(unknown, measure => measure.metric.name)
   ];
+};
 
-  return (
-      <li>
-        <header className="page-header">
-          <h3 className="page-title">{domain.name}</h3>
-          {displayLeakHeader && hasLeak && (
-              <div className="measures-domains-leak-header">
-                {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
-              </div>
+export default class AllMeasuresDomain extends React.Component {
+  render () {
+    const { domain, component, leakPeriodLabel, displayHeader } = this.props;
+
+    const hasLeak = !!leakPeriodLabel;
+    const { measures } = domain;
+    const domainConfig = domains[domain.name] || { main: [], order: [] };
+    const mainMetrics = domainConfig.main;
+    const orderedMeasures = domainConfig.order;
+    const [mainMeasures, otherMeasures] = partition(measures,
+        measure => mainMetrics.indexOf(measure.metric.key) !== -1);
+    const sortedMainMeasures = sortMeasures(mainMeasures, orderedMeasures);
+    const sortedOtherMeasures = sortMeasures(otherMeasures, orderedMeasures);
+    const finalMeasures = [...sortedMainMeasures, ...sortedOtherMeasures];
+
+    return (
+        <li>
+          {displayHeader && (
+              <header className="page-header">
+                <h3 className="page-title">{domain.name}</h3>
+              </header>
           )}
-        </header>
 
-        <ul className="domain-measures">
-          {finalMeasures.map(measure => (
-              <li key={measure.metric.key} id={`measure-${measure.metric.key}`}>
-                <Link to={{ pathname: measure.metric.key, query: { id: component.key } }}>
-                  <div className="domain-measures-name">
-                    <span id={`measure-${measure.metric.key}-name`}>
-                      {measure.metric.name}
-                    </span>
-                  </div>
-                  <div className="domain-measures-value">
-                    {measure.value != null && (
-                        <span id={`measure-${measure.metric.key}-value`}>
-                          {formatMeasure(measure.value, measure.metric.type)}
-                        </span>
-                    )}
-                  </div>
-                  {hasLeak && measure.leak != null && (
-                      <div className="domain-measures-value domain-measures-leak">
-                        <span id={`measure-${measure.metric.key}-leak`}>
-                          {formatLeak(measure.leak, measure.metric)}
-                        </span>
-                      </div>
-                  )}
-                </Link>
-              </li>
-          ))}
-        </ul>
-      </li>
-  );
+          <MeasuresList
+              measures={finalMeasures}
+              hasLeak={hasLeak}
+              component={component}/>
+        </li>
+    );
+  }
 }
+
+AllMeasuresDomain.defaultProps = {
+  displayHeader: true
+};
+
+AllMeasuresDomain.propTypes = {
+  displayHeader: React.PropTypes.bool
+};
+

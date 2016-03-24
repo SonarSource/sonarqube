@@ -24,17 +24,18 @@ import { createHistory } from 'history';
 import { Provider } from 'react-redux';
 
 import AppContainer from './app/AppContainer';
+import HomeContainer from './home/HomeContainer';
 import AllMeasuresContainer from './home/AllMeasuresContainer';
+import DomainMeasuresContainer from './home/DomainMeasuresContainer';
 import MeasureDetailsContainer from './details/MeasureDetailsContainer';
 import ListViewContainer from './details/drilldown/ListViewContainer';
 import TreeViewContainer from './details/drilldown/TreeViewContainer';
 import MeasureHistoryContainer from './details/history/MeasureHistoryContainer';
-import MeasureBubbleChartContainer from './details/bubbleChart/MeasureBubbleChartContainer';
 import MeasureTreemapContainer from './details/treemap/MeasureTreemapContainer';
 
 import configureStore from './store/configureStore';
 
-import { checkHistoryExistence, checkBubbleChartExistence } from './hooks';
+import { checkHistoryExistence } from './hooks';
 
 import './styles.css';
 
@@ -59,13 +60,16 @@ window.sonarqube.appStarted.then(options => {
           <Redirect from="/index" to="/"/>
 
           <Route path="/" component={AppContainer}>
-            <IndexRoute component={AllMeasuresContainer}/>
-            <Route path=":metricKey" component={MeasureDetailsContainer}>
+            <Route component={HomeContainer}>
+              <IndexRoute component={AllMeasuresContainer}/>
+              <Route path="domain/:domainName" component={DomainMeasuresContainer}/>
+            </Route>
+
+            <Route path="metric/:metricKey" component={MeasureDetailsContainer}>
               <IndexRedirect to="list"/>
               <Route path="list" component={ListViewContainer}/>
               <Route path="tree" component={TreeViewContainer}/>
               <Route path="history" component={MeasureHistoryContainer} onEnter={checkHistoryExistence}/>
-              <Route path="bubbles" component={MeasureBubbleChartContainer} onEnter={checkBubbleChartExistence}/>
               <Route path="treemap" component={MeasureTreemapContainer}/>
             </Route>
           </Route>

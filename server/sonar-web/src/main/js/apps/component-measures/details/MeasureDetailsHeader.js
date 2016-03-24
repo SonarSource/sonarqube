@@ -19,10 +19,10 @@
  */
 import React from 'react';
 
+import Measure from './../components/Measure';
 import LanguageDistribution from './../components/LanguageDistribution';
 import { ComplexityDistribution } from '../../overview/components/complexity-distribution';
 import { formatLeak } from '../utils';
-import { formatMeasure } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
@@ -41,7 +41,7 @@ export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasur
           <div className="measure-details-value">
             {measure.value != null && (
                 <div className="measure-details-value-absolute">
-                  {formatMeasure(measure.value, metric.type)}
+                  <Measure measure={measure} metric={metric}/>
                 </div>
             )}
 

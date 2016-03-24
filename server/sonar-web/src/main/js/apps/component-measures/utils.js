@@ -91,8 +91,8 @@ export function hasHistory (metricKey) {
   return metricKey.indexOf('new_') !== 0;
 }
 
-export function hasBubbleChart (metricKey) {
-  return !!bubbles[metricKey];
+export function hasBubbleChart (domainName) {
+  return !!bubbles[domainName];
 }
 
 export function hasTreemap (metric) {

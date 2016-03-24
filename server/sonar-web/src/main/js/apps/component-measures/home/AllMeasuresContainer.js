@@ -20,23 +20,19 @@
 import { connect } from 'react-redux';
 
 import AllMeasures from './AllMeasures';
-import { fetchMeasures } from './actions';
-import { displayHome } from '../app/actions';
+import { displayDomain } from '../app/actions';
 
 const mapStateToProps = state => {
   return {
     component: state.app.component,
-    metrics: state.app.metrics,
-    measures: state.home.measures,
-    periods: state.home.periods,
-    fetching: state.status.fetching
+    domains: state.home.domains,
+    periods: state.home.periods
   };
 };
 
 const mapDispatchToProps = dispatch => {
   return {
-    onDisplay: () => dispatch(displayHome()),
-    fetchMeasures: () => dispatch(fetchMeasures())
+    onDisplay: () => dispatch(displayDomain(undefined))
   };
 };
 

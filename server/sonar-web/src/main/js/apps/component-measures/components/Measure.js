@@ -17,42 +17,33 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { getMetrics } from '../../../api/metrics';
+import React from 'react';
 
-/*
- * Actions
- */
+import { Rating } from '../../../components/shared/rating';
+import Level from '../../../components/shared/Level';
+import { formatMeasure } from '../../../helpers/measures';
+import { formatLeak, isDiffMetric } from '../utils';
 
-export const DISPLAY_HOME = 'app/DISPLAY_HOME';
-export const DISPLAY_DOMAIN = 'app/DISPLAY_DOMAIN';
-export const RECEIVE_METRICS = 'app/RECEIVE_METRICS';
+const Measure = ({ measure, metric }) => {
+  const finalMetric = metric || measure.metric;
 
+  if (finalMetric.type === 'RATING') {
+    return <Rating value={measure.value}/>;
+  }
 
-/*
- * Action Creators
- */
+  if (finalMetric.type === 'LEVEL') {
+    return <Level level={measure.value}/>;
+  }
 
-export function displayHome () {
-  return { type: DISPLAY_HOME };
-}
+  const formattedValue = isDiffMetric(finalMetric) ?
+      formatLeak(measure.leak, finalMetric) :
+      formatMeasure(measure.value, finalMetric.type);
 
-export function displayDomain (domainName) {
-  return { type: DISPLAY_DOMAIN, domainName };
-}
+  return (
+      <span>
+        {formattedValue}
+      </span>
+  );
+};
 
-function receiveMetrics (metrics) {
-  return { type: RECEIVE_METRICS, metrics };
-}
-
-
-/*
- * Workflow
- */
-
-export function fetchMetrics () {
-  return dispatch => {
-    getMetrics().then(metrics => {
-      dispatch(receiveMetrics(metrics));
-    });
-  };
-}
+export default Measure;
