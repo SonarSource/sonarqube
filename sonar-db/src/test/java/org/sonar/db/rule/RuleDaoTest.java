@@ -121,9 +121,9 @@ public class RuleDaoTest {
   }
 
   @Test
-  public void selectEnabledAndNonManual() {
-    dbTester.prepareDbUnit(getClass(), "selectEnabledAndNonManual.xml");
-    List<RuleDto> ruleDtos = underTest.selectEnabledAndNonManual(dbTester.getSession());
+  public void selectEnabled() {
+    dbTester.prepareDbUnit(getClass(), "selectEnabled.xml");
+    List<RuleDto> ruleDtos = underTest.selectEnabled(dbTester.getSession());
 
     assertThat(ruleDtos.size()).isEqualTo(1);
     RuleDto ruleDto = ruleDtos.get(0);
@@ -153,8 +153,8 @@ public class RuleDaoTest {
   }
 
   @Test
-  public void selectEnabledAndNonManual_with_ResultHandler() {
-    dbTester.prepareDbUnit(getClass(), "selectEnabledAndNonManual.xml");
+  public void selectEnabled_with_ResultHandler() {
+    dbTester.prepareDbUnit(getClass(), "selectEnabled.xml");
 
     final List<RuleDto> rules = new ArrayList<>();
     ResultHandler resultHandler = new ResultHandler() {
@@ -163,28 +163,12 @@ public class RuleDaoTest {
         rules.add((RuleDto) resultContext.getResultObject());
       }
     };
-    underTest.selectEnabledAndNonManual(dbTester.getSession(), resultHandler);
+    underTest.selectEnabled(dbTester.getSession(), resultHandler);
 
     assertThat(rules.size()).isEqualTo(1);
     RuleDto ruleDto = rules.get(0);
     assertThat(ruleDto.getId()).isEqualTo(1);
   }
-
-  @Test
-  public void select_non_manual() {
-    dbTester.prepareDbUnit(getClass(), "selectNonManual.xml");
-
-    List<RuleDto> ruleDtos = underTest.selectByNonManual(dbTester.getSession());
-
-    assertThat(ruleDtos.size()).isEqualTo(1);
-    RuleDto ruleDto = ruleDtos.get(0);
-    assertThat(ruleDto.getId()).isEqualTo(1);
-    assertThat(ruleDto.getName()).isEqualTo("Avoid Null");
-    assertThat(ruleDto.getDescription()).isEqualTo("Should avoid NULL");
-    assertThat(ruleDto.getStatus()).isEqualTo(RuleStatus.READY);
-    assertThat(ruleDto.getRepositoryKey()).isEqualTo("checkstyle");
-  }
-
 
   @Test
   public void select_by_query() {

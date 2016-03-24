@@ -31,11 +31,9 @@ public interface RuleMapper {
 
   List<RuleDto> selectAll(ResultHandler resultHandler);
 
-  List<RuleDto> selectEnabledAndNonManual();
+  List<RuleDto> selectEnabled();
 
-  void selectEnabledAndNonManual(ResultHandler resultHandler);
-
-  List<RuleDto> selectNonManual();
+  void selectEnabled(ResultHandler resultHandler);
 
   RuleDto selectById(long id);
 

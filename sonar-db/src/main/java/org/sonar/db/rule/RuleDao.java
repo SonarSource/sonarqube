@@ -69,16 +69,12 @@ public class RuleDao implements Dao {
     return executeLargeInputs(keys, new KeyToDto(mapper(session)));
   }
 
-  public List<RuleDto> selectEnabledAndNonManual(DbSession session) {
-    return mapper(session).selectEnabledAndNonManual();
+  public List<RuleDto> selectEnabled(DbSession session) {
+    return mapper(session).selectEnabled();
   }
 
-  public void selectEnabledAndNonManual(DbSession session, ResultHandler resultHandler) {
-    mapper(session).selectEnabledAndNonManual(resultHandler);
-  }
-
-  public List<RuleDto> selectByNonManual(DbSession session) {
-    return mapper(session).selectNonManual();
+  public void selectEnabled(DbSession session, ResultHandler resultHandler) {
+    mapper(session).selectEnabled(resultHandler);
   }
 
   public List<RuleDto> selectAll(DbSession session) {

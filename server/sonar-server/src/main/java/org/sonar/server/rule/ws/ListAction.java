@@ -57,7 +57,7 @@ public class ListAction implements RulesWsAction {
     final ListResponse.Builder listResponseBuilder = ListResponse.newBuilder();
     final ListResponse.Rule.Builder ruleBuilder = ListResponse.Rule.newBuilder();
     try {
-      dbClient.ruleDao().selectEnabledAndNonManual(dbSession, new ResultHandler() {
+      dbClient.ruleDao().selectEnabled(dbSession, new ResultHandler() {
         @Override
         public void handleResult(ResultContext resultContext) {
           RuleDto dto = (RuleDto) resultContext.getResultObject();

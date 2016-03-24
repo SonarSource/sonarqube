@@ -18,13 +18,4 @@
          created_at="1500000000000" updated_at="1600000000000"
   />
 
-  <rules tags="[null]" system_tags="[null]" id="3" plugin_rule_key="AvoidNull" plugin_name="manual" name="Manual Rule" description="Should not appear" status="READY"
-         note_data="[null]" note_user_login="[null]" note_created_at="[null]" description_format="HTML"
-         remediation_function="[null]" def_remediation_function="[null]"
-         remediation_gap_mult="[null]" def_remediation_gap_mult="[null]"
-         remediation_base_effort="[null]" def_remediation_base_effort="[null]"
-         gap_description="[null]"
-         created_at="1500000000000" updated_at="1600000000000"
-  />
-
 </dataset>

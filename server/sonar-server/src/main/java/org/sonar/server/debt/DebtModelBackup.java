@@ -88,7 +88,7 @@ public class DebtModelBackup {
     DbSession session = dbClient.openSession(false);
     try {
       List<RuleDebt> rules = newArrayList();
-      for (RuleDto rule : dbClient.ruleDao().selectEnabledAndNonManual(session)) {
+      for (RuleDto rule : dbClient.ruleDao().selectEnabled(session)) {
         if (languageKey == null || languageKey.equals(rule.getLanguage())) {
           RuleDebt ruleDebt = toRuleDebt(rule);
           if (ruleDebt != null) {
@@ -112,7 +112,7 @@ public class DebtModelBackup {
     DbSession session = dbClient.openSession(false);
     try {
       // Restore rules
-      List<RuleDto> ruleDtos = dbClient.ruleDao().selectEnabledAndNonManual(session);
+      List<RuleDto> ruleDtos = dbClient.ruleDao().selectEnabled(session);
       if (!ruleDtos.isEmpty()) {
 
         // Load default rule definitions
@@ -215,7 +215,7 @@ public class DebtModelBackup {
   }
 
   private List<RuleDto> rules(@Nullable String languageKey, DbSession session) {
-    List<RuleDto> rules = dbClient.ruleDao().selectEnabledAndNonManual(session);
+    List<RuleDto> rules = dbClient.ruleDao().selectEnabled(session);
     if (languageKey == null) {
       return rules;
     }

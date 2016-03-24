@@ -114,7 +114,7 @@ public class DebtModelBackupTest {
 
   @Test
   public void backup() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(
+    when(ruleDao.selectEnabled(session)).thenReturn(
       newArrayList(
         // Rule with overridden debt values
         new RuleDto().setRepositoryKey("squid").setRuleKey("UselessImportCheck")
@@ -150,7 +150,7 @@ public class DebtModelBackupTest {
 
   @Test
   public void backup_with_disabled_rules() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       // Debt disabled
       new RuleDto().setRepositoryKey("squid").setRuleKey("UselessImportCheck"),
 
@@ -167,7 +167,7 @@ public class DebtModelBackupTest {
 
   @Test
   public void backup_with_rule_having_default_linear_and_overridden_offset() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       // Rule with default debt values : default value is linear (only coefficient is set) and overridden value is constant per issue (only
       // offset is set)
       // -> Ony offset should be set
@@ -195,7 +195,7 @@ public class DebtModelBackupTest {
 
   @Test
   public void backup_from_language() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
         .setRemediationFunction(DebtRemediationFunction.Type.CONSTANT_ISSUE.toString())
         .setRemediationBaseEffort("15min"),
@@ -223,7 +223,7 @@ public class DebtModelBackupTest {
 
   @Test
   public void reset_model() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       new RuleDto().setRepositoryKey("squid").setRuleKey("NPE")
         .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
         .setDefaultRemediationGapMultiplier("2h")
@@ -245,7 +245,7 @@ public class DebtModelBackupTest {
 
     underTest.reset();
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
 
@@ -267,7 +267,7 @@ public class DebtModelBackupTest {
 
   @Test
   public void reset_model_when_no_default_value() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       new RuleDto().setRepositoryKey("squid").setRuleKey("NPE")
         .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
         .setDefaultRemediationGapMultiplier("2h")
@@ -288,7 +288,7 @@ public class DebtModelBackupTest {
 
     underTest.reset();
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(ruleDao).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
 
@@ -304,7 +304,7 @@ public class DebtModelBackupTest {
 
   @Test
   public void reset_model_on_custom_rules() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       // Template rule
       new RuleDto().setId(5).setRepositoryKey("squid").setRuleKey("XPath")
         .setRemediationFunction(DebtRemediationFunction.Type.LINEAR_OFFSET.toString())
@@ -331,7 +331,7 @@ public class DebtModelBackupTest {
 
     underTest.reset();
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(ruleDao, times(2)).update(eq(session), ruleCaptor.capture());
     verifyNoMoreInteractions(ruleDao);
     verify(session).commit();
@@ -353,11 +353,11 @@ public class DebtModelBackupTest {
 
   @Test
   public void reset_model_do_not_load_rule_definitions_if_no_rule() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(Collections.<RuleDto>emptyList());
+    when(ruleDao.selectEnabled(session)).thenReturn(Collections.<RuleDto>emptyList());
 
     underTest.reset();
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(ruleDao, never()).update(eq(session), any(RuleDto.class));
     verifyZeroInteractions(defLoader);
 
@@ -371,7 +371,7 @@ public class DebtModelBackupTest {
       .setRuleKey(RuleKey.of("squid", "UselessImportCheck"))
       .setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("2h")));
 
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
         .setDefaultRemediationFunction("LINEAR").setDefaultRemediationGapMultiplier("2h")
       ));
@@ -380,14 +380,14 @@ public class DebtModelBackupTest {
 
     verify(ruleOperations).updateRule(ruleCaptor.capture(), eq("LINEAR"), eq("2h"), isNull(String.class), eq(session));
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(session).commit();
     verify(ruleIndexer).index();
   }
 
   @Test
   public void restore_from_xml_disable_rule_debt_when_not_in_xml_and_rule_have_default_debt_values() {
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
         .setDefaultRemediationFunction("LINEAR_OFFSET").setDefaultRemediationGapMultiplier("2h").setDefaultRemediationBaseEffort("15min")
       ));
@@ -396,7 +396,7 @@ public class DebtModelBackupTest {
 
     verify(ruleOperations).updateRule(ruleCaptor.capture(), isNull(String.class), isNull(String.class), isNull(String.class), eq(session));
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(session).commit();
     verify(ruleIndexer).index();
   }
@@ -406,7 +406,7 @@ public class DebtModelBackupTest {
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
       .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("2h")));
 
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
         .setDefaultRemediationFunction(DebtRemediationFunction.Type.LINEAR.toString())
         .setDefaultRemediationGapMultiplier("2h"),
@@ -420,7 +420,7 @@ public class DebtModelBackupTest {
 
     verify(ruleOperations).updateRule(ruleCaptor.capture(), eq("LINEAR"), eq("2h"), isNull(String.class), eq(session));
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(session).commit();
     verify(ruleIndexer).index();
   }
@@ -428,7 +428,7 @@ public class DebtModelBackupTest {
   @Test
   public void restore_from_xml_and_language_with_rule_not_in_xml() {
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(Collections.<RuleDebt>emptyList());
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       // Rule does not exits in XML -> debt will be disabled
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck").setLanguage("java")
         .setDefaultRemediationFunction("LINEAR").setDefaultRemediationGapMultiplier("2h")
@@ -441,7 +441,7 @@ public class DebtModelBackupTest {
 
     verify(ruleOperations).updateRule(ruleCaptor.capture(), isNull(String.class), isNull(String.class), isNull(String.class), eq(session));
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(session).commit();
     verify(ruleIndexer).index();
   }
@@ -451,13 +451,13 @@ public class DebtModelBackupTest {
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
       .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("2h")));
 
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(Collections.<RuleDto>emptyList());
+    when(ruleDao.selectEnabled(session)).thenReturn(Collections.<RuleDto>emptyList());
 
     assertThat(underTest.restoreFromXml("<xml/>").getWarnings()).hasSize(1);
 
     verifyZeroInteractions(ruleOperations);
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(session).commit();
     verify(ruleIndexer).index();
   }
@@ -467,7 +467,7 @@ public class DebtModelBackupTest {
     when(rulesXMLImporter.importXML(anyString(), any(ValidationMessages.class))).thenReturn(newArrayList(new RuleDebt()
       .setRuleKey(RuleKey.of("squid", "UselessImportCheck")).setFunction(DebtRemediationFunction.Type.LINEAR.name()).setCoefficient("2h")));
 
-    when(ruleDao.selectEnabledAndNonManual(session)).thenReturn(newArrayList(
+    when(ruleDao.selectEnabled(session)).thenReturn(newArrayList(
       new RuleDto().setId(1).setRepositoryKey("squid").setRuleKey("UselessImportCheck")
         .setDefaultRemediationFunction("LINEAR").setDefaultRemediationGapMultiplier("2h")
       ));
@@ -476,7 +476,7 @@ public class DebtModelBackupTest {
 
     assertThat(underTest.restoreFromXml("<xml/>").getErrors()).hasSize(1);
 
-    verify(ruleDao).selectEnabledAndNonManual(session);
+    verify(ruleDao).selectEnabled(session);
     verify(session, never()).commit();
     verify(ruleIndexer, never()).index();
   }

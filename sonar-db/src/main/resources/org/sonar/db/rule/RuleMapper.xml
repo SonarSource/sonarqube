@@ -40,11 +40,11 @@
     from rules r
   </select>
 
-  <select id="selectEnabledAndNonManual" resultType="Rule">
+  <select id="selectEnabled" resultType="Rule">
     select
     <include refid="selectColumns"/>
     from rules r
-    where r.status != 'REMOVED' and r.plugin_name != 'manual'
+    where r.status != 'REMOVED'
   </select>
 
   <select id="selectById" parameterType="Long" resultType="Rule">
@@ -83,13 +83,6 @@
     select
     <include refid="selectColumns"/>
     from rules r WHERE r.name=#{name}
-  </select>
-
-  <select id="selectNonManual" resultType="Rule">
-    select
-    <include refid="selectColumns"/>
-    from rules r
-    where r.plugin_name != 'manual'
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="Rule">
