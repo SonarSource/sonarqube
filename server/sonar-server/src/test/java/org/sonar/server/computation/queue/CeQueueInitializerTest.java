@@ -22,7 +22,6 @@ package org.sonar.server.computation.queue;
 import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
 import org.sonar.api.platform.Server;
@@ -40,9 +39,6 @@ public class CeQueueInitializerTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Rule
-  public TemporaryFolder tempFolder = new TemporaryFolder();
 
   Server server = mock(Server.class);
   CeQueueCleaner cleaner = mock(CeQueueCleaner.class);

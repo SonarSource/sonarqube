@@ -95,7 +95,7 @@ class JavaProcessLauncher implements AutoCloseable {
    * opening new ports. The agent is available in JRE of OpenJDK/OracleJDK only.
    * @see ProcessEntryPoint
    */
-  private String getJmxAgentCommand() {
+  private static String getJmxAgentCommand() {
     return "-javaagent:" + System.getProperty("java.home") + File.separator + "lib" + File.separator + "management-agent.jar";
   }
 

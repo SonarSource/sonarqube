@@ -146,7 +146,7 @@ public class EsSettings implements EsSettingsMBean {
     }
   }
 
-  private void configureIndexDefaults(ImmutableSettings.Builder builder) {
+  private static void configureIndexDefaults(ImmutableSettings.Builder builder) {
     builder
       .put("index.number_of_shards", "1")
       .put("index.refresh_interval", "30s")
