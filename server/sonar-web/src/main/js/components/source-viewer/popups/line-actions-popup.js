@@ -18,15 +18,13 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Popup from '../../common/popup';
-import ManualIssueView from '../../issue/manual-issue-view';
 import Template from '../templates/source-viewer-line-options-popup.hbs';
 
 export default Popup.extend({
   template: Template,
 
   events: {
-    'click .js-get-permalink': 'getPermalink',
-    'click .js-add-manual-issue': 'addManualIssue'
+    'click .js-get-permalink': 'getPermalink'
   },
 
   getPermalink (e) {
@@ -35,21 +33,6 @@ export default Popup.extend({
         (encodeURIComponent(this.model.key())) + '&line=' + this.options.line;
     const windowParams = 'resizable=1,scrollbars=1,status=1';
     window.open(url, this.model.get('name'), windowParams);
-  },
-
-  addManualIssue (e) {
-    e.preventDefault();
-    const that = this;
-    const line = this.options.line;
-    const component = this.model.key();
-    const manualIssueView = new ManualIssueView({
-      line,
-      component
-    });
-    manualIssueView.render().$el.appendTo(this.options.row.find('.source-line-code'));
-    manualIssueView.on('add', function (issue) {
-      that.trigger('onManualIssueAdded', issue);
-    });
   }
 });
 

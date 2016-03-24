@@ -501,16 +501,12 @@ export default Marionette.LayoutView.extend({
   showLineActionsPopup (e) {
     e.stopPropagation();
     $('body').click();
-    const that = this;
     const line = $(e.currentTarget).data('line-number');
     const popup = new LineActionsPopupView({
       line,
       triggerEl: $(e.currentTarget),
       model: this.model,
       row: $(e.currentTarget).closest('.source-line')
-    });
-    popup.on('onManualIssueAdded', function (issue) {
-      that.addIssue(issue);
     });
     popup.render();
   },
