@@ -21,15 +21,12 @@ package org.sonar.core.issue.tracking;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.IdentityHashMap;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 
 public class Tracking<RAW extends Trackable, BASE extends Trackable> {
 
@@ -55,13 +52,6 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
       return !baseToRaw.containsKey(raw);
     }
   };
-
-  /**
-   * The manual issues that are still valid (related source code still exists). They
-   * are grouped by line. Lines start with 1. The key 0 references the manual
-   * issues that do not relate to a line.
-   */
-  private final Multimap<Integer, BASE> openManualIssuesByLine = ArrayListMultimap.create();
 
   public Tracking(Input<RAW> rawInput, Input<BASE> baseInput) {
     this.raws = rawInput.getIssues();
@@ -106,15 +96,6 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
     return rawToBase.size() == raws.size();
   }
 
-  public Multimap<Integer, BASE> getOpenManualIssuesByLine() {
-    return openManualIssuesByLine;
-  }
-
-  void keepManualIssueOpen(BASE manualIssue, @Nullable Integer line) {
-    openManualIssuesByLine.put(line, manualIssue);
-    baseToRaw.put(manualIssue, null);
-  }
-
   @Override
   public String toString() {
     return Objects.toStringHelper(this)
@@ -122,7 +103,6 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
       .add("baseToRaw", baseToRaw)
       .add("raws", raws)
       .add("bases", bases)
-      .add("openManualIssuesByLine", openManualIssuesByLine)
       .toString();
   }
 }

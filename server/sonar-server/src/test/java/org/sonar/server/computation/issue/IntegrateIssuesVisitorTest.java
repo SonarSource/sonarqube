@@ -110,7 +110,7 @@ public class IntegrateIssuesVisitorTest {
 
   IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
   IssueVisitor issueVisitor = mock(IssueVisitor.class);
-  IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[]{issueVisitor});
+  IssueVisitors issueVisitors = new IssueVisitors(new IssueVisitor[] {issueVisitor});
   ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues = new ComponentsWithUnprocessedIssues();
 
   TypeAwareVisitor underTest;
@@ -178,26 +178,6 @@ public class IntegrateIssuesVisitorTest {
     List<DefaultIssue> issues = newArrayList(issueCache.traverse());
     assertThat(issues).hasSize(1);
     assertThat(issues.get(0).severity()).isEqualTo(Severity.BLOCKER);
-
-    assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
-  }
-
-  @Test
-  public void process_manual_issue() throws Exception {
-    componentsWithUnprocessedIssues.setUuids(newHashSet(FILE_UUID));
-
-    RuleKey ruleKey = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "architecture");
-    addBaseIssue(ruleKey);
-
-    underTest.visitAny(FILE);
-
-    verify(issueLifecycle).moveOpenManualIssue(defaultIssueCaptor.capture(), eq((Integer) null));
-    assertThat(defaultIssueCaptor.getValue().ruleKey()).isEqualTo(ruleKey);
-
-    verify(issueLifecycle).doAutomaticTransition(defaultIssueCaptor.capture());
-    assertThat(defaultIssueCaptor.getValue().ruleKey()).isEqualTo(ruleKey);
-    List<DefaultIssue> issues = newArrayList(issueCache.traverse());
-    assertThat(issues).hasSize(1);
 
     assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
   }

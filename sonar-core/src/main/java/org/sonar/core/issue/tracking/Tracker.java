@@ -19,22 +19,15 @@
  */
 package org.sonar.core.issue.tracking;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.InstantiationStrategy;
-import com.google.common.base.Predicate;
-import com.google.common.base.Strings;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
-
 import javax.annotation.Nonnull;
-
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.rule.RuleKey;
-import static com.google.common.collect.FluentIterable.from;
 
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @BatchSide
@@ -42,8 +35,6 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
 
   public Tracking<RAW, BASE> track(Input<RAW> rawInput, Input<BASE> baseInput) {
     Tracking<RAW, BASE> tracking = new Tracking<>(rawInput, baseInput);
-
-    relocateManualIssues(rawInput, baseInput, tracking);
 
     // 1. match issues with same rule, same line and same line hash, but not necessarily with same message
     match(tracking, LineAndLineHashKeyFactory.INSTANCE);
@@ -90,40 +81,6 @@ public class Tracker<RAW extends Trackable, BASE extends Trackable> {
         tracking.match(raw, match);
         baseSearch.remove(rawKey, match);
       }
-    }
-  }
-
-  private void relocateManualIssues(Input<RAW> rawInput, Input<BASE> baseInput, Tracking<RAW, BASE> tracking) {
-    Iterable<BASE> manualIssues = from(tracking.getUnmatchedBases()).filter(IsManual.INSTANCE);
-    for (BASE base : manualIssues) {
-      if (base.getLine() == null) {
-        // no need to relocate. Location is unchanged.
-        tracking.keepManualIssueOpen(base, null);
-      } else {
-        String baseHash = base.getLineHash();
-        if (Strings.isNullOrEmpty(baseHash)) {
-          baseHash = baseInput.getLineHashSequence().getHashForLine(base.getLine());
-        }
-        if (!Strings.isNullOrEmpty(baseHash)) {
-          Set<Integer> rawLines = rawInput.getLineHashSequence().getLinesForHash(baseHash);
-          if (rawLines.size() == 1) {
-            tracking.keepManualIssueOpen(base, rawLines.iterator().next());
-          } else if (rawLines.isEmpty() && rawInput.getLineHashSequence().hasLine(base.getLine())) {
-            // still valid (???). We didn't manage to correctly detect code move, so the
-            // issue is kept at the same location, even if code changes
-            tracking.keepManualIssueOpen(base, base.getLine());
-          }
-          // TODO if hash found multiple times, pick the closest line
-        }
-      }
-    }
-  }
-
-  private enum IsManual implements Predicate<Trackable> {
-    INSTANCE;
-    @Override
-    public boolean apply(Trackable input) {
-      return input.getRuleKey().isManual();
     }
   }
 

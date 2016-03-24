@@ -19,15 +19,7 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.core.issue.tracking.Tracking;
-import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.core.issue.tracking.Input;
-import org.sonar.core.issue.tracking.Tracker;
-import org.sonar.batch.issue.IssueTransformer;
-import org.sonar.api.batch.fs.InputFile.Status;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.annotations.VisibleForTesting;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -35,18 +27,23 @@ import java.util.Date;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.ActiveRule;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.ResourceUtils;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.issue.IssueTransformer;
 import org.sonar.batch.repository.ProjectRepositories;
+import org.sonar.core.issue.tracking.Input;
+import org.sonar.core.issue.tracking.Tracker;
+import org.sonar.core.issue.tracking.Tracking;
+import org.sonar.scanner.protocol.output.ScannerReport;
 
 @BatchSide
 public class LocalIssueTracking {
@@ -94,7 +91,6 @@ public class LocalIssueTracking {
         Tracking<TrackedIssue, ServerIssueFromWs> track = tracker.track(rawIssues, baseIssues);
 
         addUnmatchedFromServer(track.getUnmatchedBases(), sourceHashHolder, trackedIssues);
-        addUnmatchedFromServer(track.getOpenManualIssuesByLine().values(), sourceHashHolder, trackedIssues);
         mergeMatched(track, trackedIssues, rIssues);
         addUnmatchedFromReport(track.getUnmatchedRaws(), trackedIssues, analysisDate);
       }

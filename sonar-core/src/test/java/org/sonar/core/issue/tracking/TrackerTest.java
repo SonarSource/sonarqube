@@ -19,14 +19,11 @@
  */
 package org.sonar.core.issue.tracking;
 
-import com.google.common.collect.Iterables;
-import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.apache.commons.codec.digest.DigestUtils;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,7 +38,6 @@ public class TrackerTest {
   public static final RuleKey RULE_UNUSED_LOCAL_VARIABLE = RuleKey.of("java", "UnusedLocalVariable");
   public static final RuleKey RULE_UNUSED_PRIVATE_METHOD = RuleKey.of("java", "UnusedPrivateMethod");
   public static final RuleKey RULE_NOT_DESIGNED_FOR_EXTENSION = RuleKey.of("java", "NotDesignedForExtension");
-  public static final RuleKey RULE_MANUAL = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "CodeReview");
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -211,8 +207,7 @@ public class TrackerTest {
       "    public void doSomethingElse() {",
       "        // doSomethingElse",
       "        }",
-      "}"
-      );
+      "}");
     Issue base1 = baseInput.createIssueOnLine(7, RULE_SYSTEM_PRINT, "Indentation");
     Issue base2 = baseInput.createIssueOnLine(11, RULE_SYSTEM_PRINT, "Indentation");
 
@@ -238,8 +233,7 @@ public class TrackerTest {
       "    public void doSomethingElse() {",
       "        // doSomethingElse",
       "        }",
-      "}"
-      );
+      "}");
     Issue raw1 = rawInput.createIssueOnLine(9, RULE_SYSTEM_PRINT, "Indentation");
     Issue raw2 = rawInput.createIssueOnLine(13, RULE_SYSTEM_PRINT, "Indentation");
     Issue raw3 = rawInput.createIssueOnLine(17, RULE_SYSTEM_PRINT, "Indentation");
@@ -265,8 +259,7 @@ public class TrackerTest {
       "  void method1() {",
       "    System.out.println(\"toto\");",
       "  }",
-      "}"
-      );
+      "}");
     Issue base1 = baseInput.createIssueOnLine(5, RULE_SYSTEM_PRINT, "SystemPrintln");
 
     FakeInput rawInput = FakeInput.createForSourceLines(
@@ -285,8 +278,7 @@ public class TrackerTest {
       "  void method3() {",
       "    System.out.println(\"toto\");",
       "  }",
-      "}"
-      );
+      "}");
     Issue raw1 = rawInput.createIssueOnLine(6, RULE_SYSTEM_PRINT, "SystemPrintln");
     Issue raw2 = rawInput.createIssueOnLine(10, RULE_SYSTEM_PRINT, "SystemPrintln");
     Issue raw3 = rawInput.createIssueOnLine(14, RULE_SYSTEM_PRINT, "SystemPrintln");
@@ -315,8 +307,7 @@ public class TrackerTest {
       "\tprivate String myMethod() {", // UnusedPrivateMethod
       "\t\treturn \"hello\";",
       "\t}",
-      "}"
-      );
+      "}");
     Issue base1 = baseInput.createIssueOnLine(6, RULE_UNUSED_LOCAL_VARIABLE, "Avoid unused local variables such as 'j'.");
     Issue base2 = baseInput.createIssueOnLine(13, RULE_UNUSED_PRIVATE_METHOD, "Avoid unused private methods such as 'myMethod()'.");
     Issue base3 = baseInput.createIssueOnLine(9, RULE_NOT_DESIGNED_FOR_EXTENSION,
@@ -342,8 +333,7 @@ public class TrackerTest {
       "  public void newIssue() {",
       "    String msg = myMethod();", // new issue UnusedLocalVariable
       "  }",
-      "}"
-      );
+      "}");
 
     Issue newRaw = rawInput.createIssueOnLine(18, RULE_UNUSED_LOCAL_VARIABLE, "Avoid unused local variables such as 'msg'.");
     Issue rawSameAsBase1 = rawInput.createIssueOnLine(6, RULE_UNUSED_LOCAL_VARIABLE, "Avoid unused local variables such as 'j'.");
@@ -356,65 +346,6 @@ public class TrackerTest {
     assertThat(tracking.baseFor(rawSameAsBase1)).isSameAs(base1);
     assertThat(tracking.baseFor(rawSameAsBase3)).isSameAs(base3);
     assertThat(tracking.getUnmatchedBases()).containsOnly(base2);
-  }
-
-  @Test
-  public void move_manual_issue_to_line_with_same_hash() {
-    FakeInput baseInput = new FakeInput("H1", "H2");
-    Issue issue = baseInput.createIssueOnLine(1, RULE_MANUAL, "message");
-    FakeInput rawInput = new FakeInput("H3", "H4", "H1");
-
-    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
-
-    assertThat(tracking.getUnmatchedBases()).isEmpty();
-    Multimap<Integer, Issue> openManualIssues = tracking.getOpenManualIssuesByLine();
-    assertThat(openManualIssues.keySet()).containsOnly(3);
-    assertThat(Iterables.getOnlyElement(openManualIssues.get(3))).isSameAs(issue);
-  }
-
-  @Test
-  public void do_not_move_manual_issue_if_line_hash_not_found_in_raw() {
-    FakeInput baseInput = new FakeInput("H1", "H2");
-    Issue issue = baseInput.createIssueOnLine(1, RULE_MANUAL, "message");
-    FakeInput rawInput = new FakeInput("H3", "H4", "H5");
-
-    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
-
-    assertThat(tracking.getUnmatchedBases()).isEmpty();
-    Multimap<Integer, Issue> openManualIssues = tracking.getOpenManualIssuesByLine();
-    assertThat(openManualIssues.keySet()).containsOnly(1);
-    assertThat(Iterables.getOnlyElement(openManualIssues.get(1))).isSameAs(issue);
-  }
-
-  @Test
-  public void do_not_match_manual_issue_if_hash_and_line_do_not_exist() {
-    // manual issue is on line 3 (hash H3) but this hash does not exist
-    // anymore nor the line 3.
-    FakeInput baseInput = new FakeInput("H1", "H2", "H3");
-    Issue issue = baseInput.createIssueOnLine(3, RULE_MANUAL, "message");
-    FakeInput rawInput = new FakeInput("H4");
-
-    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
-
-    assertThat(tracking.getUnmatchedBases()).containsOnly(issue);
-    assertThat(tracking.getOpenManualIssuesByLine().isEmpty()).isTrue();
-  }
-
-  @Test
-  @Ignore("not implemented yet")
-  public void move_to_closest_line_if_manual_issue_matches_multiple_hashes() {
-    // manual issue is on line 3 (hash H3) but this hash does not exist
-    // anymore nor the line 3.
-    FakeInput baseInput = new FakeInput("H1", "H2");
-    Issue issue = baseInput.createIssueOnLine(1, RULE_MANUAL, "message");
-    FakeInput rawInput = new FakeInput("H1", "H3", "H1");
-
-    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
-
-    assertThat(tracking.getUnmatchedBases()).isEmpty();
-    Multimap<Integer, Issue> openManualIssues = tracking.getOpenManualIssuesByLine();
-    assertThat(openManualIssues.keySet()).containsOnly(1);
-    assertThat(Iterables.getOnlyElement(openManualIssues.get(1))).isSameAs(issue);
   }
 
   private static class Issue implements Trackable {

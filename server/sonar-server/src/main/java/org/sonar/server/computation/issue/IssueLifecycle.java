@@ -21,7 +21,6 @@ package org.sonar.server.computation.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
-import javax.annotation.Nullable;
 import org.sonar.api.issue.Issue;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.IssueChangeContext;
@@ -94,10 +93,6 @@ public class IssueLifecycle {
     updater.setPastGap(raw, base.gap(), changeContext);
     updater.setPastEffort(raw, base.effort(), changeContext);
     raw.setSelectedAt(base.selectedAt());
-  }
-
-  public void moveOpenManualIssue(DefaultIssue manualIssue, @Nullable Integer toLine) {
-    updater.setLine(manualIssue, toLine);
   }
 
   public void doAutomaticTransition(DefaultIssue issue) {

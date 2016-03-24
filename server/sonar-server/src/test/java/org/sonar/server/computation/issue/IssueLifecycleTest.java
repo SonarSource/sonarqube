@@ -73,15 +73,6 @@ public class IssueLifecycleTest {
   }
 
   @Test
-  public void moveOpenManualIssue() throws Exception {
-    DefaultIssue issue = new DefaultIssue();
-
-    underTest.moveOpenManualIssue(issue, 1);
-
-    verify(updater).setLine(issue, 1);
-  }
-
-  @Test
   public void doAutomaticTransition() throws Exception {
     DefaultIssue issue = new DefaultIssue();
 

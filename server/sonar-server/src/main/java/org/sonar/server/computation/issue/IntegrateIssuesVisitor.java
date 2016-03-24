@@ -43,7 +43,7 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final List<DefaultIssue> componentIssues = new ArrayList<>();
 
   public IntegrateIssuesVisitor(TrackerExecution tracker, IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
-                                ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, MutableComponentIssuesRepository componentIssuesRepository) {
+    ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, MutableComponentIssuesRepository componentIssuesRepository) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.tracker = tracker;
     this.issueCache = issueCache;
@@ -90,12 +90,6 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
       DefaultIssue base = entry.getValue();
       issueLifecycle.mergeExistingOpenIssue(raw, base);
       process(component, raw, cacheAppender);
-    }
-    for (Map.Entry<Integer, DefaultIssue> entry : tracking.getOpenManualIssuesByLine().entries()) {
-      Integer line = entry.getKey();
-      DefaultIssue manualIssue = entry.getValue();
-      issueLifecycle.moveOpenManualIssue(manualIssue, line);
-      process(component, manualIssue, cacheAppender);
     }
   }
 
