@@ -15,17 +15,15 @@
 </header>
 
 <ul class="coding-rules-detail-properties">
-  {{#unless isManual}}
-    <li class="coding-rules-detail-property"
-        data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.type.tooltip' this.type}}">
-      {{issueType this.type}}
-    </li>
+  <li class="coding-rules-detail-property"
+      data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.type.tooltip' this.type}}">
+    {{issueType this.type}}
+  </li>
 
-    <li class="coding-rules-detail-property"
-        data-toggle="tooltip" data-placement="bottom" title="Default rule severity">
-      {{severityIcon severity}}&nbsp;{{t "severity" severity}}
-    </li>
-  {{/unless}}
+  <li class="coding-rules-detail-property"
+      data-toggle="tooltip" data-placement="bottom" title="Default rule severity">
+    {{severityIcon severity}}&nbsp;{{t "severity" severity}}
+  </li>
 
   {{#notEq status 'READY'}}
     <li class="coding-rules-detail-property"
@@ -54,8 +52,8 @@
   <li class="coding-rules-detail-property">{{t 'coding_rules.available_since'}} {{d createdAt}}</li>
 
   <li class="coding-rules-detail-property"
-      data-toggle="tooltip" data-placement="bottom" title="Rule repository{{#unless isManual}} (language){{/unless}}">
-    {{repoName}}{{#unless isManual}} ({{langName}}){{/unless}}
+      data-toggle="tooltip" data-placement="bottom" title="Rule repository{(language)">
+    {{repoName}}({{langName}})
   </li>
 
   {{#if isTemplate}}

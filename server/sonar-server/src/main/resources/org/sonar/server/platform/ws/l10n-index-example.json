@@ -34,7 +34,6 @@
   "to.downcase": "to",
   "widget.sqaleSunburst.cant_display": "SQALE technical debt is 0 so the breakdown by characteristic can't be displayed.",
   "measure_filter.name_contains": "Name contains",
-  "manual_rules.page": "Manual Rules",
   "name_too_long_x": "Name is too long (maximum is {0} characters)",
   "metric.line_coverage.name": "Line coverage",
   "measure_filter.criteria.key": "Key",

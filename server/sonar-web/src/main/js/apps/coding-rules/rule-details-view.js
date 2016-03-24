@@ -27,7 +27,6 @@ import DescView from './rule/rule-description-view';
 import ParamView from './rule/rule-parameters-view';
 import ProfilesView from './rule/rule-profiles-view';
 import CustomRulesView from './rule/custom-rules-view';
-import ManualRuleCreationView from './rule/manual-rule-creation-view';
 import CustomRuleCreationView from './rule/custom-rule-creation-view';
 import DeleteRuleView from './rule/delete-rule-view';
 import IssuesView from './rule/rule-issues-view';
@@ -47,7 +46,6 @@ export default Marionette.LayoutView.extend({
   },
 
   events: {
-    'click .js-edit-manual': 'editManualRule',
     'click .js-edit-custom': 'editCustomRule',
     'click .js-delete': 'deleteRule'
   },
@@ -131,13 +129,6 @@ export default Marionette.LayoutView.extend({
     key.deleteScope('details');
   },
 
-  editManualRule () {
-    new ManualRuleCreationView({
-      app: this.options.app,
-      model: this.model
-    }).render();
-  },
-
   editCustomRule () {
     new CustomRuleCreationView({
       app: this.options.app,
@@ -162,18 +153,12 @@ export default Marionette.LayoutView.extend({
   },
 
   serializeData () {
-    const isManual = this.model.get('isManual');
     const isCustom = this.model.has('templateKey');
-    const isEditable = this.options.app.canWrite && (isManual || isCustom);
-    let qualityProfilesVisible = !isManual;
+    const isEditable = this.options.app.canWrite && (isCustom);
+    let qualityProfilesVisible = true;
 
-    if (qualityProfilesVisible) {
-      if (this.model.get('isTemplate')) {
-        qualityProfilesVisible = !_.isEmpty(this.options.actives);
-      }
-      else {
-        qualityProfilesVisible = (this.options.app.canWrite || !_.isEmpty(this.options.actives));
-      }
+    if (this.model.get('isTemplate')) {
+      qualityProfilesVisible = !_.isEmpty(this.options.actives);
     }
 
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {

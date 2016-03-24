@@ -19,21 +19,10 @@
  */
 import _ from 'underscore';
 import Marionette from 'backbone.marionette';
-import ManualRuleCreationView from './rule/manual-rule-creation-view';
 import Template from './templates/coding-rules-filters.hbs';
 
 export default Marionette.ItemView.extend({
   template: Template,
-
-  events: {
-    'click .js-create-manual-rule': 'createManualRule'
-  },
-
-  createManualRule () {
-    new ManualRuleCreationView({
-      app: this.options.app
-    }).render();
-  },
 
   serializeData () {
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {

@@ -78,14 +78,6 @@ const init = function () {
   Backbone.history.start();
 };
 
-App.manualRepository = function () {
-  return {
-    key: 'manual',
-    name: translate('coding_rules.manual_rule'),
-    language: 'none'
-  };
-};
-
 const appXHR = $.get('/api/rules/app').done(function (r) {
   App.canWrite = r.canWrite;
   App.qualityProfiles = _.sortBy(r.qualityprofiles, ['name', 'lang']);
@@ -96,7 +88,6 @@ const appXHR = $.get('/api/rules/app').done(function (r) {
     profile.language = App.languages[profile.lang];
   });
   App.repositories = r.repositories;
-  App.repositories.push(App.manualRepository());
   App.statuses = r.statuses;
 });
 

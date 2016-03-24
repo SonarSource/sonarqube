@@ -45,16 +45,10 @@ export default Marionette.CompositeView.extend({
   },
 
   onRender () {
-    const isManual = this.model.get('isManual');
-    let qualityProfilesVisible = !isManual;
+    let qualityProfilesVisible = true;
 
-    if (qualityProfilesVisible) {
-      if (this.model.get('isTemplate')) {
-        qualityProfilesVisible = this.collection.length > 0;
-      }
-      else {
-        qualityProfilesVisible = (this.options.app.canWrite || this.collection.length > 0);
-      }
+    if (this.model.get('isTemplate')) {
+      qualityProfilesVisible = this.collection.length > 0;
     }
 
     this.$el.toggleClass('hidden', !qualityProfilesVisible);

@@ -6,17 +6,15 @@
 
     <ul class="coding-rules-detail-properties">
       {{#if severity}}
-        {{#unless isManual}}
-          <li class="coding-rules-detail-property"
-              data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.type.tooltip' this.type}}">
-            {{issueType this.type}}
-          </li>
+        <li class="coding-rules-detail-property"
+            data-toggle="tooltip" data-placement="bottom" title="{{t 'coding_rules.type.tooltip' this.type}}">
+          {{issueType this.type}}
+        </li>
 
-          <li class="coding-rules-detail-property"
-              data-toggle="tooltip" data-placement="bottom" title="Default rule severity">
-            {{severityIcon severity}}&nbsp;{{t "severity" severity}}
-          </li>
-        {{/unless}}
+        <li class="coding-rules-detail-property"
+            data-toggle="tooltip" data-placement="bottom" title="Default rule severity">
+          {{severityIcon severity}}&nbsp;{{t "severity" severity}}
+        </li>
       {{/if}}
 
       {{#notEq status 'READY'}}
