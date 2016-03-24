@@ -96,13 +96,4 @@ public class RuleTesting {
       .setType(templateRule.getType());
   }
 
-  public static RuleDto newManualRule(String manualKey) {
-    return new RuleDto().setRuleKey(manualKey)
-      .setName("Name " + manualKey)
-      .setRepositoryKey(RuleKey.MANUAL_REPOSITORY_KEY)
-      .setDescription("Description " + manualKey)
-      .setStatus(RuleStatus.READY)
-      .setType(RuleType.CODE_SMELL);
-  }
-
 }

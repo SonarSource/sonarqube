@@ -125,30 +125,7 @@ public class RuleDeleterMediumTest {
   }
 
   @Test
-  public void delete_manual_rule() {
-    // Create manual rule
-    RuleDto manualRule = RuleTesting.newManualRule("Manual_Rule")
-      .setCreatedAt(PAST)
-      .setUpdatedAt(PAST);
-    dao.insert(dbSession, manualRule);
-    dbSession.commit();
-    ruleIndexer.index();
-
-    // Delete manual rule
-    deleter.delete(manualRule.getKey());
-
-    // Verify custom rule have status REMOVED
-    RuleDto result = dao.selectOrFailByKey(dbSession, manualRule.getKey());
-    assertThat(result).isNotNull();
-    assertThat(result.getStatus()).isEqualTo(RuleStatus.REMOVED);
-    assertThat(result.getUpdatedAt()).isNotEqualTo(PAST);
-
-    // Verify in index
-    assertThat(index.search(new RuleQuery(), new SearchOptions()).getIds()).isEmpty();
-  }
-
-  @Test
-  public void fail_to_delete_if_not_custom_or_not_manual() {
+  public void fail_to_delete_if_not_custom() {
     // Create rule
     RuleKey ruleKey = RuleKey.of("java", "S001");
     dao.insert(dbSession, RuleTesting.newDto(ruleKey));
@@ -158,7 +135,7 @@ public class RuleDeleterMediumTest {
       // Delete rule
       deleter.delete(ruleKey);
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Only custom rules and manual rules can be deleted");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Only custom rules can be deleted");
     }
   }
 

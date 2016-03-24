@@ -28,7 +28,6 @@ import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleParamType;
 import org.sonar.api.utils.System2;
@@ -40,7 +39,6 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Errors;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.util.TypeValidations;
 
@@ -61,25 +59,16 @@ public class RuleCreator {
     this.typeValidations = typeValidations;
   }
 
-  public RuleKey create(NewRule newRule) {
+  public RuleKey create(NewCustomRule newRule) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-
-      if (newRule.isCustom()) {
-        return createCustomRule(newRule, dbSession);
-      }
-
-      if (newRule.isManual()) {
-        return createManualRule(newRule, dbSession);
-      }
-
-      throw new IllegalStateException("Only custom rule and manual rule can be created");
+      return createCustomRule(newRule, dbSession);
     } finally {
       dbSession.close();
     }
   }
 
-  private RuleKey createCustomRule(NewRule newRule, DbSession dbSession) {
+  private RuleKey createCustomRule(NewCustomRule newRule, DbSession dbSession) {
     RuleKey templateKey = newRule.templateKey();
     if (templateKey == null) {
       throw new IllegalArgumentException("Rule template key should not be null");
@@ -104,23 +93,7 @@ public class RuleCreator {
     return customRuleKey;
   }
 
-  private RuleKey createManualRule(NewRule newRule, DbSession dbSession) {
-    validateManualRule(newRule);
-
-    RuleKey customRuleKey = RuleKey.of(RuleDoc.MANUAL_REPOSITORY, newRule.ruleKey());
-    Optional<RuleDto> existingRule = loadRule(customRuleKey, dbSession);
-    if (existingRule.isPresent()) {
-      updateExistingRule(existingRule.get(), newRule, dbSession);
-    } else {
-      createManualRule(customRuleKey, newRule, dbSession);
-    }
-
-    dbSession.commit();
-    ruleIndexer.setEnabled(true).index();
-    return customRuleKey;
-  }
-
-  private void validateCustomRule(NewRule newRule, DbSession dbSession, RuleKey templateKey) {
+  private void validateCustomRule(NewCustomRule newRule, DbSession dbSession, RuleKey templateKey) {
     Errors errors = new Errors();
 
     validateRuleKey(errors, newRule.ruleKey());
@@ -163,28 +136,13 @@ public class RuleCreator {
     }
   }
 
-  private static void validateManualRule(NewRule newRule) {
-    Errors errors = new Errors();
-    validateRuleKey(errors, newRule.ruleKey());
-    validateName(errors, newRule);
-    validateDescription(errors, newRule);
-
-    if (!newRule.parameters().isEmpty()) {
-      errors.add(Message.of("coding_rules.validation.manual_rule_params"));
-    }
-
-    if (!errors.isEmpty()) {
-      throw new BadRequestException(errors);
-    }
-  }
-
-  private static void validateName(Errors errors, NewRule newRule) {
+  private static void validateName(Errors errors, NewCustomRule newRule) {
     if (Strings.isNullOrEmpty(newRule.name())) {
       errors.add(Message.of("coding_rules.validation.missing_name"));
     }
   }
 
-  private static void validateDescription(Errors errors, NewRule newRule) {
+  private static void validateDescription(Errors errors, NewCustomRule newRule) {
     if (Strings.isNullOrEmpty(newRule.htmlDescription()) && Strings.isNullOrEmpty(newRule.markdownDescription())) {
       errors.add(Message.of("coding_rules.validation.missing_description"));
     }
@@ -200,7 +158,7 @@ public class RuleCreator {
     return dbClient.ruleDao().selectByKey(dbSession, ruleKey);
   }
 
-  private RuleKey createCustomRule(RuleKey ruleKey, NewRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
+  private RuleKey createCustomRule(RuleKey ruleKey, NewCustomRule newRule, RuleDto templateRuleDto, DbSession dbSession) {
     RuleDto ruleDto = RuleDto.createFor(ruleKey)
       .setTemplateId(templateRuleDto.getId())
       .setConfigKey(templateRuleDto.getConfigKey())
@@ -237,22 +195,7 @@ public class RuleCreator {
     dbClient.ruleDao().insertRuleParam(dbSession, ruleDto, ruleParamDto);
   }
 
-  private RuleKey createManualRule(RuleKey ruleKey, NewRule newRule, DbSession dbSession) {
-    RuleDto ruleDto = RuleDto.createFor(ruleKey)
-      .setName(newRule.name())
-      .setDescription(newRule.markdownDescription())
-      .setDescriptionFormat(Format.MARKDOWN)
-      .setSeverity(newRule.severity())
-      .setStatus(RuleStatus.READY)
-      // It's not possible to update type of manual rule for the moment
-      .setType(RuleType.CODE_SMELL)
-      .setCreatedAt(system2.now())
-      .setUpdatedAt(system2.now());
-    dbClient.ruleDao().insert(dbSession, ruleDto);
-    return ruleKey;
-  }
-
-  private void updateExistingRule(RuleDto ruleDto, NewRule newRule, DbSession dbSession) {
+  private void updateExistingRule(RuleDto ruleDto, NewCustomRule newRule, DbSession dbSession) {
     if (ruleDto.getStatus().equals(RuleStatus.REMOVED)) {
       if (newRule.isPreventReactivation()) {
         throw new ReactivationException(String.format("A removed rule with the key '%s' already exists", ruleDto.getKey().rule()), ruleDto.getKey());

@@ -31,7 +31,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.rule.RuleDto;
-import org.sonar.db.rule.RuleTesting;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,8 +75,6 @@ public class DefaultRuleFinderTest {
     .setSeverity(2)
     .setStatus(RuleStatus.READY);
 
-  RuleDto manualRule = RuleTesting.newManualRule("Manual_Rule").setName("Manual Rule");
-
   DefaultRuleFinder underTest = new DefaultRuleFinder(dbClient);
 
   @Before
@@ -86,7 +83,6 @@ public class DefaultRuleFinderTest {
     dbClient.ruleDao().insert(session, rule2);
     dbClient.ruleDao().insert(session, rule3);
     dbClient.ruleDao().insert(session, rule4);
-    dbClient.ruleDao().insert(session, manualRule);
     session.commit();
   }
 
@@ -118,8 +114,8 @@ public class DefaultRuleFinderTest {
     assertThat(underTest.findAll(RuleQuery.create().withRepositoryKey("checkstyle"))).hasSize(2);
 
     // find_all_enabled
-    assertThat(underTest.findAll(RuleQuery.create())).extracting("id").containsOnly(rule1.getId(), rule3.getId(), rule4.getId(), manualRule.getId());
-    assertThat(underTest.findAll(RuleQuery.create())).hasSize(4);
+    assertThat(underTest.findAll(RuleQuery.create())).extracting("id").containsOnly(rule1.getId(), rule3.getId(), rule4.getId());
+    assertThat(underTest.findAll(RuleQuery.create())).hasSize(3);
 
     // do_not_find_disabled_rules
     assertThat(underTest.findByKey("checkstyle", "DisabledCheck")).isNull();
@@ -153,18 +149,7 @@ public class DefaultRuleFinderTest {
   @Test
   public void find_all_not_include_removed_rule() {
     // find rule with id 2 is REMOVED
-    assertThat(underTest.findAll(RuleQuery.create())).extracting("id").containsOnly(rule1.getId(), rule3.getId(), rule4.getId(), manualRule.getId());
-  }
-
-  @Test
-  public void find_manual_rule() {
-    // find by id
-    assertThat(underTest.findById(manualRule.getId())).isNotNull();
-
-    // find by key
-    Rule rule = underTest.findByKey("manual", "Manual_Rule");
-    assertThat(rule).isNotNull();
-    assertThat(rule.isEnabled()).isTrue();
+    assertThat(underTest.findAll(RuleQuery.create())).extracting("id").containsOnly(rule1.getId(), rule3.getId(), rule4.getId());
   }
 
 }

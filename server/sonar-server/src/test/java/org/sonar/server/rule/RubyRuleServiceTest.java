@@ -165,25 +165,4 @@ public class RubyRuleServiceTest {
 
     verify(updater).update(any(RuleUpdate.class), any(ThreadLocalUserSession.class));
   }
-
-  @Test
-  public void create_manual_rules() {
-    service.createManualRule(ImmutableMap.<String, Object>of("manualKey", "MY_MANUAL"));
-
-    verify(ruleService).create(any(NewRule.class));
-  }
-
-  @Test
-  public void update_manual_rules() {
-    service.updateManualRule(ImmutableMap.<String, Object>of("ruleKey", "manual:MY_MANUAL"));
-
-    verify(ruleService).update(any(RuleUpdate.class));
-  }
-
-  @Test
-  public void delete_manual_rules() {
-    service.deleteManualRule("manual:MY_MANUAL");
-
-    verify(ruleService).delete(RuleKey.of("manual", "MY_MANUAL"));
-  }
 }

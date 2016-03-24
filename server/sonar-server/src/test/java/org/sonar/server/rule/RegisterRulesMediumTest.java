@@ -267,7 +267,7 @@ public class RegisterRulesMediumTest {
     RuleDto template = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", template.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -323,7 +323,7 @@ public class RegisterRulesMediumTest {
     RuleDto template = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", template.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", template.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -358,7 +358,7 @@ public class RegisterRulesMediumTest {
     RuleDto templateRule = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -406,7 +406,7 @@ public class RegisterRulesMediumTest {
     RuleDto templateRule = ruleDao.selectOrFailByKey(dbSession, RuleKey.of("xoo", "T1"));
 
     // Create custom rule
-    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    RuleKey customRuleKey = TESTER.get(RuleCreator.class).create(NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -425,23 +425,6 @@ public class RegisterRulesMediumTest {
     register(rules);
     assertThat(ruleDao.selectOrFailByKey(dbSession, templateRule.getKey()).getStatus()).isEqualTo(RuleStatus.READY);
     assertThat(ruleDao.selectOrFailByKey(dbSession, customRuleKey).getStatus()).isEqualTo(RuleStatus.READY);
-  }
-
-  @Test
-  public void do_not_disable_manual_rules() {
-    // Create manual rule
-    RuleKey manualRuleKey = TESTER.get(RuleCreator.class).create(NewRule.createForManualRule("MANUAL_RULE")
-      .setName("My manual")
-      .setHtmlDescription("Some description"));
-    dbSession.commit();
-    dbSession.clearCache();
-    assertThat(ruleDao.selectOrFailByKey(dbSession, manualRuleKey).getStatus()).isEqualTo(RuleStatus.READY);
-
-    // Restart
-    register(null);
-
-    // Verify manual rule is still ready
-    assertThat(ruleDao.selectOrFailByKey(dbSession, manualRuleKey).getStatus()).isEqualTo(RuleStatus.READY);
   }
 
   interface Rules {

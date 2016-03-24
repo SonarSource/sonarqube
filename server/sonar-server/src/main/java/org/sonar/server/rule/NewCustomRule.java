@@ -22,15 +22,13 @@ package org.sonar.server.rule;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.Maps;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Map;
-
-public class NewRule {
+public class NewCustomRule {
 
   private String ruleKey;
   private RuleKey templateKey;
@@ -41,11 +39,9 @@ public class NewRule {
   private RuleStatus status;
   private final Map<String, String> parameters = Maps.newHashMap();
 
-  private boolean isCustom;
-  private boolean isManual;
   private boolean preventReactivation = false;
 
-  private NewRule() {
+  private NewCustomRule() {
     // No direct call to constructor
   }
 
@@ -63,7 +59,7 @@ public class NewRule {
     return name;
   }
 
-  public NewRule setName(@Nullable String name) {
+  public NewCustomRule setName(@Nullable String name) {
     this.name = name;
     return this;
   }
@@ -73,7 +69,7 @@ public class NewRule {
     return htmlDescription;
   }
 
-  public NewRule setHtmlDescription(@Nullable String htmlDescription) {
+  public NewCustomRule setHtmlDescription(@Nullable String htmlDescription) {
     this.htmlDescription = htmlDescription;
     return this;
   }
@@ -83,7 +79,7 @@ public class NewRule {
     return markdownDescription;
   }
 
-  public NewRule setMarkdownDescription(@Nullable String markdownDescription) {
+  public NewCustomRule setMarkdownDescription(@Nullable String markdownDescription) {
     this.markdownDescription = markdownDescription;
     return this;
   }
@@ -93,7 +89,7 @@ public class NewRule {
     return severity;
   }
 
-  public NewRule setSeverity(@Nullable String severity) {
+  public NewCustomRule setSeverity(@Nullable String severity) {
     this.severity = severity;
     return this;
   }
@@ -103,8 +99,7 @@ public class NewRule {
     return status;
   }
 
-  public NewRule setStatus(@Nullable RuleStatus status) {
-    checkCustomRule();
+  public NewCustomRule setStatus(@Nullable RuleStatus status) {
     this.status = status;
     return this;
   }
@@ -118,8 +113,7 @@ public class NewRule {
     return parameters.get(paramKey);
   }
 
-  public NewRule setParameters(Map<String, String> params) {
-    checkCustomRule();
+  public NewCustomRule setParameters(Map<String, String> params) {
     this.parameters.clear();
     this.parameters.putAll(params);
     return this;
@@ -132,40 +126,17 @@ public class NewRule {
   /**
    * When true, if the rule already exists in status REMOVED, an {@link ReactivationException} will be thrown
    */
-  public NewRule setPreventReactivation(boolean preventReactivation) {
+  public NewCustomRule setPreventReactivation(boolean preventReactivation) {
     this.preventReactivation = preventReactivation;
     return this;
   }
 
-  private void checkCustomRule(){
-    if (!isCustom) {
-      throw new IllegalStateException("Not a custom rule");
-    }
-  }
-
-  public boolean isCustom() {
-    return isCustom;
-  }
-
-  public boolean isManual() {
-    return isManual;
-  }
-
-  public static NewRule createForCustomRule(String customKey, RuleKey templateKey) {
+  public static NewCustomRule createForCustomRule(String customKey, RuleKey templateKey) {
     Preconditions.checkArgument(!Strings.isNullOrEmpty(customKey), "Custom key should be set");
     Preconditions.checkArgument(templateKey != null, "Template key should be set");
-    NewRule newRule = new NewRule();
+    NewCustomRule newRule = new NewCustomRule();
     newRule.ruleKey = customKey;
     newRule.templateKey = templateKey;
-    newRule.isCustom = true;
-    return newRule;
-  }
-
-  public static NewRule createForManualRule(String manualKey) {
-    Preconditions.checkArgument(!Strings.isNullOrEmpty(manualKey), "Manual key should be set");
-    NewRule newRule = new NewRule();
-    newRule.ruleKey = manualKey;
-    newRule.isManual = true;
     return newRule;
   }
 

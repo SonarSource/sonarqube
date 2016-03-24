@@ -36,8 +36,6 @@ import org.sonar.server.search.BaseDoc;
  */
 public class RuleDoc extends BaseDoc {
 
-  public static final String MANUAL_REPOSITORY = "manual";
-
   public RuleDoc(Map<String, Object> fields) {
     super(fields);
   }

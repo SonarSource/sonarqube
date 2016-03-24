@@ -19,7 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Sets;
 import java.util.Collections;
 import java.util.Set;
@@ -28,13 +27,10 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDao;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.rule.index.RuleIndex;
@@ -91,59 +87,6 @@ public class RuleServiceMediumTest {
     // verify in es
     tags = index.terms(RuleIndexDefinition.FIELD_RULE_ALL_TAGS);
     assertThat(tags).containsOnly("tag1", "tag2", "sys1", "sys2");
-  }
-
-  @Test
-  public void create_rule() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    // Create template rule
-    RuleKey templateRuleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newTemplateRule(templateRuleKey));
-    dbSession.commit();
-
-    // Create custom rule
-    NewRule newRule = NewRule.createForCustomRule("MY_CUSTOM", templateRuleKey)
-      .setName("My custom")
-      .setHtmlDescription("Some description")
-      .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.READY)
-      .setParameters(ImmutableMap.of("regex", "a.*"));
-    RuleKey customRuleKey = service.create(newRule);
-
-    dbSession.clearCache();
-
-    RuleDto rule = dao.selectOrFailByKey(dbSession, customRuleKey);
-    assertThat(rule).isNotNull();
-  }
-
-  @Test(expected = UnauthorizedException.class)
-  public void do_not_create_if_not_granted() {
-    userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
-
-    service.create(NewRule.createForCustomRule("MY_CUSTOM", RuleKey.of("java", "S001")));
-  }
-
-  @Test
-  public void delete_rule() {
-    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
-
-    // Create template rule
-    RuleKey templateRuleKey = RuleKey.of("java", "S001");
-    dao.insert(dbSession, RuleTesting.newTemplateRule(templateRuleKey));
-    dbSession.commit();
-
-    // Create custom rule
-    NewRule newRule = NewRule.createForCustomRule("MY_CUSTOM", templateRuleKey)
-      .setName("My custom")
-      .setHtmlDescription("Some description")
-      .setSeverity(Severity.MAJOR)
-      .setStatus(RuleStatus.READY)
-      .setParameters(ImmutableMap.of("regex", "a.*"));
-    RuleKey customRuleKey = service.create(newRule);
-
-    // Delete custom rule
-    service.delete(customRuleKey);
   }
 
   @Test(expected = UnauthorizedException.class)

@@ -42,7 +42,8 @@ import org.sonar.db.rule.RuleDto.Format;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
-import org.sonar.server.rule.NewRule;
+import org.sonar.server.rule.NewCustomRule;
+import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
@@ -213,32 +214,17 @@ public class ShowActionMediumTest {
     session.commit();
 
     // Custom rule
-    NewRule customRule = NewRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
+    NewCustomRule customRule = NewCustomRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
       .setName("My custom")
       .setSeverity(MINOR)
       .setStatus(RuleStatus.READY)
       .setMarkdownDescription("<div>line1\nline2</div>");
-    RuleKey customRuleKey = ruleService.create(customRule);
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(customRule);
     session.clearCache();
 
     WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
       .setParam("key", customRuleKey.toString());
     request.execute().assertJson(getClass(), "encode_html_description_of_custom_rule.json");
-  }
-
-  @Test
-  public void encode_html_description_of_manual_rule() throws Exception {
-    // Manual rule
-    NewRule manualRule = NewRule.createForManualRule("MY_MANUAL")
-      .setName("My manual")
-      .setSeverity(MINOR)
-      .setMarkdownDescription("<div>line1\nline2</div>");
-    RuleKey customRuleKey = ruleService.create(manualRule);
-    session.clearCache();
-
-    WsTester.TestRequest request = wsTester.newGetRequest("api/rules", "show")
-      .setParam("key", customRuleKey.toString());
-    request.execute().assertJson(getClass(), "encode_html_description_of_manual_rule.json");
   }
 
   @Test

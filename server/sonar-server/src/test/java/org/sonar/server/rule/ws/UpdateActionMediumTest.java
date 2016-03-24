@@ -35,7 +35,8 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.rule.NewRule;
+import org.sonar.server.rule.NewCustomRule;
+import org.sonar.server.rule.RuleCreator;
 import org.sonar.server.rule.RuleService;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -55,8 +56,7 @@ public class UpdateActionMediumTest {
   public static ServerTester tester = new ServerTester().withEsIndexes();
 
   @Rule
-  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).
-    login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+  public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester).login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
   WsTester wsTester;
 
@@ -94,8 +94,7 @@ public class UpdateActionMediumTest {
       .setParam("key", rule.getKey().toString())
       .setParam(PARAM_REMEDIATION_FN_TYPE, LINEAR_OFFSET.toString())
       .setParam(PARAM_REMEDIATION_FN_GAP_MULTIPLIER, "15d")
-      .setParam(PARAM_REMEDIATION_FN_BASE_EFFORT, "5min")
-      ;
+      .setParam(PARAM_REMEDIATION_FN_BASE_EFFORT, "5min");
     request.execute().assertJson(getClass(), "update_rule_remediation_function.json");
   }
 
@@ -129,13 +128,14 @@ public class UpdateActionMediumTest {
     session.commit();
 
     // Custom rule
-    NewRule newRule = NewRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("MY_CUSTOM", templateRule.getKey())
       .setName("Old custom")
       .setHtmlDescription("Old description")
       .setSeverity(Severity.MINOR)
       .setStatus(RuleStatus.BETA)
       .setParameters(ImmutableMap.of("regex", "a"));
-    RuleKey customRuleKey = ruleService.create(newRule);
+
+    RuleKey customRuleKey = tester.get(RuleCreator.class).create(newRule);
     session.clearCache();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "update")

@@ -115,37 +115,9 @@ public class RubyRuleService implements Startable {
       update.setDebtRemediationFunction(new DefaultDebtRemediationFunction(
         DebtRemediationFunction.Type.valueOf(fn),
         Strings.emptyToNull((String) params.get("debtRemediationCoefficient")),
-        Strings.emptyToNull((String) params.get("debtRemediationOffset")))
-        );
+        Strings.emptyToNull((String) params.get("debtRemediationOffset"))));
     }
     updater.update(update, userSession);
-  }
-
-  /**
-   * Used in manual_rules_controller.rb
-   */
-  public void createManualRule(Map<String, Object> params) {
-    NewRule newRule = NewRule.createForManualRule((String) params.get("manualKey"))
-      .setName((String) params.get("name"))
-      .setMarkdownDescription((String) params.get("markdownDescription"));
-    service.create(newRule);
-  }
-
-  /**
-   * Used in manual_rules_controller.rb
-   */
-  public void updateManualRule(Map<String, Object> params) {
-    RuleUpdate update = RuleUpdate.createForManualRule(RuleKey.parse((String) params.get("ruleKey")))
-      .setName((String) params.get("name"))
-      .setMarkdownDescription((String) params.get("markdownDescription"));
-    service.update(update);
-  }
-
-  /**
-   * Used in manual_rules_controller.rb
-   */
-  public void deleteManualRule(String ruleKey) {
-    service.delete(RuleKey.parse(ruleKey));
   }
 
   private List<RuleDto> loadDtos(List<RuleKey> ruleKeys) {

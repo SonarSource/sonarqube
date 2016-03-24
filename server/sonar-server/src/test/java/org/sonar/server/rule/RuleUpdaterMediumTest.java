@@ -35,7 +35,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.server.debt.internal.DefaultDebtRemediationFunction;
 import org.sonar.db.DbClient;
@@ -473,7 +472,7 @@ public class RuleUpdaterMediumTest {
     List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
 
     // FIXME why 4 parameters are returned ??? (This issue already exists in 5.4)
-    //assertThat(activeRuleParams).hasSize(2);
+    // assertThat(activeRuleParams).hasSize(2);
     Map<String, ActiveRuleParamDto> activeRuleParamsByKey = ActiveRuleParamDto.groupByKey(activeRuleParams);
     assertThat(activeRuleParamsByKey.get("regex").getValue()).isEqualTo("b.*");
     assertThat(activeRuleParamsByKey.get("message").getValue()).isEqualTo("a message");
@@ -529,79 +528,6 @@ public class RuleUpdaterMediumTest {
   }
 
   @Test
-  public void update_manual_rule() {
-    // Create manual rule
-    RuleDto manualRule = RuleTesting.newManualRule("My manual")
-      .setName("Old name")
-      .setDescription("Old description")
-      .setSeverity(Severity.INFO)
-      .setType(RuleType.CODE_SMELL);
-    ruleDao.insert(dbSession, manualRule);
-
-    dbSession.commit();
-
-    // Update manual rule
-    RuleUpdate update = RuleUpdate.createForManualRule(manualRule.getKey())
-      .setName("New name")
-      .setMarkdownDescription("New description")
-      .setSeverity(Severity.CRITICAL);
-    underTest.update(update, userSessionRule);
-
-    dbSession.clearCache();
-
-    // Verify manual rule is updated
-    RuleDto manualRuleReloaded = ruleDao.selectOrFailByKey(dbSession, manualRule.getKey());
-    assertThat(manualRuleReloaded).isNotNull();
-    assertThat(manualRuleReloaded.getName()).isEqualTo("New name");
-    assertThat(manualRuleReloaded.getDescription()).isEqualTo("New description");
-    assertThat(manualRuleReloaded.getSeverityString()).isEqualTo(Severity.CRITICAL);
-
-    // Verify in index
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New name"), new SearchOptions()).getIds()).containsOnly(manualRule.getKey());
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("New description"), new SearchOptions()).getIds()).containsOnly(manualRule.getKey());
-
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old name"), new SearchOptions()).getTotal()).isZero();
-    assertThat(ruleIndex.search(new RuleQuery().setQueryText("Old description"), new SearchOptions()).getTotal()).isZero();
-  }
-
-  @Test
-  public void fail_to_update_manual_rule_if_status_is_set() {
-    // Create manual rule
-    RuleDto manualRule = RuleTesting.newManualRule("My manual");
-    ruleDao.insert(dbSession, manualRule);
-
-    dbSession.commit();
-
-    try {
-      // Update manual rule
-      RuleUpdate.createForManualRule(manualRule.getKey())
-        .setStatus(RuleStatus.BETA);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
-    }
-  }
-
-  @Test
-  public void fail_to_update_manual_rule_if_parameters_are_set() {
-    // Create manual rule
-    RuleDto manualRule = RuleTesting.newManualRule("My manual");
-    ruleDao.insert(dbSession, manualRule);
-
-    dbSession.commit();
-
-    try {
-      // Update manual rule
-      RuleUpdate.createForManualRule(manualRule.getKey())
-        .setStatus(RuleStatus.BETA)
-        .setParameters(ImmutableMap.of("regex", "b.*", "message", "a message"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
-    }
-  }
-
-  @Test
   public void fail_to_update_plugin_rule_if_name_is_set() {
     // Create rule rule
     RuleDto ruleDto = RuleTesting.newDto(RuleKey.of("squid", "S01"));
@@ -615,7 +541,7 @@ public class RuleUpdaterMediumTest {
         .setName("New name");
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
     }
   }
 
@@ -633,7 +559,7 @@ public class RuleUpdaterMediumTest {
         .setMarkdownDescription("New description");
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
     }
   }
 
@@ -651,7 +577,7 @@ public class RuleUpdaterMediumTest {
         .setSeverity(Severity.CRITICAL);
       fail();
     } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom or a manual rule");
+      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
     }
   }
 

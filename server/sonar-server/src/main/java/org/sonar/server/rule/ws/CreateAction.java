@@ -34,8 +34,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
-import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.rule.NewRule;
+import org.sonar.server.rule.NewCustomRule;
 import org.sonar.server.rule.ReactivationException;
 import org.sonar.server.rule.RuleCreator;
 import org.sonarqube.ws.Rules;
@@ -51,7 +50,6 @@ import static org.sonar.server.ws.WsUtils.writeProtobuf;
 public class CreateAction implements RulesWsAction {
 
   public static final String PARAM_CUSTOM_KEY = "custom_key";
-  public static final String PARAM_MANUAL_KEY = "manual_key";
   public static final String PARAM_NAME = "name";
   public static final String PARAM_DESCRIPTION = "markdown_description";
   public static final String PARAM_SEVERITY = "severity";
@@ -75,7 +73,8 @@ public class CreateAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("create")
-      .setDescription("Create a custom rule or a manual rule")
+      .setDescription("Create a custom rule. <br/>" +
+        "Since 5.5, it's no more possible to create manual rule.")
       .setSince("4.4")
       .setPost(true)
       .setHandler(this);
@@ -83,12 +82,14 @@ public class CreateAction implements RulesWsAction {
     action
       .createParam(PARAM_CUSTOM_KEY)
       .setDescription("Key of the custom rule")
-      .setExampleValue("Todo_should_not_be_used");
+      .setExampleValue("Todo_should_not_be_used")
+      .setRequired(true);
 
     action
-      .createParam(PARAM_MANUAL_KEY)
-      .setDescription("Key of the manual rule")
-      .setExampleValue("Error_handling");
+      .createParam("manual_key")
+      .setDescription("Manual rules are no more supported. This parameter is ignored")
+      .setExampleValue("Error_handling")
+      .setDeprecatedSince("5.5");
 
     action
       .createParam(PARAM_TEMPLATE_KEY)
@@ -109,12 +110,12 @@ public class CreateAction implements RulesWsAction {
 
     action
       .createParam(PARAM_SEVERITY)
-      .setDescription("Rule severity (Only for custom rule)")
+      .setDescription("Rule severity")
       .setPossibleValues(Severity.ALL);
 
     action
       .createParam(PARAM_STATUS)
-      .setDescription("Rule status (Only for custom rule)")
+      .setDescription("Rule status")
       .setDefaultValue(RuleStatus.READY)
       .setPossibleValues(RuleStatus.values());
 
@@ -130,36 +131,21 @@ public class CreateAction implements RulesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    String customKey = request.param(PARAM_CUSTOM_KEY);
-    String manualKey = request.param(PARAM_MANUAL_KEY);
-    if (isNullOrEmpty(customKey) && isNullOrEmpty(manualKey)) {
-      throw new BadRequestException(String.format("Either '%s' or '%s' parameters should be set", PARAM_CUSTOM_KEY, PARAM_MANUAL_KEY));
-    }
+    String customKey = request.mandatoryParam(PARAM_CUSTOM_KEY);
     DbSession dbSession = dbClient.openSession(false);
     try {
       try {
-        if (!isNullOrEmpty(customKey)) {
-          NewRule newRule = NewRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
-            .setName(request.mandatoryParam(PARAM_NAME))
-            .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
-            .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
-            .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
-            .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
-          String params = request.param(PARAMS);
-          if (!isNullOrEmpty(params)) {
-            newRule.setParameters(KeyValueFormat.parse(params));
-          }
-          writeResponse(dbSession, request, response, ruleCreator.create(newRule));
+        NewCustomRule newRule = NewCustomRule.createForCustomRule(customKey, RuleKey.parse(request.mandatoryParam(PARAM_TEMPLATE_KEY)))
+          .setName(request.mandatoryParam(PARAM_NAME))
+          .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
+          .setSeverity(request.mandatoryParam(PARAM_SEVERITY))
+          .setStatus(RuleStatus.valueOf(request.mandatoryParam(PARAM_STATUS)))
+          .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
+        String params = request.param(PARAMS);
+        if (!isNullOrEmpty(params)) {
+          newRule.setParameters(KeyValueFormat.parse(params));
         }
-
-        if (!isNullOrEmpty(manualKey)) {
-          NewRule newRule = NewRule.createForManualRule(manualKey)
-            .setName(request.mandatoryParam(PARAM_NAME))
-            .setMarkdownDescription(request.mandatoryParam(PARAM_DESCRIPTION))
-            .setSeverity(request.param(PARAM_SEVERITY))
-            .setPreventReactivation(request.mandatoryParamAsBoolean(PARAM_PREVENT_REACTIVATION));
-          writeResponse(dbSession, request, response, ruleCreator.create(newRule));
-        }
+        writeResponse(dbSession, request, response, ruleCreator.create(newRule));
       } catch (ReactivationException e) {
         write409(dbSession, request, response, e.ruleKey());
       }

@@ -37,16 +37,12 @@ import org.sonar.server.user.UserSession;
 @ServerSide
 public class RuleService {
 
-  private final RuleUpdater ruleUpdater;
   private final RuleIndex index;
-  private final RuleCreator ruleCreator;
   private final RuleDeleter ruleDeleter;
   private final UserSession userSession;
 
-  public RuleService(RuleUpdater ruleUpdater, RuleIndex index, RuleCreator ruleCreator, RuleDeleter ruleDeleter, UserSession userSession) {
-    this.ruleUpdater = ruleUpdater;
+  public RuleService(RuleIndex index, RuleDeleter ruleDeleter, UserSession userSession) {
     this.index = index;
-    this.ruleCreator = ruleCreator;
     this.ruleDeleter = ruleDeleter;
     this.userSession = userSession;
   }
@@ -73,16 +69,6 @@ public class RuleService {
 
   public SearchIdResult<RuleKey> search(RuleQuery query, SearchOptions options) {
     return index.search(query, options);
-  }
-
-  public RuleKey create(NewRule newRule) {
-    checkPermission();
-    return ruleCreator.create(newRule);
-  }
-
-  public void update(RuleUpdate update) {
-    checkPermission();
-    ruleUpdater.update(update, userSession);
   }
 
   public void delete(RuleKey ruleKey) {

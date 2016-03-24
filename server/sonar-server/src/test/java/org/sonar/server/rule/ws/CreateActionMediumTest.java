@@ -36,13 +36,9 @@ import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CreateActionMediumTest {
@@ -92,57 +88,25 @@ public class CreateActionMediumTest {
   }
 
   @Test
-  public void create_manual_rule() throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
-      .setParam("manual_key", "MY_MANUAL")
-      .setParam("name", "My manual rule")
-      .setParam("markdown_description", "Description")
-      .setParam("severity", "MAJOR");
-    request.execute().assertJson(getClass(), "create_manual_rule.json");
-  }
-
-  @Test
-  public void create_manual_rule_without_severity() throws Exception {
-    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
-      .setParam("manual_key", "MY_MANUAL")
-      .setParam("name", "My manual rule")
-      .setParam("markdown_description", "Description");
-    request.execute().assertJson(getClass(), "create_manual_rule_without_severity.json");
-  }
-
-  @Test
-  public void fail_if_custom_key_and_manual_key_parameters_are_not_set() {
-    WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
-      .setParam("key", "MY_MANUAL")
-      .setParam("name", "My manual rule")
-      .setParam("markdown_description", "Description")
-      .setParam("severity", "MAJOR");
-
-    try {
-      request.execute();
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Either 'custom_key' or 'manual_key' parameters should be set");
-    }
-  }
-
-  @Test
-  public void create_manual_rule_with_prevent_reactivation_param_to_true() throws Exception {
-    String key = "MY_MANUAL";
+  public void create_custom_rule_with_prevent_reactivation_param_to_true() throws Exception {
+    RuleDto templateRule = RuleTesting.newTemplateRule(RuleKey.of("java", "S001"));
+    ruleDao.insert(session, templateRule);
 
     // insert a removed rule
-    tester.get(RuleDao.class).insert(session, RuleTesting.newManualRule(key)
+    RuleDto customRule = RuleTesting.newCustomRule(templateRule)
+      .setRuleKey("MY_CUSTOM")
       .setStatus(RuleStatus.REMOVED)
-      .setName("My manual rule")
+      .setName("My custom rule")
       .setDescription("Description")
       .setDescriptionFormat(RuleDto.Format.MARKDOWN)
-      .setSeverity(Severity.MAJOR));
+      .setSeverity(Severity.MAJOR);
+    tester.get(RuleDao.class).insert(session, customRule);
     session.commit();
-    session.clearCache();
 
     WsTester.TestRequest request = wsTester.newPostRequest("api/rules", "create")
-      .setParam("manual_key", key)
-      .setParam("name", "My manual rule")
+      .setParam("custom_key", "MY_CUSTOM")
+      .setParam("template_key", templateRule.getKey().toString())
+      .setParam("name", "My custom rule")
       .setParam("markdown_description", "Description")
       .setParam("severity", "MAJOR")
       .setParam("prevent_reactivation", "true");

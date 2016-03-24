@@ -1,14 +1,11 @@
 {
   "rule": {
-    "key": "manual:MY_MANUAL",
-    "repo": "manual",
-    "name": "My manual rule",
+    "key": "java:MY_CUSTOM",
+    "repo": "java",
+    "name": "My custom rule",
     "htmlDesc": "Description",
     "severity": "MAJOR",
     "status": "REMOVED",
-    "isTemplate": false,
-    "tags": [],
-    "sysTags": [],
-    "params": []
+    "isTemplate": false
   }
 }

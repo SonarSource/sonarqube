@@ -31,7 +31,6 @@ import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -86,7 +85,7 @@ public class RuleCreatorMediumTest {
     RuleDto templateRule = createTemplateRule();
 
     // Create custom rule
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -132,7 +131,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -157,7 +156,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -181,7 +180,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -207,7 +206,7 @@ public class RuleCreatorMediumTest {
     RuleDto templateRule = createTemplateRuleWithIntArrayParam();
 
     // Create custom rule
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -229,7 +228,7 @@ public class RuleCreatorMediumTest {
     RuleDto templateRule = createTemplateRuleWithTwoIntParams();
 
     // Create custom rule
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setMarkdownDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -266,7 +265,7 @@ public class RuleCreatorMediumTest {
     dbSession.clearCache();
 
     // Create custom rule with same key, but with different values
-    NewRule newRule = NewRule.createForCustomRule(key, templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(key, templateRule.getKey())
       .setName("New name")
       .setMarkdownDescription("New description")
       .setSeverity(Severity.MAJOR)
@@ -310,7 +309,7 @@ public class RuleCreatorMediumTest {
     dbSession.clearCache();
 
     // Create custom rule with same key, but with different values
-    NewRule newRule = NewRule.createForCustomRule(key, templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule(key, templateRule.getKey())
       .setName("New name")
       .setHtmlDescription("New description")
       .setSeverity(Severity.MAJOR)
@@ -333,7 +332,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewRule newRule = NewRule.createForCustomRule("*INVALID*", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("*INVALID*", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -354,7 +353,7 @@ public class RuleCreatorMediumTest {
     RuleDto templateRule = createTemplateRule();
 
     // Create a custom rule
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -364,7 +363,7 @@ public class RuleCreatorMediumTest {
 
     try {
       // Create another custom rule having same key
-      newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+      newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
         .setName("My another custom")
         .setHtmlDescription("Some description")
         .setSeverity(Severity.MAJOR)
@@ -382,7 +381,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
@@ -401,7 +400,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setSeverity(Severity.MAJOR)
       .setStatus(RuleStatus.READY)
@@ -420,7 +419,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setStatus(RuleStatus.READY)
@@ -439,7 +438,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity("INVALID")
@@ -459,7 +458,7 @@ public class RuleCreatorMediumTest {
     // insert template rule
     RuleDto templateRule = createTemplateRule();
 
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", templateRule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -481,7 +480,7 @@ public class RuleCreatorMediumTest {
     dbSession.commit();
 
     // Create custom rule with unknown template rule
-    NewRule newRule = NewRule.createForCustomRule("CUSTOM_RULE", rule.getKey())
+    NewCustomRule newRule = NewCustomRule.createForCustomRule("CUSTOM_RULE", rule.getKey())
       .setName("My custom")
       .setHtmlDescription("Some description")
       .setSeverity(Severity.MAJOR)
@@ -493,189 +492,6 @@ public class RuleCreatorMediumTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("This rule is not a template rule: java:S001");
-    }
-  }
-
-  @Test
-  public void create_manual_rule() {
-    NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
-      .setName("My manual")
-      .setMarkdownDescription("Some description");
-    RuleKey ruleKey = creator.create(newRule);
-
-    dbSession.clearCache();
-
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, ruleKey);
-    assertThat(rule).isNotNull();
-    assertThat(rule.getKey()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
-    assertThat(rule.getName()).isEqualTo("My manual");
-    assertThat(rule.getDescription()).isEqualTo("Some description");
-    assertThat(rule.getSeverityString()).isNull();
-    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
-    assertThat(rule.getLanguage()).isNull();
-    assertThat(rule.getConfigKey()).isNull();
-    assertThat(rule.getDefaultRemediationBaseEffort()).isNull();
-    assertThat(rule.getTags()).isEmpty();
-    assertThat(rule.getSystemTags()).isEmpty();
-
-    assertThat(db.ruleDao().selectRuleParamsByRuleKey(dbSession, ruleKey)).isEmpty();
-
-    assertThat(ruleIndex.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(ruleKey);
-  }
-
-  @Test
-  public void create_manual_rule_with_severity() {
-    NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
-      .setName("My manual")
-      .setMarkdownDescription("Some description")
-      .setSeverity(Severity.BLOCKER);
-    RuleKey ruleKey = creator.create(newRule);
-
-    dbSession.clearCache();
-
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, ruleKey);
-    assertThat(rule).isNotNull();
-    assertThat(rule.getKey()).isEqualTo(RuleKey.of("manual", "MANUAL_RULE"));
-    assertThat(rule.getName()).isEqualTo("My manual");
-    assertThat(rule.getDescription()).isEqualTo("Some description");
-    assertThat(rule.getSeverityString()).isEqualTo(Severity.BLOCKER);
-    assertThat(rule.getStatus()).isEqualTo(RuleStatus.READY);
-    assertThat(rule.getLanguage()).isNull();
-    assertThat(rule.getConfigKey()).isNull();
-    assertThat(rule.getDefaultRemediationFunction()).isNull();
-    assertThat(rule.getTags()).isEmpty();
-    assertThat(rule.getSystemTags()).isEmpty();
-
-    assertThat(db.ruleDao().selectRuleParamsByRuleKey(dbSession, ruleKey)).isEmpty();
-  }
-
-  @Test
-  public void reactivate_manual_rule_if_already_exists_in_removed_status() {
-    String key = "MANUAL_RULE";
-
-    // insert a removed rule
-    RuleDto rule = RuleTesting.newManualRule(key)
-      .setStatus(RuleStatus.REMOVED)
-      .setName("Old name")
-      .setDescription("Old description")
-      .setSeverity(Severity.INFO)
-      .setType(RuleType.CODE_SMELL);
-    dao.insert(dbSession, rule);
-    dbSession.commit();
-    dbSession.clearCache();
-
-    // Create a rule with the same key and with another name, description and severity
-    NewRule newRule = NewRule.createForManualRule(key)
-      .setName("New name")
-      .setMarkdownDescription("New description");
-    RuleKey ruleKey = creator.create(newRule);
-
-    dbSession.clearCache();
-
-    RuleDto result = db.ruleDao().selectOrFailByKey(dbSession, ruleKey);
-    assertThat(result.getKey()).isEqualTo(RuleKey.of("manual", key));
-    assertThat(result.getStatus()).isEqualTo(RuleStatus.READY);
-
-    // Name, description and severity should be the same than before
-    assertThat(result.getName()).isEqualTo("Old name");
-    assertThat(result.getDescription()).isEqualTo("Old description");
-    assertThat(result.getSeverityString()).isEqualTo(Severity.INFO);
-  }
-
-  @Test
-  public void fail_to_create_manual_rule_when_missing_key() {
-    try {
-      NewRule.createForManualRule("")
-        .setName("My manual")
-        .setHtmlDescription("Some description");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Manual key should be set");
-    }
-  }
-
-  @Test
-  public void fail_to_create_manual_rule_when_invalid_key() {
-    NewRule newRule = NewRule.createForManualRule("*INVALID*")
-      .setName("My custom")
-      .setHtmlDescription("Some description");
-
-    try {
-      creator.create(newRule);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.invalid_rule_key");
-    }
-  }
-
-  @Test
-  public void fail_to_create_manual_rule_when_rule_key_already_exists() {
-    NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
-      .setName("My manual")
-      .setHtmlDescription("Some description");
-    creator.create(newRule);
-
-    try {
-      // Create another rule having same key
-      newRule = NewRule.createForManualRule("MANUAL_RULE")
-        .setName("My other manual")
-        .setHtmlDescription("Some description");
-      creator.create(newRule);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("A rule with the key 'MANUAL_RULE' already exists");
-    }
-  }
-
-  @Test
-  public void fail_to_create_manual_rule_when_missing_name() {
-    NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
-      .setHtmlDescription("Some description");
-
-    try {
-      creator.create(newRule);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_name");
-    }
-  }
-
-  @Test
-  public void fail_to_create_manual_rule_when_missing_description() {
-    NewRule newRule = NewRule.createForManualRule("MANUAL_RULE")
-      .setName("My manual");
-
-    try {
-      creator.create(newRule);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("coding_rules.validation.missing_description");
-    }
-  }
-
-  @Test
-  public void fail_to_create_manual_rule_with_status() {
-    try {
-      NewRule.createForManualRule("MANUAL_RULE")
-        .setName("My manual")
-        .setHtmlDescription("Some description")
-        .setStatus(RuleStatus.BETA);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
-    }
-  }
-
-  @Test
-  public void fail_to_create_manual_rule_with_parameters() {
-    try {
-      NewRule.createForManualRule("MANUAL_RULE")
-        .setName("My manual")
-        .setHtmlDescription("Some description")
-        .setParameters(ImmutableMap.of("regex", "a.*"));
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalStateException.class).hasMessage("Not a custom rule");
     }
   }
 

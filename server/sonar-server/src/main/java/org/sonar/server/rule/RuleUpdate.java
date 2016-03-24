@@ -42,7 +42,6 @@ public class RuleUpdate {
   private boolean changeStatus = false;
   private boolean changeParameters = false;
   private boolean isCustomRule;
-  private boolean isManual;
   private Set<String> tags;
   private String markdownNote;
   private DebtRemediationFunction debtRemediationFunction;
@@ -106,7 +105,7 @@ public class RuleUpdate {
   }
 
   public RuleUpdate setName(@Nullable String name) {
-    checkCustomOrManualRule();
+    checkCustomRule();
     this.name = name;
     this.changeName = true;
     return this;
@@ -118,7 +117,7 @@ public class RuleUpdate {
   }
 
   public RuleUpdate setMarkdownDescription(@Nullable String markdownDescription) {
-    checkCustomOrManualRule();
+    checkCustomRule();
     this.markdownDescription = markdownDescription;
     this.changeDescription = true;
     return this;
@@ -130,7 +129,7 @@ public class RuleUpdate {
   }
 
   public RuleUpdate setSeverity(@Nullable String severity) {
-    checkCustomOrManualRule();
+    checkCustomRule();
     this.severity = severity;
     this.changeSeverity = true;
     return this;
@@ -218,19 +217,12 @@ public class RuleUpdate {
     }
   }
 
-  private void checkCustomOrManualRule() {
-    if (!isCustomRule && !isManual) {
-      throw new IllegalStateException("Not a custom or a manual rule");
-    }
-  }
-
   /**
    * Use to update a rule provided by a plugin (name, description, severity, status and parameters cannot by changed)
    */
   public static RuleUpdate createForPluginRule(RuleKey ruleKey) {
     RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
     ruleUpdate.isCustomRule = false;
-    ruleUpdate.isManual = false;
     return ruleUpdate;
   }
 
@@ -240,17 +232,6 @@ public class RuleUpdate {
   public static RuleUpdate createForCustomRule(RuleKey ruleKey) {
     RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
     ruleUpdate.isCustomRule = true;
-    ruleUpdate.isManual = false;
-    return ruleUpdate;
-  }
-
-  /**
-   * Use to update a manual rule (status and parameters cannot by changed)
-   */
-  public static RuleUpdate createForManualRule(RuleKey ruleKey) {
-    RuleUpdate ruleUpdate = new RuleUpdate(ruleKey);
-    ruleUpdate.isManual = true;
-    ruleUpdate.isCustomRule = false;
     return ruleUpdate;
   }
 

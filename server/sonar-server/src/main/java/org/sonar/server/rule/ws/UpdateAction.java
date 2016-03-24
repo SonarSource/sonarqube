@@ -125,7 +125,7 @@ public class UpdateAction implements RulesWsAction {
       .setDeprecatedSince("5.5");
 
     action.createParam(PARAM_REMEDIATION_FN_GAP_MULTIPLIER)
-      .setDeprecatedSince("Gap multiplier of the remediation function of the rule")
+      .setDescription("Gap multiplier of the remediation function of the rule")
       .setExampleValue("3min")
       .setSince("5.5");
 
@@ -134,7 +134,7 @@ public class UpdateAction implements RulesWsAction {
 
     action
       .createParam(PARAM_NAME)
-      .setDescription("Rule name (mandatory for custom rule and manual rule)")
+      .setDescription("Rule name (mandatory for custom rule)")
       .setExampleValue("My custom rule");
 
     action
@@ -207,8 +207,6 @@ public class UpdateAction implements RulesWsAction {
     RuleDto rule = optionalRule.get();
     if (rule.getTemplateId() != null) {
       return RuleUpdate.createForCustomRule(key);
-    } else if (RuleKey.MANUAL_REPOSITORY_KEY.equals(rule.getRepositoryKey())) {
-      return RuleUpdate.createForManualRule(key);
     } else {
       return RuleUpdate.createForPluginRule(key);
     }

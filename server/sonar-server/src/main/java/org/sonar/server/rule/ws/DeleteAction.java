@@ -42,7 +42,7 @@ public class DeleteAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("delete")
-      .setDescription("Delete custom rule or manual rule")
+      .setDescription("Delete custom rule")
       .setSince("4.4")
       .setPost(true)
       .setHandler(this);
