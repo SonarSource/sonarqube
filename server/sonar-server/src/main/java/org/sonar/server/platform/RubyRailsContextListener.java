@@ -19,8 +19,11 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.base.Throwables;
 import javax.servlet.ServletContextEvent;
+import org.jruby.rack.RackApplicationFactory;
 import org.jruby.rack.rails.RailsServletContextListener;
+import org.jruby.rack.servlet.ServletRackContext;
 
 /**
  * Overriding {@link RailsServletContextListener} allows to disable initialization of Ruby on Rails
@@ -34,5 +37,15 @@ public class RubyRailsContextListener extends RailsServletContextListener {
     if (event.getServletContext().getAttribute(PlatformServletContextListener.STARTED_ATTRIBUTE) != null) {
       super.contextInitialized(event);
     }
+  }
+
+  // Always stop server when an error is raised during startup.
+  // By default Rack only logs an error (see org.jruby.rack.RackServletContextListener#handleInitializationException()).
+  // Rack propagates exceptions if the properties jruby.rack.exception or jruby.rack.error are set to true.
+  // Unfortunately we didn't succeed in defining these properties, so the method is overridden here.
+  // Initial need: SONAR-6171
+  @Override
+  protected void handleInitializationException(Exception e, RackApplicationFactory factory, ServletRackContext rackContext) {
+    throw Throwables.propagate(e);
   }
 }

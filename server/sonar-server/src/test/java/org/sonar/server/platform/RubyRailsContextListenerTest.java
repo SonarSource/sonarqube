@@ -19,8 +19,13 @@
  */
 package org.sonar.server.platform;
 
+import java.io.IOException;
 import javax.servlet.ServletContextEvent;
+import org.jruby.rack.RackApplicationFactory;
+import org.jruby.rack.servlet.ServletRackContext;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 
 import static java.lang.Boolean.TRUE;
@@ -33,6 +38,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class RubyRailsContextListenerTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   ServletContextEvent event = mock(ServletContextEvent.class, Mockito.RETURNS_DEEP_STUBS);
   RubyRailsContextListener underTest = new RubyRailsContextListener();
@@ -53,5 +61,12 @@ public class RubyRailsContextListenerTest {
     // Ruby environment is started
     // See RailsServletContextListener -> RackServletContextListener
     verify(event.getServletContext()).setAttribute(eq("rack.factory"), anyObject());
+  }
+
+  @Test
+  public void always_propagates_initialization_errors() {
+    expectedException.expect(RuntimeException.class);
+
+    underTest.handleInitializationException(new IOException(), mock(RackApplicationFactory.class), mock(ServletRackContext.class));
   }
 }
