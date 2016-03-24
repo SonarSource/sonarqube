@@ -29,9 +29,14 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
     'selected': isSelected
   });
 
-  const handleClick = (e) => {
-    e.preventDefault();
-    onClick();
+  const handleClick = e => {
+    const isLeftClickEvent = e.button === 0;
+    const isModifiedEvent = !!(e.metaKey || e.altKey || e.ctrlKey || e.shiftKey);
+
+    if (isLeftClickEvent && !isModifiedEvent) {
+      e.preventDefault();
+      onClick();
+    }
   };
 
   const { head, tail } = splitPath(component.path || component.name);
@@ -54,7 +59,7 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
               <a
                   id={'component-measures-component-link-' + component.key}
                   className={linkClassName}
-                  href="#"
+                  href={getComponentUrl(component.key)}
                   onClick={handleClick}>
                 {inner}
               </a>
