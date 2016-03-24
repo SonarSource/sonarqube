@@ -112,15 +112,12 @@ public class JSONReportTest {
     issue.setStartLineOffset(3);
     issue.setEndLineOffset(4);
     issue.setGap(3.14);
-    issue.setReporter("julien");
     issue.setAssignee("simon");
     issue.setCreationDate(SIMPLE_DATE_FORMAT.parse("2013-04-24"));
     issue.setNew(false);
     when(issueCache.all()).thenReturn(Lists.newArrayList(issue));
-    ScannerInput.User user1 = ScannerInput.User.newBuilder().setLogin("julien").setName("Julien").build();
-    ScannerInput.User user2 = ScannerInput.User.newBuilder().setLogin("simon").setName("Simon").build();
-    when(userRepository.load("julien")).thenReturn(user1);
-    when(userRepository.load("simon")).thenReturn(user2);
+    ScannerInput.User user = ScannerInput.User.newBuilder().setLogin("simon").setName("Simon").build();
+    when(userRepository.load("simon")).thenReturn(user);
 
     StringWriter writer = new StringWriter();
     jsonReport.writeJson(writer);

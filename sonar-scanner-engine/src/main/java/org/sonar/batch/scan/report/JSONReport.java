@@ -150,9 +150,6 @@ public class JSONReport implements Reporter {
           .prop("assignee", issue.assignee())
           .prop("effortToFix", issue.gap())
           .propDateTime("creationDate", issue.creationDate());
-        if (!StringUtils.isEmpty(issue.reporter())) {
-          logins.add(issue.reporter());
-        }
         if (!StringUtils.isEmpty(issue.assignee())) {
           logins.add(issue.assignee());
         }

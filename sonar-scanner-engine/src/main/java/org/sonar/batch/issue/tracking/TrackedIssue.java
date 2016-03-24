@@ -45,7 +45,6 @@ public class TrackedIssue implements Trackable, Serializable {
   private String resolution;
   private String status;
   private String assignee;
-  private String reporter;
   private String componentKey;
   private String message;
 
@@ -147,15 +146,6 @@ public class TrackedIssue implements Trackable, Serializable {
 
   public TrackedIssue setAssignee(String assignee) {
     this.assignee = assignee;
-    return this;
-  }
-
-  public String reporter() {
-    return reporter;
-  }
-
-  public TrackedIssue setReporter(String reporter) {
-    this.reporter = reporter;
     return this;
   }
 

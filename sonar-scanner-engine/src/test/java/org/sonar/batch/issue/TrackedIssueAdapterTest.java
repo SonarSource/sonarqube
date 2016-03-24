@@ -42,7 +42,6 @@ public class TrackedIssueAdapterTest {
       .setGap(2.0)
       .setStatus("RESOLVED")
       .setResolution("FIXED")
-      .setReporter("toto")
       .setAssignee("tata")
       .setNew(true)
       .setCreationDate(creationDate);
@@ -53,10 +52,9 @@ public class TrackedIssueAdapterTest {
     assertThat(issue.severity()).isEqualTo("MAJOR");
     assertThat(issue.message()).isEqualTo("msg");
     assertThat(issue.line()).isEqualTo(1);
-    assertThat(issue.effortToFix()).isEqualTo(2.0);
+    assertThat(issue.gap()).isEqualTo(2.0);
     assertThat(issue.status()).isEqualTo("RESOLVED");
     assertThat(issue.resolution()).isEqualTo("FIXED");
-    assertThat(issue.reporter()).isEqualTo("toto");
     assertThat(issue.assignee()).isEqualTo("tata");
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.attribute("foo")).isNull();
@@ -66,7 +64,7 @@ public class TrackedIssueAdapterTest {
     assertThat(issue.closeDate()).isNull();
     assertThat(issue.authorLogin()).isNull();
     assertThat(issue.comments()).isEmpty();
-    assertThat(issue.debt()).isNull();
+    assertThat(issue.effort()).isNull();
     assertThat(issue.projectKey()).isNull();
     assertThat(issue.projectUuid()).isNull();
     assertThat(issue.componentUuid()).isNull();

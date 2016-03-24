@@ -25,6 +25,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.rule.RuleKey;
@@ -92,9 +93,14 @@ public class TrackedIssueAdapter implements Issue {
     return issue.resolution();
   }
 
+  /**
+   * @deprecated since 5.5, manual issue feature has been dropped.
+   */
+  @Deprecated
+  @CheckForNull
   @Override
   public String reporter() {
-    return issue.reporter();
+    return null;
   }
 
   @Override
