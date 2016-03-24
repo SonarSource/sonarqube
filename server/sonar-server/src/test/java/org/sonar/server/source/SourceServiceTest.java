@@ -119,23 +119,4 @@ public class SourceServiceTest {
     assertThat(lines.isPresent()).isFalse();
   }
 
-  @Test
-  public void getLine() throws Exception {
-    Optional<DbFileSources.Line> line = underTest.getLine(dbTester.getSession(), FILE_UUID, 4);
-    assertThat(line.isPresent()).isTrue();
-    assertThat(line.get().getLine()).isEqualTo(4);
-    assertThat(line.get().getSource()).isEqualTo("SOURCE_4");
-  }
-
-  @Test
-  public void getLine_absent_line() throws Exception {
-    Optional<DbFileSources.Line> line = underTest.getLine(dbTester.getSession(), FILE_UUID, 500);
-    assertThat(line.isPresent()).isFalse();
-  }
-
-  @Test
-  public void getLine_absent_file() throws Exception {
-    Optional<DbFileSources.Line> line = underTest.getLine(dbTester.getSession(), "FILE_DOES_NOT_EXIST", 10);
-    assertThat(line.isPresent()).isFalse();
-  }
 }

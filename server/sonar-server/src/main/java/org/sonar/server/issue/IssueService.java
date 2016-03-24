@@ -19,7 +19,6 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Optional;
 import com.google.common.base.Strings;
 import java.util.ArrayList;
@@ -28,13 +27,11 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -42,13 +39,11 @@ import org.sonar.api.user.User;
 import org.sonar.api.user.UserFinder;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
-import org.sonar.core.issue.DefaultIssueBuilder;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.issue.index.IssueIndex;
@@ -56,10 +51,7 @@ import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.workflow.IssueWorkflow;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.notification.NotificationManager;
-import org.sonar.server.source.SourceService;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.user.index.UserDoc;
-import org.sonar.server.user.index.UserIndex;
 
 @ServerSide
 @ComputeEngineSide
@@ -73,8 +65,6 @@ public class IssueService {
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
   private final UserFinder userFinder;
-  private final UserIndex userIndex;
-  private final SourceService sourceService;
   private final UserSession userSession;
 
   public IssueService(DbClient dbClient, IssueIndex issueIndex,
@@ -83,7 +73,7 @@ public class IssueService {
     IssueUpdater issueUpdater,
     NotificationManager notificationService,
     UserFinder userFinder,
-    UserIndex userIndex, SourceService sourceService, UserSession userSession) {
+    UserSession userSession) {
     this.dbClient = dbClient;
     this.issueIndex = issueIndex;
     this.workflow = workflow;
@@ -91,8 +81,6 @@ public class IssueService {
     this.issueUpdater = issueUpdater;
     this.notificationService = notificationService;
     this.userFinder = userFinder;
-    this.userIndex = userIndex;
-    this.sourceService = sourceService;
     this.userSession = userSession;
   }
 
@@ -218,49 +206,6 @@ public class IssueService {
     }
   }
 
-  public Issue createManualIssue(String componentKey, RuleKey ruleKey, @Nullable Integer line, @Nullable String message, @Nullable String severity) {
-    userSession.checkLoggedIn();
-
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      Optional<ComponentDto> componentOptional = dbClient.componentDao().selectByKey(dbSession, componentKey);
-      if (!componentOptional.isPresent()) {
-        throw new BadRequestException(String.format("Component with key '%s' not found", componentKey));
-      }
-      ComponentDto component = componentOptional.get();
-      ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, component.projectUuid());
-
-      userSession.checkComponentPermission(UserRole.USER, project.getKey());
-      if (!ruleKey.isManual()) {
-        throw new IllegalArgumentException("Issues can be created only on rules marked as 'manual': " + ruleKey);
-      }
-      Optional<RuleDto> rule = getRuleByKey(dbSession, ruleKey);
-      if (!rule.isPresent()) {
-        throw new IllegalArgumentException("Unknown rule: " + ruleKey);
-      }
-
-      DefaultIssue issue = new DefaultIssueBuilder()
-        .componentKey(component.getKey())
-        .type(RuleType.valueOf(rule.get().getType()))
-        .projectKey(project.getKey())
-        .line(line)
-        .message(!Strings.isNullOrEmpty(message) ? message : rule.get().getName())
-        .severity(Objects.firstNonNull(severity, Severity.MAJOR))
-        .ruleKey(ruleKey)
-        .reporter(userSession.getLogin())
-        .assignee(findSourceLineUser(dbSession, component.uuid(), line))
-        .build();
-
-      Date now = new Date();
-      issue.setCreationDate(now);
-      issue.setUpdateDate(now);
-      issueStorage.save(issue);
-      return issue;
-    } finally {
-      dbSession.close();
-    }
-  }
-
   public Issue getByKey(String key) {
     return issueIndex.getByKey(key);
   }
@@ -335,17 +280,4 @@ public class IssueService {
     return issueIndex.countTags(query, pageSize);
   }
 
-  @CheckForNull
-  private String findSourceLineUser(DbSession dbSession, String fileUuid, @Nullable Integer line) {
-    if (line != null) {
-      Optional<DbFileSources.Line> sourceLine = sourceService.getLine(dbSession, fileUuid, line);
-      if (sourceLine.isPresent() && sourceLine.get().hasScmAuthor()) {
-        UserDoc userDoc = userIndex.getNullableByScmAccount(sourceLine.get().getScmAuthor());
-        if (userDoc != null) {
-          return userDoc.login();
-        }
-      }
-    }
-    return null;
-  }
 }

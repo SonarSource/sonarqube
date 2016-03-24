@@ -11,7 +11,6 @@
   "projectName": "SonarQube",
   "fav": false,
   "canMarkAsFavourite": false,
-  "canCreateManualIssue": false,
   "measures": {
     "lines": "200",
     "coverage": "95.4%",

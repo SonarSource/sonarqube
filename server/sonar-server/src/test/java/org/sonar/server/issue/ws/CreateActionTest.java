@@ -20,57 +20,20 @@
 package org.sonar.server.issue.ws;
 
 import org.junit.Test;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.core.issue.DefaultIssue;
-import org.sonar.server.issue.IssueService;
 import org.sonar.server.ws.WsAction;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 public class CreateActionTest {
 
-  IssueService issueService = mock(IssueService.class);
-  OperationResponseWriter responseWriter = mock(OperationResponseWriter.class);
-  WsAction underTest = new CreateAction(issueService, responseWriter);
+  WsAction underTest = new CreateAction();
   WsActionTester tester = new WsActionTester(underTest);
 
   @Test
-  public void create_manual_issue_with_default_values() throws Exception {
-    RuleKey ruleKey = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "S1");
-    when(issueService.createManualIssue("FILE_KEY", ruleKey, null, null, null))
-      .thenReturn(new DefaultIssue().setKey("ISSUE_KEY"));
-
+  public void does_nothing() throws Exception {
     tester.newRequest()
       .setParam("component", "FILE_KEY")
-      .setParam("rule", ruleKey.toString())
+      .setParam("rule", "ruleKey")
       .execute();
-
-    verify(issueService).createManualIssue("FILE_KEY", ruleKey, null, null, null);
-    verify(responseWriter).write(eq("ISSUE_KEY"), any(Request.class), any(Response.class));
   }
 
-  @Test
-  public void create_manual_issue() throws Exception {
-    RuleKey ruleKey = RuleKey.of(RuleKey.MANUAL_REPOSITORY_KEY, "S1");
-    when(issueService.createManualIssue("FILE_KEY", ruleKey, 13, "the msg", "BLOCKER"))
-      .thenReturn(new DefaultIssue().setKey("ISSUE_KEY"));
-
-    tester.newRequest()
-      .setParam("component", "FILE_KEY")
-      .setParam("rule", ruleKey.toString())
-      .setParam("severity", "BLOCKER")
-      .setParam("line", "13")
-      .setParam("message", "the msg")
-      .execute();
-
-    verify(issueService).createManualIssue("FILE_KEY", ruleKey, 13, "the msg", "BLOCKER");
-    verify(responseWriter).write(eq("ISSUE_KEY"), any(Request.class), any(Response.class));
-  }
 }

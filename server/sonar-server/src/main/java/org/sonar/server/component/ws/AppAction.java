@@ -150,7 +150,6 @@ public class AppAction implements RequestHandler {
   private static void appendPermissions(JsonWriter json, ComponentDto component, UserSession userSession) {
     boolean hasBrowsePermission = userSession.hasComponentPermission(UserRole.USER, component.key());
     json.prop("canMarkAsFavourite", userSession.isLoggedIn() && hasBrowsePermission);
-    json.prop("canCreateManualIssue", userSession.isLoggedIn() && hasBrowsePermission);
   }
 
   private void appendMeasures(JsonWriter json, Map<String, MeasureDto> measuresByMetricKey) {

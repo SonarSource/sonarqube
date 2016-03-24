@@ -28,12 +28,8 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.security.DefaultGroups;
@@ -46,18 +42,11 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.db.source.FileSourceDao;
-import org.sonar.db.source.FileSourceDto;
-import org.sonar.db.user.GroupDao;
-import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.exceptions.ForbiddenException;
-import org.sonar.server.issue.index.IssueDoc;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.issue.workflow.Transition;
@@ -66,8 +55,6 @@ import org.sonar.server.permission.PermissionUpdater;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.NewUser;
-import org.sonar.server.user.UserUpdater;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
@@ -242,185 +229,6 @@ public class IssueServiceMediumTest {
   }
 
   @Test
-  public void create_manual_issue() {
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
-    tester.get(RuleDao.class).insert(session, manualRule);
-    session.commit();
-
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", Severity.MINOR);
-
-    IssueDoc manualIssue = IssueIndex.getByKey(result.key());
-    assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
-    assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
-    assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
-    assertThat(manualIssue.message()).isEqualTo("Fix it");
-    assertThat(manualIssue.line()).isNull();
-    assertThat(manualIssue.severity()).isEqualTo(Severity.MINOR);
-  }
-
-  @Test
-  public void create_manual_issue_on_line() {
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    newSourceLine(file, 1, "arthur");
-    createDefaultGroup();
-    newUser("arthur");
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
-    tester.get(RuleDao.class).insert(session, manualRule);
-    session.commit();
-
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR);
-
-    IssueDoc manualIssue = IssueIndex.getByKey(result.key());
-    assertThat(manualIssue.componentUuid()).isEqualTo(file.uuid());
-    assertThat(manualIssue.projectUuid()).isEqualTo(project.uuid());
-    assertThat(manualIssue.ruleKey()).isEqualTo(manualRule.getKey());
-    assertThat(manualIssue.message()).isEqualTo("Fix it");
-    assertThat(manualIssue.line()).isEqualTo(1);
-    assertThat(manualIssue.severity()).isEqualTo(Severity.MINOR);
-    assertThat(manualIssue.gap()).isNull();
-    assertThat(manualIssue.assignee()).isEqualTo("arthur");
-  }
-
-  @Test
-  public void create_manual_issue_with_major_severity_when_no_severity() {
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
-    tester.get(RuleDao.class).insert(session, manualRule);
-    session.commit();
-
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, "Fix it", null);
-
-    Issue manualIssue = IssueIndex.getByKey(result.key());
-    assertThat(manualIssue.severity()).isEqualTo(Severity.MAJOR);
-  }
-
-  @Test
-  public void create_manual_issue_with_rule_name_when_no_message() {
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey").setName("Manual rule name");
-    tester.get(RuleDao.class).insert(session, manualRule);
-    session.commit();
-
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), null, null, null);
-
-    Issue manualIssue = IssueIndex.getByKey(result.key());
-    assertThat(manualIssue.message()).isEqualTo("Manual rule name");
-  }
-
-  @Test
-  public void create_manual_issue_without_assignee_when_scm_author_do_not_match_user() {
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    // Unknown SCM account
-    newSourceLine(file, 1, "unknown");
-    createDefaultGroup();
-    newUser("arthur");
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
-    tester.get(RuleDao.class).insert(session, manualRule);
-    session.commit();
-
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR);
-
-    IssueDoc manualIssue = IssueIndex.getByKey(result.key());
-    assertThat(manualIssue.assignee()).isNull();
-  }
-
-  @Test
-  public void create_manual_issue_without_assignee_when_no_scm_author_on_line() {
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    // No author on line 1
-    newSourceLine(file, 1, "");
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
-    tester.get(RuleDao.class).insert(session, manualRule);
-    session.commit();
-
-    Issue result = service.createManualIssue(file.key(), manualRule.getKey(), 1, "Fix it", Severity.MINOR);
-
-    IssueDoc manualIssue = IssueIndex.getByKey(result.key());
-    assertThat(manualIssue.assignee()).isNull();
-  }
-
-  @Test
-  public void fail_create_manual_issue_on_not_manual_rule() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    try {
-      service.createManualIssue(file.key(), rule.getKey(), null, "Fix it", null);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("Issues can be created only on rules marked as 'manual': xoo:x1");
-    }
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_create_manual_issue_if_rule_does_not_exist() {
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    service.createManualIssue(file.key(), RuleKey.of("rule", "unknown"), 10, "Fix it", null);
-  }
-
-  @Test(expected = ForbiddenException.class)
-  public void fail_create_manual_issue_if_not_having_required_role() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-
-    // User has not the 'user' role on the project
-    userSessionRule.login("john").addProjectPermissions(UserRole.CODEVIEWER, project.key());
-
-    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
-    tester.get(RuleDao.class).insert(session, manualRule);
-    session.commit();
-
-    service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null);
-  }
-
-  @Test(expected = BadRequestException.class)
-  public void fail_to_create_manual_issue_on_unknown_component() {
-    ComponentDto project = newProject();
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    RuleDto manualRule = RuleTesting.newManualRule("manualRuleKey");
-    tester.get(RuleDao.class).insert(session, manualRule);
-    session.commit();
-
-    service.createManualIssue("UNKNOWN", manualRule.getKey(), null, "Fix it", Severity.MINOR);
-  }
-
-  @Test(expected = IllegalArgumentException.class)
-  public void fail_create_manual_issue_on_removed_rule() {
-    RuleDto rule = newRule(RuleTesting.newXooX1().setStatus(RuleStatus.REMOVED));
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    service.createManualIssue(file.key(), rule.getKey(), 10, "Fix it", null);
-  }
-
-  @Test
   public void list_tags() {
     RuleDto rule = newRule();
     ComponentDto project = newProject();
@@ -549,28 +357,4 @@ public class IssueServiceMediumTest {
     return issue;
   }
 
-  private void newSourceLine(ComponentDto file, int line, String scmAuthor) {
-    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
-    dataBuilder.addLinesBuilder()
-      .setLine(line)
-      .setScmAuthor(scmAuthor)
-      .build();
-    FileSourceDto dto = new FileSourceDto();
-    dto.setProjectUuid(file.projectUuid());
-    dto.setFileUuid(file.uuid());
-    dto.setCreatedAt(System.currentTimeMillis());
-    dto.setSourceData(dataBuilder.build());
-    dto.setDataType(FileSourceDto.Type.SOURCE);
-    tester.get(FileSourceDao.class).insert(dto);
-  }
-
-  private void newUser(String login) {
-    tester.get(UserUpdater.class).create(NewUser.create().setLogin(login).setName(login).setPassword("test"));
-  }
-
-  private void createDefaultGroup() {
-    tester.get(Settings.class).setProperty(CoreProperties.CORE_DEFAULT_GROUP, "sonar-users");
-    tester.get(GroupDao.class).insert(session, new GroupDto().setName("sonar-users").setDescription("Sonar Users"));
-    session.commit();
-  }
 }

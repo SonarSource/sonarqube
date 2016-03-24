@@ -33,7 +33,6 @@ import it.issue.IssueSearchTest;
 import it.issue.IssueTrackingTest;
 import it.issue.IssueWorkflowTest;
 import it.issue.ManualIssueRelocationTest;
-import it.issue.ManualIssueTest;
 import it.issue.NewIssuesMeasureTest;
 import it.qualityModel.MaintainabilityMeasureTest;
 import it.qualityModel.MaintainabilityRatingMeasureTest;
@@ -73,7 +72,6 @@ import static util.ItUtils.xooPlugin;
   IssueTrackingTest.class,
   IssueWorkflowTest.class,
   ManualIssueRelocationTest.class,
-  ManualIssueTest.class,
   NewIssuesMeasureTest.class,
   // rule
   ManualRulesTest.class,

@@ -79,7 +79,9 @@ message Issue {
   optional string debt = 14;
 
   optional string assignee = 15;
-  optional string reporter = 16;
+
+  // Unused since 5.5, manual issues feature has been removed
+  optional string unusedReporter = 16;
 
   // SCM login of the committer who introduced the issue
   optional string author = 17;

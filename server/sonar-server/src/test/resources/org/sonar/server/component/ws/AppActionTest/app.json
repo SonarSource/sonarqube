@@ -11,6 +11,5 @@
   "projectName": "SonarQube",
   "fav": true,
   "canMarkAsFavourite": true,
-  "canCreateManualIssue": true,
   "measures": {}
 }

@@ -95,25 +95,6 @@ public class UserIndexTest {
   }
 
   @Test
-  public void get_nullable_by_scm_account() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user2.json");
-
-    assertThat(index.getNullableByScmAccount("user_1").login()).isEqualTo("user1");
-    assertThat(index.getNullableByScmAccount("user1@mail.com").login()).isEqualTo("user1");
-    assertThat(index.getNullableByScmAccount("user1").login()).isEqualTo("user1");
-
-    assertThat(index.getNullableByScmAccount("")).isNull();
-    assertThat(index.getNullableByScmAccount("unknown")).isNull();
-  }
-
-  @Test
-  public void get_nullable_by_scm_account_return_null_when_two_users_have_same_email() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user3-with-same-email-as-user1.json");
-
-    assertThat(index.getNullableByScmAccount("user1@mail.com")).isNull();
-  }
-
-  @Test
   public void getAtMostThreeActiveUsersForScmAccount() throws Exception {
     esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user3-with-same-email-as-user1.json", "inactive-user.json");
 

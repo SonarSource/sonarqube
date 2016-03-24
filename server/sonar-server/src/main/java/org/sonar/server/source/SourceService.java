@@ -62,23 +62,6 @@ public class SourceService {
     return getLines(dbSession, fileUuid, from, toInclusive, lineToHtml());
   }
 
-  /**
-   * Returns a single line from a source file. {@code Optional.absent()} is returned if the
-   * file or the line do not exist.
-   * @param line starts from 1
-   */
-  public Optional<DbFileSources.Line> getLine(DbSession dbSession, String fileUuid, int line) {
-    verifyLine(line);
-    FileSourceDto dto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, fileUuid);
-    if (dto == null) {
-      return Optional.absent();
-    }
-    DbFileSources.Data data = dto.getSourceData();
-    return FluentIterable.from(data.getLinesList())
-      .filter(new IsGreaterOrEqualThanLine(line))
-      .first();
-  }
-
   private <E> Optional<Iterable<E>> getLines(DbSession dbSession, String fileUuid, int from, int toInclusive, Function<DbFileSources.Line, E> function) {
     verifyLine(from);
     Preconditions.checkArgument(toInclusive >= from, String.format("Line number must greater than or equal to %d, got %d", from, toInclusive));

@@ -85,19 +85,6 @@ public class UserIndex {
     return null;
   }
 
-  /**
-   * Returns the user associated with the given SCM account. If multiple users have the same
-   * SCM account, then result is null.
-   */
-  @CheckForNull
-  public UserDoc getNullableByScmAccount(String scmAccount) {
-    List<UserDoc> users = getAtMostThreeActiveUsersForScmAccount(scmAccount);
-    if (users.size() == 1) {
-      return users.get(0);
-    }
-    return null;
-  }
-
   public UserDoc getByLogin(String login) {
     UserDoc userDoc = getNullableByLogin(login);
     if (userDoc == null) {

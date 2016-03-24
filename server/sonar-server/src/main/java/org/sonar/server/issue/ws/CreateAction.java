@@ -19,13 +19,10 @@
  */
 package org.sonar.server.issue.ws;
 
-import org.sonar.api.issue.Issue;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.issue.IssueService;
 
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 
@@ -33,19 +30,12 @@ public class CreateAction implements IssuesWsAction {
 
   public static final String ACTION = "create";
 
-  private final IssueService issueService;
-  private final OperationResponseWriter responseWriter;
-
-  public CreateAction(IssueService issueService, OperationResponseWriter responseWriter) {
-    this.issueService = issueService;
-    this.responseWriter = responseWriter;
-  }
-
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .setDescription("Create a manual issue. Requires authentication and Browse permission on project")
+      .setDescription("Deprecated web service to do create a manual issue. Manual issue feature has been removed in 5.5. This web service has no effect.")
       .setSince("3.6")
+      .setDeprecatedSince("5.5")
       .setHandler(this)
       .setPost(true);
 
@@ -72,15 +62,6 @@ public class CreateAction implements IssuesWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    // required parameters
-    String componentKey = request.mandatoryParam("component");
-    RuleKey ruleKey = RuleKey.parse(request.mandatoryParam("rule"));
-
-    Issue issue = issueService.createManualIssue(componentKey, ruleKey,
-      request.paramAsInt("line"),
-      request.param("message"),
-      request.param("severity"));
-
-    responseWriter.write(issue.key(), request, response);
+    response.noContent();
   }
 }
