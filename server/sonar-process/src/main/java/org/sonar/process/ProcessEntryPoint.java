@@ -121,7 +121,7 @@ public class ProcessEntryPoint implements Stoppable {
     }
   }
 
-  private String guessJmxUrl() {
+  private static String guessJmxUrl() {
     // this property is set by the agent management-agent.jar enabled by org.sonar.process.monitor.JavaProcessLauncher.
     String jmxUrl = VMSupport.getAgentProperties().getProperty("com.sun.management.jmxremote.localConnectorAddress");
     if (jmxUrl == null) {
