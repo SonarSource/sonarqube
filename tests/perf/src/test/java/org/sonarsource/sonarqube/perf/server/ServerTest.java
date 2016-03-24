@@ -91,7 +91,7 @@ public class ServerTest extends PerfTestCase {
     Collections.reverse(lines);
     Date end = null;
     for (String line : lines) {
-      if (line.contains("Compute Engine Server is up")) {
+      if (line.contains("Compute Engine is up")) {
         end = ServerLogs.extractDate(line);
         break;
       }

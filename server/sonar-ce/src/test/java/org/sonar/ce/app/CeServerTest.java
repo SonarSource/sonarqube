@@ -183,7 +183,7 @@ public class CeServerTest {
     Exception exception = Objects.firstNonNull(waitingThread1.getException(), waitingThread2.getException());
     assertThat(exception)
       .isInstanceOf(IllegalStateException.class)
-      .hasMessage("There can't be more than one thread waiting for the Compute Engine Server to stop");
+      .hasMessage("There can't be more than one thread waiting for the Compute Engine to stop");
 
     assertThat(waitingThread1.getException() != null && waitingThread2.getException() != null).isFalse();
   }

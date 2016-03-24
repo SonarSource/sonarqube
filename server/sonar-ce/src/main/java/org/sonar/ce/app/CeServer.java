@@ -103,7 +103,7 @@ public class CeServer implements Monitored {
 
   @Override
   public void awaitStop() {
-    checkState(awaitThread.compareAndSet(null, Thread.currentThread()), "There can't be more than one thread waiting for the Compute Engine Server to stop");
+    checkState(awaitThread.compareAndSet(null, Thread.currentThread()), "There can't be more than one thread waiting for the Compute Engine to stop");
     checkState(ceMainThread != null, "awaitStop() must not be called before start()");
 
     try {
@@ -166,15 +166,15 @@ public class CeServer implements Monitored {
         startup();
         return true;
       } catch (Throwable e) {
-        LOG.error("Compute Engine Server startup failed", e);
+        LOG.error("Compute Engine startup failed", e);
         return false;
       }
     }
 
     private void startup() {
-      LOG.info("Compute Engine Server starting up...");
+      LOG.info("Compute Engine starting up...");
       computeEngine.startup();
-      LOG.info("Compute Engine Server is up");
+      LOG.info("Compute Engine is up");
     }
 
     private void waitForStopSignal() {
@@ -192,7 +192,7 @@ public class CeServer implements Monitored {
       try {
         shutdown();
       } catch (Throwable e) {
-        LOG.error("Compute Engine Server shutdown failed", e);
+        LOG.error("Compute Engine shutdown failed", e);
       } finally {
         // release thread waiting for CeServer
         stopAwait();
@@ -200,7 +200,7 @@ public class CeServer implements Monitored {
     }
 
     private void shutdown() {
-      LOG.info("Compute Engine Server shutting down...");
+      LOG.info("Compute Engine shutting down...");
       computeEngine.shutdown();
     }
 

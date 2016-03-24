@@ -69,7 +69,7 @@ public class CeConfigurationImpl implements CeConfiguration, Startable {
 
   private static MessageException parsingError(String workerCountAsStr) {
     return MessageException.of(format(
-      "value '%s' of property %s is invalid. It must an integer strictly greater than 0",
+      "value '%s' of property %s is invalid. It must an integer strictly greater than 0.",
       workerCountAsStr,
       CE_WORKERS_COUNT_PROPERTY)
       );
