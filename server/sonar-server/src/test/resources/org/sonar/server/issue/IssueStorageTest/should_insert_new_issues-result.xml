@@ -12,7 +12,7 @@
           rule_id="200"
           created_at="[null]"
           updated_at="[null]"
-          reporter="emmerik"
+          reporter="[null]"
           issue_attributes="foo=bar"
           tags="[null]"
           action_plan_key="[null]"

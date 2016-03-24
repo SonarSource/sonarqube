@@ -41,7 +41,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
   private String message;
   private String severity;
   private Double effortToFix;
-  private String reporter;
   private String assignee;
   private RuleType type;
   private Map<String, String> attributes;
@@ -114,9 +113,12 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     return this;
   }
 
+  /**
+   * @deprecated since 5.5, manual issue feature has been dropped.
+   */
+  @Deprecated
   @Override
   public DefaultIssueBuilder reporter(@Nullable String s) {
-    this.reporter = s;
     return this;
   }
 
@@ -157,7 +159,6 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     issue.setManualSeverity(false);
     issue.setGap(effortToFix);
     issue.setLine(line);
-    issue.setReporter(reporter);
     issue.setAssignee(assignee);
     issue.setAttributes(attributes);
     issue.setResolution(null);

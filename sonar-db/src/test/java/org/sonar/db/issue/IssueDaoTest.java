@@ -36,7 +36,6 @@ import org.sonar.db.rule.RuleTesting;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class IssueDaoTest {
 
   public static final RuleDto RULE = RuleTesting.newXooX1();
@@ -120,7 +119,6 @@ public class IssueDaoTest {
     assertThat(issue.getResolution()).isEqualTo("FIXED");
     assertThat(issue.getChecksum()).isEqualTo("123456789");
     assertThat(issue.getAuthorLogin()).isEqualTo("morgan");
-    assertThat(issue.getReporter()).isEqualTo("emmerik");
     assertThat(issue.getAssignee()).isEqualTo("karadoc");
     assertThat(issue.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(issue.getIssueCreationDate()).isNotNull();
@@ -181,7 +179,6 @@ public class IssueDaoTest {
     dto.setResolution("FIXED");
     dto.setStatus("RESOLVED");
     dto.setSeverity("BLOCKER");
-    dto.setReporter("emmerik");
     dto.setAuthorLogin("morgan");
     dto.setAssignee("karadoc");
     dto.setIssueAttributes("JIRA=FOO-1234");

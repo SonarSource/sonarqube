@@ -14,7 +14,7 @@
       status="RESOLVED"
       resolution="FIXED"
       checksum="123456789"
-      reporter="emmerik"
+      reporter="[null]"
       author_login="morgan"
       assignee="karadoc"
       issue_attributes="JIRA=FOO-1234"

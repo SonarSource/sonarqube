@@ -20,6 +20,7 @@
 package org.sonar.api.issue;
 
 import java.util.List;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.NewIssueLocation;
@@ -112,8 +113,10 @@ public interface Issuable extends Perspective {
     IssueBuilder severity(@Nullable String severity);
 
     /**
-     * Login of the user who reported the issue. Optional.
+     * @deprecated since 5.5, manual issue feature has been dropped.
      */
+    @Deprecated
+    @CheckForNull
     IssueBuilder reporter(@Nullable String reporter);
 
     IssueBuilder effortToFix(@Nullable Double d);

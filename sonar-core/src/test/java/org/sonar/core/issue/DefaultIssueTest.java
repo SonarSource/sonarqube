@@ -53,7 +53,6 @@ public class DefaultIssueTest {
       .setEffort(Duration.create(28800L))
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
-      .setReporter("simon")
       .setAssignee("julien")
       .setAuthorLogin("steph")
       .setChecksum("c7b5db46591806455cf082bb348631e8")
@@ -76,11 +75,10 @@ public class DefaultIssueTest {
     assertThat(issue.manualSeverity()).isTrue();
     assertThat(issue.message()).isEqualTo("a message");
     assertThat(issue.line()).isEqualTo(7);
-    assertThat(issue.effortToFix()).isEqualTo(1.2d);
-    assertThat(issue.debt()).isEqualTo(Duration.create(28800L));
+    assertThat(issue.gap()).isEqualTo(1.2d);
+    assertThat(issue.effort()).isEqualTo(Duration.create(28800L));
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
-    assertThat(issue.reporter()).isEqualTo("simon");
     assertThat(issue.assignee()).isEqualTo("julien");
     assertThat(issue.authorLogin()).isEqualTo("steph");
     assertThat(issue.checksum()).isEqualTo("c7b5db46591806455cf082bb348631e8");
@@ -173,7 +171,7 @@ public class DefaultIssueTest {
   @Test
   public void test_nullable_fields() throws Exception {
     issue.setGap(null).setSeverity(null).setLine(null);
-    assertThat(issue.effortToFix()).isNull();
+    assertThat(issue.gap()).isNull();
     assertThat(issue.severity()).isNull();
     assertThat(issue.line()).isNull();
   }

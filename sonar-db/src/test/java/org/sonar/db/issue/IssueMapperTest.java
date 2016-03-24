@@ -74,7 +74,6 @@ public class IssueMapperTest {
     assertThat(result.getResolution()).isEqualTo("FIXED");
     assertThat(result.getStatus()).isEqualTo("RESOLVED");
     assertThat(result.getSeverity()).isEqualTo("BLOCKER");
-    assertThat(result.getReporter()).isEqualTo("emmerik");
     assertThat(result.getAuthorLogin()).isEqualTo("morgan");
     assertThat(result.getAssignee()).isEqualTo("karadoc");
     assertThat(result.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
@@ -105,7 +104,6 @@ public class IssueMapperTest {
     update.setResolution("FIXED");
     update.setStatus("RESOLVED");
     update.setSeverity("BLOCKER");
-    update.setReporter("emmerik");
     update.setAuthorLogin("morgan");
     update.setAssignee("karadoc");
     update.setIssueAttributes("JIRA=FOO-1234");
@@ -136,7 +134,6 @@ public class IssueMapperTest {
     assertThat(result.getResolution()).isEqualTo("FIXED");
     assertThat(result.getStatus()).isEqualTo("RESOLVED");
     assertThat(result.getSeverity()).isEqualTo("BLOCKER");
-    assertThat(result.getReporter()).isEqualTo("emmerik");
     assertThat(result.getAuthorLogin()).isEqualTo("morgan");
     assertThat(result.getAssignee()).isEqualTo("karadoc");
     assertThat(result.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
@@ -221,7 +218,6 @@ public class IssueMapperTest {
       .setResolution("FIXED")
       .setStatus("RESOLVED")
       .setSeverity("BLOCKER")
-      .setReporter("emmerik")
       .setAuthorLogin("morgan")
       .setAssignee("karadoc")
       .setIssueAttributes("JIRA=FOO-1234")

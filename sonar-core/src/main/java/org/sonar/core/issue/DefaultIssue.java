@@ -75,7 +75,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private Duration effort;
   private String status;
   private String resolution;
-  private String reporter;
   private String assignee;
   private String checksum;
   private Map<String, String> attributes = null;
@@ -340,15 +339,14 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
     return this;
   }
 
+  /**
+   * @deprecated since 5.5, manual issue feature has been dropped.
+   */
+  @Deprecated
   @Override
   @CheckForNull
   public String reporter() {
-    return reporter;
-  }
-
-  public DefaultIssue setReporter(@Nullable String s) {
-    this.reporter = s;
-    return this;
+    return null;
   }
 
   @Override

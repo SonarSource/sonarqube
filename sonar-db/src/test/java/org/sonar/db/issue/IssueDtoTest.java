@@ -77,7 +77,6 @@ public class IssueDtoTest {
       .setSeverity("BLOCKER")
       .setMessage("message")
       .setManualSeverity(true)
-      .setReporter("arthur")
       .setAssignee("perceval")
       .setIssueAttributes("key=value")
       .setAuthorLogin("pierre")
@@ -98,13 +97,12 @@ public class IssueDtoTest {
     assertThat(issue.projectKey()).isEqualTo("org.sonar.sample");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
-    assertThat(issue.effortToFix()).isEqualTo(15.0);
-    assertThat(issue.debt()).isEqualTo(Duration.create(10L));
+    assertThat(issue.gap()).isEqualTo(15.0);
+    assertThat(issue.effort()).isEqualTo(Duration.create(10L));
     assertThat(issue.line()).isEqualTo(6);
     assertThat(issue.severity()).isEqualTo("BLOCKER");
     assertThat(issue.message()).isEqualTo("message");
     assertThat(issue.manualSeverity()).isTrue();
-    assertThat(issue.reporter()).isEqualTo("arthur");
     assertThat(issue.assignee()).isEqualTo("perceval");
     assertThat(issue.attribute("key")).isEqualTo("value");
     assertThat(issue.authorLogin()).isEqualTo("pierre");

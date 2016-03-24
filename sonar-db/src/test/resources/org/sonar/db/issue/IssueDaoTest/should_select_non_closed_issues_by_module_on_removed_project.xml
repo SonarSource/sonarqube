@@ -35,7 +35,7 @@
     status="OPEN"
     resolution="[null]"
     checksum="[null]"
-    reporter="user"
+    reporter="[null]"
     assignee="user"
     author_login="[null]"
     issue_attributes="[null]"

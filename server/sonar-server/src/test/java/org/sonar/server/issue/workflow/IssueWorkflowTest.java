@@ -125,8 +125,7 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_CLOSED)
-      .setRuleKey(RuleKey.of("manual", "Performance"))
-      .setReporter("simon");
+      .setRuleKey(RuleKey.of("manual", "Performance"));
 
     List<Transition> transitions = workflow.outTransitions(issue);
     assertThat(keys(transitions)).containsOnly("reopen");
@@ -333,11 +332,11 @@ public class IssueWorkflowTest {
       .setKey("ABCDE")
       .setRuleKey(RuleKey.of(MANUAL_REPOSITORY_KEY, "Performance"))
 
-    // resolved by user
+      // resolved by user
       .setResolution(RESOLUTION_FIXED)
       .setStatus(STATUS_RESOLVED)
 
-    // but unmatched by tracking engine
+      // but unmatched by tracking engine
       .setBeingClosed(true);
 
     workflow.start();
@@ -353,8 +352,7 @@ public class IssueWorkflowTest {
     DefaultIssue issue = new DefaultIssue()
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
-      .setRuleKey(RuleKey.of("manual", "Performance"))
-      .setReporter("simon");
+      .setRuleKey(RuleKey.of("manual", "Performance"));
 
     workflow.start();
 
@@ -392,7 +390,6 @@ public class IssueWorkflowTest {
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("manual", "Performance"))
-      .setReporter("simon")
       .setBeingClosed(true)
       .setOnDisabledRule(true);
 
@@ -410,7 +407,6 @@ public class IssueWorkflowTest {
       .setKey("ABCDE")
       .setStatus(STATUS_OPEN)
       .setRuleKey(RuleKey.of("manual", "Performance"))
-      .setReporter("simon")
       .setBeingClosed(true)
       .setOnDisabledRule(false);
 

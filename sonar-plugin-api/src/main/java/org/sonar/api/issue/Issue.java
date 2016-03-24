@@ -139,8 +139,9 @@ public interface Issue extends Serializable {
   String resolution();
 
   /**
-   * Login of the user who reported this issue. Null if the issue is reported by a rule engine.
+   * @deprecated since 5.5, manual issue feature has been dropped.
    */
+  @Deprecated
   @CheckForNull
   String reporter();
 

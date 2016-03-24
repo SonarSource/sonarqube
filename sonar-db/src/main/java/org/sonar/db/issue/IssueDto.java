@@ -69,7 +69,6 @@ public final class IssueDto implements Serializable {
   private String status;
   private String resolution;
   private String checksum;
-  private String reporter;
   private String assignee;
   private String authorLogin;
   private String issueAttributes;
@@ -115,7 +114,6 @@ public final class IssueDto implements Serializable {
       .setSeverity(issue.severity())
       .setManualSeverity(issue.manualSeverity())
       .setChecksum(issue.checksum())
-      .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
       .setRuleId(ruleId)
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
@@ -134,7 +132,7 @@ public final class IssueDto implements Serializable {
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
 
-    // technical dates
+      // technical dates
       .setCreatedAt(now)
       .setUpdatedAt(now);
   }
@@ -163,7 +161,6 @@ public final class IssueDto implements Serializable {
       .setSeverity(issue.severity())
       .setChecksum(issue.checksum())
       .setManualSeverity(issue.manualSeverity())
-      .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
@@ -180,7 +177,7 @@ public final class IssueDto implements Serializable {
       .setIssueUpdateDate(issue.updateDate())
       .setSelectedAt(issue.selectedAt())
 
-    // technical date
+      // technical date
       .setUpdatedAt(now);
   }
 
@@ -338,17 +335,6 @@ public final class IssueDto implements Serializable {
   public IssueDto setChecksum(@Nullable String s) {
     checkArgument(s == null || s.length() <= 1000, "Value is too long for issue checksum: %s", s);
     this.checksum = s;
-    return this;
-  }
-
-  @CheckForNull
-  public String getReporter() {
-    return reporter;
-  }
-
-  public IssueDto setReporter(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 255, "Value is too long for issue reporter: %s", s);
-    this.reporter = s;
     return this;
   }
 
@@ -722,7 +708,6 @@ public final class IssueDto implements Serializable {
     issue.setLine(line);
     issue.setChecksum(checksum);
     issue.setSeverity(severity);
-    issue.setReporter(reporter);
     issue.setAssignee(assignee);
     issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
