@@ -19,18 +19,13 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.FilePredicate;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class AdditionalFilePredicatesTest {
-
-  @Rule
-  public TemporaryFolder temp = new TemporaryFolder();
 
   @Test
   public void key() {

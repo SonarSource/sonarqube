@@ -58,7 +58,7 @@ public class ExclusionFilters {
     return mainInclusions.length > 0 || mainExclusions.length > 0 || testInclusions.length > 0 || testExclusions.length > 0;
   }
 
-  private void log(String title, PathPattern[] patterns) {
+  private static void log(String title, PathPattern[] patterns) {
     if (patterns.length > 0) {
       LOG.info(title);
       for (PathPattern pattern : patterns) {

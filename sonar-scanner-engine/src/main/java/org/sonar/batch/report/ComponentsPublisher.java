@@ -159,7 +159,7 @@ public class ComponentsPublisher implements ReportPublisherStep {
     return ResourceUtils.isProject(r) ? r.getDescription() : null;
   }
 
-  private ComponentType getType(Resource r) {
+  private static ComponentType getType(Resource r) {
     if (ResourceUtils.isFile(r)) {
       return ComponentType.FILE;
     } else if (ResourceUtils.isDirectory(r)) {

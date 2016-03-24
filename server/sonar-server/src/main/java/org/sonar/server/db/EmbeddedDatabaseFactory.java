@@ -20,7 +20,6 @@
 package org.sonar.server.db;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.database.DatabaseProperties;

@@ -28,6 +28,7 @@ import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseDoc;
 
+import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
@@ -77,11 +78,11 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
   public ActiveRule.Inheritance inheritance() {
     String inheritance = getNullableField(FIELD_ACTIVE_RULE_INHERITANCE);
     if (inheritance == null || inheritance.isEmpty() ||
-      inheritance.toLowerCase().contains("none")) {
+      containsIgnoreCase(inheritance, "none")) {
       return Inheritance.NONE;
-    } else if (inheritance.toLowerCase().contains("herit")) {
+    } else if (containsIgnoreCase(inheritance, "herit")) {
       return Inheritance.INHERITED;
-    } else if (inheritance.toLowerCase().contains("over")) {
+    } else if (containsIgnoreCase(inheritance, "over")) {
       return Inheritance.OVERRIDES;
     } else {
       throw new IllegalStateException("Value \"" + inheritance + "\" is not valid for rule's inheritance");

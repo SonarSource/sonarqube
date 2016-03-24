@@ -20,7 +20,7 @@
 package org.sonar.batch.profiling;
 
 import com.google.common.collect.Maps;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -31,7 +31,7 @@ import org.sonar.api.utils.System2;
 
 public class ModuleProfiling extends AbstractTimeProfiling {
 
-  private Map<Phase, PhaseProfiling> profilingPerPhase = new HashMap<>();
+  private Map<Phase, PhaseProfiling> profilingPerPhase = new EnumMap<>(Phase.class);
   private Map<String, ItemProfiling> profilingPerBatchStep = new LinkedHashMap<>();
   private final Project module;
 

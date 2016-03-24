@@ -109,13 +109,14 @@ public class Version implements Comparable<Version> {
     int major = 0;
     int minor = 0;
     int patch = 0;
-    if (split.size() > 0) {
+    int size = split.size();
+    if (size > 0) {
       major = parseSequence(split.get(0));
-      if (split.size() > 1) {
+      if (size > 1) {
         minor = parseSequence(split.get(1));
-        if (split.size() > 2) {
+        if (size > 2) {
           patch = parseSequence(split.get(2));
-          if (split.size() > 3) {
+          if (size > 3) {
             throw new IllegalArgumentException("Only 3 sequences are accepted");
           }
         }

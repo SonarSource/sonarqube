@@ -70,7 +70,6 @@ public class RulesProfileProvider extends ProviderAdapter {
 
   private static RulesProfile select(QProfile qProfile, ActiveRules activeRules) {
     RulesProfile deprecatedProfile = new RulesProfile();
-    // TODO deprecatedProfile.setVersion(qProfile.version());
     deprecatedProfile.setName(qProfile.getName());
     deprecatedProfile.setLanguage(qProfile.getLanguage());
     for (org.sonar.api.batch.rule.ActiveRule activeRule : activeRules.findByLanguage(qProfile.getLanguage())) {
