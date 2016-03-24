@@ -32,6 +32,7 @@ import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
+import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
@@ -49,6 +50,7 @@ import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
  */
 public class CollationChecker implements Startable {
 
+  private static final String UTF8 = "utf8";
   private final Database db;
   private final StatementExecutor statementExecutor;
 
@@ -80,6 +82,9 @@ public class CollationChecker implements Startable {
   private void check() throws SQLException {
     try (Connection connection = db.getDataSource().getConnection()) {
       switch (db.getDialect().getId()) {
+        case H2.ID:
+          // nothing to check
+          break;
         case Oracle.ID:
           checkOracle(connection);
           break;
@@ -92,6 +97,8 @@ public class CollationChecker implements Startable {
         case MsSql.ID:
           checkMsSql(connection);
           break;
+        default:
+          throw new IllegalArgumentException("Database not supported: " + db.getDialect().getId());
       }
     }
   }
@@ -100,9 +107,9 @@ public class CollationChecker implements Startable {
    * Oracle does not allow to override character set on tables. Only global charset is verified.
    */
   private void checkOracle(Connection connection) throws SQLException {
-    String charset = selectSingleCell(connection, "select value  from nls_database_parameters where parameter='NLS_CHARACTERSET'");
+    String charset = selectSingleCell(connection, "select value from nls_database_parameters where parameter='NLS_CHARACTERSET'");
     String sort = selectSingleCell(connection, "select value from nls_database_parameters where parameter='NLS_SORT'");
-    if (!containsIgnoreCase(charset, "UTF8") || !"BINARY".equalsIgnoreCase(sort)) {
+    if (!containsIgnoreCase(charset, UTF8) || !"BINARY".equalsIgnoreCase(sort)) {
       throw MessageException.of(format("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is %s and NLS_SORT is %s.", charset, sort));
     }
   }
@@ -126,14 +133,14 @@ public class CollationChecker implements Startable {
     for (String[] row : rows) {
       if (StringUtils.isBlank(row[2])) {
         mustCheckGlobalCollation = true;
-      } else if (!containsIgnoreCase(row[2], "utf8")) {
+      } else if (!containsIgnoreCase(row[2], UTF8)) {
         errors.add(format("%s.%s", row[0], row[1]));
       }
     }
 
     if (mustCheckGlobalCollation) {
       String charset = selectSingleCell(connection, "SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()");
-      if (!containsIgnoreCase(charset, "UTF8")) {
+      if (!containsIgnoreCase(charset, UTF8)) {
         throw MessageException.of(format("Database charset is %s. It must be UTF8.", charset));
       }
     }
@@ -155,7 +162,7 @@ public class CollationChecker implements Startable {
         "WHERE table_schema=database() and character_set_name is not null and collation_name is not null", 4 /* columns */);
     List<String> errors = new ArrayList<>();
     for (String[] row : rows) {
-      if (!containsIgnoreCase(row[2], "utf8") || endsWithIgnoreCase(row[3], "_ci")) {
+      if (!containsIgnoreCase(row[2], UTF8) || endsWithIgnoreCase(row[3], "_ci")) {
         errors.add(format("%s.%s", row[0], row[1]));
       }
     }
@@ -206,6 +213,7 @@ public class CollationChecker implements Startable {
     return statementExecutor.executeQuery(connection, sql, columns);
   }
 
+  @VisibleForTesting
   static class StatementExecutor {
     List<String[]> executeQuery(Connection connection, String sql, int columns) throws SQLException {
       Statement stmt = null;

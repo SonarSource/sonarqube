@@ -44,6 +44,11 @@ import static org.mockito.Mockito.when;
 
 public class CollationCheckerTest {
 
+  private static final String TABLE_ISSUES = "issues";
+  private static final String TABLE_PROJECTS = "projects";
+  private static final String COLUMN_KEE = "kee";
+  private static final String COLUMN_NAME = "name";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -61,35 +66,44 @@ public class CollationCheckerTest {
   }
 
   @Test
-  public void fail_if_oracle_is_not_utf8() throws Exception {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is LATIN and NLS_SORT is BINARY.");
+  public void support_oracle_al32utf8() throws Exception {
+    when(db.getDialect()).thenReturn(new Oracle());
+    answerSql(
+      singletonList(new String[] {"AL32UTF8"}), singletonList(new String[] {"BINARY"}));
 
+    underTest.start();
+  }
+
+  @Test
+  public void fail_if_oracle_is_not_utf8() throws Exception {
     when(db.getDialect()).thenReturn(new Oracle());
     answerSql(
       singletonList(new String[] {"LATIN"}), singletonList(new String[] {"BINARY"}));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is LATIN and NLS_SORT is BINARY.");
 
     underTest.start();
   }
 
   @Test
   public void fail_if_oracle_is_not_case_sensitive() throws Exception {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is UTF8 and NLS_SORT is LINGUISTIC.");
-
     when(db.getDialect()).thenReturn(new Oracle());
     answerSql(
       singletonList(new String[] {"UTF8"}), singletonList(new String[] {"LINGUISTIC"}));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is UTF8 and NLS_SORT is LINGUISTIC.");
 
     underTest.start();
   }
 
   @Test
   public void fail_if_can_not_get_oracle_charset() throws Exception {
-    expectedException.expect(MessageException.class);
-
     when(db.getDialect()).thenReturn(new Oracle());
     answerSql(Collections.<String[]>emptyList(), Collections.<String[]>emptyList());
+
+    expectedException.expect(MessageException.class);
 
     underTest.start();
   }
@@ -98,40 +112,40 @@ public class CollationCheckerTest {
   public void valid_postgresql() throws Exception {
     when(db.getDialect()).thenReturn(new PostgreSql());
     answerSql(asList(
-      new String[] {"issues", "kee", "utf8"},
-      new String[] {"projects", "name", "utf8"}));
+      new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8"},
+      new String[] {TABLE_PROJECTS, COLUMN_NAME, "utf8"}));
 
     underTest.start();
   }
 
   @Test
   public void fail_if_postgresql_has_non_utf8_column() throws Exception {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Database columns [projects.kee, projects.name] must have UTF8 charset.");
-
     when(db.getDialect()).thenReturn(new PostgreSql());
     answerSql(asList(
-      new String[] {"issues", "kee", "utf8"},
-      new String[] {"projects", "kee", "latin"},
-      new String[] {"projects", "name", "latin"}));
+      new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8"},
+      new String[] {TABLE_PROJECTS, COLUMN_KEE, "latin"},
+      new String[] {TABLE_PROJECTS, COLUMN_NAME, "latin"}));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Database columns [projects.kee, projects.name] must have UTF8 charset.");
 
     underTest.start();
   }
 
   @Test
   public void fail_if_postgresql_has_non_utf8_db() throws Exception {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Database charset is latin. It must be UTF8.");
-
     when(db.getDialect()).thenReturn(new PostgreSql());
     answerSql(
       // first request to get columns
       asList(
-        new String[] {"issues", "kee", "utf8"},
-        new String[] {"projects", "name", "" /* unset -> uses db collation */}),
+        new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8"},
+        new String[] {TABLE_PROJECTS, COLUMN_NAME, "" /* unset -> uses db collation */}),
 
       // second request to get db collation
       Arrays.<String[]>asList(new String[] {"latin"}));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Database charset is latin. It must be UTF8.");
 
     underTest.start();
   }
@@ -142,8 +156,8 @@ public class CollationCheckerTest {
     answerSql(
       // first request to get columns
       asList(
-        new String[] {"issues", "kee", "utf8"},
-        new String[] {"projects", "name", "" /* unset -> uses db collation */}),
+        new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8"},
+        new String[] {TABLE_PROJECTS, COLUMN_NAME, "" /* unset -> uses db collation */}),
 
       // second request to get db collation
       Arrays.<String[]>asList(new String[] {"utf8"}));
@@ -156,34 +170,34 @@ public class CollationCheckerTest {
   public void valid_mysql() throws Exception {
     when(db.getDialect()).thenReturn(new MySql());
     answerSql(asList(
-      new String[] {"issues", "kee", "utf8", "utf8_bin"},
-      new String[] {"projects", "name", "utf8", "utf8_bin"}));
+      new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin"},
+      new String[] {TABLE_PROJECTS, COLUMN_NAME, "utf8", "utf8_bin"}));
 
     underTest.start();
   }
 
   @Test
   public void fail_if_mysql_is_not_utf8_charset() throws Exception {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("UTF8 charset and case-sensitive collation are required for database columns [projects.kee, projects.name]");
-
     when(db.getDialect()).thenReturn(new MySql());
     answerSql(asList(
-      new String[] {"issues", "kee", "utf8", "utf8_bin"},
-      new String[] {"projects", "kee", "latin1", "utf8_bin"},
-      new String[] {"projects", "name", "latin1", "utf8_bin"}));
+      new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin"},
+      new String[] {TABLE_PROJECTS, COLUMN_KEE, "latin1", "utf8_bin"},
+      new String[] {TABLE_PROJECTS, COLUMN_NAME, "latin1", "utf8_bin"}));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("UTF8 charset and case-sensitive collation are required for database columns [projects.kee, projects.name]");
 
     underTest.start();
   }
 
   @Test
   public void fail_if_mysql_is_not_case_sensitive() throws Exception {
-    expectedException.expect(MessageException.class);
-
     when(db.getDialect()).thenReturn(new MySql());
     answerSql(asList(
-      new String[] {"issues", "kee", "utf8", "utf8_bin"},
-      new String[] {"projects", "name", "utf8", "latin1_swedish_ci"}));
+      new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin"},
+      new String[] {TABLE_PROJECTS, COLUMN_NAME, "utf8", "latin1_swedish_ci"}));
+
+    expectedException.expect(MessageException.class);
 
     underTest.start();
   }
@@ -192,22 +206,22 @@ public class CollationCheckerTest {
   public void valid_mssql() throws Exception {
     when(db.getDialect()).thenReturn(new MsSql());
     answerSql(asList(
-      new String[] {"issues", "kee", "Latin1_General_CS_AS"},
-      new String[] {"projects", "name", "Latin1_General_CS_AS"}));
+      new String[] {TABLE_ISSUES, COLUMN_KEE, "Latin1_General_CS_AS"},
+      new String[] {TABLE_PROJECTS, COLUMN_NAME, "Latin1_General_CS_AS"}));
 
     underTest.start();
   }
 
   @Test
   public void fail_if_mssql_is_not_case_sensitive() throws Exception {
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Case-sensitive and accent-sensitive charset (CS_AS) is required for database columns [projects.kee, projects.name]");
-
     when(db.getDialect()).thenReturn(new MsSql());
     answerSql(asList(
-      new String[] {"issues", "kee", "Latin1_General_CS_AS"},
-      new String[] {"projects", "kee", "Latin1_General_CI_AI"},
-      new String[] {"projects", "name", "Latin1_General_CI_AI"}));
+      new String[] {TABLE_ISSUES, COLUMN_KEE, "Latin1_General_CS_AS"},
+      new String[] {TABLE_PROJECTS, COLUMN_KEE, "Latin1_General_CI_AI"},
+      new String[] {TABLE_PROJECTS, COLUMN_NAME, "Latin1_General_CI_AI"}));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Case-sensitive and accent-sensitive charset (CS_AS) is required for database columns [projects.kee, projects.name]");
 
     underTest.start();
   }
