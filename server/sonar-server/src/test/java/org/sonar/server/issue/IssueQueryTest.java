@@ -45,7 +45,6 @@ public class IssueQueryTest {
       .componentUuids(newArrayList("org/struts/Action.java"))
       .moduleUuids(newArrayList("org.struts:core"))
       .rules(newArrayList(RuleKey.of("squid", "AvoidCycle")))
-      .actionPlans(newArrayList("AP1", "AP2"))
       .reporters(newArrayList("crunky"))
       .assignees(newArrayList("gargantua"))
       .languages(newArrayList("xoo"))
@@ -56,7 +55,6 @@ public class IssueQueryTest {
       .createdAfter(new Date())
       .createdBefore(new Date())
       .createdAt(new Date())
-      .planned(true)
       .resolved(true)
       .sort(IssueQuery.SORT_BY_ASSIGNEE)
       .asc(true)
@@ -75,11 +73,9 @@ public class IssueQueryTest {
     assertThat(query.assigned()).isTrue();
     assertThat(query.hideRules()).isTrue();
     assertThat(query.rules()).containsOnly(RuleKey.of("squid", "AvoidCycle"));
-    assertThat(query.actionPlans()).containsOnly("AP1", "AP2");
     assertThat(query.createdAfter()).isNotNull();
     assertThat(query.createdBefore()).isNotNull();
     assertThat(query.createdAt()).isNotNull();
-    assertThat(query.planned()).isTrue();
     assertThat(query.resolved()).isTrue();
     assertThat(query.sort()).isEqualTo(IssueQuery.SORT_BY_ASSIGNEE);
     assertThat(query.asc()).isTrue();
@@ -118,7 +114,6 @@ public class IssueQueryTest {
       .componentUuids(null)
       .moduleUuids(null)
       .statuses(null)
-      .actionPlans(null)
       .assignees(null)
       .reporters(null)
       .resolutions(null)
@@ -132,7 +127,6 @@ public class IssueQueryTest {
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
-    assertThat(query.actionPlans()).isEmpty();
     assertThat(query.assignees()).isEmpty();
     assertThat(query.reporters()).isEmpty();
     assertThat(query.resolutions()).isEmpty();
@@ -150,7 +144,6 @@ public class IssueQueryTest {
     assertThat(query.componentUuids()).isEmpty();
     assertThat(query.moduleUuids()).isEmpty();
     assertThat(query.statuses()).isEmpty();
-    assertThat(query.actionPlans()).isEmpty();
     assertThat(query.assignees()).isEmpty();
     assertThat(query.reporters()).isEmpty();
     assertThat(query.resolutions()).isEmpty();
@@ -161,7 +154,6 @@ public class IssueQueryTest {
     assertThat(query.assigned()).isNull();
     assertThat(query.createdAfter()).isNull();
     assertThat(query.createdBefore()).isNull();
-    assertThat(query.planned()).isNull();
     assertThat(query.resolved()).isNull();
     assertThat(query.sort()).isNull();
 

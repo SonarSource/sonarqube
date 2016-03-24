@@ -4,20 +4,26 @@
       "key": "82fd47d4-b650-4037-80bc-7b112bd4eac2",
       "assignee": "simon",
       "reporter": "fabrice",
-      "actionPlan": "AP-ABCD",
       "actions": [
-        "comment", "assign", "set_tags", "set_type", "assign_to_me", "plan"
+        "comment", "assign", "set_tags", "set_type", "assign_to_me"
       ],
       "transitions": [
         "confirm", "resolve"
       ]
     }
   ],
-  "actionPlans": [
+  "users": [
     {
-      "key": "AP-ABCD",
-      "name": "1.0",
-      "status": "OPEN"
+      "login": "fabrice",
+      "name": "Fabrice",
+      "email": "fabrice@email.com",
+      "active": true
+    },
+    {
+      "login": "simon",
+      "name": "Simon",
+      "email": "simon@email.com",
+      "active": true
     }
   ]
 }

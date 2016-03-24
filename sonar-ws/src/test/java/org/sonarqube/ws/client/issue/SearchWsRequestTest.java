@@ -466,24 +466,6 @@ public class SearchWsRequestTest {
   }
 
   @Test
-  public void getPlanned_returns_null_when_SearchWsRequest_has_just_been_instantiated() {
-    assertThat(underTest.getPlanned()).isNull();
-  }
-
-  @Test
-  public void setPlanned_accepts_null() {
-    underTest.setPlanned(null);
-  }
-
-  @Test
-  public void getPlanned_returns_boolean_from_setPlanned() {
-    underTest.setPlanned(true);
-    assertThat(underTest.getPlanned()).isTrue();
-    underTest.setPlanned(false);
-    assertThat(underTest.getPlanned()).isFalse();
-  }
-
-  @Test
   public void getResolved_returns_null_when_SearchWsRequest_has_just_been_instantiated() {
     assertThat(underTest.getResolved()).isNull();
   }

@@ -38,12 +38,9 @@ import org.junit.Test;
 import org.sonar.wsclient.base.HttpException;
 import org.sonar.wsclient.base.Paging;
 import org.sonar.wsclient.component.Component;
-import org.sonar.wsclient.issue.ActionPlan;
-import org.sonar.wsclient.issue.ActionPlanClient;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
-import org.sonar.wsclient.issue.NewActionPlan;
 import org.sonar.wsclient.issue.NewIssue;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
@@ -215,20 +212,6 @@ public class IssueSearchTest extends AbstractIssueTest {
 
   }
 
-  @Test
-  public void search_issues_by_action_plans() {
-    // Create an action plan
-    ActionPlan actionPlan = adminActionPlanClient().create(
-      NewActionPlan.create().name("Short term").project("com.sonarsource.it.samples:multi-modules-sample").description("Short term issues")
-        .deadLine(toDate("2113-01-31")));
-
-    // Associate this action plan to an issue
-    adminIssueClient().plan(searchRandomIssue().key(), actionPlan.key());
-
-    assertThat(search(IssueQuery.create().actionPlans(actionPlan.key())).list()).hasSize(1);
-    assertThat(search(IssueQuery.create().actionPlans("unknown")).list()).isEmpty();
-  }
-
   /**
    * SONAR-5132
    */
@@ -364,10 +347,6 @@ public class IssueSearchTest extends AbstractIssueTest {
       "name", "InvalidClassName",
       "markdown_description", "Invalid class name"
       ));
-  }
-
-  private static ActionPlanClient adminActionPlanClient() {
-    return ORCHESTRATOR.getServer().adminWsClient().actionPlanClient();
   }
 
 }

@@ -203,7 +203,8 @@ public class IssueDoc extends BaseDoc implements Issue {
   @Override
   @CheckForNull
   public String actionPlanKey() {
-    return getNullableField(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN);
+    // since 5.5, action plan is dropped. Kept for API compatibility
+    return null;
   }
 
   @CheckForNull
@@ -364,11 +365,6 @@ public class IssueDoc extends BaseDoc implements Issue {
 
   public IssueDoc setAuthorLogin(@Nullable String s) {
     setField(IssueIndexDefinition.FIELD_ISSUE_AUTHOR_LOGIN, s);
-    return this;
-  }
-
-  public IssueDoc setActionPlanKey(@Nullable String s) {
-    setField(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, s);
     return this;
   }
 

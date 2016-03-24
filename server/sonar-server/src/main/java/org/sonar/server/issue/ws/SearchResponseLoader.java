@@ -44,7 +44,7 @@ import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
-import static org.sonar.server.issue.ws.SearchAdditionalField.ACTION_PLANS;
+import static org.sonar.server.issue.ws.SearchAdditionalField.DEPRECATED_ACTION_PLANS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.COMMENTS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.RULES;
 import static org.sonar.server.issue.ws.SearchAdditionalField.TRANSITIONS;
@@ -81,7 +81,6 @@ public class SearchResponseLoader {
       // before loadUsers()
       loadComments(collector, dbSession, result);
       loadUsers(collector, dbSession, result);
-      loadActionPlans(collector, dbSession, result);
       loadComponents(collector, dbSession, result);
       loadActionsAndTransitions(collector, result);
       completeTotalEffortFromFacet(facets, result);
@@ -107,12 +106,6 @@ public class SearchResponseLoader {
           result.addUpdatableComment(comment.getKey());
         }
       }
-    }
-  }
-
-  private void loadActionPlans(Collector collector, DbSession dbSession, SearchResponseData result) {
-    if (collector.contains(ACTION_PLANS)) {
-      result.setActionPlans(dbClient.actionPlanDao().selectByKeys(dbSession, collector.<String>get(ACTION_PLANS)));
     }
   }
 
@@ -178,7 +171,7 @@ public class SearchResponseLoader {
       for (IssueDto issue : issues) {
         componentUuids.add(issue.getComponentUuid());
         projectUuids.add(issue.getProjectUuid());
-        add(ACTION_PLANS, issue.getActionPlanKey());
+        add(DEPRECATED_ACTION_PLANS, issue.getActionPlanKey());
         add(RULES, issue.getRuleKey());
         add(USERS, issue.getReporter());
         add(USERS, issue.getAssignee());

@@ -82,10 +82,10 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.AUTHORS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AT;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_ASSIGNED_TO_ME;
@@ -114,7 +114,7 @@ public class IssueIndex extends BaseIndex {
     SEVERITIES,
     STATUSES,
     RESOLUTIONS,
-    ACTION_PLANS,
+    DEPRECATED_ACTION_PLANS,
     PROJECT_UUIDS,
     RULES,
     ASSIGNEES,
@@ -257,14 +257,6 @@ public class IssueIndex extends BaseIndex {
       filters.put(IS_ASSIGNED_FILTER, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
     }
 
-    // Issue is planned Filter
-    String isPlanned = "__isPlanned";
-    if (BooleanUtils.isTrue(query.planned())) {
-      filters.put(isPlanned, FilterBuilders.existsFilter(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN));
-    } else if (BooleanUtils.isFalse(query.planned())) {
-      filters.put(isPlanned, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN));
-    }
-
     // Issue is Resolved Filter
     String isResolved = "__isResolved";
     if (BooleanUtils.isTrue(query.resolved())) {
@@ -275,7 +267,6 @@ public class IssueIndex extends BaseIndex {
 
     // Field Filters
     filters.put(IssueIndexDefinition.FIELD_ISSUE_KEY, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_KEY, query.issueKeys()));
-    filters.put(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN, query.actionPlans()));
     filters.put(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE, query.assignees()));
 
     addComponentRelatedFilters(query, filters);
@@ -432,9 +423,6 @@ public class IssueIndex extends BaseIndex {
         esSearch.addAggregation(createAssigneesFacet(query, filters, esQuery));
       }
       addAssignedToMeFacetIfNeeded(esSearch, options, query, filters, esQuery);
-      if (options.getFacets().contains(ACTION_PLANS)) {
-        esSearch.addAggregation(createActionPlansFacet(query, filters, esQuery));
-      }
       if (options.getFacets().contains(CREATED_AT)) {
         esSearch.addAggregation(getCreatedAtFacet(query, filters, esQuery));
       }
@@ -603,30 +591,6 @@ public class IssueIndex extends BaseIndex {
     BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
     facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation);
-
-    // Add missing facet for unresolved issues
-    facetTopAggregation.subAggregation(
-      addEffortAggregationIfNeeded(query, AggregationBuilders
-        .missing(facetName + FACET_SUFFIX_MISSING)
-        .field(fieldName)));
-
-    return AggregationBuilders
-      .global(facetName)
-      .subAggregation(facetTopAggregation);
-  }
-
-  private static AggregationBuilder createActionPlansFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
-    String fieldName = IssueIndexDefinition.FIELD_ISSUE_ACTION_PLAN;
-    String facetName = ACTION_PLANS;
-
-    // Same as in super.stickyFacetBuilder
-    Map<String, FilterBuilder> actionPlanFilters = Maps.newHashMap(filters);
-    actionPlanFilters.remove("__isPlanned");
-    actionPlanFilters.remove(fieldName);
-    StickyFacetBuilder actionPlanFacetBuilder = newStickyFacetBuilder(query, actionPlanFilters, esQuery);
-    BoolFilterBuilder facetFilter = actionPlanFacetBuilder.getStickyFacetFilter(fieldName);
-    FilterAggregationBuilder facetTopAggregation = actionPlanFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
-    facetTopAggregation = actionPlanFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, query.actionPlans().toArray());
 
     // Add missing facet for unresolved issues
     facetTopAggregation.subAggregation(

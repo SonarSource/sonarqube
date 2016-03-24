@@ -49,7 +49,6 @@ public class SearchWsRequest {
   private Boolean onComponentOnly;
   private Integer page;
   private Integer pageSize;
-  private Boolean planned;
   private List<String> projectKeys;
   private List<String> projectUuids;
   private List<String> projects;
@@ -281,16 +280,6 @@ public class SearchWsRequest {
 
   public SearchWsRequest setPageSize(int pageSize) {
     this.pageSize = pageSize;
-    return this;
-  }
-
-  @CheckForNull
-  public Boolean getPlanned() {
-    return planned;
-  }
-
-  public SearchWsRequest setPlanned(@Nullable Boolean planned) {
-    this.planned = planned;
     return this;
   }
 

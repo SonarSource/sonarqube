@@ -118,7 +118,6 @@ import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
 import org.sonar.server.issue.actionplan.ActionPlanService;
-import org.sonar.server.issue.actionplan.ActionPlanWs;
 import org.sonar.server.issue.filter.IssueFilterWsModule;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -601,7 +600,6 @@ public class PlatformLevel4 extends PlatformLevel {
       IssueFilterWsModule.class,
 
       // action plan
-      ActionPlanWs.class,
       ActionPlanService.class,
 
       // issues actions

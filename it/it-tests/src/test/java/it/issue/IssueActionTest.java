@@ -26,20 +26,16 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.issue.ActionPlan;
-import org.sonar.wsclient.issue.ActionPlanClient;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueComment;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
-import org.sonar.wsclient.issue.NewActionPlan;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static util.ItUtils.toDate;
 import static util.ItUtils.verifyHttpException;
 
 @Category(QaOnly.class)
@@ -165,67 +161,8 @@ public class IssueActionTest extends AbstractIssueTest {
     }
   }
 
-  /**
-   * SONAR-4290
-   */
-  @Test
-  public void plan() {
-    assertThat(issue.actionPlan()).isNull();
-
-    // Set action plan to issue
-    ActionPlan newActionPlan = adminActionPlanClient().create(NewActionPlan.create().name("Short term").project("sample")
-      .description("Short term issues").deadLine(toDate("2113-01-31")));
-    assertThat(newActionPlan.key()).isNotNull();
-    adminIssueClient().plan(issue.key(), newActionPlan.key());
-    Assertions.assertThat(search(IssueQuery.create().actionPlans(newActionPlan.key())).list()).hasSize(1);
-
-    projectAnalysis.run();
-    Issue reloaded = searchIssueByKey(issue.key());
-    assertThat(reloaded.actionPlan()).isEqualTo(newActionPlan.key());
-    assertThat(reloaded.creationDate()).isEqualTo(issue.creationDate());
-    ActionPlan actionPlan = search(IssueQuery.create().actionPlans(newActionPlan.key())).actionPlans(reloaded);
-    assertThat(actionPlan.name()).isEqualTo(newActionPlan.name());
-    assertThat(actionPlan.deadLine()).isEqualTo(newActionPlan.deadLine());
-  }
-
-  @Test
-  public void fail_plan_if_action_plan_does_not_exist() {
-    assertThat(issue.actionPlan()).isNull();
-    try {
-      adminIssueClient().plan(issue.key(), "unknown");
-      fail();
-    } catch (Exception e) {
-      verifyHttpException(e, 400);
-    }
-  }
-
-  @Test
-  public void unplan() {
-    assertThat(issue.actionPlan()).isNull();
-
-    // Set action plan to issue
-    ActionPlan newActionPlan = adminActionPlanClient().create(NewActionPlan.create().name("Short term").project("sample")
-      .description("Short term issues").deadLine(toDate("2113-01-31")));
-    assertThat(newActionPlan.key()).isNotNull();
-    adminIssueClient().plan(issue.key(), newActionPlan.key());
-    Assertions.assertThat(search(IssueQuery.create().actionPlans(newActionPlan.key())).list()).hasSize(1);
-
-    // Unplan
-    adminIssueClient().plan(issue.key(), null);
-    Assertions.assertThat(search(IssueQuery.create().actionPlans(newActionPlan.key())).list()).hasSize(0);
-
-    projectAnalysis.run();
-    Issue reloaded = searchIssueByKey(issue.key());
-    assertThat(reloaded.actionPlan()).isNull();
-    assertThat(reloaded.creationDate()).isEqualTo(issue.creationDate());
-  }
-
   private static List<Issue> searchIssuesBySeverities(String componentKey, String... severities) {
     return searchIssues(IssueQuery.create().componentRoots(componentKey).severities(severities));
-  }
-
-  private static ActionPlanClient adminActionPlanClient() {
-    return ORCHESTRATOR.getServer().adminWsClient().actionPlanClient();
   }
 
 }

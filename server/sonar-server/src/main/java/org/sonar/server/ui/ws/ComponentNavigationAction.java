@@ -49,8 +49,8 @@ import org.sonar.db.dashboard.ActiveDashboardDao;
 import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.ce.ws.ActivityAction;
+import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.ui.ViewProxy;
 import org.sonar.server.ui.Views;
 import org.sonar.server.user.UserSession;
@@ -235,7 +235,8 @@ public class ComponentNavigationAction implements NavigationWsAction {
     json.prop("showQualityProfiles", isProject);
     json.prop("showQualityGates", isProject);
     json.prop("showManualMeasures", isAdmin);
-    json.prop("showActionPlans", isAdmin && isProject);
+    // TODO delete showActionPlans when UI is updated
+    json.prop("showActionPlans", false);
     json.prop("showLinks", isAdmin && isProject);
     json.prop("showPermissions", isAdmin && componentTypeHasProperty(component, PROPERTY_HAS_ROLE_POLICY));
     json.prop("showHistory", isAdmin && componentTypeHasProperty(component, PROPERTY_MODIFIABLE_HISTORY));

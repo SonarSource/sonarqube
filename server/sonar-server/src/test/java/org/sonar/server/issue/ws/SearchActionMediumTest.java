@@ -35,8 +35,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.issue.ActionPlanDao;
-import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDao;
@@ -215,55 +213,18 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  public void issue_with_action_plan() throws Exception {
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
-    setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "FILE_ID").setKey("FILE_KEY"));
-
-    tester.get(ActionPlanDao.class).save(new ActionPlanDto()
-      .setKey("AP-ABCD")
-      .setName("1.0")
-      .setStatus("OPEN")
-      .setProjectId(project.getId())
-      .setUserLogin("simon")
-      .setDeadLine(DateUtils.parseDateTime("2014-01-24T19:10:03+0000"))
-      .setCreatedAt(DateUtils.parseDateTime("2014-01-22T19:10:03+0000"))
-      .setUpdatedAt(DateUtils.parseDateTime("2014-01-23T19:10:03+0000")));
-
-    IssueDto issue = IssueTesting.newDto(newRule(), file, project)
-      .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
-      .setActionPlanKey("AP-ABCD");
-    db.issueDao().insert(session, issue);
-    session.commit();
-    tester.get(IssueIndexer.class).indexAll();
-
-    WsTester.Result result = wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
-      .setParam("additionalFields", "actionPlans")
-      .execute();
-    result.assertJson(this.getClass(), "issue_with_action_plan.json");
-  }
-
-  @Test
   public void load_additional_fields() throws Exception {
     db.userDao().insert(session, new UserDto().setLogin("simon").setName("Simon").setEmail("simon@email.com"));
     db.userDao().insert(session, new UserDto().setLogin("fabrice").setName("Fabrice").setEmail("fabrice@email.com"));
-    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("PROJECT_ID").setKey("PROJECT_KEY"));
+    ComponentDto project = insertComponent(ComponentTesting.newProjectDto("PROJECT_ID").setKey("PROJECT_KEY").setLanguage("java"));
     setDefaultProjectPermission(project);
-    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "FILE_ID").setKey("FILE_KEY"));
-
-    tester.get(ActionPlanDao.class).save(new ActionPlanDto()
-      .setKey("AP-ABCD")
-      .setName("1.0")
-      .setStatus("OPEN")
-      .setProjectId(project.getId())
-      .setUserLogin("simon"));
+    ComponentDto file = insertComponent(ComponentTesting.newFileDto(project, "FILE_ID").setKey("FILE_KEY").setLanguage("js"));
 
     IssueDto issue = IssueTesting.newDto(newRule(), file, project)
       .setKee("82fd47d4-b650-4037-80bc-7b112bd4eac2")
       .setAuthorLogin("John")
       .setAssignee("simon")
-      .setReporter("fabrice")
-      .setActionPlanKey("AP-ABCD");
+      .setReporter("fabrice");
     db.issueDao().insert(session, issue);
     session.commit();
     tester.get(IssueIndexer.class).indexAll();

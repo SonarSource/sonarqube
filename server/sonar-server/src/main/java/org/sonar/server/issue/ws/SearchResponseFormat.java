@@ -36,7 +36,6 @@ import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbCommons;
@@ -81,9 +80,6 @@ public class SearchResponseFormat {
     if (fields.contains(SearchAdditionalField.USERS)) {
       response.setUsers(formatUsers(data));
     }
-    if (fields.contains(SearchAdditionalField.ACTION_PLANS)) {
-      response.setActionPlans(formatActionPlans(data));
-    }
     if (fields.contains(SearchAdditionalField.LANGUAGES)) {
       response.setLanguages(formatLanguages());
     }
@@ -105,7 +101,6 @@ public class SearchResponseFormat {
     response.addAllComponents(formatComponents(data));
     response.addAllRules(formatRules(data).getRulesList());
     response.addAllUsers(formatUsers(data).getUsersList());
-    response.addAllActionPlans(formatActionPlans(data).getActionPlansList());
     return response.build();
   }
 
@@ -174,9 +169,6 @@ public class SearchResponseFormat {
       issueBuilder.setResolution(dto.getResolution());
     }
     issueBuilder.setStatus(dto.getStatus());
-    if (!Strings.isNullOrEmpty(dto.getActionPlanKey())) {
-      issueBuilder.setActionPlan(dto.getActionPlanKey());
-    }
     issueBuilder.setMessage(nullToEmpty(dto.getMessage()));
     issueBuilder.addAllTags(dto.getTags());
     Long effort = dto.getEffort();
@@ -353,28 +345,6 @@ public class SearchResponseFormat {
       }
     }
     return wsUsers;
-  }
-
-  private Issues.ActionPlans.Builder formatActionPlans(SearchResponseData data) {
-    Issues.ActionPlans.Builder wsActionPlans = Issues.ActionPlans.newBuilder();
-    List<ActionPlanDto> actionPlans = data.getActionPlans();
-    if (actionPlans != null) {
-      Issues.ActionPlan.Builder planBuilder = Issues.ActionPlan.newBuilder();
-      for (ActionPlanDto actionPlan : actionPlans) {
-        planBuilder
-          .clear()
-          .setKey(actionPlan.getKey())
-          .setName(nullToEmpty(actionPlan.getName()))
-          .setStatus(nullToEmpty(actionPlan.getStatus()))
-          .setProject(nullToEmpty(actionPlan.getProjectKey()));
-        Date deadLine = actionPlan.getDeadLine();
-        if (deadLine != null) {
-          planBuilder.setDeadLine(DateUtils.formatDateTime(deadLine));
-        }
-        wsActionPlans.addActionPlans(planBuilder);
-      }
-    }
-    return wsActionPlans;
   }
 
   private Issues.Languages.Builder formatLanguages() {

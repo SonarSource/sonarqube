@@ -57,7 +57,6 @@ import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASC;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNED;
@@ -72,6 +71,7 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_BEFORE;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_FACET_MODE_DEBT;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_ASSIGNED_TO_ME;
@@ -124,13 +124,15 @@ public class SearchAction implements IssuesWsAction {
       .setHandler(this)
       .setDescription(
         "Search for issues. Requires Browse permission on project(s).<br/>" +
-          "Since 5.5, response field 'debt' has been renamed to 'effort'")
+          "Since 5.5, response field 'debt' has been renamed to 'effort'.<br/>" +
+          "Since 5.5, response field 'actionPlan' has been removed")
       .setSince("3.6")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
     action.createParam(Param.FACETS)
-      .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.")
+      .setDescription("Comma-separated list of the facets to be computed. No facet is computed by default.<br/>" +
+        "Since 5.5, facet 'actionPlans' is deprecated.")
       .setPossibleValues(IssueIndex.SUPPORTED_FACETS);
     action.createParam(FACET_MODE)
       .setDefaultValue(FACET_MODE_COUNT)
@@ -140,7 +142,7 @@ public class SearchAction implements IssuesWsAction {
     action.addSortParams(IssueQuery.SORTS, null, true);
     action.createParam(ADDITIONAL_FIELDS)
       .setSince("5.2")
-      .setDescription("Comma-separated list of the optional fields to be returned in response.")
+      .setDescription("Comma-separated list of the optional fields to be returned in response. Action plans are dropped in 5.5, it is not returned in the response.")
       .setPossibleValues(SearchAdditionalField.possibleValues());
     addComponentRelatedParams(action);
     action.createParam(ISSUES)
@@ -172,11 +174,13 @@ public class SearchAction implements IssuesWsAction {
       .setSince("5.5")
       .setPossibleValues(RuleType.values())
       .setExampleValue(format("%s,%s", RuleType.CODE_SMELL, RuleType.BUG));
-    action.createParam(ACTION_PLANS)
-      .setDescription("Comma-separated list of action plan keys (not names)")
+    action.createParam(DEPRECATED_ACTION_PLANS)
+      .setDescription("Action plans are dropped in 5.5. This parameter has no effect. Comma-separated list of action plan keys (not names)")
+      .setDeprecatedSince("5.5")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
     action.createParam(PLANNED)
-      .setDescription("To retrieve issues associated to an action plan or not")
+      .setDescription("Since 5.5 this parameter is no more used, as action plan feature has been dropped")
+      .setDeprecatedSince("5.5")
       .setBooleanPossibleValues();
     action.createParam(REPORTERS)
       .setDescription("Comma-separated list of reporter logins")
@@ -362,7 +366,7 @@ public class SearchAction implements IssuesWsAction {
     if (actionPlansFromRequest != null) {
       actionPlans.addAll(actionPlansFromRequest);
     }
-    addMandatoryValuesToFacet(facets, ACTION_PLANS, actionPlans);
+    addMandatoryValuesToFacet(facets, DEPRECATED_ACTION_PLANS, actionPlans);
     addMandatoryValuesToFacet(facets, COMPONENT_UUIDS, request.getComponentUuids());
 
     for (String facetName : request.getFacets()) {
@@ -411,7 +415,6 @@ public class SearchAction implements IssuesWsAction {
     collector.addComponentUuids(facets.getBucketKeys(MODULE_UUIDS));
     collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(ASSIGNEES));
     collector.addAll(SearchAdditionalField.USERS, facets.getBucketKeys(REPORTERS));
-    collector.addAll(SearchAdditionalField.ACTION_PLANS, facets.getBucketKeys(ACTION_PLANS));
   }
 
   private void collectRequestParams(SearchResponseLoader.Collector collector, SearchWsRequest request) {
@@ -421,12 +424,10 @@ public class SearchAction implements IssuesWsAction {
     collector.addComponentUuids(request.getComponentRootUuids());
     collector.addAll(SearchAdditionalField.USERS, request.getAssignees());
     collector.addAll(SearchAdditionalField.USERS, request.getReporters());
-    collector.addAll(SearchAdditionalField.ACTION_PLANS, request.getActionPlans());
   }
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
     return new SearchWsRequest()
-      .setActionPlans(request.paramAsStrings(ACTION_PLANS))
       .setAdditionalFields(request.paramAsStrings(ADDITIONAL_FIELDS))
       .setAsc(request.paramAsBoolean(ASC))
       .setAssigned(request.paramAsBoolean(ASSIGNED))
@@ -451,7 +452,6 @@ public class SearchAction implements IssuesWsAction {
       .setOnComponentOnly(request.paramAsBoolean(ON_COMPONENT_ONLY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
-      .setPlanned(request.paramAsBoolean(PLANNED))
       .setProjectKeys(request.paramAsStrings(PROJECT_KEYS))
       .setProjectUuids(request.paramAsStrings(PROJECT_UUIDS))
       .setProjects(request.paramAsStrings(PROJECTS))

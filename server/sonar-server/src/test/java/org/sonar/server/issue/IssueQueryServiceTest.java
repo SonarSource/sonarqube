@@ -168,7 +168,6 @@ public class IssueQueryServiceTest {
     assertThat(query.tags()).containsOnly("tag1", "tag2");
     assertThat(query.onComponentOnly()).isFalse();
     assertThat(query.assigned()).isTrue();
-    assertThat(query.planned()).isTrue();
     assertThat(query.hideRules()).isTrue();
     assertThat(query.rules()).hasSize(2);
     assertThat(query.directories()).containsOnly("/src/main/java/example");

@@ -31,7 +31,11 @@ import org.sonarqube.ws.client.issue.SearchWsRequest;
 public enum SearchAdditionalField {
 
   ACTIONS("actions"),
-  ACTION_PLANS("actionPlans"),
+  /**
+   * @deprecated since 5.5, action plan feature has been removed
+   */
+  @Deprecated
+  DEPRECATED_ACTION_PLANS("actionPlans"),
   COMMENTS("comments"),
   LANGUAGES("languages"),
   RULES("rules"),

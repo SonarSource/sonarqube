@@ -180,7 +180,6 @@ public class IssueIndexBenchmarkTest {
       issue.setFilePath("src/main/java/Foo" + currentFile);
       issue.setComponentUuid("FILE" + currentFile);
       issue.setProjectUuid("PROJECT" + currentProject);
-      issue.setActionPlanKey("PLAN" + currentProject);
       issue.setAssignee(users.next());
       issue.setAuthorLogin(users.next());
       issue.setLine(RandomUtils.nextInt());

@@ -171,7 +171,8 @@ public class IssuesWs implements WebService {
       .setPossibleValues(RuleType.ALL_NAMES)
       .setSince("5.5");
     action.createParam("plan.plan")
-      .setDescription("To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")
+      .setDescription("Deprecated in 5.5. Has no effect. To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")
+      .setDeprecatedSince("5.5")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
     action.createParam("do_transition.transition")
       .setDescription("Transition")

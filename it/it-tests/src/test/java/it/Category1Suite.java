@@ -20,7 +20,6 @@
 package it;
 
 import com.sonar.orchestrator.Orchestrator;
-import it.actionPlan.ActionPlanTest;
 import it.administration.UsersPageTest;
 import it.authorisation.DashboardSharingPermissionTest;
 import it.authorisation.ExecuteAnalysisPermissionTest;
@@ -104,8 +103,6 @@ import static util.ItUtils.xooPlugin;
   SincePreviousVersionHistoryTest.class,
   SinceXDaysHistoryTest.class,
   TimeMachineTest.class,
-  // action plan
-  ActionPlanTest.class,
   // source code
   EncodingTest.class,
   HighlightingTest.class,

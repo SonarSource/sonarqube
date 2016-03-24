@@ -464,49 +464,6 @@ public class IssueIndexTest {
   }
 
   @Test
-  public void filter_by_action_plans() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project);
-
-    indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
-      IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
-
-    assertThat(index.search(IssueQuery.builder(userSessionRule).actionPlans(newArrayList("plan1")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).actionPlans(newArrayList("plan1", "plan2")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).actionPlans(newArrayList("unknown")).build(), new SearchOptions()).getDocs()).isEmpty();
-  }
-
-  @Test
-  public void facets_on_action_plans() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project);
-
-    indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
-      IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
-
-    SearchResult<IssueDoc> result = index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions().addFacets(newArrayList("actionPlans")));
-    assertThat(result.getFacets().getNames()).containsOnly("actionPlans");
-    assertThat(result.getFacets().get("actionPlans")).containsOnly(entry("plan1", 1L), entry("plan2", 1L));
-  }
-
-  @Test
-  public void filter_by_planned() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project);
-
-    indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("AP-KEY"),
-      IssueTesting.newDoc("ISSUE2", file).setActionPlanKey(null),
-      IssueTesting.newDoc("ISSUE3", file).setActionPlanKey(null));
-
-    assertThat(index.search(IssueQuery.builder(userSessionRule).planned(true).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).planned(false).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).planned(null).build(), new SearchOptions()).getDocs()).hasSize(3);
-  }
-
-  @Test
   public void filter_by_rules() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);

@@ -159,7 +159,7 @@ class Api::IssuesController < Api::ApiController
   # -- Optional parameters
   # 'assign.assignee' to assign all issues to a user or un-assign.
   # 'set_severity.severity' to change the severity of all issues.
-  # 'plan.plan' to plan all issues to an action plan or unlink.
+  # Action Plan are dropped in 5.5'plan.plan' to plan all issues to an action plan or unlink.
   # 'do_transition.transition' to execute a transition on all issues.
   # 'add_tags.tags' to add tags on all issues.
   # 'remove_tags.tags' to remove tags on all issues.

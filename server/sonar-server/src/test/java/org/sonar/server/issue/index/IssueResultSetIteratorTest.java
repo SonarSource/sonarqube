@@ -82,7 +82,6 @@ public class IssueResultSetIteratorTest {
     assertThat(issue.tags()).containsOnly("tag1", "tag2", "tag3");
     assertThat(issue.effort().toMinutes()).isGreaterThan(0L);
     assertThat(issue.gap()).isEqualTo(2d);
-    assertThat(issue.actionPlanKey()).isEqualTo("PLAN1");
     assertThat(issue.attribute("JIRA")).isEqualTo("http://jira.com");
     assertThat(issue.type().getDbConstant()).isEqualTo(2);
   }

@@ -42,7 +42,9 @@ message SearchWsResponse {
   repeated Component components = 7;
   optional sonarqube.ws.commons.Rules rules = 8;
   optional sonarqube.ws.commons.Users users = 9;
-  optional ActionPlans actionPlans = 10;
+
+  // Deprecated since 5.5, action plan has been removed
+  optional ActionPlans unusedActionPlans = 10;
   optional Languages languages = 11;
   optional sonarqube.ws.commons.Facets facets = 12;
 }
@@ -53,7 +55,8 @@ message Operation {
   repeated Component components = 2;
   repeated sonarqube.ws.commons.Rule rules = 3;
   repeated sonarqube.ws.commons.User users = 4;
-  repeated ActionPlan actionPlans = 5;
+  // Deprecated since 5.5, action plan has been removed
+  repeated ActionPlan actiunusedActionPlansonPlans = 5;
 }
 
 message Issue {
@@ -81,7 +84,9 @@ message Issue {
   // SCM login of the committer who introduced the issue
   optional string author = 17;
 
+  // Deprecated since 5.5, action plan has been removed
   optional string actionPlan = 18;
+
   repeated string tags = 19;
 
   // the transitions allowed for the requesting user.
@@ -136,6 +141,7 @@ message Comments {
   repeated Comment comments = 1;
 }
 
+// Deprecated since 5.5
 message ActionPlan {
   optional string key = 1;
   optional string name = 2;
@@ -147,6 +153,7 @@ message ActionPlan {
   optional string project = 5;
 }
 
+// Deprecated since 5.5
 message ActionPlans {
   repeated ActionPlan actionPlans = 1;
 }

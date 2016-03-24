@@ -53,16 +53,15 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "i.kee",
     "root.uuid",
     "i.updated_at",
-    "i.action_plan_key",
     "i.assignee",
     "i.gap",
     "i.issue_attributes",
     "i.line",
     "i.message",
     "i.resolution",
+    "i.severity",
 
     // column 11
-    "i.severity",
     "i.manual_severity",
     "i.checksum",
     "i.status",
@@ -72,9 +71,9 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     "i.issue_close_date",
     "i.issue_creation_date",
     "i.issue_update_date",
+    "r.plugin_name",
 
     // column 21
-    "r.plugin_name",
     "r.plugin_rule_key",
     "r.language",
     "p.uuid",
@@ -162,38 +161,37 @@ class IssueResultSetIterator extends ResultSetIterator<IssueDoc> {
     doc.setKey(key);
     doc.setProjectUuid(projectUuid);
     doc.setTechnicalUpdateDate(new Date(rs.getLong(3)));
-    doc.setActionPlanKey(rs.getString(4));
-    doc.setAssignee(rs.getString(5));
-    doc.setGap(DatabaseUtils.getDouble(rs, 6));
-    doc.setAttributes(rs.getString(7));
-    doc.setLine(DatabaseUtils.getInt(rs, 8));
-    doc.setMessage(rs.getString(9));
-    doc.setResolution(rs.getString(10));
-    doc.setSeverity(rs.getString(11));
-    doc.setManualSeverity(rs.getBoolean(12));
-    doc.setChecksum(rs.getString(13));
-    doc.setStatus(rs.getString(14));
-    doc.setEffort(getLong(rs, 15));
-    doc.setReporter(rs.getString(16));
-    doc.setAuthorLogin(rs.getString(17));
-    doc.setFuncCloseDate(longToDate(getLong(rs, 18)));
-    doc.setFuncCreationDate(longToDate(getLong(rs, 19)));
-    doc.setFuncUpdateDate(longToDate(getLong(rs, 20)));
-    String ruleRepo = rs.getString(21);
-    String ruleKey = rs.getString(22);
+    doc.setAssignee(rs.getString(4));
+    doc.setGap(DatabaseUtils.getDouble(rs, 5));
+    doc.setAttributes(rs.getString(6));
+    doc.setLine(DatabaseUtils.getInt(rs, 7));
+    doc.setMessage(rs.getString(8));
+    doc.setResolution(rs.getString(9));
+    doc.setSeverity(rs.getString(10));
+    doc.setManualSeverity(rs.getBoolean(11));
+    doc.setChecksum(rs.getString(12));
+    doc.setStatus(rs.getString(13));
+    doc.setEffort(getLong(rs, 14));
+    doc.setReporter(rs.getString(15));
+    doc.setAuthorLogin(rs.getString(16));
+    doc.setFuncCloseDate(longToDate(getLong(rs, 17)));
+    doc.setFuncCreationDate(longToDate(getLong(rs, 18)));
+    doc.setFuncUpdateDate(longToDate(getLong(rs, 19)));
+    String ruleRepo = rs.getString(20);
+    String ruleKey = rs.getString(21);
     doc.setRuleKey(RuleKey.of(ruleRepo, ruleKey).toString());
-    doc.setLanguage(rs.getString(23));
-    doc.setComponentUuid(rs.getString(24));
-    String moduleUuidPath = rs.getString(25);
+    doc.setLanguage(rs.getString(22));
+    doc.setComponentUuid(rs.getString(23));
+    String moduleUuidPath = rs.getString(24);
     doc.setModuleUuid(extractModule(moduleUuidPath));
     doc.setModuleUuidPath(moduleUuidPath);
-    String scope = rs.getString(27);
-    String filePath = extractFilePath(rs.getString(26), scope);
+    String scope = rs.getString(26);
+    String filePath = extractFilePath(rs.getString(25), scope);
     doc.setFilePath(filePath);
     doc.setDirectoryPath(extractDirPath(doc.filePath(), scope));
-    String tags = rs.getString(28);
+    String tags = rs.getString(27);
     doc.setTags(ImmutableList.copyOf(TAGS_SPLITTER.split(tags == null ? "" : tags)));
-    doc.setType(RuleType.valueOf(rs.getInt(29)));
+    doc.setType(RuleType.valueOf(rs.getInt(28)));
     return doc;
   }
 }

@@ -24,7 +24,6 @@ import org.sonarqube.ws.client.BaseService;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASC;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNED;
@@ -39,6 +38,7 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AT;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_BEFORE;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_IN_LAST;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.DEPRECATED_ACTION_PLANS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.DIRECTORIES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.FILE_UUIDS;
@@ -46,7 +46,6 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.ISSUES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.LANGUAGES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.MODULE_UUIDS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ON_COMPONENT_ONLY;
-import static org.sonarqube.ws.client.issue.IssueFilterParameters.PLANNED;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECTS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECT_KEYS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.PROJECT_UUIDS;
@@ -68,7 +67,7 @@ public class IssuesService extends BaseService {
   public SearchWsResponse search(SearchWsRequest request) {
     return call(
       new GetRequest(path("search"))
-        .setParam(ACTION_PLANS, inlineMultipleParamValue(request.getActionPlans()))
+        .setParam(DEPRECATED_ACTION_PLANS, inlineMultipleParamValue(request.getActionPlans()))
         .setParam(ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
         .setParam(ASC, request.getAsc())
         .setParam(ASSIGNED, request.getAssigned())
@@ -93,7 +92,6 @@ public class IssuesService extends BaseService {
         .setParam(ON_COMPONENT_ONLY, request.getOnComponentOnly())
         .setParam("p", request.getPage())
         .setParam("ps", request.getPageSize())
-        .setParam(PLANNED, request.getPlanned())
         .setParam(PROJECT_KEYS, inlineMultipleParamValue(request.getProjectKeys()))
         .setParam(PROJECT_UUIDS, inlineMultipleParamValue(request.getProjectUuids()))
         .setParam(PROJECTS, inlineMultipleParamValue(request.getProjects()))

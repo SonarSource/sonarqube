@@ -12,7 +12,6 @@
       "assignee": "simon",
       "reporter": "fabrice",
       "author": "John",
-      "actionPlan": "AP-ABCD",
       "tags": [
         "bug",
         "owasp"

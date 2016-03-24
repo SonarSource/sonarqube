@@ -32,7 +32,6 @@ public class IssueWsModule extends Module {
       AssignAction.class,
       CreateAction.class,
       DoTransitionAction.class,
-      PlanAction.class,
       SearchAction.class,
       SetSeverityAction.class,
       TagsAction.class,

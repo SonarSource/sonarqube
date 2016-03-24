@@ -183,21 +183,6 @@ public class IssueIndexDebtTest {
   }
 
   @Test
-  public void facets_on_action_plans() {
-    ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project);
-
-    indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setActionPlanKey("plan1"),
-      IssueTesting.newDoc("ISSUE2", file).setActionPlanKey("plan2"));
-
-    SearchResult<IssueDoc> result = index.search(newQueryBuilder().build(), new SearchOptions().addFacets(newArrayList("actionPlans")));
-    assertThat(result.getFacets().getNames()).containsOnly("actionPlans", FACET_MODE_EFFORT);
-    assertThat(result.getFacets().get("actionPlans")).containsOnly(entry("plan1", 10L), entry("plan2", 10L));
-    assertThat(result.getFacets().get(FACET_MODE_EFFORT)).containsOnly(entry("total", 20L));
-  }
-
-  @Test
   public void facets_on_languages() {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);

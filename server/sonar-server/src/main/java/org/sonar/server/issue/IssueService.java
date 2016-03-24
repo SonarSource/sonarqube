@@ -187,6 +187,7 @@ public class IssueService {
     }
   }
 
+  //TODO to delete
   public void plan(String issueKey, @Nullable String actionPlanKey) {
     userSession.checkLoggedIn();
 

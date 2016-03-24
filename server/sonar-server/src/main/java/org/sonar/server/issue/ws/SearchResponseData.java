@@ -30,7 +30,6 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.rule.RuleDto;
@@ -49,7 +48,6 @@ public class SearchResponseData {
   private Long effortTotal = null;
   private List<UserDto> users = null;
   private List<RuleDto> rules = null;
-  private List<ActionPlanDto> actionPlans = null;
   private final Map<String, ComponentDto> componentsByUuid = new HashMap<>();
   private final ListMultimap<String, IssueChangeDto> commentsByIssueKey = ArrayListMultimap.create();
   private final ListMultimap<String, String> actionsByIssueKey = ArrayListMultimap.create();
@@ -86,11 +84,6 @@ public class SearchResponseData {
   }
 
   @CheckForNull
-  public List<ActionPlanDto> getActionPlans() {
-    return actionPlans;
-  }
-
-  @CheckForNull
   public List<IssueChangeDto> getCommentsForIssueKey(String issueKey) {
     if (commentsByIssueKey.containsKey(issueKey)) {
       return commentsByIssueKey.get(issueKey);
@@ -120,10 +113,6 @@ public class SearchResponseData {
 
   public void setRules(@Nullable List<RuleDto> rules) {
     this.rules = rules;
-  }
-
-  public void setActionPlans(@Nullable List<ActionPlanDto> actionPlans) {
-    this.actionPlans = actionPlans;
   }
 
   public void setComments(@Nullable List<IssueChangeDto> comments) {

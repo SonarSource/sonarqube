@@ -66,7 +66,6 @@ public class IssueQuery {
   private final Collection<String> files;
   private final Collection<String> views;
   private final Collection<RuleKey> rules;
-  private final Collection<String> actionPlans;
   private final Collection<String> reporters;
   private final Collection<String> assignees;
   private final Collection<String> authors;
@@ -75,7 +74,6 @@ public class IssueQuery {
   private final Collection<String> types;
   private final Boolean onComponentOnly;
   private final Boolean assigned;
-  private final Boolean planned;
   private final Boolean resolved;
   private final Boolean hideRules;
   private final Boolean hideComments;
@@ -103,7 +101,6 @@ public class IssueQuery {
     this.files = defaultCollection(builder.files);
     this.views = defaultCollection(builder.views);
     this.rules = defaultCollection(builder.rules);
-    this.actionPlans = defaultCollection(builder.actionPlans);
     this.reporters = defaultCollection(builder.reporters);
     this.assignees = defaultCollection(builder.assignees);
     this.authors = defaultCollection(builder.authors);
@@ -112,7 +109,6 @@ public class IssueQuery {
     this.types = defaultCollection(builder.types);
     this.onComponentOnly = builder.onComponentOnly;
     this.assigned = builder.assigned;
-    this.planned = builder.planned;
     this.resolved = builder.resolved;
     this.hideRules = builder.hideRules;
     this.hideComments = builder.hideComments;
@@ -175,10 +171,6 @@ public class IssueQuery {
     return rules;
   }
 
-  public Collection<String> actionPlans() {
-    return actionPlans;
-  }
-
   public Collection<String> reporters() {
     return reporters;
   }
@@ -211,11 +203,6 @@ public class IssueQuery {
   @CheckForNull
   public Boolean assigned() {
     return assigned;
-  }
-
-  @CheckForNull
-  public Boolean planned() {
-    return planned;
   }
 
   @CheckForNull
@@ -303,7 +290,6 @@ public class IssueQuery {
     private Collection<String> files;
     private Collection<String> views;
     private Collection<RuleKey> rules;
-    private Collection<String> actionPlans;
     private Collection<String> reporters;
     private Collection<String> assignees;
     private Collection<String> authors;
@@ -312,7 +298,6 @@ public class IssueQuery {
     private Collection<String> types;
     private Boolean onComponentOnly = false;
     private Boolean assigned = null;
-    private Boolean planned = null;
     private Boolean resolved = null;
     private Boolean hideRules = false;
     private Boolean hideComments = false;
@@ -391,11 +376,6 @@ public class IssueQuery {
       return this;
     }
 
-    public Builder actionPlans(@Nullable Collection<String> l) {
-      this.actionPlans = l;
-      return this;
-    }
-
     public Builder reporters(@Nullable Collection<String> l) {
       this.reporters = l;
       return this;
@@ -441,15 +421,6 @@ public class IssueQuery {
      */
     public Builder assigned(@Nullable Boolean b) {
       this.assigned = b;
-      return this;
-    }
-
-    /**
-     * If true, it will return all issues linked to an action plan
-     * If false, it will return all issues not linked to an action plan
-     */
-    public Builder planned(@Nullable Boolean planned) {
-      this.planned = planned;
       return this;
     }
 

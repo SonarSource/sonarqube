@@ -39,7 +39,6 @@ public class IssueIndexDefinition implements IndexDefinition {
   public static final String FIELD_AUTHORIZATION_USERS = "users";
   public static final String FIELD_AUTHORIZATION_UPDATED_AT = "updatedAt";
 
-  public static final String FIELD_ISSUE_ACTION_PLAN = "actionPlan";
   public static final String FIELD_ISSUE_ASSIGNEE = "assignee";
   public static final String FIELD_ISSUE_ATTRIBUTES = "attributes";
   public static final String FIELD_ISSUE_AUTHOR_LOGIN = "authorLogin";
@@ -108,7 +107,6 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_ISSUE_KEY));
     issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
     issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_ISSUE_PROJECT_UUID));
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_ACTION_PLAN).docValues().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).enableSorting().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).docValues().disableSearch().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).docValues().build();

@@ -47,7 +47,12 @@ public class IssueFilterParameters {
   public static final String FILE_UUIDS = "fileUuids";
   public static final String ON_COMPONENT_ONLY = "onComponentOnly";
   public static final String RULES = "rules";
-  public static final String ACTION_PLANS = "actionPlans";
+
+  /**
+   * @deprecated since 5.5, action plan feature has been removed
+   */
+  @Deprecated
+  public static final String DEPRECATED_ACTION_PLANS = "actionPlans";
   public static final String REPORTERS = "reporters";
   public static final String ASSIGNEES = "assignees";
   public static final String AUTHORS = "authors";
@@ -55,6 +60,11 @@ public class IssueFilterParameters {
   public static final String TAGS = "tags";
   public static final String TYPES = "types";
   public static final String ASSIGNED = "assigned";
+
+  /**
+   * @deprecated since 5.5, action plan feature has been removed
+   */
+  @Deprecated
   public static final String PLANNED = "planned";
   public static final String HIDE_RULES = "hideRules";
   public static final String HIDE_COMMENTS = "hideComments";
@@ -82,7 +92,7 @@ public class IssueFilterParameters {
   public static final String FACET_ASSIGNED_TO_ME = "assigned_to_me";
 
   public static final List<String> ALL = ImmutableList.of(ISSUES, SEVERITIES, STATUSES, RESOLUTIONS, RESOLVED,
-    COMPONENTS, COMPONENT_ROOTS, RULES, ACTION_PLANS, REPORTERS, TAGS, TYPES,
+    COMPONENTS, COMPONENT_ROOTS, RULES, DEPRECATED_ACTION_PLANS, REPORTERS, TAGS, TYPES,
     ASSIGNEES, LANGUAGES, ASSIGNED, PLANNED, HIDE_RULES, CREATED_AT, CREATED_AFTER, CREATED_BEFORE, CREATED_IN_LAST,
     COMPONENT_UUIDS, COMPONENT_ROOT_UUIDS, FACET_MODE,
     PROJECTS, PROJECT_UUIDS, PROJECT_KEYS, COMPONENT_KEYS, MODULE_UUIDS, DIRECTORIES, FILE_UUIDS, AUTHORS,

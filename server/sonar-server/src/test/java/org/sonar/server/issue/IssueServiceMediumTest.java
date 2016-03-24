@@ -44,7 +44,6 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.issue.ActionPlanDto;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbFileSources;
@@ -207,61 +206,6 @@ public class IssueServiceMediumTest {
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Unknown user: unknown");
-    }
-  }
-
-  @Test
-  public void plan() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
-
-    String actionPlanKey = "EFGH";
-    db.actionPlanDao().save(new ActionPlanDto().setKey(actionPlanKey).setProjectId(project.getId()));
-    session.commit();
-    index();
-
-    assertThat(IssueIndex.getByKey(issue.getKey()).actionPlanKey()).isNull();
-
-    service.plan(issue.getKey(), actionPlanKey);
-
-    assertThat(IssueIndex.getByKey(issue.getKey()).actionPlanKey()).isEqualTo(actionPlanKey);
-  }
-
-  @Test
-  public void un_plan() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john");
-
-    String actionPlanKey = "EFGH";
-    db.actionPlanDao().save(new ActionPlanDto().setKey(actionPlanKey).setProjectId(project.getId()));
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project).setActionPlanKey(actionPlanKey));
-
-    assertThat(IssueIndex.getByKey(issue.getKey()).actionPlanKey()).isEqualTo(actionPlanKey);
-
-    service.plan(issue.getKey(), null);
-
-    assertThat(IssueIndex.getByKey(issue.getKey()).actionPlanKey()).isNull();
-  }
-
-  @Test
-  public void fail_plan_if_action_plan_not_found() {
-    RuleDto rule = newRule();
-    ComponentDto project = newProject();
-    ComponentDto file = newFile(project);
-    userSessionRule.login("john");
-
-    IssueDto issue = saveIssue(IssueTesting.newDto(rule, file, project));
-    try {
-      service.plan(issue.getKey(), "unknown");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(BadRequestException.class).hasMessage("Unknown action plan: unknown");
     }
   }
 
