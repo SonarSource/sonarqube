@@ -72,6 +72,7 @@ import org.sonar.db.version.v54.RemovePreviewPermission;
 import org.sonar.db.version.v55.AddActiveRulesLongDateColumns;
 import org.sonar.db.version.v55.AddIssuesType;
 import org.sonar.db.version.v55.AddRulesColumns;
+import org.sonar.db.version.v55.DeleteManualIssues;
 import org.sonar.db.version.v55.DeleteMeasuresWithCharacteristicId;
 import org.sonar.db.version.v55.DeleteMeasuresWithRuleId;
 import org.sonar.db.version.v55.DropActiveRulesDateColumns;
@@ -157,6 +158,8 @@ public class MigrationStepModule extends Module {
       DropRulesDatesAndCharacteristics.class,
       DropActiveRulesDateColumns.class,
       FeedRulesTypes.class,
-      DeleteMeasuresWithRuleId.class);
+      DeleteMeasuresWithRuleId.class,
+      DeleteManualIssues.class
+    );
   }
 }
