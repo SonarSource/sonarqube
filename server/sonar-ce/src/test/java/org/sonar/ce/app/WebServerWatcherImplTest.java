@@ -38,7 +38,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class WebServerWatcherImplTest {
 
   @Rule
-  public Timeout timeout = Timeout.seconds(1);
+  public Timeout timeout = Timeout.seconds(5);
   @Rule
   public LogTester logTester = new LogTester();
   @Rule
@@ -102,7 +102,7 @@ public class WebServerWatcherImplTest {
   }
 
   private void setWebServerOperational() {
-    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(sharedDir, ProcessId.WEB_SERVER.getIpcIndex())) {
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.main(sharedDir, ProcessId.WEB_SERVER.getIpcIndex())) {
       processCommands.setOperational();
     }
   }
