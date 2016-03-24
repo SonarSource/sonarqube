@@ -104,13 +104,6 @@ public class DeprecatedIssueAdapterForFilterTest {
     }
 
     try {
-      issue.actionPlanKey();
-      fail("Should be unsupported");
-    } catch (Exception e) {
-      assertThat(e).isExactlyInstanceOf(UnsupportedOperationException.class).hasMessage("Not available for issues filters");
-    }
-
-    try {
       issue.comments();
       fail("Should be unsupported");
     } catch (Exception e) {

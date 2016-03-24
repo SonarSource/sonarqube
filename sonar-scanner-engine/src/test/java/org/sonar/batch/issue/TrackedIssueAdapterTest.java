@@ -65,7 +65,6 @@ public class TrackedIssueAdapterTest {
     assertThat(issue.updateDate()).isNull();
     assertThat(issue.closeDate()).isNull();
     assertThat(issue.authorLogin()).isNull();
-    assertThat(issue.actionPlanKey()).isNull();
     assertThat(issue.comments()).isEmpty();
     assertThat(issue.debt()).isNull();
     assertThat(issue.projectKey()).isNull();

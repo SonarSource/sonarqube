@@ -110,7 +110,6 @@ public class IssueLifecycleTest {
       .setCreationDate(parseDate("2015-01-01"))
       .setUpdateDate(parseDate("2015-01-02"))
       .setCloseDate(parseDate("2015-01-03"))
-      .setActionPlanKey("BASE_ACTION_PLAN_KEY")
       .setResolution(RESOLUTION_FIXED)
       .setStatus(STATUS_CLOSED)
       .setSeverity(BLOCKER)
@@ -135,7 +134,6 @@ public class IssueLifecycleTest {
     assertThat(raw.creationDate()).isEqualTo(base.creationDate());
     assertThat(raw.updateDate()).isEqualTo(base.updateDate());
     assertThat(raw.closeDate()).isEqualTo(base.closeDate());
-    assertThat(raw.actionPlanKey()).isEqualTo("BASE_ACTION_PLAN_KEY");
     assertThat(raw.resolution()).isEqualTo(RESOLUTION_FIXED);
     assertThat(raw.status()).isEqualTo(STATUS_CLOSED);
     assertThat(raw.assignee()).isEqualTo("base assignee");

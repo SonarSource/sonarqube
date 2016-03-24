@@ -80,7 +80,6 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   private String checksum;
   private Map<String, String> attributes = null;
   private String authorLogin = null;
-  private String actionPlanKey;
   private List<IssueComment> comments = null;
   private Set<String> tags = null;
   // temporarily an Object as long as DefaultIssue is used by sonar-batch
@@ -507,12 +506,8 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   @Override
   @CheckForNull
   public String actionPlanKey() {
-    return actionPlanKey;
-  }
-
-  public DefaultIssue setActionPlanKey(@Nullable String actionPlanKey) {
-    this.actionPlanKey = actionPlanKey;
-    return this;
+    // In 5.5, action plan is dropped.
+    return null;
   }
 
   public DefaultIssue setFieldChange(IssueChangeContext context, String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {

@@ -24,17 +24,14 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.user.User;
 import org.sonar.api.utils.Duration;
-import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.core.issue.IssueChangeContext;
 import org.sonar.core.user.DefaultUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.server.issue.IssueUpdater.ACTION_PLAN;
 import static org.sonar.server.issue.IssueUpdater.ASSIGNEE;
 import static org.sonar.server.issue.IssueUpdater.RESOLUTION;
 import static org.sonar.server.issue.IssueUpdater.SEVERITY;
@@ -350,62 +347,6 @@ public class IssueUpdaterTest {
     issue.setAttribute("JIRA", "FOO-123");
     boolean updated = updater.setAttribute(issue, "JIRA", "FOO-123", context);
     assertThat(updated).isFalse();
-    assertThat(issue.mustSendNotifications()).isFalse();
-  }
-
-  @Test
-  public void plan_with_no_existing_plan() {
-    ActionPlan newActionPlan = DefaultActionPlan.create("newName");
-
-    boolean updated = updater.plan(issue, newActionPlan, context);
-    assertThat(updated).isTrue();
-    assertThat(issue.actionPlanKey()).isEqualTo(newActionPlan.key());
-
-    FieldDiffs.Diff diff = issue.currentChange().get(ACTION_PLAN);
-    assertThat(diff.oldValue()).isEqualTo(UNUSED);
-    assertThat(diff.newValue()).isEqualTo("newName");
-    assertThat(issue.mustSendNotifications()).isTrue();
-  }
-
-  @Test
-  public void plan_with_existing_plan() {
-    issue.setActionPlanKey("formerActionPlan");
-
-    ActionPlan newActionPlan = DefaultActionPlan.create("newName").setKey("newKey");
-
-    boolean updated = updater.plan(issue, newActionPlan, context);
-    assertThat(updated).isTrue();
-    assertThat(issue.actionPlanKey()).isEqualTo(newActionPlan.key());
-
-    FieldDiffs.Diff diff = issue.currentChange().get(ACTION_PLAN);
-    assertThat(diff.oldValue()).isEqualTo(UNUSED);
-    assertThat(diff.newValue()).isEqualTo("newName");
-    assertThat(issue.mustSendNotifications()).isTrue();
-  }
-
-  @Test
-  public void unplan() {
-    issue.setActionPlanKey("formerActionPlan");
-
-    boolean updated = updater.plan(issue, null, context);
-    assertThat(updated).isTrue();
-    assertThat(issue.actionPlanKey()).isNull();
-
-    FieldDiffs.Diff diff = issue.currentChange().get(ACTION_PLAN);
-    assertThat(diff.oldValue()).isEqualTo(UNUSED);
-    assertThat(diff.newValue()).isNull();
-    assertThat(issue.mustSendNotifications()).isTrue();
-  }
-
-  @Test
-  public void not_plan_again() {
-    issue.setActionPlanKey("existingActionPlan");
-
-    ActionPlan newActionPlan = DefaultActionPlan.create("existingActionPlan").setKey("existingActionPlan");
-
-    boolean updated = updater.plan(issue, newActionPlan, context);
-    assertThat(updated).isFalse();
-    assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }
 

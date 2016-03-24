@@ -51,7 +51,6 @@ public class DefaultIssueTest {
       .setLine(7)
       .setGap(1.2d)
       .setEffort(Duration.create(28800L))
-      .setActionPlanKey("BCDE")
       .setStatus(Issue.STATUS_CLOSED)
       .setResolution(Issue.RESOLUTION_FIXED)
       .setReporter("simon")
@@ -79,7 +78,6 @@ public class DefaultIssueTest {
     assertThat(issue.line()).isEqualTo(7);
     assertThat(issue.effortToFix()).isEqualTo(1.2d);
     assertThat(issue.debt()).isEqualTo(Duration.create(28800L));
-    assertThat(issue.actionPlanKey()).isEqualTo("BCDE");
     assertThat(issue.status()).isEqualTo(Issue.STATUS_CLOSED);
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FIXED);
     assertThat(issue.reporter()).isEqualTo("simon");

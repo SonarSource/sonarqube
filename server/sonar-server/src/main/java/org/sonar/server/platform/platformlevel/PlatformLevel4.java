@@ -55,7 +55,6 @@ import org.sonar.server.component.ws.ComponentsWsModule;
 import org.sonar.server.config.ws.PropertiesWs;
 import org.sonar.server.dashboard.template.GlobalDefaultDashboard;
 import org.sonar.server.dashboard.template.ProjectCustomDashboard;
-import org.sonar.server.dashboard.widget.ActionPlansWidget;
 import org.sonar.server.dashboard.widget.AlertsWidget;
 import org.sonar.server.dashboard.widget.BubbleChartWidget;
 import org.sonar.server.dashboard.widget.ComplexityWidget;
@@ -371,7 +370,6 @@ public class PlatformLevel4 extends PlatformLevel {
       MeasureFilterAsBubbleChartWidget.class,
       ProjectFileCloudWidget.class,
       DebtOverviewWidget.class,
-      ActionPlansWidget.class,
       IssueFilterWidget.class,
       ProjectIssueFilterWidget.class,
       IssueTagCloudWidget.class,

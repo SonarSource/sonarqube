@@ -72,7 +72,6 @@ public class IssueLifecycle {
     raw.setCreationDate(base.creationDate());
     raw.setUpdateDate(base.updateDate());
     raw.setCloseDate(base.closeDate());
-    raw.setActionPlanKey(base.actionPlanKey());
     raw.setResolution(base.resolution());
     raw.setStatus(base.status());
     raw.setAssignee(base.assignee());

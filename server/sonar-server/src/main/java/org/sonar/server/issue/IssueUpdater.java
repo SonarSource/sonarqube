@@ -32,7 +32,6 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
@@ -302,23 +301,6 @@ public class IssueUpdater {
       issue.setAttribute(key, value);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
-      return true;
-    }
-    return false;
-  }
-
-  public boolean plan(DefaultIssue issue, @Nullable ActionPlan actionPlan, IssueChangeContext context) {
-    String sanitizedActionPlanKey = null;
-    if (actionPlan != null) {
-      sanitizedActionPlanKey = StringUtils.defaultIfBlank(actionPlan.key(), null);
-    }
-    if (!Objects.equal(sanitizedActionPlanKey, issue.actionPlanKey())) {
-      String newActionPlanName = actionPlan != null ? actionPlan.name() : null;
-      issue.setFieldChange(context, ACTION_PLAN, UNUSED, newActionPlanName);
-      issue.setActionPlanKey(sanitizedActionPlanKey);
-      issue.setUpdateDate(context.date());
-      issue.setChanged(true);
-      issue.setSendNotifications(true);
       return true;
     }
     return false;

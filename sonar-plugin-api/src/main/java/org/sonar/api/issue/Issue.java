@@ -176,6 +176,10 @@ public interface Issue extends Serializable {
   @CheckForNull
   String authorLogin();
 
+  /**
+   * @deprecated since 5.5 Action plans are dropped in 5.5. This field has no effect
+   */
+  @Deprecated
   @CheckForNull
   String actionPlanKey();
 

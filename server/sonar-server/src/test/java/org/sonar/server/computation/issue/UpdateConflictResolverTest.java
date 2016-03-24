@@ -82,7 +82,6 @@ public class UpdateConflictResolverTest {
 
     // Before starting scan
     issue.setAssignee(null);
-    issue.setActionPlanKey("PLAN-1");
     issue.setCreationDate(DateUtils.parseDate("2012-01-01"));
     issue.setUpdateDate(DateUtils.parseDate("2012-02-02"));
 
@@ -123,7 +122,6 @@ public class UpdateConflictResolverTest {
     assertThat(issue.assignee()).isEqualTo("arthur");
     assertThat(issue.resolution()).isEqualTo(Issue.RESOLUTION_FALSE_POSITIVE);
     assertThat(issue.status()).isEqualTo(Issue.STATUS_RESOLVED);
-    assertThat(issue.actionPlanKey()).isEqualTo("PLAN-2");
   }
 
   @Test

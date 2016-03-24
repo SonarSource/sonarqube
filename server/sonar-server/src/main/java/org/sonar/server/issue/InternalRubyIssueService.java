@@ -25,16 +25,13 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Collection;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.server.ServerSide;
-import org.sonar.api.utils.SonarException;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.db.issue.IssueFilterDto;
@@ -147,22 +144,6 @@ public class InternalRubyIssueService {
 
   public IssueComment findComment(String commentKey) {
     return commentService.findComment(commentKey);
-  }
-
-  private static Date checkAndReturnDeadline(String deadLineParam, Result<ActionPlan> result) {
-    Date deadLine = null;
-    if (!Strings.isNullOrEmpty(deadLineParam)) {
-      try {
-        deadLine = RubyUtils.toDate(deadLineParam);
-        Date today = new Date();
-        if (deadLine != null && deadLine.before(today) && !org.apache.commons.lang.time.DateUtils.isSameDay(deadLine, today)) {
-          result.addError(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
-        }
-      } catch (SonarException e) {
-        result.addError(Result.Message.ofL10n("errors.is_not_valid", "date"));
-      }
-    }
-    return deadLine;
   }
 
   public List<String> listActions(String issueKey) {

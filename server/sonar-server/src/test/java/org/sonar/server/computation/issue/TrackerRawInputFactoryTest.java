@@ -154,7 +154,6 @@ public class TrackerRawInputFactoryTest {
     assertThat(issue.resolution()).isNull();
     assertThat(issue.status()).isEqualTo(Issue.STATUS_OPEN);
     assertThat(issue.key()).isNull();
-    assertThat(issue.actionPlanKey()).isNull();
     assertThat(issue.authorLogin()).isNull();
     assertThat(issue.debt()).isNull();
   }
