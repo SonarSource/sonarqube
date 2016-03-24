@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.report;
 
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
@@ -56,7 +55,7 @@ public class MetadataPublisher implements ReportPublisherStep {
       .setProjectKey(root.getKey())
       .setCrossProjectDuplicationActivated(SonarCpdBlockIndex.isCrossProjectDuplicationEnabled(settings))
       .setRootComponentRef(rootProject.batchId());
-    String branch = root.properties().get(CoreProperties.PROJECT_BRANCH_PROPERTY);
+    String branch = root.getBranch();
     if (branch != null) {
       builder.setBranch(branch);
     }
