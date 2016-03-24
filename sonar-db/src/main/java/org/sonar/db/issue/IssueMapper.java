@@ -34,8 +34,6 @@ public interface IssueMapper {
 
   List<IssueDto> selectByKeys(List<String> keys);
 
-  List<IssueDto> selectByActionPlan(String actionPlan);
-
   void insert(IssueDto issue);
 
   int update(IssueDto issue);

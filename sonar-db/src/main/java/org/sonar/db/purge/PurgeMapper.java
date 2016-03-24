@@ -72,8 +72,6 @@ public interface PurgeMapper {
 
   void deleteComponentEvents(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteResourceActionPlans(@Param("resourceIds") List<Long> resourceIds);
-
   void deleteAuthors(@Param("resourceIds") List<Long> resourceIds);
 
   List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithEvents(long resourceId);

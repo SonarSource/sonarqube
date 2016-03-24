@@ -106,7 +106,6 @@ public class UpdateConflictResolverTest {
       .setResolution(Issue.RESOLUTION_FALSE_POSITIVE)
       .setStatus(Issue.STATUS_RESOLVED)
       .setAssignee("arthur")
-      .setActionPlanKey("PLAN-2")
       .setSeverity(Severity.MAJOR)
       .setManualSeverity(false);
 

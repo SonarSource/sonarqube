@@ -47,7 +47,6 @@ public class UpdateConflictResolver {
   @VisibleForTesting
   void mergeFields(IssueDto dbIssue, DefaultIssue issue) {
     resolveAssignee(dbIssue, issue);
-    resolvePlan(dbIssue, issue);
     resolveSeverity(dbIssue, issue);
     resolveEffortToFix(dbIssue, issue);
     resolveResolution(dbIssue, issue);
@@ -72,10 +71,6 @@ public class UpdateConflictResolver {
       issue.setSeverity(dbIssue.getSeverity());
     }
     // else keep severity as declared in quality profile
-  }
-
-  private void resolvePlan(IssueDto dbIssue, DefaultIssue issue) {
-    issue.setActionPlanKey(dbIssue.getActionPlanKey());
   }
 
   private void resolveAssignee(IssueDto dbIssue, DefaultIssue issue) {

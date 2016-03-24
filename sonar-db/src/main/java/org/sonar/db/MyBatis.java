@@ -61,10 +61,6 @@ import org.sonar.db.duplication.DuplicationMapper;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.db.event.EventDto;
 import org.sonar.db.event.EventMapper;
-import org.sonar.db.issue.ActionPlanDto;
-import org.sonar.db.issue.ActionPlanMapper;
-import org.sonar.db.issue.ActionPlanStatsDto;
-import org.sonar.db.issue.ActionPlanStatsMapper;
 import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.db.issue.IssueChangeMapper;
 import org.sonar.db.issue.IssueDto;
@@ -195,8 +191,6 @@ public class MyBatis {
     confBuilder.loadAlias("IssueChange", IssueChangeDto.class);
     confBuilder.loadAlias("IssueFilter", IssueFilterDto.class);
     confBuilder.loadAlias("IssueFilterFavourite", IssueFilterFavouriteDto.class);
-    confBuilder.loadAlias("ActionPlanIssue", ActionPlanDto.class);
-    confBuilder.loadAlias("ActionPlanStats", ActionPlanStatsDto.class);
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
     confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
@@ -230,7 +224,7 @@ public class MyBatis {
       ResourceKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       UserMapper.class, GroupMapper.class, UserGroupMapper.class, UserTokenMapper.class,
-      FileSourceMapper.class, ActionPlanMapper.class, ActionPlanStatsMapper.class,
+      FileSourceMapper.class,
       NotificationQueueMapper.class,
       GroupMembershipMapper.class, QualityProfileMapper.class, ActiveRuleMapper.class,
       MeasureMapper.class, MetricMapper.class, CustomMeasureMapper.class, QualityGateMapper.class, QualityGateConditionMapper.class, ComponentMapper.class, SnapshotMapper.class,

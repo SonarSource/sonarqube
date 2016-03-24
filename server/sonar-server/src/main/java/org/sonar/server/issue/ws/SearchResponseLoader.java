@@ -44,7 +44,6 @@ import org.sonarqube.ws.client.issue.IssueFilterParameters;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.sonar.server.issue.ws.SearchAdditionalField.ACTIONS;
-import static org.sonar.server.issue.ws.SearchAdditionalField.DEPRECATED_ACTION_PLANS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.COMMENTS;
 import static org.sonar.server.issue.ws.SearchAdditionalField.RULES;
 import static org.sonar.server.issue.ws.SearchAdditionalField.TRANSITIONS;
@@ -171,7 +170,6 @@ public class SearchResponseLoader {
       for (IssueDto issue : issues) {
         componentUuids.add(issue.getComponentUuid());
         projectUuids.add(issue.getProjectUuid());
-        add(DEPRECATED_ACTION_PLANS, issue.getActionPlanKey());
         add(RULES, issue.getRuleKey());
         add(USERS, issue.getReporter());
         add(USERS, issue.getAssignee());

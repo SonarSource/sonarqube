@@ -39,7 +39,6 @@ class Issue
     hash[:reporter] = issue.reporter if issue.reporter
     hash[:assignee] = issue.assignee if issue.assignee
     hash[:author] = issue.authorLogin if issue.authorLogin
-    hash[:actionPlan] = issue.actionPlanKey if issue.actionPlanKey
     hash[:creationDate] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate
     hash[:updateDate] = Api::Utils.format_datetime(issue.updateDate) if issue.updateDate
     hash[:fUpdateAge] = Api::Utils.age_from_now(issue.updateDate) if issue.updateDate

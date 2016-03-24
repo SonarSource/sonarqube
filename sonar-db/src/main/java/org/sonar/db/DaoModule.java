@@ -37,8 +37,6 @@ import org.sonar.db.dashboard.WidgetDao;
 import org.sonar.db.dashboard.WidgetPropertyDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
-import org.sonar.db.issue.ActionPlanDao;
-import org.sonar.db.issue.ActionPlanStatsDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFilterDao;
@@ -72,8 +70,6 @@ import org.sonar.db.user.UserTokenDao;
 
 public class DaoModule extends Module {
   private static final List<Class<? extends Dao>> classes = ImmutableList.<Class<? extends Dao>>builder().add(
-    ActionPlanDao.class,
-    ActionPlanStatsDao.class,
     ActiveDashboardDao.class,
     ActivityDao.class,
     AuthorDao.class,

@@ -129,7 +129,6 @@ public class SearchActionMediumTest {
       .setAuthorLogin("John")
       .setAssignee("simon")
       .setReporter("fabrice")
-      .setActionPlanKey("AP-ABCD")
       .setTags(asList("bug", "owasp"))
       .setIssueCreationDate(DateUtils.parseDateTime("2014-09-04T00:00:00+0100"))
       .setIssueUpdateDate(DateUtils.parseDateTime("2017-12-04T00:00:00+0100"));

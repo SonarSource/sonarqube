@@ -31,7 +31,6 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -51,7 +50,6 @@ import org.sonar.db.issue.IssueDto;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.issue.notification.IssueChangeNotification;
 import org.sonar.server.issue.workflow.IssueWorkflow;
@@ -72,7 +70,6 @@ public class IssueService {
   private final IssueUpdater issueUpdater;
   private final IssueStorage issueStorage;
   private final NotificationManager notificationService;
-  private final ActionPlanService actionPlanService;
   private final UserFinder userFinder;
   private final UserIndex userIndex;
   private final SourceService sourceService;
@@ -83,7 +80,6 @@ public class IssueService {
     IssueStorage issueStorage,
     IssueUpdater issueUpdater,
     NotificationManager notificationService,
-    ActionPlanService actionPlanService,
     UserFinder userFinder,
     UserIndex userIndex, SourceService sourceService, UserSession userSession) {
     this.dbClient = dbClient;
@@ -91,7 +87,6 @@ public class IssueService {
     this.workflow = workflow;
     this.issueStorage = issueStorage;
     this.issueUpdater = issueUpdater;
-    this.actionPlanService = actionPlanService;
     this.notificationService = notificationService;
     this.userFinder = userFinder;
     this.userIndex = userIndex;
@@ -179,31 +174,6 @@ public class IssueService {
       }
       IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
       if (issueUpdater.assign(issue, user, context)) {
-        saveIssue(session, issue, context, null);
-      }
-
-    } finally {
-      session.close();
-    }
-  }
-
-  //TODO to delete
-  public void plan(String issueKey, @Nullable String actionPlanKey) {
-    userSession.checkLoggedIn();
-
-    DbSession session = dbClient.openSession(false);
-    try {
-      ActionPlan actionPlan = null;
-      if (!Strings.isNullOrEmpty(actionPlanKey)) {
-        actionPlan = actionPlanService.findByKey(actionPlanKey, userSession);
-        if (actionPlan == null) {
-          throw new BadRequestException("Unknown action plan: " + actionPlanKey);
-        }
-      }
-      DefaultIssue issue = getByKeyForUpdate(session, issueKey).toDefaultIssue();
-
-      IssueChangeContext context = IssueChangeContext.createUser(new Date(), userSession.getLogin());
-      if (issueUpdater.plan(issue, actionPlan, context)) {
         saveIssue(session, issue, context, null);
       }
 

@@ -30,23 +30,16 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.IssueComment;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.ActionPlanStats;
-import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssueComment;
-import org.sonar.db.component.ResourceDao;
-import org.sonar.db.component.ResourceDto;
-import org.sonar.db.component.ResourceQuery;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
-import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.issue.workflow.Transition;
 import org.sonar.server.search.QueryContext;
@@ -68,17 +61,12 @@ public class InternalRubyIssueService {
   private static final String ID_PARAM = "id";
   private static final String NAME_PARAM = "name";
   private static final String DESCRIPTION_PARAM = "description";
-  private static final String PROJECT_PARAM = "project";
   private static final String USER_PARAM = "user";
-
-  private static final String ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE = "action_plans.errors.action_plan_does_not_exist";
 
   private final IssueService issueService;
   private final IssueQueryService issueQueryService;
   private final IssueCommentService commentService;
   private final IssueChangelogService changelogService;
-  private final ActionPlanService actionPlanService;
-  private final ResourceDao resourceDao;
   private final IssueFilterService issueFilterService;
   private final IssueBulkChangeService issueBulkChangeService;
   private final ActionService actionService;
@@ -88,16 +76,13 @@ public class InternalRubyIssueService {
     IssueService issueService,
     IssueQueryService issueQueryService,
     IssueCommentService commentService,
-    IssueChangelogService changelogService, ActionPlanService actionPlanService,
-    ResourceDao resourceDao,
+    IssueChangelogService changelogService,
     IssueFilterService issueFilterService, IssueBulkChangeService issueBulkChangeService,
     ActionService actionService, UserSession userSession) {
     this.issueService = issueService;
     this.issueQueryService = issueQueryService;
     this.commentService = commentService;
     this.changelogService = changelogService;
-    this.actionPlanService = actionPlanService;
-    this.resourceDao = resourceDao;
     this.issueFilterService = issueFilterService;
     this.issueBulkChangeService = issueBulkChangeService;
     this.actionService = actionService;
@@ -164,129 +149,6 @@ public class InternalRubyIssueService {
     return commentService.findComment(commentKey);
   }
 
-  public Collection<ActionPlan> findOpenActionPlans(String projectKey) {
-    return actionPlanService.findOpenByProjectKey(projectKey, userSession);
-  }
-
-  public ActionPlan findActionPlan(String actionPlanKey) {
-    return actionPlanService.findByKey(actionPlanKey, userSession);
-  }
-
-  public List<ActionPlanStats> findActionPlanStats(String projectKey) {
-    return actionPlanService.findActionPlanStats(projectKey, userSession);
-  }
-
-  public Result<ActionPlan> createActionPlan(Map<String, String> parameters) {
-    Result<ActionPlan> result = createActionPlanResult(parameters);
-    if (result.ok()) {
-      result.set(actionPlanService.create(result.get(), userSession));
-    }
-    return result;
-  }
-
-  public Result<ActionPlan> updateActionPlan(String key, Map<String, String> parameters) {
-    DefaultActionPlan existingActionPlan = (DefaultActionPlan) actionPlanService.findByKey(key, userSession);
-    if (existingActionPlan == null) {
-      Result<ActionPlan> result = Result.of();
-      result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE, key));
-      return result;
-    } else {
-      Result<ActionPlan> result = createActionPlanResult(parameters, existingActionPlan);
-      if (result.ok()) {
-        DefaultActionPlan actionPlan = (DefaultActionPlan) result.get();
-        actionPlan.setKey(existingActionPlan.key());
-        actionPlan.setUserLogin(existingActionPlan.userLogin());
-        result.set(actionPlanService.update(actionPlan, userSession));
-      }
-      return result;
-    }
-  }
-
-  public Result<ActionPlan> closeActionPlan(String actionPlanKey) {
-    Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
-    if (result.ok()) {
-      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_CLOSED, userSession));
-    }
-    return result;
-  }
-
-  public Result<ActionPlan> openActionPlan(String actionPlanKey) {
-    Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
-    if (result.ok()) {
-      result.set(actionPlanService.setStatus(actionPlanKey, ActionPlan.STATUS_OPEN, userSession));
-    }
-    return result;
-  }
-
-  public Result<ActionPlan> deleteActionPlan(String actionPlanKey) {
-    Result<ActionPlan> result = createResultForExistingActionPlan(actionPlanKey);
-    if (result.ok()) {
-      actionPlanService.delete(actionPlanKey, userSession);
-    }
-    return result;
-  }
-
-  @VisibleForTesting
-  Result createActionPlanResult(Map<String, String> parameters) {
-    return createActionPlanResult(parameters, null);
-  }
-
-  @VisibleForTesting
-  Result<ActionPlan> createActionPlanResult(Map<String, String> parameters, @Nullable DefaultActionPlan existingActionPlan) {
-    Result<ActionPlan> result = Result.of();
-
-    String name = parameters.get(NAME_PARAM);
-    String description = parameters.get(DESCRIPTION_PARAM);
-    String deadLineParam = parameters.get("deadLine");
-    String projectParam = parameters.get(PROJECT_PARAM);
-
-    checkMandatorySizeParameter(name, NAME_PARAM, 200, result);
-    checkOptionalSizeParameter(description, DESCRIPTION_PARAM, 1000, result);
-
-    // Can only set project on creation
-    if (existingActionPlan == null) {
-      checkProject(projectParam, result);
-    }
-    Date deadLine = checkAndReturnDeadline(deadLineParam, result);
-
-    // TODO move this check in the service, on creation and update
-    if (!Strings.isNullOrEmpty(projectParam) && !Strings.isNullOrEmpty(name) && isActionPlanNameAvailable(existingActionPlan, name, projectParam)) {
-      result.addError(Result.Message.ofL10n("action_plans.same_name_in_same_project"));
-    }
-
-    if (result.ok()) {
-      DefaultActionPlan actionPlan = DefaultActionPlan.create(name)
-        .setDescription(description)
-        .setUserLogin(userSession.getLogin())
-        .setDeadLine(deadLine);
-
-      // Can only set project on creation
-      if (existingActionPlan == null) {
-        actionPlan.setProjectKey(projectParam);
-      } else {
-        actionPlan.setProjectKey(existingActionPlan.projectKey());
-      }
-
-      result.set(actionPlan);
-    }
-    return result;
-  }
-
-  private boolean isActionPlanNameAvailable(@Nullable DefaultActionPlan existingActionPlan, String name, String projectParam) {
-    return (existingActionPlan == null || !name.equals(existingActionPlan.name())) && actionPlanService.isNameAlreadyUsedForProject(name, projectParam);
-  }
-
-  private void checkProject(String projectParam, Result<ActionPlan> result) {
-    if (Strings.isNullOrEmpty(projectParam)) {
-      result.addError(Result.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, PROJECT_PARAM));
-    } else {
-      ResourceDto project = resourceDao.selectResource(ResourceQuery.create().setKey(projectParam));
-      if (project == null) {
-        result.addError(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", projectParam));
-      }
-    }
-  }
-
   private static Date checkAndReturnDeadline(String deadLineParam, Result<ActionPlan> result) {
     Date deadLine = null;
     if (!Strings.isNullOrEmpty(deadLineParam)) {
@@ -301,14 +163,6 @@ public class InternalRubyIssueService {
       }
     }
     return deadLine;
-  }
-
-  private Result<ActionPlan> createResultForExistingActionPlan(String actionPlanKey) {
-    Result<ActionPlan> result = Result.of();
-    if (findActionPlan(actionPlanKey) == null) {
-      result.addError(Result.Message.ofL10n(ACTION_PLANS_ERRORS_ACTION_PLAN_DOES_NOT_EXIST_MESSAGE, actionPlanKey));
-    }
-    return result;
   }
 
   public List<String> listActions(String issueKey) {
@@ -490,25 +344,6 @@ public class InternalRubyIssueService {
   public IssueBulkChangeResult bulkChange(Map<String, Object> props, String comment, boolean sendNotifications) {
     IssueBulkChangeQuery issueBulkChangeQuery = new IssueBulkChangeQuery(props, comment, sendNotifications);
     return issueBulkChangeService.execute(issueBulkChangeQuery, userSession);
-  }
-
-  private static void checkMandatoryParameter(String value, String paramName, Result result) {
-    if (Strings.isNullOrEmpty(value)) {
-      result.addError(Result.Message.ofL10n(Validation.CANT_BE_EMPTY_MESSAGE, paramName));
-    }
-  }
-
-  private static void checkMandatorySizeParameter(String value, String paramName, Integer size, Result result) {
-    checkMandatoryParameter(value, paramName, result);
-    if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      result.addError(Result.Message.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size));
-    }
-  }
-
-  private static void checkOptionalSizeParameter(String value, String paramName, Integer size, Result result) {
-    if (!Strings.isNullOrEmpty(value) && value.length() > size) {
-      result.addError(Result.Message.ofL10n(Validation.IS_TOO_LONG_MESSAGE, paramName, size));
-    }
   }
 
   private static void checkOptionalSizeParameter(String value, String paramName, Integer size) {

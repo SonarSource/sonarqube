@@ -8,7 +8,6 @@
     i.id,
     i.kee as kee,
     i.rule_id as ruleId,
-    i.action_plan_key as actionPlanKey,
     i.severity as severity,
     i.manual_severity as manualSeverity,
     i.message as message,
@@ -68,11 +67,11 @@
   </sql>
 
   <insert id="insert" parameterType="Issue" useGeneratedKeys="false" keyProperty="id">
-    INSERT INTO issues (kee, rule_id, action_plan_key, severity, manual_severity,
+    INSERT INTO issues (kee, rule_id, severity, manual_severity,
     message, line, locations, gap, effort, status, tags,
     resolution, checksum, reporter, assignee, author_login, issue_attributes, issue_creation_date, issue_update_date,
     issue_close_date, created_at, updated_at, component_uuid, project_uuid, issue_type)
-    VALUES (#{kee,jdbcType=VARCHAR}, #{ruleId,jdbcType=INTEGER}, #{actionPlanKey,jdbcType=VARCHAR},
+    VALUES (#{kee,jdbcType=VARCHAR}, #{ruleId,jdbcType=INTEGER},
     #{severity,jdbcType=VARCHAR},
     #{manualSeverity,jdbcType=BOOLEAN}, #{message,jdbcType=VARCHAR}, #{line,jdbcType=INTEGER},
     #{locations,jdbcType=BINARY},
@@ -90,7 +89,6 @@
   -->
   <update id="update" parameterType="Issue">
     update issues set
-    action_plan_key=#{actionPlanKey,jdbcType=VARCHAR},
     severity=#{severity,jdbcType=VARCHAR},
     manual_severity=#{manualSeverity,jdbcType=BOOLEAN},
     message=#{message,jdbcType=VARCHAR},
@@ -120,7 +118,6 @@
  -->
   <update id="updateIfBeforeSelectedDate" parameterType="Issue">
     update issues set
-    action_plan_key=#{actionPlanKey,jdbcType=VARCHAR},
     severity=#{severity,jdbcType=VARCHAR},
     manual_severity=#{manualSeverity,jdbcType=BOOLEAN},
     message=#{message,jdbcType=VARCHAR},
@@ -174,7 +171,6 @@
     i.rule_id as ruleId,
     i.component_uuid as componentUuid,
     i.project_uuid as projectUuid,
-    i.action_plan_key as actionPlanKey,
     i.severity as severity,
     i.manual_severity as manualSeverity,
     i.message as message,
@@ -226,18 +222,5 @@
       #{key}
     </foreach>
   </select>
-
-  <select id="selectByActionPlan" parameterType="map" resultType="Issue">
-    select
-    <include refid="issueColumns"/>
-    from issues i
-    inner join rules r on r.id=i.rule_id
-    inner join projects p on p.uuid=i.component_uuid
-    inner join projects root on root.uuid=i.project_uuid
-    <where>
-      and i.action_plan_key=#{action_plan}
-    </where>
-  </select>
-
 </mapper>
 

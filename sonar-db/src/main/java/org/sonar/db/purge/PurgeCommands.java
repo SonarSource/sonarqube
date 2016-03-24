@@ -132,13 +132,6 @@ class PurgeCommands {
     session.commit();
     profiler.stop();
 
-    profiler.start("deleteResourceActionPlans (action_plans)");
-    for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResourceActionPlans(partResourceIds);
-    }
-    session.commit();
-    profiler.stop();
-
     profiler.start("deleteComponentEvents (events)");
     for (List<String> componentUuidPartition : componentUuidsPartitions) {
       purgeMapper.deleteComponentEvents(componentUuidPartition);

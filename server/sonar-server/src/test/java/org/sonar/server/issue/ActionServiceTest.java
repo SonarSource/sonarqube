@@ -77,13 +77,13 @@ public class ActionServiceTest {
 
   @Test
   public void return_provided_actions_without_set_severity_when_not_issue_admin() {
-    assertThat(underTest.listAvailableActions(issue.toDefaultIssue())).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me", "plan");
+    assertThat(underTest.listAvailableActions(issue.toDefaultIssue())).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me");
   }
 
   @Test
   public void return_provided_actions_with_set_severity_when_issue_admin() {
     userSession.addProjectUuidPermissions(ISSUE_ADMIN, PROJECT_UUID);
-    assertThat(underTest.listAvailableActions(issue.toDefaultIssue())).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me", "plan", "set_severity");
+    assertThat(underTest.listAvailableActions(issue.toDefaultIssue())).containsOnly("comment", "assign", "set_tags", "set_type", "assign_to_me", "set_severity");
   }
 
   @Test

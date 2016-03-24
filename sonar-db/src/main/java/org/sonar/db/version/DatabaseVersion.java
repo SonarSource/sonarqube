@@ -29,7 +29,7 @@ import org.sonar.db.MyBatis;
 
 public class DatabaseVersion {
 
-  public static final int LAST_VERSION = 1120;
+  public static final int LAST_VERSION = 1122;
 
   /**
    * The minimum supported version which can be upgraded. Lower
@@ -44,7 +44,6 @@ public class DatabaseVersion {
    * for all the supported databases, particularly due to Oracle results.
    */
   public static final List<String> TABLES = ImmutableList.of(
-    "action_plans",
     "active_dashboards",
     "active_rules",
     "active_rule_parameters",

@@ -117,7 +117,6 @@ public class PurgeDaoTest {
     dbSession.commit();
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();
-    assertThat(dbTester.countRowsOfTable("action_plans")).isZero();
     assertThat(dbTester.countRowsOfTable("issues")).isZero();
     assertThat(dbTester.countRowsOfTable("issue_changes")).isZero();
     assertThat(dbTester.countRowsOfTable("file_sources")).isZero();

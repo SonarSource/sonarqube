@@ -72,7 +72,6 @@ public final class IssueDto implements Serializable {
   private String reporter;
   private String assignee;
   private String authorLogin;
-  private String actionPlanKey;
   private String issueAttributes;
   private byte[] locations;
   private long createdAt;
@@ -128,7 +127,6 @@ public final class IssueDto implements Serializable {
       .setComponentUuid(issue.componentUuid())
       .setProjectUuid(issue.projectUuid())
       .setProjectKey(issue.projectKey())
-      .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setIssueCreationDate(issue.creationDate())
@@ -167,7 +165,6 @@ public final class IssueDto implements Serializable {
       .setManualSeverity(issue.manualSeverity())
       .setReporter(issue.reporter())
       .setAssignee(issue.assignee())
-      .setActionPlanKey(issue.actionPlanKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
       .setAuthorLogin(issue.authorLogin())
       .setRuleKey(issue.ruleKey().repository(), issue.ruleKey().rule())
@@ -243,14 +240,8 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  @CheckForNull
-  public String getActionPlanKey() {
-    return actionPlanKey;
-  }
-
   public IssueDto setActionPlanKey(@Nullable String s) {
     checkArgument(s == null || s.length() <= 50, "Value is too long for issue action plan: %s", s);
-    this.actionPlanKey = s;
     return this;
   }
 
@@ -744,7 +735,6 @@ public final class IssueDto implements Serializable {
     issue.setRuleKey(getRuleKey());
     issue.setTags(getTags());
     issue.setLanguage(language);
-    issue.setActionPlanKey(actionPlanKey);
     issue.setAuthorLogin(authorLogin);
     issue.setNew(false);
     issue.setCreationDate(longToDate(issueCreationDate));

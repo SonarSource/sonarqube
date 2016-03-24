@@ -37,8 +37,6 @@ import org.sonar.db.dashboard.WidgetDao;
 import org.sonar.db.dashboard.WidgetPropertyDao;
 import org.sonar.db.duplication.DuplicationDao;
 import org.sonar.db.event.EventDao;
-import org.sonar.db.issue.ActionPlanDao;
-import org.sonar.db.issue.ActionPlanStatsDao;
 import org.sonar.db.issue.IssueChangeDao;
 import org.sonar.db.issue.IssueDao;
 import org.sonar.db.issue.IssueFilterDao;
@@ -97,8 +95,6 @@ public class DbClient {
   private final IssueFilterDao issueFilterDao;
   private final IssueFilterFavouriteDao issueFilterFavouriteDao;
   private final IssueChangeDao issueChangeDao;
-  private final ActionPlanDao actionPlanDao;
-  private final ActionPlanStatsDao actionPlanStatsDao;
   private final CeQueueDao ceQueueDao;
   private final CeActivityDao ceActivityDao;
   private final DashboardDao dashboardDao;
@@ -153,8 +149,6 @@ public class DbClient {
     issueFilterDao = getDao(map, IssueFilterDao.class);
     issueFilterFavouriteDao = getDao(map, IssueFilterFavouriteDao.class);
     issueChangeDao = getDao(map, IssueChangeDao.class);
-    actionPlanDao = getDao(map, ActionPlanDao.class);
-    actionPlanStatsDao = getDao(map, ActionPlanStatsDao.class);
     ceQueueDao = getDao(map, CeQueueDao.class);
     ceActivityDao = getDao(map, CeActivityDao.class);
     dashboardDao = getDao(map, DashboardDao.class);
@@ -289,10 +283,6 @@ public class DbClient {
     return permissionTemplateDao;
   }
 
-  public ActionPlanDao actionPlanDao() {
-    return actionPlanDao;
-  }
-
   public CeQueueDao ceQueueDao() {
     return ceQueueDao;
   }
@@ -339,10 +329,6 @@ public class DbClient {
 
   public PurgeDao purgeDao() {
     return purgeDao;
-  }
-
-  public ActionPlanStatsDao getActionPlanStatsDao() {
-    return actionPlanStatsDao;
   }
 
   public QualityGateDao qualityGateDao() {

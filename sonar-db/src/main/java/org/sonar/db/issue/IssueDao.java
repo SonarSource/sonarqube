@@ -69,10 +69,6 @@ public class IssueDao implements Dao {
     return issue.get();
   }
 
-  public List<IssueDto> selectByActionPlan(DbSession session, String actionPlan) {
-    return mapper(session).selectByActionPlan(actionPlan);
-  }
-
   /**
    * Gets a list issues by their keys. The result does NOT contain {@code null} values for issues not found, so
    * the size of result may be less than the number of keys. A single issue is returned

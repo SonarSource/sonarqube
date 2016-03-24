@@ -77,7 +77,6 @@ public class IssueMapperTest {
     assertThat(result.getReporter()).isEqualTo("emmerik");
     assertThat(result.getAuthorLogin()).isEqualTo("morgan");
     assertThat(result.getAssignee()).isEqualTo("karadoc");
-    assertThat(result.getActionPlanKey()).isEqualTo("current_sprint");
     assertThat(result.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(result.getChecksum()).isEqualTo("123456789");
     assertThat(result.getMessage()).isEqualTo("the message");
@@ -109,7 +108,6 @@ public class IssueMapperTest {
     update.setReporter("emmerik");
     update.setAuthorLogin("morgan");
     update.setAssignee("karadoc");
-    update.setActionPlanKey("current_sprint");
     update.setIssueAttributes("JIRA=FOO-1234");
     update.setChecksum("123456789");
     update.setMessage("the message");
@@ -141,7 +139,6 @@ public class IssueMapperTest {
     assertThat(result.getReporter()).isEqualTo("emmerik");
     assertThat(result.getAuthorLogin()).isEqualTo("morgan");
     assertThat(result.getAssignee()).isEqualTo("karadoc");
-    assertThat(result.getActionPlanKey()).isEqualTo("current_sprint");
     assertThat(result.getIssueAttributes()).isEqualTo("JIRA=FOO-1234");
     assertThat(result.getChecksum()).isEqualTo("123456789");
     assertThat(result.getMessage()).isEqualTo("the message");
@@ -227,7 +224,6 @@ public class IssueMapperTest {
       .setReporter("emmerik")
       .setAuthorLogin("morgan")
       .setAssignee("karadoc")
-      .setActionPlanKey("current_sprint")
       .setIssueAttributes("JIRA=FOO-1234")
       .setChecksum("123456789")
       .setMessage("the message")

@@ -66,7 +66,6 @@ public class ActionService {
         if (!login.equals(issue.assignee())) {
           availableActions.add("assign_to_me");
         }
-        availableActions.add("plan");
         String projectUuid = issue.projectUuid();
         if (projectUuid != null && userSession.hasComponentUuidPermission(ISSUE_ADMIN, projectUuid)) {
           availableActions.add("set_severity");

@@ -111,13 +111,11 @@ import org.sonar.server.issue.IssueCommentService;
 import org.sonar.server.issue.IssueQueryService;
 import org.sonar.server.issue.IssueService;
 import org.sonar.server.issue.IssueUpdater;
-import org.sonar.server.issue.PlanAction;
 import org.sonar.server.issue.RemoveTagsAction;
 import org.sonar.server.issue.ServerIssueStorage;
 import org.sonar.server.issue.SetSeverityAction;
 import org.sonar.server.issue.SetTypeAction;
 import org.sonar.server.issue.TransitionAction;
-import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterWsModule;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
@@ -599,13 +597,9 @@ public class PlatformLevel4 extends PlatformLevel {
 
       IssueFilterWsModule.class,
 
-      // action plan
-      ActionPlanService.class,
-
       // issues actions
       AssignAction.class,
       SetTypeAction.class,
-      PlanAction.class,
       SetSeverityAction.class,
       CommentAction.class,
       TransitionAction.class,

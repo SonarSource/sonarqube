@@ -29,11 +29,9 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.api.issue.ActionPlan;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.user.User;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.issue.DefaultActionPlan;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.component.ResourceDao;
@@ -43,7 +41,6 @@ import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.issue.actionplan.ActionPlanService;
 import org.sonar.server.issue.filter.IssueFilterService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.ThreadLocalUserSession;
@@ -56,7 +53,6 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -72,8 +68,6 @@ public class InternalRubyIssueServiceTest {
   IssueCommentService commentService;
 
   IssueChangelogService changelogService;
-
-  ActionPlanService actionPlanService;
 
   ResourceDao resourceDao;
 
@@ -91,7 +85,6 @@ public class InternalRubyIssueServiceTest {
     issueQueryService = mock(IssueQueryService.class);
     commentService = mock(IssueCommentService.class);
     changelogService = mock(IssueChangelogService.class);
-    actionPlanService = mock(ActionPlanService.class);
     resourceDao = mock(ResourceDao.class);
     issueFilterService = mock(IssueFilterService.class);
     issueBulkChangeService = mock(IssueBulkChangeService.class);
@@ -100,7 +93,7 @@ public class InternalRubyIssueServiceTest {
     ResourceDto project = new ResourceDto().setKey("org.sonar.Sample");
     when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(project);
 
-    service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService, actionPlanService, resourceDao,
+    service = new InternalRubyIssueService(issueService, issueQueryService, commentService, changelogService,
       issueFilterService, issueBulkChangeService, actionService, userSessionRule);
   }
 
@@ -138,223 +131,6 @@ public class InternalRubyIssueServiceTest {
   public void find_comments_by_issue_keys() {
     service.findCommentsByIssueKeys(newArrayList("ABCD"));
     verify(commentService).findComments(newArrayList("ABCD"));
-  }
-
-  @Test
-  public void create_action_plan() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("project", "org.sonar.Sample");
-    parameters.put("deadLine", "2113-05-13");
-
-    Result result = service.createActionPlan(parameters);
-    assertThat(result.ok()).isTrue();
-
-    ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
-    verify(actionPlanService).create(actionPlanCaptor.capture(), any(ThreadLocalUserSession.class));
-    ActionPlan actionPlan = actionPlanCaptor.getValue();
-
-    assertThat(actionPlan).isNotNull();
-    assertThat(actionPlan.key()).isNotNull();
-    assertThat(actionPlan.name()).isEqualTo("Long term");
-    assertThat(actionPlan.description()).isEqualTo("Long term issues");
-    assertThat(actionPlan.deadLine()).isNotNull();
-  }
-
-  @Test
-  public void update_action_plan() {
-    when(actionPlanService.findByKey(eq("ABCD"), any(ThreadLocalUserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
-
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "New Long term");
-    parameters.put("description", "New Long term issues");
-    parameters.put("deadLine", "2113-05-13");
-    parameters.put("project", "org.sonar.MultiSample");
-
-    Result result = service.updateActionPlan("ABCD", parameters);
-    assertThat(result.ok()).isTrue();
-
-    ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
-    verify(actionPlanService).update(actionPlanCaptor.capture(), any(ThreadLocalUserSession.class));
-    ActionPlan actionPlan = actionPlanCaptor.getValue();
-
-    assertThat(actionPlan).isNotNull();
-    assertThat(actionPlan.key()).isNotNull();
-    assertThat(actionPlan.name()).isEqualTo("New Long term");
-    assertThat(actionPlan.description()).isEqualTo("New Long term issues");
-    assertThat(actionPlan.deadLine()).isNotNull();
-  }
-
-  @Test
-  public void update_action_plan_with_new_project() {
-    when(actionPlanService.findByKey(eq("ABCD"), any(ThreadLocalUserSession.class))).thenReturn(DefaultActionPlan.create("Long term").setProjectKey("org.sonar.MultiSample"));
-
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "New Long term");
-    parameters.put("description", "New Long term issues");
-    parameters.put("deadLine", "2113-05-13");
-
-    ArgumentCaptor<ActionPlan> actionPlanCaptor = ArgumentCaptor.forClass(ActionPlan.class);
-    Result result = service.updateActionPlan("ABCD", parameters);
-    assertThat(result.ok()).isTrue();
-
-    verify(actionPlanService).update(actionPlanCaptor.capture(), any(ThreadLocalUserSession.class));
-    ActionPlan actionPlan = actionPlanCaptor.getValue();
-
-    assertThat(actionPlan).isNotNull();
-    assertThat(actionPlan.key()).isNotNull();
-    assertThat(actionPlan.name()).isEqualTo("New Long term");
-    assertThat(actionPlan.description()).isEqualTo("New Long term issues");
-    assertThat(actionPlan.deadLine()).isNotNull();
-    assertThat(actionPlan.projectKey()).isEqualTo("org.sonar.MultiSample");
-  }
-
-  @Test
-  public void not_update_action_plan_when_action_plan_is_not_found() {
-    when(actionPlanService.findByKey(eq("ABCD"), any(ThreadLocalUserSession.class))).thenReturn(null);
-
-    Result result = service.updateActionPlan("ABCD", null);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", "ABCD"));
-  }
-
-  @Test
-  public void delete_action_plan() {
-    when(actionPlanService.findByKey(eq("ABCD"), any(ThreadLocalUserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
-
-    Result result = service.deleteActionPlan("ABCD");
-    verify(actionPlanService).delete(eq("ABCD"), any(ThreadLocalUserSession.class));
-    assertThat(result.ok()).isTrue();
-  }
-
-  @Test
-  public void not_delete_action_plan_if_action_plan_not_found() {
-    when(actionPlanService.findByKey(eq("ABCD"), any(ThreadLocalUserSession.class))).thenReturn(null);
-
-    Result result = service.deleteActionPlan("ABCD");
-    verify(actionPlanService, never()).delete(eq("ABCD"), any(ThreadLocalUserSession.class));
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.action_plan_does_not_exist", "ABCD"));
-  }
-
-  @Test
-  public void close_action_plan() {
-    when(actionPlanService.findByKey(eq("ABCD"), any(ThreadLocalUserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
-
-    Result result = service.closeActionPlan("ABCD");
-    verify(actionPlanService).setStatus(eq("ABCD"), eq("CLOSED"), any(ThreadLocalUserSession.class));
-    assertThat(result.ok()).isTrue();
-  }
-
-  @Test
-  public void open_action_plan() {
-    when(actionPlanService.findByKey(eq("ABCD"), any(ThreadLocalUserSession.class))).thenReturn(DefaultActionPlan.create("Long term"));
-
-    Result result = service.openActionPlan("ABCD");
-    verify(actionPlanService).setStatus(eq("ABCD"), eq("OPEN"), any(ThreadLocalUserSession.class));
-    assertThat(result.ok()).isTrue();
-  }
-
-  @Test
-  public void get_error_on_action_plan_result_when_no_project() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-
-    Result result = service.createActionPlanResult(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "project"));
-  }
-
-  @Test
-  public void get_error_on_action_plan_result_when_no_name() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", null);
-    parameters.put("description", "Long term issues");
-    parameters.put("project", "org.sonar.Sample");
-
-    Result result = service.createActionPlanResult(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.cant_be_empty", "name"));
-  }
-
-  @Test
-  public void get_error_on_action_plan_result_when_name_is_too_long() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", createLongString(201));
-    parameters.put("description", "Long term issues");
-    parameters.put("project", "org.sonar.Sample");
-
-    Result result = service.createActionPlanResult(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "name", 200));
-  }
-
-  @Test
-  public void get_error_on_action_plan_result_when_description_is_too_long() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", createLongString(1001));
-    parameters.put("project", "org.sonar.Sample");
-
-    Result result = service.createActionPlanResult(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_too_long", "description", 1000));
-  }
-
-  @Test
-  public void get_error_on_action_plan_result_when_dead_line_use_wrong_format() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("project", "org.sonar.Sample");
-    parameters.put("deadLine", "18/05/2013");
-
-    Result result = service.createActionPlanResult(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("errors.is_not_valid", "date"));
-  }
-
-  @Test
-  public void get_error_on_action_plan_result_when_dead_line_is_in_the_past() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("project", "org.sonar.Sample");
-    parameters.put("deadLine", "2000-01-01");
-
-    Result result = service.createActionPlanResult(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.date_cant_be_in_past"));
-  }
-
-  @Test
-  public void get_error_on_action_plan_result_when_name_is_already_used_for_project() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("project", "org.sonar.Sample");
-
-    when(actionPlanService.isNameAlreadyUsedForProject(anyString(), anyString())).thenReturn(true);
-
-    Result result = service.createActionPlanResult(parameters, DefaultActionPlan.create("Short term"));
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.same_name_in_same_project"));
-  }
-
-  @Test
-  public void get_error_on_action_plan_result_when_project_not_found() {
-    Map<String, String> parameters = newHashMap();
-    parameters.put("name", "Long term");
-    parameters.put("description", "Long term issues");
-    parameters.put("project", "org.sonar.Sample");
-
-    when(resourceDao.selectResource(any(ResourceQuery.class))).thenReturn(null);
-
-    Result result = service.createActionPlanResult(parameters);
-    assertThat(result.ok()).isFalse();
-    assertThat(result.errors()).contains(Result.Message.ofL10n("action_plans.errors.project_does_not_exist", "org.sonar.Sample"));
   }
 
   @Test

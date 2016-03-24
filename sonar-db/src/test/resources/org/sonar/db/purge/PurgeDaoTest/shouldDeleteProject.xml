@@ -18,9 +18,6 @@
              build_date="1228222680000"
              version="[null]" path="[null]"/>
 
-  <action_plans id="1" kee="ABCD" project_id="1" name="SHORT_TERM" description="[null]" deadline="[null]"
-                user_login="igor" status="[null]" created_at="[null]" updated_at="[null]"/>
-
   <issues id="1" kee="ABCDE" component_uuid="A" project_uuid="A" status="CLOSED" resolution="[null]" line="200"
           severity="BLOCKER"
           reporter="perceval" assignee="arthur" rule_id="500"
