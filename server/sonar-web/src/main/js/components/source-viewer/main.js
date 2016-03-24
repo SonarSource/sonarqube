@@ -284,8 +284,8 @@ export default Marionette.LayoutView.extend({
       data: {
         componentUuids: this.model.id,
         f: 'component,componentId,project,subProject,rule,status,resolution,author,reporter,assignee,debt,' +
-        'line,message,severity,actionPlan,creationDate,updateDate,closeDate,tags,comments,attr,actions,' +
-        'transitions,actionPlanName',
+        'line,message,severity,creationDate,updateDate,closeDate,tags,comments,attr,actions,' +
+        'transitions',
         additionalFields: '_all',
         resolved: false,
         s: 'FILE_LINE',

@@ -23,11 +23,9 @@ import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import ChangeLog from './models/changelog';
 import ChangeLogView from './views/changelog-view';
-import ActionPlans from './collections/action-plans';
 import TransitionsFormView from './views/transitions-form-view';
 import AssignFormView from './views/assign-form-view';
 import CommentFormView from './views/comment-form-view';
-import PlanFormView from './views/plan-form-view';
 import SetSeverityFormView from './views/set-severity-form-view';
 import SetTypeFormView from './views/set-type-form-view';
 import TagsFormView from './views/tags-form-view';
@@ -212,26 +210,6 @@ export default Marionette.ItemView.extend({
     });
     view.submit(window.SS.user, window.SS.userName);
     view.destroy();
-  },
-
-  plan (e) {
-    const that = this;
-    const t = $(e.currentTarget);
-    const actionPlans = new ActionPlans();
-    return actionPlans.fetch({
-      reset: true,
-      data: { project: this.model.get('project') }
-    }).done(function () {
-      e.stopPropagation();
-      $('body').click();
-      that.popup = new PlanFormView({
-        triggerEl: t,
-        bottom: true,
-        model: that.model,
-        collection: actionPlans
-      });
-      that.popup.render();
-    });
   },
 
   showRule () {

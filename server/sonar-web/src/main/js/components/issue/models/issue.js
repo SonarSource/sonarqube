@@ -46,7 +46,6 @@ export default Backbone.Model.extend({
       issue = this._injectRelational(issue, r.rules, 'rule', 'key');
       issue = this._injectRelational(issue, r.users, 'assignee', 'login');
       issue = this._injectRelational(issue, r.users, 'reporter', 'login');
-      issue = this._injectRelational(issue, r.actionPlans, 'actionPlan', 'key');
       issue = this._injectCommentsRelational(issue, r.users);
       issue = this._prepareClosed(issue);
       issue = this.ensureTextRange(issue);

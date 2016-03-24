@@ -24,7 +24,6 @@ import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 
 import Template from './templates/widget-issue-filter.hbs';
-import ActionPlansTemplate from './templates/widget-issue-filter-action-plans.hbs';
 import AssigneesTemplate from './templates/widget-issue-filter-assignees.hbs';
 import ResolutionsTemplate from './templates/widget-issue-filter-resolutions.hbs';
 import SeveritiesTemplate from './templates/widget-issue-filter-severities.hbs';
@@ -162,24 +161,6 @@ const byDistributionConf = {
         if (reporter != null) {
           return reporter.name;
         }
-      }
-    }
-  },
-  'actionPlans': {
-    template: ActionPlansTemplate,
-    label (item, r) {
-      if (_.isArray(r.actionPlans)) {
-        const actionPlan = _.findWhere(r.actionPlans, { key: item.val });
-        if (actionPlan != null) {
-          return actionPlan.name;
-        }
-      }
-    },
-    filter (item) {
-      if ('' + this.query.planned === 'false') {
-        return item.val === '';
-      } else {
-        return defaultFilter.call(this, item);
       }
     }
   },

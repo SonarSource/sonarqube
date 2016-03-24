@@ -177,7 +177,6 @@ export default React.createClass({
 
   renderAdministration() {
     const shouldShowAdministration =
-        this.props.conf.showActionPlans ||
         this.props.conf.showBackgroundTasks ||
         this.props.conf.showDeletion ||
         this.props.conf.showHistory ||
@@ -206,7 +205,6 @@ export default React.createClass({
             {this.renderProfilesLink()}
             {this.renderQualityGatesLink()}
             {this.renderCustomMeasuresLink()}
-            {this.renderActionPlansLink()}
             {this.renderLinksLink()}
             {this.renderPermissionsLink()}
             {this.renderHistoryLink()}
@@ -249,14 +247,6 @@ export default React.createClass({
     }
     const url = `/custom_measures?id=${encodeURIComponent(this.props.component.key)}`;
     return this.renderLink(url, translate('custom_measures.page'), '/custom_measures');
-  },
-
-  renderActionPlansLink() {
-    if (!this.props.conf.showActionPlans) {
-      return null;
-    }
-    const url = `/action_plans?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('action_plans.page'), '/action_plans');
   },
 
   renderLinksLink() {

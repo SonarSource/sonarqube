@@ -29,7 +29,6 @@ import RuleFacet from './facets/rule-facet';
 import TagFacet from './facets/tag-facet';
 import ResolutionFacet from './facets/resolution-facet';
 import CreationDateFacet from './facets/creation-date-facet';
-import ActionPlanFacet from './facets/action-plan-facet';
 import FileFacet from './facets/file-facet';
 import ReporterFacet from './facets/reporter-facet';
 import LanguageFacet from './facets/language-facet';
@@ -49,7 +48,6 @@ const viewsMapping = {
   moduleUuids: ModuleFacet,
   rules: RuleFacet,
   tags: TagFacet,
-  actionPlans: ActionPlanFacet,
   fileUuids: FileFacet,
   reporters: ReporterFacet,
   languages: LanguageFacet,

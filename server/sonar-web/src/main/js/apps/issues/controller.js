@@ -24,7 +24,7 @@ import Controller from '../../components/navigator/controller';
 import ComponentViewer from './component-viewer/main';
 import HomeView from './workspace-home-view';
 
-const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'actionPlans', 'languages'];
+const FACET_DATA_FIELDS = ['components', 'users', 'rules', 'languages'];
 
 export default Controller.extend({
   _facetsFromServer () {

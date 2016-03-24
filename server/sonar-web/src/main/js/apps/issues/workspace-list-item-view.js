@@ -29,9 +29,7 @@ const SHOULD_NULL = {
   resolutions: ['resolved'],
   resolved: ['resolutions'],
   assignees: ['assigned'],
-  assigned: ['assignees'],
-  actionPlans: ['planned'],
-  planned: ['actionPlans']
+  assigned: ['assignees']
 };
 
 export default IssueView.extend({

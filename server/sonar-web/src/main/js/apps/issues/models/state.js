@@ -44,15 +44,13 @@ export default State.extend({
       'assignees',
       'reporters',
       'authors',
-      'languages',
-      'actionPlans'
+      'languages'
     ],
     facetsFromServer: [
       'types',
       'severities',
       'statuses',
       'resolutions',
-      'actionPlans',
       'projectUuids',
       'directories',
       'rules',
@@ -68,7 +66,6 @@ export default State.extend({
     transform: {
       'resolved': 'resolutions',
       'assigned': 'assignees',
-      'planned': 'actionPlans',
       'createdBefore': 'createdAt',
       'createdAfter': 'createdAt',
       'createdInLast': 'createdAt'

@@ -6,7 +6,6 @@
    transitions_by_issues = {}
    unresolved_issues = 0
    unresolved_issues_user_can_admin = 0
-   at_least_one_issue_is_planned = false
    at_least_one_issue_is_assigned = false
    all_issues_are_assigned_to_current_user = true
    @issues.each do |issue|
@@ -20,7 +19,6 @@
      if Internal.issues.isUserIssueAdmin(issue.projectUuid)
        unresolved_issues_user_can_admin += 1 unless issue.resolution()
      end
-     at_least_one_issue_is_planned ||= issue.actionPlanKey()
      at_least_one_issue_is_assigned ||= issue.assignee()
      all_issues_are_assigned_to_current_user &&= issue.assignee() == current_user.login
    end
@@ -56,30 +54,6 @@
         -%>
         <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
-      <%
-         if project_key
-           plans = Internal.issues.findOpenActionPlans(project_key)
-           # Display action plan combo box if there are some action plans defined on the project
-           unless plans.empty?
-             first_plan = plans[0]
-             options = plans.map { |plan|
-               label = plan.deadLine ? "#{h plan.name} (#{format_date(plan.deadLine)})" : h(plan.name)
-               [label, plan.key]
-             }
-             # SONAR-4728 Display 'Unplan' option only if at least one issue is planned
-             options.unshift([escape_javascript(message('issue.unplan.submit')), '']) if at_least_one_issue_is_planned
-             plan_options = options_for_select(options, first_plan.key)
-      %>
-        <div class="modal-field">
-          <label for="plan">
-            <%= message('issue.do_plan') -%>
-          </label>
-          <input id="plan-action" name="actions[]" type="checkbox" value="plan"/>
-          <%= dropdown_tag('plan.plan', plan_options, {:show_search_box => false}, {:id => 'plan'}) -%>
-          <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
-        </div>
-        <% end %>
-      <% end %>
 
       <%
         type_options = [
@@ -127,7 +101,6 @@
         <input id="remove_tags" name="remove_tags.tags" type="text"/>
         <span style="float:right" class="note">(<%= message('issue_bulk_change.x_issues', :params => unresolved_issues.to_s) -%>)</span>
       </div>
-
       <% end %>
 
       <% if transitions_by_issues.size > 0 %>
@@ -195,7 +168,6 @@
    * Attach some events on select boxes to automatically select associate check box when selecting an option
    */
   $j('#assignee').click(function() { check('assign-action'); });
-  $j('#plan').click(function() { check('plan-action'); });
   $j('#severity').click(function() { check('set-severity-action'); });
   $j('#type').click(function() { check('set-type-action'); });
   $j('#add_tags').select2({tags: [ '<%= @tags.join("', '") -%>' ], width: '250px' });

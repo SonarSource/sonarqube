@@ -95,19 +95,6 @@
             {{/inArray}}
           </li>
 
-          <li class="issue-meta">
-            {{#inArray actions "plan"}}
-              <button class="button-link issue-action issue-action-with-options js-issue-plan">
-          <span
-              class="issue-meta-label">{{#if actionPlan}}{{default actionPlanName actionPlan}}{{else}}{{t 'issue.unplanned'}}{{/if}}</span>&nbsp;<i
-                  class="icon-dropdown"></i>
-              </button>
-            {{else}}
-              <span
-                  class="issue-meta-label">{{#if actionPlan}}{{default actionPlanName actionPlan}}{{else}}{{t 'issue.unplanned'}}{{/if}}</span>
-            {{/inArray}}
-          </li>
-
           {{#if debt}}
             <li class="issue-meta">
               <span class="issue-meta-label">
