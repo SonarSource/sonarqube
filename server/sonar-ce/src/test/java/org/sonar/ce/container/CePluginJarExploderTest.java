@@ -29,6 +29,7 @@ import org.sonar.api.platform.ServerFileSystem;
 import org.sonar.core.platform.ExplodedPlugin;
 import org.sonar.core.platform.PluginInfo;
 
+import static org.apache.commons.io.FileUtils.sizeOfDirectory;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CePluginJarExploderTest {
@@ -66,6 +67,19 @@ public class CePluginJarExploderTest {
     assertThat(exploded1.getMain()).isFile().exists().hasName("sonar-test-plugin-0.1-SNAPSHOT.jar");
     assertThat(exploded2.getKey()).isEqualTo("test2");
     assertThat(exploded2.getMain()).isFile().exists().hasName("sonar-test2-plugin-0.1-SNAPSHOT.jar");
+  }
+
+  @Test
+  public void explode_is_reentrant() throws Exception {
+    PluginInfo info = PluginInfo.create(plugin1Jar());
+
+    ExplodedPlugin exploded1 = underTest.explode(info);
+    long dirSize1 = sizeOfDirectory(exploded1.getMain().getParentFile());
+
+    ExplodedPlugin exploded2 = underTest.explode(info);
+    long dirSize2 = sizeOfDirectory(exploded2.getMain().getParentFile());
+    assertThat(exploded2.getMain().getCanonicalPath()).isEqualTo(exploded1.getMain().getCanonicalPath());
+    assertThat(dirSize1).isEqualTo(dirSize2);
   }
 
   private File plugin1Jar() {

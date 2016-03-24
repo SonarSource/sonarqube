@@ -33,6 +33,7 @@ import org.sonar.core.platform.PluginJarExploder;
  */
 public class CePluginJarExploder extends PluginJarExploder {
 
+  private static final String TEMP_RELATIVE_PATH = "ce-exploded-plugins";
   private final ServerFileSystem fs;
 
   public CePluginJarExploder(ServerFileSystem fs) {
@@ -41,7 +42,7 @@ public class CePluginJarExploder extends PluginJarExploder {
 
   @Override
   public ExplodedPlugin explode(PluginInfo pluginInfo) {
-    File tempDir = new File(fs.getTempDir(), "ce-exploded-plugins");
+    File tempDir = new File(fs.getTempDir(), TEMP_RELATIVE_PATH);
     File toDir = new File(tempDir, pluginInfo.getKey());
     try {
       org.sonar.core.util.FileUtils.cleanDirectory(toDir);

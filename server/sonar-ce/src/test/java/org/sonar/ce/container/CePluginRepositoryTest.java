@@ -101,6 +101,38 @@ public class CePluginRepositoryTest {
     underTest.getPluginInstance("foo");
   }
 
+  @Test
+  public void getPluginInstance_throws_ISE_if_repo_is_not_started() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("not started yet");
+
+    underTest.getPluginInstance("foo");
+  }
+
+  @Test
+  public void getPluginInfo_throws_ISE_if_repo_is_not_started() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("not started yet");
+
+    underTest.getPluginInfo("foo");
+  }
+
+  @Test
+  public void hasPlugin_throws_ISE_if_repo_is_not_started() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("not started yet");
+
+    underTest.hasPlugin("foo");
+  }
+
+  @Test
+  public void getPluginInfos_throws_ISE_if_repo_is_not_started() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("not started yet");
+
+    underTest.getPluginInfos();
+  }
+
   private static class DumbPluginLoader extends PluginLoader {
 
     public DumbPluginLoader() {

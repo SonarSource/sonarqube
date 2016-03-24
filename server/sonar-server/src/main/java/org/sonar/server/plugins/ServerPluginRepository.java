@@ -23,6 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import com.google.common.base.Strings;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Ordering;
 import java.io.File;
@@ -49,6 +50,7 @@ import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.DefaultServerFileSystem;
 import org.sonar.updatecenter.common.Version;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Iterables.transform;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
@@ -342,7 +344,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
 
   @Override
   public Collection<PluginInfo> getPluginInfos() {
-    return pluginInfosByKeys.values();
+    return ImmutableList.copyOf(pluginInfosByKeys.values());
   }
 
   @Override
@@ -357,9 +359,7 @@ public class ServerPluginRepository implements PluginRepository, Startable {
   @Override
   public Plugin getPluginInstance(String key) {
     Plugin plugin = pluginInstancesByKeys.get(key);
-    if (plugin == null) {
-      throw new IllegalArgumentException(format("Plugin [%s] does not exist", key));
-    }
+    checkArgument(plugin != null, "Plugin [%s] does not exist", key);
     return plugin;
   }
 

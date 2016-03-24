@@ -19,11 +19,13 @@
  */
 package org.sonar.ce.container;
 
+import com.google.common.collect.ImmutableList;
 import java.io.File;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.Plugin;
@@ -33,11 +35,13 @@ import org.sonar.core.platform.PluginLoader;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.platform.DefaultServerFileSystem;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkState;
 import static java.lang.String.format;
 
 /**
  * Entry point to load plugins on startup. It assumes that plugins
- * have been correctly installed/uninstalled during web server startup
+ * have been correctly installed/uninstalled/updated during web server startup
  */
 public class CePluginRepository implements PluginRepository, Startable {
 
@@ -45,6 +49,7 @@ public class CePluginRepository implements PluginRepository, Startable {
 
   private final DefaultServerFileSystem fs;
   private final PluginLoader loader;
+  private final AtomicBoolean started = new AtomicBoolean(false);
 
   // following fields are available after startup
   private final Map<String, PluginInfo> pluginInfosByKeys = new HashMap<>();
@@ -63,6 +68,7 @@ public class CePluginRepository implements PluginRepository, Startable {
       pluginInfosByKeys.put(info.getKey(), info);
     }
     pluginInstancesByKeys.putAll(loader.load(pluginInfosByKeys));
+    started.set(true);
   }
 
   @Override
@@ -71,15 +77,18 @@ public class CePluginRepository implements PluginRepository, Startable {
     loader.unload(pluginInstancesByKeys.values());
     pluginInstancesByKeys.clear();
     pluginInfosByKeys.clear();
+    started.set(false);
   }
 
   @Override
   public Collection<PluginInfo> getPluginInfos() {
-    return pluginInfosByKeys.values();
+    checkState(started.get(), "not started yet");
+    return ImmutableList.copyOf(pluginInfosByKeys.values());
   }
 
   @Override
   public PluginInfo getPluginInfo(String key) {
+    checkState(started.get(), "not started yet");
     PluginInfo info = pluginInfosByKeys.get(key);
     if (info == null) {
       throw new IllegalArgumentException(format("Plugin [%s] does not exist", key));
@@ -89,15 +98,15 @@ public class CePluginRepository implements PluginRepository, Startable {
 
   @Override
   public Plugin getPluginInstance(String key) {
+    checkState(started.get(), "not started yet");
     Plugin plugin = pluginInstancesByKeys.get(key);
-    if (plugin == null) {
-      throw new IllegalArgumentException(format("Plugin [%s] does not exist", key));
-    }
+    checkArgument(plugin != null, "Plugin [%s] does not exist", key);
     return plugin;
   }
 
   @Override
   public boolean hasPlugin(String key) {
+    checkState(started.get(), "not started yet");
     return pluginInfosByKeys.containsKey(key);
   }
 
