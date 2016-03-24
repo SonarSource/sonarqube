@@ -87,9 +87,9 @@ public class TaskResult implements org.sonar.batch.mediumtest.ScanTaskObserver {
   private void storeReportComponents(int componentRef, String parentModuleKey, String branch) {
     Component component = getReportReader().readComponent(componentRef);
     if (isNotEmpty(component.getKey())) {
-      reportComponents.put(component.getKey() + (isNotEmpty(branch) ? ":" + branch : ""), component);
+      reportComponents.put(component.getKey() + (isNotEmpty(branch) ? (":" + branch) : ""), component);
     } else {
-      reportComponents.put(parentModuleKey + (isNotEmpty(branch) ? ":" + branch : "") + ":" + component.getPath(), component);
+      reportComponents.put(parentModuleKey + (isNotEmpty(branch) ? (":" + branch) : "") + ":" + component.getPath(), component);
     }
     for (int childId : component.getChildRefList()) {
       storeReportComponents(childId, isNotEmpty(component.getKey()) ? component.getKey() : parentModuleKey, branch);

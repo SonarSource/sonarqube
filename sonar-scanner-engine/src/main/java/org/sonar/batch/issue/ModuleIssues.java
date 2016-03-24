@@ -123,7 +123,7 @@ public class ModuleIssues {
     }
   }
 
-  private ScannerReport.TextRange toProtobufTextRange(ScannerReport.TextRange.Builder textRangeBuilder, TextRange primaryTextRange) {
+  private static ScannerReport.TextRange toProtobufTextRange(ScannerReport.TextRange.Builder textRangeBuilder, TextRange primaryTextRange) {
     textRangeBuilder.clear();
     textRangeBuilder.setStartLine(primaryTextRange.start().line());
     textRangeBuilder.setStartOffset(primaryTextRange.start().lineOffset());
