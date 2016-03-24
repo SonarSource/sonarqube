@@ -100,7 +100,7 @@ public class HighlightingTest extends PerfTestCase {
     perfRule.assertDurationAround(MavenLogs.extractTotalTime(result.getLogs()), 28200L);
 
     Properties prof = readProfiling(baseDir, "highlighting");
-    perfRule.assertDurationAround(Long.valueOf(prof.getProperty("Xoo Highlighting Sensor")), 10700L);
+    perfRule.assertDurationAround(Long.valueOf(prof.getProperty("Xoo Highlighting Sensor")), 9700L);
 
   }
 }
