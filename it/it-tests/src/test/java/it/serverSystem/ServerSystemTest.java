@@ -23,9 +23,11 @@ import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
+import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpResponse;
@@ -97,15 +99,29 @@ public class ServerSystemTest {
    */
   @Test
   public void monitor_compute_engine_and_elasticsearch_processes() throws Exception {
+    waitForComputeEngineToBeUp(orchestrator);
+
     WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(
       new GetRequest("api/system/info"));
+
     assertThat(response.code()).isEqualTo(200);
+    assertThat(response.content()).contains("\"Compute Engine Database\":", "\"Compute Engine State\":", "\"Compute Engine Tasks\":");
+    assertThat(response.content()).contains("\"Elasticsearch\":", "\"State\":\"GREEN\"", "\"Elasticsearch State\"");
+  }
 
-    assertThat(response.content()).containsSequence("\"Compute Engine Database\":", "\"Pool Active Connections\"");
-    assertThat(response.content()).containsSequence("\"Compute Engine State\":", "\"Heap Used\"");
-    assertThat(response.content()).containsSequence("\"Compute Engine Tasks\":", "\"Pending\"", "\"In Progress\"");
-
-    assertThat(response.content()).containsSequence("\"Elasticsearch\":", "\"State\":\"GREEN\"");
+  private static void waitForComputeEngineToBeUp(Orchestrator orchestrator) throws IOException {
+    for (int i = 0; i < 10_000; i++) {
+      File logs = orchestrator.getServer().getLogs();
+      if (FileUtils.readFileToString(logs).contains("Compute Engine is up")) {
+        return;
+      }
+      try {
+        Thread.sleep(100);
+      } catch (InterruptedException e) {
+        // ignored
+      }
+    }
+    throw new IllegalStateException("Compute Engine is not up");
   }
 
   /**
