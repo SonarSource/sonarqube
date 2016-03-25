@@ -1,11 +1,21 @@
 $ = jQuery
 
+entityMap = {
+  "&": "&amp;",
+  "<": "&lt;",
+  ">": "&gt;",
+  '"': '&quot;',
+  "'": '&#39;',
+  "/": '&#x2F;'
+}
+escapeHtml = (str) -> str.replace(/[&<>"'\/]/g, (s) -> entityMap[s])
+
 window.confirmDialog = (options) ->
   settings = _.extend window.confirmDialog.defaults, options
   dialog = $ """
              <div>
-               <div class='modal-head'><h2>#{settings.title}</h2></div>
-               <div class='modal-body'>#{settings.html}</div>
+               <div class='modal-head'><h2>#{escapeHtml(settings.title)}</h2></div>
+               <div class='modal-body'>#{escapeHtml(settings.html)}</div>
                <div class='modal-foot'>
                  <button data-confirm='yes'>#{settings.yesLabel}</button>
                  <a data-confirm='no' class='action'>#{settings.noLabel}</a>
