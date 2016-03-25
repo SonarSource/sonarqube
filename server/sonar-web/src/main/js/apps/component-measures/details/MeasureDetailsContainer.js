@@ -29,6 +29,7 @@ const mapStateToProps = state => {
     metrics: state.app.metrics,
     metric: state.details.metric,
     measure: state.details.measure,
+    secondaryMeasure: state.details.secondaryMeasure,
     periods: state.details.periods
   };
 };

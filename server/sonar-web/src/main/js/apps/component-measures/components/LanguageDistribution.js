@@ -17,7 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import find from 'lodash/find';
+import sortBy from 'lodash/sortBy';
 import React from 'react';
 
 import { Histogram } from '../../../components/charts/histogram';
@@ -37,7 +38,7 @@ export default class LanguageDistribution extends React.Component {
 
   getLanguageName (langKey) {
     if (this.state && this.state.languages) {
-      const lang = _.findWhere(this.state.languages, { key: langKey });
+      const lang = find(this.state.languages, { key: langKey });
       return lang ? lang.name : translate('unknown');
     } else {
       return langKey;
@@ -54,7 +55,7 @@ export default class LanguageDistribution extends React.Component {
       return { x: parseInt(tokens[1], 10), y: index, value: tokens[0] };
     });
 
-    data = _.sortBy(data, d => -d.x);
+    data = sortBy(data, d => -d.x);
 
     const yTicks = data.map(point => this.getLanguageName(point.value)).map(this.cutLanguageName);
     const yValues = data.map(point => formatMeasure(point.x, 'SHORT_INT'));

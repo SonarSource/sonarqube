@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import sortBy from 'lodash/sortBy';
 import moment from 'moment';
 import React from 'react';
 
@@ -95,7 +95,7 @@ export default class MeasureHistory extends React.Component {
         return { version: event.n, date: moment(event.dt).toDate() };
       });
 
-      return _.sortBy(events, 'date');
+      return sortBy(events, 'date');
     });
   }
 

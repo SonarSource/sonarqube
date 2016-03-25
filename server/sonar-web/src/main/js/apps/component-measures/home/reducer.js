@@ -17,9 +17,10 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-import sortBy from '../../../../../../node_modules/lodash/sortBy';
-import partition from '../../../../../../node_modules/lodash/partition';
+import groupBy from 'lodash/groupBy';
+import partition from 'lodash/partition';
+import sortBy from 'lodash/sortBy';
+import toPairs from 'lodash/toPairs';
 
 import { RECEIVE_MEASURES } from './actions';
 
@@ -32,9 +33,9 @@ const initialState = {
 function groupByDomains (measures) {
   const KNOWN_DOMAINS = ['Reliability', 'Security', 'Maintainability', 'Tests', 'Duplication', 'Size', 'Complexity'];
 
-  const domains = _.sortBy(_.pairs(_.groupBy(measures, measure => measure.metric.domain)).map(r => {
+  const domains = sortBy(toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => {
     const [name, measures] = r;
-    const sortedMeasures = _.sortBy(measures, measure => measure.metric.name);
+    const sortedMeasures = sortBy(measures, measure => measure.metric.name);
 
     return { name, measures: sortedMeasures };
   }), 'name');
