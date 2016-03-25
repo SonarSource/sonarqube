@@ -24,13 +24,13 @@ export function isDiffMetric (metric) {
   return metric.key.indexOf('new_') === 0;
 }
 
-export function getLeakValue (measure) {
+export function getLeakValue (measure, periodIndex = 1) {
   if (!measure) {
     return null;
   }
 
   const period = measure.periods ?
-      measure.periods.find(period => period.index === 1) : null;
+      measure.periods.find(period => period.index === periodIndex) : null;
 
   return period ? period.value : null;
 }
@@ -43,7 +43,7 @@ export function getSingleMeasureValue (measures) {
   return measures[0].value;
 }
 
-export function getSingleLeakValue (measures) {
+export function getSingleLeakValue (measures, periodIndex = 1) {
   if (!measures || !measures.length) {
     return null;
   }
@@ -51,7 +51,7 @@ export function getSingleLeakValue (measures) {
   const measure = measures[0];
 
   const period = measure.periods ?
-      measure.periods.find(period => period.index === 1) : null;
+      measure.periods.find(period => period.index === periodIndex) : null;
 
   return period ? period.value : null;
 }
@@ -64,9 +64,9 @@ export function formatLeak (value, metric) {
   }
 }
 
-export function enhanceWithLeak (measures) {
+export function enhanceWithLeak (measures, periodIndex = 1) {
   function enhanceSingle (measure) {
-    return { ...measure, leak: getLeakValue(measure) };
+    return { ...measure, leak: getLeakValue(measure, periodIndex) };
   }
 
   if (Array.isArray(measures)) {
@@ -76,13 +76,13 @@ export function enhanceWithLeak (measures) {
   }
 }
 
-export function enhanceWithSingleMeasure (components) {
+export function enhanceWithSingleMeasure (components, periodIndex = 1) {
   return components
       .map(component => {
         return {
           ...component,
           value: getSingleMeasureValue(component.measures),
-          leak: getSingleLeakValue(component.measures)
+          leak: getSingleLeakValue(component.measures, periodIndex)
         };
       });
 }

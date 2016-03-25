@@ -40,7 +40,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onFetchList: (baseComponent, metric) => dispatch(fetchList(baseComponent, metric)),
+    onFetchList: (baseComponent, metric, periodIndex) => dispatch(fetchList(baseComponent, metric, periodIndex)),
     onFetchMore: (baseComponent, metric) => dispatch(fetchMore(baseComponent, metric)),
     onSelect: component => dispatch(selectComponent(component)),
     onSelectNext: component => dispatch(selectNext(component)),

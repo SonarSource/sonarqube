@@ -49,10 +49,11 @@ function updateStore (state) {
  * Init tree view drilldown for the given root component and given metric
  * @param rootComponent
  * @param metric
+ * @param periodIndex
  * @returns {{type: string, rootComponent: *, metric: *}}
  */
-function init (rootComponent, metric) {
-  return { type: INIT, rootComponent, metric };
+function init (rootComponent, metric, periodIndex = 1) {
+  return { type: INIT, rootComponent, metric, periodIndex };
 }
 
 
@@ -60,7 +61,7 @@ function init (rootComponent, metric) {
  * Workflow
  */
 
-function makeRequest (baseComponent, metric, options) {
+function makeRequest (baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
   const ps = 100;
   const finalOptions = { asc, ps };
@@ -69,7 +70,7 @@ function makeRequest (baseComponent, metric, options) {
     Object.assign(options, {
       s: 'metricPeriod,name',
       metricSort: metric.key,
-      metricPeriodSort: 1
+      metricPeriodSort: periodIndex
     });
   } else {
     Object.assign(options, {
@@ -82,11 +83,11 @@ function makeRequest (baseComponent, metric, options) {
   return getComponentTree('children', baseComponent.key, [metric.key], finalOptions);
 }
 
-function fetchComponents (baseComponent, metric, pageIndex = 1) {
+function fetchComponents (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
-  return makeRequest(baseComponent, metric, options).then(r => {
-    const nextComponents = enhanceWithSingleMeasure(r.components);
+  return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
+    const nextComponents = enhanceWithSingleMeasure(r.components, periodIndex);
 
     return {
       baseComponent,
@@ -103,10 +104,10 @@ function fetchComponents (baseComponent, metric, pageIndex = 1) {
  */
 function fetchList (baseComponent) {
   return (dispatch, getState) => {
-    const { metric } = getState().tree;
+    const { metric, periodIndex } = getState().tree;
 
     dispatch(startFetching());
-    return fetchComponents(baseComponent, metric).then(r => {
+    return fetchComponents(baseComponent, metric, 1, periodIndex).then(r => {
       dispatch(updateStore({
         ...r,
         baseComponent,
@@ -122,16 +123,17 @@ function fetchList (baseComponent) {
  * Fetch the first page of components if needed.
  * @param rootComponent
  * @param metric
+ * @param periodIndex
  * @returns {function()}
  */
-export function start (rootComponent, metric) {
+export function start (rootComponent, metric, periodIndex = 1) {
   return (dispatch, getState) => {
     const { tree } = getState();
     if (rootComponent === tree.rootComponent && metric === tree.metric) {
       return Promise.resolve();
     }
 
-    dispatch(init(rootComponent, metric));
+    dispatch(init(rootComponent, metric, periodIndex));
     dispatch(fetchList(rootComponent));
   };
 }
@@ -141,9 +143,9 @@ export function start (rootComponent, metric) {
  */
 export function fetchMore () {
   return (dispatch, getState) => {
-    const { metric, baseComponent, components, pageIndex } = getState().tree;
+    const { metric, baseComponent, components, pageIndex, periodIndex } = getState().tree;
     dispatch(startFetching());
-    return fetchComponents(baseComponent, metric, pageIndex + 1).then(r => {
+    return fetchComponents(baseComponent, metric, pageIndex + 1, periodIndex).then(r => {
       dispatch(updateStore({
         ...r,
         components: [...components, ...r.components]
@@ -159,9 +161,9 @@ export function fetchMore () {
  */
 export function drilldown (component) {
   return (dispatch, getState) => {
-    const { metric, breadcrumbs } = getState().tree;
+    const { metric, breadcrumbs, periodIndex } = getState().tree;
     dispatch(startFetching());
-    return fetchComponents(component, metric).then(r => {
+    return fetchComponents(component, metric, 1, periodIndex).then(r => {
       dispatch(updateStore({
         ...r,
         breadcrumbs: [...breadcrumbs, component],
@@ -178,10 +180,10 @@ export function drilldown (component) {
  */
 export function useBreadcrumbs (component) {
   return (dispatch, getState) => {
-    const { metric, breadcrumbs } = getState().tree;
+    const { metric, breadcrumbs, periodIndex } = getState().tree;
     const index = breadcrumbs.indexOf(component);
     dispatch(startFetching());
-    return fetchComponents(component, metric).then(r => {
+    return fetchComponents(component, metric, 1, periodIndex).then(r => {
       dispatch(updateStore({
         ...r,
         breadcrumbs: breadcrumbs.slice(0, index + 1),

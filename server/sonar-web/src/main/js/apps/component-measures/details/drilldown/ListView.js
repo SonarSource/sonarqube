@@ -65,7 +65,8 @@ export default class ListView extends React.Component {
 
   handleChangeBaseComponent (baseComponent) {
     const { metric, onFetchList } = this.props;
-    onFetchList(baseComponent, metric);
+    const periodIndex = this.props.location.query.period || 1;
+    onFetchList(baseComponent, metric, Number(periodIndex));
   }
 
   changeSelected (selected) {

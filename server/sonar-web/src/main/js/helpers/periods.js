@@ -20,12 +20,16 @@
 import moment from 'moment';
 import { translate, translateWithParameters } from './l10n';
 
-export function getLeakPeriod (periods) {
+export function getPeriod (periods, index) {
   if (!Array.isArray(periods)) {
     return null;
   }
 
-  return periods.find(period => period.index === 1);
+  return periods.find(period => period.index === index);
+}
+
+export function getLeakPeriod (periods) {
+  return getPeriod(periods, 1);
 }
 
 export function getPeriodLabel (period) {

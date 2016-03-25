@@ -27,7 +27,7 @@ function updateStore (state) {
   return { type: UPDATE_STORE, state };
 }
 
-function makeRequest (baseComponent, metric, options) {
+function makeRequest (baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
   const ps = 100;
   const finalOptions = { asc, ps };
@@ -36,7 +36,7 @@ function makeRequest (baseComponent, metric, options) {
     Object.assign(options, {
       s: 'metricPeriod,name',
       metricSort: metric.key,
-      metricPeriodSort: 1
+      metricPeriodSort: periodIndex
     });
   } else {
     Object.assign(options, {
@@ -49,11 +49,11 @@ function makeRequest (baseComponent, metric, options) {
   return getComponentTree('leaves', baseComponent.key, [metric.key], finalOptions);
 }
 
-function fetchLeaves (baseComponent, metric, pageIndex = 1) {
+function fetchLeaves (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
-  return makeRequest(baseComponent, metric, options).then(r => {
-    const nextComponents = enhanceWithSingleMeasure(r.components);
+  return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
+    const nextComponents = enhanceWithSingleMeasure(r.components, periodIndex);
 
     return {
       components: nextComponents,
@@ -67,8 +67,9 @@ function fetchLeaves (baseComponent, metric, pageIndex = 1) {
  * Fetch the first page of components for a given base component
  * @param baseComponent
  * @param metric
+ * @param periodIndex
  */
-export function fetchList (baseComponent, metric) {
+export function fetchList (baseComponent, metric, periodIndex = 1) {
   return (dispatch, getState) => {
     const { list } = getState();
     if (list.baseComponent === baseComponent && list.metric === metric) {
@@ -76,7 +77,7 @@ export function fetchList (baseComponent, metric) {
     }
 
     dispatch(startFetching());
-    return fetchLeaves(baseComponent, metric).then(r => {
+    return fetchLeaves(baseComponent, metric, 1, periodIndex).then(r => {
       dispatch(updateStore({
         ...r,
         baseComponent,

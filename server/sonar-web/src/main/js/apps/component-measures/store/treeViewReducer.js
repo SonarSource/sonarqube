@@ -35,7 +35,7 @@ export default function drilldownReducer (state = initialState, action = {}) {
     case UPDATE_STORE:
       return { ...state, ...action.state };
     case INIT:
-      return { ...state, ...pick(action, ['rootComponent', 'metric']) };
+      return { ...state, ...pick(action, ['rootComponent', 'metric', 'periodIndex']) };
     default:
       return state;
   }

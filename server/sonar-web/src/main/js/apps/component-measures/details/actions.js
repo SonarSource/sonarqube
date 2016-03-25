@@ -45,7 +45,7 @@ function receiveMeasure (measure, secondaryMeasure, periods) {
  * Workflow
  */
 
-export function fetchMeasure (metricKey) {
+export function fetchMeasure (metricKey, periodIndex = 1) {
   return (dispatch, getState) => {
     const { component, metrics } = getState().app;
     const metricsToRequest = [metricKey];
@@ -68,7 +68,7 @@ export function fetchMeasure (metricKey) {
         metricsToRequest,
         { additionalFields: 'periods' }
     ).then(r => {
-      const measures = enhanceWithLeak(r.component.measures);
+      const measures = enhanceWithLeak(r.component.measures, periodIndex);
       const measure = measures.find(m => m.metric === metricKey);
       const secondaryMeasure = measures.find(m => m.metric !== metricKey);
       dispatch(receiveMeasure(measure, secondaryMeasure, r.periods));

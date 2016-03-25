@@ -49,7 +49,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    onStart: (rootComponent, metric) => dispatch(start(rootComponent, metric)),
+    onStart: (rootComponent, metric, periodIndex) => dispatch(start(rootComponent, metric, periodIndex)),
     onFetchMore: () => dispatch(fetchMore()),
     onDrilldown: component => dispatch(drilldown(component)),
     onUseBreadcrumbs: component => dispatch(useBreadcrumbs(component)),

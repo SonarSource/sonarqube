@@ -24,7 +24,12 @@ class DrilldownController < ApplicationController
 
   def measures
     metric = params[:metric] || 'ncloc'
-    return redirect_to("/component_measures/metric/#{metric}?id=#{url_encode(@resource.key)}")
+    period = params[:period].to_i if params[:period].present? && params[:period].to_i > 0
+    if period
+      return redirect_to("/component_measures/metric/#{metric}?id=#{url_encode(@resource.key)}&period=#{period}")
+    else
+      return redirect_to("/component_measures/metric/#{metric}?id=#{url_encode(@resource.key)}")
+    end
   end
 
   def issues

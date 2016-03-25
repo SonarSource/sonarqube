@@ -35,7 +35,7 @@ const mapStateToProps = state => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchMeasure: metricKey => dispatch(fetchMeasure(metricKey))
+    fetchMeasure: (metricKey, periodIndex) => dispatch(fetchMeasure(metricKey, periodIndex))
   };
 };
 

@@ -59,7 +59,8 @@ export default class TreeView extends React.Component {
 
   handleChangeBaseComponent (baseComponent) {
     const { metric, onStart } = this.props;
-    onStart(baseComponent, metric);
+    const periodIndex = this.props.location.query.period || 1;
+    onStart(baseComponent, metric, Number(periodIndex));
   }
 
   changeSelected (selected) {

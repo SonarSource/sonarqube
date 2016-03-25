@@ -23,7 +23,7 @@ import { Link, IndexLink } from 'react-router';
 import Spinner from './../components/Spinner';
 import MeasureDetailsHeader from './MeasureDetailsHeader';
 import MeasureDrilldown from './drilldown/MeasureDrilldown';
-import { getLeakPeriod, getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import { getPeriod, getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class MeasureDetails extends React.Component {
@@ -44,12 +44,14 @@ export default class MeasureDetails extends React.Component {
   }
 
   componentDidMount () {
-    this.props.fetchMeasure(this.props.params.metricKey);
+    const periodIndex = this.props.location.query.period || 1;
+    this.props.fetchMeasure(this.props.params.metricKey, Number(periodIndex));
   }
 
   componentDidUpdate (nextProps) {
     if (nextProps.params.metricKey !== this.props.params.metricKey) {
-      this.props.fetchMeasure(nextProps.params.metricKey);
+      const periodIndex = nextProps.location.query.period || 1;
+      this.props.fetchMeasure(nextProps.params.metricKey, Number(periodIndex));
     }
   }
 
@@ -61,9 +63,10 @@ export default class MeasureDetails extends React.Component {
     }
 
     const { tab } = this.props.params;
-    const leakPeriod = getLeakPeriod(periods);
-    const leakPeriodLabel = getPeriodLabel(leakPeriod);
-    const leakPeriodDate = getPeriodDate(leakPeriod);
+    const periodIndex = this.props.location.query.period || 1;
+    const period = getPeriod(periods, Number(periodIndex));
+    const periodLabel = getPeriodLabel(period);
+    const periodDate = getPeriodDate(period);
 
     return (
         <section id="component-measures-details" className="page page-container page-limited">
@@ -86,15 +89,15 @@ export default class MeasureDetails extends React.Component {
               measure={measure}
               metric={metric}
               secondaryMeasure={secondaryMeasure}
-              leakPeriodLabel={leakPeriodLabel}/>
+              leakPeriodLabel={periodLabel}/>
 
           {measure && (
               <MeasureDrilldown
                   component={component}
                   metric={metric}
                   tab={tab}
-                  leakPeriod={leakPeriod}
-                  leakPeriodDate={leakPeriodDate}>
+                  leakPeriod={period}
+                  leakPeriodDate={periodDate}>
                 {children}
               </MeasureDrilldown>
           )}
