@@ -1,7 +1,6 @@
 <% content_for :extra_script do %>
   <script>
     window.sonarqube.user = {
-      canChangePassword: <%= User.editable_password? ? 'true' : 'false' -%>,
       favorites: [
         <% current_user.favourites.each_with_index do |f, index| %>
         {

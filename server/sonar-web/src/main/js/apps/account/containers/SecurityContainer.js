@@ -22,10 +22,7 @@ import { connect } from 'react-redux';
 import Security from './../components/Security';
 
 function mapStateToProps (state) {
-  return {
-    user: state.user,
-    canChangePassword: window.sonarqube.user.canChangePassword
-  };
+  return { user: state.user };
 }
 
 export default connect(mapStateToProps)(Security);

@@ -22,7 +22,7 @@ import React from 'react';
 import Password from './Password';
 import Tokens from './Tokens';
 
-export default function Security ({ user, canChangePassword }) {
+export default function Security ({ user }) {
   return (
       <div className="page page-limited">
         <div className="columns">
@@ -30,7 +30,7 @@ export default function Security ({ user, canChangePassword }) {
             <Tokens user={user}/>
           </div>
 
-          {canChangePassword && (
+          {user.local && (
               <div className="column-half">
                 <Password user={user}/>
               </div>
