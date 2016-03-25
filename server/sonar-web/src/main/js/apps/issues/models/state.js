@@ -68,6 +68,7 @@ export default State.extend({
       'assigned': 'assignees',
       'createdBefore': 'createdAt',
       'createdAfter': 'createdAt',
+      'sinceLeakPeriod': 'createdAt',
       'createdInLast': 'createdAt'
     }
   },

@@ -54,7 +54,6 @@ export const Risk = React.createClass({
 
     const { snapshotDate } = this.props.component;
     const formattedSnapshotDate = moment(snapshotDate).format('LLL');
-    const createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
     const newBugs = this.props.leak['new_bugs'] || 0;
     const newVulnerabilities = this.props.leak['new_vulnerabilities'] || 0;
 
@@ -65,7 +64,7 @@ export const Risk = React.createClass({
         <Measure label={getMetricName('new_bugs')}>
           <IssuesLink
               component={this.props.component.key}
-              params={{ resolved: 'false', types: 'BUG', createdAfter }}>
+              params={{ resolved: 'false', types: 'BUG', sinceLeakPeriod: 'true' }}>
             <span
                 title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                 data-toggle="tooltip">
@@ -76,7 +75,7 @@ export const Risk = React.createClass({
         <Measure label={getMetricName('new_vulnerabilities')}>
           <IssuesLink
               component={this.props.component.key}
-              params={{ resolved: 'false', types: 'VULNERABILITY', createdAfter }}>
+              params={{ resolved: 'false', types: 'VULNERABILITY', sinceLeakPeriod: 'true' }}>
             <span
                 title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                 data-toggle="tooltip">

@@ -37,7 +37,8 @@ export default BaseFacet.extend({
       'click .js-all': 'onAllClick',
       'click .js-last-week': 'onLastWeekClick',
       'click .js-last-month': 'onLastMonthClick',
-      'click .js-last-year': 'onLastYearClick'
+      'click .js-last-year': 'onLastYearClick',
+      'click .js-leak': 'onLeakClick'
     });
   },
 
@@ -98,6 +99,7 @@ export default BaseFacet.extend({
       createdAfter: null,
       createdBefore: null,
       createdAt: null,
+      sinceLeakPeriod: null,
       createdInLast: null
     });
   },
@@ -109,6 +111,7 @@ export default BaseFacet.extend({
       createdAfter: periodStart,
       createdBefore: periodEnd,
       createdAt: null,
+      sinceLeakPeriod: null,
       createdInLast: null
     });
   },
@@ -118,6 +121,7 @@ export default BaseFacet.extend({
       createdAfter: null,
       createdBefore: null,
       createdAt: null,
+      sinceLeakPeriod: null,
       createdInLast: period
     });
   },
@@ -141,11 +145,26 @@ export default BaseFacet.extend({
     return this.selectPeriod('1y');
   },
 
+  onLeakClick (e) {
+    e.preventDefault();
+    this.options.app.state.updateFilter({
+      createdAfter: null,
+      createdBefore: null,
+      createdAt: null,
+      createdInLast: null,
+      sinceLeakPeriod: 'true'
+    });
+  },
+
   serializeData () {
+    const hasLeak = this.options.app.state.get('contextComponentQualifier') === 'TRK';
+
     return _.extend(BaseFacet.prototype.serializeData.apply(this, arguments), {
+      hasLeak,
       periodStart: this.options.app.state.get('query').createdAfter,
       periodEnd: this.options.app.state.get('query').createdBefore,
       createdAt: this.options.app.state.get('query').createdAt,
+      sinceLeakPeriod: this.options.app.state.get('query').sinceLeakPeriod,
       createdInLast: this.options.app.state.get('query').createdInLast
     });
   }

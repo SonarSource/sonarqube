@@ -54,27 +54,24 @@ export const CodeSmells = React.createClass({
 
     const { snapshotDate } = this.props.component;
     const formattedSnapshotDate = moment(snapshotDate).format('LLL');
-    const createdAfter = moment(this.props.leakPeriodDate).format('YYYY-MM-DDTHH:mm:ssZZ');
     const newDebt = this.props.leak['new_technical_debt'] || 0;
     const newCodeSmells = this.props.leak['new_code_smells'] || 0;
 
     return <DomainLeak>
       <MeasuresList>
         <Measure label={getMetricName('new_effort')}>
-          <IssuesLink
-              component={this.props.component.key}
-              params={{ resolved: 'false', createdAfter, types: 'CODE_SMELL', facetMode: 'debt' }}>
+          <DrilldownLink component={this.props.component.key} metric="new_technical_debt">
             <span
                 title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                 data-toggle="tooltip">
               {formatMeasure(newDebt, 'SHORT_WORK_DUR')}
             </span>
-          </IssuesLink>
+          </DrilldownLink>
         </Measure>
         <Measure label={getMetricName('new_code_smells')}>
           <IssuesLink
               component={this.props.component.key}
-              params={{ resolved: 'false', types: 'CODE_SMELL', createdAfter }}>
+              params={{ resolved: 'false', types: 'CODE_SMELL', sinceLeakPeriod: 'true' }}>
             <span
                 title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                 data-toggle="tooltip">
@@ -117,11 +114,9 @@ export const CodeSmells = React.createClass({
                     className="overview-domain-measure-value"
                     title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                     data-toggle="tooltip">
-                  <IssuesLink
-                      component={this.props.component.key}
-                      params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt' }}>
+                  <DrilldownLink component={this.props.component.key} metric="sqale_index">
                     {formatMeasure(debt, 'SHORT_WORK_DUR')}
-                  </IssuesLink>
+                  </DrilldownLink>
                 </div>
                 <div className="overview-domain-measure-label">{getMetricName('effort')}</div>
               </div>
