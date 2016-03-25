@@ -20,10 +20,6 @@
 package org.sonar.scanner.protocol.output;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 /**
  * Structure of files in the zipped report
@@ -75,30 +71,8 @@ public class FileStructure {
     return new File(dir, "activerules.pb");
   }
 
-  /**
-   * Too many files in the same folder is a problem. We need to partition the report
-   * by putting component specific files in subdirectories.
-   * The partitionning algorithm is very basic:
-   *   - Breadth-first to not generate deep folder for small projects
-   *   - easy to understand
-   */
-  public static Path getSubDirFor(int componentRef) {
-    String componentRefAsStr = String.valueOf(componentRef);
-    Path result = Paths.get("");
-    for (char c : componentRefAsStr.toCharArray()) {
-      result = result.resolve(String.valueOf(c));
-    }
-    return result;
-  }
-
   public File fileFor(Domain domain, int componentRef) {
-    Path parent = dir.toPath().resolve(getSubDirFor(componentRef));
-    try {
-      Files.createDirectories(parent);
-    } catch (IOException e) {
-      throw new IllegalStateException("Unable to create subdirectory for component " + componentRef, e);
-    }
-    return parent.resolve(domain.filePrefix + componentRef + domain.fileSuffix).toFile();
+    return new File(dir, domain.filePrefix + componentRef + domain.fileSuffix);
   }
 
 }
