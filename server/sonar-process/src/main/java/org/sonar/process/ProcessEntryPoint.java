@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import java.io.File;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import sun.misc.VMSupport;
 
@@ -93,8 +94,9 @@ public class ProcessEntryPoint implements Stoppable {
     }
     monitored = mp;
 
+    Logger logger = LoggerFactory.getLogger(getClass());
     try {
-      LoggerFactory.getLogger(getClass()).info("Starting " + getKey());
+      logger.info("Starting " + getKey());
       Runtime.getRuntime().addShutdownHook(shutdownHook);
       stopWatcher.start();
 
@@ -105,7 +107,9 @@ public class ProcessEntryPoint implements Stoppable {
         Thread.sleep(20L);
       }
 
-      commands.setJmxUrl(guessJmxUrl());
+      String jmxUrl = guessJmxUrl();
+      logger.debug("JMX URL is {}", jmxUrl);
+      commands.setJmxUrl(jmxUrl);
 
       // notify monitor that process is ready
       commands.setUp();
@@ -114,7 +118,7 @@ public class ProcessEntryPoint implements Stoppable {
         monitored.awaitStop();
       }
     } catch (Exception e) {
-      LoggerFactory.getLogger(getClass()).warn("Fail to start " + getKey(), e);
+      logger.warn("Fail to start " + getKey(), e);
 
     } finally {
       stop();
