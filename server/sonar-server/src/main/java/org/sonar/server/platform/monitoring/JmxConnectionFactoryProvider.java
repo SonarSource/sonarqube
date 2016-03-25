@@ -27,7 +27,7 @@ import org.sonar.process.jmx.JmxConnectionFactory;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 
-public class JmxConnectorProvider extends ProviderAdapter {
+public class JmxConnectionFactoryProvider extends ProviderAdapter {
 
   private JmxConnectionFactory singleton = null;
 

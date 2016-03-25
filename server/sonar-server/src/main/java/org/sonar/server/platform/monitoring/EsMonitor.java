@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
@@ -71,20 +72,22 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
-    LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
+  public Optional<Map<String, Object>> attributes() {
+    Map<String, Object> attributes = new LinkedHashMap<>();
 
     try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.ELASTICSEARCH)) {
-      EsSettingsMBean mbean = connection.getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class);
-      attributes.put("Cluster Name", mbean.getClusterName());
-      attributes.put("Node Name", mbean.getNodeName());
-      attributes.put("HTTP Port", mbean.getHttpPort());
+      if (connection != null) {
+        EsSettingsMBean mbean = connection.getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class);
+        attributes.put("Cluster Name", mbean.getClusterName());
+        attributes.put("Node Name", mbean.getNodeName());
+        attributes.put("HTTP Port", mbean.getHttpPort());
+      }
     }
     attributes.put("State", getStateAsEnum());
     attributes.put("Indices", indexAttributes());
     attributes.put("Number of Nodes", getNumberOfNodes());
     attributes.put("Nodes", nodeAttributes());
-    return attributes;
+    return Optional.of(attributes);
   }
 
   private LinkedHashMap<String, LinkedHashMap<String, Object>> indexAttributes() {

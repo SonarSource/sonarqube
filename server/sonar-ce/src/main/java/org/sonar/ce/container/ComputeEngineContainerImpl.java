@@ -108,7 +108,7 @@ import org.sonar.server.platform.ServerImpl;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.platform.TempFolderProvider;
-import org.sonar.server.platform.monitoring.JmxConnectorProvider;
+import org.sonar.server.platform.monitoring.JmxConnectionFactoryProvider;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.properties.ProjectSettingsFactory;
@@ -139,7 +139,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static final Object[] LEVEL_1_COMPONENTS = new Object[] {
     ComputeEngineSettings.class,
     new SonarQubeVersionProvider(),
-    new JmxConnectorProvider(),
+    new JmxConnectionFactoryProvider(),
     ServerImpl.class,
     UuidFactoryImpl.INSTANCE,
     // no EmbeddedDatabaseFactory.class, creating H2 DB if responsibility of WebServer

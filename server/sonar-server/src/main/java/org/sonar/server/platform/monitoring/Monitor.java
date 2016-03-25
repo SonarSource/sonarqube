@@ -19,13 +19,13 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
+import java.util.Map;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.platform.ws.InfoAction;
 
-import java.util.LinkedHashMap;
-
 /**
- * Any component that is involved in the informations returned by the web service api/system/info
+ * Any component that is involved in the information returned by the web service api/system/info
  */
 @ServerSide
 public interface Monitor {
@@ -36,7 +36,10 @@ public interface Monitor {
 
   /**
    * Type of attribute values must be supported by {@link org.sonar.api.utils.text.JsonWriter#valueObject(Object)}
-   * because of JSON export by {@link InfoAction}
+   * because of JSON export by {@link InfoAction}.
+   *
+   * @return map of attributes, or Optional.absent() if the monitored component is not up. In the latter case
+   * nothing is returned in the web service api/system/info.
    */
-  LinkedHashMap<String, Object> attributes();
+  Optional<Map<String, Object>> attributes();
 }

@@ -24,13 +24,15 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadMXBean;
-import java.util.SortedMap;
-import java.util.TreeMap;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.management.JMX;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
+
+import static java.lang.String.format;
 
 public class JmxConnection implements AutoCloseable {
 
@@ -55,12 +57,12 @@ public class JmxConnection implements AutoCloseable {
       }
       return JMX.newMBeanProxy(connection, new ObjectName(mBeanName), mBeanInterfaceClass);
     } catch (Exception e) {
-      throw new IllegalStateException("Fail to connect to MBean " + mBeanName, e);
+      throw new IllegalStateException(format("Fail to connect to MBean [%s]", mBeanName), e);
     }
   }
 
-  public SortedMap<String, Object> getSystemState() {
-    SortedMap<String, Object> props = new TreeMap<>();
+  public Map<String, Object> getSystemState() {
+    Map<String, Object> props = new LinkedHashMap<>();
     MemoryMXBean memory = getMBean(ManagementFactory.MEMORY_MXBEAN_NAME, MemoryMXBean.class);
     MemoryUsage heap = memory.getHeapMemoryUsage();
     props.put("Heap Committed (MB)", toMegaBytes(heap.getCommitted()));

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.ws;
 
+import com.google.common.base.Optional;
 import java.util.Map;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -63,12 +64,15 @@ public class InfoAction implements SystemWsAction {
   private void writeJson(JsonWriter json) {
     json.beginObject();
     for (Monitor monitor : monitors) {
-      json.name(monitor.name());
-      json.beginObject();
-      for (Map.Entry<String, Object> attribute : monitor.attributes().entrySet()) {
-        json.name(attribute.getKey()).valueObject(attribute.getValue());
+      Optional<Map<String, Object>> attributes = monitor.attributes();
+      if (attributes.isPresent()) {
+        json.name(monitor.name());
+        json.beginObject();
+        for (Map.Entry<String, Object> attribute : attributes.get().entrySet()) {
+          json.name(attribute.getKey()).valueObject(attribute.getValue());
+        }
+        json.endObject();
       }
-      json.endObject();
     }
     json.endObject();
   }

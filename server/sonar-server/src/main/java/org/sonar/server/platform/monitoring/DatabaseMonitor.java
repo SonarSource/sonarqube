@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import java.sql.Connection;
 import java.sql.DatabaseMetaData;
 import java.sql.SQLException;
@@ -100,11 +101,11 @@ public class DatabaseMonitor extends BaseMonitorMBean implements DatabaseMonitor
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
-    LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
+  public Optional<Map<String, Object>> attributes() {
+    Map<String, Object> attributes = new LinkedHashMap<>();
     completeDbAttributes(attributes);
     completePoolAttributes(attributes);
-    return attributes;
+    return Optional.of(attributes);
   }
 
   private void completePoolAttributes(Map<String, Object> attributes) {

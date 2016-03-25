@@ -19,11 +19,10 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.collect.Maps;
-import java.util.LinkedHashMap;
+import com.google.common.base.Optional;
 import java.util.Map;
 import java.util.Objects;
-import java.util.SortedMap;
+import java.util.TreeMap;
 
 public class JvmPropsMonitor implements Monitor {
   @Override
@@ -32,11 +31,11 @@ public class JvmPropsMonitor implements Monitor {
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
-    SortedMap<String, Object> sortedProps = Maps.newTreeMap();
+  public Optional<Map<String, Object>> attributes() {
+    Map<String, Object> sortedProps = new TreeMap<>();
     for (Map.Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
       sortedProps.put(Objects.toString(systemProp.getKey()), Objects.toString(systemProp.getValue()));
     }
-    return new LinkedHashMap<>(sortedProps);
+    return Optional.of(sortedProps);
   }
 }

@@ -19,9 +19,8 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import java.util.Map;
 import org.junit.Test;
-
-import java.util.LinkedHashMap;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -36,7 +35,7 @@ public class SystemMonitorTest {
 
   @Test
   public void system_properties() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+    Map<String, Object> attributes = underTest.attributes().get();
 
     assertThat(attributes).containsKeys("System Date", "Processors");
   }

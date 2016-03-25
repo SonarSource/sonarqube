@@ -19,8 +19,9 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSortedMap;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.junit.Test;
 import org.mockito.Mockito;
@@ -44,9 +45,16 @@ public class EsStateMonitorTest {
   public void testAttributes() {
     when(jmxConnectionFactory.create(ProcessId.ELASTICSEARCH).getSystemState()).thenReturn(ImmutableSortedMap.<String, Object>of(
       "foo", "foo_val", "bar", "bar_val"));
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsExactly(
+    Optional<Map<String, Object>> attributes = underTest.attributes();
+    assertThat(attributes.get()).containsExactly(
       MapEntry.entry("bar", "bar_val"),
       MapEntry.entry("foo", "foo_val"));
+  }
+
+  @Test
+  public void absent_attributes_if_CE_is_down() {
+    when(jmxConnectionFactory.create(ProcessId.ELASTICSEARCH)).thenReturn(null);
+    Optional<Map<String, Object>> attributes = underTest.attributes();
+    assertThat(attributes.isPresent()).isFalse();
   }
 }

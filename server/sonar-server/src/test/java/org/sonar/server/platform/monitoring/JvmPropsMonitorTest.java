@@ -19,7 +19,8 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.LinkedHashMap;
+import com.google.common.base.Optional;
+import java.util.Map;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -35,8 +36,8 @@ public class JvmPropsMonitorTest {
 
   @Test
   public void attributes() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+    Optional<Map<String, Object>> attributes = underTest.attributes();
 
-    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
+    assertThat(attributes.get()).containsKeys("java.vm.vendor", "os.name");
   }
 }

@@ -19,14 +19,12 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import java.util.Arrays;
+import java.util.Map;
 import org.junit.Test;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.updatecenter.common.Version;
-
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -54,7 +52,7 @@ public class PluginsMonitorTest {
       new PluginInfo("no-version")
         .setName("No Version")));
 
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+    Map<String, Object> attributes = underTest.attributes().get();
 
     assertThat(attributes).containsKeys("key-1", "key-2");
     assertThat((Map) attributes.get("key-1"))

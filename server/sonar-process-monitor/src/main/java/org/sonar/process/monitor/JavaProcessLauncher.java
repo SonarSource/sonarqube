@@ -38,7 +38,7 @@ import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_KEY;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_TERMINATION_TIMEOUT;
 
-class JavaProcessLauncher implements AutoCloseable {
+class JavaProcessLauncher {
 
   private final Timeouts timeouts;
   private final File tempDir;
@@ -50,7 +50,6 @@ class JavaProcessLauncher implements AutoCloseable {
     this.allProcessesCommands = new AllProcessesCommands(tempDir);
   }
 
-  @Override
   public void close() {
     allProcessesCommands.close();
   }

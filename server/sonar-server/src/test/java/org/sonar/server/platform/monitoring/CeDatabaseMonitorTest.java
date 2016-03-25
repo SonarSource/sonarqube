@@ -19,7 +19,8 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.LinkedHashMap;
+import com.google.common.base.Optional;
+import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
@@ -41,13 +42,20 @@ public class CeDatabaseMonitorTest {
   }
 
   @Test
-  public void testAttributes() {
+  public void attributes() {
     CeDatabaseMBean mbean = mock(CeDatabaseMBean.class, Mockito.RETURNS_DEFAULTS);
 
     when(jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE).getMBean(CeDatabaseMBean.OBJECT_NAME, CeDatabaseMBean.class))
       .thenReturn(mbean);
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsKeys("Pool Initial Size", "Pool Active Connections");
-    assertThat(attributes).hasSize(9);
+    Optional<Map<String, Object>> attributes = underTest.attributes();
+    assertThat(attributes.get()).containsKeys("Pool Initial Size", "Pool Active Connections");
+    assertThat(attributes.get()).hasSize(9);
+  }
+
+  @Test
+  public void absent_attributes_if_CE_is_down() {
+    when(jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE)).thenReturn(null);
+    Optional<Map<String, Object>> attributes = underTest.attributes();
+    assertThat(attributes.isPresent()).isFalse();
   }
 }
