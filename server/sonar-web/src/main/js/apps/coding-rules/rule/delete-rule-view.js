@@ -17,39 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
-import Marionette from 'backbone.marionette';
-import DeleteRuleView from './delete-rule-view';
-import Template from '../templates/rule/coding-rules-custom-rule.hbs';
+import $ from 'jquery';
 
-export default Marionette.ItemView.extend({
-  tagName: 'tr',
+import ModalFormView from '../../../components/common/modal-form';
+import Template from '../templates/rule/coding-rules-delete-rule.hbs';
+
+export default ModalFormView.extend({
   template: Template,
 
-  modelEvents: {
-    'change': 'render'
-  },
+  onFormSubmit() {
+    ModalFormView.prototype.onFormSubmit.apply(this, arguments);
 
-  events: {
-    'click .js-delete-custom-rule': 'deleteRule'
-  },
-
-  deleteRule () {
-    const deleteRuleView = new DeleteRuleView({
-      model: this.model
-    }).render();
-
-    deleteRuleView.on('delete', () => {
-      this.model.collection.remove(this.model);
+    const url = '/api/rules/delete';
+    const options = { key: this.model.id };
+    $.post(url, options).done(() => {
       this.destroy();
-    });
-  },
-
-  serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      canWrite: this.options.app.canWrite,
-      templateRule: this.options.templateRule,
-      permalink: '/coding_rules/#rule_key=' + encodeURIComponent(this.model.id)
+      this.trigger('delete');
     });
   }
 });

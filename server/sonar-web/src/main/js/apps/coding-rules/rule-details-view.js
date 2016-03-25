@@ -29,10 +29,9 @@ import ProfilesView from './rule/rule-profiles-view';
 import CustomRulesView from './rule/custom-rules-view';
 import ManualRuleCreationView from './rule/manual-rule-creation-view';
 import CustomRuleCreationView from './rule/custom-rule-creation-view';
+import DeleteRuleView from './rule/delete-rule-view';
 import IssuesView from './rule/rule-issues-view';
 import Template from './templates/coding-rules-rule-details.hbs';
-import confirmDialog from './confirm-dialog';
-import { translate, translateWithParameters } from '../../helpers/l10n';
 
 export default Marionette.LayoutView.extend({
   className: 'coding-rule-details',
@@ -147,18 +146,12 @@ export default Marionette.LayoutView.extend({
   },
 
   deleteRule () {
-    const that = this;
-    const ruleType = this.model.has('templateKey') ? 'custom' : 'manual';
-    confirmDialog({
-      title: translate('delete'),
-      html: translateWithParameters(`coding_rules.delete.${ruleType}.confirm`, this.model.get('name')),
-      yesHandler () {
-        const url = '/api/rules/delete';
-        const options = { key: that.model.id };
-        $.post(url, options).done(function () {
-          that.options.app.controller.fetchList();
-        });
-      }
+    const deleteRuleView = new DeleteRuleView({
+      model: this.model
+    }).render();
+
+    deleteRuleView.on('delete', () => {
+      this.options.app.controller.fetchList();
     });
   },
 
