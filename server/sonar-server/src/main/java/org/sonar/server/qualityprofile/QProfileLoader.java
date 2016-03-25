@@ -21,11 +21,9 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -101,12 +99,7 @@ public class QProfileLoader {
   }
 
   public Map<String, Long> countAllActiveRules() {
-    Set<Map.Entry<String, Long>> entries = activeRuleIndex.countAllByQualityProfileKey().entrySet();
-    Map<String, Long> counts = new HashMap<>(entries.size());
-    for (Map.Entry<String, Long> entry : entries) {
-      counts.put(entry.getKey(), entry.getValue());
-    }
-    return counts;
+    return activeRuleIndex.countAllByQualityProfileKey();
   }
 
   public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {

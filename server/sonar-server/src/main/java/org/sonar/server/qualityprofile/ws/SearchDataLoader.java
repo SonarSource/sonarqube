@@ -181,13 +181,13 @@ public class SearchDataLoader {
     return Sets.newHashSet(Sets.difference(languageKeys, set2));
   }
 
-  private void addAllFromDto(Map<String, QProfile> qualityProfiles, Collection<QualityProfileDto> list) {
+  private static void addAllFromDto(Map<String, QProfile> qualityProfiles, Collection<QualityProfileDto> list) {
     for (QualityProfileDto qualityProfileDto : list) {
       qualityProfiles.put(qualityProfileDto.getLanguage(), QualityProfileDtoToQProfile.INSTANCE.apply(qualityProfileDto));
     }
   }
 
-  private void addAll(Map<String, QProfile> qualityProfiles, Collection<QProfile> list) {
+  private static void addAll(Map<String, QProfile> qualityProfiles, Collection<QProfile> list) {
     for (QProfile qProfile : list) {
       qualityProfiles.put(qProfile.language(), qProfile);
     }
@@ -195,12 +195,6 @@ public class SearchDataLoader {
 
   private Set<String> getLanguageKeys() {
     return from(Arrays.asList(languages.all())).transform(LanguageToKey.INSTANCE).toSet();
-  }
-
-  private List<QProfile> findDefaultProfiles(Set<String> languageKeys) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      return findDefaultProfiles(dbSession, languageKeys);
-    }
   }
 
   private List<QProfile> findDefaultProfiles(final DbSession dbSession, Set<String> languageKeys) {
