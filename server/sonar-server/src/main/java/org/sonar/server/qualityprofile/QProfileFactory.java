@@ -21,8 +21,10 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.RandomStringUtils;
 import org.apache.commons.lang.StringUtils;
@@ -138,6 +140,11 @@ public class QProfileFactory {
     return db.qualityProfileDao().selectDefaultProfile(session, language);
   }
 
+  @CheckForNull
+  public List<QualityProfileDto> getDefaults(DbSession session, Collection<String> languageKeys) {
+    return db.qualityProfileDao().selectDefaultProfiles(session, languageKeys);
+  }
+
   public void setDefault(String profileKey) {
     DbSession dbSession = db.openSession(false);
     try {
@@ -179,6 +186,10 @@ public class QProfileFactory {
     return db.qualityProfileDao().selectByProjectAndLanguage(session, projectKey, language);
   }
 
+  public List<QualityProfileDto> getByProjectAndLanguages(DbSession session, String projectKey, Set<String> languageKeys) {
+    return db.qualityProfileDao().selectByProjectAndLanguages(session, projectKey, languageKeys);
+  }
+
   QualityProfileDto getByNameAndLanguage(String name, String language) {
     DbSession dbSession = db.openSession(false);
     try {
@@ -191,6 +202,10 @@ public class QProfileFactory {
   @CheckForNull
   public QualityProfileDto getByNameAndLanguage(DbSession session, String name, String language) {
     return db.qualityProfileDao().selectByNameAndLanguage(name, language, session);
+  }
+
+  public List<QualityProfileDto> getByNameAndLanguages(DbSession session, String name, Collection<String> languages) {
+    return db.qualityProfileDao().selectByNameAndLanguages(name, languages, session);
   }
 
   private void checkNotDefault(QualityProfileDto p) {

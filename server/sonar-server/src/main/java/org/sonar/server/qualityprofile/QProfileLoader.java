@@ -25,6 +25,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
@@ -100,8 +101,9 @@ public class QProfileLoader {
   }
 
   public Map<String, Long> countAllActiveRules() {
-    Map<String, Long> counts = new HashMap<>();
-    for (Map.Entry<String, Long> entry : activeRuleIndex.countAllByQualityProfileKey().entrySet()) {
+    Set<Map.Entry<String, Long>> entries = activeRuleIndex.countAllByQualityProfileKey().entrySet();
+    Map<String, Long> counts = new HashMap<>(entries.size());
+    for (Map.Entry<String, Long> entry : entries) {
       counts.put(entry.getKey(), entry.getValue());
     }
     return counts;

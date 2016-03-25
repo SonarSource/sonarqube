@@ -108,7 +108,7 @@ public class SearchAction implements QProfileWsAction {
 
   private SearchWsResponse buildResponse(SearchData data) {
     List<QProfile> profiles = data.getProfiles();
-    Map<String, QProfile> profilesByKey = uniqueIndex(profiles, new QProfileToKey());
+    Map<String, QProfile> profilesByKey = uniqueIndex(profiles, QProfileToKey.INSTANCE);
 
     QualityProfiles.SearchWsResponse.Builder response = QualityProfiles.SearchWsResponse.newBuilder();
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder();
@@ -169,7 +169,9 @@ public class SearchAction implements QProfileWsAction {
     return value != null;
   }
 
-  private static class QProfileToKey implements Function<QProfile, String> {
+  private enum QProfileToKey implements Function<QProfile, String> {
+    INSTANCE;
+
     @Override
     public String apply(@Nonnull QProfile input) {
       return input.key();

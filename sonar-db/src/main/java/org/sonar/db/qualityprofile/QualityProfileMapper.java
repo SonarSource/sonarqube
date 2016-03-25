@@ -37,8 +37,12 @@ public interface QualityProfileMapper {
   @CheckForNull
   QualityProfileDto selectDefaultProfile(@Param("language") String language);
 
+  List<QualityProfileDto> selectDefaultProfiles(@Param("languages") List<String> languages);
+
   @CheckForNull
   QualityProfileDto selectByNameAndLanguage(@Param("name") String name, @Param("language") String language);
+
+  List<QualityProfileDto> selectByNameAndLanguages(@Param("name") String name, @Param("languages") List<String> languages);
 
   @CheckForNull
   QualityProfileDto selectById(@Param("id") Integer id);
@@ -69,6 +73,8 @@ public interface QualityProfileMapper {
   QualityProfileDto selectByProjectIdAndLanguage(@Param("projectId") Long projectId, @Param("language") String language);
 
   QualityProfileDto selectByProjectAndLanguage(@Param("projectKey") String projectKey, @Param("language") String language);
+
+  List<QualityProfileDto> selectByProjectAndLanguages(@Param("projectKey") String projectKey, @Param("languages") List<String> input);
 
   void insertProjectProfileAssociation(@Param("projectUuid") String projectUuid, @Param("profileKey") String profileKey);
 

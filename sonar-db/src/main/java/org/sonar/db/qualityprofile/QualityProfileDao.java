@@ -19,16 +19,20 @@
  */
 package org.sonar.db.qualityprofile;
 
+import com.google.common.base.Function;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
@@ -155,8 +159,7 @@ public class QualityProfileDao implements Dao {
   }
 
   /**
-   * @deprecated Replaced by
-   *    {@link #selectAll(DbSession)}
+   * @deprecated Replaced by {@link #selectAll(DbSession)}
    */
   @Deprecated
   public List<QualityProfileDto> selectAll() {
@@ -169,7 +172,18 @@ public class QualityProfileDao implements Dao {
   }
 
   @CheckForNull
-  public QualityProfileDto selectDefaultProfile(DbSession session, String language) {
+  public List<QualityProfileDto> selectDefaultProfiles(final DbSession session, Collection<String> languageKeys) {
+    return DatabaseUtils.executeLargeInputs(languageKeys, new Function<List<String>, List<QualityProfileDto>>() {
+      @Override
+      @Nonnull
+      public List<QualityProfileDto> apply(@Nonnull List<String> input) {
+        return mapper(session).selectDefaultProfiles(input);
+      }
+    });
+  }
+
+  @CheckForNull
+  public QualityProfileDto selectDefaultProfile(final DbSession session, String language) {
     return mapper(session).selectDefaultProfile(language);
   }
 
@@ -196,6 +210,16 @@ public class QualityProfileDao implements Dao {
   @CheckForNull
   public QualityProfileDto selectByProjectAndLanguage(DbSession session, String projectKey, String language) {
     return mapper(session).selectByProjectAndLanguage(projectKey, language);
+  }
+
+  public List<QualityProfileDto> selectByProjectAndLanguages(final DbSession session, final String projectKey, Collection<String> languageKeys) {
+    return DatabaseUtils.executeLargeInputs(languageKeys, new Function<List<String>, List<QualityProfileDto>>() {
+      @Override
+      @Nonnull
+      public List<QualityProfileDto> apply(@Nonnull List<String> input) {
+        return mapper(session).selectByProjectAndLanguages(projectKey, input);
+      }
+    });
   }
 
   public List<QualityProfileDto> selectByLanguage(String language) {
@@ -273,6 +297,16 @@ public class QualityProfileDao implements Dao {
     return mapper(session).selectByNameAndLanguage(name, language);
   }
 
+  public List<QualityProfileDto> selectByNameAndLanguages(final String name, Collection<String> languageKeys, final DbSession session) {
+    return DatabaseUtils.executeLargeInputs(languageKeys, new Function<List<String>, List<QualityProfileDto>>() {
+      @Override
+      @Nonnull
+      public List<QualityProfileDto> apply(@Nonnull List<String> input) {
+        return mapper(session).selectByNameAndLanguages(name, input);
+      }
+    });
+  }
+
   public List<ComponentDto> selectProjects(String profileName, String language) {
     DbSession session = mybatis.openSession(false);
     try {
@@ -346,5 +380,4 @@ public class QualityProfileDao implements Dao {
   private QualityProfileMapper mapper(DbSession session) {
     return session.getMapper(QualityProfileMapper.class);
   }
-
 }

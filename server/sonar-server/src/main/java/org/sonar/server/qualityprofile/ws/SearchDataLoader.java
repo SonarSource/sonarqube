@@ -19,10 +19,16 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
+import com.google.common.base.Function;
 import com.google.common.base.Predicate;
-import java.util.ArrayList;
+import com.google.common.collect.Sets;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.CompareToBuilder;
@@ -39,7 +45,6 @@ import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -51,6 +56,7 @@ public class SearchDataLoader {
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private final IsLanguageKnown isLanguageKnown;
 
   public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, DbClient dbClient,
     ComponentFinder componentFinder) {
@@ -60,6 +66,7 @@ public class SearchDataLoader {
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
+    this.isLanguageKnown = new IsLanguageKnown();
   }
 
   SearchData load(SearchWsRequest request) {
@@ -72,7 +79,7 @@ public class SearchDataLoader {
   }
 
   private List<QProfile> findProfiles(SearchWsRequest request) {
-    List<QProfile> profiles;
+    Collection<QProfile> profiles;
     if (askDefaultProfiles(request)) {
       profiles = findDefaultProfiles(request);
     } else if (hasComponentKey(request)) {
@@ -81,105 +88,125 @@ public class SearchDataLoader {
       profiles = findAllProfiles(request);
     }
 
-    return orderProfiles(profiles);
+    return from(profiles).toSortedList(QProfileComparator.INSTANCE);
   }
 
-  private static List<QProfile> orderProfiles(List<QProfile> profiles) {
-    return from(profiles)
-      .toSortedList(QProfileComparator.INSTANCE);
+  private Collection<QProfile> findDefaultProfiles(SearchWsRequest request) {
+    String profileName = request.getProfileName();
+
+    Set<String> languageKeys = getLanguageKeys();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Map<String, QProfile> qualityProfiles = new HashMap<>(languageKeys.size());
+
+      Set<String> missingLanguageKeys = lookupByProfileName(dbSession, qualityProfiles, languageKeys, profileName);
+      Set<String> noDefaultProfileLanguageKeys = lookupDefaults(dbSession, qualityProfiles, missingLanguageKeys);
+
+      if (!noDefaultProfileLanguageKeys.isEmpty()) {
+        throw new IllegalStateException(format("No quality profile can been found on language(s) '%s'", noDefaultProfileLanguageKeys));
+      }
+
+      return qualityProfiles.values();
+    }
+  }
+
+  private Collection<QProfile> findProjectProfiles(SearchWsRequest request) {
+    String componentKey = request.getProjectKey();
+    String profileName = request.getProfileName();
+
+    Set<String> languageKeys = getLanguageKeys();
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      Map<String, QProfile> qualityProfiles = new HashMap<>(languageKeys.size());
+
+      // look up profiles by profileName (if any) for each language
+      Set<String> unresolvedLanguages = lookupByProfileName(dbSession, qualityProfiles, languageKeys, profileName);
+      // look up profile by componentKey for each language for which we don't have one yet
+      Set<String> stillUnresolvedLanguages = lookupByModuleKey(dbSession, qualityProfiles, unresolvedLanguages, componentKey);
+      // look up profile by default for each language for which we don't have one yet
+      Set<String> noDefaultProfileLanguages = lookupDefaults(dbSession, qualityProfiles, stillUnresolvedLanguages);
+
+      if (!noDefaultProfileLanguages.isEmpty()) {
+        throw new IllegalStateException(format("No quality profile can been found on language(s) '%s' for project '%s'", noDefaultProfileLanguages, componentKey));
+      }
+
+      return qualityProfiles.values();
+    }
   }
 
   private List<QProfile> findAllProfiles(SearchWsRequest request) {
     String language = request.getLanguage();
 
-    List<QProfile> profiles = language != null ? profileLookup.profiles(language)
-      : profileLookup.allProfiles();
-
-    return from(profiles)
-      .filter(new IsLanguageKnown())
-      .toList();
+    if (language == null) {
+      return from(profileLookup.allProfiles()).filter(isLanguageKnown).toList();
+    }
+    return profileLookup.profiles(language);
   }
 
-  private List<QProfile> findProjectProfiles(SearchWsRequest request) {
-    String moduleKey = request.getProjectKey();
-    String profileName = request.getProfileName();
-
-    List<QProfile> profiles = new ArrayList<>();
-
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      for (Language language : languages.all()) {
-        String languageKey = language.getKey();
-        ComponentDto project = getProject(moduleKey, dbSession);
-        profiles.add(getProfile(dbSession, languageKey, project.key(), profileName));
-      }
-    } finally {
-      dbClient.closeSession(dbSession);
+  private Set<String> lookupByProfileName(DbSession dbSession, Map<String, QProfile> qualityProfiles, Set<String> languageKeys, @Nullable String profileName) {
+    if (languageKeys.isEmpty() || profileName == null) {
+      return languageKeys;
     }
 
-    return profiles;
+    addAllFromDto(qualityProfiles, profileFactory.getByNameAndLanguages(dbSession, profileName, languageKeys));
+    return difference(languageKeys, qualityProfiles.keySet());
+  }
+
+  private Set<String> lookupByModuleKey(DbSession dbSession, Map<String, QProfile> qualityProfiles, Set<String> languageKeys, @Nullable String moduleKey) {
+    if (languageKeys.isEmpty() || moduleKey == null) {
+      return languageKeys;
+    }
+
+    ComponentDto project = getProject(moduleKey, dbSession);
+    addAllFromDto(qualityProfiles, profileFactory.getByProjectAndLanguages(dbSession, project.getKey(), languageKeys));
+    return difference(languageKeys, qualityProfiles.keySet());
   }
 
   private ComponentDto getProject(String moduleKey, DbSession session) {
     ComponentDto module = componentFinder.getByKey(session, moduleKey);
-    if (!module.isRootProject()) {
-      return dbClient.componentDao().selectOrFailByUuid(session, module.projectUuid());
-    } else {
+    if (module.isRootProject()) {
       return module;
     }
+    return dbClient.componentDao().selectOrFailByUuid(session, module.projectUuid());
   }
 
-  private List<QProfile> findDefaultProfiles(SearchWsRequest request) {
-    String profileName = request.getProfileName();
-    List<QProfile> profiles = new ArrayList<>();
-
-    DbSession dbSession = dbClient.openSession(false);
-    try {
-      for (Language language : languages.all()) {
-        profiles.add(getDefaultProfile(dbSession, language.getKey(), profileName));
-      }
-    } finally {
-      dbClient.closeSession(dbSession);
+  private Set<String> lookupDefaults(DbSession dbSession, Map<String, QProfile> qualityProfiles, Set<String> languageKeys) {
+    if (languageKeys.isEmpty()) {
+      return languageKeys;
     }
 
-    return profiles;
+    addAll(qualityProfiles, findDefaultProfiles(dbSession, languageKeys));
+    return difference(languageKeys, qualityProfiles.keySet());
   }
 
-  private static QProfile profileDtoToQProfile(QualityProfileDto dto) {
-    return new QProfile()
-      .setKey(dto.getKey())
-      .setName(dto.getName())
-      .setLanguage(dto.getLanguage())
-      .setDefault(dto.isDefault())
-      .setRulesUpdatedAt(dto.getRulesUpdatedAt());
+  private static <T> Set<T> difference(Set<T> languageKeys, Set<T> set2) {
+    return Sets.newHashSet(Sets.difference(languageKeys, set2));
   }
 
-  /**
-   * First try to find a quality profile matching the given name (if provided) and current language
-   * If no profile found, try to find the quality profile set on the project (if provided)
-   * If still no profile found, try to find the default profile of the language
-   * <p/>
-   * Never return null because a default profile should always be set on each language
-   */
-  private QProfile getProfile(DbSession dbSession, String languageKey, @Nullable String projectKey, @Nullable String profileName) {
-    QualityProfileDto profileDto = profileName != null ? profileFactory.getByNameAndLanguage(dbSession, profileName, languageKey) : null;
-    if (profileDto == null && projectKey != null) {
-      profileDto = profileFactory.getByProjectAndLanguage(dbSession, projectKey, languageKey);
+  private void addAllFromDto(Map<String, QProfile> qualityProfiles, Collection<QualityProfileDto> list) {
+    for (QualityProfileDto qualityProfileDto : list) {
+      qualityProfiles.put(qualityProfileDto.getLanguage(), QualityProfileDtoToQProfile.INSTANCE.apply(qualityProfileDto));
     }
-    profileDto = profileDto != null ? profileDto : profileFactory.getDefault(dbSession, languageKey);
-    checkState(profileDto != null, format("No quality profile can been found on language '%s' for project '%s'", languageKey, projectKey));
-
-    return profileDtoToQProfile(profileDto);
   }
 
-  private QProfile getDefaultProfile(DbSession dbSession, String languageKey, @Nullable String profileName) {
-    QualityProfileDto profile = profileName != null ? profileFactory.getByNameAndLanguage(dbSession, profileName, languageKey) : null;
-    if (profile == null) {
-      profile = profileFactory.getDefault(dbSession, languageKey);
+  private void addAll(Map<String, QProfile> qualityProfiles, Collection<QProfile> list) {
+    for (QProfile qProfile : list) {
+      qualityProfiles.put(qProfile.language(), qProfile);
     }
-    checkState(profile != null, format("No quality profile can been found on language '%s'", languageKey));
+  }
 
-    return profileDtoToQProfile(profile);
+  private Set<String> getLanguageKeys() {
+    return from(Arrays.asList(languages.all())).transform(LanguageToKey.INSTANCE).toSet();
+  }
+
+  private List<QProfile> findDefaultProfiles(Set<String> languageKeys) {
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      return findDefaultProfiles(dbSession, languageKeys);
+    }
+  }
+
+  private List<QProfile> findDefaultProfiles(final DbSession dbSession, Set<String> languageKeys) {
+    return from(profileFactory.getDefaults(dbSession, languageKeys))
+      .transform(QualityProfileDtoToQProfile.INSTANCE)
+      .toList();
   }
 
   private static void validateRequest(SearchWsRequest request) {
@@ -193,16 +220,16 @@ public class SearchDataLoader {
     checkRequest(!isDefault || !hasComponentKey, "The default parameter cannot be provided at the same time than the component key");
   }
 
+  private static boolean askDefaultProfiles(SearchWsRequest request) {
+    return request.getDefaults();
+  }
+
   private static boolean hasProfileName(SearchWsRequest request) {
     return request.getProfileName() != null;
   }
 
   private static boolean hasComponentKey(SearchWsRequest request) {
     return request.getProjectKey() != null;
-  }
-
-  private static Boolean askDefaultProfiles(SearchWsRequest request) {
-    return request.getDefaults();
   }
 
   private static boolean hasLanguage(SearchWsRequest request) {
@@ -218,6 +245,32 @@ public class SearchDataLoader {
         .append(o1.name(), o2.name())
         .toComparison();
     }
+  }
+
+  private enum LanguageToKey implements Function<Language, String> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public String apply(@Nonnull Language input) {
+      return input.getKey();
+    }
+  }
+
+  private enum QualityProfileDtoToQProfile implements Function<QualityProfileDto, QProfile> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public QProfile apply(@Nonnull QualityProfileDto input) {
+      return new QProfile()
+        .setKey(input.getKey())
+        .setName(input.getName())
+        .setLanguage(input.getLanguage())
+        .setDefault(input.isDefault())
+        .setRulesUpdatedAt(input.getRulesUpdatedAt());
+    }
+
   }
 
   private class IsLanguageKnown implements Predicate<QProfile> {

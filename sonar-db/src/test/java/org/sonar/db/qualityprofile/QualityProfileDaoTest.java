@@ -28,6 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.core.util.UtcDateUtils;
 import org.sonar.db.DbTester;
 
+import static com.google.common.collect.ImmutableList.of;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -130,6 +132,18 @@ public class QualityProfileDaoTest {
   }
 
   @Test
+  public void get_default_profiles() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    List<QualityProfileDto> java = dao.selectDefaultProfiles(dbTester.getSession(), singletonList("java"));
+    assertThat(java).extracting("key").containsOnly("java_sonar_way");
+
+    assertThat(dao.selectDefaultProfiles(dbTester.getSession(), singletonList("js"))).isEmpty();
+    assertThat(dao.selectDefaultProfiles(dbTester.getSession(), of("java", "js"))).extracting("key").containsOnly("java_sonar_way");
+    assertThat(dao.selectDefaultProfiles(dbTester.getSession(), of("js", "java"))).extracting("key").containsOnly("java_sonar_way");
+  }
+
+  @Test
   public void get_by_name_and_language() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
 
@@ -141,6 +155,22 @@ public class QualityProfileDaoTest {
 
     assertThat(dao.selectByNameAndLanguage("Sonar Way", "java", dbTester.getSession())).isNotNull();
     assertThat(dao.selectByNameAndLanguage("Sonar Way", "unknown", dbTester.getSession())).isNull();
+  }
+
+  @Test
+  public void get_by_name_and_languages() {
+    dbTester.prepareDbUnit(getClass(), "shared.xml");
+
+    List<QualityProfileDto> dtos = dao.selectByNameAndLanguages("Sonar Way", singletonList("java"), dbTester.getSession());
+    assertThat(dtos).hasSize(1);
+    QualityProfileDto dto = dtos.iterator().next();
+    assertThat(dto.getId()).isEqualTo(1);
+    assertThat(dto.getName()).isEqualTo("Sonar Way");
+    assertThat(dto.getLanguage()).isEqualTo("java");
+    assertThat(dto.getParentKee()).isNull();
+
+    assertThat(dao.selectByNameAndLanguages("Sonar Way", singletonList("unknown"), dbTester.getSession())).isEmpty();
+    assertThat(dao.selectByNameAndLanguages("Sonar Way", of("java", "unknown"), dbTester.getSession())).extracting("id").containsOnly(1);
   }
 
   @Test
@@ -235,5 +265,17 @@ public class QualityProfileDaoTest {
 
     assertThat(dao.selectByProjectAndLanguage(dbTester.getSession(), "org.codehaus.sonar:sonar", "unkown")).isNull();
     assertThat(dao.selectByProjectAndLanguage(dbTester.getSession(), "unknown", "java")).isNull();
+  }
+
+  @Test
+  public void select_by_project_key_and_languages() {
+    dbTester.prepareDbUnit(getClass(), "projects.xml");
+
+    List<QualityProfileDto> dto = dao.selectByProjectAndLanguages(dbTester.getSession(), "org.codehaus.sonar:sonar", singletonList("java"));
+    assertThat(dto).extracting("id").containsOnly(1);
+
+    assertThat(dao.selectByProjectAndLanguages(dbTester.getSession(), "org.codehaus.sonar:sonar", singletonList("unkown"))).isEmpty();
+    assertThat(dao.selectByProjectAndLanguages(dbTester.getSession(), "org.codehaus.sonar:sonar", of("java", "unkown"))).extracting("id").containsOnly(1);
+    assertThat(dao.selectByProjectAndLanguages(dbTester.getSession(), "unknown", singletonList("java"))).isEmpty();
   }
 }
