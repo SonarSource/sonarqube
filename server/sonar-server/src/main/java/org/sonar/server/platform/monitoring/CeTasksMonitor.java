@@ -19,7 +19,9 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.CeTasksMBean;
 import org.sonar.process.jmx.JmxConnection;
@@ -39,9 +41,12 @@ public class CeTasksMonitor implements Monitor {
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
+  public Optional<Map<String, Object>> attributes() {
     try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE)) {
-      LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+      if (connection == null) {
+        return Optional.absent();
+      }
+      Map<String, Object> result = new LinkedHashMap<>();
       CeTasksMBean ceMBean = connection.getMBean(CeTasksMBean.OBJECT_NAME, CeTasksMBean.class);
       result.put("Pending", ceMBean.getPendingCount());
       result.put("In Progress", ceMBean.getInProgressCount());
@@ -49,7 +54,7 @@ public class CeTasksMonitor implements Monitor {
       result.put("Processed With Error", ceMBean.getErrorCount());
       result.put("Processing Time (ms)", ceMBean.getProcessingTime());
       result.put("Worker Count", ceMBean.getWorkerCount());
-      return result;
+      return Optional.of(result);
     }
   }
 }

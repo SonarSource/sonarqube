@@ -19,8 +19,10 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
@@ -95,8 +97,8 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
-    LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
+  public Optional<Map<String, Object>> attributes() {
+    Map<String, Object> attributes = new LinkedHashMap<>();
     attributes.put("Server ID", getServerId());
     attributes.put("Version", getVersion());
     attributes.put("External User Authentication", getExternalUserAuthentication());
@@ -109,7 +111,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     attributes.put("Temp Dir", settings.getString(ProcessProperties.PATH_TEMP));
     attributes.put("Logs Dir", settings.getString(ProcessProperties.PATH_LOGS));
     attributes.put("Logs Level", getLogLevel());
-    return attributes;
+    return Optional.of(attributes);
 
   }
 }

@@ -19,8 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import org.sonar.api.utils.System2;
-
+import com.google.common.base.Optional;
 import java.lang.management.ClassLoadingMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
@@ -28,6 +27,8 @@ import java.lang.management.RuntimeMXBean;
 import java.lang.management.ThreadMXBean;
 import java.util.Date;
 import java.util.LinkedHashMap;
+import java.util.Map;
+import org.sonar.api.utils.System2;
 
 import static org.sonar.api.utils.DateUtils.formatDateTime;
 
@@ -52,8 +53,8 @@ public class SystemMonitor implements Monitor {
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
-    LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
+  public Optional<Map<String, Object>> attributes() {
+    Map<String, Object> attributes = new LinkedHashMap<>();
     attributes.put("System Date", formatDateTime(new Date(system.now())));
     attributes.put("Start Time", formatDateTime(new Date(runtimeMXBean().getStartTime())));
     attributes.put("JVM Vendor", runtimeMXBean().getVmVendor());
@@ -75,7 +76,7 @@ public class SystemMonitor implements Monitor {
     attributes.put("Threads", threadMXBean().getThreadCount());
     attributes.put("Threads Peak", threadMXBean().getPeakThreadCount());
     attributes.put("Daemon Thread", threadMXBean().getDaemonThreadCount());
-    return attributes;
+    return Optional.of(attributes);
   }
 
   private static RuntimeMXBean runtimeMXBean() {

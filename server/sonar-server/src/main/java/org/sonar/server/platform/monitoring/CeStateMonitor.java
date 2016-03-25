@@ -19,7 +19,8 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.LinkedHashMap;
+import com.google.common.base.Optional;
+import java.util.Map;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.JmxConnection;
 import org.sonar.process.jmx.JmxConnectionFactory;
@@ -38,9 +39,12 @@ public class CeStateMonitor implements Monitor {
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
+  public Optional<Map<String, Object>> attributes() {
     try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE)) {
-      return new LinkedHashMap<>(connection.getSystemState());
+      if (connection == null) {
+        return Optional.absent();
+      }
+      return Optional.of(connection.getSystemState());
     }
   }
 }

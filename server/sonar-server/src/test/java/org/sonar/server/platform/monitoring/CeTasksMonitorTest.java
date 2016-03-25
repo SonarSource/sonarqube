@@ -19,7 +19,8 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.LinkedHashMap;
+import com.google.common.base.Optional;
+import java.util.Map;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.process.ProcessId;
@@ -46,8 +47,15 @@ public class CeTasksMonitorTest {
 
     when(jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE).getMBean(CeTasksMBean.OBJECT_NAME, CeTasksMBean.class))
       .thenReturn(mbean);
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsKeys("Pending");
-    assertThat(attributes).hasSize(6);
+    Optional<Map<String, Object>> attributes = underTest.attributes();
+    assertThat(attributes.get()).containsKeys("Pending");
+    assertThat(attributes.get()).hasSize(6);
+  }
+
+  @Test
+  public void absent_attributes_if_CE_is_down() {
+    when(jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE)).thenReturn(null);
+    Optional<Map<String, Object>> attributes = underTest.attributes();
+    assertThat(attributes.isPresent()).isFalse();
   }
 }

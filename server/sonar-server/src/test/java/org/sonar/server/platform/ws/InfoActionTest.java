@@ -19,7 +19,9 @@
  */
 package org.sonar.server.platform.ws;
 
+import com.google.common.base.Optional;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
@@ -42,7 +44,8 @@ public class InfoActionTest {
 
   Monitor monitor1 = mock(Monitor.class);
   Monitor monitor2 = mock(Monitor.class);
-  InfoAction underTest = new InfoAction(userSessionRule, monitor1, monitor2);
+  Monitor monitor3 = mock(Monitor.class);
+  InfoAction underTest = new InfoAction(userSessionRule, monitor1, monitor2, monitor3);
 
   @Test(expected = ForbiddenException.class)
   public void should_fail_when_does_not_have_admin_right() {
@@ -55,18 +58,21 @@ public class InfoActionTest {
   public void write_json() {
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
-    LinkedHashMap<String, Object> attributes1 = new LinkedHashMap<>();
+    Map<String, Object> attributes1 = new LinkedHashMap<>();
     attributes1.put("foo", "bar");
-    LinkedHashMap<String, Object> attributes2 = new LinkedHashMap<>();
+    Map<String, Object> attributes2 = new LinkedHashMap<>();
     attributes2.put("one", 1);
     attributes2.put("two", 2);
     when(monitor1.name()).thenReturn("Monitor One");
-    when(monitor1.attributes()).thenReturn(attributes1);
+    when(monitor1.attributes()).thenReturn(Optional.of(attributes1));
     when(monitor2.name()).thenReturn("Monitor Two");
-    when(monitor2.attributes()).thenReturn(attributes2);
+    when(monitor2.attributes()).thenReturn(Optional.of(attributes2));
+    when(monitor3.name()).thenReturn("Monitor Three");
+    when(monitor3.attributes()).thenReturn(Optional.<Map<String, Object>>absent());
 
     WsTester.TestResponse response = new WsTester.TestResponse();
     underTest.handle(new SimpleGetRequest(), response);
+    // response does not contain empty "Monitor Three"
     assertThat(response.outputAsString()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}}");
   }
 }

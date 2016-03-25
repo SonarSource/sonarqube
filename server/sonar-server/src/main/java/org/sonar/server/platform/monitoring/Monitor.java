@@ -19,10 +19,10 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
+import java.util.Map;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.platform.ws.InfoAction;
-
-import java.util.LinkedHashMap;
 
 /**
  * Any component that is involved in the informations returned by the web service api/system/info
@@ -38,5 +38,5 @@ public interface Monitor {
    * Type of attribute values must be supported by {@link org.sonar.api.utils.text.JsonWriter#valueObject(Object)}
    * because of JSON export by {@link InfoAction}
    */
-  LinkedHashMap<String, Object> attributes();
+  Optional<Map<String, Object>> attributes();
 }

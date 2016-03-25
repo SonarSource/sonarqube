@@ -19,8 +19,9 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import java.io.File;
-import java.util.LinkedHashMap;
+import java.util.Map;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -61,8 +62,8 @@ public class SonarQubeMonitorTest {
     when(server.getStartedAt()).thenReturn(DateUtils.parseDate("2015-01-01"));
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    LinkedHashMap<String, Object> attributes = monitor.attributes();
-    assertThat(attributes).containsKeys("Server ID", "Version");
+    Optional<Map<String, Object>> attributes = monitor.attributes();
+    assertThat(attributes.get()).containsKeys("Server ID", "Version");
   }
 
   @Test
@@ -73,8 +74,8 @@ public class SonarQubeMonitorTest {
     when(server.getRootDir()).thenReturn(rootDir);
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    LinkedHashMap<String, Object> attributes = monitor.attributes();
-    assertThat(attributes).containsEntry("Official Distribution", Boolean.TRUE);
+    Optional<Map<String, Object>> attributes = monitor.attributes();
+    assertThat(attributes.get()).containsEntry("Official Distribution", Boolean.TRUE);
   }
 
   @Test
@@ -84,15 +85,15 @@ public class SonarQubeMonitorTest {
     when(server.getRootDir()).thenReturn(rootDir);
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    LinkedHashMap<String, Object> attributes = monitor.attributes();
-    assertThat(attributes).containsEntry("Official Distribution", Boolean.FALSE);
+    Optional<Map<String, Object>> attributes = monitor.attributes();
+    assertThat(attributes.get()).containsEntry("Official Distribution", Boolean.FALSE);
   }
 
   @Test
   public void get_log_level() throws Exception {
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    LinkedHashMap<String, Object> attributes = monitor.attributes();
-    assertThat(attributes).containsEntry("Logs Level", "DEBUG");
+    Optional<Map<String, Object>> attributes = monitor.attributes();
+    assertThat(attributes.get()).containsEntry("Logs Level", "DEBUG");
   }
 }

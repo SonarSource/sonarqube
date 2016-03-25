@@ -20,6 +20,7 @@
 package org.sonar.process.jmx;
 
 import java.io.File;
+import javax.annotation.CheckForNull;
 import javax.annotation.concurrent.Immutable;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
@@ -44,14 +45,23 @@ public class JmxConnectionFactory {
     this.ipcSharedDir = props.nonNullValueAsFile(ProcessEntryPoint.PROPERTY_SHARED_PATH);
   }
 
+  @CheckForNull
   public JmxConnection create(ProcessId processId) {
     try (DefaultProcessCommands commands = DefaultProcessCommands.secondary(ipcSharedDir, processId.getIpcIndex())) {
-      String url = commands.getJmxUrl();
-      JMXConnector jmxConnector = JMXConnectorFactory.newJMXConnector(new JMXServiceURL(url), null);
-      jmxConnector.connect();
-      return new JmxConnection(jmxConnector);
+      if (commands.isUp()) {
+        String url = commands.getJmxUrl();
+        JMXConnector jmxConnector = JMXConnectorFactory.newJMXConnector(new JMXServiceURL(url), null);
+        jmxConnector.connect();
+        return new JmxConnection(jmxConnector);
+      }
+      return null;
     } catch (Exception e) {
       throw new IllegalStateException("Can not connect to process " + processId, e);
     }
+  }
+
+  // visible for testing
+  File getIpcSharedDir() {
+    return ipcSharedDir;
   }
 }

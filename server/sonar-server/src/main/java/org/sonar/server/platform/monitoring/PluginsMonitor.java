@@ -19,7 +19,9 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.updatecenter.common.Version;
@@ -40,8 +42,8 @@ public class PluginsMonitor implements Monitor {
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
-    LinkedHashMap<String, Object> attributes = new LinkedHashMap<>();
+  public Optional<Map<String, Object>> attributes() {
+    Map<String, Object> attributes = new LinkedHashMap<>();
     for (PluginInfo plugin : repository.getPluginInfos()) {
       LinkedHashMap<String, Object> pluginAttributes = new LinkedHashMap<>();
       pluginAttributes.put("Name", plugin.getName());
@@ -51,6 +53,6 @@ public class PluginsMonitor implements Monitor {
       }
       attributes.put(plugin.getKey(), pluginAttributes);
     }
-    return attributes;
+    return Optional.of(attributes);
   }
 }

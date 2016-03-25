@@ -25,7 +25,7 @@ import { translate } from '../../helpers/l10n';
 import RestartModal from '../../components/RestartModal';
 
 const SECTIONS_ORDER = ['SonarQube', 'Database', 'Plugins', 'System', 'Elasticsearch State', 'Elasticsearch',
-  'Compute Engine Tasks', 'Compute Engine State', 'Compute Engine Database', 'JvmProperties'];
+  'Compute Engine Tasks', 'Compute Engine State', 'Compute Engine Database Connection', 'JvmProperties'];
 
 export default React.createClass({
   componentDidMount() {

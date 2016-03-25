@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.LinkedHashMap;
 import java.util.Map;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.junit.Before;
@@ -59,7 +58,7 @@ public class EsMonitorTest {
 
   @Test
   public void cluster_attributes() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+    Map<String, Object> attributes = underTest.attributes().get();
     assertThat(underTest.getState()).isEqualTo(ClusterHealthStatus.GREEN.name());
     assertThat(attributes.get("State")).isEqualTo(ClusterHealthStatus.GREEN);
     assertThat(attributes.get("Number of Nodes")).isEqualTo(1);
@@ -67,7 +66,7 @@ public class EsMonitorTest {
 
   @Test
   public void node_attributes() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+    Map<String, Object> attributes = underTest.attributes().get();
     Map nodesAttributes = (Map) attributes.get("Nodes");
 
     // one node
@@ -79,7 +78,7 @@ public class EsMonitorTest {
 
   @Test
   public void index_attributes() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+    Map<String, Object> attributes = underTest.attributes().get();
     Map indicesAttributes = (Map) attributes.get("Indices");
 
     // one index "issues"

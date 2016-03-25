@@ -19,7 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import java.util.LinkedHashMap;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -49,7 +49,7 @@ public class DatabaseMonitorTest {
 
   @Test
   public void db_info() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+    Map<String, Object> attributes = underTest.attributes().get();
     assertThat(attributes.get("Database")).isEqualTo("H2");
     assertThat(attributes.get("Database Version").toString()).startsWith("1.");
     assertThat(attributes.get("Username")).isEqualTo("SONAR");
@@ -58,7 +58,7 @@ public class DatabaseMonitorTest {
 
   @Test
   public void pool_info() {
-    LinkedHashMap<String, Object> attributes = underTest.attributes();
+    Map<String, Object> attributes = underTest.attributes().get();
     assertThat((int) attributes.get("Pool Max Connections")).isGreaterThan(0);
   }
 }

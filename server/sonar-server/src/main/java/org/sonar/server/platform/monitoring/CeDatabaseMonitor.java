@@ -19,7 +19,9 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import java.util.LinkedHashMap;
+import java.util.Map;
 import org.sonar.process.ProcessId;
 import org.sonar.process.jmx.CeDatabaseMBean;
 import org.sonar.process.jmx.JmxConnection;
@@ -35,13 +37,16 @@ public class CeDatabaseMonitor implements Monitor {
 
   @Override
   public String name() {
-    return "Compute Engine Database";
+    return "Compute Engine Database Connection";
   }
 
   @Override
-  public LinkedHashMap<String, Object> attributes() {
+  public Optional<Map<String, Object>> attributes() {
     try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.COMPUTE_ENGINE)) {
-      LinkedHashMap<String, Object> result = new LinkedHashMap<>();
+      if (connection == null) {
+        return Optional.absent();
+      }
+      Map<String, Object> result = new LinkedHashMap<>();
       CeDatabaseMBean mbean = connection.getMBean(CeDatabaseMBean.OBJECT_NAME, CeDatabaseMBean.class);
       result.put("Pool Initial Size", mbean.getPoolInitialSize());
       result.put("Pool Active Connections", mbean.getPoolActiveConnections());
@@ -52,7 +57,7 @@ public class CeDatabaseMonitor implements Monitor {
       result.put("Pool Max Wait (ms)", mbean.getPoolMaxWaitMillis());
       result.put("Pool Remove Abandoned", mbean.getPoolRemoveAbandoned());
       result.put("Pool Remove Abandoned Timeout (sec)", mbean.getPoolRemoveAbandonedTimeoutSeconds());
-      return result;
+      return Optional.of(result);
     }
   }
 }
