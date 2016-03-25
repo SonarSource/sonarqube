@@ -32,7 +32,11 @@
                    return false;"
                method="post"
                action="/encryption_configuration/encrypt"	>
-        <input type="text" name="text" id="clear_text"/>
+        <!-- for our lovely Chrome -->
+        <input style="display:none">
+        <input type="password" name="fake" style="display:none">
+
+        <input type="password" name="text" id="clear_text" autocomplete="off"/>
         <input type="submit" value="Encrypt" id="submit_encrypt"/>
       </form>
 
