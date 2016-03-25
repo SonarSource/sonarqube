@@ -89,21 +89,21 @@ public class SearchAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(request));
+    SearchWsResponse searchWsResponse = buildResponse(toSearchWsRequest(request));
     writeProtobuf(searchWsResponse, request, response);
-  }
-
-  private SearchWsResponse doHandle(SearchWsRequest request) {
-    SearchData data = dataLoader.load(request);
-    return buildResponse(data);
   }
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
     return new SearchWsRequest()
-      .setProjectKey(request.param(PARAM_PROJECT_KEY))
-      .setProfileName(request.param(PARAM_PROFILE_NAME))
-      .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
-      .setLanguage(request.param(PARAM_LANGUAGE));
+        .setProjectKey(request.param(PARAM_PROJECT_KEY))
+        .setProfileName(request.param(PARAM_PROFILE_NAME))
+        .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
+        .setLanguage(request.param(PARAM_LANGUAGE));
+  }
+
+  private SearchWsResponse buildResponse(SearchWsRequest request) {
+    SearchData data = dataLoader.load(request);
+    return buildResponse(data);
   }
 
   private SearchWsResponse buildResponse(SearchData data) {
@@ -114,22 +114,18 @@ public class SearchAction implements QProfileWsAction {
     QualityProfile.Builder profileBuilder = QualityProfile.newBuilder();
 
     for (QProfile profile : profiles) {
-      String profileKey = profile.key();
       profileBuilder.clear();
 
-      if (isNotNull(profile.key())) {
-        profileBuilder.setKey(profile.key());
-      }
-      if (isNotNull(profile.name())) {
+      String profileKey = profile.key();
+      profileBuilder.setKey(profileKey);
+      if (profile.name() != null) {
         profileBuilder.setName(profile.name());
       }
-      if (isNotNull(profile.getRulesUpdatedAt())) {
+      if (profile.getRulesUpdatedAt() != null) {
         profileBuilder.setRulesUpdatedAt(profile.getRulesUpdatedAt());
       }
-      if (isNotNull(data.getActiveRuleCount(profileKey))) {
-        profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
-      }
-      if (!profile.isDefault() && isNotNull(data.getProjectCount(profileKey))) {
+      profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
+      if (!profile.isDefault()) {
         profileBuilder.setProjectCount(data.getProjectCount(profileKey));
       }
 
@@ -145,28 +141,28 @@ public class SearchAction implements QProfileWsAction {
 
   private void writeLanguageFields(QualityProfile.Builder profileBuilder, QProfile profile) {
     String languageKey = profile.language();
-    if (isNotNull(languageKey)) {
-      profileBuilder.setLanguage(languageKey);
+    if (languageKey == null) {
+      return;
     }
+
+    profileBuilder.setLanguage(languageKey);
     String languageName = languages.get(languageKey).getName();
-    if (isNotNull(languageName)) {
+    if (languageName != null) {
       profileBuilder.setLanguageName(languageName);
     }
   }
 
   private static void writeParentFields(QualityProfile.Builder profileBuilder, QProfile profile, Map<String, QProfile> profilesByKey) {
     String parentKey = profile.parent();
-    QProfile parent = parentKey == null ? null : profilesByKey.get(parentKey);
-    if (isNotNull(parentKey)) {
-      profileBuilder.setParentKey(parentKey);
+    if (parentKey == null) {
+      return;
     }
-    if (isNotNull(parent) && isNotNull(parent.name())) {
+
+    profileBuilder.setParentKey(parentKey);
+    QProfile parent = profilesByKey.get(parentKey);
+    if (parent != null && parent.name() != null) {
       profileBuilder.setParentName(parent.name());
     }
-  }
-
-  private static <T> boolean isNotNull(T value) {
-    return value != null;
   }
 
   private enum QProfileToKey implements Function<QProfile, String> {
