@@ -41,7 +41,7 @@ const MeasuresList = ({ measures, hasLeak, component }) => {
                       </span>
                   )}
                 </div>
-                {hasLeak && measure.leak != null && (
+                {hasLeak && measure.leak != null && measure.metric.type !== 'RATING' && (
                     <div className="domain-measures-value domain-measures-leak">
                         <span id={`measure-${measure.metric.key}-leak`}>
                           {formatLeak(measure.leak, measure.metric)}
