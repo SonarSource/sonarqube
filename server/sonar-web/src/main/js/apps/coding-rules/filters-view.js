@@ -17,16 +17,9 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import Template from './templates/coding-rules-filters.hbs';
 
 export default Marionette.ItemView.extend({
-  template: Template,
-
-  serializeData () {
-    return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      canWrite: this.options.app.canWrite
-    });
-  }
+  template: Template
 });

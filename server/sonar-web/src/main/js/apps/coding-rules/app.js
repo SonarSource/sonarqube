@@ -31,7 +31,6 @@ import WorkspaceListView from './workspace-list-view';
 import WorkspaceHeaderView from './workspace-header-view';
 import FacetsView from './facets-view';
 import FiltersView from './filters-view';
-import { translate } from '../../helpers/l10n';
 
 const App = new Marionette.Application();
 const init = function () {

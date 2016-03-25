@@ -154,7 +154,7 @@ export default Marionette.LayoutView.extend({
 
   serializeData () {
     const isCustom = this.model.has('templateKey');
-    const isEditable = this.options.app.canWrite && (isCustom);
+    const isEditable = this.options.app.canWrite && isCustom;
     let qualityProfilesVisible = true;
 
     if (this.model.get('isTemplate')) {

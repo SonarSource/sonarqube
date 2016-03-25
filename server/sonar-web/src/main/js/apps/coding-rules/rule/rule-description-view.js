@@ -93,7 +93,7 @@ export default Marionette.ItemView.extend({
   },
 
   serializeData () {
-    const isEditable = this.options.app.canWrite && (this.model.get('isCustom'));
+    const isEditable = this.options.app.canWrite && this.model.get('isCustom');
 
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       isEditable,
