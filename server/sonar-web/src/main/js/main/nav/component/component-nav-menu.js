@@ -35,7 +35,6 @@ const SETTINGS_URLS = [
   '/project/profile',
   '/project/qualitygate',
   '/custom_measures',
-  '/action_plans',
   '/project/links',
   '/project_roles',
   '/project/history',
