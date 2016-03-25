@@ -41,7 +41,7 @@ const Measure = ({ measure, metric }) => {
 
   return (
       <span>
-        {formattedValue}
+        {formattedValue != null ? formattedValue : '–'}
       </span>
   );
 };

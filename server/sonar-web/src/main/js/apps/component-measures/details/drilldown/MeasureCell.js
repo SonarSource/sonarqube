@@ -19,18 +19,13 @@
  */
 import React from 'react';
 
-import { formatMeasure } from '../../../../helpers/measures';
-import { isDiffMetric, formatLeak } from '../../utils';
+import Measure from '../../components/Measure';
 
 const MeasureCell = ({ component, metric }) => {
-  const value = isDiffMetric(metric) ?
-      formatLeak(component.leak, metric) :
-      formatMeasure(component.value, metric.type);
-
   return (
       <td className="thin nowrap text-right">
         <span id={'component-measures-component-measure-' + component.key}>
-          {value != null ? value : '–'}
+          <Measure measure={{ value: component.value, leak: component.leak }} metric={metric}/>
         </span>
       </td>
   );
