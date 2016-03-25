@@ -25,7 +25,6 @@ import java.util.Map;
 import javax.management.ObjectName;
 import javax.management.remote.JMXConnector;
 import javax.management.remote.JMXConnectorFactory;
-import javax.management.remote.JMXConnectorServer;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
@@ -36,17 +35,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class JmxConnectionTest {
 
-  public static final String CUSTOM_OBJECT_NAME = "Test:name=test";
+  private static final String CUSTOM_OBJECT_NAME = "Test:name=test";
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  JMXConnectorServer jmxServer;
+  @Rule
+  public JmxTestServer jmxServer = new JmxTestServer();
+
   JmxConnection underTest;
 
   @Before
   public void setUp() throws Exception {
-    jmxServer = JmxTestUtils.startJmxServer();
     jmxServer.getMBeanServer().registerMBean(new Fake(), new ObjectName(CUSTOM_OBJECT_NAME));
     JMXConnector jmxConnector = JMXConnectorFactory.newJMXConnector(jmxServer.getAddress(), null);
     jmxConnector.connect();
@@ -57,7 +57,6 @@ public class JmxConnectionTest {
   public void tearDown() throws Exception {
     underTest.close();
     jmxServer.getMBeanServer().unregisterMBean(new ObjectName(CUSTOM_OBJECT_NAME));
-    jmxServer.stop();
   }
 
   @Test

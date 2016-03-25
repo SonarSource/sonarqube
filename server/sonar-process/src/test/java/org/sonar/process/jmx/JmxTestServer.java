@@ -19,6 +19,8 @@
  */
 package org.sonar.process.jmx;
 
+import com.google.common.base.Throwables;
+import java.io.IOException;
 import java.lang.management.ManagementFactory;
 import java.rmi.registry.LocateRegistry;
 import java.util.HashMap;
@@ -26,21 +28,44 @@ import javax.management.MBeanServer;
 import javax.management.remote.JMXConnectorServer;
 import javax.management.remote.JMXConnectorServerFactory;
 import javax.management.remote.JMXServiceURL;
+import org.junit.rules.ExternalResource;
 import org.sonar.process.NetworkUtils;
 
-public class JmxTestUtils {
+public class JmxTestServer extends ExternalResource {
 
-  private JmxTestUtils() {
-    // do not instantiate
-  }
+  private final int jmxPort = NetworkUtils.freePort();
+  private JMXConnectorServer jmxServer;
 
-  public static JMXConnectorServer startJmxServer() throws Exception {
-    int jmxPort = NetworkUtils.freePort();
+  @Override
+  protected void before() throws Throwable {
     LocateRegistry.createRegistry(jmxPort);
     JMXServiceURL serviceUrl = new JMXServiceURL("service:jmx:rmi://localhost:" + jmxPort + "/jndi/rmi://localhost:" + jmxPort + "/jmxrmi");
     MBeanServer mbeanServer = ManagementFactory.getPlatformMBeanServer();
-    JMXConnectorServer jmxServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceUrl, new HashMap<String, Object>(), mbeanServer);
+    jmxServer = JMXConnectorServerFactory.newJMXConnectorServer(serviceUrl, new HashMap<String, Object>(), mbeanServer);
     jmxServer.start();
-    return jmxServer;
+
+  }
+
+  @Override
+  protected void after() {
+    if (jmxServer != null) {
+      try {
+        jmxServer.stop();
+      } catch (IOException e) {
+        throw Throwables.propagate(e);
+      }
+    }
+  }
+
+  public int getPort() {
+    return jmxPort;
+  }
+
+  public MBeanServer getMBeanServer() {
+    return jmxServer.getMBeanServer();
+  }
+
+  public JMXServiceURL getAddress() {
+    return jmxServer.getAddress();
   }
 }

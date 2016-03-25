@@ -20,7 +20,7 @@
 package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Optional;
-import java.util.LinkedHashMap;
+import java.util.Collections;
 import java.util.Map;
 
 public class FakeMonitor extends BaseMonitorMBean implements FakeMonitorMBean {
@@ -37,7 +37,6 @@ public class FakeMonitor extends BaseMonitorMBean implements FakeMonitorMBean {
 
   @Override
   public Optional<Map<String, Object>> attributes() {
-    Map<String, Object> map = new LinkedHashMap<>();
-    return Optional.of(map);
+    return Optional.of(Collections.<String, Object>emptyMap());
   }
 }

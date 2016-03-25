@@ -29,6 +29,8 @@ import org.sonar.process.jmx.JmxConnectionFactory;
 
 public class CeDatabaseMonitor implements Monitor {
 
+  private static final int NUMBER_OF_ATTRIBUTES = 9;
+
   private final JmxConnectionFactory jmxConnectionFactory;
 
   public CeDatabaseMonitor(JmxConnectionFactory jmxConnectionFactory) {
@@ -46,7 +48,7 @@ public class CeDatabaseMonitor implements Monitor {
       if (connection == null) {
         return Optional.absent();
       }
-      Map<String, Object> result = new LinkedHashMap<>();
+      Map<String, Object> result = new LinkedHashMap<>(NUMBER_OF_ATTRIBUTES);
       CeDatabaseMBean mbean = connection.getMBean(CeDatabaseMBean.OBJECT_NAME, CeDatabaseMBean.class);
       result.put("Pool Initial Size", mbean.getPoolInitialSize());
       result.put("Pool Active Connections", mbean.getPoolActiveConnections());

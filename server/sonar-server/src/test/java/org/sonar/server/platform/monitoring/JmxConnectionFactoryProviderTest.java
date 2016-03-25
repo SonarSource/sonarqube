@@ -34,7 +34,7 @@ public class JmxConnectionFactoryProviderTest {
   public ExpectedException expectedException = ExpectedException.none();
 
   Settings settings = new Settings();
-  JmxConnectorProvider underTest = new JmxConnectorProvider();
+  JmxConnectionFactoryProvider underTest = new JmxConnectionFactoryProvider();
 
   @Test
   public void provide_JmxConnector() {

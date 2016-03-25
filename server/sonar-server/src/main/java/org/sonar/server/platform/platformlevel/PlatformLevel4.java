@@ -164,7 +164,7 @@ import org.sonar.server.platform.monitoring.CeTasksMonitor;
 import org.sonar.server.platform.monitoring.DatabaseMonitor;
 import org.sonar.server.platform.monitoring.EsMonitor;
 import org.sonar.server.platform.monitoring.EsStateMonitor;
-import org.sonar.server.platform.monitoring.JmxConnectorProvider;
+import org.sonar.server.platform.monitoring.JmxConnectionFactoryProvider;
 import org.sonar.server.platform.monitoring.JvmPropsMonitor;
 import org.sonar.server.platform.monitoring.PluginsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
@@ -663,7 +663,7 @@ public class PlatformLevel4 extends PlatformLevel {
       TypeValidationModule.class,
 
       // System
-      new JmxConnectorProvider(),
+      new JmxConnectionFactoryProvider(),
       ServerLogging.class,
       RestartAction.class,
       InfoAction.class,

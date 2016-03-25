@@ -21,7 +21,6 @@ package org.sonar.process.jmx;
 
 import java.io.File;
 import java.util.Properties;
-import javax.management.remote.JMXConnectorServer;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -40,6 +39,9 @@ public class JmxConnectionFactoryTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  @Rule
+  public JmxTestServer jmxServer = new JmxTestServer();
+
   @Test
   public void create_returns_null_if_process_is_down() throws Exception {
     File ipcSharedDir = temp.newFolder();
@@ -52,19 +54,14 @@ public class JmxConnectionFactoryTest {
 
   @Test
   public void create_connection_if_process_is_up() throws Exception {
-    JMXConnectorServer jmxServer = JmxTestUtils.startJmxServer();
-    try {
-      File ipcSharedDir = temp.newFolder();
-      try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(ipcSharedDir, ProcessId.COMPUTE_ENGINE.getIpcIndex())) {
-        processCommands.setUp();
-        processCommands.setJmxUrl(jmxServer.getAddress().toString());
-      }
-
-      JmxConnection connection = new JmxConnectionFactory(ipcSharedDir).create(ProcessId.COMPUTE_ENGINE);
-      assertThat(connection).isNotNull();
-    } finally {
-      jmxServer.stop();
+    File ipcSharedDir = temp.newFolder();
+    try (DefaultProcessCommands processCommands = DefaultProcessCommands.secondary(ipcSharedDir, ProcessId.COMPUTE_ENGINE.getIpcIndex())) {
+      processCommands.setUp();
+      processCommands.setJmxUrl(jmxServer.getAddress().toString());
     }
+
+    JmxConnection connection = new JmxConnectionFactory(ipcSharedDir).create(ProcessId.COMPUTE_ENGINE);
+    assertThat(connection).isNotNull();
   }
 
   @Test

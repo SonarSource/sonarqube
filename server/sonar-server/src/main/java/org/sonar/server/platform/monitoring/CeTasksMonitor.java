@@ -29,6 +29,8 @@ import org.sonar.process.jmx.JmxConnectionFactory;
 
 public class CeTasksMonitor implements Monitor {
 
+  private static final int NUMBER_OF_ATTRIBUTES = 6;
+
   private final JmxConnectionFactory jmxConnectionFactory;
 
   public CeTasksMonitor(JmxConnectionFactory jmxConnectionFactory) {
@@ -46,7 +48,7 @@ public class CeTasksMonitor implements Monitor {
       if (connection == null) {
         return Optional.absent();
       }
-      Map<String, Object> result = new LinkedHashMap<>();
+      Map<String, Object> result = new LinkedHashMap<>(NUMBER_OF_ATTRIBUTES);
       CeTasksMBean ceMBean = connection.getMBean(CeTasksMBean.OBJECT_NAME, CeTasksMBean.class);
       result.put("Pending", ceMBean.getPendingCount());
       result.put("In Progress", ceMBean.getInProgressCount());
