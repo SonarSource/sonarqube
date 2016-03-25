@@ -40,7 +40,8 @@ public class DoTransitionAction implements IssuesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction(ACTION)
-      .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project")
+      .setDescription("Do workflow transition on an issue. Requires authentication and Browse permission on project.<br/>" +
+        "The transition 'workflow' requires the permission 'Administer Issues'.")
       .setSince("3.6")
       .setHandler(this)
       .setPost(true);
