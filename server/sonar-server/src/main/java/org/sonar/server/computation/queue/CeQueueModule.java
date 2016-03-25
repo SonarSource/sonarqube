@@ -19,11 +19,11 @@
  */
 package org.sonar.server.computation.queue;
 
-import org.sonar.server.computation.queue.report.CleanReportQueueListener;
 import org.sonar.ce.queue.report.ReportFiles;
 import org.sonar.core.platform.Module;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
-import org.sonar.server.computation.monitoring.ComputeEngineQueueMonitor;
+import org.sonar.server.computation.monitoring.CeTasksMBeanImpl;
+import org.sonar.server.computation.queue.report.CleanReportQueueListener;
 
 public class CeQueueModule extends Module {
   @Override
@@ -34,7 +34,7 @@ public class CeQueueModule extends Module {
 
       // queue monitoring
       CEQueueStatusImpl.class,
-      ComputeEngineQueueMonitor.class,
+      CeTasksMBeanImpl.class,
 
       // queue cleaning
       CeQueueCleaner.class,

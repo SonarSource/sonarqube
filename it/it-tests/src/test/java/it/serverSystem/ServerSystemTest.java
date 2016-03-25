@@ -40,12 +40,15 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Server;
 import org.sonar.wsclient.services.ServerQuery;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
 import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newAdminWsClient;
 
 @Category(QaOnly.class)
 public class ServerSystemTest {
@@ -87,6 +90,22 @@ public class ServerSystemTest {
       "/serverSystem/ServerSystemTest/system_info.html"
       ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
+  /**
+   * SONAR-7436
+   */
+  @Test
+  public void monitor_compute_engine_and_elasticsearch_processes() throws Exception {
+    WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(
+      new GetRequest("api/system/info"));
+    assertThat(response.code()).isEqualTo(200);
+
+    assertThat(response.content()).containsSequence("\"Compute Engine Database\":", "\"Pool Active Connections\"");
+    assertThat(response.content()).containsSequence("\"Compute Engine State\":", "\"Heap Used\"");
+    assertThat(response.content()).containsSequence("\"Compute Engine Tasks\":", "\"Pending\"", "\"In Progress\"");
+
+    assertThat(response.content()).containsSequence("\"Elasticsearch\":", "\"State\":\"GREEN\"");
   }
 
   /**

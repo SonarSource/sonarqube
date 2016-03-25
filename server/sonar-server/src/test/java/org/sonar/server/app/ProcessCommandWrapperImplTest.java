@@ -43,22 +43,22 @@ public class ProcessCommandWrapperImplTest {
   private Settings settings = new Settings();
 
   @Test
-  public void requestSQRestart_throws_IAE_if_process_sharedDir_property_not_set() throws Exception {
+  public void requestSQRestart_throws_IAE_if_process_index_property_not_set() throws Exception {
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.sharedDir is not set");
+    expectedException.expectMessage("Property process.index is not set");
 
     processCommandWrapper.requestSQRestart();
   }
 
   @Test
-  public void requestSQRestart_throws_IAE_if_process_index_property_not_set() throws Exception {
-    settings.setProperty(PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
+  public void requestSQRestart_throws_IAE_if_process_shared_path_property_not_set() throws Exception {
+    settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("Property process.index is not set");
+    expectedException.expectMessage("Property process.sharedDir is not set");
 
     processCommandWrapper.requestSQRestart();
   }
@@ -79,6 +79,7 @@ public class ProcessCommandWrapperImplTest {
 
   @Test
   public void notifyOperational_throws_IAE_if_process_sharedDir_property_not_set() throws Exception {
+    settings.setProperty(PROPERTY_PROCESS_INDEX, 1);
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
 
     expectedException.expect(IllegalArgumentException.class);
@@ -89,7 +90,6 @@ public class ProcessCommandWrapperImplTest {
 
   @Test
   public void notifyOperational_throws_IAE_if_process_index_property_not_set() throws Exception {
-    settings.setProperty(PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
     ProcessCommandWrapperImpl processCommandWrapper = new ProcessCommandWrapperImpl(settings);
 
     expectedException.expect(IllegalArgumentException.class);

@@ -29,4 +29,5 @@ public interface ProcessCommandWrapper {
    * Notifies any listening process that the WebServer is operational.
    */
   void notifyOperational();
+
 }

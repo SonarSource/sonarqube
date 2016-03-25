@@ -42,6 +42,7 @@ import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.Lifecycle.State;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.ProcessId;
 import org.sonar.process.SystemExit;
 
 import static java.util.Collections.singletonList;
@@ -147,7 +148,7 @@ public class MonitorTest {
   @Test
   public void start_then_stop_gracefully() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    HttpProcessClient client = new HttpProcessClient(tempDir, "test");
+    HttpProcessClient client = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
     // blocks until started
     underTest.start(singletonList(client.newCommand()));
 
@@ -157,7 +158,7 @@ public class MonitorTest {
     // blocks until stopped
     underTest.stop();
     assertThat(client)
-      .isNotReady()
+      .isNotUp()
       .wasGracefullyTerminated();
     assertThat(underTest.getState()).isEqualTo(State.STOPPED);
     verify(fileSystem).reset();
@@ -166,8 +167,8 @@ public class MonitorTest {
   @Test
   public void start_then_stop_sequence_of_commands() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
-    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
     underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     // start p2 when p1 is fully started (ready)
@@ -181,10 +182,10 @@ public class MonitorTest {
 
     // stop in inverse order
     assertThat(p1)
-      .isNotReady()
+      .isNotUp()
       .wasGracefullyTerminated();
     assertThat(p2)
-      .isNotReady()
+      .isNotUp()
       .wasGracefullyTerminatedBefore(p1);
     verify(fileSystem).reset();
   }
@@ -192,8 +193,8 @@ public class MonitorTest {
   @Test
   public void stop_all_processes_if_monitor_shutdowns() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
-    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
     underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1).isUp();
     assertThat(p2).isUp();
@@ -211,8 +212,8 @@ public class MonitorTest {
   @Test
   public void restart_all_processes_if_one_asks_for_restart() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
-    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
     underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
 
     assertThat(p1).isUp();
@@ -244,8 +245,8 @@ public class MonitorTest {
   @Test
   public void stop_all_processes_if_one_shutdowns() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
-    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2");
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER);
     underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
     assertThat(p1.isUp()).isTrue();
     assertThat(p2.isUp()).isTrue();
@@ -255,10 +256,10 @@ public class MonitorTest {
     underTest.awaitTermination();
 
     assertThat(p1)
-      .isNotReady()
+      .isNotUp()
       .wasNotGracefullyTerminated();
     assertThat(p2)
-      .isNotReady()
+      .isNotUp()
       .wasGracefullyTerminated();
 
     verify(fileSystem).reset();
@@ -267,8 +268,8 @@ public class MonitorTest {
   @Test
   public void stop_all_processes_if_one_fails_to_start() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
-    HttpProcessClient p2 = new HttpProcessClient(tempDir, "p2", -1);
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.ELASTICSEARCH);
+    HttpProcessClient p2 = new HttpProcessClient(tempDir, ProcessId.WEB_SERVER, -1);
     try {
       underTest.start(Arrays.asList(p1.newCommand(), p2.newCommand()));
       fail();
@@ -286,7 +287,7 @@ public class MonitorTest {
   @Test
   public void fail_to_start_if_bad_class_name() throws Exception {
     underTest = newDefaultMonitor(tempDir);
-    JavaCommand command = new JavaCommand("test", processIndex++)
+    JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH)
       .addClasspath(testJar.getAbsolutePath())
       .setClassName("org.sonar.process.test.Unknown");
 
@@ -304,7 +305,7 @@ public class MonitorTest {
     underTest = newDefaultMonitor(tempDir, true);
     assertThat(underTest.hardStopWatcher).isNull();
 
-    HttpProcessClient p1 = new HttpProcessClient(tempDir, "p1");
+    HttpProcessClient p1 = new HttpProcessClient(tempDir, ProcessId.COMPUTE_ENGINE);
     underTest.start(singletonList(p1.newCommand()));
 
     assertThat(underTest.hardStopWatcher).isNotNull();
@@ -330,24 +331,24 @@ public class MonitorTest {
    */
   private class HttpProcessClient {
     private final int httpPort;
-    private final String commandKey;
+    private final ProcessId processId;
     private final File tempDir;
 
-    private HttpProcessClient(File tempDir, String commandKey) throws IOException {
-      this(tempDir, commandKey, NetworkUtils.freePort());
+    private HttpProcessClient(File tempDir, ProcessId processId) throws IOException {
+      this(tempDir, processId, NetworkUtils.freePort());
     }
 
     /**
      * Use httpPort=-1 to make server fail to start
      */
-    private HttpProcessClient(File tempDir, String commandKey, int httpPort) throws IOException {
+    private HttpProcessClient(File tempDir, ProcessId processId, int httpPort) throws IOException {
       this.tempDir = tempDir;
-      this.commandKey = commandKey;
+      this.processId = processId;
       this.httpPort = httpPort;
     }
 
     JavaCommand newCommand() {
-      return new JavaCommand(commandKey, processIndex++)
+      return new JavaCommand(processId)
         .addClasspath(testJar.getAbsolutePath())
         .setClassName("org.sonar.process.test.HttpProcess")
         .setArgument("httpPort", String.valueOf(httpPort));
@@ -490,7 +491,7 @@ public class MonitorTest {
       isNotNull();
 
       if (!actual.wasGracefullyTerminated()) {
-        failWithMessage("HttpClient %s should have been gracefully terminated", actual.commandKey);
+        failWithMessage("HttpClient %s should have been gracefully terminated", actual.processId.getKey());
       }
 
       return this;
@@ -500,7 +501,7 @@ public class MonitorTest {
       isNotNull();
 
       if (actual.wasGracefullyTerminated()) {
-        failWithMessage("HttpClient %s should not have been gracefully terminated", actual.commandKey);
+        failWithMessage("HttpClient %s should not have been gracefully terminated", actual.processId.getKey());
       }
 
       return this;
@@ -530,17 +531,17 @@ public class MonitorTest {
 
       // check condition
       if (!actual.isUp()) {
-        failWithMessage("HttpClient %s should be up", actual.commandKey);
+        failWithMessage("HttpClient %s should be up", actual.processId.getKey());
       }
 
       return this;
     }
 
-    public HttpProcessClientAssert isNotReady() {
+    public HttpProcessClientAssert isNotUp() {
       isNotNull();
 
       if (actual.isUp()) {
-        failWithMessage("HttpClient %s should not be ready", actual.commandKey);
+        failWithMessage("HttpClient %s should not be up", actual.processId.getKey());
       }
 
       return this;
@@ -551,7 +552,7 @@ public class MonitorTest {
 
       // check condition
       if (!actual.wasReady()) {
-        failWithMessage("HttpClient %s should been ready at least once", actual.commandKey);
+        failWithMessage("HttpClient %s should been ready at least once", actual.processId.getKey());
       }
 
       return this;
@@ -562,7 +563,7 @@ public class MonitorTest {
 
       // check condition
       if (actual.wasReady()) {
-        failWithMessage("HttpClient %s should never been ready", actual.commandKey);
+        failWithMessage("HttpClient %s should never been ready", actual.processId.getKey());
       }
 
       return this;
@@ -570,7 +571,7 @@ public class MonitorTest {
   }
 
   private JavaCommand newStandardProcessCommand() throws IOException {
-    return new JavaCommand("standard", processIndex++)
+    return new JavaCommand(ProcessId.ELASTICSEARCH)
       .addClasspath(testJar.getAbsolutePath())
       .setClassName("org.sonar.process.test.StandardProcess");
   }

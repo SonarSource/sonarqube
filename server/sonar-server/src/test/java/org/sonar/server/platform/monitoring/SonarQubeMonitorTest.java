@@ -52,6 +52,11 @@ public class SonarQubeMonitorTest {
   }
 
   @Test
+  public void name_is_not_empty() {
+    assertThat(new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging).name()).isNotEmpty();
+  }
+
+  @Test
   public void getServerId() {
     when(server.getStartedAt()).thenReturn(DateUtils.parseDate("2015-01-01"));
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);

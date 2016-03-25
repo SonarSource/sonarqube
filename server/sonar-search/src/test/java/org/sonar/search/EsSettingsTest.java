@@ -34,7 +34,7 @@ import java.util.Properties;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-public class SearchSettingsTest {
+public class EsSettingsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -49,10 +49,10 @@ public class SearchSettingsTest {
     props.set(ProcessProperties.CLUSTER_NAME, "tests");
     props.set(ProcessProperties.CLUSTER_NODE_NAME, "test");
 
-    SearchSettings searchSettings = new SearchSettings(props);
-    assertThat(searchSettings.inCluster()).isFalse();
+    EsSettings esSettings = new EsSettings(props);
+    assertThat(esSettings.inCluster()).isFalse();
 
-    Settings generated = searchSettings.build();
+    Settings generated = esSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("1234");
     assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
     assertThat(generated.get("cluster.name")).isEqualTo("tests");
@@ -74,10 +74,10 @@ public class SearchSettingsTest {
   public void test_default_hosts() throws Exception {
     Props props = minProps();
 
-    SearchSettings searchSettings = new SearchSettings(props);
-    assertThat(searchSettings.inCluster()).isFalse();
+    EsSettings esSettings = new EsSettings(props);
+    assertThat(esSettings.inCluster()).isFalse();
 
-    Settings generated = searchSettings.build();
+    Settings generated = esSettings.build();
     assertThat(generated.get("transport.tcp.port")).isEqualTo("9001");
     assertThat(generated.get("transport.host")).isEqualTo("127.0.0.1");
     assertThat(generated.get("cluster.name")).isEqualTo("sonarqube");
@@ -94,7 +94,7 @@ public class SearchSettingsTest {
     props.set(ProcessProperties.PATH_LOGS, logDir.getAbsolutePath());
     props.set(ProcessProperties.PATH_TEMP, tempDir.getAbsolutePath());
 
-    Settings settings = new SearchSettings(props).build();
+    Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("path.data")).isEqualTo(new File(dataDir, "es").getAbsolutePath());
     assertThat(settings.get("path.logs")).isEqualTo(logDir.getAbsolutePath());
@@ -106,7 +106,7 @@ public class SearchSettingsTest {
     Props props = minProps();
     props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
     props.set(ProcessProperties.CLUSTER_MASTER, "true");
-    Settings settings = new SearchSettings(props).build();
+    Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("index.number_of_replicas")).isEqualTo("1");
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isNull();
@@ -118,7 +118,7 @@ public class SearchSettingsTest {
     Props props = minProps();
     props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
     props.set(ProcessProperties.CLUSTER_MASTER_HOST, "127.0.0.2,127.0.0.3");
-    Settings settings = new SearchSettings(props).build();
+    Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("discovery.zen.ping.unicast.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
     assertThat(settings.get("node.master")).isEqualTo("false");
@@ -129,7 +129,7 @@ public class SearchSettingsTest {
     Props props = minProps();
     props.set(ProcessProperties.CLUSTER_ACTIVATE, "true");
     try {
-      new SearchSettings(props).build();
+      new EsSettings(props).build();
       fail();
     } catch (MessageException ignored) {
       // expected
@@ -139,8 +139,8 @@ public class SearchSettingsTest {
   @Test
   public void enable_marvel() throws Exception {
     Props props = minProps();
-    props.set(SearchSettings.PROP_MARVEL_HOSTS, "127.0.0.2,127.0.0.3");
-    Settings settings = new SearchSettings(props).build();
+    props.set(EsSettings.PROP_MARVEL_HOSTS, "127.0.0.2,127.0.0.3");
+    Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("marvel.agent.exporter.es.hosts")).isEqualTo("127.0.0.2,127.0.0.3");
   }
@@ -149,7 +149,7 @@ public class SearchSettingsTest {
   public void enable_http_connector() throws Exception {
     Props props = minProps();
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
-    Settings settings = new SearchSettings(props).build();
+    Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.1");
@@ -161,7 +161,7 @@ public class SearchSettingsTest {
     Props props = minProps();
     props.set(ProcessProperties.SEARCH_HTTP_PORT, "9010");
     props.set(ProcessProperties.SEARCH_HOST, "127.0.0.2");
-    Settings settings = new SearchSettings(props).build();
+    Settings settings = new EsSettings(props).build();
 
     assertThat(settings.get("http.port")).isEqualTo("9010");
     assertThat(settings.get("http.host")).isEqualTo("127.0.0.2");

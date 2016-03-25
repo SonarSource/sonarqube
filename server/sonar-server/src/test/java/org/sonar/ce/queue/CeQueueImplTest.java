@@ -22,14 +22,11 @@ package org.sonar.ce.queue;
 import com.google.common.base.Optional;
 import java.util.List;
 import javax.annotation.Nullable;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TestSystem2;
-import org.sonar.ce.monitoring.CEQueueStatus;
-import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 import org.sonar.core.util.UuidFactory;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DbSession;
@@ -45,7 +42,6 @@ import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
-import static org.mockito.Mockito.when;
 
 public class CeQueueImplTest {
 
@@ -59,14 +55,8 @@ public class CeQueueImplTest {
   DbSession session = dbTester.getSession();
 
   UuidFactory uuidFactory = UuidFactoryImpl.INSTANCE;
-  CEQueueStatus queueStatus = new CEQueueStatusImpl();
   CeQueueListener listener = mock(CeQueueListener.class);
-  CeQueue underTest = new CeQueueImpl(dbTester.getDbClient(), uuidFactory, queueStatus, new CeQueueListener[] {listener});
-
-  @Before
-  public void setUp() throws Exception {
-    queueStatus.initPendingCount(0);
-  }
+  CeQueue underTest = new CeQueueImpl(dbTester.getDbClient(), uuidFactory, new CeQueueListener[] {listener});
 
   @Test
   public void submit_returns_task_populated_from_CeTaskSubmit_and_creates_CeQueue_row() {
@@ -75,17 +65,6 @@ public class CeQueueImplTest {
 
     verifyCeTask(taskSubmit, task, null);
     verifyCeQueueDtoForTaskSubmit(taskSubmit);
-  }
-
-  @Test
-  public void submit_increments_receivedCount_of_QueueStatus() {
-    underTest.submit(createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_1", "rob"));
-
-    assertThat(queueStatus.getReceivedCount()).isEqualTo(1L);
-
-    underTest.submit(createTaskSubmit(CeTaskTypes.REPORT, "PROJECT_2", "rob"));
-
-    assertThat(queueStatus.getReceivedCount()).isEqualTo(2L);
   }
 
   @Test
@@ -143,18 +122,6 @@ public class CeQueueImplTest {
     verifyCeTask(taskSubmit1, tasks.get(0), componentDto1);
     verifyCeTask(taskSubmit2, tasks.get(1), null);
   }
-
-  @Test
-  public void massSubmit_increments_receivedCount_of_QueueStatus() {
-    underTest.massSubmit(asList(createTaskSubmit("type 1"), createTaskSubmit("type 2")));
-
-    assertThat(queueStatus.getReceivedCount()).isEqualTo(2L);
-
-    underTest.massSubmit(asList(createTaskSubmit("a"), createTaskSubmit("a"), createTaskSubmit("b")));
-
-    assertThat(queueStatus.getReceivedCount()).isEqualTo(5L);
-  }
-
 
   @Test
   public void cancel_pending() throws Exception {
@@ -257,12 +224,6 @@ public class CeQueueImplTest {
     submission.setComponentUuid(componentUuid);
     submission.setSubmitterLogin(submitterLogin);
     return submission.build();
-  }
-
-  private CeTaskResult newTaskResult(Long snapshotId) {
-    CeTaskResult taskResult = mock(CeTaskResult.class);
-    when(taskResult.getSnapshotId()).thenReturn(snapshotId);
-    return taskResult;
   }
 
   private ComponentDto insertComponent(ComponentDto componentDto) {

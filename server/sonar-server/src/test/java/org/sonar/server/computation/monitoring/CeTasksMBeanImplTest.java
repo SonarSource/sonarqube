@@ -19,17 +19,19 @@
  */
 package org.sonar.server.computation.monitoring;
 
+import java.lang.management.ManagementFactory;
+import javax.annotation.CheckForNull;
+import javax.management.InstanceNotFoundException;
+import javax.management.ObjectInstance;
+import javax.management.ObjectName;
 import org.junit.Test;
 import org.sonar.ce.monitoring.CEQueueStatus;
+import org.sonar.process.jmx.CeTasksMBean;
 import org.sonar.server.computation.configuration.CeConfiguration;
-import org.sonar.ce.queue.CeQueueImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.entry;
-import static org.mockito.Mockito.mock;
 
-public class ComputeEngineQueueMonitorTest {
-  private static final long RECEIVED_COUNT = 30;
+public class CeTasksMBeanImplTest {
   private static final long PENDING_COUNT = 2;
   private static final long IN_PROGRESS_COUNT = 5;
   private static final long ERROR_COUNT = 10;
@@ -37,28 +39,21 @@ public class ComputeEngineQueueMonitorTest {
   private static final long PROCESSING_TIME = 987;
   private static final int WORKER_COUNT = 56;
 
-  private ComputeEngineQueueMonitor underTest = new ComputeEngineQueueMonitor(new DumbCEQueueStatus(), mock(CeQueueImpl.class), new DumbCeConfiguration());
+  private CeTasksMBeanImpl underTest = new CeTasksMBeanImpl(new DumbCEQueueStatus(), new DumbCeConfiguration());
 
   @Test
-  public void name_is_ComputeEngine() {
-    assertThat(underTest.name()).isEqualTo("ComputeEngine");
-  }
+  public void register_and_unregister() throws Exception {
+    assertThat(getMBean()).isNull();
 
-  @Test
-  public void attributes_has_entry_for_each_get_method() {
-    assertThat(underTest.attributes()).containsOnly(
-      entry("Received", RECEIVED_COUNT),
-      entry("Pending", PENDING_COUNT),
-      entry("In progress", IN_PROGRESS_COUNT),
-      entry("Successfully processed", SUCCESS_COUNT),
-      entry("Processed with error", ERROR_COUNT),
-      entry("Processing time", PROCESSING_TIME),
-      entry("Worker count", WORKER_COUNT));
+    underTest.start();
+    assertThat(getMBean()).isNotNull();
+
+    underTest.stop();
+    assertThat(getMBean()).isNull();
   }
 
   @Test
   public void get_methods_delegate_to_the_CEQueueStatus_instance() {
-    assertThat(underTest.getReceivedCount()).isEqualTo(RECEIVED_COUNT);
     assertThat(underTest.getPendingCount()).isEqualTo(PENDING_COUNT);
     assertThat(underTest.getInProgressCount()).isEqualTo(IN_PROGRESS_COUNT);
     assertThat(underTest.getErrorCount()).isEqualTo(ERROR_COUNT);
@@ -76,26 +71,6 @@ public class ComputeEngineQueueMonitorTest {
    * for other methods.
    */
   private static class DumbCEQueueStatus implements CEQueueStatus {
-
-    @Override
-    public long addReceived() {
-      return methodNotImplemented();
-    }
-
-    @Override
-    public long addReceived(long numberOfReceived) {
-      return methodNotImplemented();
-    }
-
-    @Override
-    public long getReceivedCount() {
-      return RECEIVED_COUNT;
-    }
-
-    @Override
-    public long initPendingCount(long initialPendingCount) {
-      return methodNotImplemented();
-    }
 
     @Override
     public long getPendingCount() {
@@ -151,6 +126,15 @@ public class ComputeEngineQueueMonitorTest {
     @Override
     public long getQueuePollingDelay() {
       throw new UnsupportedOperationException("getQueuePollingDelay is not implemented");
+    }
+  }
+
+  @CheckForNull
+  private ObjectInstance getMBean() throws Exception {
+    try {
+      return ManagementFactory.getPlatformMBeanServer().getObjectInstance(new ObjectName(CeTasksMBean.OBJECT_NAME));
+    } catch (InstanceNotFoundException e) {
+      return null;
     }
   }
 }

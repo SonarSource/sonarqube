@@ -33,7 +33,7 @@ import java.io.File;
  */
 public interface ProcessCommands extends AutoCloseable {
 
-  int MAX_PROCESSES = 50;
+  int MAX_PROCESSES = 5;
 
   boolean isUp();
 
@@ -54,6 +54,10 @@ public interface ProcessCommands extends AutoCloseable {
   void ping();
 
   long getLastPing();
+
+  void setJmxUrl(String s);
+
+  String getJmxUrl();
 
   /**
    * To be executed by monitor process to ask for child process termination

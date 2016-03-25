@@ -19,6 +19,8 @@
  */
 package org.sonar.search;
 
+import java.net.InetAddress;
+import java.util.Properties;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
@@ -34,11 +36,9 @@ import org.junit.rules.TemporaryFolder;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
 import org.sonar.process.NetworkUtils;
+import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-
-import java.net.InetAddress;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -78,6 +78,7 @@ public class SearchServerTest {
     props.set(ProcessProperties.CLUSTER_NAME, CLUSTER_NAME);
     props.set(ProcessProperties.CLUSTER_NODE_NAME, "test");
     props.set(ProcessProperties.PATH_HOME, temp.newFolder().getAbsolutePath());
+    props.set(ProcessEntryPoint.PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
 
     searchServer = new SearchServer(props);
     searchServer.start();
