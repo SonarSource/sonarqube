@@ -30,7 +30,6 @@ import CommentFormView from './views/comment-form-view';
 import PlanFormView from './views/plan-form-view';
 import SetSeverityFormView from './views/set-severity-form-view';
 import SetTypeFormView from './views/set-type-form-view';
-import MoreActionsView from './views/more-actions-view';
 import TagsFormView from './views/tags-form-view';
 import Workspace from '../workspace/main';
 import Template from './templates/issue.hbs';
@@ -56,7 +55,6 @@ export default Marionette.ItemView.extend({
       'click .js-issue-assign-to-me': 'assignToMe',
       'click .js-issue-plan': 'plan',
       'click .js-issue-show-changelog': 'showChangeLog',
-      'click .js-issue-more': 'showMoreActions',
       'click .js-issue-rule': 'showRule',
       'click .js-issue-edit-tags': 'editTags',
       'click .js-issue-locations': 'showLocations'
@@ -239,18 +237,6 @@ export default Marionette.ItemView.extend({
   showRule () {
     const ruleKey = this.model.get('rule');
     Workspace.openRule({ key: ruleKey });
-  },
-
-  showMoreActions (e) {
-    e.stopPropagation();
-    $('body').click();
-    this.popup = new MoreActionsView({
-      triggerEl: $(e.currentTarget),
-      bottomRight: true,
-      model: this.model,
-      detailView: this
-    });
-    this.popup.render();
   },
 
   action (action) {
