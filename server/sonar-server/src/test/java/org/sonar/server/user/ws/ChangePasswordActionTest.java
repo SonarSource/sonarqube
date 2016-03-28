@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.api.utils.System2;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -54,13 +53,14 @@ import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.System2.SYSTEM;
 
 public class ChangePasswordActionTest {
 
   static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester dbTester = DbTester.create(SYSTEM);
 
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
@@ -89,10 +89,9 @@ public class ChangePasswordActionTest {
     dbTester.truncateTables();
     esTester.truncateIndices();
 
-    System2 system2 = new System2();
-    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
+    UserDao userDao = new UserDao(dbTester.myBatis(), SYSTEM);
     UserGroupDao userGroupDao = new UserGroupDao();
-    GroupDao groupDao = new GroupDao(system2);
+    GroupDao groupDao = new GroupDao(SYSTEM);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao);
     session = dbClient.openSession(false);
     groupDao.insert(session, new GroupDto().setName("sonar-users"));
@@ -100,7 +99,7 @@ public class ChangePasswordActionTest {
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
-    userUpdater = new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2);
+    userUpdater = new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, SYSTEM);
     tester = new WsTester(new UsersWs(new ChangePasswordAction(userUpdater, userSessionRule)));
     controller = tester.controller("api/users");
   }

@@ -57,9 +57,8 @@ public class GroupsActionTest {
   public void setUp() {
     dbTester.truncateTables();
 
-    System2 system2 = new System2();
-    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
-    GroupDao groupDao = new GroupDao(system2);
+    UserDao userDao = new UserDao(dbTester.myBatis(), System2.INSTANCE);
+    GroupDao groupDao = new GroupDao(System2.INSTANCE);
     UserGroupDao userGroupDao = new UserGroupDao();
     GroupMembershipDao groupMembershipDao = new GroupMembershipDao(dbTester.myBatis());
 

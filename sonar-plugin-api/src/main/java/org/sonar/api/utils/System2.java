@@ -69,6 +69,16 @@ public class System2 {
   public static final System2 INSTANCE = new System2();
 
   /**
+   * Same as {@link #INSTANCE} but naming is more appropriate for static imports.
+   * @since 5.5
+   */
+  public static final System2 SYSTEM = INSTANCE;
+
+  protected System2() {
+
+  }
+
+  /**
    * Shortcut for {@link System#currentTimeMillis()}
    */
   public long now() {
