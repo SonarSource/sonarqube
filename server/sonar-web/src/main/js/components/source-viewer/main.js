@@ -542,17 +542,28 @@ export default Marionette.LayoutView.extend({
 
   bindScrollEvents () {
     const that = this;
-    $(window).on('scroll.source-viewer', function () {
+    let p = this.$el.scrollParent();
+    if (p.is(document) || p.is('body')) {
+      p = $(window);
+    }
+    p.on('scroll.source-viewer', function () {
       that.onScroll();
     });
   },
 
   unbindScrollEvents () {
-    $(window).off('scroll.source-viewer');
+    let p = this.$el.scrollParent();
+    if (p.is(document) || p.is('body')) {
+      p = $(window);
+    }
+    p.off('scroll.source-viewer');
   },
 
   onScroll () {
-    const p = $(window);
+    let p = this.$el.scrollParent();
+    if (p.is(document) || p.is('body')) {
+      p = $(window);
+    }
     const pTopOffset = p.offset() != null ? p.offset().top : 0;
     const pPosition = p.scrollTop() + pTopOffset;
     if (this.model.get('hasSourceBefore') && (pPosition <= this.ui.sourceBeforeSpinner.offset().top)) {
@@ -566,7 +577,10 @@ export default Marionette.LayoutView.extend({
   scrollToLine (line) {
     const row = this.$(`.source-line[data-line-number=${line}]`);
     if (row.length > 0) {
-      const p = $(window);
+      let p = this.$el.scrollParent();
+      if (p.is(document) || p.is('body')) {
+        p = $(window);
+      }
       const pTopOffset = p.offset() != null ? p.offset().top : 0;
       const pHeight = p.height();
       const goal = row.offset().top - pHeight / 3 - pTopOffset;
@@ -578,7 +592,10 @@ export default Marionette.LayoutView.extend({
   scrollToFirstLine (line) {
     const row = this.$(`.source-line[data-line-number=${line}]`);
     if (row.length > 0) {
-      const p = $(window);
+      let p = this.$el.scrollParent();
+      if (p.is(document) || p.is('body')) {
+        p = $(window);
+      }
       const pTopOffset = p.offset() != null ? p.offset().top : 0;
       const goal = row.offset().top - pTopOffset;
       p.scrollTop(goal);
@@ -589,8 +606,8 @@ export default Marionette.LayoutView.extend({
   scrollToLastLine (line) {
     const row = this.$(`.source-line[data-line-number=${line}]`);
     if (row.length > 0) {
-      let p = $(window);
-      if (p.is(document)) {
+      let p = this.$el.scrollParent();
+      if (p.is(document) || p.is('body')) {
         p = $(window);
       }
       const pTopOffset = p.offset() != null ? p.offset().top : 0;
