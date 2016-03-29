@@ -22,18 +22,18 @@ package it.test;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import it.Category2Suite;
-
 import java.io.File;
-
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.io.filefilter.TrueFileFilter;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.projectDir;
 
@@ -71,10 +71,18 @@ public class CoverageTest {
 
     assertThat(project.getMeasureValue("overall_coverage")).isNull();
 
-    String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/unit_test_coverage-expected.json"), "UTF-8"), coverage, false);
+    String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo"));
+    // Use strict checking to be sure IT coverage is not present
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/unit_test_coverage-expected.json"), "UTF-8"), coverage, true);
 
     verifyComputeEngineTempDirIsEmpty();
+  }
+
+  private String cleanupScmAndDuplication(String coverage) {
+    coverage = StringUtils.remove(coverage, ",\"scmAuthor\":\"\"");
+    coverage = StringUtils.remove(coverage, ",\"scmRevision\":\"\"");
+    coverage = StringUtils.remove(coverage, ",\"duplicated\":false");
+    return coverage;
   }
 
   @Test
@@ -94,9 +102,10 @@ public class CoverageTest {
 
     assertThat(project.getMeasureValue("overall_coverage")).isNull();
 
-    String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo");
+    String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-ut-coverage:src/main/xoo/sample/Sample.xoo"));
+    // Use strict checking to be sure IT coverage is not present
     JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/unit_test_coverage_no_condition-expected.json"), "UTF-8"), coverage,
-      false);
+      true);
 
     verifyComputeEngineTempDirIsEmpty();
   }
@@ -118,8 +127,9 @@ public class CoverageTest {
 
     assertThat(project.getMeasureValue("overall_coverage")).isNull();
 
-    String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-it-coverage:src/main/xoo/sample/Sample.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/it_coverage-expected.json"), "UTF-8"), coverage, false);
+    String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-it-coverage:src/main/xoo/sample/Sample.xoo"));
+    // Use strict checking to be sure UT coverage is not present
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/it_coverage-expected.json"), "UTF-8"), coverage, true);
 
     verifyComputeEngineTempDirIsEmpty();
   }
@@ -153,8 +163,9 @@ public class CoverageTest {
     assertThat(project.getMeasureValue("overall_uncovered_conditions")).isEqualTo(2);
     assertThat(project.getMeasureValue("overall_coverage")).isEqualTo(62.5);
 
-    String coverage = orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-overall-coverage:src/main/xoo/sample/Sample.xoo");
-    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/ut_and_it_coverage-expected.json"), "UTF-8"), coverage, false);
+    String coverage = cleanupScmAndDuplication(orchestrator.getServer().adminWsClient().get("api/sources/lines", "key", "sample-overall-coverage:src/main/xoo/sample/Sample.xoo"));
+    // Use strict checking to be sure no extra coverage is present
+    JSONAssert.assertEquals(IOUtils.toString(this.getClass().getResourceAsStream("/test/CoverageTest/ut_and_it_coverage-expected.json"), "UTF-8"), coverage, true);
 
     verifyComputeEngineTempDirIsEmpty();
   }

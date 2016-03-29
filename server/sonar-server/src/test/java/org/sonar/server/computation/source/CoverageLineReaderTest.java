@@ -53,6 +53,70 @@ public class CoverageLineReaderTest {
     assertThat(lineBuilder.getOverallConditions()).isEqualTo(10);
   }
 
+  // Some tools are only able to report condition coverage
+  @Test
+  public void set_coverage_only_conditions() {
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.LineCoverage.newBuilder()
+      .setLine(1)
+      .setConditions(10)
+      .setUtCoveredConditions(2)
+      .setItCoveredConditions(3)
+      .build()).iterator());
+
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    computeCoverageLine.read(lineBuilder);
+
+    assertThat(lineBuilder.hasUtLineHits()).isFalse();
+    assertThat(lineBuilder.getUtConditions()).isEqualTo(10);
+    assertThat(lineBuilder.hasItLineHits()).isFalse();
+    assertThat(lineBuilder.getItConditions()).isEqualTo(10);
+    assertThat(lineBuilder.getItCoveredConditions()).isEqualTo(3);
+    assertThat(lineBuilder.hasOverallLineHits()).isFalse();
+    assertThat(lineBuilder.hasOverallConditions()).isFalse();
+  }
+
+  @Test
+  public void set_coverage_only_ut() {
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.LineCoverage.newBuilder()
+      .setLine(1)
+      .setConditions(10)
+      .setUtHits(true)
+      .setUtCoveredConditions(2)
+      .build()).iterator());
+
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    computeCoverageLine.read(lineBuilder);
+
+    assertThat(lineBuilder.getUtLineHits()).isEqualTo(1);
+    assertThat(lineBuilder.getUtConditions()).isEqualTo(10);
+    assertThat(lineBuilder.hasItLineHits()).isFalse();
+    assertThat(lineBuilder.hasItConditions()).isFalse();
+    assertThat(lineBuilder.hasItCoveredConditions()).isFalse();
+    assertThat(lineBuilder.getOverallLineHits()).isEqualTo(1);
+    assertThat(lineBuilder.hasOverallCoveredConditions()).isFalse();
+  }
+
+  @Test
+  public void set_coverage_only_it() {
+    CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.LineCoverage.newBuilder()
+      .setLine(1)
+      .setConditions(10)
+      .setItHits(true)
+      .setItCoveredConditions(3)
+      .build()).iterator());
+
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
+    computeCoverageLine.read(lineBuilder);
+
+    assertThat(lineBuilder.hasUtLineHits()).isFalse();
+    assertThat(lineBuilder.hasUtConditions()).isFalse();
+    assertThat(lineBuilder.getItLineHits()).isEqualTo(1);
+    assertThat(lineBuilder.getItConditions()).isEqualTo(10);
+    assertThat(lineBuilder.getItCoveredConditions()).isEqualTo(3);
+    assertThat(lineBuilder.getOverallLineHits()).isEqualTo(1);
+    assertThat(lineBuilder.hasOverallConditions()).isFalse();
+  }
+
   @Test
   public void set_coverage_on_uncovered_lines() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.LineCoverage.newBuilder()
@@ -77,7 +141,6 @@ public class CoverageLineReaderTest {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.LineCoverage.newBuilder()
       .setLine(1)
       .setUtHits(true)
-      .setItHits(false)
       .build()).iterator());
 
     DbFileSources.Line.Builder lineBuilder = DbFileSources.Data.newBuilder().addLinesBuilder().setLine(1);
@@ -90,7 +153,6 @@ public class CoverageLineReaderTest {
   public void set_overall_line_hits_with_only_it() {
     CoverageLineReader computeCoverageLine = new CoverageLineReader(newArrayList(ScannerReport.LineCoverage.newBuilder()
       .setLine(1)
-      .setUtHits(false)
       .setItHits(true)
       .build()).iterator());
 

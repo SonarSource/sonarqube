@@ -70,6 +70,9 @@ public class CoveragePublisherTest {
     Measure utLineHits = new Measure<>(CoreMetrics.COVERAGE_LINE_HITS_DATA).setData("2=1;3=1;5=0;6=3");
     when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)).thenReturn(utLineHits);
 
+    Measure itsConditionsByLine = new Measure<>(CoreMetrics.IT_CONDITIONS_BY_LINE).setData("3=4");
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.IT_CONDITIONS_BY_LINE_KEY)).thenReturn(itsConditionsByLine);
+
     Measure conditionsByLine = new Measure<>(CoreMetrics.CONDITIONS_BY_LINE).setData("3=4");
     when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.CONDITIONS_BY_LINE_KEY)).thenReturn(conditionsByLine);
 
@@ -108,6 +111,78 @@ public class CoveragePublisherTest {
       assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
         .setLine(5)
         .setUtHits(false)
+        .setItHits(true)
+        .build());
+    }
+
+  }
+
+  @Test
+  public void publishCoverageOnlyUts() throws Exception {
+
+    Measure utLineHits = new Measure<>(CoreMetrics.COVERAGE_LINE_HITS_DATA).setData("2=1;3=1;5=0;6=3");
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.COVERAGE_LINE_HITS_DATA_KEY)).thenReturn(utLineHits);
+
+    Measure conditionsByLine = new Measure<>(CoreMetrics.CONDITIONS_BY_LINE).setData("3=4");
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.CONDITIONS_BY_LINE_KEY)).thenReturn(conditionsByLine);
+
+    Measure coveredConditionsByUts = new Measure<>(CoreMetrics.COVERED_CONDITIONS_BY_LINE).setData("3=2");
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.COVERED_CONDITIONS_BY_LINE_KEY)).thenReturn(coveredConditionsByUts);
+
+    File outputDir = temp.newFolder();
+    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+
+    publisher.publish(writer);
+
+    try (CloseableIterator<LineCoverage> it = new ScannerReportReader(outputDir).readComponentCoverage(2)) {
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
+        .setLine(2)
+        .setUtHits(true)
+        .build());
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
+        .setLine(3)
+        .setUtHits(true)
+        .setConditions(4)
+        .setUtCoveredConditions(2)
+        .build());
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
+        .setLine(5)
+        .setUtHits(false)
+        .build());
+    }
+
+  }
+
+  @Test
+  public void publishCoverageOnlyIts() throws Exception {
+
+    Measure itsConditionsByLine = new Measure<>(CoreMetrics.IT_CONDITIONS_BY_LINE).setData("3=4");
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.IT_CONDITIONS_BY_LINE_KEY)).thenReturn(itsConditionsByLine);
+
+    Measure itLineHits = new Measure<>(CoreMetrics.IT_COVERAGE_LINE_HITS_DATA).setData("2=0;3=0;5=1");
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.IT_COVERAGE_LINE_HITS_DATA_KEY)).thenReturn(itLineHits);
+
+    Measure coveredConditionsByIts = new Measure<>(CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE).setData("3=1");
+    when(measureCache.byMetric("foo:src/Foo.php", CoreMetrics.IT_COVERED_CONDITIONS_BY_LINE_KEY)).thenReturn(coveredConditionsByIts);
+
+    File outputDir = temp.newFolder();
+    ScannerReportWriter writer = new ScannerReportWriter(outputDir);
+
+    publisher.publish(writer);
+
+    try (CloseableIterator<LineCoverage> it = new ScannerReportReader(outputDir).readComponentCoverage(2)) {
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
+        .setLine(2)
+        .setItHits(false)
+        .build());
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
+        .setLine(3)
+        .setItHits(false)
+        .setConditions(4)
+        .setItCoveredConditions(1)
+        .build());
+      assertThat(it.next()).isEqualTo(LineCoverage.newBuilder()
+        .setLine(5)
         .setItHits(true)
         .build());
     }

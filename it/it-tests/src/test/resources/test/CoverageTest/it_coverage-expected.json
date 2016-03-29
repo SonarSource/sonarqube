@@ -40,7 +40,9 @@
     {
       "line": 10,
       "code": "\t\tif (foo == bar) {",
-      "itLineHits": 0
+      "itLineHits": 0,
+      "itConditions": 2,
+      "itCoveredConditions": 1
     },
     {
       "line": 11,
