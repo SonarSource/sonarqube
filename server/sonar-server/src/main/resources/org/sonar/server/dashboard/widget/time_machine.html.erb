@@ -1,6 +1,6 @@
 <%
    rows_by_metric_id={}
-   
+
    # Retrieve widget settings
    metric_ids = []
    (1..10).each do |index|
@@ -33,7 +33,7 @@
                                     ]
    )
 
-   
+
    # Prepare the rows to display
    snapshot_by_id={}
    snapshots.each do |s|
@@ -44,7 +44,7 @@
 
      if measure.metric.timemachine? && (measure.value || measure.text_value)
        row=rows_by_metric_id[measure.metric_id]
-       
+
        #optimization : avoid eager loading of snapshots
        measure.snapshot=snapshot_by_id[measure.snapshot_id]
        row.add_measure(measure)
@@ -61,14 +61,14 @@
    end
 
    # Should display the sparkline?
-   sparkline_urls_by_row = {}
+   sparklines_by_row = {}
    if widget_properties["displaySparkLine"]
      rows.each do |row|
-       sparkline_url = row.sparkline_url
-       sparkline_urls_by_row[row] = sparkline_url if sparkline_url
+       sparkline = row.sparkline
+       sparklines_by_row[row] = sparkline if sparkline
      end
    end
-   display_sparkline = !sparkline_urls_by_row.empty?
+   display_sparkline = !sparklines_by_row.empty?
 %>
 
 <% if widget_properties["title"] %>
@@ -115,10 +115,16 @@
         <% end %>
         <%
            if display_sparkline
-             sparkline_url = sparkline_urls_by_row[row]
+             sparkline = sparklines_by_row[row]
         %>
           <td width="1%">
-            <%= image_tag(sparkline_url) if sparkline_url %>
+            <%
+              if sparkline
+                x = sparkline[0]
+                y = sparkline[1]
+            %>
+              <div class="time-machine-sparkline" data-x="<%= x.join(',') -%>" data-y="<%= y.join(',') -%>"></div>
+            <% end %>
           </td>
         <% end %>
       </tr>
@@ -128,3 +134,10 @@
   </table>
 
 </div>
+
+<script>
+  (function () {
+    var TimeMachineWidget = window.TimeMachineWidget;
+    TimeMachineWidget('.time-machine-sparkline');
+  })();
+</script>

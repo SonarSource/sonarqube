@@ -32,6 +32,8 @@ import './old/widget';
 
 import IssueFilterWidget from './issue-filter/widget';
 import ComplexityDistribution from './complexity';
+import TimeMachine from './timeMachine';
 
 window.IssueFilterWidget = IssueFilterWidget;
 window.ComplexityDistribution = ComplexityDistribution;
+window.TimeMachineWidget = TimeMachine;

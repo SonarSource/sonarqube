@@ -41,17 +41,18 @@ class Sonar::TimemachineRow
     (self.domain <=> other.domain).nonzero? || (self.metric.short_name <=> other.metric.short_name)
   end
 
-  def sparkline_url
-    if metric.numeric? && @measure_by_sid.size>1
-      values=[]
+  def sparkline
+    if metric.numeric? && @measure_by_sid.size > 1
+      x = []
+      y = []
       @measure_by_sid.values.each do |measure|
         # date.to_f does not works under oracle
-        values << measure.snapshot.created_at.to_s(:number)
-        values << (measure.value.nil? ? 0 : measure.value)
+        x << measure.snapshot.created_at.to_s(:number)
+        y << (measure.value.nil? ? 0 : measure.value)
       end
-      "/chart?cht=sl&chdi=80x15&chv=" + values*',' + '&.png'
-     else
-       nil
-     end
+      [x, y]
+    else
+      nil
+    end
   end
 end
