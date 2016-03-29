@@ -27,12 +27,14 @@ import java.sql.SQLException;
 import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 @Category(QaOnly.class)
+@Ignore("will be removed with MMF-233")
 public class ManualRulesTest {
 
   @ClassRule
