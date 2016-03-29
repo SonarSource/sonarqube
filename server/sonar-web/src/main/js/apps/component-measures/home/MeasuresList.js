@@ -19,15 +19,23 @@
  */
 import React from 'react';
 import { Link } from 'react-router';
+import classNames from 'classnames';
 
 import Measure from '../components/Measure';
 import { formatLeak } from '../utils';
 
-const MeasuresList = ({ measures, hasLeak, component }) => {
+const shouldPutSpace = (spaces, measure, index) => {
+  return index !== 0 && spaces.includes(measure.metric.key);
+};
+
+const MeasuresList = ({ measures, hasLeak, component, spaces }) => {
   return (
       <ul className="domain-measures">
-        {measures.map(measure => (
-            <li key={measure.metric.key} id={`measure-${measure.metric.key}`}>
+        {measures.map((measure, index) => (
+            <li
+                key={measure.metric.key}
+                id={`measure-${measure.metric.key}`}
+                className={classNames({ 'big-spacer-top': shouldPutSpace(spaces, measure, index) })}>
               <Link to={{ pathname: `metric/${measure.metric.key}`, query: { id: component.key } }}>
                 <div className="domain-measures-name">
                     <span id={`measure-${measure.metric.key}-name`}>

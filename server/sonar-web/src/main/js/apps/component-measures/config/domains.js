@@ -19,11 +19,6 @@
  */
 export const domains = {
   'Reliability': {
-    main: [
-      'bugs',
-      'new_bugs',
-      'reliability_rating'
-    ],
     order: [
       'bugs',
       'new_bugs',
@@ -35,14 +30,10 @@ export const domains = {
   },
 
   'Security': {
-    main: [
-      'vulnerabilities',
-      'new_vulnerabilities',
-      'security_rating'
-    ],
     order: [
       'vulnerabilities',
       'new_vulnerabilities',
+      'security_rating',
       'security_remediation_effort',
       'new_security_remediation_effort',
       'effort_to_reach_security_rating_a'
@@ -50,18 +41,12 @@ export const domains = {
   },
 
   'Maintainability': {
-    main: [
-      'code_smells',
-      'new_code_smells',
-      'sqale_index',
-      'new_technical_debt',
-      'sqale_rating'
-    ],
     order: [
       'code_smells',
       'new_code_smells',
       'sqale_index',
       'new_technical_debt',
+      'sqale_rating',
       'sqale_debt_ratio',
       'new_sqale_debt_ratio',
       'effort_to_reach_maintainability_rating_a'
@@ -69,15 +54,6 @@ export const domains = {
   },
 
   'Tests': {
-    main: [
-      'overall_coverage',
-      'new_overall_coverage',
-      'coverage',
-      'new_coverage',
-      'it_coverage',
-      'new_it_coverage',
-      'tests'
-    ],
     order: [
       'overall_coverage',
       'new_overall_coverage',
@@ -124,14 +100,15 @@ export const domains = {
       'skipped_tests',
       'test_success_density',
       'test_execution_time'
+    ],
+    spaces: [
+      'coverage',
+      'it_coverage',
+      'tests'
     ]
   },
 
   'Duplication': {
-    main: [
-      'duplicated_lines_density',
-      'duplicated_blocks'
-    ],
     order: [
       'duplicated_lines_density',
       'duplicated_blocks',
@@ -141,15 +118,12 @@ export const domains = {
   },
 
   'Size': {
-    main: [
-      'ncloc',
-      'files'
-    ],
-    order: []
+    order: [
+      'ncloc'
+    ]
   },
 
   'Issues': {
-    main: [],
     order: [
       'violations',
       'new_violations',

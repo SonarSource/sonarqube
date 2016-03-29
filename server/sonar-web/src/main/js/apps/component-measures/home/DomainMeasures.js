@@ -21,7 +21,6 @@ import sortBy from '../../../../../../node_modules/lodash/sortBy';
 import partition from '../../../../../../node_modules/lodash/partition';
 import React from 'react';
 
-import MainMeasures from './MainMeasures';
 import MeasuresList from './MeasuresList';
 import MeasureBubbleChartContainer from '../components/bubbleChart/MeasureBubbleChartContainer';
 import { getLeakPeriodLabel } from '../../../helpers/periods';
@@ -53,27 +52,17 @@ export default class DomainMeasures extends React.Component {
     const leakPeriodLabel = getLeakPeriodLabel(periods);
 
     const conf = domainsConf[domainName];
-    const mainMetrics = conf ? conf.main : [];
     const order = conf ? conf.order : [];
-    const [mainMeasures, otherMeasures] = partition(measures, m => mainMetrics.includes(m.metric.key));
-    const sortedMainMeasures = sortMeasures(mainMeasures, order);
-    const sortedOtherMeasures = sortMeasures(otherMeasures, order);
+    const spaces = conf && conf.spaces ? conf.spaces : [];
+    const sortedMeasures = sortMeasures(measures, order);
 
     return (
         <section id="component-measures-domain">
-          {mainMeasures.length > 0 && (
-              <MainMeasures
-                  measures={sortedMainMeasures}
-                  component={component}
-                  hasLeak={leakPeriodLabel != null}/>
-          )}
-
-          {otherMeasures.length > 0 && (
-              <MeasuresList
-                  measures={sortedOtherMeasures}
-                  component={component}
-                  hasLeak={leakPeriodLabel != null}/>
-          )}
+          <MeasuresList
+              measures={sortedMeasures}
+              component={component}
+              spaces={spaces}
+              hasLeak={leakPeriodLabel != null}/>
 
           {hasBubbleChart(domainName) && (
               <MeasureBubbleChartContainer domainName={domainName}/>

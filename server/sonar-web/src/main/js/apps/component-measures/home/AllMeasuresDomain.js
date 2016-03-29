@@ -38,14 +38,9 @@ export default class AllMeasuresDomain extends React.Component {
 
     const hasLeak = !!leakPeriodLabel;
     const { measures } = domain;
-    const domainConfig = domains[domain.name] || { main: [], order: [] };
-    const mainMetrics = domainConfig.main;
+    const domainConfig = domains[domain.name] || { order: [] };
     const orderedMeasures = domainConfig.order;
-    const [mainMeasures, otherMeasures] = partition(measures,
-        measure => mainMetrics.indexOf(measure.metric.key) !== -1);
-    const sortedMainMeasures = sortMeasures(mainMeasures, orderedMeasures);
-    const sortedOtherMeasures = sortMeasures(otherMeasures, orderedMeasures);
-    const finalMeasures = [...sortedMainMeasures, ...sortedOtherMeasures];
+    const sortedMeasures = sortMeasures(measures, orderedMeasures);
 
     return (
         <li>
@@ -56,9 +51,10 @@ export default class AllMeasuresDomain extends React.Component {
           )}
 
           <MeasuresList
-              measures={finalMeasures}
+              measures={sortedMeasures}
               hasLeak={hasLeak}
-              component={component}/>
+              component={component}
+              spaces={domainConfig.spaces || []}/>
         </li>
     );
   }
