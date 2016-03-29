@@ -17,38 +17,39 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.devcockpit.bridge;
+package org.sonar.server.plugins.privileged;
 
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.devcockpit.DevCockpitBridge;
+import org.sonar.plugin.PrivilegedPluginBridge;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class DevCockpitBootstrapTest {
+public class PrivilegedPluginsBootstraperTest {
   private ComponentContainer componentContainer = new ComponentContainer();
-  private DevCockpitBridge devCockpitBridge = mock(DevCockpitBridge.class);
+  private PrivilegedPluginBridge bridge = mock(PrivilegedPluginBridge.class);
 
-  private DevCockpitBootstrap underTest = new DevCockpitBootstrap(componentContainer);
+  private PrivilegedPluginsBootstraper underTest = new PrivilegedPluginsBootstraper(componentContainer);
 
   @Test
-  public void onServerStart_calls_startDevCockpit_if_DevCockpitBridge_exists_in_container() {
-    componentContainer.add(devCockpitBridge);
+  public void onServerStart_calls_startPlugin_if_Bridge_exists_in_container() {
+    componentContainer.add(bridge);
     componentContainer.startComponents();
 
     underTest.onServerStart(mock(Server.class));
 
-    verify(devCockpitBridge).startDevCockpit(componentContainer);
-    verifyNoMoreInteractions(devCockpitBridge);
+    verify(bridge).getPluginName();
+    verify(bridge).startPlugin(componentContainer);
+    verifyNoMoreInteractions(bridge);
   }
 
   @Test
-  public void onServerStart_does_not_call_startDevCockpit_if_DevCockpitBridge_does_not_exist_in_container() {
+  public void onServerStart_does_not_call_startPlugin_if_Bridge_does_not_exist_in_container() {
     underTest.onServerStart(mock(Server.class));
 
-    verifyNoMoreInteractions(devCockpitBridge);
+    verifyNoMoreInteractions(bridge);
   }
 }

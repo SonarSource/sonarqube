@@ -17,13 +17,17 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.devcockpit;
+package org.sonar.plugin.ce;
 
-/**
- * This interface is used to delegate the persistence of developers to the Developer Cockpit plugin
- */
-public interface PersistDevelopersDelegate {
+import java.util.List;
+import org.sonar.api.ce.ComputeEngineSide;
 
-  void execute();
+@ComputeEngineSide
+public interface ReportAnalysisComponentProvider {
+
+  /**
+   * Return the list of components to add to the state-full container of a Compute Engine report analysis task
+   */
+  List<Object> getComponents();
 
 }

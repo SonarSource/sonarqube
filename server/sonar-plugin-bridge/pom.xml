@@ -7,8 +7,8 @@
     <version>5.5-SNAPSHOT</version>
     <relativePath>..</relativePath>
   </parent>
-  <artifactId>sonar-governance-bridge</artifactId>
-  <name>SonarQube :: Governance Bridge</name>
+  <artifactId>sonar-plugin-bridge</artifactId>
+  <name>SonarQube :: Priviledged Plugin Bridge</name>
 
   <dependencies>
     <dependency>

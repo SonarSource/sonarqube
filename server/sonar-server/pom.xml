@@ -171,11 +171,7 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-dev-cockpit-bridge</artifactId>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>sonar-governance-bridge</artifactId>
+      <artifactId>sonar-plugin-bridge</artifactId>
     </dependency>
 
     <!-- unit tests -->

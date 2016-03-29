@@ -89,16 +89,12 @@ import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtModelService;
 import org.sonar.server.debt.DebtModelXMLExporter;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-import org.sonar.server.devcockpit.bridge.DevCockpitBootstrap;
-import org.sonar.server.devcockpit.bridge.DevCockpitStopper;
 import org.sonar.server.duplication.ws.DuplicationsJsonWriter;
 import org.sonar.server.duplication.ws.DuplicationsParser;
 import org.sonar.server.duplication.ws.DuplicationsWs;
 import org.sonar.server.es.IndexCreator;
 import org.sonar.server.es.IndexDefinitions;
 import org.sonar.server.event.NewAlerts;
-import org.sonar.server.governance.bridge.GovernanceBootstrap;
-import org.sonar.server.governance.bridge.GovernanceStopper;
 import org.sonar.server.issue.ActionService;
 import org.sonar.server.issue.AddTagsAction;
 import org.sonar.server.issue.AssignAction;
@@ -180,6 +176,8 @@ import org.sonar.server.plugins.PluginDownloader;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 import org.sonar.server.plugins.UpdateCenterClient;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
+import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
+import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.plugins.ws.AvailableAction;
 import org.sonar.server.plugins.ws.CancelAllAction;
 import org.sonar.server.plugins.ws.InstallAction;
@@ -674,13 +672,9 @@ public class PlatformLevel4 extends PlatformLevel {
       CancelAllAction.class,
       PluginsWs.class,
 
-      // Developer Cockpit plugin
-      DevCockpitBootstrap.class,
-      DevCockpitStopper.class,
-
-      // Governance plugin
-      GovernanceBootstrap.class,
-      GovernanceStopper.class,
+      // privileged plugins
+      PrivilegedPluginsBootstraper.class,
+      PrivilegedPluginsStopper.class,
 
       // Compute engine (must be after Views and Developer Cockpit)
       CeModule.class,

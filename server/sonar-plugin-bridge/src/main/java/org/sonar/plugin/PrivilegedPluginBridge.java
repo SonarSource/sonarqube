@@ -17,34 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.devcockpit;
+package org.sonar.plugin;
 
-import java.util.List;
 import org.sonar.core.platform.ComponentContainer;
 
 /**
- * Interface implemented by the Extension point exposed by the Developer Cockpit plugin that serves as the unique access
- * point from the whole SQ instance into the Developer Cockpit plugin.
+ * Interface implemented by the Extension point exposed by the Privileged plugin that serves as the unique access
+ * point from the whole SQ instance into the Privileged plugin.
  */
-public interface DevCockpitBridge {
+public interface PrivilegedPluginBridge {
+
+  String getPluginName();
 
   /**
-   * Bootstraps the Developer Cockpit plugin.
+   * Bootstraps the plugin.
    *
-   * @param parent the parent ComponentContainer which provides Platform components for Developer Cockpit to use.
+   * @param parent the parent ComponentContainer which provides Platform components for the Privileged plugin to use.
    *
    * @throws IllegalStateException if called more than once
    */
-  void startDevCockpit(ComponentContainer parent);
+  void startPlugin(ComponentContainer parent);
 
   /**
    * This method is called when Platform is shutting down.
    */
-  void stopDevCockpit();
-
-  /**
-   * Return the list of components to add to the state-full container of a Compute Engine report analysis task
-   */
-  List<Object> getCeComponents();
+  void stopPlugin();
 
 }

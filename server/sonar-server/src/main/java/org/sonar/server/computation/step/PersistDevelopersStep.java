@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
-import org.sonar.server.devcockpit.PersistDevelopersDelegate;
+import org.sonar.server.computation.developer.PersistDevelopersDelegate;
 
 /**
  * Persist developers, should only be execute when the Dev Cockpit plugin is installed.

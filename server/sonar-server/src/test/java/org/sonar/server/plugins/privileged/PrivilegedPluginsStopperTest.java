@@ -17,44 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.governance.bridge;
+package org.sonar.server.plugins.privileged;
 
 import org.junit.Test;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.governance.GovernanceBridge;
+import org.sonar.plugin.PrivilegedPluginBridge;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
-public class GovernanceStopperTest {
-  private ComponentContainer componentContainer = spy(new ComponentContainer());
-  private GovernanceStopper underTest = new GovernanceStopper(componentContainer);
+public class PrivilegedPluginsStopperTest {
+  private ComponentContainer componentContainer = new ComponentContainer();
+  private PrivilegedPluginBridge bridge = mock(PrivilegedPluginBridge.class);
+
+  private PrivilegedPluginsStopper underTest = new PrivilegedPluginsStopper(componentContainer);
 
   @Test
-  public void start_has_no_effect() {
-    underTest.start();
-    
-    verifyNoMoreInteractions(componentContainer);
-  }
-
-  @Test
-  public void stop_has_no_effect_when_no_GovernanceBridge() {
-    underTest.stop();
-
-    verify(componentContainer).getComponentByType(GovernanceBridge.class);
-    verifyNoMoreInteractions(componentContainer);
-  }
-
-  @Test
-  public void stop_calls_GovernanceBridge_stopGovernance_when_in_ComponentContainer() {
-    GovernanceBridge governanceBridge = mock(GovernanceBridge.class);
-
-    componentContainer.add(governanceBridge);
+  public void stop_calls_stopPlugin_if_Bridge_exists_in_container() {
+    componentContainer.add(bridge);
+    componentContainer.startComponents();
 
     underTest.stop();
 
-    verify(governanceBridge).stopGovernance();
+    verify(bridge).getPluginName();
+    verify(bridge).stopPlugin();
+    verifyNoMoreInteractions(bridge);
+  }
+
+  @Test
+  public void stop_does_not_call_stopPlugin_if_Bridge_does_not_exist_in_container() {
+    underTest.stop();
+
+    verifyNoMoreInteractions(bridge);
   }
 }

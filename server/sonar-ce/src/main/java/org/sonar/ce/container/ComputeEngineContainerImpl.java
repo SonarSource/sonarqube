@@ -75,11 +75,7 @@ import org.sonar.server.computation.queue.PurgeCeActivities;
 import org.sonar.server.computation.taskprocessor.CeTaskProcessorModule;
 import org.sonar.server.debt.DebtModelPluginRepository;
 import org.sonar.server.debt.DebtRulesXMLImporter;
-import org.sonar.server.devcockpit.bridge.DevCockpitBootstrap;
-import org.sonar.server.devcockpit.bridge.DevCockpitStopper;
 import org.sonar.server.event.NewAlerts;
-import org.sonar.server.governance.bridge.GovernanceBootstrap;
-import org.sonar.server.governance.bridge.GovernanceStopper;
 import org.sonar.server.issue.IssueUpdater;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndex;
@@ -112,6 +108,8 @@ import org.sonar.server.platform.TempFolderProvider;
 import org.sonar.server.platform.monitoring.JmxConnectionFactoryProvider;
 import org.sonar.server.plugins.InstalledPluginReferentialFactory;
 import org.sonar.server.plugins.ServerExtensionInstaller;
+import org.sonar.server.plugins.privileged.PrivilegedPluginsBootstraper;
+import org.sonar.server.plugins.privileged.PrivilegedPluginsStopper;
 import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.qualityprofile.BuiltInProfiles;
 import org.sonar.server.qualityprofile.QProfileComparison;
@@ -548,13 +546,9 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // ViewsBootstrap.class, Views not supported in 5.5
     // ViewsStopper.class, Views not supported in 5.5
 
-    // Developer Cockpit plugin
-    DevCockpitBootstrap.class,
-    DevCockpitStopper.class,
-
-    // Governance plugin
-    GovernanceBootstrap.class,
-    GovernanceStopper.class,
+    // privileged plugins
+    PrivilegedPluginsBootstraper.class,
+    PrivilegedPluginsStopper.class,
 
     // Compute engine (must be after Views and Developer Cockpit)
     CeModule.class,

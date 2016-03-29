@@ -24,7 +24,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
 import org.sonar.server.computation.container.ComputeEngineContainer;
-import org.sonar.server.devcockpit.DevCockpitBridge;
+import org.sonar.server.computation.developer.PersistDevelopersDelegate;
 
 import static com.google.common.collect.FluentIterable.from;
 
@@ -32,6 +32,8 @@ import static com.google.common.collect.FluentIterable.from;
  * Ordered list of steps classes and instances to be executed for batch processing
  */
 public class ReportComputationSteps extends AbstractComputationSteps {
+
+  private static final String DEVELOPER_COCKPIT_PLUGIN_NAME = "Developer Cockpit";
 
   private static final List<Class<? extends ComputationStep>> STEPS = Arrays.asList(
     ExtractReportStep.class,
@@ -127,7 +129,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
   private class AllowPersistDevelopersStepIfDevCockpitPluginInstalled implements Predicate<Class<? extends ComputationStep>> {
 
-    private final boolean devCockpitIsInstalled = computeEngineContainer.getComponentByType(DevCockpitBridge.class) != null;
+    private final boolean devCockpitIsInstalled = computeEngineContainer.getComponentByType(PersistDevelopersDelegate.class) != null;
 
     @Override
     public boolean apply(@Nonnull Class<? extends ComputationStep> input) {

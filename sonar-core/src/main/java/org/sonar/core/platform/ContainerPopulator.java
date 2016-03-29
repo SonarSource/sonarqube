@@ -19,6 +19,8 @@
  */
 package org.sonar.core.platform;
 
+import java.util.List;
+
 public interface ContainerPopulator<T extends ContainerPopulator.Container> {
   void populateContainer(T container);
 
@@ -28,5 +30,7 @@ public interface ContainerPopulator<T extends ContainerPopulator.Container> {
     Container addSingletons(Iterable<?> components);
 
     <T> T getComponentByType(Class<T> type);
+
+    <T> List<T> getComponentsByType(Class<T> type);
   }
 }

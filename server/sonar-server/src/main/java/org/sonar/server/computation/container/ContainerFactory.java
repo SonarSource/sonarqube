@@ -20,11 +20,11 @@
 package org.sonar.server.computation.container;
 
 import javax.annotation.Nullable;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.ce.queue.CeTask;
-import org.sonar.server.devcockpit.DevCockpitBridge;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 
 public interface ContainerFactory {
 
-  ComputeEngineContainer create(ComponentContainer parent, CeTask task, @Nullable DevCockpitBridge devCockpitBridge);
+  ComputeEngineContainer create(ComponentContainer parent, CeTask task, @Nullable ReportAnalysisComponentProvider[] componentProviders);
 }

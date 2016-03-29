@@ -25,6 +25,7 @@ import javax.annotation.Nullable;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
 import org.sonar.server.computation.batch.BatchReportReaderImpl;
@@ -90,16 +91,15 @@ import org.sonar.server.computation.step.ComputationStepExecutor;
 import org.sonar.server.computation.step.ComputationSteps;
 import org.sonar.server.computation.step.ReportComputationSteps;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
-import org.sonar.server.devcockpit.DevCockpitBridge;
 import org.sonar.server.view.index.ViewIndex;
 
 public final class ReportComputeEngineContainerPopulator implements ContainerPopulator<ComputeEngineContainer> {
   private final CeTask task;
-  private final DevCockpitBridge devCockpitBridge;
+  private final ReportAnalysisComponentProvider[] componentProviders;
 
-  public ReportComputeEngineContainerPopulator(CeTask task, @Nullable DevCockpitBridge devCockpitBridge) {
+  public ReportComputeEngineContainerPopulator(CeTask task, @Nullable ReportAnalysisComponentProvider[] componentProviders) {
     this.task = task;
-    this.devCockpitBridge = devCockpitBridge;
+    this.componentProviders = componentProviders == null ? new ReportAnalysisComponentProvider[0] : componentProviders;
   }
 
   @Override
@@ -108,8 +108,8 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
     container.add(task);
     container.add(steps);
     container.addSingletons(componentClasses());
-    if (devCockpitBridge != null) {
-      container.addSingletons(devCockpitBridge.getCeComponents());
+    for (ReportAnalysisComponentProvider componentProvider : componentProviders) {
+      container.addSingletons(componentProvider.getComponents());
     }
     container.addSingletons(steps.orderedStepClasses());
   }
@@ -207,8 +207,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       // views
       ViewIndex.class,
 
-      MeasureToMeasureDto.class
-      );
+      MeasureToMeasureDto.class);
   }
 
 }

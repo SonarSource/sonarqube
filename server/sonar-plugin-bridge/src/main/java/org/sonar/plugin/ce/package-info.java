@@ -17,28 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.governance;
+@ParametersAreNonnullByDefault
+package org.sonar.plugin.ce;
 
-import org.sonar.core.platform.ComponentContainer;
-
-/**
- * Interface implemented by the Extension point exposed by the Governance plugin that serves as the unique access point from
- * the whole SQ instance into the Governance plugin.
- */
-public interface GovernanceBridge {
-
-  /**
-   * Bootstraps the Governance plugin.
-   *
-   * @param parent the parent ComponentContainer which provides Platform components for Governance to use.
-   *
-   * @throws IllegalStateException if called more than once
-   */
-  void startGovernance(ComponentContainer parent);
-
-  /**
-   * This method is called when Platform is shutting down.
-   */
-  void stopGovernance();
-
-}
+import javax.annotation.ParametersAreNonnullByDefault;

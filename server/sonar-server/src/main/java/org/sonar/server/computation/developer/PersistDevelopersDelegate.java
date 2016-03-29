@@ -17,7 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.server.devcockpit;
+package org.sonar.server.computation.developer;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+/**
+ * This interface is used to delegate the persistence of developers to the Developer Cockpit plugin
+ */
+public interface PersistDevelopersDelegate {
+
+  void execute();
+
+}

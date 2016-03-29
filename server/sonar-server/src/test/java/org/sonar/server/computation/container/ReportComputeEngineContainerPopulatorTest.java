@@ -21,19 +21,20 @@ package org.sonar.server.computation.container;
 
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableList;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
 import org.sonar.ce.queue.CeTask;
+import org.sonar.core.platform.ComponentContainer;
+import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 import org.sonar.server.computation.step.ComputationStep;
 import org.sonar.server.computation.step.PersistComponentsStep;
 import org.sonar.server.computation.step.PersistDevelopersStep;
-import org.sonar.server.devcockpit.DevCockpitBridge;
-import org.sonar.server.devcockpit.PersistDevelopersDelegate;
 
 import static com.google.common.base.Predicates.notNull;
 import static com.google.common.collect.FluentIterable.from;
@@ -100,29 +101,22 @@ public class ReportComputeEngineContainerPopulatorTest {
   }
 
   @Test
-  public void PersistDevelopersStep_is_added_to_the_container_when_DevCockpitBridge_exist() {
-    DevCockpitBridge devCockpitBridge = mock(DevCockpitBridge.class);
-    when(devCockpitBridge.getCeComponents()).thenReturn(Arrays.<Object>asList(PersistDevelopersDelegateImpl.class));
+  public void Components_of_ReportAnalysisComponentProvider_are_added_to_the_container() {
+    Object object = new Object();
+    Class<MyClass> clazz = MyClass.class;
+    ReportAnalysisComponentProvider componentProvider = mock(ReportAnalysisComponentProvider.class);
+    when(componentProvider.getComponents()).thenReturn(ImmutableList.of(object, clazz));
 
-    underTest = new ReportComputeEngineContainerPopulator(task, devCockpitBridge);
+    underTest = new ReportComputeEngineContainerPopulator(task, new ReportAnalysisComponentProvider[]{componentProvider});
     AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
-    container.add(devCockpitBridge);
+    container.add(componentProvider);
     underTest.populateContainer(container);
 
-    assertThat(container.added).contains(PersistDevelopersStep.class);
+    assertThat(container.added).contains(object, clazz);
   }
 
-  @Test
-  public void components_from_DevCockpitBridge_are_added_to_the_container_when_DevCockpitBridge_exist() {
-    DevCockpitBridge devCockpitBridge = mock(DevCockpitBridge.class);
-    when(devCockpitBridge.getCeComponents()).thenReturn(Arrays.<Object>asList(PersistDevelopersDelegateImpl.class));
+  private static final class MyClass {
 
-    underTest = new ReportComputeEngineContainerPopulator(task, devCockpitBridge);
-    AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
-    container.add(devCockpitBridge);
-    underTest.populateContainer(container);
-
-    assertThat(container.added).contains(PersistDevelopersDelegateImpl.class);
   }
 
   private enum IsComputationStep implements Predicate<Class<?>> {
@@ -170,12 +164,23 @@ public class ReportComputeEngineContainerPopulatorTest {
       }
       return null;
     }
-  }
 
-  private static class PersistDevelopersDelegateImpl implements PersistDevelopersDelegate {
     @Override
-    public void execute() {
-      // nothing to do
+    public <T> List<T> getComponentsByType(final Class<T> type) {
+      return from(added)
+        .filter(new Predicate<Object>() {
+          @Override
+          public boolean apply(@Nonnull Object input) {
+            return input.getClass().getSimpleName().contains(type.getSimpleName());
+          }
+        }).transform(new Function<Object, T>() {
+          @Override
+          @Nonnull
+          public T apply(@Nonnull Object input) {
+            return (T) input;
+          }
+        }).toList();
     }
   }
+
 }
