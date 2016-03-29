@@ -18,7 +18,7 @@
   %>
   <title><%= title -%></title>
 
-  <link href="/css/sonar.css?v=<%= sonar_version -%>" rel="stylesheet" media="all">
+  <link href="<%= ApplicationController.root_context -%>/css/sonar.css?v=<%= sonar_version -%>" rel="stylesheet" media="all">
   <%= yield :style -%>
 
   <script>
@@ -36,10 +36,10 @@
       updateCenterActive: <%= configuration('sonar.updatecenter.activate', true) %>
     };
   </script>
-  <script src="/js/bundles/vendor.js?v=<%= sonar_version -%>"></script>
-  <script src="/js/bundles/sonar.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/vendor.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/sonar.js?v=<%= sonar_version -%>"></script>
   <script>
-    window.baseUrl = '';
+    window.baseUrl = '<%= ApplicationController.root_context -%>';
   </script>
   <%= yield :script -%>
 </head>

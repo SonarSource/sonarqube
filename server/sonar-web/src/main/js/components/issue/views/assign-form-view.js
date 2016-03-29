@@ -119,7 +119,7 @@ export default ActionOptionsView.extend({
   search (query) {
     const that = this;
     if (query.length > 1) {
-      $.get('/api/users/search', { q: query }).done(function (data) {
+      $.get(window.baseUrl + '/api/users/search', { q: query }).done(function (data) {
         that.resetAssignees(data.users);
       });
     } else {

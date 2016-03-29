@@ -1,4 +1,4 @@
-<form id="copy-filter-form" method="post" action="/measures/copy">
+<form id="copy-filter-form" method="post" action="<%= ApplicationController.root_context -%>/measures/copy">
   <input type="hidden" name="id" value="<%= @filter.id -%>">
   <fieldset>
     <div class="modal-head">
@@ -15,6 +15,6 @@
 </form>
 <script>
   $j("#copy-filter-form").modalForm({success: function (data) {
-    window.location = baseUrl + '/measures/filter/' + data;
+    window.location = window.baseUrl + '/measures/filter/' + data;
   }});
 </script>

@@ -106,7 +106,7 @@ export default ModalView.extend({
 
   getMetrics () {
     let metrics = '';
-    const url = '/api/metrics/search';
+    const url = window.baseUrl + '/api/metrics/search';
     $.ajax({
       url,
       async: false,
@@ -156,7 +156,7 @@ export default ModalView.extend({
 
   requestMeasures () {
     const that = this;
-    const url = '/api/resources';
+    const url = window.baseUrl + '/api/resources';
     const metrics = this.getMetrics();
     const options = {
       resource: this.model.key(),
@@ -181,7 +181,7 @@ export default ModalView.extend({
 
   requestIssues () {
     const that = this;
-    const url = '/api/issues/search';
+    const url = window.baseUrl + '/api/issues/search';
     const options = {
       componentUuids: this.model.id,
       resolved: false,
@@ -211,7 +211,7 @@ export default ModalView.extend({
 
   requestTests () {
     const that = this;
-    const url = '/api/tests/list';
+    const url = window.baseUrl + '/api/tests/list';
     const options = { testFileId: this.model.id };
     return $.get(url, options).done(function (data) {
       that.model.set({ tests: data.tests });
@@ -267,7 +267,7 @@ export default ModalView.extend({
   showTest (e) {
     const that = this;
     const testId = $(e.currentTarget).data('id');
-    const url = '/api/tests/covered_files';
+    const url = window.baseUrl + '/api/tests/covered_files';
     const options = { testId };
     this.testsScroll = $(e.currentTarget).scrollParent().scrollTop();
     return $.get(url, options).done(function (data) {

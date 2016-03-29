@@ -1,4 +1,4 @@
-<form id="user_edit_form" method="post" action="/users/update">
+<form id="user_edit_form" method="post" action="<%= ApplicationController.root_context -%>/users/update">
 <fieldset>
       <div class="modal-head">
         <h2>Edit user: <%= h @user.login() -%></h2>

@@ -7,7 +7,7 @@
       <td class="thin"><%= link_to_favourite f -%></td>
       <td>
         <%
-          url = '/dashboard?id=' + url_encode(f.key)
+          url = ApplicationController.root_context + '/dashboard?id=' + url_encode(f.key)
         %>
         <a href="<%= url -%>" class="link-with-icon">
           <%= qualifier_icon f %>

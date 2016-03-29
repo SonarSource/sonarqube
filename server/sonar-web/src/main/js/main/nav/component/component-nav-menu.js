@@ -69,13 +69,13 @@ export default React.createClass({
 
   isFixedDashboardActive() {
     const path = window.location.pathname;
-    return path.indexOf('/overview') === 0;
+    return path.indexOf(window.baseUrl + '/overview') === 0;
   },
 
   isCustomDashboardActive(customDashboard) {
     const path = window.location.pathname;
     const params = qs.parse(window.location.search.substr(1));
-    return path.indexOf('/dashboard') === 0 && params['did'] === `${customDashboard.key}`;
+    return path.indexOf(window.baseUrl + '/dashboard') === 0 && params['did'] === `${customDashboard.key}`;
   },
 
   isCustomDashboardsActive () {
@@ -87,12 +87,12 @@ export default React.createClass({
 
   isDefaultDeveloperDashboardActive() {
     const path = window.location.pathname;
-    return this.isDeveloper() && path.indexOf('/dashboard') === 0;
+    return this.isDeveloper() && path.indexOf(window.baseUrl + '/dashboard') === 0;
   },
 
   isDashboardManagementActive () {
     const path = window.location.pathname;
-    return path.indexOf('/dashboards') === 0;
+    return path.indexOf(window.baseUrl + '/dashboards') === 0;
   },
 
   renderOverviewLink() {

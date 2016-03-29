@@ -69,7 +69,7 @@ const Suggestions = Backbone.Collection.extend({
 const UserSuggestions = Suggestions.extend({
 
   url () {
-    return '/api/users/search';
+    return window.baseUrl + '/api/users/search';
   },
 
   parse (response) {
@@ -84,7 +84,7 @@ const UserSuggestions = Suggestions.extend({
 const ProjectSuggestions = Suggestions.extend({
 
   url () {
-    return '/api/resources/search?f=s2&q=TRK&display_key=true';
+    return window.baseUrl + '/api/resources/search?f=s2&q=TRK&display_key=true';
   }
 
 });
@@ -93,7 +93,7 @@ const ProjectSuggestions = Suggestions.extend({
 const ComponentSuggestions = Suggestions.extend({
 
   url () {
-    return '/api/resources/search?f=s2&qp=supportsGlobalDashboards&display_key=true';
+    return window.baseUrl + '/api/resources/search?f=s2&qp=supportsGlobalDashboards&display_key=true';
   },
 
   parse (r) {
@@ -377,7 +377,7 @@ const ComponentFilterView = AjaxSelectFilterView.extend({
     const that = this;
     return $
         .ajax({
-          url: '/api/resources',
+          url: window.baseUrl + '/api/resources',
           type: 'GET',
           data: { resource: v }
         })
@@ -407,7 +407,7 @@ const ProjectFilterView = AjaxSelectFilterView.extend({
     const that = this;
     return $
         .ajax({
-          url: '/api/resources',
+          url: window.baseUrl + '/api/resources',
           type: 'GET',
           data: { resource: v }
         })
@@ -437,7 +437,7 @@ const AssigneeFilterView = AjaxSelectFilterView.extend({
     const that = this;
     return $
         .ajax({
-          url: '/api/users/search',
+          url: window.baseUrl + '/api/users/search',
           type: 'GET',
           data: { q: v }
         })

@@ -1,4 +1,4 @@
-<form id="edit-dashboard-form" method="post" action="/dashboards/update">
+<form id="edit-dashboard-form" method="post" action="<%= ApplicationController.root_context -%>/dashboards/update">
   <input type="hidden" name="id" value="<%= @dashboard.id -%>">
   <% if @dashboard.global %>
     <input type="hidden" name="global" value="true" />
@@ -46,6 +46,6 @@
 <script>
   $j("#edit-dashboard-form").modalForm({success: function (data) {
     var contextParams = data.trim().length > 0 ? '?resource=' + data.trim() : '';
-    window.location = baseUrl + '/dashboards' + contextParams;
+    window.location = window.baseUrl + '/dashboards' + contextParams;
   }});
 </script>

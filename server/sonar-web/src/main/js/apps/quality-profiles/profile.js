@@ -42,7 +42,7 @@ export default Backbone.Model.extend({
 
   fetchProfileRules () {
     const that = this;
-    const url = '/api/rules/search';
+    const url = window.baseUrl + '/api/rules/search';
     const key = this.id;
     const options = {
       ps: 1,
@@ -66,7 +66,7 @@ export default Backbone.Model.extend({
 
   fetchInheritance () {
     const that = this;
-    const url = '/api/qualityprofiles/inheritance';
+    const url = window.baseUrl + '/api/qualityprofiles/inheritance';
     const options = { profileKey: this.id };
     return $.get(url, options).done(function (r) {
       _.extend(that.fetchChanged, r.profile, {
@@ -78,7 +78,7 @@ export default Backbone.Model.extend({
 
   fetchChangelog (options) {
     const that = this;
-    const url = '/api/qualityprofiles/changelog';
+    const url = window.baseUrl + '/api/qualityprofiles/changelog';
     const opts = _.extend({}, options, { profileKey: this.id });
     return $.get(url, opts).done(function (r) {
       that.set({
@@ -92,7 +92,7 @@ export default Backbone.Model.extend({
 
   fetchMoreChangelog () {
     const that = this;
-    const url = '/api/qualityprofiles/changelog';
+    const url = window.baseUrl + '/api/qualityprofiles/changelog';
     const page = this.get('eventsPage') || 0;
     const parameters = this.get('eventsParameters') || {};
     const opts = _.extend({}, parameters, { profileKey: this.id, p: page + 1 });
@@ -114,7 +114,7 @@ export default Backbone.Model.extend({
 
   compareWith (withKey) {
     const that = this;
-    const url = '/api/qualityprofiles/compare';
+    const url = window.baseUrl + '/api/qualityprofiles/compare';
     const options = { leftKey: this.id, rightKey: withKey };
     return $.get(url, options).done(function (r) {
       const comparison = _.extend(r, {

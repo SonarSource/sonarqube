@@ -2,8 +2,8 @@
 
 <nav class="navbar navbar-global page-container" id="global-navigation">
   <div class="navbar-header">
-    <a class="navbar-brand" href="/">
-      <img src="/images/logo.svg" height="30"
+    <a class="navbar-brand" href="<%= ApplicationController.root_context -%>/">
+      <img src="<%= ApplicationController.root_context -%>/images/logo.svg" height="30"
            alt="<%= h message('layout.sonar.slogan') -%>"
            title="<%= h message('layout.sonar.slogan') -%>">
     </a>
@@ -24,7 +24,7 @@
     <a href="http://www.sonarqube.org/documentation" target="sonar_doc">Documentation</a> -
     <a href="http://www.sonarqube.org/support" target="support">Get Support</a> -
     <a href="http://redirect.sonarsource.com/doc/plugin-library.html" target="plugins">Plugins</a> -
-    <a href="/web_api">Web API</a>
+    <a href="<%= ApplicationController.root_context -%>/web_api">Web API</a>
   </div>
   <%= render 'branding/footer' -%>
 </div>
@@ -36,7 +36,7 @@
   })(window.jQuery);
 </script>
 
-<script src="/js/bundles/main.js?v=<%= sonar_version -%>"></script>
+<script src="<%= ApplicationController.root_context -%>/js/bundles/main.js?v=<%= sonar_version -%>"></script>
 <%= yield :extra_script -%>
 
 </body></html>

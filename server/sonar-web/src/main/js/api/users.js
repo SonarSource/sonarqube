@@ -20,12 +20,12 @@
 import { getJSON, post } from '../helpers/request.js';
 
 export function getCurrentUser () {
-  const url = '/api/users/current';
+  const url = window.baseUrl + '/api/users/current';
   return getJSON(url);
 }
 
 export function changePassword (login, password, previousPassword) {
-  const url = '/api/users/change_password';
+  const url = window.baseUrl + '/api/users/change_password';
   const data = { login, password };
 
   if (previousPassword != null) {

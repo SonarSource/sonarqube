@@ -105,7 +105,7 @@ export default WorkspaceHeaderView.extend({
 
   bulkChange () {
     const query = this.options.app.controller.getQuery('&', true);
-    const url = '/issues/bulk_change_form?' + query;
+    const url = window.baseUrl + '/issues/bulk_change_form?' + query;
     window.openModalWindow(url, {});
   },
 
@@ -113,7 +113,7 @@ export default WorkspaceHeaderView.extend({
     const selected = this.options.app.list.where({ selected: true });
     const selectedKeys = _.first(_.pluck(selected, 'id'), 200);
     const query = 'issues=' + selectedKeys.join();
-    const url = '/issues/bulk_change_form?' + query;
+    const url = window.baseUrl + '/issues/bulk_change_form?' + query;
     window.openModalWindow(url, {});
   },
 

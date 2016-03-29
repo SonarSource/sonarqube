@@ -24,7 +24,7 @@ export default Backbone.Collection.extend({
   model: Filter,
 
   url () {
-    return '/api/issue_filters/search';
+    return window.baseUrl + '/api/issue_filters/search';
   },
 
   parse (r) {

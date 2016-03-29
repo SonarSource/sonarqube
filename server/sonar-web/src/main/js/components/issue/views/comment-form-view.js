@@ -82,7 +82,7 @@ export default PopupView.extend({
     const text = this.ui.textarea.val();
     const update = this.model && this.model.has('key');
     const method = update ? 'edit_comment' : 'add_comment';
-    const url = '/api/issues/' + method;
+    const url = window.baseUrl + '/api/issues/' + method;
     const data = { text };
     if (update) {
       data.key = this.model.get('key');

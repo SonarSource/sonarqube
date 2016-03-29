@@ -36,7 +36,7 @@ window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
 
   const history = useRouterHistory(createHistory)({
-    basename: '/account'
+    basename: window.baseUrl + '/account'
   });
 
   const store = configureStore();

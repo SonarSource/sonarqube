@@ -48,7 +48,7 @@
       </section>
     <% end %>
 
-    <form id="notif_form" method="post" action="/account/update_notifications">
+    <form id="notif_form" method="post" action="<%= ApplicationController.root_context -%>/account/update_notifications">
       <% unless @global_dispatchers.empty? -%>
         <section class="big-spacer-bottom">
           <%= render "account/global_notifications" -%>
@@ -71,5 +71,5 @@
 </div>
 
 <% content_for :extra_script do %>
-  <script src="/js/bundles/account.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/account.js?v=<%= sonar_version -%>"></script>
 <% end %>

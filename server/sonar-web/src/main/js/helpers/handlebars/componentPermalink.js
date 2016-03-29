@@ -18,5 +18,5 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 module.exports = function (componentKey) {
-  return '/dashboard/index?id=' + encodeURIComponent(componentKey);
+  return window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(componentKey);
 };

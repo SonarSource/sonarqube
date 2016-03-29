@@ -42,7 +42,7 @@ const FavoriteMeasureFilters = ({ measureFilters }) => (
                   <FavoriteMeasureFilter filter={f} favorite={true}/>
                 </td>
                 <td>
-                  <a href={`/measures/filter/${f.id}`}>
+                  <a href={`${window.baseUrl}/measures/filter/${f.id}`}>
                     {f.name}
                   </a>
                 </td>
@@ -52,7 +52,7 @@ const FavoriteMeasureFilters = ({ measureFilters }) => (
       </table>
 
       <div className="spacer-top small">
-        <a href="/measures/manage">{translate('see_all')}</a>
+        <a href={`${window.baseUrl}/measures/manage`}>{translate('see_all')}</a>
       </div>
 
     </section>

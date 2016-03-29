@@ -36,12 +36,12 @@ const DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
 
   applyFavorite (e) {
     const id = $(e.target).data('id');
-    window.location = this.model.get('favoriteUrl') + '/' + id;
+    window.location = window.baseUrl + this.model.get('favoriteUrl') + '/' + id;
   },
 
 
   manage () {
-    window.location = this.model.get('manageUrl');
+    window.location = window.baseUrl + this.model.get('manageUrl');
   },
 
 

@@ -150,7 +150,7 @@ export default Marionette.LayoutView.extend({
 
   requestComponent () {
     const that = this;
-    const url = '/api/components/app';
+    const url = window.baseUrl + '/api/components/app';
     const data = { uuid: this.model.id };
     return $.ajax({
       url,
@@ -206,7 +206,7 @@ export default Marionette.LayoutView.extend({
 
   requestSource () {
     const that = this;
-    const url = '/api/sources/lines';
+    const url = window.baseUrl + '/api/sources/lines';
     const options = _.extend({ uuid: this.model.id }, this.linesLimit());
     return $.get(url, options).done(function (data) {
       let source = (data.sources || []).slice(0);
@@ -243,7 +243,7 @@ export default Marionette.LayoutView.extend({
 
   requestDuplications () {
     const that = this;
-    const url = '/api/duplications/show';
+    const url = window.baseUrl + '/api/duplications/show';
     const options = { uuid: this.model.id };
     return $.get(url, options, function (data) {
       const hasDuplications = (data != null) && (data.duplications != null);
@@ -418,7 +418,7 @@ export default Marionette.LayoutView.extend({
     this.clearTooltips();
     const line = $(e.currentTarget).data('line-number');
     const row = _.findWhere(this.model.get('source'), { line });
-    const url = '/api/tests/list';
+    const url = window.baseUrl + '/api/tests/list';
     const options = {
       sourceFileId: this.model.id,
       sourceFileLineNumber: line,
@@ -619,7 +619,7 @@ export default Marionette.LayoutView.extend({
     const that = this;
     let source = this.model.get('source');
     const firstLine = _.first(source).line;
-    const url = '/api/sources/lines';
+    const url = window.baseUrl + '/api/sources/lines';
     const options = {
       uuid: this.model.id,
       from: firstLine - this.LINES_AROUND,
@@ -665,7 +665,7 @@ export default Marionette.LayoutView.extend({
     const that = this;
     let source = this.model.get('source');
     const lastLine = _.last(source).line;
-    const url = '/api/sources/lines';
+    const url = window.baseUrl + '/api/sources/lines';
     const options = {
       uuid: this.model.id,
       from: lastLine + 1,

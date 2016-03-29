@@ -23,7 +23,7 @@ import CustomValuesFacet from './custom-values-facet';
 export default CustomValuesFacet.extend({
 
   getUrl () {
-    return '/api/rules/repositories';
+    return window.baseUrl + '/api/rules/repositories';
   },
 
   prepareAjaxSearch () {

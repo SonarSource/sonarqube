@@ -47,7 +47,7 @@ export default ModalFormView.extend({
 
   sendRequest () {
     const that = this;
-    const url = '/api/qualityprofiles/restore_built_in';
+    const url = window.baseUrl + '/api/qualityprofiles/restore_built_in';
     const lang = this.$('#restore-built-in-profiles-language').val();
     const options = { language: lang };
     this.selectedLanguage = _.findWhere(this.options.languages, { key: lang }).name;

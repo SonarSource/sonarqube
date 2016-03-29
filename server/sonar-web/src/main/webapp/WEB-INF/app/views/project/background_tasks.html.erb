@@ -2,5 +2,5 @@
   <script>
     window.sonarqube.componentId = '<%= @project.uuid -%>';
   </script>
-  <script src="/js/bundles/background-tasks.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/background-tasks.js?v=<%= sonar_version -%>"></script>
 <% end %>

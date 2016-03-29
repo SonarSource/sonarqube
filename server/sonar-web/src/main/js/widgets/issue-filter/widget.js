@@ -56,10 +56,10 @@ const defaultLink = function (item, property, query, index, items, mode) {
     r.facetMode = 'debt';
   }
   if (r.componentKey != null) {
-    return '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+    return window.baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
         '#' + getQuery(_.omit(r, 'componentKey'));
   } else {
-    return '/issues/search#' + getQuery(r);
+    return window.baseUrl + '/issues/search#' + getQuery(r);
   }
 };
 
@@ -181,10 +181,10 @@ const byDistributionConf = {
         r.facetMode = 'debt';
       }
       if (r.componentKey != null) {
-        return '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+        return window.baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
             '#' + getQuery(_.omit(r, 'componentKey'));
       } else {
-        return '/issues/search#' + getQuery(r);
+        return window.baseUrl + '/issues/search#' + getQuery(r);
       }
     }
   }
@@ -285,7 +285,7 @@ export default Marionette.ItemView.extend({
   requestIssues () {
     const that = this;
     const facetMode = this.options.displayMode;
-    const url = '/api/issues/search';
+    const url = window.baseUrl + '/api/issues/search';
     const options = _.extend({}, this.query, {
       facetMode,
       ps: 1,

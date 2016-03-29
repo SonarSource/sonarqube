@@ -16,7 +16,7 @@
 
 
 <script id="filter-bar-template" type="text/x-handlebars-template">
-  <form method="get" action="/measures/search">
+  <form method="get" action="<%= ApplicationController.root_context -%>/measures/search">
     <% if @filter.id %>
       <input type="hidden" name="id" value="<%= h @filter.id -%>">
     <% end %>
@@ -93,5 +93,5 @@
     ];
   </script>
 
-  <script src="/js/bundles/measures.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/measures.js?v=<%= sonar_version -%>"></script>
 <% end %>

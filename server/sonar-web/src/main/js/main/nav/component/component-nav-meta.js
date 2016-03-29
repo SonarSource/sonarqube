@@ -26,7 +26,7 @@ export default React.createClass({
   render() {
     let metaList = [];
     let canSeeBackgroundTasks = this.props.conf.showBackgroundTasks;
-    let backgroundTasksUrl = `/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
+    let backgroundTasksUrl = `${window.baseUrl}/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
 
     if (this.props.isInProgress) {
       let tooltip = canSeeBackgroundTasks ?

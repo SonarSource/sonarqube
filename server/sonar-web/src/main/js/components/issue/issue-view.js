@@ -151,7 +151,7 @@ export default Marionette.ItemView.extend({
       this.disableControls();
       return $.ajax({
         type: 'POST',
-        url: '/api/issues/delete_comment?key=' + commentKey
+        url: window.baseUrl + '/api/issues/delete_comment?key=' + commentKey
       }).done(function () {
         that.updateAfterAction(true);
       });
@@ -253,7 +253,7 @@ export default Marionette.ItemView.extend({
   serializeData () {
     const issueKey = encodeURIComponent(this.model.get('key'));
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
-      permalink: '/issues/search#issues=' + issueKey,
+      permalink: window.baseUrl + '/issues/search#issues=' + issueKey,
       hasSecondaryLocations: this.model.get('flows').length
     });
   }

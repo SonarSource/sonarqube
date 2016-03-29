@@ -28,10 +28,10 @@ import ActionsView from './actions-view';
 import ProfilesView from './profiles-view';
 
 const App = new Marionette.Application();
-const requestUser = $.get('/api/users/current').done(function (r) {
+const requestUser = $.get(window.baseUrl + '/api/users/current').done(function (r) {
   App.canWrite = r.permissions.global.indexOf('profileadmin') !== -1;
 });
-const requestExporters = $.get('/api/qualityprofiles/exporters').done(function (r) {
+const requestExporters = $.get(window.baseUrl + '/api/qualityprofiles/exporters').done(function (r) {
   App.exporters = r.exporters;
 });
 const init = function () {

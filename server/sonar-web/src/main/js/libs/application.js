@@ -99,7 +99,7 @@
 
 function toggleFav (resourceId, elt) {
   jQuery.ajax({
-    type: 'POST', dataType: 'json', url: '/favourites/toggle/' + resourceId,
+    type: 'POST', dataType: 'json', url: window.baseUrl + '/favourites/toggle/' + resourceId,
     success: function (data) {
       var star = jQuery(elt);
       star.removeClass('icon-favorite icon-not-favorite');

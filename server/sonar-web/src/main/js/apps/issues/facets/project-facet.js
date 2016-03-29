@@ -26,9 +26,9 @@ export default CustomValuesFacet.extend({
   getUrl () {
     const q = this.options.app.state.get('contextComponentQualifier');
     if (q === 'VW' || q === 'SVW') {
-      return '/api/components/search_view_components';
+      return window.baseUrl + '/api/components/search_view_components';
     } else {
-      return '/api/resources/search?f=s2&q=TRK&display_uuid=true';
+      return window.baseUrl + '/api/resources/search?f=s2&q=TRK&display_uuid=true';
     }
   },
 

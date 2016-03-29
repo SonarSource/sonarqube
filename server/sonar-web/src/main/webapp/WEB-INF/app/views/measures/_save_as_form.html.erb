@@ -1,4 +1,4 @@
-<form id="save-as-filter-form" method="post" action="/measures/save_as">
+<form id="save-as-filter-form" method="post" action="<%= ApplicationController.root_context -%>/measures/save_as">
   <input type="hidden" name="id" value="<%= @filter.id -%>">
   <input type="hidden" name="data" value="<%= u(@filter.data) -%>">
   <fieldset>
@@ -16,6 +16,6 @@
 </form>
 <script>
   $j("#save-as-filter-form").modalForm({success:function (data) {
-    window.location = baseUrl + '/measures/filter/' + data;
+    window.location = window.baseUrl + '/measures/filter/' + data;
   }});
 </script>

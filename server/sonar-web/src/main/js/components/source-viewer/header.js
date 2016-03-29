@@ -24,7 +24,7 @@ import MoreActionsView from './more-actions';
 import MeasuresOverlay from './measures-overlay';
 import Template from './templates/source-viewer-header.hbs';
 
-const API_FAVORITE = '/api/favourites';
+const API_FAVORITE = window.baseUrl + '/api/favourites';
 
 export default Marionette.ItemView.extend({
   template: Template,
@@ -75,11 +75,11 @@ export default Marionette.ItemView.extend({
     if (this.options.viewer.highlightedLine) {
       query = query + '&line=' + this.options.viewer.highlightedLine;
     }
-    window.open('/component/index?' + query, this.model.get('name'), windowParams);
+    window.open(window.baseUrl + '/component/index?' + query, this.model.get('name'), windowParams);
   },
 
   showRawSources () {
-    const url = '/api/sources/raw?key=' + encodeURIComponent(this.model.get('key'));
+    const url = window.baseUrl + '/api/sources/raw?key=' + encodeURIComponent(this.model.get('key'));
     const windowParams = 'resizable=1,scrollbars=1,status=1';
     window.open(url, this.model.get('name'), windowParams);
   },

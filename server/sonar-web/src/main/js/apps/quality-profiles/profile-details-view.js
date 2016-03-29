@@ -84,9 +84,9 @@ export default Marionette.LayoutView.extend({
       format (item) {
         return item.name;
       },
-      searchUrl: '/api/qualityprofiles/projects?key=' + encodeURIComponent(key),
-      selectUrl: '/api/qualityprofiles/add_project',
-      deselectUrl: '/api/qualityprofiles/remove_project',
+      searchUrl: window.baseUrl + '/api/qualityprofiles/projects?key=' + encodeURIComponent(key),
+      selectUrl: window.baseUrl + '/api/qualityprofiles/add_project',
+      deselectUrl: window.baseUrl + '/api/qualityprofiles/remove_project',
       extra: {
         profileKey: key
       },

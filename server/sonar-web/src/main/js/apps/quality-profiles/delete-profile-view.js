@@ -36,7 +36,7 @@ export default ModalFormView.extend({
 
   sendRequest () {
     const that = this;
-    const url = '/api/qualityprofiles/delete';
+    const url = window.baseUrl + '/api/qualityprofiles/delete';
     const options = { profileKey: this.model.get('key') };
     return $.ajax({
       url,

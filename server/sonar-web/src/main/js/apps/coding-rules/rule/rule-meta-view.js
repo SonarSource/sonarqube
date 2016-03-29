@@ -57,7 +57,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
   },
 
   requestTags () {
-    const url = '/api/rules/tags';
+    const url = window.baseUrl + '/api/rules/tags';
     return $.get(url);
   },
 
@@ -90,7 +90,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     const tags = this.ui.tagInput.val();
     return $.ajax({
       type: 'POST',
-      url: '/api/rules/update',
+      url: window.baseUrl + '/api/rules/update',
       data: {
         key: this.model.get('key'),
         tags
@@ -107,7 +107,7 @@ export default Marionette.ItemView.extend(RuleFilterMixin).extend({
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
       canWrite: this.options.app.canWrite,
       allTags: _.union(this.model.get('sysTags'), this.model.get('tags')),
-      permalink: '/coding_rules#rule_key=' + encodeURIComponent(this.model.id)
+      permalink: window.baseUrl + '/coding_rules#rule_key=' + encodeURIComponent(this.model.id)
     });
   }
 });

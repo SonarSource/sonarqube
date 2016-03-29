@@ -331,7 +331,7 @@ import { translate } from '../../helpers/l10n';
   Treemap.prototype.requestChildren = function (d) {
     const that = this;
     const metrics = this.metricsPriority().join(',');
-    const RESOURCES_URL = '/api/resources/index';
+    const RESOURCES_URL = window.baseUrl + '/api/resources/index';
     return $.get(RESOURCES_URL, {
       resource: d.key,
       depth: 1,

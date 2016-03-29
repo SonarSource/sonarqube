@@ -22,6 +22,6 @@ module.exports = function (...args) {
   const list = args.slice(0, -1);
   const prefix = list.join('');
   const path = window.location.pathname;
-  const match = path.indexOf(prefix) === 0;
+  const match = path.indexOf(window.baseUrl + prefix) === 0;
   return match ? options.fn(this) : options.inverse(this);
 };

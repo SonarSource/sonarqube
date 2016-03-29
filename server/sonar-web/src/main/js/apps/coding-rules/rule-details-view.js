@@ -95,7 +95,7 @@ export default Marionette.LayoutView.extend({
 
   fetchCustomRules () {
     const that = this;
-    const url = '/api/rules/search';
+    const url = window.baseUrl + '/api/rules/search';
     const options = {
       template_key: this.model.get('key'),
       f: 'name,severity,params'

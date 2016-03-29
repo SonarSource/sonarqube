@@ -75,7 +75,7 @@ export default Marionette.ItemView.extend({
       yesHandler () {
         return $.ajax({
           type: 'POST',
-          url: '/api/qualityprofiles/activate_rule',
+          url: window.baseUrl + '/api/qualityprofiles/activate_rule',
           data: {
             profile_key: that.model.get('qProfile'),
             rule_key: ruleKey,
@@ -97,7 +97,7 @@ export default Marionette.ItemView.extend({
       yesHandler () {
         return $.ajax({
           type: 'POST',
-          url: '/api/qualityprofiles/deactivate_rule',
+          url: window.baseUrl + '/api/qualityprofiles/deactivate_rule',
           data: {
             profile_key: that.model.get('qProfile'),
             rule_key: ruleKey

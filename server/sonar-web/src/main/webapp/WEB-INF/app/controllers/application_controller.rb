@@ -43,7 +43,7 @@ class ApplicationController < ActionController::Base
   rescue_from Errors::AccessDenied, :with => :render_access_denied # See lib/authenticated_system.rb#access_denied()
 
   def self.root_context
-    ''
+    ActionController::Base.relative_url_root || ''
   end
 
   def java_facade

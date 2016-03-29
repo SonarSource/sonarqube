@@ -61,7 +61,7 @@ export default Backbone.Model.extend({
 
   install () {
     return this._action({
-      url: '/api/plugins/install',
+      url: window.baseUrl + '/api/plugins/install',
       success (model) {
         model.set({ _status: 'installing' });
       }
@@ -70,7 +70,7 @@ export default Backbone.Model.extend({
 
   update () {
     return this._action({
-      url: '/api/plugins/update',
+      url: window.baseUrl + '/api/plugins/update',
       success (model) {
         model.set({ _status: 'installing' });
       }
@@ -79,7 +79,7 @@ export default Backbone.Model.extend({
 
   uninstall () {
     return this._action({
-      url: '/api/plugins/uninstall',
+      url: window.baseUrl + '/api/plugins/uninstall',
       success (model) {
         model.set({ _status: 'uninstalling' });
       }

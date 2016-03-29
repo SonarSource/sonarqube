@@ -64,7 +64,7 @@ export default Marionette.ItemView.extend({
     this.ui.extendDescriptionForm.addClass('hidden');
     return $.ajax({
       type: 'POST',
-      url: '/api/rules/update',
+      url: window.baseUrl + '/api/rules/update',
       dataType: 'json',
       data: {
         key: this.model.get('key'),

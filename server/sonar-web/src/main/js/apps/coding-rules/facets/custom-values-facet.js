@@ -32,7 +32,7 @@ export default BaseFacet.extend({
   },
 
   getUrl () {
-    return '';
+    return window.baseUrl;
   },
 
   onRender () {

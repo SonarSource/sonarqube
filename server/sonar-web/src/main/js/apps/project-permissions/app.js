@@ -23,7 +23,7 @@ import ReactDOM from 'react-dom';
 import Main from './main';
 
 function requestPermissionTemplates () {
-  return $.get('/api/permissions/search_templates');
+  return $.get(window.baseUrl + '/api/permissions/search_templates');
 }
 
 window.sonarqube.appStarted.then(options => {

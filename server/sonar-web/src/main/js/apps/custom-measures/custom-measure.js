@@ -24,7 +24,7 @@ export default Backbone.Model.extend({
   idAttribute: 'id',
 
   urlRoot () {
-    return '/api/custom_measures';
+    return window.baseUrl + '/api/custom_measures';
   },
 
   sync (method, model, options) {

@@ -35,9 +35,9 @@ export default Modal.extend({
         return `${item.name}<br><span class="note">${item.login}</span>`;
       },
       queryParam: 'q',
-      searchUrl: '/api/user_groups/users?ps=100&id=' + this.model.id,
-      selectUrl: '/api/user_groups/add_user',
-      deselectUrl: '/api/user_groups/remove_user',
+      searchUrl: window.baseUrl + '/api/user_groups/users?ps=100&id=' + this.model.id,
+      selectUrl: window.baseUrl + '/api/user_groups/add_user',
+      deselectUrl: window.baseUrl + '/api/user_groups/remove_user',
       extra: {
         id: this.model.id
       },

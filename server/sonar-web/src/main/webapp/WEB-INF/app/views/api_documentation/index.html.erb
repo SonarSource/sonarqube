@@ -2,5 +2,5 @@
   <script>
     window.sonarqube.urlRoot = window.baseUrl + '/web_api';
   </script>
-  <script src="/js/bundles/api-documentation.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/api-documentation.js?v=<%= sonar_version -%>"></script>
 <% end %>

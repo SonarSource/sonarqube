@@ -1,4 +1,4 @@
-<form id="configure-widget-<%= widget.id -%>" method="post" action="/dashboard/save_widget?wid=<%= widget.id -%>">
+<form id="configure-widget-<%= widget.id -%>" method="post" action="<%= ApplicationController.root_context -%>/dashboard/save_widget?wid=<%= widget.id -%>">
   <div id="error<%= widget.id -%>" class="error" style="display: none"></div>
   <table class="table width100">
     <tbody>
@@ -65,7 +65,7 @@
         $('#error<%= widget.id -%>').show();
       } else {
         $.ajax({
-          url: baseUrl + '/dashboard/save_widget?wid=<%= widget.id -%>&id=<%= params[:id] -%>',
+          url: window.baseUrl + '/dashboard/save_widget?wid=<%= widget.id -%>&id=<%= params[:id] -%>',
           type: 'POST',
           data: form.serialize(),
           error: function (request) {

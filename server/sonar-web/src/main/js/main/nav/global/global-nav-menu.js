@@ -30,7 +30,7 @@ export default React.createClass({
   },
 
   renderDashboardLink (dashboard) {
-    const url = `/dashboard/index?did=${encodeURIComponent(dashboard.key)}`;
+    const url = `${window.baseUrl}/dashboard/index?did=${encodeURIComponent(dashboard.key)}`;
     const name = this.getLocalizedDashboardName(dashboard.name);
     return (
         <li key={dashboard.name}>
@@ -40,7 +40,7 @@ export default React.createClass({
   },
 
   renderDashboardsManagementLink () {
-    const url = '/dashboards';
+    const url = window.baseUrl + '/dashboards';
     return (
         <li>
           <a href={url}>{translate('dashboard.manage_dashboards')}</a>
@@ -67,7 +67,7 @@ export default React.createClass({
   },
 
   renderIssuesLink () {
-    const url = '/issues/search';
+    const url = window.baseUrl + '/issues/search';
     return (
         <li className={this.activeLink('/issues')}>
           <a href={url}>{translate('issues.page')}</a>
@@ -76,7 +76,7 @@ export default React.createClass({
   },
 
   renderMeasuresLink () {
-    const url = '/measures/search?qualifiers[]=TRK';
+    const url = window.baseUrl + '/measures/search?qualifiers[]=TRK';
     return (
         <li className={this.activeLink('/measures')}>
           <a href={url}>{translate('layout.measures')}</a>
@@ -85,7 +85,7 @@ export default React.createClass({
   },
 
   renderRulesLink () {
-    const url = '/coding_rules';
+    const url = window.baseUrl + '/coding_rules';
     return (
         <li className={this.activeLink('/coding_rules')}>
           <a href={url}>{translate('coding_rules.page')}</a>
@@ -94,7 +94,7 @@ export default React.createClass({
   },
 
   renderProfilesLink() {
-    const url = '/profiles';
+    const url = window.baseUrl + '/profiles';
     return (
         <li className={this.activeLink('/profiles')}>
           <a href={url}>{translate('quality_profiles.page')}</a>
@@ -103,7 +103,7 @@ export default React.createClass({
   },
 
   renderQualityGatesLink () {
-    const url = '/quality_gates';
+    const url = window.baseUrl + '/quality_gates';
     return (
         <li className={this.activeLink('/quality_gates')}>
           <a href={url}>{translate('quality_gates.page')}</a>
@@ -115,7 +115,7 @@ export default React.createClass({
     if (!window.SS.isUserAdmin) {
       return null;
     }
-    const url = '/settings';
+    const url = window.baseUrl + '/settings';
     return (
         <li className={this.activeLink('/settings')}>
           <a className="navbar-admin-link" href={url}>{translate('layout.settings')}</a>
@@ -124,7 +124,7 @@ export default React.createClass({
   },
 
   renderComparisonLink () {
-    const url = '/comparison';
+    const url = window.baseUrl + '/comparison';
     return (
         <li className={this.activeLink('/comparison')}>
           <a href={url}>{translate('comparison_global.page')}</a>
@@ -133,7 +133,7 @@ export default React.createClass({
   },
 
   renderGlobalPageLink (globalPage, index) {
-    const url = globalPage.url;
+    const url = window.baseUrl + globalPage.url;
     return (
         <li key={index}>
           <a href={url}>{globalPage.name}</a>

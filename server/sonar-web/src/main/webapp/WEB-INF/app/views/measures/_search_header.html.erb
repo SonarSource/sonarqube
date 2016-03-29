@@ -24,7 +24,7 @@
 
   <div class="page-actions">
     <div class="button-group">
-      <button onclick="window.location='/measures/search?qualifiers[]=TRK';"><%= message 'measure_filter.new_search' -%></button>
+      <button onclick="window.location='<%= ApplicationController.root_context -%>/measures/search?qualifiers[]=TRK';"><%= message 'measure_filter.new_search' -%></button>
 
       <% unless edit_mode %>
         <% if logged_in? %>

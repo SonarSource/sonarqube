@@ -77,7 +77,7 @@ const init = function () {
   Backbone.history.start();
 };
 
-const appXHR = $.get('/api/rules/app').done(function (r) {
+const appXHR = $.get(window.baseUrl + '/api/rules/app').done(function (r) {
   App.canWrite = r.canWrite;
   App.qualityProfiles = _.sortBy(r.qualityprofiles, ['name', 'lang']);
   App.languages = _.extend(r.languages, {

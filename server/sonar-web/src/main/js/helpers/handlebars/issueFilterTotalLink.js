@@ -34,9 +34,9 @@ module.exports = function (query, mode) {
     r.facetMode = 'debt';
   }
   if (r.componentKey != null) {
-    return '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
+    return window.baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
         '#' + getQuery(_.omit(r, 'componentKey'));
   } else {
-    return '/issues/search#' + getQuery(r);
+    return window.baseUrl + '/issues/search#' + getQuery(r);
   }
 };

@@ -21,7 +21,7 @@ import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
   url () {
-    return '/api/issue_filters/show/' + this.id;
+    return window.baseUrl + '/api/issue_filters/show/' + this.id;
   },
 
   parse (r) {

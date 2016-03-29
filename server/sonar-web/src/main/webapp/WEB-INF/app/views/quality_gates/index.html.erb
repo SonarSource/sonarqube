@@ -1,6 +1,6 @@
 <% content_for :extra_script do %>
   <script>
-    window.sonarqube.urlRoot = baseUrl + '/quality_gates';
+    window.sonarqube.urlRoot = window.baseUrl + '/quality_gates';
   </script>
-  <script src="/js/bundles/quality-gates.js?v=<%= sonar_version -%>"></script>
+  <script src="<%= ApplicationController.root_context -%>/js/bundles/quality-gates.js?v=<%= sonar_version -%>"></script>
 <% end %>

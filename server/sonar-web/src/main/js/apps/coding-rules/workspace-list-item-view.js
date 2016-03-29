@@ -99,7 +99,7 @@ export default WorkspaceListItemView.extend(RuleFilterMixin).extend({
       yesHandler () {
         return $.ajax({
           type: 'POST',
-          url: '/api/qualityprofiles/deactivate_rule',
+          url: window.baseUrl + '/api/qualityprofiles/deactivate_rule',
           data: {
             profile_key: activation.qProfile,
             rule_key: ruleKey

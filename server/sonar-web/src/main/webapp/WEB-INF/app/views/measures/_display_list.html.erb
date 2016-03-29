@@ -9,7 +9,7 @@
     filterCriteria<%= widget_id -%>['sort']=sort;
     filterCriteria<%= widget_id -%>['asc']=asc;
     filterCriteria<%= widget_id -%>['page']=page;
-    var url=baseUrl + '/measures/search/<%= filter.id -%>?widget_id=<%= widget_id -%>&' + $j.param(filterCriteria<%= widget_id -%>);
+    var url = window.baseUrl + '/measures/search/<%= filter.id -%>?widget_id=<%= widget_id -%>&' + $j.param(filterCriteria<%= widget_id -%>);
 
     <% if widget_id %>
     $j('#measure_filter_list<%= widget_id -%>').load(url);
@@ -109,13 +109,13 @@
           }
           cols.push(columnKey);
           filterCriteria['edit']='true';
-          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
+          window.location = window.baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
         });
         $j("#add-metric").attr("disabled", "disabled");
 
         $j("#exit-edit").on("click", function (e) {
           delete filterCriteria['edit'];
-          window.location = baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
+          window.location = window.baseUrl + '/measures/search/<%= filter.id -%>?' + $j.param(filterCriteria<%= widget_id -%>);
         });
       });
     </script>

@@ -23,11 +23,11 @@ import React from 'react';
 
 export default {
   activeLink(url) {
-    return window.location.pathname.indexOf(url) === 0 ? 'active' : null;
+    return window.location.pathname.indexOf(window.baseUrl + url) === 0 ? 'active' : null;
   },
 
   renderLink(url, title, highlightUrl = url) {
-    let fullUrl = url;
+    let fullUrl = window.baseUrl + url;
     let check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
     return (
         <li key={url} className={check(highlightUrl)}>
@@ -37,7 +37,7 @@ export default {
   },
 
   renderNewLink(url, title, highlightUrl = url) {
-    let fullUrl = url;
+    let fullUrl = window.baseUrl + url;
     let check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
     return (
         <li key={highlightUrl} className={check(highlightUrl)}>

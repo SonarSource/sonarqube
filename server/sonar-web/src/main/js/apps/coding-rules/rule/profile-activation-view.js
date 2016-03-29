@@ -99,7 +99,7 @@ export default ModalForm.extend({
 
     return $.ajax({
       type: 'POST',
-      url: '/api/qualityprofiles/activate_rule',
+      url: window.baseUrl + '/api/qualityprofiles/activate_rule',
       data: {
         severity,
         profile_key: profileKey,

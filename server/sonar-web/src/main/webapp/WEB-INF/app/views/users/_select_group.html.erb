@@ -21,9 +21,9 @@
       }
       return label;
     },
-    searchUrl: baseUrl + '/user_groups/search?user=<%= @user.login -%>',
-    selectUrl: baseUrl + '/groups/add_member',
-    deselectUrl: baseUrl + '/groups/remove_member',
+    searchUrl: window.baseUrl + '/user_groups/search?user=<%= @user.login -%>',
+    selectUrl: window.baseUrl + '/groups/add_member',
+    deselectUrl: window.baseUrl + '/groups/remove_member',
     extra: {
       user: '<%= @user.login -%>'
     },

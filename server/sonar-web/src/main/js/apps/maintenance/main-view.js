@@ -34,7 +34,7 @@ export default Marionette.ItemView.extend({
     const that = this;
     this.requestOptions = {
       type: 'GET',
-      url: '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
+      url: window.baseUrl + '/api/system/' + (this.options.setup ? 'db_migration_status' : 'status')
     };
     this.pollingInternal = setInterval(function () {
       that.refresh();
@@ -62,7 +62,7 @@ export default Marionette.ItemView.extend({
   startMigration () {
     const that = this;
     Backbone.ajax({
-      url: '/api/system/migrate_db',
+      url: window.baseUrl + '/api/system/migrate_db',
       type: 'POST'
     }).done(function (r) {
       that.model.set(r);
@@ -76,7 +76,7 @@ export default Marionette.ItemView.extend({
 
   goHome () {
     setInterval(function () {
-      window.location = '/';
+      window.location = window.baseUrl + '/';
     }, 2500);
   },
 

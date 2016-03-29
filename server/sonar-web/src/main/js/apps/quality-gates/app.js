@@ -35,7 +35,7 @@ window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
 
   const history = useRouterHistory(createHistory)({
-    basename: '/quality_gates'
+    basename: window.baseUrl + '/quality_gates'
   });
 
   const finalReducer = combineReducers({

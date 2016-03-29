@@ -24,7 +24,7 @@ export default Backbone.Model.extend({
   idAttribute: 'login',
 
   urlRoot () {
-    return '/api/users';
+    return window.baseUrl + '/api/users';
   },
 
   defaults () {

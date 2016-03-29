@@ -30,7 +30,7 @@ function typeError (method, message) {
 
 
 export function getUsers (data) {
-  const url = '/api/permissions/users';
+  const url = window.baseUrl + '/api/permissions/users';
   return request({ type: 'GET', url, data });
 }
 
@@ -43,7 +43,7 @@ export function grantToUser (permission, user, project) {
     return typeError('grantToUser', 'please provide user login');
   }
 
-  const url = '/api/permissions/add_user';
+  const url = window.baseUrl + '/api/permissions/add_user';
   const data = { permission, login: user };
   if (project) {
     data.projectId = project;
@@ -60,7 +60,7 @@ export function revokeFromUser (permission, user, project) {
     return typeError('revokeFromUser', 'please provide user login');
   }
 
-  const url = '/api/permissions/remove_user';
+  const url = window.baseUrl + '/api/permissions/remove_user';
   const data = { permission, login: user };
   if (project) {
     data.projectId = project;
@@ -70,7 +70,7 @@ export function revokeFromUser (permission, user, project) {
 
 
 export function getGroups (data) {
-  const url = '/api/permissions/groups';
+  const url = window.baseUrl + '/api/permissions/groups';
   return request({ type: 'GET', url, data });
 }
 
@@ -83,7 +83,7 @@ export function grantToGroup (permission, group, project) {
     return typeError('grantToGroup', 'please provide group name');
   }
 
-  const url = '/api/permissions/add_group';
+  const url = window.baseUrl + '/api/permissions/add_group';
   const data = { permission, groupName: group };
   if (project) {
     data.projectId = project;
@@ -100,7 +100,7 @@ export function revokeFromGroup (permission, group, project) {
     return typeError('revokeFromGroup', 'please provide group name');
   }
 
-  const url = '/api/permissions/remove_group';
+  const url = window.baseUrl + '/api/permissions/remove_group';
   const data = { permission, groupName: group };
   if (project) {
     data.projectId = project;
@@ -110,7 +110,7 @@ export function revokeFromGroup (permission, group, project) {
 
 
 export function getPermissionTemplates (query) {
-  const url = '/api/permissions/search_templates';
+  const url = window.baseUrl + '/api/permissions/search_templates';
   const data = { };
   if (query) {
     data.q = query;
@@ -120,18 +120,18 @@ export function getPermissionTemplates (query) {
 
 
 export function createPermissionTemplate (options) {
-  const url = '/api/permissions/create_template';
+  const url = window.baseUrl + '/api/permissions/create_template';
   return request(_.extend({ type: 'POST', url }, options));
 }
 
 export function updatePermissionTemplate (options) {
-  const url = '/api/permissions/update_template';
+  const url = window.baseUrl + '/api/permissions/update_template';
   return request(_.extend({ type: 'POST', url }, options));
 }
 
 
 export function deletePermissionTemplate (options) {
-  const url = '/api/permissions/delete_template';
+  const url = window.baseUrl + '/api/permissions/delete_template';
   return request(_.extend({ type: 'POST', url }, options));
 }
 
@@ -141,13 +141,13 @@ export function setDefaultPermissionTemplate (template, qualifier) {
     return typeError('setDefaultPermissionTemplate', 'please provide permission template ID');
   }
 
-  const url = '/api/permissions/set_default_template';
+  const url = window.baseUrl + '/api/permissions/set_default_template';
   const data = { templateId: template, qualifier };
   return request({ type: 'POST', url, data });
 }
 
 
 export function applyTemplateToProject(options) {
-  const url = '/api/permissions/apply_template';
+  const url = window.baseUrl + '/api/permissions/apply_template';
   return request(_.extend({ type: 'POST', url }, options));
 }

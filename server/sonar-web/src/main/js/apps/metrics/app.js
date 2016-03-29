@@ -63,12 +63,12 @@ const init = function () {
 
 
 App.requestDomains = function () {
-  return $.get('/api/metrics/domains').done(function (r) {
+  return $.get(window.baseUrl + '/api/metrics/domains').done(function (r) {
     App.domains = r.domains;
   });
 };
 App.requestTypes = function () {
-  return $.get('/api/metrics/types').done(function (r) {
+  return $.get(window.baseUrl + '/api/metrics/types').done(function (r) {
     App.types = r.types;
   });
 };

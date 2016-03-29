@@ -13,7 +13,7 @@
         <form 	class="spacer-bottom"
                onsubmit=
                  "$j.ajax({
-                   url:'/encryption_configuration/encrypt',
+                   url:'<%=ApplicationController.root_context-%>/encryption_configuration/encrypt',
                    type:'post',
                    success:function(response)
                      {
@@ -31,7 +31,7 @@
                    });
                    return false;"
                method="post"
-               action="/encryption_configuration/encrypt"	>
+               action="<%=ApplicationController.root_context-%>/encryption_configuration/encrypt"	>
         <!-- for our lovely Chrome -->
         <input style="display:none">
         <input type="password" name="fake" style="display:none">

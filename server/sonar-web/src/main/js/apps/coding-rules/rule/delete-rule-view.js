@@ -28,7 +28,7 @@ export default ModalFormView.extend({
   onFormSubmit() {
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
 
-    const url = '/api/rules/delete';
+    const url = window.baseUrl + '/api/rules/delete';
     const options = { key: this.model.id };
     $.post(url, options).done(() => {
       this.destroy();

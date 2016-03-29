@@ -23,7 +23,7 @@
  * @returns {string}
  */
 export function getComponentUrl (componentKey) {
-  return '/dashboard?id=' + encodeURIComponent(componentKey);
+  return window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
 }
 
 
@@ -37,7 +37,7 @@ export function getComponentIssuesUrl (componentKey, query) {
   const serializedQuery = Object.keys(query).map(criterion => (
       `${encodeURIComponent(criterion)}=${encodeURIComponent(query[criterion])}`
   )).join('|');
-  return '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
+  return window.baseUrl + '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
 }
 
 
@@ -48,7 +48,7 @@ export function getComponentIssuesUrl (componentKey, query) {
  * @returns {string}
  */
 export function getComponentDrilldownUrl (componentKey, metric) {
-  return `/component_measures/metric/${metric}?id=${encodeURIComponent(componentKey)}`;
+  return `${window.baseUrl}/component_measures/metric/${metric}?id=${encodeURIComponent(componentKey)}`;
 }
 
 
@@ -60,7 +60,7 @@ export function getComponentDrilldownUrl (componentKey, metric) {
  * @returns {string}
  */
 export function getComponentDashboardUrl (componentKey, dashboardKey, period) {
-  let url = '/dashboard?id=' + encodeURIComponent(componentKey) +
+  let url = window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey) +
       '&did=' + encodeURIComponent(dashboardKey);
   if (period) {
     url += '&period=' + period;
@@ -76,7 +76,7 @@ export function getComponentDashboardUrl (componentKey, dashboardKey, period) {
  * @returns {string}
  */
 export function getComponentFixedDashboardUrl (componentKey, dashboardKey) {
-  return '/overview' + dashboardKey + '?id=' + encodeURIComponent(componentKey);
+  return window.baseUrl + '/overview' + dashboardKey + '?id=' + encodeURIComponent(componentKey);
 }
 
 
@@ -86,5 +86,5 @@ export function getComponentFixedDashboardUrl (componentKey, dashboardKey) {
  * @returns {string}
  */
 export function getComponentDashboardManagementUrl (componentKey) {
-  return '/dashboards?resource=' + encodeURIComponent(componentKey);
+  return window.baseUrl + '/dashboards?resource=' + encodeURIComponent(componentKey);
 }

@@ -21,32 +21,32 @@ import { getJSON, postJSON, post } from '../helpers/request.js';
 
 
 export function getComponents (data) {
-  const url = '/api/components/search';
+  const url = window.baseUrl + '/api/components/search';
   return getJSON(url, data);
 }
 
 export function getProvisioned (data) {
-  const url = '/api/projects/provisioned';
+  const url = window.baseUrl + '/api/projects/provisioned';
   return getJSON(url, data);
 }
 
 export function getGhosts (data) {
-  const url = '/api/projects/ghosts';
+  const url = window.baseUrl + '/api/projects/ghosts';
   return getJSON(url, data);
 }
 
 export function deleteComponents (data) {
-  const url = '/api/projects/bulk_delete';
+  const url = window.baseUrl + '/api/projects/bulk_delete';
   return post(url, data);
 }
 
 export function createProject (data) {
-  const url = '/api/projects/create';
+  const url = window.baseUrl + '/api/projects/create';
   return postJSON(url, data);
 }
 
 export function getComponentTree (strategy, componentKey, metrics = [], additional = {}) {
-  const url = '/api/measures/component_tree';
+  const url = window.baseUrl + '/api/measures/component_tree';
   const data = Object.assign({}, additional, {
     baseComponentKey: componentKey,
     metricKeys: metrics.join(','),
@@ -64,25 +64,25 @@ export function getComponentLeaves (componentKey, metrics, additional) {
 }
 
 export function getComponent (componentKey, metrics = []) {
-  const url = '/api/measures/component';
+  const url = window.baseUrl + '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(',') };
   return getJSON(url, data).then(r => r.component);
 }
 
 export function getTree (baseComponentKey, options = {}) {
-  const url = '/api/components/tree';
+  const url = window.baseUrl + '/api/components/tree';
   const data = Object.assign({}, options, { baseComponentKey });
   return getJSON(url, data);
 }
 
 export function getParents ({ id, key }) {
-  const url = '/api/components/show';
+  const url = window.baseUrl + '/api/components/show';
   const data = id ? { id } : { key };
   return getJSON(url, data).then(r => r.ancestors);
 }
 
 export function getBreadcrumbs ({ id, key }) {
-  const url = '/api/components/show';
+  const url = window.baseUrl + '/api/components/show';
   const data = id ? { id } : { key };
   return getJSON(url, data).then(r => {
     const reversedAncestors = [...r.ancestors].reverse();
@@ -91,7 +91,7 @@ export function getBreadcrumbs ({ id, key }) {
 }
 
 export function getProjectsWithInternalId (query) {
-  const url = '/api/resources/search';
+  const url = window.baseUrl + '/api/resources/search';
   const data = {
     f: 's2',
     q: 'TRK',

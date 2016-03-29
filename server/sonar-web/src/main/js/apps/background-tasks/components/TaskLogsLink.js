@@ -21,7 +21,7 @@ import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
 export default function TaskLogsLink ({ task }) {
-  const url = `/api/ce/logs?taskId=${task.id}`;
+  const url = `${window.baseUrl}/api/ce/logs?taskId=${task.id}`;
 
   return (
       <a

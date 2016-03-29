@@ -22,7 +22,7 @@ import React from 'react';
 
 export const QualityProfileLink = React.createClass({
   render() {
-    let url = `/profiles/show?key=${encodeURIComponent(this.props.profile)}`;
+    let url = `${window.baseUrl}/profiles/show?key=${encodeURIComponent(this.props.profile)}`;
     return <a href={url}>{this.props.children}</a>;
   }
 });

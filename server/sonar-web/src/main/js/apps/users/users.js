@@ -24,7 +24,7 @@ export default Backbone.Collection.extend({
   model: User,
 
   url () {
-    return '/api/users/search';
+    return window.baseUrl + '/api/users/search';
   },
 
   parse (r) {

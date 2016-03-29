@@ -29,6 +29,11 @@ describe('URLs', function () {
     it('should encode component key', function () {
       expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).to.equal('/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
     });
+
+    it('should take baseUrl into account', function () {
+      window.baseUrl = '/context';
+      expect(getComponentUrl(COMPLEX_COMPONENT_KEY)).to.equal('/context/dashboard?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
+    });
   });
 
   describe('#getComponentIssuesUrl', function () {
@@ -51,6 +56,12 @@ describe('URLs', function () {
       expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, { componentUuids: COMPLEX_COMPONENT_KEY })).to.equal(
           '/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#componentUuids=' + COMPLEX_COMPONENT_KEY_ENCODED);
     });
+
+    it('should take baseUrl into account', function () {
+      window.baseUrl = '/context';
+      expect(getComponentIssuesUrl(SIMPLE_COMPONENT_KEY, {})).to.equal(
+          '/context/component_issues?id=' + SIMPLE_COMPONENT_KEY + '#');
+    });
   });
 
   describe('#getComponentDrilldownUrl', function () {
@@ -62,6 +73,12 @@ describe('URLs', function () {
     it('should encode component key', function () {
       expect(getComponentDrilldownUrl(COMPLEX_COMPONENT_KEY, METRIC)).to.equal(
           '/component_measures/metric/' + METRIC + '?id=' + COMPLEX_COMPONENT_KEY_ENCODED);
+    });
+
+    it('should take baseUrl into account', function () {
+      window.baseUrl = '/context';
+      expect(getComponentDrilldownUrl(SIMPLE_COMPONENT_KEY, METRIC)).to.equal(
+          '/context/component_measures/metric/' + METRIC + '?id=' + SIMPLE_COMPONENT_KEY);
     });
   });
 });

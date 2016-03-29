@@ -22,7 +22,7 @@ import Backbone from 'backbone';
 
 export default Backbone.Model.extend({
   urlRoot () {
-    return '/api/user_groups';
+    return window.baseUrl + '/api/user_groups';
   },
 
   sync (method, model, options) {

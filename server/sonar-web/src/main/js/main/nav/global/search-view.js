@@ -154,11 +154,11 @@ export default Marionette.LayoutView.extend({
 
   fetchFavorite () {
     const that = this;
-    return $.get('/api/favourites').done(function (r) {
+    return $.get(window.baseUrl + '/api/favourites').done(function (r) {
       that.favorite = r.map(function (f) {
         const isFile = ['FIL', 'UTS'].indexOf(f.qualifier) !== -1;
         return {
-          url: '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
+          url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(f.key) + window.dashboardParameters(true),
           name: isFile ? collapsedDirFromPath(f.lname) + fileFromPath(f.lname) : f.name,
           icon: 'favorite'
         };
@@ -170,7 +170,7 @@ export default Marionette.LayoutView.extend({
   resetResultsToDefault () {
     const recentHistory = RecentHistory.get();
     const history = recentHistory.map(function (historyItem, index) {
-      const url = '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
+      const url = window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(historyItem.key) +
           window.dashboardParameters(true);
       return {
         url,
@@ -184,7 +184,7 @@ export default Marionette.LayoutView.extend({
     });
     const qualifiers = this.model.get('qualifiers').map(function (q, index) {
       return {
-        url: '/all_projects?qualifier=' + encodeURIComponent(q),
+        url: window.baseUrl + '/all_projects?qualifier=' + encodeURIComponent(q),
         name: translate('qualifiers.all', q),
         extra: index === 0 ? '' : null
       };
@@ -198,7 +198,7 @@ export default Marionette.LayoutView.extend({
       return;
     }
     const that = this;
-    const url = '/api/components/suggestions';
+    const url = window.baseUrl + '/api/components/suggestions';
     const options = { s: q };
     return $.get(url, options).done(function (r) {
       const collection = [];
@@ -207,7 +207,7 @@ export default Marionette.LayoutView.extend({
           collection.push(_.extend(item, {
             q: domain.q,
             extra: index === 0 ? domain.name : null,
-            url: '/dashboard/index?id=' + encodeURIComponent(item.key) + window.dashboardParameters(true)
+            url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + window.dashboardParameters(true)
           }));
         });
       });
@@ -222,16 +222,16 @@ export default Marionette.LayoutView.extend({
 
   getNavigationFindings (q) {
     const DEFAULT_ITEMS = [
-      { name: translate('issues.page'), url: '/issues/search' },
-      { name: translate('layout.measures'), url: '/measures/search?qualifiers[]=TRK' },
-      { name: translate('coding_rules.page'), url: '/coding_rules' },
-      { name: translate('quality_profiles.page'), url: '/profiles' },
-      { name: translate('quality_gates.page'), url: '/quality_gates' },
-      { name: translate('comparison_global.page'), url: '/comparison' }
+      { name: translate('issues.page'), url: window.baseUrl + '/issues/search' },
+      { name: translate('layout.measures'), url: window.baseUrl + '/measures/search?qualifiers[]=TRK' },
+      { name: translate('coding_rules.page'), url: window.baseUrl + '/coding_rules' },
+      { name: translate('quality_profiles.page'), url: window.baseUrl + '/profiles' },
+      { name: translate('quality_gates.page'), url: window.baseUrl + '/quality_gates' },
+      { name: translate('comparison_global.page'), url: window.baseUrl + '/comparison' }
     ];
     const customItems = [];
     if (window.SS.isUserAdmin) {
-      customItems.push({ name: translate('layout.settings'), url: '/settings' });
+      customItems.push({ name: translate('layout.settings'), url: window.baseUrl + '/settings' });
     }
     const findings = [].concat(DEFAULT_ITEMS, customItems).filter(function (f) {
       return f.name.match(new RegExp(q, 'i'));
@@ -245,7 +245,7 @@ export default Marionette.LayoutView.extend({
   getGlobalDashboardFindings (q) {
     const dashboards = this.model.get('globalDashboards') || [];
     const items = dashboards.map(function (d) {
-      return { name: d.name, url: '/dashboard/index?did=' + encodeURIComponent(d.key) };
+      return { name: d.name, url: window.baseUrl + '/dashboard/index?did=' + encodeURIComponent(d.key) };
     });
     const findings = items.filter(function (f) {
       return f.name.match(new RegExp(q, 'i'));

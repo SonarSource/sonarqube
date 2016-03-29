@@ -22,7 +22,7 @@ import Template from './templates/global-permissions-users.hbs';
 import '../../components/SelectList';
 
 function getSearchUrl (permission, project) {
-  let url = '/api/permissions/users?ps=100&permission=' + permission;
+  let url = window.baseUrl + '/api/permissions/users?ps=100&permission=' + permission;
   if (project) {
     url = url + '&projectId=' + project;
   }
@@ -52,8 +52,8 @@ export default Modal.extend({
       },
       queryParam: 'q',
       searchUrl: getSearchUrl(this.options.permission, this.options.project),
-      selectUrl: '/api/permissions/add_user',
-      deselectUrl: '/api/permissions/remove_user',
+      selectUrl: window.baseUrl + '/api/permissions/add_user',
+      deselectUrl: window.baseUrl + '/api/permissions/remove_user',
       extra: getExtra(this.options.permission, this.options.project),
       selectParameter: 'login',
       selectParameterValue: 'login',

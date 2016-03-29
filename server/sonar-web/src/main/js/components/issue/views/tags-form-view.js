@@ -50,7 +50,7 @@ export default ActionOptionsView.extend({
 
   requestTags (query) {
     const that = this;
-    return $.get('/api/issues/tags', { ps: 10, q: query }).done(function (data) {
+    return $.get(window.baseUrl + '/api/issues/tags', { ps: 10, q: query }).done(function (data) {
       that.tags = data.tags;
       that.renderTags();
     });
@@ -134,7 +134,7 @@ export default ActionOptionsView.extend({
     this.model.set({ tags });
     return $.ajax({
       type: 'POST',
-      url: '/api/issues/set_tags',
+      url: window.baseUrl + '/api/issues/set_tags',
       data: {
         key: this.model.id,
         tags: tags.join()

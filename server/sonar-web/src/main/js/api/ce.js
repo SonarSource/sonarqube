@@ -21,22 +21,22 @@ import $ from 'jquery';
 import { getJSON, post } from '../helpers/request.js';
 
 export function getQueue (data) {
-  const url = '/api/ce/queue';
+  const url = window.baseUrl + '/api/ce/queue';
   return $.get(url, data);
 }
 
 export function getActivity (data) {
-  const url = '/api/ce/activity';
+  const url = window.baseUrl + '/api/ce/activity';
   return $.get(url, data);
 }
 
 export function getTask (id) {
-  const url = '/api/ce/task';
+  const url = window.baseUrl + '/api/ce/task';
   return getJSON(url, { id }).then(r => r.task);
 }
 
 export function cancelTask (id) {
-  const url = '/api/ce/cancel';
+  const url = window.baseUrl + '/api/ce/cancel';
   return post(url, { id }).then(
       getTask.bind(null, id),
       getTask.bind(null, id)
@@ -44,17 +44,17 @@ export function cancelTask (id) {
 }
 
 export function cancelAllTasks () {
-  const url = '/api/ce/cancel_all';
+  const url = window.baseUrl + '/api/ce/cancel_all';
   return post(url);
 }
 
 export function getTasksForComponent (componentId) {
-  const url = '/api/ce/component';
+  const url = window.baseUrl + '/api/ce/component';
   const data = { componentId };
   return new Promise(resolve => $.get(url, data).done(resolve));
 }
 
 export function getTypes () {
-  const url = '/api/ce/task_types';
+  const url = window.baseUrl + '/api/ce/task_types';
   return getJSON(url).then(r => r.taskTypes);
 }

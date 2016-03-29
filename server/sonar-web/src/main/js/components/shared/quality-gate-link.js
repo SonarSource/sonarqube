@@ -22,7 +22,7 @@ import React from 'react';
 
 export const QualityGateLink = React.createClass({
   render() {
-    let url = `/quality_gates/show/${this.props.gate}`;
+    let url = `${window.baseUrl}/quality_gates/show/${this.props.gate}`;
     return <a href={url}>{this.props.children}</a>;
   }
 });

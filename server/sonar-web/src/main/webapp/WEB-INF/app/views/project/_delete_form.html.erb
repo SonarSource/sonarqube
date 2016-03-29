@@ -1,5 +1,5 @@
 <% resource_qualifier = message('qualifier.' + @project.qualifier) %>
-<form id="delete-project-form" method="post" action="/project/delete">
+<form id="delete-project-form" method="post" action="<%= ApplicationController.root_context -%>/project/delete">
   <fieldset>
     <div class="modal-head">
       <h2><%= message('project_deletion.page', :params => resource_qualifier) -%></h2>
@@ -18,7 +18,7 @@
   $j("#delete-project-form").modalForm({
     success: function () {
       $j.ajax({
-        url: "/project/delete/<%= h(@project.id) -%>",
+        url: "<%= ApplicationController.root_context-%>/project/delete/<%= h(@project.id) -%>",
         success: function (request) {
           window.location = '<%= url_for(:action => 'pending_deletion',:id => @project.id)-%>';
         },

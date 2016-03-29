@@ -60,7 +60,7 @@ export default Controller.extend({
     this.hideDetails(firstPage);
 
     const that = this;
-    const url = '/api/rules/search';
+    const url = window.baseUrl + '/api/rules/search';
     const options = _.extend(this._searchParameters(), this.app.state.get('query'));
     return $.get(url, options).done(function (r) {
       const rules = that.app.list.parseRules(r);
@@ -92,7 +92,7 @@ export default Controller.extend({
   },
 
   requestFacet (id) {
-    const url = '/api/rules/search';
+    const url = window.baseUrl + '/api/rules/search';
     const facet = this.app.facets.get(id);
     const options = _.extend({ facets: id, ps: 1 }, this.app.state.get('query'));
     return $.get(url, options).done(function (r) {
@@ -112,7 +112,7 @@ export default Controller.extend({
 
   getRuleDetails (rule) {
     const that = this;
-    const url = '/api/rules/show';
+    const url = window.baseUrl + '/api/rules/show';
     const options = {
       key: rule.id,
       actives: true

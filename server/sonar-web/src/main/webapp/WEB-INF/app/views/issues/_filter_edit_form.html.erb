@@ -1,4 +1,4 @@
-<form id="edit-filter-form" method="post" action="/issues/edit">
+<form id="edit-filter-form" method="post" action="<%= ApplicationController.root_context -%>/issues/edit">
   <input type="hidden" name="id" value="<%= @filter.id -%>">
   <fieldset>
     <div class="modal-head">

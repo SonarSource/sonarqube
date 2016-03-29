@@ -20,7 +20,7 @@
 import { post } from '../helpers/request.js';
 
 export function toggleIssueFilter (id) {
-  const url = '/issues/toggle_fav';
+  const url = window.baseUrl + '/issues/toggle_fav';
   const data = { id };
   return post(url, data);
 }

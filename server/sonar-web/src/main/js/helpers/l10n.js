@@ -44,7 +44,7 @@ function getCurrentLocale () {
 }
 
 function makeRequest (params) {
-  const url = `/api/l10n/index?${stringify(params)}`;
+  const url = `${window.baseUrl}/api/l10n/index?${stringify(params)}`;
 
   return fetch(url, { credentials: 'same-origin' }).then(response => {
     if (response.status === 304) {

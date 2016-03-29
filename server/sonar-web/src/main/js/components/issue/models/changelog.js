@@ -21,7 +21,7 @@ import Backbone from 'backbone';
 
 export default Backbone.Collection.extend({
   url () {
-    return '/api/issues/changelog';
+    return window.baseUrl + '/api/issues/changelog';
   },
 
   parse (r) {
