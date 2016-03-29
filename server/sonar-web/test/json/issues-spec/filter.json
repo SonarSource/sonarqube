@@ -1,9 +1,0 @@
-{
-  "filter": {
-    "id": 31,
-    "name": "Critical and Blocker Issues",
-    "shared": true,
-    "query": "resolved=false|severities=BLOCKER,CRITICAL",
-    "canModify": true
-  }
-}

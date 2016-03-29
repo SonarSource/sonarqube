@@ -1,8 +1,0 @@
-{
-  "isLoggedIn": false,
-  "permissions": {
-    "global": [
-      "scan"
-    ]
-  }
-}

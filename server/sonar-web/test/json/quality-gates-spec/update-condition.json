@@ -1,7 +1,0 @@
-{
-  "id": 1,
-  "metric": "blocker_violations",
-  "op": "GT",
-  "warning": "173",
-  "error": "0"
-}
