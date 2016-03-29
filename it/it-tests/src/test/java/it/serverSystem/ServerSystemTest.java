@@ -105,7 +105,7 @@ public class ServerSystemTest {
       new GetRequest("api/system/info"));
 
     assertThat(response.code()).isEqualTo(200);
-    assertThat(response.content()).contains("\"Compute Engine Database\":", "\"Compute Engine State\":", "\"Compute Engine Tasks\":");
+    assertThat(response.content()).contains("\"Compute Engine Database Connection\":", "\"Compute Engine State\":", "\"Compute Engine Tasks\":");
     assertThat(response.content()).contains("\"Elasticsearch\":", "\"State\":\"GREEN\"", "\"Elasticsearch State\"");
   }
 
