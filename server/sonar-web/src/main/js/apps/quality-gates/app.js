@@ -23,7 +23,7 @@ import { Router, Route, IndexRoute, Redirect, useRouterHistory } from 'react-rou
 import { createHistory } from 'history';
 import { combineReducers } from 'redux';
 import { Provider } from 'react-redux';
-import { syncHistoryWithStore, routerReducer, routerMiddleware } from 'react-router-redux';
+import { syncHistoryWithStore, routerReducer } from 'react-router-redux';
 
 import QualityGatesAppContainer from './containers/QualityGatesAppContainer';
 import Intro from './components/Intro';
@@ -43,7 +43,7 @@ window.sonarqube.appStarted.then(options => {
     routing: routerReducer
   });
 
-  const store = configureStore(finalReducer, [routerMiddleware(history)]);
+  const store = configureStore(finalReducer);
 
   const finalHistory = syncHistoryWithStore(history, store);
 
