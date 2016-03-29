@@ -292,12 +292,7 @@ import org.sonar.server.user.UserUpdater;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
-import org.sonar.server.user.ws.CurrentAction;
-import org.sonar.server.user.ws.FavoritesWs;
-import org.sonar.server.user.ws.IdentityProvidersAction;
-import org.sonar.server.user.ws.UserJsonWriter;
-import org.sonar.server.user.ws.UserPropertiesWs;
-import org.sonar.server.user.ws.UsersWs;
+import org.sonar.server.user.ws.UsersWsModule;
 import org.sonar.server.usergroups.ws.UserGroupsModule;
 import org.sonar.server.usertoken.UserTokenModule;
 import org.sonar.server.util.TypeValidationModule;
@@ -516,22 +511,11 @@ public class PlatformLevel4 extends PlatformLevel {
       NewUserNotifier.class,
       DefaultUserFinder.class,
       DefaultUserService.class,
-      UserJsonWriter.class,
-      UsersWs.class,
-      org.sonar.server.user.ws.CreateAction.class,
-      org.sonar.server.user.ws.UpdateAction.class,
-      org.sonar.server.user.ws.DeactivateAction.class,
-      org.sonar.server.user.ws.ChangePasswordAction.class,
-      CurrentAction.class,
-      org.sonar.server.user.ws.SearchAction.class,
-      org.sonar.server.user.ws.GroupsAction.class,
-      IdentityProvidersAction.class,
-      FavoritesWs.class,
-      UserPropertiesWs.class,
       UserIndexDefinition.class,
       UserIndexer.class,
       UserIndex.class,
       UserUpdater.class,
+      UsersWsModule.class,
       UserTokenModule.class,
 
       // groups
