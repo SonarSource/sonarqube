@@ -21,6 +21,7 @@ package org.sonar.ce.taskprocessor;
 
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
 
@@ -28,6 +29,7 @@ import org.sonar.ce.queue.CeTaskResult;
  * This interface is used to provide the processing code for {@link CeTask}s of one or more type to be called by the
  * Compute Engine.
  */
+@ComputeEngineSide
 public interface CeTaskProcessor {
 
   /**
