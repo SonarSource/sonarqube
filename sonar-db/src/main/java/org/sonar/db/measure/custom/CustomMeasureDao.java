@@ -24,15 +24,11 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
-@ServerSide
-@ComputeEngineSide
 public class CustomMeasureDao implements Dao {
   public void insert(DbSession session, CustomMeasureDto customMeasureDto) {
     mapper(session).insert(customMeasureDto);

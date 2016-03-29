@@ -25,8 +25,6 @@ import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.Dao;
@@ -36,8 +34,6 @@ import org.sonar.db.MyBatis;
 
 import static java.util.Arrays.asList;
 
-@ServerSide
-@ComputeEngineSide
 public class IssueChangeDao implements Dao {
 
   private final MyBatis mybatis;

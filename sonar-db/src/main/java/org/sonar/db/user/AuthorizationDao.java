@@ -27,8 +27,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.api.server.ServerSide;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -36,8 +34,6 @@ import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Maps.newHashMap;
 
-@ServerSide
-@ComputeEngineSide
 public class AuthorizationDao implements Dao {
 
   private static final String USER_ID_PARAM = "userId";
