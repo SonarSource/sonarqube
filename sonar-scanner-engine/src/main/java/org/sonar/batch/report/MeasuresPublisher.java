@@ -29,7 +29,7 @@ import org.sonar.api.measures.Measure;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.core.metric.BatchMetrics;
+import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.BoolValue;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.DoubleValue;
@@ -125,17 +125,17 @@ public class MeasuresPublisher implements ReportPublisherStep {
 
   private final BatchComponentCache resourceCache;
   private final MeasureCache measureCache;
-  private final BatchMetrics batchMetrics;
+  private final ScannerMetrics scannerMetrics;
 
-  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache, BatchMetrics batchMetrics) {
+  public MeasuresPublisher(BatchComponentCache resourceCache, MeasureCache measureCache, ScannerMetrics scannerMetrics) {
     this.resourceCache = resourceCache;
     this.measureCache = measureCache;
-    this.batchMetrics = batchMetrics;
+    this.scannerMetrics = scannerMetrics;
   }
 
   @Override
   public void publish(ScannerReportWriter writer) {
-    final Set<String> allowedMetricKeys = newHashSet(transform(batchMetrics.getMetrics(), new MetricToKey()));
+    final Set<String> allowedMetricKeys = newHashSet(transform(scannerMetrics.getMetrics(), new MetricToKey()));
     for (final BatchComponent resource : resourceCache.all()) {
       Iterable<Measure> batchMeasures = measureCache.byResource(resource.resource());
       Iterable<org.sonar.scanner.protocol.output.ScannerReport.Measure> reportMeasures = transform(

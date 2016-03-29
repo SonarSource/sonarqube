@@ -34,7 +34,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.measure.MeasureCache;
-import org.sonar.core.metric.BatchMetrics;
+import org.sonar.core.metric.ScannerMetrics;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReportReader;
@@ -69,7 +69,7 @@ public class MeasuresPublisherTest {
     resourceCache.add(sampleFile, null);
     measureCache = mock(MeasureCache.class);
     when(measureCache.byResource(any(Resource.class))).thenReturn(Collections.<Measure>emptyList());
-    publisher = new MeasuresPublisher(resourceCache, measureCache, new BatchMetrics());
+    publisher = new MeasuresPublisher(resourceCache, measureCache, new ScannerMetrics());
   }
 
   @Test

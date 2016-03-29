@@ -82,13 +82,13 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_CONDITIONS;
 import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
 
 /**
- * This class is used to know the list of metrics that can be sent in the batch report.
+ * This class is used to know the list of metrics that can be sent in the analysis report.
  * <p/>
- * The batch should not send other metrics, and the Compute Engine should not allow other metrics.
+ * Scanners should not send other metrics, and the Compute Engine should not allow other metrics.
  */
 @ComputeEngineSide
 @BatchSide
-public class BatchMetrics {
+public class ScannerMetrics {
 
   private static final Set<Metric> ALLOWED_CORE_METRICS = ImmutableSet.<Metric>of(
     LINES,
@@ -149,11 +149,11 @@ public class BatchMetrics {
 
   private final Set<Metric> metrics;
 
-  public BatchMetrics() {
+  public ScannerMetrics() {
     this.metrics = ALLOWED_CORE_METRICS;
   }
 
-  public BatchMetrics(Metrics[] metricsRepositories) {
+  public ScannerMetrics(Metrics[] metricsRepositories) {
     this.metrics = ImmutableSet.copyOf(Iterables.concat(getPluginMetrics(metricsRepositories), ALLOWED_CORE_METRICS));
   }
 

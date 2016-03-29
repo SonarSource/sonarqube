@@ -29,10 +29,10 @@ import org.sonar.api.measures.Metrics;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class BatchMetricsTest {
+public class ScannerMetricsTest {
 
-  static final BatchMetrics SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = new BatchMetrics(new Metrics[] {});
-  static final BatchMetrics SENSOR_METRICS_WITH_PLUGIN = new BatchMetrics(new Metrics[] {new FakeMetrics()});
+  static final ScannerMetrics SENSOR_METRICS_WITHOUT_METRIC_PLUGIN = new ScannerMetrics(new Metrics[] {});
+  static final ScannerMetrics SENSOR_METRICS_WITH_PLUGIN = new ScannerMetrics(new Metrics[] {new FakeMetrics()});
 
   @Test
   public void check_number_of_allowed_core_metrics() throws Exception {
