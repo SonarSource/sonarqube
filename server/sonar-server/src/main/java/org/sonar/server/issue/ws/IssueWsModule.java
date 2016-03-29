@@ -30,7 +30,6 @@ public class IssueWsModule extends Module {
       SearchResponseFormat.class,
       OperationResponseWriter.class,
       AssignAction.class,
-      CreateAction.class,
       DoTransitionAction.class,
       SearchAction.class,
       SetSeverityAction.class,
