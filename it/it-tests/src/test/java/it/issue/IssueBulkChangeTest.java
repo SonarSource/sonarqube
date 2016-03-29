@@ -27,13 +27,9 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.base.HttpException;
-import org.sonar.wsclient.issue.ActionPlan;
-import org.sonar.wsclient.issue.ActionPlanClient;
 import org.sonar.wsclient.issue.BulkChange;
 import org.sonar.wsclient.issue.BulkChangeQuery;
 import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.NewActionPlan;
-import util.ItUtils;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 import util.QaOnly;
@@ -95,28 +91,6 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
     assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
     for (Issue issue : searchIssues(issueKeys)) {
       assertThat(issue.assignee()).isEqualTo("admin");
-    }
-  }
-
-  @Test
-  public void should_plan() {
-    xooSampleLittleIssuesAnalysis.run();
-
-    // Create action plan
-    ActionPlan newActionPlan = adminActionPlanClient().create(
-      NewActionPlan.create().name("Short term").project("sample").description("Short term issues").deadLine(ItUtils.toDate("2113-01-31")));
-
-    String[] issueKeys = searchIssueKeys(BULK_EDITED_ISSUE_COUNT);
-    BulkChange bulkChange = adminIssueClient().bulkChange(
-      BulkChangeQuery.create()
-        .issues(issueKeys)
-        .actions("plan")
-        .actionParameter("plan", "plan", newActionPlan.key())
-      );
-
-    assertThat(bulkChange.totalIssuesChanged()).isEqualTo(BULK_EDITED_ISSUE_COUNT);
-    for (Issue issue : searchIssues(issueKeys)) {
-      assertThat(issue.actionPlan()).isEqualTo(newActionPlan.key());
     }
   }
 
@@ -313,10 +287,6 @@ public class IssueBulkChangeTest extends AbstractIssueTest {
 
   private static String[] searchIssueKeys(int limit) {
     return getIssueKeys(searchIssues(), limit);
-  }
-
-  private static ActionPlanClient adminActionPlanClient() {
-    return ORCHESTRATOR.getServer().adminWsClient().actionPlanClient();
   }
 
   private enum IssueToKey implements Function<Issue, String> {
