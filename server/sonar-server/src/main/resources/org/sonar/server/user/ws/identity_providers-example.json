@@ -1,0 +1,16 @@
+{
+  "identityProviders": [
+    {
+      "key": "bitbucket",
+      "name": "Bitbucket",
+      "iconPath": "/static/authbitbucket/bitbucket.svg",
+      "backgroundColor": "#205081"
+    },
+    {
+      "key": "github",
+      "name": "Github",
+      "iconPath": "/static/authgithub/github.svg",
+      "backgroundColor": "#444444"
+    }
+  ]
+}

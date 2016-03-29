@@ -294,6 +294,7 @@ import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.user.ws.CurrentAction;
 import org.sonar.server.user.ws.FavoritesWs;
+import org.sonar.server.user.ws.IdentityProvidersAction;
 import org.sonar.server.user.ws.UserJsonWriter;
 import org.sonar.server.user.ws.UserPropertiesWs;
 import org.sonar.server.user.ws.UsersWs;
@@ -524,6 +525,7 @@ public class PlatformLevel4 extends PlatformLevel {
       CurrentAction.class,
       org.sonar.server.user.ws.SearchAction.class,
       org.sonar.server.user.ws.GroupsAction.class,
+      IdentityProvidersAction.class,
       FavoritesWs.class,
       UserPropertiesWs.class,
       UserIndexDefinition.class,
