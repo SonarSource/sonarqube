@@ -6,7 +6,7 @@
     <ul>
       <% auth_providers.each do |provider| %>
         <li>
-          <a href="/sessions/init/<%= provider.getKey().to_s %>"
+          <a href="<%= ApplicationController.root_context -%>/sessions/init/<%= provider.getKey().to_s %>"
              style="background-color: <%= provider.getDisplay().getBackgroundColor().to_s %>"
              title="Log in with <%= provider.getName().to_s -%>">
             <img alt="<%= provider.getName().to_s -%>" width="20" height="20"
