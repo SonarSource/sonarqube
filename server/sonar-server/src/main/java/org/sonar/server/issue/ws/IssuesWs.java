@@ -155,9 +155,10 @@ public class IssuesWs implements WebService {
       .setRequired(true)
       .setExampleValue("01fc972e-2a3c-433e-bcae-0bd7f88f5123,01fc972e-2a3c-433e-bcae-0bd7f88f9999");
     action.createParam("actions")
-      .setDescription("Comma-separated list of actions to perform. Possible values: assign | set_severity | plan | do_transition")
+      .setDescription("Comma-separated list of actions to perform. Possible values: assign | set_severity | do_transition | plan.<br>" +
+        "In 5.5 action plans are dropped. plan action has no effect.")
       .setRequired(true)
-      .setExampleValue("assign,plan");
+      .setExampleValue("assign,set_severity");
     action.createParam("assign.assignee")
       .setDescription("To assign the list of issues to a specific user (login), or un-assign all the issues")
       .setExampleValue("john.smith");
@@ -171,7 +172,7 @@ public class IssuesWs implements WebService {
       .setPossibleValues(RuleType.ALL_NAMES)
       .setSince("5.5");
     action.createParam("plan.plan")
-      .setDescription("Deprecated in 5.5. Has no effect. To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")
+      .setDescription("In 5.5, action plans are dropped. Has no effect. To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")
       .setDeprecatedSince("5.5")
       .setExampleValue("3f19de90-1521-4482-a737-a311758ff513");
     action.createParam("do_transition.transition")

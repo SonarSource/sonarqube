@@ -28,7 +28,7 @@ public class ActionsTest {
   @Test
   public void add_action() {
     Actions actions = new Actions();
-    actions.add("plan");
+    actions.add("assign");
 
     assertThat(actions.list()).hasSize(1);
   }

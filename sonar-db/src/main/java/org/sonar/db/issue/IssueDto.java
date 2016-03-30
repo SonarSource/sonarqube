@@ -237,11 +237,6 @@ public final class IssueDto implements Serializable {
     return this;
   }
 
-  public IssueDto setActionPlanKey(@Nullable String s) {
-    checkArgument(s == null || s.length() <= 50, "Value is too long for issue action plan: %s", s);
-    return this;
-  }
-
   @CheckForNull
   public String getSeverity() {
     return severity;

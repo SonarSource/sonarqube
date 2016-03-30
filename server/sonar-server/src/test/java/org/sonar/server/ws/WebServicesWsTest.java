@@ -25,6 +25,7 @@ import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -56,7 +57,10 @@ public class WebServicesWsTest {
   @Test
   public void list() throws Exception {
     WsTester tester = new WsTester(ws, new MetricWs());
-    tester.newGetRequest("api/webservices", "list").execute().assertJson(getClass(), "list.json");
+
+    String response = tester.newGetRequest("api/webservices", "list").execute().outputAsString();
+
+    JsonAssert.assertJson(response).isSimilarTo(getClass().getResource("list-example.json"));
   }
 
   @Test

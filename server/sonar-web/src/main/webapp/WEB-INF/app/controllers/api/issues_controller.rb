@@ -155,11 +155,12 @@ class Api::IssuesController < Api::ApiController
   # -- Mandatory parameters
   # 'issues' is the list of issue keys
   # 'actions' the list of action to execute (expected at least one). Available actions are : assign,set_severity,plan,do_transition,add_tags
+  # Action plans are dropped in 5.5, the 'plan' action has no effect.
   #
   # -- Optional parameters
   # 'assign.assignee' to assign all issues to a user or un-assign.
   # 'set_severity.severity' to change the severity of all issues.
-  # Action Plan are dropped in 5.5'plan.plan' to plan all issues to an action plan or unlink.
+  # Action Plan are dropped in 5.5. 'plan.plan' has no effect. It was to plan all issues to an action plan or unlink.
   # 'do_transition.transition' to execute a transition on all issues.
   # 'add_tags.tags' to add tags on all issues.
   # 'remove_tags.tags' to remove tags on all issues.
