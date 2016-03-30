@@ -75,7 +75,7 @@ public class ComputeEngineContainerImpl extends ComponentContainer implements Co
     ReflectionLifecycleStrategy lifecycleStrategy = new ReflectionLifecycleStrategy(componentMonitor, "start", "stop", "close") {
       @Override
       public boolean isLazy(ComponentAdapter<?> adapter) {
-        return true;
+        return adapter.getComponentImplementation().getAnnotation(EagerStart.class) == null;
       }
     };
 

@@ -23,6 +23,7 @@ import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.ce.queue.CeTask;
+import org.sonar.ce.settings.SettingsLoader;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
@@ -105,6 +106,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
   @Override
   public void populateContainer(ComputeEngineContainer container) {
     ComputationSteps steps = new ReportComputationSteps(container);
+    container.add(SettingsLoader.class);
     container.add(task);
     container.add(steps);
     container.addSingletons(componentClasses());

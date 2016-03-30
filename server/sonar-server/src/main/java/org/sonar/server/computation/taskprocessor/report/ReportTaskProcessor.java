@@ -24,6 +24,7 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.ce.settings.SettingsLoader;
 import org.sonar.ce.settings.ThreadLocalSettings;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.platform.ComponentContainer;
@@ -69,18 +70,19 @@ public class ReportTaskProcessor implements CeTaskProcessor {
   @Override
   public CeTaskResult process(CeTask task) {
     ComputeEngineContainer ceContainer = containerFactory.create(serverContainer, task, componentProviders);
-    ThreadLocalSettings ceSettings = null;
-    try {
-      ceSettings = ceContainer.getComponentByType(ThreadLocalSettings.class);
-      ceSettings.load();
 
+    try {
       ceContainer.getComponentByType(ComputationStepExecutor.class).execute();
       return ceContainer.getComponentByType(TaskResultHolder.class).getResult();
     } finally {
-      if (ceSettings != null) {
-        ceSettings.remove();
-      }
+      ensureThreadLocalIsClean(ceContainer);
+
       ceContainer.cleanup();
     }
+  }
+
+  /** safety call to clear ThreadLocal even if Pico container fails to call {@link SettingsLoader#stop()}) */
+  private static void ensureThreadLocalIsClean(ComputeEngineContainer ceContainer) {
+    ceContainer.getComponentByType(ThreadLocalSettings.class).remove();
   }
 }
