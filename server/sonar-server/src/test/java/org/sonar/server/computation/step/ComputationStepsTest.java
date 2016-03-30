@@ -25,12 +25,13 @@ import com.google.common.collect.Lists;
 import java.util.Set;
 import org.junit.Test;
 import org.picocontainer.ComponentAdapter;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.ThreadLocalSettings;
 import org.sonar.core.platform.ComponentContainer;
+import org.sonar.core.platform.ContainerPopulator;
 import org.sonar.server.computation.container.ComputeEngineContainerImpl;
 import org.sonar.server.computation.container.ReportComputeEngineContainerPopulator;
 import org.sonar.server.computation.container.StepsExplorer;
-import org.sonar.ce.queue.CeTask;
 
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.difference;
@@ -43,7 +44,7 @@ public class ComputationStepsTest {
   @Test
   public void fail_if_a_step_is_not_registered_in_picocontainer() {
     try {
-      Lists.newArrayList(new ReportComputationSteps(mock(ComputeEngineContainerImpl.class)).instances());
+      Lists.newArrayList(new ReportComputationSteps(new ComputeEngineContainerImpl(new ComponentContainer(), mock(ContainerPopulator.class))).instances());
       fail();
     } catch (IllegalStateException e) {
       assertThat(e).hasMessageContaining("Component not found");

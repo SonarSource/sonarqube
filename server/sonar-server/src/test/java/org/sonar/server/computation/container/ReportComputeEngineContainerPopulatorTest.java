@@ -29,6 +29,8 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.junit.Test;
+import org.picocontainer.DefaultPicoContainer;
+import org.picocontainer.PicoContainer;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
@@ -107,7 +109,7 @@ public class ReportComputeEngineContainerPopulatorTest {
     ReportAnalysisComponentProvider componentProvider = mock(ReportAnalysisComponentProvider.class);
     when(componentProvider.getComponents()).thenReturn(ImmutableList.of(object, clazz));
 
-    underTest = new ReportComputeEngineContainerPopulator(task, new ReportAnalysisComponentProvider[]{componentProvider});
+    underTest = new ReportComputeEngineContainerPopulator(task, new ReportAnalysisComponentProvider[] {componentProvider});
     AddedObjectsRecorderComputeEngineContainer container = new AddedObjectsRecorderComputeEngineContainer();
     container.add(componentProvider);
     underTest.populateContainer(container);
@@ -129,6 +131,8 @@ public class ReportComputeEngineContainerPopulatorTest {
   }
 
   private static class AddedObjectsRecorderComputeEngineContainer implements ComputeEngineContainer {
+    private static final DefaultPicoContainer SOME_EMPTY_PICO_CONTAINER = new DefaultPicoContainer();
+
     private List<Object> added = new ArrayList<>();
 
     @Override
@@ -139,6 +143,11 @@ public class ReportComputeEngineContainerPopulatorTest {
     @Override
     public void cleanup() {
       throw new UnsupportedOperationException("cleanup is not implemented");
+    }
+
+    @Override
+    public PicoContainer getPicoContainer() {
+      return SOME_EMPTY_PICO_CONTAINER;
     }
 
     @Override

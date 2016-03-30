@@ -19,9 +19,10 @@
  */
 package org.sonar.server.computation.container;
 
+import org.picocontainer.PicoContainer;
+import org.sonar.ce.queue.CeTask;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.ContainerPopulator;
-import org.sonar.ce.queue.CeTask;
 
 /**
  * The Compute Engine container. Created for a specific parent {@link ComponentContainer} and a specific {@link CeTask}.
@@ -34,5 +35,10 @@ public interface ComputeEngineContainer extends ContainerPopulator.Container {
    * Cleans up resources after process has been called and has returned.
    */
   void cleanup();
+
+  /**
+   * Access to the underlying pico container.
+   */
+  PicoContainer getPicoContainer();
 
 }

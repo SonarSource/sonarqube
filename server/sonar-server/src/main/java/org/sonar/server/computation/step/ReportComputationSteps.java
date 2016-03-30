@@ -23,6 +23,7 @@ import com.google.common.base.Predicate;
 import java.util.Arrays;
 import java.util.List;
 import javax.annotation.Nonnull;
+import org.picocontainer.ComponentAdapter;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.developer.PersistDevelopersDelegate;
 
@@ -32,8 +33,6 @@ import static com.google.common.collect.FluentIterable.from;
  * Ordered list of steps classes and instances to be executed for batch processing
  */
 public class ReportComputationSteps extends AbstractComputationSteps {
-
-  private static final String DEVELOPER_COCKPIT_PLUGIN_NAME = "Developer Cockpit";
 
   private static final List<Class<? extends ComputationStep>> STEPS = Arrays.asList(
     ExtractReportStep.class,
@@ -123,13 +122,21 @@ public class ReportComputationSteps extends AbstractComputationSteps {
   @Override
   public List<Class<? extends ComputationStep>> orderedStepClasses() {
     return from(STEPS)
-      .filter(new AllowPersistDevelopersStepIfDevCockpitPluginInstalled())
+      .filter(new AllowPersistDevelopersStepIfDevCockpitPluginInstalled(computeEngineContainer))
       .toList();
   }
 
-  private class AllowPersistDevelopersStepIfDevCockpitPluginInstalled implements Predicate<Class<? extends ComputationStep>> {
+  private static class AllowPersistDevelopersStepIfDevCockpitPluginInstalled implements Predicate<Class<? extends ComputationStep>> {
+    private final boolean devCockpitIsInstalled;
 
-    private final boolean devCockpitIsInstalled = computeEngineContainer.getComponentByType(PersistDevelopersDelegate.class) != null;
+    private AllowPersistDevelopersStepIfDevCockpitPluginInstalled(ComputeEngineContainer computeEngineContainer) {
+      this.devCockpitIsInstalled = isDevCockpitInstalled(computeEngineContainer);
+    }
+
+    private static boolean isDevCockpitInstalled(ComputeEngineContainer computeEngineContainer) {
+      List<ComponentAdapter<PersistDevelopersDelegate>> componentAdapters = computeEngineContainer.getPicoContainer().getComponentAdapters(PersistDevelopersDelegate.class);
+      return !componentAdapters.isEmpty();
+    }
 
     @Override
     public boolean apply(@Nonnull Class<? extends ComputationStep> input) {
