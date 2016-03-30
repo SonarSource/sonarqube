@@ -56,7 +56,7 @@ export default React.createClass({
     $('[data-toggle="tooltip"]', ReactDOM.findDOMNode(this)).tooltip({
       container: 'body',
       placement: 'bottom',
-      delay: { show: 0, hide: 1000 },
+      delay: { show: 0, hide: 2000 },
       html: true
     });
   },
