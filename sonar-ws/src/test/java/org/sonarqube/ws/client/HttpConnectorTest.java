@@ -25,6 +25,7 @@ import com.squareup.okhttp.mockwebserver.MockWebServer;
 import com.squareup.okhttp.mockwebserver.RecordedRequest;
 import java.io.File;
 import java.util.List;
+import javax.net.ssl.SSLSocketFactory;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
@@ -282,7 +283,7 @@ public class HttpConnectorTest {
 
     assertTlsAndClearTextSpecifications(underTest);
     // do not override the default TLS context provided by java 8
-    assertThat(underTest.okHttpClient().getSslSocketFactory()).isNull();
+    assertThat(underTest.okHttpClient().getSslSocketFactory()).isNotNull().isInstanceOf(SSLSocketFactory.getDefault().getClass());
   }
 
   private void assertTlsAndClearTextSpecifications(HttpConnector underTest) {
