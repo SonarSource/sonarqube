@@ -41,14 +41,14 @@ public abstract class ServerExtensionInstaller {
 
   private final SonarQubeVersion sonarQubeVersion;
   private final PluginRepository pluginRepository;
-  private final Class<? extends Annotation> supportedAnnotationType;
+  private final Class<? extends Annotation>[] supportedAnnotationTypes;
 
   protected ServerExtensionInstaller(SonarQubeVersion sonarQubeVersion, PluginRepository pluginRepository,
-    Class<? extends Annotation> supportedAnnotationType) {
-    requireNonNull(supportedAnnotationType, "At least one supported annotation type must be specified");
+    Class<? extends Annotation>... supportedAnnotationTypes) {
+    requireNonNull(supportedAnnotationTypes, "At least one supported annotation type must be specified");
     this.sonarQubeVersion = sonarQubeVersion;
     this.pluginRepository = pluginRepository;
-    this.supportedAnnotationType = supportedAnnotationType;
+    this.supportedAnnotationTypes = supportedAnnotationTypes;
   }
 
   public void installExtensions(ComponentContainer container) {
@@ -103,12 +103,14 @@ public abstract class ServerExtensionInstaller {
   }
 
   Object installExtension(ComponentContainer container, PluginInfo pluginInfo, Object extension, boolean acceptProvider) {
-    if (AnnotationUtils.getAnnotation(extension, supportedAnnotationType) != null) {
-      if (!acceptProvider && isExtensionProvider(extension)) {
-        throw new IllegalStateException("ExtensionProvider can not include providers itself: " + extension);
+    for (Class<? extends Annotation> supportedAnnotationType : supportedAnnotationTypes) {
+      if (AnnotationUtils.getAnnotation(extension, supportedAnnotationType) != null) {
+        if (!acceptProvider && isExtensionProvider(extension)) {
+          throw new IllegalStateException("ExtensionProvider can not include providers itself: " + extension);
+        }
+        container.addExtension(pluginInfo, extension);
+        return extension;
       }
-      container.addExtension(pluginInfo, extension);
-      return extension;
     }
     return null;
   }

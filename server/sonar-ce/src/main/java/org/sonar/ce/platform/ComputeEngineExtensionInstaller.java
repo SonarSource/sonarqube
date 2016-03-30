@@ -21,11 +21,12 @@ package org.sonar.ce.platform;
 
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.server.plugins.ServerExtensionInstaller;
 
 public class ComputeEngineExtensionInstaller extends ServerExtensionInstaller {
   public ComputeEngineExtensionInstaller(SonarQubeVersion sonarQubeVersion, PluginRepository pluginRepository) {
-    super(sonarQubeVersion, pluginRepository, ComputeEngineSide.class);
+    super(sonarQubeVersion, pluginRepository, ServerSide.class, ComputeEngineSide.class);
   }
 }
