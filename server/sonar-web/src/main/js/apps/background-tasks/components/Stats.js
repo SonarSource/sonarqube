@@ -19,9 +19,7 @@
  */
 import React, { Component } from 'react';
 
-import { formatDuration } from './../helpers';
 import { translate } from '../../../helpers/l10n';
-
 
 export default class Stats extends Component {
   handleCancelAllPending (e) {
@@ -32,27 +30,6 @@ export default class Stats extends Component {
   handleShowFailing (e) {
     e.preventDefault();
     this.props.onShowFailing();
-  }
-
-  renderInProgressDuration () {
-    if (!this.props.inProgressDuration) {
-      return null;
-    }
-    return (
-        <span
-            className="huge-spacer-left"
-            title={translate('background_tasks.in_progress_duration')}
-            data-toggle="tooltip">
-          <i
-              className="spinner spacer-right"
-              style={{ verticalAlign: 'text-top' }}/>
-          <span
-              ref="inProgressDuration"
-              className="emphasised-measure">
-            {formatDuration(this.props.inProgressDuration)}
-          </span>
-        </span>
-    );
   }
 
   renderPending () {
@@ -130,7 +107,6 @@ export default class Stats extends Component {
           <span className="huge-spacer-left">
             {this.renderFailures()}
           </span>
-          {this.renderInProgressDuration()}
         </section>
 
     );

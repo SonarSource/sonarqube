@@ -40,8 +40,7 @@ export const initialState = {
 
   // stats
   pendingCount: 0,
-  failingCount: 0,
-  inProgressDuration: null
+  failingCount: 0
 };
 
 function updateTask (tasks, newTask) {
@@ -82,8 +81,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         pendingCount: action.pendingCount,
-        failingCount: action.failingCount,
-        inProgressDuration: action.inProgressDuration
+        failingCount: action.failingCount
       };
     case CANCEL_ALL_PENDING:
       return {

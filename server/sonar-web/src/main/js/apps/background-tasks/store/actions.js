@@ -63,12 +63,11 @@ export function updateQuery (query) {
   };
 }
 
-export function receiveStats ({ pendingCount, failingCount, inProgressDuration }) {
+export function receiveStats ({ pendingCount, failingCount }) {
   return {
     type: RECEIVE_STATS,
     pendingCount,
-    failingCount,
-    inProgressDuration
+    failingCount
   };
 }
 
@@ -141,10 +140,6 @@ function mapFiltersToParameters (filters = {}) {
   return parameters;
 }
 
-function getInProgressDuration (tasks) {
-  return tasks.length ? tasks[0].executionTimeMs : null;
-}
-
 function fetchTasks (filters) {
   return (dispatch, getState) => {
     const { component } = getState();
@@ -161,20 +156,18 @@ function fetchTasks (filters) {
     return Promise.all([
       getActivity(parameters),
       getActivity({ ps: 1, onlyCurrents: true, status: STATUSES.FAILED }),
-      getActivity({ ps: 1, status: STATUSES.PENDING }),
-      getActivity({ ps: 1, status: STATUSES.IN_PROGRESS })
+      getActivity({ ps: 1, status: STATUSES.PENDING })
     ]).then(responses => {
-      const [activity, failingActivity, pendingActivity, inProgressActivity] = responses;
+      const [activity, failingActivity, pendingActivity] = responses;
       const tasks = activity.tasks;
       const total = activity.paging.total;
 
       dispatch(receiveTasks(tasks, total));
 
       const pendingCount = pendingActivity.paging.total;
-      const inProgressDuration = getInProgressDuration(inProgressActivity.tasks);
       const failingCount = failingActivity.paging.total;
 
-      dispatch(receiveStats({ pendingCount, failingCount, inProgressDuration }));
+      dispatch(receiveStats({ pendingCount, failingCount }));
     });
   };
 }

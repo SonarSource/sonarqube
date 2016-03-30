@@ -152,26 +152,6 @@ describe('Background Tasks', function () {
         expect(spy).to.have.been.called;
       });
     });
-
-    describe('In Progress Duration', () => {
-      it('should show duration', () => {
-        let result = TestUtils.renderIntoDocument(<Stats inProgressDuration="173"/>),
-            inProgressDuration = result.refs.inProgressDuration;
-        expect(inProgressDuration.textContent).to.include('173ms');
-      });
-
-      it('should format duration', () => {
-        let result = TestUtils.renderIntoDocument(<Stats inProgressDuration="1073"/>),
-            inProgressDuration = result.refs.inProgressDuration;
-        expect(inProgressDuration.textContent).to.include('1s');
-      });
-
-      it('should not show duration', () => {
-        let result = TestUtils.renderIntoDocument(<Stats/>),
-            inProgressDuration = result.refs.inProgressDuration;
-        expect(inProgressDuration).to.not.be.ok;
-      });
-    });
   });
 
   describe('Helpers', () => {

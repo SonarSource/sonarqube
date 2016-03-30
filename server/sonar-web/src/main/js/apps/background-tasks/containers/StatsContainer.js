@@ -27,7 +27,6 @@ function mapStateToProps (state) {
   return {
     pendingCount: state.pendingCount,
     failingCount: state.failingCount,
-    inProgressDuration: state.inProgressDuration,
     component: state.component
   };
 }
