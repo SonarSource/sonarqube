@@ -1,0 +1,88 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import React from 'react';
+
+import { getIdentityProviders } from '../../../api/users';
+
+export default class UserExternalIdentity extends React.Component {
+  state = {
+    loading: true
+  };
+
+  componentDidMount () {
+    this.mounted = true;
+    this.fetchIdentityProviders();
+  }
+
+  componentDidUpdate (nextProps) {
+    if (nextProps.user !== this.props.user) {
+      this.this.fetchIdentityProviders();
+    }
+  }
+
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
+  fetchIdentityProviders () {
+    this.setState({ loading: true });
+    getIdentityProviders()
+        .then(r => r.identityProviders)
+        .then(providers => {
+          if (this.mounted) {
+            const identityProvider = providers
+                .find(provider => provider.key === this.props.user.externalProvider);
+            this.setState({ loading: false, identityProvider });
+          }
+        })
+        .catch(() => {
+          if (this.mounted) {
+            this.setState({ loading: false });
+          }
+        });
+  }
+
+  render () {
+    const { user } = this.props;
+    const { loading, identityProvider } = this.state;
+
+    if (loading) {
+      return null;
+    }
+
+    if (!identityProvider) {
+      return (
+          <span className="note">
+            {user.externalProvider}{': '}{user.externalIdentity}
+          </span>
+      );
+    }
+
+    return (
+        <div
+            className="identity-provider"
+            style={{ backgroundColor: identityProvider.backgroundColor }}>
+          <img src={window.baseUrl + identityProvider.iconPath} width="14" height="14"/>
+          {' '}
+          {user.externalIdentity}
+        </div>
+    );
+  }
+}

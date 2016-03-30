@@ -20,6 +20,7 @@
 import React from 'react';
 import { IndexLink } from 'react-router';
 
+import UserExternalIdentity from './UserExternalIdentity';
 import Avatar from '../../../components/shared/avatar';
 
 export default function UserCard ({ user }) {
@@ -35,6 +36,11 @@ export default function UserCard ({ user }) {
             <h1 id="name" className="display-inline-block">{user.name}</h1>
           </IndexLink>
           <span id="login" className="note big-spacer-left">{user.login}</span>
+          {!user.local && (
+              <span id="identity-provider" className="big-spacer-left">
+                <UserExternalIdentity user={user}/>
+              </span>
+          )}
         </div>
         <div id="email" className="little-spacer-top">{user.email}</div>
       </section>

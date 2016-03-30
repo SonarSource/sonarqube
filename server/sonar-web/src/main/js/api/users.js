@@ -34,3 +34,8 @@ export function changePassword (login, password, previousPassword) {
 
   return post(url, data);
 }
+
+export function getIdentityProviders () {
+  const url = window.baseUrl + '/api/users/identity_providers';
+  return getJSON(url);
+}

@@ -128,9 +128,16 @@ export default Marionette.ItemView.extend({
   serializeData () {
     const scmAccounts = this.model.get('scmAccounts');
     const scmAccountsLimit = scmAccounts.length > this.scmLimit ? this.scmLimit - 1 : this.scmLimit;
+
     const groups = this.model.get('groups');
     const groupsLimit = groups.length > this.groupsLimit ? this.groupsLimit - 1 : this.groupsLimit;
+
+    const externalProvider = this.model.get('externalProvider');
+    const identityProvider = this.model.get('local') ? null :
+        this.options.providers.find(provider => externalProvider === provider.key);
+
     return _.extend(Marionette.ItemView.prototype.serializeData.apply(this, arguments), {
+      identityProvider,
       firstScmAccounts: _.first(scmAccounts, scmAccountsLimit),
       moreScmAccountsCount: scmAccounts.length - scmAccountsLimit,
       firstGroups: _.first(groups, groupsLimit),

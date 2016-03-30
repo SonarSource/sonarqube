@@ -33,6 +33,10 @@ export default Marionette.CompositeView.extend({
     'sync': 'hideLoading'
   },
 
+  childViewOptions () {
+    return { providers: this.options.providers };
+  },
+
   showLoading () {
     this.$el.addClass('new-loading');
   },

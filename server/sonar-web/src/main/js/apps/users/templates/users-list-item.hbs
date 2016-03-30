@@ -9,7 +9,23 @@
     <strong class="js-user-name">{{name}}</strong>
     <span class="js-user-login note little-spacer-left">{{login}}</span>
   </div>
-  <div class="js-user-email little-spacer-top">{{email}}</div>
+
+  {{#if email}}
+    <div class="js-user-email little-spacer-top">{{email}}</div>
+  {{/if}}
+
+  {{#unless local}}
+    <div class="js-user-identity-provider little-spacer-top">
+      {{#if identityProvider}}
+        <div class="identity-provider" style="background-color: {{identityProvider.backgroundColor}}">
+          <img src="{{link identityProvider.iconPath}}" width="14" height="14"/>
+          {{externalIdentity}}
+        </div>
+      {{else}}
+        {{externalProvider}}: {{externalIdentity}}
+      {{/if}}
+    </div>
+  {{/unless}}
 </td>
 
 <td>
@@ -46,7 +62,9 @@
 
 <td class="thin nowrap text-right">
   <a class="js-user-update icon-edit little-spacer-right" title="Update Details" data-toggle="tooltip" href="#"></a>
-  <a class="js-user-change-password icon-lock little-spacer-right" title="Change Password" data-toggle="tooltip"
-     href="#"></a>
+  {{#if local}}
+    <a class="js-user-change-password icon-lock little-spacer-right" title="Change Password" data-toggle="tooltip"
+       href="#"></a>
+  {{/if}}
   <a class="js-user-deactivate icon-delete" title="Deactivate" data-toggle="tooltip" href="#"></a>
 </td>

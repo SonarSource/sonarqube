@@ -18,15 +18,18 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import Marionette from 'backbone.marionette';
+
 import Layout from './layout';
 import Users from './users';
 import HeaderView from './header-view';
 import SearchView from './search-view';
 import ListView from './list-view';
 import ListFooterView from './list-footer-view';
+import { getIdentityProviders } from '../../api/users';
 
 const App = new Marionette.Application();
-const init = function () {
+
+const init = function (providers) {
   const options = window.sonarqube;
 
   // Layout
@@ -45,7 +48,7 @@ const init = function () {
   this.layout.searchRegion.show(this.searchView);
 
   // List View
-  this.listView = new ListView({ collection: this.users });
+  this.listView = new ListView({ collection: this.users, providers });
   this.layout.listRegion.show(this.listView);
 
   // List Footer View
@@ -57,7 +60,7 @@ const init = function () {
 };
 
 App.on('start', function () {
-  init.call(App);
+  getIdentityProviders().then(r => init.call(App, r.identityProviders));
 });
 
 window.sonarqube.appStarted.then(options => App.start(options));
