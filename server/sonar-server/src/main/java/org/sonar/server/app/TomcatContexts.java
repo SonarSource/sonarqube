@@ -28,6 +28,7 @@ import org.apache.catalina.Context;
 import org.apache.catalina.core.StandardContext;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.io.FileUtils;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -46,7 +47,7 @@ public class TomcatContexts {
 
   private static final String JRUBY_MAX_RUNTIMES = "jruby.max.runtimes";
   private static final String RAILS_ENV = "rails.env";
-  private static final String ROOT_CONTEXT_PATH = "";
+  public static final String PROPERTY_CONTEXT = "sonar.web.context";
   public static final String WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR = "web/deploy";
 
   private final Fs fs;
@@ -61,15 +62,25 @@ public class TomcatContexts {
   }
 
   public StandardContext configure(Tomcat tomcat, Props props) {
-    addStaticDir(tomcat, "/deploy", new File(props.nonNullValueAsFile(ProcessProperties.PATH_DATA), WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR));
+    addStaticDir(tomcat, getContextPath(props) + "/deploy", new File(props.nonNullValueAsFile(ProcessProperties.PATH_DATA), WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR));
 
-    StandardContext webapp = addContext(tomcat, ROOT_CONTEXT_PATH, webappDir(props));
+    StandardContext webapp = addContext(tomcat, getContextPath(props), webappDir(props));
     configureRails(props, webapp);
     for (Map.Entry<Object, Object> entry : props.rawProperties().entrySet()) {
       String key = entry.getKey().toString();
       webapp.addParameter(key, entry.getValue().toString());
     }
     return webapp;
+  }
+
+  static String getContextPath(Props props) {
+    String context = props.value(PROPERTY_CONTEXT, "");
+    if ("/".equals(context)) {
+      context = "";
+    } else if (!"".equals(context) && context != null && !context.startsWith("/")) {
+      throw MessageException.of(format("Value of '%s' must start with a forward slash: '%s'", PROPERTY_CONTEXT, context));
+    }
+    return context;
   }
 
   @VisibleForTesting

@@ -31,6 +31,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.utils.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
 
@@ -46,12 +47,13 @@ public class TomcatContextsTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   Tomcat tomcat = mock(Tomcat.class);
+
   Properties props = new Properties();
+  TomcatContexts underTest = new TomcatContexts();
 
   @Before
   public void setUp() throws Exception {
@@ -65,7 +67,7 @@ public class TomcatContextsTest {
     StandardContext context = mock(StandardContext.class);
     when(tomcat.addWebapp(anyString(), anyString())).thenReturn(context);
 
-    new TomcatContexts().configure(tomcat, new Props(props));
+    underTest.configure(tomcat, new Props(props));
 
     // configure webapp with properties
     verify(context).addParameter("foo", "bar");
@@ -76,7 +78,7 @@ public class TomcatContextsTest {
     props.setProperty("sonar.web.dev", "true");
     Context context = mock(Context.class);
 
-    new TomcatContexts().configureRails(new Props(props), context);
+    underTest.configureRails(new Props(props), context);
 
     verify(context).addParameter("jruby.max.runtimes", "3");
     verify(context).addParameter("rails.env", "development");
@@ -87,7 +89,7 @@ public class TomcatContextsTest {
     props.setProperty("sonar.web.dev", "false");
     Context context = mock(Context.class);
 
-    new TomcatContexts().configureRails(new Props(props), context);
+    underTest.configureRails(new Props(props), context);
 
     verify(context).addParameter("jruby.max.runtimes", "1");
     verify(context).addParameter("rails.env", "production");
@@ -98,7 +100,7 @@ public class TomcatContextsTest {
     File dir = temp.newFolder();
     dir.delete();
 
-    new TomcatContexts().addStaticDir(tomcat, "/deploy", dir);
+    underTest.addStaticDir(tomcat, "/deploy", dir);
 
     assertThat(dir).isDirectory().exists();
     verify(tomcat).addWebapp("/deploy", dir.getAbsolutePath());
@@ -109,7 +111,7 @@ public class TomcatContextsTest {
     File dir = temp.newFolder();
     FileUtils.touch(new File(dir, "foo.txt"));
 
-    new TomcatContexts().addStaticDir(tomcat, "/deploy", dir);
+    underTest.addStaticDir(tomcat, "/deploy", dir);
 
     assertThat(dir).isDirectory().exists();
     assertThat(dir.listFiles()).isEmpty();
@@ -125,6 +127,34 @@ public class TomcatContextsTest {
     doThrow(new IOException()).when(fs).createOrCleanupDir(any(File.class));
 
     new TomcatContexts(fs).addStaticDir(tomcat, "/deploy", dir);
+  }
 
+  @Test
+  public void context_path() {
+    props.setProperty("sonar.web.context", "/foo");
+
+    assertThat(TomcatContexts.getContextPath(new Props(props))).isEqualTo("/foo");
+  }
+
+  @Test
+  public void context_path_must_start_with_slash() {
+    props.setProperty("sonar.web.context", "foo");
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Value of 'sonar.web.context' must start with a forward slash: 'foo'");
+    underTest.configure(tomcat, new Props(props));
+  }
+
+  @Test
+  public void root_context_path_must_be_blank() {
+    props.setProperty("sonar.web.context", "/");
+
+    assertThat(TomcatContexts.getContextPath(new Props(props))).isEqualTo("");
+  }
+
+  @Test
+  public void default_context_path_is_root() {
+    String context = TomcatContexts.getContextPath(new Props(new Properties()));
+    assertThat(context).isEqualTo("");
   }
 }

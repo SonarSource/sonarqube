@@ -47,6 +47,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
+import static org.sonar.server.app.TomcatContexts.PROPERTY_CONTEXT;
 
 public final class ServerImpl extends Server implements Startable {
   private static final String PROPERTY_SONAR_CORE_STARTED_AT = "sonar.core.startedAt";
@@ -62,6 +63,7 @@ public final class ServerImpl extends Server implements Startable {
   private String implementationBuild;
   private File sonarHome;
   private File deployDir;
+  private String contextPath;
 
   public ServerImpl(Settings settings) {
     this(settings, "/build.properties", "/sq-version.txt");
@@ -84,13 +86,16 @@ public final class ServerImpl extends Server implements Startable {
 
       version = readVersion(versionPath);
       implementationBuild = read(buildProperties).getProperty("Implementation-Build");
-
       sonarHome = new File(settings.getString(ProcessProperties.PATH_HOME));
       if (!sonarHome.isDirectory()) {
         throw new IllegalStateException("SonarQube home directory is not valid");
       }
 
       deployDir = new File(settings.getString(ProcessProperties.PATH_DATA), TomcatContexts.WEB_DEPLOY_PATH_RELATIVE_TO_DATA_DIR);
+
+      contextPath = StringUtils.defaultIfBlank(settings.getString(PROPERTY_CONTEXT), "")
+        // Remove trailing slashes
+        .replaceFirst("(\\/+)$", "");
 
       LOG.info("SonarQube {}", Joiner.on(" / ").skipNulls().join("Server", version, implementationBuild));
 
@@ -141,7 +146,7 @@ public final class ServerImpl extends Server implements Startable {
 
   @Override
   public String getContextPath() {
-    return "";
+    return contextPath;
   }
 
   @Override

@@ -200,4 +200,18 @@ public class ServerImplTest {
     underTest.start();
     assertThat(underTest.isSecured()).isFalse();
   }
+
+  @Test
+  public void get_context_path_from_settings() {
+    settings.setProperty("sonar.web.context", "/my_path");
+    underTest.start();
+    assertThat(underTest.getContextPath()).isEqualTo("/my_path");
+  }
+
+  @Test
+  public void sanitize_context_path_from_settings() {
+    settings.setProperty("sonar.web.context", "/my_path///");
+    underTest.start();
+    assertThat(underTest.getContextPath()).isEqualTo("/my_path");
+  }
 }

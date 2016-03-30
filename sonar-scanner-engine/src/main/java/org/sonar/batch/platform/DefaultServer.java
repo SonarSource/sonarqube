@@ -80,7 +80,7 @@ public class DefaultServer extends Server {
 
   @Override
   public String getContextPath() {
-    return "";
+    return null;
   }
 
   @Override
