@@ -89,8 +89,7 @@ public class ServerSystemTest {
   @Test
   public void display_system_info() {
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("server-administration",
-      "/serverSystem/ServerSystemTest/system_info.html"
-      ).build();
+      "/serverSystem/ServerSystemTest/system_info.html").build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
@@ -105,8 +104,9 @@ public class ServerSystemTest {
       new GetRequest("api/system/info"));
 
     assertThat(response.code()).isEqualTo(200);
-    assertThat(response.content()).contains("\"Compute Engine Database Connection\":", "\"Compute Engine State\":", "\"Compute Engine Tasks\":");
-    assertThat(response.content()).contains("\"Elasticsearch\":", "\"State\":\"GREEN\"", "\"Elasticsearch State\"");
+    assertThat(response.content()).contains(
+      "\"Compute Engine Database Connection\":", "\"Compute Engine State\":", "\"Compute Engine Tasks\":",
+      "\"Elasticsearch\":", "\"State\":\"GREEN\"", "\"Elasticsearch State\"");
   }
 
   private static void waitForComputeEngineToBeUp(Orchestrator orchestrator) throws IOException {
