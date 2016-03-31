@@ -34,8 +34,7 @@ import static com.google.common.collect.Sets.newHashSet;
 /**
  * Part of the current HTTP session
  */
-public class ServerUserSession extends AbstractUserSession<ServerUserSession>
-  implements UserSession {
+public class ServerUserSession extends AbstractUserSession<ServerUserSession> {
 
   private Map<String, String> projectKeyByComponentKey = newHashMap();
 

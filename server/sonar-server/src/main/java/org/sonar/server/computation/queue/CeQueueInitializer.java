@@ -19,10 +19,9 @@
  */
 package org.sonar.server.computation.queue;
 
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.platform.Server;
 import org.sonar.api.platform.ServerStartHandler;
-import org.sonar.api.ce.ComputeEngineSide;
-import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.computation.taskprocessor.CeProcessingScheduler;

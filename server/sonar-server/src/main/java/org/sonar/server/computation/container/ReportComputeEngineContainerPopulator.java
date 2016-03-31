@@ -95,12 +95,14 @@ import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
 import org.sonar.server.view.index.ViewIndex;
 
 public final class ReportComputeEngineContainerPopulator implements ContainerPopulator<ComputeEngineContainer> {
+  private static final ReportAnalysisComponentProvider[] NO_REPORT_ANALYSIS_COMPONENT_PROVIDERS = new ReportAnalysisComponentProvider[0];
+
   private final CeTask task;
   private final ReportAnalysisComponentProvider[] componentProviders;
 
   public ReportComputeEngineContainerPopulator(CeTask task, @Nullable ReportAnalysisComponentProvider[] componentProviders) {
     this.task = task;
-    this.componentProviders = componentProviders == null ? new ReportAnalysisComponentProvider[0] : componentProviders;
+    this.componentProviders = componentProviders == null ? NO_REPORT_ANALYSIS_COMPONENT_PROVIDERS : componentProviders;
   }
 
   @Override
