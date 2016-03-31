@@ -98,7 +98,7 @@ public class QProfileExportersTest {
     assertThat(exporters.mimeType("xootool")).isEqualTo("plain/custom");
 
     // default mime type
-    assertThat(exporters.mimeType("standard")).isEqualTo("plain/text");
+    assertThat(exporters.mimeType("standard")).isEqualTo("text/plain");
   }
 
   @Test
