@@ -24,6 +24,7 @@ import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.EmailSettings;
 import org.sonar.api.internal.SonarQubeVersionFactory;
+import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -427,7 +428,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // InternalRubyIssueService.class, indirectly used only in Web Services
     // IssueChangelogService.class, indirectly used only in Web Services
     // ActionService.class, indirectly used only in Web Services
-    // Actions.class, long time deprecated and does not make sense to use it in any Component loaded in the CE
+    Actions.class,
     // IssueBulkChangeService.class, indirectly used only in Web Services
     // WsResponseCommonFormat.class, indirectly used only in Web Services
     // IssueWsModule.class, no Web Service in CE
