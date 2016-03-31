@@ -24,10 +24,7 @@ import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ws.RailsHandler;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.ws.WsAction;
 
 public class IssuesWs implements WebService {
 
@@ -39,7 +36,6 @@ public class IssuesWs implements WebService {
   public static final String EDIT_COMMENT_ACTION = "edit_comment";
   public static final String TRANSITIONS_ACTION = "transitions";
   public static final String BULK_CHANGE_ACTION = "bulk_change";
-  public static final String DO_ACTION_ACTION = "do_action";
 
   private final IssuesWsAction[] actions;
 
@@ -66,7 +62,6 @@ public class IssuesWs implements WebService {
     defineEditCommentAction(controller);
     defineTransitionsAction(controller);
     defineBulkChangeAction(controller);
-    defineDoActionAction(controller);
   }
 
   private static void defineChangelogAction(NewController controller) {
@@ -187,36 +182,6 @@ public class IssuesWs implements WebService {
       .setDefaultValue("false")
       .setPossibleValues("true", "false");
     RailsHandler.addFormatParam(action);
-  }
-
-  private static void defineDoActionAction(NewController controller) {
-    new DoAction().define(controller);
-  }
-
-  private static class DoAction implements WsAction {
-    @Override
-    public void define(NewController context) {
-      WebService.NewAction action = context.createAction(DO_ACTION_ACTION)
-        .setDescription("Deprecated web service to do custom workflow transition on an issue. Custom issue are dropped in 5.5. This web service has no effect.")
-        .setSince("3.6")
-        .setDeprecatedSince("5.5")
-        .setHandler(this)
-        .setPost(true);
-
-      action.createParam("issue")
-        .setDescription("Key of the issue")
-        .setRequired(true)
-        .setExampleValue("5bccd6e8-f525-43a2-8d76-fcb13dde79ef");
-      action.createParam("actionKey")
-        .setDescription("Action to perform")
-        .setExampleValue("link-to-jira");
-      RailsHandler.addFormatParam(action);
-    }
-
-    @Override
-    public void handle(Request request, Response response) throws Exception {
-      response.noContent();
-    }
   }
 
 }
