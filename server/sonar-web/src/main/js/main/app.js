@@ -28,6 +28,11 @@ import numeral from 'numeral';
 import './processes';
 import Navigation from './nav/app';
 import { installGlobal, requestMessages } from '../helpers/l10n';
+import React from 'react';
+import ReactDOM from 'react-dom';
+import d3 from 'd3';
+import * as measures from '../helpers/measures';
+import * as request from '../helpers/request';
 
 // set the Backbone's $
 Backbone.$ = $;
@@ -91,6 +96,16 @@ window.require = module => {
       return moment;
     case 'numeral':
       return numeral;
+    case 'react':
+      return React;
+    case 'react-dom':
+      return ReactDOM;
+    case 'd3':
+      return d3;
+    case 'sonar-measures':
+      return measures;
+    case 'sonar-request':
+      return request;
     default:
       return null;
   }
