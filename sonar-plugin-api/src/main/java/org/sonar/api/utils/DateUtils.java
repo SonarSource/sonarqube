@@ -175,7 +175,7 @@ public final class DateUtils {
     }
 
     private DateFormat getDateFormat() {
-      return (DateFormat) ((Reference) cache.get()).get();
+      return cache.get().get();
     }
 
     @Override
