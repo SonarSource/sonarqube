@@ -304,15 +304,27 @@ export default React.createClass({
   },
 
   renderTools() {
-    const component = this.props.component;
-    if (!component.isComparable && !_.size(component.extensions)) {
+    const extensions = this.props.component.extensions || [];
+    const withoutGovernance = extensions.filter(ext => ext.name !== 'Governance');
+    const tools = withoutGovernance.map(extension => {
+      return this.renderLink(extension.url, extension.name);
+    });
+
+    if (!tools.length) {
       return null;
     }
-    const tools = [];
-    (component.extensions || []).forEach(e => {
-      tools.push(this.renderLink(e.url, e.name));
-    });
-    return tools;
+
+    return (
+        <li className="dropdown">
+          <a className="dropdown-toggle" data-toggle="dropdown" href="#">
+            {translate('sidebar.tools')}&nbsp;
+            <i className="icon-dropdown"/>
+          </a>
+          <ul className="dropdown-menu">
+            {tools}
+          </ul>
+        </li>
+    );
   },
 
   render() {
