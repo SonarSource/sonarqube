@@ -43,18 +43,23 @@ public class DiskCache<O extends Serializable> {
     this.system2 = system2;
     this.file = file;
     OutputStream output = null;
+    boolean threw = true;
     try {
       // writes the serialization stream header required when calling "traverse()"
       // on empty stream. Moreover it allows to call multiple times "newAppender()"
       output = new ObjectOutputStream(new FileOutputStream(file));
       output.flush();
-
-      // raise an exception if can't close
-      system2.close(output);
+      threw = false;
     } catch (IOException e) {
-      // do not hide cause exception -> close quietly
-      IOUtils.closeQuietly(output);
       throw new IllegalStateException("Fail to write into file: " + file, e);
+    } finally {
+      if (threw) {
+        // do not hide initial exception
+        IOUtils.closeQuietly(output);
+      } else {
+        // raise an exception if can't close
+        system2.close(output);
+      }
     }
   }
 
