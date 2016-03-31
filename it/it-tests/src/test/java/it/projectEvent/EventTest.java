@@ -27,6 +27,7 @@ import it.Category4Suite;
 import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.services.Event;
@@ -51,6 +52,7 @@ public class EventTest {
   }
 
   @Test
+  @Ignore("Too many false-positives")
   public void configuration_of_event() {
     executeAnalysis();
 
