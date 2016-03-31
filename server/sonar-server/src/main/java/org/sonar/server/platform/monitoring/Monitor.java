@@ -19,9 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Optional;
 import java.util.Map;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.server.platform.ws.InfoAction;
 
@@ -29,7 +27,6 @@ import org.sonar.server.platform.ws.InfoAction;
  * Any component that is involved in the information returned by the web service api/system/info
  */
 @ServerSide
-@ComputeEngineSide
 public interface Monitor {
   /**
    * Name of section in System Info page
@@ -39,9 +36,6 @@ public interface Monitor {
   /**
    * Type of attribute values must be supported by {@link org.sonar.api.utils.text.JsonWriter#valueObject(Object)}
    * because of JSON export by {@link InfoAction}.
-   *
-   * @return map of attributes, or Optional.absent() if the monitored component is not up. In the latter case
-   * nothing is returned in the web service api/system/info.
    */
-  Optional<Map<String, Object>> attributes();
+  Map<String, Object> attributes();
 }

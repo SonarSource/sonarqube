@@ -49,7 +49,7 @@ public class DatabaseMonitorTest {
 
   @Test
   public void db_info() {
-    Map<String, Object> attributes = underTest.attributes().get();
+    Map<String, Object> attributes = underTest.attributes();
     assertThat(attributes.get("Database")).isEqualTo("H2");
     assertThat(attributes.get("Database Version").toString()).startsWith("1.");
     assertThat(attributes.get("Username")).isEqualTo("SONAR");
@@ -58,7 +58,7 @@ public class DatabaseMonitorTest {
 
   @Test
   public void pool_info() {
-    Map<String, Object> attributes = underTest.attributes().get();
+    Map<String, Object> attributes = underTest.attributes();
     assertThat((int) attributes.get("Pool Max Connections")).isGreaterThan(0);
   }
 }

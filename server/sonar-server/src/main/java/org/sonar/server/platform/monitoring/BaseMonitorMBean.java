@@ -20,7 +20,7 @@
 package org.sonar.server.platform.monitoring;
 
 import org.picocontainer.Startable;
-import org.sonar.process.jmx.Jmx;
+import org.sonar.process.Jmx;
 
 /**
  * Base implementation of a {@link org.sonar.server.platform.monitoring.Monitor}

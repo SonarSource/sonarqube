@@ -26,7 +26,7 @@ import javax.management.ObjectInstance;
 import javax.management.ObjectName;
 import org.junit.Test;
 import org.sonar.ce.monitoring.CEQueueStatus;
-import org.sonar.process.jmx.CeTasksMBean;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.computation.configuration.CeConfiguration;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +64,13 @@ public class CeTasksMBeanImplTest {
   @Test
   public void getWorkerCount_delegates_to_the_CEConfiguration_instance() {
     assertThat(underTest.getWorkerCount()).isEqualTo(WORKER_COUNT);
+  }
+
+  @Test
+  public void export_system_info() {
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
+    assertThat(section.getName()).isEqualTo("Compute Engine Tasks");
+    assertThat(section.getAttributesCount()).isEqualTo(6);
   }
 
   /**

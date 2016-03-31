@@ -69,11 +69,11 @@ public class AllProcessesCommands implements AutoCloseable {
   private static final int RESTART_BYTE_OFFSET = 2;
   private static final int OPERATIONAL_BYTE_OFFSET = 3;
   private static final int PING_BYTE_OFFSET = 4;
-  private static final int JMX_URL_BYTE_OFFSET = PING_BYTE_OFFSET + 8;
+  private static final int SYSTEM_INFO_URL_BYTE_OFFSET = PING_BYTE_OFFSET + 8;
 
-  private static final int JMX_URL_SIZE_IN_BYTES = 500;
+  private static final int SYSTEM_INFO_URL_SIZE_IN_BYTES = 500;
 
-  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 1 + 8 + JMX_URL_SIZE_IN_BYTES;
+  private static final int BYTE_LENGTH_FOR_ONE_PROCESS = 1 + 1 + 1 + 1 + 8 + SYSTEM_INFO_URL_SIZE_IN_BYTES;
 
   // With this shared memory we can handle up to MAX_PROCESSES processes
   private static final int MAX_SHARED_MEMORY = BYTE_LENGTH_FOR_ONE_PROCESS * MAX_PROCESSES;
@@ -148,17 +148,17 @@ public class AllProcessesCommands implements AutoCloseable {
     return readLong(processNumber, PING_BYTE_OFFSET);
   }
 
-  String getJmxUrl(int processNumber) {
-    byte[] urlBytes = readBytes(processNumber, JMX_URL_BYTE_OFFSET, JMX_URL_SIZE_IN_BYTES);
+  String getSystemInfoUrl(int processNumber) {
+    byte[] urlBytes = readBytes(processNumber, SYSTEM_INFO_URL_BYTE_OFFSET, SYSTEM_INFO_URL_SIZE_IN_BYTES);
     return new String(urlBytes, StandardCharsets.US_ASCII).trim();
   }
 
-  void setJmxUrl(int processNumber, String jmxUrl) {
-    byte[] urlBytes = rightPad(jmxUrl, JMX_URL_SIZE_IN_BYTES).getBytes(StandardCharsets.US_ASCII);
-    if (urlBytes.length > JMX_URL_SIZE_IN_BYTES) {
-      throw new IllegalArgumentException(format("JMX URL is too long. Max is %d bytes. Got: %s", JMX_URL_SIZE_IN_BYTES, jmxUrl));
+  void setSystemInfoUrl(int processNumber, String url) {
+    byte[] urlBytes = rightPad(url, SYSTEM_INFO_URL_SIZE_IN_BYTES).getBytes(StandardCharsets.US_ASCII);
+    if (urlBytes.length > SYSTEM_INFO_URL_SIZE_IN_BYTES) {
+      throw new IllegalArgumentException(format("System Info URL is too long. Max is %d bytes. Got: %s", SYSTEM_INFO_URL_SIZE_IN_BYTES, url));
     }
-    writeBytes(processNumber, JMX_URL_BYTE_OFFSET, urlBytes);
+    writeBytes(processNumber, SYSTEM_INFO_URL_BYTE_OFFSET, urlBytes);
   }
 
   /**
@@ -277,13 +277,13 @@ public class AllProcessesCommands implements AutoCloseable {
     }
 
     @Override
-    public void setJmxUrl(String s) {
-      AllProcessesCommands.this.setJmxUrl(processNumber, s);
+    public void setSystemInfoUrl(String s) {
+      AllProcessesCommands.this.setSystemInfoUrl(processNumber, s);
     }
 
     @Override
-    public String getJmxUrl() {
-      return AllProcessesCommands.this.getJmxUrl(processNumber);
+    public String getSystemInfoUrl() {
+      return AllProcessesCommands.this.getSystemInfoUrl(processNumber);
     }
 
     @Override

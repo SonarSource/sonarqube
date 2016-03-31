@@ -17,7 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-@ParametersAreNonnullByDefault
-package org.sonar.process.jmx;
+package org.sonar.search;
 
-import javax.annotation.ParametersAreNonnullByDefault;
+/**
+ * MBean registered in the Elasticsearch process
+ */
+public interface EsSettingsMBean {
+
+  String OBJECT_NAME = "SonarQube:name=ElasticsearchSettings";
+
+  /**
+   * @return the enabled HTTP port, -1 if disabled
+   */
+  int getHttpPort();
+
+  String getClusterName();
+
+  String getNodeName();
+
+}

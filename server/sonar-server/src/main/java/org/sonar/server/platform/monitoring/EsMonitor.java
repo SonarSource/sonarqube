@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Optional;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
@@ -30,21 +29,15 @@ import org.elasticsearch.action.admin.indices.stats.IndexStats;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.cluster.node.DiscoveryNode;
 import org.elasticsearch.common.breaker.CircuitBreaker;
-import org.sonar.process.ProcessId;
-import org.sonar.process.jmx.EsSettingsMBean;
-import org.sonar.process.jmx.JmxConnection;
-import org.sonar.process.jmx.JmxConnectionFactory;
 import org.sonar.server.es.EsClient;
 
 import static org.apache.commons.io.FileUtils.byteCountToDisplaySize;
 
 public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
 
-  private final JmxConnectionFactory jmxConnectionFactory;
   private final EsClient esClient;
 
-  public EsMonitor(JmxConnectionFactory jmxConnectionFactory, EsClient esClient) {
-    this.jmxConnectionFactory = jmxConnectionFactory;
+  public EsMonitor(EsClient esClient) {
     this.esClient = esClient;
   }
 
@@ -72,22 +65,13 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
   }
 
   @Override
-  public Optional<Map<String, Object>> attributes() {
+  public Map<String, Object> attributes() {
     Map<String, Object> attributes = new LinkedHashMap<>();
-
-    try (JmxConnection connection = jmxConnectionFactory.create(ProcessId.ELASTICSEARCH)) {
-      if (connection != null) {
-        EsSettingsMBean mbean = connection.getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class);
-        attributes.put("Cluster Name", mbean.getClusterName());
-        attributes.put("Node Name", mbean.getNodeName());
-        attributes.put("HTTP Port", mbean.getHttpPort());
-      }
-    }
     attributes.put("State", getStateAsEnum());
     attributes.put("Indices", indexAttributes());
     attributes.put("Number of Nodes", getNumberOfNodes());
     attributes.put("Nodes", nodeAttributes());
-    return Optional.of(attributes);
+    return attributes;
   }
 
   private LinkedHashMap<String, LinkedHashMap<String, Object>> indexAttributes() {

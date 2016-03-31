@@ -52,7 +52,7 @@ public class PluginsMonitorTest {
       new PluginInfo("no-version")
         .setName("No Version")));
 
-    Map<String, Object> attributes = underTest.attributes().get();
+    Map<String, Object> attributes = underTest.attributes();
 
     assertThat(attributes).containsKeys("key-1", "key-2");
     assertThat((Map) attributes.get("key-1"))

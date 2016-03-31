@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.jmx;
+package org.sonar.process;
 
 import java.lang.management.ManagementFactory;
 import javax.annotation.CheckForNull;
@@ -27,6 +27,8 @@ import javax.management.ObjectName;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.process.jmx.Fake;
+import org.sonar.process.jmx.FakeMBean;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -62,6 +64,14 @@ public class JmxTest {
     expectedException.expectMessage("Can not find the MBean interface of class java.lang.String");
 
     Jmx.register(FAKE_NAME, "not a mbean");
+  }
+
+  @Test
+  public void register_fails_if_name_is_not_valid() {
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can not register MBean [/]");
+
+    Jmx.register("/", new Fake());
   }
 
   @Test

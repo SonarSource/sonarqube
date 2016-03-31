@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.Map;
 
@@ -36,7 +35,7 @@ public class FakeMonitor extends BaseMonitorMBean implements FakeMonitorMBean {
   }
 
   @Override
-  public Optional<Map<String, Object>> attributes() {
-    return Optional.of(Collections.<String, Object>emptyMap());
+  public Map<String, Object> attributes() {
+    return Collections.emptyMap();
   }
 }

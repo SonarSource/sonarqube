@@ -29,11 +29,22 @@
       <groupId>commons-lang</groupId>
       <artifactId>commons-lang</artifactId>
     </dependency>
-
     <dependency>
       <groupId>com.google.code.findbugs</groupId>
       <artifactId>jsr305</artifactId>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <!-- only if org.sonar.process.systeminfo HTTP server is being used -->
+      <groupId>org.nanohttpd</groupId>
+      <artifactId>nanohttpd</artifactId>
+      <optional>true</optional>
+    </dependency>
+    <dependency>
+      <!-- only if org.sonar.process.systeminfo.protobuf classes are used -->
+      <groupId>com.google.protobuf</groupId>
+      <artifactId>protobuf-java</artifactId>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
@@ -54,6 +65,11 @@
     <dependency>
       <groupId>org.eclipse.jetty</groupId>
       <artifactId>jetty-server</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.okhttp</groupId>
+      <artifactId>okhttp</artifactId>
       <scope>test</scope>
     </dependency>
   </dependencies>

@@ -83,13 +83,13 @@ public class DefaultProcessCommands implements ProcessCommands {
   }
 
   @Override
-  public void setJmxUrl(String s) {
-    delegate.setJmxUrl(s);
+  public void setSystemInfoUrl(String s) {
+    delegate.setSystemInfoUrl(s);
   }
 
   @Override
-  public String getJmxUrl() {
-    return delegate.getJmxUrl();
+  public String getSystemInfoUrl() {
+    return delegate.getSystemInfoUrl();
   }
 
   @Override

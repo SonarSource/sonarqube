@@ -17,27 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.process.jmx;
+@ParametersAreNonnullByDefault
+package org.sonar.process.systeminfo;
 
-public interface CeDatabaseMBean {
-
-  String OBJECT_NAME = "SonarQube:name=ComputeEngineDatabase";
-
-  int getPoolActiveConnections();
-
-  int getPoolMaxActiveConnections();
-
-  int getPoolIdleConnections();
-
-  int getPoolMaxIdleConnections();
-
-  int getPoolMinIdleConnections();
-
-  int getPoolInitialSize();
-
-  long getPoolMaxWaitMillis();
-
-  boolean getPoolRemoveAbandoned();
-
-  int getPoolRemoveAbandonedTimeoutSeconds();
-}
+import javax.annotation.ParametersAreNonnullByDefault;

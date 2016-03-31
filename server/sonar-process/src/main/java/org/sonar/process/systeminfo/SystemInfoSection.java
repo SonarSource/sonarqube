@@ -17,26 +17,12 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
+package org.sonar.process.systeminfo;
 
-import java.util.Map;
-import org.junit.Test;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public interface SystemInfoSection {
 
-public class JvmPropsMonitorTest {
+  ProtobufSystemInfo.Section toProtobuf();
 
-  JvmPropsMonitor underTest = new JvmPropsMonitor();
-
-  @Test
-  public void name_is_not_empty() {
-    assertThat(underTest.name()).isNotEmpty();
-  }
-
-  @Test
-  public void attributes() {
-    Map<String, Object> attributes = underTest.attributes();
-
-    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
-  }
 }
