@@ -28,7 +28,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.SonarPlugin;
-import org.sonar.api.issue.action.Actions;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.api.utils.MessageException;
@@ -106,18 +105,6 @@ public class TasksMediumTest {
       .start();
   }
 
-  private void startServer(Integer responseStatus, String responseData) throws Exception {
-    server = new MockHttpServer();
-    server.start();
-
-    if (responseStatus != null) {
-      server.setMockResponseStatus(responseStatus);
-    }
-    if (responseData != null) {
-      server.setMockResponseData(responseData);
-    }
-  }
-
   private static class FakeTaskPlugin extends SonarPlugin {
 
     @Override
@@ -142,17 +129,10 @@ public class TasksMediumTest {
   private static class BrokenTask implements Task {
 
     public static final TaskDefinition DEF = TaskDefinition.builder().key("broken").description("Broken description").taskClass(BrokenTask.class).build();
-    private final Actions serverSideComponent;
-
-    public BrokenTask(Actions serverSideComponent) {
-      this.serverSideComponent = serverSideComponent;
-    }
 
     @Override
     public void execute() {
-      System.out.println(serverSideComponent.list());
-      ;
-
+      // do nothing
     }
 
   }

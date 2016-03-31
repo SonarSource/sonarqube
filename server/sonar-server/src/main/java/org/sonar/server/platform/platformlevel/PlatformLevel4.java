@@ -21,7 +21,6 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.List;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.issue.action.Actions;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -556,7 +555,6 @@ public class PlatformLevel4 extends PlatformLevel {
       InternalRubyIssueService.class,
       IssueChangelogService.class,
       ActionService.class,
-      Actions.class,
       IssueBulkChangeService.class,
       WsResponseCommonFormat.class,
       IssueWsModule.class,
