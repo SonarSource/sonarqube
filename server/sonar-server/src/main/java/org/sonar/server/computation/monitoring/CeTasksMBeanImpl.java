@@ -21,11 +21,12 @@ package org.sonar.server.computation.monitoring;
 
 import org.picocontainer.Startable;
 import org.sonar.ce.monitoring.CEQueueStatus;
-import org.sonar.process.jmx.CeTasksMBean;
-import org.sonar.process.jmx.Jmx;
+import org.sonar.process.Jmx;
+import org.sonar.process.systeminfo.SystemInfoSectionProvider;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.computation.configuration.CeConfiguration;
 
-public class CeTasksMBeanImpl implements CeTasksMBean, Startable {
+public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSectionProvider {
   private final CEQueueStatus queueStatus;
   private final CeConfiguration ceConfiguration;
 
@@ -75,5 +76,18 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable {
   @Override
   public int getWorkerCount() {
     return ceConfiguration.getWorkerCount();
+  }
+
+  @Override
+  public ProtobufSystemInfo.Section toSystemInfoSection() {
+    ProtobufSystemInfo.Section.Builder builder = ProtobufSystemInfo.Section.newBuilder();
+    builder.setName("Compute Engine Tasks");
+    builder.addAttributesBuilder().setKey("Pending").setLongValue(getPendingCount()).build();
+    builder.addAttributesBuilder().setKey("In Progress").setLongValue(getInProgressCount()).build();
+    builder.addAttributesBuilder().setKey("Processed With Error").setLongValue(getErrorCount()).build();
+    builder.addAttributesBuilder().setKey("Processed With Success").setLongValue(getSuccessCount()).build();
+    builder.addAttributesBuilder().setKey("Processing Time (ms)").setLongValue(getProcessingTime()).build();
+    builder.addAttributesBuilder().setKey("Worker Count").setLongValue(getWorkerCount()).build();
+    return builder.build();
   }
 }

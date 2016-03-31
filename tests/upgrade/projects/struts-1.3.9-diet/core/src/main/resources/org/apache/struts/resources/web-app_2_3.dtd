@@ -918,7 +918,7 @@ Used in: user-data-constraint
 
 <!--
 The url-pattern element contains the url pattern of the mapping. Must
-follow the rules specified in Section 11.2 of the Servlet API
+follow the rules specified in SystemInfoSection 11.2 of the Servlet API
 Specification.
 
 Used in: filter-mapping, servlet-mapping, web-resource-collection

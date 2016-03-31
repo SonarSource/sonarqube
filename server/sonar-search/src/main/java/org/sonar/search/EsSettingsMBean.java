@@ -17,34 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.monitoring;
-
-import org.picocontainer.Startable;
-import org.sonar.process.Jmx;
+package org.sonar.search;
 
 /**
- * Base implementation of a {@link org.sonar.server.platform.monitoring.Monitor}
- * that is exported as a JMX bean
+ * MBean registered in the Elasticsearch process
  */
-public abstract class BaseMonitorMBean implements Monitor, Startable {
+public interface EsSettingsMBean {
+
+  String OBJECT_NAME = "SonarQube:name=ElasticsearchSettings";
 
   /**
-   * Auto-registers to MBean server
+   * @return the enabled HTTP port, -1 if disabled
    */
-  @Override
-  public void start() {
-    Jmx.register(objectName(), this);
-  }
+  int getHttpPort();
 
-  /**
-   * Unregister, if needed
-   */
-  @Override
-  public void stop() {
-    Jmx.unregister(objectName());
-  }
+  String getClusterName();
 
-  String objectName() {
-    return "SonarQube:name=" + name();
-  }
+  String getNodeName();
+
 }

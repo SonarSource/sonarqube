@@ -22,12 +22,11 @@ package org.sonar.search;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.internal.InternalNode;
+import org.sonar.process.Jmx;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
 import org.sonar.process.ProcessEntryPoint;
 import org.sonar.process.Props;
-import org.sonar.process.jmx.EsSettingsMBean;
-import org.sonar.process.jmx.Jmx;
 
 public class SearchServer implements Monitored {
 

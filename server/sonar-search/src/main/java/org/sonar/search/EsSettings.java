@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-import org.sonar.process.jmx.EsSettingsMBean;
 
 public class EsSettings implements EsSettingsMBean {
 

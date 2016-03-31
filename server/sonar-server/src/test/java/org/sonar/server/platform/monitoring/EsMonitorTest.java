@@ -21,35 +21,21 @@ package org.sonar.server.platform.monitoring;
 
 import java.util.Map;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
-import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
-import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
-import org.sonar.process.ProcessId;
-import org.sonar.process.jmx.EsSettingsMBean;
-import org.sonar.process.jmx.JmxConnectionFactory;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.NewIndex;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class EsMonitorTest {
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
 
-  JmxConnectionFactory jmxConnectionFactory = mock(JmxConnectionFactory.class, Mockito.RETURNS_DEEP_STUBS);
-  EsSettingsMBean settingsMBean = mock(EsSettingsMBean.class);
-  EsMonitor underTest = new EsMonitor(jmxConnectionFactory, esTester.client());
-
-  @Before
-  public void setUp() throws Exception {
-    when(jmxConnectionFactory.create(ProcessId.ELASTICSEARCH).getMBean(EsSettingsMBean.OBJECT_NAME, EsSettingsMBean.class)).thenReturn(settingsMBean);
-  }
+  EsMonitor underTest = new EsMonitor(esTester.client());
 
   @Test
   public void name() {

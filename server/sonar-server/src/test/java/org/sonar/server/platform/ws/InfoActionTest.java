@@ -24,12 +24,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.Mockito;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.monitoring.Monitor;
+import org.sonar.server.platform.monitoring.ProcessSystemInfoClient;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -45,7 +47,8 @@ public class InfoActionTest {
   Monitor monitor1 = mock(Monitor.class);
   Monitor monitor2 = mock(Monitor.class);
   Monitor monitor3 = mock(Monitor.class);
-  InfoAction underTest = new InfoAction(userSessionRule, monitor1, monitor2, monitor3);
+  ProcessSystemInfoClient processSystemInfoClient = mock(ProcessSystemInfoClient.class, Mockito.RETURNS_MOCKS);
+  InfoAction underTest = new InfoAction(userSessionRule, processSystemInfoClient, monitor1, monitor2, monitor3);
 
   @Test(expected = ForbiddenException.class)
   public void should_fail_when_does_not_have_admin_right() {

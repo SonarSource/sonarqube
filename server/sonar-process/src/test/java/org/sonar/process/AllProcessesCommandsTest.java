@@ -105,9 +105,9 @@ public class AllProcessesCommandsTest {
       assertThat(readByte(commands, offset + i)).isEqualTo(EMPTY);
     }
 
-    commands.setJmxUrl(PROCESS_NUMBER, "jmx:foo");
+    commands.setSystemInfoUrl(PROCESS_NUMBER, "jmx:foo");
     assertThat(readByte(commands, offset)).isNotEqualTo(EMPTY);
-    assertThat(commands.getJmxUrl(PROCESS_NUMBER)).isEqualTo("jmx:foo");
+    assertThat(commands.getSystemInfoUrl(PROCESS_NUMBER)).isEqualTo("jmx:foo");
   }
 
   @Test

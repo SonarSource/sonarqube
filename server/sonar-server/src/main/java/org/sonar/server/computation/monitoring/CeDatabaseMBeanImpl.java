@@ -22,10 +22,11 @@ package org.sonar.server.computation.monitoring;
 import org.apache.commons.dbcp.BasicDataSource;
 import org.picocontainer.Startable;
 import org.sonar.db.DbClient;
-import org.sonar.process.jmx.CeDatabaseMBean;
-import org.sonar.process.jmx.Jmx;
+import org.sonar.process.Jmx;
+import org.sonar.process.systeminfo.SystemInfoSectionProvider;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable {
+public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable, SystemInfoSectionProvider {
   private final DbClient dbClient;
 
   public CeDatabaseMBeanImpl(DbClient dbClient) {
@@ -94,4 +95,19 @@ public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable {
     return (BasicDataSource) dbClient.getDatabase().getDataSource();
   }
 
+  @Override
+  public ProtobufSystemInfo.Section toSystemInfoSection() {
+    ProtobufSystemInfo.Section.Builder builder = ProtobufSystemInfo.Section.newBuilder();
+    builder.setName("Compute Engine Database Connection");
+    builder.addAttributesBuilder().setKey("Pool Initial Size").setLongValue(getPoolInitialSize()).build();
+    builder.addAttributesBuilder().setKey("Pool Active Connections").setLongValue(getPoolActiveConnections()).build();
+    builder.addAttributesBuilder().setKey("Pool Idle Connections").setLongValue(getPoolIdleConnections()).build();
+    builder.addAttributesBuilder().setKey("Pool Max Active Connections").setLongValue(getPoolMaxActiveConnections()).build();
+    builder.addAttributesBuilder().setKey("Pool Max Idle Connections").setLongValue(getPoolMaxIdleConnections()).build();
+    builder.addAttributesBuilder().setKey("Pool Min Idle Connections").setLongValue(getPoolMinIdleConnections()).build();
+    builder.addAttributesBuilder().setKey("Pool Max Wait (ms)").setLongValue(getPoolMaxWaitMillis()).build();
+    builder.addAttributesBuilder().setKey("Pool Remove Abandoned").setBooleanValue(getPoolRemoveAbandoned()).build();
+    builder.addAttributesBuilder().setKey("Pool Remove Abandoned Timeout (sec)").setLongValue(getPoolRemoveAbandonedTimeoutSeconds()).build();
+    return builder.build();
+  }
 }

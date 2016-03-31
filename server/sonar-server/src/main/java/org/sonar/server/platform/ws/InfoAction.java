@@ -26,7 +26,10 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.permission.GlobalPermissions;
+import org.sonar.process.ProcessId;
+import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.platform.monitoring.Monitor;
+import org.sonar.server.platform.monitoring.ProcessSystemInfoClient;
 import org.sonar.server.user.UserSession;
 
 /**
@@ -34,11 +37,13 @@ import org.sonar.server.user.UserSession;
  */
 public class InfoAction implements SystemWsAction {
 
-  private final Monitor[] monitors;
   private final UserSession userSession;
+  private final ProcessSystemInfoClient processSystemInfoClient;
+  private final Monitor[] monitors;
 
-  public InfoAction(UserSession userSession, Monitor... monitors) {
+  public InfoAction(UserSession userSession, ProcessSystemInfoClient processSystemInfoClient, Monitor... monitors) {
     this.userSession = userSession;
+    this.processSystemInfoClient = processSystemInfoClient;
     this.monitors = monitors;
   }
 
@@ -70,6 +75,34 @@ public class InfoAction implements SystemWsAction {
         json.beginObject();
         for (Map.Entry<String, Object> attribute : attributes.get().entrySet()) {
           json.name(attribute.getKey()).valueObject(attribute.getValue());
+        }
+        json.endObject();
+      }
+    }
+    Optional<ProtobufSystemInfo.SystemInfo> ceSysInfo = processSystemInfoClient.connect(ProcessId.COMPUTE_ENGINE);
+    if (ceSysInfo.isPresent()) {
+      for (ProtobufSystemInfo.Section section : ceSysInfo.get().getSectionsList()) {
+        json.name(section.getName());
+        json.beginObject();
+        for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
+          switch (attribute.getValueCase()) {
+            case BOOLEAN_VALUE:
+              json.name(attribute.getKey()).valueObject(attribute.getBooleanValue());
+              break;
+            case LONG_VALUE:
+              json.name(attribute.getKey()).valueObject(attribute.getLongValue());
+              break;
+            case DOUBLE_VALUE:
+              json.name(attribute.getKey()).valueObject(attribute.getDoubleValue());
+              break;
+            case STRING_VALUE:
+              json.name(attribute.getKey()).valueObject(attribute.getStringValue());
+              break;
+            case VALUE_NOT_SET:
+              break;
+            default:
+              throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());
+          }
         }
         json.endObject();
       }

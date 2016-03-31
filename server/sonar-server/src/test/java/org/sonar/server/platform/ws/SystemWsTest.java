@@ -24,6 +24,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.app.ProcessCommandWrapper;
 import org.sonar.server.platform.Platform;
+import org.sonar.server.platform.monitoring.ProcessSystemInfoClient;
 import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.user.UserSession;
 
@@ -32,10 +33,12 @@ import static org.mockito.Mockito.mock;
 
 public class SystemWsTest {
 
+  ProcessSystemInfoClient processSystemInfoClient = mock(ProcessSystemInfoClient.class);
+
   @Test
   public void define() {
     RestartAction action1 = new RestartAction(mock(UserSession.class), mock(Settings.class), mock(Platform.class), mock(ProcessCommandWrapper.class));
-    InfoAction action2 = new InfoAction(new AnonymousMockUserSession());
+    InfoAction action2 = new InfoAction(new AnonymousMockUserSession(), processSystemInfoClient);
     SystemWs ws = new SystemWs(action1, action2);
     WebService.Context context = new WebService.Context();
 
