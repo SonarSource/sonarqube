@@ -28,6 +28,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
@@ -44,10 +45,12 @@ public class OAuth2CallbackFilter extends ServletFilter {
 
   private final IdentityProviderRepository identityProviderRepository;
   private final OAuth2ContextFactory oAuth2ContextFactory;
+  private final Server server;
 
-  public OAuth2CallbackFilter(IdentityProviderRepository identityProviderRepository, OAuth2ContextFactory oAuth2ContextFactory) {
+  public OAuth2CallbackFilter(IdentityProviderRepository identityProviderRepository, OAuth2ContextFactory oAuth2ContextFactory, Server server) {
     this.identityProviderRepository = identityProviderRepository;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
+    this.server = server;
   }
 
   @Override
@@ -61,7 +64,7 @@ public class OAuth2CallbackFilter extends ServletFilter {
     String requestUri = httpRequest.getRequestURI();
     String keyProvider = "";
     try {
-      keyProvider = extractKeyProvider(requestUri, CALLBACK_PATH);
+      keyProvider = extractKeyProvider(requestUri, server.getContextPath() + CALLBACK_PATH);
       IdentityProvider provider = identityProviderRepository.getEnabledByKey(keyProvider);
       if (provider instanceof OAuth2IdentityProvider) {
         OAuth2IdentityProvider oauthProvider = (OAuth2IdentityProvider) provider;

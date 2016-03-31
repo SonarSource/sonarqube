@@ -132,11 +132,22 @@ public class OAuth2ContextFactoryTest {
 
   @Test
   public void redirect_to_requested_page() throws Exception {
+    when(server.getContextPath()).thenReturn("");
     OAuth2IdentityProvider.CallbackContext callback = underTest.newCallback(request, response, identityProvider);
 
     callback.redirectToRequestedPage();
 
     verify(response).sendRedirect("/");
+  }
+
+  @Test
+  public void redirect_to_requested_page_with_context() throws Exception {
+    when(server.getContextPath()).thenReturn("/sonarqube");
+    OAuth2IdentityProvider.CallbackContext callback = underTest.newCallback(request, response, identityProvider);
+
+    callback.redirectToRequestedPage();
+
+    verify(response).sendRedirect("/sonarqube/");
   }
 
   @Test

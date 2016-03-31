@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.Display;
 import org.sonar.api.server.authentication.IdentityProvider;
@@ -55,6 +56,7 @@ public class InitFilterTest {
 
   BaseContextFactory baseContextFactory = mock(BaseContextFactory.class);
   OAuth2ContextFactory oAuth2ContextFactory = mock(OAuth2ContextFactory.class);
+  Server server = mock(Server.class);
 
   HttpServletRequest request = mock(HttpServletRequest.class);
   HttpServletResponse response = mock(HttpServletResponse.class);
@@ -66,17 +68,29 @@ public class InitFilterTest {
   FakeBasicIdentityProvider baseIdentityProvider = new FakeBasicIdentityProvider(BASIC_PROVIDER_KEY, true);
   BaseIdentityProvider.Context baseContext = mock(BaseIdentityProvider.Context.class);
 
-  InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory);
+  InitFilter underTest = new InitFilter(identityProviderRepository, baseContextFactory, oAuth2ContextFactory, server);
 
   @Before
   public void setUp() throws Exception {
     when(oAuth2ContextFactory.newContext(request, response, oAuth2IdentityProvider)).thenReturn(oauth2Context);
     when(baseContextFactory.newContext(request, response, baseIdentityProvider)).thenReturn(baseContext);
+    when(server.getContextPath()).thenReturn("");
   }
 
   @Test
   public void do_get_pattern() throws Exception {
     assertThat(underTest.doGetPattern()).isNotNull();
+  }
+
+  @Test
+  public void do_filter_with_context() throws Exception {
+    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getRequestURI()).thenReturn("/sonarqube/sessions/init/" + OAUTH2_PROVIDER_KEY);
+    identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    assertOAuth2InitCalled();
   }
 
   @Test

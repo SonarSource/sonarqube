@@ -45,7 +45,7 @@ public class CsrfVerifier {
     // Store it in the session for later validation.
     String state = new BigInteger(130, new SecureRandom()).toString(32);
     Cookie cookie = new Cookie(CSRF_STATE_COOKIE, sha256Hex(state));
-    cookie.setPath("/");
+    cookie.setPath(server.getContextPath() + "/");
     cookie.setHttpOnly(true);
     cookie.setMaxAge(-1);
     cookie.setSecure(server.isSecured());
@@ -69,7 +69,7 @@ public class CsrfVerifier {
     // remove cookie
     stateCookie.setValue(null);
     stateCookie.setMaxAge(0);
-    stateCookie.setPath("/");
+    stateCookie.setPath(server.getContextPath() + "/");
     response.addCookie(stateCookie);
 
     String stateInRequest = request.getParameter("state");

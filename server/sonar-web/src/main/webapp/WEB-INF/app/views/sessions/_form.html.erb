@@ -10,7 +10,7 @@
              style="background-color: <%= provider.getDisplay().getBackgroundColor().to_s %>"
              title="Log in with <%= provider.getName().to_s -%>">
             <img alt="<%= provider.getName().to_s -%>" width="20" height="20"
-                 src="<%= provider.getDisplay().getIconPath().to_s -%>">
+                 src="<%= ApplicationController.root_context + provider.getDisplay().getIconPath().to_s -%>">
             <span>Log in with <%= provider.getName().to_s -%></span>
           </a>
         </li>

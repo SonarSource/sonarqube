@@ -26,6 +26,7 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.utils.log.LogTester;
@@ -53,21 +54,34 @@ public class OAuth2CallbackFilterTest {
 
   HttpServletRequest request = mock(HttpServletRequest.class);
   HttpServletResponse response = mock(HttpServletResponse.class);
+  Server server = mock(Server.class);
   FilterChain chain = mock(FilterChain.class);
 
   FakeOAuth2IdentityProvider oAuth2IdentityProvider = new FakeOAuth2IdentityProvider(OAUTH2_PROVIDER_KEY, true);
   OAuth2IdentityProvider.InitContext oauth2Context = mock(OAuth2IdentityProvider.InitContext.class);
 
-  OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory);
+  OAuth2CallbackFilter underTest = new OAuth2CallbackFilter(identityProviderRepository, oAuth2ContextFactory, server);
 
   @Before
   public void setUp() throws Exception {
     when(oAuth2ContextFactory.newContext(request, response, oAuth2IdentityProvider)).thenReturn(oauth2Context);
+    when(server.getContextPath()).thenReturn("");
   }
 
   @Test
   public void do_get_pattern() throws Exception {
     assertThat(underTest.doGetPattern()).isNotNull();
+  }
+
+  @Test
+  public void do_filter_with_context() throws Exception {
+    when(server.getContextPath()).thenReturn("/sonarqube");
+    when(request.getRequestURI()).thenReturn("/sonarqube/oauth2/callback/" + OAUTH2_PROVIDER_KEY);
+    identityProviderRepository.addIdentityProvider(oAuth2IdentityProvider);
+
+    underTest.doFilter(request, response, chain);
+
+    assertCallbackCalled();
   }
 
   @Test

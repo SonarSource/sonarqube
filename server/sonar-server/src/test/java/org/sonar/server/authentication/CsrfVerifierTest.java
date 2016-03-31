@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -48,6 +49,11 @@ public class CsrfVerifierTest {
   HttpServletRequest request = mock(HttpServletRequest.class);
 
   CsrfVerifier underTest = new CsrfVerifier(server);
+
+  @Before
+  public void setUp() throws Exception {
+    when(server.getContextPath()).thenReturn("");
+  }
 
   @Test
   public void generate_state_on_secured_server() throws Exception {
@@ -87,6 +93,20 @@ public class CsrfVerifierTest {
     assertThat(updatedCookie.getValue()).isNull();
     assertThat(updatedCookie.getPath()).isEqualTo("/");
     assertThat(updatedCookie.getMaxAge()).isEqualTo(0);
+  }
+
+  @Test
+  public void verify_state_when_context() throws Exception {
+    String state = "state";
+    when(request.getCookies()).thenReturn(new Cookie[] {new Cookie("OAUTHSTATE", sha256Hex(state))});
+    when(request.getParameter("state")).thenReturn(state);
+    when(server.getContextPath()).thenReturn("/sonarqube");
+
+    underTest.verifyState(request, response);
+
+    verify(response).addCookie(cookieArgumentCaptor.capture());
+    Cookie updatedCookie = cookieArgumentCaptor.getValue();
+    assertThat(updatedCookie.getPath()).isEqualTo("/sonarqube/");
   }
 
   @Test

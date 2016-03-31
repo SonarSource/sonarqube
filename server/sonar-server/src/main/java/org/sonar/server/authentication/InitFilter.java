@@ -27,6 +27,7 @@ import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
@@ -45,11 +46,13 @@ public class InitFilter extends ServletFilter {
   private final IdentityProviderRepository identityProviderRepository;
   private final BaseContextFactory baseContextFactory;
   private final OAuth2ContextFactory oAuth2ContextFactory;
+  private final Server server;
 
-  public InitFilter(IdentityProviderRepository identityProviderRepository, BaseContextFactory baseContextFactory, OAuth2ContextFactory oAuth2ContextFactory) {
+  public InitFilter(IdentityProviderRepository identityProviderRepository, BaseContextFactory baseContextFactory, OAuth2ContextFactory oAuth2ContextFactory, Server server) {
     this.identityProviderRepository = identityProviderRepository;
     this.baseContextFactory = baseContextFactory;
     this.oAuth2ContextFactory = oAuth2ContextFactory;
+    this.server = server;
   }
 
   @Override
@@ -63,7 +66,7 @@ public class InitFilter extends ServletFilter {
     String requestURI = httpRequest.getRequestURI();
     String keyProvider = "";
     try {
-      keyProvider = extractKeyProvider(requestURI, INIT_CONTEXT);
+      keyProvider = extractKeyProvider(requestURI, server.getContextPath() + INIT_CONTEXT);
       IdentityProvider provider = identityProviderRepository.getEnabledByKey(keyProvider);
       if (provider instanceof BaseIdentityProvider) {
         BaseIdentityProvider baseIdentityProvider = (BaseIdentityProvider) provider;
