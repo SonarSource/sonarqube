@@ -29,9 +29,12 @@ import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 public class ComputationStepExecutorTest {
@@ -40,12 +43,13 @@ public class ComputationStepExecutorTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
+  private final ComputationStepExecutor.Listener listener = mock(ComputationStepExecutor.Listener.class);
+  private final ComputationStep computationStep1 = mockComputationStep("step1");
+  private final ComputationStep computationStep2 = mockComputationStep("step2");
+  private final ComputationStep computationStep3 = mockComputationStep("step3");
+
   @Test
   public void execute_call_execute_on_each_ComputationStep_in_order_returned_by_instances_method() {
-    ComputationStep computationStep1 = mockComputationStep("step1");
-    ComputationStep computationStep2 = mockComputationStep("step2");
-    ComputationStep computationStep3 = mockComputationStep("step3");
-
     new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2, computationStep3))
       .execute();
 
@@ -78,9 +82,6 @@ public class ComputationStepExecutorTest {
 
   @Test
   public void execute_logs_end_timing_for_each_ComputationStep_called() {
-    ComputationStep computationStep1 = mockComputationStep("step1");
-    ComputationStep computationStep2 = mockComputationStep("step2");
-
     new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2))
         .execute();
 
@@ -88,6 +89,34 @@ public class ComputationStepExecutorTest {
     assertThat(infoLogs).hasSize(2);
     assertThat(infoLogs.get(0)).contains("step1 | time=");
     assertThat(infoLogs.get(1)).contains("step2 | time=");
+  }
+
+  @Test
+  public void execute_calls_listener_finished_method_with_all_step_runs() {
+    new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), listener)
+        .execute();
+
+    verify(listener).finished(true);
+    verifyNoMoreInteractions(listener);
+  }
+
+  @Test
+  public void execute_calls_listener_finished_method_even_if_a_step_throws_an_exception() {
+    RuntimeException toBeThrown = new RuntimeException("simulating failing execute Step method");
+    doThrow(toBeThrown)
+        .when(computationStep1)
+        .execute();
+
+    try {
+      new ComputationStepExecutor(mockComputationSteps(computationStep1, computationStep2), listener)
+          .execute();
+      fail("exception toBeThrown should have been raised");
+    } catch (RuntimeException e) {
+      assertThat(e).isSameAs(toBeThrown);
+      verify(listener).finished(false);
+      verifyNoMoreInteractions(listener);
+    }
+
   }
 
   private static ComputationSteps mockComputationSteps(ComputationStep... computationSteps) {

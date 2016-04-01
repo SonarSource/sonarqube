@@ -19,6 +19,8 @@
  */
 package org.sonar.server.computation.step;
 
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.logs.Profiler;
@@ -27,17 +29,44 @@ public final class ComputationStepExecutor {
   private static final Logger LOGGER = Loggers.get(ComputationStepExecutor.class);
 
   private final ComputationSteps steps;
+  @CheckForNull
+  private final Listener listener;
 
+  /**
+   * Used when no {@link org.sonar.server.computation.step.ComputationStepExecutor.Listener} is available in pico
+   * container.
+   */
   public ComputationStepExecutor(ComputationSteps steps) {
+    this(steps, null);
+  }
+
+  public ComputationStepExecutor(ComputationSteps steps, @Nullable Listener listener) {
     this.steps = steps;
+    this.listener = listener;
   }
 
   public void execute() {
     Profiler stepProfiler = Profiler.create(LOGGER);
+    boolean allStepsExecuted = false;
+    try {
+      executeSteps(stepProfiler);
+      allStepsExecuted = true;
+    } finally {
+      if (listener != null) {
+        listener.finished(allStepsExecuted);
+      }
+    }
+  }
+
+  private void executeSteps(Profiler stepProfiler) {
     for (ComputationStep step : steps.instances()) {
       stepProfiler.start();
       step.execute();
       stepProfiler.stopInfo(step.getDescription());
     }
+  }
+
+  public interface Listener {
+    void finished(boolean allStepsExecuted);
   }
 }
