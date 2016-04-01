@@ -31,7 +31,8 @@ const DEFAULTS = {
 };
 
 export default function (selector) {
-  const elements = Array.from(document.querySelectorAll(selector));
+  // use [].slice instead of Array.from, because this code might be executed with polyfill
+  const elements = [].slice.call(document.querySelectorAll(selector));
 
   elements.forEach(element => {
     const { dataset } = element;
