@@ -99,39 +99,35 @@ export const CodeSmells = React.createClass({
           <MeasuresList>
 
             <Measure composite={true}>
-              <div className="display-inline-block text-middle big-spacer-right">
-                <div
-                    className="overview-domain-measure-value"
-                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
-                    data-toggle="tooltip">
-                  <DrilldownLink component={this.props.component.key} metric="sqale_rating">
-                    <Rating value={this.props.measures['sqale_rating']}/>
-                  </DrilldownLink>
+              <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
+                <div className="overview-domain-measure-value">
+                  <IssuesLink
+                      component={this.props.component.key}
+                      params={{ resolved: 'false', types: 'CODE_SMELL' }}>
+                    <span
+                        title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                        data-toggle="tooltip">
+                      {formatMeasure(codeSmells, 'SHORT_INT')}
+                    </span>
+                  </IssuesLink>
+                  <div className="overview-domain-measure-sup">
+                    <DrilldownLink component={this.props.component.key} metric="sqale_rating">
+                      <Rating value={this.props.measures['sqale_rating']}/>
+                    </DrilldownLink>
+                  </div>
                 </div>
-              </div>
-              <div className="display-inline-block text-middle">
-                <div
-                    className="overview-domain-measure-value"
-                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
-                    data-toggle="tooltip">
-                  <DrilldownLink component={this.props.component.key} metric="sqale_index">
-                    {formatMeasure(debt, 'SHORT_WORK_DUR')}
-                  </DrilldownLink>
-                </div>
-                <div className="overview-domain-measure-label">{getMetricName('effort')}</div>
+                <div className="overview-domain-measure-label">{getMetricName('code_smells')}</div>
               </div>
             </Measure>
 
-            <Measure label={getMetricName('code_smells')}>
-              <IssuesLink
-                  component={this.props.component.key}
-                  params={{ resolved: 'false', types: 'CODE_SMELL' }}>
+            <Measure label={getMetricName('effort')}>
+              <DrilldownLink component={this.props.component.key} metric="sqale_index">
                 <span
                     title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                     data-toggle="tooltip">
-                  {formatMeasure(codeSmells, 'SHORT_INT')}
+                  {formatMeasure(debt, 'SHORT_WORK_DUR')}
                 </span>
-              </IssuesLink>
+              </DrilldownLink>
             </Measure>
           </MeasuresList>
           {this.renderTimeline('before', true)}

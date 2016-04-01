@@ -102,17 +102,7 @@ export const Risk = React.createClass({
           <MeasuresList>
 
             <Measure composite={true}>
-              <div className="display-inline-block text-middle big-spacer-right">
-                <div
-                    className="overview-domain-measure-value"
-                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
-                    data-toggle="tooltip">
-                  <DrilldownLink component={this.props.component.key} metric="reliability_rating">
-                    <Rating value={this.props.measures['reliability_rating']}/>
-                  </DrilldownLink>
-                </div>
-              </div>
-              <div className="display-inline-block text-middle">
+              <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
                 <div className="overview-domain-measure-value">
                   <IssuesLink
                       component={this.props.component.key}
@@ -123,22 +113,17 @@ export const Risk = React.createClass({
                       {formatMeasure(bugs, 'SHORT_INT')}
                     </span>
                   </IssuesLink>
+                  <div className="overview-domain-measure-sup">
+                    <DrilldownLink component={this.props.component.key} metric="reliability_rating">
+                      <Rating value={this.props.measures['reliability_rating']}/>
+                    </DrilldownLink>
+                  </div>
                 </div>
                 <div className="overview-domain-measure-label">{getMetricName('bugs')}</div>
               </div>
             </Measure>
 
             <Measure composite={true}>
-              <div className="display-inline-block text-middle big-spacer-right">
-                <div
-                    className="overview-domain-measure-value"
-                    title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
-                    data-toggle="tooltip">
-                  <DrilldownLink component={this.props.component.key} metric="security_rating">
-                    <Rating value={this.props.measures['security_rating']}/>
-                  </DrilldownLink>
-                </div>
-              </div>
               <div className="display-inline-block text-middle">
                 <div className="overview-domain-measure-value">
                   <IssuesLink
@@ -150,6 +135,11 @@ export const Risk = React.createClass({
                       {formatMeasure(vulnerabilities, 'SHORT_INT')}
                     </span>
                   </IssuesLink>
+                  <div className="overview-domain-measure-sup">
+                    <DrilldownLink component={this.props.component.key} metric="security_rating">
+                      <Rating value={this.props.measures['security_rating']}/>
+                    </DrilldownLink>
+                  </div>
                 </div>
                 <div className="overview-domain-measure-label">{getMetricName('vulnerabilities')}</div>
               </div>
