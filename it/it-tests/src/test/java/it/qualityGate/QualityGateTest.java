@@ -19,13 +19,16 @@
  */
 package it.qualityGate;
 
+import com.google.common.base.Predicate;
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.BuildResult;
+import com.sonar.orchestrator.build.SonarScanner;
 import it.Category1Suite;
 import java.io.File;
 import java.io.IOException;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
@@ -48,11 +51,21 @@ import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
+import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.extractCeTaskId;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
+import static util.ItUtils.retrieveCeLogs;
 
 public class QualityGateTest {
+
+  private static final String TASK_STATUS_SUCCESS = "SUCCESS";
+  private static final String TASK_STATUS_FAILED = "FAILED";
+  private static final String QG_STATUS_NO_QG = "null";
+  private static final String QG_STATUS_OK = "OK";
+  private static final String QG_STATUS_ERROR = "ERROR";
+  private static final String QG_STATUS_WARN = "WARN";
 
   private static long DEFAULT_QUALITY_GATE;
 
@@ -82,9 +95,11 @@ public class QualityGateTest {
   }
 
   @Test
-  public void do_not_compute_status_if_no_gate() {
-    SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
-    orchestrator.executeBuild(build);
+  public void do_not_compute_status_if_no_gate() throws IOException {
+    SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
+    BuildResult buildResult = orchestrator.executeBuild(build);
+
+    verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_NO_QG);
 
     assertThat(fetchResourceWithGateStatus()).isNull();
   }
@@ -95,8 +110,10 @@ public class QualityGateTest {
     qgClient().setDefault(empty.id());
 
     try {
-      SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
-      orchestrator.executeBuild(build);
+      SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
+      BuildResult buildResult = orchestrator.executeBuild(build);
+
+      verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_OK);
 
       assertThat(fetchGateStatus().getData()).isEqualTo("OK");
     } finally {
@@ -112,8 +129,10 @@ public class QualityGateTest {
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").warningThreshold("40"));
 
     try {
-      SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
-      orchestrator.executeBuild(build);
+      SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
+      BuildResult buildResult = orchestrator.executeBuild(build);
+
+      verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_OK);
 
       assertThat(fetchGateStatus().getData()).isEqualTo("OK");
     } finally {
@@ -129,8 +148,10 @@ public class QualityGateTest {
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").warningThreshold("10"));
 
     try {
-      SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
-      orchestrator.executeBuild(build);
+      SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
+      BuildResult buildResult = orchestrator.executeBuild(build);
+
+      verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
       assertThat(fetchGateStatus().getData()).isEqualTo("WARN");
     } finally {
@@ -147,8 +168,10 @@ public class QualityGateTest {
     qgClient().createCondition(NewCondition.create(simple.id()).metricKey("ncloc").operator("GT").errorThreshold("10"));
 
     try {
-      SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
-      orchestrator.executeBuild(build);
+      SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
+      BuildResult buildResult = orchestrator.executeBuild(build);
+
+      verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
       assertThat(fetchGateStatus().getData()).isEqualTo("ERROR");
     } finally {
@@ -168,8 +191,11 @@ public class QualityGateTest {
     qgClient().selectProject(error.id(), provisionedProjectId);
 
     try {
-      SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"));
-      orchestrator.executeBuild(build);
+      SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"));
+      BuildResult buildResult = orchestrator.executeBuild(build);
+
+
+      verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
       assertThat(fetchGateStatus().getData()).isEqualTo("ERROR");
     } finally {
@@ -187,10 +213,13 @@ public class QualityGateTest {
     qgClient().setDefault(allTypes.id());
 
     try {
-      SonarRunner build = SonarRunner.create(projectDir("qualitygate/xoo-sample"))
+      SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"))
         .setProperty("sonar.cpd.xoo.minimumLines", "2")
         .setProperty("sonar.cpd.xoo.minimumTokens", "5");
-      orchestrator.executeBuild(build);
+      BuildResult buildResult = orchestrator.executeBuild(build);
+
+
+      verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_WARN);
 
       Measure alertStatus = fetchGateStatus();
       assertThat(alertStatus.getData()).isEqualTo("WARN");
@@ -211,8 +240,10 @@ public class QualityGateTest {
 
     try {
       File projectDir = projectDir("qualitygate/xoo-sample");
-      SonarRunner build = SonarRunner.create(projectDir);
-      orchestrator.executeBuild(build);
+      SonarScanner build = SonarScanner.create(projectDir);
+      BuildResult buildResult = orchestrator.executeBuild(build);
+
+      verifyQGStatusInPostTask(buildResult, TASK_STATUS_SUCCESS, QG_STATUS_ERROR);
 
       String taskId = getTaskIdInLocalReport(projectDir);
       String analysisId = getAnalysisId(taskId);
@@ -228,6 +259,16 @@ public class QualityGateTest {
       qgClient().unsetDefault();
       qgClient().destroy(simple.id());
     }
+  }
+
+  private void verifyQGStatusInPostTask(BuildResult buildResult, String taskStatus, String qgStatus) {
+    List<String> postTaskLogLines = extractPosttaskPluginLogs(retrieveCeLogs(orchestrator, extractCeTaskId(buildResult)));
+
+    assertThat(postTaskLogLines).hasSize(1);
+    assertThat(postTaskLogLines.iterator().next())
+        .contains("CeTask[" + taskStatus + "]")
+        .contains("Project[sample]")
+        .contains("QualityGate[" + qgStatus + "]");
   }
 
   private String getAnalysisId(String taskId) throws IOException {
@@ -261,5 +302,15 @@ public class QualityGateTest {
 
   private static QualityGateClient qgClient() {
     return orchestrator.getServer().adminWsClient().qualityGateClient();
+  }
+
+  private static List<String> extractPosttaskPluginLogs(Iterable<String> ceLogs) {
+    return from(ceLogs)
+      .filter(new Predicate<String>() {
+        @Override
+        public boolean apply(String s) {
+          return s.contains("POSTASKPLUGIN: finished()");
+        }
+      }).toList();
   }
 }

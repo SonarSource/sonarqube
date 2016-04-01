@@ -19,6 +19,9 @@
  */
 package util;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.Orchestrator;
@@ -49,6 +52,7 @@ import org.sonarqube.ws.client.HttpConnector;
 import org.sonarqube.ws.client.HttpWsClient;
 import org.sonarqube.ws.client.WsClient;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static com.sonar.orchestrator.container.Server.ADMIN_LOGIN;
 import static com.sonar.orchestrator.container.Server.ADMIN_PASSWORD;
@@ -57,6 +61,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 public class ItUtils {
+  public static final Splitter LINE_SPLITTER = Splitter.on(System.getProperty("line.separator"));
 
   private ItUtils() {
   }
@@ -252,6 +257,35 @@ public class ItUtils {
   public static String formatDate(Date d) {
     SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
     return sdf.format(d);
+  }
+
+  public static Iterable<String> retrieveCeLogs(Orchestrator orchestrator, String taskId) {
+    String ceLogs = orchestrator.getServer().adminWsClient().get("/api/ce/logs?taskId=" + taskId);
+
+    return LINE_SPLITTER.split(ceLogs);
+  }
+
+  public static String extractCeTaskId(BuildResult buildResult) {
+    List<String> taskIds = extractCeTaskIds(buildResult);
+    checkState(taskIds.size() == 1, "More than one task id retrieved from logs");
+    return taskIds.iterator().next();
+  }
+
+  public static List<String> extractCeTaskIds(BuildResult buildResult) {
+    String logs = buildResult.getLogs();
+    return from(LINE_SPLITTER.split(logs))
+        .filter(new Predicate<String>() {
+          @Override
+          public boolean apply(String s) {
+            return s.contains("More about the report processing at");
+          }
+        }).transform(new Function<String, String>() {
+          @Nullable
+          @Override
+          public String apply(String s) {
+            return s.substring(s.length() - 20, s.length());
+          }
+        }).toList();
   }
 
 }

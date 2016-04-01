@@ -51,5 +51,6 @@
     <module>sonar-subcategories-plugin</module>
     <module>ui-extensions-plugin</module>
     <module>issue-filter-plugin</module>
+    <module>posttask-plugin</module>
   </modules>
 </project>

@@ -128,6 +128,8 @@ public class Category1Suite {
     // Used in SettingsTest.should_get_settings_default_value
     .addPlugin(pluginArtifact("server-plugin"))
 
+    .addPlugin(pluginArtifact("posttask-plugin"))
+
     .addPlugin(xooPlugin())
     .build();
 
