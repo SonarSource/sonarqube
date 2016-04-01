@@ -27,7 +27,7 @@ import static org.assertj.guava.api.Assertions.assertThat;
 
 public class QualityGateHolderImplTest {
 
-  public static final QualityGate QUALITY_GATE = new QualityGate("name", Collections.<Condition>emptyList());
+  public static final QualityGate QUALITY_GATE = new QualityGate(4612, "name", Collections.<Condition>emptyList());
 
   @Test(expected = IllegalStateException.class)
   public void getQualityGate_throws_ISE_if_QualityGate_not_set() {

@@ -64,6 +64,7 @@ public class QualityGateServiceImplTest {
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
     assertThat(res).isPresent();
+    assertThat(res.get().getId()).isEqualTo(SOME_ID);
     assertThat(res.get().getName()).isEqualTo(SOME_NAME);
     assertThat(res.get().getConditions()).isEmpty();
   }
@@ -79,6 +80,7 @@ public class QualityGateServiceImplTest {
     Optional<QualityGate> res = underTest.findById(SOME_ID);
 
     assertThat(res).isPresent();
+    assertThat(res.get().getId()).isEqualTo(SOME_ID);
     assertThat(res.get().getName()).isEqualTo(SOME_NAME);
     assertThat(res.get().getConditions()).containsOnly(
         new Condition(METRIC_1, CONDITION_1.getOperator(), CONDITION_1.getErrorThreshold(), CONDITION_1.getWarningThreshold(), CONDITION_1.getPeriod()),

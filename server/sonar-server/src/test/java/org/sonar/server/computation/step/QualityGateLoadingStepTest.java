@@ -101,7 +101,7 @@ public class QualityGateLoadingStepTest {
 
   @Test
   public void execute_sets_QualityGate_if_it_can_be_found_by_service() {
-    QualityGate qualityGate = new QualityGate("name", Collections.<Condition>emptyList());
+    QualityGate qualityGate = new QualityGate(465, "name", Collections.<Condition>emptyList());
 
     treeRootHolder.setRoot(PROJECT_ALONE);
     when(settingsRepository.getSettings(PROJECT_ALONE)).thenReturn(new Settings().setProperty("sonar.qualitygate", 10));

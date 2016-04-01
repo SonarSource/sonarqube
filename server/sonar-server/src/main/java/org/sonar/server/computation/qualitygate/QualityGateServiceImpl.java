@@ -61,7 +61,7 @@ public class QualityGateServiceImpl implements QualityGateService {
   private QualityGate toQualityGate(QualityGateDto qualityGateDto) {
     Iterable<Condition> conditions = from(conditionDao.selectForQualityGate(qualityGateDto.getId())).transform(conditionDtoToBean);
 
-    return new QualityGate(qualityGateDto.getName(), conditions);
+    return new QualityGate(qualityGateDto.getId(), qualityGateDto.getName(), conditions);
   }
 
 }

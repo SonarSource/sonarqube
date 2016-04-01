@@ -17,36 +17,46 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.qualitygate;
+package org.sonar.server.computation.posttask;
 
-import java.util.Objects;
-import java.util.Set;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.ce.posttask.Project;
 
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
+import static java.util.Objects.requireNonNull;
 
 @Immutable
-public class QualityGate {
-  private final long id;
+class ProjectImpl implements Project {
+  private final String uuid;
+  private final String key;
   private final String name;
-  private final Set<Condition> conditions;
 
-  public QualityGate(long id, String name, Iterable<Condition> conditions) {
-    this.id = id;
-    this.name = Objects.requireNonNull(name);
-    this.conditions = from(conditions).filter(notNull()).toSet();
+  ProjectImpl(String uuid, String key, String name) {
+    this.uuid = requireNonNull(uuid, "uuid can not be null");
+    this.key = requireNonNull(key, "key can not be null");
+    this.name = requireNonNull(name, "name can not be null");
   }
 
-  public long getId() {
-    return id;
+  @Override
+  public String getUuid() {
+    return uuid;
   }
 
+  @Override
+  public String getKey() {
+    return key;
+  }
+
+  @Override
   public String getName() {
     return name;
   }
 
-  public Set<Condition> getConditions() {
-    return conditions;
+  @Override
+  public String toString() {
+    return "ProjectImpl{" +
+      "uuid='" + uuid + '\'' +
+      ", key='" + key + '\'' +
+      ", name='" + name + '\'' +
+      '}';
   }
 }

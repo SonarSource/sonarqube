@@ -17,36 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.qualitygate;
+@ParametersAreNonnullByDefault
+package org.sonar.server.computation.posttask;
 
-import java.util.Objects;
-import java.util.Set;
-import javax.annotation.concurrent.Immutable;
-
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
-
-@Immutable
-public class QualityGate {
-  private final long id;
-  private final String name;
-  private final Set<Condition> conditions;
-
-  public QualityGate(long id, String name, Iterable<Condition> conditions) {
-    this.id = id;
-    this.name = Objects.requireNonNull(name);
-    this.conditions = from(conditions).filter(notNull()).toSet();
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public Set<Condition> getConditions() {
-    return conditions;
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

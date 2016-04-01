@@ -19,34 +19,33 @@
  */
 package org.sonar.server.computation.qualitygate;
 
-import java.util.Objects;
-import java.util.Set;
-import javax.annotation.concurrent.Immutable;
+import java.util.Map;
+import org.junit.rules.ExternalResource;
 
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
+public class MutableQualityGateStatusHolderRule extends ExternalResource implements MutableQualityGateStatusHolder {
+  private MutableQualityGateStatusHolder delegate = new QualityGateStatusHolderImpl();
 
-@Immutable
-public class QualityGate {
-  private final long id;
-  private final String name;
-  private final Set<Condition> conditions;
-
-  public QualityGate(long id, String name, Iterable<Condition> conditions) {
-    this.id = id;
-    this.name = Objects.requireNonNull(name);
-    this.conditions = from(conditions).filter(notNull()).toSet();
+  @Override
+  public void setStatus(QualityGateStatus globalStatus, Map<Condition, ConditionStatus> statusPerCondition) {
+    delegate.setStatus(globalStatus, statusPerCondition);
   }
 
-  public long getId() {
-    return id;
+  @Override
+  public QualityGateStatus getStatus() {
+    return delegate.getStatus();
   }
 
-  public String getName() {
-    return name;
+  @Override
+  public Map<Condition, ConditionStatus> getStatusPerConditions() {
+    return delegate.getStatusPerConditions();
   }
 
-  public Set<Condition> getConditions() {
-    return conditions;
+  @Override
+  protected void after() {
+    reset();
+  }
+
+  public void reset() {
+    this.delegate = new QualityGateStatusHolderImpl();
   }
 }

@@ -17,36 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.computation.qualitygate;
+package org.sonar.server.computation.posttask;
 
-import java.util.Objects;
-import java.util.Set;
 import javax.annotation.concurrent.Immutable;
+import org.sonar.api.ce.posttask.CeTask;
 
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
+import static java.util.Objects.requireNonNull;
 
 @Immutable
-public class QualityGate {
-  private final long id;
-  private final String name;
-  private final Set<Condition> conditions;
+class CeTaskImpl implements CeTask {
+  private final String id;
+  private final Status status;
 
-  public QualityGate(long id, String name, Iterable<Condition> conditions) {
-    this.id = id;
-    this.name = Objects.requireNonNull(name);
-    this.conditions = from(conditions).filter(notNull()).toSet();
+  CeTaskImpl(String id, Status status) {
+    this.id = requireNonNull(id, "uuid can not be null");
+    this.status = requireNonNull(status, "status can not be null");
   }
 
-  public long getId() {
+  @Override
+  public String getId() {
     return id;
   }
 
-  public String getName() {
-    return name;
+  @Override
+  public Status getStatus() {
+    return status;
   }
 
-  public Set<Condition> getConditions() {
-    return conditions;
+  @Override
+  public String toString() {
+    return "CeTaskImpl{" +
+      "id='" + id + '\'' +
+      ", status=" + status +
+      '}';
   }
 }

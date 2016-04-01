@@ -19,34 +19,15 @@
  */
 package org.sonar.server.computation.qualitygate;
 
-import java.util.Objects;
-import java.util.Set;
-import javax.annotation.concurrent.Immutable;
+import java.util.Map;
 
-import static com.google.common.base.Predicates.notNull;
-import static com.google.common.collect.FluentIterable.from;
-
-@Immutable
-public class QualityGate {
-  private final long id;
-  private final String name;
-  private final Set<Condition> conditions;
-
-  public QualityGate(long id, String name, Iterable<Condition> conditions) {
-    this.id = id;
-    this.name = Objects.requireNonNull(name);
-    this.conditions = from(conditions).filter(notNull()).toSet();
-  }
-
-  public long getId() {
-    return id;
-  }
-
-  public String getName() {
-    return name;
-  }
-
-  public Set<Condition> getConditions() {
-    return conditions;
-  }
+public interface MutableQualityGateStatusHolder extends QualityGateStatusHolder {
+  /**
+   * Sets the status of the quality gate and its conditions in the holder.
+   *
+   * @throws NullPointerException if either {@code globalStatus} or {@code statusPerCondition} is {@code null}
+   * @throws IllegalArgumentException if {@code statusPerCondition} is empty
+   * @throws IllegalStateException if the status has already been set in the holder
+   */
+  void setStatus(QualityGateStatus globalStatus, Map<Condition, ConditionStatus> statusPerCondition);
 }

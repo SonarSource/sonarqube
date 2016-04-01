@@ -19,10 +19,14 @@
  */
 package org.sonar.server.computation.step;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.measures.CoreMetrics;
@@ -40,12 +44,18 @@ import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.qualitygate.Condition;
 import org.sonar.server.computation.qualitygate.ConditionEvaluator;
+import org.sonar.server.computation.qualitygate.ConditionStatus;
 import org.sonar.server.computation.qualitygate.EvaluationResult;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverter;
+import org.sonar.server.computation.qualitygate.MutableQualityGateStatusHolder;
 import org.sonar.server.computation.qualitygate.QualityGate;
 import org.sonar.server.computation.qualitygate.QualityGateHolder;
 
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
+import static org.sonar.server.computation.qualitygate.ConditionStatus.NO_VALUE_STATUS;
+import static org.sonar.server.computation.qualitygate.ConditionStatus.create;
 
 /**
  * This step:
@@ -62,15 +72,18 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
   private final TreeRootHolder treeRootHolder;
   private final QualityGateHolder qualityGateHolder;
+  private final MutableQualityGateStatusHolder qualityGateStatusHolder;
   private final MeasureRepository measureRepository;
   private final MetricRepository metricRepository;
   private final EvaluationResultTextConverter evaluationResultTextConverter;
 
-  public QualityGateMeasuresStep(TreeRootHolder treeRootHolder, QualityGateHolder qualityGateHolder,
+  public QualityGateMeasuresStep(TreeRootHolder treeRootHolder,
+    QualityGateHolder qualityGateHolder, MutableQualityGateStatusHolder qualityGateStatusHolder,
     MeasureRepository measureRepository, MetricRepository metricRepository,
     EvaluationResultTextConverter evaluationResultTextConverter) {
     this.treeRootHolder = treeRootHolder;
     this.qualityGateHolder = qualityGateHolder;
+    this.qualityGateStatusHolder = qualityGateStatusHolder;
     this.evaluationResultTextConverter = evaluationResultTextConverter;
     this.measureRepository = measureRepository;
     this.metricRepository = metricRepository;
@@ -88,14 +101,66 @@ public class QualityGateMeasuresStep implements ComputationStep {
   }
 
   private void executeForProject(Component project) {
-    QualityGateDetailsDataBuilder builder = new QualityGateDetailsDataBuilder();
-
     Optional<QualityGate> qualityGate = qualityGateHolder.getQualityGate();
     if (qualityGate.isPresent()) {
+      QualityGateDetailsDataBuilder builder = new QualityGateDetailsDataBuilder();
       updateMeasures(project, qualityGate.get().getConditions(), builder);
 
       addProjectMeasure(project, builder);
+
+      updateQualityGateStatusHolder(qualityGate.get(), builder);
     }
+  }
+
+  private void updateQualityGateStatusHolder(QualityGate qualityGate, QualityGateDetailsDataBuilder builder) {
+    qualityGateStatusHolder.setStatus(convert(builder.getGlobalLevel()), createStatusPerCondition(qualityGate.getConditions(), builder.getEvaluatedConditions()));
+  }
+
+  private static ConditionStatus.EvaluationStatus toEvaluationStatus(Measure.Level globalLevel) {
+    switch (globalLevel) {
+      case OK:
+        return ConditionStatus.EvaluationStatus.OK;
+      case WARN:
+        return ConditionStatus.EvaluationStatus.WARN;
+      case ERROR:
+        return ConditionStatus.EvaluationStatus.ERROR;
+      default:
+        throw new IllegalArgumentException(format(
+          "Unsupported value '%s' of Measure.Level can not be converted to EvaluationStatus",
+          globalLevel));
+    }
+  }
+
+  private static org.sonar.server.computation.qualitygate.QualityGateStatus convert(Measure.Level globalLevel) {
+    switch (globalLevel) {
+      case OK:
+        return org.sonar.server.computation.qualitygate.QualityGateStatus.OK;
+      case WARN:
+        return org.sonar.server.computation.qualitygate.QualityGateStatus.WARN;
+      case ERROR:
+        return org.sonar.server.computation.qualitygate.QualityGateStatus.ERROR;
+      default:
+        throw new IllegalArgumentException(format(
+          "Unsupported value '%s' of Measure.Level can not be converted to QualityGateStatus",
+          globalLevel));
+    }
+  }
+
+  private static Map<Condition, ConditionStatus> createStatusPerCondition(Iterable<Condition> conditions, Iterable<EvaluatedCondition> evaluatedConditions) {
+    Map<Condition, EvaluatedCondition> evaluatedConditionPerCondition = from(evaluatedConditions)
+      .uniqueIndex(EvaluatedConditionToCondition.INSTANCE);
+
+    ImmutableMap.Builder<Condition, ConditionStatus> builder = ImmutableMap.builder();
+    for (Condition condition : conditions) {
+      EvaluatedCondition evaluatedCondition = evaluatedConditionPerCondition.get(condition);
+
+      if (evaluatedCondition == null) {
+        builder.put(condition, NO_VALUE_STATUS);
+      } else {
+        builder.put(condition, create(toEvaluationStatus(evaluatedCondition.getLevel()), evaluatedCondition.getActualValue()));
+      }
+    }
+    return builder.build();
   }
 
   private void updateMeasures(Component project, Set<Condition> conditions, QualityGateDetailsDataBuilder builder) {
@@ -168,6 +233,16 @@ public class QualityGateMeasuresStep implements ComputationStep {
 
     public List<EvaluatedCondition> getEvaluatedConditions() {
       return evaluatedConditions;
+    }
+  }
+
+  private enum EvaluatedConditionToCondition implements Function<EvaluatedCondition, Condition> {
+    INSTANCE;
+
+    @Override
+    @Nonnull
+    public Condition apply(@Nonnull EvaluatedCondition input) {
+      return input.getCondition();
     }
   }
 }

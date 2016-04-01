@@ -77,9 +77,11 @@ import org.sonar.server.computation.measure.MeasureRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureToMeasureDto;
 import org.sonar.server.computation.metric.MetricModule;
 import org.sonar.server.computation.period.PeriodsHolderImpl;
+import org.sonar.server.computation.posttask.PostProjectAnalysisTasksExecutor;
 import org.sonar.server.computation.qualitygate.EvaluationResultTextConverterImpl;
 import org.sonar.server.computation.qualitygate.QualityGateHolderImpl;
 import org.sonar.server.computation.qualitygate.QualityGateServiceImpl;
+import org.sonar.server.computation.qualitygate.QualityGateStatusHolderImpl;
 import org.sonar.server.computation.qualitymodel.NewQualityModelMeasuresVisitor;
 import org.sonar.server.computation.qualitymodel.QualityModelMeasuresVisitor;
 import org.sonar.server.computation.qualitymodel.RatingSettings;
@@ -124,6 +126,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
    */
   private static List componentClasses() {
     return Arrays.asList(
+      PostProjectAnalysisTasksExecutor.class,
       ComputationStepExecutor.class,
 
       // File System
@@ -138,6 +141,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       TreeRootHolderImpl.class,
       PeriodsHolderImpl.class,
       QualityGateHolderImpl.class,
+      QualityGateStatusHolderImpl.class,
       RatingSettings.class,
       ActiveRulesHolderImpl.class,
       MeasureComputersHolderImpl.class,
