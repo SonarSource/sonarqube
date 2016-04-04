@@ -56,7 +56,7 @@ export default class MeasureDetails extends React.Component {
   }
 
   render () {
-    const { component, metric, secondaryMeasure, measure, periods, lastDisplayedDomain, children } = this.props;
+    const { component, metric, secondaryMeasure, measure, periods, children } = this.props;
 
     if (measure == null) {
       return <Spinner/>;
@@ -70,20 +70,20 @@ export default class MeasureDetails extends React.Component {
 
     return (
         <section id="component-measures-details" className="page page-container page-limited">
-          {lastDisplayedDomain ? (
-              <Link
-                  to={{ pathname: `domain/${lastDisplayedDomain}`, query: { id: component.key } }}
-                  className="small text-muted">
-                {translateWithParameters('component_measures.back_to_domain_measures', lastDisplayedDomain)}
-              </Link>
-          ) : (
-              <IndexLink
-                  to={{ pathname: '/', query: { id: component.key } }}
-                  id="component-measures-back-to-all-measures"
-                  className="small text-muted">
-                {translate('component_measures.back_to_all_measures')}
-              </IndexLink>
-          )}
+          <div className="note">
+            <IndexLink
+                to={{ pathname: '/', query: { id: component.key } }}
+                id="component-measures-back-to-all-measures"
+                className="text-muted">
+              {translate('component_measures.all_measures')}
+            </IndexLink>
+            {' / '}
+            <Link
+                to={{ pathname: `domain/${metric.domain}`, query: { id: component.key } }}
+                className="text-muted">
+              {translateWithParameters('component_measures.domain_measures', metric.domain)}
+            </Link>
+          </div>
 
           <MeasureDetailsHeader
               measure={measure}

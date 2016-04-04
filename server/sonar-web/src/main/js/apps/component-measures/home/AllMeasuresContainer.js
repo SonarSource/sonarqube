@@ -20,7 +20,6 @@
 import { connect } from 'react-redux';
 
 import AllMeasures from './AllMeasures';
-import { displayDomain } from '../app/actions';
 
 const mapStateToProps = state => {
   return {
@@ -30,13 +29,6 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    onDisplay: () => dispatch(displayDomain(undefined))
-  };
-};
-
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
 )(AllMeasures);

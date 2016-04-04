@@ -20,7 +20,6 @@
 import { connect } from 'react-redux';
 
 import DomainMeasures from './DomainMeasures';
-import { displayDomain } from '../app/actions';
 
 const mapStateToProps = state => {
   return {
@@ -30,13 +29,6 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    onDisplay: domainName => dispatch(displayDomain(domainName))
-  };
-};
-
 export default connect(
-    mapStateToProps,
-    mapDispatchToProps
+    mapStateToProps
 )(DomainMeasures);

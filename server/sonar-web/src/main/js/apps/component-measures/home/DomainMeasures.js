@@ -36,14 +36,6 @@ const sortMeasures = (measures, order) => {
 };
 
 export default class DomainMeasures extends React.Component {
-  componentDidMount () {
-    this.props.onDisplay(this.props.params.domainName);
-  }
-
-  componentDidUpdate () {
-    this.props.onDisplay(this.props.params.domainName);
-  }
-
   render () {
     const { component, domains, periods } = this.props;
     const { domainName } = this.props.params;

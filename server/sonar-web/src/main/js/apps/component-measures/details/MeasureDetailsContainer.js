@@ -25,7 +25,6 @@ import { fetchMeasure } from './actions';
 const mapStateToProps = state => {
   return {
     component: state.app.component,
-    lastDisplayedDomain: state.app.lastDisplayedDomain,
     metrics: state.app.metrics,
     metric: state.details.metric,
     measure: state.details.measure,

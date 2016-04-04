@@ -24,7 +24,6 @@ import { getMetrics } from '../../../api/metrics';
  */
 
 export const DISPLAY_HOME = 'app/DISPLAY_HOME';
-export const DISPLAY_DOMAIN = 'app/DISPLAY_DOMAIN';
 export const RECEIVE_METRICS = 'app/RECEIVE_METRICS';
 
 
@@ -34,10 +33,6 @@ export const RECEIVE_METRICS = 'app/RECEIVE_METRICS';
 
 export function displayHome () {
   return { type: DISPLAY_HOME };
-}
-
-export function displayDomain (domainName) {
-  return { type: DISPLAY_DOMAIN, domainName };
 }
 
 function receiveMetrics (metrics) {

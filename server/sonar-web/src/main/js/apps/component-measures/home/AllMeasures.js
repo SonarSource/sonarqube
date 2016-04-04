@@ -23,14 +23,6 @@ import AllMeasuresDomain from './AllMeasuresDomain';
 import { getLeakPeriodLabel } from '../../../helpers/periods';
 
 export default class AllMeasures extends React.Component {
-  componentDidMount () {
-    this.props.onDisplay();
-  }
-
-  componentDidUpdate () {
-    this.props.onDisplay();
-  }
-
   render () {
     const { component, domains, periods } = this.props;
     const leakPeriodLabel = getLeakPeriodLabel(periods);

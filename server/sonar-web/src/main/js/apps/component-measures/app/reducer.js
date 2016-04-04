@@ -17,17 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { DISPLAY_DOMAIN, RECEIVE_METRICS } from './actions';
+import { RECEIVE_METRICS } from './actions';
 
 const initialState = {
-  metrics: undefined,
-  lastDisplayedDomain: undefined
+  metrics: undefined
 };
 
 export default function appReducer (state = initialState, action = {}) {
   switch (action.type) {
-    case DISPLAY_DOMAIN:
-      return { ...state, lastDisplayedDomain: action.domainName };
     case RECEIVE_METRICS:
       return { ...state, metrics: action.metrics };
     default:
