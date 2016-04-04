@@ -20,7 +20,7 @@
 
   <issues id="1" kee="ABCDE" component_uuid="1" project_uuid="1" status="CLOSED" resolution="[null]" line="200"
           severity="BLOCKER"
-          reporter="perceval" assignee="arthur" rule_id="500"
+          reporter="[null]" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"
           issue_creation_date="1366063200000"

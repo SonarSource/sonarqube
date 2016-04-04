@@ -124,7 +124,6 @@ public class IssueQueryServiceTest {
     map.put("directories", newArrayList("/src/main/java/example"));
     ArrayList<String> fileUuids = newArrayList("CDEF");
     map.put("fileUuids", fileUuids);
-    map.put("reporters", newArrayList("marilyn"));
     map.put("assignees", newArrayList("joanna"));
     map.put("languages", newArrayList("xoo"));
     map.put("tags", newArrayList("tag1", "tag2"));

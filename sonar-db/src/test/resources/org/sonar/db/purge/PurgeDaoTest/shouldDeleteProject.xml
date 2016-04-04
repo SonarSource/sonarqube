@@ -20,7 +20,7 @@
 
   <issues id="1" kee="ABCDE" component_uuid="A" project_uuid="A" status="CLOSED" resolution="[null]" line="200"
           severity="BLOCKER"
-          reporter="perceval" assignee="arthur" rule_id="500"
+          reporter="[null]" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"
           action_plan_key="[null]"
@@ -35,7 +35,7 @@
 
   <issues id="2" kee="ABCDF" component_uuid="A" project_uuid="A" status="CLOSED" resolution="[null]" line="200"
           severity="BLOCKER"
-          reporter="perceval" assignee="arthur" rule_id="500"
+          reporter="[null]" assignee="arthur" rule_id="500"
           manual_severity="[false]"
           message="[null]"
           action_plan_key="[null]"

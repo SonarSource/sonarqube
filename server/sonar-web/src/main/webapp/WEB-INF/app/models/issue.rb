@@ -36,7 +36,6 @@ class Issue
     hash[:effortToFix] = issue.effortToFix.to_f if issue.effortToFix
     hash[:debt] = Internal.durations.encode(issue.effort) if issue.effort
     hash[:effort] = Internal.durations.encode(issue.effort) if issue.effort
-    hash[:reporter] = issue.reporter if issue.reporter
     hash[:assignee] = issue.assignee if issue.assignee
     hash[:author] = issue.authorLogin if issue.authorLogin
     hash[:creationDate] = Api::Utils.format_datetime(issue.creationDate) if issue.creationDate

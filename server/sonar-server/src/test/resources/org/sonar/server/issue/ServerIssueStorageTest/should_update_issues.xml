@@ -24,7 +24,7 @@
           rule_id="200"
           created_at="1000000000"
           updated_at="1000000000"
-          reporter="emmerik"
+          reporter="[null]"
           issue_attributes="foo=bar"
           action_plan_key="[null]"
           issue_creation_date="1262300400000"

@@ -36,7 +36,6 @@ import org.sonar.server.issue.IssueUpdater;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
 import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
 import static org.sonar.api.issue.Issue.RESOLUTION_FIXED;
 import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
@@ -254,77 +253,6 @@ public class IssueWorkflowTest {
 
     // should remove assignee
     assertThat(issue.assignee()).isNull();
-  }
-
-  @Test
-  public void manual_issues_be_confirmed_then_kept_open() {
-    // Manual issue because of reporter
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setStatus(STATUS_OPEN)
-      .setRuleKey(RuleKey.of("manual", "Performance"));
-
-    workflow.start();
-
-    assertThat(workflow.outTransitions(issue)).containsOnly(
-      Transition.create("confirm", "OPEN", "CONFIRMED"),
-      Transition.create("resolve", "OPEN", "RESOLVED"),
-      Transition.create("falsepositive", "OPEN", "RESOLVED"),
-      Transition.create("wontfix", "OPEN", "RESOLVED"));
-
-    workflow.doTransition(issue, "confirm", mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo("CONFIRMED");
-
-    assertThat(workflow.outTransitions(issue)).containsOnly(
-      Transition.create("unconfirm", "CONFIRMED", "REOPENED"),
-      Transition.create("resolve", "CONFIRMED", "RESOLVED"),
-      Transition.create("falsepositive", "CONFIRMED", "RESOLVED"),
-      Transition.create("wontfix", "CONFIRMED", "RESOLVED"));
-
-    // keep confirmed and unresolved
-    workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo("CONFIRMED");
-
-    // unconfirm
-    workflow.doTransition(issue, "unconfirm", mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isNull();
-    assertThat(issue.status()).isEqualTo("REOPENED");
-  }
-
-  @Test
-  public void manual_issue_on_removed_rule_be_closed() {
-    // Manual issue because of reporter
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setStatus(STATUS_OPEN)
-      .setRuleKey(RuleKey.of("manual", "Performance"))
-      .setBeingClosed(true)
-      .setOnDisabledRule(true);
-
-    workflow.start();
-
-    workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo("REMOVED");
-    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
-  }
-
-  @Test
-  public void manual_issue_on_removed_component_be_closed() {
-    // Manual issue because of reporter
-    DefaultIssue issue = new DefaultIssue()
-      .setKey("ABCDE")
-      .setStatus(STATUS_OPEN)
-      .setRuleKey(RuleKey.of("manual", "Performance"))
-      .setBeingClosed(true)
-      .setOnDisabledRule(false);
-
-    workflow.start();
-
-    workflow.doAutomaticTransition(issue, mock(IssueChangeContext.class));
-    assertThat(issue.resolution()).isEqualTo(RESOLUTION_FIXED);
-    assertThat(issue.status()).isEqualTo(STATUS_CLOSED);
   }
 
   private Collection<String> keys(List<Transition> transitions) {

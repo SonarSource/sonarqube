@@ -21,11 +21,11 @@ package org.sonar.server.issue.workflow;
 
 import java.util.List;
 import org.picocontainer.Startable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.issue.DefaultTransitions;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.issue.condition.HasResolution;
 import org.sonar.api.issue.condition.NotCondition;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.issue.DefaultIssue;
@@ -152,7 +152,6 @@ public class IssueWorkflow implements Startable {
         .build())
 
       // Reopen issues that are marked as resolved but that are still alive.
-      // Manual issues are kept resolved.
       .transition(Transition.builder("automaticreopen")
         .from(Issue.STATUS_RESOLVED).to(Issue.STATUS_REOPENED)
         .conditions(new NotCondition(IsBeingClosed.INSTANCE), new HasResolution(Issue.RESOLUTION_FIXED))

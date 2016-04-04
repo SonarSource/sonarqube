@@ -33,7 +33,11 @@ import org.sonar.server.notification.NotificationDispatcherMetadata;
 import org.sonar.server.notification.NotificationManager;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ChangesOnMyIssueNotificationDispatcherTest {
@@ -74,7 +78,7 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
   }
 
   @Test
-  public void should_dispatch_to_reporter_and_assignee() {
+  public void should_dispatch_to_assignee() {
     Multimap<String, NotificationChannel> recipients = HashMultimap.create();
     recipients.put("simon", emailChannel);
     recipients.put("freddy", twitterChannel);
@@ -83,11 +87,9 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
 
     Notification notification = new IssueChangeNotification().setFieldValue("projectKey", "struts")
       .setFieldValue("changeAuthor", "olivier")
-      .setFieldValue("reporter", "simon")
       .setFieldValue("assignee", "freddy");
     dispatcher.performDispatch(notification, context);
 
-    verify(context).addUser("simon", emailChannel);
     verify(context).addUser("freddy", twitterChannel);
     verify(context, never()).addUser("godin", twitterChannel);
     verifyNoMoreInteractions(context);
@@ -100,10 +102,6 @@ public class ChangesOnMyIssueNotificationDispatcherTest {
     recipients.put("freddy", twitterChannel);
     recipients.put("godin", twitterChannel);
     when(notifications.findNotificationSubscribers(dispatcher, "struts")).thenReturn(recipients);
-
-    // change author is the reporter
-    dispatcher.performDispatch(new IssueChangeNotification().setFieldValue("projectKey", "struts")
-      .setFieldValue("changeAuthor", "simon").setFieldValue("reporter", "simon"), context);
 
     // change author is the assignee
     dispatcher.performDispatch(new IssueChangeNotification().setFieldValue("projectKey", "struts")
