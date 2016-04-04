@@ -51,7 +51,11 @@ export default class ListView extends React.Component {
   scrollToViewer () {
     const { container } = this.refs;
     const top = container.getBoundingClientRect().top + window.scrollY - 95 - 10;
-    window.scrollTo(0, top);
+
+    // scroll only to top
+    if (window.scrollY > top) {
+      window.scrollTo(0, top);
+    }
   }
 
   scrollToStoredPosition () {
