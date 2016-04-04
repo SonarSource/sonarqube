@@ -69,15 +69,13 @@ public class InfoAction implements SystemWsAction {
   private void writeJson(JsonWriter json) {
     json.beginObject();
     for (Monitor monitor : monitors) {
-      Optional<Map<String, Object>> attributes = monitor.attributes();
-      if (attributes.isPresent()) {
-        json.name(monitor.name());
-        json.beginObject();
-        for (Map.Entry<String, Object> attribute : attributes.get().entrySet()) {
-          json.name(attribute.getKey()).valueObject(attribute.getValue());
-        }
-        json.endObject();
+      Map<String, Object> attributes = monitor.attributes();
+      json.name(monitor.name());
+      json.beginObject();
+      for (Map.Entry<String, Object> attribute : attributes.entrySet()) {
+        json.name(attribute.getKey()).valueObject(attribute.getValue());
       }
+      json.endObject();
     }
     Optional<ProtobufSystemInfo.SystemInfo> ceSysInfo = processSystemInfoClient.connect(ProcessId.COMPUTE_ENGINE);
     if (ceSysInfo.isPresent()) {

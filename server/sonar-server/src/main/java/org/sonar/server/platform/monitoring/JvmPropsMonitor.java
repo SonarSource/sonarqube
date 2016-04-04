@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Optional;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
@@ -31,11 +30,11 @@ public class JvmPropsMonitor implements Monitor {
   }
 
   @Override
-  public Optional<Map<String, Object>> attributes() {
+  public Map<String, Object> attributes() {
     Map<String, Object> sortedProps = new TreeMap<>();
     for (Map.Entry<Object, Object> systemProp : System.getProperties().entrySet()) {
       sortedProps.put(Objects.toString(systemProp.getKey()), Objects.toString(systemProp.getValue()));
     }
-    return Optional.of(sortedProps);
+    return sortedProps;
   }
 }

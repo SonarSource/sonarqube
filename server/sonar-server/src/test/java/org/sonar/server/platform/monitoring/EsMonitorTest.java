@@ -44,7 +44,7 @@ public class EsMonitorTest {
 
   @Test
   public void cluster_attributes() {
-    Map<String, Object> attributes = underTest.attributes().get();
+    Map<String, Object> attributes = underTest.attributes();
     assertThat(underTest.getState()).isEqualTo(ClusterHealthStatus.GREEN.name());
     assertThat(attributes.get("State")).isEqualTo(ClusterHealthStatus.GREEN);
     assertThat(attributes.get("Number of Nodes")).isEqualTo(1);
@@ -52,7 +52,7 @@ public class EsMonitorTest {
 
   @Test
   public void node_attributes() {
-    Map<String, Object> attributes = underTest.attributes().get();
+    Map<String, Object> attributes = underTest.attributes();
     Map nodesAttributes = (Map) attributes.get("Nodes");
 
     // one node
@@ -64,7 +64,7 @@ public class EsMonitorTest {
 
   @Test
   public void index_attributes() {
-    Map<String, Object> attributes = underTest.attributes().get();
+    Map<String, Object> attributes = underTest.attributes();
     Map indicesAttributes = (Map) attributes.get("Indices");
 
     // one index "issues"

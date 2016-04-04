@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Optional;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
@@ -66,13 +65,13 @@ public class EsMonitor extends BaseMonitorMBean implements EsMonitorMBean {
   }
 
   @Override
-  public Optional<Map<String, Object>> attributes() {
+  public Map<String, Object> attributes() {
     Map<String, Object> attributes = new LinkedHashMap<>();
     attributes.put("State", getStateAsEnum());
     attributes.put("Indices", indexAttributes());
     attributes.put("Number of Nodes", getNumberOfNodes());
     attributes.put("Nodes", nodeAttributes());
-    return Optional.of(attributes);
+    return attributes;
   }
 
   private LinkedHashMap<String, LinkedHashMap<String, Object>> indexAttributes() {

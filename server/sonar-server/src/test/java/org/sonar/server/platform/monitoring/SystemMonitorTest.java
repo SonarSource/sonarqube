@@ -35,7 +35,7 @@ public class SystemMonitorTest {
 
   @Test
   public void system_properties() {
-    Map<String, Object> attributes = underTest.attributes().get();
+    Map<String, Object> attributes = underTest.attributes();
 
     assertThat(attributes).containsKeys("System Date", "Processors");
   }

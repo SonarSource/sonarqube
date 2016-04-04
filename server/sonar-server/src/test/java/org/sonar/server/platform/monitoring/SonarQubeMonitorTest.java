@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Optional;
 import java.io.File;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -62,8 +61,8 @@ public class SonarQubeMonitorTest {
     when(server.getStartedAt()).thenReturn(DateUtils.parseDate("2015-01-01"));
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    Optional<Map<String, Object>> attributes = monitor.attributes();
-    assertThat(attributes.get()).containsKeys("Server ID", "Version");
+    Map<String, Object> attributes = monitor.attributes();
+    assertThat(attributes).containsKeys("Server ID", "Version");
   }
 
   @Test
@@ -74,8 +73,8 @@ public class SonarQubeMonitorTest {
     when(server.getRootDir()).thenReturn(rootDir);
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    Optional<Map<String, Object>> attributes = monitor.attributes();
-    assertThat(attributes.get()).containsEntry("Official Distribution", Boolean.TRUE);
+    Map<String, Object> attributes = monitor.attributes();
+    assertThat(attributes).containsEntry("Official Distribution", Boolean.TRUE);
   }
 
   @Test
@@ -85,15 +84,15 @@ public class SonarQubeMonitorTest {
     when(server.getRootDir()).thenReturn(rootDir);
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    Optional<Map<String, Object>> attributes = monitor.attributes();
-    assertThat(attributes.get()).containsEntry("Official Distribution", Boolean.FALSE);
+    Map<String, Object> attributes = monitor.attributes();
+    assertThat(attributes).containsEntry("Official Distribution", Boolean.FALSE);
   }
 
   @Test
   public void get_log_level() throws Exception {
     SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    Optional<Map<String, Object>> attributes = monitor.attributes();
-    assertThat(attributes.get()).containsEntry("Logs Level", "DEBUG");
+    Map<String, Object> attributes = monitor.attributes();
+    assertThat(attributes).containsEntry("Logs Level", "DEBUG");
   }
 }

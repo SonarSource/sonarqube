@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.monitoring;
 
-import com.google.common.base.Optional;
 import java.util.Map;
 import org.junit.Test;
 
@@ -36,8 +35,8 @@ public class JvmPropsMonitorTest {
 
   @Test
   public void attributes() {
-    Optional<Map<String, Object>> attributes = underTest.attributes();
+    Map<String, Object> attributes = underTest.attributes();
 
-    assertThat(attributes.get()).containsKeys("java.vm.vendor", "os.name");
+    assertThat(attributes).containsKeys("java.vm.vendor", "os.name");
   }
 }

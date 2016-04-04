@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform.ws;
 
-import com.google.common.base.Optional;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import org.junit.Rule;
@@ -42,13 +41,12 @@ import static org.mockito.Mockito.when;
 public class InfoActionTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().login("login")
-      .setName("name");
+    .setName("name");
 
   Monitor monitor1 = mock(Monitor.class);
   Monitor monitor2 = mock(Monitor.class);
-  Monitor monitor3 = mock(Monitor.class);
   ProcessSystemInfoClient processSystemInfoClient = mock(ProcessSystemInfoClient.class, Mockito.RETURNS_MOCKS);
-  InfoAction underTest = new InfoAction(userSessionRule, processSystemInfoClient, monitor1, monitor2, monitor3);
+  InfoAction underTest = new InfoAction(userSessionRule, processSystemInfoClient, monitor1, monitor2);
 
   @Test(expected = ForbiddenException.class)
   public void should_fail_when_does_not_have_admin_right() {
@@ -67,11 +65,9 @@ public class InfoActionTest {
     attributes2.put("one", 1);
     attributes2.put("two", 2);
     when(monitor1.name()).thenReturn("Monitor One");
-    when(monitor1.attributes()).thenReturn(Optional.of(attributes1));
+    when(monitor1.attributes()).thenReturn(attributes1);
     when(monitor2.name()).thenReturn("Monitor Two");
-    when(monitor2.attributes()).thenReturn(Optional.of(attributes2));
-    when(monitor3.name()).thenReturn("Monitor Three");
-    when(monitor3.attributes()).thenReturn(Optional.<Map<String, Object>>absent());
+    when(monitor2.attributes()).thenReturn(attributes2);
 
     WsTester.TestResponse response = new WsTester.TestResponse();
     underTest.handle(new SimpleGetRequest(), response);
