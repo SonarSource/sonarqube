@@ -31,9 +31,12 @@ import org.picocontainer.MutablePicoContainer;
 import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
+import org.sonar.process.ProcessId;
 import org.sonar.process.Props;
 
+import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.process.ProcessEntryPoint.PROPERTY_PROCESS_INDEX;
 import static org.sonar.process.ProcessEntryPoint.PROPERTY_SHARED_PATH;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
@@ -62,10 +65,11 @@ public class ComputeEngineContainerImplTest {
     File homeDir = tempFolder.newFolder();
     File dataDir = new File(homeDir, "data");
     File tmpDir = new File(homeDir, "tmp");
-    properties.setProperty(STARTED_AT, String.valueOf(new Date().getTime()));
+    properties.setProperty(STARTED_AT, valueOf(new Date().getTime()));
     properties.setProperty(PATH_HOME, homeDir.getAbsolutePath());
     properties.setProperty(PATH_DATA, dataDir.getAbsolutePath());
     properties.setProperty(PATH_TEMP, tmpDir.getAbsolutePath());
+    properties.setProperty(PROPERTY_PROCESS_INDEX, valueOf(ProcessId.COMPUTE_ENGINE.getIpcIndex()));
     properties.setProperty(PROPERTY_SHARED_PATH, tmpDir.getAbsolutePath());
     String url = ((BasicDataSource) dbTester.database().getDataSource()).getUrl();
     properties.setProperty(DatabaseProperties.PROP_URL, url);
@@ -80,7 +84,7 @@ public class ComputeEngineContainerImplTest {
       .hasSize(
         CONTAINER_ITSELF
           + 75 // level 4
-          + 5 // content of CeModule
+          + 7 // content of CeModule
           + 7 // content of CeQueueModule
           + 4 // content of ReportProcessingModule
           + 4 // content of CeTaskProcessorModule
@@ -95,7 +99,7 @@ public class ComputeEngineContainerImplTest {
     );
     assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
-        + 23 // level 1
+        + 22 // level 1
         + 45 // content of DaoModule
         + 1 // content of EsSearchModule
         + 56 // content of CorePropertyDefinitions
