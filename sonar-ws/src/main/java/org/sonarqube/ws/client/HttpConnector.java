@@ -110,6 +110,9 @@ public class HttpConnector implements WsConnector {
         throw new IllegalStateException("Fail to init TLS context", e);
       }
     }
+    else {
+      this.okHttpClient.setSslSocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault());
+    }
   }
 
   @Override
