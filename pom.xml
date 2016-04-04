@@ -58,7 +58,7 @@
     <sonarJava.version>3.10</sonarJava.version>
     <sonarJavaScript.version>2.10</sonarJavaScript.version>
     <sonarCSharp.version>4.4</sonarCSharp.version>
-    <sonarGit.version>1.0</sonarGit.version>
+    <sonarGit.version>1.2</sonarGit.version>
     <sonarSvn.version>1.2</sonarSvn.version>
     <h2.version>1.3.176</h2.version>
     <jetty.version>8.1.12.v20130726</jetty.version>
@@ -502,7 +502,7 @@
         <scope>test</scope>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar-plugins</groupId>
+        <groupId>org.sonarsource.scm.git</groupId>
         <artifactId>sonar-scm-git-plugin</artifactId>
         <version>${sonarGit.version}</version>
         <type>sonar-plugin</type>
