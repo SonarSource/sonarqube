@@ -97,6 +97,19 @@ public class HttpConnector implements WsConnector {
       .supportsTlsExtensions(true)
       .build();
     this.okHttpClient.setConnectionSpecs(asList(tls, ConnectionSpec.CLEARTEXT));
+    this.okHttpClient.setSslSocketFactory(createSslSocketFactory(javaVersion));
+  }
+
+  private static SSLSocketFactory createSslSocketFactory(JavaVersion javaVersion) {
+    try {
+      SSLSocketFactory sslSocketFactory = (SSLSocketFactory) SSLSocketFactory.getDefault();
+      return enableTls12InJava7(sslSocketFactory, javaVersion);
+    } catch (Exception e) {
+      throw new IllegalStateException("Fail to init TLS context", e);
+    }
+  }
+
+  private static SSLSocketFactory enableTls12InJava7(SSLSocketFactory sslSocketFactory, JavaVersion javaVersion) {
     if (javaVersion.isJava7()) {
       // OkHttp executes SSLContext.getInstance("TLS") by default (see
       // https://github.com/square/okhttp/blob/c358656/okhttp/src/main/java/com/squareup/okhttp/OkHttpClient.java#L616)
@@ -104,12 +117,9 @@ public class HttpConnector implements WsConnector {
       // in order to support all versions from 1.0 to 1.2.
       // Note that this is not overridden for Java 8 as TLS 1.2 is enabled by default.
       // Keeping getInstance("TLS") allows to support potential future versions of TLS on Java 8.
-      try {
-        this.okHttpClient.setSslSocketFactory(new Tls12Java7SocketFactory((SSLSocketFactory) SSLSocketFactory.getDefault()));
-      } catch (Exception e) {
-        throw new IllegalStateException("Fail to init TLS context", e);
-      }
+      return new Tls12Java7SocketFactory(sslSocketFactory);
     }
+    return sslSocketFactory;
   }
 
   @Override
