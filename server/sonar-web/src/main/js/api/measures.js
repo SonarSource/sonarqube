@@ -19,7 +19,6 @@
  */
 import { getJSON } from '../helpers/request.js';
 
-
 export function getMeasures (componentKey, metrics) {
   const url = window.baseUrl + '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(',') };

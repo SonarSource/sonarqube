@@ -22,7 +22,6 @@ import _ from 'underscore';
 import { INIT, BROWSE, SEARCH, UPDATE_QUERY, SELECT_NEXT, SELECT_PREV, START_FETCHING, STOP_FETCHING,
     RAISE_ERROR } from '../actions';
 
-
 function hasSourceCode (component) {
   return component.qualifier === 'FIL' || component.qualifier === 'UTS';
 }
@@ -88,7 +87,6 @@ function getPrev (element, list) {
   }
 }
 
-
 export const initialState = {
   fetching: false,
   baseComponent: null,
@@ -104,8 +102,9 @@ export const initialState = {
   errorMessage: null
 };
 
-
 export function current (state = initialState, action) {
+  /* eslint no-case-declarations: 0 */
+  /* FIXME fix it ^^^ */
   switch (action.type) {
     case INIT:
       const coverageMetric = selectCoverageMetric(action.component);
@@ -165,7 +164,6 @@ export function current (state = initialState, action) {
       return state;
   }
 }
-
 
 export function bucket (state = [], action) {
   switch (action.type) {

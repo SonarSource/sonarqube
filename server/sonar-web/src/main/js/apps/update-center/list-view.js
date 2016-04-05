@@ -25,4 +25,3 @@ export default Marionette.CollectionView.extend({
   childView: ListItemView
 });
 
-

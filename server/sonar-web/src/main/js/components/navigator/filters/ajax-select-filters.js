@@ -27,7 +27,6 @@ import ListTemplate from '../templates/choice-filter-item.hbs';
 
 const PAGE_SIZE = 100;
 
-
 const Suggestions = Backbone.Collection.extend({
   comparator: 'text',
 
@@ -36,12 +35,10 @@ const Suggestions = Backbone.Collection.extend({
     this.page = 0;
   },
 
-
   parse (r) {
     this.more = r.more;
     return r.results;
   },
-
 
   fetch (options) {
     this.data = _.extend({
@@ -53,7 +50,6 @@ const Suggestions = Backbone.Collection.extend({
     return Backbone.Collection.prototype.fetch.call(this, settings);
   },
 
-
   fetchNextPage (options) {
     if (this.more) {
       this.data.p += 1;
@@ -64,7 +60,6 @@ const Suggestions = Backbone.Collection.extend({
   }
 
 });
-
 
 const UserSuggestions = Suggestions.extend({
 
@@ -80,7 +75,6 @@ const UserSuggestions = Suggestions.extend({
 
 });
 
-
 const ProjectSuggestions = Suggestions.extend({
 
   url () {
@@ -88,7 +82,6 @@ const ProjectSuggestions = Suggestions.extend({
   }
 
 });
-
 
 const ComponentSuggestions = Suggestions.extend({
 
@@ -116,12 +109,10 @@ const ComponentSuggestions = Suggestions.extend({
 
 });
 
-
 const AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
   template: Template,
   listTemplate: ListTemplate,
   searchKey: 's',
-
 
   render () {
     ChoiceFilters.DetailsChoiceFilterView.prototype.render.apply(this, arguments);
@@ -147,7 +138,6 @@ const AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend
         .off('scroll')
         .on('scroll', throttledScroll);
   },
-
 
   search () {
     const that = this;
@@ -182,12 +172,10 @@ const AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend
     }
   },
 
-
   showSearchError () {
     this.$el.removeClass('fetching');
     this.$('.navigator-filter-search').addClass('fetching-error');
   },
-
 
   scroll () {
     const that = this;
@@ -201,13 +189,11 @@ const AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend
     }
   },
 
-
   keydown (e) {
     if (_([38, 40, 13]).indexOf(e.keyCode) !== -1) {
       e.preventDefault();
     }
   },
-
 
   resetChoices () {
     const that = this;
@@ -219,7 +205,6 @@ const AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend
     });
   },
 
-
   onShow () {
     ChoiceFilters.DetailsChoiceFilterView.prototype.onShow.apply(this, arguments);
     this.resetChoices();
@@ -229,7 +214,6 @@ const AjaxSelectDetailsFilterView = ChoiceFilters.DetailsChoiceFilterView.extend
 
 });
 
-
 const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
 
   initialize (options) {
@@ -238,11 +222,9 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
     });
   },
 
-
   isDefaultValue () {
     return this.getSelected().length === 0;
   },
-
 
   renderInput () {
     const value = this.model.get('value') || [];
@@ -253,7 +235,6 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
         .val(value.join());
     input.appendTo(this.$el);
   },
-
 
   restoreFromQuery (q) {
     let param = _.findWhere(q, { key: this.model.get('property') });
@@ -281,7 +262,6 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
       this.clear();
     }
   },
-
 
   restore (value, param) {
     const that = this;
@@ -316,7 +296,6 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
     }
   },
 
-
   restoreFromText (value, text) {
     const that = this;
     _.each(value, function (v, i) {
@@ -329,7 +308,6 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
     this.onRestore(value);
   },
 
-
   restoreByRequests (value) {
     const that = this;
     const requests = _.map(value, function (v) {
@@ -341,12 +319,10 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
     });
   },
 
-
   onRestore () {
     this.projectsView.updateLists();
     this.renderBase();
   },
-
 
   clear () {
     this.model.unset('value');
@@ -356,12 +332,10 @@ const AjaxSelectFilterView = ChoiceFilters.ChoiceFilterView.extend({
     this.render();
   },
 
-
   createRequest () {
   }
 
 });
-
 
 const ComponentFilterView = AjaxSelectFilterView.extend({
 
@@ -371,7 +345,6 @@ const ComponentFilterView = AjaxSelectFilterView.extend({
     });
     this.choices = new ComponentSuggestions();
   },
-
 
   createRequest (v) {
     const that = this;
@@ -391,7 +364,6 @@ const ComponentFilterView = AjaxSelectFilterView.extend({
 
 });
 
-
 const ProjectFilterView = AjaxSelectFilterView.extend({
 
   initialize () {
@@ -401,7 +373,6 @@ const ProjectFilterView = AjaxSelectFilterView.extend({
 
     this.choices = new ProjectSuggestions();
   },
-
 
   createRequest (v) {
     const that = this;
@@ -421,7 +392,6 @@ const ProjectFilterView = AjaxSelectFilterView.extend({
   }
 
 });
-
 
 const AssigneeFilterView = AjaxSelectFilterView.extend({
 
@@ -452,7 +422,6 @@ const AssigneeFilterView = AjaxSelectFilterView.extend({
 
 });
 
-
 /*
  * Export public classes
  */
@@ -465,5 +434,4 @@ export default {
   ComponentFilterView,
   AssigneeFilterView
 };
-
 

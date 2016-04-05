@@ -35,16 +35,13 @@ const Filter = Backbone.Model.extend({
 
 });
 
-
 const Filters = Backbone.Collection.extend({
   model: Filter
 });
 
-
 const DetailsFilterView = Marionette.ItemView.extend({
   template: DetailsTemplate,
   className: 'navigator-filter-details',
-
 
   initialize () {
     this.$el.on('click', function (e) {
@@ -53,7 +50,6 @@ const DetailsFilterView = Marionette.ItemView.extend({
     this.$el.attr('id', 'filter-' + this.model.get('property'));
   },
 
-
   onShow () {
   },
 
@@ -61,11 +57,9 @@ const DetailsFilterView = Marionette.ItemView.extend({
   }
 });
 
-
 const BaseFilterView = Marionette.ItemView.extend({
   template: Template,
   className: 'navigator-filter',
-
 
   events () {
     return {
@@ -73,7 +67,6 @@ const BaseFilterView = Marionette.ItemView.extend({
       'click .navigator-filter-disable': 'disable'
     };
   },
-
 
   modelEvents: {
     'change:enabled': 'focus',
@@ -83,12 +76,11 @@ const BaseFilterView = Marionette.ItemView.extend({
     'change:filters': 'render'
   },
 
-
   initialize (options) {
     Marionette.ItemView.prototype.initialize.apply(this, arguments);
 
-    const detailsView = (options && options.projectsView) || DetailsFilterView;
-    this.projectsView = new detailsView({
+    const DetailsView = (options && options.projectsView) || DetailsFilterView;
+    this.projectsView = new DetailsView({
       model: this.model,
       filterView: this
     });
@@ -96,11 +88,9 @@ const BaseFilterView = Marionette.ItemView.extend({
     this.model.view = this;
   },
 
-
   attachDetailsView () {
     this.projectsView.$el.detach().appendTo($('body'));
   },
-
 
   render () {
     this.renderBase();
@@ -117,7 +107,6 @@ const BaseFilterView = Marionette.ItemView.extend({
         this.model.get('optional'));
   },
 
-
   renderBase () {
     Marionette.ItemView.prototype.render.apply(this, arguments);
     this.renderInput();
@@ -127,15 +116,12 @@ const BaseFilterView = Marionette.ItemView.extend({
     this.$el.attr('data-property', this.model.get('property'));
   },
 
-
   renderInput () {
   },
-
 
   focus () {
     this.render();
   },
-
 
   toggleDetails (e) {
     e.stopPropagation();
@@ -149,7 +135,6 @@ const BaseFilterView = Marionette.ItemView.extend({
     }
   },
 
-
   showDetails () {
     this.registerShowedDetails();
 
@@ -161,12 +146,10 @@ const BaseFilterView = Marionette.ItemView.extend({
     this.projectsView.onShow();
   },
 
-
   registerShowedDetails () {
     this.options.filterBarView.hideDetails();
     this.options.filterBarView.showedView = this;
   },
-
 
   hideDetails () {
     this.projectsView.$el.removeClass('active');
@@ -174,21 +157,17 @@ const BaseFilterView = Marionette.ItemView.extend({
     this.projectsView.onHide();
   },
 
-
   isActive () {
     return this.$el.is('.active');
   },
-
 
   renderValue () {
     return this.model.get('value') || 'unset';
   },
 
-
   isDefaultValue () {
     return true;
   },
-
 
   restoreFromQuery (q) {
     const param = _.findWhere(q, { key: this.model.get('property') });
@@ -200,17 +179,14 @@ const BaseFilterView = Marionette.ItemView.extend({
     }
   },
 
-
   restore (value) {
     this.model.set({ value }, { silent: true });
     this.renderBase();
   },
 
-
   clear () {
     this.model.unset('value');
   },
-
 
   disable (e) {
     e.stopPropagation();
@@ -222,7 +198,6 @@ const BaseFilterView = Marionette.ItemView.extend({
     });
   },
 
-
   formatValue () {
     const q = {};
     if (this.model.has('property') && this.model.has('value') && this.model.get('value')) {
@@ -230,7 +205,6 @@ const BaseFilterView = Marionette.ItemView.extend({
     }
     return q;
   },
-
 
   serializeData () {
     return _.extend({}, this.model.toJSON(), {
@@ -240,7 +214,6 @@ const BaseFilterView = Marionette.ItemView.extend({
   }
 
 });
-
 
 /*
  * Export public classes
@@ -252,5 +225,3 @@ export default {
   BaseFilterView,
   DetailsFilterView
 };
-
-

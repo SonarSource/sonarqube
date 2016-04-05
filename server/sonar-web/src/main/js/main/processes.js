@@ -105,7 +105,6 @@ const ProcessesView = Marionette.ItemView.extend({
   }
 });
 
-
 const processes = new Processes();
 const processesView = new ProcessesView({
   collection: processes
@@ -164,7 +163,6 @@ function handleAjaxError (jqXHR) {
   }
 }
 
-
 $.ajaxSetup({
   beforeSend (jqXHR) {
     jqXHR.processId = addBackgroundProcess();
@@ -181,7 +179,6 @@ $.ajaxSetup({
     500: handleAjaxError
   }
 });
-
 
 $(function () {
   processesView.render().$el.insertBefore('#footer');

@@ -63,7 +63,7 @@ export default React.createClass({
   },
 
   render() {
-    let className = classNames('data', 'zebra', { 'new-loading': !this.props.ready });
+    const className = classNames('data', 'zebra', { 'new-loading': !this.props.ready });
     return (
         <table className={className}>
           <tbody>{this.props.projects.map(this.renderProject)}</tbody>

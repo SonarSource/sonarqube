@@ -30,4 +30,3 @@ export default ModalForm.extend({
   }
 });
 
-

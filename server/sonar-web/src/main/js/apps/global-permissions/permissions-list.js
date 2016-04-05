@@ -22,7 +22,6 @@ import React from 'react';
 
 import Permission from './permission';
 
-
 export default React.createClass({
   propTypes: {
     permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
@@ -35,7 +34,7 @@ export default React.createClass({
   },
 
   render() {
-    let className = classNames({ 'new-loading': !this.props.ready });
+    const className = classNames({ 'new-loading': !this.props.ready });
     return <ul id="global-permissions-list" className={className}>{this.renderPermissions()}</ul>;
   }
 });

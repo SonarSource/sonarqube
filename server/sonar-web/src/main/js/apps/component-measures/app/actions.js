@@ -26,7 +26,6 @@ import { getMetrics } from '../../../api/metrics';
 export const DISPLAY_HOME = 'app/DISPLAY_HOME';
 export const RECEIVE_METRICS = 'app/RECEIVE_METRICS';
 
-
 /*
  * Action Creators
  */
@@ -38,7 +37,6 @@ export function displayHome () {
 function receiveMetrics (metrics) {
   return { type: RECEIVE_METRICS, metrics };
 }
-
 
 /*
  * Workflow

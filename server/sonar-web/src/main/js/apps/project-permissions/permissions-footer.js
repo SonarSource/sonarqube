@@ -20,7 +20,6 @@
 import classNames from 'classnames';
 import React from 'react';
 
-
 export default React.createClass({
   propTypes: {
     count: React.PropTypes.number.isRequired,
@@ -37,9 +36,9 @@ export default React.createClass({
     if (this.props.componentId) {
       return null;
     }
-    let hasMore = this.props.total > this.props.count;
-    let loadMoreLink = <a onClick={this.handleLoadMore} className="spacer-left" href="#">show more</a>;
-    let className = classNames('spacer-top note text-center', { 'new-loading': !this.props.ready });
+    const hasMore = this.props.total > this.props.count;
+    const loadMoreLink = <a onClick={this.handleLoadMore} className="spacer-left" href="#">show more</a>;
+    const className = classNames('spacer-top note text-center', { 'new-loading': !this.props.ready });
     return (
         <footer className={className}>
           {this.props.count}/{this.props.total} shown

@@ -30,8 +30,8 @@ export default React.createClass({
   },
 
   render() {
-    let renderedItems = this.props.items.map(item => {
-      let key = this.props.getItemKey(item);
+    const renderedItems = this.props.items.map(item => {
+      const key = this.props.getItemKey(item);
       return <Item key={key} {...this.props} item={item} />;
     });
     return (

@@ -32,4 +32,3 @@ export default BaseFacet.extend({
   }
 });
 
-

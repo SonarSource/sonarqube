@@ -31,7 +31,6 @@ export default React.createClass({
     deselectItem: React.PropTypes.func.isRequired
   },
 
-
   getInitialState() {
     return { items: [], total: 0, selection: 'selected', query: null };
   },
@@ -41,7 +40,7 @@ export default React.createClass({
   },
 
   loadItems() {
-    let options = {
+    const options = {
       selection: this.state.selection,
       query: this.state.query,
       page: 1
@@ -52,13 +51,13 @@ export default React.createClass({
   },
 
   loadMoreItems() {
-    let options = {
+    const options = {
       selection: this.state.selection,
       query: this.state.query,
       page: this.state.page + 1
     };
     this.props.loadItems(options, (items, paging) => {
-      let newItems = [].concat(this.state.items, items);
+      const newItems = [].concat(this.state.items, items);
       this.setState({ items: newItems, total: paging.total, page: paging.pageIndex });
     });
   },

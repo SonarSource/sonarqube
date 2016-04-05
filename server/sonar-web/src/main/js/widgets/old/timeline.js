@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* jscs:disable safeContextKeyword */
 import moment from 'moment';
 
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
@@ -72,7 +73,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   };
 
-
   window.SonarWidgets.Timeline.prototype.initScalesAndAxis = function () {
     // Configure scales
     const timeDomain = this.data()
@@ -101,7 +101,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .ticks(5);
   };
 
-
   window.SonarWidgets.Timeline.prototype.initEvents = function () {
     const widget = this;
     this.events(this.events().filter(function (event) {
@@ -118,7 +117,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('y2', -8);
 
     this.gevents.exit().remove();
-
 
     this.selectSnapshot = function (cl) {
       const sx = widget.time(widget.data()[0][cl].x);
@@ -157,7 +155,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       });
     };
 
-
     // Set event listeners
     this.svg.on('mousemove', function () {
       const mx = d3.mouse(widget.plotWrap.node())[0];
@@ -165,7 +162,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.selectSnapshot(cl);
     });
   };
-
 
   window.SonarWidgets.Timeline.prototype.render = function () {
     const widget = this;
@@ -225,12 +221,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.markers.push(marker);
     });
 
-
     // Configure scanner
     this.scanner
         .attr('class', 'scanner')
         .attr('y1', 0);
-
 
     // Configure info
     this.infoWrap
@@ -264,7 +258,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     return this;
   };
 
-
   window.SonarWidgets.Timeline.prototype.showLimitHistoryMessage = function () {
     const minEvent = d3.min(this.events(), function (d) {
       return d.d;
@@ -276,23 +269,19 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     }
   };
 
-
   window.SonarWidgets.Timeline.prototype.update = function () {
     const widget = this;
     const width = this.container.property('offsetWidth');
 
     this.width(width > 100 ? width : 100);
 
-
     // Update svg canvas
     this.svg
         .attr('width', this.width())
         .attr('height', this.height());
 
-
     // Update available width
     this.availableWidth = this.width() - this.margin().left - this.margin().right;
-
 
     // Update metric lines
     let metricY = -1;
@@ -317,7 +306,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     // Update available width
     this.availableHeight = this.height() - this.margin().top - this.margin().bottom - metricY;
 
-
     // Update scales
     this.time
         .range([0, this.availableWidth]);
@@ -326,18 +314,15 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       scale.range([widget.availableHeight, 0]);
     });
 
-
     // Update plot
     this.plotWrap
         .transition()
         .attr('transform', trans(0, metricY));
 
-
     // Update the axis
     this.gtimeAxis.attr('transform', trans(0, this.availableHeight + this.margin().bottom - 30 + metricY));
 
     this.gtimeAxis.transition().call(this.timeAxis);
-
 
     // Update lines and points
     this.data().forEach(function (_, i) {
@@ -351,11 +336,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           .attr('transform', function (d) { return trans(widget.time(d.x), widget.y[i](d.y)); });
     });
 
-
     // Update scanner
     this.scanner
         .attr('y2', this.availableHeight + 10);
-
 
     // Update events
     this.infoEvent
@@ -364,7 +347,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gevents
         .transition()
         .attr('transform', function (d) { return trans(widget.time(d.d), widget.availableHeight + 10 + metricY); });
-
 
     // Select latest values if this it the first update
     if (!this.firstUpdate) {
@@ -375,13 +357,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   };
 
-
   window.SonarWidgets.Timeline.defaults = {
     width: 350,
     height: 150,
     margin: { top: 50, right: 10, bottom: 40, left: 10 }
   };
-
 
   // Some helper functions
 

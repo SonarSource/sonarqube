@@ -46,7 +46,7 @@ export default React.createClass({
   },
 
   populateRecentHistory() {
-    let qualifier = _.last(this.props.component.breadcrumbs).qualifier;
+    const qualifier = _.last(this.props.component.breadcrumbs).qualifier;
     if (['TRK', 'VW', 'DEV'].indexOf(qualifier) !== -1) {
       RecentHistory.add(this.props.component.key, this.props.component.name, qualifier.toLowerCase());
     }

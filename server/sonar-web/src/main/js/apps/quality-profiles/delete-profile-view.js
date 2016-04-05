@@ -56,4 +56,3 @@ export default ModalFormView.extend({
   }
 });
 
-

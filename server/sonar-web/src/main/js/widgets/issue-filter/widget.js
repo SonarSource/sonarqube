@@ -31,7 +31,6 @@ import StatusesTemplate from './templates/widget-issue-filter-statuses.hbs';
 
 import { translate } from '../../helpers/l10n';
 
-
 const FACET_LIMIT = 15;
 
 const defaultComparator = function (item) {

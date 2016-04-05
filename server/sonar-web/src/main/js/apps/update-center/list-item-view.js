@@ -72,6 +72,7 @@ export default Marionette.ItemView.extend({
     e.stopPropagation();
     $('body').click();
     const index = $(e.currentTarget).data('idx');
+
     // if show changelog of update, show details of this update
     // otherwise show changelog of the available release
     const update = this.model.has('release') ? this.model.toJSON() : this.model.get('updates')[index];
@@ -113,5 +114,4 @@ export default Marionette.ItemView.extend({
     this.model.trigger('filter', this.model);
   }
 });
-
 

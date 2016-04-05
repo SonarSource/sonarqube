@@ -27,7 +27,6 @@
 
   "plugins": [
     "react",
-    "mocha",
     "import"
   ],
 
@@ -43,7 +42,7 @@
     "no-multi-spaces": 1,
     "no-self-compare": 2,
     "no-unexpected-multiline": 2,
-    "max-len": [1, 120, 2],
+    "max-len": 0,
     "no-const-assign": 2,
     "no-multiple-empty-lines": [1, { "max": 3 }],
     "no-spaced-func": 1,
@@ -76,5 +75,12 @@
     "react/react-in-jsx-scope": 2,
     "react/self-closing-comp": 2,
     "react/sort-comp": 1
+  },
+
+  "settings": {
+    "import/ignore": [
+      "node_modules",
+      "hbs$"
+    ]
   }
 }

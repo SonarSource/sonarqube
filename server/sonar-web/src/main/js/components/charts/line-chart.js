@@ -23,7 +23,6 @@ import React from 'react';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
-
 export const LineChart = React.createClass({
   propTypes: {
     data: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
@@ -61,7 +60,7 @@ export const LineChart = React.createClass({
       return null;
     }
 
-    let area = d3.svg.area()
+    const area = d3.svg.area()
                  .x(d => xScale(d.x))
                  .y0(yScale.range()[0])
                  .y1(d => yScale(d.y))
@@ -69,7 +68,7 @@ export const LineChart = React.createClass({
 
     let data = this.props.data;
     if (this.props.backdropConstraints) {
-      let c = this.props.backdropConstraints;
+      const c = this.props.backdropConstraints;
       data = data.filter(d => c[0] <= d.x && d.x <= c[1]);
     }
     return <path className="line-chart-backdrop" d={area(data)}/>;
@@ -79,9 +78,9 @@ export const LineChart = React.createClass({
     if (!this.props.displayPoints) {
       return null;
     }
-    let points = this.props.data.map((point, index) => {
-      let x = xScale(point.x);
-      let y = yScale(point.y);
+    const points = this.props.data.map((point, index) => {
+      const x = xScale(point.x);
+      const y = yScale(point.y);
       return <circle key={index}
                      className="line-chart-point"
                      r="3"
@@ -95,10 +94,10 @@ export const LineChart = React.createClass({
     if (!this.props.displayVerticalGrid) {
       return null;
     }
-    let lines = this.props.data.map((point, index) => {
-      let x = xScale(point.x);
-      let y1 = yScale.range()[0];
-      let y2 = yScale(point.y);
+    const lines = this.props.data.map((point, index) => {
+      const x = xScale(point.x);
+      const y1 = yScale.range()[0];
+      const y2 = yScale(point.y);
       return <line key={index}
                    className="line-chart-grid"
                    x1={x}
@@ -113,10 +112,10 @@ export const LineChart = React.createClass({
     if (!this.props.xTicks.length) {
       return null;
     }
-    let ticks = this.props.xTicks.map((tick, index) => {
-      let point = this.props.data[index];
-      let x = xScale(point.x);
-      let y = yScale.range()[0];
+    const ticks = this.props.xTicks.map((tick, index) => {
+      const point = this.props.data[index];
+      const x = xScale(point.x);
+      const y = yScale.range()[0];
       return <text key={index}
                    className="line-chart-tick"
                    x={x}
@@ -130,10 +129,10 @@ export const LineChart = React.createClass({
     if (!this.props.xValues.length) {
       return null;
     }
-    let ticks = this.props.xValues.map((value, index) => {
-      let point = this.props.data[index];
-      let x = xScale(point.x);
-      let y = yScale(point.y);
+    const ticks = this.props.xValues.map((value, index) => {
+      const point = this.props.data[index];
+      const x = xScale(point.x);
+      const y = yScale(point.y);
       return <text key={index}
                    className="line-chart-tick"
                    x={x}
@@ -144,7 +143,7 @@ export const LineChart = React.createClass({
   },
 
   renderLine (xScale, yScale) {
-    let p = d3.svg.line()
+    const p = d3.svg.line()
                  .x(d => xScale(d.x))
                  .y(d => yScale(d.y))
                  .interpolate(this.props.interpolate);
@@ -157,14 +156,14 @@ export const LineChart = React.createClass({
       return <div/>;
     }
 
-    let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
-    let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
+    const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
+    const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
     let maxY;
-    let xScale = d3.scale.linear()
+    const xScale = d3.scale.linear()
                    .domain(d3.extent(this.props.data, d => d.x))
                    .range([0, availableWidth]);
-    let yScale = d3.scale.linear()
+    const yScale = d3.scale.linear()
                    .range([availableHeight, 0]);
 
     if (this.props.domain) {

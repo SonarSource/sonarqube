@@ -170,4 +170,3 @@ export default BaseFacet.extend({
   }
 });
 
-

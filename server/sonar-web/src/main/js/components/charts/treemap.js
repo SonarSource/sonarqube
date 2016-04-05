@@ -26,12 +26,10 @@ import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 import { translate } from '../../helpers/l10n';
 
-
 const SIZE_SCALE = d3.scale.linear()
     .domain([3, 15])
     .range([11, 18])
     .clamp(true);
-
 
 function mostCommitPrefix (strings) {
   const sortedStrings = strings.slice(0).sort();
@@ -46,7 +44,6 @@ function mostCommitPrefix (strings) {
   const lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
-
 
 export const TreemapRect = React.createClass({
   propTypes: {
@@ -85,7 +82,7 @@ export const TreemapRect = React.createClass({
         'data-title': this.props.tooltip
       };
     }
-    let cellStyles = {
+    const cellStyles = {
       left: this.props.x,
       top: this.props.y,
       width: this.props.width,
@@ -95,18 +92,17 @@ export const TreemapRect = React.createClass({
       lineHeight: `${this.props.height}px`,
       cursor: typeof this.props.onClick === 'function' ? 'pointer' : 'default'
     };
-    let isTextVisible = this.props.width >= 40 && this.props.height >= 40;
+    const isTextVisible = this.props.width >= 40 && this.props.height >= 40;
     return <div className="treemap-cell"
         {...tooltipAttrs}
                 style={cellStyles}
                 onClick={this.props.onClick}>
       <div className="treemap-inner" dangerouslySetInnerHTML={{ __html: this.props.label }}
-           style={{ maxWidth: this.props.width, visibility: isTextVisible ? 'visible': 'hidden' }}/>
+           style={{ maxWidth: this.props.width, visibility: isTextVisible ? 'visible' : 'hidden' }}/>
       {this.renderLink()}
     </div>;
   }
 });
-
 
 export const Treemap = React.createClass({
   propTypes: {
@@ -139,22 +135,22 @@ export const Treemap = React.createClass({
       return this.renderWhenNoData();
     }
 
-    let treemap = d3.layout.treemap()
+    const treemap = d3.layout.treemap()
         .round(true)
         .value(d => d.size)
         .sort((a, b) => a.value - b.value)
         .size([this.state.width, this.state.height]);
-    let nodes = treemap
+    const nodes = treemap
         .nodes({ children: this.props.items })
         .filter(d => !d.children)
         .filter(d => !!d.dx && !!d.dy);
 
-    let prefix = mostCommitPrefix(this.props.items.map(item => item.label));
-    let prefixLength = prefix.length;
+    const prefix = mostCommitPrefix(this.props.items.map(item => item.label));
+    const prefixLength = prefix.length;
 
-    let rectangles = nodes.map(node => {
+    const rectangles = nodes.map(node => {
       const key = node.label;
-      let label = prefixLength ? `${prefix}<br>${node.label.substr(prefixLength)}` : node.label;
+      const label = prefixLength ? `${prefix}<br>${node.label.substr(prefixLength)}` : node.label;
       const onClick = this.props.canBeClicked(node) ? () => this.props.onRectangleClick(node) : null;
       return <TreemapRect key={key}
                           x={node.x}

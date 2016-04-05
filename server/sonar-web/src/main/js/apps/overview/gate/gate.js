@@ -23,7 +23,6 @@ import GateConditions from './gate-conditions';
 import GateEmpty from './gate-empty';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-
 export default React.createClass({
   renderGateConditions () {
     return <GateConditions gate={this.props.gate} component={this.props.component}/>;

@@ -24,4 +24,3 @@ module.exports = function (value, facetMode) {
   return formatMeasure(value, formatter);
 };
 
-

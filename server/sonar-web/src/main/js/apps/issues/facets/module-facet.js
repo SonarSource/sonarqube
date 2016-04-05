@@ -45,4 +45,3 @@ export default BaseFacet.extend({
   }
 });
 
-

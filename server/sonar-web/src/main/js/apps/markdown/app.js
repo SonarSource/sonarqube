@@ -29,4 +29,3 @@ App.on('start', function () {
 
 window.sonarqube.appStarted.then(options => App.start(options));
 
-

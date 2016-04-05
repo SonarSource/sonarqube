@@ -61,7 +61,6 @@ const init = function () {
   this.metrics.fetch();
 };
 
-
 App.requestDomains = function () {
   return $.get(window.baseUrl + '/api/metrics/domains').done(function (r) {
     App.domains = r.domains;
@@ -80,5 +79,4 @@ App.on('start', function () {
 });
 
 window.sonarqube.appStarted.then(options => App.start(options));
-
 

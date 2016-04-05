@@ -27,23 +27,19 @@ import DetailsTemplate from '../templates/favorite-details-filter.hbs';
 const DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
   template: DetailsTemplate,
 
-
   events: {
     'click label[data-id]': 'applyFavorite',
     'click .manage label': 'manage'
   },
-
 
   applyFavorite (e) {
     const id = $(e.target).data('id');
     window.location = window.baseUrl + this.model.get('favoriteUrl') + '/' + id;
   },
 
-
   manage () {
     window.location = window.baseUrl + this.model.get('manageUrl');
   },
-
 
   serializeData () {
     const choices = this.model.get('choices');
@@ -61,11 +57,9 @@ const DetailsFavoriteFilterView = BaseFilters.DetailsFilterView.extend({
 
 });
 
-
 const FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
   template: Template,
   className: 'navigator-filter navigator-filter-favorite',
-
 
   initialize () {
     ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
@@ -73,22 +67,18 @@ const FavoriteFilterView = ChoiceFilters.ChoiceFilterView.extend({
     });
   },
 
-
   renderValue () {
     return '';
   },
 
-
   renderInput () {
   },
-
 
   isDefaultValue () {
     return false;
   }
 
 });
-
 
 /*
  * Export public classes
@@ -98,5 +88,4 @@ export default {
   DetailsFavoriteFilterView,
   FavoriteFilterView
 };
-
 

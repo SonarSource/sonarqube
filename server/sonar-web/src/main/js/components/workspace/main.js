@@ -25,7 +25,6 @@ import ItemsView from './views/items-view';
 import ViewerView from './views/viewer-view';
 import RuleView from './views/rule-view';
 
-
 let instance = null;
 const Workspace = function () {
   if (instance != null) {
@@ -143,5 +142,4 @@ Workspace.getInstance = function () {
 };
 
 export default Workspace.getInstance();
-
 

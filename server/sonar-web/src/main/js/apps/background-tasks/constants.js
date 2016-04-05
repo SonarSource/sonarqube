@@ -27,15 +27,12 @@ export const STATUSES = {
   CANCELED: 'CANCELED'
 };
 
-
 export const ALL_TYPES = 'ALL_TYPES';
-
 
 export const CURRENTS = {
   ALL: '__ALL__',
   ONLY_CURRENTS: 'CURRENTS'
 };
-
 
 export const DATE = {
   ANY: 'ANY',
@@ -51,8 +48,6 @@ export const DEFAULT_FILTERS = {
   query: ''
 };
 
-
 export const DATE_FORMAT = 'YYYY-MM-DD';
-
 
 export const DEBOUNCE_DELAY = 250;

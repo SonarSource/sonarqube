@@ -21,7 +21,6 @@ import React from 'react';
 
 import { translate } from '../../../helpers/l10n';
 
-
 const ComponentsHeader = ({ baseComponent }) => (
     <thead>
       <tr>
@@ -48,6 +47,5 @@ const ComponentsHeader = ({ baseComponent }) => (
       </tr>
     </thead>
 );
-
 
 export default ComponentsHeader;

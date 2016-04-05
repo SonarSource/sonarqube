@@ -31,7 +31,6 @@ import { getPeriodLabel, getPeriodDate } from './../helpers/periods';
 import { getMeasures } from '../../../api/measures';
 import { getTimeMachineData } from '../../../api/time-machine';
 
-
 const METRICS_LIST = [
   'overall_coverage',
   'new_overall_coverage',
@@ -63,7 +62,6 @@ const HISTORY_METRICS_LIST = [
   'duplicated_lines_density',
   'ncloc'
 ];
-
 
 export default React.createClass({
   propTypes: {

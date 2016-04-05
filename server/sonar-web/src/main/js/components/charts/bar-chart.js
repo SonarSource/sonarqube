@@ -56,12 +56,12 @@ export const BarChart = React.createClass({
     if (!this.props.xTicks.length) {
       return null;
     }
-    let ticks = this.props.xTicks.map((tick, index) => {
-      let point = this.props.data[index];
-      let x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
-      let y = yScale.range()[0];
-      let d = this.props.data[index];
-      let tooltipAtts = {};
+    const ticks = this.props.xTicks.map((tick, index) => {
+      const point = this.props.data[index];
+      const x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
+      const y = yScale.range()[0];
+      const d = this.props.data[index];
+      const tooltipAtts = {};
       if (d.tooltip) {
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
@@ -82,12 +82,12 @@ export const BarChart = React.createClass({
     if (!this.props.xValues.length) {
       return null;
     }
-    let ticks = this.props.xValues.map((value, index) => {
-      let point = this.props.data[index];
-      let x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
-      let y = yScale(point.y);
-      let d = this.props.data[index];
-      let tooltipAtts = {};
+    const ticks = this.props.xValues.map((value, index) => {
+      const point = this.props.data[index];
+      const x = Math.round(xScale(point.x) + xScale.rangeBand() / 2);
+      const y = yScale(point.y);
+      const d = this.props.data[index];
+      const tooltipAtts = {};
       if (d.tooltip) {
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
@@ -105,12 +105,12 @@ export const BarChart = React.createClass({
   },
 
   renderBars (xScale, yScale) {
-    let bars = this.props.data.map((d, index) => {
-      let x = Math.round(xScale(d.x));
-      let maxY = yScale.range()[0];
-      let y = Math.round(yScale(d.y)) - /* minimum bar height */ 1;
-      let height = maxY - y;
-      let tooltipAtts = {};
+    const bars = this.props.data.map((d, index) => {
+      const x = Math.round(xScale(d.x));
+      const maxY = yScale.range()[0];
+      const y = Math.round(yScale(d.y)) - /* minimum bar height */ 1;
+      const height = maxY - y;
+      const tooltipAtts = {};
       if (d.tooltip) {
         tooltipAtts['title'] = d.tooltip;
         tooltipAtts['data-toggle'] = 'tooltip';
@@ -133,18 +133,18 @@ export const BarChart = React.createClass({
       return <div/>;
     }
 
-    let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
-    let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
+    const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
+    const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
     const innerPadding = (availableWidth - this.props.barsWidth * this.props.data.length) /
         (this.props.data.length - 1);
     const relativeInnerPadding = innerPadding / (innerPadding + this.props.barsWidth);
 
-    let maxY = d3.max(this.props.data, d => d.y);
-    let xScale = d3.scale.ordinal()
+    const maxY = d3.max(this.props.data, d => d.y);
+    const xScale = d3.scale.ordinal()
         .domain(this.props.data.map(d => d.x))
         .rangeBands([0, availableWidth], relativeInnerPadding, 0);
-    let yScale = d3.scale.linear()
+    const yScale = d3.scale.linear()
         .domain([0, maxY])
         .range([availableHeight, 0]);
 

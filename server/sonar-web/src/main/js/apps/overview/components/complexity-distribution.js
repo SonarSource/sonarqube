@@ -23,9 +23,7 @@ import { BarChart } from '../../../components/charts/bar-chart';
 import { formatMeasure } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 
-
 const HEIGHT = 80;
-
 
 export const ComplexityDistribution = React.createClass({
   propTypes: {

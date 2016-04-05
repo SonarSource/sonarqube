@@ -36,7 +36,7 @@ export default React.createClass({
   },
 
   search() {
-    let q = this.refs.input.value;
+    const q = this.refs.input.value;
     this.props.onSearch(q);
   },
 
@@ -49,7 +49,7 @@ export default React.createClass({
   },
 
   getQualifierOptions() {
-    let options = this.props.topLevelQualifiers.map(q => {
+    const options = this.props.topLevelQualifiers.map(q => {
       return { value: q, label: translate('qualifiers', q) };
     });
     return _.sortBy(options, option => {
@@ -58,12 +58,12 @@ export default React.createClass({
   },
 
   renderCheckbox() {
-    let isAllChecked = this.props.projects.length > 0 &&
+    const isAllChecked = this.props.projects.length > 0 &&
             this.props.selection.length === this.props.projects.length;
-    let thirdState = this.props.projects.length > 0 &&
+    const thirdState = this.props.projects.length > 0 &&
             this.props.selection.length > 0 &&
             this.props.selection.length < this.props.projects.length;
-    let isChecked = isAllChecked || thirdState;
+    const isChecked = isAllChecked || thirdState;
     return <Checkbox onCheck={this.onCheck} initiallyChecked={isChecked} thirdState={thirdState}/>;
   },
 
@@ -93,7 +93,7 @@ export default React.createClass({
   },
 
   renderQualifierFilter() {
-    let options = this.getQualifierOptions();
+    const options = this.getQualifierOptions();
     if (options.length < 2) {
       return null;
     }
@@ -106,7 +106,7 @@ export default React.createClass({
   },
 
   render() {
-    let isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
+    const isSomethingSelected = this.props.projects.length > 0 && this.props.selection.length > 0;
     return (
         <div className="panel panel-vertical bordered-bottom spacer-bottom">
           <table className="data">

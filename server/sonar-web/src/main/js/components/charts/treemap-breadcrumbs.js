@@ -21,7 +21,6 @@ import React from 'react';
 
 import QualifierIcon from '../shared/qualifier-icon';
 
-
 export const TreemapBreadcrumbs = React.createClass({
   propTypes: {
     breadcrumbs: React.PropTypes.arrayOf(React.PropTypes.shape({
@@ -56,7 +55,7 @@ export const TreemapBreadcrumbs = React.createClass({
   },
 
   render() {
-    let breadcrumbs = this.props.breadcrumbs.map(this.renderBreadcrumbsItems);
+    const breadcrumbs = this.props.breadcrumbs.map(this.renderBreadcrumbsItems);
     return <div className="treemap-breadcrumbs">
       {this.props.breadcrumbs.length ? this.renderHome() : null}
       {breadcrumbs}

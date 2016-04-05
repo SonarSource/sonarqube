@@ -20,11 +20,11 @@
 const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;
 
-function format(int, suffix) {
+function format (int, suffix) {
   return `${int}${suffix}`;
 }
 
-export function formatDuration(value) {
+export function formatDuration (value) {
   if (!value) {
     return '';
   }

@@ -43,14 +43,14 @@ export default React.createClass({
   },
 
   render() {
-    let classNames = ['icon-checkbox'];
+    const classNames = ['icon-checkbox'];
     if (this.state.checked) {
       classNames.push('icon-checkbox-checked');
     }
     if (this.props.thirdState) {
       classNames.push('icon-checkbox-single');
     }
-    let className = classNames.join(' ');
+    const className = classNames.join(' ');
     return <a onClick={this.toggle} className={className} href="#"/>;
   }
 });

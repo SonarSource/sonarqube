@@ -32,7 +32,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._height = null;
     this._options = {};
 
-
     // Export global variables
     this.type = function (_) {
       return param.call(this, '_type', _);
@@ -55,12 +54,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     };
   };
 
-
-  window.SonarWidgets.Widget.prototype.render = function(container) {
+  window.SonarWidgets.Widget.prototype.render = function (container) {
     const that = this;
 
     this.showSpinner(container);
-    d3.json(this.source(), function(error, response) {
+    d3.json(this.source(), function (error, response) {
       if (response && !error) {
         that.hideSpinner();
         if (typeof response.components === 'undefined' || response.components.length > 0) {
@@ -86,29 +84,24 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     });
   };
 
-
-  window.SonarWidgets.Widget.prototype.showSpinner = function(container) {
+  window.SonarWidgets.Widget.prototype.showSpinner = function (container) {
     this.spinner = d3.select(container).append('i').classed('spinner', true);
   };
 
-
-  window.SonarWidgets.Widget.prototype.hideSpinner = function() {
+  window.SonarWidgets.Widget.prototype.hideSpinner = function () {
     if (this.spinner) {
       this.spinner.remove();
     }
   };
 
-
-  window.SonarWidgets.Widget.prototype.update = function(container) {
+  window.SonarWidgets.Widget.prototype.update = function (container) {
     return this.widget && this.widget.update(container);
   };
-
-
 
   // Some helper functions
 
   // Gets or sets parameter
-  function param(name, value) {
+  function param (name, value) {
     if (value == null) {
       return this[name];
     } else {

@@ -29,19 +29,16 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
   itemTemplate: ItemTemplate,
 
-
   events () {
     return {
       'click label': 'onCheck'
     };
   },
 
-
   render () {
     BaseFilters.DetailsFilterView.prototype.render.apply(this, arguments);
     this.updateLists();
   },
-
 
   renderList (collection, selector) {
     const that = this;
@@ -57,7 +54,6 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
     });
   },
 
-
   updateLists () {
     const choices = new Backbone.Collection(this.options.filterView.choices.reject(function (item) {
       return item.get('id')[0] === '!';
@@ -72,7 +68,6 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
     const current = this.currentChoice || 0;
     this.updateCurrent(current);
   },
-
 
   onCheck (e) {
     const checkbox = $(e.currentTarget);
@@ -102,13 +97,11 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
     this.updateLists();
   },
 
-
   updateValue () {
     this.model.set('value', this.options.filterView.getSelected().map(function (m) {
       return m.get('id');
     }));
   },
-
 
   updateCurrent (index) {
     this.currentChoice = index;
@@ -116,17 +109,14 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
         .eq(this.currentChoice).addClass('current');
   },
 
-
   onShow () {
     this.bindedOnKeyDown = _.bind(this.onKeyDown, this);
     $('body').on('keydown', this.bindedOnKeyDown);
   },
 
-
   onHide () {
     $('body').off('keydown', this.bindedOnKeyDown);
   },
-
 
   onKeyDown (e) {
     switch (e.keyCode) {
@@ -143,11 +133,11 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
         this.selectCurrent();
         break;
       default:
+
         // Not a functional key - then skip
         break;
     }
   },
-
 
   selectNextChoice () {
     if (this.$('label').length > this.currentChoice + 1) {
@@ -155,7 +145,6 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
       this.scrollNext();
     }
   },
-
 
   scrollNext () {
     const currentLabel = this.$('label').eq(this.currentChoice);
@@ -170,14 +159,12 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
     }
   },
 
-
   selectPrevChoice () {
     if (this.currentChoice > 0) {
       this.updateCurrent(this.currentChoice - 1);
       this.scrollPrev();
     }
   },
-
 
   scrollPrev () {
     const currentLabel = this.$('label').eq(this.currentChoice);
@@ -191,12 +178,10 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
     }
   },
 
-
   selectCurrent () {
     const cb = this.$('label').eq(this.currentChoice);
     cb.click();
   },
-
 
   serializeData () {
     return _.extend({}, this.model.toJSON(), {
@@ -210,7 +195,6 @@ const DetailsChoiceFilterView = BaseFilters.DetailsFilterView.extend({
   }
 
 });
-
 
 const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
 
@@ -240,13 +224,11 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
     );
   },
 
-
   getSelected () {
     return this.choices.filter(function (m) {
       return m.get('checked');
     });
   },
-
 
   renderInput () {
     const input = $('<select>')
@@ -263,7 +245,6 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
     input.appendTo(this.$el);
   },
 
-
   renderValue () {
     const value = this.getSelected().map(function (item) {
       return item.get('text');
@@ -275,12 +256,10 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
     return this.isDefaultValue() ? defaultValue : value.join(', ');
   },
 
-
   isDefaultValue () {
     const selected = this.getSelected();
     return selected.length === 0;
   },
-
 
   disable () {
     this.choices.each(function (item) {
@@ -288,7 +267,6 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
     });
     BaseFilters.BaseFilterView.prototype.disable.apply(this, arguments);
   },
-
 
   restoreFromQuery (q) {
     let param = _.findWhere(q, { key: this.model.get('property') });
@@ -321,7 +299,6 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
       this.clear();
     }
   },
-
 
   restore (value) {
     if (_.isString(value)) {
@@ -359,7 +336,6 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
     }
   },
 
-
   clear () {
     if (this.choices) {
       this.choices.each(function (item) {
@@ -372,7 +348,6 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
       this.projectsView.updateCurrent(0);
     }
   },
-
 
   formatValue () {
     const q = {};
@@ -397,7 +372,6 @@ const ChoiceFilterView = BaseFilters.BaseFilterView.extend({
   }
 
 });
-
 
 /*
  * Export public classes

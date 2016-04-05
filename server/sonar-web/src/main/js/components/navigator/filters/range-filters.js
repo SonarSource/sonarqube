@@ -26,11 +26,9 @@ import { translate } from '../../../helpers/l10n';
 const DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
 
-
   events: {
     'change input': 'change'
   },
-
 
   change () {
     const value = {};
@@ -48,7 +46,6 @@ const DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
     this.model.set('value', value);
   },
 
-
   populateInputs () {
     const value = this.model.get('value');
     const propertyFrom = this.model.get('propertyFrom');
@@ -60,13 +57,11 @@ const DetailsRangeFilterView = BaseFilters.DetailsFilterView.extend({
     this.$('input').eq(1).val(valueTo || '');
   },
 
-
   onShow () {
     this.$(':input:first').focus();
   }
 
 });
-
 
 const RangeFilterView = BaseFilters.BaseFilterView.extend({
 
@@ -76,7 +71,6 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
     });
   },
 
-
   renderValue () {
     if (!this.isDefaultValue()) {
       const value = _.values(this.model.get('value'));
@@ -85,7 +79,6 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
       return translate('any');
     }
   },
-
 
   renderInput () {
     const value = this.model.get('value');
@@ -109,7 +102,6 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
         .appendTo(this.$el);
   },
 
-
   isDefaultValue () {
     const value = this.model.get('value');
     const propertyFrom = this.model.get('propertyFrom');
@@ -119,7 +111,6 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
 
     return !valueFrom && !valueTo;
   },
-
 
   restoreFromQuery (q) {
     const paramFrom = _.findWhere(q, { key: this.model.get('propertyFrom') });
@@ -143,7 +134,6 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
       this.projectsView.populateInputs();
     }
   },
-
 
   restore (value) {
     if (this.choices && this.selection && value.length > 0) {
@@ -169,11 +159,9 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
     }
   },
 
-
   formatValue () {
     return this.model.get('value');
   },
-
 
   clear () {
     this.model.unset('value');
@@ -181,7 +169,6 @@ const RangeFilterView = BaseFilters.BaseFilterView.extend({
   }
 
 });
-
 
 const DateRangeFilterView = RangeFilterView.extend({
 
@@ -199,7 +186,6 @@ const DateRangeFilterView = RangeFilterView.extend({
         });
   },
 
-
   renderValue () {
     if (!this.isDefaultValue()) {
       const value = _.values(this.model.get('value'));
@@ -211,7 +197,6 @@ const DateRangeFilterView = RangeFilterView.extend({
 
 });
 
-
 /*
  * Export public classes
  */
@@ -220,5 +205,4 @@ export default {
   RangeFilterView,
   DateRangeFilterView
 };
-
 

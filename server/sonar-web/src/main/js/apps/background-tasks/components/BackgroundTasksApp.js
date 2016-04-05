@@ -27,7 +27,6 @@ import SearchContainer from '../containers/SearchContainer';
 import TasksContainer from '../containers/TasksContainer';
 import ListFooterContainer from '../containers/ListFooterContainer';
 
-
 export default class BackgroundTasksApp extends Component {
   componentDidMount () {
     this.props.initApp(this.props.options.component);
@@ -43,7 +42,7 @@ export default class BackgroundTasksApp extends Component {
 
   getDateFilter () {
     const DATE_FORMAT = 'YYYY-MM-DD';
-    let filter = {};
+    const filter = {};
     switch (this.state.dateFilter) {
       case DATE.TODAY:
         filter.minSubmittedAt = moment().startOf('day').format(DATE_FORMAT);
@@ -57,6 +56,7 @@ export default class BackgroundTasksApp extends Component {
         }
         break;
       default:
+
       // do nothing
     }
     return filter;

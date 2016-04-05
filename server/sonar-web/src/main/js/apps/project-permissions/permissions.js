@@ -23,7 +23,6 @@ import React from 'react';
 import PermissionsHeader from './permissions-header';
 import Project from './project';
 
-
 export default React.createClass({
   propTypes: {
     projects: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
@@ -33,14 +32,14 @@ export default React.createClass({
   },
 
   render() {
-    let projects = this.props.projects.map(p => {
+    const projects = this.props.projects.map(p => {
       return <Project
           key={p.id}
           project={p}
           permissionTemplates={this.props.permissionTemplates}
           refresh={this.props.refresh}/>;
     });
-    let className = classNames('data zebra', { 'new-loading': !this.props.ready });
+    const className = classNames('data zebra', { 'new-loading': !this.props.ready });
     return (
         <table id="projects" className={className}>
           <PermissionsHeader permissions={this.props.permissions}/>

@@ -27,9 +27,7 @@ import Search from './search';
 import ApplyTemplateView from './apply-template-view';
 import { translate } from '../../helpers/l10n';
 
-
 const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin', 'scan'];
-
 
 export default React.createClass({
   propTypes: {
@@ -51,8 +49,8 @@ export default React.createClass({
   mergePermissionsToProjects(projects, basePermissions) {
     return projects.map(project => {
       // it's important to keep the order of the project permissions the same as the order of base permissions
-      let permissions = basePermissions.map(basePermission => {
-        let projectPermission = _.findWhere(project.permissions, { key: basePermission.key });
+      const permissions = basePermissions.map(basePermission => {
+        const projectPermission = _.findWhere(project.permissions, { key: basePermission.key });
         return _.extend({ usersCount: 0, groupsCount: 0 }, basePermission, projectPermission);
       });
       return _.extend({}, project, { permissions });
@@ -60,7 +58,7 @@ export default React.createClass({
   },
 
   requestPermissions(page = 1, query = '', filter = this.state.filter) {
-    let url = window.baseUrl + '/api/permissions/search_project_permissions';
+    const url = window.baseUrl + '/api/permissions/search_project_permissions';
     let data = { p: page, q: query };
     if (filter !== '__ALL__') {
       data.qualifier = filter;
@@ -70,7 +68,7 @@ export default React.createClass({
     }
     this.setState({ ready: false }, () => {
       $.get(url, data).done(r => {
-        let permissions = this.sortPermissions(r.permissions);
+        const permissions = this.sortPermissions(r.permissions);
         let projects = this.mergePermissionsToProjects(r.projects, permissions);
         if (page > 1) {
           projects = [].concat(this.state.projects, projects);

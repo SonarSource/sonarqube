@@ -22,6 +22,7 @@
  * From http://stackoverflow.com/questions/990904/javascript-remove-accents-in-strings
  */
  /* eslint max-len: 0 */
+ /* jscs:disable maximumLineLength */
 const defaultDiacriticsRemovalap = [
     {
       'base': 'A',

@@ -19,7 +19,6 @@
  */
 import { getJSON, postJSON, post } from '../helpers/request.js';
 
-
 export function getComponents (data) {
   const url = window.baseUrl + '/api/components/search';
   return getJSON(url, data);

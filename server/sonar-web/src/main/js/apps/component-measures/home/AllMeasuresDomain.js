@@ -67,4 +67,3 @@ AllMeasuresDomain.defaultProps = {
 AllMeasuresDomain.propTypes = {
   displayHeader: React.PropTypes.bool
 };
-

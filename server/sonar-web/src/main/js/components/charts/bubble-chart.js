@@ -24,9 +24,7 @@ import React from 'react';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
-
 const TICKS_COUNT = 5;
-
 
 export const Bubble = React.createClass({
   propTypes: {
@@ -56,7 +54,6 @@ export const Bubble = React.createClass({
                    transform={`translate(${this.props.x}, ${this.props.y})`}/>;
   }
 });
-
 
 export const BubbleChart = React.createClass({
   propTypes: {
@@ -109,7 +106,7 @@ export const BubbleChart = React.createClass({
   },
 
   getTicks(scale, format) {
-    let ticks = scale.ticks(TICKS_COUNT).map(tick => format(tick));
+    const ticks = scale.ticks(TICKS_COUNT).map(tick => format(tick));
     const uniqueTicksCount = _.uniq(ticks).length;
     const ticksCount = uniqueTicksCount < TICKS_COUNT ? uniqueTicksCount - 1 : TICKS_COUNT;
     return scale.ticks(ticksCount);
@@ -120,10 +117,10 @@ export const BubbleChart = React.createClass({
       return null;
     }
 
-    let lines = ticks.map((tick, index) => {
-      let x = xScale(tick);
-      let y1 = yScale.range()[0];
-      let y2 = yScale.range()[1];
+    const lines = ticks.map((tick, index) => {
+      const x = xScale(tick);
+      const y1 = yScale.range()[0];
+      const y2 = yScale.range()[1];
       return <line key={index}
                    x1={x}
                    x2={x}
@@ -140,10 +137,10 @@ export const BubbleChart = React.createClass({
       return null;
     }
 
-    let lines = ticks.map((tick, index) => {
-      let y = yScale(tick);
-      let x1 = xScale.range()[0];
-      let x2 = xScale.range()[1];
+    const lines = ticks.map((tick, index) => {
+      const y = yScale(tick);
+      const x1 = xScale.range()[0];
+      const x2 = xScale.range()[1];
       return <line key={index}
                    x1={x1}
                    x2={x2}
@@ -160,10 +157,10 @@ export const BubbleChart = React.createClass({
       return null;
     }
 
-    let ticks = xTicks.map((tick, index) => {
-      let x = xScale(tick);
-      let y = yScale.range()[0];
-      let innerText = this.props.formatXTick(tick);
+    const ticks = xTicks.map((tick, index) => {
+      const x = xScale(tick);
+      const y = yScale.range()[0];
+      const innerText = this.props.formatXTick(tick);
       return <text key={index}
                    className="bubble-chart-tick"
                    x={x}
@@ -179,10 +176,10 @@ export const BubbleChart = React.createClass({
       return null;
     }
 
-    let ticks = yTicks.map((tick, index) => {
-      let x = xScale.range()[0];
-      let y = yScale(tick);
-      let innerText = this.props.formatYTick(tick);
+    const ticks = yTicks.map((tick, index) => {
+      const x = xScale.range()[0];
+      const y = yScale(tick);
+      const innerText = this.props.formatYTick(tick);
       return <text key={index}
                    className="bubble-chart-tick bubble-chart-tick-y"
                    x={x}
@@ -199,28 +196,28 @@ export const BubbleChart = React.createClass({
       return <div/>;
     }
 
-    let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
-    let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
+    const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
+    const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    let xScale = d3.scale.linear()
+    const xScale = d3.scale.linear()
         .domain([0, d3.max(this.props.items, d => d.x)])
         .range([0, availableWidth])
         .nice();
-    let yScale = d3.scale.linear()
+    const yScale = d3.scale.linear()
         .domain([0, d3.max(this.props.items, d => d.y)])
         .range([availableHeight, 0])
         .nice();
-    let sizeScale = d3.scale.linear()
+    const sizeScale = d3.scale.linear()
         .domain([0, d3.max(this.props.items, d => d.size)])
         .range(this.props.sizeRange);
 
-    let xScaleOriginal = xScale.copy();
-    let yScaleOriginal = yScale.copy();
+    const xScaleOriginal = xScale.copy();
+    const yScaleOriginal = yScale.copy();
 
     xScale.range(this.getXRange(xScale, sizeScale, availableWidth));
     yScale.range(this.getYRange(yScale, sizeScale, availableHeight));
 
-    let bubbles = _.sortBy(this.props.items, (a, b) => b.size - a.size)
+    const bubbles = _.sortBy(this.props.items, (a, b) => b.size - a.size)
         .map((item, index) => {
           return <Bubble key={index}
                          link={item.link}
@@ -229,8 +226,8 @@ export const BubbleChart = React.createClass({
                          onClick={this.props.onBubbleClick}/>;
         });
 
-    let xTicks = this.getTicks(xScale, this.props.formatXTick);
-    let yTicks = this.getTicks(yScale, this.props.formatYTick);
+    const xTicks = this.getTicks(xScale, this.props.formatXTick);
+    const yTicks = this.getTicks(yScale, this.props.formatYTick);
 
     return <svg className="bubble-chart" width={this.state.width} height={this.state.height}>
       <g transform={`translate(${this.props.padding[3]}, ${this.props.padding[0]})`}>

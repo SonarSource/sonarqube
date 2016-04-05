@@ -43,7 +43,6 @@ const SETTINGS_URLS = [
   '/project/deletion'
 ];
 
-
 export default React.createClass({
   mixins: [LinksMixin],
 
@@ -69,13 +68,13 @@ export default React.createClass({
 
   isFixedDashboardActive() {
     const path = window.location.pathname;
-    return path.indexOf(window.baseUrl + '/overview') === 0|| path.indexOf(window.baseUrl + '/governance') === 0;
+    return path.indexOf(window.baseUrl + '/overview') === 0 || path.indexOf(window.baseUrl + '/governance') === 0;
   },
 
   isCustomDashboardActive(customDashboard) {
     const path = window.location.pathname;
     const params = qs.parse(window.location.search.substr(1));
-    return path.indexOf(window.baseUrl + '/dashboard') === 0 && params['did'] === `${customDashboard.key}`;
+    return path.indexOf(window.baseUrl + '/dashboard') === 0 && params.did === `${customDashboard.key}`;
   },
 
   isCustomDashboardsActive () {

@@ -22,7 +22,6 @@ import _ from 'underscore';
 import ModalView from '../common/modals';
 import Template from './templates/source-viewer-measures.hbs';
 
-
 export default ModalView.extend({
   template: Template,
   testsOrder: ['ERROR', 'FAILURE', 'OK', 'SKIPPED'],
@@ -120,7 +119,6 @@ export default ModalView.extend({
     return metrics;
   },
 
-
   calcAdditionalMeasures (measures) {
     if (measures.lines_to_cover && measures.uncovered_lines) {
       measures.covered_lines = measures.lines_to_cover_raw - measures.uncovered_lines_raw;
@@ -137,7 +135,6 @@ export default ModalView.extend({
     return measures;
   },
 
-
   prepareMetrics (metrics) {
     metrics = _.filter(metrics, function (metric) {
       return metric.value != null;
@@ -152,7 +149,6 @@ export default ModalView.extend({
         'name'
     );
   },
-
 
   requestMeasures () {
     const that = this;
@@ -290,5 +286,4 @@ export default ModalView.extend({
     });
   }
 });
-
 

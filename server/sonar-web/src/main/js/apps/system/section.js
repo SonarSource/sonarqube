@@ -22,7 +22,7 @@ import ItemValue from './item-value';
 
 export default React.createClass({
   render() {
-    let items = this.props.items.map(item => {
+    const items = this.props.items.map(item => {
       return <tr key={item.name}>
         <td className="thin">
           <div style={{ width: '25vw', overflow: 'hidden', textOverflow: 'ellipsis' }}>{item.name}</div>

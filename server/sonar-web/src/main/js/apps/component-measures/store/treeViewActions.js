@@ -30,7 +30,6 @@ import { startFetching, stopFetching } from './statusActions';
 export const UPDATE_STORE = 'drilldown/tree/UPDATE_STORE';
 export const INIT = 'drilldown/tree/INIT';
 
-
 /*
  * Action Creators
  */
@@ -55,7 +54,6 @@ function updateStore (state) {
 function init (rootComponent, metric, periodIndex = 1) {
   return { type: INIT, rootComponent, metric, periodIndex };
 }
-
 
 /*
  * Workflow

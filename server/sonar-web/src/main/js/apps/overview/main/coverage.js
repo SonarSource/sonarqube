@@ -34,7 +34,6 @@ import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
-
 export const GeneralCoverage = React.createClass({
   propTypes: {
     measures: React.PropTypes.object.isRequired,

@@ -20,7 +20,6 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-
 const ComponentsEmpty = () => (
     <tr>
       <td colSpan="2">
@@ -31,6 +30,5 @@ const ComponentsEmpty = () => (
       </td>
     </tr>
 );
-
 
 export default ComponentsEmpty;

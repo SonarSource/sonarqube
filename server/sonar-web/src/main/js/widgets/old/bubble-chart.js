@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* jscs:disable safeContextKeyword */
 import $ from 'jquery';
 import { collapsedDirFromPath, fileFromPath } from '../../helpers/path';
 
@@ -84,7 +85,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     };
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.hasValidData = function () {
     const widget = this;
     let noInvalidEntry = true;
@@ -101,7 +101,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     });
     return !!noInvalidEntry && !!atLeastOneValueOnX && !!atLeastOneValueOnY;
   };
-
 
   window.SonarWidgets.BubbleChart.prototype.init = function (container) {
     this.width(container.property('offsetWidth'));
@@ -126,7 +125,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(this.margin().left, this.margin().top));
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.initMetrics = function () {
     const widget = this;
 
@@ -145,7 +143,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       return d.measures[widget.sizeMetric] ? d.measures[widget.sizeMetric].val : 0;
     };
   };
-
 
   window.SonarWidgets.BubbleChart.prototype.initScales = function () {
     const widget = this;
@@ -182,14 +179,12 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     }
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.initBubbles = function () {
     const widget = this;
 
     // Create bubbles
     this.items = this.plotWrap.selectAll('.item')
         .data(this.components());
-
 
     // Render bubbles
     this.items.enter().append('g')
@@ -237,7 +232,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     });
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.initBubbleEvents = function () {
     const widget = this;
     this.items
@@ -254,7 +248,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         });
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.initAxes = function () {
     // X
     this.xAxis = d3.svg.axis()
@@ -265,7 +258,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .text(this.metrics()[this.xMetric].name)
         .style('font-weight', 'bold')
         .style('text-anchor', 'middle');
-
 
     // Y
     this.yAxis = d3.svg.axis()
@@ -280,7 +272,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('text-anchor', 'middle');
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.initGrid = function () {
     this.gxGridLines = this.gxGrid.selectAll('line').data(this.x.ticks()).enter()
         .append('line');
@@ -292,7 +283,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('stroke', '#000')
         .style('stroke-opacity', 0.25);
   };
-
 
   window.SonarWidgets.BubbleChart.prototype.render = function (container) {
     const containerS = container;
@@ -318,9 +308,9 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     return this;
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.adjustScalesAfterUpdate = function () {
     const widget = this;
+
     // X
     const minX = d3.min(this.components(), function (d) {
       return widget.x(widget.getXMetric(d)) - widget.size(widget.getSizeMetric(d));
@@ -343,7 +333,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     const dMaxY = maxY > this.y.range()[0] ? maxY - this.y.range()[0] : 0;
     this.y.range([this.availableHeight - dMaxY, dMinY]);
 
-
     // Format improvement for log scales
     // X
     if (this.xLog()) {
@@ -365,7 +354,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.x.nice();
     this.y.nice();
   };
-
 
   window.SonarWidgets.BubbleChart.prototype.updateScales = function () {
     const widget = this;
@@ -412,7 +400,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     }
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.updateBubbles = function () {
     const widget = this;
     this.items
@@ -421,7 +408,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           return trans(widget.x(widget.getXMetric(d)), widget.y(widget.getYMetric(d)));
         });
   };
-
 
   window.SonarWidgets.BubbleChart.prototype.updateAxes = function () {
     // X
@@ -453,7 +439,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(-45, this.availableHeight / 2) + ' rotate(-90)');
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.updateGrid = function () {
     const widget = this;
     this.gxGridLines
@@ -483,7 +468,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         });
   };
 
-
   window.SonarWidgets.BubbleChart.prototype.update = function (container) {
     container = d3.select(container);
 
@@ -507,7 +491,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.updateGrid();
   };
 
-
   window.SonarWidgets.BubbleChart.defaults = {
     width: 350,
     height: 150,
@@ -517,7 +500,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     bubbleColor: '#4b9fd5',
     bubbleColorUndefined: '#b3b3b3'
   };
-
 
   // Some helper functions
 

@@ -47,8 +47,7 @@ export default Marionette.ItemView.extend({
         that.model.set('fav', false);
         that.render();
       });
-    }
-    else {
+    } else {
       $.ajax({
         url: API_FAVORITE,
         type: 'POST',
@@ -97,5 +96,4 @@ export default Marionette.ItemView.extend({
     });
   }
 });
-
 

@@ -26,8 +26,7 @@
     "del": "2.0.2",
     "enzyme": "1.2.0",
     "eslint": "2.2.0",
-    "eslint-plugin-import": "^1.0.0-beta.0",
-    "eslint-plugin-mocha": "1.1.0",
+    "eslint-plugin-import": "^1.4.0",
     "eslint-plugin-react": "4.0.0",
     "event-stream": "3.3.1",
     "expose-loader": "0.7.1",
@@ -46,6 +45,7 @@
     "imports-loader": "0.6.5",
     "isparta": "4.0.0",
     "jquery": "2.2.0",
+    "jscs": "^2.11.0",
     "jsdom": "6.5.1",
     "lodash": "4.6.1",
     "mocha": "2.3.4",
@@ -80,7 +80,7 @@
     "build": "gulp build",
     "test": "mocha --opts tests/mocha.opts tests",
     "coverage": "babel-node node_modules/.bin/isparta cover --root 'src/main/js' --include-all-sources --excludes '**/libs/**' --dir 'target/coverage' node_modules/.bin/_mocha -- --opts tests/mocha.opts tests",
-    "lint": "eslint src/main/js"
+    "lint": "eslint src/main/js && jscs src/main/js"
   },
   "engines": {
     "node": ">=4"

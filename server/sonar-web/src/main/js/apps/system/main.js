@@ -33,7 +33,7 @@ export default React.createClass({
   },
 
   parseSections (data) {
-    let sections = Object.keys(data).map(section => {
+    const sections = Object.keys(data).map(section => {
       return { name: section, items: this.parseItems(data[section]) };
     });
     return this.orderSections(sections);
@@ -44,7 +44,7 @@ export default React.createClass({
   },
 
   parseItems (data) {
-    let items = Object.keys(data).map(item => {
+    const items = Object.keys(data).map(item => {
       return { name: item, value: data[item] };
     });
     return this.orderItems(items);

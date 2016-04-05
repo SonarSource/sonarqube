@@ -46,4 +46,3 @@ export default WorkspaceListView.extend({
   }
 });
 
-

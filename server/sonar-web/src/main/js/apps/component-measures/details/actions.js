@@ -27,7 +27,6 @@ import { enhanceWithLeak } from '../utils';
 export const REQUEST_MEASURE = 'details/REQUEST_MEASURE';
 export const RECEIVE_MEASURE = 'details/RECEIVE_MEASURE';
 
-
 /*
  * Action Creators
  */
@@ -39,7 +38,6 @@ function requestMeasure (metric) {
 function receiveMeasure (measure, secondaryMeasure, periods) {
   return { type: RECEIVE_MEASURE, measure, secondaryMeasure, periods };
 }
-
 
 /*
  * Workflow

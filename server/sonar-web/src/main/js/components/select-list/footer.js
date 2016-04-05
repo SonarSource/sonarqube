@@ -32,7 +32,7 @@ export default React.createClass({
   },
 
   renderLoadMoreLink() {
-    let hasMore = this.props.total > this.props.count;
+    const hasMore = this.props.total > this.props.count;
     if (!hasMore) {
       return null;
     }

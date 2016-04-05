@@ -25,4 +25,3 @@ export default ModalView.extend({
   template: ShortcutsHelpTemplate
 });
 
-

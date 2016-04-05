@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-/* eslint max-len: 0 */
+/* jscs:disable maximumLineLength */
 import React from 'react';
 
 const PinIcon = () => (
@@ -29,4 +29,3 @@ const PinIcon = () => (
 );
 
 export default PinIcon;
-

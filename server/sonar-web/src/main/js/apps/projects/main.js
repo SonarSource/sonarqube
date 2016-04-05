@@ -54,7 +54,7 @@ export default React.createClass({
   },
 
   getFilters() {
-    let filters = { ps: PAGE_SIZE };
+    const filters = { ps: PAGE_SIZE };
     if (this.state.page !== 1) {
       filters.p = this.state.page;
     }
@@ -76,12 +76,13 @@ export default React.createClass({
         this.requestGhosts();
         break;
       default:
+
       // should never happen
     }
   },
 
   requestGhosts() {
-    let data = this.getFilters();
+    const data = this.getFilters();
     getGhosts(data).then(r => {
       let projects = r.projects.map(project => {
         return _.extend(project, { id: project.uuid, qualifier: 'TRK' });
@@ -94,7 +95,7 @@ export default React.createClass({
   },
 
   requestProvisioned() {
-    let data = this.getFilters();
+    const data = this.getFilters();
     getProvisioned(data).then(r => {
       let projects = r.projects.map(project => {
         return _.extend(project, { id: project.uuid, qualifier: 'TRK' });
@@ -107,7 +108,7 @@ export default React.createClass({
   },
 
   requestAllProjects() {
-    let data = this.getFilters();
+    const data = this.getFilters();
     data.qualifiers = this.state.qualifiers;
     getComponents(data).then(r => {
       let projects = r.components;
@@ -154,17 +155,17 @@ export default React.createClass({
   },
 
   onProjectSelected(project) {
-    let newSelection = _.uniq([].concat(this.state.selection, project.id));
+    const newSelection = _.uniq([].concat(this.state.selection, project.id));
     this.setState({ selection: newSelection });
   },
 
   onProjectDeselected(project) {
-    let newSelection = _.without(this.state.selection, project.id);
+    const newSelection = _.without(this.state.selection, project.id);
     this.setState({ selection: newSelection });
   },
 
   onAllSelected() {
-    let newSelection = this.state.projects.map(project => {
+    const newSelection = this.state.projects.map(project => {
       return project.id;
     });
     this.setState({ selection: newSelection });
@@ -175,7 +176,7 @@ export default React.createClass({
   },
 
   deleteProjects() {
-    let ids = this.state.selection.join(',');
+    const ids = this.state.selection.join(',');
     deleteComponents({ ids }).then(() => {
       this.setState({ page: 1, selection: [] }, this.requestProjects);
     });

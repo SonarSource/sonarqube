@@ -24,7 +24,6 @@ import React from 'react';
 import { IssuesLink } from './issues-link';
 import { getComponentDrilldownUrl } from '../../helpers/urls';
 
-
 const ISSUE_MEASURES = [
   'violations',
   'new_violations',
@@ -49,7 +48,6 @@ const ISSUE_MEASURES = [
   'vulnerabilities',
   'new_vulnerabilities'
 ];
-
 
 export const DrilldownLink = React.createClass({
   isIssueMeasure() {

@@ -33,7 +33,7 @@ export default class DateFilter extends Component {
   }
 
   attachDatePicker () {
-    let opts = {
+    const opts = {
       dateFormat: 'yy-mm-dd',
       changeMonth: true,
       changeYear: true,

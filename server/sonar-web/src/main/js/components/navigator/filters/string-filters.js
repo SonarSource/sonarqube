@@ -25,22 +25,18 @@ import Template from '../templates/string-filter.hbs';
 const DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
 
-
   events: {
     'change input': 'change'
   },
-
 
   change (e) {
     this.model.set('value', $(e.target).val());
   },
 
-
   onShow () {
     BaseFilters.DetailsFilterView.prototype.onShow.apply(this, arguments);
     this.$(':input').focus();
   },
-
 
   serializeData () {
     return _.extend({}, this.model.toJSON(), {
@@ -50,7 +46,6 @@ const DetailsStringFilterView = BaseFilters.DetailsFilterView.extend({
 
 });
 
-
 export default BaseFilters.BaseFilterView.extend({
 
   initialize () {
@@ -59,11 +54,9 @@ export default BaseFilters.BaseFilterView.extend({
     });
   },
 
-
   renderValue () {
     return this.isDefaultValue() ? '—' : this.model.get('value');
   },
-
 
   renderInput () {
     $('<input>')
@@ -74,11 +67,9 @@ export default BaseFilters.BaseFilterView.extend({
         .appendTo(this.$el);
   },
 
-
   isDefaultValue () {
     return !this.model.get('value');
   },
-
 
   restore (value) {
     this.model.set({
@@ -87,12 +78,10 @@ export default BaseFilters.BaseFilterView.extend({
     });
   },
 
-
   clear () {
     this.model.unset('value');
     this.projectsView.render();
   }
 
 });
-
 

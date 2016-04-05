@@ -60,4 +60,3 @@ export default CustomValuesFacet.extend({
   }
 });
 
-

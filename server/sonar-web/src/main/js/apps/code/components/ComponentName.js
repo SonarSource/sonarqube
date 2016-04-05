@@ -24,7 +24,6 @@ import Truncated from './Truncated';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 import { getComponentUrl } from '../../../helpers/urls';
 
-
 function getTooltip (component) {
   const isFile = component.qualifier === 'FIL' || component.qualifier === 'UTS';
   if (isFile && component.path) {
@@ -47,7 +46,6 @@ function mostCommitPrefix (strings) {
   const lastPrefixPart = _.last(prefix.split(/[\s\\\/]/));
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
-
 
 const Component = ({ component, previous, onBrowse }) => {
   const handleClick = (e) => {
@@ -84,6 +82,5 @@ const Component = ({ component, previous, onBrowse }) => {
       </Truncated>
   );
 };
-
 
 export default Component;

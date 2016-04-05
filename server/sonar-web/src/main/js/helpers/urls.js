@@ -26,7 +26,6 @@ export function getComponentUrl (componentKey) {
   return window.baseUrl + '/dashboard?id=' + encodeURIComponent(componentKey);
 }
 
-
 /**
  * Generate URL for a component's issues page
  * @param {string} componentKey
@@ -40,7 +39,6 @@ export function getComponentIssuesUrl (componentKey, query) {
   return window.baseUrl + '/component_issues?id=' + encodeURIComponent(componentKey) + '#' + serializedQuery;
 }
 
-
 /**
  * Generate URL for a component's drilldown page
  * @param {string} componentKey
@@ -50,7 +48,6 @@ export function getComponentIssuesUrl (componentKey, query) {
 export function getComponentDrilldownUrl (componentKey, metric) {
   return `${window.baseUrl}/component_measures/metric/${metric}?id=${encodeURIComponent(componentKey)}`;
 }
-
 
 /**
  * Generate URL for a component's dashboard
@@ -68,7 +65,6 @@ export function getComponentDashboardUrl (componentKey, dashboardKey, period) {
   return url;
 }
 
-
 /**
  * Generate URL for a fixed component's dashboard (overview)
  * @param {string} componentKey
@@ -78,7 +74,6 @@ export function getComponentDashboardUrl (componentKey, dashboardKey, period) {
 export function getComponentFixedDashboardUrl (componentKey, dashboardKey) {
   return window.baseUrl + '/overview' + dashboardKey + '?id=' + encodeURIComponent(componentKey);
 }
-
 
 /**
  * Generate URL for a component's dashboards management page

@@ -19,7 +19,6 @@
  */
 import _ from 'underscore';
 
-
 export function collapsePath (path, limit = 30) {
   if (typeof path !== 'string') {
     return '';
@@ -44,7 +43,6 @@ export function collapsePath (path, limit = 30) {
   const body = [].concat(head, cut ? ['...'] : [], middle, tail);
   return body.join('/');
 }
-
 
 /**
  * Return a collapsed path without a file name
@@ -77,7 +75,6 @@ export function collapsedDirFromPath (path) {
   }
 }
 
-
 /**
  * Return a file name for a given file path
  * * @example
@@ -94,7 +91,6 @@ export function fileFromPath (path) {
     return null;
   }
 }
-
 
 export function splitPath (path) {
   if (typeof path === 'string') {

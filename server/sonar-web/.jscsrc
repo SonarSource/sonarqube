@@ -1,0 +1,37 @@
+{
+    "preset": "airbnb",
+    "esnext": true,
+    "excludeFiles": [
+      "src/main/js/libs/**"
+    ],
+
+    "disallowSpacesInFunctionDeclaration": false,
+    "requireTrailingComma": false,
+    "requirePaddingNewLinesAfterBlocks": false,
+    "requireShorthandArrowFunctions": false,
+    "disallowQuotedKeysInObjects": false,
+    "requireSpacesInFunctionDeclaration": {
+      "beforeOpeningRoundBrace": true,
+      "beforeOpeningCurlyBrace": true
+    },
+    "requireDotNotation": {
+      "allExcept": [
+        "snake_case"
+      ]
+    },
+    "disallowSpaceAfterObjectKeys": false,
+    "maximumLineLength": 120,
+    "safeContextKeyword": [
+      "that"
+    ],
+    "requireDollarBeforejQueryAssignment": false,
+    "requireDotNotation": false,
+    "disallowArrayDestructuringReturn": false,
+    "requireEnhancedObjectLiterals": true,
+    "requireObjectKeysOnNewLine": {
+      "allExcept": ["sameLine"]
+    },
+    "requireSpaceBeforeDestructuredValues": true,
+    "requireSpaceBeforeObjectValues": true,
+    "requireSpacesInsideObjectBrackets": "all"
+}

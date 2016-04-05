@@ -27,7 +27,6 @@ import SourceViewer from './SourceViewer';
 import Search from './Search';
 import { initComponent, browse } from '../actions';
 
-
 class Code extends Component {
   componentDidMount () {
     const { dispatch, component, routing } = this.props;

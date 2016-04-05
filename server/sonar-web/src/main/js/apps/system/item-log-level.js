@@ -29,17 +29,17 @@ export default React.createClass({
   },
 
   onChange() {
-    let newValue = this.refs.select.value;
+    const newValue = this.refs.select.value;
     setLogLevel(newValue).then(() => {
       this.setState({ level: newValue });
     });
   },
 
   render() {
-    let options = LOG_LEVELS.map(level => {
+    const options = LOG_LEVELS.map(level => {
       return <option key={level} value={level}>{level}</option>;
     });
-    let warning = this.state.level !== 'INFO' ? (
+    const warning = this.state.level !== 'INFO' ? (
         <div className="alert alert-danger spacer-top" style={{ wordBreak: 'normal' }}>
           {translate('system.log_level.warning')}
         </div>

@@ -19,6 +19,7 @@
  */
 /*global d3:false */
 /*jshint eqnull:true */
+/* jscs:disable safeContextKeyword */
 
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
@@ -38,7 +39,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._options = {};
 
     this._lineHeight = 20;
-
 
     // Export global variables
     this.metrics = function (_) {
@@ -88,7 +88,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
     container = d3.select(container);
 
-
     const validData = this.components().reduce(function (p, c) {
       return p && !!c.measures[widget.metricsPriority()[0]];
     }, true);
@@ -97,7 +96,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       container.text(this.options().noMainMetric);
       return;
     }
-
 
     this.width(container.property('offsetWidth'));
 
@@ -111,32 +109,26 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.gWrap
         .attr('transform', trans(this.margin().left, this.margin().top));
 
-
     // Configure metrics
     this.mainMetric = this.metricsPriority()[0];
     this.getMainMetric = function (d) {
       return d.measures[widget.mainMetric].val;
     };
 
-
     // Configure scales
     this.color = d3.scale.category10();
-
 
     // Configure arc
     this.arc = d3.svg.arc()
         .innerRadius(0);
-
 
     // Configure pie
     this.pie = d3.layout.pie()
         .sort(null)
         .value(function (d) { return widget.getMainMetric(d); });
 
-
     // Configure legend
     this.legendWrap = this.gWrap.append('g');
-
 
     // Configure details
     this._metricsCount = Object.keys(this.metrics()).length + 1;
@@ -163,13 +155,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('text-anchor', 'middle')
         .text(this.metrics()[this.mainMetric].name);
 
-
     // Update widget
     this.update(containerS);
 
     return this;
   };
-
 
   window.SonarWidgets.PieChart.prototype.updateLegend = function () {
     const widget = this;
@@ -203,7 +193,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         });
   };
 
-
   window.SonarWidgets.PieChart.prototype.updateDetails = function () {
     const widget = this;
     this.detailsWrap
@@ -225,7 +214,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', trans(0, widget.radius / 6))
         .style('font-size', fz + 'px');
   };
-
 
   window.SonarWidgets.PieChart.prototype.configureEvents = function () {
     const widget = this;
@@ -322,7 +310,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         });
   };
 
-
   window.SonarWidgets.PieChart.prototype.update = function (container) {
     container = d3.select(container);
 
@@ -330,12 +317,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     const width = container.property('offsetWidth');
     this.width(width > 100 ? width : 100);
 
-
     // Update svg canvas
     this.svg
         .attr('width', this.width())
         .attr('height', this.height());
-
 
     // Update available size
     this.availableWidth = this.width() - this.margin().left - this.margin().right -
@@ -346,17 +331,14 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this._legendSymbols = Math.floor((this.width() - this.margin().left - this.margin().right -
         this.legendMargin() - 2 * this.radius) / 6.2);
 
-
     // Update plot
     this.plotWrap
         .attr('transform', trans(this.radius, this.radius));
-
 
     // Update arc
     this.arc
         .innerRadius(this.radius / 2)
         .outerRadius(this.radius);
-
 
     // Configure sectors
     this.sectors = this.plotWrap.selectAll('.arc')
@@ -375,12 +357,10 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     this.sectors
         .exit().remove();
 
-
     this.updateLegend();
     this.updateDetails();
     this.configureEvents();
   };
-
 
   window.SonarWidgets.PieChart.defaults = {
     width: 350,
@@ -389,7 +369,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     legendWidth: 160,
     legendMargin: 30
   };
-
 
   // Some helper functions
 

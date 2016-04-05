@@ -32,13 +32,13 @@ export default React.createClass({
   },
 
   onChange(e) {
-    let newValue = e.currentTarget.value;
+    const newValue = e.currentTarget.value;
     this.props.onCheck(newValue);
   },
 
   renderOption(option) {
-    let checked = option.value === this.props.value;
-    let htmlId = this.props.name + '__' + option.value;
+    const checked = option.value === this.props.value;
+    const htmlId = this.props.name + '__' + option.value;
     return (
         <li key={option.value}>
           <input onChange={this.onChange}
@@ -54,7 +54,7 @@ export default React.createClass({
   },
 
   render() {
-    let options = this.props.options.map(this.renderOption);
+    const options = this.props.options.map(this.renderOption);
     return (
         <ul className="radio-toggle">{options}</ul>
     );

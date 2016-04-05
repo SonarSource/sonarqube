@@ -21,9 +21,7 @@ import React from 'react';
 import Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
 
-
 const TYPES = ['All', 'Version', 'Alert', 'Profile', 'Other'];
-
 
 export const EventsListFilter = React.createClass({
   propTypes: {

@@ -22,7 +22,6 @@ import Marionette from 'backbone.marionette';
 import Template from './templates/quality-profiles-profile.hbs';
 import { formatMeasure } from '../../helpers/measures';
 
-
 export default Marionette.ItemView.extend({
   tagName: 'a',
   className: 'list-group-item',
@@ -58,5 +57,4 @@ export default Marionette.ItemView.extend({
     });
   }
 });
-
 

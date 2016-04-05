@@ -26,16 +26,13 @@ import MoreCriteriaFilters from './more-criteria-filters';
 export default Marionette.CompositeView.extend({
   childViewContainer: '.navigator-filters-list',
 
-
   collectionEvents: {
     'change:enabled': 'changeEnabled'
   },
 
-
   getChildView (item) {
     return item.get('type') || BaseFilters.BaseFilterView;
   },
-
 
   childViewOptions () {
     return {
@@ -43,7 +40,6 @@ export default Marionette.CompositeView.extend({
       app: this.options.app
     };
   },
-
 
   initialize () {
     Marionette.CompositeView.prototype.initialize.apply(this, arguments);
@@ -90,7 +86,6 @@ export default Marionette.CompositeView.extend({
     });
   },
 
-
   getEnabledFilters () {
     return this.$(this.childViewContainer).children()
         .not('.navigator-filter-disabled')
@@ -98,12 +93,10 @@ export default Marionette.CompositeView.extend({
         .not('.navigator-filter-favorite');
   },
 
-
   selectFirst () {
     this.selected = -1;
     this.selectNext();
   },
-
 
   selectPrev () {
     const filters = this.getEnabledFilters();
@@ -114,7 +107,6 @@ export default Marionette.CompositeView.extend({
       this.$('.navigator-filter-submit').blur();
     }
   },
-
 
   selectNext () {
     const filters = this.getEnabledFilters();
@@ -129,7 +121,6 @@ export default Marionette.CompositeView.extend({
     }
   },
 
-
   addMoreCriteriaFilter () {
     const disabledFilters = this.collection.where({ enabled: false });
     if (disabledFilters.length > 0) {
@@ -143,13 +134,11 @@ export default Marionette.CompositeView.extend({
     }
   },
 
-
   onAddChild (childView) {
     if (childView.model.get('type') === MoreCriteriaFilters.FavoriteFilterView) {
       $('.navigator-header').addClass('navigator-header-favorite');
     }
   },
-
 
   restoreFromQuery (q) {
     this.collection.each(function (item) {
@@ -159,13 +148,11 @@ export default Marionette.CompositeView.extend({
     });
   },
 
-
   hideDetails () {
     if (_.isObject(this.showedView)) {
       this.showedView.hideDetails();
     }
   },
-
 
   enableFilter (id) {
     const filter = this.collection.get(id);
@@ -175,7 +162,6 @@ export default Marionette.CompositeView.extend({
     filter.set('enabled', true);
     filterView.showDetails();
   },
-
 
   changeEnabled () {
     const disabledFilters = _.reject(this.collection.where({ enabled: false }), function (filter) {

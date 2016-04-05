@@ -25,8 +25,8 @@ export default React.createClass({
   },
 
   render() {
-    let cellWidth = (80 / this.props.permissions.length) + '%';
-    let cells = this.props.permissions.map(p => {
+    const cellWidth = (80 / this.props.permissions.length) + '%';
+    const cells = this.props.permissions.map(p => {
       return (
           <th key={p.key} style={{ width: cellWidth }}>
             {p.name}<br/><span className="small">{p.description}</span>

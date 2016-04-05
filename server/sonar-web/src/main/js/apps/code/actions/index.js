@@ -24,7 +24,6 @@ import { getChildren, getComponent, getTree, getBreadcrumbs } from '../../../api
 import { translate } from '../../../helpers/l10n';
 import { getComponentUrl } from '../../../helpers/urls';
 
-
 const METRICS = [
   'ncloc',
   'code_smells',
@@ -41,7 +40,6 @@ const METRICS_WITH_COVERAGE = [
   'overall_coverage'
 ];
 
-
 export const INIT = 'INIT';
 export const BROWSE = 'BROWSE';
 export const SEARCH = 'SEARCH';
@@ -51,7 +49,6 @@ export const UPDATE_QUERY = 'UPDATE_QUERY';
 export const START_FETCHING = 'START_FETCHING';
 export const STOP_FETCHING = 'STOP_FETCHING';
 export const RAISE_ERROR = 'RAISE_ERROR';
-
 
 export function initComponentAction (component, breadcrumbs = []) {
   return {
@@ -106,7 +103,6 @@ export function raiseError (message) {
     message
   };
 }
-
 
 function getPath (componentKey) {
   return '/' + encodeURIComponent(componentKey);
@@ -169,7 +165,7 @@ async function getErrorMessage (response) {
       return translate('not_authorized');
     default:
       try {
-        let json = await response.json();
+        const json = await response.json();
         return json['err_msg'] ||
             (json.errors && _.pluck(json.errors, 'msg').join('. ')) ||
             translate('default_error_message');

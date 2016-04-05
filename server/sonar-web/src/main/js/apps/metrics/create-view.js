@@ -50,4 +50,3 @@ export default FormView.extend({
   }
 });
 
-

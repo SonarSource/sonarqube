@@ -26,11 +26,9 @@ import { translate } from '../../../helpers/l10n';
 const DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
   template: Template,
 
-
   events: {
     'change :input': 'inputChanged'
   },
-
 
   inputChanged () {
     const metric = this.$('[name=metric]').val();
@@ -68,7 +66,6 @@ const DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
     this.model.set('value', value);
   },
 
-
   updateDataType (value) {
     const metric = _.find(window.SS.metrics, function (m) {
       return m.metric.name === value.metric;
@@ -83,7 +80,6 @@ const DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
       }
     }
   },
-
 
   onRender () {
     const periodZeroLabel = this.$('[name=period]').children('[value="0"]').html();
@@ -108,7 +104,6 @@ const DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
     this.inputChanged();
   },
 
-
   onShow () {
     const select = this.$('[name=metric]');
     if (this.model.get('value').metric === '') {
@@ -120,7 +115,6 @@ const DetailsMetricFilterView = BaseFilters.DetailsFilterView.extend({
 
 });
 
-
 export default BaseFilters.BaseFilterView.extend({
 
   initialize () {
@@ -130,7 +124,6 @@ export default BaseFilters.BaseFilterView.extend({
 
     this.groupMetrics();
   },
-
 
   groupMetrics () {
     const metrics = _.map(this.model.get('metrics'), function (metric) {
@@ -151,14 +144,12 @@ export default BaseFilters.BaseFilterView.extend({
     this.model.set('groupedMetrics', groupedMetrics);
   },
 
-
   renderValue () {
     return this.isDefaultValue() ?
         translate('measure_filter.criteria.metric.not_set') :
     this.model.get('value').metricText + ' ' + this.model.get('value').opText + ' ' +
     this.model.get('value').valText;
   },
-
 
   renderInput () {
     const that = this;
@@ -181,7 +172,6 @@ export default BaseFilters.BaseFilterView.extend({
     }
   },
 
-
   isDefaultValue () {
     const value = this.model.get('value');
     if (!_.isObject(value)) {
@@ -189,7 +179,6 @@ export default BaseFilters.BaseFilterView.extend({
     }
     return !(value.metric && value.op && (value.val != null));
   },
-
 
   restoreFromQuery (q) {
     const that = this;
@@ -212,5 +201,4 @@ export default BaseFilters.BaseFilterView.extend({
   }
 
 });
-
 

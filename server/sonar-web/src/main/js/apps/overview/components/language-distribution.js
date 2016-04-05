@@ -25,7 +25,6 @@ import { formatMeasure } from '../../../helpers/measures';
 import { getLanguages } from '../../../api/languages';
 import { translate } from '../../../helpers/l10n';
 
-
 export const LanguageDistribution = React.createClass({
   propTypes: {
     distribution: React.PropTypes.string.isRequired,

@@ -17,6 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+ /* jscs:disable safeContextKeyword */
 import moment from 'moment';
 
 window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
@@ -31,7 +32,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     }
 
     this.container = d3.select(container);
-
 
     // Set default values
     this._data = [];
@@ -73,7 +73,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   };
 
-
   window.SonarWidgets.StackArea.prototype.initScales = function () {
     const widget = this;
     const colorsLength = widget.colors().length;
@@ -100,14 +99,12 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     };
   };
 
-
   window.SonarWidgets.StackArea.prototype.initAxis = function () {
     this.timeAxis = d3.svg.axis()
         .scale(this.time)
         .orient('bottom')
         .ticks(5);
   };
-
 
   window.SonarWidgets.StackArea.prototype.initArea = function () {
     const widget = this;
@@ -120,7 +117,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .x(function (d) { return widget.time(d.x); })
         .y(function (d) { return widget.y(d.y0 + d.y); });
   };
-
 
   window.SonarWidgets.StackArea.prototype.initInfo = function () {
     const widget = this;
@@ -169,7 +165,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     });
   };
 
-
   window.SonarWidgets.StackArea.prototype.initEvents = function () {
     const widget = this;
     this.events = widget.snapshots()
@@ -184,7 +179,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('class', 'event-tick')
         .attr('y2', -8);
 
-
     this.selectSnapshot = function (cl) {
       const dataX = widget.data()[0][cl].x;
       const sx = widget.time(dataX);
@@ -196,7 +190,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
           .attr('x1', sx)
           .attr('x2', sx);
 
-
       // Update metric labels
       const metricsLines = widget.data().map(function (d, i) {
         const value = d[cl].fy || d[cl].y;
@@ -206,7 +199,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       metricsLines.forEach(function (d, i) {
         widget.infoMetrics[i].select('text').text(d);
       });
-
 
       // Update snapshot info
       this.snapshots().forEach(function (d, i) {
@@ -220,7 +212,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
             .text(this.snapshots()[snapshotIndex].e.join(', '));
       }
 
-
       // Update info
       widget.infoDate
           .text(moment(widget.data()[0][cl].x).format('LL'));
@@ -229,7 +220,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       const totalValue = snapshotValue || (widget.stackDataTop[cl].y0 + widget.stackDataTop[cl].y);
       widget.infoTotal
           .text('Total: ' + totalValue);
-
 
       // Update event
       this.events.forEach(function (d, i) {
@@ -242,7 +232,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       d3.select(widget.gevents[0][eventIndex]).attr('y2', -12);
     };
 
-
     // Set event listeners
     this.svg.on('mousemove', function () {
       const mx = d3.mouse(widget.plotWrap.node())[0];
@@ -250,7 +239,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
       widget.selectSnapshot(cl);
     });
   };
-
 
   window.SonarWidgets.StackArea.prototype.render = function () {
     this.svg = this.container.append('svg')
@@ -295,34 +283,28 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
     return this;
   };
 
-
   window.SonarWidgets.StackArea.prototype.update = function () {
     const widget = this;
     const width = this.container.property('offsetWidth');
 
     this.width(width > 100 ? width : 100);
 
-
     // Update svg canvas
     this.svg
         .attr('width', this.width())
         .attr('height', this.height());
 
-
     // Update available size
     this.availableWidth = this.width() - this.margin().left - this.margin().right;
     this.availableHeight = this.height() - this.margin().top - this.margin().bottom;
-
 
     // Update scales
     this.time.range([0, this.availableWidth]);
     this.y.range([widget.availableHeight, 0]);
 
-
     // Update the axis
     this.gtimeAxis.attr('transform', trans(0, this.availableHeight + this.margin().bottom - 30));
     this.gtimeAxis.transition().call(this.timeAxis);
-
 
     // Update area
     this.garea = this.plotWrap.selectAll('.area')
@@ -342,10 +324,8 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .style('fill', 'none')
         .style('stroke', '#808080');
 
-
     // Update scanner
     this.scanner.attr('y2', this.availableHeight + 10);
-
 
     // Update events
     this.gevents
@@ -353,7 +333,6 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
         .attr('transform', function (d) {
           return trans(widget.time(d.d), widget.availableHeight + 10);
         });
-
 
     // Select latest values if this it the first update
     if (!this.firstUpdate) {
@@ -364,13 +343,11 @@ window.SonarWidgets = window.SonarWidgets == null ? {} : window.SonarWidgets;
 
   };
 
-
   window.SonarWidgets.StackArea.defaults = {
     width: 350,
     height: 150,
     margin: { top: 80, right: 10, bottom: 40, left: 40 }
   };
-
 
   // Some helper functions
 

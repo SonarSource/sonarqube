@@ -22,7 +22,6 @@ import React from 'react';
 
 import { QualifierFilter } from './qualifier-filter';
 
-
 export default React.createClass({
   propTypes: {
     search: React.PropTypes.func.isRequired
@@ -38,7 +37,7 @@ export default React.createClass({
   },
 
   search() {
-    let q = this.refs.input.value;
+    const q = this.refs.input.value;
     this.props.search(q);
   },
 

@@ -29,12 +29,10 @@ import configureStore from './store/configureStore';
 
 import './styles/code.css';
 
-
 const store = configureStore();
 const history = useRouterHistory(createHashHistory)({ queryKey: false });
 
 syncReduxAndRouter(history, store);
-
 
 window.sonarqube.appStarted.then(({ el, component }) => {
   const CodeWithComponent = () => {

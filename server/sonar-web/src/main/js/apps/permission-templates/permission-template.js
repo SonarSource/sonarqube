@@ -69,7 +69,7 @@ export default React.createClass({
   },
 
   renderAssociation() {
-    let projectKeyPattern = this.props.permissionTemplate.projectKeyPattern;
+    const projectKeyPattern = this.props.permissionTemplate.projectKeyPattern;
     if (!projectKeyPattern) {
       return null;
     }
@@ -84,7 +84,7 @@ export default React.createClass({
   },
 
   render() {
-    let permissions = this.props.permissionTemplate.permissions.map(p => {
+    const permissions = this.props.permissionTemplate.permissions.map(p => {
       return (
           <td key={p.key}>
             <table>

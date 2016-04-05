@@ -26,16 +26,15 @@ import ComponentNav from './component/component-nav';
 import SettingsNav from './settings/settings-nav';
 import { getGlobalNavigation, getComponentNavigation, getSettingsNavigation } from '../../api/nav';
 
-
 export default class App {
   start () {
-    let options = window.sonarqube;
+    const options = window.sonarqube;
 
     require('../../components/workspace/main');
 
     return new Promise((resolve) => {
-      let response = {};
-      let requests = [];
+      const response = {};
+      const requests = [];
 
       requests.push(
           App.renderGlobalNav(options).then(r => response.global = r)
@@ -77,8 +76,8 @@ export default class App {
 
   static renderSettingsNav (options) {
     return getSettingsNavigation().then(r => {
-      let el = document.getElementById('context-navigation');
-      let opts = _.extend(r, options);
+      const el = document.getElementById('context-navigation');
+      const opts = _.extend(r, options);
       if (el) {
         ReactDOM.render(<SettingsNav {...opts}/>, el);
       }

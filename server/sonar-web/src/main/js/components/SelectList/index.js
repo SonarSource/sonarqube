@@ -70,7 +70,6 @@ const SelectListCollection = Backbone.Collection.extend({
 
 });
 
-
 /*
  * SelectList Item View
  */
@@ -146,7 +145,6 @@ const SelectListItemView = Backbone.View.extend({
     });
   }
 });
-
 
 /*
  * SelectList View
@@ -370,7 +368,6 @@ const SelectListView = Backbone.View.extend({
 
 });
 
-
 /*
  * SelectList Entry Point
  */
@@ -393,7 +390,6 @@ window.SelectList = function (options) {
   return this;
 };
 
-
 /*
  * SelectList API Methods
  */
@@ -407,7 +403,6 @@ window.SelectList.prototype.search = function (query) {
   this.view.searchByQuery(query);
   return this;
 };
-
 
 /*
  * SelectList Defaults

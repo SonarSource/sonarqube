@@ -61,4 +61,3 @@ export default function (options) {
   return deferred.promise();
 }
 
-

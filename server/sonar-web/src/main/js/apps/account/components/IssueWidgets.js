@@ -27,9 +27,7 @@ import { getFacets, getFacet } from '../../../api/issues';
 import { translate } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
-
 const BASE_QUERY = { resolved: false, assignees: '__me__' };
-
 
 function getTotalUrl () {
   return window.baseUrl + '/account/issues#resolved=false';
@@ -54,7 +52,6 @@ function getProjectUrl (project) {
 function getPeriodUrl (createdAfter, createdBefore) {
   return window.baseUrl + `/account/issues#resolved=false|createdAfter=${createdAfter}|createdBefore=${createdBefore}`;
 }
-
 
 export default class IssueWidgets extends Component {
   state = {

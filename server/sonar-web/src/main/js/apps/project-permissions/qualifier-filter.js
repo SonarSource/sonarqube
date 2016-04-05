@@ -22,7 +22,6 @@ import { translate } from '../../helpers/l10n';
 
 import RadioToggle from '../../components/shared/radio-toggle';
 
-
 const rootQualifiersToOptions = (qualifiers) => {
   return qualifiers.map(q => {
     return {
@@ -31,7 +30,6 @@ const rootQualifiersToOptions = (qualifiers) => {
     };
   });
 };
-
 
 export const QualifierFilter = ({ rootQualifiers, filter, onFilter }) => {
   const options = [{ value: '__ALL__', label: 'All' }, ...rootQualifiersToOptions(rootQualifiers)];

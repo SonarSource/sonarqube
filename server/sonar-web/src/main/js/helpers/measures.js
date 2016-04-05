@@ -21,7 +21,6 @@ import numeral from 'numeral';
 import _ from 'underscore';
 import { translate, translateWithParameters } from './l10n';
 
-
 /**
  * Format a measure value for a given type
  * @param {string|number} value
@@ -31,7 +30,6 @@ export function formatMeasure (value, type) {
   const formatter = getFormatter(type);
   return useFormatter(value, formatter);
 }
-
 
 /**
  * Format a measure variation for a given type
@@ -43,7 +41,6 @@ export function formatMeasureVariation (value, type) {
   return useFormatter(value, formatter);
 }
 
-
 /**
  * Return a localized metric name
  * @param {string} metricKey
@@ -52,7 +49,6 @@ export function formatMeasureVariation (value, type) {
 export function localizeMetric (metricKey) {
   return translate('metric', metricKey, 'name');
 }
-
 
 /**
  * Group list of metrics by their domain
@@ -70,7 +66,6 @@ export function groupByDomain (metrics) {
   return _.sortBy(domains, 'domain');
 }
 
-
 /**
  * Return corresponding "short" for better display in UI
  * @param {string} type
@@ -84,7 +79,6 @@ export function getShortType (type) {
   }
   return type;
 }
-
 
 /*
  * Helpers
@@ -125,11 +119,9 @@ function getVariationFormatter (type) {
   return FORMATTERS[type] || noFormatter;
 }
 
-
 /*
  * Formatters
  */
-
 
 function noFormatter (value) {
   return value;
@@ -189,6 +181,7 @@ function ratingFormatter (value) {
 function levelFormatter (value) {
   const l10nKey = 'metric.level.' + value;
   const result = translate(l10nKey);
+
   // if couldn't translate, return the initial value
   return l10nKey !== result ? result : value;
 }
@@ -212,7 +205,6 @@ function millisecondsVariationFormatter (value) {
   const formattedValue = millisecondsFormatter(absValue);
   return value < 0 ? `-${formattedValue}` : `+${formattedValue}`;
 }
-
 
 /*
  * Debt Formatters

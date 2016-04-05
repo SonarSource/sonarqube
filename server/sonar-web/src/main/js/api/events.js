@@ -19,7 +19,6 @@
  */
 import { getJSON } from '../helpers/request.js';
 
-
 /**
  * Return events for a component
  * @param {string} componentKey

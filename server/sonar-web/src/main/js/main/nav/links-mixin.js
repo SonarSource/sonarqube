@@ -27,8 +27,8 @@ export default {
   },
 
   renderLink(url, title, highlightUrl = url) {
-    let fullUrl = window.baseUrl + url;
-    let check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
+    const fullUrl = window.baseUrl + url;
+    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
     return (
         <li key={url} className={check(highlightUrl)}>
           <a href={fullUrl}>{title}</a>
@@ -37,8 +37,8 @@ export default {
   },
 
   renderNewLink(url, title, highlightUrl = url) {
-    let fullUrl = window.baseUrl + url;
-    let check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
+    const fullUrl = window.baseUrl + url;
+    const check = _.isFunction(highlightUrl) ? highlightUrl : this.activeLink;
     return (
         <li key={highlightUrl} className={check(highlightUrl)}>
           <a href={fullUrl} className="nowrap">{title} <span className="spacer-left badge">New</span></a>

@@ -221,4 +221,3 @@ const Plugins = Backbone.Collection.extend({
 
 export default Plugins;
 
-

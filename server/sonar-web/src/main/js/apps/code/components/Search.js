@@ -24,7 +24,6 @@ import classNames from 'classnames';
 import { search, selectCurrent, selectNext, selectPrev } from '../actions';
 import { translateWithParameters } from '../../../helpers/l10n';
 
-
 class Search extends Component {
   componentDidMount () {
     this.refs.input.focus();
@@ -46,7 +45,8 @@ class Search extends Component {
         dispatch(selectNext());
         break;
       default:
-        // do nothing
+
+      // do nothing
     }
   }
 
@@ -88,7 +88,6 @@ class Search extends Component {
     );
   }
 }
-
 
 export default connect(state => {
   return { query: state.current.searchQuery };

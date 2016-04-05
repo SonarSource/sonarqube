@@ -43,7 +43,6 @@ export const Word = React.createClass({
   }
 });
 
-
 export const WordCloud = React.createClass({
   propTypes: {
     items: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
@@ -59,16 +58,16 @@ export const WordCloud = React.createClass({
   },
 
   render () {
-    let len = this.props.items.length;
-    let sortedItems = _.sortBy(this.props.items, (item, idx) => {
-      let index = len - idx;
+    const len = this.props.items.length;
+    const sortedItems = _.sortBy(this.props.items, (item, idx) => {
+      const index = len - idx;
       return (index % 2) * (len - index) + index / 2;
     });
 
-    let sizeScale = d3.scale.linear()
+    const sizeScale = d3.scale.linear()
                       .domain([0, d3.max(this.props.items, d => d.size)])
                       .range(this.props.sizeRange);
-    let words = sortedItems
+    const words = sortedItems
         .map((item, index) => <Word key={index}
                                     text={item.text}
                                     size={sizeScale(item.size)}

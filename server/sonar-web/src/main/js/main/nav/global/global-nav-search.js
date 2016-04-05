@@ -63,7 +63,7 @@ export default React.createClass({
   },
 
   renderSearchView() {
-    let searchContainer = this.refs.container;
+    const searchContainer = this.refs.container;
     this.searchView = new SearchView({
       model: new Backbone.Model(this.props),
       hide: this.closeSearch

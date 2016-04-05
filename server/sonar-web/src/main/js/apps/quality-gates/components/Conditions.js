@@ -45,7 +45,6 @@ export default function Conditions (
     return metrics.find(metric => metric.key === condition.metric).name;
   });
 
-
   return (
       <div id="quality-gate-conditions" className="quality-gate-section">
         <h3 className="spacer-bottom">

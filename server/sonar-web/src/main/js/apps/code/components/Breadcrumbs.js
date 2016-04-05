@@ -21,7 +21,6 @@ import React from 'react';
 
 import Breadcrumb from './Breadcrumb';
 
-
 const Breadcrumbs = ({ breadcrumbs, onBrowse }) => (
     <ul className="code-breadcrumbs">
       {breadcrumbs.map((component, index) => (
@@ -33,6 +32,5 @@ const Breadcrumbs = ({ breadcrumbs, onBrowse }) => (
       ))}
     </ul>
 );
-
 
 export default Breadcrumbs;

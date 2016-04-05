@@ -40,7 +40,7 @@ export default React.createClass({
   },
 
   renderIfSingleTopQualifier(availableQualifiers) {
-    let qualifiers = availableQualifiers.map(qualifier => {
+    const qualifiers = availableQualifiers.map(qualifier => {
       return (
           <span key={qualifier} className="text-middle">
             <a onClick={this.setDefault.bind(this, qualifier)} className="button" href="#">Set Default</a>
@@ -52,7 +52,7 @@ export default React.createClass({
   },
 
   renderIfMultipleTopQualifiers(availableQualifiers) {
-    let qualifiers = availableQualifiers.map(qualifier => {
+    const qualifiers = availableQualifiers.map(qualifier => {
       return (
           <li key={qualifier}>
             <a onClick={this.setDefault.bind(this, qualifier)} href="#">
@@ -73,7 +73,7 @@ export default React.createClass({
   },
 
   render() {
-    let availableQualifiers = this.getAvailableQualifiers();
+    const availableQualifiers = this.getAvailableQualifiers();
     if (availableQualifiers.length === 0) {
       return null;
     }

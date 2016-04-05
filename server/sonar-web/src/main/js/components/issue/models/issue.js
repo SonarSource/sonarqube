@@ -158,17 +158,17 @@ export default Backbone.Model.extend({
    * @private
    */
   _action (options) {
-    const model = this;
+    const that = this;
     const success = function (r) {
-      const attrs = model.parse(r);
-      model.reset(attrs);
+      const attrs = that.parse(r);
+      that.reset(attrs);
       if (options.success) {
-        options.success(model, r, options);
+        options.success(that, r, options);
       }
     };
     const opts = _.extend({ type: 'POST' }, options, { success });
     const xhr = options.xhr = Backbone.ajax(opts);
-    model.trigger('request', model, xhr, opts);
+    this.trigger('request', this, xhr, opts);
     return xhr;
   },
 
@@ -231,7 +231,6 @@ export default Backbone.Model.extend({
     });
   },
 
-
   /**
    * Set type of issue
    * @param {String|null} issueType Issue type
@@ -245,7 +244,6 @@ export default Backbone.Model.extend({
     }, options);
     return this._action(opts);
   },
-
 
   /**
    * Do a custom (plugin) action
@@ -279,5 +277,3 @@ export default Backbone.Model.extend({
     return locations;
   }
 });
-
-

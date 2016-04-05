@@ -146,4 +146,3 @@ export default Marionette.ItemView.extend({
   }
 });
 
-

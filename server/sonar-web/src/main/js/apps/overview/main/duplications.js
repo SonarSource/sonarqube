@@ -34,7 +34,6 @@ import { getMetricName } from '../helpers/metrics';
 import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
-
 export const GeneralDuplications = React.createClass({
   propTypes: {
     leakPeriodLabel: React.PropTypes.string,

@@ -28,12 +28,10 @@ function typeError (method, message) {
   throw new TypeError(`permissions#${method}: ${message}`);
 }
 
-
 export function getUsers (data) {
   const url = window.baseUrl + '/api/permissions/users';
   return request({ type: 'GET', url, data });
 }
-
 
 export function grantToUser (permission, user, project) {
   if (typeof permission !== 'string' || !permission.length) {
@@ -51,7 +49,6 @@ export function grantToUser (permission, user, project) {
   return request({ type: 'POST', url, data });
 }
 
-
 export function revokeFromUser (permission, user, project) {
   if (typeof permission !== 'string' || !permission.length) {
     return typeError('revokeFromUser', 'please provide permission');
@@ -68,12 +65,10 @@ export function revokeFromUser (permission, user, project) {
   return request({ type: 'POST', url, data });
 }
 
-
 export function getGroups (data) {
   const url = window.baseUrl + '/api/permissions/groups';
   return request({ type: 'GET', url, data });
 }
-
 
 export function grantToGroup (permission, group, project) {
   if (typeof permission !== 'string' || !permission.length) {
@@ -91,7 +86,6 @@ export function grantToGroup (permission, group, project) {
   return request({ type: 'POST', url, data });
 }
 
-
 export function revokeFromGroup (permission, group, project) {
   if (typeof permission !== 'string' || !permission.length) {
     return typeError('revokeFromGroup', 'please provide permission');
@@ -108,7 +102,6 @@ export function revokeFromGroup (permission, group, project) {
   return request({ type: 'POST', url, data });
 }
 
-
 export function getPermissionTemplates (query) {
   const url = window.baseUrl + '/api/permissions/search_templates';
   const data = { };
@@ -117,7 +110,6 @@ export function getPermissionTemplates (query) {
   }
   return request({ type: 'GET', url, data });
 }
-
 
 export function createPermissionTemplate (options) {
   const url = window.baseUrl + '/api/permissions/create_template';
@@ -129,12 +121,10 @@ export function updatePermissionTemplate (options) {
   return request(_.extend({ type: 'POST', url }, options));
 }
 
-
 export function deletePermissionTemplate (options) {
   const url = window.baseUrl + '/api/permissions/delete_template';
   return request(_.extend({ type: 'POST', url }, options));
 }
-
 
 export function setDefaultPermissionTemplate (template, qualifier) {
   if (typeof template !== 'string' || !template.length) {
@@ -146,8 +136,7 @@ export function setDefaultPermissionTemplate (template, qualifier) {
   return request({ type: 'POST', url, data });
 }
 
-
-export function applyTemplateToProject(options) {
+export function applyTemplateToProject (options) {
   const url = window.baseUrl + '/api/permissions/apply_template';
   return request(_.extend({ type: 'POST', url }, options));
 }

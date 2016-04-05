@@ -26,7 +26,6 @@ import { formatMeasure } from '../../../helpers/measures';
 import { getLanguages } from '../../../api/languages';
 import { translate } from '../../../helpers/l10n';
 
-
 export default class LanguageDistribution extends React.Component {
   componentDidMount () {
     this.requestLanguages();

@@ -61,7 +61,7 @@ export default React.createClass({
   },
 
   render() {
-    let permissions = this.props.project.permissions.map(p => {
+    const permissions = this.props.project.permissions.map(p => {
       return (
           <td key={p.key}>
             <table>

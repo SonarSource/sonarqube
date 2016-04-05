@@ -40,7 +40,6 @@ import _ from 'underscore';
   BaseWidget.prototype.colorsLevel = ['#d4333f', '#ff9900', '#85bb43', '##b4b4b4'];
   BaseWidget.prototype.colorUnknown = '#777';
 
-
   BaseWidget.prototype.addField = function (name, defaultValue) {
     const privateName = '_' + name;
     this[privateName] = defaultValue;

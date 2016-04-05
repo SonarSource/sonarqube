@@ -34,7 +34,6 @@ import { formatMeasure, formatMeasureVariation } from '../../../helpers/measures
 import { LanguageDistribution } from '../components/language-distribution';
 import { translate } from '../../../helpers/l10n';
 
-
 export const GeneralStructure = React.createClass({
   propTypes: {
     leakPeriodLabel: React.PropTypes.string,

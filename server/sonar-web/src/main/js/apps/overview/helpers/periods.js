@@ -32,7 +32,6 @@ export function getPeriodLabel (periods, periodIndex) {
   return getLabel(period);
 }
 
-
 export function getPeriodDate (periods, periodIndex) {
   const period = _.findWhere(periods, { index: periodIndex });
   if (!period) {

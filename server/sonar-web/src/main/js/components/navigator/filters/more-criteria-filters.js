@@ -26,17 +26,14 @@ import DetailsTemplate from '../templates/more-criteria-details-filter.hbs';
 const DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.extend({
   template: DetailsTemplate,
 
-
   events: {
     'click label[data-id]:not(.inactive)': 'enableFilter'
   },
-
 
   enableById (id) {
     this.model.view.options.filterBarView.enableFilter(id);
     this.model.view.hideDetails();
   },
-
 
   enableByProperty (property) {
     const filter = _.find(this.model.get('filters'), function (f) {
@@ -47,18 +44,15 @@ const DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.exte
     }
   },
 
-
   enableFilter (e) {
     const id = $(e.target).data('id');
     this.enableById(id);
     this.updateCurrent(0);
   },
 
-
   selectCurrent () {
     this.$('label').eq(this.currentChoice).click();
   },
-
 
   serializeData () {
     const filters = this.model.get('filters').map(function (filter) {
@@ -74,11 +68,9 @@ const DetailsMoreCriteriaFilterView = ChoiceFilters.DetailsChoiceFilterView.exte
 
 });
 
-
 const MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
   template: Template,
   className: 'navigator-filter navigator-filter-more-criteria',
-
 
   initialize () {
     ChoiceFilters.ChoiceFilterView.prototype.initialize.call(this, {
@@ -86,28 +78,23 @@ const MoreCriteriaFilterView = ChoiceFilters.ChoiceFilterView.extend({
     });
   },
 
-
   renderValue () {
     return '';
   },
 
-
   renderInput () {
   },
-
 
   renderBase () {
     ChoiceFilters.ChoiceFilterView.prototype.renderBase.call(this);
     this.$el.prop('title', '');
   },
 
-
   isDefaultValue () {
     return false;
   }
 
 });
-
 
 /*
  * Export public classes
@@ -117,5 +104,4 @@ export default {
   DetailsMoreCriteriaFilterView,
   MoreCriteriaFilterView
 };
-
 

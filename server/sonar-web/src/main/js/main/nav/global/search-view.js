@@ -207,7 +207,8 @@ export default Marionette.LayoutView.extend({
           collection.push(_.extend(item, {
             q: domain.q,
             extra: index === 0 ? domain.name : null,
-            url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) + window.dashboardParameters(true)
+            url: window.baseUrl + '/dashboard/index?id=' + encodeURIComponent(item.key) +
+                window.dashboardParameters(true)
           }));
         });
       });

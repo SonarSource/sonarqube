@@ -22,7 +22,6 @@ import React from 'react';
 
 import { formatMeasure } from '../../../helpers/measures';
 
-
 const ComponentMeasure = ({ component, metricKey, metricType }) => {
   const measure = _.findWhere(component.measures, { metric: metricKey });
   return (
@@ -31,6 +30,5 @@ const ComponentMeasure = ({ component, metricKey, metricType }) => {
       </span>
   );
 };
-
 
 export default ComponentMeasure;

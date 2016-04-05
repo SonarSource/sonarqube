@@ -37,7 +37,6 @@ import * as request from '../helpers/request';
 // set the Backbone's $
 Backbone.$ = $;
 
-
 function requestLocalizationBundle () {
   if (!window.sonarqube.bannedNavigation) {
     installGlobal();
@@ -83,7 +82,6 @@ window.sonarqube.appStarted = Promise.resolve()
     .then(requestLocalizationBundle)
     .then(startNavigation)
     .then(prepareAppOptions);
-
 
 // expose libraries
 window.require = module => {

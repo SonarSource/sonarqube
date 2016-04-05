@@ -21,7 +21,6 @@ import ModalForm from '../../components/common/modal-form';
 import { createProject } from '../../api/components';
 import Template from './templates/projects-create-form.hbs';
 
-
 export default ModalForm.extend({
   template: Template,
 

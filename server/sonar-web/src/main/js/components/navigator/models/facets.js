@@ -24,4 +24,3 @@ export default Backbone.Collection.extend({
   model: Facet
 });
 
-

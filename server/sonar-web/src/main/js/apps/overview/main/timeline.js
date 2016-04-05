@@ -22,9 +22,7 @@ import React from 'react';
 
 import { LineChart } from '../../../components/charts/line-chart';
 
-
 const HEIGHT = 80;
-
 
 export class Timeline extends React.Component {
   filterSnapshots () {

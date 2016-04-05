@@ -25,7 +25,6 @@ import Clipboard from 'clipboard';
 import Template from './templates/account-tokens.hbs';
 import { getTokens, generateToken, revokeToken } from '../../api/user-tokens';
 
-
 export default Marionette.ItemView.extend({
   template: Template,
 

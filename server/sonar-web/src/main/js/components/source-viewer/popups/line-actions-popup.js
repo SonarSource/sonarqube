@@ -29,10 +29,9 @@ export default Popup.extend({
 
   getPermalink (e) {
     e.preventDefault();
-    const url = `${window.baseUrl}/component/index?id=${encodeURIComponent(this.model.key())}&line=${this.options.line}`;
+    const url =
+        `${window.baseUrl}/component/index?id=${encodeURIComponent(this.model.key())}&line=${this.options.line}`;
     const windowParams = 'resizable=1,scrollbars=1,status=1';
     window.open(url, this.model.get('name'), windowParams);
   }
 });
-
-

@@ -38,4 +38,3 @@ export default Marionette.CollectionView.extend({
   }
 });
 
-

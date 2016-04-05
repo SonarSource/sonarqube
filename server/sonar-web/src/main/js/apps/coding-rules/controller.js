@@ -29,7 +29,6 @@ export default Controller.extend({
     'name', 'lang', 'langName', 'sysTags', 'tags', 'status', 'severity'
   ],
 
-
   _searchParameters () {
     const fields = this.ruleFields.slice();
     const profile = this.app.state.get('query').qprofile;

@@ -36,7 +36,6 @@ window.Portal.prototype = {
     this.saveDashboardsState();
   },
 
-
   createAllSortables () {
     const that = this;
     const blocks = $('.' + this.options.block);
@@ -81,7 +80,6 @@ window.Portal.prototype = {
         .on('dragleave', onDragLeave);
   },
 
-
   highlightWidget (widgetId) {
     const block = $('#block_' + widgetId);
     const options = this.options;
@@ -90,7 +88,6 @@ window.Portal.prototype = {
       block.css('background-color', options.highlightEndColor);
     }, this.options.highlightDuration);
   },
-
 
   saveDashboardsState () {
     const options = this.options;
@@ -125,14 +122,12 @@ window.Portal.prototype = {
     }
   },
 
-
   editWidget (widgetId) {
     $('#widget_title_' + widgetId).hide();
     $('#widget_' + widgetId).hide();
     $('#widget_props_' + widgetId).show();
     $($(`#block_${widgetId} a.link-action`)[0]).hide();
   },
-
 
   cancelEditWidget (widgetId) {
     $('widget_title_' + widgetId).show();
@@ -141,13 +136,11 @@ window.Portal.prototype = {
     $($(`#block_${widgetId} a.link-action`)[0]).show();
   },
 
-
   deleteWidget (element) {
     $(element).closest('.' + this.options.block).remove();
     this.saveDashboardsState();
   }
 };
-
 
 window.autoResize = function (everyMs, callback) {
   const debounce = _.debounce(callback, everyMs);

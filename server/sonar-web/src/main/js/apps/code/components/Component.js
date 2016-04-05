@@ -28,10 +28,8 @@ import ComponentQualityGate from './ComponentQualityGate';
 import ComponentDetach from './ComponentDetach';
 import ComponentPin from './ComponentPin';
 
-
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
-
 
 class Component extends React.Component {
   componentDidMount () {
@@ -80,7 +78,7 @@ class Component extends React.Component {
 
     /* eslint object-shorthand: 0 */
     return (
-        <tr className={classNames({ 'selected': selected })}>
+        <tr className={classNames({ selected })}>
           <td className="thin nowrap">
             <span className="spacer-right">
               {componentAction}
@@ -148,7 +146,6 @@ class Component extends React.Component {
     );
   }
 }
-
 
 function mapStateToProps (state, ownProps) {
   return {

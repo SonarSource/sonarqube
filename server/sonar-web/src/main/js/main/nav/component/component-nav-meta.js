@@ -24,12 +24,13 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default React.createClass({
   render() {
-    let metaList = [];
-    let canSeeBackgroundTasks = this.props.conf.showBackgroundTasks;
-    let backgroundTasksUrl = `${window.baseUrl}/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
+    const metaList = [];
+    const canSeeBackgroundTasks = this.props.conf.showBackgroundTasks;
+    const backgroundTasksUrl =
+        `${window.baseUrl}/project/background_tasks?id=${encodeURIComponent(this.props.component.key)}`;
 
     if (this.props.isInProgress) {
-      let tooltip = canSeeBackgroundTasks ?
+      const tooltip = canSeeBackgroundTasks ?
           translateWithParameters('component_navigation.status.in_progress.admin', backgroundTasksUrl) :
           translate('component_navigation.status.in_progress');
       metaList.push(
@@ -40,7 +41,7 @@ export default React.createClass({
           </li>
       );
     } else if (this.props.isPending) {
-      let tooltip = canSeeBackgroundTasks ?
+      const tooltip = canSeeBackgroundTasks ?
           translateWithParameters('component_navigation.status.pending.admin', backgroundTasksUrl) :
           translate('component_navigation.status.pending');
       metaList.push(
@@ -49,7 +50,7 @@ export default React.createClass({
           </li>
       );
     } else if (this.props.isFailed) {
-      let tooltip = canSeeBackgroundTasks ?
+      const tooltip = canSeeBackgroundTasks ?
           translateWithParameters('component_navigation.status.failed.admin', backgroundTasksUrl) :
           translate('component_navigation.status.failed');
       metaList.push(

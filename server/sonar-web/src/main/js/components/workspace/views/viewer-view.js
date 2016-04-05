@@ -48,4 +48,3 @@ export default BaseView.extend({
   }
 });
 
-

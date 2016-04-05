@@ -46,8 +46,8 @@ export default React.createClass({
     return permissionTemplates.map(permissionTemplate => {
       // it's important to keep the order of the permission template's permissions
       // the same as the order of base permissions
-      let permissions = basePermissions.map(basePermission => {
-        let projectPermission = _.findWhere(permissionTemplate.permissions, { key: basePermission.key });
+      const permissions = basePermissions.map(basePermission => {
+        const projectPermission = _.findWhere(permissionTemplate.permissions, { key: basePermission.key });
         return _.extend({ usersCount: 0, groupsCount: 0 }, basePermission, projectPermission);
       });
       return _.extend({}, permissionTemplate, { permissions });
@@ -56,7 +56,7 @@ export default React.createClass({
 
   mergeDefaultsToTemplates(permissionTemplates, defaultTemplates = []) {
     return permissionTemplates.map(permissionTemplate => {
-      let defaultFor = [];
+      const defaultFor = [];
       defaultTemplates.forEach(defaultTemplate => {
         if (defaultTemplate.templateId === permissionTemplate.id) {
           defaultFor.push(defaultTemplate.qualifier);
@@ -68,9 +68,9 @@ export default React.createClass({
 
   requestPermissions() {
     getPermissionTemplates().done(r => {
-      let permissions = this.sortPermissions(r.permissions);
-      let permissionTemplates = this.mergePermissionsToTemplates(r.permissionTemplates, permissions);
-      let permissionTemplatesWithDefaults = this.mergeDefaultsToTemplates(permissionTemplates, r.defaultTemplates);
+      const permissions = this.sortPermissions(r.permissions);
+      const permissionTemplates = this.mergePermissionsToTemplates(r.permissionTemplates, permissions);
+      const permissionTemplatesWithDefaults = this.mergeDefaultsToTemplates(permissionTemplates, r.defaultTemplates);
       this.setState({
         ready: true,
         permissionTemplates: permissionTemplatesWithDefaults,

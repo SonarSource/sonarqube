@@ -23,7 +23,6 @@ import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 
-
 const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => (
     <table className="data zebra">
       <ComponentsHeader baseComponent={baseComponent}/>
@@ -54,6 +53,5 @@ const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => 
       </tbody>
     </table>
 );
-
 
 export default Components;

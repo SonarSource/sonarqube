@@ -37,7 +37,7 @@ export default React.createClass({
   },
 
   render() {
-    let renderedItem = this.props.renderItem(this.props.item);
+    const renderedItem = this.props.renderItem(this.props.item);
     return (
         <li className="panel panel-vertical">
           <div className="display-inline-block text-middle spacer-right">

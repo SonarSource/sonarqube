@@ -22,7 +22,6 @@ import Template from './templates/template.hbs';
 import RestartingTemplate from './templates/restarting.hbs';
 import { restartAndWait } from '../../api/system';
 
-
 const RestartModal = ModalForm.extend({
   template: Template,
   restartingTemplate: RestartingTemplate,

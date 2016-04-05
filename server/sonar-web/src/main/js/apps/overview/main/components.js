@@ -23,20 +23,17 @@ import React from 'react';
 import { Timeline } from './timeline';
 import { translateWithParameters } from '../../../helpers/l10n';
 
-
 export const Domain = React.createClass({
   render () {
     return <div className="overview-card">{this.props.children}</div>;
   }
 });
 
-
 export const DomainTitle = React.createClass({
   render () {
     return <div className="overview-title">{this.props.children}</div>;
   }
 });
-
 
 export const DomainLeakTitle = React.createClass({
   renderInline (tooltip, fromNow) {
@@ -64,7 +61,6 @@ export const DomainLeakTitle = React.createClass({
   }
 });
 
-
 export const DomainHeader = React.createClass({
   render () {
     return <div className="overview-card-header">
@@ -72,7 +68,6 @@ export const DomainHeader = React.createClass({
     </div>;
   }
 });
-
 
 export const DomainPanel = React.createClass({
   propTypes: {
@@ -86,7 +81,6 @@ export const DomainPanel = React.createClass({
   }
 });
 
-
 export const DomainNutshell = React.createClass({
   render () {
     return <div className="overview-domain-nutshell">{this.props.children}</div>;
@@ -99,13 +93,11 @@ export const DomainLeak = React.createClass({
   }
 });
 
-
 export const MeasuresList = React.createClass({
   render () {
     return <div className="overview-domain-measures">{this.props.children}</div>;
   }
 });
-
 
 export const Measure = React.createClass({
   propTypes: {
@@ -139,7 +131,6 @@ export const Measure = React.createClass({
     </div>;
   }
 });
-
 
 export const DomainMixin = {
   renderTimelineStartDate() {

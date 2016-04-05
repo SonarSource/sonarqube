@@ -26,4 +26,3 @@ window.sonarqube.appStarted.then(options => {
   ReactDOM.render(<Main/>, el);
 });
 
-

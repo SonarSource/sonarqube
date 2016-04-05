@@ -44,7 +44,6 @@ export default Marionette.LayoutView.extend({
     this.$('.search-navigator').addClass('search-navigator-extended-view');
   },
 
-
   hideDetails () {
     this.$('.search-navigator').removeClass('search-navigator-extended-view');
     if (this.scroll != null) {

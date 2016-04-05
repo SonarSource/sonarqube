@@ -23,16 +23,14 @@ import React from 'react';
 import { ResizeMixin } from './../mixins/resize-mixin';
 import { TooltipsMixin } from './../mixins/tooltips-mixin';
 
-
 const Sector = React.createClass({
   render() {
-    let arc = d3.svg.arc()
+    const arc = d3.svg.arc()
         .outerRadius(this.props.radius)
         .innerRadius(this.props.radius - this.props.thickness);
     return <path d={arc(this.props.data)} style={{ fill: this.props.fill }}/>;
   }
 });
-
 
 export const DonutChart = React.createClass({
   propTypes: {
@@ -54,16 +52,16 @@ export const DonutChart = React.createClass({
       return <div/>;
     }
 
-    let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
-    let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
+    const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
+    const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    let size = Math.min(availableWidth, availableHeight);
-    let radius = Math.floor(size / 2);
+    const size = Math.min(availableWidth, availableHeight);
+    const radius = Math.floor(size / 2);
 
-    let pie = d3.layout.pie()
+    const pie = d3.layout.pie()
         .sort(null)
         .value(d => d.value);
-    let sectors = pie(this.props.data).map((d, i) => {
+    const sectors = pie(this.props.data).map((d, i) => {
       return <Sector key={i}
                      data={d}
                      radius={radius}

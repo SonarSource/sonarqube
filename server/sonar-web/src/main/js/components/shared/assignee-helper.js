@@ -23,9 +23,9 @@ import { translate } from '../../helpers/l10n';
 
 export default class Assignee extends React.Component {
   render () {
-    let avatar = this.props.user ?
+    const avatar = this.props.user ?
         <span className="spacer-right"><Avatar email={this.props.user.email} size={16}/></span> : null;
-    let name = this.props.user ? this.props.user.name : translate('unassigned');
+    const name = this.props.user ? this.props.user.name : translate('unassigned');
     return <span>{avatar}{name}</span>;
   }
 }

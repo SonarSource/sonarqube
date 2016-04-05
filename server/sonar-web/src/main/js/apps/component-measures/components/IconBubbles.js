@@ -20,7 +20,7 @@
 import React from 'react';
 
 export default function IconBubbles () {
-  /* eslint max-len: 0 */
+  /* jscs:disable maximumLineLength */
   return (
       <svg className="measure-tab-icon"
            viewBox="0 0 512 448"

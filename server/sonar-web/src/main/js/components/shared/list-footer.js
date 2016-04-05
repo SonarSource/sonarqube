@@ -22,7 +22,6 @@ import React from 'react';
 import { translate } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
-
 export default React.createClass({
   propTypes: {
     count: React.PropTypes.number.isRequired,
@@ -54,9 +53,9 @@ export default React.createClass({
   },
 
   render() {
-    let hasMore = this.props.total > this.props.count;
-    let loadMoreLink = <a onClick={this.handleLoadMore} className="spacer-left" href="#">show more</a>;
-    let className = classNames('spacer-top note text-center', { 'new-loading': !this.props.ready });
+    const hasMore = this.props.total > this.props.count;
+    const loadMoreLink = <a onClick={this.handleLoadMore} className="spacer-left" href="#">show more</a>;
+    const className = classNames('spacer-top note text-center', { 'new-loading': !this.props.ready });
     return (
         <footer className={className}>
           {formatMeasure(this.props.count, 'INT')} of {formatMeasure(this.props.total, 'INT')} shown

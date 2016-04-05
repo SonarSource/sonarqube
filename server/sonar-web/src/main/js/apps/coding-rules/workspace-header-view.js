@@ -64,4 +64,3 @@ export default WorkspaceHeaderView.extend({
   }
 });
 
-

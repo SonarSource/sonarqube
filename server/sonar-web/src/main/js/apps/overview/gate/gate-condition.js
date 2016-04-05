@@ -24,7 +24,6 @@ import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate } from '../../../helpers/l10n';
 
-
 const Measure = React.createClass({
   render() {
     if (this.props.value == null || isNaN(this.props.value)) {
@@ -34,7 +33,6 @@ const Measure = React.createClass({
     return <span>{formatted}</span>;
   }
 });
-
 
 export default React.createClass({
   render() {

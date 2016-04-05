@@ -26,6 +26,7 @@ import { translate } from '../../../helpers/l10n';
 export default function AddConditionForm ({ metrics, onSelect }) {
   function handleChange (option) {
     const metric = option.value;
+
     // e.target.value = '';
     onSelect(metric);
   }

@@ -36,5 +36,4 @@ const ComponentQualityGate = ({ component }) => {
   ) : <span/>;
 };
 
-
 export default ComponentQualityGate;

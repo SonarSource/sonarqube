@@ -58,7 +58,7 @@ export const Histogram = React.createClass({
     if (!this.props.yTicks.length) {
       return null;
     }
-    let ticks = this.props.yTicks.map((tick, index) => {
+    const ticks = this.props.yTicks.map((tick, index) => {
       const point = this.props.data[index];
       const x = xScale.range()[0];
       const y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
@@ -85,10 +85,10 @@ export const Histogram = React.createClass({
     if (!this.props.yValues.length) {
       return null;
     }
-    let ticks = this.props.yValues.map((value, index) => {
-      let point = this.props.data[index];
-      let x = xScale(point.x);
-      let y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
+    const ticks = this.props.yValues.map((value, index) => {
+      const point = this.props.data[index];
+      const x = xScale(point.x);
+      const y = Math.round(yScale(point.y) + yScale.rangeBand() / 2 + this.props.barsHeight / 2);
       return <text key={index}
                    onClick={this.props.onBarClick && this.handleClick.bind(this, point)}
                    className="bar-chart-tick histogram-value"
@@ -102,9 +102,9 @@ export const Histogram = React.createClass({
   },
 
   renderBars (xScale, yScale) {
-    let bars = this.props.data.map((d, index) => {
-      let x = Math.round(xScale(d.x)) + /* minimum bar width */ 1;
-      let y = Math.round(yScale(d.y) + yScale.rangeBand() / 2);
+    const bars = this.props.data.map((d, index) => {
+      const x = Math.round(xScale(d.x)) + /* minimum bar width */ 1;
+      const y = Math.round(yScale(d.y) + yScale.rangeBand() / 2);
       return <rect key={index}
                    className="bar-chart-bar"
                    onClick={this.props.onBarClick && this.handleClick.bind(this, d)}
@@ -122,14 +122,14 @@ export const Histogram = React.createClass({
       return <div/>;
     }
 
-    let availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
-    let availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
+    const availableWidth = this.state.width - this.props.padding[1] - this.props.padding[3];
+    const availableHeight = this.state.height - this.props.padding[0] - this.props.padding[2];
 
-    let maxX = d3.max(this.props.data, d => d.x);
-    let xScale = d3.scale.linear()
+    const maxX = d3.max(this.props.data, d => d.x);
+    const xScale = d3.scale.linear()
         .domain([0, maxX])
         .range([0, availableWidth]);
-    let yScale = d3.scale.ordinal()
+    const yScale = d3.scale.ordinal()
         .domain(this.props.data.map(d => d.y))
         .rangeRoundBands([0, availableHeight]);
 

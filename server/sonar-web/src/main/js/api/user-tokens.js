@@ -19,7 +19,6 @@
  */
 import { getJSON, postJSON, post } from '../helpers/request.js';
 
-
 /**
  * List tokens for given user login
  * @param {string} login
@@ -31,19 +30,17 @@ export function getTokens (login) {
   return getJSON(url, data).then(r => r.userTokens);
 }
 
-
 /**
  * Generate a user token
  * @param {string} userLogin
  * @param {string} tokenName
  * @returns {Promise}
  */
-export function generateToken(userLogin, tokenName) {
+export function generateToken (userLogin, tokenName) {
   const url = window.baseUrl + '/api/user_tokens/generate';
   const data = { login: userLogin, name: tokenName };
   return postJSON(url, data);
 }
-
 
 /**
  * Revoke a user token
@@ -51,7 +48,7 @@ export function generateToken(userLogin, tokenName) {
  * @param {string} tokenName
  * @returns {Promise}
  */
-export function revokeToken(userLogin, tokenName) {
+export function revokeToken (userLogin, tokenName) {
   const url = window.baseUrl + '/api/user_tokens/revoke';
   const data = { login: userLogin, name: tokenName };
   return post(url, data);

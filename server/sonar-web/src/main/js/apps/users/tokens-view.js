@@ -25,7 +25,6 @@ import Modal from '../../components/common/modals';
 import Template from './templates/users-tokens.hbs';
 import { getTokens, generateToken, revokeToken } from '../../api/user-tokens';
 
-
 export default Modal.extend({
   template: Template,
 

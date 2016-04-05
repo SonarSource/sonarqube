@@ -22,13 +22,11 @@ import React from 'react';
 import { getComponentUrl } from '../../../helpers/urls';
 import { translate } from '../../../helpers/l10n';
 
-
 const ComponentDetach = ({ component }) => (
     <a
         className="icon-detach"
         title={translate('code.open_component_page')}
         href={getComponentUrl(component.refKey || component.key)}/>
 );
-
 
 export default ComponentDetach;

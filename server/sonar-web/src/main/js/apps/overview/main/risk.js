@@ -38,7 +38,6 @@ import { getMetricName } from '../helpers/metrics';
 import { formatMeasure } from '../../../helpers/measures';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
-
 export const Risk = React.createClass({
   propTypes: {
     leakPeriodLabel: React.PropTypes.string,

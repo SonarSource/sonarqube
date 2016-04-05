@@ -24,9 +24,9 @@ import { getCurrentUser } from '../../api/users';
 
 window.sonarqube.appStarted.then(options => {
   getCurrentUser().then(user => {
-    let el = document.querySelector(options.el);
-    let hasProvisionPermission = user.permissions.global.indexOf('provisioning') !== -1;
-    let topLevelQualifiers = options.rootQualifiers;
+    const el = document.querySelector(options.el);
+    const hasProvisionPermission = user.permissions.global.indexOf('provisioning') !== -1;
+    const topLevelQualifiers = options.rootQualifiers;
     ReactDOM.render(<Main hasProvisionPermission={hasProvisionPermission}
                        topLevelQualifiers={topLevelQualifiers}/>, el);
   });

@@ -27,7 +27,7 @@ export default React.createClass({
   },
 
   search() {
-    let query = this.refs.search.value;
+    const query = this.refs.search.value;
     this.props.search(query);
   },
 
@@ -45,9 +45,9 @@ export default React.createClass({
   },
 
   render() {
-    let selectionDisabled = !!this.props.query;
+    const selectionDisabled = !!this.props.query;
 
-    let selectionOptions = [
+    const selectionOptions = [
       { value: 'selected', label: 'Selected' },
       { value: 'deselected', label: 'Not Selected' },
       { value: 'all', label: 'All' }

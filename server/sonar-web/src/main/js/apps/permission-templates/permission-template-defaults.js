@@ -37,7 +37,7 @@ export default React.createClass({
   },
 
   renderIfMultipleTopQualifiers() {
-    let defaults = this.props.permissionTemplate.defaultFor.map(qualifier => {
+    const defaults = this.props.permissionTemplate.defaultFor.map(qualifier => {
       return <li key={qualifier}><QualifierIcon qualifier={qualifier}/>&nbsp;{translate('qualifier', qualifier)}</li>;
     });
     return (

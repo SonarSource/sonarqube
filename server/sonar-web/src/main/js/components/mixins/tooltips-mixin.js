@@ -21,7 +21,6 @@ import $ from 'jquery';
 import React from 'react';
 import ReactDOM from 'react-dom';
 
-
 export const TooltipsMixin = {
   componentDidMount () {
     this.initTooltips();
@@ -60,7 +59,6 @@ export const TooltipsMixin = {
     }
   }
 };
-
 
 export const TooltipsContainer = React.createClass({
   componentDidMount () {

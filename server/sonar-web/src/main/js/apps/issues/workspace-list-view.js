@@ -139,4 +139,3 @@ export default WorkspaceListView.extend({
   }
 });
 
-

@@ -31,7 +31,6 @@ function intersect (s1, e1, s2, e2) {
   return { from: Math.max(s1, s2), to: Math.min(e1, e2) };
 }
 
-
 /**
  * Get the substring of a string
  * @param {string} str A string
@@ -44,7 +43,6 @@ function part (str, from, to, acc) {
   // we do not want negative number as the first argument of `substr`
   return from >= acc ? str.substr(from - acc, to - from) : str.substr(0, to - from);
 }
-
 
 /**
  * Split a code html into tokens
@@ -67,7 +65,6 @@ function splitByTokens (code) {
   });
   return tokens;
 }
-
 
 /**
  * Highlight issue locations in the list of tokens
@@ -103,7 +100,6 @@ function highlightIssueLocations (tokens, issueLocations, className) {
   return tokens;
 }
 
-
 /**
  * Generate an html string from the list of tokens
  * @param {Array} tokens
@@ -114,7 +110,6 @@ function generateHTML (tokens) {
     return `<span class="${token.className}">${_.escape(token.text)}</span>`;
   }).join('');
 }
-
 
 /**
  * Take the initial source code, split by tokens,
@@ -131,7 +126,5 @@ function doTheStuff (code, issueLocations, optionalClassName) {
   return generateHTML(highlightIssueLocations(splitByTokens(_code), _issueLocations, _className));
 }
 
-
 export default doTheStuff;
-
 

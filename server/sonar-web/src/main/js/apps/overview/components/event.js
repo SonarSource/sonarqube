@@ -23,7 +23,6 @@ import moment from 'moment';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 
-
 export const Event = React.createClass({
   propTypes: {
     event: React.PropTypes.shape({

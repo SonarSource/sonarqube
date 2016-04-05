@@ -19,7 +19,6 @@
  */
 let listener;
 
-
 export const RouterMixin = {
   getDefaultProps() {
     return { urlRoot: '/' };
@@ -39,6 +38,7 @@ export const RouterMixin = {
   },
 
   componentDidMount () {
+    /* jscs:disable safeContextKeyword */
     listener = this;
     window.addEventListener('popstate', this.handleRouteChange);
   },
@@ -58,7 +58,6 @@ export const RouterMixin = {
     this.setState({ route });
   }
 };
-
 
 export function navigate (route) {
   if (listener) {

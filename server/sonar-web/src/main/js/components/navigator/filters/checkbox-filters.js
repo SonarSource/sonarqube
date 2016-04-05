@@ -25,17 +25,14 @@ export default BaseFilters.BaseFilterView.extend({
   template: Template,
   className: 'navigator-filter navigator-filter-inline',
 
-
   events () {
     return {
       'click .navigator-filter-disable': 'disable'
     };
   },
 
-
   showDetails () {
   },
-
 
   renderInput () {
     if (this.model.get('enabled')) {
@@ -49,16 +46,13 @@ export default BaseFilters.BaseFilterView.extend({
     }
   },
 
-
   renderValue () {
     return this.model.get('value');
   },
 
-
   isDefaultValue () {
     return false;
   },
-
 
   restore (value) {
     this.model.set({
@@ -68,5 +62,4 @@ export default BaseFilters.BaseFilterView.extend({
   }
 
 });
-
 

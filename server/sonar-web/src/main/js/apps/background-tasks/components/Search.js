@@ -33,8 +33,8 @@ export default React.createClass({
   },
 
   onSearch() {
-    let searchInput = this.refs.searchInput;
-    let query = searchInput.value;
+    const searchInput = this.refs.searchInput;
+    const query = searchInput.value;
     this.props.onSearch(query);
   },
 

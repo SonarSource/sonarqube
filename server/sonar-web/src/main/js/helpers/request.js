@@ -28,7 +28,6 @@ const OPTIONS = {
   credentials: 'same-origin'
 };
 
-
 /**
  * Default request headers
  * @type {{Accept: string}}
@@ -36,7 +35,6 @@ const OPTIONS = {
 const HEADERS = {
   'Accept': 'application/json'
 };
-
 
 /**
  * Create a query string from an object
@@ -48,7 +46,6 @@ function queryString (parameters) {
       .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(parameters[key])}`)
       .join('&');
 }
-
 
 /**
  * Request
@@ -86,7 +83,6 @@ class Request {
   }
 }
 
-
 /**
  * Make a request
  * @param {string} url
@@ -95,7 +91,6 @@ class Request {
 export function request (url) {
   return new Request(url);
 }
-
 
 /**
  * Check that response status is ok
@@ -112,7 +107,6 @@ export function checkStatus (response) {
   }
 }
 
-
 /**
  * Parse response as JSON
  * @param response
@@ -121,7 +115,6 @@ export function checkStatus (response) {
 export function parseJSON (response) {
   return response.json();
 }
-
 
 /**
  * Shortcut to do a GET request and return response json
@@ -135,7 +128,6 @@ export function getJSON (url, data) {
       .then(checkStatus)
       .then(parseJSON);
 }
-
 
 /**
  * Shortcut to do a POST request and return response json
@@ -151,7 +143,6 @@ export function postJSON (url, data) {
       .then(parseJSON);
 }
 
-
 /**
  * Shortcut to do a POST request and return response json
  * @param url
@@ -164,7 +155,6 @@ export function post (url, data) {
       .submit()
       .then(checkStatus);
 }
-
 
 /**
  * Delay promise for testing purposes

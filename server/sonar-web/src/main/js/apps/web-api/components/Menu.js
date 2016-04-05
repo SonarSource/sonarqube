@@ -42,7 +42,6 @@ export default function Menu ({ domains, showInternal, showOnlyDeprecated, searc
       })
       .filter(domain => domain.filteredActions.length);
 
-
   return (
       <div className="api-documentation-results panel">
         <div className="list-group">
