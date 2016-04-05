@@ -26,6 +26,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
@@ -263,8 +264,9 @@ public class ComponentDao implements Dao {
   }
 
   private static void addPartialQueryParameterIfNotNull(Map<String, Object> parameters, @Nullable String keyOrNameFilter) {
+    // TODO rely on resource_index table and match exactly the key
     if (keyOrNameFilter != null) {
-      parameters.put("query", "%" + keyOrNameFilter.toUpperCase() + "%");
+      parameters.put("query", "%" + keyOrNameFilter.toUpperCase(Locale.ENGLISH) + "%");
     }
   }
 

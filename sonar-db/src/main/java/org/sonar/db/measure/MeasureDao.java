@@ -146,7 +146,7 @@ public class MeasureDao implements Dao {
     return mapper(session).selectMetricKeysForSnapshot(snapshotId);
   }
 
-  private MeasureMapper mapper(DbSession session) {
+  private static MeasureMapper mapper(DbSession session) {
     return session.getMapper(MeasureMapper.class);
   }
 }

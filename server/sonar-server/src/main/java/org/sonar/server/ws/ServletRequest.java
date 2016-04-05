@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
@@ -103,6 +104,6 @@ public class ServletRequest extends ValidatingRequest {
   @CheckForNull
   private static String mediaTypeFromUrl(String url) {
     String mediaType = url.substring(url.lastIndexOf('.') + 1);
-    return SUPPORTED_FORMATS.get(mediaType.toUpperCase());
+    return SUPPORTED_FORMATS.get(mediaType.toUpperCase(Locale.ENGLISH));
   }
 }

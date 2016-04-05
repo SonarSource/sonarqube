@@ -22,6 +22,7 @@ package org.sonar.server.measure.ws;
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.List;
+import java.util.Locale;
 import javax.annotation.Nonnull;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
@@ -38,7 +39,7 @@ class MetricDtoWithBestValue {
     MeasureDto measure = new MeasureDto()
       .setMetricId(metric.getId())
       .setMetricKey(metric.getKey());
-    boolean isNewTypeMetric = metric.getKey().toLowerCase().startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
+    boolean isNewTypeMetric = metric.getKey().toLowerCase(Locale.ENGLISH).startsWith(LOWER_CASE_NEW_METRIC_PREFIX);
     if (isNewTypeMetric) {
       for (Integer periodIndex : periodIndexes) {
         measure.setVariation(periodIndex, 0.0d);

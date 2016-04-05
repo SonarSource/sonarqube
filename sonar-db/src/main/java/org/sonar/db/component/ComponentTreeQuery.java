@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Joiner;
 import java.util.Collection;
 import java.util.List;
+import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -70,7 +71,7 @@ public class ComponentTreeQuery {
 
   @CheckForNull
   public String getNameOrKeyQueryToSqlForResourceIndex() {
-    return nameOrKeyQuery == null ? null : buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase();
+    return nameOrKeyQuery == null ? null : buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase(Locale.ENGLISH);
   }
 
   public Integer getPage() {
@@ -101,7 +102,7 @@ public class ComponentTreeQuery {
     return new Builder();
   }
 
-  private String sortFieldsToSqlSort(List<String> sortFields, String direction) {
+  private static String sortFieldsToSqlSort(List<String> sortFields, String direction) {
     List<String> sqlSortFields = from(sortFields)
       .transform(new SortFieldToSqlSortFieldFunction(direction)).toList();
 

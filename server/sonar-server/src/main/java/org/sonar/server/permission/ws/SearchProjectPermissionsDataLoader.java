@@ -105,7 +105,7 @@ public class SearchProjectPermissionsDataLoader {
   private String[] qualifiers(@Nullable String requestQualifier) {
     return requestQualifier == null
       ? rootQualifiers
-      : new String[] {requestQualifier};
+      : (new String[] {requestQualifier});
   }
 
   private Table<Long, String, Integer> userCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {

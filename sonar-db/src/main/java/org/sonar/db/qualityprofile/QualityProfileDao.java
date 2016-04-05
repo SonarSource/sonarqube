@@ -377,7 +377,7 @@ public class QualityProfileDao implements Dao {
     return query == null ? "%" : "%" + query.toUpperCase() + "%";
   }
 
-  private QualityProfileMapper mapper(DbSession session) {
+  private static QualityProfileMapper mapper(DbSession session) {
     return session.getMapper(QualityProfileMapper.class);
   }
 }

@@ -134,7 +134,7 @@ public class FileSourceDao implements Dao {
     mapper(session).updateDateWhenUpdatedDateIsZero(projectUuid, updateDate);
   }
 
-  private FileSourceMapper mapper(DbSession session) {
+  private static FileSourceMapper mapper(DbSession session) {
     return session.getMapper(FileSourceMapper.class);
   }
 }

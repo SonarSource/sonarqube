@@ -155,7 +155,7 @@ public class SearchAction implements ComponentsWsAction {
       .andTotal(total);
   }
 
-  private ComponentQuery buildQuery(SearchWsRequest request, List<String> qualifiers) {
+  private static ComponentQuery buildQuery(SearchWsRequest request, List<String> qualifiers) {
     return ComponentQuery.builder()
       .setNameOrKeyQuery(request.getQuery())
       .setLanguage(request.getLanguage())

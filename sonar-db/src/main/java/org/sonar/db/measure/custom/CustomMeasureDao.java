@@ -88,7 +88,7 @@ public class CustomMeasureDao implements Dao {
     return mapper(session).selectByMetricKeyAndTextValue(metricKey, textValue);
   }
 
-  private CustomMeasureMapper mapper(DbSession session) {
+  private static CustomMeasureMapper mapper(DbSession session) {
     return session.getMapper(CustomMeasureMapper.class);
   }
 

@@ -93,7 +93,7 @@ public class IssueFilterFavouriteDao implements Dao {
     }
   }
 
-  private IssueFilterFavouriteMapper mapper(SqlSession session) {
+  private static IssueFilterFavouriteMapper mapper(SqlSession session) {
     return session.getMapper(IssueFilterFavouriteMapper.class);
   }
 

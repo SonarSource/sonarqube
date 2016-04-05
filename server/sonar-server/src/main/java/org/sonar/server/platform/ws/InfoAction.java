@@ -83,28 +83,32 @@ public class InfoAction implements SystemWsAction {
         json.name(section.getName());
         json.beginObject();
         for (ProtobufSystemInfo.Attribute attribute : section.getAttributesList()) {
-          switch (attribute.getValueCase()) {
-            case BOOLEAN_VALUE:
-              json.name(attribute.getKey()).valueObject(attribute.getBooleanValue());
-              break;
-            case LONG_VALUE:
-              json.name(attribute.getKey()).valueObject(attribute.getLongValue());
-              break;
-            case DOUBLE_VALUE:
-              json.name(attribute.getKey()).valueObject(attribute.getDoubleValue());
-              break;
-            case STRING_VALUE:
-              json.name(attribute.getKey()).valueObject(attribute.getStringValue());
-              break;
-            case VALUE_NOT_SET:
-              break;
-            default:
-              throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());
-          }
+          writeAttribute(json, attribute);
         }
         json.endObject();
       }
     }
     json.endObject();
+  }
+
+  private static void writeAttribute(JsonWriter json, ProtobufSystemInfo.Attribute attribute) {
+    switch (attribute.getValueCase()) {
+      case BOOLEAN_VALUE:
+        json.name(attribute.getKey()).valueObject(attribute.getBooleanValue());
+        break;
+      case LONG_VALUE:
+        json.name(attribute.getKey()).valueObject(attribute.getLongValue());
+        break;
+      case DOUBLE_VALUE:
+        json.name(attribute.getKey()).valueObject(attribute.getDoubleValue());
+        break;
+      case STRING_VALUE:
+        json.name(attribute.getKey()).valueObject(attribute.getStringValue());
+        break;
+      case VALUE_NOT_SET:
+        break;
+      default:
+        throw new IllegalArgumentException("Unsupported type: " + attribute.getValueCase());
+    }
   }
 }

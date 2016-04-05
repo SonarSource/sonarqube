@@ -121,7 +121,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
   private String[] qualifiers(@Nullable String qualifier) {
     return qualifier == null
       ? Collections2.transform(resourceTypes.getRoots(), RESOURCE_TYPE_TO_QUALIFIER).toArray(new String[resourceTypes.getRoots().size()])
-      : new String[] {qualifier};
+      : (new String[] {qualifier});
   }
 
   private static BulkApplyTemplateWsRequest toBulkApplyTemplateWsRequest(Request request) {

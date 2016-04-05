@@ -150,7 +150,7 @@ public class SnapshotDao implements Dao {
     return mapper(dbSession).selectLatestSnapshot(componentId);
   }
 
-  private SnapshotMapper mapper(DbSession session) {
+  private static SnapshotMapper mapper(DbSession session) {
     return session.getMapper(SnapshotMapper.class);
   }
 }

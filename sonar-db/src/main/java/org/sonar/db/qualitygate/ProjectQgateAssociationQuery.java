@@ -21,6 +21,7 @@ package org.sonar.db.qualitygate;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -68,7 +69,7 @@ public class ProjectQgateAssociationQuery {
     return value
       .replaceAll("%", "\\\\%")
       .replaceAll("_", "\\\\_")
-      .toLowerCase() + "%";
+      .toLowerCase(Locale.ENGLISH) + "%";
   }
 
   public String gateId() {

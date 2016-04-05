@@ -116,7 +116,7 @@ public class GroupDao implements Dao {
     return DatabaseUtils.buildLikeValue(upperCasedNameQuery, WildcardPosition.BEFORE_AND_AFTER);
   }
 
-  private GroupMapper mapper(DbSession session) {
+  private static GroupMapper mapper(DbSession session) {
     return session.getMapper(GroupMapper.class);
   }
 

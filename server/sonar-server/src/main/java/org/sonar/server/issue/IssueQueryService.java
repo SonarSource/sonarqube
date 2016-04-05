@@ -39,9 +39,9 @@ import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.joda.time.DateTime;
 import org.joda.time.format.ISOPeriodFormat;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.SonarException;
@@ -246,12 +246,16 @@ public class IssueQueryService {
     checkArgument(allComponentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
     String uuid = allComponentUuids.iterator().next();
     // TODO use ComponentFinder instead
+    Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, uuid);
+    return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
+  }
+
+  private Date findCreatedAfterFromComponentUuid(DbSession dbSession, String uuid) {
     ComponentDto component = checkFoundWithOptional(componentService.getByUuid(uuid), "Component with id '%s' not found", uuid);
     SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, component.getId());
     Long projectSnapshotId = snapshot == null ? null : snapshot.getRootId();
     SnapshotDto projectSnapshot = projectSnapshotId == null ? snapshot : dbClient.snapshotDao().selectById(dbSession, projectSnapshotId);
-    Date createdAfterFromSnapshot = projectSnapshot == null ? null : longToDate(projectSnapshot.getPeriodDate(1));
-    return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
+    return projectSnapshot == null ? null : longToDate(projectSnapshot.getPeriodDate(1));
   }
 
   private List<String> buildAssignees(@Nullable List<String> assigneesFromParams) {

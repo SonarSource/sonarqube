@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -61,7 +62,7 @@ public class ComponentQuery {
 
   @CheckForNull
   public String getNameOrKeyQueryToSqlForResourceIndex() {
-    return buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase();
+    return buildLikeValue(nameOrKeyQuery, AFTER).toLowerCase(Locale.ENGLISH);
   }
 
   @CheckForNull

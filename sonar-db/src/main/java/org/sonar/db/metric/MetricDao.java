@@ -127,7 +127,7 @@ public class MetricDao implements Dao {
     }
   }
 
-  private MetricMapper mapper(DbSession session) {
+  private static MetricMapper mapper(DbSession session) {
     return session.getMapper(MetricMapper.class);
   }
 

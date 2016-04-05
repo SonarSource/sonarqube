@@ -119,7 +119,7 @@ public class QualityGateDao implements Dao{
     mapper(session).update(qGate.setUpdatedAt(new Date()));
   }
 
-  private QualityGateMapper mapper(SqlSession session) {
+  private static QualityGateMapper mapper(SqlSession session) {
     return session.getMapper(QualityGateMapper.class);
   }
 }

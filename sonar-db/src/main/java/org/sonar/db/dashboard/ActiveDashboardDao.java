@@ -88,7 +88,7 @@ public class ActiveDashboardDao implements Dao {
     return mapper(session).selectProjectDashboardsForUserLogin(login);
   }
 
-  private ActiveDashboardMapper mapper(SqlSession session) {
+  private static ActiveDashboardMapper mapper(SqlSession session) {
     return session.getMapper(ActiveDashboardMapper.class);
   }
 }

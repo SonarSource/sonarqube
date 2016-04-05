@@ -141,7 +141,7 @@ public class IssueFilterDao implements Dao {
     }
   }
 
-  private IssueFilterMapper mapper(SqlSession session) {
+  private static IssueFilterMapper mapper(SqlSession session) {
     return session.getMapper(IssueFilterMapper.class);
   }
 }

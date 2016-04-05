@@ -24,6 +24,7 @@ import com.google.common.base.Function;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -120,7 +121,7 @@ public class PermissionTemplateDao implements Dao {
   private static int countGroups(DbSession session, PermissionQuery query, long templateId, @Nullable String groupName) {
     Map<String, Object> parameters = groupsParameters(query, templateId);
     if (groupName != null) {
-      parameters.put("groupName", groupName.toUpperCase());
+      parameters.put("groupName", groupName.toUpperCase(Locale.ENGLISH));
     }
     return mapper(session).countGroups(parameters);
   }
@@ -209,7 +210,7 @@ public class PermissionTemplateDao implements Dao {
 
   private static String toUppercaseSqlQuery(String nameMatch) {
     String wildcard = "%";
-    return format("%s%s%s", wildcard, nameMatch.toUpperCase(), wildcard);
+    return format("%s%s%s", wildcard, nameMatch.toUpperCase(Locale.ENGLISH), wildcard);
 
   }
 
@@ -405,7 +406,7 @@ public class PermissionTemplateDao implements Dao {
   }
 
   public PermissionTemplateDto selectByName(DbSession dbSession, String name) {
-    return mapper(dbSession).selectByName(name.toUpperCase());
+    return mapper(dbSession).selectByName(name.toUpperCase(Locale.ENGLISH));
   }
 
   /**
