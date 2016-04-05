@@ -22,7 +22,7 @@ package org.sonar.server.computation;
 import org.sonar.ce.log.CeLogging;
 import org.sonar.core.platform.Module;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
-import org.sonar.process.systeminfo.ProcessStateProvider;
+import org.sonar.process.systeminfo.ProcessStateSystemInfo;
 import org.sonar.process.systeminfo.SystemInfoHttpServer;
 import org.sonar.server.computation.configuration.CeConfigurationImpl;
 import org.sonar.server.computation.dbcleaner.IndexPurgeListener;
@@ -40,7 +40,7 @@ public class CeModule extends Module {
       CeLogging.class,
       CeDatabaseMBeanImpl.class,
       SystemInfoHttpServer.class,
-      new ProcessStateProvider("Compute Engine State"),
+      new ProcessStateSystemInfo("Compute Engine State"),
 
       DefaultPeriodCleaner.class,
       ProjectCleaner.class,

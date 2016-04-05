@@ -22,11 +22,11 @@ package org.sonar.server.computation.monitoring;
 import org.picocontainer.Startable;
 import org.sonar.ce.monitoring.CEQueueStatus;
 import org.sonar.process.Jmx;
-import org.sonar.process.systeminfo.SystemInfoSectionProvider;
+import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 import org.sonar.server.computation.configuration.CeConfiguration;
 
-public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSectionProvider {
+public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSection {
   private final CEQueueStatus queueStatus;
   private final CeConfiguration ceConfiguration;
 
@@ -79,7 +79,7 @@ public class CeTasksMBeanImpl implements CeTasksMBean, Startable, SystemInfoSect
   }
 
   @Override
-  public ProtobufSystemInfo.Section toSystemInfoSection() {
+  public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder builder = ProtobufSystemInfo.Section.newBuilder();
     builder.setName("Compute Engine Tasks");
     builder.addAttributesBuilder().setKey("Pending").setLongValue(getPendingCount()).build();

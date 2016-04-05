@@ -26,6 +26,8 @@ import java.io.IOException;
 import java.net.ConnectException;
 import java.util.Arrays;
 import java.util.Properties;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -44,16 +46,25 @@ public class SystemInfoHttpServerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  SystemInfoSectionProvider stateProvider1 = new ProcessStateProvider("state1");
-  SystemInfoSectionProvider stateProvider2 = new ProcessStateProvider("state2");
+  SystemInfoSection stateProvider1 = new ProcessStateSystemInfo("state1");
+  SystemInfoSection stateProvider2 = new ProcessStateSystemInfo("state2");
+  SystemInfoHttpServer underTest;
 
-  @Test
-  public void start_and_stop() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     Properties properties = new Properties();
     properties.setProperty(PROPERTY_PROCESS_INDEX, "1");
     properties.setProperty(PROPERTY_SHARED_PATH, temp.newFolder().getAbsolutePath());
-    SystemInfoHttpServer underTest = new SystemInfoHttpServer(properties, Arrays.asList(stateProvider1, stateProvider2));
+    underTest = new SystemInfoHttpServer(properties, Arrays.asList(stateProvider1, stateProvider2));
+  }
 
+  @After
+  public void tearDown() {
+    underTest.stop();
+  }
+
+  @Test
+  public void start_starts_http_server_and_publishes_URL_in_IPC() throws Exception {
     underTest.start();
     Response response = call(underTest.getUrl());
     assertThat(response.code()).isEqualTo(200);
@@ -61,7 +72,11 @@ public class SystemInfoHttpServerTest {
     assertThat(systemInfo.getSectionsCount()).isEqualTo(2);
     assertThat(systemInfo.getSections(0).getName()).isEqualTo("state1");
     assertThat(systemInfo.getSections(1).getName()).isEqualTo("state2");
+  }
 
+  @Test
+  public void stop_stops_http_server() throws Exception {
+    underTest.start();
     underTest.stop();
     expectedException.expect(ConnectException.class);
     call(underTest.getUrl());

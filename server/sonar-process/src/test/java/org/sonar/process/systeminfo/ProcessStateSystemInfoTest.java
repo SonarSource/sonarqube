@@ -28,23 +28,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-public class ProcessStateProviderTest {
+public class ProcessStateSystemInfoTest {
 
   public static final String PROCESS_NAME = "the process name";
 
   @Test
-  public void toMegaBytes() {
-    assertThat(ProcessStateProvider.toMegaBytes(-1)).isNull();
-    assertThat(ProcessStateProvider.toMegaBytes(0L)).isEqualTo(0L);
-    assertThat(ProcessStateProvider.toMegaBytes(500L)).isEqualTo(0L);
-    assertThat(ProcessStateProvider.toMegaBytes(500_000L)).isEqualTo(0L);
-    assertThat(ProcessStateProvider.toMegaBytes(500_000_000L)).isEqualTo(476L);
-  }
-
-  @Test
   public void toSystemInfoSection() {
-    ProcessStateProvider underTest = new ProcessStateProvider(PROCESS_NAME);
-    ProtobufSystemInfo.Section section = underTest.toSystemInfoSection();
+    ProcessStateSystemInfo underTest = new ProcessStateSystemInfo(PROCESS_NAME);
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
     assertThat(section.getName()).isEqualTo(PROCESS_NAME);
     assertThat(section.getAttributesCount()).isEqualTo(9);
@@ -59,8 +50,8 @@ public class ProcessStateProviderTest {
     MemoryMXBean memoryBean = mock(MemoryMXBean.class, Mockito.RETURNS_DEEP_STUBS);
     when(memoryBean.getHeapMemoryUsage().getCommitted()).thenReturn(-1L);
 
-    ProcessStateProvider underTest = new ProcessStateProvider(PROCESS_NAME);
-    ProtobufSystemInfo.Section section = underTest.toSystemInfoSection(memoryBean);
+    ProcessStateSystemInfo underTest = new ProcessStateSystemInfo(PROCESS_NAME);
+    ProtobufSystemInfo.Section section = underTest.toProtobuf(memoryBean);
 
     assertThat(section.getAttributesList()).extracting("key").doesNotContain("Heap Committed (MB)");
   }

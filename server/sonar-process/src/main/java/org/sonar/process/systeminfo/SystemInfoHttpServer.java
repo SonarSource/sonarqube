@@ -44,16 +44,17 @@ public class SystemInfoHttpServer {
   private static final String PROTOBUF_MIME_TYPE = "application/x-protobuf";
 
   private final Properties processProps;
-  private final List<SystemInfoSectionProvider> sectionProviders;
+  private final List<SystemInfoSection> sectionProviders;
   private final SystemInfoNanoHttpd nanoHttpd;
 
-  public SystemInfoHttpServer(Properties processProps, List<SystemInfoSectionProvider> sectionProviders) throws UnknownHostException {
+  public SystemInfoHttpServer(Properties processProps, List<SystemInfoSection> sectionProviders) throws UnknownHostException {
     this.processProps = processProps;
     this.sectionProviders = sectionProviders;
     InetAddress loopbackAddress = InetAddress.getByName(null);
     this.nanoHttpd = new SystemInfoNanoHttpd(loopbackAddress.getHostAddress(), 0);
   }
 
+  // do not rename. This naming convention is required for picocontainer.
   public void start() {
     try {
       nanoHttpd.start();
@@ -73,13 +74,14 @@ public class SystemInfoHttpServer {
     }
   }
 
+  // do not rename. This naming convention is required for picocontainer.
   public void stop() {
     nanoHttpd.stop();
   }
 
   // visible for testing
   String getUrl() {
-    return new StringBuilder().append("http://").append(nanoHttpd.getHostname()).append(":").append(nanoHttpd.getListeningPort()).toString();
+    return "http://" + nanoHttpd.getHostname() + ":" + nanoHttpd.getListeningPort();
   }
 
   private class SystemInfoNanoHttpd extends NanoHTTPD {
@@ -91,8 +93,8 @@ public class SystemInfoHttpServer {
     @Override
     public Response serve(IHTTPSession session) {
       ProtobufSystemInfo.SystemInfo.Builder infoBuilder = ProtobufSystemInfo.SystemInfo.newBuilder();
-      for (SystemInfoSectionProvider sectionProvider : sectionProviders) {
-        ProtobufSystemInfo.Section section = sectionProvider.toSystemInfoSection();
+      for (SystemInfoSection sectionProvider : sectionProviders) {
+        ProtobufSystemInfo.Section section = sectionProvider.toProtobuf();
         infoBuilder.addSections(section);
       }
       byte[] bytes = infoBuilder.build().toByteArray();

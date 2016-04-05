@@ -21,8 +21,8 @@ package org.sonar.process.systeminfo;
 
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public interface SystemInfoSectionProvider {
+public interface SystemInfoSection {
 
-  ProtobufSystemInfo.Section toSystemInfoSection();
+  ProtobufSystemInfo.Section toProtobuf();
 
 }

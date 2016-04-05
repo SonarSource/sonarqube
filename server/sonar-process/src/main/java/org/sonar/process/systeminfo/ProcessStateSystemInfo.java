@@ -23,24 +23,23 @@ import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
 import java.lang.management.MemoryUsage;
 import java.lang.management.ThreadMXBean;
-import javax.annotation.CheckForNull;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public class ProcessStateProvider implements SystemInfoSectionProvider {
+public class ProcessStateSystemInfo implements SystemInfoSection {
   private static final long MEGABYTE = 1024L * 1024L;
   private final String name;
 
-  public ProcessStateProvider(String name) {
+  public ProcessStateSystemInfo(String name) {
     this.name = name;
   }
 
   @Override
-  public ProtobufSystemInfo.Section toSystemInfoSection() {
-    return toSystemInfoSection(ManagementFactory.getMemoryMXBean());
+  public ProtobufSystemInfo.Section toProtobuf() {
+    return toProtobuf(ManagementFactory.getMemoryMXBean());
   }
 
   // Visible for testing
-  ProtobufSystemInfo.Section toSystemInfoSection(MemoryMXBean memoryBean) {
+  ProtobufSystemInfo.Section toProtobuf(MemoryMXBean memoryBean) {
     ProtobufSystemInfo.Section.Builder builder = ProtobufSystemInfo.Section.newBuilder();
     builder.setName(name);
     MemoryUsage heap = memoryBean.getHeapMemoryUsage();
@@ -58,19 +57,9 @@ public class ProcessStateProvider implements SystemInfoSectionProvider {
     return builder.build();
   }
 
-  private void addAttributeInMb(ProtobufSystemInfo.Section.Builder builder, String key, long valueInMb) {
-    Long mb = toMegaBytes(valueInMb);
-    if (mb != null) {
-      builder.addAttributesBuilder().setKey(key).setLongValue(mb).build();
+  private void addAttributeInMb(ProtobufSystemInfo.Section.Builder builder, String key, long valueInBytes) {
+    if (valueInBytes >= 0L) {
+      builder.addAttributesBuilder().setKey(key).setLongValue(valueInBytes / MEGABYTE).build();
     }
-  }
-
-  // visible for testing
-  @CheckForNull
-  static Long toMegaBytes(long bytes) {
-    if (bytes < 0L) {
-      return null;
-    }
-    return bytes / MEGABYTE;
   }
 }

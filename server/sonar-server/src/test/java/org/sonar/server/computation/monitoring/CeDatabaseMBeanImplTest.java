@@ -52,7 +52,7 @@ public class CeDatabaseMBeanImplTest {
 
   @Test
   public void export_system_info() {
-    ProtobufSystemInfo.Section section = underTest.toSystemInfoSection();
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThat(section.getName()).isEqualTo("Compute Engine Database Connection");
     assertThat(section.getAttributesCount()).isEqualTo(9);
     assertThat(section.getAttributes(0).getKey()).isEqualTo("Pool Initial Size");

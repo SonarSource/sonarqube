@@ -23,10 +23,10 @@ import org.apache.commons.dbcp.BasicDataSource;
 import org.picocontainer.Startable;
 import org.sonar.db.DbClient;
 import org.sonar.process.Jmx;
-import org.sonar.process.systeminfo.SystemInfoSectionProvider;
+import org.sonar.process.systeminfo.SystemInfoSection;
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
-public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable, SystemInfoSectionProvider {
+public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable, SystemInfoSection {
   private final DbClient dbClient;
 
   public CeDatabaseMBeanImpl(DbClient dbClient) {
@@ -96,7 +96,7 @@ public class CeDatabaseMBeanImpl implements CeDatabaseMBean, Startable, SystemIn
   }
 
   @Override
-  public ProtobufSystemInfo.Section toSystemInfoSection() {
+  public ProtobufSystemInfo.Section toProtobuf() {
     ProtobufSystemInfo.Section.Builder builder = ProtobufSystemInfo.Section.newBuilder();
     builder.setName("Compute Engine Database Connection");
     builder.addAttributesBuilder().setKey("Pool Initial Size").setLongValue(getPoolInitialSize()).build();

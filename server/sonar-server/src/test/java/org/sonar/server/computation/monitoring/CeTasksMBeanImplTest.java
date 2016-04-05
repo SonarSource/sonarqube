@@ -68,7 +68,7 @@ public class CeTasksMBeanImplTest {
 
   @Test
   public void export_system_info() {
-    ProtobufSystemInfo.Section section = underTest.toSystemInfoSection();
+    ProtobufSystemInfo.Section section = underTest.toProtobuf();
     assertThat(section.getName()).isEqualTo("Compute Engine Tasks");
     assertThat(section.getAttributesCount()).isEqualTo(6);
   }
