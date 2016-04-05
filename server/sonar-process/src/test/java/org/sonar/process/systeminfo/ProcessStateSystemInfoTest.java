@@ -38,11 +38,8 @@ public class ProcessStateSystemInfoTest {
     ProtobufSystemInfo.Section section = underTest.toProtobuf();
 
     assertThat(section.getName()).isEqualTo(PROCESS_NAME);
-    assertThat(section.getAttributesCount()).isEqualTo(9);
-    assertThat(section.getAttributes(0).getKey()).isEqualTo("Heap Committed (MB)");
-    assertThat(section.getAttributes(0).getLongValue()).isGreaterThan(1L);
-    assertThat(section.getAttributes(8).getKey()).isEqualTo("Thread Count");
-    assertThat(section.getAttributes(8).getLongValue()).isGreaterThan(1L);
+    assertThat(section.getAttributesCount()).isGreaterThan(0);
+    assertThat(section.getAttributesList()).extracting("key").contains("Thread Count");
   }
 
   @Test
