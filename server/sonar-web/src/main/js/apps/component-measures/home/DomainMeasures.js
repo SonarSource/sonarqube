@@ -35,6 +35,26 @@ const sortMeasures = (measures, order) => {
   ];
 };
 
+const filterCoverageMeasures = measures => {
+  const hasOverallCoverage = !!measures.find(measure => measure.metric.key === 'overall_coverage');
+  const hasUTCoverage = !!measures.find(measure => measure.metric.key === 'coverage');
+  const hasITCoverage = !!measures.find(measure => measure.metric.key === 'it_coverage');
+
+  // display overall coverage only if all types of coverage exist
+  const shouldShowOverallCoverage = hasOverallCoverage && hasUTCoverage && hasITCoverage;
+
+  // skip if we should display overall coverage
+  if (shouldShowOverallCoverage) {
+    return measures;
+  }
+
+  // otherwise, hide all overall coverage measures
+  return measures.filter(measure => {
+    return measure.metric.key.indexOf('overall_') !== 0 &&
+        measure.metric.key.indexOf('new_overall_') !== 0;
+  });
+};
+
 export default class DomainMeasures extends React.Component {
   render () {
     const { component, domains, periods } = this.props;
@@ -43,10 +63,11 @@ export default class DomainMeasures extends React.Component {
     const { measures } = domain;
     const leakPeriodLabel = getLeakPeriodLabel(periods);
 
+    const filteredMeasures = filterCoverageMeasures(measures);
     const conf = domainsConf[domainName];
     const order = conf ? conf.order : [];
     const spaces = conf && conf.spaces ? conf.spaces : [];
-    const sortedMeasures = sortMeasures(measures, order);
+    const sortedMeasures = sortMeasures(filteredMeasures, order);
 
     return (
         <section id="component-measures-domain">
