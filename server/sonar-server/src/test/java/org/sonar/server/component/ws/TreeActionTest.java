@@ -20,12 +20,12 @@
 package org.sonar.server.component.ws;
 
 import com.google.common.base.Charsets;
+import com.google.common.base.Throwables;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import java.io.IOException;
-import java.io.InputStream;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.apache.commons.io.IOUtils;
@@ -52,12 +52,15 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonar.test.JsonAssert;
 import org.sonarqube.ws.MediaTypes;
-import org.sonarqube.ws.WsComponents;
+import org.sonarqube.ws.WsComponents.TreeWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newDirectory;
 import static org.sonar.db.component.ComponentTesting.newModuleDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
@@ -67,7 +70,6 @@ import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_STRATEGY;
-
 
 public class TreeActionTest {
   @Rule
@@ -118,17 +120,14 @@ public class TreeActionTest {
     db.commit();
     componentDb.indexProjects();
 
-    InputStream responseStream = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
       .setParam(PARAM_BASE_COMPONENT_ID, "module-uuid-1")
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
       .setParam(Param.ASCENDING, "false")
-      .setParam(Param.SORT, "name")
-      .execute().getInputStream();
-    WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
+      .setParam(Param.SORT, "name"));
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
     assertThat(response.getPaging().getTotal()).isEqualTo(8);
@@ -152,17 +151,14 @@ public class TreeActionTest {
     db.commit();
     componentDb.indexProjects();
 
-    InputStream responseStream = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(PARAM_BASE_COMPONENT_ID, "module-uuid-1")
       .setParam(Param.PAGE, "2")
       .setParam(Param.PAGE_SIZE, "3")
       .setParam(Param.TEXT_QUERY, "file-name")
       .setParam(Param.ASCENDING, "true")
-      .setParam(Param.SORT, "path")
-      .execute().getInputStream();
-    WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
+      .setParam(Param.SORT, "path"));
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
     assertThat(response.getPaging().getTotal()).isEqualTo(9);
@@ -181,13 +177,10 @@ public class TreeActionTest {
     db.commit();
     componentDb.indexProjects();
 
-    InputStream responseStream = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .setParam(PARAM_QUALIFIERS, Qualifiers.FILE)
-      .execute().getInputStream();
-    WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
+      .setParam(PARAM_QUALIFIERS, Qualifiers.FILE));
 
     assertThat(response.getComponentsCount()).isEqualTo(3);
     assertThat(response.getPaging().getTotal()).isEqualTo(3);
@@ -204,13 +197,10 @@ public class TreeActionTest {
     db.commit();
     componentDb.indexProjects();
 
-    InputStream responseStream = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(PARAM_QUALIFIERS, Qualifiers.FILE)
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .execute().getInputStream();
-    WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2");
   }
@@ -227,19 +217,16 @@ public class TreeActionTest {
     db.commit();
     componentDb.indexProjects();
 
-    InputStream responseStream = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
       .setParam(Param.SORT, "qualifier, name")
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .execute().getInputStream();
-    WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("module-uuid-1", "path/directory/", "file-uuid-1", "file-uuid-2");
   }
 
   @Test
-  public void direct_children_of_a_view() throws IOException {
+  public void direct_children_of_a_view() {
     ComponentDto view = newView("view-uuid");
     SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
     ComponentDto project = newProjectDto("project-uuid-1").setName("project-name").setKey("project-key-1");
@@ -249,13 +236,10 @@ public class TreeActionTest {
     db.commit();
     componentDb.indexProjects();
 
-    InputStream responseStream = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
       .setParam(PARAM_BASE_COMPONENT_ID, "view-uuid")
-      .setParam(Param.TEXT_QUERY, "name")
-      .execute().getInputStream();
-    WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
+      .setParam(Param.TEXT_QUERY, "name"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("project-uuid-1-copy", "sub-view-uuid");
     assertThat(response.getComponentsList()).extracting("refId").containsExactly("project-uuid-1", "");
@@ -263,20 +247,49 @@ public class TreeActionTest {
   }
 
   @Test
-  public void empty_response_for_provisioned_project() throws IOException {
+  public void empty_response_for_provisioned_project() {
     componentDb.insertComponent(newProjectDto("project-uuid"));
 
-    InputStream responseStream = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
-      .execute().getInputStream();
-    WsComponents.TreeWsResponse response = WsComponents.TreeWsResponse.parseFrom(responseStream);
+    TreeWsResponse response = call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid"));
 
     assertThat(response.getBaseComponent().getId()).isEqualTo("project-uuid");
     assertThat(response.getComponentsList()).isEmpty();
     assertThat(response.getPaging().getTotal()).isEqualTo(0);
     assertThat(response.getPaging().getPageSize()).isEqualTo(100);
     assertThat(response.getPaging().getPageIndex()).isEqualTo(1);
+  }
+
+  @Test
+  public void developer_projects() {
+    ComponentDto project = newProjectDto("project-uuid");
+    componentDb.insertProjectAndSnapshot(project);
+    ComponentDto developer = newDeveloper("developer-name");
+    SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
+    componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-copy-uuid", project, developer), developerSnapshot);
+
+    TreeWsResponse response = call(ws.newRequest().setParam(PARAM_BASE_COMPONENT_ID, developer.uuid()));
+
+    assertThat(response.getBaseComponent().getId()).isEqualTo(developer.uuid());
+    assertThat(response.getComponentsCount()).isEqualTo(1);
+    assertThat(response.getComponents(0).getId()).isEqualTo("project-copy-uuid");
+    assertThat(response.getComponents(0).getRefId()).isEqualTo("project-uuid");
+  }
+
+  @Test
+  public void view_projects() {
+    ComponentDto project = newProjectDto("project-uuid");
+    componentDb.insertProjectAndSnapshot(project);
+    ComponentDto view = newView("view-uuid");
+    SnapshotDto viewSnapshot = componentDb.insertViewAndSnapshot(view);
+    componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
+
+    TreeWsResponse response = call(ws.newRequest().setParam(PARAM_BASE_COMPONENT_ID, view.uuid()));
+
+    assertThat(response.getBaseComponent().getId()).isEqualTo(view.uuid());
+    assertThat(response.getComponentsCount()).isEqualTo(1);
+    assertThat(response.getComponents(0).getId()).isEqualTo("project-copy-uuid");
+    assertThat(response.getComponents(0).getRefId()).isEqualTo("project-uuid");
   }
 
   @Test
@@ -357,6 +370,16 @@ public class TreeActionTest {
     expectedException.expectMessage("Either 'baseComponentId' or 'baseComponentKey' must be provided, not both");
 
     ws.newRequest().execute();
+  }
+
+  private TreeWsResponse call(TestRequest request) {
+    try {
+      return TreeWsResponse.parseFrom(request
+        .setMediaType(MediaTypes.PROTOBUF)
+        .execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
   }
 
   private static ComponentDto newFileDto(ComponentDto parentComponent, int i) {
