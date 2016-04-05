@@ -22,7 +22,6 @@ package org.sonar.server.app;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.lang.StringUtils;
-import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.process.Props;
 
@@ -41,8 +40,6 @@ class TomcatStartupLogs {
     for (Connector connector : connectors) {
       if (StringUtils.containsIgnoreCase(connector.getProtocol(), "AJP")) {
         logAjp(connector);
-      } else if (StringUtils.equalsIgnoreCase(connector.getScheme(), "https")) {
-        logHttps(connector);
       } else if (StringUtils.equalsIgnoreCase(connector.getScheme(), "http")) {
         logHttp(connector);
       } else {
@@ -59,17 +56,4 @@ class TomcatStartupLogs {
     log.info(String.format("HTTP connector enabled on port %d", connector.getPort()));
   }
 
-  private void logHttps(Connector connector) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("HTTPS connector enabled on port ").append(connector.getPort());
-
-    AbstractHttp11JsseProtocol protocol = (AbstractHttp11JsseProtocol) connector.getProtocolHandler();
-    sb.append(" | ciphers=");
-    if (props.contains(TomcatConnectors.PROP_HTTPS_CIPHERS)) {
-      sb.append(StringUtils.join(protocol.getCiphersUsed(), ","));
-    } else {
-      sb.append("JVM defaults");
-    }
-    log.info(sb.toString());
-  }
 }

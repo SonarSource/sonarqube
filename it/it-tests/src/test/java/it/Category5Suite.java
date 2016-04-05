@@ -19,7 +19,6 @@
  */
 package it;
 
-import it.serverSystem.HttpsTest;
 import it.serverSystem.RestartTest;
 import it.serverSystem.ServerSystemRestartingOrchestrator;
 import it.settings.SettingsTestRestartingOrchestrator;
@@ -37,7 +36,6 @@ import org.junit.runners.Suite;
 @Suite.SuiteClasses({
   ServerSystemRestartingOrchestrator.class,
   RestartTest.class,
-  HttpsTest.class,
   SettingsTestRestartingOrchestrator.class,
   // update center
   UpdateCenterTest.class,

@@ -19,23 +19,23 @@
  */
 package org.sonar.server.app;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import com.google.common.base.Predicates;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.sonar.process.Props;
 
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
+
 /**
  * Configuration of Tomcat connectors
  */
 class TomcatConnectors {
-
-  public static final String PROP_HTTPS_CIPHERS = "sonar.web.https.ciphers";
 
   public static final int DISABLED_PORT = -1;
   public static final String HTTP_PROTOCOL = "HTTP/1.1";
@@ -47,9 +47,9 @@ class TomcatConnectors {
   }
 
   static void configure(Tomcat tomcat, Props props) {
-    List<Connector> connectors = new ArrayList<>();
-    connectors.addAll(Arrays.asList(newHttpConnector(props), newAjpConnector(props), newHttpsConnector(props)));
-    connectors.removeAll(Collections.singleton(null));
+    List<Connector> connectors = from(asList(newHttpConnector(props), newAjpConnector(props)))
+      .filter(Predicates.notNull())
+      .toList();
 
     verify(connectors);
 
@@ -67,13 +67,13 @@ class TomcatConnectors {
     for (Connector connector : connectors) {
       int port = connector.getPort();
       if (ports.contains(port)) {
-        throw new IllegalStateException(String.format("HTTP, AJP and HTTPS must not use the same port %d", port));
+        throw new IllegalStateException(String.format("HTTP and AJP must not use the same port %d", port));
       }
       ports.add(port);
     }
   }
 
-  @Nullable
+  @CheckForNull
   private static Connector newHttpConnector(Props props) {
     Connector connector = null;
     // Not named "sonar.web.http.port" to keep backward-compatibility
@@ -86,47 +86,15 @@ class TomcatConnectors {
     return connector;
   }
 
-  @Nullable
+  @CheckForNull
   private static Connector newAjpConnector(Props props) {
-    Connector connector = null;
     int port = props.valueAsInt("sonar.ajp.port", DISABLED_PORT);
     if (port > DISABLED_PORT) {
-      connector = newConnector(props, AJP_PROTOCOL, "http");
+      Connector connector = newConnector(props, AJP_PROTOCOL, "http");
       connector.setPort(port);
+      return connector;
     }
-    return connector;
-  }
-
-  @Nullable
-  private static Connector newHttpsConnector(Props props) {
-    Connector connector = null;
-    int port = props.valueAsInt("sonar.web.https.port", DISABLED_PORT);
-    if (port > DISABLED_PORT) {
-      connector = newConnector(props, HTTP_PROTOCOL, "https");
-      connector.setPort(port);
-      connector.setSecure(true);
-      connector.setScheme("https");
-      configureMaxHttpHeaderSize(connector);
-      setConnectorAttribute(connector, "keyAlias", props.value("sonar.web.https.keyAlias"));
-      String keyPassword = props.value("sonar.web.https.keyPass", "changeit");
-      setConnectorAttribute(connector, "keyPass", keyPassword);
-      setConnectorAttribute(connector, "keystorePass", props.value("sonar.web.https.keystorePass", keyPassword));
-      setConnectorAttribute(connector, "keystoreFile", props.value("sonar.web.https.keystoreFile"));
-      setConnectorAttribute(connector, "keystoreType", props.value("sonar.web.https.keystoreType", "JKS"));
-      setConnectorAttribute(connector, "keystoreProvider", props.value("sonar.web.https.keystoreProvider"));
-      setConnectorAttribute(connector, "truststorePass", props.value("sonar.web.https.truststorePass", "changeit"));
-      setConnectorAttribute(connector, "truststoreFile", props.value("sonar.web.https.truststoreFile"));
-      setConnectorAttribute(connector, "truststoreType", props.value("sonar.web.https.truststoreType", "JKS"));
-      setConnectorAttribute(connector, "truststoreProvider", props.value("sonar.web.https.truststoreProvider"));
-      setConnectorAttribute(connector, "clientAuth", props.value("sonar.web.https.clientAuth", "false"));
-      setConnectorAttribute(connector, "ciphers", props.value(PROP_HTTPS_CIPHERS));
-      // SSLv3 must not be enable because of Poodle vulnerability
-      // See https://jira.sonarsource.com/browse/SONAR-5860
-      setConnectorAttribute(connector, "sslEnabledProtocols", "TLSv1,TLSv1.1,TLSv1.2");
-      setConnectorAttribute(connector, "sslProtocol", "TLS");
-      setConnectorAttribute(connector, "SSLEnabled", true);
-    }
-    return connector;
+    return null;
   }
 
   /**

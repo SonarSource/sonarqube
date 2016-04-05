@@ -22,7 +22,6 @@ package org.sonar.server.app;
 import java.util.Properties;
 import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
-import org.apache.coyote.http11.AbstractHttp11JsseProtocol;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.api.utils.log.Logger;
@@ -60,33 +59,6 @@ public class StartupLogsTest {
     underTest.log(tomcat);
 
     verify(logger).info("HTTP connector enabled on port 1234");
-    verifyNoMoreInteractions(logger);
-  }
-
-  @Test
-  public void logHttps_default_ciphers() {
-    Connector connector = newConnector("HTTP/1.1", "https");
-    when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
-
-    underTest.log(tomcat);
-
-    verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=JVM defaults");
-    verifyNoMoreInteractions(logger);
-  }
-
-  @Test
-  public void logHttps_overridden_ciphers() {
-    Connector connector = mock(Connector.class);
-    when(connector.getScheme()).thenReturn("https");
-    when(connector.getPort()).thenReturn(1234);
-    AbstractHttp11JsseProtocol protocol = mock(AbstractHttp11JsseProtocol.class);
-    when(protocol.getCiphersUsed()).thenReturn(new String[] {"SSL_RSA", "TLS_RSA_WITH_RC4"});
-    when(connector.getProtocolHandler()).thenReturn(protocol);
-    when(tomcat.getService().findConnectors()).thenReturn(new Connector[] {connector});
-    props.set(TomcatConnectors.PROP_HTTPS_CIPHERS, "SSL_RSA,TLS_RSA_WITH_RC4");
-    underTest.log(tomcat);
-
-    verify(logger).info("HTTPS connector enabled on port 1234 | ciphers=SSL_RSA,TLS_RSA_WITH_RC4");
     verifyNoMoreInteractions(logger);
   }
 

@@ -90,8 +90,6 @@ public class TomcatConnectorsTest {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.web.http.minThreads", "2");
-    p.setProperty("sonar.web.https.port", "9443");
-    p.setProperty("sonar.web.https.minThreads", "5");
     Props props = new Props(p);
 
     TomcatConnectors.configure(tomcat, props);
@@ -103,20 +101,12 @@ public class TomcatConnectorsTest {
         return c.getPort() == 9000 && c.getProperty("minSpareThreads").equals(2);
       }
     }));
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getPort() == 9443 && c.getProperty("minSpareThreads").equals(5);
-      }
-    }));
   }
 
   @Test
   public void fail_if_http_connectors_are_disabled() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "-1");
-    p.setProperty("sonar.web.https.port", "-1");
     Props props = new Props(p);
 
     try {
@@ -128,23 +118,10 @@ public class TomcatConnectorsTest {
   }
 
   @Test
-  public void only_https_is_enabled() {
-    Properties p = new Properties();
-    p.setProperty("sonar.web.port", "-1");
-    p.setProperty("sonar.web.https.port", "9443");
-    Props props = new Props(p);
-
-    TomcatConnectors.configure(tomcat, props);
-
-    verifyConnectorProperty(tomcat, "https", "clientAuth", "false");
-  }
-
-  @Test
   public void all_connectors_are_enabled() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.ajp.port", "9009");
-    p.setProperty("sonar.web.https.port", "9443");
     Props props = new Props(p);
 
     TomcatConnectors.configure(tomcat, props);
@@ -163,27 +140,19 @@ public class TomcatConnectorsTest {
         return c.getScheme().equals("http") && c.getPort() == 9009 && c.getProtocol().equals(TomcatConnectors.AJP_PROTOCOL);
       }
     }));
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getPort() == 9443 && c.getProtocol().equals(TomcatConnectors.HTTP_PROTOCOL);
-      }
-    }));
   }
 
   @Test
-  public void http_and_ajp_and_https_ports_should_be_different() {
+  public void http_and_ajp_ports_should_be_different() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.ajp.port", "9000");
-    p.setProperty("sonar.web.https.port", "9000");
 
     try {
       TomcatConnectors.configure(tomcat, new Props(p));
       fail();
     } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("HTTP, AJP and HTTPS must not use the same port 9000");
+      assertThat(e).hasMessage("HTTP and AJP must not use the same port 9000");
     }
   }
 
@@ -192,7 +161,6 @@ public class TomcatConnectorsTest {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
     p.setProperty("sonar.ajp.port", "9009");
-    p.setProperty("sonar.web.https.port", "9443");
 
     TomcatConnectors.configure(tomcat, new Props(p));
 
@@ -210,20 +178,12 @@ public class TomcatConnectorsTest {
         return c.getScheme().equals("http") && c.getPort() == 9009 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("0.0.0.0");
       }
     }));
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getPort() == 9443 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("0.0.0.0");
-      }
-    }));
   }
 
   @Test
   public void bind_to_specific_address() {
     Properties p = new Properties();
     p.setProperty("sonar.web.port", "9000");
-    p.setProperty("sonar.web.https.port", "9443");
     p.setProperty("sonar.web.host", "1.2.3.4");
 
     TomcatConnectors.configure(tomcat, new Props(p));
@@ -235,51 +195,15 @@ public class TomcatConnectorsTest {
         return c.getScheme().equals("http") && c.getPort() == 9000 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("1.2.3.4");
       }
     }));
-    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
-      @Override
-      public boolean matches(Object o) {
-        Connector c = (Connector) o;
-        return c.getScheme().equals("https") && c.getPort() == 9443 && ((InetAddress) c.getProperty("address")).getHostAddress().equals("1.2.3.4");
-      }
-    }));
   }
 
   @Test
-  public void enable_client_auth() {
-    Properties p = new Properties();
-    p.setProperty("sonar.web.port", "-1");
-    p.setProperty("sonar.web.https.port", "9443");
-    p.setProperty("sonar.web.https.clientAuth", "want");
-    Props props = new Props(p);
-
-    TomcatConnectors.configure(tomcat, props);
-
-    verifyConnectorProperty(tomcat, "https", "clientAuth", "want");
-  }
-
-  @Test
-  public void require_client_auth() {
-    Properties p = new Properties();
-    p.setProperty("sonar.web.port", "-1");
-    p.setProperty("sonar.web.https.port", "9443");
-    p.setProperty("sonar.web.https.clientAuth", "true");
-    Props props = new Props(p);
-
-    TomcatConnectors.configure(tomcat, props);
-
-    verifyConnectorProperty(tomcat, "https", "clientAuth", "true");
-  }
-
-  @Test
-  public void test_max_http_header_size_for_http_and_https_connections() {
+  public void test_max_http_header_size_for_http_connection() {
     Properties properties = new Properties();
-
-    properties.setProperty("sonar.web.https.port", "9443");
 
     Props props = new Props(properties);
     TomcatConnectors.configure(tomcat, props);
     verifyConnectorProperty(tomcat, "http", "maxHttpHeaderSize", TomcatConnectors.MAX_HTTP_HEADER_SIZE_BYTES);
-    verifyConnectorProperty(tomcat, "https", "maxHttpHeaderSize", TomcatConnectors.MAX_HTTP_HEADER_SIZE_BYTES);
   }
 
   private static void verifyConnectorProperty(Tomcat tomcat, final String connectorScheme,
