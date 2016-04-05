@@ -29,9 +29,16 @@ import org.sonar.api.ce.ComputeEngineSide;
  * Extension point of which any plugin can provide an implementation and will allow them to be notified whenever some
  * analysis report processing ends in the Compute Engine.
  *
+ * <p>
  * If more then one implementation of {@link PostProjectAnalysisTask} is found, they will be executed in no specific order.
+ * </p>
+ *
+ * <p>
+ * Class {@link PostProjectAnalysisTaskTester} is provided to write unit tests of implementations of this interface.
+ * </p>
  *
  * @since 5.5
+ * @see PostProjectAnalysisTaskTester
  */
 @ExtensionPoint
 @ComputeEngineSide
