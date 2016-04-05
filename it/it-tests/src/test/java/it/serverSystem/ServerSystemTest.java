@@ -106,7 +106,7 @@ public class ServerSystemTest {
     assertThat(response.code()).isEqualTo(200);
     assertThat(response.content()).contains(
       "\"Compute Engine Database Connection\":", "\"Compute Engine State\":", "\"Compute Engine Tasks\":",
-      "\"Elasticsearch\":", "\"State\":\"GREEN\"", "\"Elasticsearch State\"");
+      "\"Elasticsearch\":", "\"State\":\"GREEN\"");
   }
 
   private static void waitForComputeEngineToBeUp(Orchestrator orchestrator) throws IOException {
