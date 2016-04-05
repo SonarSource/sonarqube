@@ -10,6 +10,7 @@
     "babel-core": "6.3.17",
     "babel-eslint": "5.0.0",
     "babel-loader": "6.2.0",
+    "babel-plugin-react-transform": "2.0.2",
     "babel-polyfill": "6.3.14",
     "babel-preset-es2015": "6.3.13",
     "babel-preset-react": "6.3.13",
@@ -30,6 +31,8 @@
     "eslint-plugin-react": "4.0.0",
     "event-stream": "3.3.1",
     "expose-loader": "0.7.1",
+    "express": "4.13.4",
+    "express-http-proxy": "0.6.0",
     "glob": "5.0.15",
     "gulp": "3.9.0",
     "gulp-autoprefixer": "3.1.0",
@@ -60,6 +63,7 @@
     "react-router": "2.0.0",
     "react-router-redux": "4.0.0",
     "react-select": "1.0.0-beta6",
+    "react-transform-hmr": "1.0.4",
     "redux": "3.3.1",
     "redux-logger": "2.2.1",
     "redux-simple-router": "1.0.1",
@@ -72,6 +76,8 @@
     "vinyl-buffer": "1.0.0",
     "vinyl-source-stream": "1.1.0",
     "webpack": "1.12.9",
+    "webpack-dev-middleware": "1.6.1",
+    "webpack-hot-middleware": "2.10.0",
     "whatwg-fetch": "0.10.0",
     "yargs": "3.27.0"
   },
@@ -80,7 +86,8 @@
     "build": "gulp build",
     "test": "mocha --opts tests/mocha.opts tests",
     "coverage": "babel-node node_modules/.bin/isparta cover --root 'src/main/js' --include-all-sources --excludes '**/libs/**' --dir 'target/coverage' node_modules/.bin/_mocha -- --opts tests/mocha.opts tests",
-    "lint": "eslint src/main/js && jscs src/main/js"
+    "lint": "eslint src/main/js && jscs src/main/js",
+    "dev": "NODE_ENV=hot node devServer"
   },
   "engines": {
     "node": ">=4"

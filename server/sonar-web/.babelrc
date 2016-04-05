@@ -1,6 +1,17 @@
 {
   "presets": ["es2015", "stage-0", "react"],
-   "ignore": [
-      "**/libs/**"
-    ]
+  "ignore": [
+    "**/libs/**"
+  ],
+  "env": {
+    "hot": {
+      "plugins": [["react-transform", {
+        "transforms": [{
+          "transform": "react-transform-hmr",
+          "imports": ["react"],
+          "locals": ["module"]
+        }]
+      }]]
+    }
+  }
 }

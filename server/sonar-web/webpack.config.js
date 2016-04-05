@@ -1,3 +1,6 @@
+/* eslint no-var: 0 */
+/* eslint object-shorthand: 0 */
+/* jscs:disable requireEnhancedObjectLiterals */
 var path = require('path');
 var webpack = require('webpack');
 var autoprefixer = require('autoprefixer');
