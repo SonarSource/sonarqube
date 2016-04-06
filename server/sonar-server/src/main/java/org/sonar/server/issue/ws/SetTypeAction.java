@@ -53,7 +53,7 @@ public class SetTypeAction implements IssuesWsAction {
     action.createParam("type")
       .setDescription("New type")
       .setRequired(true)
-      .setPossibleValues(RuleType.ALL_NAMES);
+      .setPossibleValues(RuleType.names());
   }
 
   @Override

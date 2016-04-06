@@ -68,15 +68,6 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
     this.componentIssues = componentIssuesRepository.getIssues(component);
   }
 
-  private Component newComponent(org.sonar.server.computation.component.Component component) {
-    return new ComponentImpl(
-      component.getKey(),
-      Component.Type.valueOf(component.getType().name()),
-      component.getType() == org.sonar.server.computation.component.Component.Type.FILE ?
-        new ComponentImpl.FileAttributesImpl(component.getFileAttributes().getLanguageKey(), component.getFileAttributes().isUnitTest()) :
-        null);
-  }
-
   /**
    * Definition needs to be reset each time a new computer is processed.
    * Defining it by a setter allows to reduce the number of this class to be created (one per component instead of one per component and per computer).
@@ -189,6 +180,14 @@ public class MeasureComputerContextImpl implements MeasureComputerContext {
   @Override
   public List<? extends Issue> getIssues() {
     return componentIssues;
+  }
+
+  private static Component newComponent(org.sonar.server.computation.component.Component component) {
+    return new ComponentImpl(
+      component.getKey(),
+      Component.Type.valueOf(component.getType().name()),
+      component.getType() == org.sonar.server.computation.component.Component.Type.FILE
+        ? new ComponentImpl.FileAttributesImpl(component.getFileAttributes().getLanguageKey(), component.getFileAttributes().isUnitTest()) : null);
   }
 
   private class ComponentToMeasure implements Function<org.sonar.server.computation.component.Component, Optional<org.sonar.server.computation.measure.Measure>> {

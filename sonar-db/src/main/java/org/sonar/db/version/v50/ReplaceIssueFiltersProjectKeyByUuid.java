@@ -82,7 +82,7 @@ public class ReplaceIssueFiltersProjectKeyByUuid extends BaseDataChange {
     }
   }
 
-  private String convertData(PreparedStatement pstmt, String data) throws SQLException {
+  private static String convertData(PreparedStatement pstmt, String data) throws SQLException {
     StringBuilder newFields = new StringBuilder();
     String[] fields = data.split("\\|");
     for (int i = 0; i < fields.length; i++) {

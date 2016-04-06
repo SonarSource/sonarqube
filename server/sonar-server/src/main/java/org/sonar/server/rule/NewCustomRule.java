@@ -104,10 +104,6 @@ public class NewCustomRule {
     return this;
   }
 
-  public Map<String, String> parameters() {
-    return parameters;
-  }
-
   @CheckForNull
   public String parameter(final String paramKey) {
     return parameters.get(paramKey);

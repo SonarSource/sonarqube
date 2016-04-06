@@ -48,8 +48,6 @@ import static org.sonar.db.qualityprofile.ActiveRuleDto.INHERITED;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.OVERRIDES;
 import static org.sonar.db.qualityprofile.ActiveRuleDto.createFor;
 
-// TODO add missing tests
-
 public class ActiveRuleDaoTest {
 
   @Rule
@@ -233,6 +231,30 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
+  public void fail_to_insert_when_profile_id_is_null() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Quality profile is not persisted (missing id)");
+
+    underTest.insert(dbTester.getSession(), createFor(profile1, rule1).setProfileId(null));
+  }
+
+  @Test
+  public void fail_to_insert_when_rule_id_is_null() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Rule is not persisted");
+
+    underTest.insert(dbTester.getSession(), createFor(profile1, rule1).setRuleId(null));
+  }
+
+  @Test
+  public void fail_to_insert_when_id_is_not_null() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("ActiveRule is already persisted");
+
+    underTest.insert(dbTester.getSession(), createFor(profile1, rule1).setId(100));
+  }
+
+  @Test
   public void update() throws Exception {
     ActiveRuleDto activeRule = createFor(profile1, rule1)
       .setSeverity(BLOCKER)
@@ -263,6 +285,30 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
+  public void fail_to_update_when_profile_id_is_null() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Quality profile is not persisted (missing id)");
+
+    underTest.update(dbTester.getSession(), createFor(profile1, rule1).setId(100).setProfileId(null));
+  }
+
+  @Test
+  public void fail_to_update_when_rule_id_is_null() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Rule is not persisted");
+
+    underTest.update(dbTester.getSession(), createFor(profile1, rule1).setId(100).setRuleId(null));
+  }
+
+  @Test
+  public void fail_to_update_when_id_is_null() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("ActiveRule is not persisted");
+
+    underTest.update(dbTester.getSession(), createFor(profile1, rule1).setId(null));
+  }
+
+  @Test
   public void delete() throws Exception {
     ActiveRuleDto activeRule = createFor(profile1, rule1)
       .setSeverity(BLOCKER)
@@ -276,6 +322,11 @@ public class ActiveRuleDaoTest {
     dbSession.commit();
 
     assertThat(underTest.selectByKey(dbSession,  ActiveRuleKey.of(profile1.getKey(), rule1.getKey()))).isAbsent();
+  }
+
+  @Test
+  public void does_not_fail_when_active_rule_does_not_exist() throws Exception {
+    underTest.delete(dbSession, ActiveRuleKey.of(profile1.getKey(), rule1.getKey()));
   }
 
   @Test
@@ -355,6 +406,36 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
+  public void fail_to_insert_param_when_active_rule_id_is_null() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("ActiveRule is not persisted");
+
+    underTest.insertParam(dbTester.getSession(),
+      createFor(profile1, rule1).setId(null),
+      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1"));
+  }
+
+  @Test
+  public void fail_to_insert_param_when_active_rule_param_id_is_null() throws Exception {
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("ActiveRuleParam is already persisted");
+
+    underTest.insertParam(dbTester.getSession(),
+      createFor(profile1, rule1).setId(100),
+      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setId(100));
+  }
+
+  @Test
+  public void fail_to_insert_param_when_id_is_not_null() throws Exception {
+    thrown.expect(NullPointerException.class);
+    thrown.expectMessage("Rule param is not persisted");
+
+    underTest.insertParam(dbTester.getSession(),
+      createFor(profile1, rule1).setId(100),
+      ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1").setRulesParameterId(null));
+  }
+
+  @Test
   public void update_param() throws Exception {
     ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule);
@@ -402,6 +483,22 @@ public class ActiveRuleDaoTest {
   }
 
   @Test
+  public void does_not_fail_to_delete_param_by_key_and_name_when_active_rule_does_not_exist() throws Exception {
+    underTest.deleteParamByKeyAndName(dbSession, ActiveRuleKey.of(profile1.getKey(), rule1.getKey()), rule1Param1.getName());
+  }
+
+  @Test
+  public void does_not_fail_to_delete_param_by_key_and_name_when_active_rule_param_does_not_exist() throws Exception {
+    ActiveRuleDto activeRule = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1");
+    underTest.insertParam(dbSession, activeRule, activeRuleParam1);
+    dbSession.commit();
+
+    underTest.deleteParamByKeyAndName(dbSession, activeRule.getKey(), "unknown");
+  }
+
+  @Test
   public void delete_param_by_rule_param() throws Exception {
     ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
     underTest.insert(dbTester.getSession(), activeRule1);
@@ -420,5 +517,22 @@ public class ActiveRuleDaoTest {
 
     assertThat(underTest.selectParamByKeyAndName(activeRule1.getKey(), activeRuleParam1.getKey(), dbSession)).isNull();
     assertThat(underTest.selectParamByKeyAndName(activeRule2.getKey(), activeRuleParam2.getKey(), dbSession)).isNull();
+  }
+
+  @Test
+  public void does_not_fail_to_delete_param_by_rule_param_when_active_param_name_not_found() throws Exception {
+    ActiveRuleDto activeRule1 = createFor(profile1, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule1);
+    ActiveRuleParamDto activeRuleParam1 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue1");
+    underTest.insertParam(dbSession, activeRule1, activeRuleParam1);
+
+    ActiveRuleDto activeRule2 = createFor(profile2, rule1).setSeverity(BLOCKER);
+    underTest.insert(dbTester.getSession(), activeRule2);
+    ActiveRuleParamDto activeRuleParam2 = ActiveRuleParamDto.createFor(rule1Param1).setValue("activeValue2");
+    underTest.insertParam(dbSession, activeRule2, activeRuleParam2);
+
+    dbSession.commit();
+
+    underTest.deleteParamsByRuleParam(dbSession, rule1, "unknown");
   }
 }

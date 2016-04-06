@@ -361,7 +361,7 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, RULES, request.getRules());
     addMandatoryValuesToFacet(facets, LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, TAGS, request.getTags());
-    addMandatoryValuesToFacet(facets, TYPES, RuleType.ALL_NAMES);
+    addMandatoryValuesToFacet(facets, TYPES, RuleType.names());
     List<String> actionPlans = Lists.newArrayList("");
     List<String> actionPlansFromRequest = request.getActionPlans();
     if (actionPlansFromRequest != null) {

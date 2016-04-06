@@ -434,7 +434,7 @@ public class SearchAction implements RulesWsAction {
     addMandatoryFacetValues(results, FACET_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, FACET_ACTIVE_SEVERITIES, Severity.ALL);
     addMandatoryFacetValues(results, FACET_TAGS, request.getTags());
-    addMandatoryFacetValues(results, FACET_TYPES, RuleType.ALL_NAMES);
+    addMandatoryFacetValues(results, FACET_TYPES, RuleType.names());
 
     Common.Facet.Builder facet = Common.Facet.newBuilder();
     Common.FacetValue.Builder value = Common.FacetValue.newBuilder();
@@ -478,10 +478,10 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  protected void addMandatoryFacetValues(SearchResult results, String facetName, @Nullable List<String> mandatoryValues) {
+  protected void addMandatoryFacetValues(SearchResult results, String facetName, @Nullable Collection<String> mandatoryValues) {
     Map<String, Long> facetValues = results.facets.get(facetName);
     if (facetValues != null) {
-      List<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
+      Collection<String> valuesToAdd = mandatoryValues == null ? Lists.<String>newArrayList() : mandatoryValues;
       for (String item : valuesToAdd) {
         if (!facetValues.containsKey(item)) {
           facetValues.put(item, 0L);

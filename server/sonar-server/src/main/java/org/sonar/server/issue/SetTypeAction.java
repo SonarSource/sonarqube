@@ -58,7 +58,7 @@ public class SetTypeAction extends Action {
   private static String newValue(Map<String, Object> properties) {
     String type = (String) properties.get(TYPE_PARAMETER);
     Preconditions.checkArgument(!isNullOrEmpty(type), "Missing parameter: '%s'", TYPE_PARAMETER);
-    Preconditions.checkArgument(RuleType.ALL_NAMES.contains(type), "Unknown type: %s", type);
+    Preconditions.checkArgument(RuleType.names().contains(type), "Unknown type: %s", type);
     return type;
   }
 }

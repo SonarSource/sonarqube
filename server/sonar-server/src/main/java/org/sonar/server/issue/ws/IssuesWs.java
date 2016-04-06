@@ -164,7 +164,7 @@ public class IssuesWs implements WebService {
     action.createParam("set_type.type")
       .setDescription("To change the type of the list of issues")
       .setExampleValue(RuleType.BUG)
-      .setPossibleValues(RuleType.ALL_NAMES)
+      .setPossibleValues(RuleType.names())
       .setSince("5.5");
     action.createParam("plan.plan")
       .setDescription("In 5.5, action plans are dropped. Has no effect. To plan the list of issues to a specific action plan (key), or unlink all the issues from an action plan")

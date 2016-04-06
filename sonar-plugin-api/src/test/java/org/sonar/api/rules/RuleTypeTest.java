@@ -45,12 +45,12 @@ public class RuleTypeTest {
 
   @Test
   public void test_ALL_NAMES() {
-    assertThat(RuleType.ALL_NAMES).containsOnly("BUG", "VULNERABILITY", "CODE_SMELL");
+    assertThat(RuleType.names()).containsOnly("BUG", "VULNERABILITY", "CODE_SMELL");
   }
 
   @Test
   public void ALL_NAMES_is_immutable() {
     expectedException.expect(UnsupportedOperationException.class);
-    RuleType.ALL_NAMES.add("foo");
+    RuleType.names().add("foo");
   }
 }
