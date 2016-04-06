@@ -19,13 +19,15 @@
  */
 package org.sonar.test;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.rules.TestRule;
 import org.junit.runner.Description;
 import org.junit.runners.model.Statement;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.*;
 
 public class RunTestsMultipleTimes implements TestRule {
   final int threads;
@@ -57,7 +59,7 @@ public class RunTestsMultipleTimes implements TestRule {
               } catch (RuntimeException e) {
                 throw e;
               } catch (Throwable e) {
-                throw new RuntimeException(e);
+                throw new IllegalStateException(e);
               }
             }
           }));

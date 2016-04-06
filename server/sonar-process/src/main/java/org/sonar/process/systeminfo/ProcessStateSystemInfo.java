@@ -57,7 +57,7 @@ public class ProcessStateSystemInfo implements SystemInfoSection {
     return builder.build();
   }
 
-  private void addAttributeInMb(ProtobufSystemInfo.Section.Builder builder, String key, long valueInBytes) {
+  private static void addAttributeInMb(ProtobufSystemInfo.Section.Builder builder, String key, long valueInBytes) {
     if (valueInBytes >= 0L) {
       builder.addAttributesBuilder().setKey(key).setLongValue(valueInBytes / MEGABYTE).build();
     }

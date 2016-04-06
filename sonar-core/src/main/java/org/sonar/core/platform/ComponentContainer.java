@@ -37,8 +37,8 @@ import org.picocontainer.behaviors.OptInCaching;
 import org.picocontainer.lifecycle.ReflectionLifecycleStrategy;
 import org.picocontainer.monitors.NullComponentMonitor;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
@@ -276,6 +276,7 @@ public class ComponentContainer implements ContainerPopulator.Container {
     return pico.getComponent(key);
   }
 
+  @Override
   public <T> List<T> getComponentsByType(Class<T> tClass) {
     return pico.getComponents(tClass);
   }

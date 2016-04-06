@@ -19,13 +19,13 @@
  */
 package org.sonar.colorizer;
 
-import org.sonar.channel.CodeReader;
-
 import java.util.Collections;
 import java.util.HashSet;
+import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import org.sonar.channel.CodeReader;
 
 /**
  * @deprecated since 4.5.2 replace by highlighting mechanism
@@ -79,7 +79,7 @@ public class KeywordsTokenizer extends NotThreadSafeTokenizer {
   private boolean isKeyword(String word) {
     if (!caseInsensitive && keywords.contains(word)) {
       return true;
-    } else if (caseInsensitive && keywords.contains(word.toUpperCase())) {
+    } else if (caseInsensitive && keywords.contains(word.toUpperCase(Locale.ENGLISH))) {
       return true;
     }
     return false;

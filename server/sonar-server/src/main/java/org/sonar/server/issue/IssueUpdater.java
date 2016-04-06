@@ -28,12 +28,13 @@ import com.google.common.collect.Sets;
 import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.api.rules.RuleType;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.rules.RuleType;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.rule.RuleTagFormat;
 import org.sonar.api.user.User;
@@ -318,7 +319,7 @@ public class IssueUpdater {
       }), new Function<String, String>() {
         @Override
         public String apply(String tag) {
-          String lowerCaseTag = tag.toLowerCase();
+          String lowerCaseTag = tag.toLowerCase(Locale.ENGLISH);
           RuleTagFormat.validate(lowerCaseTag);
           return lowerCaseTag;
         }

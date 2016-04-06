@@ -19,6 +19,7 @@
  */
 package org.sonar.api.rules;
 
+import java.util.Locale;
 import org.sonar.check.Priority;
 
 /**
@@ -46,7 +47,7 @@ public enum RulePriority {
   @Deprecated
   public static RulePriority valueOfString(String level) {
     try {
-      return RulePriority.valueOf(level.toUpperCase());
+      return RulePriority.valueOf(level.toUpperCase(Locale.ENGLISH));
 
     } catch (IllegalArgumentException ex) {
       // backward compatibility

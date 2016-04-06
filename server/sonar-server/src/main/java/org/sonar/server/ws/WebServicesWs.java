@@ -21,17 +21,15 @@ package org.sonar.server.ws;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Ordering;
+import java.io.IOException;
+import java.util.List;
+import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
-
-import javax.annotation.Nullable;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Set;
 
 /**
  * This web service lists all the existing web services, including itself,
@@ -139,7 +137,7 @@ public class WebServicesWs implements WebService {
     writer.close();
   }
 
-  private void writeController(JsonWriter writer, Controller controller, boolean includeInternals) {
+  private static void writeController(JsonWriter writer, Controller controller, boolean includeInternals) {
     if (includeInternals || !controller.isInternal()) {
       writer.beginObject();
       writer.prop("path", controller.path());

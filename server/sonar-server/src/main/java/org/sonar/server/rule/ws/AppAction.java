@@ -125,7 +125,7 @@ public class AppAction implements RulesWsAction {
     json.name("statuses").beginObject();
     for (RuleStatus status : RuleStatus.values()) {
       if (status != RuleStatus.REMOVED) {
-        json.prop(status.toString(), i18n.message(Locale.getDefault(), "rules.status." + status.toString().toLowerCase(), status.toString()));
+        json.prop(status.toString(), i18n.message(Locale.getDefault(), "rules.status." + status.toString().toLowerCase(Locale.ENGLISH), status.toString()));
       }
     }
     json.endObject();

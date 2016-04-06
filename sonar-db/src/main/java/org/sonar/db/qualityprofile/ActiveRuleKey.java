@@ -52,7 +52,7 @@ public class ActiveRuleKey implements Serializable, Comparable<ActiveRuleKey> {
    */
   public static ActiveRuleKey parse(String s) {
     Preconditions.checkArgument(s.split(":").length >= 3, "Bad format of activeRule key: " + s);
-    int semiColonPos = s.indexOf(":");
+    int semiColonPos = s.indexOf(':');
     String key = s.substring(0, semiColonPos);
     String ruleKey = s.substring(semiColonPos + 1);
     return ActiveRuleKey.of(key, RuleKey.parse(ruleKey));

@@ -31,6 +31,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -160,7 +161,8 @@ public class IssueQueryService {
 
     Date actualCreatedAfter = createdAfter;
     if (createdInLast != null) {
-      actualCreatedAfter = new DateTime(system.now()).minus(ISOPeriodFormat.standard().parsePeriod("P" + createdInLast.toUpperCase())).toDate();
+      actualCreatedAfter = new DateTime(system.now()).minus(
+        ISOPeriodFormat.standard().parsePeriod("P" + createdInLast.toUpperCase(Locale.ENGLISH))).toDate();
     }
     return actualCreatedAfter;
   }

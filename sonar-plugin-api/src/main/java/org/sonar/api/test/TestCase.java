@@ -19,6 +19,7 @@
  */
 package org.sonar.api.test;
 
+import java.util.Locale;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -31,7 +32,7 @@ public interface TestCase {
     OK, FAILURE, ERROR, SKIPPED;
 
     public static Status of(@Nullable String s) {
-      return s == null ? null : valueOf(s.toUpperCase());
+      return s == null ? null : valueOf(s.toUpperCase(Locale.ENGLISH));
     }
   }
 

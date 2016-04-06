@@ -26,6 +26,7 @@ import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
@@ -374,7 +375,7 @@ public class QualityProfileDao implements Dao {
   }
 
   private String sqlQueryString(String query) {
-    return query == null ? "%" : "%" + query.toUpperCase() + "%";
+    return query == null ? "%" : "%" + query.toUpperCase(Locale.ENGLISH) + "%";
   }
 
   private static QualityProfileMapper mapper(DbSession session) {
