@@ -24,6 +24,7 @@ import java.io.InputStream;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
+import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -76,4 +77,12 @@ public class SimpleGetRequest extends Request {
     return this;
   }
 
+  public Map<String, String> getParams() {
+    return params;
+  }
+
+  @Override
+  public LocalConnector getLocalConnector() {
+    throw new UnsupportedOperationException();
+  }
 }

@@ -24,7 +24,7 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.HttpWsClient;
+import org.sonarqube.ws.client.WsClientFactories;
 
 import static java.lang.Integer.parseInt;
 import static java.lang.String.valueOf;
@@ -42,20 +42,20 @@ public class BatchWsClientProvider extends ProviderAdapter {
   public synchronized BatchWsClient provide(final GlobalProperties settings, final EnvironmentInformation env) {
     if (wsClient == null) {
       String url = defaultIfBlank(settings.property("sonar.host.url"), CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE);
-      HttpConnector.Builder builder = new HttpConnector.Builder();
+      HttpConnector.Builder connectorBuilder = HttpConnector.newBuilder();
 
       // TODO proxy
 
       String timeoutSec = defaultIfBlank(settings.property(READ_TIMEOUT_SEC_PROPERTY), valueOf(DEFAULT_READ_TIMEOUT_SEC));
       String login = defaultIfBlank(settings.property(CoreProperties.LOGIN), null);
-      builder
+      connectorBuilder
         .readTimeoutMilliseconds(parseInt(timeoutSec) * 1_000)
         .connectTimeoutMilliseconds(CONNECT_TIMEOUT_MS)
         .userAgent(env.toString())
         .url(url)
         .credentials(login, settings.property(CoreProperties.PASSWORD));
 
-      wsClient = new BatchWsClient(new HttpWsClient(builder.build()), login != null);
+      wsClient = new BatchWsClient(WsClientFactories.getDefault().newClient(connectorBuilder.build()), login != null);
     }
     return wsClient;
   }

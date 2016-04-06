@@ -31,11 +31,12 @@ import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 
 /**
- * Entry point of the Java Client for SonarQube Web Services
+ * This class is not public anymore since version 5.5. It is
+ * created by {@link WsClientFactory}
  *
  * @since 5.3
  */
-public class HttpWsClient implements WsClient {
+class DefaultWsClient implements WsClient {
 
   private final WsConnector wsConnector;
   private final PermissionsService permissionsService;
@@ -49,7 +50,7 @@ public class HttpWsClient implements WsClient {
   private final CeService ceService;
   private final RulesService rulesService;
 
-  public HttpWsClient(WsConnector wsConnector) {
+  DefaultWsClient(WsConnector wsConnector) {
     this.wsConnector = wsConnector;
     this.permissionsService = new PermissionsService(wsConnector);
     this.componentsService = new ComponentsService(wsConnector);

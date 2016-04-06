@@ -24,13 +24,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.Reader;
 
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
-
-class HttpResponse extends BaseResponse {
+class OkHttpResponse extends BaseResponse {
 
   private final Response okResponse;
 
-  HttpResponse(Response okResponse) {
+  OkHttpResponse(Response okResponse) {
     this.okResponse = okResponse;
   }
 
@@ -42,11 +40,6 @@ class HttpResponse extends BaseResponse {
   @Override
   public String requestUrl() {
     return okResponse.request().urlString();
-  }
-
-  @Override
-  public boolean hasContent() {
-    return okResponse.code() != HTTP_NO_CONTENT;
   }
 
   @Override

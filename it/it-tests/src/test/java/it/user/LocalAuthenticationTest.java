@@ -37,8 +37,8 @@ import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.WsUserTokens;
 import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.HttpWsClient;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
@@ -109,7 +109,7 @@ public class LocalAuthenticationTest {
     userRule.createUser(login, name, null, password);
 
     // authenticate
-    WsClient wsClient = new HttpWsClient(new HttpConnector.Builder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
+    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
     WsResponse response = wsClient.wsConnector().call(new GetRequest("api/authentication/validate"));
     assertThat(response.content()).isEqualTo("{\"valid\":true}");
   }
@@ -120,7 +120,7 @@ public class LocalAuthenticationTest {
     WsUserTokens.GenerateWsResponse generateWsResponse = userTokensWsClient.generate(new GenerateWsRequest()
       .setLogin(LOGIN)
       .setName(tokenName));
-    WsClient wsClient = new HttpWsClient(new HttpConnector.Builder()
+    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(ORCHESTRATOR.getServer().getUrl())
       .token(generateWsResponse.getToken()).build());
 
@@ -196,7 +196,7 @@ public class LocalAuthenticationTest {
 
     // This check is failing because signup doesn't refresh the users ES index !
     // Will be fixed by SONAR-7308
-//    userRule.verifyUserExists("signuplogin", "SignUpName", null);
+    // userRule.verifyUserExists("signuplogin", "SignUpName", null);
   }
 
   @Test
@@ -208,14 +208,14 @@ public class LocalAuthenticationTest {
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_direct_login.html",
       // SONAR-2009
       "/user/LocalAuthenticationTest/redirect_to_original_url_after_indirect_login.html"
-    ).build()).runOn(ORCHESTRATOR);
+      ).build()).runOn(ORCHESTRATOR);
 
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
 
     new SeleneseTest(Selenese.builder().setHtmlTestsInClasspath("force-authentication",
       // SONAR-3473
       "/user/LocalAuthenticationTest/force-authentication.html"
-    ).build()).runOn(ORCHESTRATOR);
+      ).build()).runOn(ORCHESTRATOR);
   }
 
   @Test

@@ -31,6 +31,21 @@ import org.sonarqube.ws.client.system.SystemService;
 import org.sonarqube.ws.client.usertoken.UserTokensService;
 
 /**
+ * Allows to request the web services of SonarQube server. Instance is provided by
+ * {@link WsClientFactory}.
+ *
+ * <p>
+ * Usage:
+ * <pre>
+ *   HttpConnector httpConnector = HttpConnector.newBuilder()
+ *     .url("http://localhost:9000")
+ *     .credentials("admin", "admin")
+ *     .build();
+ *   WsClient wsClient = WsClientFactories.getDefault().newClient(httpConnector);
+ *   wsClient.issues().search(issueRequest);
+ * </pre>
+ * </p>
+ *
  * @since 5.3
  */
 public interface WsClient {

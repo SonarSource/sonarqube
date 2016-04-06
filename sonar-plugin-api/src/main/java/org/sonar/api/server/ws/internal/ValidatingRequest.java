@@ -29,9 +29,12 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
+import org.sonar.api.server.ws.LocalConnector;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.log.Loggers;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @since 4.2
@@ -39,6 +42,7 @@ import org.sonar.api.utils.log.Loggers;
 public abstract class ValidatingRequest extends Request {
 
   private WebService.Action action;
+  private LocalConnector localConnector;
 
   public void setAction(WebService.Action action) {
     this.action = action;
@@ -46,6 +50,16 @@ public abstract class ValidatingRequest extends Request {
 
   public WebService.Action action() {
     return action;
+  }
+
+  @Override
+  public LocalConnector getLocalConnector() {
+    checkNotNull(localConnector, "Local connector has not been set");
+    return localConnector;
+  }
+
+  public void setLocalConnector(LocalConnector lc) {
+    this.localConnector = lc;
   }
 
   @Override

@@ -23,7 +23,9 @@ import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
 
 /**
+ * Extension point to execute a HTTP request.
  * @since 4.2
+ * @see WebService
  */
 @ServerSide
 @ExtensionPoint

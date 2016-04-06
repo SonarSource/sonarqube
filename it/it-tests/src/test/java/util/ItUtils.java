@@ -49,8 +49,8 @@ import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.PropertyDeleteQuery;
 import org.sonar.wsclient.services.PropertyUpdateQuery;
 import org.sonarqube.ws.client.HttpConnector;
-import org.sonarqube.ws.client.HttpWsClient;
 import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
 
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
@@ -77,7 +77,7 @@ public class ItUtils {
 
   public static WsClient newAdminWsClient(Orchestrator orchestrator) {
     Server server = orchestrator.getServer();
-    return new HttpWsClient(new HttpConnector.Builder()
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(server.getUrl())
       .credentials(ADMIN_LOGIN, ADMIN_PASSWORD)
       .build());
@@ -85,7 +85,7 @@ public class ItUtils {
 
   public static WsClient newWsClient(Orchestrator orchestrator) {
     Server server = orchestrator.getServer();
-    return new HttpWsClient(new HttpConnector.Builder()
+    return WsClientFactories.getDefault().newClient(HttpConnector.newBuilder()
       .url(server.getUrl())
       .build());
   }
