@@ -41,6 +41,7 @@ import it.user.ForceAuthenticationTest;
 import it.user.LocalAuthenticationTest;
 import it.user.MyAccountPageTest;
 import it.user.OAuth2IdentityProviderTest;
+import it.ws.WsLocalCallTest;
 import org.junit.ClassRule;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
@@ -83,7 +84,8 @@ import static util.ItUtils.xooPlugin;
   // ui
   UiTest.class,
   // ui extensions
-  UiExtensionsTest.class
+  UiExtensionsTest.class,
+  WsLocalCallTest.class
 })
 public class Category4Suite {
 
@@ -104,5 +106,7 @@ public class Category4Suite {
     // Used in UiExtensionsTest
     .addPlugin(pluginArtifact("ui-extensions-plugin"))
 
+    // Used by WsLocalCallTest
+    .addPlugin(pluginArtifact("ws-plugin"))
     .build();
 }

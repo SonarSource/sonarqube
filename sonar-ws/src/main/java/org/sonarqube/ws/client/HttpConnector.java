@@ -202,14 +202,21 @@ public class HttpConnector implements WsConnector {
     return okHttpRequestBuilder;
   }
 
-  private HttpResponse doCall(Request okRequest) {
+  private OkHttpResponse doCall(Request okRequest) {
     Call call = okHttpClient.newCall(okRequest);
     try {
       Response okResponse = call.execute();
-      return new HttpResponse(okResponse);
+      return new OkHttpResponse(okResponse);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to request " + okRequest.urlString(), e);
     }
+  }
+
+  /**
+   * @since 5.5
+   */
+  public static Builder newBuilder() {
+    return new Builder();
   }
 
   public static class Builder {
@@ -222,6 +229,13 @@ public class HttpConnector implements WsConnector {
     private String proxyPassword;
     private int connectTimeoutMs = DEFAULT_CONNECT_TIMEOUT_MILLISECONDS;
     private int readTimeoutMs = DEFAULT_READ_TIMEOUT_MILLISECONDS;
+
+    /**
+     * Private since 5.5.
+     * @see HttpConnector#newBuilder()
+     */
+    private Builder() {
+    }
 
     /**
      * Optional User  Agent

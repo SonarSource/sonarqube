@@ -87,28 +87,6 @@ import static java.lang.String.format;
  *   }
  * }
  * </pre>
- * <h3>How to test</h3>
- * <pre>
- * public class HelloWsTest {
- *   WebService ws = new HelloWs();
- *
- *   {@literal @}Test
- *   public void should_define_ws() throws Exception {
- *     // WsTester is available in the Maven artifact org.codehaus.sonar:sonar-testing-harness
- *     WsTester tester = new WsTester(ws);
- *     WebService.Controller controller = tester.controller("api/hello");
- *     assertThat(controller).isNotNull();
- *     assertThat(controller.path()).isEqualTo("api/hello");
- *     assertThat(controller.description()).isNotEmpty();
- *     assertThat(controller.actions()).hasSize(1);
- *
- *     WebService.Action show = controller.action("show");
- *     assertThat(show).isNotNull();
- *     assertThat(show.key()).isEqualTo("show");
- *     assertThat(index.handler()).isNotNull();
- *   }
- * }
- * </pre>
  *
  * @since 4.2
  */

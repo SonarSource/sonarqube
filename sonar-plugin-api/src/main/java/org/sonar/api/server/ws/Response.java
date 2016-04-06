@@ -34,6 +34,11 @@ public interface Response {
 
   interface Stream {
     Stream setMediaType(String s);
+
+    /**
+     * HTTP status code. See https://en.wikipedia.org/wiki/List_of_HTTP_status_codes.
+     * By default value is set to 200.
+     */
     Stream setStatus(int httpStatus);
     OutputStream output();
   }

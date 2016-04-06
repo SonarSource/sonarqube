@@ -36,6 +36,7 @@
     <module>dashboard-plugin</module>
     <module>extension-lifecycle-plugin</module>
     <module>global-property-change-plugin</module>
+    <module>issue-filter-plugin</module>
     <module>l10n-fr-pack</module>
     <module>license-plugin</module>
     <module>oauth2-auth-plugin</module>
@@ -50,7 +51,7 @@
     <module>sonar-fake-plugin</module>
     <module>sonar-subcategories-plugin</module>
     <module>ui-extensions-plugin</module>
-    <module>issue-filter-plugin</module>
     <module>posttask-plugin</module>
+    <module>ws-plugin</module>
   </modules>
 </project>

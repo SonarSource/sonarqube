@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.ws;
 
+import com.google.common.annotations.Beta;
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import java.io.InputStream;
@@ -234,4 +235,12 @@ public abstract class Request {
     }
     throw new IllegalArgumentException(String.format("Property %s is not a boolean value: %s", key, value));
   }
+
+  /**
+   * Used by the sonar-ws library to allow a web service to call another web service.
+   * @see LocalConnector
+   * @since 5.5
+   */
+  @Beta
+  public abstract LocalConnector getLocalConnector();
 }

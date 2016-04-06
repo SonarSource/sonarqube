@@ -19,25 +19,13 @@
  */
 package org.sonarqube.ws.client;
 
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+/**
+ * Creates {@link WsClient}. Implementations are provided by {@link WsClientFactories}.
+ *
+ * @since 5.5
+ */
+public interface WsClientFactory {
 
-abstract class BaseResponse implements WsResponse {
+  WsClient newClient(WsConnector connector);
 
-  @Override
-  public boolean isSuccessful() {
-    return code() >= 200 && code() < 300;
-  }
-
-  @Override
-  public WsResponse failIfNotSuccessful() {
-    if (!isSuccessful()) {
-      throw new HttpException(requestUrl(), code());
-    }
-    return this;
-  }
-
-  @Override
-  public boolean hasContent() {
-    return code() != HTTP_NO_CONTENT;
-  }
 }

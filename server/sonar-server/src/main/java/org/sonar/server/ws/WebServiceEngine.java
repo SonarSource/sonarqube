@@ -22,9 +22,13 @@ package org.sonar.server.ws;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.ws.LocalConnector;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.log.Loggers;
@@ -43,7 +47,7 @@ import static org.sonar.server.ws.RequestVerifier.verifyRequest;
  * @since 4.2
  */
 @ServerSide
-public class WebServiceEngine implements Startable {
+public class WebServiceEngine implements LocalConnector, Startable {
 
   private final WebService.Context context;
   private final I18n i18n;
@@ -76,11 +80,22 @@ public class WebServiceEngine implements Startable {
     return context.controllers();
   }
 
-  public void execute(ValidatingRequest request, ServletResponse response,
-    String controllerPath, String actionKey) {
+  @Override
+  public LocalResponse call(LocalRequest request) {
+    String controller = StringUtils.substringBeforeLast(request.getPath(), "/");
+    String action = StringUtils.substringAfterLast(request.getPath(), "/");
+    DefaultLocalResponse localResponse = new DefaultLocalResponse();
+    execute(new LocalRequestAdapter(request), localResponse, controller, action);
+    return localResponse;
+  }
+
+  public void execute(Request request, Response response, String controllerPath, String actionKey) {
     try {
       WebService.Action action = getAction(controllerPath, actionKey);
-      request.setAction(action);
+      if (request instanceof ValidatingRequest) {
+        ((ValidatingRequest) request).setAction(action);
+        ((ValidatingRequest) request).setLocalConnector(this);
+      }
       verifyRequest(action, request);
       action.handler().handle(request, response);
 
@@ -112,9 +127,11 @@ public class WebServiceEngine implements Startable {
     return action;
   }
 
-  private void sendErrors(ServletResponse response, int status, Errors errors) {
-    ServletResponse.ServletStream stream = response.stream();
-    stream.reset();
+  private void sendErrors(Response response, int status, Errors errors) {
+    Response.Stream stream = response.stream();
+    if (stream instanceof ServletResponse.ServletStream) {
+      ((ServletResponse.ServletStream) stream).reset();
+    }
     stream.setStatus(status);
     stream.setMediaType(MediaTypes.JSON);
     JsonWriter json = JsonWriter.of(new OutputStreamWriter(stream.output(), StandardCharsets.UTF_8));

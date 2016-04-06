@@ -19,25 +19,12 @@
  */
 package org.sonarqube.ws.client;
 
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import org.sonar.api.server.ServerSide;
+import org.sonar.api.server.ws.LocalConnector;
 
-abstract class BaseResponse implements WsResponse {
+@ServerSide
+public interface LocalWsClientFactory extends WsClientFactory {
 
-  @Override
-  public boolean isSuccessful() {
-    return code() >= 200 && code() < 300;
-  }
+  WsClient newClient(LocalConnector localConnector);
 
-  @Override
-  public WsResponse failIfNotSuccessful() {
-    if (!isSuccessful()) {
-      throw new HttpException(requestUrl(), code());
-    }
-    return this;
-  }
-
-  @Override
-  public boolean hasContent() {
-    return code() != HTTP_NO_CONTENT;
-  }
 }

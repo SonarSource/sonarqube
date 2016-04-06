@@ -60,7 +60,7 @@ public class HttpConnectorTest {
   @Test
   public void test_default_settings() throws Exception {
     answerHelloWorld();
-    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build();
+    HttpConnector underTest = HttpConnector.newBuilder().url(serverUrl).build();
     assertThat(underTest.baseUrl()).isEqualTo(serverUrl);
     GetRequest request = new GetRequest("api/issues/search").setMediaType(MediaTypes.PROTOBUF);
     WsResponse response = underTest.call(request);
@@ -87,7 +87,7 @@ public class HttpConnectorTest {
   @Test
   public void use_basic_authentication() throws Exception {
     answerHelloWorld();
-    HttpConnector underTest = new HttpConnector.Builder()
+    HttpConnector underTest = HttpConnector.newBuilder()
       .url(serverUrl)
       .credentials("theLogin", "thePassword")
       .build();
@@ -102,7 +102,7 @@ public class HttpConnectorTest {
   @Test
   public void use_basic_authentication_with_null_password() throws Exception {
     answerHelloWorld();
-    HttpConnector underTest = new HttpConnector.Builder()
+    HttpConnector underTest = HttpConnector.newBuilder()
       .url(serverUrl)
       .credentials("theLogin", null)
       .build();
@@ -121,7 +121,7 @@ public class HttpConnectorTest {
   @Test
   public void use_access_token() throws Exception {
     answerHelloWorld();
-    HttpConnector underTest = new HttpConnector.Builder()
+    HttpConnector underTest = HttpConnector.newBuilder()
       .url(serverUrl)
       .token("theToken")
       .build();
@@ -136,7 +136,7 @@ public class HttpConnectorTest {
   @Test
   public void use_proxy_authentication() throws Exception {
     answerHelloWorld();
-    HttpConnector underTest = new HttpConnector.Builder()
+    HttpConnector underTest = HttpConnector.newBuilder()
       .url(serverUrl)
       .proxyCredentials("theProxyLogin", "theProxyPassword")
       .build();
@@ -150,7 +150,7 @@ public class HttpConnectorTest {
 
   @Test
   public void override_timeouts() {
-    HttpConnector underTest = new HttpConnector.Builder()
+    HttpConnector underTest = HttpConnector.newBuilder()
       .url(serverUrl)
       .readTimeoutMilliseconds(42)
       .connectTimeoutMilliseconds(74)
@@ -163,7 +163,7 @@ public class HttpConnectorTest {
   @Test
   public void send_user_agent() throws Exception {
     answerHelloWorld();
-    HttpConnector underTest = new HttpConnector.Builder()
+    HttpConnector underTest = HttpConnector.newBuilder()
       .url(serverUrl)
       .userAgent("Maven Plugin/2.3")
       .build();
@@ -176,7 +176,7 @@ public class HttpConnectorTest {
 
   @Test
   public void fail_if_unknown_implementation_of_request() {
-    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build();
+    HttpConnector underTest = HttpConnector.newBuilder().url(serverUrl).build();
     try {
       underTest.call(mock(WsRequest.class));
       fail();
@@ -192,7 +192,7 @@ public class HttpConnectorTest {
       .setParam("severity", "MAJOR")
       .setMediaType(MediaTypes.PROTOBUF);
 
-    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build();
+    HttpConnector underTest = HttpConnector.newBuilder().url(serverUrl).build();
     WsResponse response = underTest.call(request);
 
     // verify response
@@ -215,7 +215,7 @@ public class HttpConnectorTest {
       .setPart("report", new PostRequest.Part(MediaTypes.TXT, reportFile))
       .setMediaType(MediaTypes.PROTOBUF);
 
-    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build();
+    HttpConnector underTest = HttpConnector.newBuilder().url(serverUrl).build();
     WsResponse response = underTest.call(request);
 
     assertThat(response.hasContent()).isTrue();
@@ -233,7 +233,7 @@ public class HttpConnectorTest {
   public void http_error() throws Exception {
     server.enqueue(new MockResponse().setResponseCode(404));
     PostRequest request = new PostRequest("api/issues/search");
-    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build();
+    HttpConnector underTest = HttpConnector.newBuilder().url(serverUrl).build();
 
     WsResponse wsResponse = underTest.call(request);
     assertThat(wsResponse.code()).isEqualTo(404);
@@ -242,7 +242,7 @@ public class HttpConnectorTest {
   @Test
   public void support_base_url_ending_with_slash() throws Exception {
     assertThat(serverUrl).endsWith("/");
-    HttpConnector underTest = new HttpConnector.Builder().url(StringUtils.removeEnd(serverUrl, "/")).build();
+    HttpConnector underTest = HttpConnector.newBuilder().url(StringUtils.removeEnd(serverUrl, "/")).build();
     GetRequest request = new GetRequest("api/issues/search");
 
     answerHelloWorld();
@@ -255,7 +255,7 @@ public class HttpConnectorTest {
   public void support_base_url_with_context() {
     // just to be sure
     assertThat(serverUrl).endsWith("/");
-    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl + "sonar").build();
+    HttpConnector underTest = HttpConnector.newBuilder().url(serverUrl + "sonar").build();
 
     GetRequest request = new GetRequest("api/issues/search");
     answerHelloWorld();
@@ -269,7 +269,7 @@ public class HttpConnectorTest {
   @Test
   public void support_tls_1_2_on_java7() {
     when(javaVersion.isJava7()).thenReturn(true);
-    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build(javaVersion);
+    HttpConnector underTest = HttpConnector.newBuilder().url(serverUrl).build(javaVersion);
 
     assertTlsAndClearTextSpecifications(underTest);
     // enable TLS 1.0, 1.1 and 1.2
@@ -279,7 +279,7 @@ public class HttpConnectorTest {
   @Test
   public void support_tls_versions_of_java8() {
     when(javaVersion.isJava7()).thenReturn(false);
-    HttpConnector underTest = new HttpConnector.Builder().url(serverUrl).build(javaVersion);
+    HttpConnector underTest = HttpConnector.newBuilder().url(serverUrl).build(javaVersion);
 
     assertTlsAndClearTextSpecifications(underTest);
     assertThat(underTest.okHttpClient().getSslSocketFactory()).isInstanceOf(SSLSocketFactory.getDefault().getClass());

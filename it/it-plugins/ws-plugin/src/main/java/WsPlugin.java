@@ -17,27 +17,14 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonarqube.ws.client;
 
-import static java.net.HttpURLConnection.HTTP_NO_CONTENT;
+import java.util.Arrays;
+import java.util.List;
+import org.sonar.api.SonarPlugin;
+import org.sonarqube.ws.client.WsClientFactories;
 
-abstract class BaseResponse implements WsResponse {
-
-  @Override
-  public boolean isSuccessful() {
-    return code() >= 200 && code() < 300;
-  }
-
-  @Override
-  public WsResponse failIfNotSuccessful() {
-    if (!isSuccessful()) {
-      throw new HttpException(requestUrl(), code());
-    }
-    return this;
-  }
-
-  @Override
-  public boolean hasContent() {
-    return code() != HTTP_NO_CONTENT;
+public class WsPlugin extends SonarPlugin {
+  public List getExtensions() {
+    return Arrays.asList(LocalCallWebService.class, WsClientFactories.getLocal());
   }
 }
