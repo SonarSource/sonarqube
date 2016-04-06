@@ -120,6 +120,11 @@ export default ModalView.extend({
   },
 
   calcAdditionalMeasures (measures) {
+    measures.issuesRemediationEffort =
+        (measures.sqale_index_raw || 0) +
+        (measures.reliability_remediation_effort_raw || 0) +
+        (measures.security_remediation_effort_raw || 0);
+
     if (measures.lines_to_cover && measures.uncovered_lines) {
       measures.covered_lines = measures.lines_to_cover_raw - measures.uncovered_lines_raw;
     }
