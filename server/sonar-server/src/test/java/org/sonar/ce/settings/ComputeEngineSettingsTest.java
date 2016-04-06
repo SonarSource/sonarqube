@@ -37,7 +37,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 
-import static java.util.concurrent.TimeUnit.MILLISECONDS;
+import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.entry;
 import static org.mockito.Mockito.mock;
@@ -303,7 +303,7 @@ public class ComputeEngineSettingsTest {
 
     public void blockingExecute() throws InterruptedException {
       this.start();
-      this.latch.await(100, MILLISECONDS);
+      this.latch.await(5, SECONDS);
     }
 
     @Override
