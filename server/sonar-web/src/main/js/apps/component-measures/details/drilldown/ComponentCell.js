@@ -55,7 +55,7 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
   return (
       <td style={{ maxWidth: 0 }}>
         <div style={{ maxWidth: '100%', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-          {component.refId == null ? (
+          {(component.refId == null || component.qualifier === 'DEV_PRJ') ? (
               <a
                   id={'component-measures-component-link-' + component.key}
                   className={linkClassName}

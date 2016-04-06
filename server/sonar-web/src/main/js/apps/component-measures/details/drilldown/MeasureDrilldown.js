@@ -38,14 +38,16 @@ export default class MeasureDrilldown extends React.Component {
     return (
         <div className="measure-details-drilldown">
           <ul className="measure-details-drilldown-mode">
-            <li>
-              <Link
-                  activeClassName="active"
-                  to={{ pathname: `metric/${metric.key}/list`, query: { id: component.key } }}>
-                <IconList/>
-                {translate('component_measures.tab.list')}
-              </Link>
-            </li>
+            {component.qualifier !== 'DEV' && (
+              <li>
+                <Link
+                    activeClassName="active"
+                    to={{ pathname: `metric/${metric.key}/list`, query: { id: component.key } }}>
+                  <IconList/>
+                  {translate('component_measures.tab.list')}
+                </Link>
+              </li>
+            )}
 
             <li>
               <Link

@@ -65,7 +65,7 @@ function getComplementary (metric) {
   return [metric, ...comp];
 }
 
-function makeRequest (baseComponent, metric, options, periodIndex = 1) {
+function makeRequest (rootComponent, baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
   const ps = 100;
   const finalOptions = { asc, ps };
@@ -83,14 +83,21 @@ function makeRequest (baseComponent, metric, options, periodIndex = 1) {
     });
   }
 
+  if (rootComponent.qualifier === 'DEV' && baseComponent.qualifier !== 'DEV') {
+    Object.assign(options, { developerId: rootComponent.id });
+  }
+
   Object.assign(finalOptions, options);
-  return getComponentTree('children', baseComponent.key, getComplementary(metric.key), finalOptions);
+
+  const finalKey = baseComponent.refKey || baseComponent.key;
+
+  return getComponentTree('children', finalKey, getComplementary(metric.key), finalOptions);
 }
 
-function fetchComponents (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
+function fetchComponents (rootComponent, baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
-  return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
+  return makeRequest(rootComponent, baseComponent, metric, options, periodIndex).then(r => {
     const nextComponents = filterOutEmptyMeasures(enhanceWithMeasure(r.components, metric.key, periodIndex));
 
     return {
@@ -108,10 +115,10 @@ function fetchComponents (baseComponent, metric, pageIndex = 1, periodIndex = 1)
  */
 function fetchList (baseComponent) {
   return (dispatch, getState) => {
-    const { metric, periodIndex } = getState().tree;
+    const { metric, periodIndex, rootComponent } = getState().tree;
 
     dispatch(startFetching());
-    return fetchComponents(baseComponent, metric, 1, periodIndex).then(r => {
+    return fetchComponents(rootComponent, baseComponent, metric, 1, periodIndex).then(r => {
       dispatch(updateStore({
         ...r,
         baseComponent,
@@ -148,9 +155,9 @@ export function start (rootComponent, metric, periodIndex = 1) {
  */
 export function drilldown (component) {
   return (dispatch, getState) => {
-    const { metric, breadcrumbs, periodIndex } = getState().tree;
+    const { metric, rootComponent, breadcrumbs, periodIndex } = getState().tree;
     dispatch(startFetching());
-    return fetchComponents(component, metric, 1, periodIndex).then(r => {
+    return fetchComponents(rootComponent, component, metric, 1, periodIndex).then(r => {
       dispatch(updateStore({
         ...r,
         breadcrumbs: [...breadcrumbs, component],
@@ -167,10 +174,10 @@ export function drilldown (component) {
  */
 export function useBreadcrumbs (component) {
   return (dispatch, getState) => {
-    const { metric, breadcrumbs, periodIndex } = getState().tree;
+    const { metric, rootComponent, breadcrumbs, periodIndex } = getState().tree;
     const index = breadcrumbs.indexOf(component);
     dispatch(startFetching());
-    return fetchComponents(component, metric, 1, periodIndex).then(r => {
+    return fetchComponents(rootComponent, component, metric, 1, periodIndex).then(r => {
       dispatch(updateStore({
         ...r,
         breadcrumbs: breadcrumbs.slice(0, index + 1),

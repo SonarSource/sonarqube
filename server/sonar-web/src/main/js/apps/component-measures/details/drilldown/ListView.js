@@ -26,8 +26,17 @@ import Spinner from '../../components/Spinner';
 import SourceViewer from '../../../code/components/SourceViewer';
 
 export default class ListView extends React.Component {
+  static contextTypes = {
+    router: React.PropTypes.object.isRequired
+  };
+
   componentDidMount () {
-    this.handleChangeBaseComponent(this.props.component);
+    const { component, metric } = this.props;
+    if (component.qualifier === 'DEV') {
+      const { router } = this.context;
+      router.replace({ pathname: `metric/${metric.key}/tree`, query: { id: component.key } });
+    }
+    this.handleChangeBaseComponent(component);
   }
 
   componentDidUpdate (nextProps) {
