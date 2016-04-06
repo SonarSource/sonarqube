@@ -35,14 +35,23 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.metric.MetricDto;
+import org.sonar.db.metric.MetricTesting;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
 
 public class MeasureDaoTest {
 
@@ -59,6 +68,7 @@ public class MeasureDaoTest {
   final DbSession dbSession = db.getSession();
 
   MeasureDao underTest = dbClient.measureDao();
+  ComponentDbTester componentDb = new ComponentDbTester(db);
 
   @Test
   public void get_value_by_key() {
@@ -326,7 +336,62 @@ public class MeasureDaoTest {
     assertThat(measureDtos).isEmpty();
   }
 
-  // TODO add test for selectBySnapshotIdsAndMetricIds
+  @Test
+  public void selectSnapshotIdsAndMetricIds() {
+    MetricDto metric = dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto());
+    ComponentDto project = newProjectDto();
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid"), projectSnapshot);
+    ComponentDto developer = newDeveloper("Ray Bradbury");
+    SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
+    componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-copy-uuid", project, developer), developerSnapshot);
+    underTest.insert(dbSession,
+      newMeasureDto(metric, developerSnapshot.getId()).setDeveloperId(developer.getId()),
+      newMeasureDto(metric, projectSnapshot.getId()),
+      newMeasureDto(metric, fileSnapshot.getId()));
+    dbSession.commit();
+
+    List<MeasureDto> result = underTest.selectBySnapshotIdsAndMetricIds(dbSession,
+      newArrayList(developerSnapshot.getId(), projectSnapshot.getId(), fileSnapshot.getId()),
+      singletonList(metric.getId()));
+
+    assertThat(result)
+      .hasSize(2)
+      .extracting("snapshotId")
+      .containsOnly(projectSnapshot.getId(), fileSnapshot.getId())
+      .doesNotContain(developerSnapshot.getId());
+  }
+
+  @Test
+  public void selectDeveloperAndSnapshotIdsAndMetricIds() {
+    MetricDto metric = dbClient.metricDao().insert(dbSession, MetricTesting.newMetricDto());
+    ComponentDto project = newProjectDto();
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid"), projectSnapshot);
+    ComponentDto developer = newDeveloper("Ray Bradbury");
+    SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
+    componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-copy-uuid", project, developer), developerSnapshot);
+
+    underTest.insert(dbSession,
+      newMeasureDto(metric, developerSnapshot.getId()).setDeveloperId(developer.getId()),
+      newMeasureDto(metric, projectSnapshot.getId()).setDeveloperId(developer.getId()),
+      newMeasureDto(metric, projectSnapshot.getId()).setDeveloperId(null),
+      newMeasureDto(metric, fileSnapshot.getId()).setDeveloperId(developer.getId()));
+    dbSession.commit();
+
+    List<MeasureDto> result = underTest.selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession,
+      developer.getId(),
+      newArrayList(developerSnapshot.getId(), projectSnapshot.getId(), fileSnapshot.getId()),
+      singletonList(metric.getId()));
+
+    assertThat(result)
+      .hasSize(3)
+      .extracting("snapshotId")
+      .containsOnly(developerSnapshot.getId(), projectSnapshot.getId(), fileSnapshot.getId());
+    assertThat(result)
+      .extracting("developerId")
+      .containsOnly(developer.getId());
+  }
 
   @Test
   public void selectProjectMeasuresByDeveloperForMetrics_returns_empty_on_empty_db() {
@@ -397,7 +462,7 @@ public class MeasureDaoTest {
   }
 
   private ComponentDto insertProject(String uuid) {
-    ComponentDto projectDto = ComponentTesting.newProjectDto(uuid);
+    ComponentDto projectDto = newProjectDto(uuid);
     return insertComponent(projectDto);
   }
 
@@ -434,8 +499,7 @@ public class MeasureDaoTest {
       .setVariation(5, 5.0d)
       .setAlertStatus("alert")
       .setAlertText("alert-text")
-      .setDescription("measure-description")
-      );
+      .setDescription("measure-description"));
     dbSession.commit();
 
     db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "project_measures");
@@ -454,8 +518,7 @@ public class MeasureDaoTest {
         .setSnapshotId(3L)
         .setMetricId(4)
         .setComponentId(6L)
-        .setValue(4.0d)
-      );
+        .setValue(4.0d));
     dbSession.commit();
 
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(2);

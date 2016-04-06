@@ -84,7 +84,7 @@
     </where>
   </select>
 
-  <select id="selectBySnapshotIdsAndMetricIds" parameterType="map" resultType="Measure">
+  <select id="selectByDeveloperAndSnapshotIdsAndMetricIds" parameterType="map" resultType="Measure">
     SELECT
     <include refid="measureColumns"/>
     FROM project_measures pm
@@ -98,7 +98,12 @@
       <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">
         #{metricId}
       </foreach>
-      AND pm.person_id is NULL
+      <if test="developerId==null">
+        AND pm.person_id is NULL
+      </if>
+      <if test="developerId!=null">
+        AND pm.person_id=#{developerId}
+      </if>
     </where>
   </select>
 

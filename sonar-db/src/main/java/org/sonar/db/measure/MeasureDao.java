@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
@@ -69,7 +70,7 @@ public class MeasureDao implements Dao {
   }
 
   public List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndMetricIds(final DbSession session, final String componentUuid, final long projectSnapshotId,
-                                                                                    Set<Integer> metricIds) {
+    Set<Integer> metricIds) {
     return DatabaseUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<PastMeasureDto>>() {
       @Override
       public List<PastMeasureDto> apply(List<Integer> ids) {
@@ -82,7 +83,8 @@ public class MeasureDao implements Dao {
   /**
    * Used by plugin Developer Cockpit
    */
-  public List<MeasureDto> selectByDeveloperForSnapshotAndMetrics(final DbSession dbSession, final long developerId, final long snapshotId, Collection<Integer> metricIds) {
+  public List<MeasureDto> selectByDeveloperForSnapshotAndMetrics(final DbSession dbSession, @Nullable final Long developerId, final long snapshotId,
+    Collection<Integer> metricIds) {
     return DatabaseUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<MeasureDto>>() {
       @Override
       @Nonnull
@@ -109,11 +111,16 @@ public class MeasureDao implements Dao {
    * Used by plugin Developer Cockpit
    */
   public List<MeasureDto> selectBySnapshotIdsAndMetricIds(final DbSession dbSession, List<Long> snapshotIds, final List<Integer> metricIds) {
+    return selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession, null, snapshotIds, metricIds);
+  }
+
+  public List<MeasureDto> selectByDeveloperAndSnapshotIdsAndMetricIds(final DbSession dbSession, @Nullable final Long developerId, List<Long> snapshotIds,
+    final List<Integer> metricIds) {
     return DatabaseUtils.executeLargeInputs(snapshotIds, new Function<List<Long>, List<MeasureDto>>() {
       @Override
       @Nonnull
       public List<MeasureDto> apply(@Nonnull List<Long> input) {
-        return mapper(dbSession).selectBySnapshotIdsAndMetricIds(input, metricIds);
+        return mapper(dbSession).selectByDeveloperAndSnapshotIdsAndMetricIds(developerId, input, metricIds);
       }
     });
   }

@@ -21,9 +21,13 @@ package org.sonar.server.measure.ws;
 
 import org.sonar.api.server.ws.WebService.NewAction;
 import org.sonar.api.server.ws.WebService.NewParam;
+import org.sonar.core.util.Uuids;
+import org.sonar.server.ws.KeyExamples;
 
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 
 class MeasuresWsParametersBuilder {
@@ -44,6 +48,15 @@ class MeasuresWsParametersBuilder {
       .setDescription("Metric keys")
       .setRequired(true)
       .setExampleValue("ncloc,complexity,violations");
+  }
+
+  static void createDeveloperParameters(NewAction action) {
+    action.createParam(PARAM_DEVELOPER_ID)
+      .setDescription("Developer id. If set, developer's measures are returned.")
+      .setExampleValue(Uuids.UUID_EXAMPLE_01);
+    action.createParam(PARAM_DEVELOPER_KEY)
+      .setDescription("Developer key. If set, developer's measures are returned.")
+      .setExampleValue(KeyExamples.KEY_DEVELOPER_EXAMPLE_001);
   }
 
 }

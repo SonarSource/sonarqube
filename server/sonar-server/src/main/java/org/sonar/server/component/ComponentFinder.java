@@ -67,9 +67,9 @@ public class ComponentFinder {
   /**
    * A project can be:
    * <ul>
-   *   <li>a project – ex: SonarQube</li>
-   *   <li>a view – ex: Language Team</li>
-   *   <li>a developer – ex: Simon Brandhof</li>
+   * <li>a project – ex: SonarQube</li>
+   * <li>a view – ex: Language Team</li>
+   * <li>a developer – ex: Simon Brandhof</li>
    * </ul>
    */
   public ComponentDto getRootComponentOrModuleByUuidOrKey(DbSession dbSession, @Nullable String projectUuid, @Nullable String projectKey, ResourceTypes resourceTypes) {
@@ -106,7 +106,8 @@ public class ComponentFinder {
     UUID_AND_KEY("uuid", "key"),
     ID_AND_KEY("id", "key"),
     COMPONENT_ID_AND_KEY("componentId", "componentKey"),
-    BASE_COMPONENT_ID_AND_KEY("baseComponentId", "baseComponentKey");
+    BASE_COMPONENT_ID_AND_KEY("baseComponentId", "baseComponentKey"),
+    DEVELOPER_ID_AND_KEY("developerId", "developerKey");
 
     private final String uuidParamName;
     private final String keyParamName;

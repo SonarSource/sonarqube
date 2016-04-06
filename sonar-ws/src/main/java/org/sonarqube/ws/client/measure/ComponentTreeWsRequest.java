@@ -38,6 +38,8 @@ public class ComponentTreeWsRequest {
   private List<String> metricKeys;
   private Integer page;
   private Integer pageSize;
+  private String developerId;
+  private String developerKey;
 
   @CheckForNull
   public String getBaseComponentId() {
@@ -166,6 +168,26 @@ public class ComponentTreeWsRequest {
 
   public ComponentTreeWsRequest setMetricPeriodSort(@Nullable Integer metricPeriodSort) {
     this.metricPeriodSort = metricPeriodSort;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDeveloperId() {
+    return developerId;
+  }
+
+  public ComponentTreeWsRequest setDeveloperId(@Nullable String developerId) {
+    this.developerId = developerId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDeveloperKey() {
+    return developerKey;
+  }
+
+  public ComponentTreeWsRequest setDeveloperKey(@Nullable String developerKey) {
+    this.developerKey = developerKey;
     return this;
   }
 }

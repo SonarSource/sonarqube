@@ -39,6 +39,7 @@ import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createAdditionalFieldsParameter;
+import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createDeveloperParameters;
 import static org.sonar.server.measure.ws.MeasuresWsParametersBuilder.createMetricKeysParameter;
 import static org.sonar.server.measure.ws.MetricDtoToWsMetric.metricDtoToWsMetric;
 import static org.sonar.server.ws.KeyExamples.KEY_PROJECT_EXAMPLE_001;
@@ -52,6 +53,8 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PE
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
@@ -151,6 +154,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
 
     createMetricKeysParameter(action);
     createAdditionalFieldsParameter(action);
+    createDeveloperParameters(action);
     createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes));
 
     action.createParam(PARAM_STRATEGY)
@@ -250,6 +254,8 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setAsc(request.paramAsBoolean(Param.ASCENDING))
       .setMetricSort(request.param(PARAM_METRIC_SORT))
       .setMetricPeriodSort(request.paramAsInt(PARAM_METRIC_PERIOD_SORT))
+      .setDeveloperId(request.param(PARAM_DEVELOPER_ID))
+      .setDeveloperKey(request.param(PARAM_DEVELOPER_KEY))
       .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE))
       .setQuery(request.param(Param.TEXT_QUERY));

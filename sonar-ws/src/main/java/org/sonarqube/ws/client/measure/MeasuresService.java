@@ -33,6 +33,8 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_CO
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
@@ -51,6 +53,8 @@ public class MeasuresService extends BaseService {
       .setParam(PARAM_QUALIFIERS, inlineMultipleParamValue(request.getQualifiers()))
       .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()))
       .setParam(PARAM_ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
+      .setParam(PARAM_DEVELOPER_ID, request.getDeveloperId())
+      .setParam(PARAM_DEVELOPER_KEY, request.getDeveloperKey())
       .setParam("q", request.getQuery())
       .setParam("p", request.getPage())
       .setParam("ps", request.getPageSize())

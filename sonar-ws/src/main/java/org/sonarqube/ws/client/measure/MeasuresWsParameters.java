@@ -42,6 +42,8 @@ public class MeasuresWsParameters {
   public static final String PARAM_ADDITIONAL_FIELDS = "additionalFields";
   public static final String PARAM_COMPONENT_ID = "componentId";
   public static final String PARAM_COMPONENT_KEY = "componentKey";
+  public static final String PARAM_DEVELOPER_ID = "developerId";
+  public static final String PARAM_DEVELOPER_KEY = "developerKey";
   public static final String ADDITIONAL_METRICS = "metrics";
 
   public static final String ADDITIONAL_PERIODS = "periods";

@@ -22,6 +22,7 @@ package org.sonar.server.ws;
 public class KeyExamples {
   public static final String KEY_FILE_EXAMPLE_001 = "my_project:/src/foo/Bar.php";
   public static final String KEY_PROJECT_EXAMPLE_001 = "my_project";
+  public static final String KEY_DEVELOPER_EXAMPLE_001 = "DEV:ada@lovelace.com";
 
   private KeyExamples() {
     // prevent instantiation

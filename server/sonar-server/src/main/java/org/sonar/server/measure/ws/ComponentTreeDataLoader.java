@@ -30,6 +30,7 @@ import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
 import com.google.common.collect.Table;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -38,6 +39,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.Paging;
@@ -65,7 +67,9 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
+import static java.util.Objects.requireNonNull;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
+import static org.sonar.server.component.ComponentFinder.ParamNames.DEVELOPER_ID_AND_KEY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.ALL_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.CHILDREN_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
@@ -101,6 +105,7 @@ public class ComponentTreeDataLoader {
           .setBaseComponent(baseComponent)
           .build();
       }
+      Long developerId = searchDeveloperId(dbSession, wsRequest);
 
       ComponentTreeQuery dbQuery = toComponentTreeQuery(wsRequest, baseSnapshot);
       ComponentDtosAndTotal componentDtosAndTotal = searchComponents(dbSession, dbQuery, wsRequest);
@@ -109,7 +114,7 @@ public class ComponentTreeDataLoader {
       List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
       List<WsMeasures.Period> periods = snapshotToWsPeriods(baseSnapshot);
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, baseSnapshot, components, metrics,
-        periods);
+        periods, developerId);
 
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
       components = paginateComponents(components, componentCount, wsRequest);
@@ -127,6 +132,15 @@ public class ComponentTreeDataLoader {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  @CheckForNull
+  private Long searchDeveloperId(DbSession dbSession, ComponentTreeWsRequest wsRequest) {
+    if (wsRequest.getDeveloperId() == null && wsRequest.getDeveloperKey() == null) {
+      return null;
+    }
+
+    return componentFinder.getByUuidOrKey(dbSession, wsRequest.getDeveloperId(), wsRequest.getDeveloperKey(), DEVELOPER_ID_AND_KEY).getId();
   }
 
   private Map<Long, ComponentDto> searchReferenceComponentsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
@@ -148,7 +162,11 @@ public class ComponentTreeDataLoader {
   }
 
   private ComponentDtosAndTotal searchComponents(DbSession dbSession, ComponentTreeQuery dbQuery, ComponentTreeWsRequest wsRequest) {
-    switch (wsRequest.getStrategy()) {
+    if (dbQuery.getQualifiers() != null && dbQuery.getQualifiers().isEmpty()) {
+      return new ComponentDtosAndTotal(Collections.<ComponentDtoWithSnapshotId>emptyList(), 0);
+    }
+    String strategy = requireNonNull(wsRequest.getStrategy());
+    switch (strategy) {
       case CHILDREN_STRATEGY:
         return new ComponentDtosAndTotal(
           dbClient.componentDao().selectDirectChildren(dbSession, dbQuery),
@@ -164,11 +182,12 @@ public class ComponentTreeDataLoader {
   }
 
   private List<MetricDto> searchMetrics(DbSession dbSession, ComponentTreeWsRequest request) {
-    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, request.getMetricKeys());
-    if (metrics.size() < request.getMetricKeys().size()) {
+    List<String> metricKeys = requireNonNull(request.getMetricKeys());
+    List<MetricDto> metrics = dbClient.metricDao().selectByKeys(dbSession, metricKeys);
+    if (metrics.size() < metricKeys.size()) {
       List<String> foundMetricKeys = Lists.transform(metrics, MetricDtoFunctions.toKey());
       Set<String> missingMetricKeys = Sets.difference(
-        new LinkedHashSet<>(request.getMetricKeys()),
+        new LinkedHashSet<>(metricKeys),
         new LinkedHashSet<>(foundMetricKeys));
 
       throw new NotFoundException(format("The following metric keys are not found: %s", Joiner.on(", ").join(missingMetricKeys)));
@@ -179,7 +198,7 @@ public class ComponentTreeDataLoader {
 
   private Table<String, MetricDto, MeasureDto> searchMeasuresByComponentUuidAndMetric(DbSession dbSession, ComponentDto baseComponent, SnapshotDto baseSnapshot,
     List<ComponentDtoWithSnapshotId> components, List<MetricDto> metrics,
-    List<WsMeasures.Period> periods) {
+    List<WsMeasures.Period> periods, @Nullable Long developerId) {
     Map<Long, ComponentDto> componentsBySnapshotId = new HashMap<>();
     componentsBySnapshotId.put(baseSnapshot.getId(), baseComponent);
     for (ComponentDtoWithSnapshotId component : components) {
@@ -187,7 +206,8 @@ public class ComponentTreeDataLoader {
     }
 
     Map<Integer, MetricDto> metricsById = Maps.uniqueIndex(metrics, MetricDtoFunctions.toId());
-    List<MeasureDto> measureDtos = dbClient.measureDao().selectBySnapshotIdsAndMetricIds(dbSession,
+    List<MeasureDto> measureDtos = dbClient.measureDao().selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession,
+      developerId,
       new ArrayList<>(componentsBySnapshotId.keySet()),
       new ArrayList<>(metricsById.keySet()));
 

@@ -34,6 +34,8 @@ import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
@@ -52,6 +54,8 @@ public class MeasuresServiceTest {
   private static final int VALUE_PAGE = 42;
   private static final int VALUE_PAGE_SIZE = 1984;
   private static final String VALUE_QUERY = "query-sq";
+  private static final String VALUE_DEVELOPER_ID = "developer-id";
+  private static final String VALUE_DEVELOPER_KEY = "developer-key";
 
   @Rule
   public ServiceTester<MeasuresService> serviceTester = new ServiceTester<>(new MeasuresService(mock(WsConnector.class)));
@@ -72,7 +76,9 @@ public class MeasuresServiceTest {
       .setMetricSort(VALUE_METRIC_SORT)
       .setPage(VALUE_PAGE)
       .setPageSize(VALUE_PAGE_SIZE)
-      .setQuery(VALUE_QUERY);
+      .setQuery(VALUE_QUERY)
+      .setDeveloperId(VALUE_DEVELOPER_ID)
+      .setDeveloperKey(VALUE_DEVELOPER_KEY);
 
     underTest.componentTree(componentTreeRequest);
     GetRequest getRequest = serviceTester.getGetRequest();
@@ -91,6 +97,8 @@ public class MeasuresServiceTest {
       .hasParam("p", VALUE_PAGE)
       .hasParam("ps", VALUE_PAGE_SIZE)
       .hasParam("q", VALUE_QUERY)
+      .hasParam(PARAM_DEVELOPER_ID, VALUE_DEVELOPER_ID)
+      .hasParam(PARAM_DEVELOPER_KEY, VALUE_DEVELOPER_KEY)
       .andNoOtherParam();
   }
 }
