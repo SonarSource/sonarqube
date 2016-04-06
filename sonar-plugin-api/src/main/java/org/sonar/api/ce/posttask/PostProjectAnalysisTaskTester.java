@@ -91,9 +91,10 @@ import static java.util.Objects.requireNonNull;
  */
 @Beta
 public class PostProjectAnalysisTaskTester {
-  private static final String DATE_CAN_NOT_BE_NULL = "date can not be null";
-  private static final String PROJECT_CAN_NOT_BE_NULL = "project can not be null";
-  private static final String CE_TASK_CAN_NOT_BE_NULL = "ceTask can not be null";
+  private static final String DATE_CAN_NOT_BE_NULL = "date cannot be null";
+  private static final String PROJECT_CAN_NOT_BE_NULL = "project cannot be null";
+  private static final String CE_TASK_CAN_NOT_BE_NULL = "ceTask cannot be null";
+  private static final String STATUS_CAN_NOT_BE_NULL = "status cannot be null";
 
   private final PostProjectAnalysisTask underTest;
   @CheckForNull
@@ -106,7 +107,7 @@ public class PostProjectAnalysisTaskTester {
   private QualityGate qualityGate;
 
   private PostProjectAnalysisTaskTester(PostProjectAnalysisTask underTest) {
-    this.underTest = requireNonNull(underTest, "PostProjectAnalysisTask instance can not be null");
+    this.underTest = requireNonNull(underTest, "PostProjectAnalysisTask instance cannot be null");
   }
 
   public static PostProjectAnalysisTaskTester of(PostProjectAnalysisTask underTest) {
@@ -191,8 +192,7 @@ public class PostProjectAnalysisTaskTester {
 
   @Beta
   public static final class CeTaskBuilder {
-    private static final String ID_CAN_NOT_BE_NULL = "id can not be null";
-    private static final String STATUS_CAN_NOT_BE_NULL = "status can not be null";
+    private static final String ID_CAN_NOT_BE_NULL = "id cannot be null";
 
     @CheckForNull
     private String id;
@@ -240,9 +240,9 @@ public class PostProjectAnalysisTaskTester {
 
   @Beta
   public static final class ProjectBuilder {
-    private static final String UUID_CAN_NOT_BE_NULL = "uuid can not be null";
-    private static final String KEY_CAN_NOT_BE_NULL = "key can not be null";
-    private static final String NAME_CAN_NOT_BE_NULL = "name can not be null";
+    private static final String UUID_CAN_NOT_BE_NULL = "uuid cannot be null";
+    private static final String KEY_CAN_NOT_BE_NULL = "key cannot be null";
+    private static final String NAME_CAN_NOT_BE_NULL = "name cannot be null";
     private String uuid;
     private String key;
     private String name;
@@ -301,9 +301,8 @@ public class PostProjectAnalysisTaskTester {
 
   @Beta
   public static final class QualityGateBuilder {
-    private static final String ID_CAN_NOT_BE_NULL = "id can not be null";
-    private static final String NAME_CAN_NOT_BE_NULL = "name can not be null";
-    private static final String STATUS_CAN_NOT_BE_NULL = "status can not be null";
+    private static final String ID_CAN_NOT_BE_NULL = "id cannot be null";
+    private static final String NAME_CAN_NOT_BE_NULL = "name cannot be null";
 
     private String id;
     private String name;
@@ -330,7 +329,7 @@ public class PostProjectAnalysisTaskTester {
     }
 
     public QualityGateBuilder add(QualityGate.Condition condition) {
-      conditions.add(requireNonNull(condition, "condition can not be null"));
+      conditions.add(requireNonNull(condition, "condition cannot be null"));
       return this;
     }
 
@@ -380,8 +379,8 @@ public class PostProjectAnalysisTaskTester {
 
   @Beta
   public static final class ConditionBuilder {
-    private static final String METRIC_KEY_CAN_NOT_BE_NULL = "metricKey can not be null";
-    private static final String OPERATOR_CAN_NOT_BE_NULL = "operator can not be null";
+    private static final String METRIC_KEY_CAN_NOT_BE_NULL = "metricKey cannot be null";
+    private static final String OPERATOR_CAN_NOT_BE_NULL = "operator cannot be null";
 
     private String metricKey;
     private QualityGate.Operator operator;
@@ -472,9 +471,9 @@ public class PostProjectAnalysisTaskTester {
 
     public QualityGate.Condition build(final QualityGate.EvaluationStatus status, final String value) {
       checkCommonProperties();
-      requireNonNull(status, "status can not be null");
-      checkArgument(status != QualityGate.EvaluationStatus.NO_VALUE, "status can not be NO_VALUE, use method buildNoValue() instead");
-      requireNonNull(value, "value can not be null, use method buildNoValue() instead");
+      requireNonNull(status, STATUS_CAN_NOT_BE_NULL);
+      checkArgument(status != QualityGate.EvaluationStatus.NO_VALUE, "status cannot be NO_VALUE, use method buildNoValue() instead");
+      requireNonNull(value, "value cannot be null, use method buildNoValue() instead");
       return new QualityGate.Condition() {
         @Override
         public QualityGate.EvaluationStatus getStatus() {

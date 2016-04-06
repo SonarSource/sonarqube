@@ -24,7 +24,6 @@ import javax.annotation.CheckForNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.batch.bootstrap.AbstractAnalysisMode;
 import org.sonar.batch.bootstrap.GlobalProperties;
 import org.sonar.batch.mediumtest.FakePluginInstaller;
@@ -32,7 +31,7 @@ import org.sonar.batch.mediumtest.FakePluginInstaller;
 /**
  * @since 4.0
  */
-public class DefaultAnalysisMode extends AbstractAnalysisMode implements AnalysisMode {
+public class DefaultAnalysisMode extends AbstractAnalysisMode {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultAnalysisMode.class);
   private static final String KEY_SCAN_ALL = "sonar.scanAllFiles";

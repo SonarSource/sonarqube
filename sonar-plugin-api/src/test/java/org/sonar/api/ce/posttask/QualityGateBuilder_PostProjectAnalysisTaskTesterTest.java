@@ -42,7 +42,7 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setId_throws_NPE_if_id_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id can not be null");
+    expectedException.expectMessage("id cannot be null");
 
     underTest.setId(null);
   }
@@ -50,7 +50,7 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setStatus_throws_NPE_if_status_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
+    expectedException.expectMessage("status cannot be null");
 
     underTest.setStatus(null);
   }
@@ -58,7 +58,7 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setName_throws_NPE_if_name_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can not be null");
+    expectedException.expectMessage("name cannot be null");
 
     underTest.setName(null);
   }
@@ -66,7 +66,7 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void addCondition_throws_NPE_if_condition_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("condition can not be null");
+    expectedException.expectMessage("condition cannot be null");
 
     underTest.add(null);
   }
@@ -92,7 +92,7 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setStatus(SOME_STATUS).setName(SOME_NAME);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id can not be null");
+    expectedException.expectMessage("id cannot be null");
 
     underTest.build();
   }
@@ -102,7 +102,7 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setId(SOME_ID).setName(SOME_NAME);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
+    expectedException.expectMessage("status cannot be null");
 
     underTest.build();
   }
@@ -112,7 +112,7 @@ public class QualityGateBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setId(SOME_ID).setStatus(SOME_STATUS);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can not be null");
+    expectedException.expectMessage("name cannot be null");
 
     underTest.build();
   }

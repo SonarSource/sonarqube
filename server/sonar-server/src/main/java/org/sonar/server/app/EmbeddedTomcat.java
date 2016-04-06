@@ -60,7 +60,7 @@ class EmbeddedTomcat {
     webappContext = new TomcatContexts().configure(tomcat, props);
     try {
       tomcat.start();
-      new TomcatStartupLogs(props, Loggers.get(getClass())).log(tomcat);
+      new TomcatStartupLogs(Loggers.get(getClass())).log(tomcat);
     } catch (LifecycleException e) {
       Throwables.propagate(e);
     }

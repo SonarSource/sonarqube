@@ -23,15 +23,12 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.log.Logger;
-import org.sonar.process.Props;
 
 class TomcatStartupLogs {
 
   private final Logger log;
-  private final Props props;
 
-  TomcatStartupLogs(Props props, Logger log) {
-    this.props = props;
+  TomcatStartupLogs(Logger log) {
     this.log = log;
   }
 

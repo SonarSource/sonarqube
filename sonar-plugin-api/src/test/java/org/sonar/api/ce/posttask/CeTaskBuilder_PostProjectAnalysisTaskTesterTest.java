@@ -37,7 +37,7 @@ public class CeTaskBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setId_throws_NPE_if_id_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id can not be null");
+    expectedException.expectMessage("id cannot be null");
 
     underTest.setId(null);
   }
@@ -45,7 +45,7 @@ public class CeTaskBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setStatus_throws_NPE_if_status_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
+    expectedException.expectMessage("status cannot be null");
 
     underTest.setStatus(null);
   }
@@ -55,7 +55,7 @@ public class CeTaskBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setStatus(SOME_STATUS);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("id can not be null");
+    expectedException.expectMessage("id cannot be null");
 
     underTest.build();
   }
@@ -65,7 +65,7 @@ public class CeTaskBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setId(SOME_ID);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
+    expectedException.expectMessage("status cannot be null");
 
     underTest.build();
   }

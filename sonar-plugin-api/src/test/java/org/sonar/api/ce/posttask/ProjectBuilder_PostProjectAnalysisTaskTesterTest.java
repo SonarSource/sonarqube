@@ -38,7 +38,7 @@ public class ProjectBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setKey_throws_NPE_if_key_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key can not be null");
+    expectedException.expectMessage("key cannot be null");
 
     underTest.setKey(null);
   }
@@ -46,7 +46,7 @@ public class ProjectBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setName_throws_NPE_if_name_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can not be null");
+    expectedException.expectMessage("name cannot be null");
 
     underTest.setName(null);
   }
@@ -54,7 +54,7 @@ public class ProjectBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setUuid_throws_NPE_if_uuid_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid can not be null");
+    expectedException.expectMessage("uuid cannot be null");
 
     underTest.setUuid(null);
   }
@@ -64,7 +64,7 @@ public class ProjectBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setUuid(SOME_UUID).setName(SOME_NAME);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("key can not be null");
+    expectedException.expectMessage("key cannot be null");
 
     underTest.build();
   }
@@ -74,7 +74,7 @@ public class ProjectBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setUuid(SOME_UUID).setKey(SOME_KEY);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("name can not be null");
+    expectedException.expectMessage("name cannot be null");
 
 
     underTest.build();
@@ -85,7 +85,7 @@ public class ProjectBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setKey(SOME_KEY).setName(SOME_NAME);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("uuid can not be null");
+    expectedException.expectMessage("uuid cannot be null");
 
     underTest.build();
   }

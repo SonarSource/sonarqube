@@ -43,7 +43,7 @@ public class PostProjectAnalysisTaskTesterTest {
   @Test
   public void of_throws_NPE_if_PostProjectAnalysisTask_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("PostProjectAnalysisTask instance can not be null");
+    expectedException.expectMessage("PostProjectAnalysisTask instance cannot be null");
 
     PostProjectAnalysisTaskTester.of(null);
   }
@@ -51,7 +51,7 @@ public class PostProjectAnalysisTaskTesterTest {
   @Test
   public void withCeTask_throws_NPE_if_ceTask_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("ceTask can not be null");
+    expectedException.expectMessage("ceTask cannot be null");
 
     underTest.withCeTask(null);
   }
@@ -59,7 +59,7 @@ public class PostProjectAnalysisTaskTesterTest {
   @Test
   public void withProject_throws_NPE_if_project_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("project can not be null");
+    expectedException.expectMessage("project cannot be null");
 
     underTest.withProject(null);
   }
@@ -67,7 +67,7 @@ public class PostProjectAnalysisTaskTesterTest {
   @Test
   public void at_throws_NPE_if_date_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("date can not be null");
+    expectedException.expectMessage("date cannot be null");
 
     underTest.at(null);
   }
@@ -82,7 +82,7 @@ public class PostProjectAnalysisTaskTesterTest {
     underTest.withProject(project).at(someDate);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("ceTask can not be null");
+    expectedException.expectMessage("ceTask cannot be null");
 
     underTest.execute();
   }
@@ -92,7 +92,7 @@ public class PostProjectAnalysisTaskTesterTest {
     underTest.withCeTask(ceTask).at(someDate);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("project can not be null");
+    expectedException.expectMessage("project cannot be null");
 
     underTest.execute();
   }
@@ -130,7 +130,7 @@ public class PostProjectAnalysisTaskTesterTest {
     underTest.withCeTask(ceTask).withProject(project);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("date can not be null");
+    expectedException.expectMessage("date cannot be null");
 
     underTest.execute();
   }

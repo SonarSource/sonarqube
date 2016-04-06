@@ -37,8 +37,7 @@ public class StartupLogsTest {
 
   Tomcat tomcat = mock(Tomcat.class, Mockito.RETURNS_DEEP_STUBS);
   Logger logger = mock(Logger.class);
-  Props props = new Props(new Properties());
-  TomcatStartupLogs underTest = new TomcatStartupLogs(props, logger);
+  TomcatStartupLogs underTest = new TomcatStartupLogs(logger);
 
   @Test
   public void logAjp() {

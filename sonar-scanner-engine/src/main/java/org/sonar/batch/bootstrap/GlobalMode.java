@@ -19,13 +19,11 @@
  */
 package org.sonar.batch.bootstrap;
 
-import org.sonar.api.CoreProperties;
-
-import org.sonar.api.batch.AnalysisMode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.sonar.api.CoreProperties;
 
-public class GlobalMode extends AbstractAnalysisMode implements AnalysisMode {
+public class GlobalMode extends AbstractAnalysisMode {
   private static final Logger LOG = LoggerFactory.getLogger(GlobalMode.class);
 
   public GlobalMode(GlobalProperties props) {

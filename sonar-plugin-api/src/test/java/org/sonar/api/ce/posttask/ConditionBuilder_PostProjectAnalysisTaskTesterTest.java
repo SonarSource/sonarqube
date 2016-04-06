@@ -41,7 +41,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setMetricKey_throws_NPE_if_operator_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("metricKey can not be null");
+    expectedException.expectMessage("metricKey cannot be null");
 
     underTest.setMetricKey(null);
   }
@@ -49,7 +49,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
   @Test
   public void setOperator_throws_NPE_if_operator_is_null() {
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("operator can not be null");
+    expectedException.expectMessage("operator cannot be null");
 
     underTest.setOperator(null);
   }
@@ -59,7 +59,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("metricKey can not be null");
+    expectedException.expectMessage("metricKey cannot be null");
 
     underTest.buildNoValue();
   }
@@ -69,7 +69,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setMetricKey(SOME_METRIC_KEY).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("operator can not be null");
+    expectedException.expectMessage("operator cannot be null");
 
     underTest.buildNoValue();
   }
@@ -151,7 +151,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     initValidBuilder();
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("status can not be null");
+    expectedException.expectMessage("status cannot be null");
 
     underTest.build(null, SOME_VALUE);
   }
@@ -161,7 +161,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     initValidBuilder();
 
     expectedException.expect(IllegalArgumentException.class);
-    expectedException.expectMessage("status can not be NO_VALUE, use method buildNoValue() instead");
+    expectedException.expectMessage("status cannot be NO_VALUE, use method buildNoValue() instead");
 
     underTest.build(QualityGate.EvaluationStatus.NO_VALUE, SOME_VALUE);
   }
@@ -171,7 +171,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     initValidBuilder();
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("value can not be null, use method buildNoValue() instead");
+    expectedException.expectMessage("value cannot be null, use method buildNoValue() instead");
 
     underTest.build(SOME_STATUS_BUT_NO_VALUE, null);
   }
@@ -181,7 +181,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setOperator(SOME_OPERATOR).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("metricKey can not be null");
+    expectedException.expectMessage("metricKey cannot be null");
 
     underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE);
   }
@@ -191,7 +191,7 @@ public class ConditionBuilder_PostProjectAnalysisTaskTesterTest {
     underTest.setMetricKey(SOME_METRIC_KEY).setErrorThreshold(SOME_ERROR_THRESHOLD).setWarningThreshold(SOME_WARNING_THRESHOLD);
 
     expectedException.expect(NullPointerException.class);
-    expectedException.expectMessage("operator can not be null");
+    expectedException.expectMessage("operator cannot be null");
 
     underTest.build(SOME_STATUS_BUT_NO_VALUE, SOME_VALUE);
   }
