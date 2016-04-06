@@ -86,21 +86,17 @@ module.exports = {
         }
       },
       {
-        test: require.resolve('jquery'),
-        loader: 'expose?$!expose?jQuery'
-      },
-      {
-        test: require.resolve('underscore'),
-        loader: 'expose?_'
-      },
-      {
-        test: require.resolve('d3'),
-        loader: 'expose?d3'
-      },
-      {
         test: /\.css/,
         loader: 'style-loader!css-loader!postcss-loader'
-      }
+      },
+      { test: require.resolve('jquery'), loader: 'expose?$!expose?jQuery' },
+      { test: require.resolve('underscore'), loader: 'expose?_' },
+      { test: require.resolve('backbone'), loader: 'expose?Backbone' },
+      { test: require.resolve('backbone.marionette'), loader: 'expose?Marionette' },
+      { test: require.resolve('d3'), loader: 'expose?d3' },
+      { test: require.resolve('react'), loader: 'expose?React' },
+      { test: require.resolve('react-dom'), loader: 'expose?ReactDOM' },
+      { test: require.resolve('react-dom'), loader: 'expose?ReactDOM' }
     ]
   },
   postcss: function () {

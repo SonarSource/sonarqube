@@ -21,16 +21,11 @@ import 'babel-polyfill';
 import $ from 'jquery';
 import _ from 'underscore';
 import Backbone from 'backbone';
-import Marionette from 'backbone.marionette';
 import 'whatwg-fetch';
 import moment from 'moment';
-import numeral from 'numeral';
 import './processes';
 import Navigation from './nav/app';
 import { installGlobal, requestMessages } from '../helpers/l10n';
-import React from 'react';
-import ReactDOM from 'react-dom';
-import d3 from 'd3';
 import * as measures from '../helpers/measures';
 import * as request from '../helpers/request';
 
@@ -83,28 +78,5 @@ window.sonarqube.appStarted = Promise.resolve()
     .then(startNavigation)
     .then(prepareAppOptions);
 
-// expose libraries
-window.require = module => {
-  switch (module) {
-    case 'backbone':
-      return Backbone;
-    case 'backbone.marionette':
-      return Marionette;
-    case 'moment':
-      return moment;
-    case 'numeral':
-      return numeral;
-    case 'react':
-      return React;
-    case 'react-dom':
-      return ReactDOM;
-    case 'd3':
-      return d3;
-    case 'sonar-measures':
-      return measures;
-    case 'sonar-request':
-      return request;
-    default:
-      return null;
-  }
-};
+window.SonarMeasures = measures;
+window.SonarRequest = request;
