@@ -22,23 +22,23 @@ import Backbone from 'backbone';
 export default Backbone.Model.extend({
 
   validate () {
-    if (!this.has('type')) {
+    if (!this.has('__type__')) {
       return 'type is missing';
     }
-    if (this.get('type') === 'component' && !this.has('uuid')) {
+    if (this.get('__type__') === 'component' && !this.has('uuid')) {
       return 'uuid is missing';
     }
-    if (this.get('type') === 'rule' && !this.has('key')) {
+    if (this.get('__type__') === 'rule' && !this.has('key')) {
       return 'key is missing';
     }
   },
 
   isComponent () {
-    return this.get('type') === 'component';
+    return this.get('__type__') === 'component';
   },
 
   isRule () {
-    return this.get('type') === 'rule';
+    return this.get('__type__') === 'rule';
   },
 
   destroy (options) {
@@ -46,4 +46,3 @@ export default Backbone.Model.extend({
     this.trigger('destroy', this, this.collection, options);
   }
 });
-

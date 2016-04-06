@@ -75,11 +75,11 @@ Workspace.prototype = {
   },
 
   openComponent (options) {
-    return this.open(_.extend(options, { type: 'component' }));
+    return this.open(_.extend(options, { '__type__': 'component' }));
   },
 
   openRule (options) {
-    return this.open(_.extend(options, { type: 'rule' }));
+    return this.open(_.extend(options, { '__type__': 'rule' }));
   },
 
   showViewer (Viewer, model) {
@@ -142,4 +142,3 @@ Workspace.getInstance = function () {
 };
 
 export default Workspace.getInstance();
-
