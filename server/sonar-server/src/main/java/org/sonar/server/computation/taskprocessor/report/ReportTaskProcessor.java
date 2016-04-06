@@ -83,6 +83,6 @@ public class ReportTaskProcessor implements CeTaskProcessor {
 
   /** safety call to clear ThreadLocal even if Pico container fails to call {@link SettingsLoader#stop()}) */
   private static void ensureThreadLocalIsClean(ComputeEngineContainer ceContainer) {
-    ceContainer.getComponentByType(ThreadLocalSettings.class).remove();
+    ceContainer.getComponentByType(ThreadLocalSettings.class).unload();
   }
 }

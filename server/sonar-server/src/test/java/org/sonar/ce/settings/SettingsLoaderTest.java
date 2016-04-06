@@ -41,7 +41,7 @@ public class SettingsLoaderTest {
   public void stop_calls_ThreadLocalSettings_remove() {
     underTest.stop();
 
-    verify(threadLocalSettings).remove();
+    verify(threadLocalSettings).unload();
     verifyNoMoreInteractions(threadLocalSettings);
   }
 }

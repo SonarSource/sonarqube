@@ -41,6 +41,6 @@ public class SettingsLoader implements Startable {
 
   @Override
   public void stop() {
-    threadLocalSettings.remove();
+    threadLocalSettings.unload();
   }
 }

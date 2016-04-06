@@ -71,13 +71,13 @@ public class ComputeEngineSettings extends Settings implements ThreadLocalSettin
   public void load() {
     checkState(
       this.threadLocalDelegate.get() == null,
-      "loadLocal called twice for Thread '%' or state wasn't cleared last time it was used",
+      "loadLocal called twice for Thread '%s' or state wasn't cleared last time it was used",
       Thread.currentThread().getName());
     this.threadLocalDelegate.set(loadServerSettings());
   }
 
   @Override
-  public void remove() {
+  public void unload() {
     this.threadLocalDelegate.remove();
   }
 

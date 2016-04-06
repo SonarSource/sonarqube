@@ -30,5 +30,5 @@ public interface ThreadLocalSettings {
   /**
    * Clears the Settings specific to the current thread (if any).
    */
-  void remove();
+  void unload();
 }
