@@ -70,7 +70,9 @@ public class MeasuresService extends BaseService {
       .setParam(PARAM_COMPONENT_ID, request.getComponentId())
       .setParam(PARAM_COMPONENT_KEY, request.getComponentKey())
       .setParam(PARAM_ADDITIONAL_FIELDS, inlineMultipleParamValue(request.getAdditionalFields()))
-      .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()));
+      .setParam(PARAM_METRIC_KEYS, inlineMultipleParamValue(request.getMetricKeys()))
+      .setParam(PARAM_DEVELOPER_ID, request.getDeveloperId())
+      .setParam(PARAM_DEVELOPER_KEY, request.getDeveloperKey());
 
     return call(getRequest, ComponentWsResponse.parser());
   }

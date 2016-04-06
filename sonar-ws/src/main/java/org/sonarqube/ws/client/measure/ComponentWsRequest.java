@@ -28,6 +28,8 @@ public class ComponentWsRequest {
   private String componentKey;
   private List<String> metricKeys;
   private List<String> additionalFields;
+  private String developerId;
+  private String developerKey;
 
   @CheckForNull
   public String getComponentId() {
@@ -65,6 +67,26 @@ public class ComponentWsRequest {
 
   public ComponentWsRequest setAdditionalFields(@Nullable List<String> additionalFields) {
     this.additionalFields = additionalFields;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDeveloperId() {
+    return developerId;
+  }
+
+  public ComponentWsRequest setDeveloperId(@Nullable String developerId) {
+    this.developerId = developerId;
+    return this;
+  }
+
+  @CheckForNull
+  public String getDeveloperKey() {
+    return developerKey;
+  }
+
+  public ComponentWsRequest setDeveloperKey(@Nullable String developerKey) {
+    this.developerKey = developerKey;
     return this;
   }
 }

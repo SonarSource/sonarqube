@@ -42,12 +42,14 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
+import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
@@ -58,8 +60,9 @@ import static org.sonar.db.metric.MetricTesting.newMetricDto;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
-
 
 public class ComponentActionTest {
   private static final String PROJECT_UUID = "project-uuid";
@@ -141,6 +144,67 @@ public class ComponentActionTest {
   }
 
   @Test
+  public void developer_measure_by_developer_uuid() {
+    ComponentDto developer = newDeveloper("developer-name");
+    componentDb.insertDeveloperAndSnapshot(developer);
+    ComponentDto project = newProjectDto("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    ComponentDto file = newFileDto(project, "file-uuid");
+    SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(file, projectSnapshot);
+    MetricDto ncloc = insertNclocMetric();
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(42.0d).setDeveloperId(null),
+      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(1984.0d).setDeveloperId(developer.getId()));
+    db.commit();
+
+    ComponentWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, "file-uuid")
+      .setParam(PARAM_DEVELOPER_ID, developer.uuid())
+      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+
+    assertThat(result.getComponent().getMeasuresCount()).isEqualTo(1);
+    assertThat(result.getComponent().getMeasures(0).getValue()).isEqualTo("1984");
+  }
+
+  @Test
+  public void developer_measure_by_developer_key() {
+    ComponentDto developer = newDeveloper("developer-name");
+    componentDb.insertDeveloperAndSnapshot(developer);
+    ComponentDto project = newProjectDto(PROJECT_UUID);
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    ComponentDto file = newFileDto(project, "file-uuid");
+    SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(file, projectSnapshot);
+    MetricDto ncloc = insertNclocMetric();
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(42.0d).setDeveloperId(null),
+      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(1984.0d).setDeveloperId(developer.getId()));
+    db.commit();
+
+    ComponentWsResponse result = call(ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, "file-uuid")
+      .setParam(PARAM_DEVELOPER_KEY, developer.key())
+      .setParam(PARAM_METRIC_KEYS, "ncloc"));
+
+    assertThat(result.getComponent().getMeasuresCount()).isEqualTo(1);
+    assertThat(result.getComponent().getMeasures(0).getValue()).isEqualTo("1984");
+  }
+
+  @Test
+  public void fail_when_developer_is_not_found() {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Component id 'unknown-developer-id' not found");
+
+    componentDb.insertProjectAndSnapshot(newProjectDto(PROJECT_UUID));
+    insertNclocMetric();
+
+    call(ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, PROJECT_UUID)
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .setParam(PARAM_DEVELOPER_ID, "unknown-developer-id")
+    );
+  }
+
+  @Test
   public void fail_when_a_metric_is_not_found() {
     componentDb.insertProjectAndSnapshot(newProjectDto(PROJECT_UUID));
     insertNclocMetric();
@@ -174,13 +238,16 @@ public class ComponentActionTest {
   }
 
   private ComponentWsResponse newRequest(String componentUuid, String metricKeys) {
-    InputStream responseStream = ws.newRequest()
-      .setMediaType(MediaTypes.PROTOBUF)
+    return call(ws.newRequest()
       .setParam(PARAM_COMPONENT_ID, componentUuid)
       .setParam(PARAM_METRIC_KEYS, metricKeys)
-      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods")
-      .execute()
-      .getInputStream();
+      .setParam(PARAM_ADDITIONAL_FIELDS, "metrics,periods"));
+  }
+
+  private ComponentWsResponse call(TestRequest request) {
+    InputStream responseStream = request
+      .setMediaType(MediaTypes.PROTOBUF)
+      .execute().getInputStream();
 
     try {
       return ComponentWsResponse.parseFrom(responseStream);

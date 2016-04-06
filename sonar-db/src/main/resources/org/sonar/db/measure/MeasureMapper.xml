@@ -76,7 +76,12 @@
     FROM project_measures pm
     <where>
       pm.snapshot_id = #{snapshotId}
-      AND pm.person_id = #{developerId}
+      <if test="developerId!=null">
+        AND pm.person_id = #{developerId}
+      </if>
+      <if test="developerId==null">
+        AND pm.person_id is NULL
+      </if>
       AND
       <foreach item="metricId" index="index" collection="metricIds" open="(" separator=" or " close=")">
         pm.metric_id=#{metricId}
