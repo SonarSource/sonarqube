@@ -30,13 +30,13 @@ const ComponentsHeader = ({ baseComponent }) => (
           {baseComponent && translate('metric.ncloc.name')}
         </th>
         <th className="thin nowrap text-right code-components-cell">
-          {baseComponent && translate('metric.code_smells.name')}
-        </th>
-        <th className="thin nowrap text-right code-components-cell">
           {baseComponent && translate('metric.bugs.name')}
         </th>
         <th className="thin nowrap text-right code-components-cell">
           {baseComponent && translate('metric.vulnerabilities.name')}
+        </th>
+        <th className="thin nowrap text-right code-components-cell">
+          {baseComponent && translate('metric.code_smells.name')}
         </th>
         <th className="thin nowrap text-right code-components-cell">
           {baseComponent && translate('metric.coverage.name')}
