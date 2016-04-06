@@ -18,13 +18,19 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getComponentTree } from '../../../api/components';
-import { enhanceWithSingleMeasure } from '../utils';
+import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
+import complementary from '../config/complementary';
 
 export const UPDATE_STORE = 'drilldown/list/UPDATE_STORE';
 
 function updateStore (state) {
   return { type: UPDATE_STORE, state };
+}
+
+function getComplementary (metric) {
+  const comp = complementary[metric] || [];
+  return [metric, ...comp];
 }
 
 function makeRequest (baseComponent, metric, options, periodIndex = 1) {
@@ -46,14 +52,14 @@ function makeRequest (baseComponent, metric, options, periodIndex = 1) {
   }
 
   Object.assign(finalOptions, options);
-  return getComponentTree('leaves', baseComponent.key, [metric.key], finalOptions);
+  return getComponentTree('leaves', baseComponent.key, getComplementary(metric.key), finalOptions);
 }
 
 function fetchLeaves (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
   return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
-    const nextComponents = enhanceWithSingleMeasure(r.components, periodIndex);
+    const nextComponents = enhanceWithMeasure(r.components, metric.key, periodIndex);
 
     return {
       components: nextComponents,

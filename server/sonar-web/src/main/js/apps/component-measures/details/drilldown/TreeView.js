@@ -89,7 +89,7 @@ export default class TreeView extends React.Component {
   }
 
   render () {
-    const { components, breadcrumbs, metric, leakPeriod, selected, fetching, total } = this.props;
+    const { components, metrics, breadcrumbs, metric, leakPeriod, selected, fetching, total } = this.props;
     const { onSelectNext, onSelectPrevious, onFetchMore } = this.props;
 
     const selectedIndex = components.indexOf(selected);
@@ -111,6 +111,7 @@ export default class TreeView extends React.Component {
                 {(!fetching || components.length !== 0) ? (
                     <ComponentsList
                         components={components}
+                        metrics={metrics}
                         selected={selected}
                         metric={metric}
                         onClick={this.handleClick.bind(this)}/>

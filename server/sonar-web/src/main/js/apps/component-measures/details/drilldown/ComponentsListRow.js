@@ -22,10 +22,23 @@ import React from 'react';
 import ComponentCell from './ComponentCell';
 import MeasureCell from './MeasureCell';
 
-const ComponentsListRow = ({ component, isSelected, metric, onClick }) => {
+const replaceMeasure = (component, measure) => {
+  return {
+    ...component,
+    value: measure.value,
+    leak: measure.leak
+  };
+};
+
+const ComponentsListRow = ({ component, otherMetrics, isSelected, metric, onClick }) => {
   const handleClick = () => {
     onClick(component);
   };
+
+  const otherMeasures = otherMetrics.map(metric => {
+    const measure = component.measures.find(measure => measure.metric === metric.key);
+    return { ...measure, metric };
+  });
 
   return (
       <tr>
@@ -37,6 +50,13 @@ const ComponentsListRow = ({ component, isSelected, metric, onClick }) => {
         <MeasureCell
             component={component}
             metric={metric}/>
+
+        {otherMeasures.map(measure => (
+            <MeasureCell
+                key={measure.metric.key}
+                component={replaceMeasure(component, measure)}
+                metric={measure.metric}/>
+        ))}
       </tr>
   );
 };

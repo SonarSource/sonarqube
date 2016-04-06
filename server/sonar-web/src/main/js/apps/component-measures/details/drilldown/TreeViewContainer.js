@@ -42,6 +42,7 @@ const mapStateToProps = state => {
   return {
     ...drilldown,
     component: state.app.component,
+    metrics: state.app.metrics,
     metric: state.details.metric,
     fetching: state.status.fetching
   };

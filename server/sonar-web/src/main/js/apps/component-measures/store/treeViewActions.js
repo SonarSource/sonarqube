@@ -20,8 +20,9 @@
 import initial from 'lodash/initial';
 
 import { getComponentTree } from '../../../api/components';
-import { enhanceWithSingleMeasure } from '../utils';
+import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
+import complementary from '../config/complementary';
 
 /*
  * Actions
@@ -59,6 +60,11 @@ function init (rootComponent, metric, periodIndex = 1) {
  * Workflow
  */
 
+function getComplementary (metric) {
+  const comp = complementary[metric] || [];
+  return [metric, ...comp];
+}
+
 function makeRequest (baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
   const ps = 100;
@@ -78,14 +84,14 @@ function makeRequest (baseComponent, metric, options, periodIndex = 1) {
   }
 
   Object.assign(finalOptions, options);
-  return getComponentTree('children', baseComponent.key, [metric.key], finalOptions);
+  return getComponentTree('children', baseComponent.key, getComplementary(metric.key), finalOptions);
 }
 
 function fetchComponents (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
   return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
-    const nextComponents = enhanceWithSingleMeasure(r.components, periodIndex);
+    const nextComponents = enhanceWithMeasure(r.components, metric.key, periodIndex);
 
     return {
       baseComponent,

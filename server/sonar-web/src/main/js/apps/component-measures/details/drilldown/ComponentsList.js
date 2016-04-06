@@ -21,23 +21,45 @@ import React from 'react';
 
 import ComponentsListRow from './ComponentsListRow';
 import EmptyComponentsList from './EmptyComponentsList';
+import complementary from '../../config/complementary';
 
-const ComponentsList = ({ components, selected, metric, onClick }) => {
+const ComponentsList = ({ components, metrics, selected, metric, onClick }) => {
   if (!components.length) {
     return <EmptyComponentsList/>;
   }
 
+  const otherMetrics = (complementary[metric.key] || []).map(metric => {
+    return metrics.find(m => m.key === metric);
+  });
+
   return (
       <table className="data zebra zebra-hover">
+        {otherMetrics.length > 0 && (
+            <thead>
+              <tr>
+                <th>&nbsp;</th>
+                <th className="text-right">
+                  <span className="small">{metric.name}</span>
+                </th>
+                {otherMetrics.map(metric => (
+                    <th key={metric.key} className="text-right">
+                      <span className="small">{metric.name}</span>
+                    </th>
+                ))}
+              </tr>
+            </thead>
+        )}
+
         <tbody>
-        {components.map(component => (
-            <ComponentsListRow
-                key={component.id}
-                component={component}
-                isSelected={component === selected}
-                metric={metric}
-                onClick={onClick}/>
-        ))}
+          {components.map(component => (
+              <ComponentsListRow
+                  key={component.id}
+                  component={component}
+                  otherMetrics={otherMetrics}
+                  isSelected={component === selected}
+                  metric={metric}
+                  onClick={onClick}/>
+          ))}
         </tbody>
       </table>
   );

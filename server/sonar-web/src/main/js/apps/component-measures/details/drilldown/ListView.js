@@ -87,7 +87,7 @@ export default class ListView extends React.Component {
   }
 
   render () {
-    const { component, components, metric, leakPeriod, selected, fetching, total } = this.props;
+    const { component, components, metrics, metric, leakPeriod, selected, fetching, total } = this.props;
     const { onSelectNext, onSelectPrevious } = this.props;
 
     const breadcrumbs = [component];
@@ -113,6 +113,7 @@ export default class ListView extends React.Component {
                 {(!fetching || components.length !== 0) ? (
                     <ComponentsList
                         components={components}
+                        metrics={metrics}
                         selected={selected}
                         metric={metric}
                         onClick={this.handleClick.bind(this)}/>

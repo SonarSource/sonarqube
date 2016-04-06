@@ -87,6 +87,17 @@ export function enhanceWithSingleMeasure (components, periodIndex = 1) {
       });
 }
 
+export function enhanceWithMeasure (components, metric, periodIndex = 1) {
+  return components
+      .map(component => {
+        const measuresWithLeak = enhanceWithLeak(component.measures, periodIndex);
+        const measure = measuresWithLeak.find(measure => measure.metric === metric);
+        const value = measure ? measure.value : null;
+        const leak = measure ? measure.leak : null;
+        return { ...component, value, leak, measures: measuresWithLeak };
+      });
+}
+
 export function hasHistory (metricKey) {
   return metricKey.indexOf('new_') !== 0;
 }
