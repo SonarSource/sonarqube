@@ -21,7 +21,7 @@ import { connect } from 'react-redux';
 import pick from '../../../../../../../node_modules/lodash/pick';
 
 import ListView from './ListView';
-import { fetchList, fetchMore, selectComponent, selectNext, selectPrevious } from '../../store/listViewActions';
+import { fetchList, selectComponent, selectNext, selectPrevious } from '../../store/listViewActions';
 
 const mapStateToProps = state => {
   const drilldown = pick(state.list, [
@@ -42,7 +42,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onFetchList: (baseComponent, metric, periodIndex) => dispatch(fetchList(baseComponent, metric, periodIndex)),
-    onFetchMore: (baseComponent, metric) => dispatch(fetchMore(baseComponent, metric)),
     onSelect: component => dispatch(selectComponent(component)),
     onSelectNext: component => dispatch(selectNext(component)),
     onSelectPrevious: component => dispatch(selectPrevious(component))

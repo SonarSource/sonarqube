@@ -109,3 +109,7 @@ export function hasBubbleChart (domainName) {
 export function hasTreemap (metric) {
   return ['PERCENT', 'RATING', 'LEVEL'].indexOf(metric.type) !== -1;
 }
+
+export function filterOutEmptyMeasures (components) {
+  return components.filter(component => component.value !== null || component.leak !== null);
+}

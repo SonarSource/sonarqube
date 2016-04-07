@@ -23,7 +23,6 @@ import ComponentsList from './ComponentsList';
 import ListHeader from './ListHeader';
 import Spinner from '../../components/Spinner';
 import SourceViewer from '../../../code/components/SourceViewer';
-import ListFooter from '../../../../components/shared/list-footer';
 
 export default class TreeView extends React.Component {
   componentDidMount () {
@@ -89,8 +88,8 @@ export default class TreeView extends React.Component {
   }
 
   render () {
-    const { components, metrics, breadcrumbs, metric, leakPeriod, selected, fetching, total } = this.props;
-    const { onSelectNext, onSelectPrevious, onFetchMore } = this.props;
+    const { components, metrics, breadcrumbs, metric, leakPeriod, selected, fetching } = this.props;
+    const { onSelectNext, onSelectPrevious } = this.props;
 
     const selectedIndex = components.indexOf(selected);
     const sourceViewerPeriod = metric.key.indexOf('new_') === 0 && !!leakPeriod ? leakPeriod : null;
@@ -118,11 +117,6 @@ export default class TreeView extends React.Component {
                 ) : (
                     <Spinner/>
                 )}
-                <ListFooter
-                    count={components.length}
-                    total={total}
-                    loadMore={onFetchMore}
-                    ready={!fetching}/>
               </div>
           )}
 

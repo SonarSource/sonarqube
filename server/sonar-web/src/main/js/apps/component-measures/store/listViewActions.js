@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getComponentTree } from '../../../api/components';
-import { enhanceWithMeasure } from '../utils';
+import { enhanceWithMeasure, filterOutEmptyMeasures } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
 
@@ -35,7 +35,7 @@ function getComplementary (metric) {
 
 function makeRequest (baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
-  const ps = 100;
+  const ps = 200;
   const finalOptions = { asc, ps };
 
   if (metric.key.indexOf('new_') === 0) {
@@ -59,7 +59,7 @@ function fetchLeaves (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
   return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
-    const nextComponents = enhanceWithMeasure(r.components, metric.key, periodIndex);
+    const nextComponents = filterOutEmptyMeasures(enhanceWithMeasure(r.components, metric.key, periodIndex));
 
     return {
       components: nextComponents,
@@ -89,23 +89,6 @@ export function fetchList (baseComponent, metric, periodIndex = 1) {
         baseComponent,
         metric
       }));
-      dispatch(stopFetching());
-    });
-  };
-}
-
-/**
- * Fetch next page of components
- * @param baseComponent
- * @param metric
- */
-export function fetchMore (baseComponent, metric) {
-  return (dispatch, getState) => {
-    const { components, pageIndex } = getState().list;
-    dispatch(startFetching());
-    return fetchLeaves(baseComponent, metric, pageIndex + 1).then(r => {
-      const diff = { ...r, components: [...components, ...r.components] };
-      dispatch(updateStore(diff));
       dispatch(stopFetching());
     });
   };

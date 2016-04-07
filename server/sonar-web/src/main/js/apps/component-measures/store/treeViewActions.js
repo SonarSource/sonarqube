@@ -20,7 +20,7 @@
 import initial from 'lodash/initial';
 
 import { getComponentTree } from '../../../api/components';
-import { enhanceWithMeasure } from '../utils';
+import { filterOutEmptyMeasures, enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
 
@@ -91,7 +91,7 @@ function fetchComponents (baseComponent, metric, pageIndex = 1, periodIndex = 1)
   const options = { p: pageIndex };
 
   return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
-    const nextComponents = enhanceWithMeasure(r.components, metric.key, periodIndex);
+    const nextComponents = filterOutEmptyMeasures(enhanceWithMeasure(r.components, metric.key, periodIndex));
 
     return {
       baseComponent,
@@ -139,23 +139,6 @@ export function start (rootComponent, metric, periodIndex = 1) {
 
     dispatch(init(rootComponent, metric, periodIndex));
     dispatch(fetchList(rootComponent));
-  };
-}
-
-/**
- * Fetch next page of components
- */
-export function fetchMore () {
-  return (dispatch, getState) => {
-    const { metric, baseComponent, components, pageIndex, periodIndex } = getState().tree;
-    dispatch(startFetching());
-    return fetchComponents(baseComponent, metric, pageIndex + 1, periodIndex).then(r => {
-      dispatch(updateStore({
-        ...r,
-        components: [...components, ...r.components]
-      }));
-      dispatch(stopFetching());
-    });
   };
 }
 

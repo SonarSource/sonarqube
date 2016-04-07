@@ -23,7 +23,6 @@ import pick from '../../../../../../../node_modules/lodash/pick';
 import TreeView from './TreeView';
 import {
     start,
-    fetchMore,
     drilldown,
     useBreadcrumbs,
     selectComponent,
@@ -51,7 +50,6 @@ const mapStateToProps = state => {
 const mapDispatchToProps = dispatch => {
   return {
     onStart: (rootComponent, metric, periodIndex) => dispatch(start(rootComponent, metric, periodIndex)),
-    onFetchMore: () => dispatch(fetchMore()),
     onDrilldown: component => dispatch(drilldown(component)),
     onUseBreadcrumbs: component => dispatch(useBreadcrumbs(component)),
     onSelect: component => dispatch(selectComponent(component)),
