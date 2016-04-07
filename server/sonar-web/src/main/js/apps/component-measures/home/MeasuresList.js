@@ -21,14 +21,13 @@ import React from 'react';
 import { Link } from 'react-router';
 import classNames from 'classnames';
 
-import Measure from '../components/Measure';
-import { formatLeak } from '../utils';
+import MeasureListValue from './MeasureListValue';
 
 const shouldPutSpace = (spaces, measure, index) => {
   return index !== 0 && spaces.includes(measure.metric.key);
 };
 
-const MeasuresList = ({ measures, hasLeak, component, spaces }) => {
+const MeasuresList = ({ measures, component, spaces }) => {
   return (
       <ul className="domain-measures">
         {measures.map((measure, index) => (
@@ -42,20 +41,8 @@ const MeasuresList = ({ measures, hasLeak, component, spaces }) => {
                       {measure.metric.name}
                     </span>
                 </div>
-                <div className="domain-measures-value">
-                  {measure.value != null && (
-                      <span id={`measure-${measure.metric.key}-value`}>
-                        <Measure measure={measure}/>
-                      </span>
-                  )}
-                </div>
-                {hasLeak && measure.leak != null && measure.metric.type !== 'RATING' && (
-                    <div className="domain-measures-value domain-measures-leak">
-                        <span id={`measure-${measure.metric.key}-leak`}>
-                          {formatLeak(measure.leak, measure.metric)}
-                        </span>
-                    </div>
-                )}
+
+                <MeasureListValue measure={measure}/>
               </Link>
             </li>
         ))}
