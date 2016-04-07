@@ -59,13 +59,15 @@ export const CodeSmells = React.createClass({
     return <DomainLeak>
       <MeasuresList>
         <Measure label={getMetricName('new_effort')}>
-          <DrilldownLink component={this.props.component.key} metric="new_technical_debt">
+          <IssuesLink
+              component={this.props.component.key}
+              params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt', sinceLeakPeriod: 'true' }}>
             <span
                 title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                 data-toggle="tooltip">
               {formatMeasure(newDebt, 'SHORT_WORK_DUR')}
             </span>
-          </DrilldownLink>
+          </IssuesLink>
         </Measure>
         <Measure label={getMetricName('new_code_smells')}>
           <IssuesLink
@@ -120,13 +122,15 @@ export const CodeSmells = React.createClass({
             </Measure>
 
             <Measure label={getMetricName('effort')}>
-              <DrilldownLink component={this.props.component.key} metric="sqale_index">
+              <IssuesLink
+                  component={this.props.component.key}
+                  params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt' }}>
                 <span
                     title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                     data-toggle="tooltip">
                   {formatMeasure(debt, 'SHORT_WORK_DUR')}
                 </span>
-              </DrilldownLink>
+              </IssuesLink>
             </Measure>
           </MeasuresList>
           {this.renderTimeline('before', true)}
