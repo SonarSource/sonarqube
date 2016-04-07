@@ -58,17 +58,6 @@ export const CodeSmells = React.createClass({
 
     return <DomainLeak>
       <MeasuresList>
-        <Measure label={getMetricName('new_effort')}>
-          <IssuesLink
-              component={this.props.component.key}
-              params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt', sinceLeakPeriod: 'true' }}>
-            <span
-                title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
-                data-toggle="tooltip">
-              {formatMeasure(newDebt, 'SHORT_WORK_DUR')}
-            </span>
-          </IssuesLink>
-        </Measure>
         <Measure label={getMetricName('new_code_smells')}>
           <IssuesLink
               component={this.props.component.key}
@@ -77,6 +66,17 @@ export const CodeSmells = React.createClass({
                 title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
                 data-toggle="tooltip">
               {formatMeasure(newCodeSmells, 'SHORT_INT')}
+            </span>
+          </IssuesLink>
+        </Measure>
+        <Measure label={getMetricName('new_effort')}>
+          <IssuesLink
+              component={this.props.component.key}
+              params={{ resolved: 'false', types: 'CODE_SMELL', facetMode: 'debt', sinceLeakPeriod: 'true' }}>
+            <span
+                title={translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate)}
+                data-toggle="tooltip">
+              {formatMeasure(newDebt, 'SHORT_WORK_DUR')}
             </span>
           </IssuesLink>
         </Measure>
