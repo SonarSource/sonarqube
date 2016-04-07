@@ -316,7 +316,7 @@ export default React.createClass({
     return (
         <li className="dropdown">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
-            {translate('sidebar.tools')}&nbsp;
+            {translate('more')}&nbsp;
             <i className="icon-dropdown"/>
           </a>
           <ul className="dropdown-menu">
