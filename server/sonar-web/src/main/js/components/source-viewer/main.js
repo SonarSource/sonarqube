@@ -124,8 +124,10 @@ export default Marionette.LayoutView.extend({
     const opts = typeof options === 'object' ? options : {};
     const finalize = function () {
       that.requestIssues().done(function () {
-        that.render();
-        that.trigger('loaded');
+        if (!that.isDestroyed) {
+          that.render();
+          that.trigger('loaded');
+        }
       });
     };
     _.extend(this.options, _.defaults(opts, { workspace: false }));
