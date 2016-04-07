@@ -739,6 +739,17 @@ public class RuleIndexTest {
     assertThat(index.searchAll(new RuleQuery().setQueryText("javascript:X001"))).hasSize(1);
   }
 
+  @Test
+  public void search_case_insensitive_keys_by_query() {
+    indexRules(
+      newDoc(RuleKey.of("javascript", "X001")),
+      newDoc(RuleKey.of("cobol", "X001")),
+      newDoc(RuleKey.of("php", "S002")));
+
+    // key
+    assertThat(index.searchAll(new RuleQuery().setQueryText("x001"))).hasSize(2);
+  }
+
   private void indexRules(RuleDoc... rules) {
     ruleIndexer.index(asList(rules).iterator());
   }
