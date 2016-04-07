@@ -146,7 +146,6 @@ public class NewIndex {
     private final NewIndexType indexType;
     private final NewIndexType nestedType;
     private final String fieldName;
-    private boolean dynamic = false;
 
     public NestedObjectBuilder(NewIndexType indexType, NewIndexType nestedType, String fieldName) {
       this.indexType = indexType;
@@ -154,18 +153,9 @@ public class NewIndex {
       this.fieldName = fieldName;
     }
 
-    public NestedObjectBuilder dynamic() {
-      this.dynamic = true;
-      return this;
-    }
-
     public void build() {
-      if (dynamic) {
-        indexType.setProperty(fieldName, ImmutableMap.of("type", "nested", "dynamic", "true"));
-      } else {
-        nestedType.setAttribute("type", "nested");
-        indexType.setProperty(fieldName, nestedType.attributes);
-      }
+      nestedType.setAttribute("type", "nested");
+      indexType.setProperty(fieldName, nestedType.attributes);
     }
   }
 
@@ -314,7 +304,7 @@ public class NewIndex {
     return types;
   }
 
-  public void setShards(Settings settings) {
+  public void configureShards(Settings settings) {
     boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
     int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
     if (shards == 0) {

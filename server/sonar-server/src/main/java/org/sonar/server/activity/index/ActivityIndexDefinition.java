@@ -49,7 +49,7 @@ public class ActivityIndexDefinition implements IndexDefinition {
   public void define(IndexDefinitionContext context) {
     NewIndex index = context.create(INDEX);
     index.getSettings().put("analysis.analyzer.default.type", "keyword");
-    index.setShards(settings);
+    index.configureShards(settings);
     index.refreshHandledByIndexer();
 
     // type "activity"

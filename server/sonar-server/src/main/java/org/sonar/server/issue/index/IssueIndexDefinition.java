@@ -91,7 +91,7 @@ public class IssueIndexDefinition implements IndexDefinition {
     NewIndex index = context.create(INDEX);
 
     index.refreshHandledByIndexer();
-    index.setShards(settings);
+    index.configureShards(settings);
 
     // type "authorization"
     NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
