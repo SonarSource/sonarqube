@@ -19,8 +19,18 @@
  */
 import _ from 'underscore';
 
-import { INIT, BROWSE, SEARCH, UPDATE_QUERY, SELECT_NEXT, SELECT_PREV, START_FETCHING, STOP_FETCHING,
-    RAISE_ERROR } from '../actions';
+import {
+    INIT,
+    BROWSE,
+    LOAD_MORE,
+    SEARCH,
+    UPDATE_QUERY,
+    SELECT_NEXT,
+    SELECT_PREV,
+    START_FETCHING,
+    STOP_FETCHING,
+    RAISE_ERROR
+} from '../actions';
 
 function hasSourceCode (component) {
   return component.qualifier === 'FIL' || component.qualifier === 'UTS';
@@ -125,10 +135,18 @@ export function current (state = initialState, action) {
         components,
         breadcrumbs,
         sourceViewer,
+        total: action.total,
+        page: 1,
         searchResults: null,
         searchQuery: '',
         searchSelectedItem: null,
         errorMessage: null
+      };
+    case LOAD_MORE:
+      return {
+        ...state,
+        components: sortChildren([...state.components, ...action.children]),
+        page: action.page
       };
     case SEARCH:
       return {
@@ -172,6 +190,7 @@ export function bucket (state = [], action) {
     case BROWSE:
       const candidate = Object.assign({}, action.component, {
         children: action.children,
+        total: action.total,
         breadcrumbs: action.breadcrumbs
       });
       const nextState = merge(state, candidate);
