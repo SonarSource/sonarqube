@@ -25,7 +25,8 @@ import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './SourceViewer';
 import Search from './Search';
-import { initComponent, browse } from '../actions';
+import ListFooter from '../../../components/shared/list-footer';
+import { initComponent, browse, loadMore } from '../actions';
 
 class Code extends Component {
   componentDidMount () {
@@ -50,6 +51,11 @@ class Code extends Component {
     dispatch(browse(component.key));
   }
 
+  handleLoadMore () {
+    const { dispatch } = this.props;
+    dispatch(loadMore());
+  }
+
   render () {
     const {
         fetching,
@@ -59,7 +65,9 @@ class Code extends Component {
         sourceViewer,
         coverageMetric,
         searchResults,
-        errorMessage } = this.props;
+        errorMessage,
+        total
+    } = this.props;
     const shouldShowSearchResults = !!searchResults;
     const shouldShowSourceViewer = !!sourceViewer;
     const shouldShowComponents = !shouldShowSearchResults && !shouldShowSourceViewer && components;
@@ -109,6 +117,13 @@ class Code extends Component {
               </div>
           )}
 
+          {shouldShowComponents && (
+              <ListFooter
+                  count={components.length}
+                  total={total}
+                  loadMore={this.handleLoadMore.bind(this)}/>
+          )}
+
           {shouldShowSourceViewer && (
               <div className="spacer-top">
                 <SourceViewer component={sourceViewer}/>
@@ -129,6 +144,7 @@ export default connect(state => {
     sourceViewer: state.current.sourceViewer,
     coverageMetric: state.current.coverageMetric,
     searchResults: state.current.searchResults,
-    errorMessage: state.current.errorMessage
+    errorMessage: state.current.errorMessage,
+    total: state.current.total
   };
 })(Code);
