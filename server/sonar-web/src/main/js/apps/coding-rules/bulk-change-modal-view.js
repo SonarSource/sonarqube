@@ -69,23 +69,29 @@ export default ModalFormView.extend({
   sendRequests (url, options, profiles) {
     const that = this;
     let looper = $.Deferred().resolve();
+    this.disableForm();
     profiles.forEach(function (profile) {
       const opts = _.extend({}, options, { profile_key: profile });
       looper = looper.then(function () {
         return $.post(url, opts).done(function (r) {
-          if (r.failed) {
-            that.showWarnMessage(profile, r.succeeded, r.failed);
-          } else {
-            that.showSuccessMessage(profile, r.succeeded);
+          if (!that.isDestroyed) {
+            if (r.failed) {
+              that.showWarnMessage(profile, r.succeeded, r.failed);
+            } else {
+              that.showSuccessMessage(profile, r.succeeded);
+            }
           }
         });
       });
     });
     looper.done(function () {
       that.options.app.controller.fetchList();
-      that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
-      that.$('.modal-field').hide();
-      that.$('.js-modal-close').focus();
+      if (!that.isDestroyed) {
+        that.$(that.ui.codingRulesSubmitBulkChange.selector).hide();
+        that.enableForm();
+        that.$('.modal-field').hide();
+        that.$('.js-modal-close').focus();
+      }
     });
   },
 
