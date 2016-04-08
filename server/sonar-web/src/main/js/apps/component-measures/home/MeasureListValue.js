@@ -29,7 +29,7 @@ const MeasureListValue = ({ measure }) => {
   if (isDiffMetric(metric)) {
     return (
         <div id={`measure-${measure.metric.key}-leak`} className="domain-measures-value domain-measures-leak">
-          {formatMeasure(measure.leak, measure.metric.key)}
+          {formatMeasure(measure.leak, measure.metric.type)}
         </div>
     );
   }
