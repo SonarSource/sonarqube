@@ -313,7 +313,7 @@ describe('Code :: Store', () => {
         const breadcrumbsBefore = [{ key: 'A' }];
 
         const bucketAfter = [
-          { key: 'A', breadcrumbs: [{ key: 'A' }], children: [{ key: 'B' }] },
+          { key: 'A', breadcrumbs: [{ key: 'A' }], children: [{ key: 'B' }], total: 0 },
           { key: 'B', breadcrumbs: [{ key: 'A' }, { key: 'B' }] }
         ];
 
@@ -335,7 +335,8 @@ describe('Code :: Store', () => {
           {
             key: 'A',
             breadcrumbs: [{ key: 'A' }],
-            children: [{ key: 'B' }]
+            children: [{ key: 'B' }],
+            total: 0
           },
           {
             key: 'B',
@@ -360,12 +361,14 @@ describe('Code :: Store', () => {
           {
             key: 'A',
             breadcrumbs: [{ key: 'A' }],
-            children: [{ key: 'B' }]
+            children: [{ key: 'B' }],
+            total: 0
           },
           {
             key: 'B',
             breadcrumbs: [{ key: 'A' }, { key: 'B' }],
-            children: [{ key: 'C' }]
+            children: [{ key: 'C' }],
+            total: 0
           },
           {
             key: 'C',

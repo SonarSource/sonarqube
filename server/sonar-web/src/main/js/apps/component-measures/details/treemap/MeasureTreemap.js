@@ -64,7 +64,7 @@ export default class MeasureTreemap extends React.Component {
     };
 
     return getChildren(componentKey, metrics, options).then(r => {
-      const components = r.map(component => {
+      const components = r.components.map(component => {
         const measures = {};
         const key = component.refKey || component.key;
 

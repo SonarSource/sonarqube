@@ -40,8 +40,11 @@ const METRICS_WITH_COVERAGE = [
   'overall_coverage'
 ];
 
+const PAGE_SIZE = 100;
+
 export const INIT = 'INIT';
 export const BROWSE = 'BROWSE';
+export const LOAD_MORE = 'LOAD_MORE';
 export const SEARCH = 'SEARCH';
 export const SELECT_NEXT = 'SELECT_NEXT';
 export const SELECT_PREV = 'SELECT_PREV';
@@ -58,12 +61,21 @@ export function initComponentAction (component, breadcrumbs = []) {
   };
 }
 
-export function browseAction (component, children = [], breadcrumbs = []) {
+export function browseAction (component, children = [], breadcrumbs = [], total = 0) {
   return {
     type: BROWSE,
     component,
     children,
-    breadcrumbs
+    breadcrumbs,
+    total
+  };
+}
+
+export function loadMoreAction (children, page) {
+  return {
+    type: LOAD_MORE,
+    children,
+    page
   };
 }
 
@@ -108,15 +120,21 @@ function getPath (componentKey) {
   return '/' + encodeURIComponent(componentKey);
 }
 
-function expandRootDir (components) {
-  const rootDir = components.find(component => component.qualifier === 'DIR' && component.name === '/');
+function expandRootDir ({ children, total, ...other }) {
+  const rootDir = children.find(component => component.qualifier === 'DIR' && component.name === '/');
   if (rootDir) {
-    return getChildren(rootDir.key, METRICS_WITH_COVERAGE).then(files => {
-      return _.without([...components, ...files], rootDir);
+    return getChildren(rootDir.key, METRICS_WITH_COVERAGE).then(r => {
+      const nextChildren = _.without([...children, ...r.components], rootDir);
+      const nextTotal = total + r.components.length - /* root dir */ 1;
+      return { children: nextChildren, total: nextTotal, ...other };
     });
   } else {
-    return components;
+    return { children, total, ...other };
   }
+}
+
+function prepareChildren (r) {
+  return { children: r.components, total: r.paging.total, page: r.paging.pageIndex };
 }
 
 function skipRootDir (breadcrumbs) {
@@ -133,8 +151,8 @@ function retrieveComponentBase (componentKey, candidate) {
 
 function retrieveComponentChildren (componentKey, candidate) {
   return candidate && candidate.children ?
-      Promise.resolve(candidate.children) :
-      getChildren(componentKey, METRICS_WITH_COVERAGE).then(expandRootDir);
+      Promise.resolve({ children: candidate.children, total: candidate.total }) :
+      getChildren(componentKey, METRICS_WITH_COVERAGE, { ps: PAGE_SIZE }).then(prepareChildren).then(expandRootDir);
 }
 
 function retrieveComponentBreadcrumbs (componentKey, candidate) {
@@ -195,11 +213,27 @@ export function browse (componentKey) {
             window.location = getComponentUrl(component.refKey);
             return new Promise();
           } else {
-            dispatch(browseAction(component, children, breadcrumbs));
+            dispatch(browseAction(component, children.children, breadcrumbs, children.total));
           }
         })
         .then(() => dispatch(pushPath(getPath(componentKey))))
         .then(() => dispatch(stopFetching()))
+        .catch(e => {
+          getErrorMessage(e.response)
+              .then(message => dispatch(raiseError(message)));
+        });
+  };
+}
+
+export function loadMore () {
+  return (dispatch, getState) => {
+    const { baseComponent, page } = getState().current;
+    return getChildren(baseComponent.key, METRICS_WITH_COVERAGE, { p: page + 1, ps: PAGE_SIZE })
+        .then(prepareChildren)
+        .then(({ children }) => {
+          dispatch(loadMoreAction(children, page + 1));
+          dispatch(stopFetching());
+        })
         .catch(e => {
           getErrorMessage(e.response)
               .then(message => dispatch(raiseError(message)));
