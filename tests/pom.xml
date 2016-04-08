@@ -9,8 +9,8 @@
     <version>5.5-RC2-SNAPSHOT</version>
   </parent>
 
-  <artifactId>it</artifactId>
-  <name>SonarQube Integration Tests</name>
+  <artifactId>tests</artifactId>
+  <name>SonarQube Perf and Upgrade Tests</name>
   <packaging>pom</packaging>
 
   <properties>
@@ -20,8 +20,8 @@
   </properties>
 
   <modules>
-    <module>it-plugins</module>
-    <module>it-tests</module>
+    <module>perf</module>
+    <module>upgrade</module>
   </modules>
 
 </project>

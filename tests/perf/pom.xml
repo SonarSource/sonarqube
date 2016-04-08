@@ -5,8 +5,8 @@
 
   <parent>
     <groupId>org.sonarsource.sonarqube</groupId>
-    <artifactId>sonarqube</artifactId>
-    <version>5.5-SNAPSHOT</version>
+    <artifactId>tests</artifactId>
+    <version>5.5-RC2-SNAPSHOT</version>
   </parent>
 
   <artifactId>perf</artifactId>

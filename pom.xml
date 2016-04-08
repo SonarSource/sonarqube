@@ -1508,8 +1508,7 @@
       <id>tests</id>
       <modules>
         <module>it</module>
-        <module>tests/perf</module>
-        <module>tests/upgrade</module>
+        <module>tests</module>
       </modules>
     </profile>
   </profiles>
