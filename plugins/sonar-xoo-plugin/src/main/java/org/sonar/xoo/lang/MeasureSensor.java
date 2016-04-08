@@ -77,6 +77,7 @@ public class MeasureSensor implements Sensor {
       String value = line.substring(metricKey.length() + 1);
       saveMeasure(context, inputFile, metricKey, value);
     } catch (Exception e) {
+      LOG.error("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
       throw new IllegalStateException("Error processing line " + lineNumber + " of file " + measureFile.getAbsolutePath(), e);
     }
   }

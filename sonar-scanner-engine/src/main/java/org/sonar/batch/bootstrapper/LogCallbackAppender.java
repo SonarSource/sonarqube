@@ -20,6 +20,7 @@
 package org.sonar.batch.bootstrapper;
 
 import ch.qos.logback.classic.Level;
+import ch.qos.logback.classic.pattern.ExtendedThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.UnsynchronizedAppenderBase;
 
@@ -36,7 +37,14 @@ public class LogCallbackAppender extends UnsynchronizedAppenderBase<ILoggingEven
 
   @Override
   protected void append(ILoggingEvent event) {
-    target.log(event.getFormattedMessage(), translate(event.getLevel()));
+    if (event.getThrowableProxy() == null) {
+      target.log(event.getFormattedMessage(), translate(event.getLevel()));
+    } else {
+      ExtendedThrowableProxyConverter throwableConverter = new ExtendedThrowableProxyConverter();
+      throwableConverter.start();
+      target.log(event.getFormattedMessage() + "\n" + throwableConverter.convert(event), translate(event.getLevel()));
+      throwableConverter.stop();
+    }
   }
 
   private static LogOutput.Level translate(Level level) {

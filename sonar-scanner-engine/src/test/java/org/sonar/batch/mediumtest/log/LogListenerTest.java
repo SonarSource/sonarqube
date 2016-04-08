@@ -20,7 +20,6 @@
 package org.sonar.batch.mediumtest.log;
 
 import com.google.common.collect.ImmutableMap;
-
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
@@ -30,7 +29,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -40,9 +38,12 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.batch.bootstrapper.LogOutput;
+import org.sonar.batch.bootstrapper.LogOutput.Level;
 import org.sonar.batch.mediumtest.BatchMediumTester;
 import org.sonar.xoo.XooPlugin;
+
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class LogListenerTest {
   @Rule
@@ -192,6 +193,42 @@ public class LogListenerTest {
       for (LogEvent e : logOutput) {
         assertMsgClean(e.msg);
         savedStdOut.println("[captured]" + e.level + " " + e.msg);
+      }
+    }
+  }
+
+  // SONAR-7540
+  @Test
+  public void testStackTrace() throws IOException {
+    File srcDir = new File(baseDir, "src");
+    srcDir.mkdir();
+
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\ncontent");
+    File xooFileMeasure = new File(srcDir, "sample.xoo.measures");
+    FileUtils.write(xooFileMeasure, "foo:bar");
+
+    try {
+      tester.newTask()
+        .properties(builder
+          .put("sonar.sources", "src")
+          .build())
+        .start();
+      fail("Expected exception");
+    } catch (Exception e) {
+      assertThat(e.getMessage()).contains("Error processing line 1");
+    }
+    tester.stop();
+
+    assertNoStdOutput();
+
+    synchronized (logOutput) {
+      for (LogEvent e : logOutput) {
+        if (e.level == Level.ERROR) {
+          assertThat(e.msg).contains("Error processing line 1 of file", "src/sample.xoo.measures", "java.lang.IllegalStateException: Unknow metric with key: foo",
+            "at org.sonar.xoo.lang.MeasureSensor.saveMeasure");
+
+        }
       }
     }
   }
