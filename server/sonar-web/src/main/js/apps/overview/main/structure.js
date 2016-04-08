@@ -20,7 +20,6 @@
 import React from 'react';
 
 import { Domain,
-         DomainHeader,
          DomainPanel,
          DomainNutshell,
          DomainLeak,
@@ -69,9 +68,17 @@ export const GeneralStructure = React.createClass({
   },
 
   render () {
+    const domainUrl = window.baseUrl + '/component_measures/domain/Size?id=' +
+        encodeURIComponent(this.props.component.key);
+
     return <Domain>
-      <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.structure')}/>
+      <div className="overview-card-header">
+        <div className="overview-title">
+          <a href={domainUrl}>
+            {translate('overview.domain.structure')}
+          </a>
+        </div>
+      </div>
 
       <DomainPanel>
         <DomainNutshell>

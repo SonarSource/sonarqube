@@ -19,14 +19,15 @@
  */
 import React from 'react';
 
-import { Domain,
-         DomainHeader,
-         DomainPanel,
-         DomainNutshell,
-         DomainLeak,
-         MeasuresList,
-         Measure,
-         DomainMixin } from './components';
+import {
+    Domain,
+    DomainPanel,
+    DomainNutshell,
+    DomainLeak,
+    MeasuresList,
+    Measure,
+    DomainMixin
+} from './components';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { TooltipsMixin } from '../../../components/mixins/tooltips-mixin';
 import { DonutChart } from '../../../components/charts/donut-chart';
@@ -103,9 +104,17 @@ export const GeneralCoverage = React.createClass({
       { value: 100 - this.props.measures[coverageMetric], fill: '#d4333f' }
     ];
 
+    const domainUrl = window.baseUrl + '/component_measures/domain/Tests?id=' +
+        encodeURIComponent(this.props.component.key);
+
     return <Domain>
-      <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.coverage')}/>
+      <div className="overview-card-header">
+        <div className="overview-title">
+          <a href={domainUrl}>
+            {translate('metric.coverage.name')}
+          </a>
+        </div>
+      </div>
 
       <DomainPanel>
         <DomainNutshell>

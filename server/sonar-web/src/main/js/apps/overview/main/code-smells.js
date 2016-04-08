@@ -22,7 +22,6 @@ import React from 'react';
 
 import {
     Domain,
-    DomainHeader,
     DomainPanel,
     DomainNutshell,
     DomainLeak,
@@ -91,9 +90,17 @@ export const CodeSmells = React.createClass({
     const { snapshotDate } = this.props.component;
     const formattedSnapshotDate = moment(snapshotDate).format('LLL');
 
+    const domainUrl = window.baseUrl + '/component_measures/domain/Maintainability?id=' +
+        encodeURIComponent(this.props.component.key);
+
     return <Domain>
-      <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.code_smells')}/>
+      <div className="overview-card-header">
+        <div className="overview-title">
+          <a href={domainUrl}>
+            {translate('metric.code_smells.name')}
+          </a>
+        </div>
+      </div>
 
       <DomainPanel>
         <DomainNutshell>

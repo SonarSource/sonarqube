@@ -21,7 +21,6 @@ import moment from 'moment';
 import React from 'react';
 
 import {
-    DomainHeader,
     DomainPanel,
     DomainNutshell,
     DomainLeak,
@@ -92,9 +91,23 @@ export const Risk = React.createClass({
     const bugs = this.props.measures['bugs'] || 0;
     const vulnerabilities = this.props.measures['vulnerabilities'] || 0;
 
+    const bugsDomainUrl = window.baseUrl + '/component_measures/domain/Reliability?id=' +
+        encodeURIComponent(this.props.component.key);
+    const vulnerabilitiesDomainUrl = window.baseUrl + '/component_measures/domain/Security?id=' +
+        encodeURIComponent(this.props.component.key);
+
     return <div className="overview-card overview-card-special">
-      <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.risk')}/>
+      <div className="overview-card-header">
+        <div className="overview-title">
+          <a href={bugsDomainUrl}>
+            {translate('metric.bugs.name')}
+          </a>
+          {' & '}
+          <a href={vulnerabilitiesDomainUrl}>
+            {translate('metric.vulnerabilities.name')}
+          </a>
+        </div>
+      </div>
 
       <DomainPanel>
         <DomainNutshell>
