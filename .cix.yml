@@ -18,6 +18,7 @@ RUN_ACTIVITY:
   - run-upgrade-tests-mssql2014
   - run-it-released-plugins
   - run-perf-tests
+  - unit-tests
 
 exclude:
   - RUN_ACTIVITY: run-db-unit-tests-mysql56
@@ -46,6 +47,8 @@ exclude:
     SLAVE_TYPE: performance
   - RUN_ACTIVITY: run-it-released-plugins
     SLAVE_TYPE: performance
+  - RUN_ACTIVITY: unit-tests
+    SLAVE_TYPE: performance  
 
   - RUN_ACTIVITY: run-perf-tests
     SLAVE_TYPE: dblinux
