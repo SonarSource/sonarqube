@@ -20,7 +20,6 @@
 import React from 'react';
 
 import { Domain,
-         DomainHeader,
          DomainPanel,
          DomainNutshell,
          DomainLeak,
@@ -75,9 +74,17 @@ export const GeneralDuplications = React.createClass({
       { value: Math.max(0, 20 - this.props.measures['duplicated_lines_density']), fill: '#e6e6e6' }
     ];
 
+    const domainUrl = window.baseUrl + '/component_measures/domain/Duplication?id=' +
+        encodeURIComponent(this.props.component.key);
+
     return <Domain>
-      <DomainHeader component={this.props.component}
-                    title={translate('overview.domain.duplications')}/>
+      <div className="overview-card-header">
+        <div className="overview-title">
+          <a href={domainUrl}>
+            {translate('overview.domain.duplications')}
+          </a>
+        </div>
+      </div>
 
       <DomainPanel>
         <DomainNutshell>
