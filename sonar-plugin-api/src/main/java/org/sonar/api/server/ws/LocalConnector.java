@@ -104,7 +104,6 @@ public interface LocalConnector {
 
     /**
      * @see Response#setHeader(String, String)
-     * @return
      */
     @CheckForNull
     String getHeader(String name);
