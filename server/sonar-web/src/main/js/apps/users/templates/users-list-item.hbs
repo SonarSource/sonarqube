@@ -15,16 +15,18 @@
   {{/if}}
 
   {{#unless local}}
-    <div class="js-user-identity-provider little-spacer-top">
-      {{#if identityProvider}}
-        <div class="identity-provider" style="background-color: {{identityProvider.backgroundColor}}">
-          <img src="{{link identityProvider.iconPath}}" width="14" height="14"/>
-          {{externalIdentity}}
-        </div>
-      {{else}}
-        {{externalProvider}}: {{externalIdentity}}
-      {{/if}}
-    </div>
+    {{#notEq externalProvider 'sonarqube'}}
+      <div class="js-user-identity-provider little-spacer-top">
+        {{#if identityProvider}}
+          <div class="identity-provider" style="background-color: {{identityProvider.backgroundColor}}">
+            <img src="{{link identityProvider.iconPath}}" width="14" height="14"/>
+            {{externalIdentity}}
+          </div>
+        {{else}}
+          {{externalProvider}}: {{externalIdentity}}
+        {{/if}}
+      </div>
+    {{/notEq}}
   {{/unless}}
 </td>
 
