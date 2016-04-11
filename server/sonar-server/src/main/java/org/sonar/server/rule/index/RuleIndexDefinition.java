@@ -93,7 +93,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).enableSorting().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_KEY_AS_LIST).build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).disableSearch().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).enableWordSearch().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).docValues().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableSearch().docValues().build();
 
