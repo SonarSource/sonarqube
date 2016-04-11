@@ -25,6 +25,7 @@ import bubbles from '../../config/bubbles';
 import { getComponentLeaves } from '../../../../api/components';
 import { formatMeasure } from '../../../../helpers/measures';
 import Workspace from '../../../../components/workspace/main';
+import { getComponentUrl } from '../../../../helpers/urls';
 
 const HEIGHT = 500;
 const BUBBLES_LIMIT = 500;
@@ -115,8 +116,12 @@ export default class BubbleChart extends React.Component {
     return `<div class="text-left">${inner}</div>`;
   }
 
-  handleBubbleClick (id) {
-    Workspace.openComponent({ uuid: id });
+  handleBubbleClick (component) {
+    if (['FIL', 'UTS'].includes(component.qualifier)) {
+      Workspace.openComponent({ uuid: component.id });
+    } else {
+      window.location = getComponentUrl(component.refKey || component.key);
+    }
   }
 
   renderBubbleChart () {
@@ -125,7 +130,7 @@ export default class BubbleChart extends React.Component {
         x: getMeasure(file, this.xMetric.key),
         y: getMeasure(file, this.yMetric.key),
         size: getMeasure(file, this.sizeMetric.key),
-        link: file.id,
+        link: file,
         tooltip: this.getTooltip(file)
       };
     });
