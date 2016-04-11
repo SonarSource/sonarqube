@@ -73,6 +73,10 @@ export default class Condition extends Component {
       data.period = period;
     }
 
+    if (condition.metric.indexOf('new_') === 0) {
+      data.period = '1';
+    }
+
     e.preventDefault();
     createCondition(qualityGate.id, data).then(newCondition => {
       this.setState({ changed: false });
