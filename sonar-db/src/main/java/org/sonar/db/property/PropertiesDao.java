@@ -182,6 +182,10 @@ public class PropertiesDao implements Dao {
     }
   }
 
+  public void deleteById(DbSession dbSession, long id) {
+    dbSession.getMapper(PropertiesMapper.class).deleteById(id);
+  }
+
   public void deleteProjectProperty(String key, Long projectId) {
     DbSession session = mybatis.openSession(false);
     try {

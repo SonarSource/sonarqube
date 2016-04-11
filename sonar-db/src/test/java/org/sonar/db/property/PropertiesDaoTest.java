@@ -217,6 +217,16 @@ public class PropertiesDaoTest {
   }
 
   @Test
+  public void delete_property_by_id() {
+    dbTester.prepareDbUnit(getClass(), "delete.xml");
+
+    dao.deleteById(dbTester.getSession(), 1L);
+    dbTester.getSession().commit();
+
+    dbTester.assertDbUnit(getClass(), "delete-result.xml", "properties");
+  }
+
+  @Test
   public void delete_project_property() {
     dbTester.prepareDbUnit(getClass(), "delete_project_property.xml");
 

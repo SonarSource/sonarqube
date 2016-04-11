@@ -106,6 +106,10 @@
     VALUES (#{key}, #{resourceId}, #{userId}, #{value})
   </insert>
 
+  <delete id="deleteById" parameterType="long">
+    delete from properties where id=#{id}
+  </delete>
+
   <delete id="deleteProjectProperty" parameterType="map">
     delete from properties where prop_key=#{key} and resource_id=#{rId} and user_id is null
   </delete>
