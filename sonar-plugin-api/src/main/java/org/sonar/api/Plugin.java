@@ -23,6 +23,7 @@ import com.google.common.annotations.Beta;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import org.sonar.api.utils.Version;
 
 import static java.util.Arrays.asList;
 import static java.util.Objects.requireNonNull;
@@ -31,11 +32,11 @@ import static java.util.Objects.requireNonNull;
  * Entry-point for plugins to inject extensions into SonarQube.
  * <p>The JAR manifest must declare the name of the implementation class in the property <code>Plugin-Class</code>.
  * This property is automatically set by sonar-packaging-maven-plugin when building plugin.</p>
- * <p>Example of implementation:
+ * <p>Example of implementation</p>
  * <pre>
  * package com.mycompany.sonarqube;
  * public class MyPlugin implements Plugin {
- *   {@literal @}Override
+ *  {@literal @}Override
  *   public void define(Context context) {
  *     context.addExtensions(MySensor.class, MyRules.class);
  *     if (context.getSonarQubeVersion().isGreaterThanOrEqual(SonarQubeVersion.V5_6)) {
@@ -46,8 +47,8 @@ import static java.util.Objects.requireNonNull;
  *   }
  * }
  * </pre>
- * </p>
- * <p>Example of pom.xml:</p>
+ *
+ * <p>Example of pom.xml</p>
  * <pre>
  * &lt;project&gt;
  *   ...
@@ -68,20 +69,35 @@ import static java.util.Objects.requireNonNull;
  * &lt;/project&gt;
  * </pre>
  *
+ * <p>Example of test</p>
+ * <pre>
+ * MyPlugin underTest = new MyPlugin();
+ *
+ *{@literal @}Test
+ * public void test_plugin_extensions_compatible_with_5_5() {
+ *   Plugin.Context context = new Plugin.Context(SonarQubeVersion.V5_5);
+ *   underTest.define(context);
+ *   assertThat(context.getExtensions()).hasSize(4);
+ * }
+ * </pre>
+ *
  * @since 5.5
  */
 @Beta
 public interface Plugin {
 
   class Context {
-    private final SonarQubeVersion version;
+    private final Version version;
     private final List extensions = new ArrayList();
 
-    public Context(SonarQubeVersion version) {
+    public Context(Version version) {
       this.version = version;
     }
 
-    public SonarQubeVersion getSonarQubeVersion() {
+    /**
+     * Runtime version of SonarQube
+     */
+    public Version getSonarQubeVersion() {
       return version;
     }
 
@@ -89,10 +105,10 @@ public interface Plugin {
      * Add an extension as :
      * <ul>
      *   <li>a Class that is annotated with {@link org.sonar.api.batch.BatchSide}, {@link org.sonar.api.server.ServerSide}
-     *   or {@link org.sonar.api.server.ComputeEngineSide}.</li>
-     *   The extension will be instantiated once. Its dependencies are injected through constructor parameters.</li>
+     *   or {@link org.sonar.api.ce.ComputeEngineSide}. The extension will be instantiated once. Its dependencies are
+     *   injected through constructor parameters.</li>
      *   <li>an instance that is annotated with {@link org.sonar.api.batch.BatchSide}, {@link org.sonar.api.server.ServerSide}
-     *   or {@link org.sonar.api.server.ComputeEngineSide}.</li>
+     *   or {@link org.sonar.api.ce.ComputeEngineSide}.</li>
      * </ul>
      * Only a single component can be registered for a class. It's not allowed for example to register:
      * <ul>

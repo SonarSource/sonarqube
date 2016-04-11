@@ -60,7 +60,7 @@ public abstract class ServerExtensionInstaller {
         Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
         container.addExtension(pluginInfo, plugin);
 
-        Plugin.Context context = new Plugin.Context(sonarQubeVersion);
+        Plugin.Context context = new Plugin.Context(sonarQubeVersion.get());
         plugin.define(context);
         for (Object extension : context.getExtensions()) {
           if (installExtension(container, pluginInfo, extension, true) != null) {

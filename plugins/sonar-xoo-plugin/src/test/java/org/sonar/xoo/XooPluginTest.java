@@ -21,7 +21,6 @@ package org.sonar.xoo;
 
 import org.junit.Test;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.utils.Version;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
 
@@ -32,11 +31,11 @@ public class XooPluginTest {
 
   @Test
   public void provide_extensions_for_5_5() {
-    Plugin.Context context = new Plugin.Context(new SonarQubeVersion(V5_5));
+    Plugin.Context context = new Plugin.Context(V5_5);
     new XooPlugin().define(context);
     assertThat(context.getExtensions()).hasSize(39).contains(CpdTokenizerSensor.class);
 
-    context = new Plugin.Context(new SonarQubeVersion(Version.parse("5.4")));
+    context = new Plugin.Context(Version.parse("5.4"));
     new XooPlugin().define(context);
     assertThat(context.getExtensions()).hasSize(38).doesNotContain(CpdTokenizerSensor.class);
   }
