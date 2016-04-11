@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 import java.util.TreeSet;
+import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
@@ -174,6 +175,6 @@ public class AnalysisContextReportPublisher {
   }
 
   private static boolean sensitive(String key) {
-    return key.contains(".password") || key.contains(".secured");
+    return key.equals(CoreProperties.LOGIN) || key.contains(".password") || key.contains(".secured");
   }
 }
