@@ -30,7 +30,7 @@ import org.sonar.api.utils.SonarException;
 /**
  * Utility to build a distribution based on discrete values
  *
- * <p>An example of usage : you wish to record the number of violations for each level of rules priority</p>
+ * <p>An example of usage : you wish to record the number of violations for each level of rules priority
  *
  * @since 1.10
  */

@@ -21,7 +21,7 @@ package org.sonar.api.batch;
 
 /**
  * Barriers are used to define the order of execution of Decorators. Decorators must be annotated with the following :
- * <p/>
+ * <br>
  * <ul>
  * <li>{@code @DependsUpon(BARRIER)} in order to be executed after BARRIER</li>
  * <li>{@code @DependedUpon(BARRIER)} in order to be executed before BARRIER</li>
@@ -70,7 +70,7 @@ public interface DecoratorBarriers {
   /**
    * Extensions which call the method {@code Violation#setSwitchedOff} must be executed before this barrier
    * ({@code @DependedUpon(value=DecoratorBarriers.VIOLATION_TRACKING})
-   * <p/>
+   * <br>
    * This barrier is after {@code END_OF_VIOLATIONS_GENERATION}
    *
    * @since 2.8

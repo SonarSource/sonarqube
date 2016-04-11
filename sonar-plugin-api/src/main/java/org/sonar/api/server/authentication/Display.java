@@ -46,7 +46,7 @@ public final class Display {
    * It can also be an external URL, for example "http://www.mydomain/myincon.png".
    *
    * Must not be blank.
-   * <p/>
+   * <br>
    * The recommended format is SVG with a size of 24x24 pixels.
    * Other supported format is PNG, with a size of 40x40 pixels.
    */
@@ -57,7 +57,7 @@ public final class Display {
   /**
    * Background color for the provider button displayed in the login form.
    * It's a Hexadecimal value, for instance #205081.
-   * <p/>
+   * <br>
    * If not provided, the default value is #236a97
    */
   public String getBackgroundColor() {

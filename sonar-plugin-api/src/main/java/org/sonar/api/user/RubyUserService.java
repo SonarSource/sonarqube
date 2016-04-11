@@ -37,7 +37,7 @@ public interface RubyUserService {
 
   /**
    * Search for users
-   * <p/>
+   * <br>
    * Optional parameters are:
    * <ul>
    *   <li><code>s</code> to match all the logins or names containing this search query</li>

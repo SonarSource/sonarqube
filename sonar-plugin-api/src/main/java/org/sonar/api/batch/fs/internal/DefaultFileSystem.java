@@ -21,17 +21,6 @@ package org.sonar.api.batch.fs.internal;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import org.sonar.api.batch.fs.FilePredicate;
-import org.sonar.api.batch.fs.FilePredicates;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputDir;
-import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.scan.filesystem.PathResolver;
-import org.sonar.api.utils.PathUtils;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -44,6 +33,15 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.SortedSet;
 import java.util.TreeSet;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.FilePredicates;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputDir;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.scan.filesystem.PathResolver;
+import org.sonar.api.utils.PathUtils;
 
 /**
  * @since 4.2
@@ -110,12 +108,12 @@ public class DefaultFileSystem implements FileSystem {
     this.workDir = d.getAbsoluteFile().toPath().normalize();
     return this;
   }
-  
+
   public DefaultFileSystem setDefaultPredicate(@Nullable FilePredicate predicate) {
     this.defaultPredicate = predicate;
     return this;
   }
-  
+
   @Override
   public File workDir() {
     return workDir.toFile();
@@ -146,7 +144,7 @@ public class DefaultFileSystem implements FileSystem {
     throw new IllegalArgumentException(sb.toString());
 
   }
-  
+
   /**
    * Bypass default predicate to get all files/dirs indexed.
    * Default predicate is used when some files/dirs should not be processed by sensors.
@@ -160,7 +158,7 @@ public class DefaultFileSystem implements FileSystem {
   public Iterable<InputFile> inputFiles(FilePredicate predicate) {
     doPreloadFiles();
     FilePredicate combinedPredicate = predicate;
-    if(defaultPredicate != null) {
+    if (defaultPredicate != null) {
       combinedPredicate = predicates().and(defaultPredicate, predicate);
     }
     return OptimizedFilePredicateAdapter.create(combinedPredicate).get(cache);
@@ -224,7 +222,7 @@ public class DefaultFileSystem implements FileSystem {
 
   /**
    * Adds a language to the list. To be used only for unit tests that need to use {@link #languages()} without
-   * using {@link #add(org.sonar.api.batch.fs.InputFile)}.
+   * using {@link #add(DefaultInputFile)}.
    */
   public DefaultFileSystem addLanguages(String language, String... others) {
     languages.add(language);

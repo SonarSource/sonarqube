@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
 
 /**
  * SonarQube plugins are not coupled with external logging libraries like SLF4J or Logback.
- * <p></p>
+ * <p>
  * Example:
  * <pre>
  * public class MyClass {
@@ -35,13 +35,13 @@ import javax.annotation.Nullable;
  *   }
  * }
  * </pre>
- * <p></p>
+ * <p>
  * Message arguments are defined with <code>{}</code>, but not with {@link java.util.Formatter} syntax.
  *
- * <p></p>
+ * <p>
  * INFO, WARN and ERROR levels are always enabled. They can't be disabled by users.
  * DEBUG and TRACE levels are enabled on demand with the property <code>sonar.log.level</code>.
- * <p></p>
+ * <p>
  * See {@link org.sonar.api.utils.log.LogTester} for testing facilities.
  * @since 5.1
  */
@@ -51,7 +51,7 @@ public interface Logger {
 
   /**
    * Logs a TRACE message.
-   * <p></p>
+   * <p>
    * TRACE messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
    * They can significantly slow down performances. The standard use-case is logging of
@@ -62,7 +62,7 @@ public interface Logger {
   /**
    * Logs an TRACE parameterized message according to the specified format and argument. Example:
    * <code>trace("Value is {}", value)</code>
-   * <p></p>
+   * <p>
    * TRACE messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
    * They can significantly slow down performances. The standard use-case is logging of
@@ -73,7 +73,7 @@ public interface Logger {
   /**
    * Logs an TRACE parameterized message according to the specified format and arguments. Example:
    * <code>trace("Values are {} and {}", value1, value2)</code>
-   * <p></p>
+   * <p>
    * TRACE messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
    * They can significantly slow down performances. The standard use-case is logging of
@@ -84,12 +84,12 @@ public interface Logger {
   /**
    * Logs an TRACE parameterized message according to the specified format and arguments. Example:
    * <code>trace("Values are {} and {}", value1, value2)</code>
-   * <p></p>
+   * <p>
    * TRACE messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
    * They can significantly slow down performances. The standard use-case is logging of
    * SQL and Elasticsearch requests.
-   * <p></p>
+   * <p>
    * This variant incurs the hidden cost of creating an Object[] before invoking the method.
    * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
    * {@link #trace(String, Object)} and {@link #trace(String, Object, Object)}
@@ -107,7 +107,7 @@ public interface Logger {
   /**
    * Logs an DEBUG parameterized message according to the specified format and argument. Example:
    * <code>debug("Value is {}", value)</code>
-   * <p></p>
+   * <p>
    * Debug messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
    */
@@ -116,7 +116,7 @@ public interface Logger {
   /**
    * Logs an DEBUG parameterized message according to the specified format and arguments. Example:
    * <code>debug("Values are {} and {}", value1, value2)</code>
-   * <p></p>
+   * <p>
    * Debug messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
    */
@@ -125,10 +125,10 @@ public interface Logger {
   /**
    * Logs an DEBUG parameterized message according to the specified format and arguments. Example:
    * <code>debug("Values are {}, {} and {}", value1, value2, value3)</code>
-   * <p></p>
+   * <p>
    * Debug messages must
    * be valuable for diagnosing production problems. They must not be used for development debugging.
-   * * <p></p>
+   * * <p>
    * This variant incurs the hidden cost of creating an Object[] before invoking the method.
    * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
    * {@link #debug(String, Object)} and {@link #debug(String, Object, Object)}
@@ -155,7 +155,7 @@ public interface Logger {
   /**
    * Logs an INFO parameterized message according to the specified format and arguments. Example:
    * <code>info("Values are {}, {} and {}", value1, value2, value3)</code>
-   * <p></p>
+   * <p>
    * This variant incurs the hidden cost of creating an Object[] before invoking the method.
    * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
    * {@link #info(String, Object)} and {@link #info(String, Object, Object)}
@@ -187,7 +187,7 @@ public interface Logger {
   /**
    * Logs a WARN parameterized message according to the specified format and arguments. Example:
    * <code>warn("Values are {}, {} and {}", value1, value2, value3)</code>
-   * <p></p>
+   * <p>
    * This variant incurs the hidden cost of creating an Object[] before invoking the method.
    * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
    * {@link #warn(String, Object)} and {@link #warn(String, Object, Object)}
@@ -214,7 +214,7 @@ public interface Logger {
   /**
    * Logs a ERROR parameterized message according to the specified format and arguments. Example:
    * <code>error("Values are {}, {} and {}", value1, value2, value3)</code>
-   * <p></p>
+   * <p>
    * This variant incurs the hidden cost of creating an Object[] before invoking the method.
    * The variants taking one and two arguments exist solely in order to avoid this hidden cost. See
    * {@link #error(String, Object)} and {@link #error(String, Object, Object)}
@@ -230,10 +230,10 @@ public interface Logger {
    * Attempt to change logger level. Return true if it succeeded, false if
    * the underlying logging facility does not allow to change level at
    * runtime.
-   * <p></p>
+   * <p>
    * This method must not be used to enable DEBUG or TRACE logs in tests. Use
    * {@link org.sonar.api.utils.log.LogTester#setLevel(LoggerLevel)} instead.
-   * <p></p>
+   * <p>
    * The standard use-case is to customize logging of embedded 3rd-party
    * libraries.
    */

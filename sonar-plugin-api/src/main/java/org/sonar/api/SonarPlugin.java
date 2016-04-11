@@ -23,9 +23,9 @@ import java.util.List;
 
 /**
  * Plugin entry-point used to declare its extensions (see {@link org.sonar.api.Extension}.
- * <p/>
+ * <br>
  * <p>The JAR manifest must declare the name of the implementation class in the property <code>Plugin-Class</code>.
- * This property is automatically set by sonar-packaging-maven-plugin when building plugin.</p>
+ * This property is automatically set by sonar-packaging-maven-plugin when building plugin.
  * 
  * @since 2.8
  */

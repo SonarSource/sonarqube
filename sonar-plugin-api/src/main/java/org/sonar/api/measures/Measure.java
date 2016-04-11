@@ -158,12 +158,12 @@ public class Measure<G extends Serializable> implements Serializable {
   /**
    * <p>
    * Sets the persistence mode of a measure.
-   * </p>
+   * 
    * <p>
    * <b>WARNING : </b>Being able to reuse measures saved in memory is only possible within the same tree. In a multi-module project for
    * example, a measure save in memory at the module level will not be accessible by the root project. In that case, database should be
    * used.
-   * </p>
+   * 
    *
    * @param mode the mode
    * @return the measure object instance

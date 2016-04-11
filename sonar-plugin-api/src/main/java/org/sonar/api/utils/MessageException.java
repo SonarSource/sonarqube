@@ -30,7 +30,7 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * Runtime exception for "functional" error. It aims to be displayed to end-users, without any technical information
  * like stack traces. 
- * <p/>
+ * <br>
  * 
  * It's handling depends on the versions of the sonar-batch and sonar-runner. sonar-runner 2.4 will only show the 
  * message associated with this exception.
@@ -38,7 +38,7 @@ import static com.google.common.collect.Lists.newArrayList;
  * exception. If this exception is created without cause, then only the message associated with this exception is shown; 
  * otherwise, its causes are also shown.
  * Previous combinations of sonar-batch/sonar-runner log all stack trace.
- * <p/>
+ * <br>
  * Message should be clear and complete. Keep in mind that context might not be added to the exception.
  * Names of processed resource and decorator are for example not automatically added when throwing {@link MessageException}
  * from {@link org.sonar.api.batch.Decorator}.

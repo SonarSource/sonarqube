@@ -34,9 +34,9 @@ import org.sonar.api.rules.RulePriority;
 /**
  * <p>Formats and parses key/value pairs with the text representation : "key1=value1;key2=value2". Field typing
  * is supported, to make conversion from/to primitive types easier for example.
- * <p/>
+ * <br>
  * Since version 4.5.1, text keys and values are escaped if they contain the separator characters '=' or ';'.
- * <p/>
+ * <br>
  * <b>Parsing examples</b>
  * <pre>
  *   Map&lt;String,String&gt; mapOfStrings = KeyValueFormat.parse("hello=world;foo=bar");
@@ -48,7 +48,7 @@ import org.sonar.api.rules.RulePriority;
  *   Map&lt;String,MyClass&gt; mapOfStringMyClass = KeyValueFormat.parse("foo=xxx;bar=yyy",
  *     KeyValueFormat.newStringConverter(), new MyClassConverter());
  * </pre>
- * <p/>
+ * <br>
  * <b>Formatting examples</b>
  * <pre>
  *   String output = KeyValueFormat.format(map);

@@ -23,9 +23,9 @@ import java.util.Locale;
 import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.i18n.I18n;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
@@ -64,8 +64,9 @@ public class Durations {
   /**
    * Convert the text to a Duration
    * <br>
-   * Example : decode("9d 10 h") -> Duration.encode("10d2h") (if sonar.technicalDebt.hoursInDay property is set to 8)<br />
-   * Throws {@code IllegalArgumentException}
+   * Example : decode("9d 10 h") -&gt; Duration.encode("10d2h") (if sonar.technicalDebt.hoursInDay property is set to 8)
+   * <br>
+   * @throws IllegalArgumentException
    */
   public Duration decode(String duration) {
     return Duration.decode(duration, hoursInDay());
@@ -74,7 +75,7 @@ public class Durations {
   /**
    * Return the string value of the Duration.
    * <br>
-   * Example : encode(Duration.encode("9d 10h")) -> "10d2h" (if sonar.technicalDebt.hoursInDay property is set to 8)
+   * Example : encode(Duration.encode("9d 10h")) -&gt; "10d2h" (if sonar.technicalDebt.hoursInDay property is set to 8)
    */
   public String encode(Duration duration) {
     return duration.encode(hoursInDay());
@@ -83,7 +84,7 @@ public class Durations {
   /**
    * Return the formatted work duration.
    * <br>
-   * Example : format(Locale.FRENCH, Duration.encode("9d 10h"), DurationFormat.SHORT) -> 10j 2h (if sonar.technicalDebt.hoursInDay property is set to 8)
+   * Example : format(Locale.FRENCH, Duration.encode("9d 10h"), DurationFormat.SHORT) -&gt; 10j 2h (if sonar.technicalDebt.hoursInDay property is set to 8)
    *
    */
   public String format(Locale locale, Duration duration, DurationFormat format) {
@@ -93,7 +94,7 @@ public class Durations {
   /**
    * Return the formatted work duration.
    * <br>
-   * Example : format(Locale.FRENCH, Duration.encode("9d 10h"), DurationFormat.SHORT) -> 10j 2h (if sonar.technicalDebt.hoursInDay property is set to 8)
+   * Example : format(Locale.FRENCH, Duration.encode("9d 10h"), DurationFormat.SHORT) -&gt; 10j 2h (if sonar.technicalDebt.hoursInDay property is set to 8)
    *
    */
   public String format(Locale locale, Duration duration) {

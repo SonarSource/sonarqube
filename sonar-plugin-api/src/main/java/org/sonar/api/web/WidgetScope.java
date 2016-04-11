@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * global dashboards <code>(value = "GLOBAL")</code> or both <code>(value = {"PROJECT", "GLOBAL"})</code>.
  * 
  * <p>Before version 3.1 all widget had a scope <code>"PROJECT"</code>. If a widget is not annotated with @WidgetScope,
- * then is is assumed project scoped.</p>
+ * then is is assumed project scoped.
  *
  * @since 3.1
  */

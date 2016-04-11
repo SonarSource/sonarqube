@@ -146,7 +146,7 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
    * <p>
    * The resource is automatically saved, so there is no need to execute the method saveResource(). Does nothing if the resource is set as
    * excluded.
-   * </p>
+   * 
    */
   Measure saveMeasure(Resource resource, Metric metric, Double value);
 
@@ -155,7 +155,7 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
    * <p>
    * The resource is automatically saved, so there is no need to execute the method saveResource(). Does nothing if the resource is set as
    * excluded.
-   * </p>
+   * 
    */
   Measure saveMeasure(Resource resource, Measure measure);
 

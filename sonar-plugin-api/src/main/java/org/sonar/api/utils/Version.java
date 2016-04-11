@@ -31,13 +31,13 @@ import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
 /**
  * Version composed of 3 integer-sequences (major, minor and patch fields) and optionally a qualifier.
- * <p></p>
+ * <p>
  * Examples: 1.0, 1.0.0, 1.2.3, 1.2-beta1, 1.2.1-beta-1
- * <p></p>
+ * <p>
  * <h3>IMPORTANT NOTE</h3>
  * Qualifier is ignored when comparing objects (methods {@link #equals(Object)}, {@link #hashCode()}
  * and {@link #compareTo(Version)}).
- * <p></p>
+ * <p>
  * <pre>
  *   assertThat(Version.parse("1.2")).isEqualTo(Version.parse("1.2-beta1"));
  *   assertThat(Version.parse("1.2").compareTo(Version.parse("1.2-beta1"))).isZero();

@@ -1348,17 +1348,19 @@ public final class CoreMetrics {
    * <p>
    * Here is the format (since Sonar 2.12):
    * <pre>
-   *   <duplications>
-   *     <!-- Multiple groups: -->
-   *     <g>
-   *       <!-- Multiple blocks: -->
-   *       <b r="[resource key]" s="[first line]" l="[number of lines]" />
-   *       ...
-   *     </g>
+   * {@literal
+   * <duplications>
+   *   <!-- Multiple groups: -->
+   *   <g>
+   *     <!-- Multiple blocks: -->
+   *     <b r="[resource key]" s="[first line]" l="[number of lines]" />
    *     ...
-   *   </duplications>
+   *   </g>
+   *   ...
+   * </duplications>
+   * }
    * </pre>
-   * </p>
+   * 
    * @deprecated since 4.5. Internal storage of duplication is not an API.
    */
   @Deprecated

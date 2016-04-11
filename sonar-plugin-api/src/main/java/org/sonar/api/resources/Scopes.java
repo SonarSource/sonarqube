@@ -25,9 +25,9 @@ import org.apache.commons.lang.StringUtils;
 /**
  * Resource scopes are used to group some types of resources. For example Java methods, Flex methods, C functions
  * and Cobol paragraphs are grouped in the scope "block unit".
- * <p/>
+ * <br>
  * Scopes are generally used in UI to display/hide some services or in web services.
- * <p/>
+ * <br>
  * Scopes are not extensible by plugins.
  *
  * @since 2.6

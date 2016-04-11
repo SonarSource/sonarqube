@@ -19,17 +19,15 @@
  */
 package org.sonar.api.batch.fs;
 
-import org.sonar.api.batch.BatchSide;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.SortedSet;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.BatchSide;
 
 /**
  * The {@link FileSystem} manages all the source files to be analyzed.
- * <p/>
+ * <p>
  * This is not an extension point so it must not be implemented by plugins. It must be injected as a
  * constructor parameter :
  * <pre>
@@ -70,7 +68,7 @@ public interface FileSystem {
   /**
    * Absolute work directory. It can be used to
    * store third-party analysis reports.
-   * <p/>
+   * <br>
    * The work directory can be located outside {@link #baseDir()}.
    */
   File workDir();
@@ -85,7 +83,7 @@ public interface FileSystem {
    * the predicate, then {@link IllegalArgumentException} is thrown. Returns {@code null}
    * if no files match.
    *
-   * <p/>
+   * <p>
    * How to use :
    * <pre>
    * InputFile file = fs.inputFile(fs.predicates().hasRelativePath("src/Foo.php"));
@@ -99,7 +97,7 @@ public interface FileSystem {
   /**
    * Returns {@link InputDir} matching the current {@link File}.
    * @return null if directory is not indexed.
-   * @throw {@link IllegalArgumentException} is File is null or not a directory.
+   * @throws IllegalArgumentException is File is null or not a directory.
    * 
    * @since 4.5
    */
@@ -109,15 +107,17 @@ public interface FileSystem {
   /**
    * Input files matching the given attributes. Return all the files if the parameter
    * <code>attributes</code> is empty.
-   * <p/>
+   * <p>
    * <b>Important</b> - result is an {@link java.lang.Iterable} to benefit from streaming and decreasing
    * memory consumption. It should be iterated only once, else copy it into a list :
    * {@code com.google.common.collect.Lists.newArrayList(inputFiles(predicate))}
-   * <p/>
+   * <p>
    * How to use :
    * <pre>
+   * {@code
    * FilePredicates p = fs.predicates();
    * Iterable<InputFile> files = fs.inputFiles(p.and(p.hasLanguage("java"), p.hasType(InputFile.Type.MAIN)));
+   * }
    * </pre>
    *
    * @see #predicates()

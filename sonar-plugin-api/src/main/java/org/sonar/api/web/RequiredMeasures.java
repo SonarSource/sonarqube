@@ -29,11 +29,11 @@ import java.lang.annotation.Target;
  * Annotation used to specify which measures should be available on a snapshot to be able to display a view (page, tab, ...).
  * It is possible to give a list of mandatory measures (= if one is not available, the view is not displayed) and/or a list of
  * needed measures (only one of them needs to be available). The measures are specified using the metric keys.
- * </p>
+ * 
  * <p>
  * Example: the DesignPage absolutely requires the "dsm" measure to be fed in order to be displayed, whatever the language.
  * The class will define a <code>@RequiredMeasures(allOf={"dsm"})</code> annotation.
- * </p>
+ * 
  * 
  * @since 3.0
  * @deprecated in 4.5. Not supported anymore in source viewer as Ruby on Rails is being dropped.

@@ -29,7 +29,7 @@ import java.util.Map;
 
 /**
  * Definition of a dashboard.
- * <p/>
+ * <br>
  * Its name and description can be retrieved using the i18n mechanism, using the keys "dashboard.&lt;id&gt;.name" and
  * "dashboard.&lt;id&gt;.description".
  *
@@ -56,7 +56,7 @@ public final class Dashboard {
   /**
    * Add a widget with the given parameters, and return the newly created {@link Widget} object if one wants to add parameters to it.
    *
-   * <p>The widget ids are listed by the web service /api/widgets</p>
+   * <p>The widget ids are listed by the web service /api/widgets
    *
    * @param widgetId id of an existing widget
    * @param columnId column starts with 1. The widget is ignored if the column id does not match the layout.
@@ -90,7 +90,7 @@ public final class Dashboard {
 
   /**
    * Sets the description of the dashboard.
-   * <p/>
+   * <br>
    * Note: you should use the i18n mechanism for the description.
    *
    * @param description the description to set
@@ -119,7 +119,7 @@ public final class Dashboard {
 
   /**
    * A dashboard is global when it doesn't display information from a projet but rather more general information.
-   * <p>Before version 3.1 no dashboard was global.</p>
+   * <p>Before version 3.1 no dashboard was global.
    *
    * @since 3.1
    */
@@ -129,7 +129,7 @@ public final class Dashboard {
 
   /**
    * A dashboard is global when it doesn't display information from a projet but rather more general information.
-   * <p>Before version 3.1 no dashboard was global.</p>
+   * <p>Before version 3.1 no dashboard was global.
    *
    * @since 3.1
    */
@@ -141,7 +141,7 @@ public final class Dashboard {
   /**
    * A dashboard can be activated for all anonymous users or users who haven't configured their own dashboards.
    * <p>Before version 3.1 every dashboard created through this extension point was automatically activated.
-   * This is still the default behavior.</p>
+   * This is still the default behavior.
    *
    * @since 3.1
    */

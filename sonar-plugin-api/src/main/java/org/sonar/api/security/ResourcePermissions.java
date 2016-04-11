@@ -25,8 +25,8 @@ import org.sonar.api.resources.Resource;
 
 /**
  * Grant access to newly created projects.
- * <p/>
- * <p>This component is not supposed to be called by standard plugins.</p>
+ * <br>
+ * <p>This component is not supposed to be called by standard plugins.
  *
  * @since 3.2
  */

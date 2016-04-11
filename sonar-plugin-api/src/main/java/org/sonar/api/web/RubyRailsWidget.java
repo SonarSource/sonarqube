@@ -21,7 +21,7 @@ package org.sonar.api.web;
 
 /**
  * Widget in project dashboard page. It's recommended to also extend AbstractRubyTemplate :
- * <p/>
+ * <br>
  * <code>
  * public class MyWidget extends AbstractRubyTemplate implements RubyRailsWidget {
  * protected String getTemplatePath() {

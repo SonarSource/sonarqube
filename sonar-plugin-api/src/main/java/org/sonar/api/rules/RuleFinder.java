@@ -52,7 +52,7 @@ public interface RuleFinder {
   Rule findByKey(RuleKey key);
 
   /**
-   * @throw IllegalArgumentException if more than one result
+   * @throws IllegalArgumentException if more than one result
    */
   @CheckForNull
   Rule find(RuleQuery query);

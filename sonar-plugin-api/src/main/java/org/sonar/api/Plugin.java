@@ -31,8 +31,8 @@ import static java.util.Objects.requireNonNull;
 /**
  * Entry-point for plugins to inject extensions into SonarQube.
  * <p>The JAR manifest must declare the name of the implementation class in the property <code>Plugin-Class</code>.
- * This property is automatically set by sonar-packaging-maven-plugin when building plugin.</p>
- * <p>Example of implementation</p>
+ * This property is automatically set by sonar-packaging-maven-plugin when building plugin.
+ * <p>Example of implementation
  * <pre>
  * package com.mycompany.sonarqube;
  * public class MyPlugin implements Plugin {
@@ -48,7 +48,7 @@ import static java.util.Objects.requireNonNull;
  * }
  * </pre>
  *
- * <p>Example of pom.xml</p>
+ * <p>Example of pom.xml
  * <pre>
  * &lt;project&gt;
  *   ...
@@ -69,7 +69,7 @@ import static java.util.Objects.requireNonNull;
  * &lt;/project&gt;
  * </pre>
  *
- * <p>Example of test</p>
+ * <p>Example of test
  * <pre>
  * MyPlugin underTest = new MyPlugin();
  *

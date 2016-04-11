@@ -29,7 +29,7 @@ import java.util.Collection;
 /**
  * The rules that are activated on the current module. Quality profiles are
  * merged, so rules can relate to different repositories and languages.
- * <p/>
+ * <br>
  * Use {@link org.sonar.api.batch.rule.internal.ActiveRulesBuilder} to instantiate
  * this component in unit tests.
  *

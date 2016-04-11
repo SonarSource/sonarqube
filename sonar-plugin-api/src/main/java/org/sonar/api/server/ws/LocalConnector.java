@@ -41,7 +41,7 @@ import javax.annotation.CheckForNull;
  *   }
  * }
  * </pre>
- * </p>
+ * 
  * @since 5.5
  */
 @Beta

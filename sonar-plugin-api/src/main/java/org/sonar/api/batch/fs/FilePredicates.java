@@ -42,7 +42,7 @@ public interface FilePredicates {
    * Predicate that gets a file by its absolute path. The parameter
    * accepts forward/back slashes as separator and non-normalized values
    * (<code>/path/to/../foo.txt</code> is same as <code>/path/foo.txt</code>).
-   * <p/>
+   * <p>
    * Warning - not efficient because absolute path is not indexed yet.
    */
   FilePredicate hasAbsolutePath(String s);
@@ -57,12 +57,12 @@ public interface FilePredicates {
 
   /**
    * Predicate that gets the files which relative or absolute path matches a wildcard pattern.
-   * <p/>
+   * <br>
    * If the parameter starts with <code>file:</code>, then absolute path is used, else relative path. Pattern
    * is case-sensitive, except for file extension.
-   * <p/>
+   * <br>
    * Supported wildcards are <code>&#42;</code> and <code>&#42;&#42;</code>, but not <code>?</code>.
-   * <p/>
+   * <br>
    * Examples:
    * <ul>
    *   <li><code>&#42;&#42;/&#42;Foo.java</code> matches Foo.java, src/Foo.java and src/java/SuperFoo.java</li>

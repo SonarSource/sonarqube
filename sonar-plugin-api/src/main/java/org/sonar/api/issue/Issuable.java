@@ -28,10 +28,9 @@ import org.sonar.api.component.Perspective;
 import org.sonar.api.rule.RuleKey;
 
 /**
- * This perspective allows to add and get issues related to the selected component. It can be used from
- * {@link org.sonar.api.batch.Sensor}s and {@link org.sonar.api.batch.Decorator}s. Web extensions
- * must use {@link RubyIssueService}.
- * <p/>
+ * This perspective allows to add issues related to the selected component. It can be used from
+ * {@link org.sonar.api.batch.Sensor}s.
+ * <br>
  * Example:
  * <pre>
  *   import org.sonar.api.component.ResourcePerspectives;
@@ -75,7 +74,7 @@ public interface Issuable extends Perspective {
 
     /**
      * Optional, but recommended, plain-text message.
-     * <p/>
+     * <br>
      * Formats like Markdown or HTML are not supported. Size must not be greater than {@link Issue#MESSAGE_MAX_SIZE} characters.
      * @deprecated since 5.2 use {@link #at(NewIssueLocation)}
      */
@@ -136,7 +135,7 @@ public interface Issuable extends Perspective {
 
   /**
    * Register an issue created with {@link #newIssueBuilder()}.
-   * <p/>
+   * <br>
    * This method is usually called from {@link org.sonar.api.batch.Sensor}s. {@link org.sonar.api.batch.Decorator}s calling this
    * method must be annotated with {@code @DependedUpon(DecoratorBarriers.ISSUES_ADDED)}.
    *

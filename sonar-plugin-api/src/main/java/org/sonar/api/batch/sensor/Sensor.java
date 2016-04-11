@@ -27,11 +27,11 @@ import org.sonar.api.batch.BatchSide;
  * <p>
  * A sensor is invoked once for each module of a project, starting from leaf modules. The sensor can parse a flat file, connect to a web server... Sensors are
  * used to add measure and issues at file level.
- * </p>
+ * 
  *
  * <p>
  * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on files.
- * </p>
+ * 
  *
  * @since 5.1
  */

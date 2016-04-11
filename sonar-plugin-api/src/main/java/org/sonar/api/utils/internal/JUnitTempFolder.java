@@ -34,7 +34,7 @@ import java.io.IOException;
 /**
  * Implementation of {@link org.sonar.api.utils.TempFolder} to be used
  * only in JUnit tests. It wraps {@link org.junit.rules.TemporaryFolder}.
- * <p/>
+ * <br>
  * Example:
  * <pre>
  * public class MyTest {

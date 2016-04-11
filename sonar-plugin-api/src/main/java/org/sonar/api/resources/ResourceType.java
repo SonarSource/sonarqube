@@ -29,14 +29,14 @@ import javax.annotation.concurrent.Immutable;
 import java.util.Map;
 
 /**
- * <p>Experimental extension to declare types of resources.</p>
+ * <p>Experimental extension to declare types of resources.
  * <p>
  * Since 3.0, ResourceType object can declare properties that give information about the capabilities of the
  * resource type. Those properties may be used, of instance, to adapt the Web UI according to the type of
  * the resource being displayed.
  * <br>
  * Currently, the following properties can be defined:
- * </p>
+ * 
  * <ul>
  * <li>"deletable": if set to "true", then this resource can be deleted/purged.</li>
  * <li>"supportsMeasureFilters": if set to "true", then this resource can be displayed in measure filters</li>

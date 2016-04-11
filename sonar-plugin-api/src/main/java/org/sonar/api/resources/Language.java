@@ -27,7 +27,7 @@ import org.sonar.api.server.ServerSide;
 
 /**
  * The extension point to define a new language
- * <p/>
+ * <br>
  * Instantiation strategy changed to PER_BATCH in version 4.2.
  *
  * @since 1.10

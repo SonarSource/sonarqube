@@ -54,11 +54,11 @@ public interface InputFile extends InputPath {
    * Path relative to module base directory. Path is unique and identifies file
    * within given <code>{@link FileSystem}</code>. File separator is the forward
    * slash ('/'), even on Microsoft Windows.
-   * <p/>
+   * <br>
    * Returns <code>src/main/java/com/Foo.java</code> if module base dir is
    * <code>/path/to/module</code> and if file is
    * <code>/path/to/module/src/main/java/com/Foo.java</code>.
-   * <p/>
+   * <br>
    * Relative path is not null and is normalized ('foo/../foo' is replaced by 'foo').
    */
   @Override
@@ -66,7 +66,7 @@ public interface InputFile extends InputPath {
 
   /**
    * Normalized absolute path. File separator is forward slash ('/'), even on Microsoft Windows.
-   * <p/>
+   * <br>
    * This is not canonical path. Symbolic links are not resolved. For example if /project/src links
    * to /tmp/src and basedir is /project, then this method returns /project/src/index.php. Use
    * {@code file().getCanonicalPath()} to resolve symbolic link.
@@ -103,8 +103,13 @@ public interface InputFile extends InputPath {
   Status status();
 
   /**
-   * Number of physical lines. This method supports all end-of-line characters. Formula is (number of line break + 1). Returns
-   * 1 if the file is empty.</br> Returns 2 for <tt>foo\nbar</tt>. Returns 3 for <tt>foo\nbar\n</tt>.
+   * Number of physical lines. This method supports all end-of-line characters. Formula is (number of line break + 1). 
+   * <p>
+   * Returns 1 if the file is empty.
+   * <br> 
+   * Returns 2 for <tt>foo\nbar</tt>. 
+   * <br>
+   * Returns 3 for <tt>foo\nbar\n</tt>.
    */
   int lines();
 
@@ -118,7 +123,7 @@ public interface InputFile extends InputPath {
    * Returns a {@link TextPointer} in the given file.
    * @param line Line of the pointer. Start at 1.
    * @param lineOffset Offset in the line. Start at 0.
-   * @throw {@link IllegalArgumentException} if line or offset is not valid for the given file.
+   * @throws IllegalArgumentException if line or offset is not valid for the given file.
    * @since 5.2
    */
   TextPointer newPointer(int line, int lineOffset);
@@ -127,7 +132,7 @@ public interface InputFile extends InputPath {
    * Returns a {@link TextRange} in the given file.
    * @param start start pointer
    * @param end end pointer
-   * @throw {@link IllegalArgumentException} if start or stop pointers are not valid for the given file.
+   * @throws IllegalArgumentException if start or stop pointers are not valid for the given file.
    * @since 5.2
    */
   TextRange newRange(TextPointer start, TextPointer end);
@@ -138,7 +143,7 @@ public interface InputFile extends InputPath {
    * <li><code>newRange(1, 0, 1, 1)</code> selects the first character at line 1</li>
    * <li><code>newRange(1, 0, 1, 10)</code> selects the 10 first characters at line 1</li>
    * </ul>
-   * @throw {@link IllegalArgumentException} if start or stop positions are not valid for the given file.
+   * @throws IllegalArgumentException if start or stop positions are not valid for the given file.
    * @since 5.2
    */
   TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset);
@@ -146,7 +151,7 @@ public interface InputFile extends InputPath {
   /**
    * Returns a {@link TextRange} in the given file that select the full line.
    * @param line Start at 1.
-   * @throw {@link IllegalArgumentException} if line is not valid for the given file.
+   * @throws IllegalArgumentException if line is not valid for the given file.
    * @since 5.2
    */
   TextRange selectLine(int line);

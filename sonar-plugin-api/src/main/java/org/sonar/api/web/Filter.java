@@ -27,7 +27,7 @@ import java.util.List;
 /**
  * Definition of a filter.
  *
- * <p>Its name can be retrieved using the i18n mechanism, using the keys "filter.&lt;id&gt;.name".</p>
+ * <p>Its name can be retrieved using the i18n mechanism, using the keys "filter.&lt;id&gt;.name".
  *
  * @since 3.1
  */
@@ -112,7 +112,7 @@ public final class Filter {
   /**
    * Get the type of display used by this {@link Filter}.
    * 
-   * <p>Can be either {@code #LIST} or {@code #TREEMAP}</p>
+   * <p>Can be either {@code #LIST} or {@code #TREEMAP}
    * 
    * @return the display type
    */
@@ -123,7 +123,7 @@ public final class Filter {
   /**
    * Set the type of display used by this {@link Filter}.
    * 
-   * <p>Can be either {@code #LIST} or {@code #TREEMAP}</p>
+   * <p>Can be either {@code #LIST} or {@code #TREEMAP}
    * 
    * @return this filter
    * @throws IllegalArgumentException if {@code displayAs} is not {@code #LIST} or {@code #TREEMAP}
@@ -137,7 +137,7 @@ public final class Filter {
   /**
    * Get the size of a page displayed this {@link Filter}.
    * 
-   * <p>The page size is between <code>20</code> and <code>200</code> (included)</p>
+   * <p>The page size is between <code>20</code> and <code>200</code> (included)
    * 
    * @return the display type
    */
@@ -148,7 +148,7 @@ public final class Filter {
   /**
    * Set the size of a page displayed this {@link Filter}.
    * 
-   * <p>The page size should be between <code>20</code> and <code>200</code> (included)</p>
+   * <p>The page size should be between <code>20</code> and <code>200</code> (included)
    * 
    * @return the display type
    * @throws IllegalArgumentException if {@code pageSize} is not lower than {@code 20} or greater than {@code 200}

@@ -22,7 +22,6 @@ package org.sonar.api.utils;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
-
 import org.apache.commons.lang.StringUtils;
 
 /**
@@ -36,7 +35,6 @@ import org.apache.commons.lang.StringUtils;
  * <li>* matches zero or more characters</li>
  * <li>** matches zero or more 'directories'</li>
  * </ul>
- * </p>
  * <p>
  * Some examples of patterns:
  * <ul>
@@ -50,12 +48,11 @@ import org.apache.commons.lang.StringUtils;
  * <li><code>org/&#42;&#42;/*.java</code> - matches all <code>.java</code> files underneath the <code>org</code> directory,
  * e.g. <code>org/Foo.java</code> or <code>org/foo/Bar.java</code> or <code>org/foo/bar/Baz.java</code></li>
  * </ul>
- * </p>
  * <p>
  * Another implementation, which is also based on Java Regular Expressions, can be found in
  * <a href="https://github.com/JetBrains/intellij-community/blob/idea/107.743/platform/util/src/com/intellij/openapi/util/io/FileUtil.java#L847">FileUtil</a>
  * from IntelliJ OpenAPI.
- * </p>
+ * 
  * 
  * @since 1.10
  */
@@ -189,12 +186,12 @@ public class WildcardPattern {
    * This is used to match Java-classes, i.e. <code>org.foo.Bar</code> against <code>org/**</code>.
    * <b>However usage of character other than "/" as a directory separator is misleading and should be avoided,
    * so method {@link #create(String)} is preferred over this one.</b>
-   * </p>
+   * 
    * <p>
    * Also note that no matter whether forward or backward slashes were used in the <code>antPattern</code>
    * the returned pattern will use <code>directorySeparator</code>.
    * Thus to match Windows-style path "dir\file.ext" against pattern "dir/file.ext" normalization should be performed.
-   * </p>
+   * 
    */
   public static WildcardPattern create(String pattern, String directorySeparator) {
     String key = pattern + directorySeparator;

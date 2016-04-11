@@ -26,7 +26,7 @@ import org.sonar.api.server.ServerSide;
 /**
  * <p>
  * Plugins should extend this class to provide implementation on a specific way to deliver notifications.
- * </p>
+ * 
  * For example:
  * <ul>
  * <li>email - sends email as soon as possible</li>

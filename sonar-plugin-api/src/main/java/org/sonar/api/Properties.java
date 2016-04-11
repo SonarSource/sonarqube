@@ -24,10 +24,10 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * Plugin properties. This annotation is only used on classes implementing org.sonar.api.Plugin.
- * <p/>
+ * <br>
  * Note that {@link org.sonar.api.config.PropertyDefinition} is an alternative, programmatic and recommended approach
  * to declare properties.
- * <p/>
+ * <br>
  * Effective property values are accessible at runtime through the component {@link org.sonar.api.config.Settings}
  *
  * @since 1.10

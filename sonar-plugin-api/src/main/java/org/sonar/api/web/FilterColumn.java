@@ -52,10 +52,10 @@ public final class FilterColumn {
   /**
    * Creates a new {@link FilterColumn}.
    *
-   * <p>Valid values for the {@code sortDirection} are {@code #ASC}, {@code #DESC}</p>
+   * <p>Valid values for the {@code sortDirection} are {@code #ASC}, {@code #DESC}
    *
    * <p>When the @{see Filter} is persisted, a validation is made on the {@code family} and the {@code key}.
-   * They should point to a valid column description.</p>
+   * They should point to a valid column description.
    *
    * @throws IllegalArgumentException if {@code sortDirection} is not valid
    */

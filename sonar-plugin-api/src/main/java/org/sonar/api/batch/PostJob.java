@@ -24,7 +24,7 @@ import org.sonar.api.resources.Project;
 
 /**
  * PostJobs are executed at the very end of batch analysis. A PostJob can't do any modification
- * since everything is already computed (issues, measures,...). <br/>
+ * since everything is already computed (issues, measures,...). <br>
  * WANRING: Do not rely on the fact that analysis results are available on server side. Starting from 5.x
  * it is an asynchronous processing on server side.
  *

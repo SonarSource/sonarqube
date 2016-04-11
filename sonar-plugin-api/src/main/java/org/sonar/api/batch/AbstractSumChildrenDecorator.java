@@ -35,12 +35,10 @@ import org.sonar.api.resources.Resource;
 @Deprecated
 public abstract class AbstractSumChildrenDecorator implements Decorator {
 
-
   /**
    * Each metric is used individually. There are as many generated measures than metrics.
-   * <p/>
    * <p><b>Important</b> : annotations are not inherited, so you have to copy the @DependedUpon annotation
-   * when implementing this method.</p>
+   * when implementing this method.
    *
    * @return not null list of metrics
    */

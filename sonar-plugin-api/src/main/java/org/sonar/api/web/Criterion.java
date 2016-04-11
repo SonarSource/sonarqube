@@ -61,7 +61,7 @@ public final class Criterion {
   /**
    * Creates a new {@link Criterion} with a numerical value.
    *
-   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}
    *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
@@ -72,7 +72,7 @@ public final class Criterion {
   /**
    * Creates a new {@link Criterion} with a text value.
    *
-   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}
    *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
@@ -83,7 +83,7 @@ public final class Criterion {
   /**
    * Creates a new {@link Criterion} on a metric, with a numerical value.
    *
-   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}
    *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
@@ -94,7 +94,7 @@ public final class Criterion {
   /**
    * Creates a new {@link Criterion} on a metric, with a text value.
    *
-   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}
    *
    * @throws IllegalArgumentException if {@code operator} is not valid
    */
@@ -130,7 +130,7 @@ public final class Criterion {
   /**
    * Get the the criterion's operator.
    *
-   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}</p>
+   * <p>Valid values for the {@code operator} are {@code #EQ}, {@code #GT}, {@code #GTE}, {@code #LT} and {@code #LTE}
    *
    * @return the operator
    */

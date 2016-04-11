@@ -40,7 +40,7 @@ public interface I18n {
    * Searches the message of the <code>key</code> for the <code>locale</code> in the list of available bundles.
    * <br>
    * If not found in any bundle, <code>defaultValue</code> is returned.
-   * <p/>
+   * <br>
    * If additional parameters are given (in the objects list), the result is used as a message pattern
    * to use in a MessageFormat object along with the given parameters.
    *
@@ -57,13 +57,13 @@ public interface I18n {
    * <br>
    * Examples :
    * <ul>
-   * <li>age(Locale.ENGLISH, 1000) -> less than a minute</li>
-   * <li>age(Locale.ENGLISH, 60000) -> about a minute</li>
-   * <li>age(Locale.ENGLISH, 120000) -> 2 minutes</li>
-   * <li>age(Locale.ENGLISH, 3600000) -> about an hour</li>
-   * <li>age(Locale.ENGLISH, 7200000) -> 2 hours</li>
-   * <li>age(Locale.ENGLISH, 86400000) -> a day</li>
-   * <li>age(Locale.ENGLISH, 172800000) -> 2 days</li>
+   * <li>age(Locale.ENGLISH, 1000) -&gt; less than a minute</li>
+   * <li>age(Locale.ENGLISH, 60000) -&gt; about a minute</li>
+   * <li>age(Locale.ENGLISH, 120000) -&gt; 2 minutes</li>
+   * <li>age(Locale.ENGLISH, 3600000) -&gt; about an hour</li>
+   * <li>age(Locale.ENGLISH, 7200000) -&gt; 2 hours</li>
+   * <li>age(Locale.ENGLISH, 86400000) -&gt; a day</li>
+   * <li>age(Locale.ENGLISH, 172800000) -&gt; 2 days</li>
    * </ul>
    *
    * @since 4.2

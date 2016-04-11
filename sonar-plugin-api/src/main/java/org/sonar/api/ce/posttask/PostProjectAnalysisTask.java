@@ -31,11 +31,11 @@ import org.sonar.api.ce.ComputeEngineSide;
  *
  * <p>
  * If more then one implementation of {@link PostProjectAnalysisTask} is found, they will be executed in no specific order.
- * </p>
+ * 
  *
  * <p>
  * Class {@link PostProjectAnalysisTaskTester} is provided to write unit tests of implementations of this interface.
- * </p>
+ * 
  *
  * @since 5.5
  * @see PostProjectAnalysisTaskTester
@@ -74,7 +74,7 @@ public interface PostProjectAnalysisTask {
      * Date of the analysis.
      * <p>
      * This date is the same as the date of the project analysis report and the snapshot.
-     * </p>
+     * 
      */
     Date getDate();
   }

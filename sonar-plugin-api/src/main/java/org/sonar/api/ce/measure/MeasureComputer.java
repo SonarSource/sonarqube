@@ -23,14 +23,14 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.ExtensionPoint;
-import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition.Builder;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition.Builder;
 
 /**
  * Define how to compute new measures on some metrics declared by {@link org.sonar.api.measures.Metrics}.
- * <p/>
+ * <p>
  * This interface replaces the deprecated class org.sonar.api.batch.Decorator.
- * <p/>
+ * <p>
  * <h3>How to use</h3>
  * <pre>
  * public class MyMeasureComputer implements MeasureComputer {
@@ -59,7 +59,7 @@ import org.sonar.api.ce.ComputeEngineSide;
  *   }
  * }
  * </pre>
- * <p/>
+ * <p>
  * <h3>How to test</h3>
  * <pre>
  * public class MyMeasureComputerTest {
