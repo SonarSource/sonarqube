@@ -58,7 +58,7 @@ public class RuleIndexer extends BaseIndexer {
       rowIt.close();
       return maxDate;
     } finally {
-      dbSession.close();
+      dbClient.closeSession(dbSession);
     }
   }
 
@@ -67,11 +67,6 @@ public class RuleIndexer extends BaseIndexer {
     long maxDate = 0L;
     while (rules.hasNext()) {
       RuleDoc rule = rules.next();
-      // TODO when active rule is not more DAO v2, restore deleting of REMOVED rules and also remove active rules linked to this rule
-      // if (rule.status() == RuleStatus.REMOVED) {
-      // bulk.add(newDeleteRequest(rule));
-      // } else {
-      // }
       bulk.add(newIndexRequest(rule));
 
       // it's more efficient to sort programmatically than in SQL on some databases (MySQL for instance)
@@ -92,10 +87,4 @@ public class RuleIndexer extends BaseIndexer {
       .routing(rule.repository())
       .source(rule.getFields());
   }
-
-  // private DeleteRequest newDeleteRequest(RuleDoc rule) {
-  // return new DeleteRequest(INDEX, TYPE_RULE, rule.key().toString())
-  // .routing(rule.repository());
-  // }
-
 }

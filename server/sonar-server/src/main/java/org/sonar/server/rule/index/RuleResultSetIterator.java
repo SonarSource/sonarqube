@@ -20,7 +20,6 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.base.Splitter;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Sets;
@@ -101,7 +100,6 @@ public class RuleResultSetIterator extends ResultSetIterator<RuleDoc> {
 
     // all the fields must be present, even if value is null
     doc.setKey(key.toString());
-    doc.setKeyAsList(ImmutableList.of(repositoryKey, ruleKey));
     doc.setRuleKey(ruleKey);
     doc.setRepository(repositoryKey);
     doc.setName(rs.getString(3));

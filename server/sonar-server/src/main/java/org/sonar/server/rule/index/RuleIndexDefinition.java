@@ -35,8 +35,6 @@ public class RuleIndexDefinition implements IndexDefinition {
   public static final String TYPE_RULE = "rule";
 
   public static final String FIELD_RULE_KEY = "key";
-  // TODO find at what this field is useful ?
-  public static final String FIELD_RULE_KEY_AS_LIST = "_key";
   public static final String FIELD_RULE_REPOSITORY = "repo";
   public static final String FIELD_RULE_RULE_KEY = "ruleKey";
   public static final String FIELD_RULE_INTERNAL_KEY = "internalKey";
@@ -92,8 +90,7 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.setEnableSource(false);
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).enableSorting().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_KEY_AS_LIST).build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).disableSearch().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).enableSorting().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).docValues().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableSearch().docValues().build();
 

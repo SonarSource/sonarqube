@@ -66,6 +66,8 @@ import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.search.StickyFacetBuilder;
 
+import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
+import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
 import static org.sonar.server.es.EsUtils.scrollIds;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
@@ -77,7 +79,6 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DE
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_INTERNAL_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_IS_TEMPLATE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY_AS_LIST;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_LANGUAGE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_NAME;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
@@ -177,15 +178,16 @@ public class RuleIndex extends BaseIndex {
     String queryString = query.getQueryText();
 
     // Human readable type of querying
-    qb.should(QueryBuilders.simpleQueryStringQuery(query.getQueryText())
+    qb.should(simpleQueryStringQuery(query.getQueryText())
       .field(FIELD_RULE_NAME + "." + SEARCH_WORDS_SUFFIX, 20f)
       .field(FIELD_RULE_HTML_DESCRIPTION + "." + SEARCH_WORDS_SUFFIX, 3f)
       .defaultOperator(SimpleQueryStringBuilder.Operator.AND)
       ).boost(20f);
 
     // Match and partial Match queries
-    qb.should(termQuery(FIELD_RULE_KEY, queryString, 15f));
-    qb.should(termQuery(FIELD_RULE_KEY_AS_LIST, queryString, 35f));
+    // Search by key uses the "sortable" sub-field as it requires to be case-insensitive (lower-case filtering)
+    qb.should(matchQuery(FIELD_RULE_KEY + "." + SORT_SUFFIX, queryString).operator(MatchQueryBuilder.Operator.AND).boost(30f));
+    qb.should(matchQuery(FIELD_RULE_RULE_KEY + "." + SORT_SUFFIX, queryString).operator(MatchQueryBuilder.Operator.AND).boost(15f));
     qb.should(termQuery(FIELD_RULE_LANGUAGE, queryString, 3f));
     qb.should(termQuery(FIELD_RULE_ALL_TAGS, queryString, 10f));
     qb.should(termAnyQuery(FIELD_RULE_ALL_TAGS, queryString, 1f));

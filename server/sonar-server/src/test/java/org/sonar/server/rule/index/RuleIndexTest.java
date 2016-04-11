@@ -103,15 +103,18 @@ public class RuleIndexTest {
   }
 
   @Test
-  public void search_key_by_query() {
+  public void search_by_key() {
+    RuleKey js1 = RuleKey.of("javascript", "X001");
+    RuleKey cobol1 = RuleKey.of("cobol", "X001");
+    RuleKey php2 = RuleKey.of("php", "S002");
     indexRules(
-      newDoc(RuleKey.of("javascript", "X001")),
-      newDoc(RuleKey.of("cobol", "X001")),
-      newDoc(RuleKey.of("php", "S002")));
+      newDoc(js1).setName("First rule").setHtmlDescription("The first rule"),
+      newDoc(cobol1).setName("Second rule").setHtmlDescription("The second rule"),
+      newDoc(php2).setName("Third rule").setHtmlDescription("The third rule"));
 
     // key
     RuleQuery query = new RuleQuery().setQueryText("X001");
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(2);
+    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(js1, cobol1);
 
     // partial key does not match
     query = new RuleQuery().setQueryText("X00");
@@ -119,7 +122,16 @@ public class RuleIndexTest {
 
     // repo:key -> nice-to-have !
     query = new RuleQuery().setQueryText("javascript:X001");
-    assertThat(index.search(query, new SearchOptions()).getIds()).hasSize(1);
+    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(js1);
+  }
+
+  @Test
+  public void search_by_case_insensitive_key() {
+    RuleKey ruleKey = RuleKey.of("javascript", "X001");
+    indexRules(newDoc(ruleKey).setName("Name without key").setHtmlDescription("Description without key"));
+
+    RuleQuery query = new RuleQuery().setQueryText("x001");
+    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(ruleKey);
   }
 
   @Test
