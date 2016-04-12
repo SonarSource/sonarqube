@@ -36,7 +36,7 @@ export default function UserCard ({ user }) {
             <h1 id="name" className="display-inline-block">{user.name}</h1>
           </IndexLink>
           <span id="login" className="note big-spacer-left">{user.login}</span>
-          {!user.local && (
+          {!user.local && user.externalProvider !== 'sonarqube' && (
               <span id="identity-provider" className="big-spacer-left">
                 <UserExternalIdentity user={user}/>
               </span>

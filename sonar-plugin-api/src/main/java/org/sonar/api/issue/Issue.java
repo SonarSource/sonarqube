@@ -114,7 +114,7 @@ public interface Issue extends Serializable {
 
   /**
    * Arbitrary distance to threshold for resolving the issue.
-   * <p/>
+   * <br>
    * For examples:
    * <ul>
    *   <li>for the rule "Avoid too complex methods" : current complexity - max allowed complexity</li>
@@ -186,7 +186,7 @@ public interface Issue extends Serializable {
 
   /**
    * Non-null list of comments, ordered by chronological order.
-   * <p/>
+   * <br>
    * IMPORTANT: existing comments are not loaded when this method is called when analyzing project
    * (from {@link BatchSide}).
    */

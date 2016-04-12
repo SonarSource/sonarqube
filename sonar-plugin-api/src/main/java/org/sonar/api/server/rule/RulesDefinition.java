@@ -56,9 +56,9 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
 /**
  * Defines some coding rules of the same repository. For example the Java Findbugs plugin provides an implementation of
  * this extension point in order to define the rules that it supports.
- * <p/>
+ * <br>
  * This interface replaces the deprecated class org.sonar.api.rules.RuleRepository.
- * <p/>
+ * <br>
  * <h3>How to use</h3>
  * <pre>
  * public class MyJsRulesDefinition implements RulesDefinition {
@@ -98,10 +98,10 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  *   }
  * }
  * </pre>
- * <p/>
+ * <br>
  * If rules are declared in a XML file with the standard SonarQube format (see
  * {@link org.sonar.api.server.rule.RulesDefinitionXmlLoader}), then it can be loaded by using :
- * <p/>
+ * <br>
  * <pre>
  * public class MyJsRulesDefinition implements RulesDefinition {
  *
@@ -120,10 +120,10 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  *   }
  * }
  * </pre>
- * <p/>
+ * <br>
  * In the above example, XML file must contain name and description of each rule. If it's not the case, then the
  * (deprecated) English bundles can be used :
- * <p/>
+ * <br>
  * <pre>
  * public class MyJsRulesDefinition implements RulesDefinition {
  *
@@ -382,7 +382,7 @@ public interface RulesDefinition {
 
     /**
      * New builder for {@link org.sonar.api.server.rule.RulesDefinition.Repository}.
-     * <p/>
+     * <br>
      * A plugin can add rules to a repository that is defined then executed by another plugin. For instance
      * the FbContrib plugin contributes to the Findbugs plugin rules. In this case no need
      * to execute {@link org.sonar.api.server.rule.RulesDefinition.NewRepository#setName(String)}
@@ -704,7 +704,7 @@ public interface RulesDefinition {
 
     /**
      * The type as defined by the SonarQube Quality Model.
-     * <p/>
+     * <br>
      * When a plugin does not define rule type, then it is deduced from
      * tags:
      * <ul>
@@ -824,7 +824,7 @@ public interface RulesDefinition {
      * For rules that use LINEAR or LINEAR_OFFSET remediation functions, the meaning
      * of the function parameter (= "gap") must be set. This description
      * explains what 1 point of "gap" represents for the rule.
-     * <p/>
+     * <br>
      * Example: for the "Insufficient condition coverage", this description for the
      * remediation function gap multiplier/base effort would be something like
      * "Effort to test one uncovered condition".

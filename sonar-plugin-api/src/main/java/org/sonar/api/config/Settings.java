@@ -41,10 +41,10 @@ import org.sonar.api.utils.DateUtils;
 /**
  * Project settings on batch side, or global settings on server side. This component does not access to database, so
  * property changed via setter methods are not persisted.
- * <p/>
+ * <br>
  * <p>
  * For testing, you can create a new empty {@link Settings} component using {@link #Settings()} and then
- * populate it using all variant of {@code setProperty}. <br/>
+ * populate it using all variant of {@code setProperty}. <br>
  * If you want to test with default values of your properties taken into account there are two ways dependening on how you declare your properties.
  * <ul>
  * <li>If you are using annotations like:
@@ -82,7 +82,8 @@ import org.sonar.api.utils.DateUtils;
  * </code>
  * </pre>
  * </li>
- * </p>
+ * </ul>
+ * 
  * @since 2.12
  */
 @BatchSide
@@ -229,12 +230,12 @@ public class Settings {
 
   /**
    * Value is split by comma and trimmed. Never returns null.
-   * <p/>
+   * <br>
    * Examples :
    * <ul>
-   * <li>"one,two,three " -> ["one", "two", "three"]</li>
-   * <li>"  one, two, three " -> ["one", "two", "three"]</li>
-   * <li>"one, , three" -> ["one", "", "three"]</li>
+   * <li>"one,two,three " -&gt; ["one", "two", "three"]</li>
+   * <li>"  one, two, three " -&gt; ["one", "two", "three"]</li>
+   * <li>"one, , three" -&gt; ["one", "", "three"]</li>
    * </ul>
    */
   public String[] getStringArray(String key) {

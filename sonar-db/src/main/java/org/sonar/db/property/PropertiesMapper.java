@@ -48,6 +48,8 @@ public interface PropertiesMapper {
 
   void insert(PropertyDto property);
 
+  void deleteById(long id);
+
   void deleteProjectProperty(@Param("key") String key, @Param("rId") Long resourceId);
 
   void deleteProjectProperties(@Param("key") String key, @Param("value") String value);

@@ -639,7 +639,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     /**
      * Sets whether the metric is qualitative or not. Default value is false.
-     * <br/>
+     * <br>
      * If set to true, then variations of this metric will be highlighted in the Web UI (for instance, trend icons will be red or green instead of default grey).
      *
      * @param b Boolean.TRUE if the metric is qualitative
@@ -652,7 +652,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     /**
      * Sets the domain for the metric (General, Complexity...). This is used to group metrics in the Web UI.
-     * <br/>
+     * <br>
      * By default, the metric belongs to no specific domain.
      *
      * @param d the domain
@@ -665,10 +665,10 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     /**
      * Specifies the formula used by Sonar to automatically aggregate measures stored on files up to the project level.
-     * <br/>
-     * <br/>
+     * <br>
+     * <br>
      * By default, no formula is defined, which means that it's up to a sensor/decorator to compute measures on appropriate levels.
-     * <br/>
+     * <br>
      * When a formula is set, sensors/decorators just need to store measures at a specific level and let Sonar run the formula to store
      * measures on the remaining levels.
      *
@@ -696,7 +696,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     /**
      * Sets the best value that the metric can get (example: 100.0 for code coverage). No best value is set by default.
-     * <br/>
+     * <br>
      * Resources would be hidden on drilldown page, if the value of measure equals to best value.
      *
      * @param d the best value
@@ -709,7 +709,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     /**
      * Specifies whether file-level measures that equal to the defined best value are stored or not. Default is false.
-     * <br/>
+     * <br>
      * Example with the metric that stores the number of violation ({@link CoreMetrics#VIOLATIONS}):
      * if a file has no violation, then the value '0' won't be stored in the database.
      *
@@ -747,7 +747,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
 
     /**
      * Specifies whether measures from the past can be automatically deleted to minimize database volume.
-     * <br/>
+     * <br>
      * By default, historical data are kept.
      *
      * @since 2.14

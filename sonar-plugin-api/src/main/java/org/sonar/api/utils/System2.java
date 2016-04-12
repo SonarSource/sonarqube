@@ -33,7 +33,7 @@ import org.sonar.api.server.ServerSide;
 /**
  * Proxy over {@link java.lang.System}. It aims to improve testability of classes
  * that interact with low-level system methods, for example :
- * <p/>
+ * <br>
  * <pre>
  * public class MyClass {
  *   private final System2 system;
@@ -56,9 +56,9 @@ import org.sonar.api.server.ServerSide;
  *   assertThat(new MyClass(system).xxx()).isEqualTo(now);
  * }
  * </pre>
- * <p/>
+ * <br>
  * Note that the name System2 was chosen to not conflict with {@link java.lang.System}.
- * <p/>
+ * <br>
  * An instance is available in IoC container since 4.3.
  *
  * @since 4.2

@@ -24,7 +24,7 @@ import javax.annotation.CheckForNull;
 /**
  * Function used to calculate the remediation cost of an issue. See {@link Type} for details.
  * <p>The gap multiplier and base effort involved in the functions are durations. They are defined in hours, minutes and/or
- * seconds. Examples: "5min", "1h 10min". Supported units are "d" (days), "h" (hour), and "min" (minutes).</p>
+ * seconds. Examples: "5min", "1h 10min". Supported units are "d" (days), "h" (hour), and "min" (minutes).
  *
  * @since 4.3
  */
@@ -47,13 +47,13 @@ public interface DebtRemediationFunction {
      * with each complexity point above the allowed value.
      * <p>
      * <code>Total remediation cost = base effort + (number of noncompliance x gap multiplier)</code>
-     * </p>
+     * 
      * <p>The rule must provide the "gap" value when raising an issue. Let’s take as a example the “Paragraphs should not be too complex” rule.
      * If you set the rule threshold to 20, and you have a paragraph with a complexity of 27, you have 7 points of complexity
      * to remove. Internally, this is called the Gap. In that case, if you use the LINEAR_OFFSET configuration
      * with an base effort of 4h and a remediation cost of 1mn, the effort for this issue related to a
      * too-complex block of code will be: (7 complexity points x 1min) + 4h = 4h and 7mn
-     * </p>
+     * 
      */
     LINEAR_OFFSET(true, true),
 

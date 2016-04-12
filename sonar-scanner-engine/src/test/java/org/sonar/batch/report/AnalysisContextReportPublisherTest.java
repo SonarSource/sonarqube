@@ -190,11 +190,13 @@ public class AnalysisContextReportPublisherTest {
     publisher.dumpModuleSettings(ProjectDefinition.create()
       .setProperty("sonar.projectKey", "foo")
       .setProperty("sonar.projectKey", "foo")
+      .setProperty("sonar.login", "my_token")
       .setProperty("sonar.password", "azerty")
       .setProperty("sonar.cpp.license.secured", "AZERTY"));
 
     assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSequence(
       "sonar.cpp.license.secured=******",
+      "sonar.login=******",
       "sonar.password=******",
       "sonar.projectKey=foo");
   }

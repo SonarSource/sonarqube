@@ -32,9 +32,9 @@ import org.sonar.api.utils.KeyValueFormat;
 
 /**
  * Utility to build a distribution based on defined ranges
- * <p/>
+ * <p>
  * <p>An example of usage : you wish to record the percentage of lines of code that belong to method
- * with pre-defined ranges of complexity.</p>
+ * with pre-defined ranges of complexity.
  *
  * @since 5.2
  */
@@ -86,7 +86,7 @@ public class RangeDistributionBuilder {
    * Adds an existing Distribution to the current one.
    * It will create the entries if they don't exist.
    * Can be used to add the values of children resources for example
-   * <p/>
+   * <br>
    * The returned distribution will be invalidated in case the given value does not use the same bottom limits
    *
    * @param data the data to add to the current one

@@ -34,7 +34,7 @@ import java.util.Map;
  * When creating a new notification, it is strongly advised to give a default message that can be  used by channels
  * that don't want to specifically format messages for different notification types. You can use
  * {@link Notification#setDefaultMessage(String)} for that purpose.
- * </p>
+ * 
  *
  * @since 2.10
  */
@@ -48,7 +48,7 @@ public class Notification implements Serializable {
   /**
    * <p>
    * Create a new {@link Notification} of the given type.
-   * </p>
+   * 
    * Example: type = "new-violations"
    *
    * @param type the type of notification
@@ -70,11 +70,11 @@ public class Notification implements Serializable {
    * <p>
    * When creating a new notification, it is strongly advised to give a default message that can be
    * used by channels that don't want to specifically format messages for different notification types.
-   * </p>
+   * 
    * <p>
    * This method is equivalent to setting a value for the field {@link #DEFAULT_MESSAGE_KEY} with
    * {@link #setFieldValue(String, String)}.
-   * </p>
+   * 
    *
    * @since 3.5
    */

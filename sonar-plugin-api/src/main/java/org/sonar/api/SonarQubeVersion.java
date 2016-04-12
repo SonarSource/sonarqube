@@ -81,12 +81,12 @@ import static java.util.Objects.requireNonNull;
  *   }
  * }
  * </pre>
- * <p></p>
+ * <p>
  * The minimal supported version of SonarQube is verified at runtime. As plugin is built
  * with sonar-plugin-api 5.6, we assume that the plugin requires v5.6 or greater at runtime.
  * For this reason the plugin must default which is the minimal supported version
  * in the configuration of sonar-packaging-maven-plugin 1.16+:
- * <p></p>
+ * <p>
  * <pre>
  * &lt;packaging&gt;sonar-plugin&lt;/packaging&gt;
  *

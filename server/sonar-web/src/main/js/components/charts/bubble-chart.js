@@ -32,7 +32,7 @@ export const Bubble = React.createClass({
     y: React.PropTypes.number.isRequired,
     r: React.PropTypes.number.isRequired,
     tooltip: React.PropTypes.string,
-    link: React.PropTypes.string
+    link: React.PropTypes.any
   },
 
   handleClick () {

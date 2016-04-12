@@ -71,7 +71,7 @@ public interface QualityGate {
      * <p>
      * The {@link org.sonar.api.measures.Metric} for the returned key can be retrieved using a
      * {@link org.sonar.api.measures.MetricFinder} instance.
-     * </p>
+     * 
      *
      * @see org.sonar.api.batch.measure.MetricFinder#findByKey(String)
      */
@@ -85,7 +85,7 @@ public interface QualityGate {
     /**
      * <p>
      * At least one of {@link #getErrorThreshold()} and {@link #getWarningThreshold()} is guaranteed to be non {@code null}.
-     * </p>
+     * 
      *
      * @see #getWarningThreshold()
      */
@@ -96,7 +96,7 @@ public interface QualityGate {
      *
      * <p>
      * At least one of {@link #getErrorThreshold()} and {@link #getWarningThreshold()} is guaranteed to be non {@code null}.
-     * </p>
+     * 
      *
      * @see #getErrorThreshold()
      */
@@ -113,7 +113,7 @@ public interface QualityGate {
      * <p>
      * If the type of the metric (which key is provided by {@link #getMetricKey()}) is numerical, the value can be parsed
      * using {@link Integer#valueOf(String)}, {@link Long#valueOf(String)} or {@link Double#valueOf(String)}.
-     * </p>
+     * 
      *
      * @throws IllegalStateException if {@link #getStatus()} is {@link EvaluationStatus#NO_VALUE}
      *

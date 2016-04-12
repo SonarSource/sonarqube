@@ -27,7 +27,7 @@ import static org.sonar.api.utils.log.ConsoleFormatter.format;
 /**
  * Slow implementation based on {@link java.lang.System#out}. It is not production-ready and it must be used
  * only for the tests that do not have logback dependency.
- * <p/>Implementation of message patterns is naive. It does not support escaped '{' and '}'
+ * <br>Implementation of message patterns is naive. It does not support escaped '{' and '}'
  * arguments.
  */
 class ConsoleLogger extends BaseLogger {

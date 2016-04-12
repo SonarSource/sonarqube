@@ -24,7 +24,7 @@ import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.Resource;
 
 /**
- * <p>This interface is not intended to be implemented by clients.</p>
+ * <p>This interface is not intended to be implemented by clients.
  *
  * @since 2.14
  */

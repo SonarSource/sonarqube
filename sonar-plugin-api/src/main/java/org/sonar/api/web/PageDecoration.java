@@ -32,7 +32,7 @@ import org.sonar.api.server.ServerSide;
  *   <li><code>sidebar</code> : area in the sidebar between the menu and the sonar logo</li>
  * </ul>
  *
- * <p>Example of template: </p>
+ * <p>Example of template: 
 <pre>
  <% content_for :script do %>
    <script>alert('page loaded')</script>

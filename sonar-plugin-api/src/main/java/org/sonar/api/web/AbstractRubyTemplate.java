@@ -30,7 +30,7 @@ import java.io.InputStream;
 
 /**
  * It's useful in development environment to see browser rendering in real time while editing the template. To do that, just
- * return an absolute path in the method getTemplatePath() :<br/>
+ * return an absolute path in the method getTemplatePath() :<br>
  * <pre>
  * <code>
  *   protected String getTemplatePath() {
@@ -39,8 +39,8 @@ import java.io.InputStream;
  * </code>
  * </pre>
  * Build and deploy the plugin in /extensions/plugins. The file /tmp/sample_dashboard_widget.erb will be reloaded on each request.
- * <p/>
- * <br/>
+ * <br>
+ * <br>
  * In production environment, you have to return the classloader path, for example "/org/sonar/myplugin/sample_dashboard_widget.erb".
  *
  * @since 1.11

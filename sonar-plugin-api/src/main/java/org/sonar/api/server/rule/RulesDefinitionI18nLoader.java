@@ -28,9 +28,9 @@ import org.sonar.api.server.ServerSide;
  * Loads the English bundles of rules (name, description and parameters) that are
  * deprecated since 4.2. It can be useful when loading existing XML files that
  * do not contain rule names and descriptions.
- * <p/>
+ * <br>
  * This class must be executed after declaring rules on {@link RulesDefinition.NewRepository}.
- * <p/>
+ * <br>
  * Note that localization of rules was dropped in version 4.2. All texts are English.
  *
  * @see org.sonar.api.server.rule.RulesDefinition for an example

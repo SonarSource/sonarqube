@@ -29,13 +29,13 @@ public final class TimeUtils {
 
   /**
    * Label for a duration, expressed in numbers of ms, seconds or minutes.
-   * <p/>
+   * <br>
    * Examples:
    * <ul>
-   *   <li>10 -> "10ms"</li>
-   *   <li>100 -> "100ms"</li>
-   *   <li>10000 -> "10s"</li>
-   *   <li>100000 -> "1min 40s"</li>
+   *   <li>10 -&gt; "10ms"</li>
+   *   <li>100 -&gt; "100ms"</li>
+   *   <li>10000 -&gt; "10s"</li>
+   *   <li>100000 -&gt; "1min 40s"</li>
    * </ul>
    */
   public static String formatDuration(long durationInMs) {

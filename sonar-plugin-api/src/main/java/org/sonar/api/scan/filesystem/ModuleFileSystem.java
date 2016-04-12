@@ -19,15 +19,13 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.fs.FileSystem;
-import org.sonar.api.batch.fs.InputFile;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 
 /**
  * @since 3.5
@@ -81,8 +79,7 @@ public interface ModuleFileSystem {
 
   /**
    * Default charset for files of the module. If it's not defined, then
-   * return the platform default charset. When trying to read an input file it is better to rely on
-   * {@link InputFile#encoding()} as encoding may be different for each file.
+   * return the platform default charset.
    */
   Charset sourceCharset();
 

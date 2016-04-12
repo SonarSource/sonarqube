@@ -54,10 +54,10 @@ import static java.lang.String.format;
 /**
  * Defines a web service. Note that contrary to the deprecated {@link org.sonar.api.web.Webservice}
  * the ws is fully implemented in Java and does not require any Ruby on Rails code.
- * <p/>
- * <p/>
+ * <br>
+ * <br>
  * The classes implementing this extension point must be declared by {@link org.sonar.api.Plugin}.
- * <p/>
+ * <br>
  * <h3>How to use</h3>
  * <pre>
  * public class HelloWs implements WebService {
@@ -99,7 +99,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * Create a new controller.
-     * <p/>
+     * <br>
      * Structure of request URL is <code>http://&lt;server&gt;/&lt>controller path&gt;/&lt;action path&gt;?&lt;parameters&gt;</code>.
      *
      * @param path the controller path must not start or end with "/". It is recommended to start with "api/"
@@ -293,7 +293,7 @@ public interface WebService extends Definable<WebService.Context> {
 
     /**
      * Link to the document containing an example of response. Content must be UTF-8 encoded.
-     * <p/>
+     * <br>
      * Example:
      * <pre>
      *   newAction.setResponseExample(getClass().getResource("/org/sonar/my-ws-response-example.json"));

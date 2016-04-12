@@ -31,10 +31,11 @@ package org.sonar.api;
  * <li>the method provide() is executed once by sonar</li>
  * <li>the method provide() must return an object, a class or an Iterable of objects. <strong>Arrays are excluded</strong>.</li>
  * </ul>
- * </p>
+ * 
  *
  * <p>Example:
  * <pre>
+ * {@code
  * public class RuleRepositoryProvider extends ExtensionProvider implements ServerExtension {
  *   private Language[] languages;
  *
@@ -50,8 +51,9 @@ package org.sonar.api;
  *     return result;
  *   }
  * }
+ * }
  * </pre>
- * </p>
+ * 
  *
  * @since 2.3
  */

@@ -29,7 +29,7 @@ import org.sonar.api.resources.Resource;
  * If the method start(), without parameters, exists, then it is executed at startup.
  *
  * @since 1.12
- * @deprecated since 4.2. Analysis is file-system oriented. See {@link org.sonar.api.scan.filesystem.InputFileFilter}
+ * @deprecated since 4.2. Analysis is file-system oriented. See {@link org.sonar.api.batch.fs.InputFileFilter}
  */
 @Deprecated
 @BatchSide

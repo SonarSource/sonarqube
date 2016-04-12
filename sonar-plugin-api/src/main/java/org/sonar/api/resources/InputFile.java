@@ -33,7 +33,7 @@ public interface InputFile {
    * The source base directory, different than the project basedir.
    * 
    * <p>For example in maven projects, the basedir of a source file stored in
-   * <code>src/main/java/org/foo/</code> is the directory <code>src/main/java</code>.</p>
+   * <code>src/main/java/org/foo/</code> is the directory <code>src/main/java</code>.
    */
   File getFileBaseDir();
 
@@ -48,10 +48,10 @@ public interface InputFile {
    * Path relative to basedir. Directory separator is slash <code>'/'</code>, whatever the platform.
    *
    * <p>Example on windows: if file basedir is <code>c:\project\src\</code> and file is <code>c:\project\src\org\foo\Bar.java</code>, then relative path
-   * is <code>org/foo/Bar.java</code></p>
+   * is <code>org/foo/Bar.java</code>
    *
    * <p>Example on unix: if file basedir is <code>/project/src</code> and file is <code>/project/src/org/foo/Bar.java</code>, then relative path
-   * is <code>org/foo/Bar.java</code> as well.</p>
+   * is <code>org/foo/Bar.java</code> as well.
    */
   String getRelativePath();
 
@@ -59,7 +59,7 @@ public interface InputFile {
    * Get an {@link InputStream} that reads from the file.
    *
    * <p>The returned stream is buffered so there is no need to use a
-   * <code>BufferedInputStream</code></p>
+   * <code>BufferedInputStream</code>
    *
    * @return the stream
    * @throws FileNotFoundException if the file is not found

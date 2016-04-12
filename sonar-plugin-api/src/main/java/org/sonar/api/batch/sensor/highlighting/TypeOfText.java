@@ -23,7 +23,7 @@ import com.google.common.annotations.Beta;
 
 /**
  * Experimental, do not use.
- * <p/>
+ * <br>
  * Possible types for highlighting code. See sonar-colorizer.css
  * @since 5.1
  */

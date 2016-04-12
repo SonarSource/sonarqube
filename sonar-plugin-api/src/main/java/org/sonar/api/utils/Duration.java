@@ -97,7 +97,7 @@ public class Duration implements Serializable {
 
   /**
    * Return the duration in text, by using the given hours in day parameter to process hours.
-   * <br/>
+   * <br>
    * Duration.decode("1d 1h", 8).encode(8) will return "1d 1h"
    * Duration.decode("2d", 8).encode(16) will return "1d"
    */

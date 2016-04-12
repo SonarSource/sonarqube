@@ -31,7 +31,7 @@ public interface CeTask {
    * <p>
    * This is the id under which the processing of the project analysis report has been added to the Compute Engine
    * queue.
-   * </p>
+   * 
    */
   String getId();
 

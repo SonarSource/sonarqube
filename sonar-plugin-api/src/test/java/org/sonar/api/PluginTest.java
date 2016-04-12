@@ -29,9 +29,9 @@ public class PluginTest {
 
   @Test
   public void test_context() {
-    Plugin.Context context = new Plugin.Context(new SonarQubeVersion(V5_5));
+    Plugin.Context context = new Plugin.Context(V5_5);
 
-    assertThat(context.getSonarQubeVersion().get()).isEqualTo(V5_5);
+    assertThat(context.getSonarQubeVersion()).isEqualTo(V5_5);
     assertThat(context.getExtensions()).isEmpty();
 
     context.addExtension("foo");

@@ -24,12 +24,12 @@ import org.junit.rules.ExternalResource;
 
 /**
  * <b>For tests only</b>
- * <p/>
+ * <br>
  * This JUnit rule allows to configure and access logs in tests. By default
  * trace level is enabled.
- * <p/>
+ * <br>
  * Warning - not compatible with parallel execution of tests in the same JVM fork.
- * <p/>
+ * <br>
  * Example:
  * <pre>
  * public class MyClass {

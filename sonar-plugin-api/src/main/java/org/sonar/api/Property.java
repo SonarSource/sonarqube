@@ -29,7 +29,7 @@ import java.lang.annotation.Target;
  * <ul>
  * <li>System property</li>
  * <li>Batch command-line (-Dfoo=bar in Maven or sonar-runner)</li>
- * <li>Maven pom.xml (element <properties>)</li>
+ * <li>Maven pom.xml (element {@literal <properties>})</li>
  * <li>Maven settings.xml</li>
  * <li>SonarQube web administration console</li>
  * </ul>
@@ -84,15 +84,15 @@ public @interface Property {
   /**
    * Options for *_LIST types
    *
-   * @since 3.0  Options for property of type PropertyType.SINGLE_SELECT_LIST</code>
+   * @since 3.0  Options for property of type {@link PropertyType#SINGLE_SELECT_LIST}
    * For example {"property_1", "property_3", "property_3"}).
    *
-   * @since 3.3  Options for property of type PropertyType.METRIC</code>.
-   * If no option is specified, any metric will match.
-   * If options are specified, all must match for the metric to be displayed.
-   * Three types of filter are supported <code>key:REGEXP</code>, <code>domain:REGEXP</code> and <code>type:comma_separated__list_of_types</code>.
-   * For example <code>key:new_.*</code> will match any metric which key starts by <code>new_</code>.
-   * For example <code>type:INT,FLOAT</code> will match any metric of type <code>INT</code> or <code>FLOAT</code>.
+   * @since 3.3  Options for property of type {@link PropertyType#METRIC}<br>
+   * If no option is specified, any metric will match.<br>
+   * If options are specified, all must match for the metric to be displayed.<br>
+   * Three types of filter are supported <code>key:REGEXP</code>, <code>domain:REGEXP</code> and <code>type:comma_separated__list_of_types</code>.<br>
+   * For example <code>key:new_.*</code> will match any metric which key starts by <code>new_</code>.<br>
+   * For example <code>type:INT,FLOAT</code> will match any metric of type <code>INT</code> or <code>FLOAT</code>.<br>
    * For example <code>type:NUMERIC</code> will match any metric of numerictype.
    */
   String[] options() default {};

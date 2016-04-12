@@ -33,11 +33,11 @@ public interface InputDir extends InputPath {
    * Path relative to module base directory. Path is unique and identifies directory
    * within given <code>{@link FileSystem}</code>. File separator is the forward
    * slash ('/'), even on Microsoft Windows.
-   * <p/>
+   * <br>
    * Returns <code>src/main/java/com</code> if module base dir is
    * <code>/path/to/module</code> and if directory is
    * <code>/path/to/module/src/main/java/com</code>.
-   * <p/>
+   * <br>
    * Relative path is not null and is normalized ('foo/../foo' is replaced by 'foo').
    */
   @Override
@@ -45,7 +45,7 @@ public interface InputDir extends InputPath {
 
   /**
    * Normalized absolute path. File separator is forward slash ('/'), even on Microsoft Windows.
-   * <p/>
+   * <br>
    * This is not canonical path. Symbolic links are not resolved. For example if /project/src links
    * to /tmp/src and basedir is /project, then this method returns /project/src. Use
    * {@code file().getCanonicalPath()} to resolve symbolic link.

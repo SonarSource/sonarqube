@@ -50,7 +50,7 @@ public interface NewIssueLocation {
 
   /**
    * Optional, but recommended, plain-text message for this location.
-   * <p/>
+   * <br>
    * Formats like Markdown or HTML are not supported. Size must not be greater than {@link #MESSAGE_MAX_SIZE} characters.
    */
   NewIssueLocation message(String message);

@@ -26,11 +26,11 @@ import org.sonar.api.resources.Project;
  * <p>
  * Initializer can execute external tool (like a Maven plugin), change project configuration. For example CoberturaMavenInitializer invokes
  * the Codehaus Cobertura Mojo and sets path to Cobertura report according to Maven POM.
- * </p>
+ * 
  * 
  * <p>
  * Initializers are executed first and once during project analysis.
- * </p>
+ * 
  * 
  * @since 2.6
  */

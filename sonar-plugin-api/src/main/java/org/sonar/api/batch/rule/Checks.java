@@ -39,7 +39,7 @@ import org.sonar.check.RuleProperty;
  * Instantiates checks (objects that provide implementation of coding
  * rules) that use sonar-check-api annotations. Checks are selected and configured
  * from the Quality profiles enabled on the current module.
- * <p/>
+ * <br>
  * Example of check class:
  * <pre>
  *   {@literal @}org.sonar.check.Rule(key = "S001")
@@ -74,7 +74,7 @@ import org.sonar.check.RuleProperty;
  *     }
  *   }
  * </pre>
- * <p/>
+ * <br>
  * It replaces org.sonar.api.checks.AnnotationCheckFactory
  *
  * @since 4.2

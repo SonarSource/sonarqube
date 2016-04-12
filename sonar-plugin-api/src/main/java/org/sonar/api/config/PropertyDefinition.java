@@ -33,16 +33,16 @@ import org.sonar.api.ExtensionPoint;
 import org.sonar.api.Property;
 import org.sonar.api.PropertyType;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 
 /**
  * Declare a plugin property. Values are available at runtime through the component {@link Settings}.
- * <p/>
+ * <br>
  * It's the programmatic alternative to the annotation {@link org.sonar.api.Property}. It is more
  * testable and adds new features like sub-categories and ordering.
- * <p/>
+ * <br>
  * Example:
  * <pre><code>
  *   public class MyPlugin extends SonarPlugin {
@@ -54,7 +54,7 @@ import org.sonar.api.server.ServerSide;
  *     }
  *   }
  * </code></pre>
- * <p/>
+ * <br>
  * Keys in localization bundles are:
  * <ul>
  * <li>{@code property.<key>.name} is the label of the property</li>
@@ -209,11 +209,11 @@ public final class PropertyDefinition {
 
   /**
    * Options for *_LIST types
-   * <p/>
-   * Options for property of type PropertyType.SINGLE_SELECT_LIST</code>
+   * <br>
+   * Options for property of type {@link PropertyType#SINGLE_SELECT_LIST}.<br>
    * For example {"property_1", "property_3", "property_3"}).
-   * <p/>
-   * Options for property of type PropertyType.METRIC</code>.
+   * <br>
+   * Options for property of type {@link PropertyType#METRIC}.<br>
    * If no option is specified, any metric will match.
    * If options are specified, all must match for the metric to be displayed.
    * Three types of filter are supported <code>key:REGEXP</code>, <code>domain:REGEXP</code> and <code>type:comma_separated__list_of_types</code>.
@@ -381,10 +381,10 @@ public final class PropertyDefinition {
     /**
      * The property will be available in General Settings AND in the components
      * with the given qualifiers.
-     * <p/>
+     * <br>
      * For example @{code onQualifiers(Qualifiers.PROJECT)} allows to configure the
      * property in General Settings and in Project Settings.
-     * <p/>
+     * <br>
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
      */
@@ -397,10 +397,10 @@ public final class PropertyDefinition {
     /**
      * The property will be available in General Settings AND in the components
      * with the given qualifiers.
-     * <p/>
+     * <br>
      * For example @{code onQualifiers(Arrays.asList(Qualifiers.PROJECT))} allows to configure the
      * property in General Settings and in Project Settings.
-     * <p/>
+     * <br>
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
      */
@@ -413,10 +413,10 @@ public final class PropertyDefinition {
     /**
      * The property will be available in the components
      * with the given qualifiers, but NOT in General Settings.
-     * <p/>
+     * <br>
      * For example @{code onlyOnQualifiers(Qualifiers.PROJECT)} allows to configure the
      * property in Project Settings only.
-     * <p/>
+     * <br>
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
      */
@@ -429,10 +429,10 @@ public final class PropertyDefinition {
     /**
      * The property will be available in the components
      * with the given qualifiers, but NOT in General Settings.
-     * <p/>
+     * <br>
      * For example @{code onlyOnQualifiers(Arrays.asList(Qualifiers.PROJECT))} allows to configure the
      * property in Project Settings only.
-     * <p/>
+     * <br>
      * See supported constant values in {@link Qualifiers}. By default property is available
      * only in General Settings.
      */

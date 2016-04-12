@@ -47,15 +47,15 @@ import java.util.Map;
  *     .endObject()
  *     .close();
  * </pre>
- * </p>
+ * 
  * <p>
  * By default, null objects are not serialized. To enable {@code null} serialization,
  * use {@link #setSerializeNulls(boolean)}.
- * </p>
+ * 
  * <p>
  * By default, emptry strings are serialized. To disable empty string serialization,
  * use {@link #setSerializeEmptys(boolean)}.
- * </p>
+ * 
  *
  * @since 4.2
  */

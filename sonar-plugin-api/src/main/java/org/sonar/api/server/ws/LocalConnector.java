@@ -41,7 +41,7 @@ import javax.annotation.CheckForNull;
  *   }
  * }
  * </pre>
- * </p>
+ * 
  * @since 5.5
  */
 @Beta
@@ -104,7 +104,6 @@ public interface LocalConnector {
 
     /**
      * @see Response#setHeader(String, String)
-     * @return
      */
     @CheckForNull
     String getHeader(String name);

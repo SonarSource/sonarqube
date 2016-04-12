@@ -27,17 +27,17 @@ import org.sonar.api.resources.Project;
  * A Sensor is invoked once during the analysis of a project. The sensor can parse a flat file, connect to a web server... Sensor are
  * generally used to add measure at the lowest level of the resource tree. A sensor can access and save measures on the whole tree of
  * resources.
- * </p>
+ * 
  *
  * <p>
  * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on resources.
- * </p>
+ * 
  *
  * <p>
  * A particular attention should be given to resource exclusion. Sonar already manages exclusions at file level : if you try to save a
  * measure on a resource that is excluded in the settings, then Sonar will not save the measure. When handling a plugin or an external tool,
  * you should make sure that exclusions are passed if you are going to get back consolidated data.
- * </p>
+ * 
  *
  * @since 1.10
  */
