@@ -67,7 +67,7 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
               <a
                   id={'component-measures-component-link-' + component.key}
                   className={linkClassName}
-                  href={getComponentUrl(component.key)}>
+                  href={getComponentUrl(component.refKey || component.key)}>
                 <span className="big-spacer-right">
                   <i className="icon-detach"/>
                 </span>
