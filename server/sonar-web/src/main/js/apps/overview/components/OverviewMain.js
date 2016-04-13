@@ -25,12 +25,14 @@ import Meta from './Meta';
 
 export default function OverviewMain (props) {
   return (
-      <div className="overview">
-        <div className="overview-main">
-          <Gate component={props.component} gate={props.gate}/>
-          <GeneralMain {...props}/>
+      <div className="page page-limited">
+        <div className="overview">
+          <div className="overview-main">
+            <Gate component={props.component} gate={props.gate}/>
+            <GeneralMain {...props}/>
+          </div>
+          <Meta component={props.component}/>
         </div>
-        <Meta component={props.component}/>
       </div>
   );
 }

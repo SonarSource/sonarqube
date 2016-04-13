@@ -23,7 +23,7 @@ import { translate } from '../../../helpers/l10n';
 
 export default function EmptyOverview ({ component }) {
   return (
-      <div className="page">
+      <div className="page page-limited">
         <div className="alert alert-warning">
           {translate('provisioning.no_analysis')}
         </div>

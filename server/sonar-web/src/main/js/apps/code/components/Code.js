@@ -76,7 +76,7 @@ class Code extends Component {
     const componentsClassName = classNames('spacer-top', { 'new-loading': fetching });
 
     return (
-        <div className="page">
+        <div className="page page-limited">
           <header className="page-header">
             <Search component={this.props.component}/>
 
