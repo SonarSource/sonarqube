@@ -45,7 +45,6 @@ public class SecurityMeasureTest {
   private static final String VULNERABILITIES_METRIC = "vulnerabilities";
   private static final String SECURITY_REMEDIATION_EFFORT_METRIC = "security_remediation_effort";
   private static final String SECURITY_RATING_METRIC = "security_rating";
-  private static final String EFFORT_TO_REACH_SECURITY_RATING_A_METRIC = "effort_to_reach_security_rating_a";
 
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
@@ -66,27 +65,22 @@ public class SecurityMeasureTest {
     assertThat(getMeasure(PROJECT, VULNERABILITIES_METRIC).getIntValue()).isEqualTo(4);
     assertThat(getMeasure(PROJECT, SECURITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(340);
     assertThat(getMeasure(PROJECT, SECURITY_RATING_METRIC).getData()).isEqualTo("E");
-    assertThat(getMeasure(PROJECT, EFFORT_TO_REACH_SECURITY_RATING_A_METRIC).getIntValue()).isEqualTo(340);
 
     assertThat(getMeasure(MODULE, VULNERABILITIES_METRIC).getIntValue()).isEqualTo(2);
     assertThat(getMeasure(MODULE, SECURITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(170);
     assertThat(getMeasure(MODULE, SECURITY_RATING_METRIC).getData()).isEqualTo("E");
-    assertThat(getMeasure(MODULE, EFFORT_TO_REACH_SECURITY_RATING_A_METRIC).getIntValue()).isEqualTo(170);
 
     assertThat(getMeasure(SUB_MODULE, VULNERABILITIES_METRIC).getIntValue()).isEqualTo(1);
     assertThat(getMeasure(SUB_MODULE, SECURITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(85);
     assertThat(getMeasure(SUB_MODULE, SECURITY_RATING_METRIC).getData()).isEqualTo("E");
-    assertThat(getMeasure(SUB_MODULE, EFFORT_TO_REACH_SECURITY_RATING_A_METRIC).getIntValue()).isEqualTo(85);
 
     assertThat(getMeasure(DIRECTORY, VULNERABILITIES_METRIC).getIntValue()).isEqualTo(0);
     assertThat(getMeasure(DIRECTORY, SECURITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(0);
     assertThat(getMeasure(DIRECTORY, SECURITY_RATING_METRIC).getData()).isEqualTo("A");
-    assertThat(getMeasure(DIRECTORY, EFFORT_TO_REACH_SECURITY_RATING_A_METRIC).getIntValue()).isEqualTo(0);
 
     assertThat(getMeasure(FILE, VULNERABILITIES_METRIC)).isNull();
     assertThat(getMeasure(FILE, SECURITY_REMEDIATION_EFFORT_METRIC)).isNull();
     assertThat(getMeasure(FILE, SECURITY_RATING_METRIC).getData()).isEqualTo("A");
-    assertThat(getMeasure(FILE, EFFORT_TO_REACH_SECURITY_RATING_A_METRIC)).isNull();
   }
 
   @Test
@@ -98,7 +92,6 @@ public class SecurityMeasureTest {
     assertThat(getMeasure(PROJECT, VULNERABILITIES_METRIC).getIntValue()).isEqualTo(0);
     assertThat(getMeasure(PROJECT, SECURITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(0);
     assertThat(getMeasure(PROJECT, SECURITY_RATING_METRIC).getData()).isEqualTo("A");
-    assertThat(getMeasure(PROJECT, EFFORT_TO_REACH_SECURITY_RATING_A_METRIC).getIntValue()).isEqualTo(0);
   }
 
   @CheckForNull
