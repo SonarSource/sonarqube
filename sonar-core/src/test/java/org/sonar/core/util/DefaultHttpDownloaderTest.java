@@ -57,7 +57,9 @@ import org.sonar.api.utils.SonarException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.argThat;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -273,6 +275,21 @@ public class DefaultHttpDownloaderTest {
   }
 
   @Test
+  public void https_defaults_are_http_properties() {
+    DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
+    Settings settings = new Settings();
+    settings.setProperty("http.proxyHost", "1.2.3.4");
+    settings.setProperty("http.proxyPort", "80");
+
+    new DefaultHttpDownloader.BaseHttpDownloader(system, settings, null);
+
+    verify(system).setProperty("http.proxyHost", "1.2.3.4");
+    verify(system).setProperty("http.proxyPort", "80");
+    verify(system).setProperty("https.proxyHost", "1.2.3.4");
+    verify(system).setProperty("https.proxyPort", "80");
+  }
+
+  @Test
   public void configure_http_proxy_credentials() {
     DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
     Settings settings = new Settings();
@@ -295,6 +312,19 @@ public class DefaultHttpDownloaderTest {
       public void describeTo(Description description) {
       }
     }));
+  }
+
+  @Test
+  public void no_http_proxy_settings_by_default() {
+    DefaultHttpDownloader.SystemFacade system = mock(DefaultHttpDownloader.SystemFacade.class);
+    Settings settings = new Settings();
+    new DefaultHttpDownloader.BaseHttpDownloader(system, settings, null);
+
+    verify(system, never()).setProperty(eq("http.proxyHost"), anyString());
+    verify(system, never()).setProperty(eq("https.proxyHost"), anyString());
+    verify(system, never()).setProperty(eq("http.proxyPort"), anyString());
+    verify(system, never()).setProperty(eq("https.proxyPort"), anyString());
+    verify(system, never()).setDefaultAuthenticator(any(Authenticator.class));
   }
 
 }
