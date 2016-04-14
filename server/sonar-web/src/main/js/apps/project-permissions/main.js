@@ -105,9 +105,10 @@ export default React.createClass({
   bulkApplyTemplate(e) {
     e.preventDefault();
     new ApplyTemplateView({
-      projects: this.state.projects,
+      query: this.state.query,
+      filter: this.state.filter,
       permissionTemplates: this.props.permissionTemplates,
-      refresh: this.requestPermissions
+      refresh: () => this.requestPermissions(1, this.state.query, this.state.filter)
     }).render();
   },
 

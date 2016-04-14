@@ -140,3 +140,8 @@ export function applyTemplateToProject (options) {
   const url = window.baseUrl + '/api/permissions/apply_template';
   return request(_.extend({ type: 'POST', url }, options));
 }
+
+export function bulkApplyTemplateToProject (options) {
+  const url = window.baseUrl + '/api/permissions/bulk_apply_template';
+  return request(_.extend({ type: 'POST', url }, options));
+}
