@@ -4,6 +4,7 @@
 <mapper namespace="org.sonar.db.ce.CeActivityMapper">
 
   <sql id="columns">
+    ca.id,
     ca.uuid,
     ca.task_type as taskType,
     ca.component_uuid as componentUuid,
@@ -44,10 +45,33 @@
   </select>
 
   <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto">
-    select
+    SELECT
     <include refid="columns"/>
     <include refid="sqlSelectByQuery" />
-    order by ca.submitted_at desc, ca.id desc
+    ORDER BY ca.id desc
+    LIMIT #{pageSize} OFFSET #{offset}
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="mssql">
+    SELECT * FROM (
+    SELECT ROW_NUMBER() OVER(ORDER BY id desc) AS NUMBER,
+      <include refid="columns"/>
+      <include refid="sqlSelectByQuery" />
+      ) AS QUERY
+    WHERE NUMBER BETWEEN (#{offset} * #{pageSize} + 1) AND ((#{offset} + 1) * #{pageSize})
+    ORDER BY id desc
+  </select>
+
+  <select id="selectByQuery" parameterType="map" resultType="org.sonar.db.ce.CeActivityDto" databaseId="oracle">
+    SELECT * FROM (
+      SELECT ROWNUM AS rn, t.* FROM (
+        SELECT
+        <include refid="columns"/>
+        <include refid="sqlSelectByQuery" />
+        ORDER BY ca.id desc
+      ) t
+    ) t
+    WHERE rn BETWEEN (#{offset} * #{pageSize} + 1) AND ((#{offset} + 1) * #{pageSize})
   </select>
 
   <select id="countByQuery" parameterType="map" resultType="int">
