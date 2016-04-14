@@ -136,7 +136,7 @@ export default Marionette.LayoutView.extend({
         .set(_.result(this.model, 'defaults'))
         .set({ uuid: id });
     this.requestComponent().done(function () {
-      that.requestSource()
+      that.requestSource(opts.aroundLine)
           .done(finalize)
           .fail(function () {
             that.model.set({
@@ -171,11 +171,14 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  linesLimit () {
-    return {
-      from: 1,
-      to: this.LINES_LIMIT
-    };
+  linesLimit (aroundLine) {
+    if (aroundLine) {
+      return {
+        from: Math.max(1, aroundLine - this.LINES_AROUND),
+        to: aroundLine + this.LINES_LIMIT
+      };
+    }
+    return { from: 1, to: this.LINES_LIMIT };
   },
 
   getUTCoverageStatus (row) {
@@ -206,10 +209,10 @@ export default Marionette.LayoutView.extend({
     return status;
   },
 
-  requestSource () {
+  requestSource (aroundLine) {
     const that = this;
     const url = window.baseUrl + '/api/sources/lines';
-    const options = _.extend({ uuid: this.model.id }, this.linesLimit());
+    const options = _.extend({ uuid: this.model.id }, this.linesLimit(aroundLine));
     return $.get(url, options).done(function (data) {
       let source = (data.sources || []).slice(0);
       if (source.length === 0 || (source.length > 0 && _.first(source).line === 1)) {
@@ -624,7 +627,7 @@ export default Marionette.LayoutView.extend({
     const url = window.baseUrl + '/api/sources/lines';
     const options = {
       uuid: this.model.id,
-      from: firstLine - this.LINES_AROUND,
+      from: Math.max(1, firstLine - this.LINES_AROUND),
       to: firstLine - 1
     };
     return $.get(url, options).done(function (data) {
