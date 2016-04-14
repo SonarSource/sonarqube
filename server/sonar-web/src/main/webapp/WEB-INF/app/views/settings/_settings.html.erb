@@ -15,15 +15,17 @@
           </thead>
           <tbody>
           <% @categories.each do |category| -%>
-            <tr id="select_<%= category.key -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category.key==category.key -%>">
-              <td class="category">
-                <% if @resource %>
-                  <a href="<%= url_for(:controller => 'project', :action => 'settings') -%>?id=<%= url_encode(@resource.key) -%>&category=<%= url_encode(category.key) -%>"><%= h category_name(category) -%></a>
-                <% else %>
-                  <%= link_to category_name(category), :category => category.key -%>
-                <% end %>
-              </td>
-            </tr>
+            <% if !category.key.blank?-%>
+              <tr id="select_<%= category.key -%>" class="select <%= cycle('even', 'odd', :name => 'category') -%> <%= 'selected' if @category.key==category.key -%>">
+                <td class="category">
+                  <% if @resource %>
+                    <a href="<%= url_for(:controller => 'project', :action => 'settings') -%>?id=<%= url_encode(@resource.key) -%>&category=<%= url_encode(category.key) -%>"><%= h category_name(category) -%></a>
+                  <% else %>
+                    <%= link_to category_name(category), :category => category.key -%>
+                  <% end %>
+                </td>
+              </tr>
+            <% end -%>
           <% end -%>
           </tbody>
         </table>
