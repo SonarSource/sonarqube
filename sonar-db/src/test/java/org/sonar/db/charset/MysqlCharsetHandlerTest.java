@@ -30,8 +30,8 @@ import org.sonar.api.utils.MessageException;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,42 +46,51 @@ public class MysqlCharsetHandlerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  CharsetHandler.SelectExecutor selectExecutor = mock(CharsetHandler.SelectExecutor.class);
-  MysqlCharsetHandler.CollationEditor collationEditor = mock(MysqlCharsetHandler.CollationEditor.class);
-  MysqlCharsetHandler underTest = new MysqlCharsetHandler(selectExecutor, collationEditor);
+  SqlExecutor selectExecutor = mock(SqlExecutor.class);
+  MysqlCharsetHandler underTest = new MysqlCharsetHandler(selectExecutor);
 
   @Test
-  public void checks_utf8() throws Exception {
-    answerSql(asList(
-      new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin"},
-      new String[] {TABLE_PROJECTS, COLUMN_NAME, "utf8", "utf8_bin"}));
+  public void does_not_fail_if_charsets_of_all_columns_are_utf8() throws Exception {
+    answerColumnDef(asList(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "utf8", "utf8_bin", "varchar", 10, false)));
 
+    // all columns are utf8
     underTest.handle(mock(Connection.class), true);
   }
 
   @Test
   public void fails_if_not_utf8() throws Exception {
-    answerSql(asList(
-      new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin"},
-      new String[] {TABLE_PROJECTS, COLUMN_KEE, "latin1", "utf8_bin"},
-      new String[] {TABLE_PROJECTS, COLUMN_NAME, "latin1", "utf8_bin"}));
+    answerColumnDef(asList(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_KEE, "latin1", "latin1_german1_ci", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "latin1", "latin1_swedish_ci", "varchar", 20, false)));
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("UTF8 case-sensitive collation is required for database columns [projects.kee, projects.name]");
-
     underTest.handle(mock(Connection.class), true);
   }
 
   @Test
   public void repairs_case_insensitive_column() throws Exception {
-    answerSql(asList(
-      new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin"},
-      new String[] {TABLE_PROJECTS, COLUMN_NAME, "utf8", "latin1_swedish_ci"}));
+    answerColumnDef(asList(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "latin1", "latin1_swedish_ci", "varchar", 10, false)));
 
     Connection connection = mock(Connection.class);
-    underTest.handle(connection, true);
+    underTest.handle(connection, false);
 
-    verify(collationEditor).alter(connection, TABLE_PROJECTS, COLUMN_NAME, "latin1_bin");
+    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects MODIFY name varchar(10) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL");
+  }
+
+  @Test
+  public void size_should_be_ignored_on_longtext_column() throws Exception {
+    answerColumnDef(asList(new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "latin1", "latin1_german1_ci", "longtext", 4_294_967_295L, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, false);
+
+    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE " + TABLE_ISSUES + " MODIFY " + COLUMN_KEE + " longtext CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL");
   }
 
   @Test
@@ -89,7 +98,7 @@ public class MysqlCharsetHandlerTest {
     assertThat(MysqlCharsetHandler.toCaseSensitive("big5_chinese_ci")).isEqualTo("big5_bin");
   }
 
-  private void answerSql(List<String[]> firstRequest, List<String[]>... otherRequests) throws SQLException {
-    when(selectExecutor.executeQuery(any(Connection.class), anyString(), anyInt())).thenReturn(firstRequest, otherRequests);
+  private void answerColumnDef(List<ColumnDef> columnDefs) throws SQLException {
+    when(selectExecutor.executeSelect(any(Connection.class), anyString(), eq(ColumnDef.ColumnDefRowConverter.INSTANCE))).thenReturn(columnDefs);
   }
 }

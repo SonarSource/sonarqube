@@ -35,7 +35,7 @@ public class SelectExecutorTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  CharsetHandler.SelectExecutor underTest = new CharsetHandler.SelectExecutor();
+  SqlExecutor underTest = new SqlExecutor();
 
   @Test
   public void testExecuteQuery() throws Exception {
@@ -45,7 +45,7 @@ public class SelectExecutorTest {
     session.commit();
 
     try (Connection connection = dbTester.openConnection()) {
-      List<String[]> rows = underTest.executeQuery(connection, "select login, name from users order by login", 2);
+      List<String[]> rows = underTest.executeSelect(connection, "select login, name from users order by login", new SqlExecutor.StringsConverter(2));
       assertThat(rows).hasSize(2);
       assertThat(rows.get(0)[0]).isEqualTo("her");
       assertThat(rows.get(0)[1]).isEqualTo("Her");

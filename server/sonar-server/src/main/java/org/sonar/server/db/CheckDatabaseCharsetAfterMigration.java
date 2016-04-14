@@ -17,14 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.charset;
+package org.sonar.server.db;
 
-import org.junit.Rule;
-import org.sonar.api.utils.System2;
-import org.sonar.db.DbTester;
+import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.db.charset.DatabaseCharsetChecker;
 
-public class MysqlCollationEditorTest {
-  @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MysqlCollationEditorTest.class, "schema.sql");
+/**
+ * Checks charset of all database columns when at least one db migration has been executed. This requires
+ * to be defined in platform level 3 ({@link org.sonar.server.platform.platformlevel.PlatformLevel3}).
+ */
+public class CheckDatabaseCharsetAfterMigration extends CheckDatabaseCharsetAtStartup {
 
+  public CheckDatabaseCharsetAfterMigration(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
+    super(upgradeStatus, charsetChecker);
+  }
+
+  @Override
+  public void start() {
+    if (getUpgradeStatus().isFreshInstall() || getUpgradeStatus().isUpgraded()) {
+      check();
+    }
+  }
 }

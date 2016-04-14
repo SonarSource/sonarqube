@@ -19,19 +19,40 @@
  */
 package org.sonar.server.db;
 
+import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
-public class VerifyDatabaseCharsetAfterMigration extends VerifyDatabaseCharsetAtStartup {
+/**
+ * Checks charset of all existing database columns at startup, before executing db migrations. This requires
+ * to be defined in platform level 2 ({@link org.sonar.server.platform.platformlevel.PlatformLevel2}).
+ */
+public class CheckDatabaseCharsetAtStartup implements Startable {
 
-  public VerifyDatabaseCharsetAfterMigration(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
-    super(upgradeStatus, charsetChecker);
+  private final ServerUpgradeStatus upgradeStatus;
+  private final DatabaseCharsetChecker charsetChecker;
+
+  public CheckDatabaseCharsetAtStartup(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
+    this.upgradeStatus = upgradeStatus;
+    this.charsetChecker = charsetChecker;
   }
 
   @Override
   public void start() {
-    if (getUpgradeStatus().isFreshInstall() || getUpgradeStatus().isUpgraded()) {
-      check();
-    }
+    check();
+  }
+
+  @Override
+  public void stop() {
+    // do nothing
+  }
+
+  protected final void check() {
+    boolean enforceUtf8 = getUpgradeStatus().isFreshInstall();
+    charsetChecker.check(enforceUtf8);
+  }
+
+  protected final ServerUpgradeStatus getUpgradeStatus() {
+    return upgradeStatus;
   }
 }

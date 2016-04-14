@@ -22,7 +22,9 @@ package org.sonar.db.charset;
 import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
 import java.sql.SQLException;
+import javax.annotation.CheckForNull;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
 import org.sonar.db.dialect.MsSql;
 import org.sonar.db.dialect.MySql;
@@ -39,14 +41,14 @@ import org.sonar.db.dialect.PostgreSql;
 public class DatabaseCharsetChecker {
 
   private final Database db;
-  private final CharsetHandler.SelectExecutor selectExecutor;
+  private final SqlExecutor selectExecutor;
 
   public DatabaseCharsetChecker(Database db) {
-    this(db, new CharsetHandler.SelectExecutor());
+    this(db, new SqlExecutor());
   }
 
   @VisibleForTesting
-  DatabaseCharsetChecker(Database db, CharsetHandler.SelectExecutor selectExecutor) {
+  DatabaseCharsetChecker(Database db, SqlExecutor selectExecutor) {
     this.db = db;
     this.selectExecutor = selectExecutor;
   }
@@ -54,28 +56,33 @@ public class DatabaseCharsetChecker {
   public void check(boolean enforceUtf8) {
     try {
       try (Connection connection = db.getDataSource().getConnection()) {
-        switch (db.getDialect().getId()) {
-          case H2.ID:
-            // nothing to check
-            break;
-          case Oracle.ID:
-            new OracleCharsetHandler(selectExecutor).handle(connection, enforceUtf8);
-            break;
-          case PostgreSql.ID:
-            new PostgresCharsetHandler(selectExecutor).handle(connection, enforceUtf8);
-            break;
-          case MySql.ID:
-            new MysqlCharsetHandler(selectExecutor).handle(connection, enforceUtf8);
-            break;
-          case MsSql.ID:
-            new MssqlCharsetHandler(selectExecutor).handle(connection, enforceUtf8);
-            break;
-          default:
-            throw new IllegalArgumentException("Database not supported: " + db.getDialect().getId());
+        CharsetHandler handler = getHandler(db.getDialect());
+        if (handler != null) {
+          handler.handle(connection, enforceUtf8);
         }
       }
     } catch (SQLException e) {
       throw new IllegalStateException(e);
+    }
+  }
+
+  @VisibleForTesting
+  @CheckForNull
+  CharsetHandler getHandler(Dialect dialect) {
+    switch (dialect.getId()) {
+      case H2.ID:
+        // nothing to check
+        return null;
+      case Oracle.ID:
+        return new OracleCharsetHandler(selectExecutor);
+      case PostgreSql.ID:
+        return new PostgresCharsetHandler(selectExecutor);
+      case MySql.ID:
+        return new MysqlCharsetHandler(selectExecutor);
+      case MsSql.ID:
+        return new MssqlCharsetHandler(selectExecutor);
+      default:
+        throw new IllegalArgumentException("Database not supported: " + dialect.getId());
     }
   }
 
