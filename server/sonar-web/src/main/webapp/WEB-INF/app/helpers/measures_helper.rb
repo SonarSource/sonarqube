@@ -120,20 +120,8 @@ module MeasuresHelper
     if m
       val=variation_value(m, :index => index)
       if val
-        formatted_val= m.format_numeric_value(val, :variation => false)
-        css_class='var'
-        if m.metric.qualitative?
-          factor=m.metric.direction * val
-          if factor>0
-            # better
-            css_class='varb'
-          elsif factor<0
-            # worst
-            css_class='varw'
-          end
-        end
-
-        html="<span class='#{css_class}'>#{formatted_val}</span>"
+        formatted_val = m.format_numeric_value(val, :variation => false)
+        html = "<span>#{formatted_val}</span>"
       end
     end
     html
