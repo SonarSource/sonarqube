@@ -39,7 +39,7 @@ public class ProjectsService extends BaseService {
    *
    * @throws org.sonarqube.ws.client.HttpException if HTTP status code is not 2xx.
    */
-  public void create(NewProject project) {
+  public void create(CreateRequest project) {
     PostRequest request = new PostRequest(path("create"))
       .setParam("key", project.getKey())
       .setParam("name", project.getName())
@@ -48,21 +48,11 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Deletes a project with the specified id.
-   *
    * @throws org.sonarqube.ws.client.HttpException if HTTP status code is not 2xx.
    */
-  public void deleteById(String projectId) {
-    call(new PostRequest(path("delete")).setParam("id", projectId));
-
-  }
-
-  /**
-   * Deletes a project with the specified key.
-   *
-   * @throws org.sonarqube.ws.client.HttpException if HTTP status code is not 2xx.
-   */
-  public void deleteByKey(String projectKey) {
-    call(new PostRequest(path("delete")).setParam("key", projectKey));
+  public void delete(DeleteRequest request) {
+    call(new PostRequest(path("delete"))
+      .setParam("id", request.getId())
+      .setParam("key", request.getKey()));
   }
 }

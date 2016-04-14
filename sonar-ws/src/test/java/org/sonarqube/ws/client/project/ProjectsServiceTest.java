@@ -37,7 +37,7 @@ public class ProjectsServiceTest {
 
   @Test
   public void creates_project() {
-    underTest.create(NewProject.newBuilder()
+    underTest.create(CreateRequest.builder()
       .setKey("project_key")
       .setName("Project Name")
       .build());
@@ -50,7 +50,7 @@ public class ProjectsServiceTest {
 
   @Test
   public void creates_project_on_branch() {
-    underTest.create(NewProject.newBuilder()
+    underTest.create(CreateRequest.builder()
       .setKey("project_key")
       .setName("Project Name")
       .setBranch("the_branch")
@@ -65,7 +65,7 @@ public class ProjectsServiceTest {
 
   @Test
   public void deletes_project_by_id() {
-    underTest.deleteById("abc");
+    underTest.delete(DeleteRequest.builder().setId("abc").build());
 
     assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/delete");
     assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("id", "abc"));
@@ -73,7 +73,7 @@ public class ProjectsServiceTest {
 
   @Test
   public void deletes_project_by_key() {
-    underTest.deleteByKey("project_key");
+    underTest.delete(DeleteRequest.builder().setKey("project_key").build());
 
     assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/delete");
     assertThat(serviceTester.getPostRequest().getParams()).containsOnly(entry("key", "project_key"));
