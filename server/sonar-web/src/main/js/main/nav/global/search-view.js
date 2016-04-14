@@ -142,9 +142,6 @@ export default Marionette.LayoutView.extend({
       return;
     }
     this._bufferedValue = this.$('.js-search-input').val();
-    if (this.searchRequest != null && this.searchRequest.abort != null) {
-      this.searchRequest.abort();
-    }
     this.searchRequest = this.debouncedSearch(value);
   },
 
@@ -201,6 +198,12 @@ export default Marionette.LayoutView.extend({
     const url = window.baseUrl + '/api/components/suggestions';
     const options = { s: q };
     return $.get(url, options).done(function (r) {
+      // if the input value has changed since we sent the request,
+      // just ignore the output, because another request already sent
+      if (q !== that._bufferedValue) {
+        return;
+      }
+
       const collection = [];
       r.results.forEach(function (domain) {
         domain.items.forEach(function (item, index) {
