@@ -30,7 +30,6 @@ import org.sonar.api.utils.MessageException;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -45,7 +44,7 @@ public class PostgresCharsetHandlerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  CharsetHandler.SelectExecutor selectExecutor = mock(CharsetHandler.SelectExecutor.class);
+  SqlExecutor selectExecutor = mock(SqlExecutor.class);
   PostgresCharsetHandler underTest = new PostgresCharsetHandler(selectExecutor);
 
   @Test
@@ -108,6 +107,6 @@ public class PostgresCharsetHandlerTest {
   }
 
   private void answerSql(List<String[]> firstRequest, List<String[]>... otherRequests) throws SQLException {
-    when(selectExecutor.executeQuery(any(Connection.class), anyString(), anyInt())).thenReturn(firstRequest, otherRequests);
+    when(selectExecutor.executeSelect(any(Connection.class), anyString(), any(SqlExecutor.StringsConverter.class))).thenReturn(firstRequest, otherRequests);
   }
 }

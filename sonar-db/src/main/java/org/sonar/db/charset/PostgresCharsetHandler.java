@@ -33,7 +33,7 @@ import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 
 class PostgresCharsetHandler extends CharsetHandler {
 
-  protected PostgresCharsetHandler(SelectExecutor selectExecutor) {
+  protected PostgresCharsetHandler(SqlExecutor selectExecutor) {
     super(selectExecutor);
   }
 
@@ -56,7 +56,7 @@ class PostgresCharsetHandler extends CharsetHandler {
       "from information_schema.columns " +
       "where table_schema='public' " +
       "and udt_name='varchar' " +
-      "order by table_name, column_name", 3);
+      "order by table_name, column_name", new SqlExecutor.StringsConverter(3));
     boolean mustCheckGlobalCollation = false;
     List<String> errors = new ArrayList<>();
     for (String[] row : rows) {
@@ -68,7 +68,7 @@ class PostgresCharsetHandler extends CharsetHandler {
     }
 
     if (mustCheckGlobalCollation) {
-      String charset = selectSingleCell(connection, "SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()");
+      String charset = selectSingleString(connection, "SELECT pg_encoding_to_char(encoding) FROM pg_database WHERE datname = current_database()");
       if (!containsIgnoreCase(charset, UTF8)) {
         throw MessageException.of(format("Database collation is %s. It must support UTF8.", charset));
       }

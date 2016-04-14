@@ -30,7 +30,6 @@ import org.sonar.api.utils.MessageException;
 
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -40,7 +39,7 @@ public class OracleCharsetHandlerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  CharsetHandler.SelectExecutor selectExecutor = mock(CharsetHandler.SelectExecutor.class);
+  SqlExecutor selectExecutor = mock(SqlExecutor.class);
   OracleCharsetHandler underTest = new OracleCharsetHandler(selectExecutor);
 
   @Test
@@ -96,6 +95,6 @@ public class OracleCharsetHandlerTest {
   }
 
   private void answerSql(List<String[]> firstRequest, List<String[]>... otherRequests) throws SQLException {
-    when(selectExecutor.executeQuery(any(Connection.class), anyString(), anyInt())).thenReturn(firstRequest, otherRequests);
+    when(selectExecutor.executeSelect(any(Connection.class), anyString(), any(SqlExecutor.StringsConverter.class))).thenReturn(firstRequest, otherRequests);
   }
 }

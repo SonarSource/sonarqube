@@ -23,12 +23,12 @@ import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
-public class VerifyDatabaseCharsetAtStartup implements Startable {
+public class CheckDatabaseCharsetAtStartup implements Startable {
 
   private final ServerUpgradeStatus upgradeStatus;
   private final DatabaseCharsetChecker charsetChecker;
 
-  public VerifyDatabaseCharsetAtStartup(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
+  public CheckDatabaseCharsetAtStartup(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
     this.upgradeStatus = upgradeStatus;
     this.charsetChecker = charsetChecker;
   }
@@ -43,12 +43,12 @@ public class VerifyDatabaseCharsetAtStartup implements Startable {
     // do nothing
   }
 
-  protected void check() {
-    boolean enforceUtf8 = upgradeStatus.isFreshInstall();
+  protected final void check() {
+    boolean enforceUtf8 = getUpgradeStatus().isFreshInstall();
     charsetChecker.check(enforceUtf8);
   }
 
-  protected ServerUpgradeStatus getUpgradeStatus() {
+  protected final ServerUpgradeStatus getUpgradeStatus() {
     return upgradeStatus;
   }
 }

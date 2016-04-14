@@ -22,9 +22,9 @@ package org.sonar.server.db;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
-public class VerifyDatabaseCharsetAfterMigration extends VerifyDatabaseCharsetAtStartup {
+public class CheckDatabaseCharsetAfterMigration extends CheckDatabaseCharsetAtStartup {
 
-  public VerifyDatabaseCharsetAfterMigration(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
+  public CheckDatabaseCharsetAfterMigration(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
     super(upgradeStatus, charsetChecker);
   }
 

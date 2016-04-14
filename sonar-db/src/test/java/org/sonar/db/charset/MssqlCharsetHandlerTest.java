@@ -25,13 +25,13 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.MessageException;
 
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyInt;
 import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class MssqlCharsetHandlerTest {
@@ -44,32 +44,56 @@ public class MssqlCharsetHandlerTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  CharsetHandler.SelectExecutor selectExecutor = mock(CharsetHandler.SelectExecutor.class);
+  SqlExecutor selectExecutor = mock(SqlExecutor.class);
   MssqlCharsetHandler underTest = new MssqlCharsetHandler(selectExecutor);
 
   @Test
-  public void checks_case_sensibility() throws Exception {
-    answerSql(asList(
-      new String[] {TABLE_ISSUES, COLUMN_KEE, "Latin1_General_CS_AS"},
-      new String[] {TABLE_PROJECTS, COLUMN_NAME, "Latin1_General_CS_AS"}));
+  public void does_not_fail_if_charsets_of_all_columns_are_utf8() throws Exception {
+    answerColumns(asList(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false)));
 
     underTest.handle(mock(Connection.class), true);
   }
 
   @Test
-  public void fails_if_case_insensitive() throws Exception {
-    answerSql(asList(
-      new String[] {TABLE_ISSUES, COLUMN_KEE, "Latin1_General_CS_AS"},
-      new String[] {TABLE_PROJECTS, COLUMN_KEE, "Latin1_General_CI_AI"},
-      new String[] {TABLE_PROJECTS, COLUMN_NAME, "Latin1_General_CI_AI"}));
+  public void repairs_case_insensitive_column_without_index() throws Exception {
+    answerColumns(asList(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
 
-    expectedException.expect(MessageException.class);
-    expectedException.expectMessage("Case-sensitive and accent-sensitive collation (CS_AS) is required for database columns [projects.kee, projects.name]");
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, false);
 
-    underTest.handle(mock(Connection.class), true);
+    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name varchar(10) COLLATE Latin1_General_CS_AS NOT NULL");
   }
 
-  private void answerSql(List<String[]> firstRequest, List<String[]>... otherRequests) throws SQLException {
-    when(selectExecutor.executeQuery(any(Connection.class), anyString(), anyInt())).thenReturn(firstRequest, otherRequests);
+  @Test
+  public void repairs_case_insensitive_column_with_indices() throws Exception {
+    answerColumns(asList(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
+    answerIndices(asList(
+      new MssqlCharsetHandler.ColumnIndex("projects_name", false, "name"),
+      // This index is on two columns. Note that it does not make sense for table "projects" !
+      new MssqlCharsetHandler.ColumnIndex("projects_login_and_name", true, "login,name")
+    ));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, false);
+
+    verify(selectExecutor).executeUpdate(connection, "DROP INDEX projects.projects_name");
+    verify(selectExecutor).executeUpdate(connection, "DROP INDEX projects.projects_login_and_name");
+    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name varchar(10) COLLATE Latin1_General_CS_AS NOT NULL");
+    verify(selectExecutor).executeUpdate(connection, "CREATE  INDEX projects_name ON projects (name)");
+    verify(selectExecutor).executeUpdate(connection, "CREATE UNIQUE INDEX projects_login_and_name ON projects (login,name)");
+  }
+
+  private void answerColumns(List<ColumnDef> columnDefs) throws SQLException {
+    when(selectExecutor.executeSelect(any(Connection.class), anyString(), eq(ColumnDef.ColumnDefRowConverter.INSTANCE))).thenReturn(columnDefs);
+  }
+
+  private void answerIndices(List<MssqlCharsetHandler.ColumnIndex> indices) throws SQLException {
+    when(selectExecutor.executeSelect(any(Connection.class), anyString(), eq(MssqlCharsetHandler.ColumnIndexConverter.INSTANCE))).thenReturn(indices);
   }
 }

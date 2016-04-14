@@ -19,22 +19,93 @@
  */
 package org.sonar.db.charset;
 
+import java.sql.Connection;
+import java.sql.SQLException;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.mockito.Mockito;
 import org.sonar.db.Database;
+import org.sonar.db.dialect.Dialect;
 import org.sonar.db.dialect.H2;
+import org.sonar.db.dialect.MsSql;
+import org.sonar.db.dialect.MySql;
+import org.sonar.db.dialect.Oracle;
+import org.sonar.db.dialect.PostgreSql;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyBoolean;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DatabaseCharsetCheckerTest {
 
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
   Database db = mock(Database.class, Mockito.RETURNS_MOCKS);
-  DatabaseCharsetChecker underTest = new DatabaseCharsetChecker(db);
+  CharsetHandler handler = mock(CharsetHandler.class);
+  DatabaseCharsetChecker underTest = spy(new DatabaseCharsetChecker(db));
+
+  @Test
+  public void executes_handler() throws Exception {
+    Oracle dialect = new Oracle();
+    when(underTest.getHandler(dialect)).thenReturn(handler);
+    when(db.getDialect()).thenReturn(dialect);
+
+    underTest.check(true);
+    verify(handler).handle(any(Connection.class), eq(true));
+  }
+
+  @Test
+  public void throws_ISE_if_handler_fails() throws Exception {
+    Oracle dialect = new Oracle();
+    when(underTest.getHandler(dialect)).thenReturn(handler);
+    when(db.getDialect()).thenReturn(dialect);
+    doThrow(new SQLException("failure")).when(handler).handle(any(Connection.class), anyBoolean());
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("failure");
+    underTest.check(true);
+  }
 
   @Test
   public void does_nothing_if_h2() throws Exception {
-    when(db.getDialect()).thenReturn(new H2());
-    underTest.check(true);
+    assertThat(underTest.getHandler(new H2())).isNull();
+  }
+
+  @Test
+  public void getHandler_returns_MysqlCharsetHandler_if_mysql() throws Exception {
+    assertThat(underTest.getHandler(new MySql())).isInstanceOf(MysqlCharsetHandler.class);
+  }
+
+  @Test
+  public void getHandler_returns_MssqlCharsetHandler_if_mssql() throws Exception {
+    assertThat(underTest.getHandler(new MsSql())).isInstanceOf(MssqlCharsetHandler.class);
+  }
+
+  @Test
+  public void getHandler_returns_OracleCharsetHandler_if_oracle() throws Exception {
+    assertThat(underTest.getHandler(new Oracle())).isInstanceOf(OracleCharsetHandler.class);
+  }
+
+  @Test
+  public void getHandler_returns_PostgresCharsetHandler_if_postgres() throws Exception {
+    assertThat(underTest.getHandler(new PostgreSql())).isInstanceOf(PostgresCharsetHandler.class);
+  }
+
+  @Test
+  public void getHandler_throws_IAE_if_unsupported_db() throws Exception {
+    Dialect unsupportedDialect = mock(Dialect.class);
+    when(unsupportedDialect.getId()).thenReturn("foo");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Database not supported: foo");
+    underTest.getHandler(unsupportedDialect);
   }
 }

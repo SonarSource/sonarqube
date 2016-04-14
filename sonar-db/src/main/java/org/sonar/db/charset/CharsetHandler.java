@@ -19,37 +19,36 @@
  */
 package org.sonar.db.charset;
 
-import com.google.common.annotations.VisibleForTesting;
 import java.sql.Connection;
-import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.sonar.db.DatabaseUtils;
 
 abstract class CharsetHandler {
 
   protected static final String UTF8 = "utf8";
 
-  private final SelectExecutor selectExecutor;
+  private final SqlExecutor selectExecutor;
 
-  protected CharsetHandler(SelectExecutor selectExecutor) {
+  protected CharsetHandler(SqlExecutor selectExecutor) {
     this.selectExecutor = selectExecutor;
   }
 
   abstract void handle(Connection connection, boolean enforceUtf8) throws SQLException;
 
+  protected SqlExecutor getSqlExecutor() {
+    return selectExecutor;
+  }
+
   @CheckForNull
-  protected final String selectSingleCell(Connection connection, String sql) throws SQLException {
-    String[] cols = selectSingleRow(connection, sql, 1);
+  protected final String selectSingleString(Connection connection, String sql) throws SQLException {
+    String[] cols = selectSingleRow(connection, sql, new SqlExecutor.StringsConverter(1));
     return cols == null ? null : cols[0];
   }
 
   @CheckForNull
-  protected final String[] selectSingleRow(Connection connection, String sql, int columns) throws SQLException {
-    List<String[]> rows = select(connection, sql, columns);
+  protected final <T> T selectSingleRow(Connection connection, String sql, SqlExecutor.RowConverter<T> rowConverter) throws SQLException {
+    List<T> rows = select(connection, sql, rowConverter);
     if (rows.isEmpty()) {
       return null;
     }
@@ -59,32 +58,8 @@ abstract class CharsetHandler {
     throw new IllegalStateException("Expecting only one result for [" + sql + "]");
   }
 
-  protected final List<String[]> select(Connection connection, String sql, int columns) throws SQLException {
-    return selectExecutor.executeQuery(connection, sql, columns);
+  protected final <T> List<T> select(Connection connection, String sql, SqlExecutor.RowConverter<T> rowConverter) throws SQLException {
+    return selectExecutor.executeSelect(connection, sql, rowConverter);
   }
 
-  @VisibleForTesting
-  static class SelectExecutor {
-    List<String[]> executeQuery(Connection connection, String sql, int columns) throws SQLException {
-      Statement stmt = null;
-      ResultSet rs = null;
-      try {
-        stmt = connection.createStatement();
-        rs = stmt.executeQuery(sql);
-        List<String[]> result = new ArrayList<>();
-        while (rs.next()) {
-          String[] row = new String[columns];
-          for (int i = 0; i < columns; i++) {
-            row[i] = DatabaseUtils.getString(rs, i + 1);
-          }
-          result.add(row);
-        }
-        return result;
-
-      } finally {
-        DatabaseUtils.closeQuietly(rs);
-        DatabaseUtils.closeQuietly(stmt);
-      }
-    }
-  }
 }

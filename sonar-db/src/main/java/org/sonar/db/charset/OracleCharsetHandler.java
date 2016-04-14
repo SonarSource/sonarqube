@@ -29,7 +29,7 @@ import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 
 class OracleCharsetHandler extends CharsetHandler {
 
-  protected OracleCharsetHandler(SelectExecutor selectExecutor) {
+  protected OracleCharsetHandler(SqlExecutor selectExecutor) {
     super(selectExecutor);
   }
 
@@ -43,8 +43,8 @@ class OracleCharsetHandler extends CharsetHandler {
   }
 
   private void checkUtf8(Connection connection) throws SQLException {
-    String charset = selectSingleCell(connection, "select value from nls_database_parameters where parameter='NLS_CHARACTERSET'");
-    String sort = selectSingleCell(connection, "select value from nls_database_parameters where parameter='NLS_SORT'");
+    String charset = selectSingleString(connection, "select value from nls_database_parameters where parameter='NLS_CHARACTERSET'");
+    String sort = selectSingleString(connection, "select value from nls_database_parameters where parameter='NLS_SORT'");
     if (!containsIgnoreCase(charset, UTF8) || !"BINARY".equalsIgnoreCase(sort)) {
       throw MessageException.of(format("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is %s and NLS_SORT is %s.", charset, sort));
     }
