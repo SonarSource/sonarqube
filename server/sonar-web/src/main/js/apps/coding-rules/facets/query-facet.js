@@ -26,7 +26,8 @@ export default BaseFacet.extend({
 
   events () {
     return _.extend(BaseFacet.prototype.events.apply(this, arguments), {
-      'submit form': 'onFormSubmit'
+      'submit form': 'onFormSubmit',
+      'search input': 'onInputSearch'
     });
   },
 
@@ -44,10 +45,18 @@ export default BaseFacet.extend({
     this.applyFacet();
   },
 
+  onInputSearch () {
+    this.applyFacet();
+  },
+
   applyFacet () {
     const obj = {};
     const property = this.model.get('property');
-    obj[property] = this.$('input').val();
-    this.options.app.state.updateFilter(obj, { force: true });
+    const value = this.$('input').val();
+    if (this.buffer !== value) {
+      this.buffer = value;
+      obj[property] = value;
+      this.options.app.state.updateFilter(obj, { force: true });
+    }
   }
 });
