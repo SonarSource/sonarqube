@@ -35,14 +35,15 @@ public class ProjectsService extends BaseService {
   }
 
   /**
-   * Provisions a new project. This method does not allow to specify the parameter {@code branch}.
+   * Provisions a new project.
    *
-   * @param projectKey the non-null key of project
-   * @param projectName the non-null name of project
    * @throws org.sonarqube.ws.client.HttpException if HTTP status code is not 2xx.
    */
-  public void create(String projectKey, String projectName) {
-    PostRequest request = new PostRequest(path("create")).setParam("key", projectKey).setParam("name", projectName);
+  public void create(NewProject project) {
+    PostRequest request = new PostRequest(path("create"))
+      .setParam("key", project.getKey())
+      .setParam("name", project.getName())
+      .setParam("branch", project.getBranch());
     call(request);
   }
 

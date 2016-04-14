@@ -37,12 +37,30 @@ public class ProjectsServiceTest {
 
   @Test
   public void creates_project() {
-    underTest.create("project_key", "Project Name");
+    underTest.create(NewProject.newBuilder()
+      .setKey("project_key")
+      .setName("Project Name")
+      .build());
 
     assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/create");
     assertThat(serviceTester.getPostRequest().getParams()).containsOnly(
       entry("key", "project_key"),
       entry("name", "Project Name"));
+  }
+
+  @Test
+  public void creates_project_on_branch() {
+    underTest.create(NewProject.newBuilder()
+      .setKey("project_key")
+      .setName("Project Name")
+      .setBranch("the_branch")
+      .build());
+
+    assertThat(serviceTester.getPostRequest().getPath()).isEqualTo("api/projects/create");
+    assertThat(serviceTester.getPostRequest().getParams()).containsOnly(
+      entry("key", "project_key"),
+      entry("name", "Project Name"),
+      entry("branch", "the_branch"));
   }
 
   @Test
