@@ -69,7 +69,7 @@ public class CeActivityDao implements Dao {
       return Collections.emptyList();
     }
 
-    return mapper(dbSession).selectByQuery(query, new RowBounds(offset, pageSize));
+    return mapper(dbSession).selectByQuery(query, offset, pageSize);
   }
 
   public int countByQuery(DbSession dbSession, CeTaskQuery query) {
