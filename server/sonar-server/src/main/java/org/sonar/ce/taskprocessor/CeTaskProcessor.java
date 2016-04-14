@@ -22,6 +22,7 @@ package org.sonar.ce.taskprocessor;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskResult;
 
@@ -30,6 +31,7 @@ import org.sonar.ce.queue.CeTaskResult;
  * Compute Engine.
  */
 @ComputeEngineSide
+@ServerSide
 public interface CeTaskProcessor {
 
   /**
