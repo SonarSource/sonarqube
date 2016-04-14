@@ -30,6 +30,7 @@ import org.sonarqube.ws.client.ServiceTester;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
 import static org.mockito.Mockito.mock;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
@@ -93,5 +94,13 @@ public class CeServiceTest {
     underTest.taskTypes();
 
     assertThat(serviceTester.getGetParser()).isSameAs(WsCe.TaskTypesWsResponse.parser());
+  }
+
+  @Test
+  public void task() {
+    underTest.task("task_id");
+
+    assertThat(serviceTester.getGetRequest().getPath()).isEqualTo("api/ce/task");
+    assertThat(serviceTester.getGetRequest().getParams()).containsOnly(entry("id", "task_id"));
   }
 }
