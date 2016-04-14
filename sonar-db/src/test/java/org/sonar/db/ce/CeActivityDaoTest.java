@@ -19,9 +19,12 @@
  */
 package org.sonar.db.ce;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.collect.FluentIterable;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.internal.TestSystem2;
@@ -30,7 +33,6 @@ import org.sonar.db.DbTester;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
-
 
 public class CeActivityDaoTest {
 
@@ -120,6 +122,22 @@ public class CeActivityDaoTest {
     query = new CeTaskQuery().setType(REPORT).setOnlyCurrents(true).setComponentUuid("PROJECT_1");
     dtos = underTest.selectByQuery(db.getSession(), query, 0, 100);
     assertThat(dtos).extracting("uuid").containsExactly("TASK_2");
+  }
+
+  @Test
+  public void selectByQuery_is_paginated_and_return_results_sorted_from_last_to_first() {
+    insert("TASK_1", REPORT, "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    insert("TASK_2", REPORT, "PROJECT_1", CeActivityDto.Status.FAILED);
+    insert("TASK_3", REPORT, "PROJECT_2", CeActivityDto.Status.SUCCESS);
+    insert("TASK_4", "views", null, CeActivityDto.Status.SUCCESS);
+
+    assertThat(selectPageOfUuids(0, 1)).containsExactly("TASK_4");
+    assertThat(selectPageOfUuids(1, 1)).containsExactly("TASK_3");
+    assertThat(selectPageOfUuids(0, 3)).containsExactly("TASK_4", "TASK_3", "TASK_2");
+    assertThat(selectPageOfUuids(0, 4)).containsExactly("TASK_4", "TASK_3", "TASK_2", "TASK_1");
+    assertThat(selectPageOfUuids(0, 100)).containsExactly("TASK_4", "TASK_3", "TASK_2", "TASK_1");
+    assertThat(selectPageOfUuids(0, 0)).isEmpty();
+    assertThat(selectPageOfUuids(10, 2)).isEmpty();
   }
 
   @Test
@@ -261,5 +279,18 @@ public class CeActivityDaoTest {
     dto.setStatus(CeActivityDto.Status.SUCCESS);
     system2.setNow(date);
     underTest.insert(db.getSession(), dto);
+  }
+
+  private List<String> selectPageOfUuids(int offset, int pageSize) {
+    return FluentIterable.from(underTest.selectByQuery(db.getSession(), new CeTaskQuery(), offset, pageSize)).transform(CeActivityToUuid.INSTANCE).toList();
+  }
+
+  private enum CeActivityToUuid implements Function<CeActivityDto, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull CeActivityDto input) {
+      return input.getUuid();
+    }
   }
 }

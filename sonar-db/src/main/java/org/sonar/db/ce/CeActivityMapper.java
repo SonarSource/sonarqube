@@ -33,7 +33,7 @@ public interface CeActivityMapper {
 
   List<CeActivityDto> selectByComponentUuid(@Param("componentUuid") String componentUuid);
 
-  List<CeActivityDto> selectByQuery(@Param("query") CeTaskQuery query, RowBounds rowBounds);
+  List<CeActivityDto> selectByQuery(@Param("query") CeTaskQuery query, @Param("offset") int offset, @Param("pageSize") int pageSize);
 
   List<CeActivityDto> selectOlderThan(@Param("beforeDate") long beforeDate);
 
