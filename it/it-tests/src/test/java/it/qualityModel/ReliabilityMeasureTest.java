@@ -45,7 +45,6 @@ public class ReliabilityMeasureTest {
   private static final String BUGS_METRIC = "bugs";
   private static final String RELIABILITY_REMEDIATION_EFFORT_METRIC = "reliability_remediation_effort";
   private static final String RELIABILITY_RATING_METRIC = "reliability_rating";
-  private static final String EFFORT_TO_REACH_RELIABILITY_RATING_A_METRIC = "effort_to_reach_reliability_rating_a";
 
   @ClassRule
   public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
@@ -66,27 +65,22 @@ public class ReliabilityMeasureTest {
     assertThat(getMeasure(PROJECT, BUGS_METRIC).getIntValue()).isEqualTo(61);
     assertThat(getMeasure(PROJECT, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(305);
     assertThat(getMeasure(PROJECT, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-    assertThat(getMeasure(PROJECT, EFFORT_TO_REACH_RELIABILITY_RATING_A_METRIC).getIntValue()).isEqualTo(305);
 
     assertThat(getMeasure(MODULE, BUGS_METRIC).getIntValue()).isEqualTo(37);
     assertThat(getMeasure(MODULE, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(185);
     assertThat(getMeasure(MODULE, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-    assertThat(getMeasure(MODULE, EFFORT_TO_REACH_RELIABILITY_RATING_A_METRIC).getIntValue()).isEqualTo(185);
 
     assertThat(getMeasure(SUB_MODULE, BUGS_METRIC).getIntValue()).isEqualTo(16);
     assertThat(getMeasure(SUB_MODULE, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(80);
     assertThat(getMeasure(SUB_MODULE, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-    assertThat(getMeasure(SUB_MODULE, EFFORT_TO_REACH_RELIABILITY_RATING_A_METRIC).getIntValue()).isEqualTo(80);
 
     assertThat(getMeasure(DIRECTORY, BUGS_METRIC).getIntValue()).isEqualTo(16);
     assertThat(getMeasure(DIRECTORY, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(80);
     assertThat(getMeasure(DIRECTORY, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-    assertThat(getMeasure(DIRECTORY, EFFORT_TO_REACH_RELIABILITY_RATING_A_METRIC).getIntValue()).isEqualTo(80);
 
     assertThat(getMeasure(FILE, BUGS_METRIC).getIntValue()).isEqualTo(16);
     assertThat(getMeasure(FILE, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(80);
     assertThat(getMeasure(FILE, RELIABILITY_RATING_METRIC).getData()).isEqualTo("D");
-    assertThat(getMeasure(FILE, EFFORT_TO_REACH_RELIABILITY_RATING_A_METRIC).getIntValue()).isEqualTo(80);
   }
 
   @Test
@@ -98,7 +92,6 @@ public class ReliabilityMeasureTest {
     assertThat(getMeasure(PROJECT, BUGS_METRIC).getIntValue()).isEqualTo(0);
     assertThat(getMeasure(PROJECT, RELIABILITY_REMEDIATION_EFFORT_METRIC).getIntValue()).isEqualTo(0);
     assertThat(getMeasure(PROJECT, RELIABILITY_RATING_METRIC).getData()).isEqualTo("A");
-    assertThat(getMeasure(PROJECT, EFFORT_TO_REACH_RELIABILITY_RATING_A_METRIC).getIntValue()).isEqualTo(0);
   }
 
   @CheckForNull

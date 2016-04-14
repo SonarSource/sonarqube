@@ -47,7 +47,7 @@ public final class GlobalDefaultDashboard extends DashboardTemplate {
   public Dashboard createDashboard() {
     Dashboard dashboard = Dashboard.create()
       .setGlobal(true)
-      .setLayout(DashboardLayout.TWO_COLUMNS);
+      .setLayout(DashboardLayout.TWO_COLUMNS_30_70);
 
     dashboard.addWidget(WelcomeWidget.ID, 1);
     addMyFavouritesWidget(dashboard);

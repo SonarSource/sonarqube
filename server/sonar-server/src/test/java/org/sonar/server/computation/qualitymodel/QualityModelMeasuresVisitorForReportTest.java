@@ -47,10 +47,6 @@ import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A;
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
@@ -108,10 +104,10 @@ public class QualityModelMeasuresVisitorForReportTest {
           builder(DIRECTORY, DIRECTORY_REF).setKey("directory")
             .addChildren(
               builder(FILE, FILE_1_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1)).setKey("file1").build(),
-              builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1)).setKey("file2").build()
-            ).build()
-        ).build()
-    ).build();
+              builder(FILE, FILE_2_REF).setFileAttributes(new FileAttributes(false, LANGUAGE_KEY_1)).setKey("file2").build())
+            .build())
+        .build())
+    .build();
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
@@ -125,9 +121,7 @@ public class QualityModelMeasuresVisitorForReportTest {
     .add(SQALE_RATING)
     .add(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A)
     .add(RELIABILITY_RATING)
-    .add(EFFORT_TO_REACH_RELIABILITY_RATING_A)
-    .add(SECURITY_RATING)
-    .add(EFFORT_TO_REACH_SECURITY_RATING_A);
+    .add(SECURITY_RATING);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -168,10 +162,7 @@ public class QualityModelMeasuresVisitorForReportTest {
         entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A)),
         entryOf(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
         entryOf(RELIABILITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
-        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, newMeasureBuilder().create(0L))
-      );
+        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A)));
   }
 
   @Test
@@ -231,8 +222,7 @@ public class QualityModelMeasuresVisitorForReportTest {
     // directory has children => dev cost is aggregated
     verifyAddedRawMeasure(111, DEVELOPMENT_COST_KEY, Long.toString(
       ncloc1111 * DEV_COST_LANGUAGE_1 +
-        ncloc1112 * DEV_COST_LANGUAGE_2
-      ));
+        ncloc1112 * DEV_COST_LANGUAGE_2));
     verifyAddedRawMeasure(112, DEVELOPMENT_COST_KEY, Long.toString(nclocValue1121 * DEV_COST_LANGUAGE_2));
     verifyAddedRawMeasure(121, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
 
@@ -240,16 +230,14 @@ public class QualityModelMeasuresVisitorForReportTest {
     verifyAddedRawMeasure(11, DEVELOPMENT_COST_KEY, Long.toString(
       ncloc1111 * DEV_COST_LANGUAGE_1 +
         ncloc1112 * DEV_COST_LANGUAGE_2 +
-        nclocValue1121 * DEV_COST_LANGUAGE_2
-      ));
+        nclocValue1121 * DEV_COST_LANGUAGE_2));
     verifyAddedRawMeasure(12, DEVELOPMENT_COST_KEY, Long.toString(ncloc1211 * DEV_COST_LANGUAGE_1));
     verifyAddedRawMeasure(13, DEVELOPMENT_COST_KEY, "0");
     verifyAddedRawMeasure(1, DEVELOPMENT_COST_KEY, Long.toString(
       ncloc1111 * DEV_COST_LANGUAGE_1 +
         ncloc1112 * DEV_COST_LANGUAGE_2 +
         nclocValue1121 * DEV_COST_LANGUAGE_2 +
-        ncloc1211 * DEV_COST_LANGUAGE_1
-      ));
+        ncloc1211 * DEV_COST_LANGUAGE_1));
   }
 
   @Test
@@ -372,12 +360,10 @@ public class QualityModelMeasuresVisitorForReportTest {
     treeRootHolder.setRoot(ROOT_PROJECT);
     fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, MAJOR), newBugIssue(1L, MAJOR),
       // Should not be taken into account
-      newVulnerabilityIssue(5L, MINOR)
-      );
+      newVulnerabilityIssue(5L, MINOR));
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newBugIssue(2L, CRITICAL), newBugIssue(3L, MINOR),
       // Should not be taken into account
-      newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
-      );
+      newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED));
     fillComponentIssuesVisitorRule.setIssues(MODULE_REF, newBugIssue(7L, BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
@@ -397,8 +383,7 @@ public class QualityModelMeasuresVisitorForReportTest {
       newBugIssue(1L, MAJOR));
     fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newVulnerabilityIssue(2L, CRITICAL), newVulnerabilityIssue(3L, MINOR),
       // Should not be taken into account
-      newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
-      );
+      newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED));
     fillComponentIssuesVisitorRule.setIssues(MODULE_REF, newVulnerabilityIssue(7L, BLOCKER));
 
     underTest.visit(ROOT_PROJECT);
@@ -473,56 +458,6 @@ public class QualityModelMeasuresVisitorForReportTest {
 
     verifyAddedRawMeasure(PROJECT_REF, RELIABILITY_RATING_KEY, A);
     verifyAddedRawMeasure(PROJECT_REF, SECURITY_RATING_KEY, A);
-  }
-
-  @Test
-  public void compute_effort_to_reliability_rating_A_measure() throws Exception {
-    treeRootHolder.setRoot(ROOT_PROJECT);
-
-    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newBugIssue(10L, BLOCKER), newBugIssue(1L, MAJOR),
-      // CODE SMELL should not be taken into account
-      newCodeSmellIssue(4L, MAJOR),
-      // Resolved issue should be ignored
-      newBugIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
-      );
-    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newBugIssue(2L, CRITICAL), newBugIssue(3L, MINOR),
-      // INFO issue should not be taken into account
-      newBugIssue(5L, INFO),
-      // Issue without debt
-      newIssue(MAJOR, BUG));
-
-    underTest.visit(ROOT_PROJECT);
-
-    verifyAddedRawMeasure(FILE_1_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 10L + 1L);
-    verifyAddedRawMeasure(FILE_2_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 2L + 3L);
-    verifyAddedRawMeasure(DIRECTORY_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 16L);
-    verifyAddedRawMeasure(MODULE_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 16L);
-    verifyAddedRawMeasure(PROJECT_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 16L);
-  }
-
-  @Test
-  public void compute_effort_to_security_rating_A_measure() throws Exception {
-    treeRootHolder.setRoot(ROOT_PROJECT);
-
-    fillComponentIssuesVisitorRule.setIssues(FILE_1_REF, newVulnerabilityIssue(8L, BLOCKER), newVulnerabilityIssue(6L, MAJOR),
-      // CODE SMELL should not be taken into account
-      newCodeSmellIssue(4L, MAJOR),
-      // Resolved issue should be ignored
-      newVulnerabilityIssue(10L, BLOCKER).setResolution(RESOLUTION_FIXED)
-      );
-    fillComponentIssuesVisitorRule.setIssues(FILE_2_REF, newVulnerabilityIssue(2L, CRITICAL), newVulnerabilityIssue(1L, MINOR),
-      // INFO issue should not be taken into account
-      newVulnerabilityIssue(5L, INFO),
-      // Issue without debt
-      newIssue(MAJOR, VULNERABILITY));
-
-    underTest.visit(ROOT_PROJECT);
-
-    verifyAddedRawMeasure(FILE_1_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 8L + 6L);
-    verifyAddedRawMeasure(FILE_2_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 2L + 1L);
-    verifyAddedRawMeasure(DIRECTORY_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 17L);
-    verifyAddedRawMeasure(MODULE_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 17L);
-    verifyAddedRawMeasure(PROJECT_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 17L);
   }
 
   private void addRawMeasure(String metricKey, int componentRef, long value) {

@@ -42,15 +42,15 @@ public class ProjectFilter extends FilterTemplate {
   @Override
   public Filter createFilter() {
     return Filter.create()
-        .setDisplayAs(Filter.LIST)
-        .add(Criterion.createForQualifier(Qualifiers.PROJECT))
-        .add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false))
-        .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
-        .add(FilterColumn.create("version", null, FilterColumn.DESC, false))
-        .add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false))
-        .add(FilterColumn.create("metric", CoreMetrics.CODE_SMELLS_KEY, FilterColumn.DESC, false))
-        .add(FilterColumn.create("metric", CoreMetrics.BUGS_KEY, FilterColumn.DESC, false))
-        .add(FilterColumn.create("metric", CoreMetrics.VULNERABILITIES_KEY, FilterColumn.DESC, false))
-        .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
+      .setDisplayAs(Filter.LIST)
+      .add(Criterion.createForQualifier(Qualifiers.PROJECT))
+      .add(FilterColumn.create("metric", CoreMetrics.ALERT_STATUS_KEY, FilterColumn.DESC, false))
+      .add(FilterColumn.create("name", null, FilterColumn.ASC, false))
+      .add(FilterColumn.create("version", null, FilterColumn.DESC, false))
+      .add(FilterColumn.create("metric", CoreMetrics.NCLOC_KEY, FilterColumn.DESC, false))
+      .add(FilterColumn.create("metric", CoreMetrics.BUGS_KEY, FilterColumn.DESC, false))
+      .add(FilterColumn.create("metric", CoreMetrics.VULNERABILITIES_KEY, FilterColumn.DESC, false))
+      .add(FilterColumn.create("metric", CoreMetrics.CODE_SMELLS_KEY, FilterColumn.DESC, false))
+      .add(FilterColumn.create("date", null, FilterColumn.DESC, false));
   }
 }

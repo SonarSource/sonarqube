@@ -35,7 +35,11 @@ import it.issue.IssueWorkflowTest;
 import it.issue.NewIssuesMeasureTest;
 import it.qualityModel.MaintainabilityMeasureTest;
 import it.qualityModel.MaintainabilityRatingMeasureTest;
+import it.qualityModel.NewDebtRatioMeasureTest;
+import it.qualityModel.ReliabilityMeasureTest;
+import it.qualityModel.SecurityMeasureTest;
 import it.qualityModel.TechnicalDebtInIssueChangelogTest;
+import it.qualityModel.TechnicalDebtMeasureVariationTest;
 import it.qualityModel.TechnicalDebtTest;
 import it.qualityModel.TechnicalDebtWidgetTest;
 import it.test.CoverageTest;
@@ -71,9 +75,13 @@ import static util.ItUtils.xooPlugin;
   IssueWorkflowTest.class,
   NewIssuesMeasureTest.class,
   // debt
-  MaintainabilityRatingMeasureTest.class,
-  TechnicalDebtInIssueChangelogTest.class,
   MaintainabilityMeasureTest.class,
+  MaintainabilityRatingMeasureTest.class,
+  NewDebtRatioMeasureTest.class,
+  ReliabilityMeasureTest.class,
+  SecurityMeasureTest.class,
+  TechnicalDebtInIssueChangelogTest.class,
+  TechnicalDebtMeasureVariationTest.class,
   TechnicalDebtTest.class,
   TechnicalDebtWidgetTest.class
 })

@@ -38,8 +38,6 @@ import org.sonar.server.computation.qualitymodel.RatingGrid.Rating;
 
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC_KEY;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
 import static org.sonar.api.measures.CoreMetrics.SECURITY_RATING_KEY;
@@ -62,9 +60,7 @@ import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
  * {@link CoreMetrics#SQALE_RATING_KEY}
  * {@link CoreMetrics#EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY}
  * {@link CoreMetrics#RELIABILITY_RATING_KEY}
- * {@link CoreMetrics#EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY}
  * {@link CoreMetrics#SECURITY_RATING_KEY}
- * {@link CoreMetrics#EFFORT_TO_REACH_SECURITY_RATING_A_KEY}
  */
 public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<QualityModelMeasuresVisitor.QualityModelCounter> {
   private static final Logger LOG = Loggers.get(QualityModelMeasuresVisitor.class);
@@ -82,9 +78,7 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   private final Metric maintainabilityRatingMetric;
   private final Metric effortToMaintainabilityRatingAMetric;
   private final Metric reliabilityRatingMetric;
-  private final Metric effortToReliabilityRatingAMetric;
   private final Metric securityRatingMetric;
-  private final Metric effortToSecurityRatingAMetric;
 
   public QualityModelMeasuresVisitor(MetricRepository metricRepository, MeasureRepository measureRepository, RatingSettings ratingSettings,
     ComponentIssuesRepository componentIssuesRepository) {
@@ -105,8 +99,6 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     this.reliabilityRatingMetric = metricRepository.getByKey(RELIABILITY_RATING_KEY);
     this.securityRatingMetric = metricRepository.getByKey(SECURITY_RATING_KEY);
     this.effortToMaintainabilityRatingAMetric = metricRepository.getByKey(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY);
-    this.effortToReliabilityRatingAMetric = metricRepository.getByKey(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY);
-    this.effortToSecurityRatingAMetric = metricRepository.getByKey(EFFORT_TO_REACH_SECURITY_RATING_A_KEY);
   }
 
   @Override
@@ -166,14 +158,6 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     if (securityRatingMeasure.isPresent()) {
       path.parent().addSecurityRating(Rating.valueOf(securityRatingMeasure.get().getData()));
     }
-    Optional<Measure> effortToReliabilityRatingAMeasure = measureRepository.getRawMeasure(projectView, effortToReliabilityRatingAMetric);
-    if (effortToReliabilityRatingAMeasure.isPresent()) {
-      path.parent().addEffortToReachReliabilityRatingA(effortToReliabilityRatingAMeasure.get().getLongValue());
-    }
-    Optional<Measure> effortToSecurityRatingAMeasure = measureRepository.getRawMeasure(projectView, effortToSecurityRatingAMetric);
-    if (effortToSecurityRatingAMeasure.isPresent()) {
-      path.parent().addEffortToReachSecurityRatingA(effortToSecurityRatingAMeasure.get().getLongValue());
-    }
   }
 
   private void computeAndSaveMeasures(Component component, Path<QualityModelCounter> path) {
@@ -185,14 +169,12 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     addMaintainabilityRatingMeasure(component, density);
     addEffortToMaintainabilityRatingAMeasure(component, path);
     addReliabilityRatingMeasure(component, path);
-    addEffortToReliabilityRatingAMeasure(component, path);
     addSecurityRatingMeasure(component, path);
-    addEffortToSecurityRatingAMeasure(component, path);
 
     addToParent(path);
   }
 
-  private void addIssues(Component component, Path<QualityModelCounter> path){
+  private void addIssues(Component component, Path<QualityModelCounter> path) {
     for (Issue issue : componentIssuesRepository.getIssues(component)) {
       if (issue.resolution() == null) {
         path.current().addIssue(issue);
@@ -242,14 +224,6 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
     measureRepository.add(component, effortToMaintainabilityRatingAMetric, Measure.newMeasureBuilder().create(effortToRatingA));
   }
 
-  private void addEffortToReliabilityRatingAMeasure(Component component, Path<QualityModelCounter> path) {
-    measureRepository.add(component, effortToReliabilityRatingAMetric, Measure.newMeasureBuilder().create(path.current().effortToReachReliabilityRatingA));
-  }
-
-  private void addEffortToSecurityRatingAMeasure(Component component, Path<QualityModelCounter> path) {
-    measureRepository.add(component, effortToSecurityRatingAMetric, Measure.newMeasureBuilder().create(path.current().effortToReachSecurityRatingA));
-  }
-
   private static void addToParent(Path<QualityModelCounter> path) {
     if (!path.isRoot()) {
       path.parent().add(path.current());
@@ -259,9 +233,7 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
   public static final class QualityModelCounter {
     private long devCosts = 0;
     private Rating reliabilityRating = Rating.A;
-    private long effortToReachReliabilityRatingA = 0L;
     private Rating securityRating = Rating.A;
-    private long effortToReachSecurityRatingA = 0L;
 
     private QualityModelCounter() {
       // prevents instantiation
@@ -271,8 +243,6 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
       addDevCosts(otherCounter.devCosts);
       addReliabilityRating(otherCounter.reliabilityRating);
       addSecurityRating(otherCounter.securityRating);
-      addEffortToReachReliabilityRatingA(otherCounter.effortToReachReliabilityRatingA);
-      addEffortToReachSecurityRatingA(otherCounter.effortToReachSecurityRatingA);
     }
 
     public void addDevCosts(long developmentCosts) {
@@ -283,10 +253,8 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
       Rating rating = getRatingFromSeverity(issue.severity());
       if (issue.type().equals(BUG)) {
         addReliabilityRating(rating);
-        addEffortToReachReliabilityRatingA(getEffortForNotMinorIssue(issue));
       } else if (issue.type().equals(VULNERABILITY)) {
         addSecurityRating(rating);
-        addEffortToReachSecurityRatingA(getEffortForNotMinorIssue(issue));
       }
     }
 
@@ -300,14 +268,6 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
       if (securityRating.compareTo(rating) > 0) {
         securityRating = rating;
       }
-    }
-
-    public void addEffortToReachReliabilityRatingA(long reliabilityEffort) {
-      this.effortToReachReliabilityRatingA += reliabilityEffort;
-    }
-
-    public void addEffortToReachSecurityRatingA(long securityEffort) {
-      this.effortToReachSecurityRatingA += securityEffort;
     }
 
     private static long getEffortForNotMinorIssue(Issue issue) {

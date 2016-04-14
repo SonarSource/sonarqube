@@ -2346,23 +2346,6 @@ public final class CoreMetrics {
     .setWorstValue(5.0)
     .create();
 
-  /**
-   * @since 5.5
-   */
-  public static final String EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY = "effort_to_reach_reliability_rating_a";
-
-  /**
-   * @since 5.5
-   */
-  public static final Metric<Long> EFFORT_TO_REACH_RELIABILITY_RATING_A = new Metric.Builder(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, "Effort to reach reliability rating A",
-    Metric.ValueType.WORK_DUR)
-      .setDomain(DOMAIN_RELIABILITY)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setBestValue(0.0)
-      .setOptimizedBestValue(true)
-      .create();
-
   // --------------------------------------------------------------------------------------------------------------------
   //
   // SECURITY CHARACTERISTIC
@@ -2419,23 +2402,6 @@ public final class CoreMetrics {
     .setBestValue(1.0)
     .setWorstValue(5.0)
     .create();
-
-  /**
-   * @since 5.5
-   */
-  public static final String EFFORT_TO_REACH_SECURITY_RATING_A_KEY = "effort_to_reach_security_rating_a";
-
-  /**
-   * @since 5.5
-   */
-  public static final Metric<Long> EFFORT_TO_REACH_SECURITY_RATING_A = new Metric.Builder(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, "Effort to reach security rating A",
-    Metric.ValueType.WORK_DUR)
-      .setDomain(DOMAIN_SECURITY)
-      .setDirection(Metric.DIRECTION_WORST)
-      .setQualitative(true)
-      .setBestValue(0.0)
-      .setOptimizedBestValue(true)
-      .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //

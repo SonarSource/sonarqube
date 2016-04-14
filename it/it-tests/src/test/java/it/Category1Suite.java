@@ -46,8 +46,6 @@ import it.projectAdministration.ProjectAdministrationTest;
 import it.qualityGate.QualityGateNotificationTest;
 import it.qualityGate.QualityGateTest;
 import it.qualityGate.QualityGateUiTest;
-import it.qualityModel.NewDebtRatioMeasureTest;
-import it.qualityModel.TechnicalDebtMeasureVariationTest;
 import it.settings.PropertySetsTest;
 import it.settings.SettingsTest;
 import it.settings.SubCategoriesTest;
@@ -90,13 +88,11 @@ import static util.ItUtils.xooPlugin;
   // custom measure
   CustomMeasuresTest.class,
   // measure
-  NewDebtRatioMeasureTest.class,
   ProjectMeasuresPageTest.class,
   ProjectOverviewTest.class,
   ProjectWidgetsTest.class,
   MeasureFiltersTest.class,
   MeasuresWsTest.class,
-  TechnicalDebtMeasureVariationTest.class,
   // measure history
   DifferentialPeriodsTest.class,
   HistoryUiTest.class,

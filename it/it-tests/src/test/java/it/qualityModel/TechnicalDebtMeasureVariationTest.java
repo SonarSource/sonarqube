@@ -21,7 +21,7 @@ package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
-import it.Category1Suite;
+import it.Category2Suite;
 import java.util.List;
 import org.junit.AfterClass;
 import org.junit.Before;
@@ -42,7 +42,7 @@ import static util.ItUtils.setServerProperty;
 public class TechnicalDebtMeasureVariationTest {
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 
   @BeforeClass
   public static void initPeriods() throws Exception {

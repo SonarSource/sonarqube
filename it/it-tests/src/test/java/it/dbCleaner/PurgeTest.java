@@ -76,9 +76,9 @@ public class PurgeTest {
     collector.checkThat("Wrong number of files", count("projects where qualifier in ('FIL')"), equalTo(4));
     collector.checkThat("Wrong number of unit test files", count("projects where qualifier in ('UTS')"), equalTo(0));
 
-    int measuresOnTrk = 46;
-    int measuresOnBrc = 228;
-    int measuresOnDir = 145;
+    int measuresOnTrk = 44;
+    int measuresOnBrc = 216;
+    int measuresOnDir = 137;
     int measuresOnFil = 69;
 
     // count measures 
@@ -105,8 +105,8 @@ public class PurgeTest {
     // must be a different date, else a single snapshot is kept per day
     scan(PROJECT_SAMPLE_PATH, DateFormatUtils.ISO_DATE_FORMAT.format(today));
 
-    int newMeasuresOnTrk = 56;
-    int newMeasuresOnBrc = 292;
+    int newMeasuresOnTrk = 54;
+    int newMeasuresOnBrc = 280;
     int newMeasuresOnDir = 44;
     int newMeasuresOnFil = 0;
 

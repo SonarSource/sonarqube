@@ -40,10 +40,6 @@ import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST;
 import static org.sonar.api.measures.CoreMetrics.DEVELOPMENT_COST_KEY;
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A;
 import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A;
-import static org.sonar.api.measures.CoreMetrics.EFFORT_TO_REACH_SECURITY_RATING_A_KEY;
 import static org.sonar.api.measures.CoreMetrics.NCLOC;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING;
 import static org.sonar.api.measures.CoreMetrics.RELIABILITY_RATING_KEY;
@@ -109,9 +105,7 @@ public class QualityModelMeasuresVisitorForViewsTest {
     .add(SQALE_RATING)
     .add(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A)
     .add(RELIABILITY_RATING)
-    .add(EFFORT_TO_REACH_RELIABILITY_RATING_A)
-    .add(SECURITY_RATING)
-    .add(EFFORT_TO_REACH_SECURITY_RATING_A);
+    .add(SECURITY_RATING);
 
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
@@ -126,7 +120,8 @@ public class QualityModelMeasuresVisitorForViewsTest {
   @Before
   public void setUp() {
     when(ratingSettings.getRatingGrid()).thenReturn(new RatingGrid(RATING_GRID));
-    underTest = new VisitorsCrawler(Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings, componentIssuesRepositoryRule)));
+    underTest = new VisitorsCrawler(
+      Arrays.<ComponentVisitor>asList(new QualityModelMeasuresVisitor(metricRepository, measureRepository, ratingSettings, componentIssuesRepositoryRule)));
   }
 
   @Test
@@ -143,10 +138,7 @@ public class QualityModelMeasuresVisitorForViewsTest {
         entryOf(SQALE_RATING_KEY, createMaintainabilityRatingMeasure(A)),
         entryOf(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
         entryOf(RELIABILITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, newMeasureBuilder().create(0L)),
-        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A)),
-        entryOf(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, newMeasureBuilder().create(0L))
-      );
+        entryOf(SECURITY_RATING_KEY, createMaintainabilityRatingMeasure(A)));
   }
 
   @Test
@@ -244,40 +236,6 @@ public class QualityModelMeasuresVisitorForViewsTest {
         projectView4DevCosts)));
   }
 
-  @Test
-  public void compute_effort_to_reliability_rating_A_measure() throws Exception {
-    treeRootHolder.setRoot(treeRootHolder.getRoot());
-
-    addRawMeasure(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, PROJECT_VIEW_1_REF, 100L);
-    addRawMeasure(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, PROJECT_VIEW_2_REF, 200L);
-    addRawMeasure(EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, PROJECT_VIEW_3_REF, 300L);
-    // Nothing on project view 4
-
-    underTest.visit(treeRootHolder.getRoot());
-
-    verifyRawMeasure(SUB_SUBVIEW_1_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 100L + 200L);
-    verifyRawMeasure(SUB_SUBVIEW_2_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 300L);
-    verifyRawMeasure(SUBVIEW_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 600L);
-    verifyRawMeasure(ROOT_REF, EFFORT_TO_REACH_RELIABILITY_RATING_A_KEY, 600L);
-  }
-
-  @Test
-  public void compute_effort_to_security_rating_A_measure() throws Exception {
-    treeRootHolder.setRoot(treeRootHolder.getRoot());
-
-    addRawMeasure(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, PROJECT_VIEW_1_REF, 100L);
-    addRawMeasure(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, PROJECT_VIEW_2_REF, 200L);
-    addRawMeasure(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, PROJECT_VIEW_3_REF, 300L);
-    addRawMeasure(EFFORT_TO_REACH_SECURITY_RATING_A_KEY, PROJECT_VIEW_4_REF, 50L);
-
-    underTest.visit(treeRootHolder.getRoot());
-
-    verifyRawMeasure(SUB_SUBVIEW_1_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 100L + 200L);
-    verifyRawMeasure(SUB_SUBVIEW_2_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 300L);
-    verifyRawMeasure(SUBVIEW_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 600L);
-    verifyRawMeasure(ROOT_REF, EFFORT_TO_REACH_SECURITY_RATING_A_KEY, 650L);
-  }
-
   private void assertNewRawMeasures(int componentRef, long debt, long devCost, Rating rating) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef))).contains(
       entryOf(DEVELOPMENT_COST_KEY, newMeasureBuilder().create(String.valueOf(devCost))),
@@ -297,10 +255,6 @@ public class QualityModelMeasuresVisitorForViewsTest {
   }
 
   private void addRawMeasure(String metricKey, int componentRef, long value) {
-    measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
-  }
-
-  private void addRawMeasure(String metricKey, int componentRef, int value) {
     measureRepository.addRawMeasure(componentRef, metricKey, newMeasureBuilder().create(value));
   }
 

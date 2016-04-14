@@ -21,7 +21,7 @@ package it.qualityModel;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
-import it.Category1Suite;
+import it.Category2Suite;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.AfterClass;
@@ -46,7 +46,7 @@ public class NewDebtRatioMeasureTest {
   private static final String NEW_DEBT_RATIO_METRIC_KEY = "new_sqale_debt_ratio";
 
   @ClassRule
-  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+  public static Orchestrator orchestrator = Category2Suite.ORCHESTRATOR;
 
   @BeforeClass
   public static void initPeriods() throws Exception {
