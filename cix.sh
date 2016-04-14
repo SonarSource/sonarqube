@@ -37,6 +37,10 @@ case "$RUN_ACTIVITY" in
     ./run-upgrade-tests.sh "http://infra.internal.sonarsource.com/jenkins/orch-${DB_ENGINE}.properties"
     ;;
 
+  unit-tests)
+    mvn package
+    ;;  
+
   *)
     echo "unknown RUN_ACTIVITY = $RUN_ACTIVITY"
     exit 1
