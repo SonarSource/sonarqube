@@ -177,10 +177,14 @@ public class DefaultHttpDownloader extends HttpDownloader {
     private static final String GET = "GET";
     private static final String HTTP_PROXY_USER = "http.proxyUser";
     private static final String HTTP_PROXY_PASSWORD = "http.proxyPassword";
+    private static final String HTTP_PROXY_HOST = "http.proxyHost";
+    private static final String HTTPS_PROXY_HOST = "https.proxyHost";
+    private static final String HTTP_PROXY_PORT = "http.proxyPort";
+    private static final String HTTPS_PROXY_PORT = "https.proxyPort";
 
     private static final List<String> PROXY_SETTINGS = ImmutableList.of(
-      "http.proxyHost", "http.proxyPort", "http.nonProxyHosts",
-      "https.proxyHost", "https.proxyPort",
+      HTTP_PROXY_HOST, HTTP_PROXY_PORT, "http.nonProxyHosts",
+      HTTPS_PROXY_HOST, HTTPS_PROXY_PORT,
       "http.auth.ntlm.domain", "socksProxyHost", "socksProxyPort");
 
     private String userAgent;
@@ -197,10 +201,20 @@ public class DefaultHttpDownloader extends HttpDownloader {
           system.setProperty(key, settings.getString(key));
         }
       }
+      // defaults of HTTPS properties are the values of HTTP properties
+      setSystemPropertyToDefaultIfNotSet(system, settings, HTTPS_PROXY_HOST, HTTP_PROXY_HOST);
+      setSystemPropertyToDefaultIfNotSet(system, settings, HTTPS_PROXY_PORT, HTTP_PROXY_PORT);
+
       // register credentials
       String login = settings.getString(HTTP_PROXY_USER);
       if (isNotEmpty(login)) {
         system.setDefaultAuthenticator(new ProxyAuthenticator(login, settings.getString(HTTP_PROXY_PASSWORD)));
+      }
+    }
+
+    private static void setSystemPropertyToDefaultIfNotSet(SystemFacade system, Settings settings, String httpsProperty, String httpProperty) {
+      if (!settings.hasKey(httpsProperty) && settings.hasKey(httpProperty)) {
+        system.setProperty(httpsProperty, settings.getString(httpProperty));
       }
     }
 

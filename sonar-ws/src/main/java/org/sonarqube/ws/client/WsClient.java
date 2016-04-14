@@ -24,6 +24,7 @@ import org.sonarqube.ws.client.component.ComponentsService;
 import org.sonarqube.ws.client.issue.IssuesService;
 import org.sonarqube.ws.client.measure.MeasuresService;
 import org.sonarqube.ws.client.permission.PermissionsService;
+import org.sonarqube.ws.client.project.ProjectsService;
 import org.sonarqube.ws.client.qualitygate.QualityGatesService;
 import org.sonarqube.ws.client.qualityprofile.QualityProfilesService;
 import org.sonarqube.ws.client.rule.RulesService;
@@ -70,4 +71,9 @@ public interface WsClient {
   RulesService rules();
 
   WsConnector wsConnector();
+
+  /**
+   * @since 5.5
+   */
+  ProjectsService projects();
 }

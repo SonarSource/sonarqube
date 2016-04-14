@@ -24,8 +24,7 @@ export const domains = {
       'new_bugs',
       'reliability_rating',
       'reliability_remediation_effort',
-      'new_reliability_remediation_effort',
-      'effort_to_reach_reliability_rating_a'
+      'new_reliability_remediation_effort'
     ]
   },
 
@@ -35,8 +34,7 @@ export const domains = {
       'new_vulnerabilities',
       'security_rating',
       'security_remediation_effort',
-      'new_security_remediation_effort',
-      'effort_to_reach_security_rating_a'
+      'new_security_remediation_effort'
     ]
   },
 

@@ -20,6 +20,7 @@
 
 package org.sonarqube.ws.client.ce;
 
+import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
 import org.sonarqube.ws.WsCe.TaskTypesWsResponse;
 import org.sonarqube.ws.client.BaseService;
@@ -33,6 +34,9 @@ import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
+/**
+ * Maps web service {@code api/ce} (Compute Engine).
+ */
 public class CeService extends BaseService {
 
   public CeService(WsConnector wsConnector) {
@@ -58,4 +62,13 @@ public class CeService extends BaseService {
     return call(new GetRequest(path("task_types")), TaskTypesWsResponse.parser());
   }
 
+  /**
+   * Gets details of a Compute Engine task.
+   *
+   * @throws org.sonarqube.ws.client.HttpException if HTTP status code is not 2xx.
+   * @since 5.5
+   */
+  public WsCe.TaskResponse task(String id) {
+    return call(new GetRequest(path("task")).setParam("id", id), WsCe.TaskResponse.parser());
+  }
 }
