@@ -22,6 +22,9 @@ package org.sonarqube.ws.client.project;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
+/**
+ * @since 5.5
+ */
 public class DeleteRequest {
 
   private final String id;
