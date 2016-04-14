@@ -33,24 +33,28 @@ class MeasureDtoToWsMeasure {
   }
 
   static WsMeasures.Measure measureDtoToWsMeasure(MetricDto metricDto, MeasureDto measureDto) {
-    WsMeasures.Measure.Builder measure = WsMeasures.Measure.newBuilder();
-    measure.setMetric(metricDto.getKey());
-    // a measure value can be null, new_violations metric for example
-    if (measureDto.getValue() != null
-      || measureDto.getData() != null) {
-      measure.setValue(formatMeasureValue(measureDto, metricDto));
-    }
-
-    WsMeasures.PeriodValue.Builder periodBuilder = WsMeasures.PeriodValue.newBuilder();
-    for (int i = 1; i <= 5; i++) {
-      if (measureDto.getVariation(i) != null) {
-        measure.getPeriodsBuilder().addPeriodsValue(periodBuilder
-          .clear()
-          .setIndex(i)
-          .setValue(formatNumericalValue(measureDto.getVariation(i), metricDto)));
+    try {
+      WsMeasures.Measure.Builder measure = WsMeasures.Measure.newBuilder();
+      measure.setMetric(metricDto.getKey());
+      // a measure value can be null, new_violations metric for example
+      if (measureDto.getValue() != null
+        || measureDto.getData() != null) {
+        measure.setValue(formatMeasureValue(measureDto, metricDto));
       }
-    }
 
-    return measure.build();
+      WsMeasures.PeriodValue.Builder periodBuilder = WsMeasures.PeriodValue.newBuilder();
+      for (int i = 1; i <= 5; i++) {
+        if (measureDto.getVariation(i) != null) {
+          measure.getPeriodsBuilder().addPeriodsValue(periodBuilder
+            .clear()
+            .setIndex(i)
+            .setValue(formatNumericalValue(measureDto.getVariation(i), metricDto)));
+        }
+      }
+
+      return measure.build();
+    } catch (Exception e) {
+      throw new IllegalStateException(String.format("Error while mapping a measure of metric key '%s' and parameters %s", metricDto.getKey(), measureDto.toString()), e);
+    }
   }
 }
