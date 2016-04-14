@@ -28,6 +28,7 @@
 
 .source-viewer {
   width: 100%;
+  min-height: 200px;
   border: 1px solid @barBorderColor;
   box-sizing: border-box;
   background-color: #fff;
@@ -355,10 +356,11 @@
 .source-viewer-header-more-actions {
   position: absolute;
   z-index: @dropdown-menu-z-index;
-  right: -1px;
+  right: 0;
   top: 100%;
   padding: 10px;
   border: 1px solid @barBorderColor;
+  border-right: none;
   background-color: @white;
   line-height: 1.8;
 }
