@@ -17,28 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.platformlevel;
+package org.sonar.db.charset;
 
-import org.sonar.api.utils.UriReader;
-import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.server.db.VerifyDatabaseCharsetAfterMigration;
-import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.startup.ServerMetadataPersister;
+import org.junit.Test;
+import org.mockito.Mockito;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.H2;
 
-public class PlatformLevel3 extends PlatformLevel {
-  public PlatformLevel3(PlatformLevel parent) {
-    super("level3", parent);
-  }
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
-  @Override
-  protected void configureLevel() {
-    add(
-      VerifyDatabaseCharsetAfterMigration.class,
-      PersistentSettings.class,
-      ServerMetadataPersister.class,
-      DefaultHttpDownloader.class,
-      UriReader.class,
-      ServerIdGenerator.class);
+public class DatabaseCharsetCheckerTest {
+
+  Database db = mock(Database.class, Mockito.RETURNS_MOCKS);
+  DatabaseCharsetChecker underTest = new DatabaseCharsetChecker(db);
+
+  @Test
+  public void does_nothing_if_h2() throws Exception {
+    when(db.getDialect()).thenReturn(new H2());
+    underTest.check(true);
   }
 }

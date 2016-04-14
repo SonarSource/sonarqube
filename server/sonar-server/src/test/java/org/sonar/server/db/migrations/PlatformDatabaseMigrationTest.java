@@ -44,19 +44,19 @@ public class PlatformDatabaseMigrationTest {
   /**
    * Implementation of execute runs Runnable synchronously.
    */
-  private PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
+  PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(Runnable command) {
       command.run();
     }
   };
-  private RubyBridge rubyBridge = mock(RubyBridge.class);
-  private RubyDatabaseMigration rubyDatabaseMigration = mock(RubyDatabaseMigration.class);
-  private RubyRailsRoutes rubyRailsRoutes = mock(RubyRailsRoutes.class);
-  private Platform platform = mock(Platform.class);
-  private InOrder inOrder = inOrder(rubyDatabaseMigration, rubyBridge, rubyRailsRoutes, platform);
+  RubyBridge rubyBridge = mock(RubyBridge.class);
+  RubyDatabaseMigration rubyDatabaseMigration = mock(RubyDatabaseMigration.class);
+  RubyRailsRoutes rubyRailsRoutes = mock(RubyRailsRoutes.class);
+  Platform platform = mock(Platform.class);
+  InOrder inOrder = inOrder(rubyDatabaseMigration, rubyBridge, rubyRailsRoutes, platform);
 
-  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
+  PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
 
   @Test
   public void status_is_NONE_when_component_is_created() {

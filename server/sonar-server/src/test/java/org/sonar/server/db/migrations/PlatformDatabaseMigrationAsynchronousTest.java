@@ -33,15 +33,15 @@ public class PlatformDatabaseMigrationAsynchronousTest {
    * Implementation of execute wraps specified Runnable to add a delay of 200 ms before passing it
    * to a SingleThread executor to execute asynchronously.
    */
-  private PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
+  PlatformDatabaseMigrationExecutorService executorService = new PlatformDatabaseMigrationExecutorServiceAdaptor() {
     @Override
     public void execute(final Runnable command) {
       taskSuppliedForAsyncProcess = true;
     }
   };
-  private RubyBridge rubyBridge = mock(RubyBridge.class);
-  private Platform platform = mock(Platform.class);
-  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
+  RubyBridge rubyBridge = mock(RubyBridge.class);
+  Platform platform = mock(Platform.class);
+  PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
 
   @Test
   public void testName() throws Exception {

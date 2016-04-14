@@ -63,7 +63,8 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
   @Nullable
   private Throwable failureError;
 
-  public PlatformDatabaseMigration(RubyBridge rubyBridge, PlatformDatabaseMigrationExecutorService executorService, Platform platform) {
+  public PlatformDatabaseMigration(RubyBridge rubyBridge,
+    PlatformDatabaseMigrationExecutorService executorService, Platform platform) {
     this.rubyBridge = rubyBridge;
     this.executorService = executorService;
     this.platform = platform;
@@ -93,7 +94,7 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
       return;
     }
 
-    running.getAndSet(true);
+    running.set(true);
     executorService.execute(new Runnable() {
       @Override
       public void run() {

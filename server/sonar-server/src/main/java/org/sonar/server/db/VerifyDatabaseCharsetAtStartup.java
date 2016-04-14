@@ -17,28 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.platformlevel;
+package org.sonar.server.db;
 
-import org.sonar.api.utils.UriReader;
-import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.server.db.VerifyDatabaseCharsetAfterMigration;
-import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.startup.ServerMetadataPersister;
+import org.picocontainer.Startable;
+import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.db.charset.DatabaseCharsetChecker;
 
-public class PlatformLevel3 extends PlatformLevel {
-  public PlatformLevel3(PlatformLevel parent) {
-    super("level3", parent);
+public class VerifyDatabaseCharsetAtStartup implements Startable {
+
+  private final ServerUpgradeStatus upgradeStatus;
+  private final DatabaseCharsetChecker charsetChecker;
+
+  public VerifyDatabaseCharsetAtStartup(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
+    this.upgradeStatus = upgradeStatus;
+    this.charsetChecker = charsetChecker;
   }
 
   @Override
-  protected void configureLevel() {
-    add(
-      VerifyDatabaseCharsetAfterMigration.class,
-      PersistentSettings.class,
-      ServerMetadataPersister.class,
-      DefaultHttpDownloader.class,
-      UriReader.class,
-      ServerIdGenerator.class);
+  public void start() {
+    check();
+  }
+
+  @Override
+  public void stop() {
+    // do nothing
+  }
+
+  protected void check() {
+    boolean enforceUtf8 = upgradeStatus.isFreshInstall();
+    charsetChecker.check(enforceUtf8);
+  }
+
+  protected ServerUpgradeStatus getUpgradeStatus() {
+    return upgradeStatus;
   }
 }

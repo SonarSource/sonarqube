@@ -61,7 +61,7 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
   /**
    * Implementation of RubyDatabaseMigration which trigger method increments a thread-safe counter and add a delay of 200ms
    */
-  private RubyDatabaseMigration rubyDatabaseMigration = new RubyDatabaseMigration() {
+  RubyDatabaseMigration rubyDatabaseMigration = new RubyDatabaseMigration() {
     @Override
     public void trigger() {
       triggerCount.incrementAndGet();
@@ -72,10 +72,10 @@ public class PlatformDatabaseMigrationConcurrentAccessTest {
       }
     }
   };
-  private RubyBridge rubyBridge = mock(RubyBridge.class);
-  private Platform platform = mock(Platform.class);
-  private RubyRailsRoutes railsRoutes = mock(RubyRailsRoutes.class);
-  private PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
+  RubyBridge rubyBridge = mock(RubyBridge.class);
+  Platform platform = mock(Platform.class);
+  RubyRailsRoutes railsRoutes = mock(RubyRailsRoutes.class);
+  PlatformDatabaseMigration underTest = new PlatformDatabaseMigration(rubyBridge, executorService, platform);
 
   @After
   public void tearDown() {

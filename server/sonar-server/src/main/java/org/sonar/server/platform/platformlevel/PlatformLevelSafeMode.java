@@ -23,8 +23,8 @@ import org.sonar.server.platform.ws.DbMigrationStatusAction;
 import org.sonar.server.platform.ws.MigrateDbAction;
 import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
-import org.sonar.server.ws.WebServicesWs;
 import org.sonar.server.ws.WebServiceEngine;
+import org.sonar.server.ws.WebServicesWs;
 
 public class PlatformLevelSafeMode extends PlatformLevel {
   public PlatformLevelSafeMode(PlatformLevel parent) {
