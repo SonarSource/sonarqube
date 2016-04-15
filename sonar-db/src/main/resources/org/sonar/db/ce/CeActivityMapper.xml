@@ -74,11 +74,6 @@
     WHERE rn BETWEEN (#{offset} * #{pageSize} + 1) AND ((#{offset} + 1) * #{pageSize})
   </select>
 
-  <select id="countByQuery" parameterType="map" resultType="int">
-    select count(ca.id)
-    <include refid="sqlSelectByQuery" />
-  </select>
-
   <sql id="sqlSelectByQuery">
     from ce_activity ca
     <where>

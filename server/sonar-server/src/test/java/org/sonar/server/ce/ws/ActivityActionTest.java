@@ -34,15 +34,15 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.log.LogFileRef;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDbTester;
-import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
-import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -169,27 +169,22 @@ public class ActivityActionTest {
   }
 
   @Test
-  public void paginate_results() {
+  public void limit_results() {
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
-    assertPage(1, 1, 3, asList("T3"));
-    assertPage(2, 1, 3, asList("T2"));
-    assertPage(1, 10, 3, asList("T3", "T2", "T1"));
-    assertPage(2, 10, 3, Collections.<String>emptyList());
+    assertPage(1, asList("T3"));
+    assertPage(2, asList("T3", "T2"));
+    assertPage(10, asList("T3", "T2", "T1"));
+    assertPage(0, Collections.<String>emptyList());
   }
 
-  private void assertPage(int pageIndex, int pageSize, int expectedTotal, List<String> expectedOrderedTaskIds) {
+  private void assertPage(int pageSize, List<String> expectedOrderedTaskIds) {
     ActivityResponse activityResponse = call(ws.newRequest()
-      .setParam(Param.PAGE, Integer.toString(pageIndex))
       .setParam(Param.PAGE_SIZE, Integer.toString(pageSize))
       .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
-
-    assertThat(activityResponse.getPaging().getPageIndex()).isEqualTo(pageIndex);
-    assertThat(activityResponse.getPaging().getPageSize()).isEqualTo(pageSize);
-    assertThat(activityResponse.getPaging().getTotal()).isEqualTo(expectedTotal);
 
     assertThat(activityResponse.getTasksCount()).isEqualTo(expectedOrderedTaskIds.size());
     for (int i = 0; i < expectedOrderedTaskIds.size(); i++) {

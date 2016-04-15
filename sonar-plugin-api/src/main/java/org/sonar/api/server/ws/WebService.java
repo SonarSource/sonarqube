@@ -349,12 +349,21 @@ public interface WebService extends Definable<WebService.Context> {
      * Note the maximum is a documentation only feature. It does not check anything.
      */
     public NewAction addPagingParams(int defaultPageSize, int maxPageSize) {
+      addPageParam();
+      addPageSize(defaultPageSize, maxPageSize);
+      return this;
+    }
+
+    public NewAction addPageParam() {
       createParam(Param.PAGE)
         .setDescription("1-based page number")
         .setExampleValue("42")
         .setDeprecatedKey("pageIndex")
         .setDefaultValue("1");
+      return this;
+    }
 
+    public NewAction addPageSize(int defaultPageSize, int maxPageSize) {
       createParam(Param.PAGE_SIZE)
         .setDescription("Page size. Must be greater than 0 and less than " + maxPageSize)
         .setExampleValue("20")

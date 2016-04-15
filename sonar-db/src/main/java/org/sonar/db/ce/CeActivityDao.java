@@ -72,13 +72,6 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).selectByQuery(query, offset, pageSize);
   }
 
-  public int countByQuery(DbSession dbSession, CeTaskQuery query) {
-    if (query.isShortCircuitedByComponentUuids()) {
-      return 0;
-    }
-    return mapper(dbSession).countByQuery(query);
-  }
-
   private static CeActivityMapper mapper(DbSession dbSession) {
     return dbSession.getMapper(CeActivityMapper.class);
   }

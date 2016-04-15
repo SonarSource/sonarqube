@@ -22,7 +22,6 @@ package org.sonar.db.ce;
 import com.google.common.base.Optional;
 import java.util.List;
 import org.apache.ibatis.session.RowBounds;
-import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
@@ -48,14 +47,14 @@ public class CeQueueDao implements Dao {
     return mapper(session).selectAllInAscOrder();
   }
 
-  public List<CeQueueDto> selectByQueryInDescOrder(DbSession dbSession, CeTaskQuery query, Paging paging) {
+  public List<CeQueueDto> selectByQueryInDescOrder(DbSession dbSession, CeTaskQuery query, int pageSize) {
     if (query.isShortCircuitedByComponentUuids()
       || query.isOnlyCurrents()
       || query.getMaxExecutedAt() != null) {
       return emptyList();
     }
 
-    return mapper(dbSession).selectByQueryInDescOrder(query, new RowBounds(paging.offset(), paging.pageSize()));
+    return mapper(dbSession).selectByQueryInDescOrder(query, new RowBounds(0, pageSize));
   }
 
   public int countByQuery(DbSession dbSession, CeTaskQuery query) {

@@ -29,7 +29,6 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.api.utils.Paging;
 import org.sonar.api.utils.internal.TestSystem2;
 import org.sonar.db.DbTester;
 
@@ -227,7 +226,7 @@ public class CeQueueDaoTest {
       .setType(CeTaskTypes.REPORT)
       .setMinSubmittedAt(100_000L);
 
-    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
+    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, 1_000);
     int total = underTest.countByQuery(db.getSession(), query);
 
     assertThat(result).extracting("uuid").containsExactly("TASK_5", TASK_UUID_2);
@@ -244,7 +243,7 @@ public class CeQueueDaoTest {
 
     CeTaskQuery query = new CeTaskQuery().setOnlyCurrents(true);
 
-    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
+    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, 1_000);
     int total = underTest.countByQuery(db.getSession(), query);
 
     assertThat(result).isEmpty();
@@ -261,7 +260,7 @@ public class CeQueueDaoTest {
 
     CeTaskQuery query = new CeTaskQuery().setMaxExecutedAt(1_000_000_000_000L);
 
-    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
+    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, 1_000);
     int total = underTest.countByQuery(db.getSession(), query);
 
     assertThat(result).isEmpty();
@@ -278,7 +277,7 @@ public class CeQueueDaoTest {
 
     CeTaskQuery query = new CeTaskQuery().setComponentUuids(Collections.<String>emptyList());
 
-    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, Paging.forPageIndex(1).withPageSize(1_000).andTotal(1_000));
+    List<CeQueueDto> result = underTest.selectByQueryInDescOrder(db.getSession(), query, 1_000);
     int total = underTest.countByQuery(db.getSession(), query);
 
     assertThat(result).isEmpty();
