@@ -17,30 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import sortBy from '../../../../../../node_modules/lodash/sortBy';
-import partition from '../../../../../../node_modules/lodash/partition';
 import React from 'react';
 
-import MeasuresList from './MeasuresList';
-import { domains } from '../config/domains';
-
-const sortMeasures = (measures, order) => {
-  const [known, unknown] = partition(measures, measure => order.includes(measure.metric.key));
-  return [
-    ...sortBy(known, measure => order.indexOf(measure.metric.key)),
-    ...sortBy(unknown, measure => measure.metric.name)
-  ];
-};
+import HomeMeasuresList from './HomeMeasuresList';
 
 export default class AllMeasuresDomain extends React.Component {
   render () {
-    const { domain, component, leakPeriodLabel, displayHeader } = this.props;
-
-    const hasLeak = !!leakPeriodLabel;
-    const { measures } = domain;
-    const domainConfig = domains[domain.name] || { order: [] };
-    const orderedMeasures = domainConfig.order;
-    const sortedMeasures = sortMeasures(measures, orderedMeasures);
+    const { domain, component, displayHeader } = this.props;
 
     return (
         <li>
@@ -50,11 +33,9 @@ export default class AllMeasuresDomain extends React.Component {
               </header>
           )}
 
-          <MeasuresList
-              measures={sortedMeasures}
-              hasLeak={hasLeak}
-              component={component}
-              spaces={domainConfig.spaces || []}/>
+          <HomeMeasuresList
+              domain={domain}
+              component={component}/>
         </li>
     );
   }

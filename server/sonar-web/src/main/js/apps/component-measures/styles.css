@@ -2,14 +2,19 @@
   display: flex;
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .measures-domains {
 }
 
 .measures-domains > li {
-  padding-bottom: 20px;
+  margin-bottom: 20px;
+}
+
+.measures-domains > li > div {
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
 }
 
 .measures-domains-leak-header {
@@ -20,7 +25,51 @@
   white-space: nowrap;
 }
 
+.main-domain-measures {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-around;
+  float: left;
+  width: 480px;
+  margin-right: 60px;
+}
+
+.main-domain-measures > li {
+  padding: 12px 0;
+}
+
+.main-domain-measures > li > a {
+  display: flex;
+  flex-direction: column-reverse;
+  width: 160px;
+  border: none;
+  text-align: center;
+}
+
+.main-domain-measures .domain-measures-value {
+  height: 40px;
+  box-sizing: border-box;
+  color: #444;
+  font-size: 30px;
+  font-weight: 300;
+}
+
+.main-domain-measures .domain-measures-name {
+  margin-top: 8px;
+}
+
+.main-domain-measures .domain-measures-name > span {
+  border-bottom: 1px solid #cae3f2;
+}
+
+.main-domain-measures .domain-measures-leak {
+  margin: 0 20px;
+  border: 1px solid #eae3c7;
+  background-color: #fbf3d5;
+}
+
 .domain-measures {
+  overflow: hidden;
   line-height: 1.4;
 }
 
@@ -38,59 +87,33 @@
   background-color: #ecf6fe !important;
 }
 
-.domain-measures-name,
-.domain-measures-value {
+.domain-measures .domain-measures-name,
+.domain-measures .domain-measures-value {
   padding: 7px 10px;
   box-sizing: border-box;
 }
 
-.domain-measures-name {
+.domain-measures .domain-measures-name {
   width: calc(100% - 160px);
 }
 
-.domain-measures-name > span {
+.domain-measures .domain-measures-name > span {
   border-bottom: 1px solid #cae3f2;
 }
 
-.domain-measures-value {
+.domain-measures .domain-measures-value {
   width: 80px;
   color: #444;
   text-align: right;
 }
 
-.domain-measures-leak {
+.domain-measures .domain-measures-leak {
   background-color: #fbf3d5;
   transition: background-color 0.3s ease;
 }
 
-.domain-measures > li:nth-child(odd) .domain-measures-leak {
+.domain-measures .domain-measures > li:nth-child(odd) .domain-measures-leak {
   background-color: #f5eed0;
-}
-
-.domain-main-measures {
-  display: flex;
-  flex-wrap: wrap;
-  padding: 0 10px;
-}
-
-.domain-main-measures > li {
-  margin-right: 40px;
-  margin-bottom: 30px;
-}
-
-.domain-main-measures-value {
-  line-height: 1;
-  font-size: 24px;
-  font-weight: 300;
-}
-
-.domain-main-measures-leak {
-
-}
-
-.domain-main-measures-label {
-  margin-top: 4px;
-  white-space: nowrap;
 }
 
 .measure-details {
@@ -267,8 +290,10 @@
 
 .measure-details-bubble-chart {
   position: relative;
-  margin: 10px 0;
+  margin: 40px 0 10px;
   padding: 30px 0 30px 60px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
 }
 
 .measure-details-bubble-chart-axis {
@@ -325,4 +350,9 @@
 
 .component-measures-breadcrumbs > li:last-child::after {
   display: none;
+}
+
+.home-measures-list {
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
 }
