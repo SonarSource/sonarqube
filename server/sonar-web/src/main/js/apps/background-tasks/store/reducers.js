@@ -47,7 +47,7 @@ function updateTask (tasks, newTask) {
   return tasks.map(task => task.id === newTask.id ? newTask : task);
 }
 
-export default function (state = initialState, action) {
+export default function (state = initialState, action = {}) {
   switch (action.type) {
     case INIT:
       return {

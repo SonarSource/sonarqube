@@ -472,7 +472,7 @@ export default Marionette.LayoutView.extend({
       const outOfBounds = b.from > line || b.from + b.size < line;
       const currentFile = b._ref === '1';
       const shouldDisplayForCurrentFile = outOfBounds || foundOne;
-      const shouldDisplay = !currentFile || (currentFile && shouldDisplayForCurrentFile);
+      const shouldDisplay = !currentFile || shouldDisplayForCurrentFile;
       const isOk = (b._ref != null) && shouldDisplay;
       if (b._ref === '1' && !outOfBounds) {
         foundOne = true;

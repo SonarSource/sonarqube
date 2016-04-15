@@ -112,7 +112,7 @@ export const initialState = {
   errorMessage: null
 };
 
-export function current (state = initialState, action) {
+export function current (state = initialState, action = {}) {
   /* eslint no-case-declarations: 0 */
   /* FIXME fix it ^^^ */
   switch (action.type) {
@@ -183,7 +183,7 @@ export function current (state = initialState, action) {
   }
 }
 
-export function bucket (state = [], action) {
+export function bucket (state = [], action = {}) {
   switch (action.type) {
     case INIT:
       return merge(state, action.component);

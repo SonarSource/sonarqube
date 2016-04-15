@@ -34,7 +34,7 @@ import { checkIfDefault, addCondition, deleteCondition, replaceCondition } from 
 
 const initialState = {};
 
-export default function rootReducer (state = initialState, action) {
+export default function rootReducer (state = initialState, action = {}) {
   switch (action.type) {
     case SET_STATE:
       return { ...state, ...action.nextState };

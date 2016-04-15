@@ -20,9 +20,7 @@
 import { RECEIVE_USER, ADD_PROJECT_NOTIFICATIONS, REMOVE_PROJECT_NOTIFICATIONS } from './actions';
 
 function addProjectNotifications (state, project) {
-  const found = state.find(notification => {
-    return notification.project.internalId === project.internalId;
-  });
+  const found = state.find(notification => notification.project.internalId === project.internalId);
 
   if (found) {
     return state;
@@ -42,9 +40,7 @@ function addProjectNotifications (state, project) {
 }
 
 function removeProjectNotifications (state, project) {
-  return state.filter(notification => {
-    return notification.project.internalId !== project.internalId;
-  });
+  return state.filter(notification => notification.project.internalId !== project.internalId);
 }
 
 export const initialState = {
@@ -52,7 +48,7 @@ export const initialState = {
   projectNotifications: window.sonarqube.notifications.project
 };
 
-export default function (state = initialState, action) {
+export default function (state = initialState, action = {}) {
   switch (action.type) {
     case RECEIVE_USER:
       return {
