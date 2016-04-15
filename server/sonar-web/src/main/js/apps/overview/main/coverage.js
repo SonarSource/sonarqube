@@ -104,7 +104,7 @@ export const GeneralCoverage = React.createClass({
       { value: 100 - this.props.measures[coverageMetric], fill: '#d4333f' }
     ];
 
-    const domainUrl = window.baseUrl + '/component_measures/domain/Tests?id=' +
+    const domainUrl = window.baseUrl + '/component_measures/domain/Coverage?id=' +
         encodeURIComponent(this.props.component.key);
 
     return <Domain>

@@ -66,7 +66,7 @@ export const domains = {
     ]
   },
 
-  'Tests': {
+  'Coverage': {
     main: [
       'overall_coverage',
       'coverage',
@@ -130,7 +130,7 @@ export const domains = {
     ]
   },
 
-  'Duplication': {
+  'Duplications': {
     main: [
       'duplicated_lines_density'
     ],
@@ -178,7 +178,7 @@ export const domains = {
     ]
   },
 
-  'General': {
+  'Releasability': {
     main: [
       'alert_status'
     ],

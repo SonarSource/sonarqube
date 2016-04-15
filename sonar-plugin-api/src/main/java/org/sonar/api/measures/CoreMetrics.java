@@ -36,15 +36,22 @@ public final class CoreMetrics {
 
   // the following fields are not final to avoid compile-time constants used by plugins
   public static String DOMAIN_SIZE = "Size";
+  public static String DOMAIN_COVERAGE = "Coverage";
+
+  /**
+   * @deprecated in 5.5. Merged into {@link #DOMAIN_COVERAGE}
+   */
+  @Deprecated
   public static String DOMAIN_TESTS = "Tests";
 
   /**
-   * @deprecated in 5.5. Merged into {@link #DOMAIN_TESTS}
+   * @deprecated in 5.5. Merged into {@link #DOMAIN_COVERAGE}
    */
   @Deprecated
   public static String DOMAIN_INTEGRATION_TESTS = "Tests (Integration)";
+
   /**
-   * @deprecated in 5.5. Merged into {@link #DOMAIN_TESTS}
+   * @deprecated in 5.5. Merged into {@link #DOMAIN_COVERAGE}
    */
   @Deprecated
   public static String DOMAIN_OVERALL_TESTS = "Tests (Overall)";
@@ -53,6 +60,12 @@ public final class CoreMetrics {
   public static String DOMAIN_SCM = "SCM";
   public static String DOMAIN_ISSUES = "Issues";
   public static String DOMAIN_GENERAL = "General";
+  public static String DOMAIN_DUPLICATIONS = "Duplications";
+
+  /**
+   * @deprecated in 5.5. Renamed to {@link #DOMAIN_DUPLICATIONS}
+   */
+  @Deprecated
   public static String DOMAIN_DUPLICATION = "Duplication";
   public static String DOMAIN_DESIGN = "Design";
 
@@ -81,6 +94,11 @@ public final class CoreMetrics {
    */
   @Deprecated
   public static String DOMAIN_TECHNICAL_DEBT = "Technical Debt";
+
+  /**
+   * @since 5.5
+   */
+  public static String DOMAIN_RELEASABILITY = "Releasability";
 
   /**
    * Computed by the platform since SQ 5.1
@@ -437,7 +455,7 @@ public final class CoreMetrics {
     .setDescription("Number of unit tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   public static final String TEST_EXECUTION_TIME_KEY = "test_execution_time";
@@ -445,7 +463,7 @@ public final class CoreMetrics {
     .setDescription("Execution duration of unit tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   public static final String TEST_ERRORS_KEY = "test_errors";
@@ -453,7 +471,7 @@ public final class CoreMetrics {
     .setDescription("Number of unit test errors")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -463,7 +481,7 @@ public final class CoreMetrics {
     .setDescription("Number of skipped unit tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -473,7 +491,7 @@ public final class CoreMetrics {
     .setDescription("Number of unit test failures")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -483,7 +501,7 @@ public final class CoreMetrics {
     .setDescription("Density of successful unit tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setOptimizedBestValue(true)
@@ -501,7 +519,7 @@ public final class CoreMetrics {
   public static final Metric<String> TEST_DATA = new Metric.Builder(TEST_DATA_KEY, "Unit tests details", Metric.ValueType.DATA)
     .setDescription("Unit tests details")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   public static final String COVERAGE_KEY = "coverage";
@@ -509,7 +527,7 @@ public final class CoreMetrics {
     .setDescription("Coverage by unit tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -519,7 +537,7 @@ public final class CoreMetrics {
     .setDescription("Coverage of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
@@ -534,7 +552,7 @@ public final class CoreMetrics {
     .setDescription("Lines to cover")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   public static final String NEW_LINES_TO_COVER_KEY = "new_lines_to_cover";
@@ -542,7 +560,7 @@ public final class CoreMetrics {
     .setDescription("Lines to cover on new code")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -554,7 +572,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> UNCOVERED_LINES = new Metric.Builder(UNCOVERED_LINES_KEY, "Uncovered lines", Metric.ValueType.INT)
     .setDescription("Uncovered lines")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .create();
 
@@ -562,7 +580,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> NEW_UNCOVERED_LINES = new Metric.Builder(NEW_UNCOVERED_LINES_KEY, "Uncovered lines on new code", Metric.ValueType.INT)
     .setDescription("Uncovered lines on new code")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -572,7 +590,7 @@ public final class CoreMetrics {
     .setDescription("Line coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -584,7 +602,7 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setWorstValue(0.0)
     .setBestValue(100.0)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -602,7 +620,7 @@ public final class CoreMetrics {
    */
   @Deprecated
   public static final Metric<String> COVERAGE_LINE_HITS_DATA = new Metric.Builder(COVERAGE_LINE_HITS_DATA_KEY, "Coverage hits by line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -613,14 +631,14 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> CONDITIONS_TO_COVER = new Metric.Builder(CONDITIONS_TO_COVER_KEY, "Branches to cover", Metric.ValueType.INT)
     .setDescription("Branches to cover")
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setHidden(true)
     .create();
 
   public static final String NEW_CONDITIONS_TO_COVER_KEY = "new_conditions_to_cover";
   public static final Metric<Integer> NEW_CONDITIONS_TO_COVER = new Metric.Builder(NEW_CONDITIONS_TO_COVER_KEY, "Branches to cover on new code", Metric.ValueType.INT)
     .setDescription("Branches to cover on new code")
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .setHidden(true)
     .create();
@@ -633,7 +651,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> UNCOVERED_CONDITIONS = new Metric.Builder(UNCOVERED_CONDITIONS_KEY, "Uncovered branches", Metric.ValueType.INT)
     .setDescription("Uncovered branches")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .create();
 
@@ -641,7 +659,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> NEW_UNCOVERED_CONDITIONS = new Metric.Builder(NEW_UNCOVERED_CONDITIONS_KEY, "Uncovered branches on new code", Metric.ValueType.INT)
     .setDescription("Uncovered branches on new code")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -651,7 +669,7 @@ public final class CoreMetrics {
     .setDescription("Condition coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -661,7 +679,7 @@ public final class CoreMetrics {
     .setDescription("Condition coverage of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
@@ -681,7 +699,7 @@ public final class CoreMetrics {
    */
   @Deprecated
   public static final Metric<String> CONDITIONS_BY_LINE = new Metric.Builder(CONDITIONS_BY_LINE_KEY, "Conditions by line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -699,7 +717,7 @@ public final class CoreMetrics {
    */
   @Deprecated
   public static final Metric<String> COVERED_CONDITIONS_BY_LINE = new Metric.Builder(COVERED_CONDITIONS_BY_LINE_KEY, "Covered conditions by line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -721,7 +739,7 @@ public final class CoreMetrics {
     .setDescription("Coverage by integration tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -738,7 +756,7 @@ public final class CoreMetrics {
     .setDescription("Integration Tests Coverage of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
@@ -755,7 +773,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> IT_LINES_TO_COVER = new Metric.Builder(IT_LINES_TO_COVER_KEY, "IT lines to cover", Metric.ValueType.INT)
     .setDescription("Lines to cover by Integration Tests")
     .setDirection(Metric.DIRECTION_BETTER)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setQualitative(false)
     .setHidden(true)
     .create();
@@ -772,7 +790,7 @@ public final class CoreMetrics {
     .setDescription("Lines to cover by Integration Tests on new code")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -788,7 +806,7 @@ public final class CoreMetrics {
     .setDescription("IT uncovered lines")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   /**
@@ -802,7 +820,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> NEW_IT_UNCOVERED_LINES = new Metric.Builder(NEW_IT_UNCOVERED_LINES_KEY, "Uncovered lines by IT on new code", Metric.ValueType.INT)
     .setDescription("Uncovered lines by IT on new code")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -819,7 +837,7 @@ public final class CoreMetrics {
     .setDescription("IT line coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   /**
@@ -836,7 +854,7 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setWorstValue(0.0)
     .setBestValue(100.0)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -856,7 +874,7 @@ public final class CoreMetrics {
     .setDescription("Integration Tests Code coverage line hits data")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -872,7 +890,7 @@ public final class CoreMetrics {
     .setDescription("Integration Tests conditions to cover")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setHidden(true)
     .create();
 
@@ -886,7 +904,7 @@ public final class CoreMetrics {
    */
   public static final Metric<Integer> NEW_IT_CONDITIONS_TO_COVER = new Metric.Builder(NEW_IT_CONDITIONS_TO_COVER_KEY, "Branches to cover by IT on new code", Metric.ValueType.INT)
     .setDescription("Branches to cover by Integration Tests on new code")
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .setHidden(true)
     .create();
@@ -902,7 +920,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> IT_UNCOVERED_CONDITIONS = new Metric.Builder(IT_UNCOVERED_CONDITIONS_KEY, "IT uncovered branches", Metric.ValueType.INT)
     .setDescription("Integration Tests uncovered conditions")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   /**
@@ -917,7 +935,7 @@ public final class CoreMetrics {
     Metric.ValueType.INT)
       .setDescription("Uncovered branches by Integration Tests on new code")
       .setDirection(Metric.DIRECTION_WORST)
-      .setDomain(DOMAIN_TESTS)
+      .setDomain(DOMAIN_COVERAGE)
       .setBestValue(0.0)
       .setDeleteHistoricalData(true)
       .create();
@@ -934,7 +952,7 @@ public final class CoreMetrics {
     .setDescription("IT condition coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -951,7 +969,7 @@ public final class CoreMetrics {
     .setDescription("Condition coverage by Integration Tests of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
@@ -970,7 +988,7 @@ public final class CoreMetrics {
    */
   @Deprecated
   public static final Metric<String> IT_CONDITIONS_BY_LINE = new Metric.Builder(IT_CONDITIONS_BY_LINE_KEY, "IT conditions by line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -987,7 +1005,7 @@ public final class CoreMetrics {
    */
   @Deprecated
   public static final Metric<String> IT_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(IT_COVERED_CONDITIONS_BY_LINE_KEY, "IT covered conditions by line", Metric.ValueType.DATA)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -1009,7 +1027,7 @@ public final class CoreMetrics {
     .setDescription("Overall test coverage")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -1026,7 +1044,7 @@ public final class CoreMetrics {
     .setDescription("Overall coverage of new/changed code")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .setDeleteHistoricalData(true)
@@ -1043,7 +1061,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> OVERALL_LINES_TO_COVER = new Metric.Builder(OVERALL_LINES_TO_COVER_KEY, "Overall lines to cover", Metric.ValueType.INT)
     .setDescription("Overall lines to cover by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setQualitative(false)
     .setHidden(true)
     .create();
@@ -1060,7 +1078,7 @@ public final class CoreMetrics {
     .setDescription("New lines to cover by all tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -1076,7 +1094,7 @@ public final class CoreMetrics {
     .setDescription("Uncovered lines by all tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   /**
@@ -1090,7 +1108,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> NEW_OVERALL_UNCOVERED_LINES = new Metric.Builder(NEW_OVERALL_UNCOVERED_LINES_KEY, "Overall uncovered lines on new code", Metric.ValueType.INT)
     .setDescription("New lines that are not covered by any tests")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setBestValue(0.0)
     .setDeleteHistoricalData(true)
     .create();
@@ -1107,7 +1125,7 @@ public final class CoreMetrics {
     .setDescription("Line coverage by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   /**
@@ -1124,7 +1142,7 @@ public final class CoreMetrics {
     .setQualitative(true)
     .setWorstValue(0.0)
     .setBestValue(100.0)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -1145,7 +1163,7 @@ public final class CoreMetrics {
       .setDescription("Coverage hits by all tests and by line")
       .setDirection(Metric.DIRECTION_NONE)
       .setQualitative(false)
-      .setDomain(DOMAIN_TESTS)
+      .setDomain(DOMAIN_COVERAGE)
       .setDeleteHistoricalData(true)
       .create();
 
@@ -1161,7 +1179,7 @@ public final class CoreMetrics {
     .setDescription("Branches to cover by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(false)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setHidden(true)
     .create();
 
@@ -1176,7 +1194,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> NEW_OVERALL_CONDITIONS_TO_COVER = new Metric.Builder(NEW_OVERALL_CONDITIONS_TO_COVER_KEY, "Overall branches to cover on new code",
     Metric.ValueType.INT)
       .setDescription("New branches to cover by all tests")
-      .setDomain(DOMAIN_TESTS)
+      .setDomain(DOMAIN_COVERAGE)
       .setDeleteHistoricalData(true)
       .setHidden(true)
       .create();
@@ -1192,7 +1210,7 @@ public final class CoreMetrics {
   public static final Metric<Integer> OVERALL_UNCOVERED_CONDITIONS = new Metric.Builder(OVERALL_UNCOVERED_CONDITIONS_KEY, "Overall uncovered branches", Metric.ValueType.INT)
     .setDescription("Uncovered branches by all tests")
     .setDirection(Metric.DIRECTION_WORST)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   /**
@@ -1207,7 +1225,7 @@ public final class CoreMetrics {
     Metric.ValueType.INT)
       .setDescription("New branches that are not covered by any test")
       .setDirection(Metric.DIRECTION_WORST)
-      .setDomain(DOMAIN_TESTS)
+      .setDomain(DOMAIN_COVERAGE)
       .setBestValue(0.0)
       .setDeleteHistoricalData(true)
       .create();
@@ -1224,7 +1242,7 @@ public final class CoreMetrics {
     .setDescription("Condition coverage by all tests")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setWorstValue(0.0)
     .setBestValue(100.0)
     .create();
@@ -1242,7 +1260,7 @@ public final class CoreMetrics {
       .setDescription("Condition coverage of new/changed code by all tests")
       .setDirection(Metric.DIRECTION_BETTER)
       .setQualitative(true)
-      .setDomain(DOMAIN_TESTS)
+      .setDomain(DOMAIN_COVERAGE)
       .setWorstValue(0.0)
       .setBestValue(100.0)
       .setDeleteHistoricalData(true)
@@ -1262,7 +1280,7 @@ public final class CoreMetrics {
   @Deprecated
   public static final Metric<String> OVERALL_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_CONDITIONS_BY_LINE_KEY, "Overall conditions by line", Metric.ValueType.DATA)
     .setDescription("Overall conditions by all tests and by line")
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -1281,7 +1299,7 @@ public final class CoreMetrics {
   public static final Metric<String> OVERALL_COVERED_CONDITIONS_BY_LINE = new Metric.Builder(OVERALL_COVERED_CONDITIONS_BY_LINE_KEY, "Overall covered branches by line",
     Metric.ValueType.DATA)
       .setDescription("Overall covered branches by all tests and by line")
-      .setDomain(DOMAIN_TESTS)
+      .setDomain(DOMAIN_COVERAGE)
       .setDeleteHistoricalData(true)
       .create();
 
@@ -1296,7 +1314,7 @@ public final class CoreMetrics {
     .setDescription("Duplicated lines")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_DUPLICATION)
+    .setDomain(DOMAIN_DUPLICATIONS)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1306,7 +1324,7 @@ public final class CoreMetrics {
     .setDescription("Duplicated blocks")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_DUPLICATION)
+    .setDomain(DOMAIN_DUPLICATIONS)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1321,7 +1339,7 @@ public final class CoreMetrics {
     .setDescription("Duplicated files")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_DUPLICATION)
+    .setDomain(DOMAIN_DUPLICATIONS)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
     .create();
@@ -1331,7 +1349,7 @@ public final class CoreMetrics {
     .setDescription("Duplicated lines balanced by statements")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
-    .setDomain(DOMAIN_DUPLICATION)
+    .setDomain(DOMAIN_DUPLICATIONS)
     .setWorstValue(50.0)
     .setBestValue(0.0)
     .setOptimizedBestValue(true)
@@ -1368,7 +1386,7 @@ public final class CoreMetrics {
     .setDescription("Duplications details")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
-    .setDomain(DOMAIN_DUPLICATION)
+    .setDomain(DOMAIN_DUPLICATIONS)
     .setDeleteHistoricalData(true)
     .create();
 
@@ -2457,7 +2475,7 @@ public final class CoreMetrics {
    */
   public static final Metric<String> EXECUTABLE_LINES_DATA = new Metric.Builder(EXECUTABLE_LINES_DATA_KEY, "executable_lines_data", Metric.ValueType.DATA)
     .setHidden(true)
-    .setDomain(DOMAIN_TESTS)
+    .setDomain(DOMAIN_COVERAGE)
     .create();
 
   // --------------------------------------------------------------------------------------------------------------------
@@ -2471,7 +2489,7 @@ public final class CoreMetrics {
     .setDescription("The project status with regard to its quality gate.")
     .setDirection(Metric.DIRECTION_BETTER)
     .setQualitative(true)
-    .setDomain(DOMAIN_GENERAL)
+    .setDomain(DOMAIN_RELEASABILITY)
     .create();
 
   /**
