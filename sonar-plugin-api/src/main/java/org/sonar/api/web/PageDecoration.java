@@ -34,13 +34,13 @@ import org.sonar.api.server.ServerSide;
  *
  * <p>Example of template: 
 <pre>
- <% content_for :script do %>
-   <script>alert('page loaded')</script>
- <% end %>
+ &lt;% content_for :script do %&gt;
+   &lt;script&gt;alert('page loaded')&lt;/script&gt;
+ &lt;% end %&gt;
 
- <% content_for :footer do %>
-  <div>this is <b>my footer</b></div>
-<% end %>
+ &lt;% content_for :footer do %&gt;
+  &lt;div&gt;this is &lt;b&gt;my footer&lt;/b&gt;&lt;/div&gt;
+&lt;% end %&gt;
 </pre>
  *
  * @since 3.3

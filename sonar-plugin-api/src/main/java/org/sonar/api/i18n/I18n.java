@@ -88,8 +88,10 @@ public interface I18n {
 
   /**
    * Return the formatted datetime.
-   * <br>
-   * Example : formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100")) -> Jan 22, 2014 7:10 PM
+   * <p>
+   * Example: {@code formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22T19:10:03+0100"))}
+   * returns {@code "Jan 22, 2014 7:10 PM"}.
+   * </p>
    *
    * @since 4.2
    */
@@ -98,7 +100,8 @@ public interface I18n {
   /**
    * Return the formatted date.
    * <br>
-   * Example : formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22")) -> Jan 22, 2014
+   * Example: {@code formatDateTime(Locale.ENGLISH, DateUtils.parseDateTime("2014-01-22"))}
+   * returns {@code "Jan 22, 2014"}.
    *
    * @since 4.2
    */
@@ -107,7 +110,7 @@ public interface I18n {
   /**
    * Return the formatted decimal, with always one fraction digit.
    * <br>
-   * Example : formatDouble(Locale.FRENCH, 10.56) -> 10,6
+   * Example: {@code formatDouble(Locale.FRENCH, 10.56)} returns {@code "10,6"}.
    *
    * @since 4.4
    */
@@ -116,7 +119,7 @@ public interface I18n {
   /**
    * Return the formatted integer.
    * <br>
-   * Example : formatInteger(Locale.ENGLISH, 100000) -> 100,000
+   * Example: {@code formatInteger(Locale.ENGLISH, 100000)} returns {@code "100,000"}.
    *
    * @since 4.4
    */

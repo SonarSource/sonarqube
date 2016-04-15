@@ -52,7 +52,7 @@ import org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition.Builde
  *   public void compute(MeasureComputerContext context) {
  *     int ncloc = context.getMeasure("ncloc");
  *     List&lt;Issue&gt; issues = context.getIssues();
- *     if (ncloc != null && !issues.isEmpty()) {
+ *     if (ncloc != null &amp;&amp; !issues.isEmpty()) {
  *       double value = issues.size() / ncloc;
  *       context.addMeasure("my_new_metric", value);
  *     }

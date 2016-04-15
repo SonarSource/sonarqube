@@ -19,12 +19,11 @@
  */
 package org.sonar.api.utils.text;
 
-import org.sonar.api.utils.DateUtils;
-
-import javax.annotation.Nullable;
 import java.io.Writer;
 import java.util.Date;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.api.utils.DateUtils;
 
 /**
  * Writes JSON as a stream. This class allows plugins to not directly depend
@@ -208,7 +207,7 @@ public class JsonWriter {
    * <ul>
    * <li>primitive types: String, Number, Boolean</li>
    * <li>java.util.Date: encoded as datetime (see {@link #valueDateTime(java.util.Date)}</li>
-   * <li><code>Map<Object, Object></code>. Method toString is called for the key.</li>
+   * <li>{@code Map<Object, Object>}. Method toString is called for the key.</li>
    * <li>Iterable</li>
    * </ul>
    *

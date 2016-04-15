@@ -45,14 +45,11 @@ public interface UserMapper {
   @CheckForNull
   UserDto selectUserByLogin(String login);
 
-  List<UserDto> selectUsersByLogins(@Param("logins") List<String> logins);
-
   List<UserDto> selectUsers(UserQuery query);
 
   List<UserDto> selectByLogins(List<String> logins);
 
-  @CheckForNull
-  GroupDto selectGroupByName(String name);
+  List<UserDto> selectByIds(@Param("ids") List<Long> ids);
 
   long countByEmail(String email);
 

@@ -19,9 +19,8 @@
  */
 package org.sonar.api.batch.events;
 
-import org.sonar.api.batch.Initializer;
-
 import java.util.List;
+import org.sonar.api.batch.Initializer;
 
 /**
  * @since 3.7
@@ -45,7 +44,7 @@ public interface InitializersPhaseHandler extends EventHandler {
   }
 
   /**
-   * Called before and after execution of all {@link Initializers}s.
+   * Called before and after execution of all {@link Initializer}s.
    */
   void onInitializersPhase(InitializersPhaseEvent event);
 

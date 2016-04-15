@@ -62,6 +62,16 @@ public class UserDao implements Dao {
   }
 
   /**
+   * Select users by ids, including disabled users. An empty list is returned
+   * if list of ids is empty, without any db round trips.
+   *
+   * Used by the Governance plugin
+   */
+  public List<UserDto> selectByIds(DbSession session, Collection<Long> ids) {
+    return DatabaseUtils.executeLargeInputs(ids, new SelectByIds(mapper(session)));
+  }
+
+  /**
    * Search for user by login. Disabled users are ignored.
    *
    * @return the user, null if user not found
@@ -219,4 +229,18 @@ public class UserDao implements Dao {
       return map.get(login);
     }
   }
+
+  private static class SelectByIds implements Function<List<Long>, List<UserDto>> {
+    private final UserMapper mapper;
+
+    private SelectByIds(UserMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<UserDto> apply(@Nonnull List<Long> partitionOfLogins) {
+      return mapper.selectByIds(partitionOfLogins);
+    }
+  }
+
 }

@@ -40,7 +40,7 @@ public interface ServerUpgradeStatus {
   boolean isFreshInstall();
 
   /**
-   * The database version before the server startup. Returns <=0 if db created from scratch.
+   * The database version before the server startup. Returns a non-zero negative value if db created from scratch.
    */
   int getInitialDbVersion();
 

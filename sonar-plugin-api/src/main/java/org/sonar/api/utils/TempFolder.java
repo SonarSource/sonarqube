@@ -30,7 +30,7 @@ import org.sonar.api.server.ServerSide;
  * depends on situation:
  * <ul>
  * <li>${SONAR_HOME}/temp on server side</li>
- * <li>${SONAR_HOME}/.sonartmp<rnd> on the batch side</li>
+ * <li>${SONAR_HOME}/.sonartmp on scanner side</li>
  * </ul>
  * @since 4.0
  *

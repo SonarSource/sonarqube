@@ -53,7 +53,7 @@ public abstract class ValidatingRequest extends Request {
   }
 
   @Override
-  public LocalConnector getLocalConnector() {
+  public LocalConnector localConnector() {
     checkNotNull(localConnector, "Local connector has not been set");
     return localConnector;
   }

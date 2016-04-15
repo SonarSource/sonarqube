@@ -62,13 +62,14 @@
     </foreach>
   </select>
 
-  <select id="selectUsersByLogins" parameterType="map" resultType="User">
+  <select id="selectByIds" parameterType="string" resultType="User">
     SELECT
     <include refid="userColumns"/>
-    FROM users u WHERE
-    (<foreach item="login" index="index" collection="logins" open="(" separator=" or " close=")">
-    u.login=#{login}
-  </foreach>)
+    FROM users u
+    WHERE u.id in
+    <foreach collection="ids" open="(" close=")" item="id" separator=",">
+      #{id}
+    </foreach>
   </select>
 
   <select id="selectUsers" parameterType="map" resultType="User">
@@ -96,11 +97,6 @@
     SELECT count(1)
     FROM users u
     where lower(u.email)=#{email} AND u.active=${_true}
-  </select>
-
-  <select id="selectGroupByName" parameterType="string" resultType="Group">
-    SELECT id, name, description, created_at AS "createdAt", updated_at AS "updatedAt"
-    FROM groups WHERE name=#{id}
   </select>
 
   <delete id="removeUserFromGroups" parameterType="long">
