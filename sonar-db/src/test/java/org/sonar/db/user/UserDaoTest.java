@@ -77,6 +77,17 @@ public class UserDaoTest {
   }
 
   @Test
+  public void selectUsersIds() {
+    db.prepareDbUnit(getClass(), "selectUsersByIds.xml");
+
+    Collection<UserDto> users = underTest.selectByIds(session, asList(100L, 101L, 987L));
+    assertThat(users).hasSize(2);
+    assertThat(users).extracting("login").containsOnly("marius", "inactive_user");
+
+    assertThat(underTest.selectByIds(session, Collections.<Long>emptyList())).isEmpty();
+  }
+
+  @Test
   public void selectUserByLogin_ignore_inactive() {
     db.prepareDbUnit(getClass(), "selectActiveUserByLogin.xml");
 
