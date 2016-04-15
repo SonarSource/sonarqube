@@ -19,15 +19,14 @@
  */
 package org.sonar.api.batch.debt;
 
-import javax.annotation.CheckForNull;
-
 import java.util.List;
+import javax.annotation.CheckForNull;
 
 /**
  * This class can be used to retrieve characteristics or sub-characteristics from the technical debt model during analysis.
  *
  * Unfortunately, this class cannot be used to set characteristic on {@link org.sonar.api.measures.Measure},
- * because the Measure API still uses deprecated {@link org.sonar.api.technicaldebt.batch.Characteristic}.
+ * because the Measure API still uses deprecated {@code org.sonar.api.technicaldebt.batch.Characteristic}.
  *
  * @since 4.3
  * @deprecated since 5.1 debt model will soon be unavailable on batch side

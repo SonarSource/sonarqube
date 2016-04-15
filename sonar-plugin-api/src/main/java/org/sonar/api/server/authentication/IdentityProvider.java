@@ -25,8 +25,8 @@ import org.sonar.api.server.ServerSide;
  * Entry-point to define a new Identity provider.
  * Only one of this two interfaces can be used :
  * <ul>
- *   <li>{@link OAuth2IdentityProvider}</li> for OAuth2 authentication
- *   <li>{@link BaseIdentityProvider}</li> for other kind of authentication
+ *   <li>{@link OAuth2IdentityProvider} for OAuth2 authentication</li>
+ *   <li>{@link BaseIdentityProvider} for other kind of authentication</li>
  * </ul>
  *
  * @since 5.4

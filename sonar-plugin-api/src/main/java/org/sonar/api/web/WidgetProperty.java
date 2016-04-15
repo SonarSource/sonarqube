@@ -39,7 +39,7 @@ public @interface WidgetProperty {
   boolean optional() default true;
 
   /**
-   * @since 3.3  Options for property of type WidgetPropertyType.METRIC</code>.
+   * @since 3.3  Options for property of type {@link WidgetPropertyType#METRIC}.
    *
    * If no option is specified, any metric will match.
    * If options are specified, all must match for the metric to be displayed.
@@ -48,7 +48,7 @@ public @interface WidgetProperty {
    * For example <code>type:INT,FLOAT</code> will match any metric of type <code>INT</code> or <code>FLOAT</code>.
    * For example <code>type:NUMERIC</code> will match any metric of numerictype.
    *
-   * @since 3.5  Options for property of type WidgetPropertyType.SINGLE_SELECT_LIST</code>
+   * @since 3.5  Options for property of type {@link WidgetPropertyType#SINGLE_SELECT_LIST}.
    * For example {"property_1", "property_3", "property_3"}).
    *
    */
