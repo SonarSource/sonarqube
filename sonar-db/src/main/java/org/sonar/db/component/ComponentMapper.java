@@ -144,6 +144,8 @@ public interface ComponentMapper {
 
   void insert(ComponentDto componentDto);
 
+  void insertBatch(ComponentDto componentDto);
+
   void update(ComponentDto componentDto);
 
   void delete(long componentId);

@@ -34,7 +34,6 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
-import static java.util.Collections.singleton;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -556,7 +555,6 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     ComponentDto componentDto = new ComponentDto()
-      .setId(1L)
       .setUuid("GHIJ")
       .setProjectUuid("ABCD")
       .setModuleUuid("EFGH")
@@ -582,6 +580,40 @@ public class ComponentDaoTest {
 
     assertThat(componentDto.getId()).isNotNull();
     db.assertDbUnit(getClass(), "insert-result.xml", "projects");
+  }
+
+  @Test
+  public void insertBatch() {
+    try (DbSession batchSession = db.myBatis().openSession(true)) {
+      db.prepareDbUnit(getClass(), "empty.xml");
+
+      ComponentDto componentDto = new ComponentDto()
+        .setUuid("GHIJ")
+        .setProjectUuid("ABCD")
+        .setModuleUuid("EFGH")
+        .setModuleUuidPath(".ABCD.EFGH.")
+        .setKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+        .setDeprecatedKey("org.struts:struts-core:src/org/struts/RequestContext.java")
+        .setName("RequestContext.java")
+        .setLongName("org.struts.RequestContext")
+        .setQualifier("FIL")
+        .setScope("FIL")
+        .setLanguage("java")
+        .setDescription("description")
+        .setPath("src/org/struts/RequestContext.java")
+        .setParentProjectId(3L)
+        .setCopyResourceId(5L)
+        .setDeveloperId(7L)
+        .setEnabled(true)
+        .setCreatedAt(DateUtils.parseDate("2014-06-18"))
+        .setAuthorizationUpdatedAt(123456789L);
+
+      underTest.insertBatch(batchSession, componentDto);
+      batchSession.commit();
+
+      assertThat(componentDto.getId()).isNull();
+      db.assertDbUnit(getClass(), "insert-result.xml", "projects");
+    }
   }
 
   @Test

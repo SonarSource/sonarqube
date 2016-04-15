@@ -484,7 +484,7 @@
     </if>
   </sql>
 
-  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <sql id="insertSql">
     INSERT INTO projects (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name,
     qualifier, scope, language, description, root_id, path, copy_resource_id, person_id, enabled,
     created_at, authorization_updated_at)
@@ -496,6 +496,14 @@
     #{developerId,jdbcType=BIGINT},
     #{enabled,jdbcType=BOOLEAN},
     #{createdAt,jdbcType=TIMESTAMP}, #{authorizationUpdatedAt,jdbcType=BIGINT})
+  </sql>
+
+  <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    <include refid="insertSql"/>
+  </insert>
+
+  <insert id="insertBatch" parameterType="Component" useGeneratedKeys="false">
+    <include refid="insertSql"/>
   </insert>
 
   <update id="update" parameterType="Component" useGeneratedKeys="false">

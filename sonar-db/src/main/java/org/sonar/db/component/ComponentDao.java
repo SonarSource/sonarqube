@@ -278,6 +278,10 @@ public class ComponentDao implements Dao {
     mapper(session).insert(item);
   }
 
+  public void insertBatch(DbSession session, ComponentDto item) {
+    mapper(session).insertBatch(item);
+  }
+
   public void insert(DbSession session, Collection<ComponentDto> items) {
     for (ComponentDto item : items) {
       insert(session, item);
