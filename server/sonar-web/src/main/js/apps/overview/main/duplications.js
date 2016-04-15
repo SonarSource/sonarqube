@@ -74,7 +74,7 @@ export const GeneralDuplications = React.createClass({
       { value: Math.max(0, 20 - this.props.measures['duplicated_lines_density']), fill: '#e6e6e6' }
     ];
 
-    const domainUrl = window.baseUrl + '/component_measures/domain/Duplication?id=' +
+    const domainUrl = window.baseUrl + '/component_measures/domain/Duplications?id=' +
         encodeURIComponent(this.props.component.key);
 
     return <Domain>
