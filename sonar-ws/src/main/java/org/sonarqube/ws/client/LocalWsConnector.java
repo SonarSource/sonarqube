@@ -37,7 +37,7 @@ class LocalWsConnector implements WsConnector {
   }
 
   @VisibleForTesting
-  LocalConnector getLocalConnector() {
+  LocalConnector localConnector() {
     return localConnector;
   }
 

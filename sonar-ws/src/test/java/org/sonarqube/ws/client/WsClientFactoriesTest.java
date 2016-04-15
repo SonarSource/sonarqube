@@ -42,6 +42,6 @@ public class WsClientFactoriesTest {
 
     assertThat(client).isInstanceOf(DefaultWsClient.class);
     assertThat(client.wsConnector()).isInstanceOf(LocalWsConnector.class);
-    assertThat(((LocalWsConnector) client.wsConnector()).getLocalConnector()).isSameAs(connector);
+    assertThat(((LocalWsConnector) client.wsConnector()).localConnector()).isSameAs(connector);
   }
 }

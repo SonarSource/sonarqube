@@ -82,7 +82,7 @@ public class SimpleGetRequest extends Request {
   }
 
   @Override
-  public LocalConnector getLocalConnector() {
+  public LocalConnector localConnector() {
     throw new UnsupportedOperationException();
   }
 }

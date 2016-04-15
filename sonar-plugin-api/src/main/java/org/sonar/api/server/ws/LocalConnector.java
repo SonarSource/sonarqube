@@ -35,7 +35,7 @@ import javax.annotation.CheckForNull;
  * public class MyRequestHandler implements RequestHandler {
  *   {@literal @}Override
  *   public void handle(Request request, Response response) {
- *     WsClient wsClient = WsClientFactories.getLocal().newClient(request.getLocalConnector());
+ *     WsClient wsClient = WsClientFactories.getLocal().newClient(request.localConnector());
  *     SearchWsResponse issues = wsClient.issues().search(new SearchWsRequest());
  *     // ...
  *   }

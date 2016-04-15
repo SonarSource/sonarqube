@@ -242,5 +242,5 @@ public abstract class Request {
    * @since 5.5
    */
   @Beta
-  public abstract LocalConnector getLocalConnector();
+  public abstract LocalConnector localConnector();
 }

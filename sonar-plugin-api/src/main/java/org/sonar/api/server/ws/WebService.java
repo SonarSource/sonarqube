@@ -88,7 +88,7 @@ import static java.lang.String.format;
  * }
  * </pre>
  *
- * Since version 5.5, a web service can call another web service to get some data. See {@link Request#getLocalConnector()}
+ * Since version 5.5, a web service can call another web service to get some data. See {@link Request#localConnector()}
  * provided by {@link RequestHandler#handle(Request, Response)}.
  *
  * @since 4.2
