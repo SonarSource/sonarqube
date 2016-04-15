@@ -27,7 +27,7 @@ import javax.annotation.CheckForNull;
  * This class allows a web service to call another web service through the sonar-ws library.
  * The call is in-process, synchronous and does not involve the HTTP stack.
  * <p>
- * Example of a web service that uses sonar-ws 5.5 to get some issues:
+ * Example of a web service that loads some issues:
  * <pre>
  * import org.sonar.api.server.ws.RequestHandler;
  * import org.sonarqube.ws.client.WsClientFactories;
@@ -40,6 +40,14 @@ import javax.annotation.CheckForNull;
  *     // ...
  *   }
  * }
+ * </pre>
+ *
+ * It requires to use the sonar-ws library which Maven ids are:
+ * <pre>
+ *   &lt;dependency&gt;
+ *     &lt;groupId&gt;org.sonarsource.sonarqube&lt;/groupId&gt;
+ *     &lt;artifactId&gt;sonar-ws&lt;/artifactId&gt;
+ *   &lt;/dependency&gt;
  * </pre>
  * 
  * @since 5.5

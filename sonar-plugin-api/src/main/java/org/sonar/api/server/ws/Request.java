@@ -237,7 +237,7 @@ public abstract class Request {
   }
 
   /**
-   * Used by the sonar-ws library to allow a web service to call another web service.
+   * Allows a web service to call another web service.
    * @see LocalConnector
    * @since 5.5
    */

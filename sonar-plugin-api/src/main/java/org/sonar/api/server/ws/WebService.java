@@ -88,6 +88,9 @@ import static java.lang.String.format;
  * }
  * </pre>
  *
+ * Since version 5.5, a web service can call another web service to get some data. See {@link Request#getLocalConnector()}
+ * provided by {@link RequestHandler#handle(Request, Response)}.
+ *
  * @since 4.2
  */
 @ServerSide
@@ -100,7 +103,7 @@ public interface WebService extends Definable<WebService.Context> {
     /**
      * Create a new controller.
      * <br>
-     * Structure of request URL is <code>http://&lt;server&gt;/&lt>controller path&gt;/&lt;action path&gt;?&lt;parameters&gt;</code>.
+     * Structure of request URL is <code>http://&lt;server&gt;/&lt;controller path&gt;/&lt;action path&gt;?&lt;parameters&gt;</code>.
      *
      * @param path the controller path must not start or end with "/". It is recommended to start with "api/"
      *             and to use lower-case format with underscores, for example "api/coding_rules". Usual actions
@@ -378,8 +381,10 @@ public interface WebService extends Definable<WebService.Context> {
     /**$
      *
      * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#TEXT_QUERY}, which is
-     * used to search for a subset of fields containing the supplied string.<br />
-     * The fields must be in the <strong>plural</strong> form (ex: "names", "keys")
+     * used to search for a subset of fields containing the supplied string.
+     * <p>
+     * The fields must be in the <strong>plural</strong> form (ex: "names", "keys").
+     * </p>
      */
     public NewAction addSearchQuery(String exampleValue, String... pluralFields) {
       String actionDescription = format("Limit search to %s that contain the supplied string.", Joiner.on(" or ").join(pluralFields));
