@@ -277,9 +277,18 @@ module ApplicationHelper
       if options[:period]
         html=m.format_numeric_value(m.variation(options[:period].to_i))
       elsif m.metric.val_type==Metric::VALUE_TYPE_LEVEL
-        html="<i class=\"icon-alert-#{m.alert_status.downcase}\"></i>" unless m.alert_status.blank?
+        if m.alert_status.blank?
+          html = m.formatted_value
+        else
+          html = "<i class=\"icon-alert-#{m.alert_status.downcase}\"></i>"
+        end
+      elsif m.metric.val_type == Metric::VALUE_TYPE_RATING
+        html = m.formatted_value
+        if html.ord < 65 || html.ord > 69
+          html = (Integer(html) + 64).chr
+        end
       else
-        html=m.formatted_value
+        html = m.formatted_value
       end
 
       alert_class=''
@@ -287,8 +296,8 @@ module ApplicationHelper
       if !(m.alert_status.blank?)
         alert_class="class='alert_#{m.alert_status}'" unless m.metric.val_type==Metric::VALUE_TYPE_LEVEL
         link_rel=h(m.alert_text)
-      elsif m.metric.val_type==Metric::VALUE_TYPE_RATING && m.color
-        alert_class="class='rating rating-" + m.formatted_value + "'"
+      elsif m.metric.val_type==Metric::VALUE_TYPE_RATING
+        alert_class="class='rating rating-" + html + "'"
       end
 
       span_id=''
