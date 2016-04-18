@@ -25,6 +25,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
@@ -59,9 +60,10 @@ public class AuthorizationDao implements Dao {
     });
   }
 
-  /**
-   * Used by the Views Plugin
-   */
+  public Collection<Long> keepAuthorizedUsersForRoleAndProject(final DbSession session, final Collection<Long> userIds, final String role, final long projectId) {
+    return DatabaseUtils.executeLargeInputs(userIds, new SelectUsersByPermissionAndProject(session.getMapper(AuthorizationMapper.class), role, projectId));
+  }
+
   public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
     DbSession session = mybatis.openSession(false);
     try {
@@ -127,6 +129,23 @@ public class AuthorizationDao implements Dao {
       return session.selectList("selectGlobalPermissions", params);
     } finally {
       MyBatis.closeQuietly(session);
+    }
+  }
+
+  private static class SelectUsersByPermissionAndProject implements Function<List<Long>, List<Long>> {
+    private final AuthorizationMapper mapper;
+    private final String role;
+    private final long projectId;
+
+    private SelectUsersByPermissionAndProject(AuthorizationMapper mapper, String role, long projectId) {
+      this.mapper = mapper;
+      this.role = role;
+      this.projectId = projectId;
+    }
+
+    @Override
+    public List<Long> apply(@Nonnull List<Long> partitionOfIds) {
+      return mapper.keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds);
     }
   }
 }

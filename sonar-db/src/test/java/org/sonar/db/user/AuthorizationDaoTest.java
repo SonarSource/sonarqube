@@ -19,7 +19,6 @@
  */
 package org.sonar.db.user;
 
-import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
 import org.junit.Rule;
@@ -27,6 +26,7 @@ import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
+import static com.google.common.collect.Sets.newHashSet;
 import static org.assertj.core.api.Assertions.assertThat;
 
 
@@ -49,14 +49,14 @@ public class AuthorizationDaoTest {
     dbTester.prepareDbUnit(getClass(), "user_should_be_authorized.xml");
 
     Collection<Long> componentIds = authorization.keepAuthorizedProjectIds(dbTester.getSession(),
-      Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
+      newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
       USER, "user");
 
     assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
 
     // user does not have the role "admin"
     componentIds = authorization.keepAuthorizedProjectIds(dbTester.getSession(),
-      Sets.newHashSet(PROJECT_ID),
+      newHashSet(PROJECT_ID),
       USER, "admin");
     assertThat(componentIds).isEmpty();
 
@@ -69,10 +69,10 @@ public class AuthorizationDaoTest {
   public void keep_authorized_project_ids_for_user() {
     dbTester.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_user.xml");
 
-    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), USER, "user")).containsOnly(PROJECT_ID);
+    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), USER, "user")).containsOnly(PROJECT_ID);
 
     // user does not have the role "admin"
-    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Sets.newHashSet(PROJECT_ID), USER, "admin")).isEmpty();
+    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), newHashSet(PROJECT_ID), USER, "admin")).isEmpty();
 
     // Empty list
     assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Collections.<Long>emptySet(), USER, "admin")).isEmpty();
@@ -82,10 +82,10 @@ public class AuthorizationDaoTest {
   public void keep_authorized_project_ids_for_group() {
     dbTester.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_group.xml");
 
-    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), USER, "user")).containsOnly(PROJECT_ID);
+    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), USER, "user")).containsOnly(PROJECT_ID);
 
     // user does not have the role "admin"
-    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Sets.newHashSet(PROJECT_ID), USER, "admin")).isEmpty();
+    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), newHashSet(PROJECT_ID), USER, "admin")).isEmpty();
 
     // Empty list
     assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Collections.<Long>emptySet(), USER, "admin")).isEmpty();
@@ -95,10 +95,10 @@ public class AuthorizationDaoTest {
   public void keep_authorized_project_ids_for_anonymous() {
     dbTester.prepareDbUnit(getClass(), "keep_authorized_project_ids_for_anonymous.xml");
 
-    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), null, "user")).containsOnly(PROJECT_ID);
+    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT), null, "user")).containsOnly(PROJECT_ID);
 
     // user does not have the role "admin"
-    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Sets.newHashSet(PROJECT_ID), null, "admin")).isEmpty();
+    assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), newHashSet(PROJECT_ID), null, "admin")).isEmpty();
 
     // Empty list
     assertThat(authorization.keepAuthorizedProjectIds(dbTester.getSession(), Collections.<Long>emptySet(), null, "admin")).isEmpty();
@@ -141,14 +141,14 @@ public class AuthorizationDaoTest {
     dbTester.prepareDbUnit(getClass(), "group_should_be_authorized.xml");
 
     Collection<Long> componentIds = authorization.keepAuthorizedProjectIds(dbTester.getSession(),
-      Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
+      newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
       USER, "user");
 
     assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
 
     // group does not have the role "admin"
     componentIds = authorization.keepAuthorizedProjectIds(dbTester.getSession(),
-      Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
+      newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
       USER, "admin");
     assertThat(componentIds).isEmpty();
   }
@@ -158,14 +158,14 @@ public class AuthorizationDaoTest {
     dbTester.prepareDbUnit(getClass(), "anonymous_should_be_authorized.xml");
 
     Collection<Long> componentIds = authorization.keepAuthorizedProjectIds(dbTester.getSession(),
-      Sets.newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
+      newHashSet(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT),
       null, "user");
 
     assertThat(componentIds).containsOnly(PROJECT_ID, PROJECT_ID_WITHOUT_SNAPSHOT);
 
     // group does not have the role "admin"
     componentIds = authorization.keepAuthorizedProjectIds(dbTester.getSession(),
-      Sets.newHashSet(PROJECT_ID),
+      newHashSet(PROJECT_ID),
       null, "admin");
     assertThat(componentIds).isEmpty();
   }
@@ -280,6 +280,45 @@ public class AuthorizationDaoTest {
     dbTester.prepareDbUnit(getClass(), "should_return_global_permissions_for_group_anyone.xml");
 
     assertThat(authorization.selectGlobalPermissions("anyone_user")).containsOnly("user", "profileadmin");
+  }
+
+  @Test
+  public void keep_authorized_users_for_role_and_project_for_user() {
+    dbTester.prepareDbUnit(getClass(), "keep_authorized_users_for_role_and_project_for_user.xml");
+
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(),
+      // Only 100 and 101 has 'user' role on project
+      newHashSet(100L, 101L, 102L), "user", PROJECT_ID)).containsOnly(100L, 101L);
+
+    // user does not have the role "admin"
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(), newHashSet(100L), "admin", PROJECT_ID)).isEmpty();
+
+    // Empty list
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(), Collections.<Long>emptySet(), "user", PROJECT_ID)).isEmpty();
+  }
+
+  @Test
+  public void keep_authorized_users_for_role_and_project_for_group() {
+    dbTester.prepareDbUnit(getClass(), "keep_authorized_users_for_role_and_project_for_group.xml");
+
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(),
+      // Only 100 and 101 has 'user' role on project
+      newHashSet(100L, 101L, 102L), "user", PROJECT_ID)).containsOnly(100L, 101L);
+
+    // user does not have the role "admin"
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(), newHashSet(100L), "admin", PROJECT_ID)).isEmpty();
+
+    // Empty list
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(), Collections.<Long>emptySet(), "user", PROJECT_ID)).isEmpty();
+  }
+
+  @Test
+  public void keep_authorized_users_for_role_and_project_for_anonymous() {
+    dbTester.prepareDbUnit(getClass(), "keep_authorized_users_for_role_and_project_for_anonymous.xml");
+
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(),
+      // Only 100 and 101 has 'user' role on project
+      newHashSet(100L, 101L, 102L), "user", PROJECT_ID)).containsOnly(100L, 101L);
   }
 
 }
