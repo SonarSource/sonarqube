@@ -25,7 +25,6 @@ import Header from './Header';
 import StatsContainer from '../containers/StatsContainer';
 import SearchContainer from '../containers/SearchContainer';
 import TasksContainer from '../containers/TasksContainer';
-import ListFooterContainer from '../containers/ListFooterContainer';
 
 export default class BackgroundTasksApp extends Component {
   componentDidMount () {
@@ -69,7 +68,6 @@ export default class BackgroundTasksApp extends Component {
           <StatsContainer/>
           <SearchContainer/>
           <TasksContainer/>
-          <ListFooterContainer/>
         </div>
     );
   }

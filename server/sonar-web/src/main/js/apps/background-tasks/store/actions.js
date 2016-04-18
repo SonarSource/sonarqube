@@ -48,11 +48,10 @@ export function requestTasks (filters) {
   };
 }
 
-export function receiveTasks (tasks, total) {
+export function receiveTasks (tasks) {
   return {
     type: RECEIVE_TASKS,
-    tasks,
-    total
+    tasks
   };
 }
 
@@ -145,8 +144,6 @@ function fetchTasks (filters) {
     const { component } = getState();
     const parameters = mapFiltersToParameters(filters);
 
-    parameters.ps = PAGE_SIZE;
-
     if (component) {
       parameters.componentId = component.id;
     }
@@ -154,18 +151,16 @@ function fetchTasks (filters) {
     dispatch(requestTasks(filters));
 
     return Promise.all([
-      getActivity(parameters),
-      getActivity({ ps: 1, onlyCurrents: true, status: STATUSES.FAILED }),
-      getActivity({ ps: 1, status: STATUSES.PENDING })
+      getActivity(parameters)
     ]).then(responses => {
-      const [activity, failingActivity, pendingActivity] = responses;
+      const [activity] = responses;
       const tasks = activity.tasks;
-      const total = activity.paging.total;
 
-      dispatch(receiveTasks(tasks, total));
+      dispatch(receiveTasks(tasks));
 
-      const pendingCount = pendingActivity.paging.total;
-      const failingCount = failingActivity.paging.total;
+      // FIXME request real numbers
+      const pendingCount = 0;
+      const failingCount = 0;
 
       dispatch(receiveStats({ pendingCount, failingCount }));
     });

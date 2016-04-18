@@ -31,7 +31,6 @@ import { DEFAULT_FILTERS } from '../constants';
 export const initialState = {
   fetching: false,
   tasks: [],
-  total: 0,
 
   types: [],
 
@@ -69,8 +68,7 @@ export default function (state = initialState, action) {
       return {
         ...state,
         fetching: false,
-        tasks: action.tasks,
-        total: action.total
+        tasks: action.tasks
       };
     case UPDATE_QUERY:
       return {
