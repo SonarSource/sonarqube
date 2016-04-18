@@ -4,6 +4,9 @@
    filter = Internal.issues.findIssueFilterById(filter_id.to_i)
    distribution_axis = widget_properties['distributionAxis']
    display_mode = widget_properties['displayMode']
+   if display_mode == 'debt'
+     display_mode = 'effort'
+   end
    is_enough_permissions = filter.shared || (current_user && filter.userLogin == current_user.login)
 
    if @dashboard_configuration.selected_period?
