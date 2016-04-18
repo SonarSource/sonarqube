@@ -21,8 +21,8 @@ const bubblesConfig = {
   'Reliability': { x: 'ncloc', y: 'reliability_remediation_effort', size: 'bugs' },
   'Security': { x: 'ncloc', y: 'security_remediation_effort', size: 'vulnerabilities' },
   'Maintainability': { x: 'ncloc', y: 'sqale_index', size: 'code_smells' },
-  'Tests': { x: 'complexity', y: 'coverage', size: 'uncovered_lines' },
-  'Duplication': { x: 'ncloc', y: 'duplicated_lines', size: 'duplicated_blocks' }
+  'Coverage': { x: 'complexity', y: 'coverage', size: 'uncovered_lines' },
+  'Duplications': { x: 'ncloc', y: 'duplicated_lines', size: 'duplicated_blocks' }
 };
 
 export default bubblesConfig;
