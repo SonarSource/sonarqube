@@ -41,7 +41,6 @@ import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
-
 public class UserWithPermissionDaoTest {
 
   private static final long COMPONENT_ID = 100L;
