@@ -31,7 +31,7 @@ const defaults = function () {
     height: 140,
     color: '#1f77b4',
     interpolate: 'basis',
-    endDate: moment().format('YYYY-MM-DD'),
+    endDate: moment().add(1, 'days').format('YYYY-MM-DD'),
 
     marginLeft: 1,
     marginRight: 1,
