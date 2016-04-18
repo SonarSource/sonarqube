@@ -56,7 +56,7 @@ export function getAssignees (query) {
 
 export function getIssuesCount (query) {
   const url = window.baseUrl + '/api/issues/search';
-  const data = _.extend({}, query, { ps: 1, facetMode: 'debt' });
+  const data = _.extend({}, query, { ps: 1, facetMode: 'effort' });
   return getJSON(url, data).then(r => {
     return { issues: r.total, debt: r.debtTotal };
   });

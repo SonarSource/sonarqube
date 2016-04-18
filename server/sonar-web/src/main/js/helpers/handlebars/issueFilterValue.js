@@ -20,6 +20,6 @@
 import { formatMeasure } from '../measures';
 
 module.exports = function (value, mode) {
-  const formatter = mode === 'debt' ? 'SHORT_WORK_DUR' : 'SHORT_INT';
+  const formatter = mode === 'effort' ? 'SHORT_WORK_DUR' : 'SHORT_INT';
   return formatMeasure(value, formatter);
 };

@@ -32,8 +32,8 @@ module.exports = function (query, property, value, mode) {
   const criterion = {};
   criterion[property] = value;
   const r = _.extend({}, query, criterion);
-  if (mode === 'debt') {
-    r.facetMode = 'debt';
+  if (mode === 'effort') {
+    r.facetMode = 'effort';
   }
   if (r.componentKey != null) {
     return window.baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +

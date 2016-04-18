@@ -51,8 +51,8 @@ const defaultLink = function (item, property, query, index, items, mode) {
   const criterion = {};
   criterion[property] = item.val;
   const r = _.extend({}, query, criterion);
-  if (mode === 'debt') {
-    r.facetMode = 'debt';
+  if (mode === 'effort') {
+    r.facetMode = 'effort';
   }
   if (r.componentKey != null) {
     return window.baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
@@ -176,8 +176,8 @@ const byDistributionConf = {
         createdAfter: createdAfter.format('YYYY-MM-DD'),
         createdBefore: createdBefore.format('YYYY-MM-DD')
       });
-      if (mode === 'debt') {
-        r.facetMode = 'debt';
+      if (mode === 'effort') {
+        r.facetMode = 'effort';
       }
       if (r.componentKey != null) {
         return window.baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
@@ -306,7 +306,7 @@ export default Marionette.ItemView.extend({
           items,
           maxResultsReached: items.length >= FACET_LIMIT,
           maxResults: items.length,
-          total: facetMode === 'debt' ? r.debtTotal : r.total
+          total: facetMode === 'effort' ? r.debtTotal : r.total
         });
       }
     });

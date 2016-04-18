@@ -30,8 +30,8 @@ function getQuery (query, separator) {
 
 module.exports = function (query, mode) {
   const r = _.extend({}, query);
-  if (mode === 'debt') {
-    r.facetMode = 'debt';
+  if (mode === 'effort') {
+    r.facetMode = 'effort';
   }
   if (r.componentKey != null) {
     return window.baseUrl + '/component_issues/index?id=' + encodeURIComponent(r.componentKey) +
