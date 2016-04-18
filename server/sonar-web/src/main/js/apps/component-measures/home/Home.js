@@ -25,8 +25,13 @@ import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class Home extends React.Component {
   componentDidMount () {
+    document.querySelector('html').classList.add('dashboard-page');
     this.props.onDisplay();
     this.props.fetchMeasures();
+  }
+
+  componentWillUnmount () {
+    document.querySelector('html').classList.remove('dashboard-page');
   }
 
   render () {

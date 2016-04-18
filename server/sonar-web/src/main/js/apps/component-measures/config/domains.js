@@ -19,6 +19,11 @@
  */
 export const domains = {
   'Reliability': {
+    main: [
+      'bugs',
+      'new_bugs',
+      'reliability_rating'
+    ],
     order: [
       'bugs',
       'new_bugs',
@@ -29,6 +34,11 @@ export const domains = {
   },
 
   'Security': {
+    main: [
+      'vulnerabilities',
+      'new_vulnerabilities',
+      'security_rating'
+    ],
     order: [
       'vulnerabilities',
       'new_vulnerabilities',
@@ -39,19 +49,33 @@ export const domains = {
   },
 
   'Maintainability': {
+    main: [
+      'code_smells',
+      'new_code_smells',
+      'sqale_rating'
+    ],
     order: [
       'code_smells',
       'new_code_smells',
+      'sqale_rating',
       'sqale_index',
       'new_technical_debt',
-      'sqale_rating',
       'sqale_debt_ratio',
       'new_sqale_debt_ratio',
       'effort_to_reach_maintainability_rating_a'
     ]
   },
 
-  'Tests': {
+  'Coverage': {
+    main: [
+      'overall_coverage',
+      'coverage',
+      'it_coverage',
+      'new_overall_coverage',
+      'new_coverage',
+      'new_it_coverage',
+      'tests'
+    ],
     order: [
       'overall_coverage',
       'new_overall_coverage',
@@ -106,7 +130,10 @@ export const domains = {
     ]
   },
 
-  'Duplication': {
+  'Duplications': {
+    main: [
+      'duplicated_lines_density'
+    ],
     order: [
       'duplicated_lines_density',
       'duplicated_blocks',
@@ -116,12 +143,55 @@ export const domains = {
   },
 
   'Size': {
-    order: [
+    main: [
       'ncloc'
+    ],
+    order: [
+      'ncloc',
+      'lines',
+      'statements',
+      'functions',
+      'classes',
+      'files',
+      'directories'
+    ]
+  },
+
+  'Complexity': {
+    main: [
+      'complexity'
+    ],
+    order: [
+      'complexity',
+      'function_complexity',
+      'file_complexity',
+      'class_complexity'
+    ]
+  },
+
+  'Documentation': {
+    main: [
+      'comment_lines_density'
+    ],
+    order: [
+      'comment_lines_density'
+    ]
+  },
+
+  'Releasability': {
+    main: [
+      'alert_status'
+    ],
+    order: [
+      'alert_status'
     ]
   },
 
   'Issues': {
+    main: [
+      'violations',
+      'new_violations'
+    ],
     order: [
       'violations',
       'new_violations',
