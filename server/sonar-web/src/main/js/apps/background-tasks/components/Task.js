@@ -28,7 +28,7 @@ import TaskCancelButton from './TaskCancelButton';
 import TaskLogsLink from './TaskLogsLink';
 import { STATUSES } from './../constants';
 
-export default function Task ({ task, index, tasks, component, onCancelTask, onFilterTask }) {
+export default function Task ({ task, index, tasks, component, types, onCancelTask, onFilterTask }) {
   function handleFilterTask (task, e) {
     e.preventDefault();
     onFilterTask(task);
@@ -39,7 +39,7 @@ export default function Task ({ task, index, tasks, component, onCancelTask, onF
   return (
       <tr>
         <TaskStatus task={task}/>
-        <TaskComponent task={task}/>
+        <TaskComponent task={task} types={types}/>
         <TaskDay task={task} prevTask={prevTask}/>
         <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS"/>
         <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS"/>

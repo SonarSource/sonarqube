@@ -17,29 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
+import React from 'react';
 
-import Tasks from '../components/Tasks';
-import { cancelTask, filterTasks } from '../store/actions';
-import { DEFAULT_FILTERS } from '../constants';
+import { translate } from '../../../helpers/l10n';
 
-function mapStateToProps (state) {
-  return {
-    fetching: state.fetching,
-    tasks: state.tasks,
-    component: state.component,
-    types: state.types
-  };
-}
+const TaskType = ({ task }) => {
+  return (
+      <span className="note spacer-left">
+        {'['}
+        {translate('background_task.type', task.type)}
+        {']'}
+      </span>
+  );
+};
 
-function mapDispatchToProps (dispatch) {
-  return {
-    onCancelTask: task => dispatch(cancelTask(task)),
-    onFilterTask: task => dispatch(filterTasks(Object.assign({}, DEFAULT_FILTERS, { query: task.componentKey })))
-  };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Tasks);
+export default TaskType;

@@ -19,14 +19,18 @@
  */
 import React from 'react';
 
+import TaskType from './TaskType';
 import { getComponentUrl } from '../../../helpers/urls';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 
-export default function TaskComponent ({ task }) {
+const TaskComponent = ({ task, types }) => {
   if (!task.componentKey) {
     return (
         <td>
           <span className="note">{task.id}</span>
+          {types.length > 1 && (
+              <TaskType task={task}/>
+          )}
         </td>
     );
   }
@@ -39,6 +43,11 @@ export default function TaskComponent ({ task }) {
           </span>
           <span>{task.componentName}</span>
         </a>
+        {types.length > 1 && (
+            <TaskType task={task}/>
+        )}
       </td>
   );
-}
+};
+
+export default TaskComponent;
