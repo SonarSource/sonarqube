@@ -33,10 +33,10 @@ public class ColumnDef {
   private final String charset;
   private final String collation;
   private final String dataType;
-  private final int size;
+  private final long size;
   private final boolean nullable;
 
-  public ColumnDef(String table, String column, String charset, String collation, String dataType, int size, boolean nullable) {
+  public ColumnDef(String table, String column, String charset, String collation, String dataType, long size, boolean nullable) {
     this.table = table;
     this.column = column;
     this.charset = charset;
@@ -66,7 +66,7 @@ public class ColumnDef {
     return dataType;
   }
 
-  public int getSize() {
+  public long getSize() {
     return size;
   }
 
@@ -81,7 +81,7 @@ public class ColumnDef {
     @Override
     public ColumnDef convert(ResultSet rs) throws SQLException {
       return new ColumnDef(
-        rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getInt(6), rs.getBoolean(7));
+        rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getLong(6), rs.getBoolean(7));
     }
   }
 }
