@@ -308,7 +308,7 @@ public final class CoreMetrics {
    * @deprecated since 4.2 - see SONAR-4990
    */
   @Deprecated
-  public static final Metric<Integer> COMMENTED_OUT_CODE_LINES = new Metric.Builder(COMMENTED_OUT_CODE_LINES_KEY, "Commented-out LOC", Metric.ValueType.INT)
+  public static final Metric<Integer> COMMENTED_OUT_CODE_LINES = new Metric.Builder(COMMENTED_OUT_CODE_LINES_KEY, "Commented-Out LOC", Metric.ValueType.INT)
     .setDescription("Commented lines of code")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -333,7 +333,7 @@ public final class CoreMetrics {
     .create();
 
   public static final String FILE_COMPLEXITY_KEY = "file_complexity";
-  public static final Metric<Double> FILE_COMPLEXITY = new Metric.Builder(FILE_COMPLEXITY_KEY, "Complexity /file", Metric.ValueType.FLOAT)
+  public static final Metric<Double> FILE_COMPLEXITY = new Metric.Builder(FILE_COMPLEXITY_KEY, "Complexity / File", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by file")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -363,7 +363,7 @@ public final class CoreMetrics {
    * Information about the cyclomatic complexity per class, calculated by divided the complexity in classes by the number of classes.
    * If the complexity in classes is not available, the complexity of the file is used.
    */
-  public static final Metric<Double> CLASS_COMPLEXITY = new Metric.Builder(CLASS_COMPLEXITY_KEY, "Complexity /class", Metric.ValueType.FLOAT)
+  public static final Metric<Double> CLASS_COMPLEXITY = new Metric.Builder(CLASS_COMPLEXITY_KEY, "Complexity / Class", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by class")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -393,7 +393,7 @@ public final class CoreMetrics {
    * Information about the cyclomatic complexity per function, calculated by divided the complexity in functions by the number of functions.
    * If the complexity in functions is not available, the complexity of the file is used.
    */
-  public static final Metric<Double> FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity /function", Metric.ValueType.FLOAT)
+  public static final Metric<Double> FUNCTION_COMPLEXITY = new Metric.Builder(FUNCTION_COMPLEXITY_KEY, "Complexity / Function", Metric.ValueType.FLOAT)
     .setDescription("Complexity average by function")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -410,7 +410,7 @@ public final class CoreMetrics {
    * @deprecated in 3.0 - see SONAR-3289
    */
   @Deprecated
-  public static final Metric<String> CLASS_COMPLEXITY_DISTRIBUTION = new Metric.Builder(CLASS_COMPLEXITY_DISTRIBUTION_KEY, "Classes Distribution /complexity",
+  public static final Metric<String> CLASS_COMPLEXITY_DISTRIBUTION = new Metric.Builder(CLASS_COMPLEXITY_DISTRIBUTION_KEY, "Classes Distribution / Complexity",
     Metric.ValueType.DISTRIB)
       .setDescription("Classes distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
@@ -420,7 +420,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String FUNCTION_COMPLEXITY_DISTRIBUTION_KEY = "function_complexity_distribution";
-  public static final Metric<String> FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Functions Distribution /complexity",
+  public static final Metric<String> FUNCTION_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FUNCTION_COMPLEXITY_DISTRIBUTION_KEY, "Functions Distribution / Complexity",
     Metric.ValueType.DISTRIB)
       .setDescription("Functions distribution /complexity")
       .setDirection(Metric.DIRECTION_NONE)
@@ -429,7 +429,7 @@ public final class CoreMetrics {
       .create();
 
   public static final String FILE_COMPLEXITY_DISTRIBUTION_KEY = "file_complexity_distribution";
-  public static final Metric<String> FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files Distribution /complexity", Metric.ValueType.DISTRIB)
+  public static final Metric<String> FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files Distribution / Complexity", Metric.ValueType.DISTRIB)
     .setDescription("Files distribution /complexity")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
@@ -459,7 +459,7 @@ public final class CoreMetrics {
     .create();
 
   public static final String TEST_EXECUTION_TIME_KEY = "test_execution_time";
-  public static final Metric<Long> TEST_EXECUTION_TIME = new Metric.Builder(TEST_EXECUTION_TIME_KEY, "Unit Tests Duration", Metric.ValueType.MILLISEC)
+  public static final Metric<Long> TEST_EXECUTION_TIME = new Metric.Builder(TEST_EXECUTION_TIME_KEY, "Unit Test Duration", Metric.ValueType.MILLISEC)
     .setDescription("Execution duration of unit tests")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(false)
@@ -516,7 +516,7 @@ public final class CoreMetrics {
    * @deprecated since 5.2 use {@link MutableTestPlan}
    */
   @Deprecated
-  public static final Metric<String> TEST_DATA = new Metric.Builder(TEST_DATA_KEY, "Unit Tests Details", Metric.ValueType.DATA)
+  public static final Metric<String> TEST_DATA = new Metric.Builder(TEST_DATA_KEY, "Unit Test Details", Metric.ValueType.DATA)
     .setDescription("Unit tests details")
     .setDirection(Metric.DIRECTION_WORST)
     .setDomain(DOMAIN_COVERAGE)
@@ -1382,7 +1382,7 @@ public final class CoreMetrics {
    * @deprecated since 4.5. Internal storage of duplication is not an API.
    */
   @Deprecated
-  public static final Metric<String> DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplications Details", Metric.ValueType.DATA)
+  public static final Metric<String> DUPLICATIONS_DATA = new Metric.Builder(DUPLICATIONS_DATA_KEY, "Duplication Details", Metric.ValueType.DATA)
     .setDescription("Duplications details")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(false)
@@ -1773,7 +1773,7 @@ public final class CoreMetrics {
    * @deprecated since 4.2. See SONAR-5042
    */
   @Deprecated
-  public static final transient Metric<String> RFC_DISTRIBUTION = new Metric.Builder(RFC_DISTRIBUTION_KEY, "Class Distribution /RFC", Metric.ValueType.DISTRIB)
+  public static final transient Metric<String> RFC_DISTRIBUTION = new Metric.Builder(RFC_DISTRIBUTION_KEY, "Class Distribution / RFC", Metric.ValueType.DISTRIB)
     .setDescription("Class distribution /RFC")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
@@ -1829,7 +1829,7 @@ public final class CoreMetrics {
    * @deprecated in 4.1. See http://jira.sonarsource.com/browse/SONAR-4853
    */
   @Deprecated
-  public static final transient Metric<String> LCOM4_DISTRIBUTION = new Metric.Builder(LCOM4_DISTRIBUTION_KEY, "Class Distribution /LCOM4", Metric.ValueType.DISTRIB)
+  public static final transient Metric<String> LCOM4_DISTRIBUTION = new Metric.Builder(LCOM4_DISTRIBUTION_KEY, "Class Distribution / LCOM4", Metric.ValueType.DISTRIB)
     .setDescription("Class distribution /LCOM4")
     .setDirection(Metric.DIRECTION_NONE)
     .setQualitative(true)
