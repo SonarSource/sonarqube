@@ -20,8 +20,9 @@
 import React from 'react';
 import { Link, IndexLink } from 'react-router';
 
-import { getLeakPeriodLabel } from '../../../helpers/periods';
-import { translate, translateWithParameters } from '../../../helpers/l10n';
+import LeakPeriodLegend from '../components/LeakPeriodLegend';
+import { getLeakPeriod } from '../../../helpers/periods';
+import { translate } from '../../../helpers/l10n';
 
 export default class Home extends React.Component {
   componentDidMount () {
@@ -41,7 +42,7 @@ export default class Home extends React.Component {
       return null;
     }
 
-    const leakPeriodLabel = getLeakPeriodLabel(periods);
+    const leakPeriod = getLeakPeriod(periods);
 
     return (
         <section id="component-measures-home" className="page page-container page-limited">
@@ -67,10 +68,8 @@ export default class Home extends React.Component {
               </ul>
             </nav>
 
-            {leakPeriodLabel != null && (
-                <div className="measures-domains-leak-header">
-                  {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
-                </div>
+            {leakPeriod != null && (
+                <LeakPeriodLegend period={leakPeriod}/>
             )}
           </header>
 

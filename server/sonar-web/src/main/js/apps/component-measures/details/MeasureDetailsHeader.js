@@ -21,28 +21,29 @@ import React from 'react';
 
 import Measure from './../components/Measure';
 import LanguageDistribution from './../components/LanguageDistribution';
+import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { ComplexityDistribution } from '../../overview/components/complexity-distribution';
 import { isDiffMetric, formatLeak } from '../utils';
-import { translateWithParameters } from '../../../helpers/l10n';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
-export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasure, leakPeriodLabel }) {
-  const leakPeriodTooltip = translateWithParameters('overview.leak_period_x', leakPeriodLabel);
-
+export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasure, leakPeriod }) {
   return (
       <header className="measure-details-header">
         <h2 className="measure-details-metric">
           {metric.name}
         </h2>
 
+        {isDiffMetric(metric) && (
+            <div className="pull-right">
+              <LeakPeriodLegend period={leakPeriod}/>
+            </div>
+        )}
+
         <TooltipsContainer options={{ html: false }}>
           <div className="measure-details-value">
 
             {isDiffMetric(metric) ? (
-                <div
-                    className="measure-details-value-leak"
-                    title={leakPeriodTooltip}
-                    data-toggle="tooltip">
+                <div className="measure-details-value-leak">
                   {formatLeak(measure.leak, metric)}
                 </div>
             ) : (
