@@ -55,7 +55,7 @@
 
   <properties>
     <sonarUpdateCenter.version>1.13</sonarUpdateCenter.version>
-    <sonarJava.version>3.12</sonarJava.version>
+    <sonarJava.version>3.13.1</sonarJava.version>
     <sonarJavaScript.version>2.11</sonarJavaScript.version>
     <sonarCSharp.version>5.0</sonarCSharp.version>
     <sonarGit.version>1.2</sonarGit.version>
