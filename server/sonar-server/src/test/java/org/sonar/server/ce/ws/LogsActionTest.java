@@ -62,7 +62,7 @@ public class LogsActionTest {
 
   @Test
   public void return_task_logs_if_available() throws IOException {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    globalAdministrator();
 
     // task must exist in database
     insert("TASK_1", null);
@@ -78,13 +78,31 @@ public class LogsActionTest {
     assertThat(response.getInput()).isEqualTo("{logs}");
   }
 
+  @Test
+  public void return_task_logs_when_project_admin() throws Exception {
+    userSession.addProjectUuidPermissions(UserRole.ADMIN, "PROJECT_UUID");
+
+    // task must exist in database
+    insert("TASK_1", "PROJECT_UUID");
+    File logFile = temp.newFile();
+    FileUtils.write(logFile, "{logs}");
+    when(ceLogging.getFile(new LogFileRef(CeTaskTypes.REPORT, "TASK_1", "PROJECT_UUID"))).thenReturn(Optional.of(logFile));
+
+    TestResponse response = tester.newRequest()
+      .setParam("taskId", "TASK_1")
+      .execute();
+
+    assertThat(response.getMediaType()).isEqualTo(MediaTypes.TXT);
+    assertThat(response.getInput()).isEqualTo("{logs}");
+  }
+
   /**
    * The parameter taskId is present but empty. It's considered as
    * a valid task which does not exist
    */
   @Test(expected = NotFoundException.class)
   public void return_404_if_task_id_is_empty() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    globalAdministrator();
     tester.newRequest()
       .setParam("taskId", "")
       .execute();
@@ -92,14 +110,14 @@ public class LogsActionTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void bad_request_if_task_id_is_missing() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    globalAdministrator();
     tester.newRequest()
       .execute();
   }
 
   @Test(expected = NotFoundException.class)
   public void return_404_if_task_logs_are_not_available() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    globalAdministrator();
     insert("TASK_1", null);
     when(ceLogging.getFile(new LogFileRef(CeTaskTypes.REPORT, "TASK_1", null))).thenReturn(Optional.<File>absent());
 
@@ -110,7 +128,7 @@ public class LogsActionTest {
 
   @Test(expected = NotFoundException.class)
   public void return_404_if_task_does_not_exist() {
-    userSession.setGlobalPermissions(UserRole.ADMIN);
+    globalAdministrator();
     tester.newRequest()
       .setParam("taskId", "TASK_1")
       .execute();
@@ -118,9 +136,14 @@ public class LogsActionTest {
 
   @Test(expected = ForbiddenException.class)
   public void require_admin_permission() {
+    insert("TASK_1", null);
     tester.newRequest()
       .setParam("taskId", "TASK_1")
       .execute();
+  }
+
+  private void globalAdministrator() {
+    userSession.setGlobalPermissions(UserRole.ADMIN);
   }
 
   private CeQueueDto insert(String taskUuid, @Nullable String componentUuid) {

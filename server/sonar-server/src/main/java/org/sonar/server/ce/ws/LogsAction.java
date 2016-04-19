@@ -22,18 +22,21 @@ package org.sonar.server.ce.ws;
 import com.google.common.base.Optional;
 import java.io.File;
 import java.io.IOException;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.web.UserRole;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.log.LogFileRef;
+import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
-import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
@@ -74,11 +77,10 @@ public class LogsAction implements CeWsAction {
 
   @Override
   public void handle(Request wsRequest, Response wsResponse) throws Exception {
-    userSession.checkPermission(UserRole.ADMIN);
-
     String taskUuid = wsRequest.mandatoryParam(PARAM_TASK_UUID);
-    LogFileRef ref = loadLogRef(taskUuid);
-    Optional<File> logFile = ceLogging.getFile(ref);
+    LogFileRefComponentUuidTuple refAndComponentUuid = loadLogRef(taskUuid);
+    checkPermissions(refAndComponentUuid.componentUuid);
+    Optional<File> logFile = ceLogging.getFile(refAndComponentUuid.logFileRef);
     if (logFile.isPresent()) {
       writeFile(logFile.get(), wsResponse);
     } else {
@@ -86,16 +88,24 @@ public class LogsAction implements CeWsAction {
     }
   }
 
-  private LogFileRef loadLogRef(String taskUuid) {
+  private void checkPermissions(@Nullable String componentUuid) {
+    if (componentUuid == null) {
+      userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
+    } else {
+      userSession.checkComponentUuidPermission(UserRole.ADMIN, componentUuid);
+    }
+  }
+
+  private LogFileRefComponentUuidTuple loadLogRef(String taskUuid) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       Optional<CeQueueDto> queueDto = dbClient.ceQueueDao().selectByUuid(dbSession, taskUuid);
       if (queueDto.isPresent()) {
-        return LogFileRef.from(queueDto.get());
+        return new LogFileRefComponentUuidTuple(LogFileRef.from(queueDto.get()), queueDto.get().getComponentUuid());
       }
       Optional<CeActivityDto> activityDto = dbClient.ceActivityDao().selectByUuid(dbSession, taskUuid);
       if (activityDto.isPresent()) {
-        return LogFileRef.from(activityDto.get());
+        return new LogFileRefComponentUuidTuple(LogFileRef.from(activityDto.get()), activityDto.get().getComponentUuid());
       }
       throw new NotFoundException(format("Task %s not found", taskUuid));
 
@@ -111,6 +121,17 @@ public class LogsAction implements CeWsAction {
       FileUtils.copyFile(file, stream.output());
     } catch (IOException e) {
       throw new IllegalStateException("Fail to copy compute engine log file to HTTP response: " + file.getAbsolutePath(), e);
+    }
+  }
+
+  private static class LogFileRefComponentUuidTuple {
+    private final LogFileRef logFileRef;
+    @CheckForNull
+    private final String componentUuid;
+
+    private LogFileRefComponentUuidTuple(LogFileRef logFileRef, @Nullable String componentUuid) {
+      this.logFileRef = logFileRef;
+      this.componentUuid = componentUuid;
     }
   }
 }
