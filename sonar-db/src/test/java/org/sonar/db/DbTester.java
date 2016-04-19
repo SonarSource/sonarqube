@@ -155,7 +155,7 @@ public class DbTester extends ExternalResource {
 
   /**
    * Returns the number of rows in the table. Example:
-   * <pre>int issues = countTable("issues")</pre>
+   * <pre>int issues = countRowsOfTable("issues")</pre>
    */
   public int countRowsOfTable(String tableName) {
     Preconditions.checkArgument(StringUtils.containsNone(tableName, " "), "Parameter must be the name of a table. Got " + tableName);
