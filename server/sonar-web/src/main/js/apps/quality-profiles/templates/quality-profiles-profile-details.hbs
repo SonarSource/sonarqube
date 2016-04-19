@@ -41,10 +41,13 @@
         <header class="page-header">
           <h3 class="page-title">{{t 'permalinks'}}</h3>
         </header>
-        <ul class="list-inline">
+        <ul>
           {{#each exporters}}
-            <li>
-              <a href="{{exporterUrl ../this key}}" target="_blank"><i class="icon-detach"></i>&nbsp;{{name}}</a>
+            <li class="spacer-bottom" style="line-height: 1.5">
+              <a class="link-with-icon" href="{{exporterUrl ../this key}}" target="_blank">
+                <i class="icon-detach"></i>
+                <span>{{name}}</span>
+              </a>
             </li>
           {{/each}}
         </ul>
