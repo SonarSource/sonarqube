@@ -45,7 +45,13 @@ const POLLING_INTERVAL = 2000;
 function pollStatus (cb) {
   setTimeout(() => {
     getStatus()
-        .then(() => cb())
+        .then(r => {
+          if (r.status === 'UP') {
+            cb();
+          } else {
+            pollStatus(cb);
+          }
+        })
         .catch(() => pollStatus(cb));
   }, POLLING_INTERVAL);
 }
