@@ -109,6 +109,16 @@
     from ce_activity ca
     where ca.created_at &lt; #{beforeDate,jdbcType=BIGINT}
   </select>
+  
+  <select id="countLastByStatusAndComponentUuid" resultType="int">
+    select count(1)
+    from ce_activity
+    where status=#{status} 
+      and is_last=${_true}
+      <if test="componentUuid!=null">
+        and component_uuid=#{componentUuid}
+      </if>
+  </select>
 
   <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
     insert into ce_activity

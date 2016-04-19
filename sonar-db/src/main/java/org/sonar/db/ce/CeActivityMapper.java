@@ -21,6 +21,7 @@ package org.sonar.db.ce;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.RowBounds;
 
@@ -37,7 +38,7 @@ public interface CeActivityMapper {
 
   List<CeActivityDto> selectOlderThan(@Param("beforeDate") long beforeDate);
 
-  int countByQuery(@Param("query") CeTaskQuery query);
+  int countLastByStatusAndComponentUuid(@Param("status") CeActivityDto.Status status, @Nullable @Param("componentUuid") String componentUuid);
 
   void insert(CeActivityDto dto);
 
