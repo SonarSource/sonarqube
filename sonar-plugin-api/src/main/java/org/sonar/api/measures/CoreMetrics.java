@@ -1617,7 +1617,7 @@ public final class CoreMetrics {
    * SonarQube Quality Model
    * @since 5.5
    */
-  public static final Metric<Integer> NEW_CODE_SMELLS = new Metric.Builder(NEW_CODE_SMELLS_KEY, "New code smells", Metric.ValueType.INT)
+  public static final Metric<Integer> NEW_CODE_SMELLS = new Metric.Builder(NEW_CODE_SMELLS_KEY, "New Code Smells", Metric.ValueType.INT)
     .setDescription("New Code Smells")
     .setDirection(Metric.DIRECTION_WORST)
     .setQualitative(true)
@@ -2298,7 +2298,7 @@ public final class CoreMetrics {
    * @since 5.5
    */
   public static final Metric<Long> EFFORT_TO_REACH_MAINTAINABILITY_RATING_A = new Metric.Builder(EFFORT_TO_REACH_MAINTAINABILITY_RATING_A_KEY,
-    "Effort to reach maintainability rating A", Metric.ValueType.WORK_DUR)
+    "Effort to Reach Maintainability Rating A", Metric.ValueType.WORK_DUR)
       .setDomain(DOMAIN_MAINTAINABILITY)
       .setDirection(Metric.DIRECTION_WORST)
       .setQualitative(true)
@@ -2320,7 +2320,7 @@ public final class CoreMetrics {
   /**
    * @since 5.5
    */
-  public static final Metric<Long> RELIABILITY_REMEDIATION_EFFORT = new Metric.Builder(RELIABILITY_REMEDIATION_EFFORT_KEY, "Reliability remediation effort",
+  public static final Metric<Long> RELIABILITY_REMEDIATION_EFFORT = new Metric.Builder(RELIABILITY_REMEDIATION_EFFORT_KEY, "Reliability Remediation Effort",
     Metric.ValueType.WORK_DUR)
       .setDomain(DOMAIN_RELIABILITY)
       .setDirection(Metric.DIRECTION_WORST)
@@ -2337,9 +2337,8 @@ public final class CoreMetrics {
   /**
    * @since 5.5
    */
-  public static final Metric<Long> NEW_RELIABILITY_REMEDIATION_EFFORT = new Metric.Builder(NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, "Reliability remediation effort on new code",
+  public static final Metric<Long> NEW_RELIABILITY_REMEDIATION_EFFORT = new Metric.Builder(NEW_RELIABILITY_REMEDIATION_EFFORT_KEY, "Reliability Remediation Effort on New Code",
     Metric.ValueType.WORK_DUR)
-      .setDescription("Reliability remediation effort of new code")
       .setDomain(DOMAIN_RELIABILITY)
       .setDirection(Metric.DIRECTION_WORST)
       .setOptimizedBestValue(true)
@@ -2378,7 +2377,7 @@ public final class CoreMetrics {
   /**
    * @since 5.5
    */
-  public static final Metric<Long> SECURITY_REMEDIATION_EFFORT = new Metric.Builder(SECURITY_REMEDIATION_EFFORT_KEY, "Security remediation effort", Metric.ValueType.WORK_DUR)
+  public static final Metric<Long> SECURITY_REMEDIATION_EFFORT = new Metric.Builder(SECURITY_REMEDIATION_EFFORT_KEY, "Security Remediation Effort", Metric.ValueType.WORK_DUR)
     .setDomain(DOMAIN_SECURITY)
     .setDirection(Metric.DIRECTION_WORST)
     .setOptimizedBestValue(true)
@@ -2394,9 +2393,8 @@ public final class CoreMetrics {
   /**
    * @since 5.5
    */
-  public static final Metric<Long> NEW_SECURITY_REMEDIATION_EFFORT = new Metric.Builder(NEW_SECURITY_REMEDIATION_EFFORT_KEY, "Security remediation effort on new code",
+  public static final Metric<Long> NEW_SECURITY_REMEDIATION_EFFORT = new Metric.Builder(NEW_SECURITY_REMEDIATION_EFFORT_KEY, "Security Remediation Effort on New Code",
     Metric.ValueType.WORK_DUR)
-      .setDescription("Security remediation effort of new code")
       .setDomain(DOMAIN_SECURITY)
       .setDirection(Metric.DIRECTION_WORST)
       .setOptimizedBestValue(true)
