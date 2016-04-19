@@ -22,6 +22,7 @@ package org.sonarqube.ws.client.ce;
 
 public class CeWsParameters {
   public static final String PARAM_COMPONENT_ID = "componentId";
+  public static final String PARAM_COMPONENT_KEY = "componentKey";
   public static final String PARAM_COMPONENT_QUERY = "componentQuery";
   public static final String PARAM_TYPE = "type";
   public static final String PARAM_STATUS = "status";

@@ -44,6 +44,12 @@ message ActivityResponse {
   repeated Task tasks = 2;
 }
 
+// GET api/ce/activity_status
+message ActivityStatusWsResponse {
+  optional int32 pending = 1;
+  optional int32 failing = 2;
+}
+
 // GET api/ce/project
 message ProjectResponse {
   repeated Task queue = 1;
