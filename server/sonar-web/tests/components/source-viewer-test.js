@@ -72,18 +72,18 @@ describe('Source Viewer', function () {
       expect(result).to.equal('<span class="j">#include &lt;stdio.h&gt;</span>');
     });
 
-    // TODO SONAR-7365
-    it.skip('should parse syntax and usage highlighting', function () {
+    it('should parse syntax and usage highlighting', function () {
       var code = '<span class="k"><span class="sym-3 sym">this</span></span>',
+          expected = '<span class="k sym-3 sym">this</span>',
           result = helper(code, []);
-      expect(result).to.equal(code);
+      expect(result).to.equal(expected);
     });
 
-    // TODO SONAR-7365
-    it.skip('should parse nested tags', function () {
+    it('should parse nested tags', function () {
       var code = '<span class="k"><span class="sym-3 sym">this</span> is</span>',
+          expected = '<span class="k sym-3 sym">this</span><span class="k"> is</span>',
           result = helper(code, []);
-      expect(result).to.equal(code);
+      expect(result).to.equal(expected);
     });
   });
 });

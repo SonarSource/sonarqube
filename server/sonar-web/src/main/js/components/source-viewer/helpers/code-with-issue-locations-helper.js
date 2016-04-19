@@ -47,20 +47,23 @@ function part (str, from, to, acc) {
 /**
  * Split a code html into tokens
  * @param {string} code
+ * @param {string} rootClassName
  * @returns {Array}
  */
-function splitByTokens (code) {
+function splitByTokens (code, rootClassName = '') {
   const container = document.createElement('div');
-  const tokens = [];
+  let tokens = [];
   container.innerHTML = code;
   [].forEach.call(container.childNodes, function (node) {
     if (node.nodeType === 1) {
       // ELEMENT NODE
-      tokens.push({ className: node.className, text: node.textContent });
+      const fullClassName = rootClassName ? (rootClassName + ' ' + node.className) : node.className;
+      const innerTokens = splitByTokens(node.innerHTML, fullClassName);
+      tokens = tokens.concat(innerTokens);
     }
     if (node.nodeType === 3) {
       // TEXT NODE
-      tokens.push({ className: '', text: node.nodeValue });
+      tokens.push({ className: rootClassName, text: node.nodeValue });
     }
   });
   return tokens;
