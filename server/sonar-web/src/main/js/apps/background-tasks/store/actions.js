@@ -18,11 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import _ from 'underscore';
-import { getTypes, getActivity, cancelAllTasks, cancelTask as cancelTaskAPI } from '../../../api/ce';
+import { getTypes, getActivity, getStatus, cancelAllTasks, cancelTask as cancelTaskAPI } from '../../../api/ce';
 
 import { STATUSES, ALL_TYPES, CURRENTS, DEBOUNCE_DELAY } from '../constants';
-
-const PAGE_SIZE = 1000;
 
 export const INIT = 'INIT';
 export const REQUEST_TASKS = 'REQUEST_TASKS';
@@ -151,16 +149,16 @@ function fetchTasks (filters) {
     dispatch(requestTasks(filters));
 
     return Promise.all([
-      getActivity(parameters)
+      getActivity(parameters),
+      getStatus(parameters.componentId)
     ]).then(responses => {
-      const [activity] = responses;
+      const [activity, status] = responses;
       const tasks = activity.tasks;
 
       dispatch(receiveTasks(tasks));
 
-      // FIXME request real numbers
-      const pendingCount = 0;
-      const failingCount = 0;
+      const pendingCount = status.pending;
+      const failingCount = status.failing;
 
       dispatch(receiveStats({ pendingCount, failingCount }));
     });
