@@ -26,12 +26,13 @@ function trans (left, top) {
   return `translate(${left}, ${top})`;
 }
 
+const DATE_FORMAT = 'YYYY-MM-DDTHH:mm:ssZZ';
+
 const defaults = function () {
   return {
     height: 140,
     color: '#1f77b4',
     interpolate: 'basis',
-    endDate: moment().add(1, 'days').format('YYYY-MM-DD'),
 
     marginLeft: 1,
     marginRight: 1,
@@ -52,7 +53,7 @@ $.fn.barchart = function (data) {
     const options = _.defaults($(this).data(), defaults());
     _.extend(options, {
       width: options.width || $(this).width(),
-      endDate: moment(options.endDate)
+      endDate: options.endDate ? moment(options.endDate) : null
     });
 
     const container = d3.select(this);
@@ -99,22 +100,25 @@ $.fn.barchart = function (data) {
           })
           .style('cursor', 'pointer')
           .attr('data-period-start', function (d) {
-            return moment(d.val).format('YYYY-MM-DD');
+            return moment(d.val).format(DATE_FORMAT);
           })
           .attr('data-period-end', function (d, i) {
-            const beginning = moment(d.val);
-            const ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate;
-            const isSameDay = ending.diff(beginning, 'days') <= 1;
-            if (isSameDay) {
-              ending.add(1, 'days');
+            const ending = i < data.length - 1 ? moment(data[i + 1].val) : options.endDate;
+            if (ending) {
+              return ending.format(DATE_FORMAT);
+            } else {
+              return '';
             }
-            return ending.format('YYYY-MM-DD');
           })
           .attr('title', function (d, i) {
             const beginning = moment(d.val);
             const ending = i < data.length - 1 ? moment(data[i + 1].val).subtract(1, 'days') : options.endDate;
-            const isSameDay = ending.diff(beginning, 'days') <= 1;
-            return d.text + '<br>' + beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
+            if (ending) {
+              const isSameDay = ending.diff(beginning, 'days') <= 1;
+              return d.text + '<br>' + beginning.format('LL') + (isSameDay ? '' : (' – ' + ending.format('LL')));
+            } else {
+              return d.text + '<br>' + beginning.format('LL');
+            }
           })
           .attr('data-placement', 'bottom')
           .attr('data-toggle', 'tooltip');
