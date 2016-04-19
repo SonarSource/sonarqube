@@ -139,7 +139,7 @@ public class CeQueueDaoTest {
     system2.setNow(INIT_TIME + 3_000_000);
     insert(TASK_UUID_2, COMPONENT_UUID_2, PENDING);
 
-    assertThat(underTest.countAll(db.getSession())).isEqualTo(2);
+    assertThat(db.countRowsOfTable("ce_queue")).isEqualTo(2);
     verifyCeQueueStatuses(TASK_UUID_1, PENDING, TASK_UUID_2, PENDING);
 
     // peek first one
@@ -284,6 +284,31 @@ public class CeQueueDaoTest {
     assertThat(total).isEqualTo(0);
   }
 
+  @Test
+  public void count_by_status_and_component_uuid() {
+    // task retrieved in the queue
+    insert(newCeQueueDto(TASK_UUID_1)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setStatus(IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+    // on component uuid 2, not returned
+    insert(newCeQueueDto(TASK_UUID_2)
+      .setComponentUuid(COMPONENT_UUID_2)
+      .setStatus(IN_PROGRESS)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+    // pending status, not returned
+    insert(newCeQueueDto(TASK_UUID_3)
+      .setComponentUuid(COMPONENT_UUID_1)
+      .setStatus(PENDING)
+      .setTaskType(CeTaskTypes.REPORT)
+      .setCreatedAt(100_000L));
+
+    assertThat(underTest.countByStatusAndComponentUuid(db.getSession(), IN_PROGRESS, COMPONENT_UUID_1)).isEqualTo(1);
+    assertThat(underTest.countByStatus(db.getSession(), IN_PROGRESS)).isEqualTo(2);
+  }
+
   private void insert(CeQueueDto dto) {
     underTest.insert(db.getSession(), dto);
     db.commit();
@@ -314,12 +339,13 @@ public class CeQueueDaoTest {
     });
   }
 
-  private void verifyCeQueueStatuses(String taskUuid1, CeQueueDto.Status taskStatus1, String taskUuid2, CeQueueDto.Status taskStatus2, String taskUuid3, CeQueueDto.Status taskStatus3) {
-    verifyCeQueueStatuses(new String[]{taskUuid1, taskUuid2, taskUuid3}, new CeQueueDto.Status[]{taskStatus1, taskStatus2, taskStatus3});
+  private void verifyCeQueueStatuses(String taskUuid1, CeQueueDto.Status taskStatus1, String taskUuid2, CeQueueDto.Status taskStatus2, String taskUuid3,
+    CeQueueDto.Status taskStatus3) {
+    verifyCeQueueStatuses(new String[] {taskUuid1, taskUuid2, taskUuid3}, new CeQueueDto.Status[] {taskStatus1, taskStatus2, taskStatus3});
   }
 
   private void verifyCeQueueStatuses(String taskUuid1, CeQueueDto.Status taskStatus1, String taskUuid2, CeQueueDto.Status taskStatus2) {
-    verifyCeQueueStatuses(new String[]{taskUuid1, taskUuid2}, new CeQueueDto.Status[]{taskStatus1, taskStatus2});
+    verifyCeQueueStatuses(new String[] {taskUuid1, taskUuid2}, new CeQueueDto.Status[] {taskStatus1, taskStatus2});
   }
 
   private void verifyCeQueueStatuses(String[] taskUuids, CeQueueDto.Status[] statuses) {

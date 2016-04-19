@@ -21,6 +21,7 @@ package org.sonar.db.ce;
 
 import com.google.common.base.Optional;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
@@ -100,11 +101,11 @@ public class CeQueueDao implements Dao {
   }
 
   public int countByStatus(DbSession dbSession, CeQueueDto.Status status) {
-    return mapper(dbSession).countByStatus(status);
+    return mapper(dbSession).countByStatusAndComponentUuid(status, null);
   }
 
-  public int countAll(DbSession dbSession) {
-    return mapper(dbSession).countAll();
+  public int countByStatusAndComponentUuid(DbSession dbSession, CeQueueDto.Status status, @Nullable String componentUuid) {
+    return mapper(dbSession).countByStatusAndComponentUuid(status, componentUuid);
   }
 
   public Optional<CeQueueDto> peek(DbSession session) {

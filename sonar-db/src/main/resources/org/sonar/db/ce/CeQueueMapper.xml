@@ -29,8 +29,13 @@
     where cq.uuid=#{uuid}
   </select>
 
-  <select id="countByStatus" parameterType="org.sonar.db.ce.CeQueueDto$Status" resultType="int">
-    select count(1) from ce_queue where status=#{status}
+  <select id="countByStatusAndComponentUuid" parameterType="map" resultType="int">
+    select count(1)
+    from ce_queue
+    where status=#{status}
+    <if test="componentUuid!=null">
+      and component_uuid=#{componentUuid}
+    </if>
   </select>
 
   <select id="countAll" resultType="int">
