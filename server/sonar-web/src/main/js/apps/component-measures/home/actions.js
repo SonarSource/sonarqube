@@ -28,6 +28,13 @@ export function receiveMeasures (measures, periods) {
   return { type: RECEIVE_MEASURES, measures, periods };
 }
 
+function banQualityGate (component, measures) {
+  if (['VW', 'SVW'].includes(component.qualifier)) {
+    return measures;
+  }
+  return measures.filter(measure => measure.metric !== 'alert_status');
+}
+
 export function fetchMeasures () {
   return (dispatch, getState) => {
     dispatch(startFetching());
@@ -40,7 +47,7 @@ export function fetchMeasures () {
 
     getMeasuresAndMeta(component.key, metricKeys, { additionalFields: 'periods' }).then(r => {
       const leakPeriod = getLeakPeriod(r.periods);
-      const measures = r.component.measures
+      const measures = banQualityGate(component, r.component.measures)
           .map(measure => {
             const metric = metrics.find(metric => metric.key === measure.metric);
             const leak = getLeakValue(measure);

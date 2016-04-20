@@ -23,7 +23,7 @@ import { Link, IndexLink } from 'react-router';
 import Spinner from './../components/Spinner';
 import MeasureDetailsHeader from './MeasureDetailsHeader';
 import MeasureDrilldown from './drilldown/MeasureDrilldown';
-import { getPeriod, getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import { getPeriod, getPeriodDate } from '../../../helpers/periods';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 export default class MeasureDetails extends React.Component {
@@ -65,7 +65,6 @@ export default class MeasureDetails extends React.Component {
     const { tab } = this.props.params;
     const periodIndex = this.props.location.query.period || 1;
     const period = getPeriod(periods, Number(periodIndex));
-    const periodLabel = getPeriodLabel(period);
     const periodDate = getPeriodDate(period);
 
     return (
@@ -89,7 +88,7 @@ export default class MeasureDetails extends React.Component {
               measure={measure}
               metric={metric}
               secondaryMeasure={secondaryMeasure}
-              leakPeriodLabel={periodLabel}/>
+              leakPeriod={period}/>
 
           {measure && (
               <MeasureDrilldown

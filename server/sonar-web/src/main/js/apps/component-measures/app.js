@@ -43,7 +43,7 @@ window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
 
   const history = useRouterHistory(createHistory)({
-    basename: '/component_measures'
+    basename: window.baseUrl + '/component_measures'
   });
 
   const store = configureStore({

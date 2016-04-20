@@ -313,12 +313,12 @@ public class AuthorizationDaoTest {
   }
 
   @Test
-  public void keep_authorized_users_for_role_and_project_for_anonymous() {
+  public void keep_authorized_users_returns_empty_list_for_role_and_project_for_anonymous() {
     dbTester.prepareDbUnit(getClass(), "keep_authorized_users_for_role_and_project_for_anonymous.xml");
 
     assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(),
       // Only 100 and 101 has 'user' role on project
-      newHashSet(100L, 101L, 102L), "user", PROJECT_ID)).containsOnly(100L, 101L);
+      newHashSet(100L, 101L, 102L), "user", PROJECT_ID)).isEmpty();
   }
 
 }
