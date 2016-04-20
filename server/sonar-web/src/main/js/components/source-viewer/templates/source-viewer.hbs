@@ -5,7 +5,10 @@
   {{#if exist}}
 
     {{#if hasSourceBefore}}
-      <i class="spinner js-component-viewer-source-before"></i>
+      <div class="source-viewer-more-code">
+        <i class="spinner js-component-viewer-source-before"></i>
+        <span class="note spacer-left">{{t 'source_viewer.loading_more_code'}}</span>
+      </div>
     {{/if}}
 
     <table class="source-table">
@@ -86,7 +89,10 @@
     </table>
 
     {{#if hasSourceAfter}}
-      <i class="spinner js-component-viewer-source-after"></i>
+      <div class="source-viewer-more-code">
+        <i class="spinner js-component-viewer-source-after"></i>
+        <span class="note spacer-left">{{t 'source_viewer.loading_more_code'}}</span>
+      </div>
     {{/if}}
 
   {{else}}

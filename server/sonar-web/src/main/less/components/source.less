@@ -500,3 +500,19 @@
     display: none;
   }
 }
+
+.source-viewer-more-code {
+  padding: 40px 0;
+  border-bottom: 1px solid @barBorderColor;
+  background-color: @barBackgroundColor;
+  text-align: center;
+
+  .spinner {
+    top: -1px;
+  }
+
+  .source-table + & {
+    border-bottom: none;
+    border-top: 1px solid @barBorderColor;
+  }
+}
