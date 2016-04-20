@@ -12,12 +12,12 @@
     {{/if}}
 
     <table class="source-table">
-      {{#each source}}
+      {{#eachWithPrevious source}}
         <tr class="source-line {{#eq line 0}}{{#empty issues}}hidden{{/empty}}{{/eq}}" {{#if line}}data-line-number="{{line}}"{{/if}}>
           <td class="source-meta source-line-number" {{#if line}}data-line-number="{{line}}"{{/if}}></td>
 
           <td class="source-meta source-line-scm" {{#if line}}data-line-number="{{line}}"{{/if}}>
-            {{#ifSCMChanged2 ../source line}}
+            {{#ifSCMChanged2 this _previous}}
               <div class="source-line-scm-inner" data-author="{{scmAuthor}}"></div>
             {{/ifSCMChanged2}}
           </td>
@@ -85,7 +85,7 @@
             {{/notEmpty}}
           </td>
         </tr>
-      {{/each}}
+      {{/eachWithPrevious}}
     </table>
 
     {{#if hasSourceAfter}}

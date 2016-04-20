@@ -17,10 +17,18 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-module.exports = function (currentLine, prevLine, options) {
-  let changed = true;
-  if (currentLine && prevLine && currentLine.scmAuthor && prevLine.scmAuthor) {
-    changed = (currentLine.scmAuthor !== prevLine.scmAuthor) || (currentLine.scmDate !== prevLine.scmDate);
+import _ from 'underscore';
+
+module.exports = function (context, options) {
+  let ret = '';
+
+  if (Array.isArray(context)) {
+    context.forEach(function (element, index, list) {
+      const previous = index > 0 ? list[index - 1] : null;
+      const c = _.extend({ '_previous': previous }, element);
+      ret += options.fn(c);
+    });
   }
-  return changed ? options.fn(this) : options.inverse(this);
+
+  return ret;
 };
