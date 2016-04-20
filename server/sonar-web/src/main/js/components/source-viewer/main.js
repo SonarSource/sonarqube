@@ -43,9 +43,12 @@ export default Marionette.LayoutView.extend({
   issueLocationTemplate: IssueLocationTemplate,
 
   ISSUES_LIMIT: 3000,
-  LINES_LIMIT: 1000,
-  TOTAL_LINES_LIMIT: 3000,
+
   LINES_AROUND: 500,
+
+  // keep it twice bigger than LINES_AROUND
+  LINES_LIMIT: 1000,
+  TOTAL_LINES_LIMIT: 1000,
 
   regions: {
     headerRegion: '.source-viewer-header'
@@ -175,10 +178,10 @@ export default Marionette.LayoutView.extend({
     if (aroundLine) {
       return {
         from: Math.max(1, aroundLine - this.LINES_AROUND),
-        to: aroundLine + this.LINES_LIMIT
+        to: aroundLine + this.LINES_AROUND
       };
     }
-    return { from: 1, to: this.LINES_LIMIT };
+    return { from: 1, to: this.LINES_AROUND };
   },
 
   getUTCoverageStatus (row) {
