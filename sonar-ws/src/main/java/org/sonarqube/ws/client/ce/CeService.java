@@ -28,6 +28,7 @@ import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.WsConnector;
 
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_KEY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
@@ -71,4 +72,13 @@ public class CeService extends BaseService {
   public WsCe.TaskResponse task(String id) {
     return call(new GetRequest(path("task")).setParam("id", id), WsCe.TaskResponse.parser());
   }
+
+  public WsCe.ActivityStatusWsResponse activityStatus(ActivityStatusWsRequest request) {
+    return call(
+      new GetRequest(path("activity_status"))
+        .setParam(PARAM_COMPONENT_ID, request.getComponentId())
+        .setParam(PARAM_COMPONENT_KEY, request.getComponentKey()),
+      WsCe.ActivityStatusWsResponse.parser());
+  }
+
 }

@@ -22,6 +22,7 @@ package org.sonar.db.ce;
 import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
@@ -72,11 +73,8 @@ public class CeActivityDao implements Dao {
     return mapper(dbSession).selectByQuery(query, offset, pageSize);
   }
 
-  public int countByQuery(DbSession dbSession, CeTaskQuery query) {
-    if (query.isShortCircuitedByComponentUuids()) {
-      return 0;
-    }
-    return mapper(dbSession).countByQuery(query);
+  public int countLastByStatusAndComponentUuid(DbSession dbSession, CeActivityDto.Status status, @Nullable String componentUuid) {
+    return mapper(dbSession).countLastByStatusAndComponentUuid(status, componentUuid);
   }
 
   private static CeActivityMapper mapper(DbSession dbSession) {

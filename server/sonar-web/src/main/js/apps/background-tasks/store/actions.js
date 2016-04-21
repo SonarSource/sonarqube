@@ -18,11 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import _ from 'underscore';
-import { getTypes, getActivity, cancelAllTasks, cancelTask as cancelTaskAPI } from '../../../api/ce';
+import { getTypes, getActivity, getStatus, cancelAllTasks, cancelTask as cancelTaskAPI } from '../../../api/ce';
 
 import { STATUSES, ALL_TYPES, CURRENTS, DEBOUNCE_DELAY } from '../constants';
-
-const PAGE_SIZE = 1000;
 
 export const INIT = 'INIT';
 export const REQUEST_TASKS = 'REQUEST_TASKS';
@@ -48,11 +46,10 @@ export function requestTasks (filters) {
   };
 }
 
-export function receiveTasks (tasks, total) {
+export function receiveTasks (tasks) {
   return {
     type: RECEIVE_TASKS,
-    tasks,
-    total
+    tasks
   };
 }
 
@@ -145,8 +142,6 @@ function fetchTasks (filters) {
     const { component } = getState();
     const parameters = mapFiltersToParameters(filters);
 
-    parameters.ps = PAGE_SIZE;
-
     if (component) {
       parameters.componentId = component.id;
     }
@@ -155,17 +150,15 @@ function fetchTasks (filters) {
 
     return Promise.all([
       getActivity(parameters),
-      getActivity({ ps: 1, onlyCurrents: true, status: STATUSES.FAILED }),
-      getActivity({ ps: 1, status: STATUSES.PENDING })
+      getStatus(parameters.componentId)
     ]).then(responses => {
-      const [activity, failingActivity, pendingActivity] = responses;
+      const [activity, status] = responses;
       const tasks = activity.tasks;
-      const total = activity.paging.total;
 
-      dispatch(receiveTasks(tasks, total));
+      dispatch(receiveTasks(tasks));
 
-      const pendingCount = pendingActivity.paging.total;
-      const failingCount = failingActivity.paging.total;
+      const pendingCount = status.pending;
+      const failingCount = status.failing;
 
       dispatch(receiveStats({ pendingCount, failingCount }));
     });

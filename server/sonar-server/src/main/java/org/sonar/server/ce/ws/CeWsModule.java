@@ -27,6 +27,7 @@ public class CeWsModule extends Module {
     add(
       CeWs.class,
       ActivityAction.class,
+      ActivityStatusAction.class,
       CancelAction.class,
       CancelAllAction.class,
       IsQueueEmptyWs.class,

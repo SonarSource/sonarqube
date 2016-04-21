@@ -40,9 +40,7 @@ public interface CeQueueMapper {
   @CheckForNull
   CeQueueDto selectByUuid(@Param("uuid") String uuid);
 
-  int countByStatus(@Param("status") CeQueueDto.Status status);
-
-  int countAll();
+  int countByStatusAndComponentUuid(@Param("status") CeQueueDto.Status status, @Nullable @Param("componentUuid") String componentUuid);
 
   void insert(CeQueueDto dto);
 

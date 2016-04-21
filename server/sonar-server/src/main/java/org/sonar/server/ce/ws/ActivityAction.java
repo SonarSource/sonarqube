@@ -37,8 +37,8 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
+import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
@@ -50,10 +50,8 @@ import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.db.component.ComponentQuery;
-import org.sonar.ce.taskprocessor.CeTaskProcessor;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;
@@ -63,7 +61,6 @@ import static java.util.Collections.singletonList;
 import static org.apache.commons.lang.StringUtils.defaultString;
 import static org.sonar.api.utils.DateUtils.parseDateQuietly;
 import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
-import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
@@ -75,6 +72,7 @@ import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
 public class ActivityAction implements CeWsAction {
+  private static final int OFFSET = 0;
   private static final int MAX_PAGE_SIZE = 1000;
 
   private final UserSession userSession;
@@ -98,7 +96,8 @@ public class ActivityAction implements CeWsAction {
     WebService.NewAction action = controller.createAction("activity")
       .setDescription(format("Search for tasks.<br> " +
         "Requires the system administration permission, " +
-        "or project administration permission if %s is set.", PARAM_COMPONENT_ID))
+        "or project administration permission if %s is set.<br/>" +
+        "Since 5.5, it's no more possible to specify the page parameter", PARAM_COMPONENT_ID))
       .setResponseExample(getClass().getResource("activity-example.json"))
       .setHandler(this)
       .setSince("5.2");
@@ -147,7 +146,11 @@ public class ActivityAction implements CeWsAction {
     action.createParam(PARAM_MAX_EXECUTED_AT)
       .setDescription("Maximum date of end of task processing (inclusive)")
       .setExampleValue(DateUtils.formatDateTime(new Date()));
-    action.addPagingParams(100, MAX_PAGE_SIZE);
+    action.createParam(Param.PAGE)
+      .setDescription("Deprecated parameter")
+      .setDeprecatedSince("5.5")
+      .setDeprecatedKey("pageIndex");
+    action.addPageSize(100, MAX_PAGE_SIZE);
   }
 
   @Override
@@ -165,21 +168,18 @@ public class ActivityAction implements CeWsAction {
         return buildResponse(
           singletonList(taskSearchedById.get()),
           Collections.<WsCe.Task>emptyList(),
-          Paging.forPageIndex(1).withPageSize(request.getPageSize()).andTotal(1));
+          request.getPageSize());
       }
 
       CeTaskQuery query = buildQuery(dbSession, request);
       checkPermissions(query);
-      TaskResult queuedTasks = loadQueuedTasks(dbSession, request, query);
-      TaskResult pastTasks = loadPastTasks(dbSession, request, query, queuedTasks.total);
+      Iterable<WsCe.Task> queuedTasks = loadQueuedTasks(dbSession, request, query);
+      Iterable<WsCe.Task> pastTasks = loadPastTasks(dbSession, request, query);
 
       return buildResponse(
-        queuedTasks.tasks,
-        pastTasks.tasks,
-        Paging.forPageIndex(request.getPage())
-          .withPageSize(request.getPageSize())
-          .andTotal(queuedTasks.total + pastTasks.total));
-
+        queuedTasks,
+        pastTasks,
+        request.getPageSize());
     } finally {
       dbClient.closeSession(dbSession);
     }
@@ -234,24 +234,14 @@ public class ActivityAction implements CeWsAction {
     }
   }
 
-  private TaskResult loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
-    int total = dbClient.ceQueueDao().countByQuery(dbSession, query);
-    List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query,
-      Paging.forPageIndex(request.getPage())
-        .withPageSize(request.getPageSize())
-        .andTotal(total));
-    Iterable<WsCe.Task> tasks = formatter.formatQueue(dbSession, dtos);
-    return new TaskResult(tasks, total);
+  private Iterable<WsCe.Task> loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
+    List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query, request.getPageSize());
+    return formatter.formatQueue(dbSession, dtos);
   }
 
-  private TaskResult loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query, int totalQueuedTasks) {
-    int total = dbClient.ceActivityDao().countByQuery(dbSession, query);
-    // we have to take into account the total number of queue tasks found
-    int offset = Math.max(0, offset(request.getPage(), request.getPageSize()) - totalQueuedTasks);
-    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, offset, request.getPageSize());
-    Iterable<WsCe.Task> ceTasks = formatter.formatActivity(dbSession, dtos);
-
-    return new TaskResult(ceTasks, total);
+  private Iterable<WsCe.Task> loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
+    List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, OFFSET, request.getPageSize());
+    return formatter.formatActivity(dbSession, dtos);
   }
 
   private void checkPermissions(CeTaskQuery query) {
@@ -285,29 +275,23 @@ public class ActivityAction implements CeWsAction {
     return userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) || userSession.hasComponentUuidPermission(UserRole.ADMIN, componentUuid);
   }
 
-  private static ActivityResponse buildResponse(Iterable<WsCe.Task> queuedTasks, Iterable<WsCe.Task> pastTasks, Paging paging) {
+  private static ActivityResponse buildResponse(Iterable<WsCe.Task> queuedTasks, Iterable<WsCe.Task> pastTasks, int pageSize) {
     WsCe.ActivityResponse.Builder wsResponseBuilder = WsCe.ActivityResponse.newBuilder();
 
     int nbInsertedTasks = 0;
     for (WsCe.Task queuedTask : queuedTasks) {
-      if (nbInsertedTasks < paging.pageSize()) {
+      if (nbInsertedTasks < pageSize) {
         wsResponseBuilder.addTasks(queuedTask);
         nbInsertedTasks++;
       }
     }
 
     for (WsCe.Task pastTask : pastTasks) {
-      if (nbInsertedTasks < paging.pageSize()) {
+      if (nbInsertedTasks < pageSize) {
         wsResponseBuilder.addTasks(pastTask);
         nbInsertedTasks++;
       }
     }
-
-    wsResponseBuilder.setPaging(Common.Paging.newBuilder()
-      .setPageIndex(paging.pageIndex())
-      .setPageSize(paging.pageSize())
-      .setTotal(paging.total()));
-
     return wsResponseBuilder.build();
   }
 
@@ -320,7 +304,6 @@ public class ActivityAction implements CeWsAction {
       .setMinSubmittedAt(request.param(PARAM_MIN_SUBMITTED_AT))
       .setMaxExecutedAt(request.param(PARAM_MAX_EXECUTED_AT))
       .setOnlyCurrents(request.paramAsBoolean(PARAM_ONLY_CURRENTS))
-      .setPage(request.mandatoryParamAsInt(Param.PAGE))
       .setPageSize(request.mandatoryParamAsInt(Param.PAGE_SIZE));
 
     checkRequest(activityWsRequest.getComponentId() == null || activityWsRequest.getQuery() == null, "%s and %s must not be set at the same time",
@@ -328,15 +311,5 @@ public class ActivityAction implements CeWsAction {
     checkRequest(activityWsRequest.getPageSize() <= MAX_PAGE_SIZE, "The '%s' parameter must be less than %d", Param.PAGE_SIZE, MAX_PAGE_SIZE);
 
     return activityWsRequest;
-  }
-
-  private static class TaskResult {
-    private final Iterable<WsCe.Task> tasks;
-    private final int total;
-
-    private TaskResult(Iterable<WsCe.Task> tasks, int total) {
-      this.tasks = tasks;
-      this.total = total;
-    }
   }
 }

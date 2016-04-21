@@ -30,6 +30,15 @@ export function getActivity (data) {
   return $.get(url, data);
 }
 
+export function getStatus (componentId) {
+  const url = window.baseUrl + '/api/ce/activity_status';
+  const data = {};
+  if (componentId) {
+    Object.assign(data, { componentId });
+  }
+  return getJSON(url, data);
+}
+
 export function getTask (id) {
   const url = window.baseUrl + '/api/ce/task';
   return getJSON(url, { id }).then(r => r.task);
