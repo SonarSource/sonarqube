@@ -71,7 +71,9 @@ export default Marionette.LayoutView.extend({
       'click .source-line-with-issues': 'onLineIssuesClick',
       'click .source-line-number[data-line-number]': 'onLineNumberClick',
       'mouseenter .source-line-filtered .source-line-filtered-container': 'showFilteredTooltip',
-      'mouseleave .source-line-filtered .source-line-filtered-container': 'hideFilteredTooltip'
+      'mouseleave .source-line-filtered .source-line-filtered-container': 'hideFilteredTooltip',
+      'click @ui.sourceBeforeSpinner': 'loadSourceBefore',
+      'click @ui.sourceAfterSpinner': 'loadSourceAfter'
     };
   },
 
@@ -83,8 +85,6 @@ export default Marionette.LayoutView.extend({
     this.listenTo(this.issues, 'change:severity', this.onIssuesSeverityChange);
     this.listenTo(this.issues, 'locations', this.toggleIssueLocations);
     this.issueViews = [];
-    this.loadSourceBeforeThrottled = _.throttle(this.loadSourceBefore, 1000);
-    this.loadSourceAfterThrottled = _.throttle(this.loadSourceAfter, 1000);
     this.highlightedLine = null;
     this.listenTo(this, 'loaded', this.onLoaded);
   },
@@ -545,37 +545,15 @@ export default Marionette.LayoutView.extend({
   },
 
   bindScrollEvents () {
-    const that = this;
-    let p = this.$el.scrollParent();
-    if (p.is(document) || p.is('body')) {
-      p = $(window);
-    }
-    p.on('scroll.source-viewer', function () {
-      that.onScroll();
-    });
+    // no op
   },
 
   unbindScrollEvents () {
-    let p = this.$el.scrollParent();
-    if (p.is(document) || p.is('body')) {
-      p = $(window);
-    }
-    p.off('scroll.source-viewer');
+    // no op
   },
 
   onScroll () {
-    let p = this.$el.scrollParent();
-    if (p.is(document) || p.is('body')) {
-      p = $(window);
-    }
-    const pTopOffset = p.offset() != null ? p.offset().top : 0;
-    const pPosition = p.scrollTop() + pTopOffset;
-    if (this.model.get('hasSourceBefore') && (pPosition <= this.ui.sourceBeforeSpinner.offset().top)) {
-      this.loadSourceBeforeThrottled();
-    }
-    if (this.model.get('hasSourceAfter') && (pPosition + p.height() >= this.ui.sourceAfterSpinner.offset().top)) {
-      return this.loadSourceAfterThrottled();
-    }
+    // no op
   },
 
   scrollToLine (line) {
@@ -622,8 +600,11 @@ export default Marionette.LayoutView.extend({
     return this;
   },
 
-  loadSourceBefore () {
+  loadSourceBefore (e) {
+    e.preventDefault();
     this.unbindScrollEvents();
+    this.$('.js-component-viewer-loading-before').removeClass('hidden');
+    this.$('.js-component-viewer-source-before').addClass('hidden');
     const that = this;
     let source = this.model.get('source');
     const firstLine = _.first(source).line;
@@ -668,8 +649,11 @@ export default Marionette.LayoutView.extend({
     });
   },
 
-  loadSourceAfter () {
+  loadSourceAfter (e) {
+    e.preventDefault();
     this.unbindScrollEvents();
+    this.$('.js-component-viewer-loading-after').removeClass('hidden');
+    this.$('.js-component-viewer-source-after').addClass('hidden');
     const that = this;
     let source = this.model.get('source');
     const lastLine = _.last(source).line;

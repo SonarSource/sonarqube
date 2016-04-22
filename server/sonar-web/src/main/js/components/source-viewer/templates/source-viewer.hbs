@@ -6,8 +6,13 @@
 
     {{#if hasSourceBefore}}
       <div class="source-viewer-more-code">
-        <i class="spinner js-component-viewer-source-before"></i>
-        <span class="note spacer-left">{{t 'source_viewer.loading_more_code'}}</span>
+        <button class="js-component-viewer-source-before">
+          {{t 'source_viewer.load_more_code'}}
+        </button>
+        <div class="js-component-viewer-loading-before hidden">
+          <i class="spinner"></i>
+          <span class="note spacer-left">{{t 'source_viewer.loading_more_code'}}</span>
+        </div>
       </div>
     {{/if}}
 
@@ -90,8 +95,13 @@
 
     {{#if hasSourceAfter}}
       <div class="source-viewer-more-code">
-        <i class="spinner js-component-viewer-source-after"></i>
-        <span class="note spacer-left">{{t 'source_viewer.loading_more_code'}}</span>
+        <button class="js-component-viewer-source-after">
+          {{t 'source_viewer.load_more_code'}}
+        </button>
+        <div class="js-component-viewer-loading-after hidden">
+          <i class="spinner"></i>
+          <span class="note spacer-left">{{t 'source_viewer.loading_more_code'}}</span>
+        </div>
       </div>
     {{/if}}
 
