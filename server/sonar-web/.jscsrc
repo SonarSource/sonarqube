@@ -33,5 +33,6 @@
     },
     "requireSpaceBeforeDestructuredValues": true,
     "requireSpaceBeforeObjectValues": true,
-    "requireSpacesInsideObjectBrackets": "all"
+    "requireSpacesInsideObjectBrackets": "all",
+    "requirePaddingNewLinesBeforeLineComments": false
 }

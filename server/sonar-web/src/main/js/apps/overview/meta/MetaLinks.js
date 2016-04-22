@@ -19,20 +19,23 @@
  */
 import React from 'react';
 
-import { translate } from '../../../helpers/l10n';
-
-const EmptyOverview = ({ component }) => {
+const MetaLinks = ({ links }) => {
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
-      </div>
+      <ul className="overview-meta-list big-spacer-bottom">
+        {links.map(link => (
+            <li key={link.type}>
+              <a
+                  className="link-with-icon"
+                  href={link.href}
+                  target="_blank">
+                <i className={`icon-color-link icon-${link.type}`}/>
+                &nbsp;
+                {link.name}
+              </a>
+            </li>
+        ))}
+      </ul>
   );
 };
 
-export default EmptyOverview;
+export default MetaLinks;

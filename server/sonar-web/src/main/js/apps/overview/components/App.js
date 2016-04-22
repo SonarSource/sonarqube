@@ -18,21 +18,32 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 
-import { translate } from '../../../helpers/l10n';
+import OverviewApp from './OverviewApp';
+import EmptyOverview from './EmptyOverview';
+import { ComponentType } from '../propTypes';
 
-const EmptyOverview = ({ component }) => {
-  return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
-      </div>
-  );
-};
+export default class App extends React.Component {
+  static propTypes = {
+    component: ComponentType.isRequired
+  };
 
-export default EmptyOverview;
+  shouldComponentUpdate (nextProps, nextState) {
+    return shallowCompare(this, nextProps, nextState);
+  }
+
+  render () {
+    const { component } = this.props;
+
+    if (!component.snapshotDate) {
+      return <EmptyOverview {...this.props}/>;
+    }
+
+    return (
+        <OverviewApp
+            {...this.props}
+            leakPeriodIndex="1"/>
+    );
+  }
+}

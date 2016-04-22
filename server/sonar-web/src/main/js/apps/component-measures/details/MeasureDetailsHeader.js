@@ -20,9 +20,9 @@
 import React from 'react';
 
 import Measure from './../components/Measure';
-import LanguageDistribution from './../components/LanguageDistribution';
+import LanguageDistribution from '../../../components/charts/LanguageDistribution';
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
-import { ComplexityDistribution } from '../../overview/components/complexity-distribution';
+import { ComplexityDistribution } from '../../../components/shared/complexity-distribution';
 import { isDiffMetric, formatLeak } from '../utils';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getLocalizedMetricName } from '../../../helpers/l10n';

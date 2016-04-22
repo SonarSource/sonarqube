@@ -19,20 +19,30 @@
  */
 import React from 'react';
 
+import { QualityProfileLink } from '../../../components/shared/quality-profile-link';
 import { translate } from '../../../helpers/l10n';
 
-const EmptyOverview = ({ component }) => {
+const MetaQualityProfiles = ({ profiles }) => {
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
+      <div>
+        <h4 className="overview-meta-header">
+          {translate('overview.quality_profiles')}
+        </h4>
+
+        <ul className="overview-meta-list">
+          {profiles.map(profile => (
+              <li key={profile.key}>
+                <span className="note spacer-right">
+                  {'(' + profile.language + ')'}
+                </span>
+                <QualityProfileLink profile={profile.key}>
+                  {profile.name}
+                </QualityProfileLink>
+              </li>
+          ))}
+        </ul>
       </div>
   );
 };
 
-export default EmptyOverview;
+export default MetaQualityProfiles;

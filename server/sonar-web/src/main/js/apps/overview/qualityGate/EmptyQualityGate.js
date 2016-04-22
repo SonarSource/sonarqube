@@ -21,18 +21,17 @@ import React from 'react';
 
 import { translate } from '../../../helpers/l10n';
 
-const EmptyOverview = ({ component }) => {
+const EmptyQualityGate = () => {
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
+      <div className="overview-quality-gate">
+        <h2 className="overview-title">
+          {translate('overview.quality_gate')}
+        </h2>
+        <p className="overview-quality-gate-warning">
+          {translate('overview.you_should_define_quality_gate')}
+        </p>
       </div>
   );
 };
 
-export default EmptyOverview;
+export default EmptyQualityGate;

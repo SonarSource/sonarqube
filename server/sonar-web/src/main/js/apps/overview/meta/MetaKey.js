@@ -21,18 +21,19 @@ import React from 'react';
 
 import { translate } from '../../../helpers/l10n';
 
-const EmptyOverview = ({ component }) => {
+const MetaKey = ({ component }) => {
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
+      <div>
+        <h4 className="overview-meta-header">
+          {translate('key')}
+        </h4>
+        <input
+            className="overview-key"
+            type="text"
+            value={component.key}
+            readOnly={true}/>
       </div>
   );
 };
 
-export default EmptyOverview;
+export default MetaKey;

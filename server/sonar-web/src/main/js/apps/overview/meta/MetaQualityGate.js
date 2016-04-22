@@ -19,20 +19,30 @@
  */
 import React from 'react';
 
+import { QualityGateLink } from '../../../components/shared/quality-gate-link';
 import { translate } from '../../../helpers/l10n';
 
-const EmptyOverview = ({ component }) => {
+const MetaQualityGate = ({ gate }) => {
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
+      <div className="big-spacer-bottom">
+        <h4 className="overview-meta-header">
+          {translate('overview.quality_gate')}
+        </h4>
+
+        <ul className="overview-meta-list">
+          <li>
+            {gate.isDefault && (
+                <span className="note spacer-right">
+                  {'(' + translate('default') + ')'}
+                </span>
+            )}
+            <QualityGateLink gate={gate.key}>
+              {gate.name}
+            </QualityGateLink>
+          </li>
+        </ul>
       </div>
   );
 };
 
-export default EmptyOverview;
+export default MetaQualityGate;

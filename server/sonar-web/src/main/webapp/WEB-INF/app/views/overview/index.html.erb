@@ -48,23 +48,6 @@
         id: '<%= escape_javascript @resource.uuid %>',
         key: '<%= escape_javascript @resource.key %>',
         description: '<%= escape_javascript @resource.description %>',
-        hasSnapshot: <%= @snapshot ? true : false %>,
-        periods: [
-          <%
-            if @snapshot && @snapshot.project_snapshot.periods?
-              (1..5).each do |index|
-                if @snapshot.period_mode(index)
-          %>
-          {
-            index: '<%= index -%>',
-            mode: '<%= escape_javascript @snapshot.period_mode(index) -%>',
-            modeParam: '<%= escape_javascript @snapshot.period_param(index) -%>',
-            date: '<%= escape_javascript @snapshot.period_datetime(index) ? @snapshot.period_datetime(index).strftime('%FT%T%z') : "" -%>'
-          },
-          <% end %>
-          <% end %>
-          <% end %>
-        ],
         links: [
           <% @resource.project_links.sort.each_with_index do |link, index| %>
           {
@@ -92,41 +75,8 @@
         <% end %>
       };
 
-      <% if m %>
-      var gate = {
-        level: '<%= m.alert_status -%>',
-        conditions: [
-          <% conditions.sort_by {|condition| [ -condition['level'].length, metric(condition['metric']).short_name] }.each do |condition| %>
-          <% metric = metric(condition['metric']) %>
-          {
-            level: '<%= escape_javascript condition['level'] %>',
-            metric: {
-              name: '<%= escape_javascript metric.name %>',
-              type: '<%= escape_javascript metric.value_type %>'
-            },
-            op: '<%= escape_javascript condition['op'] %>',
-            period: '<%= condition['period'] %>',
-            warning: '<%= escape_javascript condition['warning'] %>',
-            error: '<%= escape_javascript condition['error'] %>',
-            actual: '<%= escape_javascript condition['actual'] %>',
-          },
-          <% end %>
-        ]
-      };
-      <% else %>
-        <% if alert_status && !alert_status.alert_status.blank? %>
-          var gate = {
-            level: '<%= alert_status.alert_status -%>',
-            text: '<%= alert_status.alert_text -%>'
-          };
-        <% else %>
-          var gate = null;
-         <% end %>
-      <% end %>
-
       window.sonarqube.overview = {
-        component: component,
-        gate: gate
+        component: component
       };
     })();
   </script>
