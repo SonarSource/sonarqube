@@ -117,7 +117,10 @@
                       + $j('#sids').val(),
                     success:function (data) {
                       $j('#new_version').html(data);
-                      $j('#new_version').select2({placeholder:'<%= message('comparison.select_version') -%>'});
+                      $j('#new_version').select2({
+                        width: '250px',
+                        placeholder:'<%= message('comparison.select_version') -%>'
+                      });
                       $j('#version_loading').hide();
                       $j('#version_div').show();
                       $j('#version_div').css("display", "inline-block");
