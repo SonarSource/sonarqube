@@ -401,10 +401,12 @@ export default Marionette.LayoutView.extend({
 
   highlightUsages (e) {
     const highlighted = $(e.currentTarget).is('.highlighted');
-    const key = e.currentTarget.className.split(/\s+/)[0];
-    this.$('.sym.highlighted').removeClass('highlighted');
-    if (!highlighted) {
-      this.$('.sym.' + key).addClass('highlighted');
+    const key = e.currentTarget.className.match(/sym-\d+/);
+    if (key) {
+      this.$('.sym.highlighted').removeClass('highlighted');
+      if (!highlighted) {
+        this.$('.sym.' + key[0]).addClass('highlighted');
+      }
     }
   },
 
