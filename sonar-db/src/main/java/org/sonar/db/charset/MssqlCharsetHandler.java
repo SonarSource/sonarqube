@@ -93,8 +93,9 @@ class MssqlCharsetHandler extends CharsetHandler {
     Loggers.get(getClass()).info("Changing collation of column [{}.{}] from {} to {}", column.getTable(), column.getColumn(), column.getCollation(), csCollation);
 
     String nullability = column.isNullable() ? "NULL" : "NOT NULL";
-    String alter = format("ALTER TABLE %s ALTER COLUMN %s %s(%d) COLLATE %s %s",
-      column.getTable(), column.getColumn(), column.getDataType(), column.getSize(), csCollation, nullability);
+    String size = column.getSize() >= 0 ? String.valueOf(column.getSize()) : "max";
+    String alter = format("ALTER TABLE %s ALTER COLUMN %s %s(%s) COLLATE %s %s",
+      column.getTable(), column.getColumn(), column.getDataType(), size, csCollation, nullability);
     getSqlExecutor().executeUpdate(connection, alter);
 
     // 4. re-create indices

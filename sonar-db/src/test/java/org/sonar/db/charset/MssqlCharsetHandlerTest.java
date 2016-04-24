@@ -89,6 +89,17 @@ public class MssqlCharsetHandlerTest {
     verify(selectExecutor).executeUpdate(connection, "CREATE UNIQUE INDEX projects_login_and_name ON projects (login,name)");
   }
 
+  @Test
+  public void support_the_max_size_of_varchar_column() throws Exception {
+    // returned size is -1
+    answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", -1, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, false);
+
+    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name nvarchar(max) COLLATE Latin1_General_CS_AS NOT NULL");
+  }
+
   private void answerColumns(List<ColumnDef> columnDefs) throws SQLException {
     when(selectExecutor.executeSelect(any(Connection.class), anyString(), eq(ColumnDef.ColumnDefRowConverter.INSTANCE))).thenReturn(columnDefs);
   }
