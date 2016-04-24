@@ -35,6 +35,8 @@ import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
 
 class MysqlCharsetHandler extends CharsetHandler {
 
+  private static final String TYPE_LONGTEXT = "longtext";
+
   protected MysqlCharsetHandler(SqlExecutor selectExecutor) {
     super(selectExecutor);
   }
@@ -76,8 +78,9 @@ class MysqlCharsetHandler extends CharsetHandler {
     Loggers.get(getClass()).info("Changing collation of column [{}.{}] from {} to {}", column.getTable(), column.getColumn(), column.getCollation(), csCollation);
 
     String nullability = column.isNullable() ? "NULL" : "NOT NULL";
-    String alter = format("ALTER TABLE %s MODIFY %s %s(%d) CHARACTER SET '%s' COLLATE '%s' %s",
-      column.getTable(), column.getColumn(), column.getDataType(), column.getSize(), column.getCharset(), csCollation, nullability);
+    String type = column.getDataType().equalsIgnoreCase(TYPE_LONGTEXT) ? TYPE_LONGTEXT : format("%s(%d)", column.getDataType(), column.getSize());
+    String alter = format("ALTER TABLE %s MODIFY %s %s CHARACTER SET '%s' COLLATE '%s' %s",
+      column.getTable(), column.getColumn(), type, column.getCharset(), csCollation, nullability);
     getSqlExecutor().executeUpdate(connection, alter);
   }
 

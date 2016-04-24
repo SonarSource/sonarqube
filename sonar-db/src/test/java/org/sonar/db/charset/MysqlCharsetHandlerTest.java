@@ -84,6 +84,16 @@ public class MysqlCharsetHandlerTest {
   }
 
   @Test
+  public void size_should_be_ignored_on_longtext_column() throws Exception {
+    answerColumnDef(asList(new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "latin1", "latin1_german1_ci", "longtext", 4_294_967_295L, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, false);
+
+    verify(selectExecutor).executeUpdate(connection, "ALTER TABLE " + TABLE_ISSUES + " MODIFY " + COLUMN_KEE + " longtext CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL");
+  }
+
+  @Test
   public void tests_toCaseSensitive() {
     assertThat(MysqlCharsetHandler.toCaseSensitive("big5_chinese_ci")).isEqualTo("big5_bin");
   }
