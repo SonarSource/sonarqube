@@ -64,7 +64,7 @@ class MssqlCharsetHandler extends CharsetHandler {
       "     JOIN sys.tables T ON T.Object_id = I.Object_id " +
       "     JOIN (SELECT * FROM ( " +
       "     SELECT IC2.object_id, IC2.index_id, " +
-      "     STUFF((SELECT ',' + C.name " +
+      "     STUFF((SELECT ' ,' + C.name " +
       "     FROM sys.index_columns IC1 " +
       "     JOIN sys.columns C " +
       "     ON C.object_id = IC1.object_id " +
