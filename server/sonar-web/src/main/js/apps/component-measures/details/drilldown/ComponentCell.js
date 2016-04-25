@@ -39,12 +39,19 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
     }
   };
 
-  const { head, tail } = splitPath(component.path || component.name);
+  let head = '';
+  let tail = component.path || component.name;
+
+  if (['DIR', 'FIL', 'CLA'].includes(component.qualifier)) {
+    const parts = splitPath(tail);
+    head = parts.head;
+    tail = parts.tail;
+  }
 
   const inner = (
       <span title={component.refKey || component.key}>
         <QualifierIcon qualifier={component.qualifier}/>
-          &nbsp;
+        &nbsp;
         {head.length > 0 && (
             <span className="note">{head}/</span>
         )}
