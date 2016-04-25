@@ -30,6 +30,8 @@ import org.junit.rules.DisableOnDebug;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TestRule;
 import org.junit.rules.Timeout;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
 import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,6 +77,8 @@ public class RestartTest {
       }
 
       newAdminWsClient(orchestrator).system().restart();
+      WsResponse wsResponse = newAdminWsClient(orchestrator).wsConnector().call(new GetRequest("/api/system/status")).failIfNotSuccessful();
+      assertThat(wsResponse.content()).contains("RESTARTING");
 
       // we just wait five seconds, for a lack of a better approach to waiting for the restart process to start in SQ
       Thread.sleep(5000);
