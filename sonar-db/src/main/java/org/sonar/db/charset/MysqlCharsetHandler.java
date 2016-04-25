@@ -49,7 +49,7 @@ class MysqlCharsetHandler extends CharsetHandler {
     checkCollation(connection, enforceUtf8);
   }
 
-  private void logInit(boolean enforceUtf8) {
+  private static void logInit(boolean enforceUtf8) {
     String message = "Verify that database collation is case-sensitive";
     if (enforceUtf8) {
       message = "Verify that database collation is UTF8";
