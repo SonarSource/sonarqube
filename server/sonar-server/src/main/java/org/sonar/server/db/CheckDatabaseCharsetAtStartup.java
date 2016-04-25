@@ -23,6 +23,10 @@ import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
+/**
+ * Checks charset of all existing database columns at startup, before executing db migrations. This requires
+ * to be defined in platform level 2 ({@link org.sonar.server.platform.platformlevel.PlatformLevel2}).
+ */
 public class CheckDatabaseCharsetAtStartup implements Startable {
 
   private final ServerUpgradeStatus upgradeStatus;

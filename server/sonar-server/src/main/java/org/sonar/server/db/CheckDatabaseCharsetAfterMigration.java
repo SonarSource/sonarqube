@@ -22,6 +22,10 @@ package org.sonar.server.db;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
+/**
+ * Checks charset of all database columns when at least one db migration has been executed. This requires
+ * to be defined in platform level 3 ({@link org.sonar.server.platform.platformlevel.PlatformLevel3}).
+ */
 public class CheckDatabaseCharsetAfterMigration extends CheckDatabaseCharsetAtStartup {
 
   public CheckDatabaseCharsetAfterMigration(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
