@@ -21,6 +21,7 @@ package org.sonar.db.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -76,8 +77,7 @@ public class MssqlCharsetHandlerTest {
     answerIndices(asList(
       new MssqlCharsetHandler.ColumnIndex("projects_name", false, "name"),
       // This index is on two columns. Note that it does not make sense for table "projects" !
-      new MssqlCharsetHandler.ColumnIndex("projects_login_and_name", true, "login,name")
-    ));
+      new MssqlCharsetHandler.ColumnIndex("projects_login_and_name", true, "login,name")));
 
     Connection connection = mock(Connection.class);
     underTest.handle(connection, false);
@@ -93,6 +93,7 @@ public class MssqlCharsetHandlerTest {
   public void support_the_max_size_of_varchar_column() throws Exception {
     // returned size is -1
     answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "nvarchar", -1, false)));
+    answerIndices(Collections.<MssqlCharsetHandler.ColumnIndex>emptyList());
 
     Connection connection = mock(Connection.class);
     underTest.handle(connection, false);

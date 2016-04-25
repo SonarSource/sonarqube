@@ -24,10 +24,13 @@ import java.sql.SQLException;
 import javax.annotation.concurrent.Immutable;
 
 /**
- * Result of standard SQL command "select * from INFORMATION_SCHEMA"
+ * Result of standard SQL command "select * from INFORMATION_SCHEMA" (columns listed in {@link #SELECT_COLUMNS}).
  */
 @Immutable
 public class ColumnDef {
+
+  public static final String SELECT_COLUMNS = "select table_name, column_name, character_set_name, collation_name, data_type, character_maximum_length, is_nullable ";
+
   private final String table;
   private final String column;
   private final String charset;
@@ -74,14 +77,16 @@ public class ColumnDef {
     return nullable;
   }
 
-  public static final String SELECT_COLUMNS = "select table_name, column_name, character_set_name, collation_name, data_type, character_maximum_length, is_nullable ";
-
   public enum ColumnDefRowConverter implements SqlExecutor.RowConverter<ColumnDef> {
     INSTANCE;
+
     @Override
     public ColumnDef convert(ResultSet rs) throws SQLException {
+      String nullableText = rs.getString(7);
+      boolean nullable = "YES".equalsIgnoreCase(nullableText);
+
       return new ColumnDef(
-        rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getLong(6), rs.getBoolean(7));
+        rs.getString(1), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getLong(6), nullable);
     }
   }
 }
