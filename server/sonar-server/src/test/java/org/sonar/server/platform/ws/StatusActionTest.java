@@ -31,6 +31,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
 import org.sonar.db.version.DatabaseMigration;
+import org.sonar.server.app.RestartFlagHolder;
+import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.ws.WsTester;
 
@@ -54,6 +56,7 @@ public class StatusActionTest {
   private static final String STATUS_DOWN = "DOWN";
   private static final String STATUS_MIGRATION_NEEDED = "DB_MIGRATION_NEEDED";
   private static final String STATUS_MIGRATION_RUNNING = "DB_MIGRATION_RUNNING";
+  private static final String STATUS_RESTARTING = "RESTARTING";
   private static final Set<DatabaseMigration.Status> SUPPORTED_DATABASE_MIGRATION_STATUSES = of(DatabaseMigration.Status.FAILED, DatabaseMigration.Status.NONE,
     DatabaseMigration.Status.SUCCEEDED, DatabaseMigration.Status.RUNNING);
   private static final Set<Platform.Status> SUPPORTED_PLATFORM_STATUSES = of(Platform.Status.BOOTING, Platform.Status.SAFEMODE, Platform.Status.UP);
@@ -64,7 +67,8 @@ public class StatusActionTest {
   private DbClient dbClient = mock(DbClient.class);
   private DbSession dbSession = mock(DbSession.class);
   private IsAliveMapper isAliveMapper = mock(IsAliveMapper.class);
-  private StatusAction underTest = new StatusAction(server, databaseMigration, platform, dbClient);
+  private RestartFlagHolder restartFlagHolder = new RestartFlagHolderImpl();
+  private StatusAction underTest = new StatusAction(server, databaseMigration, platform, dbClient, restartFlagHolder);
 
   private Request request = mock(Request.class);
 
@@ -97,6 +101,7 @@ public class StatusActionTest {
   public void verify_example() throws Exception {
     when(isAliveMapper.isAlive()).thenReturn(IsAliveMapper.IS_ALIVE_RETURNED_VALUE);
     when(platform.status()).thenReturn(Platform.Status.UP);
+    restartFlagHolder.unset();
 
     WsTester.TestResponse response = new WsTester.TestResponse();
     underTest.handle(request, response);
@@ -105,9 +110,18 @@ public class StatusActionTest {
   }
 
   @Test
-  public void status_is_UP_if_platform_is_UP_whatever_databaseMigration_status_is() throws Exception {
+  public void status_is_UP_if_platform_is_UP_and_restartFlag_is_false_whatever_databaseMigration_status_is() throws Exception {
     for (DatabaseMigration.Status databaseMigrationStatus : DatabaseMigration.Status.values()) {
       verifyStatus(Platform.Status.UP, databaseMigrationStatus, STATUS_UP);
+    }
+  }
+
+  @Test
+  public void status_is_RESTARTING_if_platform_is_UP_and_restartFlag_is_true_whatever_databaseMigration_status_is() throws Exception {
+    restartFlagHolder.set();
+
+    for (DatabaseMigration.Status databaseMigrationStatus : DatabaseMigration.Status.values()) {
+      verifyStatus(Platform.Status.UP, databaseMigrationStatus, STATUS_RESTARTING);
     }
   }
 

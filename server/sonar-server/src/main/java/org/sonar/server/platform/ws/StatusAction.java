@@ -31,6 +31,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.IsAliveMapper;
 import org.sonar.db.version.DatabaseMigration;
+import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
 
 /**
@@ -44,12 +45,14 @@ public class StatusAction implements SystemWsAction {
   private final DatabaseMigration databaseMigration;
   private final Platform platform;
   private final DbClient dbClient;
+  private final RestartFlagHolder restartFlagHolder;
 
-  public StatusAction(Server server, DatabaseMigration databaseMigration, Platform platform, DbClient dbClient) {
+  public StatusAction(Server server, DatabaseMigration databaseMigration, Platform platform, DbClient dbClient, RestartFlagHolder restartFlagHolder) {
     this.server = server;
     this.databaseMigration = databaseMigration;
     this.platform = platform;
     this.dbClient = dbClient;
+    this.restartFlagHolder = restartFlagHolder;
   }
 
   @Override
@@ -60,6 +63,8 @@ public class StatusAction implements SystemWsAction {
         "<li>UP: SonarQube instance is up and running</li>" +
         "<li>DOWN: SonarQube instance is up but not running because SQ can not connect to database or " +
         "migration has failed (refer to WS /api/system/migrate_db for details) or some other reason (check logs).</li>" +
+        "<li>RESTARTING: SonarQube instance is still up but a restart has been requested " +
+        "(refer to WS /api/system/restart for details).</li>" +
         "<li>DB_MIGRATION_NEEDED: database migration is required. DB migration can be started using WS /api/system/migrate_db.</li>" +
         "<li>DB_MIGRATION_RUNNING: DB migration is running (refer to WS /api/system/migrate_db for details)</li>" +
         "</ul>")
@@ -97,7 +102,7 @@ public class StatusAction implements SystemWsAction {
         // unless the Platform's status is UP or SAFEMODE
         return Status.DOWN;
       case UP:
-        return Status.UP;
+        return restartFlagHolder.isRestarting() ? Status.RESTARTING : Status.UP;
       case SAFEMODE:
         return computeFromDbMigrationStatus();
       default:
@@ -133,7 +138,7 @@ public class StatusAction implements SystemWsAction {
   }
 
   private enum Status {
-    UP, DOWN, DB_MIGRATION_NEEDED, DB_MIGRATION_RUNNING
+    UP, DOWN, DB_MIGRATION_NEEDED, DB_MIGRATION_RUNNING, RESTARTING
   }
 
 }

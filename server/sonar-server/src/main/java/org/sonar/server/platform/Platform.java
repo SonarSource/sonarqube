@@ -157,10 +157,12 @@ public class Platform {
     if (!started) {
       return Status.BOOTING;
     }
-    if (levelSafeMode != null && currentLevel == levelSafeMode) {
+    PlatformLevel current = this.currentLevel;
+    PlatformLevel levelSafe = this.levelSafeMode;
+    if (levelSafe != null && current == levelSafe) {
       return Status.SAFEMODE;
     }
-    if (currentLevel == level4) {
+    if (current == level4) {
       return Status.UP;
     }
     return Status.BOOTING;
