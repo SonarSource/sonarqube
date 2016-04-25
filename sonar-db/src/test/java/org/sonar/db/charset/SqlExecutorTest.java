@@ -32,6 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class SqlExecutorTest {
 
+  private static final String LOGIN_DB_COLUMN = "login";
+  private static final String NAME_DB_COLUMN = "name";
+  private static final String USERS_DB_TABLE = "users";
+
   SqlExecutor underTest = new SqlExecutor();
 
   @Rule
@@ -39,13 +43,14 @@ public class SqlExecutorTest {
 
   @Test
   public void executeSelect_executes_PreparedStatement() throws Exception {
-    dbTester.executeInsert("users", ImmutableMap.of("login", "login1", "name", "name one"));
-    dbTester.executeInsert("users", ImmutableMap.of("login", "login2", "name", "name two"));
+    dbTester.executeInsert(USERS_DB_TABLE, ImmutableMap.of(LOGIN_DB_COLUMN, "login1", NAME_DB_COLUMN, "name one"));
+    dbTester.executeInsert(USERS_DB_TABLE, ImmutableMap.of(LOGIN_DB_COLUMN, "login2", NAME_DB_COLUMN, "name two"));
 
     dbTester.commit();
 
     try (Connection connection = dbTester.openConnection()) {
-      List<String[]> users = underTest.executeSelect(connection, "select login, name from users order by id", new SqlExecutor.StringsConverter(2));
+      List<String[]> users = underTest.executeSelect(connection, "select " + LOGIN_DB_COLUMN + ", " + NAME_DB_COLUMN + " from users order by id", new SqlExecutor.StringsConverter(
+        2));
       assertThat(users).hasSize(2);
       assertThat(users.get(0)[0]).isEqualTo("login1");
       assertThat(users.get(0)[1]).isEqualTo("name one");
@@ -56,14 +61,14 @@ public class SqlExecutorTest {
 
   @Test
   public void executeUpdate_executes_PreparedStatement() throws Exception {
-    dbTester.executeInsert("users", ImmutableMap.of("login", "the_login", "name", "the name"));
+    dbTester.executeInsert(USERS_DB_TABLE, ImmutableMap.of(LOGIN_DB_COLUMN, "the_login", NAME_DB_COLUMN, "the name"));
     dbTester.commit();
 
     try (Connection connection = dbTester.openConnection()) {
-      underTest.executeUpdate(connection, "update users set name='new name' where login='the_login'");
+      underTest.executeUpdate(connection, "update users set " + NAME_DB_COLUMN + "='new name' where " + LOGIN_DB_COLUMN + "='the_login'");
       connection.commit();
     }
-    Map<String, Object> row = dbTester.selectFirst("select name from users where login='the_login'");
+    Map<String, Object> row = dbTester.selectFirst("select " + NAME_DB_COLUMN + " from users where " + LOGIN_DB_COLUMN + "='the_login'");
     assertThat(row.get("NAME")).isEqualTo("new name");
   }
 

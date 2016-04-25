@@ -56,7 +56,7 @@ class PostgresCharsetHandler extends CharsetHandler {
       "from information_schema.columns " +
       "where table_schema='public' " +
       "and udt_name='varchar' " +
-      "order by table_name, column_name", new SqlExecutor.StringsConverter(3));
+      "order by table_name, column_name", new SqlExecutor.StringsConverter(3 /* columns returned by SELECT */));
     boolean mustCheckGlobalCollation = false;
     List<String> errors = new ArrayList<>();
     for (String[] row : rows) {
