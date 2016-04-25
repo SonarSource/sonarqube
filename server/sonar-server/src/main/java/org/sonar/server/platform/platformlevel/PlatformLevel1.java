@@ -36,6 +36,7 @@ import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
+import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
 import org.sonar.server.issue.index.IssueIndex;
 import org.sonar.server.platform.DatabaseServerCompatibility;
@@ -70,6 +71,7 @@ public class PlatformLevel1 extends PlatformLevel {
     add(
       SonarQubeVersionFactory.create(System2.INSTANCE),
       ProcessCommandWrapperImpl.class,
+      RestartFlagHolderImpl.class,
       WebServerSettings.class,
       ServerImpl.class,
       UuidFactoryImpl.INSTANCE,

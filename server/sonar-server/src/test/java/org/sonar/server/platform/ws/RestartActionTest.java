@@ -22,11 +22,14 @@ package org.sonar.server.platform.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.InOrder;
+import org.mockito.Mockito;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.api.web.UserRole;
 import org.sonar.server.app.ProcessCommandWrapper;
+import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.tester.UserSessionRule;
@@ -34,8 +37,8 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class RestartActionTest {
   @Rule
@@ -48,7 +51,10 @@ public class RestartActionTest {
   private Settings settings = new Settings();
   private Platform platform = mock(Platform.class);
   private ProcessCommandWrapper processCommandWrapper = mock(ProcessCommandWrapper.class);
-  private RestartAction sut = new RestartAction(userSessionRule, settings, platform, processCommandWrapper);
+  private RestartFlagHolder restartFlagHolder = mock(RestartFlagHolder.class);
+  private RestartAction sut = new RestartAction(userSessionRule, settings, platform, processCommandWrapper, restartFlagHolder);
+  private InOrder inOrder = Mockito.inOrder(platform, restartFlagHolder, processCommandWrapper);
+
   private WsActionTester actionTester = new WsActionTester(sut);
 
   @Test
@@ -59,7 +65,30 @@ public class RestartActionTest {
 
     WsTester tester = new WsTester(ws);
     tester.newPostRequest("api/system", "restart").execute();
-    verify(platform).restart();
+    InOrder inOrder = Mockito.inOrder(platform, restartFlagHolder);
+    inOrder.verify(restartFlagHolder).set();
+    inOrder.verify(platform).restart();
+    inOrder.verify(restartFlagHolder).unset();
+  }
+
+  @Test
+  public void restart_flag_is_unset_in_dev_mode_even_if_restart_fails() throws Exception {
+    settings.setProperty("sonar.web.dev", true);
+    RuntimeException toBeThrown = new RuntimeException("simulating platform.restart() failed");
+    doThrow(toBeThrown).when(platform).restart();
+
+    SystemWs ws = new SystemWs(sut);
+
+    WsTester tester = new WsTester(ws);
+    try {
+      tester.newPostRequest("api/system", "restart").execute();
+    } catch (RuntimeException e) {
+      assertThat(e).isSameAs(toBeThrown);
+    } finally {
+      inOrder.verify(restartFlagHolder).set();
+      inOrder.verify(platform).restart();
+      inOrder.verify(restartFlagHolder).unset();
+    }
   }
 
   @Test
@@ -75,7 +104,8 @@ public class RestartActionTest {
 
     actionTester.newRequest().execute();
 
-    verify(processCommandWrapper).requestSQRestart();
+    inOrder.verify(restartFlagHolder).set();
+    inOrder.verify(processCommandWrapper).requestSQRestart();
   }
 
   @Test

@@ -27,6 +27,7 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.UserRole;
 import org.sonar.server.app.ProcessCommandWrapper;
+import org.sonar.server.app.RestartFlagHolder;
 import org.sonar.server.platform.Platform;
 import org.sonar.server.user.UserSession;
 
@@ -41,12 +42,14 @@ public class RestartAction implements SystemWsAction {
   private final Settings settings;
   private final Platform platform;
   private final ProcessCommandWrapper processCommandWrapper;
+  private final RestartFlagHolder restartFlagHolder;
 
-  public RestartAction(UserSession userSession, Settings settings, Platform platform, ProcessCommandWrapper processCommandWrapper) {
+  public RestartAction(UserSession userSession, Settings settings, Platform platform, ProcessCommandWrapper processCommandWrapper, RestartFlagHolder restartFlagHolder) {
     this.userSession = userSession;
     this.settings = settings;
     this.platform = platform;
     this.processCommandWrapper = processCommandWrapper;
+    this.restartFlagHolder = restartFlagHolder;
   }
 
   @Override
@@ -65,11 +68,17 @@ public class RestartAction implements SystemWsAction {
   public void handle(Request request, Response response) {
     if (settings.getBoolean("sonar.web.dev")) {
       LOGGER.info("Fast restarting WebServer...");
-      platform.restart();
-      LOGGER.info("WebServer restarted");
+      restartFlagHolder.set();
+      try {
+        platform.restart();
+        LOGGER.info("WebServer restarted");
+      } finally {
+        restartFlagHolder.unset();
+      }
     } else {
       userSession.checkPermission(UserRole.ADMIN);
       LOGGER.info("SonarQube restart requested by {}", userSession.getLogin());
+      restartFlagHolder.set();
       processCommandWrapper.requestSQRestart();
     }
     response.noContent();
