@@ -26,6 +26,7 @@ import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.settings.SettingsLoader;
 import org.sonar.core.issue.tracking.Tracker;
 import org.sonar.core.platform.ContainerPopulator;
+import org.sonar.db.property.PropertiesDao;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderImpl;
 import org.sonar.server.computation.batch.BatchReportDirectoryHolderImpl;
@@ -133,6 +134,9 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       new ComputationTempFolderProvider(),
 
       MetricModule.class,
+
+      // We need to add PropertiesDao here because otherwise we only have access to ReadOnlyPropertiesDao
+      PropertiesDao.class,
 
       // holders
       AnalysisMetadataHolderImpl.class,
