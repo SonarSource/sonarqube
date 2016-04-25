@@ -35,7 +35,6 @@ import org.sonar.api.server.rule.RulesDefinitionXmlLoader;
 import org.sonar.api.utils.Durations;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
-import org.sonar.ce.db.CeDbClient;
 import org.sonar.ce.db.ReadOnlyPropertiesDao;
 import org.sonar.ce.es.EsIndexerEnabler;
 import org.sonar.ce.platform.ComputeEngineExtensionInstaller;
@@ -56,6 +55,7 @@ import org.sonar.core.user.DeprecatedUserFinder;
 import org.sonar.core.util.UuidFactoryImpl;
 import org.sonar.db.DaoModule;
 import org.sonar.db.DatabaseChecker;
+import org.sonar.db.DbClient;
 import org.sonar.db.DefaultDatabase;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.purge.PurgeProfiler;
@@ -159,7 +159,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     DaoModule.class,
     // DbClient.class, replaced by CeDbClient to use ReadOnlyPropertiesDao instead of PropertiesDao
     ReadOnlyPropertiesDao.class,
-    CeDbClient.class,
+    DbClient.class,
     // MigrationStepModule.class, DB maintenance, responsibility of Web Server
 
     // Elasticsearch
