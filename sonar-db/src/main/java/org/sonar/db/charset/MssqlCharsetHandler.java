@@ -24,6 +24,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
@@ -31,13 +32,15 @@ import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
 
 class MssqlCharsetHandler extends CharsetHandler {
 
+  private static final Logger LOGGER = Loggers.get(MssqlCharsetHandler.class);
+
   protected MssqlCharsetHandler(SqlExecutor selectExecutor) {
     super(selectExecutor);
   }
 
   @Override
   void handle(Connection connection, boolean enforceUtf8) throws SQLException {
-    Loggers.get(getClass()).info("Verify that database collation is case-sensitive and accent-sensitive");
+    LOGGER.info("Verify that database collation is case-sensitive and accent-sensitive");
     checkCollation(connection);
   }
 
@@ -90,13 +93,13 @@ class MssqlCharsetHandler extends CharsetHandler {
 
     // 3. alter collation of column
     String csCollation = toCaseSensitive(column.getCollation());
-    Loggers.get(getClass()).info("Changing collation of column [{}.{}] from {} to {}", column.getTable(), column.getColumn(), column.getCollation(), csCollation);
 
     String nullability = column.isNullable() ? "NULL" : "NOT NULL";
     String size = column.getSize() >= 0 ? String.valueOf(column.getSize()) : "max";
-    String alter = format("ALTER TABLE %s ALTER COLUMN %s %s(%s) COLLATE %s %s",
+    String alterSql = format("ALTER TABLE %s ALTER COLUMN %s %s(%s) COLLATE %s %s",
       column.getTable(), column.getColumn(), column.getDataType(), size, csCollation, nullability);
-    getSqlExecutor().executeUpdate(connection, alter);
+    LOGGER.info("Changing collation of column [{}.{}] from {} to {} | sql=", column.getTable(), column.getColumn(), column.getCollation(), csCollation, alterSql);
+    getSqlExecutor().executeUpdate(connection, alterSql);
 
     // 4. re-create indices
     for (ColumnIndex index : indices) {

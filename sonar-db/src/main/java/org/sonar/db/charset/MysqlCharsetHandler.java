@@ -27,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
@@ -35,6 +36,7 @@ import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
 
 class MysqlCharsetHandler extends CharsetHandler {
 
+  private static final Logger LOGGER = Loggers.get(MysqlCharsetHandler.class);
   private static final String TYPE_LONGTEXT = "longtext";
 
   protected MysqlCharsetHandler(SqlExecutor selectExecutor) {
@@ -43,12 +45,16 @@ class MysqlCharsetHandler extends CharsetHandler {
 
   @Override
   void handle(Connection connection, boolean enforceUtf8) throws SQLException {
+    logInit(enforceUtf8);
+    checkCollation(connection, enforceUtf8);
+  }
+
+  private void logInit(boolean enforceUtf8) {
     String message = "Verify that database collation is case-sensitive";
     if (enforceUtf8) {
       message = "Verify that database collation is UTF8";
     }
-    Loggers.get(getClass()).info(message);
-    checkCollation(connection, enforceUtf8);
+    LOGGER.info(message);
   }
 
   private void checkCollation(Connection connection, boolean enforceUtf8) throws SQLException {
@@ -75,13 +81,13 @@ class MysqlCharsetHandler extends CharsetHandler {
   private void repairCaseInsensitiveColumn(Connection connection, ColumnDef column)
     throws SQLException {
     String csCollation = toCaseSensitive(column.getCollation());
-    Loggers.get(getClass()).info("Changing collation of column [{}.{}] from {} to {}", column.getTable(), column.getColumn(), column.getCollation(), csCollation);
 
     String nullability = column.isNullable() ? "NULL" : "NOT NULL";
     String type = column.getDataType().equalsIgnoreCase(TYPE_LONGTEXT) ? TYPE_LONGTEXT : format("%s(%d)", column.getDataType(), column.getSize());
-    String alter = format("ALTER TABLE %s MODIFY %s %s CHARACTER SET '%s' COLLATE '%s' %s",
+    String alterSql = format("ALTER TABLE %s MODIFY %s %s CHARACTER SET '%s' COLLATE '%s' %s",
       column.getTable(), column.getColumn(), type, column.getCharset(), csCollation, nullability);
-    getSqlExecutor().executeUpdate(connection, alter);
+    LOGGER.info("Changing collation of column [{}.{}] from {} to {} | sql={}", column.getTable(), column.getColumn(), column.getCollation(), csCollation, alterSql);
+    getSqlExecutor().executeUpdate(connection, alterSql);
   }
 
   @VisibleForTesting
