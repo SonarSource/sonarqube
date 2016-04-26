@@ -47,18 +47,24 @@
   max-width: 100%;
 }
 
-.code-search-box {
-  float: left;
+.code-search {
+  margin-bottom: 10px;
+}
+
+.code-search-with-results + .code-components {
+  display: none;
+}
+
+.code-search .search-box {
   padding-right: 10px;
 }
 
-.code-search-box .note {
-  margin-top: 4px;
-  margin-left: 25px;
+.code-search .search-box .note {
+  vertical-align: middle;
   opacity: 0;
   transition: opacity 0.3s ease;
 }
 
-.code-search-box input.touched ~ .note {
+.code-search .search-box input.touched ~ .note {
   opacity: 1;
 }

@@ -23,13 +23,14 @@ import Component from './Component';
 import ComponentsEmpty from './ComponentsEmpty';
 import ComponentsHeader from './ComponentsHeader';
 
-const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => (
+const Components = ({ rootComponent, baseComponent, components, selected, coverageMetric }) => (
     <table className="data zebra">
       <ComponentsHeader baseComponent={baseComponent}/>
       {baseComponent && (
           <tbody>
             <Component
                 key={baseComponent.key}
+                rootComponent={rootComponent}
                 component={baseComponent}
                 coverageMetric={coverageMetric}/>
             <tr className="blank">
@@ -42,10 +43,12 @@ const Components = ({ baseComponent, components, coverageMetric, onBrowse }) => 
             components.map((component, index, list) => (
                 <Component
                     key={component.key}
+                    rootComponent={rootComponent}
                     component={component}
+                    selected={component === selected}
                     previous={index > 0 ? list[index - 1] : null}
                     coverageMetric={coverageMetric}
-                    onBrowse={onBrowse}/>
+                    canBrowse={true}/>
             ))
         ) : (
             <ComponentsEmpty/>

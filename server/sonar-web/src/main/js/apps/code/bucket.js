@@ -17,27 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { createStore, applyMiddleware, combineReducers } from 'redux';
-import thunk from 'redux-thunk';
-import createLogger from 'redux-logger';
-import { routeReducer } from 'redux-simple-router';
-import { current, bucket } from '../reducers';
+const bucket = {};
+const childrenBucket = {};
+const breadcrumbsBucket = {};
 
-const logger = createLogger({
-  predicate: () => process.env.NODE_ENV !== 'production'
-});
+export function addComponent (component) {
+  bucket[component.key] = component;
+}
 
-const createStoreWithMiddleware = applyMiddleware(
-    thunk,
-    logger
-)(createStore);
+export function getComponent (componentKey) {
+  return bucket[componentKey];
+}
 
-const reducer = combineReducers({
-  routing: routeReducer,
-  current,
-  bucket
-});
+export function addComponentChildren (componentKey, children, total) {
+  childrenBucket[componentKey] = { children, total };
+}
 
-export default function configureStore () {
-  return createStoreWithMiddleware(reducer);
+export function getComponentChildren (componentKey) {
+  return childrenBucket[componentKey];
+}
+
+export function addComponentBreadcrumbs (componentKey, breadcrumbs) {
+  breadcrumbsBucket[componentKey] = breadcrumbs;
+}
+
+export function getComponentBreadcrumbs (componentKey) {
+  return breadcrumbsBucket[componentKey];
 }
