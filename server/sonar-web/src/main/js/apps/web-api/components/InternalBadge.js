@@ -25,7 +25,8 @@ export default function InternalBadge () {
   return (
       <span
           className="badge badge-danger"
-          title={translate('api_documentation.internal_tooltip')}>
+          title={translate('api_documentation.internal_tooltip')}
+          data-toggle="tooltip">
         internal
       </span>
   );

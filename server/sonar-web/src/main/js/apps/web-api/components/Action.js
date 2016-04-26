@@ -25,6 +25,7 @@ import Params from './Params';
 import ResponseExample from './ResponseExample';
 import DeprecatedBadge from './DeprecatedBadge';
 import InternalBadge from './InternalBadge';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 
 export default class Action extends React.Component {
   state = {
@@ -52,31 +53,33 @@ export default class Action extends React.Component {
 
     return (
         <div id={actionKey} className="web-api-action">
-          <header className="web-api-action-header">
-            <Link
-                to={{ pathname: '/' + actionKey }}
-                className="spacer-right icon-link"/>
+          <TooltipsContainer>
+            <header className="web-api-action-header">
+              <Link
+                  to={{ pathname: '/' + actionKey }}
+                  className="spacer-right icon-link"/>
 
-            <h3 className="web-api-action-title">
-              {verb}&nbsp;{actionKey}
-            </h3>
+              <h3 className="web-api-action-title">
+                {verb}&nbsp;{actionKey}
+              </h3>
 
-            {action.internal && (
-                <span className="spacer-left">
+              {action.internal && (
+                  <span className="spacer-left">
                   <InternalBadge/>
                 </span>
-            )}
+              )}
 
-            {action.since && (
-                <span className="spacer-left badge">since {action.since}</span>
-            )}
+              {action.since && (
+                  <span className="spacer-left badge">since {action.since}</span>
+              )}
 
-            {action.deprecatedSince && (
-                <span className="spacer-left">
+              {action.deprecatedSince && (
+                  <span className="spacer-left">
                   <DeprecatedBadge since={action.deprecatedSince}/>
                 </span>
-            )}
-          </header>
+              )}
+            </header>
+          </TooltipsContainer>
 
           <div
               className="web-api-action-description markdown"

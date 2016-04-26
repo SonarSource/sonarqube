@@ -21,6 +21,7 @@ import _ from 'underscore';
 import React from 'react';
 
 import Checkbox from '../../../components/shared/checkbox';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 
 export default class Search extends React.Component {
@@ -56,31 +57,43 @@ export default class Search extends React.Component {
                 onChange={this.handleSearch.bind(this)}/>
           </div>
 
-          <div className="big-spacer-top">
-            <Checkbox
-                initiallyChecked={showInternal}
-                onCheck={onToggleInternal}/>
-            {' '}
-            <span
-                style={{ cursor: 'pointer' }}
-                title={translate('api_documentation.internal_tooltip')}
-                onClick={onToggleInternal}>
-              Show Internal API
-            </span>
-          </div>
+          <TooltipsContainer>
+            <div className="big-spacer-top">
+              <Checkbox
+                  initiallyChecked={showInternal}
+                  onCheck={onToggleInternal}/>
+              {' '}
+              <span
+                  style={{ cursor: 'pointer' }}
+                  title={translate('api_documentation.internal_tooltip')}
+                  onClick={onToggleInternal}>
+                Show Internal API
+              </span>
+              <i
+                  className="icon-help spacer-left"
+                  title={translate('api_documentation.internal_tooltip')}
+                  data-toggle="tooltip"/>
+            </div>
+          </TooltipsContainer>
 
-          <div className="spacer-top">
-            <Checkbox
-                initiallyChecked={showOnlyDeprecated}
-                onCheck={onToggleDeprecated}/>
-            {' '}
-            <span
-                style={{ cursor: 'pointer' }}
-                title={translate('api_documentation.deprecation_tooltip')}
-                onClick={onToggleDeprecated}>
-              Show Only Deprecated API
-            </span>
-          </div>
+          <TooltipsContainer>
+            <div className="spacer-top">
+              <Checkbox
+                  initiallyChecked={showOnlyDeprecated}
+                  onCheck={onToggleDeprecated}/>
+              {' '}
+              <span
+                  style={{ cursor: 'pointer' }}
+                  title={translate('api_documentation.deprecation_tooltip')}
+                  onClick={onToggleDeprecated}>
+                Show Only Deprecated API
+              </span>
+              <i
+                  className="icon-help spacer-left"
+                  title={translate('api_documentation.deprecation_tooltip')}
+                  data-toggle="tooltip"/>
+            </div>
+          </TooltipsContainer>
         </div>
     );
   }

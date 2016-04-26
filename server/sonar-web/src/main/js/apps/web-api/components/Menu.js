@@ -22,6 +22,7 @@ import { Link } from 'react-router';
 import classNames from 'classnames';
 
 import InternalBadge from './InternalBadge';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { getActionKey } from '../utils';
 
 export default function Menu ({ domains, showInternal, showOnlyDeprecated, searchQuery, splat }) {
@@ -44,24 +45,26 @@ export default function Menu ({ domains, showInternal, showOnlyDeprecated, searc
 
   return (
       <div className="api-documentation-results panel">
-        <div className="list-group">
-          {filteredDomains.map(domain => (
-              <Link
-                  key={domain.path}
-                  className={classNames('list-group-item', { 'active': splat.indexOf(domain.path) === 0 })}
-                  to={domain.path}>
-                <h3 className="list-group-item-heading">
-                  {domain.path}
-                  {domain.internal && (
-                      <InternalBadge/>
-                  )}
-                </h3>
-                <p className="list-group-item-text">
-                  {domain.description}
-                </p>
-              </Link>
-          ))}
-        </div>
+        <TooltipsContainer>
+          <div className="list-group">
+            {filteredDomains.map(domain => (
+                <Link
+                    key={domain.path}
+                    className={classNames('list-group-item', { 'active': splat.indexOf(domain.path) === 0 })}
+                    to={domain.path}>
+                  <h3 className="list-group-item-heading">
+                    {domain.path}
+                    {domain.internal && (
+                        <InternalBadge/>
+                    )}
+                  </h3>
+                  <p className="list-group-item-text">
+                    {domain.description}
+                  </p>
+                </Link>
+            ))}
+          </div>
+        </TooltipsContainer>
       </div>
   );
 }
