@@ -57,8 +57,6 @@ public class SqlExecutorTest {
     dbTester.executeInsert(USERS_DB_TABLE, ImmutableMap.of(LOGIN_DB_COLUMN, "login1", NAME_DB_COLUMN, "name one"));
     dbTester.executeInsert(USERS_DB_TABLE, ImmutableMap.of(LOGIN_DB_COLUMN, "login2", NAME_DB_COLUMN, "name two"));
 
-    dbTester.commit();
-
     try (Connection connection = dbTester.openConnection()) {
       List<String[]> users = underTest.executeSelect(connection, "select " + LOGIN_DB_COLUMN + ", " + NAME_DB_COLUMN + " from users order by id", new SqlExecutor.StringsConverter(
         2));
@@ -73,13 +71,12 @@ public class SqlExecutorTest {
   @Test
   public void executeUpdate_executes_PreparedStatement() throws Exception {
     dbTester.executeInsert(USERS_DB_TABLE, ImmutableMap.of(LOGIN_DB_COLUMN, "the_login", NAME_DB_COLUMN, "the name"));
-    dbTester.commit();
 
     try (Connection connection = dbTester.openConnection()) {
       underTest.executeUpdate(connection, "update users set " + NAME_DB_COLUMN + "='new name' where " + LOGIN_DB_COLUMN + "='the_login'");
-      connection.commit();
     }
     Map<String, Object> row = dbTester.selectFirst("select " + NAME_DB_COLUMN + " from users where " + LOGIN_DB_COLUMN + "='the_login'");
+    assertThat(row).isNotEmpty();
     assertThat(row.get("NAME")).isEqualTo("new name");
   }
 

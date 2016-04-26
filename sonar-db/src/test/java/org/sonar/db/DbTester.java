@@ -29,6 +29,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -66,6 +67,7 @@ import static org.junit.Assert.fail;
  */
 public class DbTester extends ExternalResource {
 
+  private static final Joiner COMMA_JOINER = Joiner.on(", ");
   private final System2 system2;
   private final TestDb db;
   private DbClient client;
@@ -129,9 +131,9 @@ public class DbTester extends ExternalResource {
     return client;
   }
 
-  public void executeUpdateSql(String sql) {
+  public void executeUpdateSql(String sql, String... params) {
     try (Connection connection = db.getDatabase().getDataSource().getConnection()) {
-      new QueryRunner().update(connection, sql);
+      new QueryRunner().update(connection, sql, params);
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + sql, e);
     }
@@ -141,16 +143,17 @@ public class DbTester extends ExternalResource {
    * Very simple helper method to insert some data into a table.
    * It's the responsibility of the caller to convert column values to string.
    */
-  public void executeInsert(String table, Map<String, String> valuesByColumn){
+  public void executeInsert(String table, Map<String, String> valuesByColumn) {
     if (valuesByColumn.isEmpty()) {
       throw new IllegalArgumentException("Values cannot be empty");
     }
-    String sql = "insert into " + table.toLowerCase() + " (" +
-      Joiner.on(", ").join(valuesByColumn.keySet()) +
-      ") values ('" +
-      Joiner.on("', '").join(valuesByColumn.values()) +
-      "')";
-    executeUpdateSql(sql);
+
+    String sql = "insert into " + table.toLowerCase(Locale.ENGLISH) + " (" +
+      COMMA_JOINER.join(valuesByColumn.keySet()) +
+      ") values (" +
+      COMMA_JOINER.join(Collections.nCopies(valuesByColumn.size(), '?')) +
+      ")";
+    executeUpdateSql(sql, valuesByColumn.values().toArray(new String[valuesByColumn.size()]));
   }
 
   /**
