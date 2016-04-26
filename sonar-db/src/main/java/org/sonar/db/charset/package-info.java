@@ -17,33 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.platformlevel;
+@ParametersAreNonnullByDefault
+package org.sonar.db.charset;
 
-import org.sonar.server.platform.ws.DbMigrationStatusAction;
-import org.sonar.server.platform.ws.MigrateDbAction;
-import org.sonar.server.platform.ws.StatusAction;
-import org.sonar.server.platform.ws.SystemWs;
-import org.sonar.server.ws.WebServiceEngine;
-import org.sonar.server.ws.WebServicesWs;
+import javax.annotation.ParametersAreNonnullByDefault;
 
-public class PlatformLevelSafeMode extends PlatformLevel {
-  public PlatformLevelSafeMode(PlatformLevel parent) {
-    super("Safemode", parent);
-  }
-
-  @Override
-  protected void configureLevel() {
-    add(
-      // Server WS
-      StatusAction.class,
-      MigrateDbAction.class,
-      DbMigrationStatusAction.class,
-      SystemWs.class,
-
-      // Listing WS
-      WebServicesWs.class,
-
-      // WS engine
-      WebServiceEngine.class);
-  }
-}

@@ -35,10 +35,6 @@ public interface MeasureRepository {
    * This method searches for Measure which are specific to the Component and not associated to a rule or a
    * characteristic.
    * </p>
-   * <strong>
-   * It will never return a Measure with a non {@code null} {@link Measure#getRuleId()}
-   * or {@link Measure#getCharacteristicId()}
-   * </strong>
    *
    * @throws NullPointerException if either argument is {@code null}
    */

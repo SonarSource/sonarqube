@@ -17,33 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.platformlevel;
+package org.sonar.server.db;
 
-import org.sonar.server.platform.ws.DbMigrationStatusAction;
-import org.sonar.server.platform.ws.MigrateDbAction;
-import org.sonar.server.platform.ws.StatusAction;
-import org.sonar.server.platform.ws.SystemWs;
-import org.sonar.server.ws.WebServiceEngine;
-import org.sonar.server.ws.WebServicesWs;
+import org.sonar.api.platform.ServerUpgradeStatus;
+import org.sonar.db.charset.DatabaseCharsetChecker;
 
-public class PlatformLevelSafeMode extends PlatformLevel {
-  public PlatformLevelSafeMode(PlatformLevel parent) {
-    super("Safemode", parent);
+/**
+ * Checks charset of all database columns when at least one db migration has been executed. This requires
+ * to be defined in platform level 3 ({@link org.sonar.server.platform.platformlevel.PlatformLevel3}).
+ */
+public class CheckDatabaseCharsetAfterMigration extends CheckDatabaseCharsetAtStartup {
+
+  public CheckDatabaseCharsetAfterMigration(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
+    super(upgradeStatus, charsetChecker);
   }
 
   @Override
-  protected void configureLevel() {
-    add(
-      // Server WS
-      StatusAction.class,
-      MigrateDbAction.class,
-      DbMigrationStatusAction.class,
-      SystemWs.class,
-
-      // Listing WS
-      WebServicesWs.class,
-
-      // WS engine
-      WebServiceEngine.class);
+  public void start() {
+    if (getUpgradeStatus().isFreshInstall() || getUpgradeStatus().isUpgraded()) {
+      check();
+    }
   }
 }
