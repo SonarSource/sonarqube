@@ -23,6 +23,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static java.util.Arrays.asList;
 import static org.sonar.db.component.SnapshotTesting.createForComponent;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForDeveloper;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
@@ -75,6 +76,11 @@ public class ComponentDbTester {
     dbClient.componentDao().insert(dbSession, component);
     db.commit();
     return component;
+  }
+
+  public void insertComponents(ComponentDto... components) {
+    dbClient.componentDao().insert(dbSession, asList(components));
+    db.commit();
   }
 
   public void indexProjects() {

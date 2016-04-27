@@ -354,6 +354,10 @@ public class PersistComponentsStep implements ComputationStep {
       existingComponent.setParentProjectId(newComponent.parentProjectId());
       modified = true;
     }
+    if (!ObjectUtils.equals(existingComponent.getCopyResourceId(), newComponent.getCopyResourceId())) {
+      existingComponent.setCopyResourceId(newComponent.getCopyResourceId());
+      modified = true;
+    }
     if (!existingComponent.isEnabled()) {
       // If component was previously removed, re-enable it
       existingComponent.setEnabled(true);
@@ -384,7 +388,7 @@ public class PersistComponentsStep implements ComputationStep {
     @Override
     public boolean apply(@Nonnull PathAwareVisitor.PathElement<ComponentDtoHolder> input) {
       return input.getComponent().getType() == Component.Type.MODULE
-          || input.getComponent().getType() == Component.Type.PROJECT;
+        || input.getComponent().getType() == Component.Type.PROJECT;
     }
   }
 
