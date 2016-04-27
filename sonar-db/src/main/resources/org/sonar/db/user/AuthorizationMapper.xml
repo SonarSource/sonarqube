@@ -214,12 +214,10 @@
     WHERE
       gr.resource_id=#{componentId}
       AND gr.role=#{role}
-      AND (gr.group_id IS NULL OR gr.group_id IN (
-        select gu.group_id from groups_users gu where gu.user_id in
+      AND gu.user_id in
         <foreach collection="userIds" open="(" close=")" item="id" separator=",">
           #{id}
         </foreach>
-      ))
     UNION
     SELECT ur.user_id
     FROM user_roles ur

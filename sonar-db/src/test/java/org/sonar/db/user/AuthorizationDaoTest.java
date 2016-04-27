@@ -290,6 +290,10 @@ public class AuthorizationDaoTest {
       // Only 100 and 101 has 'user' role on project
       newHashSet(100L, 101L, 102L), "user", PROJECT_ID)).containsOnly(100L, 101L);
 
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(),
+      // Only 100 and 101 has 'user' role on project
+      newHashSet(100L), "user", PROJECT_ID)).containsOnly(100L);
+
     // user does not have the role "admin"
     assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(), newHashSet(100L), "admin", PROJECT_ID)).isEmpty();
 
@@ -304,6 +308,9 @@ public class AuthorizationDaoTest {
     assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(),
       // Only 100 and 101 has 'user' role on project
       newHashSet(100L, 101L, 102L), "user", PROJECT_ID)).containsOnly(100L, 101L);
+
+    assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(),
+      newHashSet(100L), "user", PROJECT_ID)).containsOnly(100L);
 
     // user does not have the role "admin"
     assertThat(authorization.keepAuthorizedUsersForRoleAndProject(dbTester.getSession(), newHashSet(100L), "admin", PROJECT_ID)).isEmpty();
