@@ -225,7 +225,7 @@ public class FileIndexer {
 
     @Override
     public FileVisitResult visitFileFailed(Path file, IOException exc) throws IOException {
-      if (exc != null && exc instanceof FileSystemLoopException) {
+      if (exc instanceof FileSystemLoopException) {
         LOG.warn("Not indexing due to symlink loop: {}", file.toFile());
         return FileVisitResult.CONTINUE;
       }
