@@ -45,6 +45,7 @@ public class DurationTest {
     assertThat(Duration.create(ONE_HOUR_IN_MINUTES).encode(HOURS_IN_DAY)).isEqualTo("1h");
     assertThat(Duration.create(HOURS_IN_DAY * ONE_HOUR_IN_MINUTES).encode(HOURS_IN_DAY)).isEqualTo("1d");
     assertThat(Duration.create(ONE_MINUTE).encode(HOURS_IN_DAY)).isEqualTo("1min");
+    assertThat(Duration.create(0).encode(HOURS_IN_DAY)).isEqualTo("0min");
   }
 
   @Test
@@ -54,6 +55,7 @@ public class DurationTest {
     assertThat(Duration.decode("23h", HOURS_IN_DAY)).isEqualTo(Duration.create(23 * ONE_HOUR_IN_MINUTES));
     assertThat(Duration.decode("15d", HOURS_IN_DAY)).isEqualTo(Duration.create(15 * ONE_DAY_IN_MINUTES));
     assertThat(Duration.decode("42min", HOURS_IN_DAY)).isEqualTo(Duration.create(42 * ONE_MINUTE));
+    assertThat(Duration.decode("0min", HOURS_IN_DAY)).isEqualTo(Duration.create(0));
 
     assertThat(Duration.decode("25h61min", HOURS_IN_DAY)).isEqualTo(Duration.create(25 * ONE_HOUR_IN_MINUTES + 61));
   }

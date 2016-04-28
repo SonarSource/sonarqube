@@ -121,7 +121,7 @@ public class Duration implements Serializable {
       stringBuilder.append(minutes);
       stringBuilder.append(MINUTE);
     }
-    return stringBuilder.toString();
+    return stringBuilder.length() == 0 ? ("0" + MINUTE) : stringBuilder.toString();
   }
 
   /**
