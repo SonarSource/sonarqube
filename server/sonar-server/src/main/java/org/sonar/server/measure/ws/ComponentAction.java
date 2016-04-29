@@ -148,7 +148,7 @@ public class ComponentAction implements MeasuresWsAction {
 
   @CheckForNull
   private Long searchDeveloperId(DbSession dbSession, ComponentWsRequest request) {
-    if ((request.getDeveloperId() == null && request.getDeveloperKey() == null)) {
+    if (request.getDeveloperId() == null && request.getDeveloperKey() == null) {
       return null;
     }
 

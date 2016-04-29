@@ -118,7 +118,7 @@ public class QualityGateConditionDao implements Dao {
     mapper(session).deleteConditionsWithInvalidMetrics();
   }
 
-  private QualityGateConditionMapper mapper(SqlSession session) {
+  private static QualityGateConditionMapper mapper(SqlSession session) {
     return session.getMapper(QualityGateConditionMapper.class);
   }
 }

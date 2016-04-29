@@ -21,10 +21,10 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.base.Function;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Ordering;
 import com.google.common.collect.Table;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -59,8 +59,8 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
 
 class ComponentTreeSort {
 
-  private static final Set<ValueType> NUMERIC_VALUE_TYPES = ImmutableSet.of(BOOL, FLOAT, INT, MILLISEC, WORK_DUR, PERCENT, RATING);
-  private static final Set<ValueType> TEXTUAL_VALUE_TYPES = ImmutableSet.of(DATA, DISTRIB, LEVEL, STRING);
+  private static final Set<ValueType> NUMERIC_VALUE_TYPES = EnumSet.of(BOOL, FLOAT, INT, MILLISEC, WORK_DUR, PERCENT, RATING);
+  private static final Set<ValueType> TEXTUAL_VALUE_TYPES = EnumSet.of(DATA, DISTRIB, LEVEL, STRING);
 
   private ComponentTreeSort() {
     // static method only
