@@ -37,6 +37,8 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
+import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 
 public class UserDao implements Dao {
 
@@ -177,6 +179,7 @@ public class UserDao implements Dao {
     mapper.deleteUserMeasureFilterFavourites(dto.getId());
     mapper.deleteUserProperties(dto.getId());
     mapper.deleteUserRoles(dto.getId());
+    mapper.deletePropertiesMatchingLogin(asList(DEFAULT_ISSUE_ASSIGNEE), dto.getLogin());
     mapper.deactivateUser(dto.getId(), system2.now());
     dbSession.commit();
     return true;
