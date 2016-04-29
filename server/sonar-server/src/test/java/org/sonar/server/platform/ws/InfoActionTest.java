@@ -24,15 +24,13 @@ import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.Mockito;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.internal.SimpleGetRequest;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.platform.monitoring.Monitor;
 import org.sonar.server.platform.monitoring.ProcessSystemInfoClient;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestResponse;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -46,13 +44,22 @@ public class InfoActionTest {
   Monitor monitor1 = mock(Monitor.class);
   Monitor monitor2 = mock(Monitor.class);
   ProcessSystemInfoClient processSystemInfoClient = mock(ProcessSystemInfoClient.class, Mockito.RETURNS_MOCKS);
-  InfoAction underTest = new InfoAction(userSessionRule, processSystemInfoClient, monitor1, monitor2);
+
+  WsActionTester ws = new WsActionTester(new InfoAction(userSessionRule, processSystemInfoClient, monitor1, monitor2));
+
+  @Test
+  public void test_definition() throws Exception {
+    assertThat(ws.getDef().key()).isEqualTo("info");
+    assertThat(ws.getDef().isInternal()).isTrue();
+    assertThat(ws.getDef().responseExampleAsString()).isNotEmpty();
+    assertThat(ws.getDef().params()).isEmpty();
+  }
 
   @Test(expected = ForbiddenException.class)
   public void should_fail_when_does_not_have_admin_right() {
     userSessionRule.setGlobalPermissions(GlobalPermissions.SCAN_EXECUTION);
 
-    underTest.handle(mock(Request.class), mock(Response.class));
+    ws.newRequest().execute();
   }
 
   @Test
@@ -69,9 +76,8 @@ public class InfoActionTest {
     when(monitor2.name()).thenReturn("Monitor Two");
     when(monitor2.attributes()).thenReturn(attributes2);
 
-    WsTester.TestResponse response = new WsTester.TestResponse();
-    underTest.handle(new SimpleGetRequest(), response);
+    TestResponse response = ws.newRequest().execute();
     // response does not contain empty "Monitor Three"
-    assertThat(response.outputAsString()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}}");
+    assertThat(response.getInput()).isEqualTo("{\"Monitor One\":{\"foo\":\"bar\"},\"Monitor Two\":{\"one\":1,\"two\":2}}");
   }
 }
