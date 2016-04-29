@@ -82,6 +82,7 @@ import org.sonar.db.version.v55.FeedActiveRulesLongDateColumns;
 import org.sonar.db.version.v55.FeedIssueTypes;
 import org.sonar.db.version.v55.FeedRulesLongDateColumns;
 import org.sonar.db.version.v55.FeedRulesTypes;
+import org.sonar.db.version.v56.RemoveDefaultAssigneePropertiesOnDisabledUsers;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -161,7 +162,10 @@ public class MigrationStepModule extends Module {
       FeedRulesTypes.class,
       DeleteMeasuresWithRuleId.class,
       DeleteManualIssues.class,
-      DeleteManualRules.class
+      DeleteManualRules.class,
+
+      // 5.6
+      RemoveDefaultAssigneePropertiesOnDisabledUsers.class
     );
   }
 }
