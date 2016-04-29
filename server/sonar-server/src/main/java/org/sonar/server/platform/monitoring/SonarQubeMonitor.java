@@ -19,30 +19,45 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Function;
+import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import java.io.File;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
+import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.process.ProcessProperties;
+import org.sonar.server.authentication.IdentityProviderRepository;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
+import static com.google.common.collect.FluentIterable.from;
+
 public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonitorMBean {
+
+  private static final Joiner COMMA_JOINER = Joiner.on(", ");
 
   static final String BRANDING_FILE_PATH = "web/WEB-INF/classes/com/sonarsource/branding";
 
   private final Settings settings;
   private final SecurityRealmFactory securityRealmFactory;
+  private final IdentityProviderRepository identityProviderRepository;
   private final Server server;
   private final ServerLogging serverLogging;
 
   public SonarQubeMonitor(Settings settings, SecurityRealmFactory securityRealmFactory,
-    Server server, ServerLogging serverLogging) {
+    IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging) {
     this.settings = settings;
     this.securityRealmFactory = securityRealmFactory;
+    this.identityProviderRepository = identityProviderRepository;
     this.server = server;
     this.serverLogging = serverLogging;
   }
@@ -62,27 +77,40 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     return serverLogging.getRootLoggerLevel().name();
   }
 
-  public String getExternalUserAuthentication() {
+  @CheckForNull
+  private String getExternalUserAuthentication() {
     SecurityRealm realm = securityRealmFactory.getRealm();
-    if (realm == null) {
-      return "";
-    }
-    return realm.getName();
+    return realm == null ? null : realm.getName();
   }
 
-  public boolean getAutomaticUserCreation() {
+  private List<String> getEnabledIdentityProviders() {
+    return from(identityProviderRepository.getAllEnabledAndSorted())
+      .filter(MatchEnabled.INSTANCE)
+      .transform(IdentityProviderToName.INSTANCE)
+      .toList();
+  }
+
+  private List<String> getAllowsToSignUpEnabledIdentityProviders() {
+    return from(identityProviderRepository.getAllEnabledAndSorted())
+      .filter(MatchEnabled.INSTANCE)
+      .filter(MatchAllowsToSignUp.INSTANCE)
+      .transform(IdentityProviderToName.INSTANCE)
+      .toList();
+  }
+
+  private boolean getAutomaticUserCreation() {
     return settings.getBoolean(CoreProperties.CORE_AUTHENTICATOR_CREATE_USERS);
   }
 
-  public boolean getAllowUsersToSignUp() {
+  private boolean getAllowUsersToSignUp() {
     return settings.getBoolean(CoreProperties.CORE_ALLOW_USERS_TO_SIGNUP_PROPERTY);
   }
 
-  public boolean getForceAuthentication() {
+  private boolean getForceAuthentication() {
     return settings.getBoolean(CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY);
   }
 
-  public boolean isOfficialDistribution() {
+  private boolean isOfficialDistribution() {
     // the dependency com.sonarsource:sonarsource-branding is shaded to webapp
     // during release (see sonar-web pom)
     File brandingFile = new File(server.getRootDir(), BRANDING_FILE_PATH);
@@ -100,7 +128,9 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     Map<String, Object> attributes = new LinkedHashMap<>();
     attributes.put("Server ID", getServerId());
     attributes.put("Version", getVersion());
-    attributes.put("External User Authentication", getExternalUserAuthentication());
+    addIfNotNull("External User Authentication", getExternalUserAuthentication(), attributes);
+    addIfNotEmpty("Accepted external identity providers", getEnabledIdentityProviders(), attributes);
+    addIfNotEmpty("External identity providers whose users are allowed to sign themselves up", getAllowsToSignUpEnabledIdentityProviders(), attributes);
     attributes.put("Automatic User Creation", getAutomaticUserCreation());
     attributes.put("Allow Users to Sign Up", getAllowUsersToSignUp());
     attributes.put("Force authentication", getForceAuthentication());
@@ -111,6 +141,44 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     attributes.put("Logs Dir", settings.getString(ProcessProperties.PATH_LOGS));
     attributes.put("Logs Level", getLogLevel());
     return attributes;
+  }
 
+  private static void addIfNotNull(String key, @Nullable String value, Map<String, Object> attributes) {
+    if (value != null) {
+      attributes.put(key, value);
+    }
+  }
+
+  private static void addIfNotEmpty(String key, List<String> values, Map<String, Object> attributes) {
+    if (!values.isEmpty()) {
+      attributes.put(key, COMMA_JOINER.join(values));
+    }
+  }
+
+  private enum IdentityProviderToName implements Function<IdentityProvider, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull IdentityProvider input) {
+      return input.getName();
+    }
+  }
+
+  private enum MatchEnabled implements Predicate<IdentityProvider> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull IdentityProvider input) {
+      return input.isEnabled();
+    }
+  }
+
+  private enum MatchAllowsToSignUp implements Predicate<IdentityProvider> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nonnull IdentityProvider input) {
+      return input.allowsUsersToSignUp();
+    }
   }
 }
