@@ -48,11 +48,18 @@ class SonarAuthorizer
         )
       end
     else
+      compacted_group_ids=group_ids.compact
+      gr_page_count=(compacted_group_ids.size/page_size)
+      gr_page_count+=1 if (compacted_group_ids.size % page_size)>0
+
       page_count.times do |page_index|
         page_rids=compacted_resource_ids[page_index*page_size...(page_index+1)*page_size]
-        group_roles.concat(
-          ActiveRecord::Base.connection.execute("SELECT resource_id FROM group_roles WHERE role='#{sanitized_role}' and (group_id is null or group_id in(#{group_ids.join(',')})) and resource_id in (#{page_rids.join(',')})")
-        )
+        gr_page_count.times do |gr_page_index|
+          page_grids=compacted_group_ids[gr_page_index*page_size...(gr_page_index+1)*page_size]
+          group_roles.concat(
+            ActiveRecord::Base.connection.execute("SELECT resource_id FROM group_roles WHERE role='#{sanitized_role}' and (group_id is null or group_id in(#{page_grids.join(',')})) and resource_id in (#{page_rids.join(',')})")
+          )
+        end
       end
     end
 
@@ -90,7 +97,18 @@ class SonarAuthorizer
       # Some databases do not support empty IN
       global_group_roles=GroupRole.all(:select => 'role', :conditions => ["resource_id is null and group_id is null"]).map{|gr| gr.role.to_sym}
     else
-      global_group_roles=GroupRole.all(:select => 'role', :conditions => ["resource_id is null and (group_id is null or group_id in(?))", group_ids]).map{|gr| gr.role.to_sym}
+      # Oracle is limited to 1000 elements in clause "IN"
+      compacted_group_ids=group_ids.compact
+      page_size=999
+      page_count=(compacted_group_ids.size/page_size)
+      page_count+=1 if (compacted_group_ids.size % page_size)>0
+      global_group_roles=[]
+      page_count.times do |page_index|
+        page_ids=compacted_group_ids[page_index*page_size...(page_index+1)*page_size]
+        global_group_roles.concat(
+          GroupRole.all(:select => 'role', :conditions => ["resource_id is null and (group_id is null or group_id in(?))", page_ids]).map{|gr| gr.role.to_sym}
+        )
+      end
     end
     global_user_roles=user.user_roles.select{|ur| ur.resource_id.nil?}.map{|ur| ur.role.to_sym}
 
