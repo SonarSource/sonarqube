@@ -112,7 +112,7 @@
     <if test="query.sortField != null">
       ORDER BY
       <if test="query.sortField == 'created_at'">
-        created_at
+        s.created_at
       </if>
       <if test="query.sortOrder == 'asc'">
         asc
