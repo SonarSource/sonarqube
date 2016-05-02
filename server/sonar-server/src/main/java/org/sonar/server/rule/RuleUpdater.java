@@ -19,15 +19,18 @@
  */
 package org.sonar.server.rule;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.base.Strings;
-import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.sonar.api.rule.RuleStatus;
@@ -38,13 +41,16 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
+import org.sonar.db.qualityprofile.ActiveRuleDtoFunctions.ActiveRuleDtoToId;
 import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.db.qualityprofile.ActiveRuleParamDtoFunctions.ActiveRuleDtoParamToKey;
 
 @ServerSide
 public class RuleUpdater {
@@ -238,22 +244,25 @@ public class RuleUpdater {
       List<String> paramKeys = newArrayList();
 
       // Load active rules and its parameters in cache
-      Multimap<RuleDto, ActiveRuleDto> activeRules = ArrayListMultimap.create();
-      Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams = ArrayListMultimap.create();
-      for (ActiveRuleDto activeRuleDto : dbClient.activeRuleDao().selectByRule(dbSession, customRule)) {
-        activeRules.put(customRule, activeRuleDto);
-        for (ActiveRuleParamDto activeRuleParamDto : dbClient.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId())) {
-          activeRuleParams.put(activeRuleDto, activeRuleParamDto);
-        }
-      }
-
+      Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParamsByActiveRule = getActiveRuleParamsByActiveRule(dbSession, customRule);
       // Browse custom rule parameters to create, update or delete them
-      deleteOrUpdateParameters(dbSession, update, customRule, paramKeys, activeRules, activeRuleParams);
+      deleteOrUpdateParameters(dbSession, update, customRule, paramKeys, activeRuleParamsByActiveRule);
     }
   }
 
+  private Multimap<ActiveRuleDto, ActiveRuleParamDto> getActiveRuleParamsByActiveRule(DbSession dbSession, RuleDto customRule) {
+    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRule(dbSession, customRule);
+    Map<Integer, ActiveRuleDto> activeRuleById = from(activeRuleDtos).uniqueIndex(ActiveRuleDtoToId.INSTANCE);
+    List<Integer> activeRuleIds = from(activeRuleDtos)
+      .transform(ActiveRuleDtoToId.INSTANCE)
+      .toList();
+    List<ActiveRuleParamDto> activeRuleParamDtos = dbClient.activeRuleDao().selectParamsByActiveRuleIds(dbSession, activeRuleIds);
+    return from(activeRuleParamDtos)
+      .index(new ActiveRuleParamToActiveRule(activeRuleById));
+  }
+
   private void deleteOrUpdateParameters(DbSession dbSession, RuleUpdate update, RuleDto customRule, List<String> paramKeys,
-    Multimap<RuleDto, ActiveRuleDto> activeRules, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams) {
+    Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParamsByActiveRule) {
     for (RuleParamDto ruleParamDto : dbClient.ruleDao().selectRuleParamsByRuleKey(dbSession, update.getRuleKey())) {
       String key = ruleParamDto.getName();
       String value = Strings.emptyToNull(update.parameter(key));
@@ -264,26 +273,76 @@ public class RuleUpdater {
 
       if (value != null) {
         // Update linked active rule params or create new one
-        for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
-          for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
-            if (activeRuleParamDto.getKey().equals(key)) {
-              dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(value));
-            } else {
-              dbClient.activeRuleDao().insertParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(ruleParamDto).setValue(value));
-            }
-          }
-        }
+        from(activeRuleParamsByActiveRule.keySet())
+          .filter(new UpdateOrInsertActiveRuleParams(dbSession, dbClient, ruleParamDto, activeRuleParamsByActiveRule))
+          .toList();
       } else {
         // Delete linked active rule params
-        for (ActiveRuleDto activeRuleDto : activeRules.get(customRule)) {
-          for (ActiveRuleParamDto activeRuleParamDto : activeRuleParams.get(activeRuleDto)) {
-            if (activeRuleParamDto.getKey().equals(key)) {
-              dbClient.activeRuleDao().deleteParam(dbSession, activeRuleDto, activeRuleParamDto);
-            }
-          }
-        }
+        from(activeRuleParamsByActiveRule.values())
+          .filter(new DeleteActiveRuleParams(dbSession, dbClient, key))
+          .toList();
       }
       paramKeys.add(key);
+    }
+  }
+
+  private static class ActiveRuleParamToActiveRule implements Function<ActiveRuleParamDto, ActiveRuleDto> {
+    private final Map<Integer, ActiveRuleDto> activeRuleById;
+
+    private ActiveRuleParamToActiveRule(Map<Integer, ActiveRuleDto> activeRuleById) {
+      this.activeRuleById = activeRuleById;
+    }
+
+    @Override
+    public ActiveRuleDto apply(@Nonnull ActiveRuleParamDto input) {
+      return activeRuleById.get(input.getActiveRuleId());
+    }
+  }
+
+  private static class UpdateOrInsertActiveRuleParams implements Predicate<ActiveRuleDto> {
+    private final DbSession dbSession;
+    private final DbClient dbClient;
+    private final RuleParamDto ruleParamDto;
+    private final Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams;
+
+    private UpdateOrInsertActiveRuleParams(DbSession dbSession, DbClient dbClient, RuleParamDto ruleParamDto, Multimap<ActiveRuleDto, ActiveRuleParamDto> activeRuleParams) {
+      this.dbSession = dbSession;
+      this.dbClient = dbClient;
+      this.ruleParamDto = ruleParamDto;
+      this.activeRuleParams = activeRuleParams;
+    }
+
+    @Override
+    public boolean apply(@Nonnull ActiveRuleDto activeRuleDto) {
+      Map<String, ActiveRuleParamDto> activeRuleParamByKey = from(activeRuleParams.get(activeRuleDto))
+        .uniqueIndex(ActiveRuleDtoParamToKey.INSTANCE);
+      ActiveRuleParamDto activeRuleParamDto = activeRuleParamByKey.get(ruleParamDto.getName());
+      if (activeRuleParamDto != null) {
+        dbClient.activeRuleDao().updateParam(dbSession, activeRuleDto, activeRuleParamDto.setValue(ruleParamDto.getDefaultValue()));
+      } else {
+        dbClient.activeRuleDao().insertParam(dbSession, activeRuleDto, ActiveRuleParamDto.createFor(ruleParamDto).setValue(ruleParamDto.getDefaultValue()));
+      }
+      return true;
+    }
+  }
+
+  private static class DeleteActiveRuleParams implements Predicate<ActiveRuleParamDto> {
+    private final DbSession dbSession;
+    private final DbClient dbClient;
+    private final String key;
+
+    public DeleteActiveRuleParams(DbSession dbSession, DbClient dbClient, String key) {
+      this.dbSession = dbSession;
+      this.dbClient = dbClient;
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nonnull ActiveRuleParamDto activeRuleParamDto) {
+      if (activeRuleParamDto.getKey().equals(key)) {
+        dbClient.activeRuleDao().deleteParamById(dbSession, activeRuleParamDto.getId());
+      }
+      return true;
     }
   }
 
@@ -292,6 +351,7 @@ public class RuleUpdater {
    */
   private static class Context {
     private RuleDto rule;
+
   }
 
   private void update(DbSession session, RuleDto rule) {

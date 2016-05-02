@@ -471,8 +471,7 @@ public class RuleUpdaterMediumTest {
     // Verify active rule parameters has been updated
     List<ActiveRuleParamDto> activeRuleParams = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
 
-    // FIXME why 4 parameters are returned ??? (This issue already exists in 5.4)
-    // assertThat(activeRuleParams).hasSize(2);
+    assertThat(activeRuleParams).hasSize(2);
     Map<String, ActiveRuleParamDto> activeRuleParamsByKey = ActiveRuleParamDto.groupByKey(activeRuleParams);
     assertThat(activeRuleParamsByKey.get("regex").getValue()).isEqualTo("b.*");
     assertThat(activeRuleParamsByKey.get("message").getValue()).isEqualTo("a message");
