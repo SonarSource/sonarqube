@@ -46,6 +46,15 @@ class Api::PropertiesController < Api::ApiController
       properties<<prop if keys.add? prop.key
     end
 
+    # Add default properties for properties that are not overloaded
+    java_facade.getSettings().getDefinitions().getAll().each do |prop_def|
+      key = prop_def.key()
+      if keys.add?(key)
+        default_prop = get_default_property(key)
+        properties<<default_prop if default_prop
+      end
+    end
+
     # apply security
     properties = properties.select{|prop| allowed?(prop.key)}
 
@@ -66,6 +75,10 @@ class Api::PropertiesController < Api::ApiController
     else
       prop = Property.by_key(key)
     end
+
+    # Try to get default value if property is null
+    prop ||= get_default_property(key)
+
     unless prop
       # for backward-compatibility with versions <= 2.14 : keep status 200
       message = "Property not found: #{key}"
@@ -144,6 +157,11 @@ class Api::PropertiesController < Api::ApiController
 
   def allowed?(property_key)
     !property_key.end_with?('.secured') || is_admin?
+  end
+
+  def get_default_property(key)
+    value = java_facade.getSettings().getString(key).to_s
+    Property.new({:prop_key => key, :text_value => value}) if java_facade.getSettings().hasDefaultValue(key)
   end
 
 end
