@@ -19,7 +19,6 @@
  */
 package org.sonar.server.usergroups.ws;
 
-import java.util.Arrays;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService.NewAction;
@@ -30,8 +29,11 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.GroupDto;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Collections.singletonList;
+import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
 import static org.sonar.api.user.UserGroupValidation.GROUP_NAME_MAX_LENGTH;
 import static org.sonar.db.MyBatis.closeQuietly;
 import static org.sonar.server.usergroups.ws.UserGroupUpdater.DESCRIPTION_MAX_LENGTH;
@@ -43,12 +45,14 @@ public class UpdateAction implements UserGroupsWsAction {
 
   private final DbClient dbClient;
   private final UserSession userSession;
+  private final PersistentSettings persistentSettings;
   private final UserGroupUpdater groupUpdater;
 
-  public UpdateAction(DbClient dbClient, UserSession userSession, UserGroupUpdater groupUpdater) {
+  public UpdateAction(DbClient dbClient, UserSession userSession, UserGroupUpdater groupUpdater, PersistentSettings persistentSettings) {
     this.dbClient = dbClient;
     this.groupUpdater = groupUpdater;
     this.userSession = userSession;
+    this.persistentSettings = persistentSettings;
   }
 
   @Override
@@ -85,14 +89,16 @@ public class UpdateAction implements UserGroupsWsAction {
 
     DbSession dbSession = dbClient.openSession(false);
     try {
-      groupUpdater.checkNameIsUnique(name, dbSession);
       GroupDto group = dbClient.groupDao().selectById(dbSession, groupId);
       if (group == null) {
         throw new NotFoundException(String.format("Could not find a user group with id '%s'.", groupId));
       }
+      String oldName = group.getName();
       if (name != null) {
+        groupUpdater.checkNameIsUnique(name, dbSession);
         groupUpdater.validateName(name);
         group.setName(name);
+        updateDefaultGroupIfNeeded(dbSession, oldName, name);
       }
       if (description != null) {
         groupUpdater.validateDescription(description);
@@ -102,10 +108,17 @@ public class UpdateAction implements UserGroupsWsAction {
       dbSession.commit();
 
       JsonWriter json = response.newJsonWriter().beginObject();
-      groupUpdater.writeGroup(json, group, dbClient.groupMembershipDao().countUsersByGroups(dbSession, Arrays.asList(groupId)).get(group.getName()));
+      groupUpdater.writeGroup(json, group, dbClient.groupMembershipDao().countUsersByGroups(dbSession, singletonList(groupId)).get(group.getName()));
       json.endObject().close();
     } finally {
       closeQuietly(dbSession);
+    }
+  }
+
+  private void updateDefaultGroupIfNeeded(DbSession dbSession, String oldName, String newName) {
+    String defaultGroupName = persistentSettings.getString(CORE_DEFAULT_GROUP);
+    if (defaultGroupName.equals(oldName)) {
+      persistentSettings.saveProperty(dbSession, CORE_DEFAULT_GROUP, newName);
     }
   }
 }

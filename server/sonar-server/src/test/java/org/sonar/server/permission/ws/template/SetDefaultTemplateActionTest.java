@@ -82,7 +82,7 @@ public class SetDefaultTemplateActionTest {
   @Before
   public void setUp() {
     DbClient dbClient = db.getDbClient();
-    persistentSettings = new PersistentSettings(dbClient.propertiesDao(), new WebServerSettings(new PropertyDefinitions(), new Properties()));
+    persistentSettings = new PersistentSettings(dbClient, new WebServerSettings(new PropertyDefinitions(), new Properties()));
     persistentSettings.saveProperty(DEFAULT_TEMPLATE_PROPERTY, "any-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty(PROJECT), "any-template-uuid");
     persistentSettings.saveProperty(defaultRootQualifierTemplateProperty(VIEW), "any-view-template-uuid");

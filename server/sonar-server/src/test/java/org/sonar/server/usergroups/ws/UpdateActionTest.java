@@ -37,32 +37,39 @@ import org.sonar.db.user.UserGroupDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
+import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 public class UpdateActionTest {
+
+  static final String DEFAULT_GROUP_NAME_KEY = "sonar.defaultGroup";
+  static final String DEFAULT_GROUP_NAME_VALUE = "DEFAULT_GROUP_NAME_VALUE";
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
+  GroupDao groupDao = dbClient.groupDao();
+  UserGroupDao userGroupDao = dbClient.userGroupDao();
 
-  private WsTester ws;
-  private DbSession dbSession;
-  private GroupDao groupDao;
-  private UserGroupDao userGroupDao;
+  PersistentSettings settings = mock(PersistentSettings.class);
+  WsTester ws = new WsTester(new UserGroupsWs(new UpdateAction(dbClient, userSession, new UserGroupUpdater(dbClient), settings)));
 
   @Before
-  public void setUp() {
-    DbClient dbClient = db.getDbClient();
-    dbSession = db.getSession();
-    groupDao = dbClient.groupDao();
-    userGroupDao = dbClient.userGroupDao();
-
-    ws = new WsTester(new UserGroupsWs(new UpdateAction(dbClient, userSession, new UserGroupUpdater(dbClient))));
+  public void setUp() throws Exception {
+    when(settings.getString(DEFAULT_GROUP_NAME_KEY)).thenReturn(DEFAULT_GROUP_NAME_VALUE);
   }
 
   @Test
@@ -120,6 +127,20 @@ public class UpdateActionTest {
         "    \"membersCount\": 0" +
         "  }" +
         "}");
+  }
+
+  @Test
+  public void update_default_group_name_also_update_default_group_property() throws Exception {
+    GroupDto existingGroup = groupDao.insert(dbSession, new GroupDto().setName(DEFAULT_GROUP_NAME_VALUE).setDescription("Default group name"));
+    dbSession.commit();
+
+    loginAsAdmin();
+    newRequest()
+      .setParam("id", existingGroup.getId().toString())
+      .setParam("name", "new-name")
+      .execute();
+
+    verify(settings).saveProperty(any(DbSession.class), eq(DEFAULT_GROUP_NAME_KEY), eq("new-name"));
   }
 
   @Test
@@ -226,4 +247,6 @@ public class UpdateActionTest {
   private void loginAsAdmin() {
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
+
+
 }

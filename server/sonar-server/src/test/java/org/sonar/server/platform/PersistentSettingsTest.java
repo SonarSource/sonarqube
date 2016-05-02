@@ -20,43 +20,37 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
+import java.util.Properties;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentMatcher;
 import org.sonar.api.config.PropertyDefinitions;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.property.PropertyDto;
 
-import java.util.Arrays;
-import java.util.Properties;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class PersistentSettingsTest {
 
-  private PropertiesDao dao;
-  private ServerSettings settings;
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @Before
-  public void init() {
-    dao = mock(PropertiesDao.class);
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
 
-    settings = new WebServerSettings(
-      new PropertyDefinitions(),
-      new Properties());
-  }
+  private PropertiesDao dao = dbClient.propertiesDao();
+  private ServerSettings settings = new WebServerSettings(
+    new PropertyDefinitions(),
+    new Properties());
 
   @Test
   public void load_database_properties_at_startup() {
-    when(dao.selectGlobalProperties()).thenReturn(Arrays.asList(
-      new PropertyDto().setKey("in_db").setValue("bar")
-      ));
+    newGlobalProperty("in_db", "bar");
 
-    PersistentSettings persistentSettings = new PersistentSettings(dao, settings);
+    PersistentSettings persistentSettings = new PersistentSettings(dbClient, settings);
     persistentSettings.start();
 
     assertThat(settings.getString("in_db")).isEqualTo("bar");
@@ -64,42 +58,39 @@ public class PersistentSettingsTest {
 
   @Test
   public void saveProperty() {
-    PersistentSettings persistentSettings = new PersistentSettings(dao, settings);
+    PersistentSettings persistentSettings = new PersistentSettings(dbClient, settings);
     persistentSettings.saveProperty("foo", "bar");
 
     // kept in memory cache and persisted in db
     assertThat(settings.getString("foo")).isEqualTo("bar");
-    verify(dao).insertProperty(argThat(new ArgumentMatcher<PropertyDto>() {
-      @Override
-      public boolean matches(Object o) {
-        PropertyDto dto = (PropertyDto) o;
-        return dto.getKey().equals("foo");
-      }
-    }));
+    verifyGlobalPropertyExists("foo", "bar");
   }
 
   @Test
   public void deleteProperty() {
+    newGlobalProperty("foo", "bar_in_db");
     settings.setProperty("foo", "bar");
     assertThat(settings.hasKey("foo")).isTrue();
 
-    PersistentSettings persistentSettings = new PersistentSettings(dao, settings);
+    PersistentSettings persistentSettings = new PersistentSettings(dbClient, settings);
     persistentSettings.deleteProperty("foo");
 
     assertThat(settings.hasKey("foo")).isFalse();
-    verify(dao).deleteGlobalProperty("foo");
+    verifyGlobalPropertyDoesNotExist("foo");
   }
 
   @Test
   public void deleteProperties() {
+    newGlobalProperty("in_db1", "foo");
+    newGlobalProperty("in_db2", "bar");
     settings.setProperty("foo", "bar");
     assertThat(settings.hasKey("foo")).isTrue();
 
-    PersistentSettings persistentSettings = new PersistentSettings(dao, settings);
+    PersistentSettings persistentSettings = new PersistentSettings(dbClient, settings);
     persistentSettings.deleteProperties();
 
     assertThat(settings.getProperties()).isEmpty();
-    verify(dao).deleteGlobalProperties();
+    assertThat(dao.selectGlobalProperties()).isEmpty();
   }
 
   @Test
@@ -107,7 +98,7 @@ public class PersistentSettingsTest {
     settings.setProperty("foo", "bar");
     assertThat(settings.hasKey("foo")).isTrue();
 
-    PersistentSettings persistentSettings = new PersistentSettings(dao, settings);
+    PersistentSettings persistentSettings = new PersistentSettings(dbClient, settings);
 
     assertThat(persistentSettings.getProperties()).isEqualTo(settings.getProperties());
     assertThat(persistentSettings.getString("foo")).isEqualTo("bar");
@@ -116,12 +107,31 @@ public class PersistentSettingsTest {
 
   @Test
   public void saveProperties() {
-    PersistentSettings persistentSettings = new PersistentSettings(dao, settings);
+    PersistentSettings persistentSettings = new PersistentSettings(dbClient, settings);
     ImmutableMap<String, String> props = ImmutableMap.of("foo", "bar");
     persistentSettings.saveProperties(props);
 
     assertThat(settings.getString("foo")).isEqualTo("bar");
-    verify(dao).insertGlobalProperties(props);
+    verifyGlobalPropertyExists("foo", "bar");
+  }
+
+  private PropertyDto newGlobalProperty(String key, String value) {
+    PropertyDto propertyDto = new PropertyDto().setKey(key).setValue(value);
+    dao.insertProperty(dbSession, propertyDto);
+    dbSession.commit();
+    return propertyDto;
+  }
+
+  private void verifyGlobalPropertyExists(String key, String value){
+    PropertyDto propertyDto = dao.selectGlobalProperty(dbSession, key);
+    assertThat(propertyDto).isNotNull();
+    assertThat(propertyDto.getValue()).isEqualTo(value);
+    assertThat(propertyDto.getUserId()).isNull();
+    assertThat(propertyDto.getResourceId()).isNull();
+  }
+
+  private void verifyGlobalPropertyDoesNotExist(String key){
+    assertThat(dao.selectGlobalProperty(dbSession, key)).isNull();
   }
 
 }
