@@ -20,24 +20,27 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.Maps;
-import org.picocontainer.Startable;
-import org.sonar.api.config.Settings;
-import org.sonar.db.property.PropertiesDao;
-import org.sonar.db.property.PropertyDto;
-
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.picocontainer.Startable;
+import org.sonar.api.config.Settings;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.property.PropertiesDao;
+import org.sonar.db.property.PropertyDto;
 
 /**
  * @since 3.2
  */
 public class PersistentSettings implements Startable {
+  private final DbClient dbClient;
   private final PropertiesDao propertiesDao;
   private final ServerSettings serverSettings;
 
-  public PersistentSettings(PropertiesDao propertiesDao, ServerSettings serverSettings) {
-    this.propertiesDao = propertiesDao;
+  public PersistentSettings(DbClient dbClient, ServerSettings serverSettings) {
+    this.dbClient = dbClient;
+    this.propertiesDao = dbClient.propertiesDao();
     this.serverSettings = serverSettings;
   }
 
@@ -56,8 +59,19 @@ public class PersistentSettings implements Startable {
   }
 
   public PersistentSettings saveProperty(String key, @Nullable String value) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      saveProperty(dbSession, key, value);
+      dbSession.commit();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+    return this;
+  }
+
+  public PersistentSettings saveProperty(DbSession dbSession, String key, @Nullable String value) {
     serverSettings.setProperty(key, value);
-    propertiesDao.insertProperty(new PropertyDto().setKey(key).setValue(value));
+    propertiesDao.insertProperty(dbSession, new PropertyDto().setKey(key).setValue(value));
     return this;
   }
 

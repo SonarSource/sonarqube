@@ -20,6 +20,7 @@
 package org.sonar.server.platform;
 
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.sonar.api.config.Settings;
 
 /**
@@ -49,7 +50,7 @@ public interface ServerSettings {
   /**
    * @see Settings#setProperty(String, String)
    */
-  Settings setProperty(String key, String value);
+  Settings setProperty(String key, @Nullable String value);
 
   /**
    * @see Settings#removeProperty(String)
