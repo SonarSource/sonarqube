@@ -45,6 +45,7 @@ class UsersController < ApplicationController
     cookies.delete :auth_token
     @user=prepare_user
     if @user.save
+      Internal.users_api.index()
       @user.notify_creation_handlers
       flash[:notice] = 'Please log in now.'
       redirect_to home_url
