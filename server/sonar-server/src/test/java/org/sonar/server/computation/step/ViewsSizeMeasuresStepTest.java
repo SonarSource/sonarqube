@@ -62,7 +62,7 @@ public class ViewsSizeMeasuresStepTest {
   private static final int PROJECTVIEW_3_REF = 1241;
   private static final int PROJECTVIEW_4_REF = 1251;
   private static final int PROJECTVIEW_5_REF = 14;
-  private static final Integer NO_FILE_METRIC = null;
+  private static final Integer NO_METRIC = null;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(
@@ -124,9 +124,9 @@ public class ViewsSizeMeasuresStepTest {
     verifyNoMeasure(PROJECTVIEW_5_REF);
     verifyMeasures(SUB_SUBVIEW_1_REF, 3, 3);
     verifyMeasures(SUB_SUBVIEW_2_REF, 3, 0);
-    verifyMeasures(SUB_SUBVIEW_3_REF, NO_FILE_METRIC, 4);
+    verifyMeasures(SUB_SUBVIEW_3_REF, NO_METRIC, NO_METRIC);
     verifyMeasures(SUBVIEW_1_REF, 6, 7);
-    verifyMeasures(SUBVIEW_2_REF, NO_FILE_METRIC, 0);
+    verifyMeasures(SUBVIEW_2_REF, NO_METRIC, NO_METRIC);
     verifyMeasures(ROOT_REF, 11, 12);
   }
 
@@ -157,11 +157,11 @@ public class ViewsSizeMeasuresStepTest {
     verifyMeasures(SUB_SUBVIEW_1_REF, 3, 3,
         entryOf(metric1Key, newMeasureBuilder().create(7)), entryOf(metric2Key, newMeasureBuilder().create(10)));
     verifyMeasures(SUB_SUBVIEW_2_REF, 3, 0);
-    verifyMeasures(SUB_SUBVIEW_3_REF, NO_FILE_METRIC, 4,
+    verifyMeasures(SUB_SUBVIEW_3_REF, NO_METRIC, NO_METRIC,
         entryOf(metric2Key, newMeasureBuilder().create(90)));
     verifyMeasures(SUBVIEW_1_REF, 6, 7,
         entryOf(metric1Key, newMeasureBuilder().create(7)), entryOf(metric2Key, newMeasureBuilder().create(100)));
-    verifyMeasures(SUBVIEW_2_REF, NO_FILE_METRIC, 0);
+    verifyMeasures(SUBVIEW_2_REF, NO_METRIC, NO_METRIC);
     verifyMeasures(ROOT_REF, 11, 12,
         entryOf(metric1Key, newMeasureBuilder().create(10)), entryOf(metric2Key, newMeasureBuilder().create(107)));
   }
@@ -186,9 +186,9 @@ public class ViewsSizeMeasuresStepTest {
     verifyNoMeasure(PROJECTVIEW_5_REF);
     verifyMeasures(SUB_SUBVIEW_1_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(16)));
     verifyMeasures(SUB_SUBVIEW_2_REF, 3, 0);
-    verifyMeasures(SUB_SUBVIEW_3_REF, NO_FILE_METRIC, 4, entryOf(metricKey, newMeasureBuilder().create(3)));
+    verifyMeasures(SUB_SUBVIEW_3_REF, NO_METRIC, NO_METRIC, entryOf(metricKey, newMeasureBuilder().create(3)));
     verifyMeasures(SUBVIEW_1_REF, 6, 7, entryOf(metricKey, newMeasureBuilder().create(19)));
-    verifyMeasures(SUBVIEW_2_REF, NO_FILE_METRIC, 0);
+    verifyMeasures(SUBVIEW_2_REF, NO_METRIC, NO_METRIC);
     verifyMeasures(ROOT_REF, 11, 12, entryOf(metricKey, newMeasureBuilder().create(26)));
   }
 
@@ -202,16 +202,16 @@ public class ViewsSizeMeasuresStepTest {
     verifyMetricAggregation(CLASSES_KEY);
   }
 
-  private void verifyMeasures(int componentRef, @Nullable Integer fileCount, int directoryCount, MeasureRepoEntry... otherMeasures) {
+  private void verifyMeasures(int componentRef, @Nullable Integer fileCount, @Nullable Integer directoryCount, MeasureRepoEntry... otherMeasures) {
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
         .containsOnly(
             concatIntoArray(otherMeasures, createFileAndDirectoryEntries(fileCount, directoryCount)));
   }
 
-  private static MeasureRepoEntry[] createFileAndDirectoryEntries(@Nullable Integer fileCount, int directoryCount) {
+  private static MeasureRepoEntry[] createFileAndDirectoryEntries(@Nullable Integer fileCount, @Nullable Integer directoryCount) {
     return new MeasureRepoEntry[] {
       fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)),
-      entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount))
+      directoryCount == null ? null : entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount))
     };
   }
 

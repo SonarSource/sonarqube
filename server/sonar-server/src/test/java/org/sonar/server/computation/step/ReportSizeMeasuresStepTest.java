@@ -65,7 +65,7 @@ public class ReportSizeMeasuresStepTest {
   private static final int FILE_3_REF = 12351;
   private static final int UNIT_TEST_1_REF = 12352;
   private static final int UNIT_TEST_2_REF = 12361;
-  private static final Integer NO_FILE_METRIC = null;
+  private static final Integer NO_METRIC = null;
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(
@@ -120,7 +120,7 @@ public class ReportSizeMeasuresStepTest {
     verifyNoMeasure(UNIT_TEST_2_REF);
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1);
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1);
-    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_FILE_METRIC, 1);
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
     verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3);
     verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3);
     verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3);
@@ -155,7 +155,7 @@ public class ReportSizeMeasuresStepTest {
       entryOf(metric1Key, newMeasureBuilder().create(7)),
       entryOf(metric2Key, newMeasureBuilder().create(100))
     };
-    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_FILE_METRIC, 1);
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
     verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3, subModuleAndAboveEntries);
     verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3, subModuleAndAboveEntries);
     verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3, subModuleAndAboveEntries);
@@ -180,7 +180,7 @@ public class ReportSizeMeasuresStepTest {
     verifyNoMeasure(UNIT_TEST_2_REF);
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1, entryOf(metricKey, newMeasureBuilder().create(16)));
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1, entryOf(metricKey, newMeasureBuilder().create(3)));
-    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_FILE_METRIC, 1);
+    verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
     verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
     verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
     verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
@@ -201,10 +201,12 @@ public class ReportSizeMeasuresStepTest {
       .containsOnly(entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)));
   }
 
-  private void verifyMeasuresOnOtherComponent(int componentRef, @Nullable Integer fileCount, int directoryCount, MeasureRepoEntry... otherMeasures) {
+  private void verifyMeasuresOnOtherComponent(int componentRef, @Nullable Integer fileCount, @Nullable Integer directoryCount, MeasureRepoEntry... otherMeasures) {
     MeasureRepoEntry[] measureRepoEntries = concatIntoArray(
       otherMeasures,
-      fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)), entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount)));
+      fileCount == null ? null : entryOf(FILES_KEY, newMeasureBuilder().create(fileCount)),
+      directoryCount == null ? null : entryOf(DIRECTORIES_KEY, newMeasureBuilder().create(directoryCount))
+    );
     assertThat(toEntries(measureRepository.getAddedRawMeasures(componentRef)))
       .containsOnly(measureRepoEntries);
   }

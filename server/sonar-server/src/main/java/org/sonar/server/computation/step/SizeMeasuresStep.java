@@ -121,8 +121,8 @@ public class SizeMeasuresStep implements ComputationStep {
     }
 
     private void createMeasures(Component directory, int dirCount, int fileCount) {
-      measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(dirCount));
       if (fileCount > 0) {
+        measureRepository.add(directory, directoryMetric, newMeasureBuilder().create(dirCount));
         measureRepository.add(directory, fileMetric, newMeasureBuilder().create(fileCount));
       }
     }
