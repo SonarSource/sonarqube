@@ -150,7 +150,11 @@ public class ActiveRuleDao implements Dao {
   public void deleteParam(DbSession session, ActiveRuleDto activeRule, ActiveRuleParamDto activeRuleParam) {
     Preconditions.checkNotNull(activeRule.getId(), ACTIVE_RULE_IS_NOT_PERSISTED);
     Preconditions.checkNotNull(activeRuleParam.getId(), ACTIVE_RULE_PARAM_IS_NOT_PERSISTED);
-    mapper(session).deleteParameter(activeRuleParam.getId());
+    deleteParamById(session, activeRuleParam.getId());
+  }
+
+  public void deleteParamById(DbSession session, int id){
+    mapper(session).deleteParameter(id);
   }
 
   public void deleteParamByKeyAndName(DbSession session, ActiveRuleKey key, String param) {
