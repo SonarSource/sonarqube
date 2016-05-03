@@ -1,4 +1,5 @@
 <% content_for :extra_script do %>
+  <% if @resource %>
   <script type="text/javascript">
     (function () {
       window.sonarqube.el = '#body';
@@ -9,6 +10,7 @@
       };
     })();
   </script>
+  <% end %>
   <script src="<%= ApplicationController.root_context -%>/js/bundles/source-viewer.js?v=<%= sonar_version -%>"></script>
 <% end %>
 
