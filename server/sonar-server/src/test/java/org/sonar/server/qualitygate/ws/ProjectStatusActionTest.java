@@ -31,6 +31,7 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
@@ -57,7 +58,6 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_PROJECT_KEY;
 
-
 public class ProjectStatusActionTest {
   private static final String ANALYSIS_ID = "task-uuid";
   @Rule
@@ -66,6 +66,7 @@ public class ProjectStatusActionTest {
   public UserSessionRule userSession = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  ComponentDbTester componentDb = new ComponentDbTester(db);
 
   WsActionTester ws;
   DbClient dbClient;
@@ -83,8 +84,7 @@ public class ProjectStatusActionTest {
   public void json_example() throws IOException {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = newProjectDto("project-uuid");
-    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -113,8 +113,7 @@ public class ProjectStatusActionTest {
   public void return_status_by_project_id() throws IOException {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = newProjectDto("project-uuid");
-    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -143,9 +142,7 @@ public class ProjectStatusActionTest {
   public void return_status_by_project_key() throws IOException {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = newProjectDto("project-uuid")
-      .setKey("project-key");
-    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid").setKey("project-key"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
       .setPeriodMode(1, "last_period")
       .setPeriodDate(1, 956789123456L)
@@ -174,12 +171,22 @@ public class ProjectStatusActionTest {
   public void return_undefined_status_if_measure_is_not_found() {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = newProjectDto("project-uuid");
-    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
 
-    ProjectStatusWsResponse result = newRequest(snapshot.getId().toString());
+    ProjectStatusWsResponse result = call(snapshot.getId().toString());
+
+    assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
+    assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
+  }
+
+  @Test
+  public void return_undefined_status_if_snapshot_is_not_found() {
+    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+    componentDb.insertComponent(newProjectDto("project-uuid"));
+
+    ProjectStatusWsResponse result = callByProjectUuid("project-uuid");
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
     assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
@@ -189,36 +196,33 @@ public class ProjectStatusActionTest {
   public void not_fail_with_system_admin_permission() {
     userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
 
-    ComponentDto project = newProjectDto("project-uuid");
-    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
 
-    newRequest(snapshot.getId().toString());
+    call(snapshot.getId().toString());
   }
 
   @Test
   public void not_fail_with_global_scan_permission() {
     userSession.login("john").setGlobalPermissions(SCAN_EXECUTION);
 
-    ComponentDto project = newProjectDto("project-uuid");
-    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
 
-    newRequest(snapshot.getId().toString());
+    call(snapshot.getId().toString());
   }
 
   @Test
   public void not_fail_with_project_scan_permission() {
-    ComponentDto project = newProjectDto("project-uuid");
-    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
 
     userSession.login("john").addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
 
-    newRequest(snapshot.getId().toString());
+    call(snapshot.getId().toString());
   }
 
   @Test
@@ -228,20 +232,19 @@ public class ProjectStatusActionTest {
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis with id 'task-uuid' is not found");
 
-    newRequest(ANALYSIS_ID);
+    call(ANALYSIS_ID);
   }
 
   @Test
   public void fail_if_insufficient_privileges() {
     userSession.login("john").setGlobalPermissions(PROVISIONING);
 
-    ComponentDto project = newProjectDto("project-uuid");
-    dbClient.componentDao().insert(dbSession, project);
+    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
 
     expectedException.expect(ForbiddenException.class);
-    newRequest(snapshot.getId().toString());
+    call(snapshot.getId().toString());
   }
 
   @Test
@@ -263,11 +266,23 @@ public class ProjectStatusActionTest {
     ws.newRequest().execute().getInput();
   }
 
-  private ProjectStatusWsResponse newRequest(String taskId) {
+  private ProjectStatusWsResponse call(String taskId) {
     try {
       return ProjectStatusWsResponse.parseFrom(
         ws.newRequest()
           .setParam("analysisId", taskId)
+          .setMediaType(MediaTypes.PROTOBUF)
+          .execute().getInputStream());
+    } catch (IOException e) {
+      throw Throwables.propagate(e);
+    }
+  }
+
+  private ProjectStatusWsResponse callByProjectUuid(String projectUuid) {
+    try {
+      return ProjectStatusWsResponse.parseFrom(
+        ws.newRequest()
+          .setParam(PARAM_PROJECT_ID, projectUuid)
           .setMediaType(MediaTypes.PROTOBUF)
           .execute().getInputStream());
     } catch (IOException e) {

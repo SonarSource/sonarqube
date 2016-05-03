@@ -46,7 +46,6 @@ import org.sonar.server.ws.KeyExamples;
 import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
-import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
@@ -142,7 +141,6 @@ public class ProjectStatusAction implements QGateWsAction {
   private ProjectAndSnapshot getProjectThenSnapshot(DbSession dbSession, ProjectStatusWsRequest request) {
     ComponentDto projectDto = componentFinder.getByUuidOrKey(dbSession, request.getProjectId(), request.getProjectKey(), ParamNames.PROJECT_ID_AND_KEY);
     SnapshotDto snapshotDto = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, projectDto.getId());
-    checkState(snapshotDto != null, "Last analysis of project '%s' not found", projectDto.getKey());
     return new ProjectAndSnapshot(projectDto, snapshotDto);
   }
 
