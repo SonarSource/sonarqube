@@ -28,8 +28,11 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
+import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LoggerLevel;
+import org.sonar.server.authentication.IdentityProviderRepositoryRule;
+import org.sonar.server.authentication.TestIdentityProvider;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -42,9 +45,15 @@ public class SonarQubeMonitorTest {
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
 
+  @Rule
+  public IdentityProviderRepositoryRule identityProviderRepository = new IdentityProviderRepositoryRule();
+
   Settings settings = new Settings();
   Server server = mock(Server.class);
   ServerLogging serverLogging = mock(ServerLogging.class);
+  SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
+
+  SonarQubeMonitor underTest = new SonarQubeMonitor(settings, securityRealmFactory, identityProviderRepository, server, serverLogging);
 
   @Before
   public void setUp() throws Exception {
@@ -53,15 +62,14 @@ public class SonarQubeMonitorTest {
 
   @Test
   public void name_is_not_empty() {
-    assertThat(new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging).name()).isNotEmpty();
+    assertThat(underTest.name()).isNotEmpty();
   }
 
   @Test
   public void getServerId() {
     when(server.getStartedAt()).thenReturn(DateUtils.parseDate("2015-01-01"));
-    SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    Map<String, Object> attributes = monitor.attributes();
+    Map<String, Object> attributes = underTest.attributes();
     assertThat(attributes).containsKeys("Server ID", "Version");
   }
 
@@ -71,9 +79,8 @@ public class SonarQubeMonitorTest {
     FileUtils.write(new File(rootDir, SonarQubeMonitor.BRANDING_FILE_PATH), "1.2");
 
     when(server.getRootDir()).thenReturn(rootDir);
-    SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    Map<String, Object> attributes = monitor.attributes();
+    Map<String, Object> attributes = underTest.attributes();
     assertThat(attributes).containsEntry("Official Distribution", Boolean.TRUE);
   }
 
@@ -82,17 +89,73 @@ public class SonarQubeMonitorTest {
     File rootDir = temp.newFolder();
     // branding file is missing
     when(server.getRootDir()).thenReturn(rootDir);
-    SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
 
-    Map<String, Object> attributes = monitor.attributes();
+    Map<String, Object> attributes = underTest.attributes();
     assertThat(attributes).containsEntry("Official Distribution", Boolean.FALSE);
   }
 
   @Test
   public void get_log_level() throws Exception {
-    SonarQubeMonitor monitor = new SonarQubeMonitor(settings, new SecurityRealmFactory(settings), server, serverLogging);
-
-    Map<String, Object> attributes = monitor.attributes();
+    Map<String, Object> attributes = underTest.attributes();
     assertThat(attributes).containsEntry("Logs Level", "DEBUG");
+  }
+
+  @Test
+  public void get_realm() throws Exception {
+    SecurityRealm realm = mock(SecurityRealm.class);
+    when(realm.getName()).thenReturn("LDAP");
+    when(securityRealmFactory.getRealm()).thenReturn(realm);
+
+    Map<String, Object> attributes = underTest.attributes();
+    assertThat(attributes).containsEntry("External User Authentication", "LDAP");
+  }
+
+  @Test
+  public void no_realm() throws Exception {
+    when(securityRealmFactory.getRealm()).thenReturn(null);
+
+    Map<String, Object> attributes = underTest.attributes();
+    assertThat(attributes).doesNotContainKey("External User Authentication");
+  }
+
+  @Test
+  public void get_enabled_identity_providers() throws Exception {
+    identityProviderRepository.addIdentityProvider(new TestIdentityProvider()
+      .setKey("github")
+      .setName("GitHub")
+      .setEnabled(true));
+    identityProviderRepository.addIdentityProvider(new TestIdentityProvider()
+      .setKey("bitbucket")
+      .setName("Bitbucket")
+      .setEnabled(true));
+    identityProviderRepository.addIdentityProvider(new TestIdentityProvider()
+      .setKey("disabled")
+      .setName("Disabled")
+      .setEnabled(false));
+
+    Map<String, Object> attributes = underTest.attributes();
+    assertThat(attributes).containsEntry("Identity Providers", "Bitbucket, GitHub");
+  }
+
+  @Test
+  public void get_enabled_identity_providers_allowing_users_to_signup() throws Exception {
+    identityProviderRepository.addIdentityProvider(new TestIdentityProvider()
+      .setKey("github")
+      .setName("GitHub")
+      .setEnabled(true)
+      .setAllowsUsersToSignUp(true));
+    identityProviderRepository.addIdentityProvider(new TestIdentityProvider()
+      .setKey("bitbucket")
+      .setName("Bitbucket")
+      .setEnabled(true)
+      .setAllowsUsersToSignUp(false));
+    identityProviderRepository.addIdentityProvider(new TestIdentityProvider()
+      .setKey("disabled")
+      .setName("Disabled")
+      .setEnabled(false)
+      .setAllowsUsersToSignUp(true));
+
+    Map<String, Object> attributes = underTest.attributes();
+    assertThat(attributes).containsEntry("Identity Providers allowing users to signup", "GitHub");
   }
 }

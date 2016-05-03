@@ -50,10 +50,11 @@ public class InfoAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("info")
-      .setDescription("Detailed information about system configuration." +
-        "<br/>" +
-        "Requires user to be authenticated with Administer System permissions.")
+      .setDescription("Detailed information about system configuration.<br/>" +
+        "Requires user to be authenticated with Administer System permissions.<br/>" +
+        "Since 5.5, this web service becomes internal in order to more easily update result.")
       .setSince("5.1")
+      .setInternal(true)
       .setResponseExample(getClass().getResource("/org/sonar/server/platform/ws/example-system-info.json"))
       .setHandler(this);
   }
