@@ -82,7 +82,7 @@ public abstract class Request {
    */
   public int mandatoryParamAsInt(String key) {
     String s = mandatoryParam(key);
-    return Integer.parseInt(s);
+    return parseInt(key, s);
   }
 
   /**
@@ -92,7 +92,7 @@ public abstract class Request {
    */
   public long mandatoryParamAsLong(String key) {
     String s = mandatoryParam(key);
-    return Long.parseLong(s);
+    return parseLong(key, s);
   }
 
   public <E extends Enum<E>> E mandatoryParamAsEnum(String key, Class<E> enumClass) {
@@ -148,7 +148,7 @@ public abstract class Request {
   @Deprecated
   public int paramAsInt(String key, int defaultValue) {
     String s = param(key);
-    return s == null ? defaultValue : Integer.parseInt(s);
+    return s == null ? defaultValue : parseInt(key, s);
   }
 
   /**
@@ -158,7 +158,7 @@ public abstract class Request {
   @Deprecated
   public long paramAsLong(String key, long defaultValue) {
     String s = param(key);
-    return s == null ? defaultValue : Long.parseLong(s);
+    return s == null ? defaultValue : parseLong(key, s);
   }
 
   @CheckForNull
@@ -170,13 +170,13 @@ public abstract class Request {
   @CheckForNull
   public Integer paramAsInt(String key) {
     String s = param(key);
-    return s == null ? null : Integer.parseInt(s);
+    return s == null ? null : parseInt(key, s);
   }
 
   @CheckForNull
   public Long paramAsLong(String key) {
     String s = param(key);
-    return s == null ? null : Long.parseLong(s);
+    return s == null ? null : parseLong(key, s);
   }
 
   @CheckForNull
@@ -210,7 +210,7 @@ public abstract class Request {
         try {
           return DateUtils.parseDate(s);
         } catch (SonarException notDateEither) {
-          throw new SonarException(String.format("'%s' cannot be parsed as either a date or date+time", s));
+          throw new IllegalArgumentException(String.format("'%s' cannot be parsed as either a date or date+time", s));
         }
       }
     }
@@ -220,10 +220,15 @@ public abstract class Request {
   @CheckForNull
   public Date paramAsDate(String key) {
     String s = param(key);
-    if (s != null) {
-      return DateUtils.parseDate(s);
+    if (s == null) {
+      return null;
     }
-    return null;
+
+    try {
+      return DateUtils.parseDate(s);
+    } catch (SonarException notDateException) {
+      throw new IllegalArgumentException(notDateException);
+    }
   }
 
   private static boolean parseBoolean(String key, String value) {
@@ -234,6 +239,22 @@ public abstract class Request {
       return false;
     }
     throw new IllegalArgumentException(String.format("Property %s is not a boolean value: %s", key, value));
+  }
+
+  private static int parseInt(String key, String value) {
+    try {
+      return Integer.parseInt(value);
+    } catch (NumberFormatException expection) {
+      throw new IllegalArgumentException(String.format("The '%s' parameter cannot be parsed as an integer value: %s", key, value));
+    }
+  }
+
+  private static long parseLong(String key, String value) {
+    try {
+      return Long.parseLong(value);
+    } catch (NumberFormatException expection) {
+      throw new IllegalArgumentException(String.format("The '%s' parameter cannot be parsed as a long value: %s", key, value));
+    }
   }
 
   /**

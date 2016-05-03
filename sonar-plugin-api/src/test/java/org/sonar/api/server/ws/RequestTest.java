@@ -20,26 +20,246 @@
 package org.sonar.api.server.ws;
 
 import com.google.common.collect.Maps;
+import java.io.InputStream;
+import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.commons.io.IOUtils;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonar.api.utils.DateUtils;
-import org.sonar.api.utils.SonarException;
-
-import javax.annotation.Nullable;
-
-import java.io.InputStream;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
 
 public class RequestTest {
 
-  private static class SimpleRequest extends ValidatingRequest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  FakeRequest underTest = new FakeRequest();
+
+  @Before
+  public void before() {
+    WebService.Context context = new WebService.Context();
+    new FakeWs().define(context);
+
+    underTest.setAction(context.controller("my_controller").action("my_action"));
+  }
+
+  @Test
+  public void has_param() {
+    underTest.setParam("a_required_string", "foo");
+
+    assertThat(underTest.hasParam("a_required_string")).isTrue();
+    assertThat(underTest.hasParam("unknown")).isFalse();
+  }
+
+  @Test
+  public void required_param_is_missing() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'required_param' parameter is missing");
+
+    underTest.mandatoryParam("required_param");
+  }
+
+  @Test
+  public void required_param() {
+    underTest.setParam("a_required_string", "foo");
+    underTest.setParam("a_required_number", "42");
+    underTest.setParam("a_required_boolean", "true");
+    underTest.setParam("a_required_enum", "BETA");
+
+    assertThat(underTest.mandatoryParam("a_required_string")).isEqualTo("foo");
+    assertThat(underTest.mandatoryParamAsBoolean("a_required_boolean")).isTrue();
+    assertThat(underTest.mandatoryParamAsInt("a_required_number")).isEqualTo(42);
+    assertThat(underTest.mandatoryParamAsLong("a_required_number")).isEqualTo(42L);
+    assertThat(underTest.mandatoryParamAsEnum("a_required_enum", RuleStatus.class)).isEqualTo(RuleStatus.BETA);
+  }
+
+  @Test
+  public void required_param_as_strings() {
+    underTest.setParam("a_required_string", "foo,bar");
+
+    assertThat(underTest.mandatoryParamAsStrings("a_required_string")).containsExactly("foo", "bar");
+  }
+
+  @Test
+  public void fail_if_no_required_param_as_strings() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'a_required_string' parameter is missing");
+
+    underTest.mandatoryParamAsStrings("a_required_string");
+  }
+
+  @Test
+  public void default_value_of_optional_param() {
+    assertThat(underTest.param("has_default_string")).isEqualTo("the_default_string");
+  }
+
+  @Test
+  public void param_as_string() {
+    assertThat(underTest.setParam("a_string", "foo").param("a_string")).isEqualTo("foo");
+    assertThat(underTest.setParam("a_string", " f o o \r\n ").param("a_string")).isEqualTo("f o o");
+  }
+
+  @Test
+  public void null_param() {
+    assertThat(underTest.param("a_string")).isNull();
+    assertThat(underTest.paramAsBoolean("a_boolean")).isNull();
+    assertThat(underTest.paramAsInt("a_number")).isNull();
+    assertThat(underTest.paramAsLong("a_number")).isNull();
+  }
+
+  @Test
+  public void param_as_int() {
+    assertThat(underTest.setParam("a_number", "123").paramAsInt("a_number")).isEqualTo(123);
+    assertThat(underTest.setParam("a_number", "123").paramAsInt("a_number", 42)).isEqualTo(123);
+    assertThat(underTest.setParam("a_number", null).paramAsInt("a_number", 42)).isEqualTo(123);
+  }
+
+  @Test
+  public void fail_when_param_is_not_an_int() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'a_number' parameter cannot be parsed as an integer value: not-an-int");
+
+    assertThat(underTest.setParam("a_number", "not-an-int").paramAsInt("a_number")).isEqualTo(123);
+  }
+
+  @Test
+  public void fail_when_param_is_not_an_int_with_default_value() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'a_number' parameter cannot be parsed as an integer value: not_an_int");
+
+    underTest.setParam("a_number", "not_an_int").paramAsInt("a_number", 42);
+  }
+
+  @Test
+  public void param_as_long() {
+    assertThat(underTest.setParam("a_number", "123").paramAsLong("a_number")).isEqualTo(123L);
+    assertThat(underTest.setParam("a_number", "123").paramAsLong("a_number", 42L)).isEqualTo(123L);
+    assertThat(underTest.setParam("a_number", null).paramAsLong("a_number", 42L)).isEqualTo(123L);
+  }
+
+  @Test
+  public void fail_when_param_is_not_a_long() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'a_number' parameter cannot be parsed as a long value: not_a_long");
+
+    underTest.setParam("a_number", "not_a_long").paramAsLong("a_number");
+  }
+
+  @Test
+  public void fail_when_param_is_not_a_long_with_default_value() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The 'a_number' parameter cannot be parsed as a long value: not_a_long");
+
+    underTest.setParam("a_number", "not_a_long").paramAsLong("a_number", 42L);
+  }
+
+  @Test
+  public void param_as_boolean() {
+    assertThat(underTest.setParam("a_boolean", "true").paramAsBoolean("a_boolean")).isTrue();
+    assertThat(underTest.setParam("a_boolean", "yes").paramAsBoolean("a_boolean")).isTrue();
+    assertThat(underTest.setParam("a_boolean", "false").paramAsBoolean("a_boolean")).isFalse();
+    assertThat(underTest.setParam("a_boolean", "no").paramAsBoolean("a_boolean")).isFalse();
+  }
+
+  @Test
+  public void fail_if_incorrect_param_as_boolean() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Property a_boolean is not a boolean value: oui");
+
+    underTest.setParam("a_boolean", "oui").paramAsBoolean("a_boolean");
+  }
+
+  @Test
+  public void param_as_enum() {
+    assertThat(underTest.setParam("a_enum", "BETA").paramAsEnum("a_enum", RuleStatus.class)).isEqualTo(RuleStatus.BETA);
+  }
+
+  @Test
+  public void param_as_enums() {
+    assertThat(underTest.setParam("a_enum", "BETA,READY").paramAsEnums("a_enum", RuleStatus.class)).containsOnly(
+      RuleStatus.BETA, RuleStatus.READY);
+  }
+
+  @Test
+  public void param_as_date() {
+    assertThat(underTest.setParam("a_date", "2014-05-27").paramAsDate("a_date")).isEqualTo(DateUtils.parseDate("2014-05-27"));
+  }
+
+  @Test
+  public void fail_when_param_as_date_not_a_date() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("The date 'polop' does not respect format 'yyyy-MM-dd'");
+
+    underTest.setParam("a_date", "polop").paramAsDate("a_date");
+  }
+
+  @Test
+  public void param_as_datetime() {
+    assertThat(underTest.setParam("a_datetime", "2014-05-27T15:50:45+0100").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDateTime("2014-05-27T15:50:45+0100"));
+    assertThat(underTest.setParam("a_datetime", "2014-05-27").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDate("2014-05-27"));
+  }
+
+  @Test
+  public void fail_when_param_as_datetime_not_a_datetime() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'polop' cannot be parsed as either a date or date+time");
+
+    underTest.setParam("a_datetime", "polop").paramAsDateTime("a_datetime");
+  }
+
+  @Test
+  public void param_as_strings() {
+    assertThat(underTest.paramAsStrings("a_string")).isNull();
+    assertThat(underTest.setParam("a_string", "").paramAsStrings("a_string")).isEmpty();
+    assertThat(underTest.setParam("a_string", "bar").paramAsStrings("a_string")).containsExactly("bar");
+    assertThat(underTest.setParam("a_string", "bar,baz").paramAsStrings("a_string")).containsExactly("bar", "baz");
+    assertThat(underTest.setParam("a_string", "bar , baz").paramAsStrings("a_string")).containsExactly("bar", "baz");
+  }
+
+  @Test
+  public void deprecated_key() {
+    assertThat(underTest.setParam("deprecated_param", "bar").param("new_param")).isEqualTo("bar");
+  }
+
+  @Test
+  public void fail_if_param_is_not_defined() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("BUG - parameter 'unknown' is undefined for action 'my_action'");
+
+    underTest.param("unknown");
+  }
+
+  @Test
+  public void verify_possible_values() {
+    underTest.setParam("has_possible_values", "foo");
+    assertThat(underTest.param("has_possible_values")).isEqualTo("foo");
+  }
+
+  @Test
+  public void fail_if_not_a_possible_value() {
+    underTest.setParam("has_possible_values", "not_possible");
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 'has_possible_values' (not_possible) must be one of: [foo, bar]");
+
+    underTest.param("has_possible_values");
+  }
+
+  @Test
+  public void param_as_input_stream() throws Exception {
+    assertThat(underTest.paramAsInputStream("a_string")).isNull();
+    assertThat(IOUtils.toString(underTest.setParam("a_string", "").paramAsInputStream("a_string"))).isEmpty();
+    assertThat(IOUtils.toString(underTest.setParam("a_string", "foo").paramAsInputStream("a_string"))).isEqualTo("foo");
+  }
+
+  private static class FakeRequest extends ValidatingRequest {
 
     private final Map<String, String> params = Maps.newHashMap();
 
@@ -58,7 +278,7 @@ public class RequestTest {
       return params.keySet().contains(key);
     }
 
-    public SimpleRequest setParam(String key, @Nullable String value) {
+    public FakeRequest setParam(String key, @Nullable String value) {
       if (value != null) {
         params.put(key, value);
       }
@@ -78,7 +298,7 @@ public class RequestTest {
     }
   }
 
-  private static class SimpleWs implements WebService {
+  private static class FakeWs implements WebService {
 
     @Override
     public void define(Context context) {
@@ -117,171 +337,4 @@ public class RequestTest {
     }
   }
 
-  SimpleRequest request = new SimpleRequest();
-
-  @Before
-  public void before() {
-    WebService.Context context = new WebService.Context();
-    new SimpleWs().define(context);
-    request.setAction(context.controller("my_controller").action("my_action"));
-  }
-
-  @Test
-  public void has_param() {
-    request.setParam("a_required_string", "foo");
-
-    assertThat(request.hasParam("a_required_string")).isTrue();
-    assertThat(request.hasParam("unknown")).isFalse();
-  }
-
-  @Test
-  public void required_param_is_missing() {
-    try {
-      request.mandatoryParam("required_param");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("The 'required_param' parameter is missing");
-    }
-  }
-
-  @Test
-  public void required_param() {
-    request.setParam("a_required_string", "foo");
-    request.setParam("a_required_number", "42");
-    request.setParam("a_required_boolean", "true");
-    request.setParam("a_required_enum", "BETA");
-
-    assertThat(request.mandatoryParam("a_required_string")).isEqualTo("foo");
-    assertThat(request.mandatoryParamAsBoolean("a_required_boolean")).isTrue();
-    assertThat(request.mandatoryParamAsInt("a_required_number")).isEqualTo(42);
-    assertThat(request.mandatoryParamAsLong("a_required_number")).isEqualTo(42L);
-    assertThat(request.mandatoryParamAsEnum("a_required_enum", RuleStatus.class)).isEqualTo(RuleStatus.BETA);
-  }
-
-  @Test
-  public void required_param_as_strings() {
-    try {
-      request.mandatoryParamAsStrings("a_required_string");
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("The 'a_required_string' parameter is missing");
-    }
-
-    request.setParam("a_required_string", "foo,bar");
-    assertThat(request.mandatoryParamAsStrings("a_required_string")).containsExactly("foo", "bar");
-  }
-
-  @Test
-  public void default_value_of_optional_param() {
-    assertThat(request.param("has_default_string")).isEqualTo("the_default_string");
-  }
-
-  @Test
-  public void param_as_string() {
-    assertThat(request.setParam("a_string", "foo").param("a_string")).isEqualTo("foo");
-    assertThat(request.setParam("a_string", " f o o \r\n ").param("a_string")).isEqualTo("f o o");
-  }
-
-  @Test
-  public void null_param() {
-    assertThat(request.param("a_string")).isNull();
-    assertThat(request.paramAsBoolean("a_boolean")).isNull();
-    assertThat(request.paramAsInt("a_number")).isNull();
-    assertThat(request.paramAsLong("a_number")).isNull();
-  }
-
-  @Test
-  public void param_as_int() {
-    assertThat(request.setParam("a_number", "123").paramAsInt("a_number")).isEqualTo(123);
-  }
-
-  @Test
-  public void param_as_long() {
-    assertThat(request.setParam("a_number", "123").paramAsLong("a_number")).isEqualTo(123L);
-    assertThat(request.setParam("a_number", "123").paramAsLong("a_number", 42L)).isEqualTo(123L);
-    assertThat(request.setParam("a_number", null).paramAsLong("a_number", 42L)).isEqualTo(123L);
-  }
-
-  @Test
-  public void param_as_boolean() {
-    assertThat(request.setParam("a_boolean", "true").paramAsBoolean("a_boolean")).isTrue();
-    assertThat(request.setParam("a_boolean", "yes").paramAsBoolean("a_boolean")).isTrue();
-    assertThat(request.setParam("a_boolean", "false").paramAsBoolean("a_boolean")).isFalse();
-    assertThat(request.setParam("a_boolean", "no").paramAsBoolean("a_boolean")).isFalse();
-    try {
-      request.setParam("a_boolean", "oui").paramAsBoolean("a_boolean");
-      fail();
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Property a_boolean is not a boolean value: oui");
-    }
-  }
-
-  @Test
-  public void param_as_enum() {
-    assertThat(request.setParam("a_enum", "BETA").paramAsEnum("a_enum", RuleStatus.class)).isEqualTo(RuleStatus.BETA);
-  }
-
-  @Test
-  public void param_as_enums() {
-    assertThat(request.setParam("a_enum", "BETA,READY").paramAsEnums("a_enum", RuleStatus.class)).containsOnly(
-      RuleStatus.BETA, RuleStatus.READY);
-  }
-
-  @Test
-  public void param_as_date() {
-    assertThat(request.setParam("a_date", "2014-05-27").paramAsDate("a_date")).isEqualTo(DateUtils.parseDate("2014-05-27"));
-  }
-
-  @Test
-  public void param_as_datetime() {
-    assertThat(request.setParam("a_datetime", "2014-05-27T15:50:45+0100").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDateTime("2014-05-27T15:50:45+0100"));
-    assertThat(request.setParam("a_datetime", "2014-05-27").paramAsDateTime("a_datetime")).isEqualTo(DateUtils.parseDate("2014-05-27"));
-    try {
-      request.setParam("a_datetime", "polop").paramAsDateTime("a_datetime");
-    } catch (SonarException error) {
-      assertThat(error.getMessage()).isEqualTo("'polop' cannot be parsed as either a date or date+time");
-    }
-  }
-
-  @Test
-  public void param_as_strings() {
-    assertThat(request.paramAsStrings("a_string")).isNull();
-    assertThat(request.setParam("a_string", "").paramAsStrings("a_string")).isEmpty();
-    assertThat(request.setParam("a_string", "bar").paramAsStrings("a_string")).containsExactly("bar");
-    assertThat(request.setParam("a_string", "bar,baz").paramAsStrings("a_string")).containsExactly("bar", "baz");
-    assertThat(request.setParam("a_string", "bar , baz").paramAsStrings("a_string")).containsExactly("bar", "baz");
-  }
-
-  @Test
-  public void deprecated_key() {
-    assertThat(request.setParam("deprecated_param", "bar").param("new_param")).isEqualTo("bar");
-  }
-
-  @Test
-  public void fail_if_param_is_not_defined() {
-    try {
-      request.param("unknown");
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("BUG - parameter 'unknown' is undefined for action 'my_action'");
-    }
-  }
-
-  @Test
-  public void verify_possible_values() {
-    request.setParam("has_possible_values", "foo");
-    assertThat(request.param("has_possible_values")).isEqualTo("foo");
-
-    try {
-      request.setParam("has_possible_values", "not_possible");
-      request.param("has_possible_values");
-    } catch (IllegalArgumentException e) {
-      assertThat(e).hasMessage("Value of parameter 'has_possible_values' (not_possible) must be one of: [foo, bar]");
-    }
-  }
-
-  @Test
-  public void param_as_input_stream() throws Exception {
-    assertThat(request.paramAsInputStream("a_string")).isNull();
-    assertThat(IOUtils.toString(request.setParam("a_string", "").paramAsInputStream("a_string"))).isEmpty();
-    assertThat(IOUtils.toString(request.setParam("a_string", "foo").paramAsInputStream("a_string"))).isEqualTo("foo");
-  }
 }

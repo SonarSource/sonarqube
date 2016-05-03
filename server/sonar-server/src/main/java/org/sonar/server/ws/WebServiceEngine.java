@@ -98,9 +98,7 @@ public class WebServiceEngine implements LocalConnector, Startable {
       }
       verifyRequest(action, request);
       action.handler().handle(request, response);
-
     } catch (IllegalArgumentException e) {
-      // TODO replace by BadRequestException in Request#mandatoryParam()
       sendErrors(response, 400, new Errors().add(Message.of(e.getMessage())));
     } catch (BadRequestException e) {
       sendErrors(response, 400, e.errors());

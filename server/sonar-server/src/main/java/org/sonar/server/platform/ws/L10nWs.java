@@ -76,7 +76,6 @@ public class L10nWs implements WebService {
     if (timestamp != null && timestamp.after(server.getStartedAt())) {
       response.stream().setStatus(HttpURLConnection.HTTP_NOT_MODIFIED).output().close();
     } else {
-
       Locale locale = userSession.locale();
       String localeParam = request.param("locale");
       if (localeParam != null) {
