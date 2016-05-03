@@ -20,21 +20,32 @@
 package org.sonar.server.computation.dbcleaner;
 
 import org.junit.Test;
+import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
+import static java.util.Arrays.asList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
 public class IndexPurgeListenerTest {
 
-  @Test
-  public void call_test_indexer() {
-    TestIndexer testIndexer = mock(TestIndexer.class);
-    IndexPurgeListener underTest = new IndexPurgeListener(testIndexer);
+  TestIndexer testIndexer = mock(TestIndexer.class);
+  IssueIndexer issueIndexer = mock(IssueIndexer.class);
 
+  IndexPurgeListener underTest = new IndexPurgeListener(testIndexer, issueIndexer);
+
+  @Test
+  public void test_onComponentDisabling() {
     underTest.onComponentDisabling("123456");
 
     verify(testIndexer).deleteByFile("123456");
+  }
+
+  @Test
+  public void test_onIssuesRemoval() {
+    underTest.onIssuesRemoval(asList("ISSUE1", "ISSUE2"));
+
+    verify(issueIndexer).deleteByKeys(asList("ISSUE1", "ISSUE2"));
   }
 
 }

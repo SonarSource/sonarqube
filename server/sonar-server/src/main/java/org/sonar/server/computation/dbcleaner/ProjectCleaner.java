@@ -19,11 +19,9 @@
  */
 package org.sonar.server.computation.dbcleaner;
 
-import java.util.Date;
-import javax.annotation.Nullable;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.config.Settings;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.config.Settings;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.TimeUtils;
 import org.sonar.api.utils.log.Logger;
@@ -35,7 +33,6 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
-import org.sonar.server.issue.index.IssueIndex;
 
 import static org.sonar.db.purge.PurgeConfiguration.newDefaultPurgeConfiguration;
 
@@ -48,15 +45,12 @@ public class ProjectCleaner {
   private final PurgeListener purgeListener;
   private final PurgeDao purgeDao;
   private final DefaultPeriodCleaner periodCleaner;
-  private final IssueIndex issueIndex;
 
-  public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener,
-    IssueIndex issueIndex) {
+  public ProjectCleaner(PurgeDao purgeDao, DefaultPeriodCleaner periodCleaner, PurgeProfiler profiler, PurgeListener purgeListener) {
     this.purgeDao = purgeDao;
     this.periodCleaner = periodCleaner;
     this.profiler = profiler;
     this.purgeListener = purgeListener;
-    this.issueIndex = issueIndex;
   }
 
   public ProjectCleaner purge(DbSession session, IdUuidPair idUuidPair, Settings projectSettings) {
@@ -68,17 +62,9 @@ public class ProjectCleaner {
     cleanHistoricalData(session, configuration.rootProjectIdUuid().getId(), projectSettings);
     doPurge(session, configuration);
 
-    deleteIndexedIssuesBefore(idUuidPair.getUuid(), configuration.maxLiveDateOfClosedIssues());
-
     session.commit();
     logProfiling(start, projectSettings);
     return this;
-  }
-
-  private void deleteIndexedIssuesBefore(String uuid, @Nullable Date lastDateWithClosedIssues) {
-    if (lastDateWithClosedIssues != null) {
-      issueIndex.deleteClosedIssuesOfProjectBefore(uuid, lastDateWithClosedIssues);
-    }
   }
 
   private void logProfiling(long start, Settings settings) {

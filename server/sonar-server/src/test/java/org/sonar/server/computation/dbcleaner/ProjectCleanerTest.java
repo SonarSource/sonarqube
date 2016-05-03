@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.dbcleaner;
 
-import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
@@ -33,7 +32,6 @@ import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
-import org.sonar.server.issue.index.IssueIndex;
 
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
@@ -41,7 +39,6 @@ import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyZeroInteractions;
 
 public class ProjectCleanerTest {
 
@@ -50,12 +47,11 @@ public class ProjectCleanerTest {
   private PurgeProfiler profiler = mock(PurgeProfiler.class);
   private DefaultPeriodCleaner periodCleaner = mock(DefaultPeriodCleaner.class);
   private PurgeListener purgeListener = mock(PurgeListener.class);
-  private IssueIndex issueIndex = mock(IssueIndex.class);
   private Settings settings = new Settings();
 
   @Before
   public void before() {
-    this.underTest = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener, issueIndex);
+    this.underTest = new ProjectCleaner(dao, periodCleaner, profiler, purgeListener);
   }
 
   @Test
@@ -65,13 +61,6 @@ public class ProjectCleanerTest {
     underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
     verify(profiler, never()).dump(anyLong(), any(Logger.class));
-  }
-
-  @Test
-  public void no_indexing_when_no_issue_to_delete() {
-    underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
-
-    verifyZeroInteractions(issueIndex);
   }
 
   @Test
@@ -91,7 +80,6 @@ public class ProjectCleanerTest {
 
     verify(periodCleaner).clean(any(DbSession.class), any(Long.class), any(Settings.class));
     verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
-    verify(issueIndex).deleteClosedIssuesOfProjectBefore(any(String.class), any(Date.class));
   }
 
   @Test

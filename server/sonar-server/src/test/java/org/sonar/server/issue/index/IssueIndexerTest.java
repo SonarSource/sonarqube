@@ -19,8 +19,13 @@
  */
 package org.sonar.server.issue.index;
 
+import com.google.common.base.Function;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterators;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -32,7 +37,9 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.server.es.EsTester;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.issue.IssueTesting.newDoc;
 
 
 public class IssueIndexerTest {
@@ -111,14 +118,78 @@ public class IssueIndexerTest {
     IssueIndexer indexer = createIndexer();
     indexer.index("THE_PROJECT_1");
 
-    List<IssueDoc> docs = esTester.getDocuments("issues", "issue", IssueDoc.class);
-    assertThat(docs).hasSize(1);
-    assertThat(docs.get(0).key()).isEqualTo("ABCDE");
+    verifyIssueKeys("ABCDE");
+  }
+
+  @Test
+  public void delete_issues_by_keys() throws Exception {
+    addIssue("Issue1");
+    addIssue("Issue2");
+    addIssue("Issue3");
+
+    IssueIndexer indexer = createIndexer();
+    verifyIssueKeys("Issue1", "Issue2", "Issue3");
+
+    indexer.deleteByKeys(asList("Issue1", "Issue2"));
+
+    verifyIssueKeys("Issue3");
+  }
+
+  @Test
+  public void delete_more_than_one_thousand_issues_by_keys() throws Exception {
+    int numberOfIssues = 1010;
+    List<String> keys = new ArrayList<>(numberOfIssues);
+    List<IssueDoc> issueDocs = new ArrayList<>(numberOfIssues);
+    for (int i=0; i<numberOfIssues; i++) {
+      String key = "Issue" + i;
+      issueDocs.add(newDoc().setKey(key));
+      keys.add(key);
+    }
+    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, issueDocs.toArray(new IssueDoc[]{}));
+    IssueIndexer indexer = createIndexer();
+
+    assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(numberOfIssues);
+    indexer.deleteByKeys(keys);
+    assertThat(esTester.countDocuments("issues", "issue")).isZero();
+  }
+
+  @Test
+  public void nothing_to_do_when_delete_issues_on_empty_list() throws Exception {
+    addIssue("Issue1");
+    addIssue("Issue2");
+    addIssue("Issue3");
+
+    IssueIndexer indexer = createIndexer();
+    verifyIssueKeys("Issue1", "Issue2", "Issue3");
+
+    indexer.deleteByKeys(Collections.<String>emptyList());
+
+    verifyIssueKeys("Issue1", "Issue2", "Issue3");
   }
 
   private IssueIndexer createIndexer() {
     IssueIndexer indexer = new IssueIndexer(new DbClient(dbTester.database(), dbTester.myBatis()), esTester.client());
     indexer.setEnabled(true);
     return indexer;
+  }
+
+  private void addIssue(String issueKey) throws Exception {
+    esTester.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, newDoc().setKey(issueKey));
+  }
+
+  private void verifyIssueKeys(String... expectedKeys){
+    List<String> keys = FluentIterable.from(esTester.getDocuments("issues", "issue", IssueDoc.class))
+      .transform(DocToKey.INSTANCE)
+      .toList();
+    assertThat(keys).containsOnly(expectedKeys);
+  }
+
+  private enum DocToKey implements Function<IssueDoc, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull IssueDoc input) {
+      return input.key();
+    }
   }
 }

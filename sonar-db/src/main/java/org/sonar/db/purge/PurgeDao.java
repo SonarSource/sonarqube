@@ -19,12 +19,14 @@
  */
 package org.sonar.db.purge;
 
+import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.apache.commons.lang.ArrayUtils;
 import org.apache.ibatis.session.ResultContext;
 import org.apache.ibatis.session.ResultHandler;
@@ -39,7 +41,9 @@ import org.sonar.db.MyBatis;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
 
+import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.DateUtils.dateToLong;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 /**
  * @since 2.14
@@ -81,13 +85,15 @@ public class PurgeDao implements Dao {
     for (ResourceDto project : projects) {
       disableOrphanResources(project, session, mapper, listener);
     }
-    deleteOldClosedIssues(conf, mapper);
+    deleteOldClosedIssues(conf, mapper, listener);
   }
 
-  private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper) {
+  private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {
     Date toDate = conf.maxLiveDateOfClosedIssues();
-    mapper.deleteOldClosedIssueChanges(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
-    mapper.deleteOldClosedIssues(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
+    List<String> issueKeys = mapper.selectOldClosedIssueKeys(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
+    executeLargeInputs(issueKeys, new DeleteIssueChangesFromIssueKeys(mapper));
+    executeLargeInputs(issueKeys, new DeleteIssuesFromKeys(mapper));
+    listener.onIssuesRemoval(issueKeys);
   }
 
   private static void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {
@@ -104,9 +110,8 @@ public class PurgeDao implements Dao {
       PurgeSnapshotQuery.create()
         .setResourceId(project.getId())
         .setIslast(false)
-        .setNotPurged(true)
-      );
-    for (final Long projectSnapshotId : projectSnapshotIds) {
+        .setNotPurged(true));
+    for (Long projectSnapshotId : projectSnapshotIds) {
       LOG.debug("<- Clean snapshot " + projectSnapshotId);
       if (!ArrayUtils.isEmpty(scopesWithoutHistoricalData)) {
         PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
@@ -208,5 +213,33 @@ public class PurgeDao implements Dao {
 
   private static PurgeMapper mapper(DbSession session) {
     return session.getMapper(PurgeMapper.class);
+  }
+
+  private static class DeleteIssueChangesFromIssueKeys implements Function<List<String>, List<Void>> {
+    private final PurgeMapper mapper;
+
+    private DeleteIssueChangesFromIssueKeys(PurgeMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<Void> apply(@Nonnull List<String> input) {
+      mapper.deleteIssueChangesFromIssueKeys(input);
+      return emptyList();
+    }
+  }
+
+  private static class DeleteIssuesFromKeys implements Function<List<String>, List<Void>> {
+    private final PurgeMapper mapper;
+
+    private DeleteIssuesFromKeys(PurgeMapper mapper) {
+      this.mapper = mapper;
+    }
+
+    @Override
+    public List<Void> apply(@Nonnull List<String> input) {
+      mapper.deleteIssuesFromKeys(input);
+      return emptyList();
+    }
   }
 }

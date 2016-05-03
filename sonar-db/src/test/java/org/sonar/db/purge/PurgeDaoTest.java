@@ -33,8 +33,10 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
@@ -171,9 +173,13 @@ public class PurgeDaoTest {
 
   @Test
   public void should_delete_old_closed_issues() {
+    PurgeListener purgeListener = mock(PurgeListener.class);
     dbTester.prepareDbUnit(getClass(), "should_delete_old_closed_issues.xml");
-    underTest.purge(newConfigurationWith30Days(), PurgeListener.EMPTY, new PurgeProfiler());
+
+    underTest.purge(newConfigurationWith30Days(), purgeListener, new PurgeProfiler());
+
     dbTester.assertDbUnit(getClass(), "should_delete_old_closed_issues-result.xml", "issues", "issue_changes");
+    verify(purgeListener).onIssuesRemoval(asList("ISSUE-1", "ISSUE-2"));
   }
 
   @Test

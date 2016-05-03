@@ -684,16 +684,6 @@ public class IssueIndex extends BaseIndex {
     return searchResponse.getAggregations().get("_ref");
   }
 
-  public void deleteClosedIssuesOfProjectBefore(String projectUuid, Date beforeDate) {
-    FilterBuilder projectFilter = FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, projectUuid));
-    FilterBuilder dateFilter = FilterBuilders.rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CLOSED_AT).lt(beforeDate.getTime());
-    QueryBuilder queryBuilder = QueryBuilders.filteredQuery(
-      QueryBuilders.matchAllQuery(),
-      FilterBuilders.andFilter(projectFilter, dateFilter));
-
-    getClient().prepareDeleteByQuery(IssueIndexDefinition.INDEX).setQuery(queryBuilder).get();
-  }
-
   private BoolFilterBuilder createBoolFilter(IssueQuery query) {
     BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
     for (FilterBuilder filter : createFilters(query).values()) {

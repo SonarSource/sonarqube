@@ -20,13 +20,13 @@
 package it.issue;
 
 import java.util.List;
-import org.assertj.core.api.Assertions;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
+import org.sonar.wsclient.issue.Issues;
 import util.ProjectAnalysis;
 import util.ProjectAnalysisRule;
 import util.QaOnly;
@@ -67,8 +67,8 @@ public class IssuePurgeTest extends AbstractIssueTest {
       .run();
 
     // All the issues are open
-    List<Issue> issues = searchIssues();
-    for (Issue issue : issues) {
+    List<Issue> issuesList = searchIssues();
+    for (Issue issue : issuesList) {
       assertThat(issue.resolution()).isNull();
     }
 
@@ -80,9 +80,9 @@ public class IssuePurgeTest extends AbstractIssueTest {
         "sonar.dynamicAnalysis", "false",
         "sonar.projectDate", "2014-10-15")
       .run();
-    issues = searchIssues();
-    assertThat(issues).isNotEmpty();
-    for (Issue issue : issues) {
+    issuesList = searchIssues();
+    assertThat(issuesList).isNotEmpty();
+    for (Issue issue : issuesList) {
       assertThat(issue.resolution()).isNotNull();
       assertThat(issue.status()).isEqualTo("CLOSED");
     }
@@ -95,7 +95,57 @@ public class IssuePurgeTest extends AbstractIssueTest {
         "sonar.dynamicAnalysis", "false",
         "sonar.projectDate", "2014-10-20")
       .run();
-    Assertions.assertThat(searchIssues(IssueQuery.create())).isEmpty();
+    Issues issues = issueClient().find(IssueQuery.create());
+    assertThat(issues.list()).isEmpty();
+    assertThat(issues.paging().total()).isZero();
+  }
+
+  /**
+   * SONAR-7108
+   */
+  @Test
+  public void purge_old_closed_issues_when_zero_closed_issues_wanted() throws Exception {
+    projectAnalysisRule.setServerProperty("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "5000");
+
+    // Generate some issues
+    xooSampleAnalysis.withProperties(
+      "sonar.dynamicAnalysis", "false",
+      "sonar.projectDate", "2014-10-01")
+      .run();
+
+    // All the issues are open
+    List<Issue> issueList = searchIssues();
+    for (Issue issue : issueList) {
+      assertThat(issue.resolution()).isNull();
+    }
+
+    // Second scan with empty profile -> all issues are resolved and closed
+    // -> Not deleted because less than 5000 days long
+    xooSampleAnalysis
+      .withXooEmptyProfile()
+      .withProperties(
+        "sonar.dynamicAnalysis", "false",
+        "sonar.projectDate", "2014-10-15")
+      .run();
+    issueList = searchIssues();
+    assertThat(issueList).isNotEmpty();
+    for (Issue issue : issueList) {
+      assertThat(issue.resolution()).isNotNull();
+      assertThat(issue.status()).isEqualTo("CLOSED");
+    }
+
+    // Third scan -> closed issues are deleted
+    projectAnalysisRule.setServerProperty("sonar.dbcleaner.daysBeforeDeletingClosedIssues", "0");
+
+    xooSampleAnalysis.withXooEmptyProfile()
+      .withProperties(
+        "sonar.dynamicAnalysis", "false",
+        "sonar.projectDate", "2014-10-20")
+      .run();
+
+    Issues issues = issueClient().find(IssueQuery.create());
+    assertThat(issues.list()).isEmpty();
+    assertThat(issues.paging().total()).isZero();
   }
 
   /**

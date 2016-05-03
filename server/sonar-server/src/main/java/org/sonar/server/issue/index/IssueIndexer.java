@@ -20,7 +20,9 @@
 package org.sonar.server.issue.index;
 
 import java.util.Iterator;
+import java.util.List;
 import javax.annotation.Nullable;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
@@ -31,12 +33,19 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT;
+import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
+
 public class IssueIndexer extends BaseIndexer {
+
+  private static final int MAX_BATCH_SIZE = 1000;
 
   private final DbClient dbClient;
 
   public IssueIndexer(DbClient dbClient, EsClient esClient) {
-    super(esClient, 300, IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT);
+    super(esClient, 300, INDEX, TYPE_ISSUE, FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     this.dbClient = dbClient;
   }
 
@@ -93,21 +102,41 @@ public class IssueIndexer extends BaseIndexer {
   }
 
   public void deleteProject(String uuid, boolean refresh) {
-    BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
     bulk.setDisableRefresh(!refresh);
     bulk.start();
-    SearchRequestBuilder search = esClient.prepareSearch(IssueIndexDefinition.INDEX)
+    SearchRequestBuilder search = esClient.prepareSearch(INDEX)
       .setRouting(uuid)
       .setQuery(QueryBuilders.filteredQuery(
         QueryBuilders.matchAllQuery(),
-        FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, uuid))
+        FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(FIELD_ISSUE_PROJECT_UUID, uuid))
         ));
     bulk.addDeletion(search);
     bulk.stop();
   }
 
+  public void deleteByKeys(List<String> issueKeys){
+    if (issueKeys.isEmpty()) {
+      return;
+    }
+
+    int count = 0;
+    BulkRequestBuilder builder = esClient.prepareBulk();
+    for (String issueKey : issueKeys) {
+      builder.add(esClient.prepareDelete(INDEX, TYPE_ISSUE, issueKey));
+      count++;
+      if (count >= MAX_BATCH_SIZE) {
+        builder.get();
+        builder = esClient.prepareBulk();
+        count = 0;
+      }
+    }
+    builder.get();
+    esClient.prepareRefresh(INDEX).get();
+  }
+
   private BulkIndexer createBulkIndexer(boolean large) {
-    BulkIndexer bulk = new BulkIndexer(esClient, IssueIndexDefinition.INDEX);
+    BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
     bulk.setLarge(large);
     return bulk;
   }
@@ -115,7 +144,7 @@ public class IssueIndexer extends BaseIndexer {
   private IndexRequest newIndexRequest(IssueDoc issue) {
     String projectUuid = issue.projectUuid();
 
-    return new IndexRequest(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, issue.key())
+    return new IndexRequest(INDEX, TYPE_ISSUE, issue.key())
       .routing(projectUuid)
       .parent(projectUuid)
       .source(issue.getFields());

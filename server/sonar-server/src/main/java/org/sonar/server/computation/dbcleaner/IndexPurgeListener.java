@@ -19,20 +19,30 @@
  */
 package org.sonar.server.computation.dbcleaner;
 
+import java.util.List;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.purge.PurgeListener;
+import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
 
 @ServerSide
 public class IndexPurgeListener implements PurgeListener {
   private final TestIndexer testIndexer;
+  private final IssueIndexer issueIndexer;
 
-  public IndexPurgeListener(TestIndexer testIndexer) {
+  public IndexPurgeListener(TestIndexer testIndexer, IssueIndexer issueIndexer) {
     this.testIndexer = testIndexer;
+    this.issueIndexer = issueIndexer;
   }
 
   @Override
   public void onComponentDisabling(String uuid) {
     testIndexer.deleteByFile(uuid);
   }
+
+  @Override
+  public void onIssuesRemoval(List<String> issueKeys) {
+    issueIndexer.deleteByKeys(issueKeys);
+  }
+
 }

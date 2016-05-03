@@ -82,9 +82,11 @@ public interface PurgeMapper {
 
   void deleteComponentIssues(@Param("componentUuids") List<String> componentUuids);
 
-  void deleteOldClosedIssueChanges(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
+  List<String> selectOldClosedIssueKeys(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
 
-  void deleteOldClosedIssues(@Param("projectUuid") String projectUuid, @Nullable @Param("toDate") Long toDate);
+  void deleteIssuesFromKeys(@Param("keys") List<String> keys);
+
+  void deleteIssueChangesFromIssueKeys(@Param("issueKeys") List<String> issueKeys);
 
   void deleteFileSourcesByProjectUuid(String rootProjectUuid);
 

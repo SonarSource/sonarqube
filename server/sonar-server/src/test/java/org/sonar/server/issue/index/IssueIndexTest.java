@@ -202,20 +202,20 @@ public class IssueIndexTest {
 
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs())
-      .isEmpty();
+        .isEmpty();
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs())
-      .hasSize(1);
+        .hasSize(1);
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
         .getDocs())
-      .hasSize(2);
+          .hasSize(2);
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs())
-      .isEmpty();
+        .isEmpty();
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs())
-      .isEmpty();
+        .isEmpty();
   }
 
   @Test
@@ -429,7 +429,7 @@ public class IssueIndexTest {
 
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions()).getDocs())
-      .hasSize(2);
+        .hasSize(2);
     assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -1139,35 +1139,6 @@ public class IssueIndexTest {
 
     userSessionRule.login("john").setUserGroups("sonar-users");
     assertThat(index.search(IssueQuery.builder(userSessionRule).build(), new SearchOptions()).getDocs()).hasSize(1);
-  }
-
-  @Test
-  public void delete_closed_issues_from_one_project_older_than_specific_date() {
-    // ARRANGE
-    Date today = new Date();
-    Date yesterday = org.apache.commons.lang.time.DateUtils.addDays(today, -1);
-    Date beforeYesterday = org.apache.commons.lang.time.DateUtils.addDays(yesterday, -1);
-
-    ComponentDto project = ComponentTesting.newProjectDto();
-    ComponentDto file = ComponentTesting.newFileDto(project);
-
-    indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setFuncCloseDate(today),
-      IssueTesting.newDoc("ISSUE2", file).setFuncCloseDate(beforeYesterday),
-      IssueTesting.newDoc("ISSUE3", file).setFuncCloseDate(null));
-
-    // ACT
-    index.deleteClosedIssuesOfProjectBefore(project.uuid(), yesterday);
-
-    // ASSERT
-    List<IssueDoc> issues = index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs();
-    List<Date> dates = newArrayList();
-    for (IssueDoc issue : issues) {
-      dates.add(issue.closeDate());
-    }
-
-    assertThat(index.countAll()).isEqualTo(2);
-    assertThat(dates).containsOnly(null, today);
   }
 
   @Test
