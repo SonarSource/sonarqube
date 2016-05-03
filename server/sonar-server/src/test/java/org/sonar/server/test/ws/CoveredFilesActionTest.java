@@ -19,17 +19,22 @@
  */
 package org.sonar.server.test.ws;
 
+import com.google.common.base.Optional;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.test.index.CoveredFileDoc;
+import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.ws.WsTester;
+import org.sonar.server.ws.TestRequest;
+import org.sonar.server.ws.WsActionTester;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyList;
@@ -40,6 +45,7 @@ import static org.mockito.Mockito.when;
 import static org.sonar.db.component.ComponentTesting.newFileDto;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.server.test.ws.CoveredFilesAction.TEST_ID;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class CoveredFilesActionTest {
 
@@ -48,34 +54,55 @@ public class CoveredFilesActionTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  WsTester ws;
-  private DbClient dbClient;
-  private TestIndex testIndex;
+  WsActionTester ws;
+  DbClient dbClient;
+  TestIndex testIndex;
 
   @Before
   public void setUp() {
     dbClient = mock(DbClient.class, RETURNS_DEEP_STUBS);
     testIndex = mock(TestIndex.class, RETURNS_DEEP_STUBS);
-    ws = new WsTester(new TestsWs(new CoveredFilesAction(dbClient, testIndex, userSessionRule)));
+
+    ws = new WsActionTester(new CoveredFilesAction(dbClient, testIndex, userSessionRule));
   }
 
   @Test
-  public void covered_files() throws Exception {
+  public void covered_files() {
     userSessionRule.addComponentUuidPermission(UserRole.CODEVIEWER, "SonarQube", "test-file-uuid");
 
-    when(testIndex.searchByTestUuid(anyString()).fileUuid()).thenReturn("test-file-uuid");
+    when(testIndex.getNullableByTestUuid(anyString())).thenReturn(Optional.of(new TestDoc().setFileUuid("test-file-uuid")));
     when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
       new CoveredFileDoc().setFileUuid(FILE_1_ID).setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
-      new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))
-      ));
+      new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))));
     when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
       Arrays.asList(
         newFileDto(newProjectDto(), FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
         newFileDto(newProjectDto(), FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
 
-    WsTester.TestRequest request = ws.newGetRequest("api/tests", "covered_files").setParam(TEST_ID, "test-uuid");
+    TestRequest request = ws.newRequest().setParam(TEST_ID, "test-uuid");
 
-    request.execute().assertJson(getClass(), "tests-covered-files.json");
+    assertJson(request.execute().getInput()).isSimilarTo(getClass().getResource("CoveredFilesActionTest/tests-covered-files.json"));
+  }
+
+  @Test
+  public void fail_when_test_uuid_is_unknown() {
+    userSessionRule.addComponentUuidPermission(UserRole.CODEVIEWER, "SonarQube", "test-file-uuid");
+
+    when(testIndex.getNullableByTestUuid(anyString())).thenReturn(Optional.<TestDoc>absent());
+    when(testIndex.coveredFiles("test-uuid")).thenReturn(Arrays.asList(
+      new CoveredFileDoc().setFileUuid(FILE_1_ID).setCoveredLines(Arrays.asList(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)),
+      new CoveredFileDoc().setFileUuid(FILE_2_ID).setCoveredLines(Arrays.asList(1, 2, 3))));
+    when(dbClient.componentDao().selectByUuids(any(DbSession.class), anyList())).thenReturn(
+      Arrays.asList(
+        newFileDto(newProjectDto(), FILE_1_ID).setKey("org.foo.Bar.java").setLongName("src/main/java/org/foo/Bar.java"),
+        newFileDto(newProjectDto(), FILE_2_ID).setKey("org.foo.File.java").setLongName("src/main/java/org/foo/File.java")));
+
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Test with id 'test-uuid' is not found");
+
+    ws.newRequest().setParam(TEST_ID, "test-uuid").execute();
   }
 }

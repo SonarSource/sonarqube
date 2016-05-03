@@ -20,6 +20,10 @@
 package org.sonar.server.test.index;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -29,10 +33,6 @@ import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_LINES;
@@ -89,15 +89,24 @@ public class TestIndex extends BaseIndex {
   }
 
   public TestDoc searchByTestUuid(String testUuid) {
+    Optional<TestDoc> testDoc = getNullableByTestUuid(testUuid);
+    if (testDoc.isPresent()) {
+      return testDoc.get();
+    }
+
+    throw new IllegalStateException(String.format("Test id '%s' not found", testUuid));
+  }
+
+  public Optional<TestDoc> getNullableByTestUuid(String testUuid) {
     for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(1)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_TEST_UUID, testUuid)))
       .get().getHits().getHits()) {
-      return new TestDoc(hit.sourceAsMap());
+      return Optional.of(new TestDoc(hit.sourceAsMap()));
     }
 
-    throw new IllegalStateException(String.format("Test id '%s' not found", testUuid));
+    return Optional.absent();
   }
 
   public SearchResult<TestDoc> searchByTestUuid(String testUuid, SearchOptions searchOptions) {

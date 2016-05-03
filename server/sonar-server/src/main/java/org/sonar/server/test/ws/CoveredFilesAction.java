@@ -33,14 +33,16 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.server.test.index.CoveredFileDoc;
+import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
 import org.sonar.server.user.UserSession;
-import org.sonar.server.ws.WsUtils;
 import org.sonarqube.ws.WsTests;
+
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
 
 public class CoveredFilesAction implements TestsWsAction {
 
@@ -75,7 +77,8 @@ public class CoveredFilesAction implements TestsWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String testId = request.mandatoryParam(TEST_ID);
-    userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, index.searchByTestUuid(testId).fileUuid());
+    TestDoc testDoc = checkFoundWithOptional(index.getNullableByTestUuid(testId), "Test with id '%s' is not found", testId);
+    userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, testDoc.fileUuid());
 
     List<CoveredFileDoc> coveredFiles = index.coveredFiles(testId);
     Map<String, ComponentDto> componentsByUuid = buildComponentsByUuid(coveredFiles);
@@ -95,7 +98,7 @@ public class CoveredFilesAction implements TestsWsAction {
         responseBuilder.addFiles(fileBuilder);
       }
     }
-    WsUtils.writeProtobuf(responseBuilder.build(), request, response);
+    writeProtobuf(responseBuilder.build(), request, response);
   }
 
   private Map<String, ComponentDto> buildComponentsByUuid(List<CoveredFileDoc> coveredFiles) {
@@ -105,7 +108,7 @@ public class CoveredFilesAction implements TestsWsAction {
     try {
       components = dbClient.componentDao().selectByUuids(dbSession, sourceFileUuids);
     } finally {
-      MyBatis.closeQuietly(dbSession);
+      dbClient.closeSession(dbSession);
     }
     return Maps.uniqueIndex(components, ComponentDtoFunctions.toUuid());
   }
