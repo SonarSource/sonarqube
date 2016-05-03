@@ -237,7 +237,7 @@ public class ListAction implements TestsWsAction {
   }
 
   private SearchResult<TestDoc> searchTestsByTestUuid(DbSession dbSession, String testUuid, SearchOptions searchOptions) {
-    checkComponentUuidPermission(dbSession, testIndex.searchByTestUuid(testUuid).fileUuid());
+    checkComponentUuidPermission(dbSession, testIndex.getByTestUuid(testUuid).fileUuid());
     return testIndex.searchByTestUuid(testUuid, searchOptions);
   }
 

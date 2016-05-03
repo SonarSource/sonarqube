@@ -86,7 +86,7 @@ public class TestIndexTest {
       newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
       newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
 
-    TestDoc test = underTest.searchByTestUuid("1");
+    TestDoc test = underTest.getByTestUuid("1");
 
     assertThat(test.testUuid()).isEqualTo("1");
     assertThat(test.fileUuid()).isEqualTo("TESTFILE1");

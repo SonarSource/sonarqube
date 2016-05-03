@@ -88,7 +88,7 @@ public class TestIndex extends BaseIndex {
     return new SearchResult<>(searchRequest.get(), CONVERTER);
   }
 
-  public TestDoc searchByTestUuid(String testUuid) {
+  public TestDoc getByTestUuid(String testUuid) {
     Optional<TestDoc> testDoc = getNullableByTestUuid(testUuid);
     if (testDoc.isPresent()) {
       return testDoc.get();
