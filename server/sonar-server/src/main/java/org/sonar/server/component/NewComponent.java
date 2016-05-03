@@ -19,14 +19,17 @@
  */
 package org.sonar.server.component;
 
-import com.google.common.base.Preconditions;
-import org.sonar.api.resources.Qualifiers;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.resources.Qualifiers;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class NewComponent {
 
+  private static final int MAX_KEY_LENGHT = 400;
+  private static final int MAX_NAME_LENGTH = 2000;
+  private static final int MAX_QUALIFIER_LENGTH = 10;
   private String key;
   private String branch;
   private String qualifier;
@@ -60,13 +63,20 @@ public class NewComponent {
   }
 
   public NewComponent setQualifier(@Nullable String qualifier) {
+    if (qualifier != null) {
+      checkArgument(qualifier.length() <= MAX_QUALIFIER_LENGTH,
+        "Component qualifier length (%s) is longer than the maximum authorized (%s)", qualifier.length(), MAX_QUALIFIER_LENGTH);
+    }
+
     this.qualifier = qualifier;
     return this;
   }
 
   public static NewComponent create(String key, String name) {
-    Preconditions.checkNotNull(key, "Key can't be null");
-    Preconditions.checkNotNull(name, "Name can't be null");
+    checkArgument(key != null, "Key can't be null");
+    checkArgument(key.length() <= MAX_KEY_LENGHT, "Component key length (%s) is longer than the maximum authorized (%s)", key.length(), MAX_KEY_LENGHT);
+    checkArgument(name != null, "Name can't be null");
+    checkArgument(name.length() <= MAX_NAME_LENGTH, "Component name length (%s) is longer than the maximum authorized (%s)", name.length(), MAX_NAME_LENGTH);
     return new NewComponent(key, name);
   }
 }
