@@ -53,7 +53,6 @@ import static org.sonar.db.user.GroupMembershipQuery.IN;
 import static org.sonar.db.user.GroupMembershipQuery.builder;
 import static org.sonar.db.user.UserTesting.newUserDto;
 
-
 public class UserDaoTest {
 
   @Rule
@@ -381,6 +380,24 @@ public class UserDaoTest {
   }
 
   @Test
+  public void deactivate_user_also_remove_default_assignee_login_properties() throws Exception {
+    UserDto user = newActiveUser();
+    newProperty("sonar.issues.defaultAssigneeLogin", user.getLogin(), 10L);
+    newProperty("sonar.issues.defaultAssigneeLogin", user.getLogin(), 11L);
+    newProperty("sonar.issues.defaultAssigneeLogin", user.getLogin(), 12L);
+
+    UserDto otherUser = newActiveUser();
+    newProperty("sonar.issues.defaultAssigneeLogin", otherUser.getLogin(), 13L);
+
+    session.commit();
+
+    boolean deactivated = underTest.deactivateUserByLogin(session, user.getLogin());
+    assertThat(deactivated).isTrue();
+
+    assertThat(dbClient.propertiesDao().selectByQuery(PropertyQuery.builder().setKey("sonar.issues.defaultAssigneeLogin").build(), session)).hasSize(1);
+  }
+
+  @Test
   public void deactivate_missing_user() {
     String login = "does_not_exist";
     boolean deactivated = underTest.deactivateUserByLogin(session, login);
@@ -469,65 +486,71 @@ public class UserDaoTest {
     assertThat(underTest.doesEmailExist(session, "unknown")).isFalse();
   }
 
-  private UserDto newActiveUser(){
+  private UserDto newActiveUser() {
     return newUser(true);
   }
 
-  private UserDto newUser(boolean active){
+  private UserDto newUser(boolean active) {
     UserDto dto = newUserDto().setActive(active);
     underTest.insert(session, dto);
     return dto;
   }
 
-  private DashboardDto newDashboard(UserDto user, boolean shared){
+  private DashboardDto newDashboard(UserDto user, boolean shared) {
     DashboardDto dto = new DashboardDto().setUserId(user.getId()).setShared(shared);
     dbClient.dashboardDao().insert(session, dto);
     return dto;
   }
 
-  private ActiveDashboardDto newActiveDashboard(DashboardDto dashboard, UserDto user){
+  private ActiveDashboardDto newActiveDashboard(DashboardDto dashboard, UserDto user) {
     ActiveDashboardDto dto = new ActiveDashboardDto().setDashboardId(dashboard.getId()).setUserId(user.getId());
     dbClient.activeDashboardDao().insert(session, dto);
     return dto;
   }
 
-  private IssueFilterDto newIssueFilter(UserDto user, boolean shared){
+  private IssueFilterDto newIssueFilter(UserDto user, boolean shared) {
     IssueFilterDto dto = new IssueFilterDto().setUserLogin(user.getLogin()).setName(randomAlphanumeric(100)).setShared(shared);
     dbClient.issueFilterDao().insert(session, dto);
     return dto;
   }
 
-  private IssueFilterFavouriteDto newIssueFilterFavourite(IssueFilterDto filter, UserDto user){
+  private IssueFilterFavouriteDto newIssueFilterFavourite(IssueFilterDto filter, UserDto user) {
     IssueFilterFavouriteDto dto = new IssueFilterFavouriteDto().setUserLogin(user.getLogin()).setIssueFilterId(filter.getId());
     dbClient.issueFilterFavouriteDao().insert(session, dto);
     return dto;
   }
 
-  private MeasureFilterDto newMeasureFilter(UserDto user, boolean shared){
+  private MeasureFilterDto newMeasureFilter(UserDto user, boolean shared) {
     MeasureFilterDto dto = new MeasureFilterDto().setUserId(user.getId()).setName(randomAlphanumeric(100)).setShared(shared);
     dbClient.measureFilterDao().insert(session, dto);
     return dto;
   }
 
-  private MeasureFilterFavouriteDto newMeasureFilterFavourite(MeasureFilterDto measureFilter, UserDto user){
+  private MeasureFilterFavouriteDto newMeasureFilterFavourite(MeasureFilterDto measureFilter, UserDto user) {
     MeasureFilterFavouriteDto dto = new MeasureFilterFavouriteDto().setUserId(user.getId()).setMeasureFilterId(measureFilter.getId());
     dbClient.measureFilterFavouriteDao().insert(session, dto);
     return dto;
   }
 
-  private PropertyDto newProperty(UserDto user){
+  private PropertyDto newProperty(UserDto user) {
     PropertyDto dto = new PropertyDto().setKey(randomAlphanumeric(100)).setUserId(user.getId());
     dbClient.propertiesDao().insertProperty(session, dto);
     return dto;
   }
 
-  private UserRoleDto newUserRole(UserDto user){
+  private PropertyDto newProperty(String key, String value, long componentId) {
+    PropertyDto dto = new PropertyDto().setKey(key).setValue(value).setResourceId(componentId);
+    dbClient.propertiesDao().insertProperty(session, dto);
+    return dto;
+  }
+
+  private UserRoleDto newUserRole(UserDto user) {
     UserRoleDto dto = new UserRoleDto().setUserId(user.getId()).setRole(randomAlphanumeric(64));
     dbClient.roleDao().insertUserRole(session, dto);
     return dto;
   }
 
-  private UserGroupDto newUserGroup(UserDto user){
+  private UserGroupDto newUserGroup(UserDto user) {
     GroupDto group = new GroupDto().setName(randomAlphanumeric(30));
     dbClient.groupDao().insert(session, group);
 

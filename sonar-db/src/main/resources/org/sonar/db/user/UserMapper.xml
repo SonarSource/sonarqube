@@ -135,6 +135,17 @@
     DELETE FROM issue_filter_favourites WHERE user_login=#{id}
   </delete>
 
+  <delete id="deletePropertiesMatchingLogin" parameterType="String">
+    DELETE FROM properties
+    <where>
+      text_value=#{login}
+      AND prop_key IN
+      <foreach item="property" index="index" collection="propertyKeys" open="(" separator="," close=")">
+        #{property}
+      </foreach>
+    </where>
+  </delete>
+
   <update id="deactivateUser" parameterType="long">
     UPDATE users SET active=${_false}, email=null, scm_accounts=null,
     external_identity=null, external_identity_provider=null,

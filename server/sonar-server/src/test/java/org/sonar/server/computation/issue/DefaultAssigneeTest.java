@@ -59,7 +59,7 @@ public class DefaultAssigneeTest {
   @Test
   public void default_assignee() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
-    when(userIndex.getNullableByLogin("erik")).thenReturn(new UserDoc().setLogin("erik"));
+    when(userIndex.getNullableByLogin("erik")).thenReturn(new UserDoc().setLogin("erik").setActive(true));
 
     assertThat(underTest.getLogin()).isEqualTo("erik");
   }
@@ -68,6 +68,14 @@ public class DefaultAssigneeTest {
   public void configured_login_does_not_exist() {
     settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
     when(userIndex.getNullableByLogin("erik")).thenReturn(null);
+
+    assertThat(underTest.getLogin()).isNull();
+  }
+
+  @Test
+  public void configured_login_is_disabled() {
+    settings.setProperty(CoreProperties.DEFAULT_ISSUE_ASSIGNEE, "erik");
+    when(userIndex.getNullableByLogin("erik")).thenReturn(new UserDoc().setLogin("erik").setActive(false));
 
     assertThat(underTest.getLogin()).isNull();
   }

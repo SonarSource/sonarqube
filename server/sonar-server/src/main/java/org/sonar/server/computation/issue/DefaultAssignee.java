@@ -21,13 +21,14 @@ package org.sonar.server.computation.issue;
 
 import com.google.common.base.Strings;
 import javax.annotation.CheckForNull;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.component.SettingsRepository;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
+
+import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
 
 /**
  * The user who is optionally declared as being the assignee
@@ -53,7 +54,7 @@ public class DefaultAssignee {
   @CheckForNull
   public String getLogin() {
     if (!loaded) {
-      String configuredLogin = settingsRepository.getSettings(treeRootHolder.getRoot()).getString(CoreProperties.DEFAULT_ISSUE_ASSIGNEE);
+      String configuredLogin = settingsRepository.getSettings(treeRootHolder.getRoot()).getString(DEFAULT_ISSUE_ASSIGNEE);
       if (!Strings.isNullOrEmpty(configuredLogin) && isValidLogin(configuredLogin)) {
         this.login = configuredLogin;
       }
@@ -64,8 +65,8 @@ public class DefaultAssignee {
 
   private boolean isValidLogin(String s) {
     UserDoc user = userIndex.getNullableByLogin(s);
-    if (user == null) {
-      LOG.info("Property {} is set with an unknown login: {}", CoreProperties.DEFAULT_ISSUE_ASSIGNEE, s);
+    if (user == null || !user.active()) {
+      LOG.info("Property {} is set with an unknown login: {}", DEFAULT_ISSUE_ASSIGNEE, s);
       return false;
     }
     return true;

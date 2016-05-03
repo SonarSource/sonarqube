@@ -75,6 +75,8 @@ public interface UserMapper {
 
   void deleteUserRoles(long userId);
 
+  void deletePropertiesMatchingLogin(@Param("propertyKeys") List<String> propertyKeys, @Param("login") String login);
+
   void deactivateUser(@Param("id") long userId, @Param("now") long now);
 
 
