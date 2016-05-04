@@ -67,6 +67,7 @@ public class HttpConnector implements WsConnector {
 
   private HttpConnector(Builder builder, JavaVersion javaVersion) {
     this.baseUrl = HttpUrl.parse(builder.url.endsWith("/") ? builder.url : format("%s/", builder.url));
+    checkArgument(this.baseUrl!=null, "Malformed URL: '%s'", builder.url);
     this.userAgent = builder.userAgent;
 
     if (isNullOrEmpty(builder.login)) {
