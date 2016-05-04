@@ -19,9 +19,11 @@
  */
 package org.sonar.db.purge;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.core.util.Uuids;
@@ -33,7 +35,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -179,7 +180,12 @@ public class PurgeDaoTest {
     underTest.purge(newConfigurationWith30Days(), purgeListener, new PurgeProfiler());
 
     dbTester.assertDbUnit(getClass(), "should_delete_old_closed_issues-result.xml", "issues", "issue_changes");
-    verify(purgeListener).onIssuesRemoval(asList("ISSUE-1", "ISSUE-2"));
+
+    Class<ArrayList<String>> listClass = (Class<ArrayList<String>>)(Class)ArrayList.class;
+    ArgumentCaptor<ArrayList<String>> argument = ArgumentCaptor.forClass(listClass);
+
+    verify(purgeListener).onIssuesRemoval(argument.capture());
+    assertThat(argument.getValue()).containsOnly("ISSUE-1", "ISSUE-2");
   }
 
   @Test
