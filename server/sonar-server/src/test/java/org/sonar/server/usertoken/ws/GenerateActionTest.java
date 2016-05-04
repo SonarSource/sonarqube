@@ -41,6 +41,7 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
 
 import static com.google.common.base.Throwables.propagate;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
@@ -50,7 +51,6 @@ import static org.sonar.db.user.UserTokenTesting.newUserToken;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_LOGIN;
 import static org.sonarqube.ws.client.usertoken.UserTokensWsParameters.PARAM_NAME;
-
 
 public class GenerateActionTest {
   private static final String GRACE_HOPPER = "grace.hopper";
@@ -100,6 +100,14 @@ public class GenerateActionTest {
     GenerateWsResponse response = newRequest(null, TOKEN_NAME);
 
     assertThat(response.getLogin()).isEqualTo(GRACE_HOPPER);
+  }
+
+  @Test
+  public void fail_if_name_is_longer_than_100_characters() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Token name length (101) is longer than the maximum authorized (100)");
+
+    newRequest(GRACE_HOPPER, randomAlphabetic(101));
   }
 
   @Test

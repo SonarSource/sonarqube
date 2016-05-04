@@ -36,6 +36,7 @@ import org.sonarqube.ws.WsUserTokens.GenerateWsResponse;
 import org.sonarqube.ws.client.usertoken.GenerateWsRequest;
 
 import static java.net.HttpURLConnection.HTTP_INTERNAL_ERROR;
+import static org.sonar.db.user.UserTokenValidator.checkTokenName;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
@@ -111,6 +112,7 @@ public class GenerateAction implements UserTokensWsAction {
   }
 
   private void checkWsRequest(DbSession dbSession, GenerateWsRequest request) {
+    checkTokenName(request.getName());
     checkLoginExists(dbSession, request);
 
     Optional<UserTokenDto> userTokenDto = dbClient.userTokenDao().selectByLoginAndName(dbSession, request.getLogin(), request.getName());

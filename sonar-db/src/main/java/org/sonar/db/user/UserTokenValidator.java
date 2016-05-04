@@ -19,48 +19,23 @@
  */
 package org.sonar.db.user;
 
-import static org.sonar.db.user.UserTokenValidator.checkTokenHash;
-import static org.sonar.db.user.UserTokenValidator.checkTokenName;
+import static com.google.common.base.Preconditions.checkArgument;
 
-public class UserTokenDto {
-  private String login;
-  private String name;
-  private String tokenHash;
-  private Long createdAt;
+public class UserTokenValidator {
+  private static final int MAX_TOKEN_NAME_LENGTH = 100;
+  private static final int MAX_TOKEN_HASH_LENGTH = 255;
 
-  public String getLogin() {
-    return login;
+  private UserTokenValidator() {
+    // utility methods
   }
 
-  public UserTokenDto setLogin(String login) {
-    this.login = login;
-    return this;
-  }
-
-  public String getName() {
+  public static String checkTokenName(String name) {
+    checkArgument(name.length() <= MAX_TOKEN_NAME_LENGTH, "Token name length (%s) is longer than the maximum authorized (%s)", name.length(), MAX_TOKEN_NAME_LENGTH);
     return name;
   }
 
-  public UserTokenDto setName(String name) {
-    this.name = checkTokenName(name);
-    return this;
-  }
-
-  public String getTokenHash() {
-    return tokenHash;
-  }
-
-  public UserTokenDto setTokenHash(String tokenHash) {
-    this.tokenHash = checkTokenHash(tokenHash);
-    return this;
-  }
-
-  public Long getCreatedAt() {
-    return createdAt;
-  }
-
-  public UserTokenDto setCreatedAt(long createdAt) {
-    this.createdAt = createdAt;
-    return this;
+  static String checkTokenHash(String hash) {
+    checkArgument(hash.length() <= MAX_TOKEN_HASH_LENGTH, "Token hash length (%s) is longer than the maximum authorized (%s)", hash.length(), MAX_TOKEN_HASH_LENGTH);
+    return hash;
   }
 }
