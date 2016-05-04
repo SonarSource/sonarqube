@@ -33,7 +33,6 @@ import org.sonar.api.utils.ValidationMessages;
 import org.sonar.server.language.LanguageTesting;
 import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileService;
-import org.sonar.server.rule.RuleService;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
@@ -52,7 +51,6 @@ public class QProfilesWsTest {
   @Before
   public void setUp() {
     QProfileService profileService = mock(QProfileService.class);
-    RuleService ruleService = mock(RuleService.class);
     I18n i18n = mock(I18n.class);
 
     Languages languages = LanguageTesting.newLanguages(xoo1Key, xoo2Key);
@@ -61,7 +59,7 @@ public class QProfilesWsTest {
 
     controller = new WsTester(new QProfilesWs(
       new RuleActivationActions(profileService),
-      new BulkRuleActivationActions(null, profileService, ruleService, i18n, userSessionRule),
+      new BulkRuleActivationActions(profileService, null, i18n, userSessionRule),
       new ProjectAssociationActions(null, null, null, languages, userSessionRule),
       new CreateAction(null, null, null, languages, importers, userSessionRule),
       new ImportersAction(importers),
@@ -79,8 +77,7 @@ public class QProfilesWsTest {
       new ExportAction(null, null, null, mock(QProfileExporters.class), languages),
       new ExportersAction(),
       new InheritanceAction(null, null, null, null, languages),
-      new RenameAction(null, userSessionRule)
-      )).controller(QProfilesWs.API_ENDPOINT);
+      new RenameAction(null, userSessionRule))).controller(QProfilesWs.API_ENDPOINT);
   }
 
   private ProfileImporter[] createImporters(Languages languages) {
@@ -236,8 +233,7 @@ public class QProfilesWsTest {
     assertThat(changelog).isNotNull();
     assertThat(changelog.isPost()).isFalse();
     assertThat(changelog.params()).hasSize(7).extracting("key").containsOnly(
-      "profileKey", "profileName", "language", "since", "to", "p", "ps"
-      );
+      "profileKey", "profileName", "language", "since", "to", "p", "ps");
     assertThat(changelog.responseExampleAsString()).isNotEmpty();
   }
 
@@ -247,8 +243,7 @@ public class QProfilesWsTest {
     assertThat(changeParent).isNotNull();
     assertThat(changeParent.isPost()).isTrue();
     assertThat(changeParent.params()).hasSize(5).extracting("key").containsOnly(
-      "profileKey", "profileName", "language", "parentKey", "parentName"
-      );
+      "profileKey", "profileName", "language", "parentKey", "parentName");
   }
 
   @Test
@@ -258,8 +253,7 @@ public class QProfilesWsTest {
     assertThat(compare.isPost()).isFalse();
     assertThat(compare.isInternal()).isTrue();
     assertThat(compare.params()).hasSize(2).extracting("key").containsOnly(
-      "leftKey", "rightKey"
-      );
+      "leftKey", "rightKey");
     assertThat(compare.responseExampleAsString()).isNotEmpty();
   }
 
@@ -269,8 +263,7 @@ public class QProfilesWsTest {
     assertThat(copy).isNotNull();
     assertThat(copy.isPost()).isTrue();
     assertThat(copy.params()).hasSize(2).extracting("key").containsOnly(
-      "fromKey", "toName"
-      );
+      "fromKey", "toName");
   }
 
   @Test
@@ -279,8 +272,7 @@ public class QProfilesWsTest {
     assertThat(delete).isNotNull();
     assertThat(delete.isPost()).isTrue();
     assertThat(delete.params()).hasSize(3).extracting("key").containsOnly(
-      "profileKey", "language", "profileName"
-      );
+      "profileKey", "language", "profileName");
   }
 
   @Test
@@ -289,8 +281,7 @@ public class QProfilesWsTest {
     assertThat(export).isNotNull();
     assertThat(export.isPost()).isFalse();
     assertThat(export.params()).hasSize(2).extracting("key").containsOnly(
-      "language", "name"
-      );
+      "language", "name");
   }
 
   @Test
@@ -308,8 +299,7 @@ public class QProfilesWsTest {
     assertThat(inheritance).isNotNull();
     assertThat(inheritance.isPost()).isFalse();
     assertThat(inheritance.params()).hasSize(3).extracting("key").containsOnly(
-      "profileKey", "language", "profileName"
-      );
+      "profileKey", "language", "profileName");
     assertThat(inheritance.responseExampleAsString()).isNotEmpty();
   }
 
@@ -319,7 +309,6 @@ public class QProfilesWsTest {
     assertThat(rename).isNotNull();
     assertThat(rename.isPost()).isTrue();
     assertThat(rename.params()).hasSize(2).extracting("key").containsOnly(
-      "key", "name"
-      );
+      "key", "name");
   }
 }

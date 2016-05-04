@@ -253,8 +253,7 @@ public class RuleIndexTest {
       newDoc(RULE_KEY_1).setType(CODE_SMELL),
       newDoc(RULE_KEY_2).setType(VULNERABILITY),
       newDoc(RULE_KEY_3).setType(BUG),
-      newDoc(RULE_KEY_4).setType(BUG)
-    );
+      newDoc(RULE_KEY_4).setType(BUG));
 
     // find all
     RuleQuery query = new RuleQuery();
@@ -265,7 +264,7 @@ public class RuleIndexTest {
     assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RULE_KEY_2);
 
     query = new RuleQuery().setTypes(ImmutableSet.of(BUG));
-    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RULE_KEY_3,RULE_KEY_4);
+    assertThat(index.search(query, new SearchOptions()).getIds()).containsOnly(RULE_KEY_3, RULE_KEY_4);
 
     // types in query => nothing
     query = new RuleQuery().setQueryText("code smell bug vulnerability");
@@ -458,54 +457,54 @@ public class RuleIndexTest {
     // 1. get all active rules
     assertThat(index.search(new RuleQuery()
       .setActivation(true), new SearchOptions()).getIds())
-      .hasSize(3);
+        .hasSize(3);
 
     // 2. get all inactive rules.
     assertThat(index.search(new RuleQuery()
       .setActivation(false), new SearchOptions()).getIds())
-      .containsOnly(RULE_KEY_4);
+        .containsOnly(RULE_KEY_4);
 
     // 3. get Inherited Rules on profile1
     assertThat(index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(QUALITY_PROFILE_KEY1)
       .setInheritance(ImmutableSet.of(INHERITED.name())),
       new SearchOptions()).getIds())
-      .isEmpty();
+        .isEmpty();
 
     // 4. get Inherited Rules on profile2
     assertThat(index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(QUALITY_PROFILE_KEY2)
       .setInheritance(ImmutableSet.of(INHERITED.name())),
       new SearchOptions()).getIds())
-      .hasSize(2);
+        .hasSize(2);
 
     // 5. get Overridden Rules on profile1
     assertThat(index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(QUALITY_PROFILE_KEY1)
       .setInheritance(ImmutableSet.of(OVERRIDES.name())),
       new SearchOptions()).getIds())
-      .isEmpty();
+        .isEmpty();
 
     // 6. get Overridden Rules on profile2
     assertThat(index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(QUALITY_PROFILE_KEY2)
       .setInheritance(ImmutableSet.of(OVERRIDES.name())),
       new SearchOptions()).getIds())
-      .hasSize(1);
+        .hasSize(1);
 
     // 7. get Inherited AND Overridden Rules on profile1
     assertThat(index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(QUALITY_PROFILE_KEY1)
       .setInheritance(ImmutableSet.of(INHERITED.name(), OVERRIDES.name())),
       new SearchOptions()).getIds())
-      .isEmpty();
+        .isEmpty();
 
     // 8. get Inherited AND Overridden Rules on profile2
     assertThat(index.search(new RuleQuery().setActivation(true)
       .setQProfileKey(QUALITY_PROFILE_KEY2)
       .setInheritance(ImmutableSet.of(INHERITED.name(), OVERRIDES.name())),
       new SearchOptions()).getIds())
-      .hasSize(3);
+        .hasSize(3);
   }
 
   @Test
@@ -623,8 +622,7 @@ public class RuleIndexTest {
 
     // 2 Facet with a language filter
     // -- lang facet should still have all language
-    result = index.search(new RuleQuery().setLanguages(ImmutableList.of("cpp"))
-      , new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS)));
+    result = index.search(new RuleQuery().setLanguages(ImmutableList.of("cpp")), new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS)));
     assertThat(result.getIds()).hasSize(3);
     assertThat(result.getFacets().getAll()).hasSize(3);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java", "cobol");
@@ -635,8 +633,7 @@ public class RuleIndexTest {
     // -- repository for cpp & T2
     result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.of("cpp"))
-      .setTags(ImmutableList.of("T2"))
-      , new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS)));
+      .setTags(ImmutableList.of("T2")), new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS)));
     assertThat(result.getIds()).hasSize(1);
     assertThat(result.getFacets().getAll()).hasSize(3);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java");
@@ -651,8 +648,7 @@ public class RuleIndexTest {
     result = index.search(new RuleQuery()
       .setLanguages(ImmutableList.of("cpp", "java"))
       .setTags(ImmutableList.of("T2"))
-      .setTypes(asList(BUG, CODE_SMELL))
-      , new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS, FACET_TYPES)));
+      .setTypes(asList(BUG, CODE_SMELL)), new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS, FACET_TYPES)));
     assertThat(result.getIds()).hasSize(2);
     assertThat(result.getFacets().getAll()).hasSize(4);
     assertThat(result.getFacets().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java");
@@ -749,6 +745,33 @@ public class RuleIndexTest {
 
     // repo:key -> nice-to-have !
     assertThat(index.searchAll(new RuleQuery().setQueryText("javascript:X001"))).hasSize(1);
+  }
+
+  @Test
+  public void search_all_keys_by_profile() {
+    indexRules(
+      newDoc(RULE_KEY_1),
+      newDoc(RULE_KEY_2),
+      newDoc(RULE_KEY_3));
+
+    indexActiveRules(
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)));
+
+    assertThat(tester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isEqualTo(3);
+
+    // 1. get all active rules.
+    assertThat(index.searchAll(new RuleQuery().setActivation(true))).containsOnly(RULE_KEY_1, RULE_KEY_2);
+
+    // 2. get all inactive rules.
+    assertThat(index.searchAll(new RuleQuery().setActivation(false))).containsOnly(RULE_KEY_3);
+
+    // 3. get all rules not active on profile
+    assertThat(index.searchAll(new RuleQuery().setActivation(false).setQProfileKey(QUALITY_PROFILE_KEY2))).containsOnly(RULE_KEY_2, RULE_KEY_3);
+
+    // 4. get all active rules on profile
+    assertThat(index.searchAll(new RuleQuery().setActivation(true).setQProfileKey(QUALITY_PROFILE_KEY2))).containsOnly(RULE_KEY_1);
   }
 
   private void indexRules(RuleDoc... rules) {

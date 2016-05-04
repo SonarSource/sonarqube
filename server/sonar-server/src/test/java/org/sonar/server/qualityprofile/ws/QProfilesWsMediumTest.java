@@ -56,6 +56,7 @@ import org.sonar.server.ws.WsTester;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_LANGUAGES;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
 
 public class QProfilesWsMediumTest {
 
@@ -269,10 +270,10 @@ public class QProfilesWsMediumTest {
   @Test
   public void bulk_activate_rule() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule0 = createRule(profile.getLanguage(), "toto");
-    RuleDto rule1 = createRule(profile.getLanguage(), "tata");
-    RuleDto rule2 = createRule(profile.getLanguage(), "hello");
-    RuleDto rule3 = createRule(profile.getLanguage(), "world");
+    createRule(profile.getLanguage(), "toto");
+    createRule(profile.getLanguage(), "tata");
+    createRule(profile.getLanguage(), "hello");
+    createRule(profile.getLanguage(), "world");
     session.commit();
     ruIndexer.index();
 
@@ -283,7 +284,7 @@ public class QProfilesWsMediumTest {
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
     request.setParam(PARAM_LANGUAGES, "java");
-    WsTester.Result result = request.execute();
+    request.execute().assertJson(getClass(), "bulk_activate_rule.json");
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
@@ -294,10 +295,10 @@ public class QProfilesWsMediumTest {
   public void bulk_activate_rule_not_all() throws Exception {
     QualityProfileDto java = createProfile("java");
     QualityProfileDto php = createProfile("php");
-    RuleDto rule0 = createRule(java.getLanguage(), "toto");
-    RuleDto rule1 = createRule(java.getLanguage(), "tata");
-    RuleDto rule2 = createRule(php.getLanguage(), "hello");
-    RuleDto rule3 = createRule(php.getLanguage(), "world");
+    createRule(java.getLanguage(), "toto");
+    createRule(java.getLanguage(), "tata");
+    createRule(php.getLanguage(), "hello");
+    createRule(php.getLanguage(), "world");
     session.commit();
     ruIndexer.index();
 
@@ -308,7 +309,7 @@ public class QProfilesWsMediumTest {
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, php.getKey());
     request.setParam(PARAM_LANGUAGES, "php");
-    WsTester.Result result = request.execute();
+    request.execute().assertJson(getClass(), "bulk_activate_rule_not_all.json");
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
@@ -318,10 +319,10 @@ public class QProfilesWsMediumTest {
   @Test
   public void bulk_activate_rule_by_query() throws Exception {
     QualityProfileDto profile = createProfile("java");
-    RuleDto rule0 = createRule(profile.getLanguage(), "toto");
-    RuleDto rule1 = createRule(profile.getLanguage(), "tata");
-    RuleDto rule2 = createRule(profile.getLanguage(), "hello");
-    RuleDto rule3 = createRule(profile.getLanguage(), "world");
+    createRule(profile.getLanguage(), "toto");
+    createRule(profile.getLanguage(), "tata");
+    createRule(profile.getLanguage(), "hello");
+    createRule(profile.getLanguage(), "world");
     session.commit();
     ruIndexer.index();
 
@@ -332,7 +333,7 @@ public class QProfilesWsMediumTest {
     WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
     request.setParam(WebService.Param.TEXT_QUERY, "php");
-    WsTester.Result result = request.execute();
+    request.execute();
     session.clearCache();
 
     // 2. Assert ActiveRule in DAO
@@ -342,7 +343,7 @@ public class QProfilesWsMediumTest {
     request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
     request.setParam(RuleActivationActions.PROFILE_KEY, profile.getKey());
     request.setParam(WebService.Param.TEXT_QUERY, "world");
-    result = request.execute();
+    request.execute();
     session.commit();
 
     // 2. Assert ActiveRule in DAO
@@ -375,7 +376,29 @@ public class QProfilesWsMediumTest {
 
     // 2. Assert ActiveRule with MINOR severity
     assertThat(tester.get(ActiveRuleIndex.class).findByRule(rule0.getKey()).get(0).severity()).isEqualTo("MINOR");
+  }
 
+  @Test
+  public void does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile() throws Exception {
+    QualityProfileDto javaProfile = createProfile("java");
+    createRule(javaProfile.getLanguage(), "toto");
+    createRule(javaProfile.getLanguage(), "tata");
+    QualityProfileDto phpProfile = createProfile("php");
+    createRule(phpProfile.getLanguage(), "hello");
+    createRule(phpProfile.getLanguage(), "world");
+    session.commit();
+    ruIndexer.index();
+
+    // 1. Activate Rule
+    WsTester.TestRequest request = wsTester.newPostRequest(QProfilesWs.API_ENDPOINT, BulkRuleActivationActions.BULK_ACTIVATE_ACTION);
+    request.setParam(RuleActivationActions.PROFILE_KEY, javaProfile.getKey());
+    request.setParam(PARAM_QPROFILE, javaProfile.getKey());
+    request.setParam("activation", "false");
+    request.execute().assertJson(getClass(), "does_not_return_warnings_when_bulk_activate_on_profile_and_rules_exist_on_another_language_than_profile.json");
+    session.clearCache();
+
+    // 2. Assert ActiveRule in DAO
+    assertThat(db.activeRuleDao().selectByProfileKey(session, javaProfile.getKey())).hasSize(2);
   }
 
   @Test

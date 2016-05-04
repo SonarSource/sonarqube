@@ -22,7 +22,6 @@ package org.sonar.server.rule.ws;
 import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 import com.google.common.collect.Lists;
@@ -50,7 +49,6 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.Facets;
@@ -65,7 +63,6 @@ import org.sonarqube.ws.Rules.SearchResponse;
 import org.sonarqube.ws.client.rule.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.api.utils.DateUtils.parseDate;
 import static org.sonar.server.rule.index.RuleIndex.ALL_STATUSES_EXCEPT_REMOVED;
 import static org.sonar.server.rule.index.RuleIndex.FACET_ACTIVE_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_LANGUAGES;
@@ -75,7 +72,6 @@ import static org.sonar.server.rule.index.RuleIndex.FACET_SEVERITIES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_STATUSES;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TAGS;
 import static org.sonar.server.rule.index.RuleIndex.FACET_TYPES;
-import static org.sonar.server.util.EnumUtils.toEnums;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.OPTIONAL_FIELDS;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
@@ -101,14 +97,16 @@ public class SearchAction implements RulesWsAction {
 
   private static final Collection<String> DEFAULT_FACETS = ImmutableSet.of(PARAM_LANGUAGES, PARAM_REPOSITORIES, "tags");
 
+  private final RuleQueryFactory ruleQueryFactory;
   private final DbClient dbClient;
   private final RuleIndex ruleIndex;
   private final ActiveRuleCompleter activeRuleCompleter;
   private final RuleMapper mapper;
 
-  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, DbClient dbClient, RuleMapper mapper) {
+  public SearchAction(RuleIndex ruleIndex, ActiveRuleCompleter activeRuleCompleter, RuleQueryFactory ruleQueryFactory, DbClient dbClient, RuleMapper mapper) {
     this.ruleIndex = ruleIndex;
     this.activeRuleCompleter = activeRuleCompleter;
+    this.ruleQueryFactory = ruleQueryFactory;
     this.dbClient = dbClient;
     this.mapper = mapper;
   }
@@ -150,19 +148,19 @@ public class SearchAction implements RulesWsAction {
     try {
       SearchWsRequest searchWsRequest = toSearchWsRequest(request);
       org.sonar.server.es.SearchOptions context = getQueryContext(searchWsRequest);
-      RuleQuery query = doQuery(searchWsRequest);
+      RuleQuery query = ruleQueryFactory.createRuleQuery(request);
       SearchResult searchResult = doSearch(dbSession, query, context);
-      SearchResponse responseBuilder = buildResponse(dbSession, searchWsRequest, context, searchResult);
+      SearchResponse responseBuilder = buildResponse(dbSession, searchWsRequest, context, searchResult, query);
       writeProtobuf(responseBuilder, request, response);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private SearchResponse buildResponse(DbSession dbSession, SearchWsRequest request, SearchOptions context, SearchResult result) {
+  private SearchResponse buildResponse(DbSession dbSession, SearchWsRequest request, SearchOptions context, SearchResult result, RuleQuery query) {
     SearchResponse.Builder responseBuilder = SearchResponse.newBuilder();
     writeStatistics(responseBuilder, result, context);
-    doContextResponse(dbSession, request, result, responseBuilder);
+    doContextResponse(dbSession, request, result, responseBuilder, query);
     if (!context.getFacets().isEmpty()) {
       writeFacets(responseBuilder, request, context, result);
     }
@@ -311,31 +309,6 @@ public class SearchAction implements RulesWsAction {
       .setDefaultValue(true);
   }
 
-  private static RuleQuery createRuleQuery(RuleQuery query, SearchWsRequest request) {
-    query.setQueryText(request.getQuery());
-    query.setSeverities(request.getSeverities());
-    query.setRepositories(request.getRepositories());
-    query.setAvailableSince(request.getAvailableSince() != null ? parseDate(request.getAvailableSince()).getTime() : null);
-    query.setStatuses(toEnums(request.getStatuses(), RuleStatus.class));
-    query.setLanguages(request.getLanguages());
-    query.setActivation(request.getActivation());
-    query.setQProfileKey(request.getQProfile());
-    query.setTags(request.getTags());
-    query.setInheritance(request.getInheritance());
-    query.setActiveSeverities(request.getActiveSeverities());
-    query.setIsTemplate(request.getIsTemplate());
-    query.setTemplateKey(request.getTemplateKey());
-    query.setTypes(toEnums(request.getTypes(), RuleType.class));
-    query.setKey(request.getRuleKey());
-
-    String sortParam = request.getSort();
-    if (sortParam != null) {
-      query.setSortField(sortParam);
-      query.setAscendingSort(request.getAsc());
-    }
-    return query;
-  }
-
   private void writeRules(SearchResponse.Builder response, SearchResult result, org.sonar.server.es.SearchOptions context) {
     for (RuleDto rule : result.rules) {
       response.addRules(mapper.toWsRule(rule, result, context.getFields()));
@@ -343,7 +316,6 @@ public class SearchAction implements RulesWsAction {
   }
 
   protected org.sonar.server.es.SearchOptions getQueryContext(SearchWsRequest request) {
-    // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 1/2
     org.sonar.server.es.SearchOptions context = loadCommonContext(request);
     org.sonar.server.es.SearchOptions searchQueryContext = new org.sonar.server.es.SearchOptions()
       .setLimit(context.getLimit())
@@ -404,26 +376,11 @@ public class SearchAction implements RulesWsAction {
       .setTotal(result.getTotal());
   }
 
-  protected RuleQuery doQuery(SearchWsRequest request) {
-    RuleQuery plainQuery = createRuleQuery(new RuleQuery(), request);
-
-    String qProfileKey = request.getQProfile();
-    if (qProfileKey != null) {
-      QualityProfileDto qProfile = activeRuleCompleter.loadProfile(qProfileKey);
-      if (qProfile != null) {
-        plainQuery.setLanguages(ImmutableList.of(qProfile.getLanguage()));
-      }
-    }
-
-    return plainQuery;
-  }
-
-  protected void doContextResponse(DbSession dbSession, SearchWsRequest request, SearchResult result, SearchResponse.Builder response) {
-    // TODO Get rid of this horrible hack: fields on request are not the same as fields for ES search ! 2/2
+  protected void doContextResponse(DbSession dbSession, SearchWsRequest request, SearchResult result, SearchResponse.Builder response, RuleQuery query) {
     org.sonar.server.es.SearchOptions contextForResponse = loadCommonContext(request);
     writeRules(response, result, contextForResponse);
     if (contextForResponse.getFields().contains("actives")) {
-      activeRuleCompleter.completeSearch(dbSession, doQuery(request), result.rules, response);
+      activeRuleCompleter.completeSearch(dbSession, query, result.rules, response);
     }
   }
 
@@ -600,13 +557,4 @@ public class SearchAction implements RulesWsAction {
     }
   }
 
-  private enum TypeToString implements Function<RuleType, String> {
-    INSTANCE;
-
-    @Override
-    public String apply(@Nonnull RuleType input) {
-      return input.name();
-    }
-
-  }
 }

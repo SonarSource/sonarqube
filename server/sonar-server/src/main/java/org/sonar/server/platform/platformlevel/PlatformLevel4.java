@@ -251,6 +251,7 @@ import org.sonar.server.rule.index.RuleIndexer;
 import org.sonar.server.rule.ws.ActiveRuleCompleter;
 import org.sonar.server.rule.ws.RepositoriesAction;
 import org.sonar.server.rule.ws.RuleMapper;
+import org.sonar.server.rule.ws.RuleQueryFactory;
 import org.sonar.server.rule.ws.RulesWs;
 import org.sonar.server.rule.ws.TagsAction;
 import org.sonar.server.source.HtmlSourceDecorator;
@@ -442,6 +443,7 @@ public class PlatformLevel4 extends PlatformLevel {
       RuleMapper.class,
       ActiveRuleCompleter.class,
       RepositoriesAction.class,
+      RuleQueryFactory.class,
       org.sonar.server.rule.ws.AppAction.class,
 
       // languages
