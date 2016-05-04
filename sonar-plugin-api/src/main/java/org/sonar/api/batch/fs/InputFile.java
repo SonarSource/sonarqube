@@ -82,6 +82,7 @@ public interface InputFile extends InputPath {
 
   /**
    * The underlying absolute {@link Path}
+   * @since 5.1
    */
   @Override
   Path path();
