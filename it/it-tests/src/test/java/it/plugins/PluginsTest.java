@@ -65,8 +65,13 @@ public class PluginsTest {
    */
   static final Set<String> DISABLED_PLUGINS = Sets.newHashSet(
     // internal plugin used for integration tests of language plugins
-    // - status 1.0 is built for Java 8 so it is temporarily disabled
-    "lits", "citymodel", "status");
+    "lits",
+
+    "citymodel",
+    // status 1.0 is built for Java 8 so it is temporarily disabled
+    "status",
+    // temporary incompatibility with cobol 3.1 java.lang.NoClassDefFoundError: com/sonarsource/cobol/api/pp/EnterPreprocessorEvent
+    "maifcobolplugin");
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
     "abap", "cobol", "cpp", "devcockpit", "objc", "pli", "plsql", "report", "rpg",
