@@ -30,6 +30,7 @@ import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
+import org.sonar.db.DbClient;
 import org.sonar.server.qualityprofile.BulkChangeResult;
 import org.sonar.server.qualityprofile.QProfileService;
 import org.sonar.server.rule.RuleService;
@@ -61,12 +62,14 @@ public class BulkRuleActivationActions {
   public static final String BULK_ACTIVATE_ACTION = "activate_rules";
   public static final String BULK_DEACTIVATE_ACTION = "deactivate_rules";
 
+  private final DbClient dbClient;
   private final QProfileService profileService;
   private final RuleService ruleService;
   private final I18n i18n;
   private final UserSession userSession;
 
-  public BulkRuleActivationActions(QProfileService profileService, RuleService ruleService, I18n i18n, UserSession userSession) {
+  public BulkRuleActivationActions(DbClient dbClient, QProfileService profileService, RuleService ruleService, I18n i18n, UserSession userSession) {
+    this.dbClient = dbClient;
     this.profileService = profileService;
     this.ruleService = ruleService;
     this.i18n = i18n;
@@ -132,6 +135,7 @@ public class BulkRuleActivationActions {
   }
 
   private void bulkDeactivate(Request request, Response response) {
+    // TODO filter on rule language
     BulkChangeResult result = profileService.bulkDeactivate(
       createRuleQuery(ruleService.newRuleQuery(), request),
       request.mandatoryParam(PROFILE_KEY));

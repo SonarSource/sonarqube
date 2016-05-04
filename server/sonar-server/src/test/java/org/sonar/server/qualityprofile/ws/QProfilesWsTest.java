@@ -61,7 +61,7 @@ public class QProfilesWsTest {
 
     controller = new WsTester(new QProfilesWs(
       new RuleActivationActions(profileService),
-      new BulkRuleActivationActions(profileService, ruleService, i18n, userSessionRule),
+      new BulkRuleActivationActions(null, profileService, ruleService, i18n, userSessionRule),
       new ProjectAssociationActions(null, null, null, languages, userSessionRule),
       new CreateAction(null, null, null, languages, importers, userSessionRule),
       new ImportersAction(importers),
