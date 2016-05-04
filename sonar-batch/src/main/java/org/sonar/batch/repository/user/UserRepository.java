@@ -23,6 +23,8 @@ import com.google.common.base.Joiner;
 import org.sonar.batch.bootstrap.ServerClient;
 import org.sonar.batch.protocol.GsonHelper;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -49,7 +51,18 @@ public class UserRepository {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
-    String url = "/api/users/search?format=json&includeDeactivated=true&logins=" + Joiner.on(',').join(userLogins);
+
+    List<String> userLoginEncoded = new ArrayList<>();
+    for (String userLogin : userLogins) {
+      try {
+        userLoginEncoded.add(URLEncoder.encode(userLogin, "UTF-8"));
+      } catch (UnsupportedEncodingException e) {
+        e.printStackTrace();
+      }
+    }
+
+
+    String url = "/api/users/search?format=json&includeDeactivated=true&logins=" + Joiner.on(',').join(userLoginEncoded);
     String json = serverClient.request(url);
     Users users = GsonHelper.create().fromJson(json, Users.class);
     return users.getUsers();
