@@ -77,19 +77,20 @@ public class PluginsWsMediumTest {
       "  ]" +
       "}");
 
-    wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{\"installing\":[],\"removing\":[]}");
+    wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{\"installing\":[],\"removing\":[],\"updating\":[]}");
 
     // 2 - login as admin and install one plugin, update another, verify pending status in the process
     userSessionRule.login().setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     wsTester.newPostRequest("api/plugins", "update").setParam("key", "decoy").execute().assertNoContent();
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{" +
-      "  \"installing\": [" +
+      "  \"updating\": [" +
       "    {" +
       "      \"key\": \"decoy\"," +
       "      \"version\": \"1.1\"" +
       "    }" +
       "  ]," +
+      "  \"installing\": []," +
       "  \"removing\": []" +
       "}");
 
@@ -98,12 +99,14 @@ public class PluginsWsMediumTest {
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{" +
       "  \"installing\": [" +
       "    {" +
-      "      \"key\": \"decoy\"," +
-      "      \"version\": \"1.1\"" +
-      "    }," +
-      "    {" +
       "      \"key\": \"foo\"," +
       "      \"version\": \"1.0\"" +
+      "    }" +
+      "  ]," +
+      "  \"updating\": [" +
+      "    {" +
+      "      \"key\": \"decoy\"," +
+      "      \"version\": \"1.1\"" +
       "    }" +
       "  ]," +
       "  \"removing\": []" +
@@ -133,6 +136,7 @@ public class PluginsWsMediumTest {
 
     wsTester.newGetRequest("api/plugins", "pending").execute().assertJson("{" +
       "  \"installing\": []," +
+      "  \"updating\": []," +
       "  \"removing\": [" +
       "    {" +
       "      \"key\": \"foo\"," +

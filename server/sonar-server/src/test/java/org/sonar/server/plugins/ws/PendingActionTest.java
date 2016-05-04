@@ -20,7 +20,8 @@
 package org.sonar.server.plugins.ws;
 
 import com.google.common.base.Optional;
-import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 import org.junit.Test;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
@@ -75,7 +76,8 @@ public class PendingActionTest {
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
-        "  \"removing\": []" +
+        "  \"removing\": []," +
+        "  \"updating\": []" +
         "}"
       );
   }
@@ -89,22 +91,16 @@ public class PendingActionTest {
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
-        "  \"removing\": []" +
+        "  \"removing\": []," +
+        "  \"updating\": []" +
         "}"
       );
   }
 
   @Test
   public void verify_properties_displayed_in_json_per_installing_plugin() throws Exception {
-    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(gitPluginInfo()));
-    UpdateCenter updateCenter = mock(UpdateCenter.class);
-    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
-    when(updateCenter.findAllCompatiblePlugins()).thenReturn(
-      Arrays.asList(
-        new Plugin("scmgit")
-          .setCategory("cat_1")
-        )
-      );
+    newUpdateCenter("scmgit");
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
     underTest.handle(request, response);
 
@@ -126,20 +122,22 @@ public class PendingActionTest {
         "      \"implementationBuild\": \"9ce9d330c313c296fab051317cc5ad4b26319e07\"" +
         "    }" +
         "  ]," +
-        "  \"removing\": []" +
+        "  \"removing\": []," +
+        "  \"updating\": []" +
         "}"
       );
   }
 
   @Test
   public void verify_properties_displayed_in_json_per_removing_plugin() throws Exception {
-    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(gitPluginInfo()));
+    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(newScmGitPluginInfo()));
 
     underTest.handle(request, response);
 
     assertJson(response.outputAsString()).isSimilarTo(
       "{" +
         "  \"installing\": []," +
+        "  \"updating\": []," +
         "  \"removing\": " +
         "  [" +
         "    {" +
@@ -157,6 +155,65 @@ public class PendingActionTest {
         "  ]" +
         "}"
       );
+  }
+
+  @Test
+  public void verify_properties_displayed_in_json_per_updating_plugin() throws Exception {
+    newUpdateCenter("scmgit");
+    when(serverPluginRepository.getPluginInfos()).thenReturn(of(newScmGitPluginInfo()));
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newScmGitPluginInfo()));
+
+    underTest.handle(request, response);
+
+    assertJson(response.outputAsString()).isSimilarTo(
+      "{" +
+        "  \"installing\": []," +
+        "  \"removing\": []," +
+        "  \"updating\": " +
+        "  [" +
+        "    {" +
+        "      \"key\": \"scmgit\"" +
+        "    }" +
+        "  ]" +
+        "}"
+    );
+  }
+
+  @Test
+  public void verify_properties_displayed_in_json_per_installing_removing_and_updating_plugins() throws Exception {
+    PluginInfo installed = newPluginInfo("java");
+    PluginInfo removedPlugin = newPluginInfo("js");
+    PluginInfo newPlugin = newPluginInfo("php");
+
+    newUpdateCenter("scmgit");
+    when(serverPluginRepository.getPluginInfos()).thenReturn(of(installed));
+    when(serverPluginRepository.getUninstalledPlugins()).thenReturn(of(removedPlugin));
+    when(pluginDownloader.getDownloadedPlugins()).thenReturn(of(newPlugin, installed));
+
+    underTest.handle(request, response);
+
+    assertJson(response.outputAsString()).isSimilarTo(
+      "{" +
+        "  \"installing\":" +
+        "  [" +
+        "    {" +
+        "      \"key\": \"php\"" +
+        "    }" +
+        "  ]," +
+        "  \"removing\":" +
+        "  [" +
+        "    {" +
+        "      \"key\": \"js\"" +
+        "    }" +
+        "  ]," +
+        "  \"updating\": " +
+        "  [" +
+        "    {" +
+        "      \"key\": \"java\"" +
+        "    }" +
+        "  ]" +
+        "}"
+    );
   }
 
   @Test
@@ -186,7 +243,8 @@ public class PendingActionTest {
         "      \"name\": \"Foo\"," +
         "    }" +
         "  ]," +
-        "  \"removing\": []" +
+        "  \"removing\": []," +
+        "  \"updating\": []" +
         "}"
       );
   }
@@ -204,6 +262,7 @@ public class PendingActionTest {
     assertJson(response.outputAsString()).withStrictArrayOrder().isSimilarTo(
       "{" +
         "  \"installing\": []," +
+        "  \"updating\": []," +
         "  \"removing\": " +
         "  [" +
         "    {" +
@@ -223,7 +282,7 @@ public class PendingActionTest {
       );
   }
 
-  public PluginInfo gitPluginInfo() {
+  public PluginInfo newScmGitPluginInfo() {
     return new PluginInfo("scmgit")
       .setName("Git")
       .setDescription("Git SCM Provider.")
@@ -234,6 +293,21 @@ public class PendingActionTest {
       .setHomepageUrl("http://redirect.sonarsource.com/plugins/scmgit.html")
       .setIssueTrackerUrl("http://jira.sonarsource.com/browse/SONARSCGIT")
       .setImplementationBuild("9ce9d330c313c296fab051317cc5ad4b26319e07");
+  }
+
+  public PluginInfo newPluginInfo(String key){
+    return new PluginInfo(key);
+  }
+
+  private UpdateCenter newUpdateCenter(String... pluginKeys){
+    UpdateCenter updateCenter = mock(UpdateCenter.class);
+    when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
+    List<Plugin> plugins = new ArrayList<>();
+    for (String pluginKey : pluginKeys) {
+      plugins.add(new Plugin(pluginKey).setCategory("cat_1"));
+    }
+    when(updateCenter.findAllCompatiblePlugins()).thenReturn(plugins);
+    return updateCenter;
   }
 
   public PluginInfo newPluginInfo(int id) {

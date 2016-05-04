@@ -19,9 +19,14 @@
  */
 package org.sonar.server.plugins.ws;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Set;
+import javax.annotation.Nonnull;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -32,6 +37,8 @@ import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Plugin;
 
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.ImmutableSet.copyOf;
 import static com.google.common.io.Resources.getResource;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
@@ -42,6 +49,7 @@ public class PendingAction implements PluginsWsAction {
 
   private static final String ARRAY_INSTALLING = "installing";
   private static final String ARRAY_REMOVING = "removing";
+  private static final String ARRAY_UPDATING = "updating";
 
   private final PluginDownloader pluginDownloader;
   private final ServerPluginRepository installer;
@@ -73,19 +81,51 @@ public class PendingAction implements PluginsWsAction {
     JsonWriter jsonWriter = response.newJsonWriter();
 
     jsonWriter.beginObject();
-    writeInstalling(jsonWriter, compatiblePluginsByKey);
-    writeRemoving(jsonWriter, compatiblePluginsByKey);
+    writePlugins(jsonWriter, compatiblePluginsByKey);
     jsonWriter.endObject();
     jsonWriter.close();
   }
 
-  private void writeInstalling(JsonWriter json, Map<String, Plugin> compatiblePluginsByKey) {
-    Collection<PluginInfo> plugins = pluginDownloader.getDownloadedPlugins();
-    pluginWSCommons.writePluginInfoList(json, plugins, compatiblePluginsByKey, ARRAY_INSTALLING);
+  private void writePlugins(JsonWriter json, Map<String, Plugin> compatiblePluginsByKey) {
+    Collection<PluginInfo> uninstalledPlugins = installer.getUninstalledPlugins();
+    Collection<PluginInfo> downloadedPlugins = pluginDownloader.getDownloadedPlugins();
+    Collection<PluginInfo> installedPlugins = installer.getPluginInfos();
+    MatchPluginKeys matchPluginKeys = new MatchPluginKeys(from(installedPlugins).transform(PluginInfoToKey.INSTANCE).toSet());
+
+    Collection<PluginInfo> newPlugins = new ArrayList<>();
+    Collection<PluginInfo> updatedPlugins = new ArrayList<>();
+    for (PluginInfo pluginInfo : downloadedPlugins) {
+      if (matchPluginKeys.apply(pluginInfo)) {
+        updatedPlugins.add(pluginInfo);
+      } else {
+        newPlugins.add(pluginInfo);
+      }
+    }
+
+    pluginWSCommons.writePluginInfoList(json, newPlugins, compatiblePluginsByKey, ARRAY_INSTALLING);
+    pluginWSCommons.writePluginInfoList(json, updatedPlugins, compatiblePluginsByKey, ARRAY_UPDATING);
+    pluginWSCommons.writePluginInfoList(json, uninstalledPlugins, compatiblePluginsByKey, ARRAY_REMOVING);
   }
 
-  private void writeRemoving(JsonWriter json, Map<String, Plugin> compatiblePluginsByKey) {
-    Collection<PluginInfo> plugins = installer.getUninstalledPlugins();
-    pluginWSCommons.writePluginInfoList(json, plugins, compatiblePluginsByKey, ARRAY_REMOVING);
+  private enum PluginInfoToKey implements Function<PluginInfo, String> {
+    INSTANCE;
+
+    @Override
+    public String apply(@Nonnull PluginInfo input) {
+      return input.getKey();
+    }
+  }
+
+  private static class MatchPluginKeys implements Predicate<PluginInfo> {
+    private final Set<String> pluginKeys;
+
+    private MatchPluginKeys(Collection<String> pluginKeys) {
+      this.pluginKeys = copyOf(pluginKeys);
+    }
+
+    @Override
+    public boolean apply(@Nonnull PluginInfo input) {
+      return pluginKeys.contains(input.getKey());
+    }
   }
 }
