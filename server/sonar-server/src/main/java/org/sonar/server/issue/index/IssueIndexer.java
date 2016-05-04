@@ -101,9 +101,9 @@ public class IssueIndexer extends BaseIndexer {
     return maxDate;
   }
 
-  public void deleteProject(String uuid, boolean refresh) {
+  public void deleteProject(String uuid) {
     BulkIndexer bulk = new BulkIndexer(esClient, INDEX);
-    bulk.setDisableRefresh(!refresh);
+    bulk.setDisableRefresh(false);
     bulk.start();
     SearchRequestBuilder search = esClient.prepareSearch(INDEX)
       .setRouting(uuid)

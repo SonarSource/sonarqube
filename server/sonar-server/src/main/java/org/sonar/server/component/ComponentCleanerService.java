@@ -20,10 +20,10 @@
 package org.sonar.server.component;
 
 import java.util.List;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -83,7 +83,7 @@ public class ComponentCleanerService {
   private void deleteFromIndices(String projectUuid) {
     // optimization : index "issues" is refreshed once at the end
     issueAuthorizationIndexer.deleteProject(projectUuid, false);
-    issueIndexer.deleteProject(projectUuid, true);
+    issueIndexer.deleteProject(projectUuid);
     testIndexer.deleteByProject(projectUuid);
   }
 

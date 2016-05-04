@@ -106,7 +106,7 @@ public class IssueIndexerTest {
 
     assertThat(esTester.countDocuments("issues", "issue")).isEqualTo(1);
 
-    indexer.deleteProject("THE_PROJECT", true);
+    indexer.deleteProject("THE_PROJECT");
 
     assertThat(esTester.countDocuments("issues", "issue")).isZero();
   }
