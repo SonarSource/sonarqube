@@ -32,6 +32,8 @@ import net.jpountz.lz4.LZ4BlockOutputStream;
 import org.apache.commons.io.IOUtils;
 import org.sonar.db.protobuf.DbFileSources;
 
+import static java.lang.String.format;
+
 public class FileSourceDto {
 
   private Long id;
@@ -86,9 +88,14 @@ public class FileSourceDto {
     return this;
   }
 
-  public static DbFileSources.Data decodeSourceData(byte[] binaryData) {
-    // stream is always closed
-    return decodeSourceData(new ByteArrayInputStream(binaryData));
+  public DbFileSources.Data decodeSourceData(byte[] binaryData) {
+    try {
+      return decodeSourceDataImpl(new ByteArrayInputStream(binaryData));
+    } catch (IOException e) {
+      throw new IllegalStateException(
+        format("Fail to decompress and deserialize source data [id=%s,fileUuid=%s,projectUuid=%s]", id, fileUuid, projectUuid),
+        e);
+    }
   }
 
   /**
@@ -96,14 +103,16 @@ public class FileSourceDto {
    * The parameter "input" is always closed by this method.
    */
   public static DbFileSources.Data decodeSourceData(InputStream binaryInput) {
-    LZ4BlockInputStream lz4Input = null;
     try {
-      lz4Input = new LZ4BlockInputStream(binaryInput);
-      return DbFileSources.Data.parseFrom(lz4Input);
+      return decodeSourceDataImpl(binaryInput);
     } catch (IOException e) {
       throw new IllegalStateException("Fail to decompress and deserialize source data", e);
-    } finally {
-      IOUtils.closeQuietly(lz4Input);
+    }
+  }
+
+  private static DbFileSources.Data decodeSourceDataImpl(InputStream binaryInput) throws IOException {
+    try (LZ4BlockInputStream lz4Input = new LZ4BlockInputStream(binaryInput)) {
+      return DbFileSources.Data.parseFrom(lz4Input);
     }
   }
 

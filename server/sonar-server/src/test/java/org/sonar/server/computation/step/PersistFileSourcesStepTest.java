@@ -111,7 +111,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getCreatedAt()).isEqualTo(NOW);
     assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
 
-    DbFileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    DbFileSources.Data data = fileSourceDto.getSourceData();
     assertThat(data.getLinesCount()).isEqualTo(2);
     assertThat(data.getLines(0).getLine()).isEqualTo(1);
     assertThat(data.getLines(0).getSource()).isEqualTo("line1");
@@ -149,7 +149,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
-    DbFileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    DbFileSources.Data data = fileSourceDto.getSourceData();
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -180,7 +180,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
 
-    DbFileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    DbFileSources.Data data = fileSourceDto.getSourceData();
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -205,7 +205,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
-    DbFileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    DbFileSources.Data data = fileSourceDto.getSourceData();
 
     assertThat(data.getLinesList()).hasSize(1);
 
@@ -230,7 +230,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
-    DbFileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    DbFileSources.Data data = fileSourceDto.getSourceData();
 
     assertThat(data.getLinesList()).hasSize(3);
 
@@ -251,7 +251,7 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
     FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
-    DbFileSources.Data data = FileSourceDto.decodeSourceData(fileSourceDto.getBinaryData());
+    DbFileSources.Data data = fileSourceDto.getSourceData();
 
     assertThat(data.getLinesList()).hasSize(1);
 

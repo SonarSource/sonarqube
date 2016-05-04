@@ -21,12 +21,16 @@ package org.sonar.db.source;
 
 import java.util.Arrays;
 import java.util.List;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.db.protobuf.DbFileSources;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileSourceDtoTest {
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void encode_and_decode_test_data() {
@@ -42,5 +46,22 @@ public class FileSourceDtoTest {
 
     assertThat(underTest.getTestData()).hasSize(2);
     assertThat(underTest.getTestData().get(0).getName()).isEqualTo("name#1");
+  }
+
+  @Test
+  public void getSourceData_throws_ISE_with_id_fileUuid_and_projectUuid_in_message_when_data_cant_be_read() {
+    long id = 12L;
+    String fileUuid = "file uuid";
+    String projectUuid = "project uuid";
+    FileSourceDto underTest = new FileSourceDto()
+        .setBinaryData(new byte[]{1, 2, 3, 4, 5})
+        .setId(id)
+        .setFileUuid(fileUuid)
+        .setProjectUuid(projectUuid);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to decompress and deserialize source data [id=" + id + ",fileUuid=" + fileUuid + ",projectUuid=" + projectUuid + "]");
+
+    underTest.getSourceData();
   }
 }
