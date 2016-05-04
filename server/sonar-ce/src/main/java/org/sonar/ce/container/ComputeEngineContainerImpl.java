@@ -150,7 +150,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     DefaultServerFileSystem.class,
     // no TempFolderCleaner.class, responsibility of Web Server
     new TempFolderProvider(),
-    System2.INSTANCE,
+    System2.SYSTEM,
 
     // user session
     CeUserSession.class,

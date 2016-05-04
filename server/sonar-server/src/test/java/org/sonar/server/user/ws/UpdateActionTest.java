@@ -51,10 +51,8 @@ public class UpdateActionTest {
 
   static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
 
-  System2 system2 = new System2();
-
   @Rule
-  public DbTester dbTester = DbTester.create(system2);
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
   @ClassRule
   public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
   @Rule
@@ -81,7 +79,7 @@ public class UpdateActionTest {
 
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     tester = new WsTester(new UsersWs(new UpdateAction(
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2), userSessionRule,
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, System2.INSTANCE), userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
     controller = tester.controller("api/users");
   }

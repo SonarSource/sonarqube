@@ -25,11 +25,11 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+import static org.sonar.api.utils.System2.SYSTEM;
 
 /**
  * @since 3.6
@@ -77,8 +77,8 @@ public final class IssueChangeDto implements Serializable {
     dto.setIssueKey(issueKey);
 
     // technical dates - do not use the context date
-    dto.setCreatedAt(System2.INSTANCE.now());
-    dto.setUpdatedAt(System2.INSTANCE.now());
+    dto.setCreatedAt(SYSTEM.now());
+    dto.setUpdatedAt(SYSTEM.now());
     return dto;
   }
 

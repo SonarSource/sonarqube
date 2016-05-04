@@ -85,10 +85,9 @@ public class CreateActionTest {
     dbTester.truncateTables();
     esTester.truncateIndices();
 
-    System2 system2 = new System2();
-    UserDao userDao = new UserDao(dbTester.myBatis(), system2);
+    UserDao userDao = new UserDao(dbTester.myBatis(), System2.INSTANCE);
     UserGroupDao userGroupDao = new UserGroupDao();
-    GroupDao groupDao = new GroupDao(system2);
+    GroupDao groupDao = new GroupDao(System2.INSTANCE);
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(), userDao, userGroupDao, groupDao);
     session = dbClient.openSession(false);
     groupDao.insert(session, new GroupDto().setName("sonar-users"));
@@ -97,7 +96,7 @@ public class CreateActionTest {
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
     tester = new WsTester(new UsersWs(new CreateAction(dbClient,
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2),
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, System2.INSTANCE),
       i18n, userSessionRule, new UserJsonWriter(userSessionRule))));
     controller = tester.controller("api/users");
   }

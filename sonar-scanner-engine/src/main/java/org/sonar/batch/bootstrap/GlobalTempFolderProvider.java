@@ -49,7 +49,7 @@ public class GlobalTempFolderProvider extends ProviderAdapter implements Compone
   private DefaultTempFolder tempFolder;
 
   public GlobalTempFolderProvider() {
-    this(new System2());
+    this(System2.SYSTEM);
   }
 
   GlobalTempFolderProvider(System2 system) {

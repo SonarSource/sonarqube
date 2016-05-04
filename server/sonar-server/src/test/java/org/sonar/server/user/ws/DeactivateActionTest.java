@@ -74,8 +74,7 @@ public class DeactivateActionTest {
   public void setUp() {
     esTester.truncateIndices();
 
-    System2 system2 = new System2();
-    UserDao userDao = new UserDao(db.myBatis(), system2);
+    UserDao userDao = new UserDao(db.myBatis(), System2.INSTANCE);
     dbClient = new DbClient(db.database(), db.myBatis(), userDao, new GroupMembershipDao(db.myBatis()), new UserTokenDao());
     dbSession = db.getSession();
     dbSession.commit();
@@ -83,7 +82,7 @@ public class DeactivateActionTest {
     userIndexer = (UserIndexer) new UserIndexer(dbClient, esTester.client()).setEnabled(true);
     index = new UserIndex(esTester.client());
     ws = new WsTester(new UsersWs(new DeactivateAction(
-      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, system2), userSessionRule,
+      new UserUpdater(mock(NewUserNotifier.class), settings, dbClient, userIndexer, System2.INSTANCE), userSessionRule,
       new UserJsonWriter(userSessionRule), dbClient)));
     controller = ws.controller("api/users");
   }
