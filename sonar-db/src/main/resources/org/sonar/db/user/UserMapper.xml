@@ -138,7 +138,7 @@
   <delete id="deletePropertiesMatchingLogin" parameterType="String">
     DELETE FROM properties
     <where>
-      text_value=#{login}
+      text_value LIKE #{login}
       AND prop_key IN
       <foreach item="property" index="index" collection="propertyKeys" open="(" separator="," close=")">
         #{property}
