@@ -32,6 +32,7 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -99,6 +100,16 @@ public class MssqlCharsetHandlerTest {
     underTest.handle(connection, false);
 
     verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name nvarchar(max) COLLATE Latin1_General_CS_AS NOT NULL");
+  }
+
+  @Test
+  public void do_not_repair_system_tables_of_sql_azure() throws Exception {
+    answerColumns(asList(new ColumnDef("sys.sysusers", COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, false);
+
+    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
   }
 
   private void answerColumns(List<ColumnDef> columnDefs) throws SQLException {

@@ -27,6 +27,7 @@ import java.util.List;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
 
@@ -53,7 +54,7 @@ class MssqlCharsetHandler extends CharsetHandler {
         "FROM [INFORMATION_SCHEMA].[COLUMNS] " +
         "WHERE collation_name is not null " +
         "ORDER BY table_name,column_name", ColumnDef.ColumnDefRowConverter.INSTANCE);
-    for (ColumnDef column : columns) {
+    for (ColumnDef column : from(columns).filter(ColumnDef.IsInSonarQubeTablePredicate.INSTANCE)) {
       if (!endsWithIgnoreCase(column.getCollation(), "_CS_AS")) {
         repairColumnCollation(connection, column);
       }
