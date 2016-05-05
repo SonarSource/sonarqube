@@ -88,8 +88,10 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
   }
 
   void match(RAW raw, BASE base) {
-    rawToBase.put(raw, base);
-    baseToRaw.put(base, raw);
+    if (!rawToBase.containsKey(raw)) {
+      rawToBase.put(raw, base);
+      baseToRaw.put(base, raw);
+    }
   }
 
   boolean isComplete() {

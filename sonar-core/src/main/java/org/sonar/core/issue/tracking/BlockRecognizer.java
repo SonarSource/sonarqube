@@ -75,20 +75,22 @@ class BlockRecognizer<RAW extends Trackable, BASE extends Trackable> {
       }
     }
 
-    // Check if remaining number of lines exceeds threshold
-    if (basesByLine.keySet().size() * rawsByLine.keySet().size() < 250000) {
-      List<LinePair> possibleLinePairs = Lists.newArrayList();
-      for (Integer baseLine : basesByLine.keySet()) {
-        for (Integer rawLine : rawsByLine.keySet()) {
-          int weight = lengthOfMaximalBlock(baseInput.getLineHashSequence(), baseLine, rawInput.getLineHashSequence(), rawLine);
-          possibleLinePairs.add(new LinePair(baseLine, rawLine, weight));
-        }
+    // Check if remaining number of lines exceeds threshold. It avoids processing too many combinations.
+    if (basesByLine.keySet().size() * rawsByLine.keySet().size() >= 250_000) {
+      return;
+    }
+
+    List<LinePair> possibleLinePairs = Lists.newArrayList();
+    for (Integer baseLine : basesByLine.keySet()) {
+      for (Integer rawLine : rawsByLine.keySet()) {
+        int weight = lengthOfMaximalBlock(baseInput.getLineHashSequence(), baseLine, rawInput.getLineHashSequence(), rawLine);
+        possibleLinePairs.add(new LinePair(baseLine, rawLine, weight));
       }
-      Collections.sort(possibleLinePairs, LinePairComparator.INSTANCE);
-      for (LinePair linePair : possibleLinePairs) {
-        // High probability that baseLine has been moved to rawLine, so we can map all Issues on baseLine to all Issues on rawLine
-        map(rawsByLine.get(linePair.rawLine), basesByLine.get(linePair.baseLine), tracking);
-      }
+    }
+    Collections.sort(possibleLinePairs, LinePairComparator.INSTANCE);
+    for (LinePair linePair : possibleLinePairs) {
+      // High probability that baseLine has been moved to rawLine, so we can map all issues on baseLine to all issues on rawLine
+      map(rawsByLine.get(linePair.rawLine), basesByLine.get(linePair.baseLine), tracking);
     }
   }
 

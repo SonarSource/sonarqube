@@ -30,6 +30,7 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.rule.RuleKey;
 
 import static java.util.Arrays.asList;
+import static org.apache.commons.lang.StringUtils.trim;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class TrackerTest {
@@ -38,6 +39,8 @@ public class TrackerTest {
   public static final RuleKey RULE_UNUSED_LOCAL_VARIABLE = RuleKey.of("java", "UnusedLocalVariable");
   public static final RuleKey RULE_UNUSED_PRIVATE_METHOD = RuleKey.of("java", "UnusedPrivateMethod");
   public static final RuleKey RULE_NOT_DESIGNED_FOR_EXTENSION = RuleKey.of("java", "NotDesignedForExtension");
+  public static final RuleKey RULE_USE_DIAMOND = RuleKey.of("java", "UseDiamond");
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -348,6 +351,36 @@ public class TrackerTest {
     assertThat(tracking.getUnmatchedBases()).containsOnly(base2);
   }
 
+  /**
+   * https://jira.sonarsource.com/browse/SONAR-7595
+   */
+  @Test
+  public void match_only_one_issue_when_multiple_blocks_match_the_same_block() {
+    FakeInput baseInput = FakeInput.createForSourceLines(
+      "public class Toto {",
+      "  private final Deque<Set<DataItem>> one = new ArrayDeque<Set<DataItem>>();",
+      "  private final Deque<Set<DataItem>> two = new ArrayDeque<Set<DataItem>>();",
+      "  private final Deque<Integer> three = new ArrayDeque<Integer>();",
+      "  private final Deque<Set<Set<DataItem>>> four = new ArrayDeque<Set<DataItem>>();");
+    Issue base1 = baseInput.createIssueOnLine(2, RULE_USE_DIAMOND, "Use diamond");
+    baseInput.createIssueOnLine(3, RULE_USE_DIAMOND, "Use diamond");
+    baseInput.createIssueOnLine(4, RULE_USE_DIAMOND, "Use diamond");
+    baseInput.createIssueOnLine(5, RULE_USE_DIAMOND, "Use diamond");
+
+    FakeInput rawInput = FakeInput.createForSourceLines(
+      "public class Toto {",
+      "  // move all lines",
+      "  private final Deque<Set<DataItem>> one = new ArrayDeque<Set<DataItem>>();",
+      "  private final Deque<Set<DataItem>> two = new ArrayDeque<>();",
+      "  private final Deque<Integer> three = new ArrayDeque<>();",
+      "  private final Deque<Set<Set<DataItem>>> four = new ArrayDeque<>();");
+    Issue raw1 = rawInput.createIssueOnLine(3, RULE_USE_DIAMOND, "Use diamond");
+
+    Tracking<Issue, Issue> tracking = tracker.track(rawInput, baseInput);
+    assertThat(tracking.getUnmatchedBases()).hasSize(3);
+    assertThat(tracking.baseFor(raw1)).isEqualTo(base1);
+  }
+
   private static class Issue implements Trackable {
     private final RuleKey ruleKey;
     private final Integer line;
@@ -357,7 +390,7 @@ public class TrackerTest {
       this.line = line;
       this.lineHash = lineHash;
       this.ruleKey = ruleKey;
-      this.message = message;
+      this.message = trim(message);
     }
 
     @Override

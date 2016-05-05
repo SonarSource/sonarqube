@@ -20,9 +20,10 @@
 package org.sonar.batch.issue.tracking;
 
 import javax.annotation.CheckForNull;
-
-import org.sonar.core.issue.tracking.Trackable;
 import org.sonar.api.rule.RuleKey;
+import org.sonar.core.issue.tracking.Trackable;
+
+import static org.apache.commons.lang.StringUtils.trim;
 
 public class ServerIssueFromWs implements Trackable {
 
@@ -59,7 +60,7 @@ public class ServerIssueFromWs implements Trackable {
 
   @Override
   public String getMessage() {
-    return dto.hasMsg() ? dto.getMsg() : "";
+    return dto.hasMsg() ? trim(dto.getMsg()) : "";
   }
 
 }
