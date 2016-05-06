@@ -105,6 +105,14 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
   public enum Level {
     OK("Green"), WARN("Orange"), ERROR("Red");
 
+    private static final List<String> NAMES = Lists.transform(Arrays.asList(values()), new Function<Level, String>() {
+      @Nonnull
+      @Override
+      public String apply(@Nonnull Level level) {
+        return level.name();
+      }
+    });
+
     private String colorName;
 
     Level(String colorName) {
@@ -116,13 +124,7 @@ public class Metric<G extends Serializable> implements Serializable, org.sonar.a
     }
 
     public static List<String> names() {
-      return Lists.transform(Arrays.asList(values()), new Function<Level, String>() {
-        @Nonnull
-        @Override
-        public String apply(@Nonnull Level level) {
-          return level.name();
-        }
-      });
+      return NAMES;
     }
   }
 

@@ -25,7 +25,9 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.measure.MeasureDto;
@@ -72,7 +74,7 @@ public class ComponentTreeSortTest {
 
     metrics = newArrayList(violationsMetric, sqaleIndexMetric);
 
-    measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), 1);
+    measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), 2);
     // same number than path field
     double currentValue = 9;
     for (ComponentDtoWithSnapshotId component : components) {
@@ -133,6 +135,35 @@ public class ComponentTreeSortTest {
 
     assertThat(result).extracting("path")
       .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
+  }
+
+  @Test
+  public void sort_by_alert_status_ascending() {
+    components = newArrayList(
+      newComponentWithoutSnapshotId("PROJECT OK 1", Qualifiers.PROJECT, "PROJECT_OK_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT WARN 1", Qualifiers.PROJECT, "PROJECT_WARN_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT ERROR 1", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_1"),
+      newComponentWithoutSnapshotId("PROJECT OK 2", Qualifiers.PROJECT, "PROJECT_OK_PATH_2"),
+      newComponentWithoutSnapshotId("PROJECT WARN 2", Qualifiers.PROJECT, "PROJECT_WARN_PATH_2"),
+      newComponentWithoutSnapshotId("PROJECT ERROR 2", Qualifiers.PROJECT, "PROJECT_ERROR_PATH_2"));
+    metrics = singletonList(newMetricDto()
+      .setKey(CoreMetrics.ALERT_STATUS_KEY)
+      .setValueType(ValueType.LEVEL.name()));
+    measuresByComponentUuidAndMetric = HashBasedTable.create();
+    List<String> statuses = newArrayList("OK", "WARN", "ERROR");
+    for (int i = 0; i < components.size(); i++) {
+      ComponentDtoWithSnapshotId component = components.get(i);
+      String alertStatus = statuses.get(i % 3);
+      measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), new MeasureDto().setData(alertStatus));
+    }
+    ComponentTreeWsRequest wsRequest = newRequest(newArrayList(METRIC_SORT, NAME_SORT), true, CoreMetrics.ALERT_STATUS_KEY);
+
+    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+
+    assertThat(result).extracting("name").containsExactly(
+      "PROJECT ERROR 1", "PROJECT ERROR 2",
+      "PROJECT WARN 1", "PROJECT WARN 2",
+      "PROJECT OK 1", "PROJECT OK 2");
   }
 
   @Test

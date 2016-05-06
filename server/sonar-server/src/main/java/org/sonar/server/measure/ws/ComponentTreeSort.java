@@ -30,6 +30,7 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
+import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.measure.MeasureDto;
@@ -45,7 +46,6 @@ import static org.sonar.api.measures.Metric.ValueType.DATA;
 import static org.sonar.api.measures.Metric.ValueType.DISTRIB;
 import static org.sonar.api.measures.Metric.ValueType.FLOAT;
 import static org.sonar.api.measures.Metric.ValueType.INT;
-import static org.sonar.api.measures.Metric.ValueType.LEVEL;
 import static org.sonar.api.measures.Metric.ValueType.MILLISEC;
 import static org.sonar.api.measures.Metric.ValueType.PERCENT;
 import static org.sonar.api.measures.Metric.ValueType.RATING;
@@ -60,7 +60,7 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.QUALIFIER_SORT;
 class ComponentTreeSort {
 
   private static final Set<ValueType> NUMERIC_VALUE_TYPES = EnumSet.of(BOOL, FLOAT, INT, MILLISEC, WORK_DUR, PERCENT, RATING);
-  private static final Set<ValueType> TEXTUAL_VALUE_TYPES = EnumSet.of(DATA, DISTRIB, LEVEL, STRING);
+  private static final Set<ValueType> TEXTUAL_VALUE_TYPES = EnumSet.of(DATA, DISTRIB, STRING);
 
   private ComponentTreeSort() {
     // static method only
@@ -129,6 +129,8 @@ class ComponentTreeSort {
       return numericalMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     } else if (TEXTUAL_VALUE_TYPES.contains(metricValueType)) {
       return stringOrdering(isAscending, new ComponentDtoWithSnapshotIdToTextualMeasureValue(metric, measuresByComponentUuidAndMetric));
+    } else if (ValueType.LEVEL.equals(ValueType.valueOf(metric.getValueType()))) {
+      return levelMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     }
 
     throw new IllegalStateException("Unrecognized metric value type: " + metric.getValueType());
@@ -172,6 +174,18 @@ class ComponentTreeSort {
     return ordering.nullsLast().onResultOf(new ComponentDtoWithSnapshotIdToMeasureVariationValue(metric, measuresByComponentUuidAndMetric, request.getMetricPeriodSort()));
   }
 
+  private static Ordering<ComponentDtoWithSnapshotId> levelMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
+    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
+    Ordering<Integer> ordering = Ordering.natural();
+
+    // inverse the order of org.sonar.api.measures.Metric.Level
+    if (isAscending) {
+      ordering = ordering.reverse();
+    }
+
+    return ordering.nullsLast().onResultOf(new ComponentDtoWithSnapshotIdToLevelIndex(metric, measuresByComponentUuidAndMetric));
+  }
+
   private static class ComponentDtoWithSnapshotIdToNumericalMeasureValue implements Function<ComponentDtoWithSnapshotId, Double> {
     private final MetricDto metric;
     private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
@@ -190,6 +204,27 @@ class ComponentTreeSort {
       }
 
       return measure.getValue();
+    }
+  }
+
+  private static class ComponentDtoWithSnapshotIdToLevelIndex implements Function<ComponentDtoWithSnapshotId, Integer> {
+    private final MetricDto metric;
+    private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
+
+    private ComponentDtoWithSnapshotIdToLevelIndex(@Nullable MetricDto metric,
+      Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
+      this.metric = metric;
+      this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
+    }
+
+    @Override
+    public Integer apply(@Nonnull ComponentDtoWithSnapshotId input) {
+      MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
+      if (measure == null || measure.getData() == null) {
+        return null;
+      }
+
+      return Metric.Level.names().indexOf(measure.getData());
     }
   }
 
