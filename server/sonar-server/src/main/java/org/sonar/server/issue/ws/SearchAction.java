@@ -165,7 +165,7 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("To match resolved or unresolved issues")
       .setBooleanPossibleValues();
     action.createParam(RULES)
-      .setDescription("Comma-separated list of coding rule keys. Format is <repository>:<rule>")
+      .setDescription("Comma-separated list of coding rule keys. Format is &lt;repository&gt;:&lt;rule&gt;")
       .setExampleValue("squid:AvoidCycles");
     action.createParam(TAGS)
       .setDescription("Comma-separated list of tags.")
