@@ -30,6 +30,7 @@ import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
+import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
@@ -66,7 +67,7 @@ class MysqlCharsetHandler extends CharsetHandler {
         "FROM INFORMATION_SCHEMA.columns " +
         "WHERE table_schema=database() and character_set_name is not null and collation_name is not null", ColumnDef.ColumnDefRowConverter.INSTANCE);
     List<String> utf8Errors = new ArrayList<>();
-    for (ColumnDef column : columns) {
+    for (ColumnDef column : from(columns).filter(ColumnDef.IsInSonarQubeTablePredicate.INSTANCE)) {
       if (enforceUtf8 && !containsIgnoreCase(column.getCharset(), UTF8)) {
         utf8Errors.add(format("%s.%s", column.getTable(), column.getColumn()));
       } else if (endsWithIgnoreCase(column.getCollation(), "_ci")) {

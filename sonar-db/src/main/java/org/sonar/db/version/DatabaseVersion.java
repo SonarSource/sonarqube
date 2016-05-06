@@ -20,9 +20,10 @@
 package org.sonar.db.version;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.MyBatis;
@@ -43,7 +44,7 @@ public class DatabaseVersion {
    * This list is hardcoded because we didn't succeed in using java.sql.DatabaseMetaData#getTables() in the same way
    * for all the supported databases, particularly due to Oracle results.
    */
-  public static final List<String> TABLES = ImmutableList.of(
+  public static final Set<String> TABLES = ImmutableSet.of(
     "active_dashboards",
     "active_rules",
     "active_rule_parameters",
