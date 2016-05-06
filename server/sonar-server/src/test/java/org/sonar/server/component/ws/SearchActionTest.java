@@ -36,7 +36,6 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDbTester;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceTypesRule;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.i18n.I18nRule;
@@ -80,7 +79,6 @@ public class SearchActionTest {
     when(languages.all()).thenReturn(javaLanguage());
 
     ws = new WsActionTester(new SearchAction(db.getDbClient(), resourceTypes, i18n, userSession, languages));
-
   }
 
   @Test
@@ -166,8 +164,8 @@ public class SearchActionTest {
 
   @Test
   public void fail_if_unknown_qualifier_provided() {
-    expectedException.expect(BadRequestException.class);
-    expectedException.expectMessage("The 'qualifier' parameter must be one of [BRC, DIR, FIL, TRK]. 'Unknown-Qualifier' was passed.");
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Value of parameter 'qualifiers' (Unknown-Qualifier) must be one of: [BRC, DIR, FIL, TRK]");
 
     newRequest("Unknown-Qualifier").execute();
   }

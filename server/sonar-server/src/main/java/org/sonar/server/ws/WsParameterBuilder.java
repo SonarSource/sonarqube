@@ -19,12 +19,17 @@
  */
 package org.sonar.server.ws;
 
+import com.google.common.base.Predicate;
+import com.google.common.collect.ImmutableSet;
 import java.util.Set;
+import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.user.UserSession;
 
+import static com.google.common.base.Predicates.not;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Ordering.natural;
 import static java.lang.String.format;
@@ -33,6 +38,8 @@ import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_
 public class WsParameterBuilder {
   private static final String PARAM_QUALIFIER = "qualifier";
   private static final String PARAM_QUALIFIERS = "qualifiers";
+  private static final Set<String> DEPRECATED_QUALIFIERS = ImmutableSet.of(
+    Qualifiers.CLASS, Qualifiers.PACKAGE, Qualifiers.FIELD, Qualifiers.LIBRARY, Qualifiers.METHOD, Qualifiers.PARAGRAPH);
 
   private WsParameterBuilder() {
     // static methods only
@@ -54,12 +61,14 @@ public class WsParameterBuilder {
   private static Set<String> getRootQualifiers(ResourceTypes resourceTypes) {
     return from(resourceTypes.getRoots())
       .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .filter(not(IsDeprecatedQualifier.INSTANCE))
       .toSortedSet(natural());
   }
 
   private static Set<String> getAllQualifiers(ResourceTypes resourceTypes) {
     return from(resourceTypes.getAll())
       .transform(RESOURCE_TYPE_TO_QUALIFIER)
+      .filter(not(IsDeprecatedQualifier.INSTANCE))
       .toSortedSet(natural());
   }
 
@@ -85,7 +94,16 @@ public class WsParameterBuilder {
 
   private static String qualifierLabel(QualifierParameterContext context, String qualifier) {
     String qualifiersPropertyPrefix = "qualifiers.";
-    return context.getI18n().message(context.getUserSession().locale(), qualifiersPropertyPrefix + qualifier, "");
+    return context.getI18n().message(context.getUserSession().locale(), qualifiersPropertyPrefix + qualifier, "no description available");
+  }
+
+  private enum IsDeprecatedQualifier implements Predicate<String> {
+    INSTANCE;
+
+    @Override
+    public boolean apply(@Nullable String input) {
+      return DEPRECATED_QUALIFIERS.contains(input);
+    }
   }
 
   public static class QualifierParameterContext {

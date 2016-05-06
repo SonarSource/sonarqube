@@ -21,11 +21,9 @@ package org.sonar.server.component.ws;
 
 import com.google.common.base.Function;
 import java.util.List;
-import java.util.Set;
 import javax.annotation.Nonnull;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Languages;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -43,18 +41,13 @@ import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
 
 import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Ordering.natural;
-import static java.lang.String.format;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
-import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
 import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
 
 public class SearchAction implements ComponentsWsAction {
-  private static final String QUALIFIER_PROPERTY_PREFIX = "qualifiers.";
-
   private final DbClient dbClient;
   private final ResourceTypes resourceTypes;
   private final I18n i18n;
@@ -80,10 +73,8 @@ public class SearchAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("search-components-example.json"))
       .setHandler(this);
 
-    action.createParam(PARAM_QUALIFIERS)
-      .setRequired(true)
-      .setExampleValue(format("%s,%s", Qualifiers.PROJECT, Qualifiers.MODULE))
-      .setDescription("Comma-separated list of component qualifiers. Possible values are " + buildQualifiersDescription());
+    createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
+      .setRequired(true);
 
     action
       .createParam(PARAM_LANGUAGE)
@@ -102,12 +93,9 @@ public class SearchAction implements ComponentsWsAction {
   private SearchWsResponse doHandle(SearchWsRequest request) {
     userSession.checkLoggedIn().checkPermission(GlobalPermissions.SYSTEM_ADMIN);
 
-    List<String> qualifiers = request.getQualifiers();
-    validateQualifiers(qualifiers);
-
     DbSession dbSession = dbClient.openSession(false);
     try {
-      ComponentQuery query = buildQuery(request, qualifiers);
+      ComponentQuery query = buildQuery(request);
       Paging paging = buildPaging(dbSession, request, query);
       List<ComponentDto> components = searchComponents(dbSession, query, paging);
       return buildResponse(components, paging);
@@ -155,42 +143,13 @@ public class SearchAction implements ComponentsWsAction {
       .andTotal(total);
   }
 
-  private static ComponentQuery buildQuery(SearchWsRequest request, List<String> qualifiers) {
+  private static ComponentQuery buildQuery(SearchWsRequest request) {
+    List<String> qualifiers = request.getQualifiers();
     return ComponentQuery.builder()
       .setNameOrKeyQuery(request.getQuery())
       .setLanguage(request.getLanguage())
       .setQualifiers(qualifiers.toArray(new String[qualifiers.size()]))
       .build();
-  }
-
-  private void validateQualifiers(List<String> qualifiers) {
-    Set<String> possibleQualifiers = allQualifiers();
-    for (String qualifier : qualifiers) {
-      checkRequest(possibleQualifiers.contains(qualifier),
-        format("The '%s' parameter must be one of %s. '%s' was passed.", PARAM_QUALIFIER, possibleQualifiers, qualifier));
-    }
-  }
-
-  private Set<String> allQualifiers() {
-    return from(resourceTypes.getAll())
-      .transform(RESOURCE_TYPE_TO_QUALIFIER)
-      .toSortedSet(natural());
-  }
-
-  private String buildQualifiersDescription() {
-    StringBuilder description = new StringBuilder();
-    description.append("<ul>");
-    String qualifierPattern = "<li>%s - %s</li>";
-    for (String qualifier : allQualifiers()) {
-      description.append(format(qualifierPattern, qualifier, i18n(qualifier)));
-    }
-    description.append("</ul>");
-
-    return description.toString();
-  }
-
-  private String i18n(String qualifier) {
-    return i18n.message(userSession.locale(), QUALIFIER_PROPERTY_PREFIX + qualifier, "");
   }
 
   private enum ComponentDToComponentResponseFunction implements Function<ComponentDto, WsComponents.Component> {
