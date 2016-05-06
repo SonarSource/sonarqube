@@ -74,6 +74,7 @@ import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 public class ActivityAction implements CeWsAction {
   private static final int OFFSET = 0;
   private static final int MAX_PAGE_SIZE = 1000;
+  private static final List<String> POSSIBLE_QUALIFIERS = ImmutableList.of(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
 
   private final UserSession userSession;
   private final DbClient dbClient;
@@ -216,22 +217,28 @@ public class ActivityAction implements CeWsAction {
       query.setStatuses(request.getStatus());
     }
 
-    loadComponentUuids(dbSession, request, query);
+    query.setComponentUuids(loadComponentUuids(dbSession, request));
     return query;
   }
 
-  private void loadComponentUuids(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
+  @CheckForNull
+  private List<String> loadComponentUuids(DbSession dbSession, ActivityWsRequest request) {
     String componentUuid = request.getComponentId();
     String componentQuery = request.getQuery();
 
     if (componentUuid != null) {
-      query.setComponentUuid(componentUuid);
+      return singletonList(componentUuid);
     }
     if (componentQuery != null) {
-      ComponentQuery componentDtoQuery = ComponentQuery.builder().setNameOrKeyQuery(componentQuery).setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW).build();
+      ComponentQuery componentDtoQuery = ComponentQuery.builder()
+        .setNameOrKeyQuery(componentQuery)
+        .setQualifiers(POSSIBLE_QUALIFIERS.toArray(new String[0]))
+        .build();
       List<ComponentDto> componentDtos = dbClient.componentDao().selectByQuery(dbSession, componentDtoQuery, 0, CeTaskQuery.MAX_COMPONENT_UUIDS);
-      query.setComponentUuids(Lists.transform(componentDtos, ComponentDtoFunctions.toUuid()));
+      return Lists.transform(componentDtos, ComponentDtoFunctions.toUuid());
     }
+
+    return null;
   }
 
   private Iterable<WsCe.Task> loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {

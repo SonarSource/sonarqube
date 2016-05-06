@@ -184,7 +184,7 @@ public class SearchProjectPermissionsActionTest {
   public void search_by_query_on_name() {
     componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-name"));
     componentDb.insertProjectAndSnapshot(newProjectDto().setName("another-name"));
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     String result = ws.newRequest()
       .setParam(TEXT_QUERY, "project")
@@ -198,7 +198,7 @@ public class SearchProjectPermissionsActionTest {
   public void search_by_query_on_key_must_match_exactly() {
     componentDb.insertProjectAndSnapshot(newProjectDto().setKey("project-key"));
     componentDb.insertProjectAndSnapshot(newProjectDto().setKey("another-key"));
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     String result = ws.newRequest()
       .setParam(TEXT_QUERY, "project-key")
@@ -213,7 +213,7 @@ public class SearchProjectPermissionsActionTest {
     for (int i = 1; i <= 1001; i++) {
       componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid-" + i));
     }
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     String result = ws.newRequest()
       .setParam(TEXT_QUERY, "project")

@@ -43,6 +43,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.TestRequest;
@@ -61,7 +62,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.api.utils.DateUtils.formatDate;
 import static org.sonar.api.utils.DateUtils.formatDateTime;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newView;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
 
@@ -210,15 +213,34 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_by_component_name() throws IOException {
-    componentDb.insertProjectAndSnapshot(newProjectDto().setName("apache struts").setUuid("P1"));
-    componentDb.insertProjectAndSnapshot(newProjectDto().setName("apache zookeeper").setUuid("P2"));
-    componentDb.insertProjectAndSnapshot(newProjectDto().setName("eclipse").setUuid("P3"));
+    ComponentDto struts = newProjectDto().setName("old apache struts").setUuid("P1");
+    ComponentDto zookeeper = newProjectDto().setName("new apache zookeeper").setUuid("P2");
+    ComponentDto eclipse = newProjectDto().setName("eclipse").setUuid("P3");
+    componentDb.insertProjectAndSnapshot(struts);
+    componentDb.insertProjectAndSnapshot(zookeeper);
+    componentDb.insertProjectAndSnapshot(eclipse);
     dbTester.commit();
-    componentDb.indexProjects();
+    componentDb.indexComponents(struts.getId(), zookeeper.getId(), eclipse.getId());
     userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
     insertActivity("T3", "P3", CeActivityDto.Status.SUCCESS);
+
+    ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
+
+    assertThat(activityResponse.getTasksList()).extracting("id").containsOnly("T1", "T2");
+  }
+
+  @Test
+  public void search_activity_returns_views_and_developers() {
+    ComponentDto developer = newDeveloper("Apache Developer").setUuid("D1");
+    ComponentDto apacheView = newView().setName("Apache View").setUuid("V1");
+    componentDb.insertDeveloperAndSnapshot(developer);
+    componentDb.insertViewAndSnapshot(apacheView);
+    componentDb.indexComponents(developer.getId(), apacheView.getId());
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    insertActivity("T1", "D1", CeActivityDto.Status.SUCCESS);
+    insertActivity("T2", "V1", CeActivityDto.Status.SUCCESS);
 
     ActivityResponse activityResponse = call(ws.newRequest().setParam(PARAM_COMPONENT_QUERY, "apac"));
 

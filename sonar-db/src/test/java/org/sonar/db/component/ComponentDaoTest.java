@@ -695,7 +695,7 @@ public class ComponentDaoTest {
     for (int i = 9; i >= 1; i--) {
       componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-" + i));
     }
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
@@ -708,7 +708,7 @@ public class ComponentDaoTest {
   @Test
   public void select_by_query_name_with_special_characters() {
     componentDb.insertProjectAndSnapshot(newProjectDto().setName("project-\\_%/-name"));
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("-\\_%/-").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -720,7 +720,7 @@ public class ComponentDaoTest {
   @Test
   public void select_by_query_key_with_special_characters() {
     componentDb.insertProjectAndSnapshot(newProjectDto().setKey("project-_%-key"));
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("project-_%-key").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
@@ -749,7 +749,7 @@ public class ComponentDaoTest {
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid"), projectSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid"), moduleSnapshot);
     db.commit();
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot).build();
 
@@ -768,7 +768,7 @@ public class ComponentDaoTest {
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid").setName("file-name-1"), projectSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid").setName("file-name-2"), moduleSnapshot);
     db.commit();
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot)
       .setNameOrKeyQuery("file-name").build();
@@ -788,7 +788,7 @@ public class ComponentDaoTest {
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid").setKey("file-key-1").setName("File one"), projectSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid").setKey("file-key-2").setName("File two"), moduleSnapshot);
     db.commit();
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot)
       .setNameOrKeyQuery("file-key-1").build();
@@ -808,7 +808,7 @@ public class ComponentDaoTest {
       componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-" + i), projectSnapshot);
     }
     db.commit();
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot)
       .setPage(2)
@@ -831,7 +831,7 @@ public class ComponentDaoTest {
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-2").setName("file-name-2").setPath("2"), projectSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-3").setName("file-name-3").setPath("1"), projectSnapshot);
     db.commit();
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot)
       .setSortFields(singletonList("path"))
@@ -851,7 +851,7 @@ public class ComponentDaoTest {
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid"), projectSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid"), moduleSnapshot);
     db.commit();
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentTreeQuery query = newTreeQuery(moduleSnapshot).build();
 
@@ -868,7 +868,7 @@ public class ComponentDaoTest {
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-1-uuid"), projectSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, "file-2-uuid"), moduleSnapshot);
     db.commit();
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot).build();
 
@@ -890,7 +890,7 @@ public class ComponentDaoTest {
     ComponentDto project = newProjectDto("project-uuid").setName("project-name");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
     ComponentTreeQuery dbQuery = newTreeQuery(viewSnapshot).build();
 
     List<ComponentDtoWithSnapshotId> components = underTest.selectDirectChildren(dbSession, dbQuery);
@@ -909,7 +909,7 @@ public class ComponentDaoTest {
     ComponentDto project = newProjectDto("project-uuid").setName("project name");
     componentDb.insertProjectAndSnapshot(project);
     componentDb.insertComponentAndSnapshot(newProjectCopy("project-copy-uuid", project, view), viewSnapshot);
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
     ComponentTreeQuery dbQuery = newTreeQuery(viewSnapshot).setNameOrKeyQuery("name").build();
 
     List<ComponentDtoWithSnapshotId> components = underTest.selectDirectChildren(dbSession, dbQuery);
@@ -928,7 +928,7 @@ public class ComponentDaoTest {
       componentDb.insertComponentAndSnapshot(newFileDto(project, "file-uuid-" + i).setName("file-name-" + i), moduleSnapshot);
     }
     db.commit();
-    componentDb.indexProjects();
+    componentDb.indexProjectsAndViews();
 
     ComponentTreeQuery query = newTreeQuery(projectSnapshot)
       .setQualifiers(newArrayList(Qualifiers.FILE))

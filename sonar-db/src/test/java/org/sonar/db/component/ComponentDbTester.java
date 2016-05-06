@@ -83,8 +83,15 @@ public class ComponentDbTester {
     db.commit();
   }
 
-  public void indexProjects() {
+  public void indexProjectsAndViews() {
     dbClient.componentIndexDao().indexProjects();
+    db.commit();
+  }
+
+  public void indexComponents(long... componentIdList) {
+    for (long componentId : componentIdList) {
+      dbClient.componentIndexDao().indexResource(dbSession, componentId);
+    }
     db.commit();
   }
 }
