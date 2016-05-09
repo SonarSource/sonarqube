@@ -21,6 +21,7 @@ package org.sonar.server.text;
 
 class RuleMacro implements Macro {
 
+  private static final String COLON = "%3A";
   private final String contextPath;
 
   RuleMacro(String contextPath) {
@@ -37,6 +38,6 @@ class RuleMacro implements Macro {
 
   @Override
   public String getReplacement() {
-    return "<a href='" + contextPath + "/coding_rules#rule_key=$1:$2'>$2</a>";
+    return "<a href='" + contextPath + "/coding_rules#rule_key=$1" + COLON + "$2'>$2</a>";
   }
 }

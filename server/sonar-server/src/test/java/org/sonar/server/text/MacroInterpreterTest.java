@@ -48,17 +48,12 @@ public class MacroInterpreterTest {
 
   @Test
   public void should_replace_rule_macro() {
-    String ruleKey = "repo:key";
+    // key of repository and rule can contain alphanumeric latin characters, dashes, underscores and dots
+    String ruleKey = "Some_Repo-Key.1:Some_Rule-Key.1";
     String origin = "See {rule:" + ruleKey + "} for detail.";
     String result = interpreter.interpret(origin);
-    assertThat(result).isEqualTo("See <a href='" + path + "/coding_rules#rule_key=" + ruleKey + "'>key</a> for detail.");
+    // colon should be escaped
+    assertThat(result).isEqualTo("See <a href='" + path + "/coding_rules#rule_key=Some_Repo-Key.1%3ASome_Rule-Key.1'>Some_Rule-Key.1</a> for detail.");
   }
 
-  @Test
-  public void should_replace_rule_macro_containing_digit_and_dash() {
-    String ruleKey = "my-repo1:my-key1";
-    String origin = "See {rule:" + ruleKey + "} for detail.";
-    String result = interpreter.interpret(origin);
-    assertThat(result).isEqualTo("See <a href='" + path + "/coding_rules#rule_key=" + ruleKey + "'>my-key1</a> for detail.");
-  }
 }
