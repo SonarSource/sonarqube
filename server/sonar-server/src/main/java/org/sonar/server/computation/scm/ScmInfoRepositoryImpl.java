@@ -83,6 +83,10 @@ public class ScmInfoRepositoryImpl implements ScmInfoRepository {
   private ScmInfo getScmInfoForComponent(Component component) {
     ScannerReport.Changesets changesets = batchReportReader.readChangesets(component.getReportAttributes().getRef());
     if (changesets == null) {
+      LOGGER.trace("No SCM info for file '{}'", component.getKey());
+      return NoScmInfo.INSTANCE;
+    }
+    if (changesets.getCopyFromPrevious()) {
       return getScmInfoFromDb(component);
     }
     return getScmInfoFromReport(component, changesets);

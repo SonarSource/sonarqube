@@ -99,10 +99,21 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void getScmInfo_returns_ScmInfo_from_DB_if_hashes_are_the_same() throws Exception {
+  public void getScmInfo_returns_absent_if_CopyFromPrevious_is_false_and_there_is_no_changeset_in_report() {
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
+    // put data in DB, which should not be used
+    addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
+    addFileSourceInReport(1);
+
+    assertThat(underTest.getScmInfo(FILE)).isAbsent();
+  }
+
+  @Test
+  public void getScmInfo_returns_ScmInfo_from_DB_CopyFromPrevious_is_true_if_hashes_are_the_same() throws Exception {
     analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
     addFileSourceInReport(1);
+    addCopyFromPreviousChangesetInReport();
 
     ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
     assertThat(scmInfo.getAllChangesets()).hasSize(1);
@@ -111,10 +122,11 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void getScmInfo_returns_absent_if_hash_from_db_does_not_match() throws Exception {
+  public void getScmInfo_returns_absent_when_CopyFromPrevious_is_true_but_hashes_are_not_the_same() throws Exception {
     analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1) + "_different");
     addFileSourceInReport(1);
+    addCopyFromPreviousChangesetInReport();
 
     assertThat(underTest.getScmInfo(FILE)).isAbsent();
 
@@ -136,7 +148,22 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void return_nothing_when_no_data_in_report_and_db() throws Exception {
+  public void read_from_db_even_if_data_in_report_exists_when_CopyFromPrevious_is_true() throws Exception {
+    analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
+    addFileSourceInDb("henry", DATE_1, "rev-1", computeSourceHash(1));
+    addFileSourceInReport(1);
+    addChangesetInReport("john", DATE_2, "rev-2", true);
+
+    ScmInfo scmInfo = underTest.getScmInfo(FILE).get();
+
+    Changeset changeset = scmInfo.getChangesetForLine(1);
+    assertThat(changeset.getAuthor()).isEqualTo("henry");
+    assertThat(changeset.getDate()).isEqualTo(DATE_1);
+    assertThat(changeset.getRevision()).isEqualTo("rev-1");
+  }
+
+  @Test
+  public void return_nothing_when_no_data_in_report_nor_db() throws Exception {
     analysisMetadataHolder.setBaseProjectSnapshot(BASE_PROJECT_SNAPSHOT);
     assertThat(underTest.getScmInfo(FILE)).isAbsent();
   }
@@ -204,10 +231,11 @@ public class ScmInfoRepositoryImplTest {
   }
 
   @Test
-  public void not_read_in_db_on_first_analysis() throws Exception {
+  public void not_read_in_db_on_first_analysis_when_CopyFromPrevious_is_true() throws Exception {
     analysisMetadataHolder.setBaseProjectSnapshot(null);
     addFileSourceInDb("henry", DATE_1, "rev-1", "don't care");
     addFileSourceInReport(1);
+    addCopyFromPreviousChangesetInReport();
 
     assertThat(underTest.getScmInfo(FILE)).isAbsent();
     assertThat(logTester.logs(TRACE)).isEmpty();
@@ -233,9 +261,21 @@ public class ScmInfoRepositoryImplTest {
       .setSrcHash(srcHash));
   }
 
-  private void addChangesetInReport(String author, Long date, String revision) {
+  private void addCopyFromPreviousChangesetInReport() {
     reportReader.putChangesets(ScannerReport.Changesets.newBuilder()
       .setComponentRef(FILE_REF)
+      .setCopyFromPrevious(true)
+      .build());
+  }
+
+  private void addChangesetInReport(String author, Long date, String revision) {
+    addChangesetInReport(author, date, revision, false);
+  }
+
+  private void addChangesetInReport(String author, Long date, String revision, boolean copyFromPrevious) {
+    reportReader.putChangesets(ScannerReport.Changesets.newBuilder()
+      .setComponentRef(FILE_REF)
+      .setCopyFromPrevious(copyFromPrevious)
       .addChangeset(ScannerReport.Changesets.Changeset.newBuilder()
         .setAuthor(author)
         .setDate(date)
