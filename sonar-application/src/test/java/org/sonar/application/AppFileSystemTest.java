@@ -27,6 +27,7 @@ import java.nio.file.Paths;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Properties;
 import javax.annotation.CheckForNull;
+import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -154,6 +155,30 @@ public class AppFileSystemTest {
     assertThat(tempDir).exists();
     assertThat(fileInTempDir).doesNotExist();
     assertThat(getFileKey(tempDir)).isEqualTo(tempDirKey);
+  }
+
+  @Test
+  public void reset_deletes_content_of_temp_dir_but_not_sharedmemory_file() throws Exception {
+    File tempDir = new File(homeDir, DEFAULT_TEMP_DIR_NAME);
+    assertThat(tempDir.mkdir()).isTrue();
+    File sharedmemory = new File(tempDir, "sharedmemory");
+    assertThat(sharedmemory.createNewFile()).isTrue();
+    FileUtils.write(sharedmemory, "toto");
+    Object fileKey = getFileKey(sharedmemory);
+
+    Object tempDirKey = getFileKey(tempDir);
+    File fileInTempDir = new File(tempDir, "someFile.txt");
+    assertThat(fileInTempDir.createNewFile()).isTrue();
+
+    AppFileSystem underTest = new AppFileSystem(new Props(properties));
+    underTest.verifyProps();
+    underTest.reset();
+
+    assertThat(tempDir).exists();
+    assertThat(fileInTempDir).doesNotExist();
+    assertThat(getFileKey(tempDir)).isEqualTo(tempDirKey);
+    assertThat(getFileKey(sharedmemory)).isEqualTo(fileKey);
+    assertThat(FileUtils.readFileToString(sharedmemory)).isEqualTo("toto");
   }
 
   @CheckForNull

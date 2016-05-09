@@ -21,13 +21,22 @@ package org.sonar.application;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.FileVisitOption;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
+import java.util.EnumSet;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.Props;
 import org.sonar.process.monitor.FileSystem;
 
+import static java.nio.file.FileVisitResult.CONTINUE;
 import static org.apache.commons.io.FileUtils.forceMkdir;
-import static org.sonar.process.FileUtils.cleanDirectory;
+import static org.sonar.process.FileUtils.deleteDirectory;
 import static org.sonar.process.ProcessProperties.PATH_DATA;
 import static org.sonar.process.ProcessProperties.PATH_HOME;
 import static org.sonar.process.ProcessProperties.PATH_LOGS;
@@ -70,7 +79,7 @@ public class AppFileSystem implements FileSystem {
     createDirectory(props, PATH_DATA);
     createDirectory(props, PATH_WEB);
     createDirectory(props, PATH_LOGS);
-    createOrCleanDirectory(props, PATH_TEMP);
+    createOrCleanTempDirectory(props, PATH_TEMP);
   }
 
   @Override
@@ -109,11 +118,46 @@ public class AppFileSystem implements FileSystem {
     }
   }
 
-  private static void createOrCleanDirectory(Props props, String propKey) throws IOException {
+  private static final EnumSet<FileVisitOption> FOLLOW_LINKS = EnumSet.of(FileVisitOption.FOLLOW_LINKS);
+
+  private static void createOrCleanTempDirectory(Props props, String propKey) throws IOException {
     File dir = props.nonNullValueAsFile(propKey);
     LOG.info("Cleaning or creating temp directory {}", dir.getAbsolutePath());
     if (!createDirectory(props, propKey)) {
-      cleanDirectory(dir);
+      Files.walkFileTree(dir.toPath(), FOLLOW_LINKS, CleanTempDirFileVisitor.VISIT_MAX_DEPTH, new CleanTempDirFileVisitor(dir.toPath()));
+    }
+  }
+
+  private static class CleanTempDirFileVisitor extends SimpleFileVisitor<Path> {
+    private static final Path SHAREDMEMORY_FILE = Paths.get("sharedmemory");
+    public static final int VISIT_MAX_DEPTH = 1;
+
+    private final Path path;
+    private final boolean symLink;
+
+    public CleanTempDirFileVisitor(Path path) {
+      this.path = path;
+      this.symLink = Files.isSymbolicLink(path);
+    }
+
+    @Override
+    public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+      if (Files.isDirectory(file)) {
+        deleteDirectory(file.toFile());
+      } else if (file.getFileName().equals(SHAREDMEMORY_FILE)) {
+        return CONTINUE;
+      } else if (!symLink || !file.equals(path)) {
+        Files.delete(file);
+      }
+      return CONTINUE;
+    }
+
+    @Override
+    public FileVisitResult postVisitDirectory(Path dir, IOException exc) throws IOException {
+      if (!dir.equals(path)) {
+        deleteDirectory(dir.toFile());
+      }
+      return CONTINUE;
     }
   }
 
