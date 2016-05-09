@@ -230,11 +230,12 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
   private void writeConfigPageAccess(JsonWriter json, boolean isAdmin, ComponentDto component) {
     boolean isProject = Qualifiers.PROJECT.equals(component.qualifier());
+    boolean showManualMeasures = isAdmin && !Qualifiers.DIRECTORY.equals(component.qualifier());
 
     json.prop("showSettings", isAdmin && componentTypeHasProperty(component, PROPERTY_CONFIGURABLE));
     json.prop("showQualityProfiles", isProject);
     json.prop("showQualityGates", isProject);
-    json.prop("showManualMeasures", isAdmin);
+    json.prop("showManualMeasures", showManualMeasures);
     // TODO delete showActionPlans when UI is updated
     json.prop("showActionPlans", false);
     json.prop("showLinks", isAdmin && isProject);
