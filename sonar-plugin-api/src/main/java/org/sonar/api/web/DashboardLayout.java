@@ -54,7 +54,7 @@ public enum DashboardLayout {
   private String code;
   private int columns;
 
-  private DashboardLayout(String code, int columns) {
+  DashboardLayout(String code, int columns) {
     this.code = code;
     this.columns = columns;
   }

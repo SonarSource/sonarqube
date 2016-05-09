@@ -128,7 +128,7 @@ public class IssueBulkChangeService {
   private Collection<Issue> getByKeysForUpdate(List<String> issueKeys) {
     // Load from index to check permission
     SearchOptions options = new SearchOptions().setLimit(SearchOptions.MAX_LIMIT);
-    // TODO restrict fields to issue key, in order to not load all other fields;
+    // TODO restrict fields to issue key, in order to not load all other fields
     List<IssueDoc> authorizedIssues = issueIndex.search(IssueQuery.builder(userSession).issueKeys(issueKeys).build(), options).getDocs();
     Collection<String> authorizedKeys = Collections2.transform(authorizedIssues, new Function<IssueDoc, String>() {
       @Override

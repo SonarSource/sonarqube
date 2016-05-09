@@ -30,7 +30,7 @@ public class MeasureFilterCondition {
     private String code;
     private String sql;
 
-    private Operator(String code, String sql) {
+    Operator(String code, String sql) {
       this.code = code;
       this.sql = sql;
     }
