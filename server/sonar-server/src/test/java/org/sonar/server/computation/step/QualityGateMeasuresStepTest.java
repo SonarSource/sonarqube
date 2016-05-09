@@ -29,7 +29,6 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.mockito.ArgumentCaptor;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.measures.CoreMetrics;
@@ -37,12 +36,13 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
-import org.sonar.server.computation.measure.MeasureRepository;
+import org.sonar.server.computation.measure.MeasureRepositoryRule;
 import org.sonar.server.computation.measure.qualitygatedetails.EvaluatedCondition;
 import org.sonar.server.computation.measure.qualitygatedetails.QualityGateDetailsData;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
-import org.sonar.server.computation.metric.MetricRepository;
+import org.sonar.server.computation.metric.MetricRepositoryRule;
+import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.qualitygate.Condition;
 import org.sonar.server.computation.qualitygate.ConditionStatus;
 import org.sonar.server.computation.qualitygate.EvaluationResult;
@@ -55,21 +55,24 @@ import org.sonar.server.computation.qualitygate.QualityGateStatusHolder;
 
 import static com.google.common.collect.ImmutableList.of;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.same;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.ALERT_STATUS_KEY;
 import static org.sonar.server.computation.measure.Measure.Level.ERROR;
 import static org.sonar.server.computation.measure.Measure.Level.OK;
 import static org.sonar.server.computation.measure.Measure.Level.WARN;
+import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 import static org.sonar.server.computation.measure.MeasureAssert.assertThat;
+import static org.sonar.server.computation.measure.MeasureVariations.newMeasureVariationsBuilder;
 
 public class QualityGateMeasuresStepTest {
   private static final MetricImpl INT_METRIC_1 = createIntMetric(1);
+  private static final String INT_METRIC_1_KEY = INT_METRIC_1.getKey();
   private static final MetricImpl INT_METRIC_2 = createIntMetric(2);
+  private static final String INT_METRIC_2_KEY = INT_METRIC_2.getKey();
 
-  private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).build();
+  private static final int PROJECT_REF = 1;
+  private static final ReportComponent PROJECT_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, PROJECT_REF).build();
   private static final long SOME_QG_ID = 7521551;
   private static final String SOME_QG_NAME = "name";
 
@@ -81,25 +84,23 @@ public class QualityGateMeasuresStepTest {
   public QualityGateHolderRule qualityGateHolder = new QualityGateHolderRule();
   @Rule
   public MutableQualityGateStatusHolderRule qualityGateStatusHolder = new MutableQualityGateStatusHolderRule();
+  @Rule
+  public MetricRepositoryRule metricRepository = new MetricRepositoryRule();
+  @Rule
+  public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
-  private static final Metric ALERT_STATUS_METRIC = mock(Metric.class);
-  private static final Metric QUALITY_GATE_DETAILS_METRIC = mock(Metric.class);
-
-  private ArgumentCaptor<Measure> alertStatusMeasureCaptor = ArgumentCaptor.forClass(Measure.class);
-  private ArgumentCaptor<Measure> qgDetailsMeasureCaptor = ArgumentCaptor.forClass(Measure.class);
-
-  private MeasureRepository measureRepository = mock(MeasureRepository.class);
-  private MetricRepository metricRepository = mock(MetricRepository.class);
   private EvaluationResultTextConverter resultTextConverter = mock(EvaluationResultTextConverter.class);
   private QualityGateMeasuresStep underTest = new QualityGateMeasuresStep(treeRootHolder, qualityGateHolder, qualityGateStatusHolder, measureRepository, metricRepository,
     resultTextConverter);
 
   @Before
   public void setUp() {
+    metricRepository
+      .add(CoreMetrics.ALERT_STATUS)
+      .add(CoreMetrics.QUALITY_GATE_DETAILS)
+      .add(INT_METRIC_1)
+      .add(INT_METRIC_2);
     treeRootHolder.setRoot(PROJECT_COMPONENT);
-
-    when(metricRepository.getByKey(CoreMetrics.ALERT_STATUS_KEY)).thenReturn(ALERT_STATUS_METRIC);
-    when(metricRepository.getByKey(CoreMetrics.QUALITY_GATE_DETAILS_KEY)).thenReturn(QUALITY_GATE_DETAILS_METRIC);
 
     // mock response of asText to any argument to return the result of dumbResultTextAnswer method
     when(resultTextConverter.asText(any(Condition.class), any(EvaluationResult.class))).thenAnswer(new Answer<String>() {
@@ -124,7 +125,7 @@ public class QualityGateMeasuresStepTest {
 
     underTest.execute();
 
-    verifyNoMoreInteractions(measureRepository);
+    measureRepository.getAddedRawMeasures(1).isEmpty();
   }
 
   @Test
@@ -133,7 +134,7 @@ public class QualityGateMeasuresStepTest {
 
     underTest.execute();
 
-    verifyNoMoreInteractions(measureRepository);
+    measureRepository.getAddedRawMeasures(PROJECT_COMPONENT).isEmpty();
   }
 
   @Test
@@ -152,19 +153,16 @@ public class QualityGateMeasuresStepTest {
   public void new_measures_are_created_even_if_there_is_no_rawMeasure_for_metric_of_condition() {
     Condition equals2Condition = createEqualsCondition(INT_METRIC_1, "2", null);
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equals2Condition)));
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, INT_METRIC_1)).thenReturn(Optional.<Measure>absent());
 
     underTest.execute();
 
-    verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, INT_METRIC_1);
-    verify(measureRepository).add(same(PROJECT_COMPONENT), same(ALERT_STATUS_METRIC), alertStatusMeasureCaptor.capture());
-    verify(measureRepository).add(same(PROJECT_COMPONENT), same(QUALITY_GATE_DETAILS_METRIC), qgDetailsMeasureCaptor.capture());
-    verifyNoMoreInteractions(measureRepository);
+    Optional<Measure> addedRawMeasure = measureRepository.getAddedRawMeasure(PROJECT_COMPONENT, INT_METRIC_1_KEY);
 
-    assertThat(alertStatusMeasureCaptor.getValue())
+    assertThat(addedRawMeasure).isAbsent();
+    assertThat(getAlertStatusMeasure())
       .hasQualityGateLevel(OK)
       .hasQualityGateText("");
-    assertThat(qgDetailsMeasureCaptor.getValue())
+    assertThat(getQGDetailsMeasure())
       .hasValue(new QualityGateDetailsData(OK, Collections.<EvaluatedCondition>emptyList()).toJson());
 
     QualityGateStatusHolderAssertions.assertThat(qualityGateStatusHolder)
@@ -177,28 +175,22 @@ public class QualityGateMeasuresStepTest {
   public void rawMeasure_is_updated_if_present_and_new_measures_are_created_if_project_has_measure_for_metric_of_condition() {
     int rawValue = 1;
     Condition equals2Condition = createEqualsCondition(INT_METRIC_1, "2", null);
-    Measure rawMeasure = Measure.newMeasureBuilder().create(rawValue, null);
+    Measure rawMeasure = newMeasureBuilder().create(rawValue, null);
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equals2Condition)));
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, INT_METRIC_1)).thenReturn(Optional.of(rawMeasure));
+    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, rawMeasure);
 
     underTest.execute();
 
-    ArgumentCaptor<Measure> equals2ConditionMeasureCaptor = ArgumentCaptor.forClass(Measure.class);
+    Optional<Measure> addedRawMeasure = measureRepository.getAddedRawMeasure(PROJECT_COMPONENT, INT_METRIC_1_KEY);
 
-    verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, INT_METRIC_1);
-    verify(measureRepository).update(same(PROJECT_COMPONENT), same(INT_METRIC_1), equals2ConditionMeasureCaptor.capture());
-    verify(measureRepository).add(same(PROJECT_COMPONENT), same(ALERT_STATUS_METRIC), alertStatusMeasureCaptor.capture());
-    verify(measureRepository).add(same(PROJECT_COMPONENT), same(QUALITY_GATE_DETAILS_METRIC), qgDetailsMeasureCaptor.capture());
-    verifyNoMoreInteractions(measureRepository);
-
-    assertThat(equals2ConditionMeasureCaptor.getValue())
+    assertThat(addedRawMeasure)
       .hasQualityGateLevel(OK)
       .hasQualityGateText(dumbResultTextAnswer(equals2Condition, OK, rawValue));
-    assertThat(alertStatusMeasureCaptor.getValue())
+    assertThat(getAlertStatusMeasure())
       .hasQualityGateLevel(OK)
       .hasQualityGateText(dumbResultTextAnswer(equals2Condition, OK, rawValue));
-    assertThat(qgDetailsMeasureCaptor.getValue())
+    assertThat(getQGDetailsMeasure().get())
       .hasValue(new QualityGateDetailsData(OK, of(new EvaluatedCondition(equals2Condition, OK, rawValue))).toJson());
 
     QualityGateStatusHolderAssertions.assertThat(qualityGateStatusHolder)
@@ -212,36 +204,28 @@ public class QualityGateMeasuresStepTest {
     int rawValue = 1;
     Condition equals1ErrorCondition = createEqualsCondition(INT_METRIC_1, "1", null);
     Condition equals1WarningCondition = createEqualsCondition(INT_METRIC_2, null, "1");
-    Measure rawMeasure = Measure.newMeasureBuilder().create(rawValue, null);
+    Measure rawMeasure = newMeasureBuilder().create(rawValue, null);
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equals1ErrorCondition, equals1WarningCondition)));
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, INT_METRIC_1)).thenReturn(Optional.of(rawMeasure));
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, INT_METRIC_2)).thenReturn(Optional.of(rawMeasure));
+    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, rawMeasure);
+    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_2_KEY, rawMeasure);
 
     underTest.execute();
 
-    ArgumentCaptor<Measure> equals1ErrorConditionMeasureCaptor = ArgumentCaptor.forClass(Measure.class);
-    ArgumentCaptor<Measure> equals1WarningConditionMeasureCaptor = ArgumentCaptor.forClass(Measure.class);
+    Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
+    Optional<Measure> rawMeasure2 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_2_KEY);
 
-    verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, INT_METRIC_1);
-    verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, INT_METRIC_2);
-    verify(measureRepository).update(same(PROJECT_COMPONENT), same(INT_METRIC_1), equals1ErrorConditionMeasureCaptor.capture());
-    verify(measureRepository).update(same(PROJECT_COMPONENT), same(INT_METRIC_2), equals1WarningConditionMeasureCaptor.capture());
-    verify(measureRepository).add(same(PROJECT_COMPONENT), same(ALERT_STATUS_METRIC), alertStatusMeasureCaptor.capture());
-    verify(measureRepository).add(same(PROJECT_COMPONENT), same(QUALITY_GATE_DETAILS_METRIC), qgDetailsMeasureCaptor.capture());
-    verifyNoMoreInteractions(measureRepository);
-
-    assertThat(equals1ErrorConditionMeasureCaptor.getValue())
+    assertThat(rawMeasure1.get())
       .hasQualityGateLevel(ERROR)
       .hasQualityGateText(dumbResultTextAnswer(equals1ErrorCondition, ERROR, rawValue));
-    assertThat(equals1WarningConditionMeasureCaptor.getValue())
+    assertThat(rawMeasure2.get())
       .hasQualityGateLevel(WARN)
       .hasQualityGateText(dumbResultTextAnswer(equals1WarningCondition, WARN, rawValue));
-    assertThat(alertStatusMeasureCaptor.getValue())
+    assertThat(getAlertStatusMeasure())
       .hasQualityGateLevel(ERROR)
       .hasQualityGateText(dumbResultTextAnswer(equals1ErrorCondition, ERROR, rawValue) + ", "
         + dumbResultTextAnswer(equals1WarningCondition, WARN, rawValue));
-    assertThat(qgDetailsMeasureCaptor.getValue())
+    assertThat(getQGDetailsMeasure())
       .hasValue(new QualityGateDetailsData(ERROR, of(
         new EvaluatedCondition(equals1ErrorCondition, ERROR, rawValue),
         new EvaluatedCondition(equals1WarningCondition, WARN, rawValue))).toJson());
@@ -258,36 +242,28 @@ public class QualityGateMeasuresStepTest {
     int rawValue = 1;
     Condition equals2Condition = createEqualsCondition(INT_METRIC_1, "2", null);
     Condition equals1WarningCondition = createEqualsCondition(INT_METRIC_2, null, "1");
-    Measure rawMeasure = Measure.newMeasureBuilder().create(rawValue, null);
+    Measure rawMeasure = newMeasureBuilder().create(rawValue, null);
 
     qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(equals2Condition, equals1WarningCondition)));
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, INT_METRIC_1)).thenReturn(Optional.of(rawMeasure));
-    when(measureRepository.getRawMeasure(PROJECT_COMPONENT, INT_METRIC_2)).thenReturn(Optional.of(rawMeasure));
+    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, rawMeasure);
+    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_2_KEY, rawMeasure);
 
     underTest.execute();
 
-    ArgumentCaptor<Measure> equals2ConditionMeasureCaptor = ArgumentCaptor.forClass(Measure.class);
-    ArgumentCaptor<Measure> equals1WarningConditionMeasureCaptor = ArgumentCaptor.forClass(Measure.class);
+    Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
+    Optional<Measure> rawMeasure2 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_2_KEY);
 
-    verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, INT_METRIC_1);
-    verify(measureRepository).getRawMeasure(PROJECT_COMPONENT, INT_METRIC_2);
-    verify(measureRepository).update(same(PROJECT_COMPONENT), same(INT_METRIC_1), equals2ConditionMeasureCaptor.capture());
-    verify(measureRepository).update(same(PROJECT_COMPONENT), same(INT_METRIC_2), equals1WarningConditionMeasureCaptor.capture());
-    verify(measureRepository).add(same(PROJECT_COMPONENT), same(ALERT_STATUS_METRIC), alertStatusMeasureCaptor.capture());
-    verify(measureRepository).add(same(PROJECT_COMPONENT), same(QUALITY_GATE_DETAILS_METRIC), qgDetailsMeasureCaptor.capture());
-    verifyNoMoreInteractions(measureRepository);
-
-    assertThat(equals2ConditionMeasureCaptor.getValue())
+    assertThat(rawMeasure1.get())
       .hasQualityGateLevel(OK)
       .hasQualityGateText(dumbResultTextAnswer(equals2Condition, OK, rawValue));
-    assertThat(equals1WarningConditionMeasureCaptor.getValue())
+    assertThat(rawMeasure2.get())
       .hasQualityGateLevel(WARN)
       .hasQualityGateText(dumbResultTextAnswer(equals1WarningCondition, WARN, rawValue));
-    assertThat(alertStatusMeasureCaptor.getValue())
+    assertThat(getAlertStatusMeasure())
       .hasQualityGateLevel(WARN)
       .hasQualityGateText(dumbResultTextAnswer(equals2Condition, OK, rawValue) + ", "
         + dumbResultTextAnswer(equals1WarningCondition, WARN, rawValue));
-    assertThat(qgDetailsMeasureCaptor.getValue())
+    assertThat(getQGDetailsMeasure())
       .hasValue(new QualityGateDetailsData(WARN, of(
         new EvaluatedCondition(equals2Condition, OK, rawValue),
         new EvaluatedCondition(equals1WarningCondition, WARN, rawValue))).toJson());
@@ -299,8 +275,78 @@ public class QualityGateMeasuresStepTest {
       .hasCondition(equals1WarningCondition, ConditionStatus.EvaluationStatus.WARN, String.valueOf(rawValue));
   }
 
+  @Test
+  public void new_measure_has_ERROR_level_of_all_conditions_for_a_specific_metric_if_its_the_worst() {
+    int rawValue = 1;
+    Condition fixedCondition = createEqualsCondition(INT_METRIC_1, "1", null);
+    Condition periodCondition = createEqualsCondition(INT_METRIC_1, null, "2", 1);
+
+    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
+    Measure measure = newMeasureBuilder().create(rawValue, null);
+    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
+
+    underTest.execute();
+
+    Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
+    assertThat(rawMeasure1.get())
+      .hasQualityGateLevel(ERROR)
+      .hasQualityGateText(dumbResultTextAnswer(fixedCondition, ERROR, rawValue));
+  }
+
+  @Test
+  public void new_measure_has_WARN_level_of_all_conditions_for_a_specific_metric_if_its_the_worst() {
+    int rawValue = 2;
+    Condition fixedCondition = createEqualsCondition(INT_METRIC_1, "1", null);
+    Condition periodCondition = createEqualsCondition(INT_METRIC_1, null, "2", 1);
+
+    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
+    Measure measure = newMeasureBuilder()
+      .setVariations(newMeasureVariationsBuilder().setVariation(new Period(1, "mode", null, 1212, 121), rawValue).build())
+      .create(rawValue, null);
+    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
+
+    underTest.execute();
+
+    Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
+    assertThat(rawMeasure1.get())
+      .hasQualityGateLevel(WARN)
+      .hasQualityGateText(dumbResultTextAnswer(periodCondition, WARN, rawValue));
+  }
+
+  @Test
+  public void new_measure_has_condition_on_leak_period_when_all_conditions_on_specific_metric_has_same_QG_level() {
+    int rawValue = 1;
+    Condition fixedCondition = createEqualsCondition(INT_METRIC_1, "1", null);
+    Condition periodCondition = createEqualsCondition(INT_METRIC_1, "1", null, 1);
+
+    qualityGateHolder.setQualityGate(new QualityGate(SOME_QG_ID, SOME_QG_NAME, of(fixedCondition, periodCondition)));
+    Measure measure = newMeasureBuilder()
+        .setVariations(newMeasureVariationsBuilder().setVariation(new Period(1, "mode", null, 1212, 121), rawValue).build())
+        .create(rawValue, null);
+    measureRepository.addRawMeasure(PROJECT_REF, INT_METRIC_1_KEY, measure);
+
+    underTest.execute();
+
+    Optional<Measure> rawMeasure1 = measureRepository.getAddedRawMeasure(PROJECT_REF, INT_METRIC_1_KEY);
+    assertThat(rawMeasure1.get())
+        .hasQualityGateLevel(ERROR)
+        .hasQualityGateText(dumbResultTextAnswer(periodCondition, ERROR, rawValue));
+  }
+
+  private Measure getAlertStatusMeasure() {
+    return measureRepository.getAddedRawMeasure(PROJECT_REF, ALERT_STATUS_KEY).get();
+  }
+
+  private Optional<Measure> getQGDetailsMeasure() {
+    return measureRepository.getAddedRawMeasure(PROJECT_REF, CoreMetrics.QUALITY_GATE_DETAILS_KEY);
+  }
+
   private static Condition createEqualsCondition(Metric metric, @Nullable String errorThreshold, @Nullable String warningThreshold) {
     return new Condition(metric, Condition.Operator.EQUALS.getDbValue(), errorThreshold, warningThreshold, null);
+  }
+
+  private static Condition createEqualsCondition(Metric metric, @Nullable String errorThreshold, @Nullable String warningThreshold, @Nullable Integer period) {
+    return new Condition(metric, Condition.Operator.EQUALS.getDbValue(), errorThreshold, warningThreshold, period);
   }
 
   private static MetricImpl createIntMetric(int index) {
