@@ -5,46 +5,46 @@
 </div>
 
 {{#notNull tokens}}
-  <div class="abs-width-400">
-    <table class="data">
-      <thead>
+  <table class="data">
+    <thead>
+    <tr>
+      <th>Name</th>
+      <th class="text-right">Created</th>
+      <th>&nbsp;</th>
+    </tr>
+    </thead>
+    <tbody>
+    {{#each tokens}}
       <tr>
-        <th>Name</th>
-        <th class="text-right">Created</th>
-        <th>&nbsp;</th>
+        <td>
+          <div title="{{name}}">
+            {{limitString name}}
+          </div>
+        </td>
+        <td class="thin nowrap text-right">
+          {{d createdAt}}
+        </td>
+        <td class="thin nowrap text-right">
+          <div class="big-spacer-left">
+            <form class="js-revoke-token-form" data-token="{{name}}">
+              {{#if deleting}}
+                <button class="button-red active input-small">Sure?</button>
+              {{else}}
+                <button class="button-red input-small">Revoke</button>
+              {{/if}}
+            </form>
+          </div>
+        </td>
       </tr>
-      </thead>
-      <tbody>
-      {{#each tokens}}
-        <tr>
-          <td>
-            {{name}}
-          </td>
-          <td class="thin nowrap text-right">
-            {{d createdAt}}
-          </td>
-          <td class="thin nowrap text-right">
-            <div class="big-spacer-left">
-              <form class="js-revoke-token-form" data-token="{{name}}">
-                {{#if deleting}}
-                  <button class="button-red active input-small">Sure?</button>
-                {{else}}
-                  <button class="button-red input-small">Revoke</button>
-                {{/if}}
-              </form>
-            </div>
-          </td>
-        </tr>
-      {{else}}
-        <tr>
-          <td colspan="3">
-            <span class="note">No tokens</span>
-          </td>
-        </tr>
-      {{/each}}
-      </tbody>
-    </table>
-  </div>
+    {{else}}
+      <tr>
+        <td colspan="3">
+          <span class="note">No tokens</span>
+        </td>
+      </tr>
+    {{/each}}
+    </tbody>
+  </table>
 {{/notNull}}
 
 <h4 class="big-spacer-top spacer-bottom">Generate Tokens</h4>
@@ -54,14 +54,15 @@
 {{/each}}
 
 <form class="js-generate-token-form">
-  <input type="text" required maxlength="30" placeholder="Enter Token Name">
+  <input type="text" required maxlength="100" placeholder="Enter Token Name">
   <button>Generate</button>
 </form>
 
 {{#if newToken}}
   <div class="panel panel-white big-spacer-top">
     <div class="alert alert-warning">
-      New token "{{newToken.name}}" has been created. Make sure you copy it now, you won’t be able to see it again!
+      New token "{{limitString newToken.name}}" has been created. Make sure you copy it now, you won’t be able to see it
+      again!
     </div>
 
     <table class="data">

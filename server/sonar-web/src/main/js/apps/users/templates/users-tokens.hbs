@@ -18,7 +18,9 @@
       {{#each tokens}}
         <tr>
           <td>
-            {{name}}
+            <div title="{{name}}">
+              {{limitString name}}
+            </div>
           </td>
           <td class="thin nowrap text-right">
             {{d createdAt}}
@@ -55,14 +57,14 @@
   {{/each}}
 
   <form class="js-generate-token-form">
-    <input type="text" required maxlength="30" placeholder="Enter Token Name">
+    <input type="text" required maxlength="100" placeholder="Enter Token Name">
     <button>Generate</button>
   </form>
 
   {{#if newToken}}
     <div class="panel panel-white big-spacer-top">
       <div class="alert alert-warning">
-        New token "{{newToken.name}}" has been created. Make sure you copy it now, you won’t be able to see it again!
+        New token "{{limitString newToken.name}}" has been created. Make sure you copy it now, you won’t be able to see it again!
       </div>
 
       <table class="data">
