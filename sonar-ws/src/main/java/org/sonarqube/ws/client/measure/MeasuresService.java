@@ -37,6 +37,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOP
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 
@@ -60,7 +61,8 @@ public class MeasuresService extends BaseService {
       .setParam("ps", request.getPageSize())
       .setParam("s", inlineMultipleParamValue(request.getSort()))
       .setParam("asc", request.getAsc())
-      .setParam(PARAM_METRIC_SORT, request.getMetricSort());
+      .setParam(PARAM_METRIC_SORT, request.getMetricSort())
+      .setParam(PARAM_METRIC_SORT_FILTER, request.getMetricSortFilter());
 
     return call(getRequest, ComponentTreeWsResponse.parser());
   }

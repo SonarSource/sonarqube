@@ -21,6 +21,7 @@ package org.sonar.server.measure.ws;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
 import com.google.common.collect.HashBasedTable;
@@ -61,6 +62,7 @@ import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
@@ -76,6 +78,7 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
 import static org.sonar.server.measure.ws.SnapshotDtoToWsPeriods.snapshotToWsPeriods;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
@@ -116,6 +119,7 @@ public class ComponentTreeDataLoader {
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, baseSnapshot, components, metrics,
         periods, developerId);
 
+      components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
       components = paginateComponents(components, componentCount, wsRequest);
       Map<Long, ComponentDto> referenceComponentsById = searchReferenceComponentsById(dbSession, components);
@@ -227,8 +231,8 @@ public class ComponentTreeDataLoader {
   /**
    * Conditions for best value measure:
    * <ul>
-   *   <li>component is a production file or test file</li>
-   *   <li>metric is optimized for best value</li>
+   * <li>component is a production file or test file</li>
+   * <li>metric is optimized for best value</li>
    * </ul>
    */
   private static void addBestValuesToMeasures(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, List<ComponentDtoWithSnapshotId> components,
@@ -249,6 +253,22 @@ public class ComponentTreeDataLoader {
         }
       }
     }
+  }
+
+  private static List<ComponentDtoWithSnapshotId> filterComponents(List<ComponentDtoWithSnapshotId> components,
+    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric,
+    List<MetricDto> metrics, ComponentTreeWsRequest wsRequest) {
+    if (!WITH_MEASURES_ONLY_METRIC_SORT_FILTER.equals(wsRequest.getMetricSortFilter())) {
+      return components;
+    }
+
+    final String metricKeyToSort = wsRequest.getMetricSort();
+    Optional<MetricDto> metricToSort = from(metrics).firstMatch(new MatchMetricKey(metricKeyToSort));
+    checkState(metricToSort.isPresent(), "Metric '%s' not found", metricKeyToSort, wsRequest.getMetricKeys());
+
+    return from(components)
+      .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get()))
+      .toList();
   }
 
   private static List<ComponentDtoWithSnapshotId> sortComponents(List<ComponentDtoWithSnapshotId> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
@@ -276,6 +296,7 @@ public class ComponentTreeDataLoader {
   }
 
   private static boolean isSortByMetric(ComponentTreeWsRequest wsRequest) {
+    requireNonNull(wsRequest.getSort());
     return wsRequest.getSort().contains(METRIC_SORT) || wsRequest.getSort().contains(METRIC_PERIOD_SORT);
   }
 
@@ -389,9 +410,38 @@ public class ComponentTreeDataLoader {
 
   private enum ComponentDtoWithSnapshotIdToCopyResourceIdFunction implements Function<ComponentDtoWithSnapshotId, Long> {
     INSTANCE;
+
     @Override
     public Long apply(@Nonnull ComponentDtoWithSnapshotId input) {
       return input.getCopyResourceId();
+    }
+  }
+
+  private static class HasMeasure implements Predicate<ComponentDtoWithSnapshotId> {
+    private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
+    private final MetricDto metric;
+
+    private HasMeasure(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, MetricDto metric) {
+      this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
+      this.metric = metric;
+    }
+
+    @Override
+    public boolean apply(@Nonnull ComponentDtoWithSnapshotId input) {
+      return measuresByComponentUuidAndMetric.contains(input.uuid(), metric);
+    }
+  }
+
+  private static class MatchMetricKey implements Predicate<MetricDto> {
+    private final String metricKeyToSort;
+
+    private MatchMetricKey(String metricKeyToSort) {
+      this.metricKeyToSort = metricKeyToSort;
+    }
+
+    @Override
+    public boolean apply(@Nonnull MetricDto input) {
+      return input.getKey().equals(metricKeyToSort);
     }
   }
 }

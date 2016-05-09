@@ -58,6 +58,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOP
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 
@@ -80,16 +81,21 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEG
 public class ComponentTreeAction implements MeasuresWsAction {
   private static final int MAX_SIZE = 500;
   private static final int QUERY_MINIMUM_LENGTH = 3;
+  // tree exploration strategies
   static final String ALL_STRATEGY = "all";
   static final String CHILDREN_STRATEGY = "children";
   static final String LEAVES_STRATEGY = "leaves";
   static final Set<String> STRATEGIES = ImmutableSortedSet.of(ALL_STRATEGY, CHILDREN_STRATEGY, LEAVES_STRATEGY);
+  // sort
   static final String NAME_SORT = "name";
   static final String PATH_SORT = "path";
   static final String QUALIFIER_SORT = "qualifier";
   static final String METRIC_SORT = "metric";
   static final String METRIC_PERIOD_SORT = "metricPeriod";
   static final Set<String> SORTS = ImmutableSortedSet.of(NAME_SORT, PATH_SORT, QUALIFIER_SORT, METRIC_SORT, METRIC_PERIOD_SORT);
+  static final String ALL_METRIC_SORT_FILTER = "all";
+  static final String WITH_MEASURES_ONLY_METRIC_SORT_FILTER = "withMeasuresOnly";
+  static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
 
   private final ComponentTreeDataLoader dataLoader;
   private final UserSession userSession;
@@ -151,6 +157,15 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setDescription(format("Measure period to sort by. The '%s' parameter must contain the '%s' value.", Param.SORT, METRIC_PERIOD_SORT))
       .setSince("5.5")
       .setPossibleValues(1, 2, 3, 4, 5);
+
+    action.createParam(PARAM_METRIC_SORT_FILTER)
+      .setDescription(format("Filter components. Sort must be on a metric. Possible values are: " +
+        "<ul>" +
+        "<li>%s: return all components</li>" +
+        "<li>%s: filter out components that do not have a measure on the sorted metric</li>" +
+        "</ul>", ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER))
+      .setDefaultValue(ALL_METRIC_SORT_FILTER)
+      .setPossibleValues(METRIC_SORT_FILTERS);
 
     createMetricKeysParameter(action);
     createAdditionalFieldsParameter(action);
@@ -253,6 +268,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
       .setSort(request.paramAsStrings(Param.SORT))
       .setAsc(request.paramAsBoolean(Param.ASCENDING))
       .setMetricSort(request.param(PARAM_METRIC_SORT))
+      .setMetricSortFilter(request.mandatoryParam(PARAM_METRIC_SORT_FILTER))
       .setMetricPeriodSort(request.paramAsInt(PARAM_METRIC_PERIOD_SORT))
       .setDeveloperId(request.param(PARAM_DEVELOPER_ID))
       .setDeveloperKey(request.param(PARAM_DEVELOPER_KEY))
@@ -273,6 +289,9 @@ public class ComponentTreeAction implements MeasuresWsAction {
       "To sort by the '%s' metric, it must be in the list of metric keys in the '%s' parameter", metricSortValue, PARAM_METRIC_KEYS);
     checkRequest(componentTreeWsRequest.getMetricPeriodSort() == null ^ componentTreeWsRequest.getSort().contains(METRIC_PERIOD_SORT),
       "To sort by a metric period, the '%s' parameter must contain '%s' and the '%s' must be provided.", Param.SORT, METRIC_PERIOD_SORT, PARAM_METRIC_PERIOD_SORT);
+    checkRequest(ALL_METRIC_SORT_FILTER.equals(componentTreeWsRequest.getMetricSortFilter()) || metricSortValue != null,
+      "To filter components based on the sort metric, the '%s' parameter must contain '%s' or '%s' and the '%s' parameter must be provided",
+      Param.SORT, METRIC_SORT, METRIC_PERIOD_SORT, PARAM_METRIC_SORT);
     return componentTreeWsRequest;
   }
 }

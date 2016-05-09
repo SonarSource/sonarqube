@@ -38,6 +38,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOP
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 
@@ -51,6 +52,7 @@ public class MeasuresServiceTest {
   private static final List<String> VALUE_SORT = newArrayList("qualifier", "metric");
   private static final boolean VALUE_ASC = false;
   private static final String VALUE_METRIC_SORT = "ncloc";
+  private static final String VALUE_METRIC_SORT_FILTER = "all";
   private static final int VALUE_PAGE = 42;
   private static final int VALUE_PAGE_SIZE = 1984;
   private static final String VALUE_QUERY = "query-sq";
@@ -78,7 +80,8 @@ public class MeasuresServiceTest {
       .setPageSize(VALUE_PAGE_SIZE)
       .setQuery(VALUE_QUERY)
       .setDeveloperId(VALUE_DEVELOPER_ID)
-      .setDeveloperKey(VALUE_DEVELOPER_KEY);
+      .setDeveloperKey(VALUE_DEVELOPER_KEY)
+      .setMetricSortFilter(VALUE_METRIC_SORT_FILTER);
 
     underTest.componentTree(componentTreeRequest);
     GetRequest getRequest = serviceTester.getGetRequest();
@@ -99,6 +102,7 @@ public class MeasuresServiceTest {
       .hasParam("q", VALUE_QUERY)
       .hasParam(PARAM_DEVELOPER_ID, VALUE_DEVELOPER_ID)
       .hasParam(PARAM_DEVELOPER_KEY, VALUE_DEVELOPER_KEY)
+      .hasParam(PARAM_METRIC_SORT_FILTER, VALUE_METRIC_SORT_FILTER)
       .andNoOtherParam();
   }
 }

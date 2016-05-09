@@ -70,6 +70,7 @@ import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
 import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
 import static org.sonar.test.JsonAssert.assertJson;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
@@ -79,6 +80,7 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOP
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
 
@@ -256,6 +258,7 @@ public class ComponentTreeActionTest {
   public void sort_by_metric_value() {
     ComponentDto projectDto = newProjectDto("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
+    componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-4"), projectSnapshot);
     SnapshotDto fileSnapshot3 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-3"), projectSnapshot);
     SnapshotDto fileSnapshot1 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-1"), projectSnapshot);
     SnapshotDto fileSnapshot2 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-2"), projectSnapshot);
@@ -273,7 +276,35 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_METRIC_SORT, "ncloc")
       .setParam(PARAM_METRIC_KEYS, "ncloc"));
 
-    assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3");
+    assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3", "file-uuid-4");
+  }
+
+  @Test
+  public void remove_components_without_measure_on_the_metric_sort() {
+    ComponentDto projectDto = newProjectDto("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
+    componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-4"), projectSnapshot);
+    SnapshotDto fileSnapshot3 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-3"), projectSnapshot);
+    SnapshotDto fileSnapshot1 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-1"), projectSnapshot);
+    SnapshotDto fileSnapshot2 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-2"), projectSnapshot);
+    MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    dbClient.metricDao().insert(dbSession, ncloc);
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(ncloc, fileSnapshot1.getId()).setValue(1.0d),
+      newMeasureDto(ncloc, fileSnapshot2.getId()).setValue(2.0d),
+      newMeasureDto(ncloc, fileSnapshot3.getId()).setValue(3.0d));
+    db.commit();
+
+    ComponentTreeWsResponse response = call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(Param.SORT, METRIC_SORT)
+      .setParam(PARAM_METRIC_SORT, "ncloc")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER));
+
+    assertThat(response.getComponentsList()).extracting("id")
+      .containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3")
+      .doesNotContain("file-uuid-4");
   }
 
   @Test
@@ -393,8 +424,7 @@ public class ComponentTreeActionTest {
     ComponentTreeWsResponse result = call(ws.newRequest()
       .setParam(PARAM_BASE_COMPONENT_ID, projectUuid)
       .setParam(PARAM_STRATEGY, LEAVES_STRATEGY)
-      .setParam(PARAM_METRIC_KEYS, "ncloc")
-    );
+      .setParam(PARAM_METRIC_KEYS, "ncloc"));
 
     assertThat(result.getBaseComponent().getId()).isEqualTo(projectUuid);
     assertThat(result.getComponentsCount()).isEqualTo(0);
@@ -525,6 +555,20 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .setParam(Param.PAGE_SIZE, "2540"));
+  }
+
+  @Test
+  public void fail_when_with_measures_only_and_no_metric_sort() {
+    componentDb.insertProjectAndSnapshot(newProjectDto("project-uuid"));
+    insertNclocMetric();
+    expectedException.expect(BadRequestException.class);
+    expectedException
+      .expectMessage("To filter components based on the sort metric, the 's' parameter must contain 'metric' or 'metricPeriod' and the 'metricSort' parameter must be provided");
+
+    call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_METRIC_KEYS, "ncloc")
+      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER));
   }
 
   private static ComponentTreeWsResponse call(TestRequest request) {

@@ -35,6 +35,7 @@ public class ComponentTreeWsRequest {
   private Boolean asc;
   private String metricSort;
   private Integer metricPeriodSort;
+  private String metricSortFilter;
   private List<String> metricKeys;
   private Integer page;
   private Integer pageSize;
@@ -118,6 +119,16 @@ public class ComponentTreeWsRequest {
 
   public ComponentTreeWsRequest setMetricSort(@Nullable String metricSort) {
     this.metricSort = metricSort;
+    return this;
+  }
+
+  @CheckForNull
+  public String getMetricSortFilter() {
+    return metricSortFilter;
+  }
+
+  public ComponentTreeWsRequest setMetricSortFilter(@Nullable String metricSortFilter) {
+    this.metricSortFilter = metricSortFilter;
     return this;
   }
 
