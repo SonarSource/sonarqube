@@ -52,12 +52,12 @@ export default React.createClass({
   },
 
   openSearch() {
-    window.addEventListener('click', this.onClickOutside);
+    document.addEventListener('click', this.onClickOutside);
     this.setState({ open: true }, this.renderSearchView);
   },
 
   closeSearch() {
-    window.removeEventListener('click', this.onClickOutside);
+    document.removeEventListener('click', this.onClickOutside);
     this.resetSearchView();
     this.setState({ open: false });
   },
