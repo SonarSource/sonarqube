@@ -115,8 +115,8 @@ public class AnalysisContextReportPublisher {
   private void writeGlobalSettings(BufferedWriter fileWriter) throws IOException {
     fileWriter.append("Global properties:\n");
     Map<String, String> props = globalRepositories.globalSettings();
-    for (String env : new TreeSet<>(props.keySet())) {
-      fileWriter.append(String.format(KEY_VALUE_FORMAT, env, props.get(env))).append('\n');
+    for (String prop : new TreeSet<>(props.keySet())) {
+      dumpPropIfNotSensitive(fileWriter, prop, props.get(prop));
     }
   }
 
@@ -133,11 +133,15 @@ public class AnalysisContextReportPublisher {
         if (isSystemProp(prop) || isEnvVariable(prop) || !isSqProp(prop)) {
           continue;
         }
-        fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, sensitive(prop) ? "******" : moduleSpecificProps.get(prop))).append('\n');
+        dumpPropIfNotSensitive(fileWriter, prop, moduleSpecificProps.get(prop));
       }
     } catch (IOException e) {
       throw new IllegalStateException("Unable to write analysis log", e);
     }
+  }
+
+  private static void dumpPropIfNotSensitive(BufferedWriter fileWriter, String prop, String value) throws IOException {
+    fileWriter.append(String.format(KEY_VALUE_FORMAT, prop, sensitive(prop) ? "******" : value)).append('\n');
   }
 
   /**

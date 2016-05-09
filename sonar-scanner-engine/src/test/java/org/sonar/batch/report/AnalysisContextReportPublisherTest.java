@@ -181,7 +181,7 @@ public class AnalysisContextReportPublisherTest {
   }
 
   @Test
-  public void shouldNotDumpSensitiveProperties() throws Exception {
+  public void shouldNotDumpSensitiveModuleProperties() throws Exception {
     ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
     publisher.init(writer);
 
@@ -199,6 +199,20 @@ public class AnalysisContextReportPublisherTest {
       "sonar.login=******",
       "sonar.password=******",
       "sonar.projectKey=foo");
+  }
+
+  // SONAR-7598
+  @Test
+  public void shouldNotDumpSensitiveGlobalProperties() throws Exception {
+    ScannerReportWriter writer = new ScannerReportWriter(temp.newFolder());
+    when(globalRepositories.globalSettings()).thenReturn(ImmutableMap.of("sonar.login", "my_token", "sonar.password", "azerty", "sonar.cpp.license.secured", "AZERTY"));
+
+    publisher.init(writer);
+
+    assertThat(FileUtils.readFileToString(writer.getFileStructure().analysisLog())).containsSequence(
+      "sonar.cpp.license.secured=******",
+      "sonar.login=******",
+      "sonar.password=******");
   }
 
   // SONAR-7371
