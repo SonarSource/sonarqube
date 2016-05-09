@@ -694,7 +694,7 @@ public interface WebService extends Definable<WebService.Context> {
       }
     });
 
-    private SelectionMode(String paramValue) {
+    SelectionMode(String paramValue) {
       this.paramValue = paramValue;
     }
 
