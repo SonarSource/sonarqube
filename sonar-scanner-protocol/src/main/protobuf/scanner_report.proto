@@ -84,7 +84,7 @@ message Component {
   // Only available on PROJECT and MODULE types
   string version = 9;
   // Only available on PROJECT and MODULE types
-  // TODO rename this property -> batchKey ? moduleKey ?
+  // TODO rename this property -> moduleKey ?
   string key = 10;
   // Only available on FILE type
   int32 lines = 11;
@@ -162,9 +162,11 @@ message Flow {
 
 message Changesets {
   int32 component_ref = 1;
-  repeated Changeset changeset = 2;
+  // If set to true then it means changeset attribute is empty and compute engine should copy data from previous analysis
+  bool copy_from_previous = 2;
+  repeated Changeset changeset = 3;
   // if changesetIndexByLine[5] = 2 then it means that changeset[2] is the last one on line 6
-  repeated int32 changesetIndexByLine = 3 [packed = true];
+  repeated int32 changesetIndexByLine = 4 [packed = true];
 
   message Changeset {
     string revision = 1;

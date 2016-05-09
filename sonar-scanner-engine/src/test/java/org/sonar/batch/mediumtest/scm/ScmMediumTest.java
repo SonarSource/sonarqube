@@ -47,6 +47,7 @@ public class ScmMediumTest {
 
   private static final String MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES = "Missing blame information for the following files:";
   private static final String CHANGED_CONTENT_SCM_ON_SERVER_XOO = "src/changed_content_scm_on_server.xoo";
+  private static final String NO_BLAME_SCM_ON_SERVER_XOO = "src/no_blame_scm_on_server.xoo";
   private static final String SAME_CONTENT_SCM_ON_SERVER_XOO = "src/same_content_scm_on_server.xoo";
   private static final String SAME_CONTENT_NO_SCM_ON_SERVER_XOO = "src/same_content_no_scm_on_server.xoo";
   private static final String SAMPLE_XOO_CONTENT = "Sample xoo\ncontent";
@@ -66,6 +67,7 @@ public class ScmMediumTest {
     .addFileData("com.foo.project", CHANGED_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
     .addFileData("com.foo.project", SAME_CONTENT_NO_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), null))
     .addFileData("com.foo.project", SAME_CONTENT_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), "1.1"))
+    .addFileData("com.foo.project", NO_BLAME_SCM_ON_SERVER_XOO, new FileData(DigestUtils.md5Hex(SAMPLE_XOO_CONTENT), "1.1"))
     .build();
 
   @Before
@@ -205,6 +207,10 @@ public class ScmMediumTest {
     FileUtils.write(sameContentScmOnServer, SAMPLE_XOO_CONTENT);
     // No need to write .scm file since this file should not be blamed
 
+    File noBlameScmOnServer = new File(baseDir, NO_BLAME_SCM_ON_SERVER_XOO);
+    FileUtils.write(noBlameScmOnServer, SAMPLE_XOO_CONTENT + "\nchanged");
+    // No .scm file to emulate a failure during blame
+
     File sameContentNoScmOnServer = new File(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO);
     FileUtils.write(sameContentNoScmOnServer, SAMPLE_XOO_CONTENT);
     xooScmFile = new File(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO + ".scm");
@@ -228,14 +234,16 @@ public class ScmMediumTest {
 
     assertThat(getChangesets(baseDir, "src/sample.xoo")).isNotNull();
 
-    assertThat(getChangesets(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO)).isNotNull();
+    assertThat(getChangesets(baseDir, CHANGED_CONTENT_SCM_ON_SERVER_XOO).getCopyFromPrevious()).isFalse();
 
-    assertThat(getChangesets(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO)).isNull();
+    assertThat(getChangesets(baseDir, SAME_CONTENT_SCM_ON_SERVER_XOO).getCopyFromPrevious()).isTrue();
 
-    assertThat(getChangesets(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO)).isNotNull();
+    assertThat(getChangesets(baseDir, SAME_CONTENT_NO_SCM_ON_SERVER_XOO).getCopyFromPrevious()).isFalse();
 
-    assertThat(logTester.logs()).containsSubsequence("3 files to be analyzed", "3/3 files analyzed");
-    assertThat(logTester.logs()).doesNotContain(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES);
+    assertThat(getChangesets(baseDir, NO_BLAME_SCM_ON_SERVER_XOO)).isNull();
+
+    assertThat(logTester.logs()).containsSubsequence("4 files to be analyzed", "3/4 files analyzed");
+    assertThat(logTester.logs()).containsSubsequence(MISSING_BLAME_INFORMATION_FOR_THE_FOLLOWING_FILES, "  * " + noBlameScmOnServer.getPath().replaceAll("\\\\", "/"));
   }
 
   @Test
