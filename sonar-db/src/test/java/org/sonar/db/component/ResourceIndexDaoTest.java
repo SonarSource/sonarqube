@@ -35,7 +35,7 @@ public class ResourceIndexDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  ResourceIndexDao dao = dbTester.getDbClient().componentIndexDao();
+  ResourceIndexDao underTest = dbTester.getDbClient().componentIndexDao();
 
   @Before
   public void setUp() throws Exception {
@@ -46,7 +46,7 @@ public class ResourceIndexDaoTest {
   public void shouldIndexResource() {
     dbTester.prepareDbUnit(getClass(), "shouldIndexResource.xml");
 
-    dao.indexResource(10, "ZipUtils", "FIL", 8);
+    underTest.indexResource(10, "ZipUtils", "FIL", 8);
 
     dbTester.assertDbUnit(getClass(), "shouldIndexResource-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -55,7 +55,7 @@ public class ResourceIndexDaoTest {
   public void shouldIndexProjects() {
     dbTester.prepareDbUnit(getClass(), "shouldIndexProjects.xml");
 
-    dao.indexProjects();
+    underTest.indexProjects();
 
     dbTester.assertDbUnit(getClass(), "shouldIndexProjects-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -64,7 +64,7 @@ public class ResourceIndexDaoTest {
   public void shouldIndexMultiModulesProject() {
     dbTester.prepareDbUnit(getClass(), "shouldIndexMultiModulesProject.xml");
 
-    dao.indexProject(1);
+    underTest.indexProject(1);
 
     dbTester.assertDbUnit(getClass(), "shouldIndexMultiModulesProject-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -73,7 +73,7 @@ public class ResourceIndexDaoTest {
   public void shouldReindexProjectAfterRenaming() {
     dbTester.prepareDbUnit(getClass(), "shouldReindexProjectAfterRenaming.xml");
 
-    dao.indexProject(1);
+    underTest.indexProject(1);
 
     dbTester.assertDbUnit(getClass(), "shouldReindexProjectAfterRenaming-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -82,7 +82,7 @@ public class ResourceIndexDaoTest {
   public void shouldNotIndexPackages() {
     dbTester.prepareDbUnit(getClass(), "shouldNotIndexPackages.xml");
 
-    dao.indexProject(1);
+    underTest.indexProject(1);
     // project
     assertThat(dbTester.countSql("select count(1) from resource_index where resource_id=1")).isGreaterThan(0);
     // directory
@@ -95,7 +95,7 @@ public class ResourceIndexDaoTest {
   public void shouldIndexTwoLettersLongResources() {
     dbTester.prepareDbUnit(getClass(), "shouldIndexTwoLettersLongResource.xml");
 
-    dao.indexResource(10, "AB", Qualifiers.PROJECT, 3);
+    underTest.indexResource(10, "AB", Qualifiers.PROJECT, 3);
 
     dbTester.assertDbUnit(getClass(), "shouldIndexTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -104,7 +104,7 @@ public class ResourceIndexDaoTest {
   public void shouldReIndexTwoLettersLongResources() {
     dbTester.prepareDbUnit(getClass(), "shouldReIndexTwoLettersLongResource.xml");
 
-    dao.indexResource(1, "AS", Qualifiers.PROJECT, 1);
+    underTest.indexResource(1, "AS", Qualifiers.PROJECT, 1);
 
     dbTester.assertDbUnit(getClass(), "shouldReIndexTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -113,7 +113,7 @@ public class ResourceIndexDaoTest {
   public void shouldReIndexNewTwoLettersLongResource() {
     dbTester.prepareDbUnit(getClass(), "shouldReIndexNewTwoLettersLongResource.xml");
 
-    dao.indexResource(1, "AS", Qualifiers.PROJECT, 1);
+    underTest.indexResource(1, "AS", Qualifiers.PROJECT, 1);
 
     dbTester.assertDbUnit(getClass(), "shouldReIndexNewTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -122,7 +122,7 @@ public class ResourceIndexDaoTest {
   public void shouldReindexResource() {
     dbTester.prepareDbUnit(getClass(), "shouldReindexResource.xml");
 
-    dao.indexResource(1, "New Struts", Qualifiers.PROJECT, 1);
+    underTest.indexResource(1, "New Struts", Qualifiers.PROJECT, 1);
 
     dbTester.assertDbUnit(getClass(), "shouldReindexResource-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -131,7 +131,7 @@ public class ResourceIndexDaoTest {
   public void shouldNotReindexUnchangedResource() {
     dbTester.prepareDbUnit(getClass(), "shouldNotReindexUnchangedResource.xml");
 
-    dao.indexResource(1, "Struts", Qualifiers.PROJECT, 1);
+    underTest.indexResource(1, "Struts", Qualifiers.PROJECT, 1);
 
     dbTester.assertDbUnit(getClass(), "shouldNotReindexUnchangedResource-result.xml", new String[]{"id"}, "resource_index");
   }
@@ -143,9 +143,9 @@ public class ResourceIndexDaoTest {
     String viewUuid = "EFGH";
 
     DbSession session = dbTester.getSession();
-    assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "project", viewUuid)).containsOnly(1L, 2L);
-    assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "one", viewUuid)).containsOnly(1L);
-    assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "two", viewUuid)).containsOnly(2L);
-    assertThat(dao.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "unknown", viewUuid)).isEmpty();
+    assertThat(underTest.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "project", viewUuid)).containsOnly(1L, 2L);
+    assertThat(underTest.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "one", viewUuid)).containsOnly(1L);
+    assertThat(underTest.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "two", viewUuid)).containsOnly(2L);
+    assertThat(underTest.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "unknown", viewUuid)).isEmpty();
   }
 }
