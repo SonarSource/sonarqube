@@ -25,6 +25,7 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.config.Settings;
+import org.sonar.api.utils.MessageException;
 
 import static java.lang.String.format;
 import static org.sonar.api.CoreProperties.DEVELOPMENT_COST;
@@ -50,7 +51,12 @@ public class RatingSettings {
     String[] languageConfigIndexes = settings.getStringArray(LANGUAGE_SPECIFIC_PARAMETERS);
     for (String languageConfigIndex : languageConfigIndexes) {
       String languagePropertyKey = LANGUAGE_SPECIFIC_PARAMETERS + "." + languageConfigIndex + "." + LANGUAGE_SPECIFIC_PARAMETERS_LANGUAGE_KEY;
-      builder.put(settings.getString(languagePropertyKey), LanguageSpecificConfiguration.create(settings, languageConfigIndex));
+      String languageKey = settings.getString(languagePropertyKey);
+      if (languageKey == null) {
+        throw MessageException.of("Technical debt configuration is corrupted. At least one language specific parameter has no Language key. " +
+          "Contact your administrator to update this configuration in the global administration section of SonarQube.");
+      }
+      builder.put(languageKey, LanguageSpecificConfiguration.create(settings, languageConfigIndex));
     }
     return builder.build();
   }
