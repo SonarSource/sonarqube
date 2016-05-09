@@ -23,12 +23,13 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static org.apache.commons.lang.StringUtils.repeat;
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class ResourceIndexDaoTest {
 
@@ -48,7 +49,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexResource(10, "ZipUtils", "FIL", 8);
 
-    dbTester.assertDbUnit(getClass(), "shouldIndexResource-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldIndexResource-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -57,7 +58,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexProjects();
 
-    dbTester.assertDbUnit(getClass(), "shouldIndexProjects-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldIndexProjects-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -66,7 +67,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexProject(1);
 
-    dbTester.assertDbUnit(getClass(), "shouldIndexMultiModulesProject-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldIndexMultiModulesProject-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -75,7 +76,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexProject(1);
 
-    dbTester.assertDbUnit(getClass(), "shouldReindexProjectAfterRenaming-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldReindexProjectAfterRenaming-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -97,7 +98,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexResource(10, "AB", Qualifiers.PROJECT, 3);
 
-    dbTester.assertDbUnit(getClass(), "shouldIndexTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldIndexTwoLettersLongResource-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -106,7 +107,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexResource(1, "AS", Qualifiers.PROJECT, 1);
 
-    dbTester.assertDbUnit(getClass(), "shouldReIndexTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldReIndexTwoLettersLongResource-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -115,7 +116,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexResource(1, "AS", Qualifiers.PROJECT, 1);
 
-    dbTester.assertDbUnit(getClass(), "shouldReIndexNewTwoLettersLongResource-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldReIndexNewTwoLettersLongResource-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -124,7 +125,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexResource(1, "New Struts", Qualifiers.PROJECT, 1);
 
-    dbTester.assertDbUnit(getClass(), "shouldReindexResource-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldReindexResource-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -133,7 +134,7 @@ public class ResourceIndexDaoTest {
 
     underTest.indexResource(1, "Struts", Qualifiers.PROJECT, 1);
 
-    dbTester.assertDbUnit(getClass(), "shouldNotReindexUnchangedResource-result.xml", new String[]{"id"}, "resource_index");
+    dbTester.assertDbUnit(getClass(), "shouldNotReindexUnchangedResource-result.xml", new String[] {"id"}, "resource_index");
   }
 
   @Test
@@ -147,5 +148,24 @@ public class ResourceIndexDaoTest {
     assertThat(underTest.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "one", viewUuid)).containsOnly(1L);
     assertThat(underTest.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "two", viewUuid)).containsOnly(2L);
     assertThat(underTest.selectProjectIdsFromQueryAndViewOrSubViewUuid(session, "unknown", viewUuid)).isEmpty();
+  }
+
+  /**
+   * SONAR-7594
+   * PROJECTS.NAME is 2'000 characters long whereas RESOURCE_INDEX.KEE is only 400 characters. As there's no functional need
+   * to increase size of the latter column, indexed values must be truncated.
+   */
+  @Test
+  public void restrict_indexed_combinations_to_400_characters() {
+    String longName = repeat("a", 2_000);
+    ComponentDto project = new ComponentDto().setId(1L).setKey("the_key").setName(longName).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT);
+    DbSession session = dbTester.getSession();
+    dbTester.getDbClient().componentDao().insert(session, project);
+    dbTester.getDbClient().snapshotDao().insert(session, new SnapshotDto().setComponentId(project.getId()).setRootProjectId(project.getId()).setLast(true));
+
+    underTest.indexProject(project.getId(), session);
+    session.commit();
+
+    assertThat(dbTester.countRowsOfTable("resource_index")).isEqualTo(longName.length() - ResourceIndexDao.MINIMUM_KEY_SIZE + 1);
   }
 }

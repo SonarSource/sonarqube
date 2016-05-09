@@ -31,11 +31,18 @@ import org.sonar.db.AbstractDao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
+import static org.apache.commons.lang.StringUtils.substring;
+
 public class ResourceIndexDao extends AbstractDao {
 
   private static final String SELECT_RESOURCES = "org.sonar.db.component.ResourceIndexMapper.selectResources";
   public static final int MINIMUM_KEY_SIZE = 3;
   public static final int SINGLE_INDEX_SIZE = 2;
+
+  /**
+   * Length of db column RESOURCE_INDEX.KEE
+   */
+  private static final int MAXIMUM_KEY_SIZE = 400;
 
   // The scopes and qualifiers that are not in the following constants are not indexed at all.
   // Directories and packages are explicitly excluded.
@@ -195,7 +202,7 @@ public class ResourceIndexDao extends AbstractDao {
     int maxPosition = key.length() == SINGLE_INDEX_SIZE ? 0 : key.length() - MINIMUM_KEY_SIZE;
     for (int position = 0; position <= maxPosition; position++) {
       dto.setPosition(position);
-      dto.setKey(StringUtils.substring(key, position));
+      dto.setKey(substring(key, position, MAXIMUM_KEY_SIZE));
       mapper.insert(dto);
     }
   }
