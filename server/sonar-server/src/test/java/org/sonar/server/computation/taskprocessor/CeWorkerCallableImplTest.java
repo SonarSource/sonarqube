@@ -20,10 +20,13 @@
 package org.sonar.server.computation.taskprocessor;
 
 import com.google.common.base.Optional;
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InOrder;
 import org.mockito.Mockito;
+import org.sonar.api.utils.log.LogTester;
+import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.ce.log.CeLogging;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.db.ce.CeActivityDto;
@@ -41,6 +44,8 @@ public class CeWorkerCallableImplTest {
 
   @Rule
   public CeTaskProcessorRepositoryRule taskProcessorRepository = new CeTaskProcessorRepositoryRule();
+  @Rule
+  public LogTester logTester = new LogTester();
 
   InternalCeQueue queue = mock(InternalCeQueue.class);
   ReportTaskProcessor taskProcessor = mock(ReportTaskProcessor.class);
@@ -97,5 +102,35 @@ public class CeWorkerCallableImplTest {
     inOrder.verify(taskProcessor).process(task);
     inOrder.verify(queue).remove(task, CeActivityDto.Status.FAILED, null);
     inOrder.verify(ceLogging).clearForTask();
+  }
+
+  @Test
+  public void do_not_display_null_in_log_when_submitterLogin_is_not_set() throws Exception {
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
+    when(queue.peek()).thenReturn(Optional.of(task));
+    taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
+
+    underTest.call();
+
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(4);
+    for (int i = 0; i < 4; i++) {
+      assertThat(logs.get(i)).contains(" | submitter=''");
+    }
+  }
+
+  @Test
+  public void display_submitterLogin_in_logs_when_set() throws Exception {
+    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin("FooBar").build();
+    when(queue.peek()).thenReturn(Optional.of(task));
+    taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
+
+    underTest.call();
+
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(4);
+    for (int i = 0; i < 4; i++) {
+      assertThat(logs.get(i)).contains(" | submitter='FooBar'");
+    }
   }
 }

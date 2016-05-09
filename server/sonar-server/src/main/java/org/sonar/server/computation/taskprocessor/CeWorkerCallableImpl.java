@@ -96,14 +96,25 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
   }
 
   private static Profiler startProfiler(CeTask task) {
-    return Profiler.create(LOG).startInfo("Execute task | project={} | type={} | id={}", task.getComponentKey(), task.getType(), task.getUuid());
+    Profiler profiler = Profiler.create(LOG);
+    return profiler.startInfo("Execute task | project={} | type={} | id={} | submitter='{}'",
+      task.getComponentKey(), task.getType(), task.getUuid(), getSubmitterLoginForLog(task));
   }
 
   private static void stopProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
     if (status == CeActivityDto.Status.FAILED) {
-      profiler.stopError("Executed task | project={} | type={} | id={}", task.getComponentKey(), task.getType(), task.getUuid());
+      profiler.stopError("Executed task | project={} | type={} | id={} | submitter='{}'",
+          task.getComponentKey(), task.getType(), task.getUuid(), getSubmitterLoginForLog(task));
     } else {
-      profiler.stopInfo("Executed task | project={} | type={} | id={}", task.getComponentKey(), task.getType(), task.getUuid());
+      profiler.stopInfo("Executed task | project={} | type={} | id={} | submitter='{}'",
+          task.getComponentKey(), task.getType(), task.getUuid(), getSubmitterLoginForLog(task));
     }
+  }
+
+  private static String getSubmitterLoginForLog(CeTask task) {
+    if (task.getSubmitterLogin() == null) {
+      return "";
+    }
+    return task.getSubmitterLogin();
   }
 }
