@@ -235,7 +235,10 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
 
   @Override
   public TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset) {
-    return newRangeValidPointers(newPointer(startLine, startLineOffset), newPointer(endLine, endLineOffset));
+    TextPointer start = newPointer(startLine, startLineOffset);
+    TextPointer end = newPointer(endLine, endLineOffset);
+    Preconditions.checkArgument(start.compareTo(end) < 0, "Start pointer %s should be before end pointer %s", start, end);
+    return newRangeValidPointers(start, end);
   }
 
   @Override
@@ -259,6 +262,7 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
    * Create Range from global offsets. Used for backward compatibility with older API.
    */
   public TextRange newRange(int startOffset, int endOffset) {
+    Preconditions.checkArgument(startOffset < endOffset, "Start offset %s should be strictly before end offset %s", startOffset, endOffset);
     return newRangeValidPointers(newPointer(startOffset), newPointer(endOffset));
   }
 

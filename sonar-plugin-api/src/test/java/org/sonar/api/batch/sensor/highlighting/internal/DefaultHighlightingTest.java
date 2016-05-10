@@ -54,7 +54,7 @@ public class DefaultHighlightingTest {
     DefaultHighlighting highlightingDataBuilder = new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
       .highlight(0, 10, COMMENT)
-      .highlight(10, 12, KEYWORD)
+      .highlight(1, 10, 1, 12, KEYWORD)
       .highlight(24, 38, KEYWORD)
       .highlight(42, 50, KEYWORD)
       .highlight(24, 65, CPP_DOC)
@@ -76,17 +76,18 @@ public class DefaultHighlightingTest {
 
   @Test
   public void should_order_by_start_then_end_offset() {
-    assertThat(highlightingRules).extracting("range", TextRange.class).containsExactly(rangeOf(1, 0, 1, 10),
+    assertThat(highlightingRules).extracting("range", TextRange.class).containsExactly(
+      rangeOf(1, 0, 1, 10),
       rangeOf(1, 10, 1, 12),
       rangeOf(1, 12, 1, 20),
       rangeOf(1, 24, 2, 15),
       rangeOf(1, 24, 1, 38),
       rangeOf(1, 42, 2, 0));
-    assertThat(highlightingRules).extracting("textType").containsOnly(COMMENT, KEYWORD, COMMENT, KEYWORD, CPP_DOC, KEYWORD);
+    assertThat(highlightingRules).extracting("textType").containsExactly(COMMENT, KEYWORD, COMMENT, CPP_DOC, KEYWORD, KEYWORD);
   }
 
   @Test
-  public void should_suport_overlapping() {
+  public void should_support_overlapping() {
     new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
       .highlight(0, 15, KEYWORD)
@@ -103,6 +104,18 @@ public class DefaultHighlightingTest {
     new DefaultHighlighting(mock(SensorStorage.class))
       .onFile(INPUT_FILE)
       .highlight(10, 10, KEYWORD)
+      .save();
+  }
+
+  @Test
+  public void should_prevent_start_equal_end2() {
+    throwable.expect(IllegalArgumentException.class);
+    throwable
+      .expectMessage("Unable to highlight file");
+
+    new DefaultHighlighting(mock(SensorStorage.class))
+      .onFile(INPUT_FILE)
+      .highlight(1, 10, 1, 10, KEYWORD)
       .save();
   }
 

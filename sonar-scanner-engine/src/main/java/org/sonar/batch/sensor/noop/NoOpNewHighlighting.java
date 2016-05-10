@@ -20,6 +20,7 @@
 package org.sonar.batch.sensor.noop;
 
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.sensor.highlighting.NewHighlighting;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 
@@ -30,13 +31,25 @@ public class NoOpNewHighlighting implements NewHighlighting {
   }
 
   @Override
-  public NewHighlighting onFile(InputFile inputFile) {
+  public NoOpNewHighlighting onFile(InputFile inputFile) {
     // Do nothing
     return this;
   }
 
   @Override
-  public NewHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
+  public NoOpNewHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
+    // Do nothing
+    return this;
+  }
+
+  @Override
+  public NoOpNewHighlighting highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, TypeOfText typeOfText) {
+    // Do nothing
+    return this;
+  }
+
+  @Override
+  public NoOpNewHighlighting highlight(TextRange range, TypeOfText typeOfText) {
     // Do nothing
     return this;
   }

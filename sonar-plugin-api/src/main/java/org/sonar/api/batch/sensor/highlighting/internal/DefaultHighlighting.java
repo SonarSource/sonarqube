@@ -76,22 +76,38 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
 
   @Override
   public DefaultHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText) {
-    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    checkInputFileNotNull();
     TextRange newRange;
     try {
-      Preconditions.checkArgument(startOffset < endOffset, "start offset should be strictly before end offset");
       newRange = inputFile.newRange(startOffset, endOffset);
     } catch (Exception e) {
-      throw new IllegalArgumentException("Unable to highlight file " + inputFile + " from offset " + startOffset + " to offset " + endOffset, e);
+      throw new IllegalArgumentException("Unable to highlight file " + inputFile, e);
     }
-    SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(newRange, typeOfText);
+    return highlight(newRange, typeOfText);
+  }
+
+  @Override
+  public DefaultHighlighting highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, TypeOfText typeOfText) {
+    checkInputFileNotNull();
+    TextRange newRange;
+    try {
+      newRange = inputFile.newRange(startLine, startLineOffset, endLine, endLineOffset);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Unable to highlight file " + inputFile, e);
+    }
+    return highlight(newRange, typeOfText);
+  }
+
+  @Override
+  public DefaultHighlighting highlight(TextRange range, TypeOfText typeOfText) {
+    SyntaxHighlightingRule syntaxHighlightingRule = SyntaxHighlightingRule.create(range, typeOfText);
     this.syntaxHighlightingRules.add(syntaxHighlightingRule);
     return this;
   }
 
   @Override
   protected void doSave() {
-    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    checkInputFileNotNull();
     // Sort rules to avoid variation during consecutive runs
     Collections.sort(syntaxHighlightingRules, new Comparator<SyntaxHighlightingRule>() {
       @Override
@@ -105,5 +121,9 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
     });
     checkOverlappingBoudaries();
     storage.store(this);
+  }
+
+  private void checkInputFileNotNull() {
+    Preconditions.checkState(inputFile != null, "Call onFile() first");
   }
 }

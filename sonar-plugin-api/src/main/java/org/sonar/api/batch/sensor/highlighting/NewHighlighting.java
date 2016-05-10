@@ -21,6 +21,7 @@ package org.sonar.api.batch.sensor.highlighting;
 
 import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.TextRange;
 
 /**
  * This builder is used to define syntax highlighting (aka code coloration) on files.
@@ -41,6 +42,21 @@ public interface NewHighlighting {
    * @param typeOfText see {@link TypeOfText} values.
    */
   NewHighlighting highlight(int startOffset, int endOffset, TypeOfText typeOfText);
+
+  /**
+   * Call this method to indicate the type of text in a range.
+   * @param range Range of text to highlight. See for example {@link InputFile#newRange(int, int, int, int)}.
+   * @param typeOfText see {@link TypeOfText} values.
+   * @since 5.6
+   */
+  NewHighlighting highlight(TextRange range, TypeOfText typeOfText);
+
+  /**
+   * Shortcut to avoid calling {@link InputFile#newRange(int, int, int, int)}
+   * @param typeOfText see {@link TypeOfText} values.
+   * @since 5.6
+   */
+  NewHighlighting highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, TypeOfText typeOfText);
 
   /**
    * Call this method only once when your are done with defining highlighting of the file.
