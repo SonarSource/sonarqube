@@ -26,7 +26,9 @@ import it.issue.CustomRulesTest;
 import it.issue.IssueActionTest;
 import it.issue.IssueBulkChangeTest;
 import it.issue.IssueChangelogTest;
+import it.issue.IssueCreationTest;
 import it.issue.IssueFilterExtensionTest;
+import it.issue.IssueMeasureTest;
 import it.issue.IssueNotificationsTest;
 import it.issue.IssuePurgeTest;
 import it.issue.IssueSearchTest;
@@ -67,7 +69,9 @@ import static util.ItUtils.xooPlugin;
   IssueActionTest.class,
   IssueBulkChangeTest.class,
   IssueChangelogTest.class,
+  IssueCreationTest.class,
   IssueFilterExtensionTest.class,
+  IssueMeasureTest.class,
   IssueNotificationsTest.class,
   IssuePurgeTest.class,
   IssueSearchTest.class,

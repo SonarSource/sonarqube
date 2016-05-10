@@ -19,14 +19,13 @@
  */
 package it.issue;
 
-import com.google.common.collect.ImmutableMap;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.wsclient.Sonar;
 import org.sonar.wsclient.issue.Issue;
-import org.sonar.wsclient.issue.NewIssue;
+import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.services.Resource;
 import org.sonar.wsclient.services.ResourceQuery;
 
@@ -50,16 +49,16 @@ public class IssueMeasureTest extends AbstractIssueTest {
     ORCHESTRATOR.getServer().associateProjectToQualityProfile(MULTI_MODULE_SAMPLE_PROJECT_KEY, "xoo", "with-many-rules");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-multi-modules-sample");
 
-    assertThat(searchIssuesByProject(MULTI_MODULE_SAMPLE_PROJECT_KEY)).hasSize(71);
+    assertThat(search(IssueQuery.create().componentRoots(MULTI_MODULE_SAMPLE_PROJECT_KEY)).paging().total()).isEqualTo(136);
 
     Resource project = ORCHESTRATOR.getServer().getWsClient()
       .find(ResourceQuery.createForMetrics(MULTI_MODULE_SAMPLE_PROJECT_KEY, "violations", "info_violations", "minor_violations", "major_violations",
         "blocker_violations", "critical_violations"));
-    assertThat(project.getMeasureIntValue("violations")).isEqualTo(71);
+    assertThat(project.getMeasureIntValue("violations")).isEqualTo(136);
     assertThat(project.getMeasureIntValue("info_violations")).isEqualTo(2);
     assertThat(project.getMeasureIntValue("minor_violations")).isEqualTo(61);
-    assertThat(project.getMeasureIntValue("major_violations")).isEqualTo(4);
-    assertThat(project.getMeasureIntValue("blocker_violations")).isEqualTo(0);
+    assertThat(project.getMeasureIntValue("major_violations")).isEqualTo(65);
+    assertThat(project.getMeasureIntValue("blocker_violations")).isEqualTo(4);
     assertThat(project.getMeasureIntValue("critical_violations")).isEqualTo(4);
   }
 
@@ -117,38 +116,15 @@ public class IssueMeasureTest extends AbstractIssueTest {
     String testKey = "sample-with-tests:src/test/xoo/sample/SampleTest.xoo";
 
     ORCHESTRATOR.getServer().provisionProject(projectKey, projectKey);
-    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-line-profile.xml"));
-    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "xoo", "one-issue-per-line-profile");
+    ORCHESTRATOR.getServer().restoreProfile(FileLocation.ofClasspath("/issue/one-issue-per-file-profile.xml"));
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(projectKey, "xoo", "one-issue-per-file-profile");
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample-with-tests");
 
     Sonar wsClient = ORCHESTRATOR.getServer().getAdminWsClient();
 
     // Store current number of issues
-    Resource project = wsClient.find(ResourceQuery.createForMetrics(projectKey, "violations"));
-    int issues = project.getMeasureIntValue("violations");
-
-    // Create the manual rule
-    createManualRule();
-
-    // Create a issue on the test source file
-    adminIssueClient().create(NewIssue.create().component(testKey)
-      .severity("MAJOR")
-      .rule("manual:invalidclassname").line(8)
-      .message("The name 'SampleTest' is too generic"));
-
-    // Re-analyse the project
-    runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample-with-tests");
-
-    // And check that the number of issues metrics have changed
-    project = wsClient.find(ResourceQuery.createForMetrics(projectKey, "violations"));
-    assertThat(project.getMeasureIntValue("violations")).isEqualTo(issues + 1);
+    Resource project = wsClient.find(ResourceQuery.createForMetrics(testKey, "violations"));
+    assertThat(project.getMeasureIntValue("violations")).isEqualTo(1);
   }
 
-  private static void createManualRule() {
-    ORCHESTRATOR.getServer().adminWsClient().post("/api/rules/create", ImmutableMap.<String, Object>of(
-      "manual_key", "invalidclassname",
-      "name", "InvalidClassName",
-      "markdown_description", "Invalid class name"
-    ));
-  }
 }
