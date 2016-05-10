@@ -24,6 +24,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
@@ -67,9 +68,14 @@ public class XooBlameCommand extends BlameCommand {
           String author = StringUtils.trimToNull(fields[1]);
           BlameLine blameLine = new BlameLine().revision(revision).author(author);
           String dateStr = StringUtils.trimToNull(fields[2]);
-          // Will throw an exception, when date is not in format "yyyy-MM-dd"
           if (dateStr != null) {
-            blameLine.date(DateUtils.parseDate(dateStr));
+            Date dateTime = DateUtils.parseDateTimeQuietly(dateStr);
+            if (dateTime != null) {
+              blameLine.date(dateTime);
+            } else {
+              // Will throw an exception, when date is not in format "yyyy-MM-dd"
+              blameLine.date(DateUtils.parseDate(dateStr));
+            }
           }
           blame.add(blameLine);
         }
