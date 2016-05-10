@@ -1,42 +1,47 @@
 {
   "installing": [
     {
-      "key": "scmgit",
-      "name": "Git",
-      "description": "Git SCM Provider.",
+      "key": "scmcvs",
+      "name": "CVS",
+      "description": "CVS SCM Provider.",
       "version": "1.0",
+      "category": "Integration",
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmgit.html",
-      "issueTrackerUrl": "http://jira.sonarsource.com/browse/SONARSCGIT",
-      "implementationBuild": "9ce9d330c313c296fab051317cc5ad4b26319e07"
-    },
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmcvs.html",
+      "issueTrackerUrl": "http://jira.codehaus.org/browse/SONARSCCVS",
+      "implementationBuild": "f9735104bfa053abc50edad720c79d89a4f5cd72"
+    }
+  ],
+  "updating": [
     {
-      "key": "java",
-      "name": "Java",
-      "description": "SonarQube rule engine.",
-      "version": "3.0",
+      "key": "csharp",
+      "name": "C#",
+      "description": "Enables scanning of C# source files",
+      "version": "5.2",
+      "category": "Languages",
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "homepageUrl": "http://redirect.sonarsource.com/plugins/java.html",
-      "issueTrackerUrl": "http://jira.sonarsource.com/browse/SONARJAVA",
-      "implementationBuild": "65396a609ddface8b311a6a665aca92a7da694f1"
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/csharp.html",
+      "issueTrackerUrl": "https://jira.sonarsource.com/browse/SONARCS",
+      "implementationBuild": "54d1d010bc1816dc89bf31237ce361921eaf3242"
     }
   ],
   "removing": [
     {
-      "key": "scmsvn",
-      "name": "SVN",
-      "description": "SVN SCM Provider.",
-      "version": "1.0",
+      "key": "scmgit",
+      "name": "Git",
+      "description": "Git SCM Provider",
+      "version": "1.2",
+      "category": "Integration",
       "license": "GNU LGPL 3",
       "organizationName": "SonarSource",
       "organizationUrl": "http://www.sonarsource.com",
-      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmsvn.html",
-      "issueTrackerUrl": "http://jira.sonarsource.com/browse/SONARSCSVN",
-      "implementationBuild": "213fc8a8b582ff530b12dd4a59a6512be1071234"
+      "homepageUrl": "http://redirect.sonarsource.com/plugins/scmgit.html/sonar-scm-git-plugin",
+      "issueTrackerUrl": "https://jira.sonarsource.com/browse/SONARSCGIT",
+      "implementationBuild": "a713dd64daf8719ba4e7f551f9a1966c62690c17"
     }
   ]
 }
