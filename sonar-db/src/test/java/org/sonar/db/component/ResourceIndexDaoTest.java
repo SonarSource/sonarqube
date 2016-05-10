@@ -53,15 +53,6 @@ public class ResourceIndexDaoTest {
   }
 
   @Test
-  public void shouldIndexProjects() {
-    dbTester.prepareDbUnit(getClass(), "shouldIndexProjects.xml");
-
-    underTest.indexProjects();
-
-    dbTester.assertDbUnit(getClass(), "shouldIndexProjects-result.xml", new String[] {"id"}, "resource_index");
-  }
-
-  @Test
   public void shouldIndexMultiModulesProject() {
     dbTester.prepareDbUnit(getClass(), "shouldIndexMultiModulesProject.xml");
 
@@ -163,7 +154,7 @@ public class ResourceIndexDaoTest {
     dbTester.getDbClient().componentDao().insert(session, project);
     dbTester.getDbClient().snapshotDao().insert(session, new SnapshotDto().setComponentId(project.getId()).setRootProjectId(project.getId()).setLast(true));
 
-    underTest.indexProject(project.getId(), session);
+    underTest.indexProject(session, project.getId());
     session.commit();
 
     assertThat(dbTester.countRowsOfTable("resource_index")).isEqualTo(longName.length() - ResourceIndexDao.MINIMUM_KEY_SIZE + 1);

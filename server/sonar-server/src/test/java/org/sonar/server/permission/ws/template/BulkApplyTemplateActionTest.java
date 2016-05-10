@@ -181,7 +181,7 @@ public class BulkApplyTemplateActionTest {
     // match must be exact on key
     ComponentDto projectUntouched = newProjectDto().setKey("new-sonar").setName("project-name");
     componentDb.insertProjectAndSnapshot(projectUntouched);
-    componentDb.indexProjectsAndViews();
+    componentDb.indexAllComponents();
 
     call(ws.newRequest()
       .setParam(PARAM_TEMPLATE_ID, template1.getUuid())

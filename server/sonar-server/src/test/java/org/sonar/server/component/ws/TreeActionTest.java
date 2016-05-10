@@ -118,7 +118,7 @@ public class TreeActionTest {
     SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(newDirectory(project, "directory-path-1"), moduleSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, 10), directorySnapshot);
     db.commit();
-    componentDb.indexProjectsAndViews();
+    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
@@ -149,7 +149,7 @@ public class TreeActionTest {
     SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(newDirectory(project, "directory-path-1"), moduleSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, 1), directorySnapshot);
     db.commit();
-    componentDb.indexProjectsAndViews();
+    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -175,7 +175,7 @@ public class TreeActionTest {
     SnapshotDto directorySnapshot = componentDb.insertComponentAndSnapshot(newDirectory(project, "directory-path-1"), moduleSnapshot);
     componentDb.insertComponentAndSnapshot(newFileDto(project, 3), directorySnapshot);
     db.commit();
-    componentDb.indexProjectsAndViews();
+    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "leaves")
@@ -195,7 +195,7 @@ public class TreeActionTest {
     componentDb.insertComponentAndSnapshot(newFileDto(project, 2), projectSnapshot);
     componentDb.insertComponentAndSnapshot(newModuleDto("module-uuid-1", project), projectSnapshot);
     db.commit();
-    componentDb.indexProjectsAndViews();
+    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -215,7 +215,7 @@ public class TreeActionTest {
     componentDb.insertComponentAndSnapshot(module, projectSnapshot);
     componentDb.insertComponentAndSnapshot(newDirectory(project, "path/directory/", "directory-uuid-1"), projectSnapshot);
     db.commit();
-    componentDb.indexProjectsAndViews();
+    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "all")
@@ -234,7 +234,7 @@ public class TreeActionTest {
     componentDb.insertComponentAndSnapshot(newProjectCopy("project-uuid-1-copy", project, view), viewSnapshot);
     componentDb.insertComponentAndSnapshot(newSubView(view, "sub-view-uuid", "sub-view-key").setName("sub-view-name"), viewSnapshot);
     db.commit();
-    componentDb.indexProjectsAndViews();
+    componentDb.indexAllComponents();
 
     TreeWsResponse response = call(ws.newRequest()
       .setParam(PARAM_STRATEGY, "children")
@@ -414,7 +414,7 @@ public class TreeActionTest {
         projectSnapshot);
     }
     db.commit();
-    componentDb.indexProjectsAndViews();
+    componentDb.indexAllComponents();
     return project;
   }
 

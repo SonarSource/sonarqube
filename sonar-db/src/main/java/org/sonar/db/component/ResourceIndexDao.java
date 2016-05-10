@@ -65,7 +65,7 @@ public class ResourceIndexDao extends AbstractDao {
   public ResourceIndexDao indexProject(final long rootProjectId) {
     DbSession session = myBatis().openSession(true);
     try {
-      indexProject(rootProjectId, session);
+      indexProject(session, rootProjectId);
       session.commit();
       return this;
 
@@ -74,34 +74,12 @@ public class ResourceIndexDao extends AbstractDao {
     }
   }
 
-  public void indexProject(final long rootProjectId, DbSession session) {
+  public void indexProject(DbSession session, final long rootProjectId) {
     ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
-    doIndexProject(rootProjectId, session, mapper);
+    doIndexProject(session, rootProjectId, mapper);
   }
 
-  /**
-   * This method is reentrant. It can be executed even if some projects are already indexed.
-   */
-  public ResourceIndexDao indexProjects() {
-    final DbSession session = myBatis().openSession(true);
-    try {
-      final ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
-      session.select(ResourceIndexMapper.class.getName() + ".selectRootProjectIds", /* workaround to get booleans */ResourceIndexQuery.create(), new ResultHandler() {
-        @Override
-        public void handleResult(ResultContext context) {
-          Integer rootProjectId = (Integer) context.getResultObject();
-          doIndexProject(rootProjectId, session, mapper);
-          session.commit();
-        }
-      });
-      return this;
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  private void doIndexProject(long rootProjectId, SqlSession session, final ResourceIndexMapper mapper) {
+  private void doIndexProject(DbSession session, long rootProjectId, final ResourceIndexMapper mapper) {
     // non indexed resources
     ResourceIndexQuery query = ResourceIndexQuery.create()
       .setNonIndexedOnly(true)

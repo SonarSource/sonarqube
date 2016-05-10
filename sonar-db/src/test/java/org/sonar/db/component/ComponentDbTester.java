@@ -19,6 +19,8 @@
  */
 package org.sonar.db.component;
 
+import java.util.List;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -83,8 +85,14 @@ public class ComponentDbTester {
     db.commit();
   }
 
-  public void indexProjectsAndViews() {
-    dbClient.componentIndexDao().indexProjects();
+  public void indexAllComponents() {
+    ComponentQuery dbQuery = ComponentQuery.builder()
+      .setQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV")
+      .build();
+    List<ComponentDto> rootProjects = dbClient.componentDao().selectByQuery(dbSession, dbQuery, 0, Integer.MAX_VALUE);
+    for (ComponentDto project : rootProjects) {
+      dbClient.componentIndexDao().indexProject(dbSession, project.getId());
+    }
     db.commit();
   }
 

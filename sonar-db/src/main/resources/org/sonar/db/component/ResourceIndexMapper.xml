@@ -44,14 +44,6 @@
     order by p.id
   </select>
 
-  <select id="selectRootProjectIds" parameterType="map" resultType="int">
-    select distinct root_project_id
-    from snapshots
-    where islast=${_true}
-    and scope='PRJ'
-    and qualifier in ('TRK', 'VW', 'SVW')
-  </select>
-
   <select id="selectMasterIndexByResourceId" parameterType="long" resultType="ResourceIndex">
     select kee as "key", resource_id as "resourceId"
     from resource_index
