@@ -431,6 +431,39 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
     assertThat(fileSourceDto.getRevision()).isEqualTo("rev-1");
   }
 
+  @Test
+  public void clear_revision_when_no_ChangeSet() {
+    // Existing sources
+    long past = 150000L;
+    dbClient.fileSourceDao().insert(dbTester.getSession(), new FileSourceDto()
+      .setProjectUuid(PROJECT_UUID)
+      .setFileUuid(FILE_UUID)
+      .setDataType(Type.SOURCE)
+      .setSrcHash("137f72c3708c6bd0de00a0e5a69c699b")
+      .setLineHashes("137f72c3708c6bd0de00a0e5a69c699b")
+      .setDataHash("8e84c0d961cfe364e43833c4cc4ddef5")
+      // Revision is missing, update will be made
+      .setSourceData(DbFileSources.Data.newBuilder()
+        .addLines(DbFileSources.Line.newBuilder()
+          .setLine(1)
+          .setSource("line")
+          .build())
+        .build())
+      .setCreatedAt(past)
+      .setUpdatedAt(past));
+    dbTester.getSession().commit();
+
+    initBasicReport(1);
+
+    underTest.execute();
+
+    assertThat(dbTester.countRowsOfTable("file_sources")).isEqualTo(1);
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(session, FILE_UUID);
+    assertThat(fileSourceDto.getCreatedAt()).isEqualTo(past);
+    assertThat(fileSourceDto.getUpdatedAt()).isEqualTo(NOW);
+    assertThat(fileSourceDto.getRevision()).isNull();
+  }
+
   private void initBasicReport(int numberOfLines) {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).addChildren(
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("MODULE").setKey("MODULE_KEY").addChildren(

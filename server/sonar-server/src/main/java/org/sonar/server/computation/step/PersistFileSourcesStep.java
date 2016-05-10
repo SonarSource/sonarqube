@@ -165,7 +165,7 @@ public class PersistFileSourcesStep implements ComputationStep {
         // Update only if data_hash has changed or if src_hash is missing or revision is missing (progressive migration)
         boolean binaryDataUpdated = !dataHash.equals(previousDto.getDataHash());
         boolean srcHashUpdated = !srcHash.equals(previousDto.getSrcHash());
-        String revision = computeRevision(previousDto, latestChange);
+        String revision = computeRevision(latestChange);
         boolean revisionUpdated = !ObjectUtils.equals(revision, previousDto.getRevision());
         if (binaryDataUpdated || srcHashUpdated || revisionUpdated) {
           previousDto
@@ -179,14 +179,6 @@ public class PersistFileSourcesStep implements ComputationStep {
           session.commit();
         }
       }
-    }
-
-    @CheckForNull
-    private String computeRevision(FileSourceDto previousDto, @Nullable Changeset latestChange) {
-      if (latestChange == null) {
-        return previousDto.getRevision();
-      }
-      return latestChange.getRevision();
     }
 
     @CheckForNull
