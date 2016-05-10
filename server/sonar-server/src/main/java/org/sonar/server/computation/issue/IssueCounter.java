@@ -26,7 +26,6 @@ import com.google.common.collect.Multiset;
 import java.util.HashMap;
 import java.util.Map;
 import javax.annotation.Nullable;
-import org.sonar.api.issue.Issue;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rules.RuleType;
 import org.sonar.core.issue.DefaultIssue;
@@ -39,6 +38,8 @@ import org.sonar.server.computation.metric.MetricRepository;
 import org.sonar.server.computation.period.Period;
 import org.sonar.server.computation.period.PeriodsHolder;
 
+import static org.sonar.api.issue.Issue.RESOLUTION_FALSE_POSITIVE;
+import static org.sonar.api.issue.Issue.RESOLUTION_WONT_FIX;
 import static org.sonar.api.issue.Issue.STATUS_CONFIRMED;
 import static org.sonar.api.issue.Issue.STATUS_OPEN;
 import static org.sonar.api.issue.Issue.STATUS_REOPENED;
@@ -58,6 +59,7 @@ import static org.sonar.api.measures.CoreMetrics.NEW_VIOLATIONS_KEY;
 import static org.sonar.api.measures.CoreMetrics.OPEN_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.REOPENED_ISSUES_KEY;
 import static org.sonar.api.measures.CoreMetrics.VIOLATIONS_KEY;
+import static org.sonar.api.measures.CoreMetrics.WONT_FIX_ISSUES_KEY;
 import static org.sonar.api.rule.Severity.BLOCKER;
 import static org.sonar.api.rule.Severity.CRITICAL;
 import static org.sonar.api.rule.Severity.INFO;
@@ -67,10 +69,8 @@ import static org.sonar.api.rule.Severity.MINOR;
 /**
  * For each component, computes the measures related to number of issues:
  * <ul>
- * <li>unresolved issues</li>
- * <li>false-positives</li>
- * <li>open issues</li>
  * <li>issues per status (open, reopen, confirmed)</li>
+ * <li>issues per resolution (unresolved, false-positives, won't fix)</li>
  * <li>issues per severity (from info to blocker)</li>
  * <li>issues per type (code smell, bug, vulnerability)</li>
  * </ul>
@@ -167,6 +167,7 @@ public class IssueCounter extends IssueVisitor {
     addMeasure(component, REOPENED_ISSUES_KEY, currentCounters.counter().reopened);
     addMeasure(component, CONFIRMED_ISSUES_KEY, currentCounters.counter().confirmed);
     addMeasure(component, FALSE_POSITIVE_ISSUES_KEY, currentCounters.counter().falsePositives);
+    addMeasure(component, WONT_FIX_ISSUES_KEY, currentCounters.counter().wontFix);
   }
 
   private void addMeasuresByType(Component component) {
@@ -231,6 +232,7 @@ public class IssueCounter extends IssueVisitor {
     private int reopened = 0;
     private int confirmed = 0;
     private int falsePositives = 0;
+    private int wontFix = 0;
     private final Multiset<String> severityBag = HashMultiset.create();
     private final EnumMultiset<RuleType> typeBag = EnumMultiset.create(RuleType.class);
 
@@ -240,6 +242,7 @@ public class IssueCounter extends IssueVisitor {
       reopened += counter.reopened;
       confirmed += counter.confirmed;
       falsePositives += counter.falsePositives;
+      wontFix += counter.wontFix;
       severityBag.addAll(counter.severityBag);
       typeBag.addAll(counter.typeBag);
     }
@@ -249,8 +252,10 @@ public class IssueCounter extends IssueVisitor {
         unresolved++;
         typeBag.add(issue.type());
         severityBag.add(issue.severity());
-      } else if (Issue.RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {
+      } else if (RESOLUTION_FALSE_POSITIVE.equals(issue.resolution())) {
         falsePositives++;
+      } else if (RESOLUTION_WONT_FIX.equals(issue.resolution())) {
+        wontFix++;
       }
       switch (issue.status()) {
         case STATUS_OPEN:

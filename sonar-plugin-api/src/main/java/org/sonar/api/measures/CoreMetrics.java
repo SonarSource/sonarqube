@@ -1539,6 +1539,22 @@ public final class CoreMetrics {
     .create();
 
   /**
+   * @since 5.6
+   */
+  public static final String WONT_FIX_ISSUES_KEY = "wont_fix_issues";
+
+  /**
+   * @since 5.6
+   */
+  public static final Metric<Integer> WONT_FIX_ISSUES = new Metric.Builder(WONT_FIX_ISSUES_KEY, "Won't Fix Issues", Metric.ValueType.INT)
+    .setDescription("Won't fix issues")
+    .setDirection(Metric.DIRECTION_WORST)
+    .setDomain(DOMAIN_ISSUES)
+    .setBestValue(0.0)
+    .setOptimizedBestValue(true)
+    .create();
+
+  /**
    * @since 3.6
    */
   public static final String OPEN_ISSUES_KEY = "open_issues";

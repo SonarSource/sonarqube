@@ -64,6 +64,7 @@ public class IssueMeasureTest extends AbstractIssueTest {
 
   /**
    * SONAR-4330
+   * SONAR-7555
    */
   @Test
   public void issues_by_resolution_and_status_measures() {
@@ -75,19 +76,21 @@ public class IssueMeasureTest extends AbstractIssueTest {
     List<Issue> issues = searchIssuesByProject(SAMPLE_PROJECT_KEY);
     assertThat(issues).hasSize(17);
 
-    // 1 is a false-positive, 1 is confirmed, 1 is reopened, and the remaining ones stays open
+    // 1 is a false-positive, 1 is a won't fix, 1 is confirmed, 1 is reopened, and the remaining ones stays open
     adminIssueClient().doTransition(issues.get(0).key(), "falsepositive");
-    adminIssueClient().doTransition(issues.get(1).key(), "confirm");
-    adminIssueClient().doTransition(issues.get(2).key(), "resolve");
-    adminIssueClient().doTransition(issues.get(2).key(), "reopen");
+    adminIssueClient().doTransition(issues.get(1).key(), "wontfix");
+    adminIssueClient().doTransition(issues.get(2).key(), "confirm");
+    adminIssueClient().doTransition(issues.get(3).key(), "resolve");
+    adminIssueClient().doTransition(issues.get(3).key(), "reopen");
 
     // Re analyze the project to compute measures
     runProjectAnalysis(ORCHESTRATOR, "shared/xoo-sample");
 
     Resource project = ORCHESTRATOR.getServer().getWsClient().find(
-      ResourceQuery.createForMetrics(SAMPLE_PROJECT_KEY, "false_positive_issues", "open_issues", "reopened_issues", "confirmed_issues"));
+      ResourceQuery.createForMetrics(SAMPLE_PROJECT_KEY, "false_positive_issues", "wont_fix_issues", "open_issues", "reopened_issues", "confirmed_issues"));
     assertThat(project.getMeasureIntValue("false_positive_issues")).isEqualTo(1);
-    assertThat(project.getMeasureIntValue("open_issues")).isEqualTo(14);
+    assertThat(project.getMeasureIntValue("wont_fix_issues")).isEqualTo(1);
+    assertThat(project.getMeasureIntValue("open_issues")).isEqualTo(13);
     assertThat(project.getMeasureIntValue("reopened_issues")).isEqualTo(1);
     assertThat(project.getMeasureIntValue("confirmed_issues")).isEqualTo(1);
   }
