@@ -45,12 +45,12 @@ import org.sonar.api.batch.sensor.internal.SensorStorage;
 import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.source.Symbol;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.SonarException;
 import org.sonar.batch.cpd.deprecated.DefaultCpdBlockIndexer;
@@ -62,7 +62,6 @@ import org.sonar.batch.report.ReportPublisher;
 import org.sonar.batch.report.ScannerReportUtils;
 import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
-import org.sonar.batch.source.DefaultSymbol;
 import org.sonar.duplications.block.Block;
 import org.sonar.duplications.internal.pmd.PmdBlockChunker;
 import org.sonar.scanner.protocol.output.ScannerReport;
@@ -199,22 +198,23 @@ public class DefaultSensorStorage implements SensorStorage {
       Iterables.transform(highlighting.getSyntaxHighlightingRuleSet(), new BuildSyntaxHighlighting()));
   }
 
-  public void store(DefaultInputFile inputFile, Map<Symbol, Set<TextRange>> referencesBySymbol) {
+  @Override
+  public void store(DefaultSymbolTable symbolTable) {
     ScannerReportWriter writer = reportPublisher.getWriter();
-    writer.writeComponentSymbols(componentCache.get(inputFile).batchId(),
-      Iterables.transform(referencesBySymbol.entrySet(), new Function<Map.Entry<Symbol, Set<TextRange>>, ScannerReport.Symbol>() {
+    writer.writeComponentSymbols(componentCache.get(symbolTable.inputFile()).batchId(),
+      Iterables.transform(symbolTable.getReferencesBySymbol().entrySet(), new Function<Map.Entry<TextRange, Set<TextRange>>, ScannerReport.Symbol>() {
         private ScannerReport.Symbol.Builder builder = ScannerReport.Symbol.newBuilder();
         private ScannerReport.TextRange.Builder rangeBuilder = ScannerReport.TextRange.newBuilder();
 
         @Override
-        public ScannerReport.Symbol apply(Map.Entry<Symbol, Set<TextRange>> input) {
+        public ScannerReport.Symbol apply(Map.Entry<TextRange, Set<TextRange>> input) {
           builder.clear();
           rangeBuilder.clear();
-          DefaultSymbol symbol = (DefaultSymbol) input.getKey();
-          builder.setDeclaration(rangeBuilder.setStartLine(symbol.range().start().line())
-            .setStartOffset(symbol.range().start().lineOffset())
-            .setEndLine(symbol.range().end().line())
-            .setEndOffset(symbol.range().end().lineOffset())
+          TextRange declaration = input.getKey();
+          builder.setDeclaration(rangeBuilder.setStartLine(declaration.start().line())
+            .setStartOffset(declaration.start().lineOffset())
+            .setEndLine(declaration.end().line())
+            .setEndOffset(declaration.end().lineOffset())
             .build());
           for (TextRange reference : input.getValue()) {
             builder.addReference(rangeBuilder.setStartLine(reference.start().line())

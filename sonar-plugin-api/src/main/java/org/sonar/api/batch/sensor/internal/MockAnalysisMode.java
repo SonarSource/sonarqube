@@ -19,40 +19,32 @@
  */
 package org.sonar.api.batch.sensor.internal;
 
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
-import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
-import org.sonar.api.batch.sensor.highlighting.internal.DefaultHighlighting;
-import org.sonar.api.batch.sensor.issue.Issue;
-import org.sonar.api.batch.sensor.measure.Measure;
-import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
+import org.sonar.api.batch.AnalysisMode;
 
-/**
- * Interface for storing data computed by sensors.
- * @since 5.1
- */
-@BatchSide
-public interface SensorStorage {
+public class MockAnalysisMode implements AnalysisMode {
+  private boolean isPreview = false;
+  private boolean isIssues = false;
 
-  void store(Measure measure);
+  @Override
+  public boolean isPreview() {
+    return isPreview;
+  }
 
-  void store(Issue issue);
+  public void setPreview(boolean value) {
+    this.isPreview = value;
+  }
 
-  void store(DefaultHighlighting highlighting);
+  @Override
+  public boolean isIssues() {
+    return this.isIssues;
+  }
 
-  /**
-   * @since 5.2
-   */
-  void store(DefaultCoverage defaultCoverage);
+  public void setIssues(boolean issues) {
+    this.isIssues = issues;
+  }
 
-  /**
-   * @since 5.5 
-   */
-  void store(DefaultCpdTokens defaultCpdTokens);
-
-  /**
-   * @since 5.6 
-   */
-  void store(DefaultSymbolTable symbolTable);
-
+  @Override
+  public boolean isPublish() {
+    return !isPreview && !isIssues;
+  }
 }

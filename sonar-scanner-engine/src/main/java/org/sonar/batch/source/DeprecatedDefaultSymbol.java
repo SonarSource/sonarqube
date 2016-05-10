@@ -19,18 +19,15 @@
  */
 package org.sonar.batch.source;
 
-import com.google.common.base.Objects;
-import org.sonar.api.batch.fs.TextRange;
+import org.sonar.api.batch.sensor.symbol.NewSymbol;
 
-import java.io.Serializable;
+public class DeprecatedDefaultSymbol implements org.sonar.api.source.Symbol {
 
-public class DefaultSymbol implements org.sonar.api.source.Symbol, Serializable {
+  private final NewSymbol wrapped;
+  private final int length;
 
-  private TextRange range;
-  private int length;
-
-  public DefaultSymbol(TextRange range, int length) {
-    this.range = range;
+  public DeprecatedDefaultSymbol(NewSymbol newSymbol, int length) {
+    this.wrapped = newSymbol;
     this.length = length;
   }
 
@@ -49,18 +46,12 @@ public class DefaultSymbol implements org.sonar.api.source.Symbol, Serializable 
     throw new UnsupportedOperationException("getFullyQualifiedName");
   }
 
-  public TextRange range() {
-    return range;
+  public NewSymbol getWrapped() {
+    return wrapped;
   }
 
   public int getLength() {
     return length;
   }
 
-  @Override
-  public String toString() {
-    return Objects.toStringHelper("Symbol")
-      .add("range", range)
-      .toString();
-  }
 }

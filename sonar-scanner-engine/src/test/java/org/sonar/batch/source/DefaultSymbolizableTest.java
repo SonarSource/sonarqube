@@ -21,18 +21,17 @@ package org.sonar.batch.source;
 
 import com.google.common.base.Strings;
 import java.io.StringReader;
-import java.util.Map;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 
@@ -58,9 +57,9 @@ public class DefaultSymbolizableTest {
 
     symbolPerspective.setSymbolTable(symbolTable);
 
-    ArgumentCaptor<Map> argCaptor = ArgumentCaptor.forClass(Map.class);
-    verify(sensorStorage).store(eq(inputFile), argCaptor.capture());
+    ArgumentCaptor<DefaultSymbolTable> argCaptor = ArgumentCaptor.forClass(DefaultSymbolTable.class);
+    verify(sensorStorage).store(argCaptor.capture());
     // Map<Symbol, Set<TextRange>>
-    assertThat(argCaptor.getValue().keySet()).hasSize(2);
+    assertThat(argCaptor.getValue().getReferencesBySymbol().keySet()).hasSize(2);
   }
 }

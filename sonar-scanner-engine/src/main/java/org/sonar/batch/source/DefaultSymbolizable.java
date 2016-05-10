@@ -23,6 +23,7 @@ import java.util.Collections;
 import java.util.List;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
 import org.sonar.batch.sensor.DefaultSensorStorage;
@@ -99,7 +100,7 @@ public class DefaultSymbolizable implements Symbolizable {
     if (analysisMode.isIssues()) {
       return NO_OP_SYMBOL_TABLE_BUILDER;
     }
-    return new DefaultSymbolTable.Builder(inputFile);
+    return new DeprecatedDefaultSymbolTable.Builder(new DefaultSymbolTable(sensorStorage).onFile(inputFile));
   }
 
   @Override
@@ -108,6 +109,6 @@ public class DefaultSymbolizable implements Symbolizable {
       // No need for symbols in issues mode
       return;
     }
-    sensorStorage.store(inputFile, ((DefaultSymbolTable) symbolTable).getReferencesBySymbol());
+    ((DeprecatedDefaultSymbolTable) symbolTable).getWrapped().save();
   }
 }

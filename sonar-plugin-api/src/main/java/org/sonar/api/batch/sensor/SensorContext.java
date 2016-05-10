@@ -32,6 +32,7 @@ import org.sonar.api.batch.sensor.issue.Issue;
 import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
 
@@ -89,9 +90,13 @@ public interface SensorContext {
    */
   NewHighlighting newHighlighting();
 
-  // ------------ SYMBOL REFERENCES ------------
+  // ------------ SYMBOL TABLE ------------
 
-  // TODO
+  /**
+   * Builder to define symbol table of a file. Don't forget to call {@link NewSymbolTable#save()} once all symbols are provided.
+   * @since 5.6
+   */
+  NewSymbolTable newSymbolTable();
 
   // ------------ TESTS ------------
 

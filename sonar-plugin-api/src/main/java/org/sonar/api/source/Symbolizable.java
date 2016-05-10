@@ -19,10 +19,9 @@
  */
 package org.sonar.api.source;
 
+import java.util.List;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
-
-import java.util.List;
 
 /**
  * Use this perspective to save symbol references on files.
@@ -44,7 +43,7 @@ public interface Symbolizable extends Perspective {
      * The length of the reference is assumed to be the same as the symbol's length.
      */
     void newReference(Symbol symbol, int fromOffset);
-    
+
     /**
      * Creates a new reference for a symbol.
      * The offsets are global in the file.

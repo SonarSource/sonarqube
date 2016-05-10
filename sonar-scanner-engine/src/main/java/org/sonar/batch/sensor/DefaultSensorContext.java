@@ -37,14 +37,18 @@ import org.sonar.api.batch.sensor.issue.NewIssue;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.Version;
 import org.sonar.batch.sensor.noop.NoOpNewCpdTokens;
 import org.sonar.batch.sensor.noop.NoOpNewHighlighting;
+import org.sonar.batch.sensor.noop.NoOpNewSymbolTable;
 
 public class DefaultSensorContext implements SensorContext {
 
   private static final NoOpNewHighlighting NO_OP_NEW_HIGHLIGHTING = new NoOpNewHighlighting();
+  private static final NoOpNewSymbolTable NO_OP_NEW_SYMBOL_TABLE = new NoOpNewSymbolTable();
   private static final NoOpNewCpdTokens NO_OP_NEW_CPD_TOKENS = new NoOpNewCpdTokens();
 
   private final Settings settings;
@@ -107,6 +111,14 @@ public class DefaultSensorContext implements SensorContext {
       return NO_OP_NEW_HIGHLIGHTING;
     }
     return new DefaultHighlighting(sensorStorage);
+  }
+
+  @Override
+  public NewSymbolTable newSymbolTable() {
+    if (analysisMode.isIssues()) {
+      return NO_OP_NEW_SYMBOL_TABLE;
+    }
+    return new DefaultSymbolTable(sensorStorage);
   }
 
   @Override

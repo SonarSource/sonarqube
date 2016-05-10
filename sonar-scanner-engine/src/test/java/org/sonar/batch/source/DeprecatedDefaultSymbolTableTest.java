@@ -19,23 +19,23 @@
  */
 package org.sonar.batch.source;
 
-import org.sonar.api.batch.fs.TextRange;
 import com.google.common.base.Strings;
-
 import java.io.StringReader;
 import java.util.Set;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.FileMetadata;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class DefaultSymbolTableTest {
+public class DeprecatedDefaultSymbolTableTest {
 
   @Rule
   public ExpectedException throwable = ExpectedException.none();
@@ -50,30 +50,31 @@ public class DefaultSymbolTableTest {
   @Test
   public void should_order_symbol_and_references() {
 
-    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder(inputFile);
+    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DeprecatedDefaultSymbolTable.Builder(new DefaultSymbolTable(null).onFile(inputFile));
     Symbol firstSymbol = symbolTableBuilder.newSymbol(10, 20);
     symbolTableBuilder.newReference(firstSymbol, 32);
     Symbol secondSymbol = symbolTableBuilder.newSymbol(84, 92);
     symbolTableBuilder.newReference(secondSymbol, 124);
     Symbol thirdSymbol = symbolTableBuilder.newSymbol(55, 62);
     symbolTableBuilder.newReference(thirdSymbol, 70);
-    Symbolizable.SymbolTable symbolTable = symbolTableBuilder.build();
 
-    assertThat(symbolTable.symbols()).containsExactly(firstSymbol, secondSymbol, thirdSymbol);
+    DeprecatedDefaultSymbolTable symbolTable = (DeprecatedDefaultSymbolTable) symbolTableBuilder.build();
+
+    assertThat(symbolTable.getWrapped().getReferencesBySymbol().keySet()).containsExactly(range(10, 20), range(84, 92), range(55, 62));
   }
 
   @Test
   public void variable_length_references() {
-    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder(inputFile);
+    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DeprecatedDefaultSymbolTable.Builder(new DefaultSymbolTable(null).onFile(inputFile));
     Symbol firstSymbol = symbolTableBuilder.newSymbol(10, 20);
     symbolTableBuilder.newReference(firstSymbol, 32);
     symbolTableBuilder.newReference(firstSymbol, 44, 47);
 
-    DefaultSymbolTable symbolTable = (DefaultSymbolTable) symbolTableBuilder.build();
+    DeprecatedDefaultSymbolTable symbolTable = (DeprecatedDefaultSymbolTable) symbolTableBuilder.build();
 
-    assertThat(symbolTable.symbols()).containsExactly(firstSymbol);
+    assertThat(symbolTable.getWrapped().getReferencesBySymbol().keySet()).containsExactly(range(10, 20));
 
-    Set<TextRange> references = symbolTable.getReferencesBySymbol().get(firstSymbol);
+    Set<TextRange> references = symbolTable.getWrapped().getReferencesBySymbol().get(range(10, 20));
     assertThat(references).containsExactly(range(32, 42), range(44, 47));
   }
 
@@ -83,18 +84,11 @@ public class DefaultSymbolTableTest {
 
   @Test
   public void should_reject_reference_conflicting_with_declaration() {
-    throwable.expect(UnsupportedOperationException.class);
+    throwable.expect(IllegalArgumentException.class);
 
-    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder(inputFile);
+    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DeprecatedDefaultSymbolTable.Builder(new DefaultSymbolTable(null).onFile(inputFile));
     Symbol symbol = symbolTableBuilder.newSymbol(10, 20);
     symbolTableBuilder.newReference(symbol, 15);
   }
 
-  @Test
-  public void test_toString() throws Exception {
-    Symbolizable.SymbolTableBuilder symbolTableBuilder = new DefaultSymbolTable.Builder(inputFile);
-    Symbol symbol = symbolTableBuilder.newSymbol(10, 20);
-
-    assertThat(symbol.toString()).isEqualTo("Symbol{range=Range[from [line=2, lineOffset=3] to [line=3, lineOffset=6]]}");
-  }
 }

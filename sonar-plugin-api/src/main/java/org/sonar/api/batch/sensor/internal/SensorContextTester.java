@@ -20,22 +20,19 @@
 package org.sonar.api.batch.sensor.internal;
 
 import com.google.common.annotations.Beta;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import java.io.File;
 import java.io.Serializable;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.EnumMap;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import org.sonar.api.SonarQubeVersion;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputModule;
+import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.fs.internal.DefaultTextPointer;
@@ -58,6 +55,8 @@ import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
 import org.sonar.api.batch.sensor.measure.Measure;
 import org.sonar.api.batch.sensor.measure.NewMeasure;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
+import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.internal.SonarQubeVersionFactory;
 import org.sonar.api.measures.Metric;
@@ -236,6 +235,11 @@ public class SensorContextTester implements SensorContext {
     return new DefaultCpdTokens(settings, sensorStorage);
   }
 
+  @Override
+  public NewSymbolTable newSymbolTable() {
+    return new DefaultSymbolTable(sensorStorage);
+  }
+
   public List<TypeOfText> highlightingTypeAt(String componentKey, int line, int lineOffset) {
     DefaultHighlighting syntaxHighlightingData = sensorStorage.highlightingByComponent.get(componentKey);
     if (syntaxHighlightingData == null) {
@@ -251,73 +255,18 @@ public class SensorContextTester implements SensorContext {
     return result;
   }
 
-  public static class MockAnalysisMode implements AnalysisMode {
-    private boolean isPreview = false;
-    private boolean isIssues = false;
-
-    @Override
-    public boolean isPreview() {
-      return isPreview;
+  public Collection<TextRange> referencesForSymbolAt(String componentKey, int line, int lineOffset) {
+    DefaultSymbolTable symbolTable = sensorStorage.symbolsPerComponent.get(componentKey);
+    if (symbolTable == null) {
+      return Collections.emptyList();
     }
-
-    public void setPreview(boolean value) {
-      this.isPreview = value;
-    }
-
-    @Override
-    public boolean isIssues() {
-      return this.isIssues;
-    }
-
-    public void setIssues(boolean issues) {
-      this.isIssues = issues;
-    }
-
-    @Override
-    public boolean isPublish() {
-      return !isPreview && !isIssues;
-    }
-  }
-
-  private static class InMemorySensorStorage implements SensorStorage {
-
-    private Table<String, String, Measure> measuresByComponentAndMetric = HashBasedTable.create();
-
-    private Collection<Issue> allIssues = new ArrayList<>();
-
-    private Map<String, DefaultHighlighting> highlightingByComponent = new HashMap<>();
-    private Map<String, DefaultCpdTokens> cpdTokensByComponent = new HashMap<>();
-    private Map<String, Map<CoverageType, DefaultCoverage>> coverageByComponent = new HashMap<>();
-
-    @Override
-    public void store(Measure measure) {
-      measuresByComponentAndMetric.row(measure.inputComponent().key()).put(measure.metric().key(), measure);
-    }
-
-    @Override
-    public void store(Issue issue) {
-      allIssues.add(issue);
-    }
-
-    @Override
-    public void store(DefaultHighlighting highlighting) {
-      highlightingByComponent.put(highlighting.inputFile().key(), highlighting);
-    }
-
-    @Override
-    public void store(DefaultCoverage defaultCoverage) {
-      String key = defaultCoverage.inputFile().key();
-      if (!coverageByComponent.containsKey(key)) {
-        coverageByComponent.put(key, new EnumMap<CoverageType, DefaultCoverage>(CoverageType.class));
+    DefaultTextPointer location = new DefaultTextPointer(line, lineOffset);
+    for (Map.Entry<TextRange, Set<TextRange>> symbol : symbolTable.getReferencesBySymbol().entrySet()) {
+      if (symbol.getKey().start().compareTo(location) <= 0 && symbol.getKey().end().compareTo(location) > 0) {
+        return symbol.getValue();
       }
-      coverageByComponent.get(key).put(defaultCoverage.type(), defaultCoverage);
     }
-
-    @Override
-    public void store(DefaultCpdTokens defaultCpdTokens) {
-      cpdTokensByComponent.put(defaultCpdTokens.inputFile().key(), defaultCpdTokens);
-    }
-
+    return Collections.emptyList();
   }
 
 }
