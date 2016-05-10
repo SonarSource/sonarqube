@@ -114,10 +114,12 @@ public class SizeMeasuresStep implements ComputationStep {
 
     @Override
     public void visitDirectory(Component directory, Path<Counter> path) {
-      createMeasures(directory, 1, path.current().files);
-
-      path.parent().directories += 1;
-      path.parent().files += path.current().files;
+      int fileCount = path.current().files;
+      if (fileCount > 0) {
+        createMeasures(directory, 1, fileCount);
+        path.parent().directories += 1;
+        path.parent().files += fileCount;
+      }
     }
 
     private void createMeasures(Component directory, int dirCount, int fileCount) {

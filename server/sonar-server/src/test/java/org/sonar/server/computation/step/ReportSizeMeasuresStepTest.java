@@ -121,9 +121,9 @@ public class ReportSizeMeasuresStepTest {
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1);
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1);
     verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3);
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3);
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3);
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2);
+    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2);
+    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2);
   }
 
   @Test
@@ -156,9 +156,9 @@ public class ReportSizeMeasuresStepTest {
       entryOf(metric2Key, newMeasureBuilder().create(100))
     };
     verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3, subModuleAndAboveEntries);
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3, subModuleAndAboveEntries);
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3, subModuleAndAboveEntries);
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2, subModuleAndAboveEntries);
+    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2, subModuleAndAboveEntries);
+    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2, subModuleAndAboveEntries);
   }
 
   @Test
@@ -181,9 +181,9 @@ public class ReportSizeMeasuresStepTest {
     verifyMeasuresOnOtherComponent(DIRECTORY_1_REF, 2, 1, entryOf(metricKey, newMeasureBuilder().create(16)));
     verifyMeasuresOnOtherComponent(DIRECTORY_2_REF, 1, 1, entryOf(metricKey, newMeasureBuilder().create(3)));
     verifyMeasuresOnOtherComponent(DIRECTORY_3_REF, NO_METRIC, NO_METRIC);
-    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
-    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
-    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 3, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(SUB_MODULE_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(MODULE_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
+    verifyMeasuresOnOtherComponent(ROOT_REF, 3, 2, entryOf(metricKey, newMeasureBuilder().create(19)));
   }
 
   @Test
