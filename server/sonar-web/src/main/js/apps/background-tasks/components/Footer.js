@@ -17,24 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
+import React from 'react';
 
-import Main from '../components/BackgroundTasksApp';
-import { initApp } from '../store/actions';
+import { translateWithParameters } from '../../../helpers/l10n';
 
-function mapStateToProps (state) {
-  return {
-    tasks: state.tasks
-  };
-}
+const LIMIT = 1000;
 
-function mapDispatchToProps (dispatch) {
-  return {
-    initApp: component => dispatch(initApp(component))
-  };
-}
+const Footer = ({ tasks }) => {
+  if (tasks.length < LIMIT) {
+    return null;
+  }
 
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Main);
+  return (
+      <footer className="spacer-top note text-center">
+        {translateWithParameters('max_results_reached', LIMIT)}
+      </footer>
+  );
+};
+
+export default Footer;

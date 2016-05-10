@@ -22,6 +22,7 @@ import React, { Component } from 'react';
 
 import { DATE } from './../constants';
 import Header from './Header';
+import Footer from './Footer';
 import StatsContainer from '../containers/StatsContainer';
 import SearchContainer from '../containers/SearchContainer';
 import TasksContainer from '../containers/TasksContainer';
@@ -68,6 +69,7 @@ export default class BackgroundTasksApp extends Component {
           <StatsContainer/>
           <SearchContainer/>
           <TasksContainer/>
+          <Footer tasks={this.props.tasks}/>
         </div>
     );
   }
