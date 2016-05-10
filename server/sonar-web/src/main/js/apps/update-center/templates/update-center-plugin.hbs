@@ -91,7 +91,11 @@
 
     <td class="text-top text-right width-20">
       {{#eq _status 'installing'}}
-        <p class="text-success">{{#if version}}Update{{else}}Install{{/if}} Pending</p>
+        <p class="text-success">Install Pending</p>
+      {{/eq}}
+
+      {{#eq _status 'updating'}}
+        <p class="text-success">Update Pending</p>
       {{/eq}}
 
       {{#eq _status 'uninstalling'}}

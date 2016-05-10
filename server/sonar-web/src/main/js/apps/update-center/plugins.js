@@ -31,6 +31,7 @@ const Plugins = Backbone.Collection.extend({
 
   initialize () {
     this._installedCount = 0;
+    this._updatedCount = 0;
     this._uninstalledCount = 0;
     this.listenTo(this, 'change:_status', this.onStatusChange);
   },
@@ -117,12 +118,16 @@ const Plugins = Backbone.Collection.extend({
         const installing = r.installing.map(function (plugin) {
           return { key: plugin.key, _status: 'installing' };
         });
+        const updating = r.updating.map(function (plugin) {
+          return { key: plugin.key, _status: 'updating' };
+        });
         const uninstalling = r.removing.map(function (plugin) {
           return { key: plugin.key, _status: 'uninstalling' };
         });
         that._installedCount = installing.length;
+        that._updatedCount = updating.length;
         that._uninstalledCount = uninstalling.length;
-        that._pending = new Plugins([].concat(installing, uninstalling)).models;
+        that._pending = new Plugins([].concat(installing, updating, uninstalling)).models;
       }
     };
     return Backbone.ajax(opts);
@@ -198,6 +203,7 @@ const Plugins = Backbone.Collection.extend({
       url: window.baseUrl + '/api/plugins/cancel_all',
       success () {
         that._installedCount = 0;
+        that._updatedCount = 0;
         that._uninstalledCount = 0;
         that.forEach(function (model) {
           model.unset('_status');
@@ -211,6 +217,9 @@ const Plugins = Backbone.Collection.extend({
   onStatusChange (model, status) {
     if (status === 'installing') {
       this._installedCount++;
+    }
+    if (status === 'updating') {
+      this._updatedCount++;
     }
     if (status === 'uninstalling') {
       this._uninstalledCount++;
