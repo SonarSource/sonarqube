@@ -24,7 +24,9 @@ import org.sonar.api.utils.SonarException;
 
 /**
  * @since 2.6
+ * @deprecated since 5.6 should not be used in any API
  */
+@Deprecated
 public final class DuplicatedSourceException extends SonarException {
 
   public DuplicatedSourceException(Resource resource) {

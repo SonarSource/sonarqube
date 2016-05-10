@@ -34,7 +34,9 @@ import org.sonar.api.config.Settings;
  * A class that manipulates Projects in the Sonar way.
  *
  * @since 1.10
+ * @deprecated since 5.6 should not be used in any API
  */
+@Deprecated
 public class Project extends Resource implements Component {
 
   /**

@@ -23,7 +23,9 @@ import org.apache.commons.lang.StringUtils;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6 should not be used in any API
  */
+@Deprecated
 public final class ResourceUtils {
 
   private ResourceUtils() {

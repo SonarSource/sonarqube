@@ -28,7 +28,9 @@ import org.sonar.api.utils.WildcardPattern;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6 should not be used in any API
  */
+@Deprecated
 public class Directory extends Resource {
 
   public static final String SEPARATOR = "/";

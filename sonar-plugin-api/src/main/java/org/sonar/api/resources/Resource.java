@@ -19,18 +19,18 @@
  */
 package org.sonar.api.resources;
 
-import org.apache.commons.lang.StringUtils;
-
+import java.io.Serializable;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.io.Serializable;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * The interface to implement to create a resource in Sonar
  *
  * @since 1.10
+ * @deprecated since 5.6 should not be used in any API
  */
+@Deprecated
 public abstract class Resource implements Serializable {
 
   /**
