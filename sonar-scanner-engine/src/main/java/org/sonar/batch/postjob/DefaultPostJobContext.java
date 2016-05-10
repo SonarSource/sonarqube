@@ -19,35 +19,29 @@
  */
 package org.sonar.batch.postjob;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
 import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
-
 import javax.annotation.Nullable;
-
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.postjob.PostJobContext;
-import org.sonar.api.batch.postjob.issue.Issue;
+import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 
 public class DefaultPostJobContext implements PostJobContext {
 
   private final Settings settings;
-  private final AnalysisMode analysisMode;
   private final IssueCache cache;
   private final BatchComponentCache resourceCache;
 
-  public DefaultPostJobContext(Settings settings, AnalysisMode analysisMode, IssueCache cache, BatchComponentCache resourceCache) {
+  public DefaultPostJobContext(Settings settings, IssueCache cache, BatchComponentCache resourceCache) {
     this.settings = settings;
-    this.analysisMode = analysisMode;
     this.cache = cache;
     this.resourceCache = resourceCache;
   }
@@ -58,21 +52,16 @@ public class DefaultPostJobContext implements PostJobContext {
   }
 
   @Override
-  public AnalysisMode analysisMode() {
-    return analysisMode;
-  }
-
-  @Override
-  public Iterable<Issue> issues() {
+  public Iterable<PostJobIssue> issues() {
     return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(false)), new IssueTransformer());
   }
 
   @Override
-  public Iterable<Issue> resolvedIssues() {
+  public Iterable<PostJobIssue> resolvedIssues() {
     return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(true)), new IssueTransformer());
   }
 
-  private class DefaultIssueWrapper implements Issue {
+  private class DefaultIssueWrapper implements PostJobIssue {
 
     private final TrackedIssue wrapped;
 
@@ -107,11 +96,6 @@ public class DefaultPostJobContext implements PostJobContext {
     }
 
     @Override
-    public Double effortToFix() {
-      return wrapped.gap();
-    }
-
-    @Override
     public String message() {
       return wrapped.getMessage();
     }
@@ -128,9 +112,9 @@ public class DefaultPostJobContext implements PostJobContext {
     }
   }
 
-  private class IssueTransformer implements Function<TrackedIssue, Issue> {
+  private class IssueTransformer implements Function<TrackedIssue, PostJobIssue> {
     @Override
-    public Issue apply(TrackedIssue input) {
+    public PostJobIssue apply(TrackedIssue input) {
       return new DefaultIssueWrapper(input);
     }
   }

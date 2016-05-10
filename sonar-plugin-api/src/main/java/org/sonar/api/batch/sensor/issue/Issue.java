@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.issue;
 
-import com.google.common.annotations.Beta;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.rule.Severity;
@@ -31,7 +30,6 @@ import org.sonar.api.rule.RuleKey;
  *
  * @since 5.1
  */
-@Beta
 public interface Issue {
 
   interface Flow {

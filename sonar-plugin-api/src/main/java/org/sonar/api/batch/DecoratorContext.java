@@ -30,7 +30,9 @@ import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6 no more used since Decorator is deprecated
  */
+@Deprecated
 public interface DecoratorContext {
 
   /**

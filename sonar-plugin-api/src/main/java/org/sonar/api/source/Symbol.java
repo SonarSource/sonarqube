@@ -19,6 +19,12 @@
  */
 package org.sonar.api.source;
 
+import org.sonar.api.batch.sensor.SensorContext;
+
+/**
+ * @deprecated since 5.6 use {@link SensorContext#newSymbolTable()}
+ */
+@Deprecated
 public interface Symbol {
 
   /**

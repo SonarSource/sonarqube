@@ -28,7 +28,9 @@ package org.sonar.api.batch;
  * </ul>
  *
  * @since 2.3
+ * @deprecated since 5.6 no more used since Decorators are deprecated
  */
+@Deprecated
 public interface DecoratorBarriers {
 
   /**
@@ -46,7 +48,6 @@ public interface DecoratorBarriers {
    * @since 3.6
    */
   String ISSUES_TRACKED = "END_OF_VIOLATION_TRACKING";
-
 
   /**
    * @deprecated in 3.6. Not required anymore.

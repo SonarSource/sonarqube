@@ -21,6 +21,10 @@ package org.sonar.api.component.mock;
 
 import org.sonar.api.component.SourceFile;
 
+/**
+ * @deprecated since 5.6
+ */
+@Deprecated
 public class MockSourceFile implements SourceFile {
   private String key;
   private String path;

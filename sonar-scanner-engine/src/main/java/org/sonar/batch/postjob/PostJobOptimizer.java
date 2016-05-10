@@ -22,7 +22,6 @@ package org.sonar.batch.postjob;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.batch.BatchSide;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
 import org.sonar.api.config.Settings;
 
@@ -32,11 +31,9 @@ public class PostJobOptimizer {
   private static final Logger LOG = LoggerFactory.getLogger(PostJobOptimizer.class);
 
   private final Settings settings;
-  private final AnalysisMode analysisMode;
 
-  public PostJobOptimizer(Settings settings, AnalysisMode analysisMode) {
+  public PostJobOptimizer(Settings settings) {
     this.settings = settings;
-    this.analysisMode = analysisMode;
   }
 
   /**
@@ -45,10 +42,6 @@ public class PostJobOptimizer {
   public boolean shouldExecute(DefaultPostJobDescriptor descriptor) {
     if (!settingsCondition(descriptor)) {
       LOG.debug("'{}' skipped because one of the required properties is missing", descriptor.name());
-      return false;
-    }
-    if (descriptor.isDisabledInIssues() && analysisMode.isIssues()) {
-      LOG.debug("'{}' skipped in issues mode", descriptor.name());
       return false;
     }
     return true;

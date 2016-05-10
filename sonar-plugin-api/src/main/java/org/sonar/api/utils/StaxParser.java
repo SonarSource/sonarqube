@@ -37,7 +37,9 @@ import org.codehaus.staxmate.in.SMHierarchicCursor;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6 plugins should use their own dependencies
  */
+@Deprecated
 public class StaxParser {
 
   private SMInputFactory inf;
@@ -77,7 +79,7 @@ public class StaxParser {
   }
 
   public void parse(File xmlFile) throws XMLStreamException {
-    FileInputStream input=null;
+    FileInputStream input = null;
     try {
       input = new FileInputStream(xmlFile);
       parse(input);
@@ -123,7 +125,7 @@ public class StaxParser {
       if (StringUtils.startsWithIgnoreCase(undeclaredEntity, "u") && undeclaredEntity.length() == 5) {
         int unicodeCharHexValue = Integer.parseInt(undeclaredEntity.substring(1), 16);
         if (Character.isDefined(unicodeCharHexValue)) {
-          undeclaredEntity = new String(new char[]{(char) unicodeCharHexValue});
+          undeclaredEntity = new String(new char[] {(char) unicodeCharHexValue});
         }
       }
       return undeclaredEntity;

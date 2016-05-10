@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.highlighting;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 
@@ -27,7 +26,6 @@ import org.sonar.api.batch.fs.TextRange;
  * This builder is used to define syntax highlighting (aka code coloration) on files.
  * @since 5.1
  */
-@Beta
 public interface NewHighlighting {
 
   /**

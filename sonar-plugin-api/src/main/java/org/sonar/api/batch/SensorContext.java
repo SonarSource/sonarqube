@@ -32,7 +32,9 @@ import org.sonar.api.resources.Resource;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6 use {@link org.sonar.api.batch.sensor.Sensor}
  */
+@Deprecated
 public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext {
 
   /**

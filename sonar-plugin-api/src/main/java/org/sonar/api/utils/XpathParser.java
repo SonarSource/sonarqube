@@ -56,7 +56,9 @@ import org.xml.sax.SAXException;
  * XML Parsing tool using XPATH. It's recommended to use StaxParser when parsing big XML files.
  *
  * @since 1.10
+ * @deprecated since 5.6 plugins should use their own dependencies
  */
+@Deprecated
 public class XpathParser {
 
   private static final String CAN_NOT_PARSE_XML = "can not parse xml : ";

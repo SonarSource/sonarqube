@@ -21,7 +21,9 @@ package org.sonar.api.utils;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6
  */
+@Deprecated
 public class XmlParserException extends SonarException {
   public XmlParserException() {
   }

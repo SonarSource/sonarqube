@@ -19,19 +19,17 @@
  */
 package org.sonar.api.batch.postjob.issue;
 
-import com.google.common.annotations.Beta;
 import javax.annotation.CheckForNull;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.rule.RuleKey;
 
 /**
- * Represents an issue state at the end of the batch analysis. Only available after local issue tracking in preview mode.
+ * Represents an issue state at the end of the batch analysis. Some attributes are only available in preview/issues mode.
  *
  * @since 5.2
  */
-@Beta
-public interface Issue {
+public interface PostJobIssue {
 
   /**
    * Key of the issue.
@@ -62,24 +60,18 @@ public interface Issue {
   Integer line();
 
   /**
-   * Effort to fix the issue. Used by technical debt model.
-   */
-  @CheckForNull
-  Double effortToFix();
-
-  /**
    * Message of the issue.
    */
   @CheckForNull
   String message();
 
   /**
-   * Severity.
+   * Severity.  Only accurate in preview/issues mode.
    */
   Severity severity();
 
   /**
-   * If the issue a new one.
+   * If the issue a new one. Only available in preview/issues mode.
    */
   boolean isNew();
 

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.measure;
 
-import com.google.common.annotations.Beta;
 import java.io.Serializable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.measure.Metric;
@@ -29,7 +28,6 @@ import org.sonar.api.batch.measure.Metric;
  * Should not be implemented by client.
  * @since 5.1
  */
-@Beta
 public interface Measure<G extends Serializable> {
 
   /**

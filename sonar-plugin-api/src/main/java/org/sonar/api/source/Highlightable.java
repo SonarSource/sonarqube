@@ -19,6 +19,7 @@
  */
 package org.sonar.api.source;
 
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 
@@ -26,7 +27,9 @@ import org.sonar.api.component.ResourcePerspectives;
  * Use this perspective to save syntax highlighting on files.
  * See {@link ResourcePerspectives}.
  * @since 3.6
+ * @deprecated since 5.6 use {@link SensorContext#newHighlighting()}
  */
+@Deprecated
 public interface Highlightable extends Perspective {
 
   interface HighlightingBuilder {

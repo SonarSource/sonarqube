@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
-import org.sonar.api.batch.postjob.issue.Issue;
+import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.utils.log.LogTester;
 
 import java.util.Arrays;
@@ -41,8 +41,8 @@ public class XooPostJobTest {
   public void increaseCoverage() {
     new XooPostJob().describe(new DefaultPostJobDescriptor());
     PostJobContext context = mock(PostJobContext.class);
-    when(context.issues()).thenReturn(Arrays.<Issue>asList());
-    when(context.resolvedIssues()).thenReturn(Arrays.<Issue>asList());
+    when(context.issues()).thenReturn(Arrays.<PostJobIssue>asList());
+    when(context.resolvedIssues()).thenReturn(Arrays.<PostJobIssue>asList());
     new XooPostJob().execute(context);
     assertThat(logTester.logs()).contains("Resolved issues: 0", "Open issues: 0");
   }

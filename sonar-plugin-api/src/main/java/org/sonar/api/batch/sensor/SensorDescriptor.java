@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
@@ -28,7 +27,6 @@ import org.sonar.api.batch.fs.InputFile;
  * See {@link Sensor#describe(SensorDescriptor)}
  * @since 5.1
  */
-@Beta
 public interface SensorDescriptor {
 
   /**

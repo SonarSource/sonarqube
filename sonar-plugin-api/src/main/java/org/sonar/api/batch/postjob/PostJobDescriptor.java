@@ -19,15 +19,12 @@
  */
 package org.sonar.api.batch.postjob;
 
-import com.google.common.annotations.Beta;
-
 /**
  * Describe what a {@link PostJob} is doing. Information may be used by the platform
  * to log interesting information or perform some optimization.
  * See {@link PostJob#describe(PostJobDescriptor)}
  * @since 5.2
  */
-@Beta
 public interface PostJobDescriptor {
 
   /**
@@ -46,10 +43,5 @@ public interface PostJobDescriptor {
    * property is not set.
    */
   PostJobDescriptor requireProperties(String... propertyKeys);
-
-  /**
-   * Should this PostJob be disabled in issues mode. Default is to run all PostJobs in preview mode.
-   */
-  PostJobDescriptor disabledInIssues();
 
 }

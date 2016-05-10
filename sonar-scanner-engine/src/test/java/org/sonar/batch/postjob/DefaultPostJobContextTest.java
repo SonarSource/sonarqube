@@ -19,20 +19,18 @@
  */
 package org.sonar.batch.postjob;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
 import java.util.Arrays;
-
 import org.junit.Before;
 import org.junit.Test;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.postjob.issue.Issue;
+import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.File;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.issue.IssueCache;
+import org.sonar.batch.issue.tracking.TrackedIssue;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -41,7 +39,6 @@ public class DefaultPostJobContextTest {
 
   private IssueCache issueCache;
   private BatchComponentCache resourceCache;
-  private AnalysisMode analysisMode;
   private DefaultPostJobContext context;
   private Settings settings;
 
@@ -49,15 +46,13 @@ public class DefaultPostJobContextTest {
   public void prepare() {
     issueCache = mock(IssueCache.class);
     resourceCache = new BatchComponentCache();
-    analysisMode = mock(AnalysisMode.class);
     settings = new Settings();
-    context = new DefaultPostJobContext(settings, analysisMode, issueCache, resourceCache);
+    context = new DefaultPostJobContext(settings, issueCache, resourceCache);
   }
 
   @Test
   public void test() {
     assertThat(context.settings()).isSameAs(settings);
-    assertThat(context.analysisMode()).isSameAs(analysisMode);
 
     TrackedIssue defaultIssue = new TrackedIssue();
     defaultIssue.setComponentKey("foo:src/Foo.php");
@@ -69,9 +64,8 @@ public class DefaultPostJobContextTest {
     defaultIssue.setSeverity("BLOCKER");
     when(issueCache.all()).thenReturn(Arrays.asList(defaultIssue));
 
-    Issue issue = context.issues().iterator().next();
+    PostJobIssue issue = context.issues().iterator().next();
     assertThat(issue.componentKey()).isEqualTo("foo:src/Foo.php");
-    assertThat(issue.effortToFix()).isEqualTo(2.0);
     assertThat(issue.isNew()).isTrue();
     assertThat(issue.key()).isEqualTo("xyz");
     assertThat(issue.line()).isEqualTo(1);

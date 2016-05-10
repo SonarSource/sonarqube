@@ -19,15 +19,16 @@
  */
 package org.sonar.api.batch;
 
-import org.sonar.api.resources.Resource;
-
 import java.util.List;
+import org.sonar.api.resources.Resource;
 
 /**
  * A pre-implementation of the CpdMapping extension point
  *
  * @since 1.10
+ * @deprecated since 5.6
  */
+@Deprecated
 public abstract class AbstractCpdMapping implements CpdMapping {
 
   /**

@@ -23,13 +23,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.postjob.internal.DefaultPostJobDescriptor;
 import org.sonar.api.config.Settings;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PostJobOptimizerTest {
 
@@ -38,13 +35,11 @@ public class PostJobOptimizerTest {
 
   private PostJobOptimizer optimizer;
   private Settings settings;
-  private AnalysisMode analysisMode;
 
   @Before
   public void prepare() {
     settings = new Settings();
-    analysisMode = mock(AnalysisMode.class);
-    optimizer = new PostJobOptimizer(settings, analysisMode);
+    optimizer = new PostJobOptimizer(settings);
   }
 
   @Test
@@ -62,16 +57,5 @@ public class PostJobOptimizerTest {
 
     settings.setProperty("sonar.foo.reportPath", "foo");
     assertThat(optimizer.shouldExecute(descriptor)).isTrue();
-  }
-
-  @Test
-  public void should_disabled_in_issues_mode() {
-    DefaultPostJobDescriptor descriptor = new DefaultPostJobDescriptor()
-      .disabledInIssues();
-    assertThat(optimizer.shouldExecute(descriptor)).isTrue();
-
-    when(analysisMode.isIssues()).thenReturn(true);
-
-    assertThat(optimizer.shouldExecute(descriptor)).isFalse();
   }
 }

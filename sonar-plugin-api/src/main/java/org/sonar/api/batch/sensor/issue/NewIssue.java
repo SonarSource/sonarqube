@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.issue;
 
-import com.google.common.annotations.Beta;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.Sensor;
@@ -30,7 +29,6 @@ import org.sonar.api.rule.RuleKey;
  *
  * @since 5.1
  */
-@Beta
 public interface NewIssue {
 
   /**

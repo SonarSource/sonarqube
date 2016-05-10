@@ -23,7 +23,9 @@ import org.sonar.api.utils.SonarException;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6
  */
+@Deprecated
 @Phase(name = Phase.Name.POST)
 public abstract class BuildBreaker implements PostJob {
 

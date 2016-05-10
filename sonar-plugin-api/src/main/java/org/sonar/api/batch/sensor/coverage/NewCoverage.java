@@ -19,14 +19,12 @@
  */
 package org.sonar.api.batch.sensor.coverage;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputFile;
 
 /**
  * This builder is used to define code coverage by tests of a given type (UT/IT/Overall) on files.
  * @since 5.2
  */
-@Beta
 public interface NewCoverage {
 
   /**

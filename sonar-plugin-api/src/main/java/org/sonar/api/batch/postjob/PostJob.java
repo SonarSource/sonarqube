@@ -19,19 +19,17 @@
  */
 package org.sonar.api.batch.postjob;
 
-import com.google.common.annotations.Beta;
-import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.BatchSide;
 
 /**
- * PostJobs are executed at the very end of batch analysis. A PostJob can't do any modification
+ * PostJobs are executed at the very end of scanner analysis. A PostJob can't do any modification
  * since everything is already computed (issues, measures,...). <br>
- * WANRING: Do not rely on the fact that analysis results are available on server side using WS since this is an
+ * WARNING: Do not rely on the fact that analysis results are available on server side when using WS since this is an
  * asynchronous process to compute data on server side in 5.x series.
  *
  * @since 5.2
  */
-@Beta
 @BatchSide
 @ExtensionPoint
 public interface PostJob {
@@ -42,7 +40,7 @@ public interface PostJob {
   void describe(PostJobDescriptor descriptor);
 
   /**
-   * The actual sensor code.
+   * Called at the end of the analysis.
    */
   void execute(PostJobContext context);
 

@@ -19,16 +19,13 @@
  */
 package org.sonar.api.batch.postjob;
 
-import com.google.common.annotations.Beta;
-import org.sonar.api.batch.AnalysisMode;
-import org.sonar.api.batch.postjob.issue.Issue;
+import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.config.Settings;
 
 /**
  * See {@link PostJob#execute(PostJobContext)}
  * @since 5.2
  */
-@Beta
 public interface PostJobContext {
 
   /**
@@ -36,21 +33,16 @@ public interface PostJobContext {
    */
   Settings settings();
 
-  /**
-   * Get analysis mode.
-   */
-  AnalysisMode analysisMode();
-
-  // ----------- ISSUES --------------
+  // ----------- Only available in preview mode --------------
 
   /**
    * All the unresolved issues of the project, including the issues reported by end-users.
    */
-  Iterable<Issue> issues();
+  Iterable<PostJobIssue> issues();
 
   /**
    * All the issues of this project that have been marked as resolved during this scan
    */
-  Iterable<Issue> resolvedIssues();
+  Iterable<PostJobIssue> resolvedIssues();
 
 }

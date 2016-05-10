@@ -19,16 +19,14 @@
  */
 package org.sonar.api.batch.postjob.internal;
 
-import org.sonar.api.batch.postjob.PostJobDescriptor;
-
 import java.util.Arrays;
 import java.util.Collection;
+import org.sonar.api.batch.postjob.PostJobDescriptor;
 
 public class DefaultPostJobDescriptor implements PostJobDescriptor {
 
   private String name;
   private String[] properties = new String[0];
-  private boolean disabledInIssues = false;
 
   public String name() {
     return name;
@@ -36,10 +34,6 @@ public class DefaultPostJobDescriptor implements PostJobDescriptor {
 
   public Collection<String> properties() {
     return Arrays.asList(properties);
-  }
-
-  public boolean isDisabledInIssues() {
-    return disabledInIssues;
   }
 
   @Override
@@ -56,12 +50,6 @@ public class DefaultPostJobDescriptor implements PostJobDescriptor {
   @Override
   public DefaultPostJobDescriptor requireProperties(String... propertyKeys) {
     this.properties = propertyKeys;
-    return this;
-  }
-
-  @Override
-  public DefaultPostJobDescriptor disabledInIssues() {
-    this.disabledInIssues = true;
     return this;
   }
 

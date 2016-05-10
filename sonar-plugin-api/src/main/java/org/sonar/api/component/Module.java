@@ -19,6 +19,10 @@
  */
 package org.sonar.api.component;
 
+/**
+ * @deprecated since 5.6
+ */
+@Deprecated
 public interface Module extends Component {
   String getDescription();
 

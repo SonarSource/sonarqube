@@ -29,7 +29,7 @@ import org.sonar.api.resources.Resource;
 /**
  * Implement this extension to get Copy/Paste detection for your language.
  * @since 1.10
- * @deprecated since 5.5
+ * @deprecated since 5.5 use {@link SensorContext#newCpdTokens()}
  */
 @BatchSide
 @ExtensionPoint

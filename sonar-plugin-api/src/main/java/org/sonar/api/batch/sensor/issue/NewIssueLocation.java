@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.issue;
 
-import com.google.common.annotations.Beta;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
@@ -29,7 +28,6 @@ import org.sonar.api.batch.fs.TextRange;
  *
  * @since 5.2
  */
-@Beta
 public interface NewIssueLocation {
 
   /**

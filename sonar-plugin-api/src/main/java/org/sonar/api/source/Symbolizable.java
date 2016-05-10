@@ -20,6 +20,7 @@
 package org.sonar.api.source;
 
 import java.util.List;
+import org.sonar.api.batch.sensor.SensorContext;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 
@@ -27,7 +28,9 @@ import org.sonar.api.component.ResourcePerspectives;
  * Use this perspective to save symbol references on files.
  * See {@link ResourcePerspectives}.
  * @since 3.6
+ * @deprecated since 5.6 use {@link SensorContext#newSymbolTable()}
  */
+@Deprecated
 public interface Symbolizable extends Perspective {
 
   interface SymbolTableBuilder {

@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor.coverage;
 
-import com.google.common.annotations.Beta;
 import com.google.common.collect.ImmutableSet;
 import java.util.Set;
 import org.sonar.api.measures.Metric;
@@ -50,7 +49,6 @@ import static org.sonar.api.measures.CoreMetrics.UNCOVERED_LINES;
  * Different coverage categories.
  * @since 5.2
  */
-@Beta
 public enum CoverageType {
 
   UNIT(LINES_TO_COVER, UNCOVERED_LINES, COVERAGE_LINE_HITS_DATA, CONDITIONS_TO_COVER, UNCOVERED_CONDITIONS, COVERED_CONDITIONS_BY_LINE, CONDITIONS_BY_LINE),

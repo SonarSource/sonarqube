@@ -19,7 +19,6 @@
  */
 package org.sonar.api.batch.sensor;
 
-import com.google.common.annotations.Beta;
 import java.io.Serializable;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputModule;
@@ -41,7 +40,6 @@ import org.sonar.api.utils.Version;
  * In order to write unit tests you can use {@link SensorContextTester}
  * @since 5.1
  */
-@Beta
 public interface SensorContext {
 
   /**
