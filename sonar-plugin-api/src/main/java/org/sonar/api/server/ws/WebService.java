@@ -387,7 +387,7 @@ public interface WebService extends Definable<WebService.Context> {
         .setPossibleValues(possibleValues);
     }
 
-    /**$
+    /**
      *
      * Creates the parameter {@link org.sonar.api.server.ws.WebService.Param#TEXT_QUERY}, which is
      * used to search for a subset of fields containing the supplied string.

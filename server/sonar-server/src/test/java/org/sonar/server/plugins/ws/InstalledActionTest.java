@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.server.plugins.ServerPluginRepository;
 import org.sonar.server.plugins.UpdateCenterMatrixFactory;
@@ -36,9 +37,11 @@ import org.sonar.updatecenter.common.UpdateCenter;
 import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.ImmutableList.of;
+import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 import static org.sonar.test.JsonAssert.assertJson;
 
@@ -96,10 +99,7 @@ public class InstalledActionTest {
   @Test
   public void empty_fields_are_not_serialized_to_json() throws Exception {
     when(pluginRepository.getPluginInfos()).thenReturn(
-      of(
-      new PluginInfo("").setName("")
-      )
-      );
+      of(new PluginInfo("").setName("")));
 
     underTest.handle(request, response);
 
@@ -123,14 +123,57 @@ public class InstalledActionTest {
         .setJarFile(new File(getClass().getResource(jarFilename).toURI()))
       )
       );
+
+    underTest.handle(request, response);
+
+    verifyZeroInteractions(updateCenterMatrixFactory);
+    assertJson(response.outputAsString()).isSimilarTo(
+      "{" +
+        "  \"plugins\":" +
+        "  [" +
+        "    {" +
+        "      \"key\": \"plugKey\"," +
+        "      \"name\": \"plugName\"," +
+        "      \"description\": \"desc_it\"," +
+        "      \"version\": \"1.0\"," +
+        "      \"license\": \"license_hey\"," +
+        "      \"organizationName\": \"org_name\"," +
+        "      \"organizationUrl\": \"org_url\"," +
+        "      \"homepageUrl\": \"homepage_url\"," +
+        "      \"issueTrackerUrl\": \"issueTracker_url\"," +
+        "      \"implementationBuild\": \"sou_rev_sha1\"" +
+        "    }" +
+        "  ]" +
+        "}"
+      );
+  }
+
+  @Test
+  public void category_is_returned_when_in_additional_fields() throws Exception {
+    String jarFilename = getClass().getSimpleName() + "/" + "some.jar";
+    when(pluginRepository.getPluginInfos()).thenReturn(of(
+      new PluginInfo("plugKey")
+        .setName("plugName")
+        .setDescription("desc_it")
+        .setVersion(Version.create("1.0"))
+        .setLicense("license_hey")
+        .setOrganizationName("org_name")
+        .setOrganizationUrl("org_url")
+        .setHomepageUrl("homepage_url")
+        .setIssueTrackerUrl("issueTracker_url")
+        .setImplementationBuild("sou_rev_sha1")
+        .setJarFile(new File(getClass().getResource(jarFilename).toURI()))
+      )
+    );
     UpdateCenter updateCenter = mock(UpdateCenter.class);
     when(updateCenterMatrixFactory.getUpdateCenter(false)).thenReturn(Optional.of(updateCenter));
     when(updateCenter.findAllCompatiblePlugins()).thenReturn(
       Arrays.asList(
         new Plugin("plugKey")
           .setCategory("cat_1")
-        )
-      );
+      )
+    );
+    when(request.paramAsStrings(Param.FIELDS)).thenReturn(singletonList("category"));
 
     underTest.handle(request, response);
 
@@ -153,7 +196,7 @@ public class InstalledActionTest {
         "    }" +
         "  ]" +
         "}"
-      );
+    );
   }
 
   @Test

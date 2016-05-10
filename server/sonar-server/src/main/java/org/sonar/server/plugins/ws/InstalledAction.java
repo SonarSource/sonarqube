@@ -19,9 +19,11 @@
  */
 package org.sonar.server.plugins.ws;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.io.Resources;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.SortedSet;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -33,6 +35,8 @@ import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.updatecenter.common.Plugin;
 
 import static com.google.common.collect.ImmutableSortedSet.copyOf;
+import static java.lang.String.format;
+import static java.util.Collections.singleton;
 import static org.sonar.server.plugins.ws.PluginWSCommons.NAME_KEY_PLUGIN_METADATA_COMPARATOR;
 import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey;
 
@@ -41,6 +45,7 @@ import static org.sonar.server.plugins.ws.PluginWSCommons.compatiblePluginsByKey
  */
 public class InstalledAction implements PluginsWsAction {
   private static final String ARRAY_PLUGINS = "plugins";
+  private static final String FIELD_CATEGORY = "category";
 
   private final ServerPluginRepository pluginRepository;
   private final PluginWSCommons pluginWSCommons;
@@ -54,11 +59,18 @@ public class InstalledAction implements PluginsWsAction {
 
   @Override
   public void define(WebService.NewController controller) {
-    controller.createAction("installed")
+    WebService.NewAction action = controller.createAction("installed")
       .setDescription("Get the list of all the plugins installed on the SonarQube instance, sorted by plugin name")
       .setSince("5.2")
       .setHandler(this)
       .setResponseExample(Resources.getResource(this.getClass(), "example-installed_plugins.json"));
+
+    action.createFieldsParam(singleton("category"))
+      .setDescription(format("Comma-separated list of the additional fields to be returned in response. No additional field is returned by default. Possible values are:" +
+        "<ul>" +
+        "<li>%s - category as defined in the Update Center. A connection to the Update Center is needed</li>" +
+        "</lu>", FIELD_CATEGORY))
+      .setSince("5.6");
   }
 
   @Override
@@ -69,7 +81,8 @@ public class InstalledAction implements PluginsWsAction {
     jsonWriter.setSerializeEmptys(false);
     jsonWriter.beginObject();
 
-    writePluginInfoList(jsonWriter, pluginInfoList);
+    List<String> additionalFields = request.paramAsStrings(WebService.Param.FIELDS);
+    writePluginInfoList(jsonWriter, pluginInfoList, additionalFields == null ? Collections.<String>emptyList() : additionalFields);
 
     jsonWriter.endObject();
     jsonWriter.close();
@@ -79,8 +92,10 @@ public class InstalledAction implements PluginsWsAction {
     return copyOf(NAME_KEY_PLUGIN_METADATA_COMPARATOR, pluginRepository.getPluginInfos());
   }
 
-  private void writePluginInfoList(JsonWriter jsonWriter, Collection<PluginInfo> pluginInfoList) {
-    ImmutableMap<String, Plugin> compatiblesPluginsByKeys = compatiblePluginsByKey(updateCenterMatrixFactory);
-    pluginWSCommons.writePluginInfoList(jsonWriter, pluginInfoList, compatiblesPluginsByKeys, ARRAY_PLUGINS);
+  private void writePluginInfoList(JsonWriter jsonWriter, Collection<PluginInfo> pluginInfoList, List<String> additionalFields) {
+    Map<String, Plugin> compatiblesPluginsFromUpdateCenter = additionalFields.isEmpty()
+      ? Collections.<String, Plugin>emptyMap()
+      : compatiblePluginsByKey(updateCenterMatrixFactory);
+    pluginWSCommons.writePluginInfoList(jsonWriter, pluginInfoList, compatiblesPluginsFromUpdateCenter, ARRAY_PLUGINS);
   }
 }
