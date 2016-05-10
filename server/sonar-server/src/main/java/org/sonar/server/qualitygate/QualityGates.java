@@ -24,8 +24,10 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.config.Settings;
@@ -54,6 +56,9 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.util.Validation;
 
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
+
 /**
  * @since 4.3
  */
@@ -71,7 +76,7 @@ public class QualityGates {
   private final Settings settings;
 
   public QualityGates(QualityGateDao dao, QualityGateConditionDao conditionDao, MetricFinder metricFinder, PropertiesDao propertiesDao, ComponentDao componentDao,
-                      MyBatis myBatis, UserSession userSession, Settings settings) {
+    MyBatis myBatis, UserSession userSession, Settings settings) {
     this.dao = dao;
     this.conditionDao = conditionDao;
     this.metricFinder = metricFinder;
@@ -117,10 +122,9 @@ public class QualityGates {
       dao.insert(destinationGate, session);
       for (QualityGateConditionDto sourceCondition : conditionDao.selectForQualityGate(sourceId, session)) {
         conditionDao.insert(new QualityGateConditionDto().setQualityGateId(destinationGate.getId())
-            .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
-            .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
-          session
-        );
+          .setMetricId(sourceCondition.getMetricId()).setOperator(sourceCondition.getOperator())
+          .setWarningThreshold(sourceCondition.getWarningThreshold()).setErrorThreshold(sourceCondition.getErrorThreshold()).setPeriod(sourceCondition.getPeriod()),
+          session);
       }
       session.commit();
     } finally {
@@ -172,11 +176,11 @@ public class QualityGates {
   }
 
   public QualityGateConditionDto createCondition(long qGateId, String metricKey, String operator,
-                                                 @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     checkPermission();
     getNonNullQgate(qGateId);
     Metric metric = getNonNullMetric(metricKey);
-    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
+    validateCondition(qGateId, metric, operator, warningThreshold, errorThreshold, period);
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qGateId)
       .setMetricId(metric.getId()).setMetricKey(metric.getKey())
       .setOperator(operator)
@@ -188,11 +192,11 @@ public class QualityGates {
   }
 
   public QualityGateConditionDto updateCondition(long condId, String metricKey, String operator,
-                                                 @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+    @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     checkPermission();
     QualityGateConditionDto condition = getNonNullCondition(condId);
     Metric metric = getNonNullMetric(metricKey);
-    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
+    validateCondition(condition.getQualityGateId(), metric, operator, warningThreshold, errorThreshold, period);
     condition
       .setMetricId(metric.getId())
       .setMetricKey(metric.getKey())
@@ -263,15 +267,29 @@ public class QualityGates {
     return hasWritePermission;
   }
 
-  private void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+  private void validateCondition(long qGateId, Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     Errors errors = new Errors();
     validateMetric(metric, errors);
     checkOperator(metric, operator, errors);
     checkThresholds(warningThreshold, errorThreshold, errors);
     checkPeriod(metric, period, errors);
+    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(qGateId, metric, period, errors);
     if (!errors.isEmpty()) {
       throw new BadRequestException(errors);
     }
+  }
+
+  private void checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(long qGateId, Metric metric, @Nullable final Integer period, Errors errors) {
+    Collection<QualityGateConditionDto> conditions = conditionDao.selectForQualityGate(qGateId);
+    if (conditions.isEmpty()) {
+      return;
+    }
+
+    boolean conditionExists = from(conditions).anyMatch(new MatchMetricAndPeriod(metric.getId(), period));
+    String errorMessage = period == null
+      ? format("Condition on metric '%s' already exists.", metric.getName())
+      : format("Condition on metric '%s' over leak period already exists.", metric.getName());
+    errors.check(!conditionExists, errorMessage);
   }
 
   private void checkPeriod(Metric metric, @Nullable Integer period, Errors errors) {
@@ -288,11 +306,11 @@ public class QualityGates {
 
   private void checkOperator(Metric metric, String operator, Errors errors) {
     errors
-      .check(QualityGateConditionDto.isOperatorAllowed(operator, metric.getType()), String.format("Operator %s is not allowed for metric type %s.", operator, metric.getType()));
+      .check(QualityGateConditionDto.isOperatorAllowed(operator, metric.getType()), format("Operator %s is not allowed for metric type %s.", operator, metric.getType()));
   }
 
   private void validateMetric(Metric metric, Errors errors) {
-    errors.check(isAlertable(metric), String.format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
+    errors.check(isAlertable(metric), format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
   }
 
   private boolean isAvailableForInit(Metric metric) {
@@ -364,7 +382,6 @@ public class QualityGates {
     QualityGateDto existingQgate = dao.selectByName(name);
     boolean isModifyingCurrentQgate = updatingQgateId != null && existingQgate != null && existingQgate.getId().equals(updatingQgateId);
     errors.check(isModifyingCurrentQgate || existingQgate == null, Validation.IS_ALREADY_USED_MESSAGE, "Name");
-
   }
 
   private void checkPermission() {
@@ -377,4 +394,22 @@ public class QualityGates {
       throw new ForbiddenException("Insufficient privileges");
     }
   }
+
+  private static class MatchMetricAndPeriod implements Predicate<QualityGateConditionDto> {
+    private final int metricId;
+    @CheckForNull
+    private final Integer period;
+
+    public MatchMetricAndPeriod(int metricId, @Nullable Integer period) {
+      this.metricId = metricId;
+      this.period = period;
+    }
+
+    @Override
+    public boolean apply(@Nonnull QualityGateConditionDto input) {
+      return input.getMetricId() == metricId &&
+        ObjectUtils.equals(input.getPeriod(), period);
+    }
+  }
+
 }
