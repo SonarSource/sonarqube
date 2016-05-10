@@ -19,6 +19,7 @@
  */
 import _ from 'underscore';
 import React from 'react';
+import uniqBy from 'lodash/uniqBy';
 
 import ConditionsAlert from './ConditionsAlert';
 import AddConditionForm from './AddConditionForm';
@@ -45,6 +46,22 @@ export default function Conditions (
     return metrics.find(metric => metric.key === condition.metric).name;
   });
 
+  const duplicates = [];
+  conditions.forEach(condition => {
+    const sameCount = conditions
+        .filter(sample => sample.metric === condition.metric && sample.period === condition.period)
+        .length;
+    if (sameCount > 1) {
+      duplicates.push(condition);
+    }
+  });
+
+  const uniqDuplicates = uniqBy(duplicates, d => d.metric)
+      .map(condition => {
+        const metric = metrics.find(metric => metric.key === condition.metric);
+        return { ...condition, metric };
+      });
+
   return (
       <div id="quality-gate-conditions" className="quality-gate-section">
         <h3 className="spacer-bottom">
@@ -52,6 +69,17 @@ export default function Conditions (
         </h3>
 
         <ConditionsAlert/>
+
+        {uniqDuplicates.length > 0 && (
+            <div className="alert alert-warning">
+              <p>{translate('quality_gates.duplicated_conditions')}</p>
+              <ul className="list-styled spacer-top">
+                {uniqDuplicates.map(d => (
+                    <li>{d.metric.name}</li>
+                ))}
+              </ul>
+            </div>
+        )}
 
         {sortedConditions.length ? (
             <table id="quality-gate-conditions" className="data zebra zebra-hover">
