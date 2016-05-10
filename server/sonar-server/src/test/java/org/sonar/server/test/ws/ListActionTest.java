@@ -25,6 +25,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -34,6 +35,7 @@ import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
+import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.test.index.CoveredFileDoc;
 import org.sonar.server.test.index.TestDoc;
 import org.sonar.server.test.index.TestIndex;
@@ -44,18 +46,18 @@ import org.sonar.server.ws.WsTester;
 
 public class ListActionTest {
 
-  @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-
   @ClassRule
   public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
 
   @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
   DbClient dbClient = db.getDbClient();
-  TestIndex testIndex;
 
+  TestIndex testIndex;
   WsTester ws;
 
   @Before
@@ -198,6 +200,16 @@ public class ListActionTest {
     ws.newGetRequest("api/tests", "list")
       .setParam(ListAction.SOURCE_FILE_ID, mainFileUuid)
       .setParam(ListAction.SOURCE_FILE_LINE_NUMBER, "10")
+      .execute();
+  }
+
+  @Test
+  public void fail_when_test_uuid_is_unknown() throws Exception {
+    expectedException.expect(NotFoundException.class);
+    expectedException.expectMessage("Test with id 'unknown-test-uuid' is not found");
+
+    ws.newGetRequest("api/tests", "list")
+      .setParam(ListAction.TEST_ID, "unknown-test-uuid")
       .execute();
   }
 

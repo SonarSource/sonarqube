@@ -19,6 +19,7 @@
  */
 package org.sonar.server.test.index;
 
+import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
@@ -29,6 +30,7 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestIndexTest {
   @ClassRule
@@ -96,6 +98,33 @@ public class TestIndexTest {
     assertThat(test.message()).isEqualTo("message-1");
     assertThat(test.coveredFiles()).hasSize(3);
     assertThat(test.coveredFiles()).extractingResultOf("fileUuid").containsOnly("main-uuid-3", "main-uuid-4", "main-uuid-5");
+  }
+
+  @Test
+  public void getNullableByTestUuid() throws Exception {
+    es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
+      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
+      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+
+    Optional<TestDoc> result = underTest.getNullableByTestUuid("1");
+
+    assertThat(result).isPresent();
+    TestDoc test = result.get();
+    assertThat(test.testUuid()).isEqualTo("1");
+    assertThat(test.fileUuid()).isEqualTo("TESTFILE1");
+    assertThat(test.name()).isEqualTo("name-1");
+    assertThat(test.durationInMs()).isEqualTo(1L);
+    assertThat(test.status()).isEqualTo("status-1");
+    assertThat(test.message()).isEqualTo("message-1");
+    assertThat(test.coveredFiles()).hasSize(3);
+    assertThat(test.coveredFiles()).extractingResultOf("fileUuid").containsOnly("main-uuid-3", "main-uuid-4", "main-uuid-5");
+  }
+
+  @Test
+  public void getNullableByTestUuid_with_absent_value() {
+    Optional<TestDoc> result = underTest.getNullableByTestUuid("unknown-uuid");
+
+    assertThat(result).isAbsent();
   }
 
   @Test

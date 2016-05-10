@@ -35,7 +35,6 @@ import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentDtoFunctions;
 import org.sonar.server.component.ComponentFinder;
@@ -51,6 +50,7 @@ import org.sonarqube.ws.Common;
 import org.sonarqube.ws.WsTests;
 
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 
 public class ListAction implements TestsWsAction {
   public static final String TEST_ID = "testId";
@@ -86,7 +86,8 @@ public class ListAction implements TestsWsAction {
           "<li>%s - get the tests in a test file</li>" +
           "<li>%s and %6$s - get the tests that cover a specific line of code</li>" +
           "<li>%s and %6$s - get the tests that cover a specific line of code</li>" +
-          "</ul>", TEST_ID, TEST_FILE_ID, TEST_FILE_KEY, SOURCE_FILE_ID, SOURCE_FILE_KEY, SOURCE_FILE_LINE_NUMBER))
+          "</ul>",
+        TEST_ID, TEST_FILE_ID, TEST_FILE_KEY, SOURCE_FILE_ID, SOURCE_FILE_KEY, SOURCE_FILE_LINE_NUMBER))
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
       .setDeprecatedSince("5.6")
@@ -144,7 +145,7 @@ public class ListAction implements TestsWsAction {
       tests = searchTests(dbSession, testUuid, testFileUuid, testFileKey, sourceFileUuid, sourceFileKey, sourceFileLineNumber, searchOptions);
       componentsByTestFileUuid = buildComponentsByTestFileUuid(dbSession, tests.getDocs());
     } finally {
-      MyBatis.closeQuietly(dbSession);
+      dbClient.closeSession(dbSession);
     }
 
     WsTests.ListResponse.Builder responseBuilder = WsTests.ListResponse.newBuilder();
@@ -238,7 +239,8 @@ public class ListAction implements TestsWsAction {
   }
 
   private SearchResult<TestDoc> searchTestsByTestUuid(DbSession dbSession, String testUuid, SearchOptions searchOptions) {
-    checkComponentUuidPermission(dbSession, testIndex.getByTestUuid(testUuid).fileUuid());
+    TestDoc testDoc = checkFoundWithOptional(testIndex.getNullableByTestUuid(testUuid), "Test with id '%s' is not found", testUuid);
+    checkComponentUuidPermission(dbSession, testDoc.fileUuid());
     return testIndex.searchByTestUuid(testUuid, searchOptions);
   }
 
