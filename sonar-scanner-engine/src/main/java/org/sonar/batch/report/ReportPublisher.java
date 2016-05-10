@@ -102,10 +102,8 @@ public class ReportPublisher implements Startable {
 
   @Override
   public void stop() {
-    if (!settings.getBoolean(KEEP_REPORT_PROP_KEY) && !settings.getBoolean(VERBOSE_KEY)) {
+    if (!shouldKeepReport()) {
       deleteQuietly(reportDir);
-    } else {
-      LOG.info("Analysis report generated in " + reportDir);
     }
   }
 
@@ -122,11 +120,18 @@ public class ReportPublisher implements Startable {
     String taskId = null;
     if (!analysisMode.isIssues()) {
       File report = generateReportFile();
+      if (shouldKeepReport()) {
+        LOG.info("Analysis report generated in " + reportDir);
+      }
       if (!analysisMode.isMediumTest()) {
         taskId = upload(report);
       }
     }
     logSuccess(taskId);
+  }
+
+  private boolean shouldKeepReport() {
+    return settings.getBoolean(KEEP_REPORT_PROP_KEY) || settings.getBoolean(VERBOSE_KEY);
   }
 
   private File generateReportFile() {

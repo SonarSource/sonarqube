@@ -39,8 +39,8 @@ import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.util.ProgressReport;
 import org.sonar.scanner.protocol.output.ScannerReport;
-import org.sonar.scanner.protocol.output.ScannerReportWriter;
 import org.sonar.scanner.protocol.output.ScannerReport.Changesets.Builder;
+import org.sonar.scanner.protocol.output.ScannerReportWriter;
 
 class DefaultBlameOutput implements BlameOutput {
 
@@ -134,9 +134,9 @@ class DefaultBlameOutput implements BlameOutput {
     return NON_ASCII_CHARS.matcher(inputString).replaceAll("_");
   }
 
-  public void finish() {
+  public void finish(boolean success) {
     progressReport.stop(count + "/" + total + " files analyzed");
-    if (!allFilesToBlame.isEmpty()) {
+    if (success && !allFilesToBlame.isEmpty()) {
       LOG.warn("Missing blame information for the following files:");
       for (InputFile f : allFilesToBlame) {
         LOG.warn("  * " + f.absolutePath());

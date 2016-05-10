@@ -99,7 +99,6 @@ public class ProjectScanContainer extends ComponentContainer {
   private static final Logger LOG = Loggers.get(ProjectScanContainer.class);
 
   private final AnalysisProperties props;
-  private ProjectLock lock;
 
   public ProjectScanContainer(ComponentContainer globalContainer, AnalysisProperties props) {
     super(globalContainer);
@@ -109,7 +108,7 @@ public class ProjectScanContainer extends ComponentContainer {
   @Override
   protected void doBeforeStart() {
     addBatchComponents();
-    lock = getComponentByType(ProjectLock.class);
+    ProjectLock lock = getComponentByType(ProjectLock.class);
     lock.tryLock();
     getComponentByType(WorkDirectoryCleaner.class).execute();
     addBatchExtensions();
@@ -119,19 +118,6 @@ public class ProjectScanContainer extends ComponentContainer {
     }
     if (isTherePreviousAnalysis()) {
       addIssueTrackingComponents();
-    }
-  }
-
-  @Override
-  public ComponentContainer startComponents() {
-    try {
-      return super.startComponents();
-    } catch (Exception e) {
-      // ensure that lock is released
-      if (lock != null) {
-        lock.stop();
-      }
-      throw e;
     }
   }
 

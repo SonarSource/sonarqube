@@ -81,9 +81,11 @@ public final class ScmSensor implements Sensor {
       DefaultBlameOutput output = new DefaultBlameOutput(publishReportJob.getWriter(), resourceCache, filesToBlame);
       try {
         configuration.provider().blameCommand().blame(new DefaultBlameInput(fs, filesToBlame), output);
-      } finally {
-        output.finish();
+      } catch (Exception e) {
+        output.finish(false);
+        throw e;
       }
+      output.finish(true);
     }
   }
 
