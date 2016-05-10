@@ -19,6 +19,10 @@
  */
 package org.sonar.api.test;
 
+/**
+ * @deprecated since 5.6 feature will be removed soon
+ */
+@Deprecated
 public interface MutableTestPlan extends TestPlan<MutableTestCase> {
 
   /**

@@ -23,6 +23,10 @@ import java.util.List;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.fs.InputFile;
 
+/**
+ * @deprecated since 5.6 feature will be removed soon
+ */
+@Deprecated
 public interface MutableTestCase extends TestCase {
   MutableTestCase setStatus(@Nullable Status s);
 

@@ -19,6 +19,10 @@
  */
 package org.sonar.api.test.exception;
 
+/**
+ * @deprecated since 5.6 feature will be removed soon
+ */
+@Deprecated
 public class TestException extends RuntimeException {
   public TestException(String message) {
     super(message);

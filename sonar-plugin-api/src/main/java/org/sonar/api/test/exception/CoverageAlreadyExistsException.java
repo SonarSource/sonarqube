@@ -19,6 +19,10 @@
  */
 package org.sonar.api.test.exception;
 
+/**
+ * @deprecated since 5.6 feature will be removed soon
+ */
+@Deprecated
 public class CoverageAlreadyExistsException extends TestException {
   public CoverageAlreadyExistsException(String message) {
     super(message);

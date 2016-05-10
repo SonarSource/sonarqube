@@ -19,6 +19,10 @@
  */
 package org.sonar.api.test.exception;
 
+/**
+ * @deprecated since 5.6 feature will be removed soon
+ */
+@Deprecated
 public class IllegalDurationException extends TestException {
   public IllegalDurationException(String message) {
     super(message);

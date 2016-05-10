@@ -21,6 +21,10 @@ package org.sonar.api.test;
 
 import java.util.List;
 
+/**
+ * @deprecated since 5.6 feature will be removed soon
+ */
+@Deprecated
 public interface CoverageBlock {
 
   TestCase testCase();
