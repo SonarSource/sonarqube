@@ -21,6 +21,7 @@ package org.sonar.server.computation.taskprocessor;
 
 import com.google.common.base.Optional;
 import java.util.List;
+import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.InOrder;
@@ -64,7 +65,7 @@ public class CeWorkerCallableImplTest {
 
   @Test
   public void fail_when_no_CeTaskProcessor_is_found_in_repository() throws Exception {
-    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
+    CeTask task = createCeTask(null);
     taskProcessorRepository.setNoProcessorForTask(CeTaskTypes.REPORT);
     when(queue.peek()).thenReturn(Optional.of(task));
 
@@ -77,7 +78,7 @@ public class CeWorkerCallableImplTest {
 
   @Test
   public void peek_and_process_task() throws Exception {
-    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
+    CeTask task = createCeTask(null);
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
     when(queue.peek()).thenReturn(Optional.of(task));
 
@@ -91,10 +92,10 @@ public class CeWorkerCallableImplTest {
 
   @Test
   public void fail_to_process_task() throws Exception {
-    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
+    CeTask task = createCeTask(null);
     when(queue.peek()).thenReturn(Optional.of(task));
     taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
-    doThrow(new IllegalStateException("simulate exception thrown by TaskProcessor#process")).when(taskProcessor).process(task);
+    makeTaskProcessorFail(task);
 
     assertThat(underTest.call()).isTrue();
 
@@ -104,33 +105,86 @@ public class CeWorkerCallableImplTest {
     inOrder.verify(ceLogging).clearForTask();
   }
 
+  private void makeTaskProcessorFail(CeTask task) {
+    doThrow(new IllegalStateException("simulate exception thrown by TaskProcessor#process")).when(taskProcessor).process(task);
+  }
+
   @Test
-  public void do_not_display_null_in_log_when_submitterLogin_is_not_set() throws Exception {
-    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(null).build();
-    when(queue.peek()).thenReturn(Optional.of(task));
-    taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
+  public void do_not_display_submitter_param_in_log_when_submitterLogin_is_not_set_in_case_of_success() throws Exception {
+    when(queue.peek()).thenReturn(Optional.of(createCeTask(null)));
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
     underTest.call();
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(4);
     for (int i = 0; i < 4; i++) {
-      assertThat(logs.get(i)).contains(" | submitter=''");
+      assertThat(logs.get(i)).doesNotContain(" | submitter=");
     }
   }
 
   @Test
-  public void display_submitterLogin_in_logs_when_set() throws Exception {
-    CeTask task = new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin("FooBar").build();
-    when(queue.peek()).thenReturn(Optional.of(task));
-    taskProcessorRepository.setProcessorForTask(task.getType(), taskProcessor);
+  public void do_not_display_submitter_param_in_log_when_submitterLogin_is_not_set_in_case_of_error() throws Exception {
+    CeTask ceTask = createCeTask(null);
+    when(queue.peek()).thenReturn(Optional.of(ceTask));
+    taskProcessorRepository.setProcessorForTask(ceTask.getType(), taskProcessor);
+    makeTaskProcessorFail(ceTask);
+
+    underTest.call();
+
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(2);
+    for (int i = 0; i < 2; i++) {
+      assertThat(logs.get(i)).doesNotContain(" | submitter=");
+    }
+    logs = logTester.logs(LoggerLevel.ERROR);
+    assertThat(logs).hasSize(3);
+    for (int i = 0; i < 3; i++) {
+      assertThat(logs.get(i)).doesNotContain(" | submitter=");
+    }
+  }
+
+  @Test
+  public void display_submitterLogin_in_logs_when_set_in_case_of_success() throws Exception {
+    when(queue.peek()).thenReturn(Optional.of(createCeTask("FooBar")));
+    taskProcessorRepository.setProcessorForTask(CeTaskTypes.REPORT, taskProcessor);
 
     underTest.call();
 
     List<String> logs = logTester.logs(LoggerLevel.INFO);
     assertThat(logs).hasSize(4);
-    for (int i = 0; i < 4; i++) {
-      assertThat(logs.get(i)).contains(" | submitter='FooBar'");
+    for (int i = 0; i < 2; i++) {
+      assertThat(logs.get(i)).contains(" | submitter=FooBar");
     }
+    for (int i = 2; i < 4; i++) {
+      assertThat(logs.get(i)).contains(" | submitter=FooBar | time=");
+    }
+  }
+
+  @Test
+  public void display_submitterLogin_in_logs_when_set_in_case_of_error() throws Exception {
+    CeTask ceTask = createCeTask("FooBar");
+    when(queue.peek()).thenReturn(Optional.of(ceTask));
+    taskProcessorRepository.setProcessorForTask(ceTask.getType(), taskProcessor);
+    makeTaskProcessorFail(ceTask);
+
+    underTest.call();
+
+    List<String> logs = logTester.logs(LoggerLevel.INFO);
+    assertThat(logs).hasSize(2);
+    for (int i = 0; i < 2; i++) {
+      assertThat(logs.get(i)).contains(" | submitter=FooBar");
+    }
+    logs = logTester.logs(LoggerLevel.ERROR);
+    assertThat(logs).hasSize(3);
+    for (int i = 0; i < 3; i++) {
+      String log = logs.get(i);
+      assertThat(log.contains(" | submitter=FooBar | time=") || log.equals("Failed to execute task " + ceTask.getUuid()))
+        .isTrue();
+    }
+  }
+
+  private static CeTask createCeTask(@Nullable String submitterLogin) {
+    return new CeTask.Builder().setUuid("TASK_1").setType(CeTaskTypes.REPORT).setComponentUuid("PROJECT_1").setSubmitterLogin(submitterLogin).build();
   }
 }

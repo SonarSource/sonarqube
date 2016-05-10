@@ -97,24 +97,29 @@ public class CeWorkerCallableImpl implements CeWorkerCallable {
 
   private static Profiler startProfiler(CeTask task) {
     Profiler profiler = Profiler.create(LOG);
-    return profiler.startInfo("Execute task | project={} | type={} | id={} | submitter='{}'",
-      task.getComponentKey(), task.getType(), task.getUuid(), getSubmitterLoginForLog(task));
+    addContext(profiler, task);
+    return profiler.startInfo("Execute task");
   }
 
   private static void stopProfiler(Profiler profiler, CeTask task, CeActivityDto.Status status) {
+    addContext(profiler, task);
     if (status == CeActivityDto.Status.FAILED) {
-      profiler.stopError("Executed task | project={} | type={} | id={} | submitter='{}'",
-          task.getComponentKey(), task.getType(), task.getUuid(), getSubmitterLoginForLog(task));
+      profiler.stopError("Executed task");
     } else {
-      profiler.stopInfo("Executed task | project={} | type={} | id={} | submitter='{}'",
-          task.getComponentKey(), task.getType(), task.getUuid(), getSubmitterLoginForLog(task));
+      profiler.stopInfo("Executed task");
     }
   }
 
-  private static String getSubmitterLoginForLog(CeTask task) {
-    if (task.getSubmitterLogin() == null) {
-      return "";
+  private static void addContext(Profiler profiler, CeTask task) {
+    profiler
+      .logTimeLast(true)
+      .addContext("project", task.getComponentKey())
+      .addContext("type", task.getType())
+      .addContext("id", task.getUuid());
+    String submitterLogin = task.getSubmitterLogin();
+    if (submitterLogin != null) {
+      profiler.addContext("submitter", submitterLogin);
     }
-    return task.getSubmitterLogin();
   }
+
 }
