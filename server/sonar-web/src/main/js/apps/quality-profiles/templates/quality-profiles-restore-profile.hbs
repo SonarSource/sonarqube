@@ -1,17 +1,34 @@
-<form id="restore-profile-form" action="{{link '/api/qualityprofiles/restore'}}" enctype="multipart/form-data"
-      method="POST">
+<form id="restore-profile-form">
   <div class="modal-head">
     <h2>{{t 'quality_profiles.restore_profile'}}</h2>
   </div>
+
   <div class="modal-body">
     <div class="js-modal-messages"></div>
-    <div class="modal-field">
-      <label for="restore-profile-backup">{{t 'backup'}}<em class="mandatory">*</em></label>
-      <input type="file" id="restore-profile-backup" name="backup" required>
-    </div>
+    {{#if profile}}
+      {{#if ruleFailures}}
+        <div class="alert alert-warning">
+          {{tp 'quality_profiles.restore_profile.warning' profile.name ruleSuccesses ruleFailures}}
+        </div>
+      {{else}}
+        <div class="alert alert-success">
+          {{tp 'quality_profiles.restore_profile.success' profile.name ruleSuccesses}}
+        </div>
+      {{/if}}
+    {{else}}
+      <div class="modal-field">
+        <label for="restore-profile-backup">{{t 'backup'}}<em class="mandatory">*</em></label>
+        <input type="file" id="restore-profile-backup" name="backup" required>
+      </div>
+    {{/if}}
   </div>
+
   <div class="modal-foot">
-    <button id="restore-profile-submit">{{t 'restore'}}</button>
-    <a href="#" class="js-modal-close" id="restore-profile-cancel">{{t 'cancel'}}</a>
+    {{#notNull ruleSuccesses}}
+      <a href="#" class="js-modal-close">{{t 'close'}}</a>
+    {{else}}
+      <button id="restore-profile-submit">{{t 'restore'}}</button>
+      <a href="#" class="js-modal-close" id="restore-profile-cancel">{{t 'cancel'}}</a>
+    {{/notNull}}
   </div>
 </form>

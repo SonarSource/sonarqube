@@ -17,27 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import _ from 'underscore';
 import ModalFormView from '../../components/common/modal-form';
-import uploader from '../../components/common/file-upload';
 import Profile from './profile';
 import Template from './templates/quality-profiles-restore-profile.hbs';
+import { restoreQualityProfile } from '../../api/quality-profiles';
 
 export default ModalFormView.extend({
   template: Template,
 
   onFormSubmit (e) {
-    const that = this;
     ModalFormView.prototype.onFormSubmit.apply(this, arguments);
-    uploader({ form: $(e.currentTarget) }).done(function (r) {
-      if (_.isArray(r.errors) || _.isArray(r.warnings)) {
-        that.showErrors(r.errors, r.warnings);
-      } else {
-        that.addProfile(r.profile);
-        that.destroy();
-      }
-    });
+    const data = new FormData(e.currentTarget);
+
+    this.disableForm();
+
+    restoreQualityProfile(data)
+        .then(r => {
+          this.profile = r.profile;
+          this.ruleSuccesses = r.ruleSuccesses;
+          this.ruleFailures = r.ruleFailures;
+          this.render();
+          this.addProfile(r.profile);
+        })
+        .catch(e => {
+          this.enableForm();
+          e.response.json().then(r => this.showErrors(r.errors, r.warnings));
+        });
   },
 
   addProfile (profileData) {
@@ -47,5 +52,13 @@ export default ModalFormView.extend({
     if (addedProfile != null) {
       addedProfile.trigger('select', addedProfile);
     }
+  },
+
+  serializeData() {
+    return Object.assign({}, ModalFormView.prototype.serializeData.apply(this, arguments), {
+      profile: this.profile,
+      ruleSuccesses: this.ruleSuccesses,
+      ruleFailures: this.ruleFailures
+    });
   }
 });

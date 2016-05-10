@@ -30,3 +30,15 @@ export function createQualityProfile (data) {
       .then(checkStatus)
       .then(parseJSON);
 }
+
+export function restoreQualityProfile (data) {
+  const url = window.baseUrl + '/api/qualityprofiles/restore';
+  const options = {
+    method: 'post',
+    credentials: 'same-origin',
+    body: data
+  };
+  return window.fetch(url, options)
+      .then(checkStatus)
+      .then(parseJSON);
+}
