@@ -19,7 +19,6 @@
  */
 package org.sonar.db.version.v51;
 
-import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -87,8 +86,7 @@ public class FeedFileSourcesBinaryDataTest {
       pstmt.setLong(1, fileSourceId);
       rs = pstmt.executeQuery();
       rs.next();
-      InputStream data = rs.getBinaryStream(1);
-      return FileSourceDto.decodeSourceData(data);
+      return new FileSourceDto().decodeSourceData(rs.getBytes(1));
     } finally {
       DbUtils.closeQuietly(rs);
       DbUtils.closeQuietly(pstmt);

@@ -29,6 +29,12 @@ import org.sonar.db.protobuf.DbFileSources;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class FileSourceDtoTest {
+  private static final String LOREM_IPSUM = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aliquam ac magna libero. " +
+    "Integer eu quam vulputate, interdum ante quis, sodales mauris. Nam mollis ornare dolor at maximus. Cras pharetra aliquam fringilla. " +
+    "Nunc hendrerit, elit eu mattis fermentum, ligula metus malesuada nunc, non fermentum augue tellus eu odio. Praesent ut vestibulum nibh. " +
+    "Curabitur sit amet dignissim magna, at efficitur dolor. Ut non felis aliquam justo euismod gravida. Morbi eleifend vitae ante eu pulvinar. " +
+    "Aliquam rhoncus magna quis lorem posuere semper.";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -54,14 +60,35 @@ public class FileSourceDtoTest {
     String fileUuid = "file uuid";
     String projectUuid = "project uuid";
     FileSourceDto underTest = new FileSourceDto()
-        .setBinaryData(new byte[]{1, 2, 3, 4, 5})
-        .setId(id)
-        .setFileUuid(fileUuid)
-        .setProjectUuid(projectUuid);
+      .setBinaryData(new byte[] {1, 2, 3, 4, 5})
+      .setId(id)
+      .setFileUuid(fileUuid)
+      .setProjectUuid(projectUuid);
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Fail to decompress and deserialize source data [id=" + id + ",fileUuid=" + fileUuid + ",projectUuid=" + projectUuid + "]");
 
     underTest.getSourceData();
+  }
+
+  @Test
+  public void getSourceData_reads_Data_object_bigger_than_default_size_limit() {
+    DbFileSources.Data build = createOver64MBDataStructure();
+    byte[] bytes = FileSourceDto.encodeSourceData(build);
+
+    DbFileSources.Data data = new FileSourceDto().decodeSourceData(bytes);
+    assertThat(data.getLinesCount()).isEqualTo(build.getLinesCount());
+  }
+
+  private static DbFileSources.Data createOver64MBDataStructure() {
+    DbFileSources.Data.Builder dataBuilder = DbFileSources.Data.newBuilder();
+    DbFileSources.Line.Builder lineBuilder = DbFileSources.Line.newBuilder();
+    for (int i = 0; i < 199999; i++) {
+      dataBuilder.addLines(
+        lineBuilder.setSource(LOREM_IPSUM)
+          .setLine(i)
+          .build());
+    }
+    return dataBuilder.build();
   }
 }

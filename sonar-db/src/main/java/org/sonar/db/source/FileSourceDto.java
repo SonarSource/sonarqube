@@ -19,6 +19,8 @@
  */
 package org.sonar.db.source;
 
+import com.google.protobuf.CodedInputStream;
+import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -35,6 +37,9 @@ import org.sonar.db.protobuf.DbFileSources;
 import static java.lang.String.format;
 
 public class FileSourceDto {
+
+  private static final String SIZE_LIMIT_EXCEEDED_EXCEPTION_MESSAGE = "Protocol message was too large.  May be malicious.  " +
+    "Use CodedInputStream.setSizeLimit() to increase the size limit.";
 
   private Long id;
   private String projectUuid;
@@ -90,7 +95,7 @@ public class FileSourceDto {
 
   public DbFileSources.Data decodeSourceData(byte[] binaryData) {
     try {
-      return decodeSourceDataImpl(new ByteArrayInputStream(binaryData));
+      return decodeRegularSourceData(binaryData);
     } catch (IOException e) {
       throw new IllegalStateException(
         format("Fail to decompress and deserialize source data [id=%s,fileUuid=%s,projectUuid=%s]", id, fileUuid, projectUuid),
@@ -98,21 +103,22 @@ public class FileSourceDto {
     }
   }
 
-  /**
-   * Decompress and deserialize content of column FILE_SOURCES.BINARY_DATA.
-   * The parameter "input" is always closed by this method.
-   */
-  public static DbFileSources.Data decodeSourceData(InputStream binaryInput) {
-    try {
-      return decodeSourceDataImpl(binaryInput);
-    } catch (IOException e) {
-      throw new IllegalStateException("Fail to decompress and deserialize source data", e);
+  private static DbFileSources.Data decodeRegularSourceData(byte[] binaryData) throws IOException {
+    try (LZ4BlockInputStream lz4Input = new LZ4BlockInputStream(new ByteArrayInputStream(binaryData))) {
+      return DbFileSources.Data.parseFrom(lz4Input);
+    } catch (InvalidProtocolBufferException e) {
+      if (SIZE_LIMIT_EXCEEDED_EXCEPTION_MESSAGE.equals(e.getMessage())) {
+        return decodeHugeSourceData(binaryData);
+      }
+      throw e;
     }
   }
 
-  private static DbFileSources.Data decodeSourceDataImpl(InputStream binaryInput) throws IOException {
-    try (LZ4BlockInputStream lz4Input = new LZ4BlockInputStream(binaryInput)) {
-      return DbFileSources.Data.parseFrom(lz4Input);
+  private static DbFileSources.Data decodeHugeSourceData(byte[] binaryData) throws IOException {
+    try (LZ4BlockInputStream lz4Input = new LZ4BlockInputStream(new ByteArrayInputStream(binaryData))) {
+      CodedInputStream input = CodedInputStream.newInstance(lz4Input);
+      input.setSizeLimit(Integer.MAX_VALUE);
+      return DbFileSources.Data.parseFrom(input);
     }
   }
 
