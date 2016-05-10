@@ -202,7 +202,7 @@ public class ResourceIndexDao extends AbstractDao {
     int maxPosition = key.length() == SINGLE_INDEX_SIZE ? 0 : key.length() - MINIMUM_KEY_SIZE;
     for (int position = 0; position <= maxPosition; position++) {
       dto.setPosition(position);
-      dto.setKey(substring(key, position, MAXIMUM_KEY_SIZE));
+      dto.setKey(substring(key, position, position + MAXIMUM_KEY_SIZE));
       mapper.insert(dto);
     }
   }

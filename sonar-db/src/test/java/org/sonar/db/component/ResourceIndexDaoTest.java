@@ -158,7 +158,7 @@ public class ResourceIndexDaoTest {
   @Test
   public void restrict_indexed_combinations_to_400_characters() {
     String longName = repeat("a", 2_000);
-    ComponentDto project = new ComponentDto().setId(1L).setKey("the_key").setName(longName).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT);
+    ComponentDto project = new ComponentDto().setKey("the_key").setName(longName).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT);
     DbSession session = dbTester.getSession();
     dbTester.getDbClient().componentDao().insert(session, project);
     dbTester.getDbClient().snapshotDao().insert(session, new SnapshotDto().setComponentId(project.getId()).setRootProjectId(project.getId()).setLast(true));
