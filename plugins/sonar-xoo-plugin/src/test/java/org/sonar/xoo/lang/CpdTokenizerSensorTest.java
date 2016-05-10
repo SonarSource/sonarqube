@@ -21,7 +21,6 @@ package org.sonar.xoo.lang;
 
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -29,7 +28,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
@@ -80,7 +78,7 @@ public class CpdTokenizerSensorTest {
     FileUtils.write(sourceFile, content);
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo")
       .setLanguage("xoo")
-      .initMetadata(new FileMetadata().readMetadata(new StringReader(content)));
+      .initMetadata(content);
     context.fileSystem().add(inputFile);
   }
 

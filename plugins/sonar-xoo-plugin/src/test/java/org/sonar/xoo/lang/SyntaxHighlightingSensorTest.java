@@ -19,20 +19,17 @@
  */
 package org.sonar.xoo.lang;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
-
-import java.io.File;
-import java.io.IOException;
-import java.io.StringReader;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -69,7 +66,7 @@ public class SyntaxHighlightingSensorTest {
     File symbol = new File(baseDir, "src/foo.xoo.highlighting");
     FileUtils.write(symbol, "1:4:k\n12:15:cppd\n\n#comment");
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/foo.xoo").setLanguage("xoo")
-      .initMetadata(new FileMetadata().readMetadata(new StringReader(" xoo\nazertyazer\nfoo")));
+      .initMetadata(" xoo\nazertyazer\nfoo");
     context.fileSystem().add(inputFile);
 
     sensor.execute(context);

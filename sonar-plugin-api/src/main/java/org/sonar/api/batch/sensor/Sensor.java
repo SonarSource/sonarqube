@@ -21,6 +21,7 @@ package org.sonar.api.batch.sensor;
 
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.BatchSide;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
 
 /**
  * <p>
@@ -28,6 +29,8 @@ import org.sonar.api.batch.BatchSide;
  * used to add measure and issues at file level.
  * <p>
  * For example the Cobertura Sensor parses Cobertura report and saves the first-level of measures on files.
+ * 
+ * For testing purpose you can use {@link SensorContextTester}
  * @since 5.1
  */
 @BatchSide

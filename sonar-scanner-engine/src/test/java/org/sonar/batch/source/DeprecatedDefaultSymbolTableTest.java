@@ -20,7 +20,6 @@
 package org.sonar.batch.source;
 
 import com.google.common.base.Strings;
-import java.io.StringReader;
 import java.util.Set;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,7 +27,6 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
@@ -44,7 +42,7 @@ public class DeprecatedDefaultSymbolTableTest {
   @Before
   public void prepare() {
     inputFile = new DefaultInputFile("foo", "src/Foo.php")
-      .initMetadata(new FileMetadata().readMetadata(new StringReader(Strings.repeat("azerty\n", 20))));
+      .initMetadata(Strings.repeat("azerty\n", 20));
   }
 
   @Test

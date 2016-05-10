@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.issue;
 
-import java.io.StringReader;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -28,7 +27,6 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.rule.internal.RulesBuilder;
 import org.sonar.api.batch.sensor.issue.internal.DefaultIssue;
@@ -67,7 +65,7 @@ public class ModuleIssuesTest {
   ModuleIssues moduleIssues;
 
   BatchComponentCache componentCache = new BatchComponentCache();
-  InputFile file = new DefaultInputFile("foo", "src/Foo.php").initMetadata(new FileMetadata().readMetadata(new StringReader("Foo\nBar\nBiz\n")));
+  InputFile file = new DefaultInputFile("foo", "src/Foo.php").initMetadata("Foo\nBar\nBiz\n");
   ReportPublisher reportPublisher = mock(ReportPublisher.class, RETURNS_DEEP_STUBS);
 
   @Before

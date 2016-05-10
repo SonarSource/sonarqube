@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.InputStream;
+import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.util.Arrays;
@@ -285,6 +286,13 @@ public class DefaultInputFile extends DefaultInputComponent implements InputFile
     this.setHash(metadata.hash);
     this.setOriginalLineOffsets(metadata.originalLineOffsets);
     return this;
+  }
+
+  /**
+   * For testing purpose
+   */
+  public DefaultInputFile initMetadata(String content) {
+    return initMetadata(new FileMetadata().readMetadata(new StringReader(content)));
   }
 
   @Override

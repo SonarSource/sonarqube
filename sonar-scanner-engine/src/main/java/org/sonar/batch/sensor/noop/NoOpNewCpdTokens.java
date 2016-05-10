@@ -40,4 +40,10 @@ public class NoOpNewCpdTokens implements NewCpdTokens {
     // Do nothing
     return this;
   }
+
+  @Override
+  public NewCpdTokens addToken(int startLine, int startLineOffset, int endLine, int endLineOffset, String image) {
+    // Do nothing
+    return this;
+  }
 }

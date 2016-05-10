@@ -24,6 +24,21 @@ import org.sonar.api.batch.fs.TextRange;
 
 /**
  * This builder is used to define symbol references on files.
+ * 
+ * Example:
+ * 
+ * <pre>
+ *   NewSymbolTable symbolTable = sensorContext.newSymbolTable().onFile(inputFile);
+ *   symbolTable.newSymbol(1, 10, 1, 15)
+ *     .newReference(10, 12, 10, 17)
+ *     .newReference(11, 11, 11, 16);
+ *     
+ *   // Add more symbols if needed
+ *     
+ *   symbolTable.save();
+ *     
+ * </pre>
+ * 
  * @since 5.6
  */
 public interface NewSymbolTable {

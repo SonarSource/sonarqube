@@ -24,6 +24,17 @@ import org.sonar.api.batch.fs.TextRange;
 
 /**
  * This builder is used to define tokens used by CPD algorithm on files.
+ * 
+ * Example:
+ * 
+ * <pre>
+ *   sensorContext.newCpdTokens().onFile(inputFile)
+ *     .addToken(1, 10, 1, 15, "class")
+ *     .addToken(1, 16, 1, 18, "IDENTIFIER")
+ *     // Add more tokens
+ *     .save;
+ *     
+ * </pre>
  * @since 5.5
  */
 public interface NewCpdTokens {
@@ -39,6 +50,12 @@ public interface NewCpdTokens {
    * @param image Text content of the token. Can be replaced by a constant placeholder for some tokens (like litterals).
    */
   NewCpdTokens addToken(TextRange range, String image);
+
+  /**
+   * Shortcut to avoid calling {@link InputFile#newRange(int, int, int, int)}
+   * @since 5.6
+   */
+  NewCpdTokens addToken(int startLine, int startLineOffset, int endLine, int endLineOffset, String image);
 
   /**
    * Call this method only once when your are done with defining tokens of the file.

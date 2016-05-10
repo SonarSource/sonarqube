@@ -23,6 +23,22 @@ import org.sonar.api.batch.fs.InputFile;
 
 /**
  * This builder is used to define code coverage by tests of a given type (UT/IT/Overall) on files.
+ * 
+ * Example:
+ * 
+ * <pre>
+ *   sensorContext.newCoverage().onFile(file)
+       .ofType(UNIT)
+       .lineHits(1, 2)
+       .lineHits(2, 5)
+       .lineHits(3, 0)
+       . ...
+       .conditions(3, 4, 2)
+       .conditions(12, 2, 2)
+       . ...
+       .save();
+ *     
+ * </pre>
  * @since 5.2
  */
 public interface NewCoverage {

@@ -24,6 +24,18 @@ import org.sonar.api.batch.fs.TextRange;
 
 /**
  * This builder is used to define syntax highlighting (aka code coloration) on files.
+ * 
+ * Example:
+ * 
+ * <pre>
+ *   sensorContext.newHighlighting().onFile(inputFile)
+ *     .highlight(1, 10, 1, 15, KEYWORD)
+ *     .highlight(1, 16, 1, 18, STRING)
+ *     // Add more highlight if needed
+ *     .save;
+ *     
+ * </pre>
+ * 
  * @since 5.1
  */
 public interface NewHighlighting {

@@ -20,12 +20,10 @@
 package org.sonar.batch.source;
 
 import com.google.common.base.Strings;
-import java.io.StringReader;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
-import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.source.Symbol;
 import org.sonar.api.source.Symbolizable;
@@ -42,7 +40,7 @@ public class DefaultSymbolizableTest {
 
     DefaultSensorStorage sensorStorage = mock(DefaultSensorStorage.class);
     DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.php")
-      .initMetadata(new FileMetadata().readMetadata(new StringReader(Strings.repeat("azerty\n", 20))));
+      .initMetadata(Strings.repeat("azerty\n", 20));
 
     DefaultSymbolizable symbolPerspective = new DefaultSymbolizable(inputFile, sensorStorage, mock(AnalysisMode.class));
     Symbolizable.SymbolTableBuilder symbolTableBuilder = symbolPerspective.newSymbolTableBuilder();

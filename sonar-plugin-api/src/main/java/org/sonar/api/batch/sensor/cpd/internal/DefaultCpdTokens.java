@@ -81,10 +81,22 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
   }
 
   @Override
+  public NewCpdTokens addToken(int startLine, int startLineOffset, int endLine, int endLineOffset, String image) {
+    checkInputFileNotNull();
+    TextRange newRange;
+    try {
+      newRange = inputFile.newRange(startLine, startLineOffset, endLine, endLineOffset);
+    } catch (Exception e) {
+      throw new IllegalArgumentException("Unable to register token in file " + inputFile, e);
+    }
+    return addToken(newRange, image);
+  }
+
+  @Override
   public DefaultCpdTokens addToken(TextRange range, String image) {
     Preconditions.checkNotNull(range, "Range should not be null");
     Preconditions.checkNotNull(image, "Image should not be null");
-    Preconditions.checkState(inputFile != null, "Call onFile() first");
+    checkInputFileNotNull();
     if (excluded) {
       return this;
     }
@@ -125,5 +137,9 @@ public class DefaultCpdTokens extends DefaultStorable implements NewCpdTokens {
     }
     addNewTokensLine(result, startIndex, currentIndex, startLine, sb);
     storage.store(this);
+  }
+
+  private void checkInputFileNotNull() {
+    Preconditions.checkState(inputFile != null, "Call onFile() first");
   }
 }
