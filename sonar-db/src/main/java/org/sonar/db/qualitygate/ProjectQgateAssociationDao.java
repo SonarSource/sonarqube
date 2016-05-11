@@ -19,36 +19,15 @@
  */
 package org.sonar.db.qualitygate;
 
-import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.ImmutableMap;
 import java.util.List;
-import java.util.Map;
-import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
-import org.sonar.db.MyBatis;
+import org.sonar.db.DbSession;
 
 public class ProjectQgateAssociationDao implements Dao {
 
-  private final MyBatis mybatis;
-
-  public ProjectQgateAssociationDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
-
-  public List<ProjectQgateAssociationDto> selectProjects(ProjectQgateAssociationQuery query, Long gateId, int offset, int limit) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      Map<String, Object> params = ImmutableMap.of("query", query, "gateId", gateId.toString());
-      return mapper(session).selectProjects(params, new RowBounds(offset, limit));
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  @VisibleForTesting
-  List<ProjectQgateAssociationDto> selectProjects(ProjectQgateAssociationQuery query, Long gateId) {
-    return selectProjects(query, gateId, 0, Integer.MAX_VALUE);
+  public List<ProjectQgateAssociationDto> selectProjects(DbSession dbSession, ProjectQgateAssociationQuery query) {
+    return mapper(dbSession).selectProjects(query);
   }
 
   private static ProjectQgateAssociationMapper mapper(SqlSession session) {

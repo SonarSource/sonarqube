@@ -1,0 +1,273 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+
+package org.sonar.server.qualitygate;
+
+import com.google.common.base.Function;
+import java.util.List;
+import java.util.Map;
+import javax.annotation.Nonnull;
+import org.junit.Before;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
+import org.sonar.db.component.ComponentDbTester;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.property.PropertyDto;
+import org.sonar.db.qualitygate.ProjectQgateAssociation;
+import org.sonar.db.qualitygate.QualityGateDto;
+import org.sonar.db.user.GroupRoleDto;
+import org.sonar.db.user.UserDto;
+import org.sonar.db.user.UserRoleDto;
+import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.qualitygate.QgateProjectFinder.Association;
+import org.sonar.server.tester.UserSessionRule;
+
+import static com.google.common.collect.FluentIterable.from;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.IN;
+import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.OUT;
+import static org.sonar.db.qualitygate.ProjectQgateAssociationQuery.builder;
+import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonar.server.qualitygate.QualityGates.SONAR_QUALITYGATE_PROPERTY;
+
+public class QgateProjectFinderTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
+
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  DbClient dbClient = dbTester.getDbClient();
+
+  DbSession dbSession = dbTester.getSession();
+
+  ComponentDbTester componentDbTester = new ComponentDbTester(dbTester);
+
+  UserDto userDto;
+
+  QualityGateDto qGate;
+
+  QgateProjectFinder underTest = new QgateProjectFinder(dbClient, userSession);
+
+  @Before
+  public void setUp() throws Exception {
+    userDto = newUserDto();
+    dbClient.userDao().insert(dbSession, userDto);
+
+    qGate = new QualityGateDto().setName("Default Quality Gate");
+    dbClient.qualityGateDao().insert(qGate, dbSession);
+
+    dbTester.commit();
+  }
+
+  @Test
+  public void return_empty_association() throws Exception {
+    Association result = underTest.find(
+      builder()
+        .gateId(Long.toString(qGate.getId()))
+        .build());
+
+    assertThat(result.projects()).isEmpty();
+  }
+
+  @Test
+  public void return_all_projects() throws Exception {
+    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
+    ComponentDto unassociatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
+    associateProjectToQualitGate(associatedProject.getId());
+
+    Association result = underTest.find(
+      builder()
+        .gateId(Long.toString(qGate.getId()))
+        .build());
+
+    Map<Long, ProjectQgateAssociation> projectsById = projectsById(result.projects());
+    assertThat(projectsById).hasSize(2);
+
+    verifyProject(projectsById.get(associatedProject.getId()), true, associatedProject.name());
+    verifyProject(projectsById.get(unassociatedProject.getId()), false, unassociatedProject.name());
+  }
+
+  @Test
+  public void return_only_associated_project() throws Exception {
+    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
+    insertProjectAuthorizedToAnyone(newProjectDto());
+    associateProjectToQualitGate(associatedProject.getId());
+
+    Association result = underTest.find(
+      builder()
+        .membership(IN)
+        .gateId(Long.toString(qGate.getId()))
+        .build());
+
+    Map<Long, ProjectQgateAssociation> projectsById = projectsById(result.projects());
+    assertThat(projectsById).hasSize(1);
+    verifyProject(projectsById.get(associatedProject.getId()), true, associatedProject.name());
+  }
+
+  @Test
+  public void return_only_unassociated_project() throws Exception {
+    ComponentDto associatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
+    ComponentDto unassociatedProject = insertProjectAuthorizedToAnyone(newProjectDto());
+    associateProjectToQualitGate(associatedProject.getId());
+
+    Association result = underTest.find(
+      builder()
+        .membership(OUT)
+        .gateId(Long.toString(qGate.getId()))
+        .build());
+
+    Map<Long, ProjectQgateAssociation> projectsById = projectsById(result.projects());
+    assertThat(projectsById).hasSize(1);
+    verifyProject(projectsById.get(unassociatedProject.getId()), false, unassociatedProject.name());
+  }
+
+  @Test
+  public void return_only_authorized_projects() throws Exception {
+    userSession.login(userDto.getLogin()).setUserId(userDto.getId().intValue());
+    ComponentDto project1 = componentDbTester.insertComponent(newProjectDto());
+    componentDbTester.insertComponent(newProjectDto());
+
+    // User can only see project 1
+    dbClient.roleDao().insertUserRole(dbSession, new UserRoleDto().setUserId(userDto.getId()).setResourceId(project1.getId()).setRole(UserRole.USER));
+    dbTester.commit();
+
+    Association result = underTest.find(
+      builder()
+        .gateId(Long.toString(qGate.getId()))
+        .build());
+
+    verifyProjects(result, project1.getId());
+  }
+
+  @Test
+  public void test_paging() throws Exception {
+    ComponentDto project1 = insertProjectAuthorizedToAnyone(newProjectDto().setName("Project 1"));
+    ComponentDto project2 = insertProjectAuthorizedToAnyone(newProjectDto().setName("Project 2"));
+    ComponentDto project3 = insertProjectAuthorizedToAnyone(newProjectDto().setName("Project 3"));
+    associateProjectToQualitGate(project1.getId());
+
+    // Return partial result on first page
+    verifyPaging(underTest.find(
+      builder().gateId(Long.toString(qGate.getId()))
+        .pageIndex(1)
+        .pageSize(1)
+        .build()),
+      true, project1.getId());
+
+    // Return partial result on second page
+    verifyPaging(underTest.find(
+      builder().gateId(Long.toString(qGate.getId()))
+        .pageIndex(2)
+        .pageSize(1)
+        .build()),
+      true, project2.getId());
+
+    // Return partial result on first page
+    verifyPaging(underTest.find(
+      builder().gateId(Long.toString(qGate.getId()))
+        .pageIndex(1)
+        .pageSize(2)
+        .build()),
+      true, project1.getId(), project2.getId());
+
+    // Return all result on first page
+    verifyPaging(underTest.find(
+      builder().gateId(Long.toString(qGate.getId()))
+        .pageIndex(1)
+        .pageSize(3)
+        .build()),
+      false, project1.getId(), project2.getId(), project3.getId());
+
+    // Return no result as page index is off limit
+    verifyPaging(underTest.find(
+      builder().gateId(Long.toString(qGate.getId()))
+        .pageIndex(3)
+        .pageSize(3)
+        .build()),
+      false);
+  }
+
+  @Test
+  public void fail_on_unknown_quality_gate() throws Exception {
+    expectedException.expect(NotFoundException.class);
+    underTest.find(builder().gateId("123").build());
+  }
+
+  private void verifyProject(ProjectQgateAssociation project, boolean expectedMembership, String expectedName) {
+    assertThat(project.isMember()).isEqualTo(expectedMembership);
+    assertThat(project.name()).isEqualTo(expectedName);
+  }
+
+  private void verifyProjects(Association association, Long... expectedProjectIds) {
+    assertThat(association.projects()).extracting("id").containsOnly(expectedProjectIds);
+  }
+
+  private void verifyPaging(Association association, boolean expectedHasMoreResults, Long... expectedProjectIds) {
+    assertThat(association.hasMoreResults()).isEqualTo(expectedHasMoreResults);
+    assertThat(association.projects()).extracting("id").containsOnly(expectedProjectIds);
+  }
+
+  private void associateProjectToQualitGate(long projectId) {
+    dbClient.propertiesDao().insertProperty(
+      new PropertyDto().setKey(SONAR_QUALITYGATE_PROPERTY)
+        .setResourceId(projectId)
+        .setValue(Long.toString(qGate.getId())));
+    dbTester.commit();
+  }
+
+  private ComponentDto insertProjectAuthorizedToAnyone(ComponentDto project) {
+    componentDbTester.insertComponent(project);
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
+    dbSession.commit();
+    return project;
+  }
+
+  private ComponentDto insertProjectAuthorizedToUser(ComponentDto project, UserDto userDto) {
+    componentDbTester.insertComponent(project);
+    dbClient.roleDao().insertGroupRole(dbSession, new GroupRoleDto().setGroupId(null).setResourceId(project.getId()).setRole(UserRole.USER));
+    dbSession.commit();
+    return project;
+  }
+
+  private static Map<Long, ProjectQgateAssociation> projectsById(List<ProjectQgateAssociation> projects) {
+    return from(projects).uniqueIndex(ProjectToId.INSTANCE);
+  }
+
+  private enum ProjectToId implements Function<ProjectQgateAssociation, Long> {
+    INSTANCE;
+
+    @Override
+    public Long apply(@Nonnull ProjectQgateAssociation input) {
+      return input.id();
+    }
+  }
+}

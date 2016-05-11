@@ -19,21 +19,78 @@
  */
 package org.sonar.server.qualitygate;
 
+import com.google.common.base.Function;
+import com.google.common.base.Predicate;
+import java.util.Collection;
+import java.util.List;
+import javax.annotation.Nonnull;
 import org.sonar.api.server.ServerSide;
+import org.sonar.api.utils.Paging;
+import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
 import org.sonar.db.qualitygate.QualityGateDao;
-import org.sonar.db.qualitygate.QualityGateDto;
-import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.user.UserSession;
 
-import java.util.List;
-
-import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.api.utils.Paging.forPageIndex;
+import static org.sonar.server.ws.WsUtils.checkFound;
 
 @ServerSide
 public class QgateProjectFinder {
+
+  private final DbClient dbClient;
+  private final QualityGateDao qualitygateDao;
+  private final ProjectQgateAssociationDao associationDao;
+  private final UserSession userSession;
+
+  public QgateProjectFinder(DbClient dbClient, UserSession userSession) {
+    this.dbClient = dbClient;
+    this.userSession = userSession;
+    this.qualitygateDao = dbClient.qualityGateDao();
+    this.associationDao = dbClient.projectQgateAssociationDao();
+  }
+
+  public Association find(ProjectQgateAssociationQuery query) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      getQualityGateId(dbSession, query.gateId());
+      List<ProjectQgateAssociationDto> projects = associationDao.selectProjects(dbSession, query);
+      List<ProjectQgateAssociationDto> authorizedProjects = keepAuthorizedProjects(dbSession, projects);
+
+      Paging paging = forPageIndex(query.pageIndex())
+        .withPageSize(query.pageSize())
+        .andTotal(authorizedProjects.size());
+      return new Association(toProjectAssociations(getPaginatedProjects(authorizedProjects, paging)), paging.hasNextPage());
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
+  }
+
+  private Long getQualityGateId(DbSession dbSession, String gateId) {
+    return checkFound(qualitygateDao.selectById(dbSession, Long.valueOf(gateId)), "Quality gate '" + gateId + "' does not exists.").getId();
+  }
+
+  private static List<ProjectQgateAssociationDto> getPaginatedProjects(List<ProjectQgateAssociationDto> projects, Paging paging) {
+    return from(projects)
+      .skip(paging.offset())
+      .limit(paging.pageSize())
+      .toList();
+  }
+
+  private static List<ProjectQgateAssociation> toProjectAssociations(List<ProjectQgateAssociationDto> dtos) {
+    return from(dtos).transform(ToProjectAssociation.INSTANCE).toList();
+  }
+
+  private List<ProjectQgateAssociationDto> keepAuthorizedProjects(DbSession dbSession, List<ProjectQgateAssociationDto> projects) {
+    List<Long> projectIds = from(projects).transform(ToProjectId.INSTANCE).toList();
+    Collection<Long> authorizedProjectIds = dbClient.authorizationDao().keepAuthorizedProjectIds(dbSession, projectIds, userSession.getUserId(), UserRole.USER);
+    return from(projects).filter(new MatchProjectId(authorizedProjectIds)).toList();
+  }
 
   public static class Association {
     private List<ProjectQgateAssociation> projects;
@@ -53,45 +110,35 @@ public class QgateProjectFinder {
     }
   }
 
-  private final QualityGateDao qualitygateDao;
-  private final ProjectQgateAssociationDao associationDao;
+  private enum ToProjectId implements Function<ProjectQgateAssociationDto, Long> {
+    INSTANCE;
 
-  public QgateProjectFinder(QualityGateDao qualitygateDao, ProjectQgateAssociationDao associationDao) {
-    this.qualitygateDao = qualitygateDao;
-    this.associationDao = associationDao;
-  }
-
-  public Association find(ProjectQgateAssociationQuery query) {
-    Long gateId = validateId(query.gateId());
-    int pageSize = query.pageSize();
-    int pageIndex = query.pageIndex();
-
-    int offset = (pageIndex - 1) * pageSize;
-    // Add one to page size in order to be able to know if there's more results or not
-    int limit = pageSize + 1;
-    List<ProjectQgateAssociationDto> dtos = associationDao.selectProjects(query, gateId, offset, limit);
-    boolean hasMoreResults = false;
-    if (dtos.size() == limit) {
-      hasMoreResults = true;
-      // Removed last entry as it's only need to know if there more results or not
-      dtos.remove(dtos.size() - 1);
+    @Override
+    public Long apply(@Nonnull ProjectQgateAssociationDto input) {
+      return input.getId();
     }
-    return new Association(toProjectAssociations(dtos), hasMoreResults);
   }
 
-  private Long validateId(String gateId) {
-    QualityGateDto qualityGateDto = qualitygateDao.selectById(Long.valueOf(gateId));
-    if (qualityGateDto == null) {
-      throw new NotFoundException("Quality gate '" + gateId + "' does not exists.");
+  private static class MatchProjectId implements Predicate<ProjectQgateAssociationDto> {
+    private final Collection<Long> projectIds;
+
+    private MatchProjectId(Collection<Long> projectIds) {
+      this.projectIds = projectIds;
     }
-    return qualityGateDto.getId();
+
+    @Override
+    public boolean apply(@Nonnull ProjectQgateAssociationDto input) {
+      return projectIds.contains(input.getId());
+    }
   }
 
-  private List<ProjectQgateAssociation> toProjectAssociations(List<ProjectQgateAssociationDto> dtos) {
-    List<ProjectQgateAssociation> groups = newArrayList();
-    for (ProjectQgateAssociationDto groupMembershipDto : dtos) {
-      groups.add(groupMembershipDto.toQgateAssociation());
+  private enum ToProjectAssociation implements Function<ProjectQgateAssociationDto, ProjectQgateAssociation> {
+    INSTANCE;
+
+    @Override
+    public ProjectQgateAssociation apply(@Nonnull ProjectQgateAssociationDto input) {
+      return input.toQgateAssociation();
     }
-    return groups;
   }
+
 }

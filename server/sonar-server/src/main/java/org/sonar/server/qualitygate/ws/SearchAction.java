@@ -19,12 +19,11 @@
  */
 package org.sonar.server.qualitygate.ws;
 
-import org.sonar.api.server.ws.WebService.Param;
-
 import com.google.common.io.Resources;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.db.qualitygate.ProjectQgateAssociation;
 import org.sonar.db.qualitygate.ProjectQgateAssociationQuery;
@@ -41,7 +40,8 @@ public class SearchAction implements QGateWsAction {
   @Override
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search")
-      .setDescription("Search for projects associated (or not) to a quality gate")
+      .setDescription("Search for projects associated (or not) to a quality gate.<br/>" +
+        "Only authorized projects for current user will be returned.")
       .setSince("4.3")
       .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"))
       .setHandler(this);
@@ -79,6 +79,7 @@ public class SearchAction implements QGateWsAction {
     JsonWriter writer = response.newJsonWriter();
     writer.beginObject().prop("more", associations.hasMoreResults());
     writer.name("results").beginArray();
+
     for (ProjectQgateAssociation project : associations.projects()) {
       writer.beginObject().prop("id", project.id()).prop("name", project.name()).prop(Param.SELECTED, project.isMember()).endObject();
     }
