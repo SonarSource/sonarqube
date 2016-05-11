@@ -25,8 +25,6 @@ public class MsSql extends AbstractDialect {
 
   public static final String ID = "mssql";
 
-  public static final String COLLATION = "Latin1_General_CS_AS";
-
   public MsSql() {
     super(ID, "sqlserver", "com.microsoft.sqlserver.jdbc.SQLServerDriver", "1", "0", "SELECT 1");
   }

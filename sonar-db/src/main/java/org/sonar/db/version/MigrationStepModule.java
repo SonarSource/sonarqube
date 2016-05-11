@@ -59,7 +59,6 @@ import org.sonar.db.version.v52.RemoveComponentLibraries;
 import org.sonar.db.version.v52.RemoveDuplicatedComponentKeys;
 import org.sonar.db.version.v52.RemoveRuleMeasuresOnIssues;
 import org.sonar.db.version.v52.RemoveSnapshotLibraries;
-import org.sonar.db.version.v53.FixMsSqlCollation;
 import org.sonar.db.version.v53.UpdateCustomDashboardInLoadedTemplates;
 import org.sonar.db.version.v54.AddUsersIdentityColumns;
 import org.sonar.db.version.v54.IncreaseProjectsNameColumnsSize;
@@ -135,7 +134,6 @@ public class MigrationStepModule extends Module {
       RemoveRuleMeasuresOnIssues.class,
 
       // 5.3
-      FixMsSqlCollation.class,
       UpdateCustomDashboardInLoadedTemplates.class,
 
       // 5.4

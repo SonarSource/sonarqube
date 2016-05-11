@@ -54,13 +54,13 @@ public class AlterColumnsTypeBuilderTest {
   @Test
   public void update_columns_on_mssql() {
     assertThat(createSampleBuilder(new MsSql()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20)", "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) COLLATE Latin1_General_CS_AS");
+      .containsOnly("ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20)", "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10)");
   }
 
   @Test
   public void update_not_nullable_column_on_mssql() {
     assertThat(createNotNullableBuilder(new MsSql()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) COLLATE Latin1_General_CS_AS NOT NULL");
+      .containsOnly("ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) NOT NULL");
   }
 
   @Test

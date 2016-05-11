@@ -62,7 +62,7 @@ public class ClobColumnDefTest {
       .setIsNullable(true)
       .build();
 
-    assertThat(def.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (MAX) COLLATE Latin1_General_CS_AS");
+    assertThat(def.generateSqlType(new MsSql())).isEqualTo("NVARCHAR (MAX)");
   }
 
   @Test

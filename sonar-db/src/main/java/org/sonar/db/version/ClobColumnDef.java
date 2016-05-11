@@ -43,7 +43,7 @@ public class ClobColumnDef extends AbstractColumnDef {
   @Override
   public String generateSqlType(Dialect dialect) {
     if (MsSql.ID.equals(dialect.getId())) {
-      return String.format("NVARCHAR (MAX) COLLATE %s", MsSql.COLLATION);
+      return "NVARCHAR (MAX)";
     }
     throw new UnsupportedOperationException(String.format("Database %s is not yet supported", dialect.getId()));
   }
