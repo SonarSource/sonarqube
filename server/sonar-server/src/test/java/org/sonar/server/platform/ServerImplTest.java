@@ -23,6 +23,7 @@ import java.io.File;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 import org.hamcrest.core.Is;
 import org.junit.Before;
 import org.junit.Rule;
@@ -37,6 +38,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
 
 public class ServerImplTest {
+
+  private static final String HOST_PROPERTY = "sonar.web.host";
+  private static final String PORT_PORPERTY = "sonar.web.port";
+  private static final String CONTEXT_PROPERTY = "sonar.web.context";
 
   @Rule
   public ExpectedException exception = ExpectedException.none();
@@ -203,15 +208,89 @@ public class ServerImplTest {
 
   @Test
   public void get_context_path_from_settings() {
-    settings.setProperty("sonar.web.context", "/my_path");
+    settings.setProperty(CONTEXT_PROPERTY, "/my_path");
     underTest.start();
     assertThat(underTest.getContextPath()).isEqualTo("/my_path");
   }
 
   @Test
   public void sanitize_context_path_from_settings() {
-    settings.setProperty("sonar.web.context", "/my_path///");
+    settings.setProperty(CONTEXT_PROPERTY, "/my_path///");
     underTest.start();
     assertThat(underTest.getContextPath()).isEqualTo("/my_path");
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_9000_when_not_settings_are_set() {
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000");
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_9000_when_host_set_to_0_0_0_0() {
+    settings.setProperty(HOST_PROPERTY, "0.0.0.0");
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000");
+  }
+
+  @Test
+  public void getUrl_returns_http_specified_host_9000_when_host_is_set() {
+    settings.setProperty(HOST_PROPERTY, "my_host");
+    assertThat(underTest.getURL()).isEqualTo("http://my_host:9000");
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_specified_port_when_port_is_set() {
+    settings.setProperty(PORT_PORPERTY, 951);
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:951");
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_no_port_when_port_is_80() {
+    settings.setProperty(PORT_PORPERTY, 80);
+    assertThat(underTest.getURL()).isEqualTo("http://localhost");
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_9000_when_port_is_0() {
+    settings.setProperty(PORT_PORPERTY, 0);
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000");
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_9000_when_port_is_less_then_0() {
+    settings.setProperty(PORT_PORPERTY, -(Math.abs(new Random().nextInt(256))));
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000");
+  }
+
+  @Test
+  public void getUrl_throws_NFE_when_port_not_an_int() {
+    settings.setProperty(PORT_PORPERTY, "not a number");
+
+    exception.expect(NumberFormatException.class);
+
+    underTest.getURL();
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_900_specified_context_when_context_is_set() {
+    settings.setProperty(CONTEXT_PROPERTY, "sdsd");
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000sdsd");
+  }
+
+  @Test
+  public void getUrl_returns_http_specified_host_no_port_when_host_is_set_and_port_is_80() {
+    settings.setProperty(HOST_PROPERTY, "foo");
+    settings.setProperty(PORT_PORPERTY, 80);
+    assertThat(underTest.getURL()).isEqualTo("http://foo");
+  }
+
+  @Test
+  public void getUrl_does_not_cache_returned_value() {
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000");
+    settings.setProperty(HOST_PROPERTY, "foo");
+    assertThat(underTest.getURL()).isEqualTo("http://foo:9000");
+    settings.setProperty(PORT_PORPERTY, 666);
+    assertThat(underTest.getURL()).isEqualTo("http://foo:666");
+    settings.setProperty(CONTEXT_PROPERTY, "/bar");
+    assertThat(underTest.getURL()).isEqualTo("http://foo:666/bar");
   }
 }

@@ -70,8 +70,8 @@ public abstract class Server {
   public abstract boolean isSecured();
 
   /**
-   * @return the server URL when executed from batch, else null.
-   * @since 2.4
+   * @return the server URL
+   * @since since 2.4 on batch side only, since 5.6 on both batch side and server side
    */
   public abstract String getURL();
 

@@ -45,14 +45,19 @@ import org.sonar.server.app.TomcatContexts;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
 import static org.sonar.server.app.TomcatContexts.PROPERTY_CONTEXT;
 
 public final class ServerImpl extends Server implements Startable {
   private static final String PROPERTY_SONAR_CORE_STARTED_AT = "sonar.core.startedAt";
+  private static final int DEFAULT_HTTP_PORT = 80;
+  private static final String ALL_IPS_HOST = "0.0.0.0";
 
   private static final Logger LOG = Loggers.get(ServerImpl.class);
+  public static final int DEFAULT_PORT = 9000;
 
   private final Settings settings;
   private final String buildProperties;
@@ -193,7 +198,39 @@ public final class ServerImpl extends Server implements Startable {
 
   @Override
   public String getURL() {
-    return null;
+    String host = settings.getString("sonar.web.host");
+    int port = settings.getInt("sonar.web.port");
+    String context = settings.getString("sonar.web.context");
+
+    StringBuilder res = new StringBuilder();
+    res.append("http://");
+    appendHost(host, res);
+    appendPort(port, res);
+    appendContext(context, res);
+
+    return res.toString();
+  }
+
+  private static void appendHost(String host, StringBuilder res) {
+    if (isEmpty(host) || ALL_IPS_HOST.equals(host)) {
+      res.append("localhost");
+    } else {
+      res.append(host);
+    }
+  }
+
+  private static void appendPort(int port, StringBuilder res) {
+    if (port < 1) {
+      res.append(':').append(DEFAULT_PORT);
+    } else if (port != DEFAULT_HTTP_PORT) {
+      res.append(':').append(port);
+    }
+  }
+
+  private static void appendContext(String context, StringBuilder res) {
+    if (isNotEmpty(context)) {
+      res.append(context);
+    }
   }
 
   private String get(String key, String defaultValue) {
