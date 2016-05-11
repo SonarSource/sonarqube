@@ -20,26 +20,39 @@
 package org.sonar.api.batch;
 
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.resources.Project;
 
 /**
  * <p>
- * Initializer can execute external tool (like a Maven plugin), change project configuration. For example CoberturaMavenInitializer invokes
- * the Codehaus Cobertura Mojo and sets path to Cobertura report according to Maven POM.
+ * Initializer are executed at the very beginning of each module analysis, prior the core listing files to be analyzed. It means {@link FileSystem} should not be accessed.
  * <p>
- * Initializers are executed first and once during project analysis.
  * @since 2.6
  */
 @BatchSide
 @ExtensionPoint
 public abstract class Initializer implements CheckProject {
 
+  /**
+   * @deprecated since 5.6 should no more be implemented by plugins
+   */
+  @Deprecated
   @Override
   public boolean shouldExecuteOnProject(Project project) {
     return true;
   }
 
-  public abstract void execute(Project project);
+  /**
+   * @deprecated since 5.6 override {@link #execute()} instead
+   */
+  @Deprecated
+  public void execute(Project project) {
+    execute();
+  }
+
+  public void execute() {
+    // To be implemented by client
+  }
 
   @Override
   public String toString() {
