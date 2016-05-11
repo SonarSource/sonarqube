@@ -61,7 +61,6 @@ public class CorePropertyDefinitions {
         .name("Server base URL")
         .description("HTTP URL of this SonarQube server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails.")
         .category(CoreProperties.CATEGORY_GENERAL)
-        .defaultValue(CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE)
         .build(),
 
       PropertyDefinition.builder(CoreProperties.LINKS_HOME_PAGE)

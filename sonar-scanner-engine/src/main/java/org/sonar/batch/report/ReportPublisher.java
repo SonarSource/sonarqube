@@ -237,8 +237,7 @@ public class ReportPublisher implements Startable {
    */
   private String publicUrl() {
     String baseUrl = trimToEmpty(settings.getString(CoreProperties.SERVER_BASE_URL));
-    if (baseUrl.equals(settings.getDefaultValue(CoreProperties.SERVER_BASE_URL))) {
-      // crap workaround for https://jira.sonarsource.com/browse/SONAR-7109
+    if (baseUrl.isEmpty()) {
       // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
       baseUrl = wsClient.baseUrl();
     }

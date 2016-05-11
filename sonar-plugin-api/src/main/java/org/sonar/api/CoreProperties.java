@@ -20,6 +20,7 @@
 package org.sonar.api;
 
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.platform.Server;
 
 /**
  * Non-exhaustive list of constants of core properties.
@@ -241,6 +242,9 @@ public interface CoreProperties {
   String SERVER_STARTTIME = "sonar.core.startTime";
 
   /**
+   * This property defines the SonarQubeServer base url, such as <i>http://yourhost.yourdomain/sonar</i>.
+   * When this property is not set, the base url of the SonarQube server is provided by {@link Server#getURL()}.
+   *
    * @since 2.10
    */
   String SERVER_BASE_URL = "sonar.core.serverBaseURL";
@@ -248,6 +252,8 @@ public interface CoreProperties {
   /**
    * @see #SERVER_BASE_URL
    * @since 2.10
+   * @deprecated since 5.6. This constant default value is incorrect if a host and/or a port and/or a context have been configured.
+   *             The correct default value when {@link #SERVER_BASE_URL} is not set is provided by {@link Server#getURL()}.
    */
   String SERVER_BASE_URL_DEFAULT_VALUE = "http://localhost:9000";
 
