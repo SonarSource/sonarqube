@@ -32,6 +32,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
+import org.sonar.api.web.UserRole;
 import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -47,8 +48,6 @@ import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse;
 import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
-import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 import static org.sonar.server.ws.WsUtils.checkFound;
 import static org.sonar.server.ws.WsUtils.checkRequest;
@@ -86,7 +85,12 @@ public class ProjectStatusAction implements QGateWsAction {
         MSG_ONE_PARAMETER_ONLY + "<br />" +
         "The different statuses returned are: %s. The %s status is returned when there is no quality gate associated with the analysis.<br />" +
         "Returns an HTTP code 404 if the analysis associated with the task is not found or does not exist.<br />" +
-        "Requires 'Administer System' or 'Execute Analysis' permission.", QG_STATUSES_ONE_LINE, ProjectStatusWsResponse.Status.NONE))
+        "Requires one of the following permissions:" +
+        "<ul>" +
+        "<li>'Administer System'</li>" +
+        "<li>'Administer' rights on the specified project</li>" +
+        "<li>'Browse' on the specified project</li>" +
+        "</ul>", QG_STATUSES_ONE_LINE, ProjectStatusWsResponse.Status.NONE))
       .setResponseExample(getClass().getResource("project_status-example.json"))
       .setSince("5.3")
       .setHandler(this);
@@ -193,8 +197,8 @@ public class ProjectStatusAction implements QGateWsAction {
   }
 
   private void checkPermission(String projectUuid) {
-    if (!userSession.hasPermission(SYSTEM_ADMIN)
-      && !userSession.hasComponentUuidPermission(SCAN_EXECUTION, projectUuid)) {
+    if (!userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
+      !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
       throw insufficientPrivilegesException();
     }
   }

@@ -28,6 +28,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
@@ -47,7 +48,6 @@ import org.sonarqube.ws.WsQualityGates.ProjectStatusWsResponse.Status;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
-import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.core.permission.GlobalPermissions.SYSTEM_ADMIN;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
@@ -82,7 +82,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void json_example() throws IOException {
-    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
@@ -111,7 +111,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_status_by_project_id() throws IOException {
-    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
@@ -140,7 +140,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_status_by_project_key() throws IOException {
-    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid").setKey("project-key"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project)
@@ -169,7 +169,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_undefined_status_if_measure_is_not_found() {
-    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
@@ -183,7 +183,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void return_undefined_status_if_snapshot_is_not_found() {
-    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.setGlobalPermissions(SYSTEM_ADMIN);
     componentDb.insertComponent(newProjectDto("project-uuid"));
 
     ProjectStatusWsResponse result = callByProjectUuid("project-uuid");
@@ -193,8 +193,8 @@ public class ProjectStatusActionTest {
   }
 
   @Test
-  public void not_fail_with_system_admin_permission() {
-    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+  public void not_fail_with_project_admin_permission() {
+    userSession.addProjectUuidPermissions(UserRole.ADMIN, "project-uuid");
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
@@ -204,30 +204,19 @@ public class ProjectStatusActionTest {
   }
 
   @Test
-  public void not_fail_with_global_scan_permission() {
-    userSession.login("john").setGlobalPermissions(SCAN_EXECUTION);
+  public void not_fail_with_browse_permission() {
+    userSession.addProjectUuidPermissions(UserRole.USER, "project-uuid");
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
-
-    call(snapshot.getId().toString());
-  }
-
-  @Test
-  public void not_fail_with_project_scan_permission() {
-    ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
-    SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
-    dbSession.commit();
-
-    userSession.login("john").addProjectUuidPermissions(SCAN_EXECUTION, project.uuid());
 
     call(snapshot.getId().toString());
   }
 
   @Test
   public void fail_if_no_snapshot_id_found() {
-    userSession.login("john").setGlobalPermissions(SYSTEM_ADMIN);
+    userSession.setGlobalPermissions(SYSTEM_ADMIN);
 
     expectedException.expect(NotFoundException.class);
     expectedException.expectMessage("Analysis with id 'task-uuid' is not found");
@@ -237,7 +226,7 @@ public class ProjectStatusActionTest {
 
   @Test
   public void fail_if_insufficient_privileges() {
-    userSession.login("john").setGlobalPermissions(PROVISIONING);
+    userSession.setGlobalPermissions(PROVISIONING);
 
     ComponentDto project = componentDb.insertComponent(newProjectDto("project-uuid"));
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));

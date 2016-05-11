@@ -351,8 +351,7 @@ public class ComponentTreeDataLoader {
 
   private void checkPermissions(ComponentDto baseComponent) {
     String projectUuid = firstNonNull(baseComponent.projectUuid(), baseComponent.uuid());
-    if (!userSession.hasPermission(GlobalPermissions.SYSTEM_ADMIN) &&
-      !userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
+    if (!userSession.hasComponentUuidPermission(UserRole.ADMIN, projectUuid) &&
       !userSession.hasComponentUuidPermission(UserRole.USER, projectUuid)) {
       throw insufficientPrivilegesException();
     }
