@@ -19,21 +19,28 @@
  */
 package org.sonar.server.db;
 
-import com.google.common.annotations.VisibleForTesting;
+import java.io.File;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import org.apache.commons.lang.StringUtils;
 import org.h2.Driver;
 import org.h2.tools.Server;
 import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseProperties;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.ProcessProperties;
 
-import java.io.File;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.sonar.api.database.DatabaseProperties.PROP_EMBEDDED_PORT;
+import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
+import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE;
+import static org.sonar.api.database.DatabaseProperties.PROP_URL;
+import static org.sonar.api.database.DatabaseProperties.PROP_USER;
+import static org.sonar.api.database.DatabaseProperties.PROP_USER_DEFAULT_VALUE;
+import static org.sonar.process.ProcessProperties.PATH_DATA;
 
 public class EmbeddedDatabase implements Startable {
   private static final Logger LOG = Loggers.get(EmbeddedDatabase.class);
@@ -46,16 +53,19 @@ public class EmbeddedDatabase implements Startable {
 
   @Override
   public void start() {
-    File dbHome = getDataDirectory(settings);
+    File dbHome = new File(getRequiredSetting(PATH_DATA));
     if (!dbHome.exists()) {
       dbHome.mkdirs();
     }
 
-    String port = getSetting(DatabaseProperties.PROP_EMBEDDED_PORT, DatabaseProperties.PROP_EMBEDDED_PORT_DEFAULT_VALUE);
-    String user = getSetting(DatabaseProperties.PROP_USER, DatabaseProperties.PROP_USER_DEFAULT_VALUE);
-    String password = getSetting(DatabaseProperties.PROP_PASSWORD, DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE);
-    String url = getSetting(DatabaseProperties.PROP_URL, DatabaseProperties.PROP_USER_DEFAULT_VALUE);
+    startServer(dbHome);
+  }
 
+  private void startServer(File dbHome) {
+    String url = getRequiredSetting(PROP_URL);
+    String port = getRequiredSetting(PROP_EMBEDDED_PORT);
+    String user = getSetting(PROP_USER, PROP_USER_DEFAULT_VALUE);
+    String password = getSetting(PROP_PASSWORD, PROP_PASSWORD_DEFAULT_VALUE);
     try {
       if (url.contains("/mem:")) {
         server = Server.createTcpServer("-tcpPort", port, "-tcpAllowOthers", "-baseDir", dbHome.getAbsolutePath());
@@ -82,17 +92,18 @@ public class EmbeddedDatabase implements Startable {
     }
   }
 
-  @VisibleForTesting
-  File getDataDirectory(Settings settings) {
-    return new File(settings.getString(ProcessProperties.PATH_DATA));
+  private String getRequiredSetting(String property) {
+    String value = settings.getString(property);
+    checkArgument(isNotEmpty(value), "Missing property %s", property);
+    return value;
   }
 
   private String getSetting(String name, String defaultValue) {
     return StringUtils.defaultIfBlank(settings.getString(name), defaultValue);
   }
 
-  private void createDatabase(File dbHome, String user, String password) throws SQLException {
-    String url = String.format("jdbc:h2:%s/sonar;USER=%s;PASSWORD=%s", dbHome.getAbsolutePath(), user, password);
+  private static void createDatabase(File dbHome, String user, String password) throws SQLException {
+    String url = format("jdbc:h2:%s/sonar;USER=%s;PASSWORD=%s", dbHome.getAbsolutePath(), user, password);
 
     DriverManager.registerDriver(new Driver());
     DriverManager.getConnection(url).close();

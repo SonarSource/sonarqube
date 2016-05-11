@@ -19,59 +19,143 @@
  */
 package org.sonar.server.db;
 
+import java.io.IOException;
+import java.sql.DriverManager;
 import org.h2.Driver;
+import org.junit.After;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.junit.rules.Timeout;
 import org.sonar.api.config.Settings;
-import org.sonar.api.database.DatabaseProperties;
+import org.sonar.api.utils.log.LogTester;
 import org.sonar.process.NetworkUtils;
-import org.sonar.process.ProcessProperties;
-
-import java.io.File;
-import java.sql.DriverManager;
 
 import static junit.framework.Assert.fail;
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.database.DatabaseProperties.PROP_EMBEDDED_PORT;
+import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
+import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD_DEFAULT_VALUE;
+import static org.sonar.api.database.DatabaseProperties.PROP_URL;
+import static org.sonar.api.database.DatabaseProperties.PROP_USER;
+import static org.sonar.api.database.DatabaseProperties.PROP_USER_DEFAULT_VALUE;
+import static org.sonar.process.ProcessProperties.PATH_DATA;
 
 public class EmbeddedDatabaseTest {
 
   @Rule
-  public ExpectedException throwable = ExpectedException.none();
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public LogTester logTester = new LogTester();
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  @Rule
+  public Timeout timeout = Timeout.seconds(10);
 
-  @Test(timeout = 10000)
-  public void should_start_and_stop() {
+  private EmbeddedDatabase underTest;
+
+  @After
+  public void tearDown() throws Exception {
+    if (underTest != null) {
+      underTest.stop();
+    }
+  }
+
+  @Test
+  public void start_fails_with_IAE_if_property_Data_Path_is_not_set() {
+    EmbeddedDatabase underTest = new EmbeddedDatabase(new Settings());
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing property " + PATH_DATA);
+
+    underTest.start();
+  }
+
+  @Test
+  public void start_fails_with_IAE_if_property_Data_Path_is_empty() {
+    EmbeddedDatabase underTest = new EmbeddedDatabase(new Settings()
+      .setProperty(PATH_DATA, ""));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing property " + PATH_DATA);
+
+    underTest.start();
+  }
+
+  @Test
+  public void start_fails_with_IAE_if_JDBC_URL_settings_is_not_set() throws IOException {
+    EmbeddedDatabase underTest = new EmbeddedDatabase(new Settings()
+      .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath()));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing property " + PROP_URL);
+
+    underTest.start();
+  }
+
+  @Test
+  public void start_fails_with_IAE_if_embedded_port_settings_is_not_set() throws IOException {
+    EmbeddedDatabase underTest = new EmbeddedDatabase(new Settings()
+      .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
+      .setProperty(PROP_URL, "jdbc url"));
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Missing property " + PROP_EMBEDDED_PORT);
+
+    underTest.start();
+  }
+
+  @Test
+  public void start_ignores_URL_to_create_database_and_uses_default_username_and_password_when_then_are_not_set() throws IOException {
     int port = NetworkUtils.freePort();
+    underTest = new EmbeddedDatabase(new Settings()
+      .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
+      .setProperty(PROP_URL, "jdbc url")
+      .setProperty(PROP_EMBEDDED_PORT, "" + port));
 
-    EmbeddedDatabase database = new EmbeddedDatabase(testSettings(port));
-    database.start();
+    underTest.start();
 
+    checkDbIsUp(port, PROP_USER_DEFAULT_VALUE, PROP_PASSWORD_DEFAULT_VALUE);
+  }
+
+  @Test
+  public void start_creates_db_with_specified_user_and_password() throws IOException {
+    int port = NetworkUtils.freePort();
+    underTest = new EmbeddedDatabase(new Settings()
+      .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
+      .setProperty(PROP_URL, "jdbc url")
+      .setProperty(PROP_EMBEDDED_PORT, "" + port)
+      .setProperty(PROP_USER, "foo")
+      .setProperty(PROP_PASSWORD, "bar"));
+
+    underTest.start();
+
+    checkDbIsUp(port, "foo", "bar");
+  }
+
+  @Test
+  public void start_supports_in_memory_H2_JDBC_URL() throws IOException {
+    int port = NetworkUtils.freePort();
+    underTest = new EmbeddedDatabase(new Settings()
+      .setProperty(PATH_DATA, temporaryFolder.newFolder().getAbsolutePath())
+      .setProperty(PROP_URL, "jdbc:h2:mem:sonar")
+      .setProperty(PROP_EMBEDDED_PORT, "" + port)
+      .setProperty(PROP_USER, "foo")
+      .setProperty(PROP_PASSWORD, "bar"));
+
+    underTest.start();
+
+    checkDbIsUp(port, "foo", "bar");
+  }
+
+  private void checkDbIsUp(int port, String user, String password) {
     try {
-      String driverUrl = String.format("jdbc:h2:tcp://localhost:%d/sonar;USER=login;PASSWORD=pwd", port);
+      String driverUrl = String.format("jdbc:h2:tcp://localhost:%d/sonar;USER=%s;PASSWORD=%s", port, user, password);
       DriverManager.registerDriver(new Driver());
       DriverManager.getConnection(driverUrl).close();
     } catch (Exception ex) {
       fail("Unable to connect after start");
     }
-
-    database.stop();
   }
 
-  @Test
-  public void should_return_embedded_data_directory() {
-    Settings settings = testSettings(0);
-    EmbeddedDatabase database = new EmbeddedDatabase(settings);
-
-    File dataDirectory = database.getDataDirectory(settings);
-    assertThat(dataDirectory).isNotNull();
-    assertThat(dataDirectory.getPath()).endsWith("testDB");
-  }
-
-  static Settings testSettings(int port) {
-    return new Settings()
-      .setProperty(DatabaseProperties.PROP_USER, "login")
-      .setProperty(DatabaseProperties.PROP_PASSWORD, "pwd")
-      .setProperty(DatabaseProperties.PROP_EMBEDDED_PORT, "" + port)
-      .setProperty(ProcessProperties.PATH_DATA, "./target/testDB");
-  }
 }
