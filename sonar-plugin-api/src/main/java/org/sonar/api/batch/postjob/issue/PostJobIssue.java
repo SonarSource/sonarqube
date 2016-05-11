@@ -25,7 +25,7 @@ import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.rule.RuleKey;
 
 /**
- * Represents an issue state at the end of the batch analysis. Some attributes are only available in preview/issues mode.
+ * Represents an issue state at the end of the scanner analysis in preview/issues mode.
  *
  * @since 5.2
  */
@@ -66,12 +66,12 @@ public interface PostJobIssue {
   String message();
 
   /**
-   * Severity.  Only accurate in preview/issues mode.
+   * Severity.
    */
   Severity severity();
 
   /**
-   * If the issue a new one. Only available in preview/issues mode.
+   * If the issue a new one.
    */
   boolean isNew();
 

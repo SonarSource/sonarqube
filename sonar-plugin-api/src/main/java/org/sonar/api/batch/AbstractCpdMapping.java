@@ -26,7 +26,7 @@ import org.sonar.api.resources.Resource;
  * A pre-implementation of the CpdMapping extension point
  *
  * @since 1.10
- * @deprecated since 5.6
+ * @deprecated since 5.6 use {@link SensorContext#newCpdTokens()}
  */
 @Deprecated
 public abstract class AbstractCpdMapping implements CpdMapping {

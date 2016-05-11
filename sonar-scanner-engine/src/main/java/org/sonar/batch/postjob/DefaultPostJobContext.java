@@ -23,6 +23,7 @@ import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import javax.annotation.Nullable;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.postjob.PostJobContext;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
@@ -39,11 +40,13 @@ public class DefaultPostJobContext implements PostJobContext {
   private final Settings settings;
   private final IssueCache cache;
   private final BatchComponentCache resourceCache;
+  private final AnalysisMode analysisMode;
 
-  public DefaultPostJobContext(Settings settings, IssueCache cache, BatchComponentCache resourceCache) {
+  public DefaultPostJobContext(Settings settings, IssueCache cache, BatchComponentCache resourceCache, AnalysisMode analysisMode) {
     this.settings = settings;
     this.cache = cache;
     this.resourceCache = resourceCache;
+    this.analysisMode = analysisMode;
   }
 
   @Override
@@ -52,12 +55,23 @@ public class DefaultPostJobContext implements PostJobContext {
   }
 
   @Override
+  public AnalysisMode analysisMode() {
+    return analysisMode;
+  }
+
+  @Override
   public Iterable<PostJobIssue> issues() {
+    if (!analysisMode.isIssues()) {
+      throw new UnsupportedOperationException("Issues are only available to PostJobs in 'issues' mode.");
+    }
     return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(false)), new IssueTransformer());
   }
 
   @Override
   public Iterable<PostJobIssue> resolvedIssues() {
+    if (!analysisMode.isIssues()) {
+      throw new UnsupportedOperationException("Resolved issues are only available to PostJobs in 'issues' mode.");
+    }
     return Iterables.transform(Iterables.filter(cache.all(), new ResolvedPredicate(true)), new IssueTransformer());
   }
 
@@ -102,8 +116,7 @@ public class DefaultPostJobContext implements PostJobContext {
 
     @Override
     public Severity severity() {
-      String severity = wrapped.severity();
-      return severity != null ? Severity.valueOf(severity) : null;
+      return Severity.valueOf(wrapped.severity());
     }
 
     @Override

@@ -27,14 +27,13 @@ import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.CoreProperties;
+import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.component.Component;
 import org.sonar.api.config.Settings;
 
 /**
- * A class that manipulates Projects in the Sonar way.
- *
  * @since 1.10
- * @deprecated since 5.6 should not be used in any API
+ * @deprecated since 5.6 replaced by {@link InputModule}.
  */
 @Deprecated
 public class Project extends Resource implements Component {

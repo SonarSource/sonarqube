@@ -25,6 +25,7 @@ package org.sonar.api.batch.fs;
  * @since 5.2
  * @see InputFile
  * @see InputDir
+ * @see InputModule
  */
 public interface InputComponent {
 

@@ -23,7 +23,7 @@ import java.io.File;
 import java.nio.file.Path;
 
 /**
- * Layer over {@link java.io.File} for directories.
+ * Layer over {@link java.io.File} for directories. You can access InputDir using {@link FileSystem#inputDir(File)}.
  *
  * @since 4.5
  */

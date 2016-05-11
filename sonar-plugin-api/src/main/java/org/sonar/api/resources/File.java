@@ -25,14 +25,13 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
 
 /**
- * This class is an implementation of a resource of type FILE
- *
  * @since 1.10
- * @deprecated since 5.6 should not be used in any API
+ * @deprecated since 5.6 replaced by {@link InputFile}.
  */
 @Deprecated
 public class File extends Resource {

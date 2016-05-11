@@ -24,9 +24,7 @@ import org.sonar.api.server.ServerSide;
 
 /**
  * @since 3.6
- * @deprecated since 5.6
  */
-@Deprecated
 @ServerSide
 public interface RubyComponentService {
 

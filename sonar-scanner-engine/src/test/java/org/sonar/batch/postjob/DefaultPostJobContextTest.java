@@ -22,6 +22,7 @@ package org.sonar.batch.postjob;
 import java.util.Arrays;
 import org.junit.Before;
 import org.junit.Test;
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.batch.rule.Severity;
@@ -41,17 +42,21 @@ public class DefaultPostJobContextTest {
   private BatchComponentCache resourceCache;
   private DefaultPostJobContext context;
   private Settings settings;
+  private AnalysisMode analysisMode;
 
   @Before
   public void prepare() {
     issueCache = mock(IssueCache.class);
     resourceCache = new BatchComponentCache();
     settings = new Settings();
-    context = new DefaultPostJobContext(settings, issueCache, resourceCache);
+    analysisMode = mock(AnalysisMode.class);
+    context = new DefaultPostJobContext(settings, issueCache, resourceCache, analysisMode);
   }
 
   @Test
-  public void test() {
+  public void testIssues() {
+    when(analysisMode.isIssues()).thenReturn(true);
+
     assertThat(context.settings()).isSameAs(settings);
 
     TrackedIssue defaultIssue = new TrackedIssue();

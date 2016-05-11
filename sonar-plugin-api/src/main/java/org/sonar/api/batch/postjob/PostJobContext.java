@@ -19,6 +19,7 @@
  */
 package org.sonar.api.batch.postjob;
 
+import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.postjob.issue.PostJobIssue;
 import org.sonar.api.config.Settings;
 
@@ -33,15 +34,19 @@ public interface PostJobContext {
    */
   Settings settings();
 
+  AnalysisMode analysisMode();
+
   // ----------- Only available in preview mode --------------
 
   /**
-   * All the unresolved issues of the project, including the issues reported by end-users.
+   * All the unresolved issues of the project, including the issues reported by end-users. Only available in preview/issues mode.
+   * @throw {@link UnsupportedOperationException} if not in preview/issues mode. To test the mode you can use {@link #analysisMode()}.
    */
   Iterable<PostJobIssue> issues();
 
   /**
-   * All the issues of this project that have been marked as resolved during this scan
+   * All the issues of this project that have been marked as resolved during this scan. Only available in preview/issues mode.
+   * @throw {@link UnsupportedOperationException} if not in preview mode. To test the mode you can use {@link #analysisMode()}.
    */
   Iterable<PostJobIssue> resolvedIssues();
 

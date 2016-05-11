@@ -22,7 +22,7 @@ package org.sonar.api.test;
 import java.util.List;
 
 /**
- * @deprecated since 5.6 feature will be removed soon
+ * @deprecated since 5.6. Feature will be removed without any alternatives.
  */
 @Deprecated
 public interface CoverageBlock {

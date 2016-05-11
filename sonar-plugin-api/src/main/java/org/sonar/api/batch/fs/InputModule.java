@@ -19,8 +19,10 @@
  */
 package org.sonar.api.batch.fs;
 
+import org.sonar.api.batch.sensor.SensorContext;
+
 /**
- * Used to create issues and measures on modules.
+ * Used to create issues and measures on modules. You can access InputModule using {@link SensorContext#module()}
  *
  * @since 5.2
  */

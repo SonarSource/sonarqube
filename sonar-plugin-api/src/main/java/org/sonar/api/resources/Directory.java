@@ -23,12 +23,13 @@ import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.batch.fs.FileSystem;
+import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.WildcardPattern;
 
 /**
  * @since 1.10
- * @deprecated since 5.6 should not be used in any API
+ * @deprecated since 5.6 replaced by {@link InputDir}.
  */
 @Deprecated
 public class Directory extends Resource {
