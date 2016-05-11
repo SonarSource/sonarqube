@@ -36,6 +36,7 @@ import static org.mockito.Mockito.when;
 
 public class FixTypeOfRuleTypeOnMysqlTest {
 
+  private static final int FRESH_MIGRATION_VERSION = -1;
   private static final int A_MIGRATION_VERSION_IN_5_5 = 1105;
   private static final int A_MIGRATION_VERSION_BEFORE_5_5 = 200;
 
@@ -56,7 +57,7 @@ public class FixTypeOfRuleTypeOnMysqlTest {
 
   @Test
   public void do_not_alter_columns_if_fresh_mysql_install() throws SQLException {
-    prepare(-1, new MySql());
+    prepare(FRESH_MIGRATION_VERSION, new MySql());
 
     underTest.execute(context);
 

@@ -72,8 +72,7 @@ public class PlatformLevel2 extends PlatformLevel {
 
       // DB migration
       PlatformDatabaseMigrationExecutorServiceImpl.class,
-      PlatformDatabaseMigration.class);
-
-    add(MigrationStepModule.class);
+      PlatformDatabaseMigration.class,
+      MigrationStepModule.class);
   }
 }
