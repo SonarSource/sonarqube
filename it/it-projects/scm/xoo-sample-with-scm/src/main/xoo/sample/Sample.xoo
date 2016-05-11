@@ -1,7 +1,0 @@
-package sample;
-
-public class Sample {
-	
-	private String myMethod() {
-	}
-}

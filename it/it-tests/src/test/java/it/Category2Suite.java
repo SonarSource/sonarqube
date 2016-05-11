@@ -44,7 +44,6 @@ import it.qualityModel.TechnicalDebtInIssueChangelogTest;
 import it.qualityModel.TechnicalDebtMeasureVariationTest;
 import it.qualityModel.TechnicalDebtTest;
 import it.qualityModel.TechnicalDebtWidgetTest;
-import it.scm.ScmTest;
 import it.test.CoverageTest;
 import it.test.CoverageTrackingTest;
 import it.test.NewCoverageTest;
@@ -63,8 +62,6 @@ import static util.ItUtils.xooPlugin;
   CoverageTest.class,
   NewCoverageTest.class,
   TestExecutionTest.class,
-  // scm
-  ScmTest.class,
   // issue
   AutoAssignTest.class,
   CommonRulesTest.class,
