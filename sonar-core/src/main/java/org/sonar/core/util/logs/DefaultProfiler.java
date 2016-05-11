@@ -31,6 +31,7 @@ import org.sonar.api.utils.log.LoggerLevel;
 class DefaultProfiler extends Profiler {
 
   private static final String CONTEXT_SEPARATOR = " | ";
+  private static final String NO_MESSAGE_SUFFIX = "";
 
   private final LinkedHashMap<String, Object> context = new LinkedHashMap<>();
   private final Logger logger;
@@ -38,6 +39,7 @@ class DefaultProfiler extends Profiler {
   private long startTime = 0L;
   private String startMessage = null;
   private Object[] args = null;
+  private boolean logTimeLast = false;
 
   public DefaultProfiler(Logger logger) {
     this.logger = logger;
@@ -107,37 +109,37 @@ class DefaultProfiler extends Profiler {
 
   @Override
   public long stopTrace(String message) {
-    return doStop(LoggerLevel.TRACE, message, null, "");
+    return doStop(LoggerLevel.TRACE, message, null, NO_MESSAGE_SUFFIX);
   }
 
   @Override
   public long stopTrace(String message, Object... args) {
-    return doStop(LoggerLevel.TRACE, message, args, "");
+    return doStop(LoggerLevel.TRACE, message, args, NO_MESSAGE_SUFFIX);
   }
 
   @Override
   public long stopDebug(String message) {
-    return doStop(LoggerLevel.DEBUG, message, null, "");
+    return doStop(LoggerLevel.DEBUG, message, null, NO_MESSAGE_SUFFIX);
   }
 
   @Override
   public long stopDebug(String message, Object... args) {
-    return doStop(LoggerLevel.DEBUG, message, args, "");
+    return doStop(LoggerLevel.DEBUG, message, args, NO_MESSAGE_SUFFIX);
   }
 
   @Override
   public long stopInfo(String message) {
-    return doStop(LoggerLevel.INFO, message, null, "");
+    return doStop(LoggerLevel.INFO, message, null, NO_MESSAGE_SUFFIX);
   }
 
   @Override
   public long stopInfo(String message, Object... args) {
-    return doStop(LoggerLevel.INFO, message, args, "");
+    return doStop(LoggerLevel.INFO, message, args, NO_MESSAGE_SUFFIX);
   }
 
   @Override
   public long stopError(String message, Object... args) {
-    return doStop(LoggerLevel.ERROR, message, args, "");
+    return doStop(LoggerLevel.ERROR, message, args, NO_MESSAGE_SUFFIX);
   }
 
   private Profiler doStart(LoggerLevel logLevel, String message, Object... args) {
@@ -185,14 +187,34 @@ class DefaultProfiler extends Profiler {
       if (!StringUtils.isEmpty(message)) {
         sb.append(message);
         sb.append(messageSuffix);
-        sb.append(CONTEXT_SEPARATOR);
       }
-      sb.append("time=").append(duration).append("ms");
-      appendContext(sb);
+      if (logTimeLast) {
+        appendContext(sb);
+        appendTime(sb, duration);
+      } else {
+        appendTime(sb, duration);
+        appendContext(sb);
+      }
       log(level, sb.toString(), args);
     }
     reset();
     return duration;
+  }
+
+  private static void appendTime(StringBuilder sb, long duration) {
+    if (sb.length() > 0) {
+      sb.append(CONTEXT_SEPARATOR);
+    }
+    sb.append("time=").append(duration).append("ms");
+  }
+
+  private void appendContext(StringBuilder sb) {
+    for (Map.Entry<String, Object> entry : context.entrySet()) {
+      if (sb.length() > 0) {
+        sb.append(CONTEXT_SEPARATOR);
+      }
+      sb.append(entry.getKey()).append("=").append(Objects.toString(entry.getValue()));
+    }
   }
 
   void log(LoggerLevel level, String msg, @Nullable Object[] args) {
@@ -267,15 +289,6 @@ class DefaultProfiler extends Profiler {
     return true;
   }
 
-  private void appendContext(StringBuilder sb) {
-    for (Map.Entry<String, Object> entry : context.entrySet()) {
-      if (sb.length() > 0) {
-        sb.append(CONTEXT_SEPARATOR);
-      }
-      sb.append(entry.getKey()).append("=").append(Objects.toString(entry.getValue()));
-    }
-  }
-
   @Override
   public Profiler addContext(String key, @Nullable Object value) {
     if (value == null) {
@@ -286,4 +299,9 @@ class DefaultProfiler extends Profiler {
     return this;
   }
 
+  @Override
+  public Profiler logTimeLast(boolean flag) {
+    this.logTimeLast = flag;
+    return this;
+  }
 }

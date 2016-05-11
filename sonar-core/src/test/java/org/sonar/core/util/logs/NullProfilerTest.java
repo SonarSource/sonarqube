@@ -37,6 +37,8 @@ public class NullProfilerTest {
     assertThat(underTest.isDebugEnabled()).isFalse();
     assertThat(underTest.isTraceEnabled()).isFalse();
     assertThat(underTest.addContext("foo", "bar")).isSameAs(underTest);
+    assertThat(underTest.logTimeLast(true)).isSameAs(underTest);
+    assertThat(underTest.logTimeLast(false)).isSameAs(underTest);
   }
 
   @Test

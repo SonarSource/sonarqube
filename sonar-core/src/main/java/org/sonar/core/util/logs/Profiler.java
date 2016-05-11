@@ -91,4 +91,10 @@ public abstract class Profiler {
    * Context information is removed if value is <code>null</code>.
    */
   public abstract Profiler addContext(String key, @Nullable Object value);
+
+  /**
+   * Defines whether time is added to stop messages before or after context (if any).
+   * <p>{@code flag} is {@code false} by default.</p>
+   */
+  public abstract Profiler logTimeLast(boolean flag);
 }

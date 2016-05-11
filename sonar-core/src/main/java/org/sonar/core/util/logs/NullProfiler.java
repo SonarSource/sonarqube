@@ -128,4 +128,9 @@ class NullProfiler extends Profiler {
     // nothing to do
     return this;
   }
+
+  @Override
+  public Profiler logTimeLast(boolean flag) {
+    return this;
+  }
 }
