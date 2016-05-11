@@ -180,7 +180,8 @@ public class QualityGates {
     checkPermission();
     getNonNullQgate(qGateId);
     Metric metric = getNonNullMetric(metricKey);
-    validateCondition(qGateId, metric, operator, warningThreshold, errorThreshold, period);
+    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
+    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(qGateId, metric, period);
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qGateId)
       .setMetricId(metric.getId()).setMetricKey(metric.getKey())
       .setOperator(operator)
@@ -196,7 +197,7 @@ public class QualityGates {
     checkPermission();
     QualityGateConditionDto condition = getNonNullCondition(condId);
     Metric metric = getNonNullMetric(metricKey);
-    validateCondition(condition.getQualityGateId(), metric, operator, warningThreshold, errorThreshold, period);
+    validateCondition(metric, operator, warningThreshold, errorThreshold, period);
     condition
       .setMetricId(metric.getId())
       .setMetricKey(metric.getKey())
@@ -267,29 +268,30 @@ public class QualityGates {
     return hasWritePermission;
   }
 
-  private void validateCondition(long qGateId, Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+  private void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     Errors errors = new Errors();
     validateMetric(metric, errors);
     checkOperator(metric, operator, errors);
     checkThresholds(warningThreshold, errorThreshold, errors);
     checkPeriod(metric, period, errors);
-    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(qGateId, metric, period, errors);
     if (!errors.isEmpty()) {
       throw new BadRequestException(errors);
     }
   }
 
-  private void checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(long qGateId, Metric metric, @Nullable final Integer period, Errors errors) {
+  private void checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(long qGateId, Metric metric, @Nullable final Integer period) {
     Collection<QualityGateConditionDto> conditions = conditionDao.selectForQualityGate(qGateId);
     if (conditions.isEmpty()) {
       return;
     }
 
     boolean conditionExists = from(conditions).anyMatch(new MatchMetricAndPeriod(metric.getId(), period));
-    String errorMessage = period == null
-      ? format("Condition on metric '%s' already exists.", metric.getName())
-      : format("Condition on metric '%s' over leak period already exists.", metric.getName());
-    errors.check(!conditionExists, errorMessage);
+    if (conditionExists) {
+      String errorMessage = period == null
+        ? format("Condition on metric '%s' already exists.", metric.getName())
+        : format("Condition on metric '%s' over leak period already exists.", metric.getName());
+      throw new BadRequestException(errorMessage);
+    }
   }
 
   private void checkPeriod(Metric metric, @Nullable Integer period, Errors errors) {

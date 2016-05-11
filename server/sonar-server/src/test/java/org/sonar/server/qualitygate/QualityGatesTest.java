@@ -485,27 +485,23 @@ public class QualityGatesTest {
 
   @Test
   public void should_update_condition() {
-    long condId = QUALITY_GATE_ID;
+    long condId = 43;
     String metricKey = "new_coverage";
     String operator = "LT";
     String errorThreshold = "80";
-    final QualityGateConditionDto condition = new QualityGateConditionDto().setId(condId)
-      .setMetricId(666L).setOperator("GT").setWarningThreshold("123");
-    when(conditionDao.selectById(condId)).thenReturn(condition);
-    int metricId = 10;
-    Metric newCoverage = Mockito.spy(CoreMetrics.NEW_COVERAGE);
-    when(newCoverage.getId()).thenReturn(metricId);
-    when(metricFinder.findByKey(metricKey)).thenReturn(newCoverage);
-    int period = 1;
+    addMetric(metricKey, "New Coverage");
 
-    assertThat(underTest.updateCondition(condId, metricKey, operator, null, errorThreshold, period)).isEqualTo(condition);
-    assertThat(condition.getId()).isEqualTo(condId);
-    assertThat(condition.getMetricId()).isEqualTo((long) metricId);
-    assertThat(condition.getMetricKey()).isEqualTo(metricKey);
-    assertThat(condition.getOperator()).isEqualTo(operator);
-    assertThat(condition.getWarningThreshold()).isNull();
-    assertThat(condition.getErrorThreshold()).isEqualTo(errorThreshold);
-    assertThat(condition.getPeriod()).isEqualTo(period);
+    QualityGateConditionDto condition = new QualityGateConditionDto().setId(condId)
+      .setQualityGateId(QUALITY_GATE_ID)
+      .setMetricId(METRIC_ID)
+      .setMetricKey(metricKey)
+      .setOperator("GT")
+      .setWarningThreshold("123")
+      .setPeriod(1);
+    when(conditionDao.selectById(condId)).thenReturn(condition);
+    when(conditionDao.selectForQualityGate(QUALITY_GATE_ID)).thenReturn(singletonList(condition));
+
+    assertThat(underTest.updateCondition(condId, metricKey, operator, null, errorThreshold, 1)).isEqualTo(condition);
     verify(conditionDao).update(condition);
   }
 
