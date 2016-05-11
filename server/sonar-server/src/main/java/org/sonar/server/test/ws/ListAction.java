@@ -89,6 +89,7 @@ public class ListAction implements TestsWsAction {
           "</ul>", TEST_ID, TEST_FILE_ID, TEST_FILE_KEY, SOURCE_FILE_ID, SOURCE_FILE_KEY, SOURCE_FILE_LINE_NUMBER))
       .setSince("5.2")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-list.json"))
+      .setDeprecatedSince("5.6")
       .setHandler(this)
       .addPagingParams(100, MAX_LIMIT);
 
