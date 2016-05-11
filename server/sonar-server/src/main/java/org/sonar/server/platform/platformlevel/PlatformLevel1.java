@@ -34,7 +34,6 @@ import org.sonar.db.DefaultDatabase;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.semaphore.SemaphoresImpl;
 import org.sonar.db.version.DatabaseVersion;
-import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.app.ProcessCommandWrapperImpl;
 import org.sonar.server.app.RestartFlagHolderImpl;
 import org.sonar.server.db.EmbeddedDatabaseFactory;
@@ -114,7 +113,6 @@ public class PlatformLevel1 extends PlatformLevel {
       org.sonar.core.properties.PropertiesDao.class);
     addAll(CorePropertyDefinitions.all());
     addAll(CePropertyDefinitions.all());
-    add(MigrationStepModule.class);
   }
 
   private void addExtraRootComponents() {

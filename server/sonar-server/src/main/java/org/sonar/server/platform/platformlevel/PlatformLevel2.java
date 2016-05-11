@@ -25,6 +25,7 @@ import org.sonar.core.i18n.RuleI18nManager;
 import org.sonar.core.platform.PluginClassloaderFactory;
 import org.sonar.core.platform.PluginLoader;
 import org.sonar.db.charset.DatabaseCharsetChecker;
+import org.sonar.db.version.MigrationStepModule;
 import org.sonar.server.db.CheckDatabaseCharsetAtStartup;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.db.migrations.PlatformDatabaseMigration;
@@ -71,6 +72,7 @@ public class PlatformLevel2 extends PlatformLevel {
 
       // DB migration
       PlatformDatabaseMigrationExecutorServiceImpl.class,
-      PlatformDatabaseMigration.class);
+      PlatformDatabaseMigration.class,
+      MigrationStepModule.class);
   }
 }

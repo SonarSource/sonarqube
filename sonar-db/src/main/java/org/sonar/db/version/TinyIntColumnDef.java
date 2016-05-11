@@ -46,7 +46,8 @@ public class TinyIntColumnDef extends AbstractColumnDef {
       case Oracle.ID:
         return "NUMBER(3)";
       case MySql.ID:
-        return "TINYINT(1)";
+        // do not use TINYINT(1) as it's considered as booleans by connector/J.
+        return "TINYINT(2)";
       case MsSql.ID:
       case H2.ID:
         return "TINYINT";

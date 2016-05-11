@@ -59,7 +59,7 @@ public class TinyIntColumnDefTest {
     assertThat(def.generateSqlType(new H2())).isEqualTo("TINYINT");
     assertThat(def.generateSqlType(new PostgreSql())).isEqualTo("SMALLINT");
     assertThat(def.generateSqlType(new MsSql())).isEqualTo("TINYINT");
-    assertThat(def.generateSqlType(new MySql())).isEqualTo("TINYINT(1)");
+    assertThat(def.generateSqlType(new MySql())).isEqualTo("TINYINT(2)");
     assertThat(def.generateSqlType(new Oracle())).isEqualTo("NUMBER(3)");
   }
 
