@@ -64,6 +64,7 @@ public class CoveredFilesAction implements TestsWsAction {
       .setDescription("Get the list of source files covered by a test. Require Browse permission on test file's project")
       .setSince("4.4")
       .setResponseExample(Resources.getResource(getClass(), "tests-example-covered-files.json"))
+      .setDeprecatedSince("5.6")
       .setHandler(this)
       .addPagingParams(100);
 
