@@ -23,7 +23,7 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 
-import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static com.google.common.base.Strings.repeat;
 
 public class NewComponentTest {
   @Rule
@@ -42,7 +42,7 @@ public class NewComponentTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component key length (401) is longer than the maximum authorized (400)");
 
-    NewComponent.create(randomAlphabetic(401), "name");
+    NewComponent.create(repeat("a", 400 + 1), "name");
   }
 
   @Test
@@ -58,7 +58,7 @@ public class NewComponentTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component name length (2001) is longer than the maximum authorized (2000)");
 
-    NewComponent.create("key", randomAlphabetic(2001));
+    NewComponent.create("key", repeat("a", 2001));
   }
 
   @Test
@@ -66,6 +66,6 @@ public class NewComponentTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("Component qualifier length (11) is longer than the maximum authorized (10)");
 
-    NewComponent.create("key", "name").setQualifier(randomAlphabetic(11));
+    NewComponent.create("key", "name").setQualifier(repeat("a", 10 + 1));
   }
 }

@@ -21,6 +21,9 @@ package org.sonar.db.component;
 
 import java.util.Date;
 
+import static org.sonar.db.component.ComponentValidator.checkComponentKey;
+import static org.sonar.db.component.ComponentValidator.checkComponentName;
+
 public class ResourceDto {
 
   private Long id;
@@ -94,7 +97,7 @@ public class ResourceDto {
   }
 
   public ResourceDto setName(String name) {
-    this.name = name;
+    this.name = checkComponentName(name);
     return this;
   }
 
@@ -103,7 +106,7 @@ public class ResourceDto {
   }
 
   public ResourceDto setKey(String s) {
-    this.key = s;
+    this.key = checkComponentKey(s);
     return this;
   }
 

@@ -123,11 +123,13 @@ public class ResourceKeyUpdaterDao implements Dao {
 
   private static void runBatchUpdateForAllResources(Collection<ResourceDto> resources, String oldKey, String newKey, ResourceKeyUpdaterMapper mapper) {
     for (ResourceDto resource : resources) {
-      String resourceKey = resource.getKey();
-      resource.setKey(newKey + resourceKey.substring(oldKey.length(), resourceKey.length()));
-      String resourceDeprecatedKey = resource.getDeprecatedKey();
-      if (StringUtils.isNotBlank(resourceDeprecatedKey)) {
-        resource.setDeprecatedKey(newKey + resourceDeprecatedKey.substring(oldKey.length(), resourceDeprecatedKey.length()));
+      String oldResourceKey = resource.getKey();
+      String newResourceKey = newKey + oldResourceKey.substring(oldKey.length(), oldResourceKey.length());
+      resource.setKey(newResourceKey);
+      String oldResourceDeprecatedKey = resource.getDeprecatedKey();
+      if (StringUtils.isNotBlank(oldResourceDeprecatedKey)) {
+        String newResourceDeprecatedKey = newKey + oldResourceDeprecatedKey.substring(oldKey.length(), oldResourceDeprecatedKey.length());
+        resource.setDeprecatedKey(newResourceDeprecatedKey);
       }
       mapper.update(resource);
     }

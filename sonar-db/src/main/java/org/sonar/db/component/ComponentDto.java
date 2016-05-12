@@ -26,6 +26,9 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 import org.sonar.api.component.Component;
 import org.sonar.api.resources.Scopes;
 
+import static org.sonar.db.component.ComponentValidator.checkComponentKey;
+import static org.sonar.db.component.ComponentValidator.checkComponentName;
+
 public class ComponentDto implements Component {
 
   public static final String MODULE_UUID_PATH_SEP = ".";
@@ -160,7 +163,7 @@ public class ComponentDto implements Component {
   }
 
   public ComponentDto setName(String name) {
-    this.name = name;
+    this.name = checkComponentName(name);
     return this;
   }
 
@@ -258,7 +261,7 @@ public class ComponentDto implements Component {
   }
 
   public ComponentDto setKey(String key) {
-    this.kee = key;
+    this.kee = checkComponentKey(key);
     return this;
   }
 

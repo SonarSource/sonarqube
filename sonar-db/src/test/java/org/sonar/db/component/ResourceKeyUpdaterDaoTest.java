@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import com.google.common.base.Strings;
 import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
@@ -27,7 +28,8 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
 
 public class ResourceKeyUpdaterDaoTest {
 
@@ -35,71 +37,84 @@ public class ResourceKeyUpdaterDaoTest {
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  ComponentDbTester componentDb = new ComponentDbTester(db);
 
-  ResourceKeyUpdaterDao dao = dbTester.getDbClient().resourceKeyUpdaterDao();
+  ResourceKeyUpdaterDao underTest = db.getDbClient().resourceKeyUpdaterDao();
 
   @Test
   public void shouldUpdateKey() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    dao.updateKey(2, "struts:core");
+    underTest.updateKey(2, "struts:core");
 
-    dbTester.assertDbUnit(getClass(), "shouldUpdateKey-result.xml", "projects");
+    db.assertDbUnit(getClass(), "shouldUpdateKey-result.xml", "projects");
   }
 
   @Test
   public void shouldNotUpdateKey() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Impossible to update key: a resource with \"org.struts:struts-ui\" key already exists.");
 
-    dao.updateKey(2, "org.struts:struts-ui");
+    underTest.updateKey(2, "org.struts:struts-ui");
   }
 
   @Test
   public void shouldBulkUpdateKey() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    dao.bulkUpdateKey(1, "org.struts", "org.apache.struts");
+    underTest.bulkUpdateKey(1, "org.struts", "org.apache.struts");
 
-    dbTester.assertDbUnit(getClass(), "shouldBulkUpdateKey-result.xml", "projects");
+    db.assertDbUnit(getClass(), "shouldBulkUpdateKey-result.xml", "projects");
   }
 
   @Test
   public void shouldBulkUpdateKeyOnOnlyOneSubmodule() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    dao.bulkUpdateKey(1, "struts-ui", "struts-web");
+    underTest.bulkUpdateKey(1, "struts-ui", "struts-web");
 
-    dbTester.assertDbUnit(getClass(), "shouldBulkUpdateKeyOnOnlyOneSubmodule-result.xml", "projects");
+    db.assertDbUnit(getClass(), "shouldBulkUpdateKeyOnOnlyOneSubmodule-result.xml", "projects");
   }
 
   @Test
   public void shouldFailBulkUpdateKeyIfKeyAlreadyExist() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Impossible to update key: a resource with \"foo:struts-core\" key already exists.");
 
-    dao.bulkUpdateKey(1, "org.struts", "foo");
+    underTest.bulkUpdateKey(1, "org.struts", "foo");
   }
 
   @Test
   public void shouldNotUpdateAllSubmodules() {
-    dbTester.prepareDbUnit(getClass(), "shouldNotUpdateAllSubmodules.xml");
+    db.prepareDbUnit(getClass(), "shouldNotUpdateAllSubmodules.xml");
 
-    dao.bulkUpdateKey(1, "org.struts", "org.apache.struts");
+    underTest.bulkUpdateKey(1, "org.struts", "org.apache.struts");
 
-    dbTester.assertDbUnit(getClass(), "shouldNotUpdateAllSubmodules-result.xml", "projects");
+    db.assertDbUnit(getClass(), "shouldNotUpdateAllSubmodules-result.xml", "projects");
+  }
+
+  @Test
+  public void fail_with_functional_exception_when_sub_component_key_is_longer_than_authorized() {
+    ComponentDto project = newProjectDto("project-uuid").setKey("old-project-key");
+    componentDb.insertComponent(project);
+    componentDb.insertComponent(newFileDto(project).setKey("old-project-key:file"));
+    String newLongProjectKey = Strings.repeat("a", 400);
+    thrown.expect(IllegalArgumentException.class);
+    thrown.expectMessage("Component key length (405) is longer than the maximum authorized (400). '" + newLongProjectKey + ":file' was provided.");
+
+    underTest.updateKey(project.getId(), newLongProjectKey);
   }
 
   @Test
   public void shouldCheckModuleKeysBeforeRenaming() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    Map<String, String> checkResults = dao.checkModuleKeysBeforeRenaming(1, "org.struts", "foo");
+    Map<String, String> checkResults = underTest.checkModuleKeysBeforeRenaming(1, "org.struts", "foo");
     assertThat(checkResults.size()).isEqualTo(3);
     assertThat(checkResults.get("org.struts:struts")).isEqualTo("foo:struts");
     assertThat(checkResults.get("org.struts:struts-core")).isEqualTo("#duplicate_key#");
