@@ -562,7 +562,7 @@ public class ComputeEngineContainerImpl implements ComputeEngineContainer {
     // NavigationWs.class, no Web Service in CE
   };
   private static final Object[] STARTUP_COMPONENTS = new Object[] {
-    // IndexSynchronizer.class, ES maintenance, responsibility of Web Server
+    // IndexerStartupTask.class, ES maintenance, responsibility of Web Server
     EsIndexerEnabler.class,
     // RegisterMetrics.class, DB maintenance, responsibility of Web Server
     // RegisterQualityGates.class, DB maintenance, responsibility of Web Server

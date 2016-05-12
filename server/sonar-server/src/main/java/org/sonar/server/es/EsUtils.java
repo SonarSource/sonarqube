@@ -39,7 +39,6 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.sonar.server.search.BaseDoc;
 
 public class EsUtils {
 

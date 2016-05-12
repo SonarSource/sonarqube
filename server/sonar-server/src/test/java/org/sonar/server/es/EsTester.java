@@ -50,7 +50,6 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.config.Settings;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.server.search.BaseDoc;
 import org.sonar.test.TestUtils;
 
 import static com.google.common.collect.Lists.newArrayList;

@@ -21,10 +21,9 @@ package org.sonar.server.test.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-import org.sonar.server.search.BaseDoc;
-
 import java.util.List;
 import java.util.Map;
+import org.sonar.server.es.BaseDoc;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_LINES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_UUID;

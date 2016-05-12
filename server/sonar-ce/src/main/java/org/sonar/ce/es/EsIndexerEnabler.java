@@ -21,6 +21,7 @@ package org.sonar.ce.es;
 
 import org.picocontainer.Startable;
 import org.sonar.server.activity.index.ActivityIndexer;
+import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexer;
 import org.sonar.server.test.index.TestIndexer;
@@ -28,7 +29,7 @@ import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.view.index.ViewIndexer;
 
 /**
- * Replaces the {@link org.sonar.server.search.IndexSynchronizer} to enable indexers but without triggering a full
+ * Replaces the {@link IndexerStartupTask} to enable indexers but without triggering a full
  * indexation (it's the WebServer's responsibility).
  */
 public class EsIndexerEnabler implements Startable {

@@ -64,7 +64,7 @@ import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.search.StickyFacetBuilder;
+import org.sonar.server.es.StickyFacetBuilder;
 
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;

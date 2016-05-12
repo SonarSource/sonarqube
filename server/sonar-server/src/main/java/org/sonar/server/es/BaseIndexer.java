@@ -21,14 +21,13 @@ package org.sonar.server.es;
 
 import com.google.common.base.Throwables;
 import com.google.common.util.concurrent.Uninterruptibles;
-import org.picocontainer.Startable;
-import org.sonar.api.server.ServerSide;
-
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
+import org.picocontainer.Startable;
+import org.sonar.api.server.ServerSide;
 
 @ServerSide
 public abstract class BaseIndexer implements Startable {
@@ -47,7 +46,7 @@ public abstract class BaseIndexer implements Startable {
    * asks for index refresh -> big performance hit.
    *
    * Indices are populated and refreshed when all startup components have been executed. See
-   * {@link org.sonar.server.search.IndexSynchronizer}
+   * {@link IndexerStartupTask}
    */
   private boolean enabled = false;
 

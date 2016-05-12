@@ -20,13 +20,11 @@
 package org.sonar.server.user.index;
 
 import com.google.common.collect.Maps;
-import org.sonar.api.user.User;
-import org.sonar.server.search.BaseDoc;
-
-import javax.annotation.Nullable;
-
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
+import org.sonar.api.user.User;
+import org.sonar.server.es.BaseDoc;
 
 public class UserDoc extends BaseDoc implements User {
 

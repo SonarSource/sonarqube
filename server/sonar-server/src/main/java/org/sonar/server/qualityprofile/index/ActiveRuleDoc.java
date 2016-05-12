@@ -25,8 +25,8 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.server.es.BaseDoc;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.search.BaseDoc;
 
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;

@@ -27,7 +27,7 @@ import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rules.RuleType;
-import org.sonar.server.search.BaseDoc;
+import org.sonar.server.es.BaseDoc;
 
 /**
  * Implementation of Rule based on an Elasticsearch document

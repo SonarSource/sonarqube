@@ -74,10 +74,10 @@ import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 import org.sonar.server.es.Sorting;
+import org.sonar.server.es.StickyFacetBuilder;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.issue.IssueQuery;
 import org.sonar.server.rule.index.RuleIndexDefinition;
-import org.sonar.server.search.StickyFacetBuilder;
 import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 

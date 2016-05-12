@@ -20,12 +20,12 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.app.ProcessCommandWrapper;
+import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
 import org.sonar.server.qualitygate.RegisterQualityGates;
 import org.sonar.server.qualityprofile.RegisterQualityProfiles;
 import org.sonar.server.rule.RegisterRules;
-import org.sonar.server.search.IndexSynchronizer;
 import org.sonar.server.startup.ClearRulesOverloadedDebt;
 import org.sonar.server.startup.DisplayLogOnDeprecatedProjects;
 import org.sonar.server.startup.FeedUsersLocalStartupTask;
@@ -49,7 +49,7 @@ public class PlatformLevelStartup extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
-      IndexSynchronizer.class,
+      IndexerStartupTask.class,
       RegisterMetrics.class,
       RegisterQualityGates.class,
       RegisterRules.class,
@@ -76,7 +76,7 @@ public class PlatformLevelStartup extends PlatformLevel {
       @Override
       protected void doPrivileged() {
         PlatformLevelStartup.super.start();
-        getComponentByType(IndexSynchronizer.class).execute();
+        getComponentByType(IndexerStartupTask.class).execute();
         getComponentByType(ServerLifecycleNotifier.class).notifyStart();
         getComponentByType(ProcessCommandWrapper.class).notifyOperational();
       }

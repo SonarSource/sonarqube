@@ -27,14 +27,15 @@ import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.text.JsonWriter;
-import org.sonar.server.search.BaseDoc;
+import org.sonar.server.es.BaseDoc;
 import org.sonar.server.search.IndexUtils;
 import org.sonar.server.search.QueryContext;
 
 /**
- * Mapping of search documents (see {@link org.sonar.server.search.BaseDoc}) to WS JSON responses
+ * Mapping of search documents (see {@link BaseDoc}) to WS JSON responses
  */
 @ServerSide
+@Deprecated
 public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
 
   private final Multimap<String, String> indexFieldsByWsFields = LinkedHashMultimap.create();
