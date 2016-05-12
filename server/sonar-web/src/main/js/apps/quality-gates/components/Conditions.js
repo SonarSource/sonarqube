@@ -30,8 +30,34 @@ function getKey (condition, index) {
   return condition.id ? condition.id : `new-${index}`;
 }
 
-export default function Conditions (
-    {
+export default class Conditions extends React.Component {
+  state = {
+    error: null
+  };
+
+  componentWillUpdate (nextProps) {
+    if (nextProps.qualityGate !== this.props.qualityGate) {
+      this.setState({ error: null });
+    }
+  }
+
+  handleError (error) {
+    try {
+      error.response.json().then(r => {
+        const message = r.errors.map(e => e.msg).join('. ');
+        this.setState({ error: message });
+      });
+    } catch (ex) {
+      this.setState({ error: translate('default_error_message') });
+    }
+  }
+
+  handleResetError () {
+    this.setState({ error: null });
+  }
+
+  render () {
+    const {
         qualityGate,
         conditions,
         metrics,
@@ -40,50 +66,56 @@ export default function Conditions (
         onAddCondition,
         onSaveCondition,
         onDeleteCondition
-    }
-) {
-  const sortedConditions = _.sortBy(conditions, condition => {
-    return metrics.find(metric => metric.key === condition.metric).name;
-  });
+    } = this.props;
 
-  const duplicates = [];
-  conditions.forEach(condition => {
-    const sameCount = conditions
-        .filter(sample => sample.metric === condition.metric && sample.period === condition.period)
-        .length;
-    if (sameCount > 1) {
-      duplicates.push(condition);
-    }
-  });
+    const sortedConditions = _.sortBy(conditions, condition => {
+      return metrics.find(metric => metric.key === condition.metric).name;
+    });
 
-  const uniqDuplicates = uniqBy(duplicates, d => d.metric)
-      .map(condition => {
-        const metric = metrics.find(metric => metric.key === condition.metric);
-        return { ...condition, metric };
-      });
+    const duplicates = [];
+    conditions.forEach(condition => {
+      const sameCount = conditions
+          .filter(sample => sample.metric === condition.metric && sample.period === condition.period)
+          .length;
+      if (sameCount > 1) {
+        duplicates.push(condition);
+      }
+    });
 
-  return (
-      <div id="quality-gate-conditions" className="quality-gate-section">
-        <h3 className="spacer-bottom">
-          {translate('quality_gates.conditions')}
-        </h3>
+    const uniqDuplicates = uniqBy(duplicates, d => d.metric)
+        .map(condition => {
+          const metric = metrics.find(metric => metric.key === condition.metric);
+          return { ...condition, metric };
+        });
 
-        <ConditionsAlert/>
+    return (
+        <div id="quality-gate-conditions" className="quality-gate-section">
+          <h3 className="spacer-bottom">
+            {translate('quality_gates.conditions')}
+          </h3>
 
-        {uniqDuplicates.length > 0 && (
-            <div className="alert alert-warning">
-              <p>{translate('quality_gates.duplicated_conditions')}</p>
-              <ul className="list-styled spacer-top">
-                {uniqDuplicates.map(d => (
-                    <li>{d.metric.name}</li>
-                ))}
-              </ul>
-            </div>
-        )}
+          <ConditionsAlert/>
 
-        {sortedConditions.length ? (
-            <table id="quality-gate-conditions" className="data zebra zebra-hover">
-              <thead>
+          {this.state.error && (
+              <div className="alert alert-danger">
+                {this.state.error}
+              </div>
+          )}
+
+          {uniqDuplicates.length > 0 && (
+              <div className="alert alert-warning">
+                <p>{translate('quality_gates.duplicated_conditions')}</p>
+                <ul className="list-styled spacer-top">
+                  {uniqDuplicates.map(d => (
+                      <li>{d.metric.name}</li>
+                  ))}
+                </ul>
+              </div>
+          )}
+
+          {sortedConditions.length ? (
+              <table id="quality-gate-conditions" className="data zebra zebra-hover">
+                <thead>
                 <tr>
                   <th className="nowrap">
                     {translate('quality_gates.conditions.metric')}
@@ -102,8 +134,8 @@ export default function Conditions (
                   </th>
                   {edit && <th></th>}
                 </tr>
-              </thead>
-              <tbody>
+                </thead>
+                <tbody>
                 {sortedConditions.map((condition, index) => (
                     <Condition
                         key={getKey(condition, index)}
@@ -113,19 +145,22 @@ export default function Conditions (
                         periods={periods}
                         edit={edit}
                         onSaveCondition={onSaveCondition}
-                        onDeleteCondition={onDeleteCondition}/>
+                        onDeleteCondition={onDeleteCondition}
+                        onError={this.handleError.bind(this)}
+                        onResetError={this.handleResetError.bind(this)}/>
                 ))}
-              </tbody>
-            </table>
-        ) : (
-            <div className="big-spacer-top">
-              {translate('quality_gates.no_conditions')}
-            </div>
-        )}
+                </tbody>
+              </table>
+          ) : (
+              <div className="big-spacer-top">
+                {translate('quality_gates.no_conditions')}
+              </div>
+          )}
 
-        {edit && (
-            <AddConditionForm metrics={metrics} onSelect={onAddCondition}/>
-        )}
-      </div>
-  );
+          {edit && (
+              <AddConditionForm metrics={metrics} onSelect={onAddCondition}/>
+          )}
+        </div>
+    );
+  }
 }

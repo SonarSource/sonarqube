@@ -60,7 +60,7 @@ export default class Condition extends Component {
   }
 
   handleSaveClick (e) {
-    const { qualityGate, condition, onSaveCondition } = this.props;
+    const { qualityGate, condition, onSaveCondition, onError, onResetError } = this.props;
     const period = this.state.period;
     const data = {
       metric: condition.metric,
@@ -81,11 +81,12 @@ export default class Condition extends Component {
     createCondition(qualityGate.id, data).then(newCondition => {
       this.setState({ changed: false });
       onSaveCondition(condition, newCondition);
-    });
+      onResetError();
+    }).catch(error => onError(error));
   }
 
   handleUpdateClick (e) {
-    const { condition, onSaveCondition } = this.props;
+    const { condition, onSaveCondition, onError, onResetError } = this.props;
     const period = this.state.period;
     const data = {
       id: condition.id,
@@ -103,7 +104,8 @@ export default class Condition extends Component {
     updateCondition(data).then(newCondition => {
       this.setState({ changed: false });
       onSaveCondition(condition, newCondition);
-    });
+      onResetError();
+    }).catch(error => onError(error));
   }
 
   handleDeleteClick (e) {
