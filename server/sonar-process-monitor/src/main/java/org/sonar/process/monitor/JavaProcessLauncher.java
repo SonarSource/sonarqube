@@ -105,8 +105,7 @@ class JavaProcessLauncher {
 
   private String buildJavaPath() {
     String separator = System.getProperty("file.separator");
-    return new File(new File(System.getProperty("java.home")),
-      "bin" + separator + "java").getAbsolutePath();
+    return new File(new File(System.getProperty("java.home")), "bin" + separator + "java").getAbsolutePath();
   }
 
   private List<String> buildClasspath(JavaCommand javaCommand) {
@@ -116,7 +115,7 @@ class JavaProcessLauncher {
   private File buildPropertiesFile(JavaCommand javaCommand) {
     File propertiesFile = null;
     try {
-      propertiesFile = File.createTempFile("sq-process", "properties");
+      propertiesFile = File.createTempFile("sq-process", "properties", tempDir);
       Properties props = new Properties();
       props.putAll(javaCommand.getArguments());
       props.setProperty(PROPERTY_PROCESS_KEY, javaCommand.getProcessId().getKey());

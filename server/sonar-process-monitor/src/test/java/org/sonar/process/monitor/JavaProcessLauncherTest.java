@@ -22,29 +22,28 @@ package org.sonar.process.monitor;
 import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.sonar.process.ProcessId;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
 
 public class JavaProcessLauncherTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void fail_to_launch() throws Exception {
     File tempDir = temp.newFolder();
     JavaCommand command = new JavaCommand(ProcessId.ELASTICSEARCH);
     JavaProcessLauncher launcher = new JavaProcessLauncher(new Timeouts(), tempDir);
-    try {
-      // command is not correct (missing options), java.lang.ProcessBuilder#start()
-      // throws an exception
-      launcher.launch(command);
-      fail();
-    } catch (IllegalStateException e) {
-      assertThat(e).hasMessage("Fail to launch [es]");
-    }
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Fail to launch [es]");
+
+    // command is not correct (missing options), java.lang.ProcessBuilder#start()
+    // throws an exception
+    launcher.launch(command);
   }
 }
