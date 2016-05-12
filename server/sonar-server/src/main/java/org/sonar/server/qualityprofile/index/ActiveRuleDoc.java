@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.index;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
@@ -32,7 +31,6 @@ import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
-import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PARENT_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY;
@@ -91,21 +89,6 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
 
   public ActiveRuleDoc setInheritance(@Nullable String s) {
     setField(FIELD_ACTIVE_RULE_INHERITANCE, s);
-    return this;
-  }
-
-  @Override
-  @CheckForNull
-  public ActiveRuleKey parentKey() {
-    String data = getNullableField(FIELD_ACTIVE_RULE_PARENT_KEY);
-    if (data != null && !data.isEmpty()) {
-      return ActiveRuleKey.parse(data);
-    }
-    return null;
-  }
-
-  public ActiveRuleDoc setParentKey(@Nullable String s) {
-    setField(FIELD_ACTIVE_RULE_PARENT_KEY, s);
     return this;
   }
 

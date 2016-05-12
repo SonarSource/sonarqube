@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import javax.annotation.CheckForNull;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 
 public interface ActiveRule {
@@ -37,8 +36,5 @@ public interface ActiveRule {
   String severity();
 
   Inheritance inheritance();
-
-  @CheckForNull
-  ActiveRuleKey parentKey();
 
 }

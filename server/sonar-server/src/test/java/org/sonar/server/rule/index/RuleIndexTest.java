@@ -443,12 +443,9 @@ public class RuleIndexTest {
       ActiveRuleDocTesting.newDoc(activeRuleKey2),
       ActiveRuleDocTesting.newDoc(activeRuleKey3),
       // Profile 2 is a child a profile 1
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1))
-        .setParentKey(activeRuleKey1.toString()).setInheritance(INHERITED.name()),
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2))
-        .setParentKey(activeRuleKey2.toString()).setInheritance(OVERRIDES.name()),
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3))
-        .setParentKey(activeRuleKey3.toString()).setInheritance(INHERITED.name()));
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)).setInheritance(INHERITED.name()),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)).setInheritance(OVERRIDES.name()),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_3)).setInheritance(INHERITED.name()));
 
     // 0. get all rules
     assertThat(index.search(new RuleQuery(), new SearchOptions()).getIds())

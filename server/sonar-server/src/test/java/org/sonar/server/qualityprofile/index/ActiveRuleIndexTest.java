@@ -105,10 +105,8 @@ public class ActiveRuleIndexTest {
       ActiveRuleDocTesting.newDoc(activeRuleKey1).setSeverity(BLOCKER),
       ActiveRuleDocTesting.newDoc(activeRuleKey2).setSeverity(MINOR),
       // Profile 2 is a child a profile 1
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)).setSeverity(MAJOR)
-        .setParentKey(activeRuleKey1.toString()).setInheritance(INHERITED.name()),
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)).setSeverity(BLOCKER)
-        .setParentKey(activeRuleKey2.toString()).setInheritance(OVERRIDES.name()));
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_1)).setSeverity(MAJOR).setInheritance(INHERITED.name()),
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)).setSeverity(BLOCKER).setInheritance(OVERRIDES.name()));
 
     // 0. Test base case
     assertThat(tester.countDocuments(INDEX, TYPE_ACTIVE_RULE)).isEqualTo(4);
@@ -137,7 +135,7 @@ public class ActiveRuleIndexTest {
       docs.add(ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(profileKey, RULE_KEY_1)).setSeverity(BLOCKER));
       docs.add(ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(profileKey, RULE_KEY_2)).setSeverity(MAJOR));
     }
-    indexActiveRules(docs.toArray(new ActiveRuleDoc[]{}));
+    indexActiveRules(docs.toArray(new ActiveRuleDoc[] {}));
 
     Map<String, Multimap<String, FacetValue>> stats = index.getStatsByProfileKeys(profileKeys);
     assertThat(stats).hasSize(30);
@@ -158,8 +156,7 @@ public class ActiveRuleIndexTest {
     indexRules(
       RuleDocTesting.newDoc(RULE_KEY_1),
       RuleDocTesting.newDoc(RULE_KEY_2),
-      RuleDocTesting.newDoc(RuleKey.of("xoo", "removed")).setStatus(RuleStatus.REMOVED.name())
-    );
+      RuleDocTesting.newDoc(RuleKey.of("xoo", "removed")).setStatus(RuleStatus.REMOVED.name()));
 
     indexActiveRules(
       ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
@@ -168,8 +165,7 @@ public class ActiveRuleIndexTest {
       // Removed rule can still be activated for instance when removing the checkstyle plugin, active rules related on checkstyle are not
       // removed
       // because if the plugin is re-install, quality profiles using these rule are not changed.
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RuleKey.of("xoo", "removed")))
-    );
+      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RuleKey.of("xoo", "removed"))));
 
     // 1. find by rule key
 

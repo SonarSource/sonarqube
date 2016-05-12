@@ -43,15 +43,13 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
     "r.plugin_rule_key",
     "r.plugin_name",
     "qp.kee",
-    "profile_parent.kee",
     "a.created_at",
     "a.updated_at"
   };
 
   private static final String SQL_ALL = "SELECT " + StringUtils.join(FIELDS, ",") + " FROM active_rules a " +
     "INNER JOIN rules_profiles qp ON qp.id=a.profile_id " +
-    "INNER JOIN rules r ON r.id = a.rule_id " +
-    "LEFT JOIN rules_profiles profile_parent ON profile_parent.kee=qp.parent_kee ";
+    "INNER JOIN rules r ON r.id = a.rule_id";
 
   private static final String SQL_AFTER_DATE = SQL_ALL + " WHERE a.updated_at>?";
 
@@ -83,22 +81,10 @@ public class ActiveRuleResultSetIterator extends ResultSetIterator<ActiveRuleDoc
     doc.setSeverity(SeverityUtil.getSeverityFromOrdinal(rs.getInt(1)));
 
     String inheritance = rs.getString(2);
-    if (inheritance != null) {
-      doc.setInheritance(inheritance);
-    } else {
-      doc.setInheritance(ActiveRule.Inheritance.NONE.name());
-    }
+    doc.setInheritance(inheritance == null ? ActiveRule.Inheritance.NONE.name() : inheritance);
 
-    String parentProfileKey = rs.getString(6);
-    if (parentProfileKey != null) {
-      doc.setParentKey(ActiveRuleKey.of(parentProfileKey, ruleKey).toString());
-    } else {
-      doc.setParentKey(null);
-    }
-
-    doc.setCreatedAt(rs.getLong(7));
-    doc.setUpdatedAt(rs.getLong(8));
-
+    doc.setCreatedAt(rs.getLong(6));
+    doc.setUpdatedAt(rs.getLong(7));
     return doc;
   }
 

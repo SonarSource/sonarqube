@@ -32,7 +32,6 @@ public class ActiveRuleDocTesting {
   public static ActiveRuleDoc newDoc(ActiveRuleKey key) {
     return new ActiveRuleDoc(key)
       .setSeverity(Severity.CRITICAL)
-      .setParentKey(null)
       .setInheritance(null).setCreatedAt(150000000L)
       .setUpdatedAt(160000000L);
   }
