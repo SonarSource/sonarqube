@@ -21,48 +21,65 @@ package org.sonar.batch;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import org.sonar.api.batch.SonarIndex;
+import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.SensorContext;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.KeyValueFormat.Converter;
+import org.sonar.batch.scan.measure.MeasureCache;
+
+import static com.google.common.collect.Maps.filterValues;
 
 public class DefaultFileLinesContext implements FileLinesContext {
 
-  private final SonarIndex index;
-  private final Resource resource;
+  private static final Predicate<Object> LINES_WITH_NON_ZERO_VALUE = new Predicate<Object>() {
+    @Override
+    public boolean apply(Object input) {
+      return !input.equals(0);
+    }
+  };
+
+  private final SensorContext context;
+  private final InputFile inputFile;
+  private final MetricFinder metricFinder;
+  private final MeasureCache measureCache;
 
   /**
    * metric key -> line -> value
    */
   private final Map<String, Map<Integer, Object>> map = Maps.newHashMap();
 
-  public DefaultFileLinesContext(SonarIndex index, Resource resource) {
-    Preconditions.checkNotNull(index);
-    Preconditions.checkArgument(ResourceUtils.isFile(resource));
-    this.index = index;
-    this.resource = resource;
+  public DefaultFileLinesContext(SensorContext context, InputFile inputFile, MetricFinder metricFinder, MeasureCache measureCache) {
+    this.context = context;
+    this.inputFile = inputFile;
+    this.metricFinder = metricFinder;
+    this.measureCache = measureCache;
   }
 
   @Override
   public void setIntValue(String metricKey, int line, int value) {
     Preconditions.checkNotNull(metricKey);
-    Preconditions.checkArgument(line > 0);
+    checkLineRange(line);
 
     setValue(metricKey, line, value);
+  }
+
+  private void checkLineRange(int line) {
+    Preconditions.checkArgument(line > 0, "Line number should be positive for file %s.", inputFile);
+    Preconditions.checkArgument(line <= inputFile.lines(), "Line %s is out of range for file %s. File has %s lines.", line, inputFile, inputFile.lines());
   }
 
   @Override
   public Integer getIntValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
-    Preconditions.checkArgument(line > 0);
+    checkLineRange(line);
 
     Map lines = map.get(metricKey);
     if (lines == null) {
@@ -76,7 +93,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   @Override
   public void setStringValue(String metricKey, int line, String value) {
     Preconditions.checkNotNull(metricKey);
-    Preconditions.checkArgument(line > 0);
+    checkLineRange(line);
     Preconditions.checkNotNull(value);
 
     setValue(metricKey, line, value);
@@ -85,7 +102,7 @@ public class DefaultFileLinesContext implements FileLinesContext {
   @Override
   public String getStringValue(String metricKey, int line) {
     Preconditions.checkNotNull(metricKey);
-    Preconditions.checkArgument(line > 0);
+    checkLineRange(line);
 
     Map lines = map.get(metricKey);
     if (lines == null) {
@@ -115,19 +132,27 @@ public class DefaultFileLinesContext implements FileLinesContext {
       String metricKey = entry.getKey();
       Map<Integer, Object> lines = entry.getValue();
       if (shouldSave(lines)) {
-        String data = KeyValueFormat.format(lines);
-        Measure measure = new Measure(metricKey)
-          .setPersistenceMode(PersistenceMode.DATABASE)
-          .setData(data);
-        index.addMeasure(resource, measure);
+        String data = KeyValueFormat.format(optimizeStorage(metricKey, lines));
+        context.newMeasure()
+          .on(inputFile)
+          .forMetric(metricFinder.findByKey(metricKey))
+          .withValue(data)
+          .save();
         entry.setValue(ImmutableMap.copyOf(lines));
       }
     }
   }
 
+  private static Map optimizeStorage(String metricKey, Map<Integer, Object> lines) {
+    // SONAR-7464 Don't store 0 because this is default value anyway
+    if (CoreMetrics.NCLOC_DATA_KEY.equals(metricKey) || CoreMetrics.COMMENT_LINES_DATA_KEY.equals(metricKey) || CoreMetrics.EXECUTABLE_LINES_DATA_KEY.equals(metricKey)) {
+      return filterValues(lines, LINES_WITH_NON_ZERO_VALUE);
+    }
+    return lines;
+  }
+
   private Map loadData(String metricKey, Converter converter) {
-    // FIXME no way to load measure only by key
-    Measure measure = index.getMeasure(resource, new Metric(metricKey));
+    Measure measure = measureCache.byMetric(inputFile.key(), metricKey);
     String data = measure != null ? measure.getData() : null;
     if (data != null) {
       return ImmutableMap.copyOf(KeyValueFormat.parse(data, KeyValueFormat.newIntegerConverter(), converter));

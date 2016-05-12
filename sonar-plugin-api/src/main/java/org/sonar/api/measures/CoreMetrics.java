@@ -429,12 +429,13 @@ public final class CoreMetrics {
       .create();
 
   public static final String FILE_COMPLEXITY_DISTRIBUTION_KEY = "file_complexity_distribution";
-  public static final Metric<String> FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files Distribution / Complexity", Metric.ValueType.DISTRIB)
-    .setDescription("Files distribution /complexity")
-    .setDirection(Metric.DIRECTION_NONE)
-    .setQualitative(true)
-    .setDomain(DOMAIN_COMPLEXITY)
-    .create();
+  public static final Metric<String> FILE_COMPLEXITY_DISTRIBUTION = new Metric.Builder(FILE_COMPLEXITY_DISTRIBUTION_KEY, "Files Distribution / Complexity",
+    Metric.ValueType.DISTRIB)
+      .setDescription("Files distribution /complexity")
+      .setDirection(Metric.DIRECTION_NONE)
+      .setQualitative(true)
+      .setDomain(DOMAIN_COMPLEXITY)
+      .create();
 
   // --------------------------------------------------------------------------------------------------------------------
   //
@@ -2449,6 +2450,7 @@ public final class CoreMetrics {
   /**
    * Information about lines of code in file.
    * Key-value pairs, where key - is a number of line, and value - is an indicator of whether line contains code (1) or not (0).
+   * If a line number is missing in the map it is equivalent to the default value (0).
    *
    * @see org.sonar.api.measures.FileLinesContext
    * @since 2.14
@@ -2466,6 +2468,7 @@ public final class CoreMetrics {
   /**
    * Information about comments in file.
    * Key-value pairs, where key - is a number of line, and value - is an indicator of whether line contains comment (1) or not (0).
+   * If a line number is missing in the map it is equivalent to the default value (0).
    *
    * @see org.sonar.api.measures.FileLinesContext
    * @since 2.14
@@ -2483,6 +2486,7 @@ public final class CoreMetrics {
   /**
    * Information about executable lines of code in file.
    * Key-value pairs, where key - is a number of line, and value - is an indicator of whether line contains executable code (1) or not (0).
+   * If a line number is missing in the map it is equivalent to the default value (0).
    *
    * @see org.sonar.api.measures.FileLinesContext
    * @since 5.5

@@ -56,7 +56,7 @@ public class DefaultMeasure<G extends Serializable> extends DefaultStorable impl
 
   @Override
   public DefaultMeasure<G> forMetric(Metric<G> metric) {
-    Preconditions.checkState(metric != null, "Metric already defined");
+    Preconditions.checkState(this.metric == null, "Metric already defined");
     Preconditions.checkNotNull(metric, "metric should be non null");
     this.metric = metric;
     return this;

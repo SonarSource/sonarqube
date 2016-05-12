@@ -29,7 +29,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.analysis.AnalysisProperties;
@@ -141,7 +140,6 @@ public class ProjectScanContainer extends ComponentContainer {
       MetricProvider.class,
       ProjectConfigurator.class,
       DefaultIndex.class,
-      DefaultFileLinesContextFactory.class,
       Caches.class,
       BatchComponentCache.class,
       DefaultIssueCallback.class,

@@ -28,6 +28,7 @@ import org.sonar.api.batch.fs.internal.FileMetadata;
 import org.sonar.api.batch.rule.CheckFactory;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileExclusions;
+import org.sonar.batch.DefaultFileLinesContextFactory;
 import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.bootstrap.BatchExtensionDictionnary;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
@@ -168,7 +169,9 @@ public class ModuleScanContainer extends ComponentContainer {
       // Perspectives
       BatchPerspectives.class,
       HighlightableBuilder.class,
-      SymbolizableBuilder.class);
+      SymbolizableBuilder.class,
+
+      DefaultFileLinesContextFactory.class);
   }
 
   private void addExtensions() {

@@ -20,129 +20,159 @@
 package org.sonar.batch;
 
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Matchers;
-import org.sonar.api.batch.SonarIndex;
+import org.junit.rules.ExpectedException;
+import org.junit.rules.TemporaryFolder;
+import org.sonar.api.batch.fs.internal.DefaultInputFile;
+import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Measure;
-import org.sonar.api.measures.Metric;
-import org.sonar.api.measures.PersistenceMode;
-import org.sonar.api.resources.Directory;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.Scopes;
+import org.sonar.batch.scan.measure.MeasureCache;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.EXECUTABLE_LINES_DATA_KEY;
+import static org.sonar.api.measures.CoreMetrics.NCLOC_DATA_KEY;
 
 public class DefaultFileLinesContextTest {
 
-  private SonarIndex index;
-  private Resource resource;
+  private static final String HITS_METRIC_KEY = "hits";
+  private static final String AUTHOR_METRIC_KEY = "author";
+  private static final String BRANCHES_METRIC_KEY = "branches";
+
+  @Rule
+  public TemporaryFolder temp = new TemporaryFolder();
+
+  @Rule
+  public ExpectedException thrown = ExpectedException.none();
+
   private DefaultFileLinesContext fileLineMeasures;
 
-  @Before
-  public void setUp() {
-    index = mock(SonarIndex.class);
-    resource = mock(Resource.class);
-    when(resource.getScope()).thenReturn(Scopes.FILE);
-    fileLineMeasures = new DefaultFileLinesContext(index, resource);
-  }
+  private SensorContextTester sensorContextTester;
+  private MeasureCache measureCache;
 
-  @Test(expected = IllegalArgumentException.class)
-  public void shouldNotAllowCreationForDirectory() {
-    new DefaultFileLinesContext(index, Directory.create("key"));
+  @Before
+  public void setUp() throws Exception {
+    sensorContextTester = SensorContextTester.create(temp.newFolder());
+    MetricFinder metricFinder = mock(MetricFinder.class);
+    org.sonar.api.batch.measure.Metric<String> hitsMetric = mock(org.sonar.api.batch.measure.Metric.class);
+    when(hitsMetric.valueType()).thenReturn(String.class);
+    when(hitsMetric.key()).thenReturn(HITS_METRIC_KEY);
+    when(metricFinder.<String>findByKey(HITS_METRIC_KEY)).thenReturn(hitsMetric);
+    org.sonar.api.batch.measure.Metric<String> authorMetric = mock(org.sonar.api.batch.measure.Metric.class);
+    when(authorMetric.valueType()).thenReturn(String.class);
+    when(authorMetric.key()).thenReturn(AUTHOR_METRIC_KEY);
+    when(metricFinder.<String>findByKey(AUTHOR_METRIC_KEY)).thenReturn(authorMetric);
+    org.sonar.api.batch.measure.Metric<String> branchesMetric = mock(org.sonar.api.batch.measure.Metric.class);
+    when(branchesMetric.valueType()).thenReturn(String.class);
+    when(branchesMetric.key()).thenReturn(BRANCHES_METRIC_KEY);
+    when(metricFinder.<String>findByKey(BRANCHES_METRIC_KEY)).thenReturn(branchesMetric);
+    when(metricFinder.<String>findByKey(CoreMetrics.NCLOC_DATA_KEY)).thenReturn(CoreMetrics.NCLOC_DATA);
+    when(metricFinder.<String>findByKey(CoreMetrics.EXECUTABLE_LINES_DATA_KEY)).thenReturn(CoreMetrics.EXECUTABLE_LINES_DATA);
+    when(metricFinder.<String>findByKey(CoreMetrics.COMMENT_LINES_DATA_KEY)).thenReturn(CoreMetrics.COMMENT_LINES_DATA);
+    measureCache = mock(MeasureCache.class);
+    fileLineMeasures = new DefaultFileLinesContext(sensorContextTester, new DefaultInputFile("foo", "src/foo.php").initMetadata("Foo\nbar\nbiz"), metricFinder,
+      measureCache);
   }
 
   @Test
   public void shouldSave() {
-    fileLineMeasures.setIntValue("hits", 1, 2);
-    fileLineMeasures.setIntValue("hits", 3, 4);
+    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 1, 2);
+    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 3, 0);
     fileLineMeasures.save();
 
-    assertThat(fileLineMeasures.toString()).isEqualTo("DefaultFileLinesContext{map={hits={1=2, 3=4}}}");
+    assertThat(fileLineMeasures.toString()).isEqualTo("DefaultFileLinesContext{map={hits={1=2, 3=0}}}");
 
-    ArgumentCaptor<Measure> measureCaptor = ArgumentCaptor.forClass(Measure.class);
-    verify(index).addMeasure(Matchers.eq(resource), measureCaptor.capture());
-    Measure measure = measureCaptor.getValue();
-    assertThat(measure.getMetricKey(), is("hits"));
-    assertThat(measure.getPersistenceMode(), is(PersistenceMode.DATABASE));
-    assertThat(measure.getData(), is("1=2;3=4"));
+    assertThat(sensorContextTester.measure("foo:src/foo.php", HITS_METRIC_KEY).value()).isEqualTo("1=2;3=0");
+  }
+
+  @Test
+  public void validateLineGreaterThanZero() {
+    thrown.expectMessage("Line number should be positive for file [moduleKey=foo, relative=src/foo.php, basedir=null].");
+    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 0, 2);
+  }
+
+  @Test
+  public void validateLineLowerThanLineCount() {
+    thrown.expectMessage("Line 4 is out of range for file [moduleKey=foo, relative=src/foo.php, basedir=null]. File has 3 lines");
+    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 4, 2);
+  }
+
+  @Test
+  public void optimizeValues() {
+    fileLineMeasures.setIntValue(NCLOC_DATA_KEY, 1, 0);
+    fileLineMeasures.setIntValue(NCLOC_DATA_KEY, 2, 1);
+    fileLineMeasures.setIntValue(EXECUTABLE_LINES_DATA_KEY, 1, 0);
+    fileLineMeasures.setIntValue(EXECUTABLE_LINES_DATA_KEY, 2, 1);
+    fileLineMeasures.setIntValue(COMMENT_LINES_DATA_KEY, 1, 0);
+    fileLineMeasures.setIntValue(COMMENT_LINES_DATA_KEY, 2, 1);
+    fileLineMeasures.save();
+
+    assertThat(sensorContextTester.measure("foo:src/foo.php", NCLOC_DATA_KEY).value()).isEqualTo("2=1");
+    assertThat(sensorContextTester.measure("foo:src/foo.php", EXECUTABLE_LINES_DATA_KEY).value()).isEqualTo("2=1");
+    assertThat(sensorContextTester.measure("foo:src/foo.php", COMMENT_LINES_DATA_KEY).value()).isEqualTo("2=1");
   }
 
   @Test
   public void shouldSaveSeveral() {
-    fileLineMeasures.setIntValue("hits", 1, 2);
-    fileLineMeasures.setIntValue("hits", 3, 4);
-    fileLineMeasures.setStringValue("author", 1, "simon");
-    fileLineMeasures.setStringValue("author", 3, "evgeny");
+    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 1, 2);
+    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 3, 4);
+    fileLineMeasures.setStringValue(AUTHOR_METRIC_KEY, 1, "simon");
+    fileLineMeasures.setStringValue(AUTHOR_METRIC_KEY, 3, "evgeny");
     fileLineMeasures.save();
-    fileLineMeasures.setIntValue("branches", 1, 2);
-    fileLineMeasures.setIntValue("branches", 3, 4);
+    fileLineMeasures.setIntValue(BRANCHES_METRIC_KEY, 1, 2);
+    fileLineMeasures.setIntValue(BRANCHES_METRIC_KEY, 3, 4);
     fileLineMeasures.save();
 
-    verify(index, times(3)).addMeasure(Matchers.eq(resource), Matchers.any(Measure.class));
+    assertThat(sensorContextTester.measure("foo:src/foo.php", HITS_METRIC_KEY).value()).isEqualTo("1=2;3=4");
+    assertThat(sensorContextTester.measure("foo:src/foo.php", AUTHOR_METRIC_KEY).value()).isEqualTo("1=simon;3=evgeny");
+    assertThat(sensorContextTester.measure("foo:src/foo.php", BRANCHES_METRIC_KEY).value()).isEqualTo("1=2;3=4");
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void shouldNotModifyAfterSave() {
-    fileLineMeasures.setIntValue("hits", 1, 2);
+    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 1, 2);
     fileLineMeasures.save();
-    fileLineMeasures.save();
-    verify(index).addMeasure(Matchers.eq(resource), Matchers.any(Measure.class));
-    fileLineMeasures.setIntValue("hits", 1, 2);
+    fileLineMeasures.setIntValue(HITS_METRIC_KEY, 1, 2);
   }
 
   @Test
   public void shouldLoadIntValues() {
-    when(index.getMeasure(Matchers.any(Resource.class), Matchers.any(Metric.class)))
-      .thenReturn(new Measure("hits").setData("1=2;3=4"));
+    when(measureCache.byMetric("foo:src/foo.php", HITS_METRIC_KEY)).thenReturn(new Measure(HITS_METRIC_KEY).setData("1=2;3=4"));
 
-    assertThat(fileLineMeasures.getIntValue("hits", 1), is(2));
-    assertThat(fileLineMeasures.getIntValue("hits", 3), is(4));
-    assertThat("no measure on line", fileLineMeasures.getIntValue("hits", 5), nullValue());
+    assertThat(fileLineMeasures.getIntValue(HITS_METRIC_KEY, 1), is(2));
+    assertThat(fileLineMeasures.getIntValue(HITS_METRIC_KEY, 3), is(4));
+    assertThat("no measure on line", fileLineMeasures.getIntValue(HITS_METRIC_KEY, 2), nullValue());
   }
 
   @Test
   public void shouldLoadStringValues() {
-    when(index.getMeasure(Matchers.any(Resource.class), Matchers.any(Metric.class)))
-      .thenReturn(new Measure("author").setData("1=simon;3=evgeny"));
+    when(measureCache.byMetric("foo:src/foo.php", AUTHOR_METRIC_KEY)).thenReturn(new Measure(AUTHOR_METRIC_KEY).setData("1=simon;3=evgeny"));
 
-    assertThat(fileLineMeasures.getStringValue("author", 1), is("simon"));
-    assertThat(fileLineMeasures.getStringValue("author", 3), is("evgeny"));
-    assertThat("no measure on line", fileLineMeasures.getStringValue("author", 5), nullValue());
-  }
-
-  @Test
-  public void shouldNotSaveAfterLoad() {
-    when(index.getMeasure(Matchers.any(Resource.class), Matchers.any(Metric.class)))
-      .thenReturn(new Measure("author").setData("1=simon;3=evgeny"));
-
-    fileLineMeasures.getStringValue("author", 1);
-    fileLineMeasures.save();
-
-    verify(index, never()).addMeasure(Matchers.eq(resource), Matchers.any(Measure.class));
+    assertThat(fileLineMeasures.getStringValue(AUTHOR_METRIC_KEY, 1), is("simon"));
+    assertThat(fileLineMeasures.getStringValue(AUTHOR_METRIC_KEY, 3), is("evgeny"));
+    assertThat("no measure on line", fileLineMeasures.getStringValue(AUTHOR_METRIC_KEY, 2), nullValue());
   }
 
   @Test(expected = UnsupportedOperationException.class)
   public void shouldNotModifyAfterLoad() {
-    when(index.getMeasure(Matchers.any(Resource.class), Matchers.any(Metric.class)))
-      .thenReturn(new Measure("author").setData("1=simon;3=evgeny"));
+    when(measureCache.byMetric("foo:src/foo.php", AUTHOR_METRIC_KEY)).thenReturn(new Measure(AUTHOR_METRIC_KEY).setData("1=simon;3=evgeny"));
 
-    fileLineMeasures.getStringValue("author", 1);
-    fileLineMeasures.setStringValue("author", 1, "evgeny");
+    fileLineMeasures.getStringValue(AUTHOR_METRIC_KEY, 1);
+    fileLineMeasures.setStringValue(AUTHOR_METRIC_KEY, 1, "evgeny");
   }
 
   @Test
   public void shouldNotFailIfNoMeasureInIndex() {
-    assertThat(fileLineMeasures.getIntValue("hits", 1), nullValue());
-    assertThat(fileLineMeasures.getStringValue("author", 1), nullValue());
+    assertThat(fileLineMeasures.getIntValue(HITS_METRIC_KEY, 1), nullValue());
+    assertThat(fileLineMeasures.getStringValue(AUTHOR_METRIC_KEY, 1), nullValue());
   }
 
 }
