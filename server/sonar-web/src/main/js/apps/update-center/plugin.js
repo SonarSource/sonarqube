@@ -72,7 +72,7 @@ export default Backbone.Model.extend({
     return this._action({
       url: window.baseUrl + '/api/plugins/update',
       success (model) {
-        model.set({ _status: 'installing' });
+        model.set({ _status: 'updating' });
       }
     });
   },

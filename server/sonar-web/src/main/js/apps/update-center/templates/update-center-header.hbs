@@ -3,23 +3,30 @@
   <p class="page-description">{{t 'update_center.page.description'}}</p>
 </header>
 
-{{#any installing uninstalling}}
+{{#any installing updating uninstalling}}
   <div class="js-pending panel panel-warning big-spacer-bottom">
     <div class="display-inline-block">
-      <p>
-        SonarQube needs to be restarted in order to
+      <p>SonarQube needs to be restarted in order to</p>
+      <ul class="list-styled spacer-top">
         {{#if installing}}
-          install
-          <strong class="big text-success little-spacer-left little-spacer-right">{{installing}}</strong> plugins
+          <li>
+            install
+            <strong class="big text-success little-spacer-left little-spacer-right">{{installing}}</strong> plugins
+          </li>
         {{/if}}
-        {{#all installing uninstalling}}
-          and
-        {{/all}}
+        {{#if updating}}
+          <li>
+            update
+            <strong class="big text-success little-spacer-left little-spacer-right">{{updating}}</strong> plugins
+          </li>
+        {{/if}}
         {{#if uninstalling}}
-          uninstall
-          <strong class="big text-danger little-spacer-left little-spacer-right">{{uninstalling}}</strong> plugins
+          <li>
+            uninstall
+            <strong class="big text-danger little-spacer-left little-spacer-right">{{uninstalling}}</strong> plugins
+          </li>
         {{/if}}
-      </p>
+      </ul>
     </div>
     <div class="pull-right">
       <button class="js-restart">Restart</button>
