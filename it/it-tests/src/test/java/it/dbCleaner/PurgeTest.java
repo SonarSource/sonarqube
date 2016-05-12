@@ -21,7 +21,7 @@ package it.dbCleaner;
 
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.BuildResult;
-import com.sonar.orchestrator.build.SonarRunner;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
 import java.util.Date;
@@ -34,12 +34,17 @@ import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
-import org.sonar.wsclient.services.PropertyDeleteQuery;
-import org.sonar.wsclient.services.PropertyUpdateQuery;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.WsResponse;
 import util.ItUtils;
 
+import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.equalTo;
+import static util.ItUtils.formatDate;
+import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.runProjectAnalysis;
+import static util.ItUtils.setServerProperty;
 
 public class PurgeTest {
 
@@ -59,8 +64,10 @@ public class PurgeTest {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
 
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/dbCleaner/one-issue-per-line-profile.xml"));
-    orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery("sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay"));
-    orchestrator.getServer().getAdminWsClient().delete(new PropertyDeleteQuery("sonar.dbcleaner.cleanDirectory"));
+
+    setServerProperty(orchestrator, "sonar.dbcleaner.cleanDirectory", null);
+    setServerProperty(orchestrator, "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", null);
+    setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", null);
   }
 
   @Test
@@ -152,13 +159,46 @@ public class PurgeTest {
     int measuresCount = count("project_measures");
     // Using the "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay" property set to '0' is the way
     // to keep only 1 snapshot per day
-    orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", "0"));
+    setServerProperty(orchestrator, "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", "0");
     scan(PROJECT_SAMPLE_PATH);
     assertThat(count("snapshots where qualifier<>'LIB'")).as("Different number of snapshots").isEqualTo(snapshotsCount);
 
     int measureOnNewMetrics = count("project_measures, metrics where metrics.id = project_measures.metric_id and metrics.name like 'new_%'");
     // Number of measures should be the same as previous, with the measures on new metrics
     assertThat(count("project_measures")).as("Different number of measures").isEqualTo(measuresCount + measureOnNewMetrics);
+  }
+
+  /**
+   * SONAR-7175
+   */
+  @Test
+  public void keep_latest_snapshot() {
+    // Keep all snapshots from last 4 weeks
+    setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", "4");
+
+    // Execute an analysis 10 days ago
+    String tenDaysAgo = formatDate(addDays(new Date(), -10));
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", tenDaysAgo);
+
+    // Execute an analysis 8 days ago
+    String eightDaysAgo = formatDate(addDays(new Date(), -8));
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", eightDaysAgo);
+
+    // Now only keep 1 snapshot per week
+    setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", "0");
+
+    // Execute an analysis today to execute the purge of previous weeks snapshots
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH);
+
+    // Check that only analysis from 8 days ago is kept (as it's the last one from previous week)
+    WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(
+      new GetRequest("/api/timemachine/index")
+        .setParam("resource", PROJECT_KEY)
+        .setParam("metrics", "ncloc"))
+      .failIfNotSuccessful();
+    String content = response.content();
+    assertThat(content).contains(eightDaysAgo);
+    assertThat(content).doesNotContain(tenDaysAgo);
   }
 
   /**
@@ -171,7 +211,8 @@ public class PurgeTest {
     assertSingleSnapshot("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1");
 
     // we want the previous snapshot to be purged
-    orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", "0"));
+    setServerProperty(orchestrator, "sonar.dbcleaner.hoursBeforeKeepingOnlyOneSnapshotByDay", "0");
+
     scan("dbCleaner/modules/after");
     assertDeleted("com.sonarsource.it.samples:multi-modules-sample:module_b");
     assertDeleted("com.sonarsource.it.samples:multi-modules-sample:module_b:module_b1");
@@ -214,7 +255,8 @@ public class PurgeTest {
     String select = "snapshots where scope='DIR'";
     int directorySnapshots = count(select);
 
-    orchestrator.getServer().getAdminWsClient().update(new PropertyUpdateQuery("sonar.dbcleaner.cleanDirectory", "false"));
+    setServerProperty(orchestrator, "sonar.dbcleaner.cleanDirectory", "false");
+
     scan(PROJECT_SAMPLE_PATH, "2012-02-02");
 
     assertThat(count(select)).isEqualTo(2 * directorySnapshots);
@@ -253,13 +295,13 @@ public class PurgeTest {
   }
 
   private BuildResult scan(String path, String... extraProperties) {
-    SonarRunner runner = configureRunner(path, extraProperties);
+    SonarScanner runner = configureRunner(path, extraProperties);
     return orchestrator.executeBuild(runner);
   }
 
-  private SonarRunner configureRunner(String projectPath, String... props) {
+  private SonarScanner configureRunner(String projectPath, String... props) {
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line-profile");
-    return SonarRunner.create(ItUtils.projectDir(projectPath)).setProperties(props);
+    return SonarScanner.create(ItUtils.projectDir(projectPath)).setProperties(props);
   }
 
   private int count(String condition) {
@@ -292,4 +334,5 @@ public class PurgeTest {
       System.out.println("  " + row);
     }
   }
+
 }

@@ -60,8 +60,7 @@ public class KeepOneFilterTest {
     assertThat(toDelete).hasSize(2);
 
     List<Long> snapshotIds = snapshotIds(toDelete);
-    assertThat(snapshotIds).contains(3L);
-    assertThat(snapshotIds).contains(4L);
+    assertThat(snapshotIds).containsOnly(2L, 3L);
   }
 
   @Test

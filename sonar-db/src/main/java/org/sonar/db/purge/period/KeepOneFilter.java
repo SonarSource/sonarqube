@@ -73,8 +73,8 @@ class KeepOneFilter implements Filter {
         toDelete.addAll(deletables);
 
       } else if (deletables.size() > 1) {
-        // keep one snapshot
-        toDelete.addAll(deletables.subList(1, deletables.size()));
+        // keep last snapshot
+        toDelete.addAll(deletables.subList(0, deletables.size() - 1));
       }
     }
   }
