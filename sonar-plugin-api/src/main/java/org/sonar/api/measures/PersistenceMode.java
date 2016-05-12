@@ -28,7 +28,9 @@ package org.sonar.api.measures;
  * </ul>
  *
  * @since 1.10
+ * @deprecated since 5.6. No more used since 5.2.
  */
+@Deprecated
 public enum PersistenceMode {
   MEMORY, DATABASE, FULL;
 

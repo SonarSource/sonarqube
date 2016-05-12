@@ -19,17 +19,17 @@
  */
 package org.sonar.api.measures;
 
-import org.apache.commons.lang.StringUtils;
-
-import javax.annotation.Nullable;
-
 import java.util.Collection;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * An utility class to manipulate measures
  *
  * @since 1.10
+ * @deprecated since 5.6. {@link Measure} is deprecated.
  */
+@Deprecated
 public final class MeasureUtils {
 
   /**

@@ -20,18 +20,19 @@
 package org.sonar.batch.scan.measure;
 
 import com.google.common.collect.Lists;
-import org.sonar.api.batch.measure.Metric;
-import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.scanner.protocol.input.GlobalRepositories;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.measure.MetricFinder;
+import org.sonar.api.measures.Metric.ValueType;
+import org.sonar.scanner.protocol.input.GlobalRepositories;
 
 public class DefaultMetricFinder implements MetricFinder {
 
-  private Map<String, Metric> metricsByKey = new LinkedHashMap<>();
+  private Map<String, Metric<Serializable>> metricsByKey = new LinkedHashMap<>();
 
   public DefaultMetricFinder(GlobalRepositories globalReferentials) {
     for (org.sonar.scanner.protocol.input.Metric metric : globalReferentials.metrics()) {
@@ -40,15 +41,15 @@ public class DefaultMetricFinder implements MetricFinder {
   }
 
   @Override
-  public Metric findByKey(String key) {
+  public Metric<Serializable> findByKey(String key) {
     return metricsByKey.get(key);
   }
 
   @Override
-  public Collection<Metric> findAll(List<String> metricKeys) {
-    List<Metric> result = Lists.newLinkedList();
+  public Collection<Metric<Serializable>> findAll(List<String> metricKeys) {
+    List<Metric<Serializable>> result = Lists.newLinkedList();
     for (String metricKey : metricKeys) {
-      Metric metric = findByKey(metricKey);
+      Metric<Serializable> metric = findByKey(metricKey);
       if (metric != null) {
         result.add(metric);
       }
@@ -57,7 +58,7 @@ public class DefaultMetricFinder implements MetricFinder {
   }
 
   @Override
-  public Collection<Metric> findAll() {
+  public Collection<Metric<Serializable>> findAll() {
     return metricsByKey.values();
   }
 

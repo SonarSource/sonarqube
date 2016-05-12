@@ -19,6 +19,8 @@
  */
 package org.sonar.xoo.lang;
 
+import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
@@ -31,9 +33,6 @@ import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-
-import java.io.File;
-import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -83,10 +82,10 @@ public class MeasureSensorTest {
     Metric<Boolean> booleanMetric = new Metric.Builder("bool", "Bool", Metric.ValueType.BOOL)
       .create();
 
-    when(metricFinder.findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
-    when(metricFinder.findByKey("branch_coverage")).thenReturn(CoreMetrics.BRANCH_COVERAGE);
-    when(metricFinder.findByKey("sqale_index")).thenReturn(CoreMetrics.TECHNICAL_DEBT);
-    when(metricFinder.findByKey("bool")).thenReturn(booleanMetric);
+    when(metricFinder.<Integer>findByKey("ncloc")).thenReturn(CoreMetrics.NCLOC);
+    when(metricFinder.<Double>findByKey("branch_coverage")).thenReturn(CoreMetrics.BRANCH_COVERAGE);
+    when(metricFinder.<Long>findByKey("sqale_index")).thenReturn(CoreMetrics.TECHNICAL_DEBT);
+    when(metricFinder.<Boolean>findByKey("bool")).thenReturn(booleanMetric);
 
     sensor.execute(context);
 

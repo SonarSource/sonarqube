@@ -19,11 +19,15 @@
  */
 package org.sonar.api.measures;
 
+import org.sonar.api.batch.sensor.SensorContext;
+
 /**
  * MeasureBuilder helps to build complex measures.
  *
  * @since 1.10
+ * @deprecated since 5.6. To create a new measure on scanner side use {@link SensorContext#newMeasure()}
  */
+@Deprecated
 public interface MeasureBuilder {
   Measure build();
 }

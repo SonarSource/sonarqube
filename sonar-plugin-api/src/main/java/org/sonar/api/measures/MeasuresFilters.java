@@ -27,7 +27,9 @@ import org.sonar.api.rules.Rule;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6. Sensor should only save measures and not read them.
  */
+@Deprecated
 public final class MeasuresFilters {
 
   private MeasuresFilters() {

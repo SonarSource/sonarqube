@@ -61,8 +61,8 @@ public class DefaultSensorContextTest {
     activeRules = new ActiveRulesBuilder().build();
     fs = new DefaultFileSystem(temp.newFolder().toPath());
     MetricFinder metricFinder = mock(MetricFinder.class);
-    when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
-    when(metricFinder.findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
+    when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
+    when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
     settings = new Settings();
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);

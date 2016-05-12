@@ -23,7 +23,9 @@ import java.util.Collection;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6. Sensor should only save measures and not read them.
  */
+@Deprecated
 public interface MeasuresFilter<M> {
 
   M filter(Collection<Measure> measures);

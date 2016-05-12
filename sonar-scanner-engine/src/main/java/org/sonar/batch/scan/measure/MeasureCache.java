@@ -64,8 +64,8 @@ public class MeasureCache {
   }
 
   @CheckForNull
-  public Measure byMetric(String resourceKey, String metricKey) {
-    return cache.get(resourceKey, metricKey);
+  public Measure byMetric(String componentKey, String metricKey) {
+    return cache.get(componentKey, metricKey);
   }
 
   public MeasureCache put(Resource resource, Measure measure) {

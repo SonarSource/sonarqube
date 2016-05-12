@@ -19,12 +19,11 @@
  */
 package org.sonar.api.batch.measure;
 
-import org.sonar.api.batch.BatchSide;
-
-import javax.annotation.CheckForNull;
-
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.sonar.api.batch.BatchSide;
 
 /**
  * @since 4.5
@@ -33,9 +32,9 @@ import java.util.List;
 public interface MetricFinder {
 
   @CheckForNull
-  Metric findByKey(String key);
+  <G extends Serializable> Metric<G> findByKey(String key);
 
-  Collection<Metric> findAll(List<String> metricKeys);
+  Collection<Metric<Serializable>> findAll(List<String> metricKeys);
 
-  Collection<Metric> findAll();
+  Collection<Metric<Serializable>> findAll();
 }

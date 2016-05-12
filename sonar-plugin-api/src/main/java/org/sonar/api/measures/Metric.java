@@ -38,6 +38,10 @@ import static com.google.common.base.Objects.firstNonNull;
 import static com.google.common.base.Preconditions.checkArgument;
 import static org.apache.commons.lang.StringUtils.isNotBlank;
 
+/**
+ * Used to define a metric in a plugin. Should be used with {@link Metrics} extension point.
+ * Should no more be used on scanner side. Use {@link org.sonar.api.batch.measure.Metric} instead. 
+ */
 @BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide

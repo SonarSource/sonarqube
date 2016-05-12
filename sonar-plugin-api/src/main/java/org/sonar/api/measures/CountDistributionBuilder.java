@@ -33,7 +33,9 @@ import org.sonar.api.utils.SonarException;
  * <p>An example of usage : you wish to record the number of violations for each level of rules priority
  *
  * @since 1.10
+ * @deprecated since 5.6. Scanner side is not responsible to aggregate measures since 5.2.
  */
+@Deprecated
 public class CountDistributionBuilder implements MeasureBuilder {
 
   private final Metric metric;

@@ -22,6 +22,7 @@ package org.sonar.api.batch.sensor.measure;
 import java.io.Serializable;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.measure.Metric;
+import org.sonar.api.batch.measure.MetricFinder;
 
 /**
  * Builder to create new Measure.
@@ -36,7 +37,7 @@ public interface NewMeasure<G extends Serializable> {
   NewMeasure<G> on(InputComponent component);
 
   /**
-   * Set the metric this measure belong to.
+   * Set the metric this measure belong to. To find a metric based on its key you can use {@link MetricFinder}.
    */
   NewMeasure<G> forMetric(Metric<G> metric);
 

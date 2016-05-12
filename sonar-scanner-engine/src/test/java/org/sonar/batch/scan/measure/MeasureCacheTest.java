@@ -53,7 +53,7 @@ public class MeasureCacheTest extends AbstractCachesTest {
   public void start() {
     super.start();
     metricFinder = mock(MetricFinder.class);
-    when(metricFinder.findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
+    when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     measureCache = new MeasureCache(caches, metricFinder);
   }
 

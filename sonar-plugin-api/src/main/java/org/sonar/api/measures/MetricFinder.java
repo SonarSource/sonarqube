@@ -28,7 +28,7 @@ import org.sonar.api.server.ServerSide;
 
 /**
  * @since 2.5
- * @deprecated since 5.1 use {@link org.sonar.api.batch.measure.MetricFinder} on batch side
+ * @deprecated since 5.1 use {@link org.sonar.api.batch.measure.MetricFinder} on scanner side.
  */
 @Deprecated
 @BatchSide

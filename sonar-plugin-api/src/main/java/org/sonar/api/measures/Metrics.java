@@ -27,6 +27,7 @@ import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 
 /**
+ * This is the extension point used by plugins to declare new metrics.
  * @since 1.10
  */
 @BatchSide

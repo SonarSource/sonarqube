@@ -19,14 +19,15 @@
  */
 package org.sonar.api.measures;
 
-import org.sonar.api.utils.KeyValueFormat;
-
 import java.util.Map;
 import java.util.TreeMap;
+import org.sonar.api.utils.KeyValueFormat;
 
 /**
  * @since 1.10
+ * @deprecated since 5.6. Use directly {@link KeyValueFormat}.
  */
+@Deprecated
 public class PropertiesBuilder<K, V> {
   private Metric metric;
   private Map<K, V> props;

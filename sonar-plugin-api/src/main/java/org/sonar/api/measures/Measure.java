@@ -26,12 +26,15 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.math.NumberUtils;
+import org.sonar.api.batch.sensor.SensorContext;
 
 /**
  * A class to handle measures.
  *
  * @since 1.10
+ * @deprecated since 5.6. To create a new measure on scanner side use {@link SensorContext#newMeasure()}
  */
+@Deprecated
 public class Measure<G extends Serializable> implements Serializable {
   private static final String INDEX_SHOULD_BE_IN_RANGE_FROM_1_TO_5 = "Index should be in range from 1 to 5";
 
