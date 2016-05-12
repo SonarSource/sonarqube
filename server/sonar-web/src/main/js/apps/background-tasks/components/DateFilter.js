@@ -64,14 +64,14 @@ export default class DateFilter extends Component {
   }
 
   render () {
-    const { minSubmittedAt, maxExecutedAt } = this.props.value;
+    const { minSubmittedAt, maxExecutedAt } = this.props;
 
     return (
         <div>
           <input
               className="input-small"
               value={minSubmittedAt}
-              onChange={this.handleChange.bind(this)}
+              onChange={() => true}
               ref="minDate"
               type="text"
               placeholder="From"/>
@@ -79,7 +79,7 @@ export default class DateFilter extends Component {
           <input
               className="input-small"
               value={maxExecutedAt}
-              onChange={this.handleChange.bind(this)}
+              onChange={() => true}
               ref="maxDate"
               type="text"
               placeholder="To"/>

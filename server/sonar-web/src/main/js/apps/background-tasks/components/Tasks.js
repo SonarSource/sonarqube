@@ -18,14 +18,36 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
+import classNames from 'classnames';
 
 import Task from './Task';
 import { translate } from '../../../helpers/l10n';
 
-export default function Tasks ({ tasks, component, types, onCancelTask, onFilterTask }) {
-  return (
-      <table className="data zebra zebra-hover background-tasks">
-        <thead>
+export default class Tasks extends React.Component {
+  static propTypes = {
+    tasks: React.PropTypes.array.isRequired,
+    component: React.PropTypes.object,
+    types: React.PropTypes.array.isRequired,
+    loading: React.PropTypes.bool.isRequired,
+    onCancelTask: React.PropTypes.func.isRequired,
+    onFilterTask: React.PropTypes.func.isRequired
+  };
+
+  shouldComponentUpdate (nextProps, nextState) {
+    return shallowCompare(this, nextProps, nextState);
+  }
+
+  render () {
+    const { tasks, component, types, loading, onCancelTask, onFilterTask } = this.props;
+
+    const className = classNames('data zebra zebra-hover background-tasks', {
+      'new-loading': loading
+    });
+
+    return (
+        <table className={className}>
+          <thead>
           <tr>
             <th>&nbsp;</th>
             <th>&nbsp;</th>
@@ -36,8 +58,8 @@ export default function Tasks ({ tasks, component, types, onCancelTask, onFilter
             <th>{translate('background_tasks.table.duration')}</th>
             <th>&nbsp;</th>
           </tr>
-        </thead>
-        <tbody>
+          </thead>
+          <tbody>
           {tasks.map((task, index, tasks) => (
               <Task
                   key={task.id}
@@ -49,7 +71,8 @@ export default function Tasks ({ tasks, component, types, onCancelTask, onFilter
                   onCancelTask={onCancelTask}
                   onFilterTask={onFilterTask}/>
           ))}
-        </tbody>
-      </table>
-  );
+          </tbody>
+        </table>
+    );
+  }
 }

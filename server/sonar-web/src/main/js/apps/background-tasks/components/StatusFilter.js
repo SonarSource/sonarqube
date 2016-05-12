@@ -23,7 +23,7 @@ import Select from 'react-select';
 import { STATUSES } from '../constants';
 import { translate } from '../../../helpers/l10n';
 
-export default function StatusFilter ({ value, onChange }) {
+const StatusFilter = ({ value, onChange }) => {
   const options = [
     { value: STATUSES.ALL, label: translate('background_task.status.ALL') },
     { value: STATUSES.ALL_EXCEPT_PENDING, label: translate('background_task.status.ALL_EXCEPT_PENDING') },
@@ -43,4 +43,6 @@ export default function StatusFilter ({ value, onChange }) {
           clearable={false}
           searchable={false}/>
   );
-}
+};
+
+export default StatusFilter;

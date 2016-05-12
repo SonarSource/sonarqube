@@ -20,7 +20,7 @@
 import moment from 'moment';
 import React from 'react';
 
-export default function TaskDate ({ date, baseDate, format }) {
+const TaskDate = ({ date, baseDate, format }) => {
   const m = moment(date);
   const baseM = moment(baseDate);
   const diff = (date && baseDate) ? m.diff(baseM, 'days') : 0;
@@ -34,4 +34,6 @@ export default function TaskDate ({ date, baseDate, format }) {
         {date ? moment(date).format(format) : ''}
       </td>
   );
-}
+};
+
+export default TaskDate;

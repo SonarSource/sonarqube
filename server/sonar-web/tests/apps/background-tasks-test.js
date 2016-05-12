@@ -7,8 +7,8 @@ import Header from '../../src/main/js/apps/background-tasks/components/Header';
 import Stats from '../../src/main/js/apps/background-tasks/components/Stats';
 import Search from '../../src/main/js/apps/background-tasks/components/Search';
 import Tasks from '../../src/main/js/apps/background-tasks/components/Tasks';
-import { STATUSES, CURRENTS, DEBOUNCE_DELAY } from '../../src/main/js/apps/background-tasks/constants';
-import { formatDuration } from '../../src/main/js/apps/background-tasks/helpers';
+import { STATUSES, CURRENTS, DEBOUNCE_DELAY, DEFAULT_FILTERS } from '../../src/main/js/apps/background-tasks/constants';
+import { formatDuration } from '../../src/main/js/apps/background-tasks/utils';
 
 let chai = require('chai');
 let expect = chai.expect;
@@ -29,40 +29,40 @@ describe('Background Tasks', function () {
   });
 
   describe('Search', () => {
+    const defaultProps = {
+      ...DEFAULT_FILTERS,
+      loading: false,
+      types: [],
+      onFilterUpdate: () => true,
+      onReload: () => true
+    };
+
     it('should render search form', () => {
       let component = TestUtils.renderIntoDocument(
-          <Search
-              types={[]}
-              date={{}}/>
-          ),
-          searchBox = TestUtils.scryRenderedDOMComponentsWithClass(component, 'js-search');
+          <Search {...defaultProps}/>
+      );
+      let searchBox = TestUtils.scryRenderedDOMComponentsWithClass(component, 'js-search');
       expect(searchBox).to.have.length(1);
     });
 
     it('should not render search form', () => {
       let component = TestUtils.renderIntoDocument(
-          <Search
-              component={{ id: 'ABCD' }}
-              types={[]}
-              date={{}}/>
-          ),
-          searchBox = TestUtils.scryRenderedDOMComponentsWithClass(component, 'js-search');
+          <Search {...defaultProps} component={{ id: 'ABCD' }}/>
+      );
+      let searchBox = TestUtils.scryRenderedDOMComponentsWithClass(component, 'js-search');
       expect(searchBox).to.be.empty;
     });
 
     it('should search', (done) => {
       let searchSpy = sinon.spy();
       let component = TestUtils.renderIntoDocument(
-          <Search
-              types={[]}
-              date={{}}
-              onSearch={searchSpy}/>);
+          <Search {...defaultProps} onFilterUpdate={searchSpy}/>);
       let searchInput = ReactDOM.findDOMNode(
           TestUtils.findRenderedDOMComponentWithClass(component, 'js-search'));
       searchInput.value = 'some search query';
       TestUtils.Simulate.change(searchInput);
       setTimeout(() => {
-        expect(searchSpy).to.have.been.calledWith('some search query');
+        expect(searchSpy).to.have.been.calledWith({ query: "some search query" });
         done();
       }, DEBOUNCE_DELAY);
     });
@@ -70,10 +70,7 @@ describe('Background Tasks', function () {
     it('should reload', () => {
       let reloadSpy = sinon.spy();
       let component = TestUtils.renderIntoDocument(
-          <Search
-              types={[]}
-              date={{}}
-              onRefresh={reloadSpy}/>
+          <Search {...defaultProps} onReload={reloadSpy}/>
       );
       let reloadButton = component.refs.reloadButton;
       expect(reloadSpy).to.not.have.been.called;
@@ -85,33 +82,33 @@ describe('Background Tasks', function () {
   describe('Stats', () => {
     describe('Pending', () => {
       it('should show zero pending', () => {
-        let result = TestUtils.renderIntoDocument(<Stats pendingCount="0"/>),
-            pendingCounter = result.refs.pendingCount;
+        let result = TestUtils.renderIntoDocument(<Stats pendingCount={0}/>);
+        let pendingCounter = result.refs.pendingCount;
         expect(pendingCounter.textContent).to.contain('0');
       });
 
       it('should show 5 pending', () => {
-        let result = TestUtils.renderIntoDocument(<Stats pendingCount="5"/>),
-            pendingCounter = result.refs.pendingCount;
+        let result = TestUtils.renderIntoDocument(<Stats pendingCount={5}/>);
+        let pendingCounter = result.refs.pendingCount;
         expect(pendingCounter.textContent).to.contain('5');
       });
 
       it('should not show cancel pending button', () => {
-        let result = TestUtils.renderIntoDocument(<Stats pendingCount="0"/>),
-            cancelPending = result.refs.cancelPending;
+        let result = TestUtils.renderIntoDocument(<Stats pendingCount={0}/>);
+        let cancelPending = result.refs.cancelPending;
         expect(cancelPending).to.not.be.ok;
       });
 
       it('should show cancel pending button', () => {
-        let result = TestUtils.renderIntoDocument(<Stats pendingCount="5"/>),
-            cancelPending = result.refs.cancelPending;
+        let result = TestUtils.renderIntoDocument(<Stats pendingCount={5}/>);
+        let cancelPending = result.refs.cancelPending;
         expect(cancelPending).to.be.ok;
       });
 
       it('should trigger cancelling pending', () => {
         let spy = sinon.spy();
-        let result = TestUtils.renderIntoDocument(<Stats pendingCount="5" onCancelAllPending={spy}/>),
-            cancelPending = result.refs.cancelPending;
+        let result = TestUtils.renderIntoDocument(<Stats pendingCount={5} onCancelAllPending={spy}/>);
+        let cancelPending = result.refs.cancelPending;
         expect(spy).to.not.have.been.called;
         TestUtils.Simulate.click(cancelPending);
         expect(spy).to.have.been.called;
@@ -120,33 +117,33 @@ describe('Background Tasks', function () {
 
     describe('Failures', () => {
       it('should show zero failures', () => {
-        let result = TestUtils.renderIntoDocument(<Stats failingCount="0"/>),
-            failureCounter = result.refs.failureCount;
+        let result = TestUtils.renderIntoDocument(<Stats failingCount={0}/>);
+        let failureCounter = result.refs.failureCount;
         expect(failureCounter.textContent).to.contain('0');
       });
 
       it('should show 5 failures', () => {
-        let result = TestUtils.renderIntoDocument(<Stats failingCount="5"/>),
-            failureCounter = result.refs.failureCount;
+        let result = TestUtils.renderIntoDocument(<Stats failingCount={5}/>);
+        let failureCounter = result.refs.failureCount;
         expect(failureCounter.textContent).to.contain('5');
       });
 
       it('should not show link to failures', () => {
-        let result = TestUtils.renderIntoDocument(<Stats failingCount="0"/>),
-            failureCounter = result.refs.failureCount;
+        let result = TestUtils.renderIntoDocument(<Stats failingCount={0}/>);
+        let failureCounter = result.refs.failureCount;
         expect(failureCounter.tagName.toLowerCase()).to.not.equal('a');
       });
 
       it('should show link to failures', () => {
-        let result = TestUtils.renderIntoDocument(<Stats failingCount="5"/>),
-            failureCounter = result.refs.failureCount;
+        let result = TestUtils.renderIntoDocument(<Stats failingCount={5}/>);
+        let failureCounter = result.refs.failureCount;
         expect(failureCounter.tagName.toLowerCase()).to.equal('a');
       });
 
       it('should trigger filtering failures', () => {
         let spy = sinon.spy();
-        let result = TestUtils.renderIntoDocument(<Stats failingCount="5" onShowFailing={spy}/>),
-            failureCounter = result.refs.failureCount;
+        let result = TestUtils.renderIntoDocument(<Stats failingCount={5} onShowFailing={spy}/>);
+        let failureCounter = result.refs.failureCount;
         expect(spy).to.not.have.been.called;
         TestUtils.Simulate.click(failureCounter);
         expect(spy).to.have.been.called;

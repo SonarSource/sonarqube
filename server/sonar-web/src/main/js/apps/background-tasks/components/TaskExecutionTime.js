@@ -18,12 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import { formatDuration } from './../helpers';
+import { formatDuration } from '../utils';
 
-export default function TaskExecutionTime ({ task }) {
+const TaskExecutionTime = ({ task }) => {
   return (
       <td className="thin nowrap text-right">
         {formatDuration(task.executionTimeMs)}
       </td>
   );
-}
+};
+
+export default TaskExecutionTime;

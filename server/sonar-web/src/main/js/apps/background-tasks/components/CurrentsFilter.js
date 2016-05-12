@@ -22,7 +22,7 @@ import React from 'react';
 import Checkbox from '../../../components/shared/checkbox';
 import { CURRENTS } from '../constants';
 
-export default function CurrentsFilter ({ value, onChange }) {
+const CurrentsFilter = ({ value, onChange }) => {
   function handleChange (value) {
     const newValue = value ? CURRENTS.ONLY_CURRENTS : CURRENTS.ALL;
     onChange(newValue);
@@ -48,4 +48,6 @@ export default function CurrentsFilter ({ value, onChange }) {
             style={{ cursor: 'pointer' }}>Yes</label>
       </div>
   );
-}
+};
+
+export default CurrentsFilter;

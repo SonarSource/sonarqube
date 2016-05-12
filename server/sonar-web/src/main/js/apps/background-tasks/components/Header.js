@@ -21,7 +21,7 @@ import React from 'react';
 
 import { translate } from '../../../helpers/l10n';
 
-export default function Header () {
+const Header = () => {
   return (
       <header className="page-header">
         <h1 className="page-title">
@@ -32,4 +32,6 @@ export default function Header () {
         </p>
       </header>
   );
-}
+};
+
+export default Header;
