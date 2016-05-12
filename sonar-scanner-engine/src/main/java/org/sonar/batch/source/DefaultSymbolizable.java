@@ -41,12 +41,22 @@ public class DefaultSymbolizable implements Symbolizable {
     }
 
     @Override
+    public Symbol newSymbol(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+      return NO_OP_SYMBOL;
+    }
+
+    @Override
     public void newReference(Symbol symbol, int fromOffset) {
       // Do nothing
     }
 
     @Override
     public void newReference(Symbol symbol, int fromOffset, int toOffset) {
+      // Do nothing
+    }
+
+    @Override
+    public void newReference(Symbol symbol, int startLine, int startLineOffset, int endLine, int endLineOffset) {
       // Do nothing
     }
 

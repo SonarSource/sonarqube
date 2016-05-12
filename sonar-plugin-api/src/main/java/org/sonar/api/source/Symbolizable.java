@@ -42,6 +42,11 @@ public interface Symbolizable extends Perspective {
     Symbol newSymbol(int fromOffset, int toOffset);
 
     /**
+     * @since 5.6
+     */
+    Symbol newSymbol(int startLine, int startLineOffset, int endLine, int endLineOffset);
+
+    /**
      * Creates a new reference for a symbol.
      * The length of the reference is assumed to be the same as the symbol's length.
      */
@@ -54,6 +59,11 @@ public interface Symbolizable extends Perspective {
      * @since 5.3
      */
     void newReference(Symbol symbol, int fromOffset, int toOffset);
+
+    /**
+     * @since 5.6
+     */
+    void newReference(Symbol symbol, int startLine, int startLineOffset, int endLine, int endLineOffset);
 
     /**
      * Creates a {@link SymbolTable} containing all symbols and references previously created in this file.

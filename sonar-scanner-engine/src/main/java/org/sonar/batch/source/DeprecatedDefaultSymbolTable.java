@@ -60,6 +60,13 @@ public class DeprecatedDefaultSymbolTable implements Symbolizable.SymbolTable {
     }
 
     @Override
+    public Symbol newSymbol(int startLine, int startLineOffset, int endLine, int endLineOffset) {
+      // This is wrong in case of multiline symbol bu I assume references will be added using start and end offsets so length is useless.
+      int length = endLineOffset - startLineOffset;
+      return new DeprecatedDefaultSymbol(symbolTable.newSymbol(startLine, startLineOffset, endLine, endLineOffset), length);
+    }
+
+    @Override
     public void newReference(Symbol symbol, int fromOffset) {
       ((DeprecatedDefaultSymbol) symbol).getWrapped().newReference(fromOffset, fromOffset + ((DeprecatedDefaultSymbol) symbol).getLength());
     }
@@ -67,6 +74,11 @@ public class DeprecatedDefaultSymbolTable implements Symbolizable.SymbolTable {
     @Override
     public void newReference(Symbol symbol, int fromOffset, int toOffset) {
       ((DeprecatedDefaultSymbol) symbol).getWrapped().newReference(fromOffset, toOffset);
+    }
+
+    @Override
+    public void newReference(Symbol symbol, int startLine, int startLineOffset, int endLine, int endLineOffset) {
+      ((DeprecatedDefaultSymbol) symbol).getWrapped().newReference(startLine, startLineOffset, endLine, endLineOffset);
     }
 
     @Override
