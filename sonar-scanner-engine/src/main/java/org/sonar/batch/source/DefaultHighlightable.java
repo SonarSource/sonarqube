@@ -60,6 +60,12 @@ public class DefaultHighlightable implements Highlightable {
     }
 
     @Override
+    public HighlightingBuilder highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, String typeOfText) {
+      // Do nothing
+      return this;
+    }
+
+    @Override
     public void done() {
       // Do nothing
     }
@@ -77,6 +83,13 @@ public class DefaultHighlightable implements Highlightable {
     public HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText) {
       TypeOfText type = org.sonar.api.batch.sensor.highlighting.TypeOfText.forCssClass(typeOfText);
       defaultHighlighting.highlight(startOffset, endOffset, type);
+      return this;
+    }
+
+    @Override
+    public HighlightingBuilder highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, String typeOfText) {
+      TypeOfText type = org.sonar.api.batch.sensor.highlighting.TypeOfText.forCssClass(typeOfText);
+      defaultHighlighting.highlight(startLine, startLineOffset, endLine, endLineOffset, type);
       return this;
     }
 

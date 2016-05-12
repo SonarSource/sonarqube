@@ -36,6 +36,11 @@ public interface Highlightable extends Perspective {
 
     HighlightingBuilder highlight(int startOffset, int endOffset, String typeOfText);
 
+    /**
+     * @since 5.6
+     */
+    HighlightingBuilder highlight(int startLine, int startLineOffset, int endLine, int endLineOffset, String typeOfText);
+
     void done();
   }
 
