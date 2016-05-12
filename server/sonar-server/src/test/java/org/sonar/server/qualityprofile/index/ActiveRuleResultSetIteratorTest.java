@@ -63,7 +63,6 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.parentKey()).isNull();
     assertThat(activeRule.createdAt()).isEqualTo(1500000000000L);
     assertThat(activeRule.updatedAt()).isEqualTo(1600000000000L);
   }
@@ -82,7 +81,6 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(CRITICAL);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.parentKey()).isNull();
     assertThat(activeRule.createdAt()).isEqualTo(2000000000000L);
     assertThat(activeRule.updatedAt()).isEqualTo(2100000000000L);
 
@@ -91,7 +89,6 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(INFO);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.NONE);
-    assertThat(activeRule.parentKey()).isNull();
     assertThat(activeRule.createdAt()).isEqualTo(1700000000000L);
     assertThat(activeRule.updatedAt()).isEqualTo(1800000000000L);
 
@@ -100,7 +97,6 @@ public class ActiveRuleResultSetIteratorTest {
     assertThat(activeRule.key()).isEqualTo(key);
     assertThat(activeRule.severity()).isEqualTo(BLOCKER);
     assertThat(activeRule.inheritance()).isEqualTo(INHERITED);
-    assertThat(activeRule.parentKey()).isEqualTo(ActiveRuleKey.of("parent", RuleKey.of("xoo", "S001")));
     assertThat(activeRule.createdAt()).isEqualTo(1500000000000L);
     assertThat(activeRule.updatedAt()).isEqualTo(1600000000000L);
   }
@@ -117,7 +113,6 @@ public class ActiveRuleResultSetIteratorTest {
     ActiveRuleKey key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
     ActiveRuleDoc activeRule = activeRulesByKey.get(key);
     assertThat(activeRule.inheritance()).isEqualTo(INHERITED);
-    assertThat(activeRule.parentKey()).isEqualTo(ActiveRuleKey.of("parent", RuleKey.of("xoo", "S001")));
   }
 
   @Test
@@ -132,7 +127,6 @@ public class ActiveRuleResultSetIteratorTest {
     ActiveRuleKey key = ActiveRuleKey.of("child", RuleKey.of("xoo", "S001"));
     ActiveRuleDoc activeRule = activeRulesByKey.get(key);
     assertThat(activeRule.inheritance()).isEqualTo(ActiveRule.Inheritance.OVERRIDES);
-    assertThat(activeRule.parentKey()).isEqualTo(ActiveRuleKey.of("parent", RuleKey.of("xoo", "S001")));
   }
 
   @Test

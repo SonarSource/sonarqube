@@ -165,10 +165,6 @@ public class ActiveRuleCompleter {
     activeRuleResponse.setQProfile(activeRule.key().qProfile());
     activeRuleResponse.setInherit(activeRule.inheritance().toString());
     activeRuleResponse.setSeverity(activeRule.severity());
-    ActiveRuleKey parentKey = activeRule.parentKey();
-    if (parentKey != null) {
-      activeRuleResponse.setParent(parentKey.toString());
-    }
     Rules.Active.Param.Builder paramBuilder = Rules.Active.Param.newBuilder();
     for (ActiveRuleParamDto parameter : parameters) {
       activeRuleResponse.addParams(paramBuilder.clear()
