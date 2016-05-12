@@ -17,13 +17,13 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
+package org.sonar.server.es;
 
 import java.util.Date;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.sonar.server.search.IndexUtils;
 
 import static com.google.common.collect.Maps.newHashMap;
 

@@ -21,12 +21,11 @@ package org.sonar.server.test.index;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.collect.Maps;
-import org.sonar.server.search.BaseDoc;
-
-import javax.annotation.CheckForNull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import org.sonar.server.es.BaseDoc;
 
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_DURATION_IN_MS;

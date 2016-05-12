@@ -20,11 +20,11 @@
 package org.sonar.server.search;
 
 import com.google.common.collect.Maps;
-import org.junit.Test;
-
 import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
+import org.junit.Test;
+import org.sonar.server.es.BaseDoc;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;

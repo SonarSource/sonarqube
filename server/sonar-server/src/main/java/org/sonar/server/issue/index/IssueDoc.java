@@ -35,7 +35,7 @@ import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
-import org.sonar.server.search.BaseDoc;
+import org.sonar.server.es.BaseDoc;
 
 public class IssueDoc extends BaseDoc implements Issue {
 

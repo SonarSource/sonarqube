@@ -20,15 +20,13 @@
 package org.sonar.server.activity.index;
 
 import com.google.common.annotations.VisibleForTesting;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.sonar.server.search.BaseDoc;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.sonar.server.es.BaseDoc;
 
 public class ActivityDoc extends BaseDoc {
 

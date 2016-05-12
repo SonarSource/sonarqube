@@ -20,10 +20,9 @@
 package org.sonar.server.view.index;
 
 import com.google.common.collect.Maps;
-import org.sonar.server.search.BaseDoc;
-
 import java.util.List;
 import java.util.Map;
+import org.sonar.server.es.BaseDoc;
 
 public class ViewDoc extends BaseDoc {
 

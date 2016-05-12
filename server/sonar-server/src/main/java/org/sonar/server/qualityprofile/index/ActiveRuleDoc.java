@@ -22,8 +22,8 @@ package org.sonar.server.qualityprofile.index;
 import com.google.common.collect.Maps;
 import javax.annotation.Nullable;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
+import org.sonar.server.es.BaseDoc;
 import org.sonar.server.qualityprofile.ActiveRule;
-import org.sonar.server.search.BaseDoc;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;

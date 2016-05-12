@@ -20,12 +20,10 @@
 package org.sonar.server.es;
 
 import com.google.common.base.Function;
-import org.apache.commons.lang.builder.ReflectionToStringBuilder;
-import org.elasticsearch.action.search.SearchResponse;
-import org.sonar.server.search.BaseDoc;
-
 import java.util.List;
 import java.util.Map;
+import org.apache.commons.lang.builder.ReflectionToStringBuilder;
+import org.elasticsearch.action.search.SearchResponse;
 
 public class SearchResult<DOC extends BaseDoc> {
 

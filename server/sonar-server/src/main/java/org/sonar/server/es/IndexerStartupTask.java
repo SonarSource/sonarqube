@@ -17,7 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.search;
+package org.sonar.server.es;
 
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
@@ -29,9 +29,9 @@ import org.sonar.server.test.index.TestIndexer;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.view.index.ViewIndexer;
 
-public class IndexSynchronizer {
+public class IndexerStartupTask {
 
-  private static final Logger LOG = Loggers.get(IndexSynchronizer.class);
+  private static final Logger LOG = Loggers.get(IndexerStartupTask.class);
 
   private final TestIndexer testIndexer;
   private final IssueAuthorizationIndexer issueAuthorizationIndexer;
@@ -46,7 +46,7 @@ public class IndexSynchronizer {
    * because we need {@link org.sonar.server.issue.index.IssueAuthorizationIndexer} to be executed before
    * {@link org.sonar.server.issue.index.IssueIndexer}
    */
-  public IndexSynchronizer(TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
+  public IndexerStartupTask(TestIndexer testIndexer, IssueAuthorizationIndexer issueAuthorizationIndexer, IssueIndexer issueIndexer,
     UserIndexer userIndexer, ViewIndexer viewIndexer, ActivityIndexer activityIndexer,
     Settings settings) {
     this.testIndexer = testIndexer;

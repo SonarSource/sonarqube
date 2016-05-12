@@ -20,17 +20,15 @@
 package org.sonar.server.es;
 
 import com.google.common.base.Function;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.junit.Test;
 import org.mockito.Mockito;
 import org.sonar.server.issue.index.IssueDoc;
-import org.sonar.server.search.BaseDoc;
 import org.sonar.test.TestUtils;
-
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
