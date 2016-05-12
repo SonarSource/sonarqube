@@ -156,7 +156,7 @@ class Api::PropertiesController < Api::ApiController
   end
 
   def allowed?(property_key)
-    !property_key.end_with?('.secured') || is_admin?
+    !property_key.end_with?('.secured') || is_admin? || (property_key.include?(".license") && logged_in?)
   end
 
   def get_default_property(key)
