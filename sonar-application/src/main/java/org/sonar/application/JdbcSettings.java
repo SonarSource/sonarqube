@@ -26,10 +26,18 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
+
+import static org.apache.commons.lang.StringUtils.isEmpty;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
+import static org.sonar.api.database.DatabaseProperties.PROP_EMBEDDED_PORT;
+import static org.sonar.api.database.DatabaseProperties.PROP_EMBEDDED_PORT_DEFAULT_VALUE;
+import static org.sonar.api.database.DatabaseProperties.PROP_URL;
+import static org.sonar.process.ProcessProperties.JDBC_URL;
 
 public class JdbcSettings {
 
@@ -45,8 +53,8 @@ public class JdbcSettings {
   }
 
   public void checkAndComplete(File homeDir, Props props) {
-    String url = props.nonNullValue(ProcessProperties.JDBC_URL);
-    Provider provider = driverProvider(url);
+    Provider provider = resolveProviderAndEnforceNonnullJdbcUrl(props);
+    String url = props.value(JDBC_URL);
     checkUrlParameters(provider, url);
     String driverPath = driverPath(homeDir, provider);
     props.set(ProcessProperties.JDBC_DRIVER_PATH, driverPath);
@@ -68,7 +76,23 @@ public class JdbcSettings {
     return files.get(0).getAbsolutePath();
   }
 
-  Provider driverProvider(String url) {
+  Provider resolveProviderAndEnforceNonnullJdbcUrl(Props props) {
+    String url = props.value(JDBC_URL);
+    String embeddedDatabasePort = props.value(PROP_EMBEDDED_PORT);
+
+    if (isNotEmpty(embeddedDatabasePort)) {
+      String correctUrl = buildH2JdbcUrl(embeddedDatabasePort);
+      warnIfUrlIsSet(embeddedDatabasePort, url, correctUrl);
+      props.set(PROP_URL, correctUrl);
+      return Provider.H2;
+    }
+
+    if (isEmpty(url)) {
+      props.set(PROP_URL, buildH2JdbcUrl(PROP_EMBEDDED_PORT_DEFAULT_VALUE));
+      props.set(PROP_EMBEDDED_PORT, PROP_EMBEDDED_PORT_DEFAULT_VALUE);
+      return Provider.H2;
+    }
+
     Pattern pattern = Pattern.compile("jdbc:(\\w+):.+");
     Matcher matcher = pattern.matcher(url);
     if (!matcher.find()) {
@@ -82,12 +106,37 @@ public class JdbcSettings {
     }
   }
 
+  private static String buildH2JdbcUrl(String embeddedDatabasePort) {
+    return "jdbc:h2:tcp://localhost:" + embeddedDatabasePort + "/sonar";
+  }
+
   void checkUrlParameters(Provider provider, String url) {
     if (Provider.MYSQL.equals(provider)) {
       checkRequiredParameter(url, "useUnicode=true");
       checkRequiredParameter(url, "characterEncoding=utf8");
       checkRecommendedParameter(url, "rewriteBatchedStatements=true");
       checkRecommendedParameter(url, "useConfigs=maxPerformance");
+    }
+  }
+
+  private static void warnIfUrlIsSet(String port, String existing, String expectedUrl) {
+    if (isNotEmpty(existing)) {
+      Logger logger = LoggerFactory.getLogger(JdbcSettings.class);
+      if (expectedUrl.equals(existing)) {
+        logger.warn("To change H2 database port, only property '{}' should be set (which current value is '{}'). " +
+          "Remove property '{}' from configuration to remove this warning.",
+          PROP_EMBEDDED_PORT, port,
+          PROP_URL);
+      } else {
+        logger.warn("Both '{}' and '{}' properties are set. " +
+          "The value of property '{}' ('{}') is not consistent with the value of property '{}' ('{}'). " +
+          "The value of property '{}' will be ignored and value '{}' will be used instead. " +
+          "To remove this warning, either remove property '{}' if your intent was to use the embedded H2 database, otherwise remove property '{}'.",
+          PROP_EMBEDDED_PORT, PROP_URL,
+          PROP_URL, existing, PROP_EMBEDDED_PORT, port,
+          PROP_URL, expectedUrl,
+          PROP_URL, PROP_EMBEDDED_PORT);
+      }
     }
   }
 
