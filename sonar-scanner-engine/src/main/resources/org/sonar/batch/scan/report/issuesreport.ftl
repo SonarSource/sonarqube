@@ -238,7 +238,7 @@
         <td width="20">
           <i class="icon-severity-${ruleReport.getSeverity()?lower_case}"></i>
         </td>
-        <td align="left">
+        <td align="left" title="${ruleReport.getRule().key()}">
           ${ruleNameProvider.nameForHTML(ruleReport.getRule())}
         </td>
         <td align="right">
@@ -327,7 +327,7 @@
         <td width="20">
           <i class="icon-severity-${ruleReport.getSeverity()?lower_case}"></i>
         </td>
-        <td align="left">
+        <td align="left" title="${ruleReport.getRule().key()}">
           ${ruleNameProvider.nameForHTML(ruleReport.getRule())}
         </td>
         <td align="right">
@@ -380,6 +380,12 @@
                     ${issue.creationDate()?date}
                   </#if>
                 </span>
+                
+                &nbsp;
+                <img src="issuesreport_files/sep12.png">&nbsp;
+                
+                <span class="rule_key">${issue.getRuleKey()}</span>
+                
               </div>
               <div class="discussionComment">
               ${ruleNameProvider.nameForHTML(issue.getRuleKey())}
@@ -429,6 +435,11 @@
                                 ${issue.creationDate()?date}
                               </#if>
                             </span>
+                
+						                &nbsp;
+						                <img src="issuesreport_files/sep12.png">&nbsp;
+						                
+						                <span class="rule_key">${issue.getRuleKey()}</span>
                             &nbsp;
 
                           </div>

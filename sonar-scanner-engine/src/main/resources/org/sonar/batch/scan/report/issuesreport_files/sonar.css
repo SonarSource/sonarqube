@@ -233,6 +233,11 @@ span.issue_date {
   font-size: 90%;
 }
 
+span.rule_key {
+  color: #777;
+  font-size: 90%;
+}
+
 .sources td.line {
   width: 100%;
   border-right: 1px solid #DDD;
