@@ -81,6 +81,7 @@ import org.sonar.db.version.v55.FeedActiveRulesLongDateColumns;
 import org.sonar.db.version.v55.FeedIssueTypes;
 import org.sonar.db.version.v55.FeedRulesLongDateColumns;
 import org.sonar.db.version.v55.FeedRulesTypes;
+import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
 
 public class MigrationStepModule extends Module {
@@ -163,6 +164,7 @@ public class MigrationStepModule extends Module {
       DeleteManualRules.class,
 
       // 5.6
-      FixTypeOfRuleTypeOnMysql.class);
+      FixTypeOfRuleTypeOnMysql.class,
+      FixLengthOfIssuesMessageOnOracle.class);
   }
 }
