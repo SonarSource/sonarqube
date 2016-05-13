@@ -31,9 +31,7 @@ window.sonarqube.appStarted.then(options => {
     basename: window.baseUrl + (options.component ? '/project/background_tasks' : '/background_tasks')
   });
 
-  const App = (props) => {
-    return <BackgroundTasksApp {...props} component={options.component}/>;
-  };
+  const App = props => <BackgroundTasksApp {...props} component={options.component}/>;
 
   ReactDOM.render((
       <Router history={history}>
