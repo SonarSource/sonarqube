@@ -19,7 +19,6 @@
  */
 package org.sonar.api.ce.posttask;
 
-import com.google.common.annotations.Beta;
 import java.util.Date;
 import javax.annotation.CheckForNull;
 import org.sonar.api.ExtensionPoint;
@@ -42,7 +41,6 @@ import org.sonar.api.ce.ComputeEngineSide;
  */
 @ExtensionPoint
 @ComputeEngineSide
-@Beta
 public interface PostProjectAnalysisTask {
   /**
    * This method is called whenever the processing of a Project analysis has finished, whether successfully or not.
@@ -52,7 +50,6 @@ public interface PostProjectAnalysisTask {
   /**
    * @since 5.5
    */
-  @Beta
   interface ProjectAnalysis {
     /**
      * Details of the Compute Engine task in which the project analysis was run.

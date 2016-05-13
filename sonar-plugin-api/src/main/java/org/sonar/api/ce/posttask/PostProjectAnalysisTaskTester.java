@@ -19,7 +19,6 @@
  */
 package org.sonar.api.ce.posttask;
 
-import com.google.common.annotations.Beta;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
@@ -89,7 +88,6 @@ import static java.util.Objects.requireNonNull;
  *
  * @since 5.5
  */
-@Beta
 public class PostProjectAnalysisTaskTester {
   private static final String DATE_CAN_NOT_BE_NULL = "date cannot be null";
   private static final String PROJECT_CAN_NOT_BE_NULL = "project cannot be null";
@@ -190,7 +188,6 @@ public class PostProjectAnalysisTaskTester {
 
   }
 
-  @Beta
   public static final class CeTaskBuilder {
     private static final String ID_CAN_NOT_BE_NULL = "id cannot be null";
 
@@ -238,7 +235,6 @@ public class PostProjectAnalysisTaskTester {
     }
   }
 
-  @Beta
   public static final class ProjectBuilder {
     private static final String UUID_CAN_NOT_BE_NULL = "uuid cannot be null";
     private static final String KEY_CAN_NOT_BE_NULL = "key cannot be null";
@@ -299,7 +295,6 @@ public class PostProjectAnalysisTaskTester {
     }
   }
 
-  @Beta
   public static final class QualityGateBuilder {
     private static final String ID_CAN_NOT_BE_NULL = "id cannot be null";
     private static final String NAME_CAN_NOT_BE_NULL = "name cannot be null";
@@ -377,7 +372,6 @@ public class PostProjectAnalysisTaskTester {
     }
   }
 
-  @Beta
   public static final class ConditionBuilder {
     private static final String METRIC_KEY_CAN_NOT_BE_NULL = "metricKey cannot be null";
     private static final String OPERATOR_CAN_NOT_BE_NULL = "operator cannot be null";

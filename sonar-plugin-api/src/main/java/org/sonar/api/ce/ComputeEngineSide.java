@@ -19,7 +19,6 @@
  */
 package org.sonar.api.ce;
 
-import com.google.common.annotations.Beta;
 import java.lang.annotation.Documented;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -35,6 +34,5 @@ import org.sonar.api.batch.BatchSide;
 @Documented
 @Retention(RetentionPolicy.RUNTIME)
 @Target(ElementType.TYPE)
-@Beta
 public @interface ComputeEngineSide {
 }

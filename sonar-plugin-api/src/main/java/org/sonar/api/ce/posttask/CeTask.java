@@ -19,12 +19,9 @@
  */
 package org.sonar.api.ce.posttask;
 
-import com.google.common.annotations.Beta;
-
 /**
  * @since 5.5
  */
-@Beta
 public interface CeTask {
   /**
    * Id of the Compute Engine task.

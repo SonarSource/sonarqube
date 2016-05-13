@@ -19,7 +19,6 @@
  */
 package org.sonar.api.ce.posttask;
 
-import com.google.common.annotations.Beta;
 import java.util.Collection;
 import javax.annotation.CheckForNull;
 import org.sonar.api.measures.Metric;
@@ -27,7 +26,6 @@ import org.sonar.api.measures.Metric;
 /**
  * @since 5.5
  */
-@Beta
 public interface QualityGate {
   /**
    * The unique identifier of the Quality Gate.
@@ -49,7 +47,6 @@ public interface QualityGate {
    */
   Collection<Condition> getConditions();
 
-  @Beta
   enum Status {
     /** at least one threshold is defined, no threshold is reached */
     OK,
@@ -59,7 +56,6 @@ public interface QualityGate {
     ERROR
   }
 
-  @Beta
   interface Condition {
     /**
      * Evaluation status of this condition
@@ -120,13 +116,12 @@ public interface QualityGate {
      * @see Metric#getType() 
      */
     String getValue();
-    
+
   }
 
   /**
    * Quality Gate condition operator.
    */
-  @Beta
   enum Operator {
     EQUALS, NOT_EQUALS, GREATER_THAN, LESS_THAN
   }
@@ -134,7 +129,6 @@ public interface QualityGate {
   /**
    * Quality gate condition evaluation status.
    */
-  @Beta
   enum EvaluationStatus {
     /**
      * No measure found or measure had no value. The condition has not been evaluated and therefor ignored in
