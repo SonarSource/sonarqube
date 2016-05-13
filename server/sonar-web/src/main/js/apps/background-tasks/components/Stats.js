@@ -17,18 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React, { Component } from 'react';
+import React from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 
 import { translate } from '../../../helpers/l10n';
 
-export default class Stats extends Component {
+export default class Stats extends React.Component {
+  static propTypes = {
+    failingCount: React.PropTypes.number,
+    pendingCount: React.PropTypes.number,
+    onShowFailing: React.PropTypes.func.isRequired,
+    onCancelAllPending: React.PropTypes.func.isRequired
+  };
+
+  shouldComponentUpdate (nextProps, nextState) {
+    return shallowCompare(this, nextProps, nextState);
+  }
+
   handleCancelAllPending (e) {
     e.preventDefault();
+    e.target.blur();
     this.props.onCancelAllPending();
   }
 
   handleShowFailing (e) {
     e.preventDefault();
+    e.target.blur();
     this.props.onShowFailing();
   }
 

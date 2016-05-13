@@ -23,53 +23,88 @@ import StatusFilter from './StatusFilter';
 import TypesFilter from './TypesFilter';
 import CurrentsFilter from './CurrentsFilter';
 import DateFilter from './DateFilter';
+import { DEFAULT_FILTERS } from './../constants';
 import { translate } from '../../../helpers/l10n';
 
-export default React.createClass({
+export default class Search extends React.Component {
+  static propTypes = {
+    loading: React.PropTypes.bool.isRequired,
+    status: React.PropTypes.any.isRequired,
+    taskType: React.PropTypes.any.isRequired,
+    currents: React.PropTypes.any.isRequired,
+    query: React.PropTypes.string.isRequired,
+    onFilterUpdate: React.PropTypes.func.isRequired,
+    onReload: React.PropTypes.func.isRequired
+  };
 
-  onSearchFormSubmit(e) {
+  handleStatusChange (status) {
+    this.props.onFilterUpdate({ status });
+  }
+
+  handleTypeChange (taskType) {
+    this.props.onFilterUpdate({ taskType });
+  }
+
+  handleCurrentsChange (currents) {
+    this.props.onFilterUpdate({ currents });
+  }
+
+  handleDateChange (date) {
+    this.props.onFilterUpdate(date);
+  }
+
+  handleQueryChange (query) {
+    this.props.onFilterUpdate({ query });
+  }
+
+  handleReload (e) {
+    e.target.blur();
+    this.props.onReload();
+  }
+
+  handleReset (e) {
     e.preventDefault();
-    this.onSearch();
-  },
+    e.target.blur();
+    this.props.onFilterUpdate(DEFAULT_FILTERS);
+  }
 
-  onSearch() {
-    const searchInput = this.refs.searchInput;
-    const query = searchInput.value;
-    this.props.onSearch(query);
-  },
+  renderSearchBox () {
+    const { component, query } = this.props;
 
-  renderSearchBox() {
-    if (this.props.component) {
+    if (component) {
       // do not render search form on the project-level page
       return null;
     }
+
     return (
         <li>
           <h6 className="bt-search-form-label">
             Search by Task or Component
           </h6>
 
-          <input onChange={this.onSearch}
-                 value={this.props.query}
-                 ref="searchInput"
-                 className="js-search input-large"
-                 type="search"
-                 placeholder="Search"/>
+          <input
+              onChange={e => this.handleQueryChange(e.target.value)}
+              value={query}
+              ref="searchInput"
+              className="js-search input-large"
+              type="search"
+              placeholder="Search"/>
         </li>
     );
-  },
+  }
 
-  refresh(e) {
-    e.preventDefault();
-    this.props.onRefresh();
-  },
+  render () {
+    const {
+        loading,
+        component,
+        types,
+        status,
+        taskType,
+        currents,
+        minSubmittedAt,
+        maxExecutedAt
+    } = this.props;
 
-  handleReset(e) {
-    e.preventDefault();
-    this.props.onReset();
-  },
-
-  render() {
     return (
         <section className="big-spacer-top big-spacer-bottom">
           <ul className="bt-search-form">
@@ -78,28 +113,28 @@ export default React.createClass({
                 Status
               </h6>
               <StatusFilter
-                  value={this.props.status}
-                  onChange={this.props.onStatusChange}/>
+                  value={status}
+                  onChange={this.handleStatusChange.bind(this)}/>
             </li>
-            {this.props.types.length > 1 && (
+            {types.length > 1 && (
                 <li>
                   <h6 className="bt-search-form-label">
                     Type
                   </h6>
                   <TypesFilter
-                      value={this.props.taskType}
-                      onChange={this.props.onTypeChange}
-                      types={this.props.types}/>
+                      value={taskType}
+                      types={types}
+                      onChange={this.handleTypeChange.bind(this)}/>
                 </li>
             )}
-            {!this.props.component && (
+            {!component && (
                 <li>
                   <h6 className="bt-search-form-label">
                     Only Latest Analysis
                   </h6>
                   <CurrentsFilter
-                      value={this.props.currents}
-                      onChange={this.props.onCurrentsChange}/>
+                      value={currents}
+                      onChange={this.handleCurrentsChange.bind(this)}/>
                 </li>
             )}
             <li>
@@ -107,8 +142,9 @@ export default React.createClass({
                 Date
               </h6>
               <DateFilter
-                  value={this.props.date}
-                  onChange={this.props.onDateChange}/>
+                  minSubmittedAt={minSubmittedAt}
+                  maxExecutedAt={maxExecutedAt}
+                  onChange={this.handleDateChange.bind(this)}/>
             </li>
 
             {this.renderSearchBox()}
@@ -116,15 +152,15 @@ export default React.createClass({
             <li className="bt-search-form-right">
               <button
                   ref="reloadButton"
-                  onClick={this.refresh}
-                  disabled={this.props.fetching}>
+                  onClick={this.handleReload.bind(this)}
+                  disabled={loading}>
                 {translate('reload')}
               </button>
               {' '}
               <button
                   ref="resetButton"
-                  onClick={this.handleReset}
-                  disabled={this.props.fetching}>
+                  onClick={this.handleReset.bind(this)}
+                  disabled={loading}>
                 {translate('reset_verb')}
               </button>
             </li>
@@ -132,4 +168,4 @@ export default React.createClass({
         </section>
     );
   }
-});
+}

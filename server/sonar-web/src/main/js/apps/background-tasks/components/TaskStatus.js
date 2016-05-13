@@ -23,7 +23,7 @@ import { STATUSES } from './../constants';
 import PendingIcon from '../../../components/shared/pending-icon';
 import { translate } from '../../../helpers/l10n';
 
-export default function TaskStatus ({ task }) {
+const TaskStatus = ({ task }) => {
   let inner;
 
   switch (task.status) {
@@ -47,4 +47,6 @@ export default function TaskStatus ({ task }) {
   }
 
   return <td className="thin spacer-right">{inner}</td>;
-}
+};
+
+export default TaskStatus;

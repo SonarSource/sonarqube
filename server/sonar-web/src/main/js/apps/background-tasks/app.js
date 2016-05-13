@@ -19,22 +19,24 @@
  */
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
+import { Router, Route, Redirect, useRouterHistory } from 'react-router';
+import { createHistory } from 'history';
 
-import BackgroundTasksAppContainer from './containers/BackgroundTasksAppContainer';
-import rootReducer from './store/reducers';
-import configureStore from '../../components/store/configureStore';
-
-import './styles/background-tasks.css';
+import BackgroundTasksApp from './components/BackgroundTasksApp';
 
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
 
-  const store = configureStore(rootReducer);
+  const history = useRouterHistory(createHistory)({
+    basename: window.baseUrl + (options.component ? '/project/background_tasks' : '/background_tasks')
+  });
+
+  const App = props => <BackgroundTasksApp {...props} component={options.component}/>;
 
   ReactDOM.render((
-      <Provider store={store}>
-        <BackgroundTasksAppContainer options={options}/>
-      </Provider>
+      <Router history={history}>
+        <Redirect from="/index" to="/"/>
+        <Route path="/" component={App}/>
+      </Router>
   ), el);
 });

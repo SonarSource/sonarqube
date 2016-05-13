@@ -18,6 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import shallowCompare from 'react-addons-shallow-compare';
 
 import TaskStatus from './TaskStatus';
 import TaskComponent from './TaskComponent';
@@ -28,43 +29,61 @@ import TaskCancelButton from './TaskCancelButton';
 import TaskLogsLink from './TaskLogsLink';
 import { STATUSES } from './../constants';
 
-export default function Task ({ task, index, tasks, component, types, onCancelTask, onFilterTask }) {
-  function handleFilterTask (task, e) {
-    e.preventDefault();
-    onFilterTask(task);
+export default class Task extends React.Component {
+  static propTypes = {
+    task: React.PropTypes.object.isRequired,
+    index: React.PropTypes.number.isRequired,
+    tasks: React.PropTypes.array.isRequired,
+    component: React.PropTypes.object,
+    types: React.PropTypes.array.isRequired,
+    onCancelTask: React.PropTypes.func.isRequired,
+    onFilterTask: React.PropTypes.func.isRequired
+  };
+
+  shouldComponentUpdate (nextProps, nextState) {
+    return shallowCompare(this, nextProps, nextState);
   }
 
-  const prevTask = index > 0 ? tasks[index - 1] : null;
+  handleFilterTask (task, e) {
+    e.preventDefault();
+    this.props.onFilterTask(task);
+  }
 
-  return (
-      <tr>
-        <TaskStatus task={task}/>
-        <TaskComponent task={task} types={types}/>
-        <TaskDay task={task} prevTask={prevTask}/>
-        <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS"/>
-        <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS"/>
-        <TaskDate date={task.executedAt} baseDate={task.submittedAt} format="LTS"/>
-        <TaskExecutionTime task={task}/>
+  render () {
+    const { task, index, tasks, component, types, onCancelTask } = this.props;
 
-        <td className="thin nowrap text-right">
-          {task.logs && (
-              <TaskLogsLink task={task}/>
-          )}
-          {task.status === STATUSES.PENDING && (
-              <TaskCancelButton task={task} onCancelTask={onCancelTask}/>
-          )}
-        </td>
+    const prevTask = index > 0 ? tasks[index - 1] : null;
 
-        <td className="thin nowrap">
-          {!component && (
-              <a
-                  onClick={handleFilterTask.bind(this, task)}
-                  className="icon-filter icon-half-transparent spacer-left"
-                  href="#"
-                  title={`Show only "${task.componentName}" tasks`}
-                  data-toggle="tooltip"/>
-          )}
-        </td>
-      </tr>
-  );
+    return (
+        <tr>
+          <TaskStatus task={task}/>
+          <TaskComponent task={task} types={types}/>
+          <TaskDay task={task} prevTask={prevTask}/>
+          <TaskDate date={task.submittedAt} baseDate={task.submittedAt} format="LTS"/>
+          <TaskDate date={task.startedAt} baseDate={task.submittedAt} format="LTS"/>
+          <TaskDate date={task.executedAt} baseDate={task.submittedAt} format="LTS"/>
+          <TaskExecutionTime task={task}/>
+
+          <td className="thin nowrap text-right">
+            {task.logs && (
+                <TaskLogsLink task={task}/>
+            )}
+            {task.status === STATUSES.PENDING && (
+                <TaskCancelButton task={task} onCancelTask={onCancelTask}/>
+            )}
+          </td>
+
+          <td className="thin nowrap">
+            {!component && (
+                <a
+                    onClick={this.handleFilterTask.bind(this, task)}
+                    className="icon-filter icon-half-transparent spacer-left"
+                    href="#"
+                    title={`Show only "${task.componentName}" tasks`}
+                    data-toggle="tooltip"/>
+            )}
+          </td>
+        </tr>
+    );
+  }
 }

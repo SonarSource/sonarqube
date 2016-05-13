@@ -17,6 +17,61 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { STATUSES, ALL_TYPES, CURRENTS } from './constants';
+
+export function updateTask (tasks, newTask) {
+  return tasks.map(task => task.id === newTask.id ? newTask : task);
+}
+
+export function mapFiltersToParameters (filters = {}) {
+  const parameters = {};
+
+  if (filters.status === STATUSES.ALL) {
+    parameters.status = [
+      STATUSES.PENDING,
+      STATUSES.IN_PROGRESS,
+      STATUSES.SUCCESS,
+      STATUSES.FAILED,
+      STATUSES.CANCELED
+    ].join();
+  } else if (filters.status === STATUSES.ALL_EXCEPT_PENDING) {
+    parameters.status = [
+      STATUSES.IN_PROGRESS,
+      STATUSES.SUCCESS,
+      STATUSES.FAILED,
+      STATUSES.CANCELED
+    ].join();
+  } else {
+    parameters.status = filters.status;
+  }
+
+  if (filters.taskType !== ALL_TYPES) {
+    parameters.type = filters.taskType;
+  }
+
+  if (filters.currents !== CURRENTS.ALL) {
+    parameters.onlyCurrents = true;
+  }
+
+  if (filters.minSubmittedAt) {
+    parameters.minSubmittedAt = filters.minSubmittedAt;
+  }
+
+  if (filters.maxExecutedAt) {
+    parameters.maxExecutedAt = filters.maxExecutedAt;
+  }
+
+  if (filters.query) {
+    parameters.componentQuery = filters.query;
+  }
+
+  if (filters.lastPage !== 1) {
+    parameters.p = filters.lastPage;
+  }
+
+  return parameters;
+}
+
 const ONE_SECOND = 1000;
 const ONE_MINUTE = 60 * ONE_SECOND;
 

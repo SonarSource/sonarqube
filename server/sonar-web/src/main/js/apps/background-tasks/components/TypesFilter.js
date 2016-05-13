@@ -23,7 +23,7 @@ import Select from 'react-select';
 import { ALL_TYPES } from '../constants';
 import { translate } from '../../../helpers/l10n';
 
-export default function TypesFilter ({ value, onChange, types }) {
+const TypesFilter = ({ value, onChange, types }) => {
   const options = types.map(t => {
     return {
       value: t,
@@ -45,4 +45,6 @@ export default function TypesFilter ({ value, onChange, types }) {
           clearable={false}
           searchable={false}/>
   );
-}
+};
+
+export default TypesFilter;

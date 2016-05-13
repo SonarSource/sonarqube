@@ -20,7 +20,7 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function TaskCancelButton ({ task, onCancelTask }) {
+const TaskCancelButton = ({ task, onCancelTask }) => {
   function handleClick (e) {
     e.preventDefault();
     onCancelTask(task);
@@ -34,4 +34,6 @@ export default function TaskCancelButton ({ task, onCancelTask }) {
           data-toggle="tooltip"
           href="#"/>
   );
-}
+};
+
+export default TaskCancelButton;

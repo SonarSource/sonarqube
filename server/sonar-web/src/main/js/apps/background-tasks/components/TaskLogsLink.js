@@ -20,7 +20,7 @@
 import React from 'react';
 import { translate } from '../../../helpers/l10n';
 
-export default function TaskLogsLink ({ task }) {
+const TaskLogsLink = ({ task }) => {
   const url = `${window.baseUrl}/api/ce/logs?taskId=${task.id}`;
 
   return (
@@ -30,4 +30,6 @@ export default function TaskLogsLink ({ task }) {
         {translate('background_tasks.logs')}
       </a>
   );
-}
+};
+
+export default TaskLogsLink;

@@ -24,7 +24,7 @@ function isAnotherDay (a, b) {
   return !moment(a).isSame(moment(b), 'day');
 }
 
-export default function TaskDay ({ task, prevTask }) {
+const TaskDay = ({ task, prevTask }) => {
   const shouldDisplay = !prevTask || isAnotherDay(task.submittedAt, prevTask.submittedAt);
 
   return (
@@ -32,4 +32,6 @@ export default function TaskDay ({ task, prevTask }) {
         {shouldDisplay ? moment(task.submittedAt).format('LL') : ''}
       </td>
   );
-}
+};
+
+export default TaskDay;
