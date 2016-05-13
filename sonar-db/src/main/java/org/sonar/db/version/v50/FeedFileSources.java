@@ -96,7 +96,10 @@ public class FeedFileSources extends BaseDataChange {
 
     // duplication_data
     "m13.text_value, " +
-    "m13.measure_data  " +
+    "m13.measure_data, " +
+
+    // to detect multiple rows in snapshot_sources for the same snapshot
+    "s.id " +
 
     "FROM snapshots s " +
     "JOIN snapshot_sources ss " +
@@ -137,15 +140,17 @@ public class FeedFileSources extends BaseDataChange {
     "f.enabled = ? " +
     "AND f.scope = 'FIL' " +
     "AND p.scope = 'PRJ' AND p.qualifier = 'TRK' " +
-    "AND fs.file_uuid IS NULL";
+    "AND fs.file_uuid IS NULL " +
+    "ORDER BY s.id, ss.id desc";
 
   public FeedFileSources(Database db, System2 system) {
     super(db);
     this.system = system;
   }
-  
+
   private static final class FileSourceBuilder implements MassUpdate.Handler {
     private final long now;
+    private long previousSnapshotId = -1;
 
     public FileSourceBuilder(System2 system) {
       now = system.now();
@@ -183,6 +188,12 @@ public class FeedFileSources extends BaseDataChange {
       byte[] longOverallCovCond = row.getNullableBytes(28);
       byte[] shortDuplicationData = row.getNullableBytes(29);
       byte[] longDuplicationData = row.getNullableBytes(30);
+      long snapshotId = row.getLong(31);
+
+      if (snapshotId == previousSnapshotId) {
+        return false;
+      }
+      this.previousSnapshotId = snapshotId;
 
       String[] sourceData = new FileSourceDto(source,
         ofNullableBytes(shortRevisions, longRevisions),
@@ -197,8 +208,7 @@ public class FeedFileSources extends BaseDataChange {
         ofNullableBytes(shortOverallHits, longOverallHits),
         ofNullableBytes(shortOverallCond, longOverallCond),
         ofNullableBytes(shortOverallCovCond, longOverallCovCond),
-        ofNullableBytes(shortDuplicationData, longDuplicationData)
-        ).getSourceData();
+        ofNullableBytes(shortDuplicationData, longDuplicationData)).getSourceData();
 
       update.setString(1, projectUuid)
         .setString(2, fileUuid)
@@ -210,7 +220,7 @@ public class FeedFileSources extends BaseDataChange {
 
       return true;
     }
-    
+
     private static String ofNullableBytes(@Nullable byte[] shortBytes, @Nullable byte[] longBytes) {
       byte[] result;
       if (shortBytes == null) {
