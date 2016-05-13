@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -45,7 +44,6 @@ import org.sonar.db.rule.RuleParamDto;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.Message;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
@@ -55,6 +53,8 @@ import org.sonar.server.search.QueryContext;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.singleton;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static org.sonar.api.rule.Severity.BLOCKER;
@@ -871,7 +871,7 @@ public class RuleActivatorMediumTest {
     // 2. assert that all activation has been commit to DB and ES
     dbSession.clearCache();
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
-    assertThat(activeRuleIndex.findByProfile(XOO_P1_KEY)).hasSize(bulkSize);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(bulkSize);
     assertThat(result.countSucceeded()).isEqualTo(bulkSize);
     assertThat(result.countFailed()).isEqualTo(0);
   }
@@ -885,7 +885,7 @@ public class RuleActivatorMediumTest {
     // -> xoo rules x1, x2 and custom1
     dbSession.clearCache();
     assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
-    assertThat(activeRuleIndex.findByProfile(XOO_P1_KEY)).hasSize(3);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).hasSize(3);
     assertThat(result.countSucceeded()).isEqualTo(3);
     assertThat(result.countFailed()).isGreaterThan(0);
   }
@@ -1094,23 +1094,16 @@ public class RuleActivatorMediumTest {
     assertThat(found).as("Rule is not activated in db").isTrue();
   }
 
-  private void verifyHasActiveRuleInIndex(ActiveRuleKey activeRuleKey, String expectedSeverity,
-    @Nullable String expectedInheritance) {
+  private void verifyHasActiveRuleInIndex(ActiveRuleKey activeRuleKey, String expectedSeverity, @Nullable String expectedInheritance) {
     // verify es
-    List<ActiveRuleDoc> activeRules = Lists.newArrayList(activeRuleIndex.findByProfile(activeRuleKey.qProfile()));
-    boolean found = false;
-    for (ActiveRuleDoc activeRule : activeRules) {
-      if (activeRule.key().equals(activeRuleKey)) {
-        found = true;
-        assertThat(activeRule.severity()).isEqualTo(expectedSeverity);
-        assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE : ActiveRule.Inheritance.valueOf(expectedInheritance));
-
-        // Dates should be set
-        assertThat(activeRule.createdAt()).isNotNull();
-        assertThat(activeRule.updatedAt()).isNotNull();
-      }
-    }
-    assertThat(found).as("Rule is not activated in index").isTrue();
+    List<RuleKey> ruleKeys = newArrayList(tester.get(RuleIndex.class).searchAll(
+      new RuleQuery()
+        .setKey(activeRuleKey.ruleKey().toString())
+        .setQProfileKey(activeRuleKey.qProfile())
+        .setActivation(true)
+        .setInheritance(singleton(expectedInheritance == null ? ActiveRule.Inheritance.NONE.name() : ActiveRule.Inheritance.valueOf(expectedInheritance).name()))
+        .setActiveSeverities(singleton(expectedSeverity))));
+    assertThat(ruleKeys).as("Rule is not activated in index").hasSize(1);
   }
 
   private void verifyHasActiveRuleInDbAndIndex(ActiveRuleKey activeRuleKey, String expectedSeverity,
@@ -1140,7 +1133,9 @@ public class RuleActivatorMediumTest {
     assertThat(activeRuleDtos).isEmpty();
 
     // verify es
-    List<ActiveRuleDoc> activeRules = Lists.newArrayList(activeRuleIndex.findByProfile(key));
-    assertThat(activeRules).isEmpty();
+    assertThat(tester.get(RuleIndex.class).searchAll(
+      new RuleQuery()
+        .setQProfileKey(key)
+        .setActivation(true))).isEmpty();
   }
 }

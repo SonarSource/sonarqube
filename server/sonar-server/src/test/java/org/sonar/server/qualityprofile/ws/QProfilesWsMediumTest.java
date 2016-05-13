@@ -20,6 +20,7 @@
 package org.sonar.server.qualityprofile.ws;
 
 import com.google.common.collect.ImmutableSet;
+import java.util.Collections;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -33,6 +34,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.qualityprofile.ActiveRuleDao;
 import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
@@ -44,7 +46,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileName;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -360,7 +361,6 @@ public class QProfilesWsMediumTest {
 
     // 0. Assert No Active Rule for profile
     assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).isEmpty();
-    assertThat(db.activeRuleDao().selectByProfileKey(session, profile.getKey())).hasSize(0);
 
     // 2. Assert ActiveRule with BLOCKER severity
     assertThat(tester.get(RuleIndex.class).search(
@@ -375,7 +375,12 @@ public class QProfilesWsMediumTest {
     session.commit();
 
     // 2. Assert ActiveRule with MINOR severity
-    assertThat(tester.get(ActiveRuleIndex.class).findByRule(rule0.getKey()).get(0).severity()).isEqualTo("MINOR");
+    assertThat(tester.get(ActiveRuleDao.class).selectByRule(session, rule0).get(0).getSeverityString()).isEqualTo("MINOR");
+    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery()
+      .setQProfileKey(profile.getKey())
+      .setKey(rule0.getKey().toString())
+      .setActiveSeverities(Collections.singleton("MINOR"))
+      .setActivation(true))).hasSize(1);
   }
 
   @Test

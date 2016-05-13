@@ -19,8 +19,6 @@
  */
 package org.sonar.server.rule;
 
-import com.google.common.collect.Lists;
-import java.util.List;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
@@ -34,12 +32,9 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDao;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.es.SearchOptions;
 import org.sonar.server.qualityprofile.QProfileTesting;
 import org.sonar.server.qualityprofile.RuleActivation;
 import org.sonar.server.qualityprofile.RuleActivator;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
@@ -117,11 +112,10 @@ public class RuleDeleterMediumTest {
     assertThat(customRuleReloaded.getUpdatedAt()).isNotEqualTo(PAST);
 
     // Verify there's no more active rule from custom rule
-    List<ActiveRuleDoc> activeRules = Lists.newArrayList(tester.get(ActiveRuleIndex.class).findByProfile(profileDto.getKey()));
-    assertThat(activeRules).isEmpty();
+    assertThat(index.searchAll(new RuleQuery().setQProfileKey(profileDto.getKey()).setActivation(true))).isEmpty();
 
     // Verify in index
-    assertThat(index.search(new RuleQuery(), new SearchOptions()).getIds()).containsOnly(templateRule.getKey());
+    assertThat(index.searchAll(new RuleQuery())).containsOnly(templateRule.getKey());
   }
 
   @Test

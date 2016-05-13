@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.io.Writer;
 import org.apache.commons.lang.StringUtils;
@@ -45,8 +44,6 @@ import org.sonar.server.qualityprofile.QProfileExporters;
 import org.sonar.server.qualityprofile.QProfileFactory;
 import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileTesting;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
@@ -54,7 +51,6 @@ import org.sonar.server.ws.WsTester.Result;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ExportActionTest {
 
@@ -82,10 +78,7 @@ public class ExportActionTest {
     ProfileExporter exporter1 = newExporter("polop");
     ProfileExporter exporter2 = newExporter("palap");
 
-    ActiveRuleIndex activeRuleIndex = mock(ActiveRuleIndex.class);
-    when(activeRuleIndex.findByProfile(Matchers.anyString())).thenReturn(Sets.<ActiveRuleDoc>newHashSet().iterator());
-
-    exporters = new QProfileExporters(dbClient, new QProfileLoader(dbClient, activeRuleIndex, mock(RuleIndex.class)), null, null, new ProfileExporter[] {exporter1, exporter2},
+    exporters = new QProfileExporters(dbClient, new QProfileLoader(dbClient, null, mock(RuleIndex.class)), null, null, new ProfileExporter[] {exporter1, exporter2},
       null);
     wsTester = new WsTester(new QProfilesWs(mock(RuleActivationActions.class),
       mock(BulkRuleActivationActions.class),

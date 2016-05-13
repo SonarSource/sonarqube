@@ -19,43 +19,29 @@
  */
 package org.sonar.server.qualityprofile.index;
 
-import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.Multimap;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
-import org.elasticsearch.action.get.GetRequestBuilder;
-import org.elasticsearch.action.get.GetResponse;
+import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
-import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.FilterBuilder;
 import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
-import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.bucket.terms.StringTerms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.valuecount.InternalValueCount;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.search.FacetValue;
 
-import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
-import static org.sonar.server.es.EsUtils.scroll;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
@@ -74,68 +60,6 @@ public class ActiveRuleIndex extends BaseIndex {
 
   public ActiveRuleIndex(EsClient client) {
     super(client);
-  }
-
-  /**
-   * @deprecated since 5.5, use {@link org.sonar.db.qualityprofile.ActiveRuleDao instead}
-   */
-  @Deprecated
-  @CheckForNull
-  public ActiveRule getNullableByKey(ActiveRuleKey key) {
-    GetRequestBuilder request = getClient().prepareGet()
-      .setIndex(RuleIndexDefinition.INDEX)
-      .setType(RuleIndexDefinition.TYPE_ACTIVE_RULE)
-      .setId(key.toString())
-      .setFetchSource(true)
-      .setRouting(key.ruleKey().repository());
-
-    GetResponse response = request.get();
-    if (response.isExists()) {
-      return new ActiveRuleDoc(response.getSource());
-    }
-    return null;
-  }
-
-  /**
-   * @deprecated since 5.5, use {@link org.sonar.db.qualityprofile.ActiveRuleDao instead}
-   */
-  @Deprecated
-  public List<ActiveRule> findByRule(RuleKey key) {
-    SearchRequestBuilder request = getClient().prepareSearch(RuleIndexDefinition.INDEX)
-      .setQuery(QueryBuilders
-        .hasParentQuery(RuleIndexDefinition.TYPE_RULE,
-          QueryBuilders.idsQuery(RuleIndexDefinition.TYPE_RULE)
-            .addIds(key.toString())
-        ))
-      .setRouting(key.repository())
-      .setSize(Integer.MAX_VALUE);
-
-    SearchResponse response = request.get();
-
-    List<ActiveRule> activeRules = new ArrayList<>();
-    for (SearchHit hit : response.getHits()) {
-      activeRules.add(new ActiveRuleDoc(hit.getSource()));
-    }
-    return activeRules;
-  }
-
-  /**
-   * @deprecated since 5.5, use {@link org.sonar.db.qualityprofile.ActiveRuleDao instead}
-   */
-  @Deprecated
-  public Iterator<ActiveRuleDoc> findByProfile(String key) {
-    SearchRequestBuilder request = getClient().prepareSearch(RuleIndexDefinition.INDEX)
-      .setTypes(RuleIndexDefinition.TYPE_ACTIVE_RULE)
-      .setSearchType(SearchType.SCAN)
-      .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
-      .setSize(100)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.boolFilter()
-        .must(FilterBuilders.termFilter(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY, key))
-        .mustNot(FilterBuilders.hasParentFilter(RuleIndexDefinition.TYPE_RULE,
-          FilterBuilders.termFilter(RuleIndexDefinition.FIELD_RULE_STATUS, RuleStatus.REMOVED.name())))));
-
-    SearchResponse response = request.get();
-    return scroll(getClient(), response.getScrollId(), ToDoc.INSTANCE);
   }
 
   public Map<String, Long> countAllByQualityProfileKey() {
@@ -163,8 +87,7 @@ public class ActiveRuleIndex extends BaseIndex {
 
     SearchResponse response = request.get();
 
-    Terms values =
-      response.getAggregations().get(indexField);
+    Terms values = response.getAggregations().get(indexField);
 
     for (Terms.Bucket value : values.getBuckets()) {
       counts.put(value.getKey(), value.getDocCount());
@@ -198,7 +121,7 @@ public class ActiveRuleIndex extends BaseIndex {
     return stats;
   }
 
-  private Multimap<String, FacetValue> processAggregations(Aggregations aggregations) {
+  private Multimap<String, FacetValue> processAggregations(@Nullable Aggregations aggregations) {
     Multimap<String, FacetValue> stats = ArrayListMultimap.create();
     if (aggregations != null) {
       for (Aggregation aggregation : aggregations.asList()) {
@@ -215,15 +138,6 @@ public class ActiveRuleIndex extends BaseIndex {
       }
     }
     return stats;
-  }
-
-  private enum ToDoc implements Function<Map<String, Object>, ActiveRuleDoc> {
-    INSTANCE;
-
-    @Override
-    public ActiveRuleDoc apply(@Nonnull Map<String, Object> input) {
-      return new ActiveRuleDoc(input);
-    }
   }
 
 }

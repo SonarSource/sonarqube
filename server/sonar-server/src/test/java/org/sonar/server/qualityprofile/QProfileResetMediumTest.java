@@ -43,7 +43,6 @@ import org.sonar.db.qualityprofile.ActiveRuleParamDto;
 import org.sonar.db.qualityprofile.QualityProfileDao;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.platform.Platform;
-import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -105,23 +104,22 @@ public class QProfileResetMediumTest {
     RulesProfile defProfile = RulesProfile.create("Basic", ServerTester.Xoo.KEY);
     defProfile.activateRule(
       org.sonar.api.rules.Rule.create("xoo", "x1").setParams(newArrayList(new RuleParam().setKey("acceptWhitespace"))),
-      RulePriority.CRITICAL
-    ).setParameter("acceptWhitespace", "true");
+      RulePriority.CRITICAL).setParameter("acceptWhitespace", "true");
 
     register(new Rules() {
-    @Override
-    public void init(RulesDefinition.NewRepository repository) {
-      RulesDefinition.NewRule x1 = repository.createRule("x1")
-        .setName("x1 name")
-        .setHtmlDescription("x1 desc")
-        .setSeverity(MINOR);
-      x1.createParam("acceptWhitespace")
-        .setDefaultValue("false")
-        .setType(RuleParamType.BOOLEAN)
-        .setDescription("Accept whitespaces on the line");
-    }},
-      defProfile
-    );
+      @Override
+      public void init(RulesDefinition.NewRepository repository) {
+        RulesDefinition.NewRule x1 = repository.createRule("x1")
+          .setName("x1 name")
+          .setHtmlDescription("x1 desc")
+          .setSeverity(MINOR);
+        x1.createParam("acceptWhitespace")
+          .setDefaultValue("false")
+          .setType(RuleParamType.BOOLEAN)
+          .setDescription("Accept whitespaces on the line");
+      }
+    },
+      defProfile);
 
     RuleKey ruleKey = RuleKey.of("xoo", "x1");
     QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
@@ -131,10 +129,8 @@ public class QProfileResetMediumTest {
     tester.get(RuleActivator.class).activate(dbSession,
       new RuleActivation(ruleKey).setSeverity(BLOCKER)
         .setParameter("acceptWhitespace", "false"),
-      profile.getKey()
-    );
+      profile.getKey());
     dbSession.commit();
-
 
     // Verify severity and param has changed
     ActiveRuleDto activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);
@@ -149,8 +145,6 @@ public class QProfileResetMediumTest {
     // Severity and parameter value come back to origin after reset
     activeRuleDto = tester.get(ActiveRuleDao.class).selectOrFailByKey(dbSession, activeRuleKey);
     assertThat(activeRuleDto.getSeverityString()).isEqualTo(CRITICAL);
-    ActiveRule activeRule = tester.get(ActiveRuleIndex.class).getNullableByKey(activeRuleKey);
-    assertThat(activeRule.severity()).isEqualTo(CRITICAL);
 
     activeRuleParamDtos = tester.get(ActiveRuleDao.class).selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
     assertThat(activeRuleParamDtos.get(0).getKey()).isEqualTo("acceptWhitespace");
@@ -173,7 +167,8 @@ public class QProfileResetMediumTest {
           .setDefaultValue("false")
           .setType(RuleParamType.BOOLEAN)
           .setDescription("Accept whitespaces on the line");
-      }}, defProfile);
+      }
+    }, defProfile);
 
     QualityProfileDto profile = tester.get(QualityProfileDao.class).selectByNameAndLanguage("Basic", ServerTester.Xoo.KEY, dbSession);
     ActiveRuleKey activeRuleKey = ActiveRuleKey.of(profile.getKey(), RuleKey.of("xoo", "x1"));
@@ -190,7 +185,8 @@ public class QProfileResetMediumTest {
           .setDefaultValue("true")
           .setType(RuleParamType.BOOLEAN)
           .setDescription("Accept whitespaces on the line");
-      }}, defProfile);
+      }
+    }, defProfile);
 
     reset.resetLanguage(ServerTester.Xoo.KEY);
 

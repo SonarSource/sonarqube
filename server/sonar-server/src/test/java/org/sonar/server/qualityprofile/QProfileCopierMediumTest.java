@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -39,10 +38,11 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
 import org.sonar.db.rule.RuleTesting;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -190,18 +190,18 @@ public class QProfileCopierMediumTest {
     verifyOneActiveRule(dto.getKey(), expectedSeverity, expectedInheritance, expectedParams);
   }
 
-  private void verifyOneActiveRule(String profileKey, String expectedSeverity,
-    @Nullable String expectedInheritance, Map<String, String> expectedParams) {
+  private void verifyOneActiveRule(String profileKey, String expectedSeverity, @Nullable String expectedInheritance, Map<String, String> expectedParams) {
 
-    List<ActiveRuleDoc> activeRules = Lists.newArrayList(index.findByProfile(profileKey));
+    // check in db
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileKey);
     assertThat(activeRules).hasSize(1);
 
-    ActiveRuleDoc activeRule = activeRules.get(0);
-    assertThat(activeRule.severity()).isEqualTo(expectedSeverity);
-    assertThat(activeRule.inheritance()).isEqualTo(expectedInheritance == null ? ActiveRule.Inheritance.NONE : ActiveRule.Inheritance.valueOf(expectedInheritance));
+    ActiveRuleDto activeRule = activeRules.get(0);
+    assertThat(activeRule.getSeverityString()).isEqualTo(expectedSeverity);
+    assertThat(activeRule.getInheritance()).isEqualTo(expectedInheritance);
 
     // verify parameters
-    ActiveRuleDto activeRuleDto = db.activeRuleDao().selectOrFailByKey(dbSession, activeRule.key());
+    ActiveRuleDto activeRuleDto = db.activeRuleDao().selectOrFailByKey(dbSession, activeRule.getKey());
     List<ActiveRuleParamDto> params = db.activeRuleDao().selectParamsByActiveRuleId(dbSession, activeRuleDto.getId());
     assertThat(params).hasSize(expectedParams.size());
     Map<String, ActiveRuleParamDto> paramsByKey = ActiveRuleParamDto.groupByKey(params);
@@ -209,5 +209,8 @@ public class QProfileCopierMediumTest {
       String value = paramsByKey.get(entry.getKey()).getValue();
       assertThat(value).isEqualTo(entry.getValue());
     }
+
+    // check in es
+    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profileKey).setActivation(true))).hasSize(1);
   }
 }

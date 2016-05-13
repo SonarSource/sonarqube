@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.io.IOException;
 import java.io.Reader;
@@ -51,10 +50,11 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
 import org.sonar.server.rule.index.RuleIndexer;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.search.FacetValue;
 import org.sonar.server.search.Result;
 import org.sonar.server.tester.ServerTester;
@@ -134,8 +134,8 @@ public class QProfileServiceMediumTest {
     assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
     assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
 
-    List<ActiveRuleDoc> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profile.getKey()));
-    assertThat(activeRules).hasSize(1);
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, profile.getKey())).hasSize(1);
+    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey( profile.getKey()).setActivation(true))).hasSize(1);
   }
 
   @Test
@@ -229,8 +229,7 @@ public class QProfileServiceMediumTest {
     RuleKey ruleKey = RuleKey.of("xoo", "deleted_rule");
 
     tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.UPDATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
-      .setParameter("max", "10").toActivity()
-      );
+      .setParameter("max", "10").toActivity());
 
     Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
     assertThat(activities.getHits()).hasSize(1);
@@ -254,8 +253,7 @@ public class QProfileServiceMediumTest {
       ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
         .setSeverity(Severity.MAJOR)
         .setParameter("max", "10")
-        .toActivity()
-      );
+        .toActivity());
 
     Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());
     assertThat(activities.getHits()).hasSize(1);
@@ -274,8 +272,7 @@ public class QProfileServiceMediumTest {
     tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, ruleKey))
       .setSeverity(Severity.MAJOR)
       .setParameter("max", "10")
-      .toActivity()
-      );
+      .toActivity());
     dbSession.commit();
 
     Result<QProfileActivity> activities = service.searchActivities(new QProfileActivityQuery(), new SearchOptions());

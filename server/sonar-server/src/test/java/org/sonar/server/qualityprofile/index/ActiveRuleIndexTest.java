@@ -20,7 +20,6 @@
 package org.sonar.server.qualityprofile.index;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,11 +29,9 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.api.rule.RuleStatus;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.es.EsTester;
-import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.rule.index.RuleDoc;
 import org.sonar.server.rule.index.RuleDocTesting;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -139,92 +136,6 @@ public class ActiveRuleIndexTest {
 
     Map<String, Multimap<String, FacetValue>> stats = index.getStatsByProfileKeys(profileKeys);
     assertThat(stats).hasSize(30);
-  }
-
-  @Test
-  public void get_by_key() {
-    indexRules(RuleDocTesting.newDoc(RULE_KEY_1));
-    ActiveRuleKey key = ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1);
-    indexActiveRules(ActiveRuleDocTesting.newDoc(key));
-
-    assertThat(index.getNullableByKey(key)).isNotNull();
-    assertThat(index.getNullableByKey(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2))).isNull();
-  }
-
-  @Test
-  public void find_active_rules() {
-    indexRules(
-      RuleDocTesting.newDoc(RULE_KEY_1),
-      RuleDocTesting.newDoc(RULE_KEY_2),
-      RuleDocTesting.newDoc(RuleKey.of("xoo", "removed")).setStatus(RuleStatus.REMOVED.name()));
-
-    indexActiveRules(
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_1)),
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, RULE_KEY_2)),
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RULE_KEY_2)),
-      // Removed rule can still be activated for instance when removing the checkstyle plugin, active rules related on checkstyle are not
-      // removed
-      // because if the plugin is re-install, quality profiles using these rule are not changed.
-      ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY2, RuleKey.of("xoo", "removed"))));
-
-    // 1. find by rule key
-
-    // in es
-    List<ActiveRule> activeRules = index.findByRule(RULE_KEY_1);
-    assertThat(activeRules).hasSize(1);
-    assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RULE_KEY_1);
-
-    activeRules = index.findByRule(RULE_KEY_2);
-    assertThat(activeRules).hasSize(2);
-    assertThat(activeRules.get(0).key().ruleKey()).isEqualTo(RULE_KEY_2);
-
-    activeRules = index.findByRule(RuleKey.of("unknown", "unknown"));
-    assertThat(activeRules).isEmpty();
-
-    // 2. find by profile
-    List<ActiveRuleDoc> activeRuleDocs = Lists.newArrayList(index.findByProfile(QUALITY_PROFILE_KEY1));
-    assertThat(activeRuleDocs).hasSize(2);
-    assertThat(activeRuleDocs.get(0).key().qProfile()).isEqualTo(QUALITY_PROFILE_KEY1);
-    assertThat(activeRuleDocs.get(1).key().qProfile()).isEqualTo(QUALITY_PROFILE_KEY1);
-
-    activeRuleDocs = Lists.newArrayList(index.findByProfile(QUALITY_PROFILE_KEY2));
-    assertThat(activeRuleDocs).hasSize(1);
-    assertThat(activeRuleDocs.get(0).key().qProfile()).isEqualTo(QUALITY_PROFILE_KEY2);
-
-    activeRuleDocs = Lists.newArrayList(index.findByProfile("unknown"));
-    assertThat(activeRuleDocs).isEmpty();
-  }
-
-  @Test
-  public void find_many_active_rules_by_profile() {
-    int nb = 150;
-    RuleDoc[] ruleDocs = new RuleDoc[nb];
-    ActiveRuleDoc[] activeRuleDocs = new ActiveRuleDoc[nb];
-    for (int i = 0; i < nb; i++) {
-      RuleKey ruleKey = RuleKey.of("xoo", "S00" + i);
-      ruleDocs[i] = RuleDocTesting.newDoc(ruleKey);
-      activeRuleDocs[i] = ActiveRuleDocTesting.newDoc(ActiveRuleKey.of(QUALITY_PROFILE_KEY1, ruleKey));
-    }
-    indexRules(ruleDocs);
-    indexActiveRules(activeRuleDocs);
-
-    // verify index
-    assertThat(index.findByProfile(QUALITY_PROFILE_KEY1)).hasSize(nb);
-  }
-
-  @Test
-  public void find_many_active_rules_by_rule() {
-    indexRules(RuleDocTesting.newDoc(RULE_KEY_1));
-
-    int nb = 150;
-    ActiveRuleDoc[] activeRuleDocs = new ActiveRuleDoc[nb];
-    for (int i = 0; i < nb; i++) {
-      activeRuleDocs[i] = ActiveRuleDocTesting.newDoc(ActiveRuleKey.of("qp" + i, RULE_KEY_1));
-    }
-    indexActiveRules(activeRuleDocs);
-
-    // verify index
-    assertThat(index.findByRule(RULE_KEY_1)).hasSize(nb);
   }
 
   private void indexActiveRules(ActiveRuleDoc... docs) {

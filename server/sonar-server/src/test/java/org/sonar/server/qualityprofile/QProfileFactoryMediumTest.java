@@ -40,7 +40,9 @@ import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexer;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
@@ -224,7 +226,8 @@ public class QProfileFactoryMediumTest {
     assertThat(db.qualityProfileDao().selectAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().selectAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().selectAllParams(dbSession)).isEmpty();
-    assertThat(activeRuleIndex.findByProfile(XOO_P1_KEY)).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).isEmpty();
+    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(XOO_P1_KEY).setActivation(true))).isEmpty();
   }
 
   @Test
@@ -251,9 +254,9 @@ public class QProfileFactoryMediumTest {
     assertThat(db.qualityProfileDao().selectAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().selectAll(dbSession)).isEmpty();
     assertThat(db.activeRuleDao().selectAllParams(dbSession)).isEmpty();
-    assertThat(activeRuleIndex.findByProfile(XOO_P1_KEY)).isEmpty();
-    assertThat(activeRuleIndex.findByProfile(XOO_P2_KEY)).isEmpty();
-    assertThat(activeRuleIndex.findByProfile(XOO_P3_KEY)).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P1_KEY)).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P2_KEY)).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, XOO_P3_KEY)).isEmpty();
   }
 
   @Test

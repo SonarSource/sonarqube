@@ -21,19 +21,15 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleQuery;
@@ -83,19 +79,6 @@ public class QProfileLoader {
     } finally {
       dbSession.close();
     }
-  }
-
-  @CheckForNull
-  public ActiveRule getActiveRule(ActiveRuleKey key) {
-    return activeRuleIndex.getNullableByKey(key);
-  }
-
-  public List<ActiveRule> findActiveRulesByRule(RuleKey key) {
-    return activeRuleIndex.findByRule(key);
-  }
-
-  public Iterator<ActiveRuleDoc> findActiveRulesByProfile(String key) {
-    return activeRuleIndex.findByProfile(key);
   }
 
   public Map<String, Long> countAllActiveRules() {

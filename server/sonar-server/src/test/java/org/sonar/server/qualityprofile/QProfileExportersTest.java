@@ -19,7 +19,6 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
@@ -41,11 +40,13 @@ import org.sonar.api.server.rule.RulesDefinition;
 import org.sonar.api.utils.ValidationMessages;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
+import org.sonar.db.qualityprofile.ActiveRuleDto;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.NotFoundException;
-import org.sonar.server.qualityprofile.index.ActiveRuleDoc;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
+import org.sonar.server.rule.index.RuleIndex;
+import org.sonar.server.rule.index.RuleQuery;
 import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
@@ -140,17 +141,21 @@ public class QProfileExportersTest {
     db.qualityProfileDao().insert(dbSession, profileDto);
     dbSession.commit();
 
-    assertThat(loader.findActiveRulesByProfile(profileDto.getKey())).isEmpty();
+    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey())).isEmpty();
 
     QProfileResult result = exporters.importXml(profileDto, "XooProfileImporter", "<xml/>", dbSession);
     dbSession.commit();
     activeRuleIndexer.index(result.getChanges());
 
-    List<ActiveRuleDoc> activeRules = Lists.newArrayList(loader.findActiveRulesByProfile(profileDto.getKey()));
+    // Check in db
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByProfileKey(dbSession, profileDto.getKey());
     assertThat(activeRules).hasSize(1);
-    ActiveRule activeRule = activeRules.get(0);
-    assertThat(activeRule.key().ruleKey()).isEqualTo(RuleKey.of("xoo", "R1"));
-    assertThat(activeRule.severity()).isEqualTo(Severity.CRITICAL);
+    ActiveRuleDto activeRule = activeRules.get(0);
+    assertThat(activeRule.getKey().ruleKey()).isEqualTo(RuleKey.of("xoo", "R1"));
+    assertThat(activeRule.getSeverityString()).isEqualTo(Severity.CRITICAL);
+
+    // Check in es
+    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profileDto.getKey()).setActivation(true))).containsOnly(RuleKey.of("xoo", "R1"));
   }
 
   @Test
