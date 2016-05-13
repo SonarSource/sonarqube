@@ -19,50 +19,45 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.cache.WSLoader.LoadStrategy;
-
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
-import org.apache.commons.lang.mutable.MutableBoolean;
-
-import javax.annotation.Nullable;
-
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.util.BatchUtils;
+import org.sonarqube.ws.client.GetRequest;
+
+import java.io.IOException;
+import java.io.Reader;
+
 import com.google.common.base.Splitter;
 import com.google.common.collect.Iterators;
+import org.apache.commons.io.IOUtils;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
 
 public class DefaultServerLineHashesLoader implements ServerLineHashesLoader {
+  private BatchWsClient wsClient;
 
-  private final WSLoader wsLoader;
-
-  public DefaultServerLineHashesLoader(WSLoader wsLoader) {
-    this.wsLoader = wsLoader;
+  public DefaultServerLineHashesLoader(BatchWsClient wsClient) {
+    this.wsClient = wsClient;
   }
 
   @Override
-  public String[] getLineHashes(String fileKey, @Nullable MutableBoolean fromCache) {
-    String hashesFromWs = loadHashesFromWs(fileKey, fromCache);
+  public String[] getLineHashes(String fileKey) {
+    String hashesFromWs = loadHashesFromWs(fileKey);
     return Iterators.toArray(Splitter.on('\n').split(hashesFromWs).iterator(), String.class);
   }
 
-  private String loadHashesFromWs(String fileKey, @Nullable MutableBoolean fromCache) {
+  private String loadHashesFromWs(String fileKey) {
     Profiler profiler = Profiler.createIfDebug(Loggers.get(getClass()))
       .addContext("file", fileKey)
       .startDebug("Load line hashes");
-    WSLoaderResult<String> result = wsLoader.loadString("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey), LoadStrategy.CACHE_FIRST);
+
+    GetRequest getRequest = new GetRequest("/api/sources/hash?key=" + BatchUtils.encodeForUrl(fileKey));
+    Reader reader = wsClient.call(getRequest).contentReader();
     try {
-      if (fromCache != null) {
-        fromCache.setValue(result.isFromCache());
-      }
-      return result.get();
+      return IOUtils.toString(reader);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
     } finally {
-      if (result.isFromCache()) {
-        profiler.stopDebug("Load line hashes (done from cache)");
-      } else {
-        profiler.stopDebug();
-      }
+      profiler.stopDebug();
     }
   }
 }

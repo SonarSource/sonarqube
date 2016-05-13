@@ -24,7 +24,6 @@ import java.util.Date;
 import org.sonar.batch.repository.FileData;
 import com.google.common.collect.Table;
 import com.google.common.collect.HashBasedTable;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
@@ -32,7 +31,6 @@ import org.mockito.MockitoAnnotations;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -64,52 +62,26 @@ public class ProjectRepositoriesProviderTest {
   }
 
   @Test
-  public void testNonAssociated() {
-    when(mode.isNotAssociated()).thenReturn(true);
-    ProjectRepositories repo = provider.provide(loader, projectKey, mode);
-
-    assertThat(repo.exists()).isEqualTo(false);
-    verify(mode).isNotAssociated();
-    verifyNoMoreInteractions(loader, projectKey, mode);
-  }
-
-  @Test
-  public void singleton() {
-    when(mode.isNotAssociated()).thenReturn(true);
-    ProjectRepositories repo = provider.provide(loader, projectKey, mode);
-
-    assertThat(repo.exists()).isEqualTo(false);
-    verify(mode).isNotAssociated();
-    verifyNoMoreInteractions(loader, projectKey, mode);
-
-    repo = provider.provide(loader, projectKey, mode);
-    verifyNoMoreInteractions(loader, projectKey, mode);
-  }
-
-  @Test
   public void testValidation() {
-    when(mode.isNotAssociated()).thenReturn(false);
     when(mode.isIssues()).thenReturn(true);
-    when(loader.load(eq("key"), eq(true), any(MutableBoolean.class))).thenReturn(project);
+    when(loader.load(eq("key"), eq(true))).thenReturn(project);
 
     provider.provide(loader, projectKey, mode);
   }
 
   @Test
   public void testAssociated() {
-    when(mode.isNotAssociated()).thenReturn(false);
     when(mode.isIssues()).thenReturn(false);
-    when(loader.load(eq("key"), eq(false), any(MutableBoolean.class))).thenReturn(project);
+    when(loader.load(eq("key"), eq(false))).thenReturn(project);
 
     ProjectRepositories repo = provider.provide(loader, projectKey, mode);
 
     assertThat(repo.exists()).isEqualTo(true);
     assertThat(repo.lastAnalysisDate()).isNotNull();
 
-    verify(mode).isNotAssociated();
     verify(mode, times(2)).isIssues();
     verify(projectKey).get();
-    verify(loader).load(eq("key"), eq(false), any(MutableBoolean.class));
+    verify(loader).load(eq("key"), eq(false));
     verifyNoMoreInteractions(loader, projectKey, mode);
   }
 }

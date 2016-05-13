@@ -99,7 +99,7 @@ public final class Batch {
 
     configureLogging();
     try {
-      bootstrapContainer = GlobalContainer.create(bootstrapProperties, components, preferCache);
+      bootstrapContainer = GlobalContainer.create(bootstrapProperties, components);
       bootstrapContainer.startComponents();
     } catch (RuntimeException e) {
       throw handleException(e);
@@ -159,10 +159,10 @@ public final class Batch {
 
   /**
    * @since 5.2
+   * @deprecated since 5.6
    */
   public Batch syncProject(String projectKey) {
     checkStarted();
-    bootstrapContainer.syncProject(projectKey, true);
     return this;
   }
 

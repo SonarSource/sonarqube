@@ -28,15 +28,12 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonarqube.ws.Rules.Active;
 import org.sonarqube.ws.Rules.Active.Param;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.Rules.ActiveList;
 import org.sonarqube.ws.Rules.Rule;
 import org.sonarqube.ws.Rules.SearchResponse;
@@ -44,22 +41,22 @@ import org.sonarqube.ws.Rules.SearchResponse;
 public class DefaultActiveRulesLoader implements ActiveRulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true";
 
-  private final WSLoader wsLoader;
+  private final BatchWsClient wsClient;
 
-  public DefaultActiveRulesLoader(WSLoader wsLoader) {
-    this.wsLoader = wsLoader;
+  public DefaultActiveRulesLoader(BatchWsClient wsClient) {
+    this.wsClient = wsClient;
   }
 
   @Override
-  public List<LoadedActiveRule> load(String qualityProfileKey, @Nullable MutableBoolean fromCache) {
+  public List<LoadedActiveRule> load(String qualityProfileKey) {
     List<LoadedActiveRule> ruleList = new LinkedList<>();
     int page = 1;
     int pageSize = 500;
     int loaded = 0;
 
     while (true) {
-      WSLoaderResult<InputStream> result = wsLoader.loadStream(getUrl(qualityProfileKey, page, pageSize));
-      SearchResponse response = loadFromStream(result.get());
+      GetRequest getRequest = new GetRequest(getUrl(qualityProfileKey, page, pageSize));
+      SearchResponse response = loadFromStream(wsClient.call(getRequest).contentStream());
       List<LoadedActiveRule> pageRules = readPage(response);
       ruleList.addAll(pageRules);
       loaded += response.getPs();
@@ -68,9 +65,6 @@ public class DefaultActiveRulesLoader implements ActiveRulesLoader {
         break;
       }
       page++;
-      if (fromCache != null) {
-        fromCache.setValue(result.isFromCache());
-      }
     }
 
     return ruleList;

@@ -25,7 +25,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
@@ -47,14 +46,13 @@ public class ActiveRulesProvider extends ProviderAdapter {
   public ActiveRules provide(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
     if (singleton == null) {
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      MutableBoolean fromCache = new MutableBoolean();
-      singleton = load(loader, qProfiles, fromCache);
-      profiler.stopInfo(fromCache.booleanValue());
+      singleton = load(loader, qProfiles);
+      profiler.stopInfo();
     }
     return singleton;
   }
 
-  private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles, MutableBoolean fromCache) {
+  private static ActiveRules load(ActiveRulesLoader loader, ModuleQProfiles qProfiles) {
 
     Collection<String> qProfileKeys = getKeys(qProfiles);
     Map<RuleKey, LoadedActiveRule> loadedRulesByKey = new HashMap<>();
@@ -62,7 +60,7 @@ public class ActiveRulesProvider extends ProviderAdapter {
     try {
       for (String qProfileKey : qProfileKeys) {
         Collection<LoadedActiveRule> qProfileRules;
-        qProfileRules = load(loader, qProfileKey, fromCache);
+        qProfileRules = load(loader, qProfileKey);
 
         for (LoadedActiveRule r : qProfileRules) {
           if (!loadedRulesByKey.containsKey(r.getRuleKey())) {
@@ -100,8 +98,8 @@ public class ActiveRulesProvider extends ProviderAdapter {
     return builder.build();
   }
 
-  private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey, MutableBoolean fromCache) throws IOException {
-    return loader.load(qProfileKey, fromCache);
+  private static List<LoadedActiveRule> load(ActiveRulesLoader loader, String qProfileKey) throws IOException {
+    return loader.load(qProfileKey);
   }
 
   private static Collection<String> getKeys(ModuleQProfiles qProfiles) {

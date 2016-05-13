@@ -30,11 +30,9 @@ import java.util.Map;
 import java.util.Properties;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
@@ -43,8 +41,6 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.batch.analysis.AnalysisProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class ProjectReactorBuilderTest {
 
@@ -53,13 +49,6 @@ public class ProjectReactorBuilderTest {
 
   @Rule
   public LogTester logTester = new LogTester();
-
-  private AnalysisMode mode;
-
-  @Before
-  public void setUp() {
-    mode = mock(AnalysisMode.class);
-  }
 
   @Test
   public void shouldDefineSimpleProject() {
@@ -332,7 +321,7 @@ public class ProjectReactorBuilderTest {
     AnalysisProperties taskProperties = new AnalysisProperties(props, null);
     assertThat(taskProperties.property("module1.module11.property")).isEqualTo("My module11 property");
 
-    new ProjectReactorBuilder(taskProperties, mode).execute();
+    new ProjectReactorBuilder(taskProperties).execute();
 
     assertThat(taskProperties.property("module1.module11.property")).isNull();
   }
@@ -415,7 +404,7 @@ public class ProjectReactorBuilderTest {
 
   @Test
   public void shouldInitRootWorkDir() {
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(Maps.<String, String>newHashMap(), null), mode);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(Maps.<String, String>newHashMap(), null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, Maps.<String, String>newHashMap());
@@ -424,18 +413,10 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
-  public void nonAssociatedMode() {
-    when(mode.isIssues()).thenReturn(true);
-    ProjectDefinition project = loadProjectDefinition("multi-module-with-basedir-not-associated");
-
-    assertThat(project.getKey()).isEqualTo("project");
-  }
-
-  @Test
   public void shouldInitWorkDirWithCustomRelativeFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", ".foo");
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null), mode);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -447,7 +428,7 @@ public class ProjectReactorBuilderTest {
   public void shouldInitRootWorkDirWithCustomAbsoluteFolder() {
     Map<String, String> props = Maps.<String, String>newHashMap();
     props.put("sonar.working.directory", new File("src").getAbsolutePath());
-    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null), mode);
+    ProjectReactorBuilder builder = new ProjectReactorBuilder(new AnalysisProperties(props, null));
     File baseDir = new File("target/tmp/baseDir");
 
     File workDir = builder.initRootProjectWorkDir(baseDir, props);
@@ -499,7 +480,7 @@ public class ProjectReactorBuilderTest {
   private ProjectDefinition loadProjectDefinition(String projectFolder) {
     Map<String, String> props = loadProps(projectFolder);
     AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
-    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps, mode).execute();
+    ProjectReactor projectReactor = new ProjectReactorBuilder(bootstrapProps).execute();
     return projectReactor.getRoot();
   }
 
@@ -638,7 +619,7 @@ public class ProjectReactorBuilderTest {
     Map<String, String> props = loadProps("simple-project");
     props.put("sonar.qualitygate", "somevalue");
     AnalysisProperties bootstrapProps = new AnalysisProperties(props, null);
-    new ProjectReactorBuilder(bootstrapProps, mode).execute();
+    new ProjectReactorBuilder(bootstrapProps).execute();
 
     assertThat(logTester.logs(LoggerLevel.WARN)).containsOnly("Property 'sonar.qualitygate' is not supported any more. It will be ignored.");
   }

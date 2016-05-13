@@ -42,7 +42,7 @@ public class GlobalContainerTest {
     Map<String, String> props = ImmutableMap.of(CoreProperties.WORKING_DIRECTORY, temp.getRoot().getAbsolutePath(),
       CoreProperties.GLOBAL_WORKING_DIRECTORY, temp.getRoot().getAbsolutePath());
 
-    GlobalContainer container = GlobalContainer.create(props, extensions, false);
+    GlobalContainer container = GlobalContainer.create(props, extensions);
     container.doBeforeStart();
     return container;
   }

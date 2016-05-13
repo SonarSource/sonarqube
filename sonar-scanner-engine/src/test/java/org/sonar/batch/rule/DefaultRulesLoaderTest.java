@@ -20,11 +20,9 @@
 package org.sonar.batch.rule;
 
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import org.junit.rules.ExpectedException;
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonar.batch.WsTestUtil;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 import com.google.common.io.ByteSource;
 import com.google.common.io.Resources;
@@ -33,7 +31,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.List;
 
-import static org.mockito.Matchers.anyString;
 import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.Test;
 
@@ -43,37 +40,24 @@ public class DefaultRulesLoaderTest {
 
   @Test
   public void testParseServerResponse() throws IOException {
-    WSLoader wsLoader = mock(WSLoader.class);
+    BatchWsClient wsClient = mock(BatchWsClient.class);
     InputStream is = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf")).openBufferedStream();
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
-    DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
-    List<Rule> ruleList = loader.load(null);
+    WsTestUtil.mockStream(wsClient, is);
+    DefaultRulesLoader loader = new DefaultRulesLoader(wsClient);
+    List<Rule> ruleList = loader.load();
     assertThat(ruleList).hasSize(318);
   }
 
   @Test
-  public void testLoadedFromCache() throws IOException {
-    WSLoader wsLoader = mock(WSLoader.class);
-    InputStream is = Resources.asByteSource(this.getClass().getResource("DefaultRulesLoader/response.protobuf")).openBufferedStream();
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
-    DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
-    MutableBoolean fromCache = new MutableBoolean();
-    loader.load(fromCache);
-
-    assertThat(fromCache.booleanValue()).isTrue();
-  }
-
-  @Test
   public void testError() throws IOException {
-    WSLoader wsLoader = mock(WSLoader.class);
+    BatchWsClient wsClient = mock(BatchWsClient.class);
     InputStream is = ByteSource.wrap(new String("trash").getBytes()).openBufferedStream();
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
-    DefaultRulesLoader loader = new DefaultRulesLoader(wsLoader);
+    WsTestUtil.mockStream(wsClient, is);
+    DefaultRulesLoader loader = new DefaultRulesLoader(wsClient);
 
     exception.expect(IllegalStateException.class);
     exception.expectMessage("Unable to get rules");
 
-    loader.load(null);
+    loader.load();
   }
-
 }

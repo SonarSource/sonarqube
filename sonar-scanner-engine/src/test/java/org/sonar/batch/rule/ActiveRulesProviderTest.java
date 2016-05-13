@@ -60,9 +60,9 @@ public class ActiveRulesProviderTest {
     List<LoadedActiveRule> qp2Rules = ImmutableList.of(r2, r3);
     List<LoadedActiveRule> qp3Rules = ImmutableList.of(r1, r3);
 
-    when(loader.load(eq("qp1"), any(MutableBoolean.class))).thenReturn(qp1Rules);
-    when(loader.load(eq("qp2"), any(MutableBoolean.class))).thenReturn(qp2Rules);
-    when(loader.load(eq("qp3"), any(MutableBoolean.class))).thenReturn(qp3Rules);
+    when(loader.load(eq("qp1"))).thenReturn(qp1Rules);
+    when(loader.load(eq("qp2"))).thenReturn(qp2Rules);
+    when(loader.load(eq("qp3"))).thenReturn(qp3Rules);
 
     ModuleQProfiles profiles = mockProfiles("qp1", "qp2", "qp3");
     ActiveRules activeRules = provider.provide(loader, profiles);
@@ -71,9 +71,9 @@ public class ActiveRulesProviderTest {
     assertThat(activeRules.findAll()).extracting("ruleKey").containsOnly(
       RuleKey.of("rule1", "rule1"), RuleKey.of("rule2", "rule2"), RuleKey.of("rule3", "rule3"));
 
-    verify(loader).load(eq("qp1"), any(MutableBoolean.class));
-    verify(loader).load(eq("qp2"), any(MutableBoolean.class));
-    verify(loader).load(eq("qp3"), any(MutableBoolean.class));
+    verify(loader).load(eq("qp1"));
+    verify(loader).load(eq("qp2"));
+    verify(loader).load(eq("qp3"));
     verifyNoMoreInteractions(loader);
   }
 

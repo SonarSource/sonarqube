@@ -59,8 +59,8 @@ public class ServerIssueRepository {
     Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
     this.issuesCache = caches.createCache("previousIssues");
     caches.registerValueCoder(ServerIssue.class, new ServerIssueValueCoder());
-    boolean fromCache = previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), new SaveIssueConsumer());
-    profiler.stopInfo(fromCache);
+    previousIssuesLoader.load(reactor.getRoot().getKeyWithBranch(), new SaveIssueConsumer());
+    profiler.stopInfo();
   }
 
   public Iterable<ServerIssue> byComponent(BatchComponent component) {
@@ -85,7 +85,7 @@ public class ServerIssueRepository {
       return null;
     }
   }
-  
+
   public Iterable<ServerIssue> issuesOnMissingComponents() {
     return issuesCache.values(0);
   }

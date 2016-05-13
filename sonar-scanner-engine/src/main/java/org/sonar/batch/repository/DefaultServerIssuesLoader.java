@@ -23,24 +23,24 @@ import com.google.common.base.Function;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.util.BatchUtils;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
+import org.sonarqube.ws.client.GetRequest;
 
 public class DefaultServerIssuesLoader implements ServerIssuesLoader {
 
-  private final WSLoader wsLoader;
+  private final BatchWsClient wsClient;
 
-  public DefaultServerIssuesLoader(WSLoader wsLoader) {
-    this.wsLoader = wsLoader;
+  public DefaultServerIssuesLoader(BatchWsClient wsClient) {
+    this.wsClient = wsClient;
   }
 
   @Override
-  public boolean load(String componentKey, Function<ServerIssue, Void> consumer) {
-    WSLoaderResult<InputStream> result = wsLoader.loadStream("/batch/issues.protobuf?key=" + BatchUtils.encodeForUrl(componentKey));
-    parseIssues(result.get(), consumer);
-    return result.isFromCache();
+  public void load(String componentKey, Function<ServerIssue, Void> consumer) {
+    GetRequest getRequest = new GetRequest("/batch/issues.protobuf?key=" + BatchUtils.encodeForUrl(componentKey));
+    InputStream is = wsClient.call(getRequest).contentStream();
+    parseIssues(is, consumer);
   }
 
   private static void parseIssues(InputStream is, Function<ServerIssue, Void> consumer) {

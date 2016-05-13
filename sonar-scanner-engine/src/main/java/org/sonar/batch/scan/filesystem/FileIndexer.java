@@ -32,7 +32,6 @@ import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.scan.filesystem.PathResolver;
 import org.sonar.api.utils.MessageException;
 import org.sonar.batch.util.ProgressReport;
-import org.sonar.home.cache.DirectoryLock;
 
 import java.io.File;
 import java.io.IOException;
@@ -217,7 +216,7 @@ public class FileIndexer {
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-      if (!Files.isHidden(file) && !DirectoryLock.LOCK_FILE_NAME.equals(file.getFileName().toString())) {
+      if (!Files.isHidden(file)) {
         indexFile(inputFileBuilder, fileSystem, status, file, type);
       }
       return FileVisitResult.CONTINUE;

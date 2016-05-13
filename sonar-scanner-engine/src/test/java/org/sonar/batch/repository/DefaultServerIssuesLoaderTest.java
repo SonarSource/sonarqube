@@ -19,10 +19,10 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.WsTestUtil;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.scanner.protocol.input.ScannerInput;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
-import org.sonar.batch.cache.WSLoader;
 import com.google.common.base.Function;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,12 +39,12 @@ import static org.mockito.Mockito.when;
 
 public class DefaultServerIssuesLoaderTest {
   private DefaultServerIssuesLoader loader;
-  private WSLoader wsLoader;
+  private BatchWsClient wsClient;
 
   @Before
   public void prepare() {
-    wsLoader = mock(WSLoader.class);
-    loader = new DefaultServerIssuesLoader(wsLoader);
+    wsClient = mock(BatchWsClient.class);
+    loader = new DefaultServerIssuesLoader(wsClient);
   }
 
   @Test
@@ -57,7 +57,7 @@ public class DefaultServerIssuesLoaderTest {
       .writeDelimitedTo(bos);
 
     InputStream is = new ByteArrayInputStream(bos.toByteArray());
-    when(wsLoader.loadStream("/batch/issues.protobuf?key=foo")).thenReturn(new WSLoaderResult<>(is, true));
+    WsTestUtil.mockStream(wsClient, "/batch/issues.protobuf?key=foo", is);
 
     final List<ServerIssue> result = new ArrayList<>();
     loader.load("foo", new Function<ScannerInput.ServerIssue, Void>() {
@@ -76,7 +76,7 @@ public class DefaultServerIssuesLoaderTest {
   public void testError() throws IOException {
     InputStream is = mock(InputStream.class);
     when(is.read()).thenThrow(IOException.class);
-    when(wsLoader.loadStream("/batch/issues.protobuf?key=foo")).thenReturn(new WSLoaderResult<>(is, true));
+    WsTestUtil.mockStream(wsClient, "/batch/issues.protobuf?key=foo", is);
     loader.load("foo", mock(Function.class));
   }
 }

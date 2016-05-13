@@ -19,30 +19,34 @@
  */
 package org.sonar.batch.repository;
 
-import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
-import org.sonar.batch.cache.WSLoader;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonar.batch.bootstrap.BatchWsClient;
 
-import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.Reader;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.apache.commons.io.IOUtils;
 
 public class DefaultGlobalRepositoriesLoader implements GlobalRepositoriesLoader {
 
   private static final String BATCH_GLOBAL_URL = "/batch/global";
+  private BatchWsClient wsClient;
 
-  private final WSLoader wsLoader;
-
-  public DefaultGlobalRepositoriesLoader(WSLoader wsLoader) {
-    this.wsLoader = wsLoader;
+  public DefaultGlobalRepositoriesLoader(BatchWsClient wsClient) {
+    this.wsClient = wsClient;
   }
 
   @Override
-  public GlobalRepositories load(@Nullable MutableBoolean fromCache) {
-    WSLoaderResult<String> result = wsLoader.loadString(BATCH_GLOBAL_URL);
-    if (fromCache != null) {
-      fromCache.setValue(result.isFromCache());
+  public GlobalRepositories load() {
+    GetRequest getRequest = new GetRequest(BATCH_GLOBAL_URL);
+    Reader reader = wsClient.call(getRequest).contentReader();
+    String str;
+    try {
+      str = IOUtils.toString(reader);
+    } catch (IOException e) {
+      throw new IllegalStateException(e);
     }
-    return GlobalRepositories.fromJson(result.get());
+    return GlobalRepositories.fromJson(str);
   }
 }

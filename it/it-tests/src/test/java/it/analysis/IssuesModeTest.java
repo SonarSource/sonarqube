@@ -209,22 +209,6 @@ public class IssuesModeTest {
     ItUtils.assertIssuesInJsonReport(result, 3, 0, 17);
   }
 
-  @Test
-  public void non_associated_mode() throws IOException {
-    restoreProfile("one-issue-per-line.xml");
-    setDefaultQualityProfile("xoo", "one-issue-per-line");
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample-non-associated", null);
-    BuildResult result = orchestrator.executeBuild(runner);
-
-    assertThat(result.getLogs()).contains("Local analysis");
-    assertThat(result.getLogs()).contains("Cache not found, synchronizing data");
-    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
-
-    result = orchestrator.executeBuild(runner);
-    assertThat(ItUtils.countIssuesInJsonReport(result, true)).isEqualTo(17);
-    assertThat(result.getLogs()).contains("Found cache");
-  }
-
   // SONAR-5715
   @Test
   public void test_issues_mode_on_project_with_space_in_filename() throws IOException {
@@ -300,19 +284,6 @@ public class IssuesModeTest {
 
     // False positive is not returned
     assertThat(ItUtils.countIssuesInJsonReport(result, false)).isEqualTo(16);
-  }
-
-  // SONAR-7100
-  @Test
-  public void enable_issues_cache() throws Exception {
-    File homeDir = runFirstAnalysisAndFlagIssueAsWontFix();
-
-    // Second issues mode using same cache dir and enable cache
-    SonarRunner runner = configureRunnerIssues("shared/xoo-sample", homeDir, "sonar.useWsCache", "true");
-    BuildResult result = orchestrator.executeBuild(runner);
-
-    // False positive is still visible since we are using cached issues
-    assertThat(ItUtils.countIssuesInJsonReport(result, false)).isEqualTo(17);
   }
 
   private File runFirstAnalysisAndFlagIssueAsWontFix() throws IOException {

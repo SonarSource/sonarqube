@@ -27,7 +27,6 @@ import org.hamcrest.TypeSafeMatcher;
 import org.junit.BeforeClass;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
 import org.sonar.api.utils.MessageException;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.batch.bootstrapper.Batch;
@@ -104,7 +103,7 @@ public class ExceptionHandlingMediumTest {
     boolean withCause = false;
 
     @Override
-    public GlobalRepositories load(MutableBoolean fromCache) {
+    public GlobalRepositories load() {
       if (withCause) {
         IllegalStateException cause = new IllegalStateException("Code 401");
         throw MessageException.of("Error loading repository", cause);

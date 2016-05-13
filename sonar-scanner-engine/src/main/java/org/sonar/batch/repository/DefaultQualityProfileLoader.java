@@ -25,9 +25,8 @@ import org.sonarqube.ws.QualityProfiles.SearchWsResponse;
 import org.sonar.batch.util.BatchUtils;
 import org.apache.commons.io.IOUtils;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.apache.commons.lang.mutable.MutableBoolean;
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonar.batch.bootstrap.BatchWsClient;
 
 import javax.annotation.Nullable;
 
@@ -38,36 +37,33 @@ import java.util.List;
 public class DefaultQualityProfileLoader implements QualityProfileLoader {
   private static final String WS_URL = "/api/qualityprofiles/search.protobuf";
 
-  private WSLoader wsLoader;
+  private BatchWsClient wsClient;
 
-  public DefaultQualityProfileLoader(WSLoader wsLoader) {
-    this.wsLoader = wsLoader;
+  public DefaultQualityProfileLoader(BatchWsClient wsClient) {
+    this.wsClient = wsClient;
   }
 
   @Override
-  public List<QualityProfile> loadDefault(@Nullable String profileName, @Nullable MutableBoolean fromCache) {
+  public List<QualityProfile> loadDefault(@Nullable String profileName) {
     String url = WS_URL + "?defaults=true";
     if (profileName != null) {
       url += "&profileName=" + BatchUtils.encodeForUrl(profileName);
     }
-    return loadResource(url, fromCache);
+    return loadResource(url);
   }
 
   @Override
-  public List<QualityProfile> load(String projectKey, @Nullable String profileName, @Nullable MutableBoolean fromCache) {
+  public List<QualityProfile> load(String projectKey, @Nullable String profileName) {
     String url = WS_URL + "?projectKey=" + BatchUtils.encodeForUrl(projectKey);
     if (profileName != null) {
       url += "&profileName=" + BatchUtils.encodeForUrl(profileName);
     }
-    return loadResource(url, fromCache);
+    return loadResource(url);
   }
 
-  private List<QualityProfile> loadResource(String url, @Nullable MutableBoolean fromCache) {
-    WSLoaderResult<InputStream> result = wsLoader.loadStream(url);
-    if (fromCache != null) {
-      fromCache.setValue(result.isFromCache());
-    }
-    InputStream is = result.get();
+  private List<QualityProfile> loadResource(String url) {
+    GetRequest getRequest = new GetRequest(url);
+    InputStream is = wsClient.call(getRequest).contentStream();
     SearchWsResponse profiles = null;
 
     try {

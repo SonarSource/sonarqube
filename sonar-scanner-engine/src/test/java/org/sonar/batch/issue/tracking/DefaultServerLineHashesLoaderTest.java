@@ -19,71 +19,59 @@
  */
 package org.sonar.batch.issue.tracking;
 
-import org.sonar.batch.cache.WSLoader.LoadStrategy;
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.HttpDownloader;
+import org.sonar.batch.WsTestUtil;
+import org.sonar.batch.bootstrap.BatchWsClient;
 
+import java.io.StringReader;
 import java.net.URI;
 import java.net.URISyntaxException;
 
-import static org.mockito.Matchers.any;
-
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 public class DefaultServerLineHashesLoaderTest {
+  private BatchWsClient wsClient;
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Before
   public void before() {
+    wsClient = mock(BatchWsClient.class);
   }
 
   @Test
   public void should_download_source_from_ws_if_preview_mode() {
-    WSLoader wsLoader = mock(WSLoader.class);
-    when(wsLoader.loadString(anyString(), any(LoadStrategy.class))).thenReturn(new WSLoaderResult<>("ae12\n\n43fb", true));
+    WsTestUtil.mockReader(wsClient, new StringReader("ae12\n\n43fb"));
+    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(wsClient);
 
-    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(wsLoader);
-
-    String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Bar.c", null);
+    String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Bar.c");
     assertThat(hashes).containsOnly("ae12", "", "43fb");
-    verify(wsLoader).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FBar.c", LoadStrategy.CACHE_FIRST);
+    WsTestUtil.verifyCall(wsClient, "/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FBar.c");
   }
 
   @Test
   public void should_download_source_with_space_from_ws_if_preview_mode() {
-    WSLoader server = mock(WSLoader.class);
-    when(server.loadString(anyString(), any(LoadStrategy.class))).thenReturn(new WSLoaderResult<>("ae12\n\n43fb", true));
+    WsTestUtil.mockReader(wsClient, new StringReader("ae12\n\n43fb"));
+    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(wsClient);
 
-    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
-
-    MutableBoolean fromCache = new MutableBoolean();
-    String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Foo Bar.c", fromCache);
-    assertThat(fromCache.booleanValue()).isTrue();
+    String[] hashes = lastSnapshots.getLineHashes("myproject:org/foo/Foo Bar.c");
     assertThat(hashes).containsOnly("ae12", "", "43fb");
-    verify(server).loadString("/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FFoo+Bar.c", LoadStrategy.CACHE_FIRST);
+    WsTestUtil.verifyCall(wsClient, "/api/sources/hash?key=myproject%3Aorg%2Ffoo%2FFoo+Bar.c");
   }
 
   @Test
   public void should_fail_to_download_source_from_ws() throws URISyntaxException {
-    WSLoader server = mock(WSLoader.class);
-    when(server.loadString(anyString(), any(LoadStrategy.class))).thenThrow(new HttpDownloader.HttpException(new URI(""), 500));
-
-    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(server);
+    WsTestUtil.mockException(wsClient, new HttpDownloader.HttpException(new URI(""), 500));
+    ServerLineHashesLoader lastSnapshots = new DefaultServerLineHashesLoader(wsClient);
 
     thrown.expect(HttpDownloader.HttpException.class);
-    lastSnapshots.getLineHashes("foo", null);
+    lastSnapshots.getLineHashes("foo");
   }
 
 }

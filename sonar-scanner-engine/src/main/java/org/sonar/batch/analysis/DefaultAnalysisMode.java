@@ -37,7 +37,6 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
   private static final String KEY_SCAN_ALL = "sonar.scanAllFiles";
 
   private boolean mediumTestMode;
-  private boolean notAssociated;
   private boolean scanAllFiles;
 
   public DefaultAnalysisMode(GlobalProperties globalProps, AnalysisProperties props) {
@@ -46,10 +45,6 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
 
   public boolean isMediumTest() {
     return mediumTestMode;
-  }
-
-  public boolean isNotAssociated() {
-    return notAssociated;
   }
 
   public boolean scanAllFiles() {
@@ -73,7 +68,6 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
     validate(mode);
     issues = CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode) || CoreProperties.ANALYSIS_MODE_PREVIEW.equals(mode);
     mediumTestMode = "true".equals(getPropertyWithFallback(analysisProps, globalProps, FakePluginInstaller.MEDIUM_TEST_ENABLED));
-    notAssociated = issues && rootProjectKeyMissing(analysisProps);
     String scanAllStr = getPropertyWithFallback(analysisProps, globalProps, KEY_SCAN_ALL);
     scanAllFiles = !issues || "true".equals(scanAllStr);
   }
@@ -88,9 +82,6 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
     }
     if (mediumTestMode) {
       LOG.info("Medium test mode");
-    }
-    if (notAssociated) {
-      LOG.info("Local analysis");
     }
     if (!scanAllFiles) {
       LOG.info("Scanning only changed files");
@@ -111,10 +102,4 @@ public class DefaultAnalysisMode extends AbstractAnalysisMode {
 
     return CoreProperties.ANALYSIS_MODE_ISSUES.equals(mode);
   }
-
-  private static boolean rootProjectKeyMissing(Map<String, String> props) {
-    // ProjectReactorBuilder depends on this class, so it will only create this property later
-    return !props.containsKey(CoreProperties.PROJECT_KEY_PROPERTY);
-  }
-
 }

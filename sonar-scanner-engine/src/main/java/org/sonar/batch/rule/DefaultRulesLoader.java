@@ -21,13 +21,9 @@ package org.sonar.batch.rule;
 
 import org.apache.commons.io.IOUtils;
 
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
-
-import javax.annotation.Nullable;
-
-import org.apache.commons.lang.mutable.MutableBoolean;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.Rules.ListResponse;
 
 import java.io.IOException;
@@ -37,19 +33,16 @@ import java.util.List;
 public class DefaultRulesLoader implements RulesLoader {
   private static final String RULES_SEARCH_URL = "/api/rules/list.protobuf";
 
-  private final WSLoader wsLoader;
+  private final BatchWsClient wsClient;
 
-  public DefaultRulesLoader(WSLoader wsLoader) {
-    this.wsLoader = wsLoader;
+  public DefaultRulesLoader(BatchWsClient wsClient) {
+    this.wsClient = wsClient;
   }
 
   @Override
-  public List<Rule> load(@Nullable MutableBoolean fromCache) {
-    WSLoaderResult<InputStream> result = wsLoader.loadStream(RULES_SEARCH_URL);
-    ListResponse list = loadFromStream(result.get());
-    if (fromCache != null) {
-      fromCache.setValue(result.isFromCache());
-    }
+  public List<Rule> load() {
+    GetRequest getRequest = new GetRequest(RULES_SEARCH_URL);
+    ListResponse list = loadFromStream(wsClient.call(getRequest).contentStream());
     return list.getRulesList();
   }
 

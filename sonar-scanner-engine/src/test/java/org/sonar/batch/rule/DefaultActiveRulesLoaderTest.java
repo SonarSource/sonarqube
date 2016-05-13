@@ -20,8 +20,8 @@
 package org.sonar.batch.rule;
 
 import org.sonar.api.rule.RuleKey;
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.WsTestUtil;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import com.google.common.io.Resources;
 import org.junit.Test;
 
@@ -29,21 +29,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
 
-import static org.mockito.Mockito.verify;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 import org.junit.Before;
 
 public class DefaultActiveRulesLoaderTest {
   private DefaultActiveRulesLoader loader;
-  private WSLoader ws;
+  private BatchWsClient wsClient;
 
   @Before
   public void setUp() {
-    ws = mock(WSLoader.class);
-    loader = new DefaultActiveRulesLoader(ws);
+    wsClient = mock(BatchWsClient.class);
+    loader = new DefaultActiveRulesLoader(wsClient);
   }
 
   @Test
@@ -53,18 +51,19 @@ public class DefaultActiveRulesLoaderTest {
 
     String req1 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=1&ps=500";
     String req2 = "/api/rules/search.protobuf?f=repo,name,severity,lang,internalKey,templateKey,params,actives&activation=true&qprofile=c%2B-test_c%2B-values-17445&p=2&ps=500";
-    when(ws.loadStream(req1)).thenReturn(new WSLoaderResult<>(response1, false));
-    when(ws.loadStream(req2)).thenReturn(new WSLoaderResult<>(response2, false));
+    WsTestUtil.mockStream(wsClient, req1, response1);
+    WsTestUtil.mockStream(wsClient, req2, response2);
 
-    Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445", null);
+    Collection<LoadedActiveRule> activeRules = loader.load("c+-test_c+-values-17445");
     assertThat(activeRules).hasSize(226);
     assertActiveRule(activeRules);
-    
-    verify(ws).loadStream(req1);
-    verify(ws).loadStream(req2);
-    verifyNoMoreInteractions(ws);
+
+    WsTestUtil.verifyCall(wsClient, req1);
+    WsTestUtil.verifyCall(wsClient, req2);
+
+    verifyNoMoreInteractions(wsClient);
   }
-  
+
   private static void assertActiveRule(Collection<LoadedActiveRule> activeRules) {
     RuleKey key = RuleKey.of("squid", "S3008");
     for (LoadedActiveRule r : activeRules) {

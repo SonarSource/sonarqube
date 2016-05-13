@@ -31,7 +31,6 @@ import org.sonar.batch.rule.ActiveRulesLoader;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 import org.sonar.batch.repository.QualityProfileLoader;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.mutable.MutableBoolean;
 
 import javax.annotation.Nullable;
 
@@ -43,8 +42,6 @@ import org.sonar.batch.rule.RulesLoader;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 import com.google.common.base.Function;
-import com.google.common.collect.HashBasedTable;
-import com.google.common.collect.Table;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -59,35 +56,19 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import javax.annotation.Nullable;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.Plugin;
 import org.sonar.api.batch.debt.internal.DefaultDebtModel;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric;
-import org.sonar.api.rule.RuleKey;
-import org.sonar.api.server.rule.RulesDefinition;
-import org.sonar.api.server.rule.RulesDefinition.Repository;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.batch.bootstrapper.Batch;
 import org.sonar.batch.bootstrapper.EnvironmentInformation;
-import org.sonar.batch.bootstrapper.IssueListener;
 import org.sonar.batch.bootstrapper.LogOutput;
 import org.sonar.batch.issue.tracking.ServerLineHashesLoader;
 import org.sonar.batch.report.ReportPublisher;
-import org.sonar.batch.repository.FileData;
 import org.sonar.batch.repository.GlobalRepositoriesLoader;
-import org.sonar.batch.repository.ProjectRepositories;
 import org.sonar.batch.repository.ProjectRepositoriesLoader;
-import org.sonar.batch.repository.QualityProfileLoader;
 import org.sonar.batch.repository.ServerIssuesLoader;
-import org.sonar.batch.rule.ActiveRulesLoader;
-import org.sonar.batch.rule.LoadedActiveRule;
-import org.sonar.batch.rule.RulesLoader;
-import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 /**
  * Main utility class for writing batch medium tests.
@@ -381,7 +362,7 @@ public class BatchMediumTester {
     }
 
     @Override
-    public List<Rule> load(@Nullable MutableBoolean fromCache) {
+    public List<Rule> load() {
       return rules;
     }
   }
@@ -394,7 +375,7 @@ public class BatchMediumTester {
     }
 
     @Override
-    public List<LoadedActiveRule> load(String qualityProfileKey, MutableBoolean fromCache) {
+    public List<LoadedActiveRule> load(String qualityProfileKey) {
       return activeRules;
     }
   }
@@ -406,7 +387,7 @@ public class BatchMediumTester {
     private GlobalRepositories ref = new GlobalRepositories();
 
     @Override
-    public GlobalRepositories load(@Nullable MutableBoolean fromCache) {
+    public GlobalRepositories load() {
       return ref;
     }
 
@@ -439,7 +420,7 @@ public class BatchMediumTester {
     private Date lastAnalysisDate;
 
     @Override
-    public ProjectRepositories load(String projectKey, boolean isIssuesMode, @Nullable MutableBoolean fromCache) {
+    public ProjectRepositories load(String projectKey, boolean isIssuesMode) {
       Table<String, String, String> settings = HashBasedTable.create();
       return new ProjectRepositories(settings, fileDataTable, lastAnalysisDate);
     }
@@ -470,12 +451,12 @@ public class BatchMediumTester {
     }
 
     @Override
-    public List<QualityProfile> load(String projectKey, String profileName, MutableBoolean fromCache) {
+    public List<QualityProfile> load(String projectKey, String profileName) {
       return qualityProfiles;
     }
 
     @Override
-    public List<QualityProfile> loadDefault(String profileName, MutableBoolean fromCache) {
+    public List<QualityProfile> loadDefault(String profileName) {
       return qualityProfiles;
     }
   }
@@ -489,11 +470,10 @@ public class BatchMediumTester {
     }
 
     @Override
-    public boolean load(String componentKey, Function<ServerIssue, Void> consumer) {
+    public void load(String componentKey, Function<ServerIssue, Void> consumer) {
       for (ServerIssue serverIssue : serverIssues) {
         consumer.apply(serverIssue);
       }
-      return true;
     }
   }
 
@@ -501,7 +481,7 @@ public class BatchMediumTester {
     private Map<String, String[]> byKey = new HashMap<>();
 
     @Override
-    public String[] getLineHashes(String fileKey, @Nullable MutableBoolean fromCache) {
+    public String[] getLineHashes(String fileKey) {
       if (byKey.containsKey(fileKey)) {
         return byKey.get(fileKey);
       } else {

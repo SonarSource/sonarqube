@@ -30,38 +30,33 @@ import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.Map;
 
-import javax.annotation.Nullable;
-
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.batch.util.BatchUtils;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.FileDataByPath;
 import org.sonarqube.ws.WsBatch.WsProjectResponse.Settings;
+import org.sonarqube.ws.client.GetRequest;
 import org.sonarqube.ws.client.HttpException;
 
 public class DefaultProjectRepositoriesLoader implements ProjectRepositoriesLoader {
   private static final Logger LOG = LoggerFactory.getLogger(DefaultProjectRepositoriesLoader.class);
   private static final String BATCH_PROJECT_URL = "/batch/project.protobuf";
-  private final WSLoader loader;
+  private BatchWsClient wsClient;
 
-  public DefaultProjectRepositoriesLoader(WSLoader loader) {
-    this.loader = loader;
+  public DefaultProjectRepositoriesLoader(BatchWsClient wsClient) {
+    this.wsClient = wsClient;
   }
 
   @Override
-  public ProjectRepositories load(String projectKey, boolean issuesMode, @Nullable MutableBoolean fromCache) {
+  public ProjectRepositories load(String projectKey, boolean issuesMode) {
     try {
-      WSLoaderResult<InputStream> result = loader.loadStream(getUrl(projectKey, issuesMode));
-      if (fromCache != null) {
-        fromCache.setValue(result.isFromCache());
-      }
-      return processStream(result.get(), projectKey);
+      GetRequest request = new GetRequest(getUrl(projectKey, issuesMode));
+      InputStream is = wsClient.call(request).contentStream();
+      return processStream(is, projectKey);
     } catch (RuntimeException e) {
       if (shouldThrow(e)) {
         throw e;

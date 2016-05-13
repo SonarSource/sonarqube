@@ -24,19 +24,19 @@ import com.google.common.collect.Lists;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.Reader;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.CharUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.Plugin;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.utils.log.Profiler;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoaderResult;
 import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.RemotePlugin;
 import org.sonar.core.platform.RemotePluginFile;
@@ -55,13 +55,11 @@ public class BatchPluginInstaller implements PluginInstaller {
   private static final Logger LOG = Loggers.get(BatchPluginInstaller.class);
   private static final String PLUGINS_INDEX_URL = "/deploy/plugins/index.txt";
 
-  private final WSLoader wsLoader;
   private final FileCache fileCache;
   private final BatchPluginPredicate pluginPredicate;
   private final BatchWsClient wsClient;
 
-  public BatchPluginInstaller(WSLoader wsLoader, BatchWsClient wsClient, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
-    this.wsLoader = wsLoader;
+  public BatchPluginInstaller(BatchWsClient wsClient, FileCache fileCache, BatchPluginPredicate pluginPredicate) {
     this.fileCache = fileCache;
     this.pluginPredicate = pluginPredicate;
     this.wsClient = wsClient;
@@ -129,9 +127,16 @@ public class BatchPluginInstaller implements PluginInstaller {
 
   private String loadPluginIndex() {
     Profiler profiler = Profiler.create(LOG).startInfo("Load plugins index");
-    WSLoaderResult<String> wsResult = wsLoader.loadString(PLUGINS_INDEX_URL);
-    profiler.stopInfo(wsResult.isFromCache());
-    return wsResult.get();
+    GetRequest getRequest = new GetRequest(PLUGINS_INDEX_URL);
+    String str;
+    try (Reader reader = wsClient.call(getRequest).contentReader()) {
+      str = IOUtils.toString(reader);
+    } catch(IOException e) {
+      throw new IllegalStateException(e);
+    }
+    
+    profiler.stopInfo();
+    return str;
   }
 
   private class FileDownloader implements FileCache.Downloader {

@@ -33,13 +33,11 @@ import org.sonar.batch.DefaultProjectTree;
 import org.sonar.batch.ProjectConfigurator;
 import org.sonar.batch.analysis.AnalysisProperties;
 import org.sonar.batch.analysis.AnalysisTempFolderProvider;
-import org.sonar.batch.analysis.AnalysisWSLoaderProvider;
 import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.bootstrap.ExtensionInstaller;
 import org.sonar.batch.bootstrap.ExtensionMatcher;
 import org.sonar.batch.bootstrap.ExtensionUtils;
 import org.sonar.batch.bootstrap.MetricProvider;
-import org.sonar.batch.cache.ProjectPersistentCacheProvider;
 import org.sonar.batch.cpd.CpdExecutor;
 import org.sonar.batch.cpd.index.SonarCpdBlockIndex;
 import org.sonar.batch.events.EventBus;
@@ -135,7 +133,6 @@ public class ProjectScanContainer extends ComponentContainer {
       ResourceTypes.class,
       DefaultProjectTree.class,
       ProjectReactorValidator.class,
-      new AnalysisWSLoaderProvider(),
       CodeColorizers.class,
       MetricProvider.class,
       ProjectConfigurator.class,
@@ -145,7 +142,6 @@ public class ProjectScanContainer extends ComponentContainer {
       DefaultIssueCallback.class,
       new RulesProvider(),
       new ProjectRepositoriesProvider(),
-      new ProjectPersistentCacheProvider(),
 
       // temp
       new AnalysisTempFolderProvider(),
@@ -214,10 +210,6 @@ public class ProjectScanContainer extends ComponentContainer {
   }
 
   private boolean isTherePreviousAnalysis() {
-    if (getComponentByType(DefaultAnalysisMode.class).isNotAssociated()) {
-      return false;
-    }
-
     return getComponentByType(ProjectRepositories.class).lastAnalysisDate() != null;
   }
 

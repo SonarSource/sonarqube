@@ -38,7 +38,6 @@ import org.apache.commons.lang.ArrayUtils;
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
-import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.utils.MessageException;
@@ -107,15 +106,11 @@ public class ProjectReactorBuilder {
   private static final List<String> NON_HERITED_PROPERTIES_FOR_CHILD = Lists.newArrayList(PROPERTY_PROJECT_BASEDIR, CoreProperties.WORKING_DIRECTORY, PROPERTY_MODULES,
     CoreProperties.PROJECT_DESCRIPTION_PROPERTY);
 
-  private static final String NON_ASSOCIATED_PROJECT_KEY = "project";
-
   private final AnalysisProperties analysisProps;
-  private final AnalysisMode analysisMode;
   private File rootProjectWorkDir;
 
-  public ProjectReactorBuilder(AnalysisProperties props, AnalysisMode analysisMode) {
+  public ProjectReactorBuilder(AnalysisProperties props) {
     this.analysisProps = props;
-    this.analysisMode = analysisMode;
   }
 
   public ProjectReactor execute() {
@@ -169,15 +164,7 @@ public class ProjectReactorBuilder {
     }
   }
 
-  private static void prepareNonAssociatedProject(Map<String, String> props, AnalysisMode mode) {
-    if (mode.isIssues() && !props.containsKey(CoreProperties.PROJECT_KEY_PROPERTY)) {
-      props.put(CoreProperties.PROJECT_KEY_PROPERTY, NON_ASSOCIATED_PROJECT_KEY);
-    }
-  }
-
   protected ProjectDefinition defineRootProject(Map<String, String> rootProperties, @Nullable ProjectDefinition parent) {
-    prepareNonAssociatedProject(rootProperties, analysisMode);
-
     if (rootProperties.containsKey(PROPERTY_MODULES)) {
       checkMandatoryProperties(rootProperties, MANDATORY_PROPERTIES_FOR_MULTIMODULE_PROJECT);
     } else {

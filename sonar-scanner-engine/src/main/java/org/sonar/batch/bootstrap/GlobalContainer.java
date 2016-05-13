@@ -25,10 +25,6 @@ import org.sonar.api.Plugin;
 import org.sonar.api.internal.SonarQubeVersionFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
-import org.sonar.batch.cache.GlobalPersistentCacheProvider;
-import org.sonar.batch.cache.ProjectSyncContainer;
-import org.sonar.batch.cache.StrategyWSLoaderProvider;
-import org.sonar.batch.cache.WSLoader.LoadStrategy;
 import org.sonar.batch.index.CachesManager;
 import org.sonar.batch.platform.DefaultServer;
 import org.sonar.batch.repository.DefaultGlobalRepositoriesLoader;
@@ -46,16 +42,14 @@ import org.sonar.core.util.UuidFactoryImpl;
 public class GlobalContainer extends ComponentContainer {
 
   private final Map<String, String> bootstrapProperties;
-  private boolean preferCache;
 
-  private GlobalContainer(Map<String, String> bootstrapProperties, boolean preferCache) {
+  private GlobalContainer(Map<String, String> bootstrapProperties) {
     super();
     this.bootstrapProperties = bootstrapProperties;
-    this.preferCache = preferCache;
   }
 
-  public static GlobalContainer create(Map<String, String> bootstrapProperties, List<?> extensions, boolean preferCache) {
-    GlobalContainer container = new GlobalContainer(bootstrapProperties, preferCache);
+  public static GlobalContainer create(Map<String, String> bootstrapProperties, List<?> extensions) {
+    GlobalContainer container = new GlobalContainer(bootstrapProperties);
     container.add(extensions);
     return container;
   }
@@ -64,20 +58,9 @@ public class GlobalContainer extends ComponentContainer {
   protected void doBeforeStart() {
     GlobalProperties bootstrapProps = new GlobalProperties(bootstrapProperties);
     GlobalMode globalMode = new GlobalMode(bootstrapProps);
-    LoadStrategy strategy = getDataLoadingStrategy(globalMode, preferCache);
-    StrategyWSLoaderProvider wsLoaderProvider = new StrategyWSLoaderProvider(strategy);
-    add(wsLoaderProvider);
     add(bootstrapProps);
     add(globalMode);
     addBootstrapComponents();
-  }
-
-  private static LoadStrategy getDataLoadingStrategy(GlobalMode mode, boolean preferCache) {
-    if (!mode.isIssues()) {
-      return LoadStrategy.SERVER_ONLY;
-    }
-
-    return preferCache ? LoadStrategy.CACHE_FIRST : LoadStrategy.SERVER_FIRST;
   }
 
   private void addBootstrapComponents() {
@@ -99,7 +82,6 @@ public class GlobalContainer extends ComponentContainer {
       DefaultHttpDownloader.class,
       UriReader.class,
       new FileCacheProvider(),
-      new GlobalPersistentCacheProvider(),
       System2.INSTANCE,
       new GlobalRepositoriesProvider(),
       UuidFactoryImpl.INSTANCE);
@@ -122,10 +104,6 @@ public class GlobalContainer extends ComponentContainer {
 
   public void executeTask(Map<String, String> taskProperties, Object... components) {
     new TaskContainer(this, taskProperties, components).execute();
-  }
-
-  public void syncProject(String projectKey, boolean force) {
-    new ProjectSyncContainer(this, projectKey, force).execute();
   }
 
 }

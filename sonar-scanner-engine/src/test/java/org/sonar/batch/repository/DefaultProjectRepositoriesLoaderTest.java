@@ -24,21 +24,20 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.WsTestUtil;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonarqube.ws.WsBatch.WsProjectResponse;
 import org.sonarqube.ws.client.HttpException;
+import org.sonarqube.ws.client.WsRequest;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class DefaultProjectRepositoriesLoaderTest {
@@ -47,20 +46,20 @@ public class DefaultProjectRepositoriesLoaderTest {
   public ExpectedException thrown = ExpectedException.none();
 
   private DefaultProjectRepositoriesLoader loader;
-  private WSLoader wsLoader;
+  private BatchWsClient wsClient;
 
   @Before
   public void prepare() throws IOException {
-    wsLoader = mock(WSLoader.class);
+    wsClient = mock(BatchWsClient.class);
     InputStream is = mockData();
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
-    loader = new DefaultProjectRepositoriesLoader(wsLoader);
+    WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=foo%3F", is);
+    loader = new DefaultProjectRepositoriesLoader(wsClient);
   }
 
   @Test
   public void continueOnError() {
-    when(wsLoader.loadStream(anyString())).thenThrow(IllegalStateException.class);
-    ProjectRepositories proj = loader.load(PROJECT_KEY, false, null);
+    when(wsClient.call(any(WsRequest.class))).thenThrow(IllegalStateException.class);
+    ProjectRepositories proj = loader.load(PROJECT_KEY, false);
     assertThat(proj.exists()).isEqualTo(false);
   }
 
@@ -68,50 +67,47 @@ public class DefaultProjectRepositoriesLoaderTest {
   public void parsingError() throws IOException {
     InputStream is = mock(InputStream.class);
     when(is.read()).thenThrow(IOException.class);
-
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, false));
-    loader.load(PROJECT_KEY, false, null);
+    WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=foo%3F", is);
+    loader.load(PROJECT_KEY, false);
   }
 
   @Test(expected = IllegalStateException.class)
   public void failFastHttpError() {
     HttpException http = new HttpException("url", 403);
     IllegalStateException e = new IllegalStateException("http error", http);
-    when(wsLoader.loadStream(anyString())).thenThrow(e);
-    loader.load(PROJECT_KEY, false, null);
+    WsTestUtil.mockException(wsClient, e);
+    loader.load(PROJECT_KEY, false);
   }
-  
+
   @Test
   public void failFastHttpErrorMessageException() {
     thrown.expect(MessageException.class);
     thrown.expectMessage("http error");
-    
+
     HttpException http = new HttpException("uri", 403);
     MessageException e = MessageException.of("http error", http);
-    when(wsLoader.loadStream(anyString())).thenThrow(e);
-    loader.load(PROJECT_KEY, false, null);
+    WsTestUtil.mockException(wsClient, e);
+    loader.load(PROJECT_KEY, false);
   }
 
   @Test
   public void passIssuesModeParameter() {
-    loader.load(PROJECT_KEY, false, null);
-    verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F");
+    loader.load(PROJECT_KEY, false);
+    WsTestUtil.verifyCall(wsClient, "/batch/project.protobuf?key=foo%3F");
 
-    loader.load(PROJECT_KEY, true, null);
-    verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F&issues_mode=true");
+    loader.load(PROJECT_KEY, true);
+    WsTestUtil.verifyCall(wsClient, "/batch/project.protobuf?key=foo%3F&issues_mode=true");
   }
 
   @Test
   public void deserializeResponse() throws IOException {
-    MutableBoolean fromCache = new MutableBoolean();
-    loader.load(PROJECT_KEY, false, fromCache);
-    assertThat(fromCache.booleanValue()).isTrue();
+    loader.load(PROJECT_KEY, false);
   }
 
   @Test
   public void passAndEncodeProjectKeyParameter() {
-    loader.load(PROJECT_KEY, false, null);
-    verify(wsLoader).loadStream("/batch/project.protobuf?key=foo%3F");
+    loader.load(PROJECT_KEY, false);
+    WsTestUtil.verifyCall(wsClient, "/batch/project.protobuf?key=foo%3F");
   }
 
   private InputStream mockData() throws IOException {
@@ -126,9 +122,9 @@ public class DefaultProjectRepositoriesLoaderTest {
   @Test
   public void readRealResponse() throws IOException {
     InputStream is = getTestResource("project.protobuf");
-    when(wsLoader.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, true));
+    WsTestUtil.mockStream(wsClient, "/batch/project.protobuf?key=org.sonarsource.github%3Asonar-github-plugin&issues_mode=true", is);
 
-    ProjectRepositories proj = loader.load("org.sonarsource.github:sonar-github-plugin", true, null);
+    ProjectRepositories proj = loader.load("org.sonarsource.github:sonar-github-plugin", true);
     FileData fd = proj.fileData("org.sonarsource.github:sonar-github-plugin",
       "src/test/java/org/sonar/plugins/github/PullRequestIssuePostJobTest.java");
 

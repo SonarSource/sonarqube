@@ -20,10 +20,8 @@
 package org.sonar.batch.rule;
 
 import java.util.List;
-import javax.annotation.Nullable;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonarqube.ws.Rules.ListResponse.Rule;
 
 public interface RulesLoader {
-  List<Rule> load(@Nullable MutableBoolean fromCache);
+  List<Rule> load();
 }

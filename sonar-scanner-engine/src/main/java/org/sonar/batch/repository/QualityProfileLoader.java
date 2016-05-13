@@ -19,7 +19,6 @@
  */
 package org.sonar.batch.repository;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
 
 import javax.annotation.Nullable;
@@ -27,7 +26,7 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 public interface QualityProfileLoader {
-  List<QualityProfile> load(String projectKey, @Nullable String profileName, @Nullable MutableBoolean fromCache);
-  
-  List<QualityProfile> loadDefault(@Nullable String profileName, @Nullable MutableBoolean fromCache);
+  List<QualityProfile> load(String projectKey, @Nullable String profileName);
+
+  List<QualityProfile> loadDefault(@Nullable String profileName);
 }

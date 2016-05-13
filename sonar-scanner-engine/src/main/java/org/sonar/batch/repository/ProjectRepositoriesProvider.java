@@ -26,7 +26,6 @@ import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.picocontainer.injectors.ProviderAdapter;
 
 public class ProjectRepositoriesProvider extends ProviderAdapter {
@@ -36,17 +35,10 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
 
   public ProjectRepositories provide(ProjectRepositoriesLoader loader, ProjectKey projectKey, DefaultAnalysisMode mode) {
     if (project == null) {
-      MutableBoolean fromCache = new MutableBoolean(false);
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      if (mode.isNotAssociated()) {
-        project = createNonAssociatedProjectRepositories();
-        profiler.stopInfo();
-      } else {
-        project = loader.load(projectKey.get(), mode.isIssues(), fromCache);
-        checkProject(mode);
-        profiler.stopInfo(fromCache.booleanValue());
-      }
-
+      project = loader.load(projectKey.get(), mode.isIssues());
+      checkProject(mode);
+      profiler.stopInfo();
     }
 
     return project;
@@ -56,13 +48,9 @@ public class ProjectRepositoriesProvider extends ProviderAdapter {
     if (mode.isIssues()) {
       if (!project.exists()) {
         LOG.warn("Project doesn't exist on the server. All issues will be marked as 'new'.");
-      } else if (project.lastAnalysisDate() == null && !mode.isNotAssociated()) {
+      } else if (project.lastAnalysisDate() == null) {
         LOG.warn("No analysis has been found on the server for this project. All issues will be marked as 'new'.");
       }
     }
-  }
-
-  private static ProjectRepositories createNonAssociatedProjectRepositories() {
-    return new ProjectRepositories();
   }
 }

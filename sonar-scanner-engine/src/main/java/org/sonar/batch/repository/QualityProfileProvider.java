@@ -21,7 +21,6 @@ package org.sonar.batch.repository;
 
 import java.util.List;
 import javax.annotation.CheckForNull;
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.picocontainer.injectors.ProviderAdapter;
 import org.sonar.api.batch.bootstrap.ProjectKey;
 import org.sonar.api.utils.log.Logger;
@@ -40,15 +39,13 @@ public class QualityProfileProvider extends ProviderAdapter {
   public ModuleQProfiles provide(ProjectKey projectKey, QualityProfileLoader loader, ProjectRepositories projectRepositories, AnalysisProperties props, DefaultAnalysisMode mode) {
     if (this.profiles == null) {
       List<QualityProfile> profileList;
-      MutableBoolean fromCache = new MutableBoolean();
-
       Profiler profiler = Profiler.create(LOG).startInfo(LOG_MSG);
-      if (mode.isNotAssociated() || !projectRepositories.exists()) {
-        profileList = loader.loadDefault(getSonarProfile(props, mode), fromCache);
+      if (!projectRepositories.exists()) {
+        profileList = loader.loadDefault(getSonarProfile(props, mode));
       } else {
-        profileList = loader.load(projectKey.get(), getSonarProfile(props, mode), fromCache);
+        profileList = loader.load(projectKey.get(), getSonarProfile(props, mode));
       }
-      profiler.stopInfo(fromCache.booleanValue());
+      profiler.stopInfo();
       profiles = new ModuleQProfiles(profileList);
     }
 

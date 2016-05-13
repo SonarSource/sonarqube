@@ -24,6 +24,6 @@ import org.sonar.scanner.protocol.input.ScannerInput.ServerIssue;
 
 public interface ServerIssuesLoader {
 
-  boolean load(String componentKey, Function<ServerIssue, Void> consumer);
+  void load(String componentKey, Function<ServerIssue, Void> consumer);
 
 }

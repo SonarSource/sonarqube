@@ -19,60 +19,31 @@
  */
 package org.sonar.batch.repository;
 
-import org.apache.commons.lang.mutable.MutableBoolean;
 import org.junit.Before;
-import org.junit.Test;
-import org.sonar.batch.cache.WSLoader;
-import org.sonar.batch.cache.WSLoaderResult;
+import org.sonar.batch.WsTestUtil;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.io.StringReader;
+
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 public class DefaultGlobalRepositoriesLoaderTest {
   private static final String BATCH_GLOBAL_URL = "/batch/global";
-  private WSLoader wsLoader;
-  private WSLoaderResult<String> result;
+  private BatchWsClient wsClient;
   private DefaultGlobalRepositoriesLoader globalRepositoryLoader;
 
   @Before
   public void setUp() {
-    wsLoader = mock(WSLoader.class);
-    result = new WSLoaderResult<>(new GlobalRepositories().toJson(), true);
-    when(wsLoader.loadString(BATCH_GLOBAL_URL)).thenReturn(result);
-
-    globalRepositoryLoader = new DefaultGlobalRepositoriesLoader(wsLoader);
+    wsClient = mock(BatchWsClient.class);
+    WsTestUtil.mockReader(wsClient, BATCH_GLOBAL_URL, new StringReader(new GlobalRepositories().toJson()));
+    globalRepositoryLoader = new DefaultGlobalRepositoriesLoader(wsClient);
   }
 
-  @Test
   public void test() {
-    MutableBoolean fromCache = new MutableBoolean();
-    globalRepositoryLoader.load(fromCache);
-
-    assertThat(fromCache.booleanValue()).isTrue();
-    verify(wsLoader).loadString(BATCH_GLOBAL_URL);
-    verifyNoMoreInteractions(wsLoader);
-  }
-  
-  @Test
-  public void testFromServer() {
-    result = new WSLoaderResult<>(new GlobalRepositories().toJson(), false);
-    when(wsLoader.loadString(BATCH_GLOBAL_URL)).thenReturn(result);
-    MutableBoolean fromCache = new MutableBoolean();
-    globalRepositoryLoader.load(fromCache);
-
-    assertThat(fromCache.booleanValue()).isFalse();
-    verify(wsLoader).loadString(BATCH_GLOBAL_URL);
-    verifyNoMoreInteractions(wsLoader);
-  }
-
-  public void testWithoutArg() {
-    globalRepositoryLoader.load(null);
-
-    verify(wsLoader).loadString(BATCH_GLOBAL_URL);
-    verifyNoMoreInteractions(wsLoader);
+    globalRepositoryLoader.load();
+    WsTestUtil.verifyCall(wsClient, BATCH_GLOBAL_URL);
+    verifyNoMoreInteractions(wsClient);
   }
 }

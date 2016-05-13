@@ -49,7 +49,7 @@ public class SourceHashHolder {
       } else if (status == Status.SAME) {
         hashedReference = hashedSource;
       } else {
-        String[] lineHashes = lastSnapshots.getLineHashes(inputFile.key(), null);
+        String[] lineHashes = lastSnapshots.getLineHashes(inputFile.key());
         hashedReference = lineHashes != null ? FileHashes.create(lineHashes) : null;
       }
     }

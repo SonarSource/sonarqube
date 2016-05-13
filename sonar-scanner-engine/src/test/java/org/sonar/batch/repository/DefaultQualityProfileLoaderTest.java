@@ -24,8 +24,8 @@ import org.sonar.api.utils.MessageException;
 import org.sonarqube.ws.QualityProfiles;
 import com.google.common.io.Resources;
 import org.sonarqube.ws.QualityProfiles.SearchWsResponse.QualityProfile;
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.WsTestUtil;
+import org.sonar.batch.bootstrap.BatchWsClient;
 import org.junit.Rule;
 import org.junit.rules.ExpectedException;
 import org.junit.Before;
@@ -38,9 +38,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -49,50 +47,49 @@ public class DefaultQualityProfileLoaderTest {
   public ExpectedException exception = ExpectedException.none();
 
   private DefaultQualityProfileLoader qpLoader;
-  private WSLoader ws;
+  private BatchWsClient wsClient;
   private InputStream is;
 
   @Before
   public void setUp() throws IOException {
-    ws = mock(WSLoader.class);
+    wsClient = mock(BatchWsClient.class);
     is = mock(InputStream.class);
     when(is.read()).thenReturn(-1);
-    WSLoaderResult<InputStream> result = new WSLoaderResult<>(is, false);
-    when(ws.loadStream(anyString())).thenReturn(result);
-    qpLoader = new DefaultQualityProfileLoader(ws);
+    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232", is);
+    qpLoader = new DefaultQualityProfileLoader(wsClient);
   }
 
   @Test
   public void testEncoding() throws IOException {
-    WSLoaderResult<InputStream> result = new WSLoaderResult<>(createEncodedQP("qp"), false);
-    when(ws.loadStream(anyString())).thenReturn(result);
+    InputStream is = createEncodedQP("qp");
+    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232", is);
 
-    List<QualityProfile> loaded = qpLoader.load("foo#2", "my-profile#2", null);
-    verify(ws).loadStream("/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232");
-    verifyNoMoreInteractions(ws);
+    List<QualityProfile> loaded = qpLoader.load("foo#2", "my-profile#2");
+    WsTestUtil.verifyCall(wsClient, "/api/qualityprofiles/search.protobuf?projectKey=foo%232&profileName=my-profile%232");
+    verifyNoMoreInteractions(wsClient);
     assertThat(loaded).hasSize(1);
   }
 
   @Test
   public void testNoProfile() throws IOException {
     InputStream is = createEncodedQP();
-    when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, false));
+    WsTestUtil.mockStream(wsClient, is);
 
     exception.expect(MessageException.class);
     exception.expectMessage("No quality profiles");
 
-    qpLoader.load("project", null, null);
-    verifyNoMoreInteractions(ws);
+    qpLoader.load("project", null);
+    verifyNoMoreInteractions(wsClient);
   }
 
   @Test
   public void use_real_response() throws IOException {
     InputStream is = getTestResource("quality_profile_search_default");
-    when(ws.loadStream(anyString())).thenReturn(new WSLoaderResult<>(is, false));
+    WsTestUtil.mockStream(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true", is);
 
-    List<QualityProfile> loaded = qpLoader.loadDefault(null, null);
-    verify(ws).loadStream("/api/qualityprofiles/search.protobuf?defaults=true");
-    verifyNoMoreInteractions(ws);
+    List<QualityProfile> loaded = qpLoader.loadDefault(null);
+    WsTestUtil.verifyCall(wsClient, "/api/qualityprofiles/search.protobuf?defaults=true");
+    verifyNoMoreInteractions(wsClient);
     assertThat(loaded).hasSize(1);
   }
 

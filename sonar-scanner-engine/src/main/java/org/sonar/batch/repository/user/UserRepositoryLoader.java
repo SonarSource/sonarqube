@@ -21,16 +21,13 @@ package org.sonar.batch.repository.user;
 
 import org.apache.commons.io.IOUtils;
 
-import org.sonar.batch.cache.WSLoaderResult;
-import org.sonar.batch.cache.WSLoader;
+import org.sonar.batch.bootstrap.BatchWsClient;
 
-import javax.annotation.Nullable;
-
-import org.apache.commons.lang.mutable.MutableBoolean;
 import com.google.common.collect.Lists;
 import com.google.common.base.Joiner;
 import org.sonar.batch.util.BatchUtils;
 import org.sonar.scanner.protocol.input.ScannerInput;
+import org.sonarqube.ws.client.GetRequest;
 import com.google.common.base.Function;
 import java.io.IOException;
 import java.io.InputStream;
@@ -40,43 +37,29 @@ import java.util.Collections;
 import java.util.List;
 
 public class UserRepositoryLoader {
-  private final WSLoader wsLoader;
+  private final BatchWsClient wsClient;
 
-  public UserRepositoryLoader(WSLoader wsLoader) {
-    this.wsLoader = wsLoader;
+  public UserRepositoryLoader(BatchWsClient wsClient) {
+    this.wsClient = wsClient;
   }
 
   public ScannerInput.User load(String userLogin) {
-    return load(userLogin, null);
-  }
-
-  public ScannerInput.User load(String userLogin, @Nullable MutableBoolean fromCache) {
-    InputStream is = loadQuery(new UserEncodingFunction().apply(userLogin), fromCache);
+    InputStream is = loadQuery(new UserEncodingFunction().apply(userLogin));
     return parseUser(is);
   }
 
   public Collection<ScannerInput.User> load(List<String> userLogins) {
-    return load(userLogins, null);
-  }
-
-  /**
-   * Not cache friendly. Should not be used if a cache hit is expected.
-   */
-  public Collection<ScannerInput.User> load(List<String> userLogins, @Nullable MutableBoolean fromCache) {
     if (userLogins.isEmpty()) {
       return Collections.emptyList();
     }
-    InputStream is = loadQuery(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())), fromCache);
+    InputStream is = loadQuery(Joiner.on(',').join(Lists.transform(userLogins, new UserEncodingFunction())));
 
     return parseUsers(is);
   }
 
-  private InputStream loadQuery(String loginsQuery, @Nullable MutableBoolean fromCache) {
-    WSLoaderResult<InputStream> result = wsLoader.loadStream("/batch/users?logins=" + loginsQuery);
-    if (fromCache != null) {
-      fromCache.setValue(result.isFromCache());
-    }
-    return result.get();
+  private InputStream loadQuery(String loginsQuery) {
+    GetRequest getRequest = new GetRequest("/batch/users?logins=" + loginsQuery);
+    return wsClient.call(getRequest).contentStream();
   }
 
   private static class UserEncodingFunction implements Function<String, String> {

@@ -19,14 +19,10 @@
  */
 package org.sonar.batch.task;
 
-import javax.annotation.CheckForNull;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.task.Task;
 import org.sonar.api.task.TaskDefinition;
 import org.sonar.batch.analysis.AnalysisProperties;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-import org.sonar.batch.bootstrap.GlobalProperties;
-import org.sonar.batch.cache.ProjectSyncContainer;
 import org.sonar.batch.scan.ProjectScanContainer;
 import org.sonar.core.platform.ComponentContainer;
 
@@ -48,25 +44,6 @@ public class ScanTask implements Task {
   @Override
   public void execute() {
     AnalysisProperties props = new AnalysisProperties(taskProps.properties(), taskProps.property(CoreProperties.ENCRYPTION_SECRET_KEY_PATH));
-    if (isIssuesMode(props)) {
-      String projectKey = getProjectKeyWithBranch(props);
-      new ProjectSyncContainer(taskContainer, projectKey, false).execute();
-    }
     new ProjectScanContainer(taskContainer, props).execute();
   }
-
-  @CheckForNull
-  private static String getProjectKeyWithBranch(AnalysisProperties props) {
-    String projectKey = props.property(CoreProperties.PROJECT_KEY_PROPERTY);
-    if (projectKey != null && props.property(CoreProperties.PROJECT_BRANCH_PROPERTY) != null) {
-      projectKey = projectKey + ":" + props.property(CoreProperties.PROJECT_BRANCH_PROPERTY);
-    }
-    return projectKey;
-  }
-
-  private boolean isIssuesMode(AnalysisProperties props) {
-    DefaultAnalysisMode mode = new DefaultAnalysisMode(taskContainer.getComponentByType(GlobalProperties.class), props);
-    return mode.isIssues();
-  }
-
 }
