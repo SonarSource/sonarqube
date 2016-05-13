@@ -82,6 +82,15 @@ const newAlertFilter = function () {
   });
 };
 
+const showAlert = text => {
+  const alert = document.createElement('div');
+  alert.classList.add('alert', 'alert-warning');
+  alert.textContent = text;
+
+  const container = document.querySelector('.navigator-details');
+  container.insertBefore(alert, container.firstChild);
+};
+
 const init = function () {
   NavigatorApp.addRegions({ filtersRegion: '.navigator-filters' });
 
@@ -169,6 +178,21 @@ const init = function () {
     NavigatorApp.filterBarView.restoreFromQuery(window.queryParams);
   }
   key.setScope('list');
+
+  if (window.queryParams) {
+    const qualifiersFilter = window.queryParams.find(p => p.key === 'qualifiers[]');
+    const noQualifiers = !qualifiersFilter || !qualifiersFilter.value || !qualifiersFilter.value.length;
+
+    const baseFilter = window.queryParams.find(p => p.key === 'base');
+    const noBase = !baseFilter || !baseFilter.value || !baseFilter.value.length;
+
+    const favoritesFilter = window.queryParams.find(p => p.key === 'onFavourites');
+    const noFavorites = !favoritesFilter || !favoritesFilter.value;
+
+    if (noQualifiers && noBase && noFavorites) {
+      showAlert(translate('measures.select_components'));
+    }
+  }
 };
 
 NavigatorApp.on('start', function () {
