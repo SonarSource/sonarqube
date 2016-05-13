@@ -26,6 +26,7 @@ import { getComponentLeaves } from '../../../../api/components';
 import { formatMeasure } from '../../../../helpers/measures';
 import Workspace from '../../../../components/workspace/main';
 import { getComponentUrl } from '../../../../helpers/urls';
+import { getLocalizedMetricName, translateWithParameters } from '../../../../helpers/l10n';
 
 const HEIGHT = 500;
 const BUBBLES_LIMIT = 500;
@@ -168,9 +169,15 @@ export default class BubbleChart extends React.Component {
             {this.renderBubbleChart()}
           </div>
 
-          <div className="measure-details-bubble-chart-axis x">{this.xMetric.name}</div>
-          <div className="measure-details-bubble-chart-axis y">{this.yMetric.name}</div>
-          <div className="measure-details-bubble-chart-axis size">Size: {this.sizeMetric.name}</div>
+          <div className="measure-details-bubble-chart-axis x">
+            {getLocalizedMetricName(this.xMetric)}
+          </div>
+          <div className="measure-details-bubble-chart-axis y">
+            {getLocalizedMetricName(this.yMetric)}
+          </div>
+          <div className="measure-details-bubble-chart-axis size">
+            {translateWithParameters('component_measures.legend.size_x', getLocalizedMetricName(this.sizeMetric))}
+          </div>
         </div>
     );
   }

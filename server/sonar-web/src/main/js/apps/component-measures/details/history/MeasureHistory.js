@@ -26,6 +26,7 @@ import Timeline from '../../../../components/charts/Timeline';
 import { getTimeMachineData } from '../../../../api/time-machine';
 import { getEvents } from '../../../../api/events';
 import { formatMeasure, getShortType } from '../../../../helpers/measures';
+import { translate } from '../../../../helpers/l10n';
 
 const HEIGHT = 500;
 
@@ -162,7 +163,7 @@ export default class MeasureHistory extends React.Component {
       return (
           <div className="measure-details-history">
             <div className="note text-center" style={{ lineHeight: `${HEIGHT}px` }}>
-              There is no historical data.
+              {translate('component_measures.no_history')}
             </div>
           </div>
       );

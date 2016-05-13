@@ -95,3 +95,15 @@ export function getLocalizedDashboardName (baseName) {
   const l10nLabel = translate(l10nKey);
   return l10nLabel !== l10nKey ? l10nLabel : baseName;
 }
+
+export function getLocalizedMetricName (metric) {
+  const bundleKey = `metric.${metric.key}.name`;
+  const fromBundle = translate(bundleKey);
+  return fromBundle !== bundleKey ? fromBundle : metric.name;
+}
+
+export function getLocalizedMetricDomain (domainName) {
+  const bundleKey = `metric_domain.${domainName}`;
+  const fromBundle = translate(bundleKey);
+  return fromBundle !== bundleKey ? fromBundle : domainName;
+}

@@ -44,7 +44,7 @@ export default CustomValuesFacet.extend({
   prepareSearchForViews () {
     const componentId = this.options.app.state.get('contextComponentUuid');
     return this.$('.js-custom-value').select2({
-      placeholder: 'Search...',
+      placeholder: translate('search_verb'),
       minimumInputLength: 2,
       allowClear: false,
       formatNoMatches () {

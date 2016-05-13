@@ -20,6 +20,7 @@
 import ModalForm from '../../../components/common/modal-form';
 import Template from '../templates/quality-gates-condition-delete.hbs';
 import { deleteCondition } from '../../../api/quality-gates';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
 
 export default ModalForm.extend({
   template: Template,
@@ -40,7 +41,8 @@ export default ModalForm.extend({
 
   serializeData () {
     return {
-      metric: this.options.metric
+      metric: this.options.metric,
+      localizedMetricName: getLocalizedMetricName(this.options.metric)
     };
   }
 });

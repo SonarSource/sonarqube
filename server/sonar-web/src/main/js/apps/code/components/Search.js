@@ -22,7 +22,7 @@ import { connect } from 'react-redux';
 import classNames from 'classnames';
 
 import { search, selectCurrent, selectNext, selectPrev } from '../actions';
-import { translateWithParameters } from '../../../helpers/l10n';
+import { translate, translateWithParameters } from '../../../helpers/l10n';
 
 class Search extends Component {
   componentDidMount () {
@@ -78,7 +78,7 @@ class Search extends Component {
               className={inputClassName}
               type="search"
               name="q"
-              placeholder="Search"
+              placeholder={translate('search_verb')}
               maxLength="100"
               autoComplete="off"/>
           <div className="note">

@@ -20,6 +20,7 @@
 import _ from 'underscore';
 import React from 'react';
 import RadioToggle from '../shared/radio-toggle';
+import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
   componentWillMount() {
@@ -68,7 +69,7 @@ export default React.createClass({
                 onChange={this.search}
                 ref="search"
                 type="search"
-                placeholder="Search"
+                placeholder={translate('search_verb')}
                 initialValue={this.props.query}/>
           </div>
         </div>

@@ -29,7 +29,7 @@ export default CustomValuesFacet.extend({
       url += '&tags=' + tags;
     }
     return this.$('.js-custom-value').select2({
-      placeholder: 'Search...',
+      placeholder: translate('search_verb'),
       minimumInputLength: 0,
       allowClear: false,
       formatNoMatches () {

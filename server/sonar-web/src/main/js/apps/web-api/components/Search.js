@@ -53,7 +53,7 @@ export default class Search extends React.Component {
                 className="spacer-left input-large"
                 type="search"
                 value={this.state.query}
-                placeholder="Search..."
+                placeholder={translate('search_verb')}
                 onChange={this.handleSearch.bind(this)}/>
           </div>
 

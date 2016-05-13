@@ -24,7 +24,7 @@ import { getLeakValue } from '../../utils';
 import { Treemap } from '../../../../components/charts/treemap';
 import { getChildren } from '../../../../api/components';
 import { formatMeasure } from '../../../../helpers/measures';
-import { translate, translateWithParameters } from '../../../../helpers/l10n';
+import { translate, translateWithParameters, getLocalizedMetricName } from '../../../../helpers/l10n';
 import { getComponentUrl } from '../../../../helpers/urls';
 import Workspace from '../../../../components/workspace/main';
 
@@ -93,7 +93,7 @@ export default class MeasureTreemap extends React.Component {
     const colorMeasure = component.measures[metric.key];
     const formatted = colorMeasure != null ? formatMeasure(colorMeasure, metric.type) : '—';
 
-    inner.push(`${metric.name}: ${formatted}`);
+    inner.push(`${getLocalizedMetricName(metric)}: ${formatted}`);
     inner = inner.join('<br>');
 
     return `<div class="text-left">${inner}</div>`;
@@ -213,7 +213,7 @@ export default class MeasureTreemap extends React.Component {
         <div className="measure-details-treemap">
           <ul className="list-inline note measure-details-treemap-legend">
             <li>
-              {translateWithParameters('component_measures.legend.color_x', metric.name)}
+              {translateWithParameters('component_measures.legend.color_x', getLocalizedMetricName(metric))}
             </li>
             <li>
               {translateWithParameters('component_measures.legend.size_x', translate('metric.ncloc.name'))}

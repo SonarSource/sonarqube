@@ -6,7 +6,7 @@
 
 {{#notEmpty profiles}}
   <form class="spacer-bottom" id="quality-profile-comparison-form">
-    <label class="text-middle" for="quality-profile-comparison-with-key">With</label>
+    <label class="text-middle" for="quality-profile-comparison-with-key">{{t 'with'}}</label>
     <select id="quality-profile-comparison-with-key">
       {{#each profiles}}
         <option value="{{key}}" {{#eq key ../comparedWith}}selected{{/eq}}>{{name}}</option>
