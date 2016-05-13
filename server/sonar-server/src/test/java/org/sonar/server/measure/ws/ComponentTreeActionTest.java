@@ -277,6 +277,7 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_METRIC_KEYS, "ncloc"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3", "file-uuid-4");
+    assertThat(response.getPaging().getTotal()).isEqualTo(4);
   }
 
   @Test
@@ -305,6 +306,7 @@ public class ComponentTreeActionTest {
     assertThat(response.getComponentsList()).extracting("id")
       .containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3")
       .doesNotContain("file-uuid-4");
+    assertThat(response.getPaging().getTotal()).isEqualTo(3);
   }
 
   @Test

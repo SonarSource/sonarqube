@@ -43,9 +43,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.utils.Paging;
 import org.sonar.api.web.UserRole;
-import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
@@ -70,6 +68,7 @@ import static java.lang.String.format;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.singletonList;
 import static java.util.Objects.requireNonNull;
+import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.server.component.ComponentFinder.ParamNames.BASE_COMPONENT_ID_AND_KEY;
 import static org.sonar.server.component.ComponentFinder.ParamNames.DEVELOPER_ID_AND_KEY;
 import static org.sonar.server.measure.ws.ComponentTreeAction.ALL_STRATEGY;
@@ -113,7 +112,6 @@ public class ComponentTreeDataLoader {
       ComponentTreeQuery dbQuery = toComponentTreeQuery(wsRequest, baseSnapshot);
       ComponentDtosAndTotal componentDtosAndTotal = searchComponents(dbSession, dbQuery, wsRequest);
       List<ComponentDtoWithSnapshotId> components = componentDtosAndTotal.componentDtos;
-      int componentCount = componentDtosAndTotal.total;
       List<MetricDto> metrics = searchMetrics(dbSession, wsRequest);
       List<WsMeasures.Period> periods = snapshotToWsPeriods(baseSnapshot);
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric = searchMeasuresByComponentUuidAndMetric(dbSession, baseComponent, baseSnapshot, components, metrics,
@@ -121,7 +119,8 @@ public class ComponentTreeDataLoader {
 
       components = filterComponents(components, measuresByComponentUuidAndMetric, metrics, wsRequest);
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
-      components = paginateComponents(components, componentCount, wsRequest);
+      int componentCount = computeComponentCount(componentDtosAndTotal.total, components, componentWithMeasuresOnly(wsRequest));
+      components = paginateComponents(components, wsRequest);
       Map<Long, ComponentDto> referenceComponentsById = searchReferenceComponentsById(dbSession, components);
 
       return ComponentTreeData.builder()
@@ -136,6 +135,10 @@ public class ComponentTreeDataLoader {
     } finally {
       dbClient.closeSession(dbSession);
     }
+  }
+
+  private int computeComponentCount(int dbComponentCount, List<ComponentDtoWithSnapshotId> components, boolean returnOnlyComponentsWithMeasures) {
+    return returnOnlyComponentsWithMeasures ? components.size() : dbComponentCount;
   }
 
   @CheckForNull
@@ -256,9 +259,8 @@ public class ComponentTreeDataLoader {
   }
 
   private static List<ComponentDtoWithSnapshotId> filterComponents(List<ComponentDtoWithSnapshotId> components,
-    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric,
-    List<MetricDto> metrics, ComponentTreeWsRequest wsRequest) {
-    if (!WITH_MEASURES_ONLY_METRIC_SORT_FILTER.equals(wsRequest.getMetricSortFilter())) {
+    Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, List<MetricDto> metrics, ComponentTreeWsRequest wsRequest) {
+    if (!componentWithMeasuresOnly(wsRequest)) {
       return components;
     }
 
@@ -271,6 +273,10 @@ public class ComponentTreeDataLoader {
       .toList();
   }
 
+  private static boolean componentWithMeasuresOnly(ComponentTreeWsRequest wsRequest) {
+    return WITH_MEASURES_ONLY_METRIC_SORT_FILTER.equals(wsRequest.getMetricSortFilter());
+  }
+
   private static List<ComponentDtoWithSnapshotId> sortComponents(List<ComponentDtoWithSnapshotId> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     if (!isSortByMetric(wsRequest)) {
@@ -280,18 +286,14 @@ public class ComponentTreeDataLoader {
     return ComponentTreeSort.sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
   }
 
-  private static List<ComponentDtoWithSnapshotId> paginateComponents(List<ComponentDtoWithSnapshotId> components, int componentCount, ComponentTreeWsRequest wsRequest) {
+  private static List<ComponentDtoWithSnapshotId> paginateComponents(List<ComponentDtoWithSnapshotId> components, ComponentTreeWsRequest wsRequest) {
     if (!isSortByMetric(wsRequest)) {
       return components;
     }
 
-    Paging paging = Paging.forPageIndex(wsRequest.getPage())
-      .withPageSize(wsRequest.getPageSize())
-      .andTotal(componentCount);
-
     return from(components)
-      .skip(paging.offset())
-      .limit(paging.pageSize())
+      .skip(offset(wsRequest.getPage(), wsRequest.getPageSize()))
+      .limit(wsRequest.getPageSize())
       .toList();
   }
 
