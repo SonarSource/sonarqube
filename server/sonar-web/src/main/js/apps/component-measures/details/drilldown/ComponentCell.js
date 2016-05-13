@@ -42,7 +42,7 @@ const ComponentCell = ({ component, isSelected, onClick }) => {
   let head = '';
   let tail = component.name;
 
-  if (['DIR', 'FIL', 'CLA'].includes(component.qualifier)) {
+  if (['DIR', 'FIL', 'UTS'].includes(component.qualifier)) {
     const parts = splitPath(component.path);
     head = parts.head;
     tail = parts.tail;
