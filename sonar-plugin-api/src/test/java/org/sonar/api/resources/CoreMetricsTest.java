@@ -35,5 +35,4 @@ public class CoreMetricsTest {
     assertThat(metrics.size()).isGreaterThan(100);
     assertThat(metrics).contains(CoreMetrics.NCLOC, CoreMetrics.DIRECTORIES);
   }
-
 }
