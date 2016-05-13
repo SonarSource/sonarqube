@@ -36,7 +36,7 @@ export default class BackgroundTasksApp extends React.Component {
   static contextTypes = {
     router: React.PropTypes.object.isRequired
   };
-  
+
   static propTypes = {
     component: React.PropTypes.object,
     location: RouterPropTypes.location.isRequired
