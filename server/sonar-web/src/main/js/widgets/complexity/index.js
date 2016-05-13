@@ -20,7 +20,7 @@
 import React from 'react';
 import { render } from 'react-dom';
 import { translate } from '../../helpers/l10n';
-import { ComplexityDistribution } from '../../apps/overview/components/complexity-distribution';
+import { ComplexityDistribution } from '../../components/shared/complexity-distribution';
 
 const Widget = ({ value, of }) => {
   return (

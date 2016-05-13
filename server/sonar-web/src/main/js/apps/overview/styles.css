@@ -1,0 +1,292 @@
+.overview {
+  display: flex;
+  animation: fadeIn 0.5s forwards;
+}
+
+.overview-main {
+  flex-grow: 1;
+  box-sizing: border-box;
+  background-color: #f3f3f3;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+/*
+ * Title
+ */
+
+.overview-title {
+  font-size: 16px;
+  font-weight: 400;
+}
+
+.overview-title > .badge {
+  position: relative;
+  top: -2px;
+  margin-left: 15px;
+  padding: 6px 12px;
+  font-size: 14px;
+  letter-spacing: 0.05em;
+}
+
+.overview-title > a {
+  border-bottom-color: #d0d0d0;
+  color: #444;
+}
+
+.overview-title > a:hover,
+.overview-title > a:focus {
+  border-bottom-color: #cae3f2;
+  color: #4b9fd5;
+}
+
+/*
+ * Quality Gate
+ */
+
+.overview-quality-gate {
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e6e6e6;
+  background-color: #f3f3f3;
+}
+
+.overview-quality-gate-conditions-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+}
+
+.overview-quality-gate-condition {
+  padding: 10px 40px 10px 0;
+}
+
+.overview-quality-gate-condition-period {
+  margin-bottom: 4px;
+}
+
+.overview-quality-gate-condition-container {
+  display: flex;
+  align-items: center;
+}
+
+.overview-quality-gate-condition-value {
+  margin-right: 8px;
+  font-size: 24px;
+  font-weight: 300;
+}
+
+.overview-quality-gate-condition-metric {
+}
+
+.overview-quality-gate-condition-threshold {
+}
+
+.overview-quality-gate-warning {
+  margin: 15px 0 0;
+}
+
+/*
+ * Domain
+ */
+
+.overview-domains-list {
+  animation: fadeIn 0.5s forwards;
+}
+
+.overview-card {
+  margin: 15px 0;
+}
+
+.overview-card-special {
+  padding-bottom: 26px;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+.overview-card-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: 10px;
+  line-height: 24px;
+}
+
+.overview-domain-panel {
+  display: flex;
+  margin-top: 10px;
+  border: 1px solid #e6e6e6;
+  background-color: #fff;
+}
+
+.overview-domain-nutshell,
+.overview-domain-leak {
+  position: relative;
+  display: flex;
+  padding: 15px 10px;
+}
+
+.overview-domain-nutshell {
+  flex: 2;
+}
+
+.overview-domain-nutshell .line-chart-backdrop {
+  fill: #e5f1f9;
+}
+
+.overview-domain-leak {
+  flex: 1;
+  background-color: #fbf3d5;
+}
+
+.overview-domain-leak .overview-domain-measures {
+  padding: 0;
+}
+
+.overview-domain-leak .line-chart-backdrop {
+  fill: #efe7b8;
+}
+
+.overview-domain-measures {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex: 1;
+  align-items: center;
+  padding: 0 10%;
+}
+
+.overview-domain-measures + .overview-domain-measures {
+  margin-top: 30px;
+}
+
+.overview-domain-measures + .overview-domain-measures .overview-domain-measure-value {
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.overview-domain-measures + .overview-domain-measures .overview-domain-measure-label {
+  margin-top: 4px;
+}
+
+.overview-domain-measure {
+  flex: 1;
+}
+
+.overview-domain-measure + .overview-domain-measure {
+  padding-left: 15%;
+}
+
+.overview-domain-measure-value {
+  line-height: 1;
+  font-size: 36px;
+  font-weight: 300;
+}
+
+.overview-domain-leak .overview-domain-measure-value {
+  text-align: center;
+}
+
+.overview-domain-measure-label {
+  margin-top: 10px;
+}
+
+.overview-domain-leak .overview-domain-measure-label {
+  text-align: center;
+}
+
+.overview-domain-measure-sup {
+  display: inline-block;
+  vertical-align: top;
+  margin-top: -4px;
+  margin-left: 6px;
+  font-size: 16px;
+}
+
+.overview-domain-timeline {
+  position: absolute;
+  z-index: 1;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  animation: fadeIn 0.5s forwards;
+}
+
+.overview-domain-timeline .line-chart-path {
+  fill: none;
+  stroke: none;
+}
+
+.overview-domain-timeline-date {
+  position: absolute;
+  bottom: 2px;
+  left: 5px;
+  color: rgba(119, 119, 119, 0.6);
+  font-size: 11px;
+}
+
+/*
+ * Meta
+ */
+
+.overview-meta {
+  flex-shrink: 0;
+  width: 260px;
+  padding-left: 40px;
+  background-color: #f3f3f3;
+}
+
+.overview-meta-card {
+  min-width: 200px;
+  padding-bottom: 20px;
+  box-sizing: border-box;
+}
+
+.overview-meta-description {
+  line-height: 1.5;
+}
+
+.overview-meta-header {
+  color: #797979;
+}
+
+.overview-meta-list > li {
+  padding-bottom: 4px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/*
+ * Other
+ */
+
+.overview-legend {
+  position: absolute;
+  bottom: 100%;
+  left: 0;
+  right: -1px;
+  padding: 5px 0 2px;
+  border: 1px solid #e6e6e6;
+  background-color: #fbf3d5;
+  font-size: 14px;
+  text-align: center;
+  transform: translateY(-4px);
+}
+
+.overview-key {
+  width: 100%;
+  padding: 0 !important;
+  border: none !important;
+  background-color: transparent !important;
+}
+
+/*
+ * Animations
+ */
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

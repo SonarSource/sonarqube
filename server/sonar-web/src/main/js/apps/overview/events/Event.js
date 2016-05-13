@@ -18,21 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import moment from 'moment';
 
+import { EventType } from '../propTypes';
+import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 
-const EmptyOverview = ({ component }) => {
+const Event = ({ event }) => {
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
-      </div>
+      <TooltipsContainer>
+        <li className="spacer-top">
+          <p>
+            <strong className="js-event-type">
+              {translate('event.category', event.type)}
+            </strong>
+            {': '}
+            <span className="js-event-name">{event.name}</span>
+            {event.text && (
+                <i
+                    className="spacer-left icon-help"
+                    data-toggle="tooltip"
+                    title={event.text}/>
+            )}
+          </p>
+          <p className="note little-spacer-top js-event-date">
+            {moment(event.date).format('LL')}
+          </p>
+        </li>
+      </TooltipsContainer>
   );
 };
 
-export default EmptyOverview;
+Event.propTypes = {
+  event: EventType.isRequired
+};
+
+export default Event;

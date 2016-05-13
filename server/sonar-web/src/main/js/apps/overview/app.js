@@ -18,26 +18,14 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
+import { render } from 'react-dom';
 
-import OverviewApp from './components/OverviewApp';
-import EmptyOverview from './components/EmptyOverview';
+import App from './components/App';
 
-const LEAK_PERIOD = '1';
-
-class App {
-  start (options) {
-    const opts = { ...options, ...window.sonarqube.overview };
-    Object.assign(opts.component, options.component);
-
-    const el = document.querySelector(opts.el);
-
-    if (opts.component.hasSnapshot) {
-      ReactDOM.render(<OverviewApp {...opts} leakPeriodIndex={LEAK_PERIOD}/>, el);
-    } else {
-      ReactDOM.render(<EmptyOverview {...opts}/>, el);
-    }
-  }
-}
-
-window.sonarqube.appStarted.then(options => new App().start(options));
+window.sonarqube.appStarted.then(options => {
+  const el = document.querySelector(options.el);
+  const component = { ...options.component, ...window.sonarqube.overview.component };
+  render((
+      <App component={component}/>
+  ), el);
+});

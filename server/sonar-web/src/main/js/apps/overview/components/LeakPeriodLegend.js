@@ -18,21 +18,30 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import moment from 'moment';
 
-import { translate } from '../../../helpers/l10n';
+import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import { translateWithParameters } from '../../../helpers/l10n';
 
-const EmptyOverview = ({ component }) => {
+const LeakPeriodLegend = ({ period }) => {
+  const leakPeriodLabel = getPeriodLabel(period);
+  const leakPeriodDate = getPeriodDate(period);
+
+  const momentDate = moment(leakPeriodDate);
+  const fromNow = momentDate.fromNow();
+  const tooltip = translateWithParameters(
+      'overview.started_on_x',
+      momentDate.format('LL'));
+
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
+      <div className="overview-legend" title={tooltip} data-toggle="tooltip">
+        {translateWithParameters('overview.leak_period_x', leakPeriodLabel)}
+        <br/>
+        <span className="note">
+          {translateWithParameters('overview.started_x', fromNow)}
+        </span>
       </div>
   );
 };
 
-export default EmptyOverview;
+export default LeakPeriodLegend;

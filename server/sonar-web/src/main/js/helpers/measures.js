@@ -80,6 +80,39 @@ export function getShortType (type) {
   return type;
 }
 
+/**
+ * Map metrics
+ * @param {Array} measures
+ * @param {Array} metrics
+ * @returns {Array}
+ */
+export function enhanceMeasuresWithMetrics (measures, metrics) {
+  return measures.map(measure => {
+    const metric = metrics.find(metric => metric.key === measure.metric);
+    return { ...measure, metric };
+  });
+}
+
+/**
+ * Get period value of a measure
+ * @param measure
+ * @param periodIndex
+ */
+export function getPeriodValue (measure, periodIndex) {
+  const { periods } = measure;
+  const period = periods.find(period => period.index === periodIndex);
+  return period ? period.value : null;
+}
+
+/**
+ * Check if metric is differential
+ * @param {string} metricKey
+ * @returns {boolean}
+ */
+export function isDiffMetric (metricKey) {
+  return metricKey.indexOf('new_') === 0;
+}
+
 /*
  * Helpers
  */

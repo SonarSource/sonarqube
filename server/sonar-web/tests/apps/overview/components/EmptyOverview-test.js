@@ -18,21 +18,24 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
 
-import { translate } from '../../../helpers/l10n';
+import EmptyOverview from '../../../../src/main/js/apps/overview/components/EmptyOverview';
 
-const EmptyOverview = ({ component }) => {
-  return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
-      </div>
-  );
-};
+describe('Overview :: EmptyOverview', () => {
+  it('should render component key', () => {
+    const component = {
+      id: 'id',
+      key: 'abcd',
+      snapshotDate: '2016-01-01'
+    };
 
-export default EmptyOverview;
+    const output = shallow(
+        <EmptyOverview component={component}/>
+    );
+
+    expect(output.find('code').text())
+        .to.equal('abcd');
+  });
+});

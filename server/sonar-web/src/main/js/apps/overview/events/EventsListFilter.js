@@ -18,21 +18,35 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
+import Select from 'react-select';
 import { translate } from '../../../helpers/l10n';
 
-const EmptyOverview = ({ component }) => {
+const TYPES = ['All', 'Version', 'Alert', 'Profile', 'Other'];
+
+const EventsListFilter = ({ currentFilter, onFilter }) => {
+  const handleChange = selected => onFilter(selected.value);
+
+  const options = TYPES.map(type => {
+    return {
+      value: type,
+      label: translate('event.category', type)
+    };
+  });
+
   return (
-      <div className="page page-limited">
-        <div className="alert alert-warning">
-          {translate('provisioning.no_analysis')}
-        </div>
-        <div className="big-spacer-top">
-          <h4>{translate('key')}</h4>
-          <code>{component.key}</code>
-        </div>
-      </div>
+      <Select
+          value={currentFilter}
+          options={options}
+          clearable={false}
+          searchable={false}
+          onChange={handleChange}
+          style={{ width: '125px' }}/>
   );
 };
 
-export default EmptyOverview;
+EventsListFilter.propTypes = {
+  onFilter: React.PropTypes.func.isRequired,
+  currentFilter: React.PropTypes.string.isRequired
+};
+
+export default EventsListFilter;
