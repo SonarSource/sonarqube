@@ -22,7 +22,7 @@ import { Link, IndexLink } from 'react-router';
 
 import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { getLeakPeriod } from '../../../helpers/periods';
-import { translate } from '../../../helpers/l10n';
+import { translate, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 export default class Home extends React.Component {
   componentDidMount () {
@@ -61,7 +61,7 @@ export default class Home extends React.Component {
                       <Link
                           to={{ pathname: `domain/${domain.name}`, query: { id: component.key } }}
                           activeClassName="active">
-                        {domain.name}
+                        {getLocalizedMetricDomain(domain.name)}
                       </Link>
                     </li>
                 ))}

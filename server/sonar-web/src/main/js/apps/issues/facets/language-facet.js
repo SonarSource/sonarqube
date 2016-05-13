@@ -28,7 +28,7 @@ export default CustomValuesFacet.extend({
 
   prepareSearch () {
     return this.$('.js-custom-value').select2({
-      placeholder: 'Search...',
+      placeholder: translate('search_verb'),
       minimumInputLength: 2,
       allowClear: false,
       formatNoMatches () {

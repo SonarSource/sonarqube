@@ -23,6 +23,7 @@ import sortBy from 'lodash/sortBy';
 import toPairs from 'lodash/toPairs';
 
 import { RECEIVE_MEASURES } from './actions';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
 
 const initialState = {
   measures: undefined,
@@ -36,7 +37,7 @@ function groupByDomains (measures) {
 
   const domains = sortBy(toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => {
     const [name, measures] = r;
-    const sortedMeasures = sortBy(measures, measure => measure.metric.name);
+    const sortedMeasures = sortBy(measures, measure => getLocalizedMetricName(measure.metric));
 
     return { name, measures: sortedMeasures };
   }), 'name');

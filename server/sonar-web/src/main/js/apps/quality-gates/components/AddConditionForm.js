@@ -21,7 +21,7 @@ import _ from 'underscore';
 import React from 'react';
 import Select from 'react-select';
 
-import { translate } from '../../../helpers/l10n';
+import { translate, getLocalizedMetricName, getLocalizedMetricDomain } from '../../../helpers/l10n';
 
 export default function AddConditionForm ({ metrics, onSelect }) {
   function handleChange (option) {
@@ -36,7 +36,7 @@ export default function AddConditionForm ({ metrics, onSelect }) {
   const options = sortedMetrics.map(metric => {
     return {
       value: metric.key,
-      label: metric.name,
+      label: getLocalizedMetricName(metric),
       domain: metric.domain
     };
   });
@@ -48,7 +48,7 @@ export default function AddConditionForm ({ metrics, onSelect }) {
     if (!previous || previous.domain !== option.domain) {
       optionsWithDomains.push({
         value: option.domain,
-        label: option.domain,
+        label: getLocalizedMetricDomain(option.domain),
         disabled: true
       });
     }

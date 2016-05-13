@@ -21,6 +21,7 @@ import React from 'react';
 import { Link } from 'react-router';
 
 import MeasureListValue from './MeasureListValue';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
 
 const MeasuresList = ({ measures, component, className = 'domain-measures' }) => {
   return (
@@ -32,7 +33,7 @@ const MeasuresList = ({ measures, component, className = 'domain-measures' }) =>
               <Link to={{ pathname: `metric/${measure.metric.key}`, query: { id: component.key } }}>
                 <div className="domain-measures-name">
                     <span id={`measure-${measure.metric.key}-name`}>
-                      {measure.metric.name}
+                      {getLocalizedMetricName(measure.metric)}
                     </span>
                 </div>
 

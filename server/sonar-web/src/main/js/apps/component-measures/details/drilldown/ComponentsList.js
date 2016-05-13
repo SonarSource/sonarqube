@@ -22,6 +22,7 @@ import React from 'react';
 import ComponentsListRow from './ComponentsListRow';
 import EmptyComponentsList from './EmptyComponentsList';
 import complementary from '../../config/complementary';
+import { getLocalizedMetricName } from '../../../../helpers/l10n';
 
 const ComponentsList = ({ components, metrics, selected, metric, onClick }) => {
   if (!components.length) {
@@ -39,11 +40,11 @@ const ComponentsList = ({ components, metrics, selected, metric, onClick }) => {
               <tr>
                 <th>&nbsp;</th>
                 <th className="text-right">
-                  <span className="small">{metric.name}</span>
+                  <span className="small">{getLocalizedMetricName(metric)}</span>
                 </th>
                 {otherMetrics.map(metric => (
                     <th key={metric.key} className="text-right">
-                      <span className="small">{metric.name}</span>
+                      <span className="small">{getLocalizedMetricName(metric)}</span>
                     </th>
                 ))}
               </tr>

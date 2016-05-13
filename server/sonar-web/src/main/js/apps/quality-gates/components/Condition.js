@@ -23,7 +23,7 @@ import Select from 'react-select';
 import DeleteConditionView from '../views/gate-conditions-delete-view';
 import Checkbox from '../../../components/shared/checkbox';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
-import { translate } from '../../../helpers/l10n';
+import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
 
 export default class Condition extends Component {
@@ -162,7 +162,7 @@ export default class Condition extends Component {
     return (
         <tr>
           <td className="text-middle nowrap">
-            {metric.name}
+            {getLocalizedMetricName(metric)}
             {metric.hidden && (
                 <span className="text-danger little-spacer-left">
                   {translate('deprecated')}

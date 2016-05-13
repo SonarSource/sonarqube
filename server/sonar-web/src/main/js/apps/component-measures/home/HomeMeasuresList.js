@@ -23,12 +23,13 @@ import sortBy from 'lodash/sortBy';
 
 import MeasuresList from './MeasuresList';
 import { domains } from '../config/domains';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
 
 function sortMeasures (measures, order) {
   const [known, unknown] = partition(measures, measure => order.includes(measure.metric.key));
   return [
     ...sortBy(known, measure => order.indexOf(measure.metric.key)),
-    ...sortBy(unknown, measure => measure.metric.name)
+    ...sortBy(unknown, measure => getLocalizedMetricName(measure.metric))
   ];
 }
 

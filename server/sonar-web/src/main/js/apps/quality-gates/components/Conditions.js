@@ -24,7 +24,7 @@ import uniqBy from 'lodash/uniqBy';
 import ConditionsAlert from './ConditionsAlert';
 import AddConditionForm from './AddConditionForm';
 import Condition from './Condition';
-import { translate } from '../../../helpers/l10n';
+import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 
 function getKey (condition, index) {
   return condition.id ? condition.id : `new-${index}`;
@@ -107,7 +107,7 @@ export default class Conditions extends React.Component {
                 <p>{translate('quality_gates.duplicated_conditions')}</p>
                 <ul className="list-styled spacer-top">
                   {uniqDuplicates.map(d => (
-                      <li>{d.metric.name}</li>
+                      <li>{getLocalizedMetricName(d.metric)}</li>
                   ))}
                 </ul>
               </div>

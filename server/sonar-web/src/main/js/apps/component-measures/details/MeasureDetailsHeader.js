@@ -25,12 +25,13 @@ import LeakPeriodLegend from '../components/LeakPeriodLegend';
 import { ComplexityDistribution } from '../../overview/components/complexity-distribution';
 import { isDiffMetric, formatLeak } from '../utils';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
+import { getLocalizedMetricName } from '../../../helpers/l10n';
 
 export default function MeasureDetailsHeader ({ measure, metric, secondaryMeasure, leakPeriod }) {
   return (
       <header className="measure-details-header">
         <h2 className="measure-details-metric">
-          {metric.name}
+          {getLocalizedMetricName(metric)}
         </h2>
 
         {isDiffMetric(metric) && (
