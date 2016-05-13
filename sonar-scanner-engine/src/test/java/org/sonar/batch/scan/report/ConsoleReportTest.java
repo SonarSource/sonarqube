@@ -64,6 +64,7 @@ public class ConsoleReportTest {
     for (String log : logTester.logs()) {
       assertThat(log).doesNotContain(ConsoleReport.HEADER);
     }
+    assertNotDeprecated();
   }
 
   @Test
@@ -72,6 +73,7 @@ public class ConsoleReportTest {
     when(inputPathCache.allFiles()).thenReturn(Collections.<InputFile>emptyList());
     when(issueCache.all()).thenReturn(Collections.<TrackedIssue>emptyList());
     report.execute();
+    assertDeprecated();
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
         "  No file analyzed\n" +
@@ -84,6 +86,7 @@ public class ConsoleReportTest {
     when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/Foo.php")));
     when(issueCache.all()).thenReturn(Arrays.asList(createIssue(false, null)));
     report.execute();
+    assertDeprecated();
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
         "  No new issue\n" +
@@ -96,6 +99,7 @@ public class ConsoleReportTest {
     when(inputPathCache.allFiles()).thenReturn(Arrays.<InputFile>asList(new DefaultInputFile("foo", "src/Foo.php")));
     when(issueCache.all()).thenReturn(Arrays.asList(createIssue(true, Severity.BLOCKER)));
     report.execute();
+    assertDeprecated();
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
         "        +1 issue\n\n" +
@@ -114,6 +118,7 @@ public class ConsoleReportTest {
       createIssue(true, Severity.MINOR),
       createIssue(true, Severity.INFO)));
     report.execute();
+    assertDeprecated();
     assertThat(getReportLog()).isEqualTo(
       "\n\n-------------  Issues Report  -------------\n\n" +
         "        +5 issues\n\n" +
@@ -123,6 +128,22 @@ public class ConsoleReportTest {
         "        +1 minor\n" +
         "        +1 info\n" +
         "\n-------------------------------------------\n\n");
+  }
+  
+  private void assertDeprecated() {
+    assertThat(getLogs()).contains("Console report is deprecated");
+  }
+  
+  private void assertNotDeprecated() {
+    assertThat(getLogs()).doesNotContain("Console report is deprecated");
+  }
+
+  private String getLogs() {
+    StringBuilder builder = new StringBuilder();
+    for (String log : logTester.logs()) {
+      builder.append(log).append("\n");
+    }
+    return builder.toString();
   }
 
   private String getReportLog() {

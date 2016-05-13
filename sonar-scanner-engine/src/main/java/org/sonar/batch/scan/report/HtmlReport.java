@@ -77,6 +77,7 @@ public class HtmlReport implements Reporter {
   @Override
   public void execute() {
     if (settings.getBoolean(HTML_REPORT_ENABLED_KEY)) {
+      LOG.warn("HTML report is deprecated. Use SonarLint CLI to have local reports of issues");
       IssuesReport report = builder.buildReport();
       print(report);
     }

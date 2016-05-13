@@ -98,6 +98,7 @@ public class ConsoleReport implements Reporter {
   @Override
   public void execute() {
     if (settings.getBoolean(CONSOLE_REPORT_ENABLED_KEY)) {
+      LOG.warn("Console report is deprecated. Use SonarLint CLI to have local reports of issues");
       Report r = new Report();
       r.setNoFile(!inputPathCache.allFiles().iterator().hasNext());
       for (TrackedIssue issue : issueCache.all()) {
