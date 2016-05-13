@@ -293,7 +293,7 @@
     <tr class="total">
       <th align="left" colspan="2" nowrap>
         <div class="file_title">
-          <img src="issuesreport_files/${resourceReport.getType()}.png" title="Resource icon"/>
+          <img src="issuesreport_files/${resourceReport.getType()}.png" title="${resourceReport.getKey()}"/>
           <a href="#" onclick="$('.resource-details-${resourceReport_index?c}').toggleClass('masked'); return false;" style="color: black">${resourceReport.getName()}</a>
         </div>
       </th>

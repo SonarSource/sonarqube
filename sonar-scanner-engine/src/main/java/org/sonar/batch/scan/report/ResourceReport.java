@@ -19,18 +19,16 @@
  */
 package org.sonar.batch.scan.report;
 
-import org.sonar.batch.issue.tracking.TrackedIssue;
-
-import org.sonar.api.batch.rule.Rule;
 import com.google.common.collect.Maps;
-import org.sonar.api.rules.RulePriority;
-import org.sonar.batch.index.BatchComponent;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.sonar.api.batch.rule.Rule;
+import org.sonar.api.rules.RulePriority;
+import org.sonar.batch.index.BatchComponent;
+import org.sonar.batch.issue.tracking.TrackedIssue;
 
 public final class ResourceReport {
   private final BatchComponent resource;
@@ -53,6 +51,10 @@ public final class ResourceReport {
 
   public String getName() {
     return resource.resource().getName();
+  }
+
+  public String getKey() {
+    return resource.inputComponent().key();
   }
 
   public String getType() {
