@@ -16,22 +16,16 @@
 // along with this program; if not, write to the Free Software Foundation,
 // Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
-/*
-Notes
 
-  - "required" fields are not used as recommended by Google to keep forward-compatibility:
-    https://developers.google.com/protocol-buffers/docs/proto#simple
-
-  - this is beta version of specification. It will evolve during next releases and is
-    not forward-compatible yet.
-*/
+// IMPORTANT
+// This is beta version of specification. It will evolve during next
+// releases and is not forward-compatible yet.
 
 syntax = "proto3";
 
 import "constants.proto";
 
 option java_package = "org.sonar.scanner.protocol.output";
-
 option optimize_for = SPEED;
 
 message Metadata {
