@@ -48,7 +48,6 @@ import static com.google.common.base.Preconditions.checkState;
 import static org.apache.commons.lang.StringUtils.isEmpty;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
-import static org.sonar.api.CoreProperties.SERVER_BASE_URL_DEFAULT_VALUE;
 import static org.sonar.server.app.TomcatContexts.PROPERTY_CONTEXT;
 
 public final class ServerImpl extends Server implements Startable {
@@ -156,7 +155,7 @@ public final class ServerImpl extends Server implements Startable {
 
   @Override
   public String getPublicRootUrl() {
-    return get(SERVER_BASE_URL, SERVER_BASE_URL_DEFAULT_VALUE);
+    return getURL();
   }
 
   @Override
@@ -166,7 +165,7 @@ public final class ServerImpl extends Server implements Startable {
 
   @Override
   public boolean isSecured() {
-    return get(SERVER_BASE_URL, SERVER_BASE_URL_DEFAULT_VALUE).startsWith("https://");
+    return getURL().startsWith("https://");
   }
 
   private static String readVersion(String filename) throws IOException {
