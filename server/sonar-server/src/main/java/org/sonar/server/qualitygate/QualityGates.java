@@ -181,7 +181,7 @@ public class QualityGates {
     getNonNullQgate(qGateId);
     Metric metric = getNonNullMetric(metricKey);
     validateCondition(metric, operator, warningThreshold, errorThreshold, period);
-    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(qGateId, metric, period);
+    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(getConditions(qGateId, null), metric, period);
     QualityGateConditionDto newCondition = new QualityGateConditionDto().setQualityGateId(qGateId)
       .setMetricId(metric.getId()).setMetricKey(metric.getKey())
       .setOperator(operator)
@@ -198,6 +198,7 @@ public class QualityGates {
     QualityGateConditionDto condition = getNonNullCondition(condId);
     Metric metric = getNonNullMetric(metricKey);
     validateCondition(metric, operator, warningThreshold, errorThreshold, period);
+    checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(getConditions(condition.getQualityGateId(), condition.getId()), metric, period);
     condition
       .setMetricId(metric.getId())
       .setMetricKey(metric.getKey())
@@ -268,6 +269,14 @@ public class QualityGates {
     return hasWritePermission;
   }
 
+  private Collection<QualityGateConditionDto> getConditions(long qGateId, @Nullable Long conditionId) {
+    Collection<QualityGateConditionDto> conditions = conditionDao.selectForQualityGate(qGateId);
+    if (conditionId == null) {
+      return conditions;
+    }
+    return from(conditionDao.selectForQualityGate(qGateId)).filter(new MatchConditionId(conditionId)).toList();
+  }
+
   private void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     Errors errors = new Errors();
     validateMetric(metric, errors);
@@ -279,8 +288,7 @@ public class QualityGates {
     }
   }
 
-  private void checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(long qGateId, Metric metric, @Nullable final Integer period) {
-    Collection<QualityGateConditionDto> conditions = conditionDao.selectForQualityGate(qGateId);
+  private void checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(Collection<QualityGateConditionDto> conditions, Metric metric, @Nullable final Integer period) {
     if (conditions.isEmpty()) {
       return;
     }
@@ -411,6 +419,19 @@ public class QualityGates {
     public boolean apply(@Nonnull QualityGateConditionDto input) {
       return input.getMetricId() == metricId &&
         ObjectUtils.equals(input.getPeriod(), period);
+    }
+  }
+
+  private static class MatchConditionId implements Predicate<QualityGateConditionDto> {
+    private final long conditionId;
+
+    private MatchConditionId(long conditionId) {
+      this.conditionId = conditionId;
+    }
+
+    @Override
+    public boolean apply(@Nonnull QualityGateConditionDto input) {
+      return input.getId() != conditionId;
     }
   }
 

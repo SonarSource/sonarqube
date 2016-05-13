@@ -24,6 +24,8 @@ import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import org.apache.commons.lang.RandomStringUtils;
+import org.apache.commons.lang.math.RandomUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -60,6 +62,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.user.AnonymousUserSession;
 import org.sonar.server.user.UserSession;
 
+import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -485,24 +488,33 @@ public class QualityGatesTest {
 
   @Test
   public void should_update_condition() {
-    long condId = 43;
     String metricKey = "new_coverage";
     String operator = "LT";
     String errorThreshold = "80";
     addMetric(metricKey, "New Coverage");
 
-    QualityGateConditionDto condition = new QualityGateConditionDto().setId(condId)
-      .setQualityGateId(QUALITY_GATE_ID)
-      .setMetricId(METRIC_ID)
-      .setMetricKey(metricKey)
-      .setOperator("GT")
-      .setWarningThreshold("123")
-      .setPeriod(1);
-    when(conditionDao.selectById(condId)).thenReturn(condition);
+    QualityGateConditionDto condition = insertQualityGateConditionDto(newCondition(metricKey, METRIC_ID));
     when(conditionDao.selectForQualityGate(QUALITY_GATE_ID)).thenReturn(singletonList(condition));
 
-    assertThat(underTest.updateCondition(condId, metricKey, operator, null, errorThreshold, 1)).isEqualTo(condition);
+    assertThat(underTest.updateCondition(condition.getId(), metricKey, operator, null, errorThreshold, 1)).isEqualTo(condition);
     verify(conditionDao).update(condition);
+  }
+
+  @Test
+  public void fail_to_update_condition_when_condition_on_same_metric_already_exist() throws Exception {
+    String metricKey = "coverage";
+    addMetric(metricKey, "Coverage");
+    when(dao.selectById(QUALITY_GATE_ID)).thenReturn(new QualityGateDto().setId(QUALITY_GATE_ID));
+
+    QualityGateConditionDto conditionNotOnLeakPeriod = insertQualityGateConditionDto(newCondition(metricKey, METRIC_ID)).setPeriod(0);
+    QualityGateConditionDto conditionOnLeakPeriod = insertQualityGateConditionDto(newCondition(metricKey, METRIC_ID)).setPeriod(1);
+    when(conditionDao.selectForQualityGate(QUALITY_GATE_ID)).thenReturn(asList(conditionNotOnLeakPeriod, conditionOnLeakPeriod));
+
+    expectedException.expect(BadRequestException.class);
+    expectedException.expectMessage("Condition on metric 'Coverage' over leak period already exists.");
+
+    // Update condition not on leak period to be on leak period => will fail as this condition already exist
+    underTest.updateCondition(conditionNotOnLeakPeriod.getId(), metricKey, "LT", null, "60", 1);
   }
 
   @Test
@@ -668,4 +680,22 @@ public class QualityGatesTest {
     when(metricFinder.findByKey(metricKey)).thenReturn(metric);
     return metric;
   }
+
+  private QualityGateConditionDto newCondition(String metricKey, int metricId) {
+    return new QualityGateConditionDto()
+      .setId(RandomUtils.nextLong())
+      .setMetricKey(metricKey)
+      .setMetricId(metricId)
+      .setQualityGateId(QUALITY_GATE_ID)
+      .setOperator("GT")
+      .setWarningThreshold(RandomStringUtils.randomAlphanumeric(15))
+      .setErrorThreshold(RandomStringUtils.randomAlphanumeric(15))
+      .setPeriod(RandomUtils.nextBoolean() ? 1 : null);
+  }
+
+  private QualityGateConditionDto insertQualityGateConditionDto(QualityGateConditionDto conditionDto) {
+    when(conditionDao.selectById(conditionDto.getId())).thenReturn(conditionDto);
+    return conditionDto;
+  }
+
 }
