@@ -606,8 +606,8 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
 
     assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    // Lower bound is excluded
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    // Lower bound is included
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(2);
     assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -645,7 +645,7 @@ public class IssueIndexTest {
     // 20 < createdAt < 25: excludes first issue
     assertThat(index.search(IssueQuery.builder(userSessionRule)
       .createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-25"))
-      .build(), new SearchOptions()).getDocs()).hasSize(1);
+      .build(), new SearchOptions()).getDocs()).hasSize(2);
 
     // 21 < createdAt < 25
     assertThat(index.search(IssueQuery.builder(userSessionRule)

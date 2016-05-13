@@ -363,7 +363,7 @@ public class IssueIndex extends BaseIndex {
     if (createdAfter != null) {
       filters.put("__createdAfter", FilterBuilders
         .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .gt(createdAfter)
+        .gte(createdAfter)
         .cache(false));
     }
     if (createdBefore != null) {

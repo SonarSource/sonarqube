@@ -203,7 +203,7 @@ public class SearchAction implements IssuesWsAction {
       .setDescription("To retrieve issues created in a specific analysis, identified by an ISO-formatted datetime stamp.")
       .setExampleValue("2013-05-01T13:00:00+0100");
     action.createParam(CREATED_AFTER)
-      .setDescription("To retrieve issues created after the given date (exclusive). Format: date or datetime ISO formats. If this parameter is set, createdSince must not be set")
+      .setDescription("To retrieve issues created after the given date (inclusive). Format: date or datetime ISO formats. If this parameter is set, createdSince must not be set")
       .setExampleValue("2013-05-01 (or 2013-05-01T13:00:00+0100)");
     action.createParam(CREATED_BEFORE)
       .setDescription("To retrieve issues created before the given date (exclusive). Format: date or datetime ISO formats")
