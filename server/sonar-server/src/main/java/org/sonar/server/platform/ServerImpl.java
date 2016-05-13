@@ -198,6 +198,14 @@ public final class ServerImpl extends Server implements Startable {
 
   @Override
   public String getURL() {
+    String serverBaseUrl = settings.getString(SERVER_BASE_URL);
+    if (isEmpty(serverBaseUrl)) {
+      return computeUrl();
+    }
+    return serverBaseUrl;
+  }
+
+  private String computeUrl() {
     String host = settings.getString("sonar.web.host");
     int port = settings.getInt("sonar.web.port");
     String context = settings.getString("sonar.web.context");

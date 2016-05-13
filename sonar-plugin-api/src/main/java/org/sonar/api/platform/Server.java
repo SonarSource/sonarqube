@@ -71,7 +71,7 @@ public abstract class Server {
 
   /**
    * @return the server URL
-   * @since since 2.4 on batch side only, since 5.6 on both batch side and server side
+   * @since since 2.4 on batch side only, since 5.6 on both batch side and server side (WebServer and Compute Engine)
    */
   public abstract String getURL();
 

@@ -36,6 +36,7 @@ import org.sonar.process.ProcessProperties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertThat;
+import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
 
 public class ServerImplTest {
 
@@ -222,6 +223,26 @@ public class ServerImplTest {
 
   @Test
   public void getUrl_returns_http_localhost_9000_when_not_settings_are_set() {
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000");
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_9000_when_serverBaseUrl_is_null() {
+    settings.setProperty(SERVER_BASE_URL, (String) null);
+    assertThat(underTest.getURL()).isEqualTo("http://localhost:9000");
+  }
+
+
+  @Test
+  public void getUrl_returns_serverBaseUrl_it_is_non_empty() {
+    String serverBaseUrl = "whatever";
+    settings.setProperty(SERVER_BASE_URL, serverBaseUrl);
+    assertThat(underTest.getURL()).isEqualTo(serverBaseUrl);
+  }
+
+  @Test
+  public void getUrl_returns_http_localhost_9000_when_serverBaseUrl_is_empty() {
+    settings.setProperty(SERVER_BASE_URL, "");
     assertThat(underTest.getURL()).isEqualTo("http://localhost:9000");
   }
 
