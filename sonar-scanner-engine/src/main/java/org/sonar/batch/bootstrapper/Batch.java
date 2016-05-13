@@ -161,6 +161,7 @@ public final class Batch {
    * @since 5.2
    * @deprecated since 5.6
    */
+  @Deprecated
   public Batch syncProject(String projectKey) {
     checkStarted();
     return this;

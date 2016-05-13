@@ -20,6 +20,7 @@
 package org.sonar.batch.repository;
 
 import org.junit.Before;
+import org.junit.Test;
 import org.sonar.batch.WsTestUtil;
 import org.sonar.batch.bootstrap.BatchWsClient;
 import org.sonar.scanner.protocol.input.GlobalRepositories;
@@ -41,6 +42,7 @@ public class DefaultGlobalRepositoriesLoaderTest {
     globalRepositoryLoader = new DefaultGlobalRepositoriesLoader(wsClient);
   }
 
+  @Test
   public void test() {
     globalRepositoryLoader.load();
     WsTestUtil.verifyCall(wsClient, BATCH_GLOBAL_URL);
