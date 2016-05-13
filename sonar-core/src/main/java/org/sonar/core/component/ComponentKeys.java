@@ -28,7 +28,7 @@ import org.sonar.api.resources.Scopes;
 
 public final class ComponentKeys {
 
-  public static final int COMPONENT_KEY_SIZE = 400;
+  public static final int MAX_COMPONENT_KEY_LENGTH = 400;
 
   /*
    * Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit
@@ -54,7 +54,7 @@ public final class ComponentKeys {
     String key = resource.getKey();
     if (!StringUtils.equals(Scopes.PROJECT, resource.getScope())) {
       // not a project nor a library
-      key = new StringBuilder(COMPONENT_KEY_SIZE)
+      key = new StringBuilder(MAX_COMPONENT_KEY_LENGTH)
         .append(project.getKey())
         .append(':')
         .append(resource.getKey())
@@ -68,7 +68,7 @@ public final class ComponentKeys {
   }
 
   public static String createEffectiveKey(String moduleKey, @Nullable String path) {
-    StringBuilder sb = new StringBuilder(COMPONENT_KEY_SIZE);
+    StringBuilder sb = new StringBuilder(MAX_COMPONENT_KEY_LENGTH);
     sb.append(moduleKey);
     if (path != null) {
       sb.append(':').append(path);

@@ -51,7 +51,6 @@ public class ComponentValidatorTest {
   public void check_key() {
     String key = repeat("a", 400);
 
-    assertThat(ComponentValidator.isComponentKeyValid(key)).isTrue();
     assertThat(ComponentValidator.checkComponentKey(key)).isEqualTo(key);
   }
 
@@ -61,7 +60,6 @@ public class ComponentValidatorTest {
     expectedException.expectMessage("Component key length");
     String key = repeat("a", 400 + 1);
 
-    assertThat(ComponentValidator.isComponentKeyValid(key)).isFalse();
     ComponentValidator.checkComponentKey(key);
   }
 

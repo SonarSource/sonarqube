@@ -21,35 +21,31 @@
 package org.sonar.db.component;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static org.sonar.core.component.ComponentKeys.MAX_COMPONENT_KEY_LENGTH;
 
 public class ComponentValidator {
-  private static final int MAX_NAME_LENGTH = 2000;
-  private static final int MAX_KEY_LENGTH = 400;
-  private static final int MAX_QUALIFIER_LENGTH = 10;
+  private static final int MAX_COMPONENT_NAME_LENGTH = 2000;
+  private static final int MAX_COMPONENT_QUALIFIER_LENGTH = 10;
 
   private ComponentValidator() {
     // prevent instantiation
   }
 
   public static String checkComponentName(String name) {
-    checkArgument(name.length() <= MAX_NAME_LENGTH, "Component name length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
-      name.length(), MAX_NAME_LENGTH, name);
+    checkArgument(name.length() <= MAX_COMPONENT_NAME_LENGTH, "Component name length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
+      name.length(), MAX_COMPONENT_NAME_LENGTH, name);
     return name;
   }
 
   public static String checkComponentKey(String key) {
-    checkArgument(isComponentKeyValid(key), "Component key length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
-      key.length(), MAX_KEY_LENGTH, key);
+    checkArgument(key.length() <= MAX_COMPONENT_KEY_LENGTH, "Component key length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
+      key.length(), MAX_COMPONENT_KEY_LENGTH, key);
     return key;
   }
 
-  public static boolean isComponentKeyValid(String key) {
-    return key.length() <= MAX_KEY_LENGTH;
-  }
-
   public static String checkComponentQualifier(String qualifier) {
-    checkArgument(qualifier.length() <= MAX_QUALIFIER_LENGTH, "Component qualifier length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
-      qualifier.length(), MAX_QUALIFIER_LENGTH, qualifier);
+    checkArgument(qualifier.length() <= MAX_COMPONENT_QUALIFIER_LENGTH, "Component qualifier length (%s) is longer than the maximum authorized (%s). '%s' was provided.",
+      qualifier.length(), MAX_COMPONENT_QUALIFIER_LENGTH, qualifier);
     return qualifier;
   }
 }
