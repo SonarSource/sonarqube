@@ -154,13 +154,16 @@ public class ProjectReactorBuilder {
       }
     }
     String[] moduleIds = getListFromProperty(currentModuleProperties, PROPERTY_MODULES);
-    // Sort module by reverse lexicographic order to avoid issue when one module id is a prefix of another one
+    // Sort modules by reverse lexicographic order to avoid issue when one module id is a prefix of another one
     Arrays.sort(moduleIds);
     ArrayUtils.reverse(moduleIds);
 
     propertiesByModuleIdPath.put(currentModuleIdPath, currentModuleProperties);
 
     for (String moduleId : moduleIds) {
+      if ("sonar".equals(moduleId)) {
+        throw MessageException.of("'sonar' is not a valid module id. Please check property '" + PROPERTY_MODULES + "'.");
+      }
       String subModuleIdPath = currentModuleIdPath.isEmpty() ? moduleId : (currentModuleIdPath + "." + moduleId);
       extractPropertiesByModule(propertiesByModuleIdPath, moduleId, subModuleIdPath, currentModuleProperties);
     }

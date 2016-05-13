@@ -102,6 +102,14 @@ public class ProjectReactorBuilderTest {
   }
 
   @Test
+  public void sonarModuleIdIsForbidden() {
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("'sonar' is not a valid module id. Please check property 'sonar.modules'.");
+
+    loadProjectDefinition("multi-module-sonar-module");
+  }
+
+  @Test
   public void modulesRepeatedIds() {
     ProjectDefinition rootProject = loadProjectDefinition("multi-module-repeated-id");
 
