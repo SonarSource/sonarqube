@@ -18,7 +18,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 class Api::AuthenticationController < Api::ApiController
-  skip_before_filter :check_authentication
+  skip_before_filter :check_authentication, :set_user_session
 
   # prevent HTTP proxies from caching authentication status
   before_filter :set_cache_buster
@@ -46,7 +46,11 @@ class Api::AuthenticationController < Api::ApiController
   private
 
   def valid?
-    logged_in? || (!force_authentication? && anonymous?)
+    begin
+      logged_in? || (!force_authentication? && anonymous?)
+    rescue Errors::AccessDenied
+      false
+    end
   end
 
   def force_authentication?

@@ -43,9 +43,16 @@ import org.sonar.wsclient.services.AuthenticationQuery;
 import org.sonar.wsclient.services.UserPropertyCreateQuery;
 import org.sonar.wsclient.services.UserPropertyQuery;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.ws.client.GetRequest;
+import org.sonarqube.ws.client.HttpConnector;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.WsClientFactories;
+import org.sonarqube.ws.client.WsResponse;
 import util.QaOnly;
 import util.selenium.SeleneseTest;
 
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 import static util.ItUtils.pluginArtifact;
@@ -340,6 +347,35 @@ public class RailsExternalAuthenticationTest {
     }
   }
 
+  /**
+   * SONAR-7640
+   */
+  @Test
+  public void authentication_with_ws() throws Exception {
+    // Given clean Sonar installation and no users in external system
+    String login = USER_LOGIN;
+    String password = "1234567";
+    Map<String, String> users = Maps.newHashMap();
+
+    // When user created in external system
+    users.put(login + ".password", password);
+    updateUsersInExtAuth(users);
+
+    assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_OK);
+    assertThat(checkAuthenticationWithWebService("wrong", password).code()).isEqualTo(HTTP_UNAUTHORIZED);
+    assertThat(checkAuthenticationWithWebService(login, "wrong").code()).isEqualTo(HTTP_UNAUTHORIZED);
+    assertThat(checkAuthenticationWithWebService(login, null).code()).isEqualTo(HTTP_UNAUTHORIZED);
+    assertThat(checkAuthenticationWithWebService(null, null).code()).isEqualTo(HTTP_OK);
+
+    setServerProperty(orchestrator, "sonar.forceAuthentication", "true");
+
+    assertThat(checkAuthenticationWithWebService(login, password).code()).isEqualTo(HTTP_OK);
+    assertThat(checkAuthenticationWithWebService("wrong", password).code()).isEqualTo(HTTP_UNAUTHORIZED);
+    assertThat(checkAuthenticationWithWebService(login, "wrong").code()).isEqualTo(HTTP_UNAUTHORIZED);
+    assertThat(checkAuthenticationWithWebService(login, null).code()).isEqualTo(HTTP_UNAUTHORIZED);
+    assertThat(checkAuthenticationWithWebService(null, null).code()).isEqualTo(HTTP_UNAUTHORIZED);
+  }
+
   protected void verifyHttpException(Exception e, int expectedCode) {
     assertThat(e).isInstanceOf(HttpException.class);
     HttpException exception = (HttpException) e;
@@ -406,6 +442,12 @@ public class RailsExternalAuthenticationTest {
       sb.append(entry.getKey()).append('=').append(entry.getValue()).append('\n');
     }
     return sb.toString();
+  }
+
+  private WsResponse checkAuthenticationWithWebService(String login, String password) {
+    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(orchestrator.getServer().getUrl()).credentials(login, password).build());
+    // Call any WS
+    return wsClient.wsConnector().call(new GetRequest("api/rules/search"));
   }
 
 }

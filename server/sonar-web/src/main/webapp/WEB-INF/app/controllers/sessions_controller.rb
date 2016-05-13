@@ -38,16 +38,19 @@ class SessionsController < ApplicationController
       # else the original uri can be set by ApplicationController#access_denied
     end
 
-    self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
-    if logged_in?
-      if params[:remember_me] == '1'
-        self.current_user.remember_me
-        cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at, :http_only => true }
+    begin
+      self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
+      if logged_in?
+        if params[:remember_me] == '1'
+          self.current_user.remember_me
+          cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at, :http_only => true }
+        end
+        redirect_back_or_default(home_url)
+      else
+        render_unauthenticated
       end
-      redirect_back_or_default(home_url)
-    else
-      @return_to_anchor = params[:return_to_anchor]
-      flash.now[:loginerror] = message('session.flash_notice.authentication_failed')
+    rescue Errors::AccessDenied
+      render_unauthenticated
     end
   end
 
@@ -56,7 +59,7 @@ class SessionsController < ApplicationController
       self.current_user.on_logout
       self.current_user.forget_me
     end
-    cookies.delete :auth_token    
+    cookies.delete :auth_token
     flash[:notice]=message('session.flash_notice.logged_out')
     redirect_to(home_path)
     reset_session
@@ -68,6 +71,13 @@ class SessionsController < ApplicationController
       session[:return_to] = Api::Utils.absolute_to_relative_url(params[:return_to])
     # else the original uri can be set by ApplicationController#access_denied
     end
+  end
+
+  private
+
+  def render_unauthenticated
+    @return_to_anchor = params[:return_to_anchor]
+    flash.now[:loginerror] = message('session.flash_notice.authentication_failed')
   end
 
 end

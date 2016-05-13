@@ -183,7 +183,7 @@ public class LocalAuthenticationTest {
     userRule.createUser(login, LOGIN, null, password);
 
     // authenticate
-    assertThat(checkAuthenticationThroughWebService(login, password)).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService(login, password)).isFalse();
   }
 
   @Test
@@ -219,23 +219,49 @@ public class LocalAuthenticationTest {
   }
 
   @Test
-  public void authentication_with_web_service() {
-    assertThat(checkAuthenticationThroughWebService("admin", "admin")).isTrue();
-    assertThat(checkAuthenticationThroughWebService("wrong", "admin")).isFalse();
-    assertThat(checkAuthenticationThroughWebService("admin", "wrong")).isFalse();
-    assertThat(checkAuthenticationThroughWebService(null, null)).isTrue();
+  public void authentication_with_authentication_ws() {
+    assertThat(checkAuthenticationWithAuthenticateWebService("admin", "admin")).isTrue();
+    assertThat(checkAuthenticationWithAuthenticateWebService("wrong", "admin")).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService("admin", "wrong")).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService(null, null)).isTrue();
 
     setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
 
-    assertThat(checkAuthenticationThroughWebService("admin", "admin")).isTrue();
-    assertThat(checkAuthenticationThroughWebService("wrong", "admin")).isFalse();
-    assertThat(checkAuthenticationThroughWebService("admin", "wrong")).isFalse();
-    assertThat(checkAuthenticationThroughWebService(null, null)).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService("admin", "admin")).isTrue();
+    assertThat(checkAuthenticationWithAuthenticateWebService("wrong", "admin")).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService("admin", "wrong")).isFalse();
+    assertThat(checkAuthenticationWithAuthenticateWebService(null, null)).isFalse();
   }
 
-  private boolean checkAuthenticationThroughWebService(String login, String password) {
+  /**
+   * SONAR-7640
+   */
+  @Test
+  public void authentication_with_any_ws() throws Exception {
+    assertThat(checkAuthenticationWithAnyWebService("admin", "admin").code()).isEqualTo(200);
+    assertThat(checkAuthenticationWithAnyWebService("wrong", "admin").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWebService("admin", "wrong").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWebService("admin", null).code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWebService(null, null).code()).isEqualTo(200);
+
+    setServerProperty(ORCHESTRATOR, "sonar.forceAuthentication", "true");
+
+    assertThat(checkAuthenticationWithAnyWebService("admin", "admin").code()).isEqualTo(200);
+    assertThat(checkAuthenticationWithAnyWebService("wrong", "admin").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWebService("admin", "wrong").code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWebService("admin", null).code()).isEqualTo(401);
+    assertThat(checkAuthenticationWithAnyWebService(null, null).code()).isEqualTo(401);
+  }
+
+  private boolean checkAuthenticationWithAuthenticateWebService(String login, String password) {
     String result = ORCHESTRATOR.getServer().wsClient(login, password).get("/api/authentication/validate");
     return result.contains("{\"valid\":true}");
+  }
+
+  private WsResponse checkAuthenticationWithAnyWebService(String login, String password) {
+    WsClient wsClient = WsClientFactories.getDefault().newClient(HttpConnector.newBuilder().url(ORCHESTRATOR.getServer().getUrl()).credentials(login, password).build());
+    // Call any WS
+    return wsClient.wsConnector().call(new GetRequest("api/rules/search"));
   }
 
   private static void addUserPermission(String login, String permission) {

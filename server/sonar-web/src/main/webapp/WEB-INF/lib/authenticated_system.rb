@@ -137,14 +137,15 @@ module AuthenticatedSystem
           user = User.find_active_by_login(authenticated_login.get())
           if user
             user.token_authenticated=true
-            self.current_user = user
-            self.current_user
+            result = user
           end
         end
       else
         # regular Basic authentication with login and password
-        self.current_user = User.authenticate(login, password, servlet_request)
+        result = User.authenticate(login, password, servlet_request)
       end
+      raise Errors::AccessDenied unless login.blank? || result
+      self.current_user = result
     end
   end
 
