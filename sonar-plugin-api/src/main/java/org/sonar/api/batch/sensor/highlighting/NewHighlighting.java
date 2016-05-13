@@ -32,7 +32,7 @@ import org.sonar.api.batch.fs.TextRange;
  *     .highlight(1, 10, 1, 15, KEYWORD)
  *     .highlight(1, 16, 1, 18, STRING)
  *     // Add more highlight if needed
- *     .save;
+ *     .save();
  *     
  * </pre>
  * 
