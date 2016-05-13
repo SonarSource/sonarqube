@@ -65,8 +65,8 @@ public class L10nWs implements WebService {
       .setDescription("BCP47 language tag, used to override the browser Accept-Language header")
       .setExampleValue("fr-CH");
     indexAction.createParam("ts")
-    .setDescription("UTC timestamp of the last cache update")
-    .setExampleValue("2014-06-04T09:31:42Z");
+    .setDescription("Date of the last cache update.")
+    .setExampleValue("2014-06-04T09:31:42+0000");
 
     l10n.done();
   }
