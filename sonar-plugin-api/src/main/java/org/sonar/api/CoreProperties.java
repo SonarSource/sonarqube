@@ -255,6 +255,7 @@ public interface CoreProperties {
    * @deprecated since 5.6. This constant default value is incorrect if a host and/or a port and/or a context have been configured.
    *             The correct default value when {@link #SERVER_BASE_URL} is not set is provided by {@link Server#getURL()}.
    */
+  @Deprecated
   String SERVER_BASE_URL_DEFAULT_VALUE = "http://localhost:9000";
 
   /* CPD */
