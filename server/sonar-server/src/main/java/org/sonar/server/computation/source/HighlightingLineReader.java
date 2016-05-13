@@ -103,7 +103,9 @@ public class HighlightingLineReader implements LineReader {
     if (range.getStartLine() <= line) {
       String offsets = rangeOffsetConverter.offsetToString(syntaxHighlighting.getRange(), line, lineBuilder.getSource().length());
       if (offsets.isEmpty()) {
-        syntaxHighlightingIterator.remove();
+        if (range.getEndLine() == line) {
+          syntaxHighlightingIterator.remove();
+        }
       } else {
         if (highlighting.length() > 0) {
           highlighting.append(SYMBOLS_SEPARATOR);

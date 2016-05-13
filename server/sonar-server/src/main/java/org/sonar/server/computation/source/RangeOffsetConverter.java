@@ -29,8 +29,6 @@ public class RangeOffsetConverter {
   static final String SYMBOLS_SEPARATOR = ";";
 
   public String offsetToString(ScannerReport.TextRange range, int lineIndex, int lineLength) {
-    StringBuilder element = new StringBuilder();
-
     validateOffsetOrder(range, lineIndex);
     validateStartOffsetNotGreaterThanLineLength(range, lineLength, lineIndex);
     validateEndOffsetNotGreaterThanLineLength(range, lineLength, lineIndex);
@@ -38,6 +36,7 @@ public class RangeOffsetConverter {
     int startOffset = range.getStartLine() == lineIndex ? range.getStartOffset() : 0;
     int endOffset = range.getEndLine() == lineIndex ? range.getEndOffset() : lineLength;
 
+    StringBuilder element = new StringBuilder();
     if (startOffset < endOffset) {
       element.append(startOffset).append(OFFSET_SEPARATOR);
       element.append(endOffset);

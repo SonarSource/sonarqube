@@ -44,7 +44,9 @@ import static org.sonar.db.protobuf.DbFileSources.Data.newBuilder;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.ANNOTATION;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.COMMENT;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.CONSTANT;
+import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.CPP_DOC;
 import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.HIGHLIGHTING_STRING;
+import static org.sonar.scanner.protocol.output.ScannerReport.SyntaxHighlightingRule.HighlightingType.KEYWORD;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class HighlightingLineReaderTest {
@@ -110,6 +112,56 @@ public class HighlightingLineReaderTest {
     assertThat(line1.getHighlighting()).isEqualTo(RANGE_LABEL_1 + ",a");
     assertThat(line2.getHighlighting()).isEqualTo(RANGE_LABEL_2 + ",cd");
     assertThat(line4.getHighlighting()).isEqualTo(RANGE_LABEL_3 + ",c");
+  }
+
+  @Test
+  public void supports_highlighting_over_multiple_lines_including_an_empty_one() {
+    List<ScannerReport.SyntaxHighlightingRule> syntaxHighlightingList = new ArrayList<>();
+    addHighlighting(syntaxHighlightingList, 1, 0, 1, 7, KEYWORD); // package
+    addHighlighting(syntaxHighlightingList, 2, 0, 4, 6, CPP_DOC); // comment over 3 lines
+    addHighlighting(syntaxHighlightingList, 5, 0, 5, 6, KEYWORD); // public
+    addHighlighting(syntaxHighlightingList, 5, 7, 5, 12, KEYWORD); // class
+    HighlightingLineReader highlightingLineReader = new HighlightingLineReader(FILE, syntaxHighlightingList.iterator(), new RangeOffsetConverter());
+
+    DbFileSources.Line.Builder[] builders = new DbFileSources.Line.Builder[] {
+      addSourceLine(highlightingLineReader, 1, "package example;"),
+      addSourceLine(highlightingLineReader, 2, "/*"),
+      addSourceLine(highlightingLineReader, 3, ""),
+      addSourceLine(highlightingLineReader, 4, " foo*/"),
+      addSourceLine(highlightingLineReader, 5, "public class One {"),
+      addSourceLine(highlightingLineReader, 6, "}")
+    };
+
+    assertThat(builders)
+      .extracting("highlighting")
+      .containsExactly(
+        "0,7,k",
+        "0,2,cppd",
+        "",
+        "0,6,cppd",
+        "0,6,k;7,12,k",
+        "");
+  }
+
+  private DbFileSources.Line.Builder addSourceLine(HighlightingLineReader highlightingLineReader, int line, String source) {
+    DbFileSources.Line.Builder lineBuilder = sourceData.addLinesBuilder().setSource(source).setLine(line);
+    highlightingLineReader.read(lineBuilder);
+    return lineBuilder;
+  }
+
+  private void addHighlighting(List<ScannerReport.SyntaxHighlightingRule> syntaxHighlightingList,
+    int startLine, int startOffset,
+    int endLine, int endOffset,
+    HighlightingType type) {
+    TextRange.Builder textRangeBuilder = TextRange.newBuilder();
+    ScannerReport.SyntaxHighlightingRule.Builder ruleBuilder = ScannerReport.SyntaxHighlightingRule.newBuilder();
+    syntaxHighlightingList.add(ruleBuilder
+      .setRange(textRangeBuilder
+        .setStartLine(startLine).setEndLine(endLine)
+        .setStartOffset(startOffset).setEndOffset(endOffset)
+        .build())
+      .setType(type)
+      .build());
   }
 
   @Test
