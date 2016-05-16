@@ -460,8 +460,6 @@ public class IssueIndex extends BaseIndex {
   private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
     long now = system.now();
 
-    String timeZoneString = system.getDefaultTimeZone().getID();
-
     DateHistogram.Interval bucketSize = DateHistogram.Interval.YEAR;
     Date createdAfter = query.createdAfter();
     long startTime = createdAfter == null ? getMinCreatedAt(filters, esQuery) : createdAfter.getTime();
@@ -483,8 +481,6 @@ public class IssueIndex extends BaseIndex {
       .interval(bucketSize)
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
-      .timeZone(timeZoneString)
-      .postZone(timeZoneString)
       .extendedBounds(startTime, endTime);
     dateHistogram = addEffortAggregationIfNeeded(query, dateHistogram);
     return dateHistogram;

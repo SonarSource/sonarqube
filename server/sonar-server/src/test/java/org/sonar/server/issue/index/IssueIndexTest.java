@@ -26,7 +26,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.TimeZone;
 import javax.annotation.Nullable;
 import org.assertj.core.api.Fail;
 import org.junit.Before;
@@ -83,7 +82,6 @@ public class IssueIndexTest {
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, tester.client());
     viewIndexer = new ViewIndexer(null, tester.client());
     System2 system = mock(System2.class);
-    when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
     when(system.now()).thenReturn(System.currentTimeMillis());
 
     index = new IssueIndex(tester.client(), system, userSessionRule);
@@ -202,20 +200,20 @@ public class IssueIndexTest {
 
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      .isEmpty();
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs())
-        .hasSize(1);
+      .hasSize(1);
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
         .getDocs())
-          .hasSize(2);
+      .hasSize(2);
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      .isEmpty();
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      .isEmpty();
   }
 
   @Test
@@ -429,7 +427,7 @@ public class IssueIndexTest {
 
     assertThat(
       index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions()).getDocs())
-        .hasSize(2);
+      .hasSize(2);
     assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(index.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
