@@ -24,6 +24,7 @@ import ComponentsList from './ComponentsList';
 import ListHeader from './ListHeader';
 import Spinner from '../../components/Spinner';
 import SourceViewer from '../../../code/components/SourceViewer';
+import ListFooter from '../../../../components/shared/list-footer';
 
 export default class ListView extends React.Component {
   static contextTypes = {
@@ -76,6 +77,11 @@ export default class ListView extends React.Component {
     onFetchList(baseComponent, metric, Number(periodIndex));
   }
 
+  handleFetchMore () {
+    const periodIndex = this.props.location.query.period || 1;
+    this.props.onFetchMore(Number(periodIndex));
+  }
+
   changeSelected (selected) {
     this.props.onSelect(selected);
   }
@@ -90,7 +96,7 @@ export default class ListView extends React.Component {
   }
 
   render () {
-    const { component, components, metrics, metric, leakPeriod, selected, fetching } = this.props;
+    const { component, components, metrics, metric, leakPeriod, selected, total, fetching } = this.props;
     const { onSelectNext, onSelectPrevious } = this.props;
 
     const breadcrumbs = [component];
@@ -114,12 +120,18 @@ export default class ListView extends React.Component {
           {!selected && (
               <div className={classNames({ 'new-loading': fetching })}>
                 {(!fetching || components.length !== 0) ? (
-                    <ComponentsList
-                        components={components}
-                        metrics={metrics}
-                        selected={selected}
-                        metric={metric}
-                        onClick={this.handleClick.bind(this)}/>
+                    <div>
+                      <ComponentsList
+                          components={components}
+                          metrics={metrics}
+                          selected={selected}
+                          metric={metric}
+                          onClick={this.handleClick.bind(this)}/>
+                      <ListFooter
+                          count={components.length}
+                          total={total}
+                          loadMore={this.handleFetchMore.bind(this)}/>
+                    </div>
                 ) : (
                     <Spinner/>
                 )}

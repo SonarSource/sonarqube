@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import { getComponentTree } from '../../../api/components';
-import { enhanceWithMeasure, filterOutEmptyMeasures } from '../utils';
+import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
 
@@ -35,8 +35,8 @@ function getComplementary (metric) {
 
 function makeRequest (baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
-  const ps = 200;
-  const finalOptions = { asc, ps };
+  const ps = 100;
+  const finalOptions = { asc, ps, metricSortFilter: 'withMeasuresOnly' };
 
   if (metric.key.indexOf('new_') === 0) {
     Object.assign(options, {
@@ -59,7 +59,7 @@ function fetchLeaves (baseComponent, metric, pageIndex = 1, periodIndex = 1) {
   const options = { p: pageIndex };
 
   return makeRequest(baseComponent, metric, options, periodIndex).then(r => {
-    const nextComponents = filterOutEmptyMeasures(enhanceWithMeasure(r.components, metric.key, periodIndex));
+    const nextComponents = enhanceWithMeasure(r.components, metric.key, periodIndex);
 
     return {
       components: nextComponents,
@@ -89,6 +89,18 @@ export function fetchList (baseComponent, metric, periodIndex = 1) {
         baseComponent,
         metric
       }));
+      dispatch(stopFetching());
+    });
+  };
+}
+
+export function fetchMore (periodIndex) {
+  return (dispatch, getState) => {
+    const { baseComponent, metric, pageIndex, components } = getState().list;
+    dispatch(startFetching());
+    return fetchLeaves(baseComponent, metric, pageIndex + 1, periodIndex).then(r => {
+      const nextComponents = [...components, ...r.components];
+      dispatch(updateStore({ ...r, components: nextComponents }));
       dispatch(stopFetching());
     });
   };

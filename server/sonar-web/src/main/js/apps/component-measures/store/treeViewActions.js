@@ -20,7 +20,7 @@
 import initial from 'lodash/initial';
 
 import { getComponentTree } from '../../../api/components';
-import { filterOutEmptyMeasures, enhanceWithMeasure } from '../utils';
+import { enhanceWithMeasure } from '../utils';
 import { startFetching, stopFetching } from './statusActions';
 import complementary from '../config/complementary';
 
@@ -68,7 +68,7 @@ function getComplementary (metric) {
 function makeRequest (rootComponent, baseComponent, metric, options, periodIndex = 1) {
   const asc = metric.direction === 1;
   const ps = 100;
-  const finalOptions = { asc, ps };
+  const finalOptions = { asc, ps, metricSortFilter: 'withMeasuresOnly' };
 
   if (metric.key.indexOf('new_') === 0) {
     Object.assign(options, {
@@ -98,7 +98,7 @@ function fetchComponents (rootComponent, baseComponent, metric, pageIndex = 1, p
   const options = { p: pageIndex };
 
   return makeRequest(rootComponent, baseComponent, metric, options, periodIndex).then(r => {
-    const nextComponents = filterOutEmptyMeasures(enhanceWithMeasure(r.components, metric.key, periodIndex));
+    const nextComponents = enhanceWithMeasure(r.components, metric.key, periodIndex);
 
     return {
       baseComponent,
@@ -183,6 +183,18 @@ export function useBreadcrumbs (component) {
         breadcrumbs: breadcrumbs.slice(0, index + 1),
         selected: undefined
       }));
+      dispatch(stopFetching());
+    });
+  };
+}
+
+export function fetchMore () {
+  return (dispatch, getState) => {
+    const { rootComponent, baseComponent, metric, pageIndex, components, periodIndex } = getState().tree;
+    dispatch(startFetching());
+    return fetchComponents(rootComponent, baseComponent, metric, pageIndex + 1, periodIndex).then(r => {
+      const nextComponents = [...components, ...r.components];
+      dispatch(updateStore({ ...r, components: nextComponents }));
       dispatch(stopFetching());
     });
   };
