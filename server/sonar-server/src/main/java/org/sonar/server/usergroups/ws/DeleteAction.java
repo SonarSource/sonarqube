@@ -102,10 +102,14 @@ public class DeleteAction implements UserGroupsWsAction {
       .selectGroupPermissions(dbSession, groupName, null)
       .contains(GlobalPermissions.SYSTEM_ADMIN);
 
-    boolean isLastSystemAdminGroup =
-      hasSystemAdminRole && dbClient.roleDao().countGroupsWithSystemAdminRole(dbSession) == 1;
+    boolean isOneRemainingSystemAdminGroup =
+      dbClient.roleDao().countGroupsWithSystemAdminRole(dbSession) == 1;
 
-    checkArgument(!isLastSystemAdminGroup, format("The last system admin group '%s' cannot be deleted", groupName));
+    boolean willLockoutSystemAdmin =
+      hasSystemAdminRole && isOneRemainingSystemAdminGroup;
+
+    checkArgument(!willLockoutSystemAdmin,
+      format("The last system admin group '%s' cannot be deleted", groupName));
   }
 
   private void removeGroupMembers(DbSession dbSession, long groupId) {
