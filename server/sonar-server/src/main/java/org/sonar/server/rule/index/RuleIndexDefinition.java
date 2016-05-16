@@ -91,8 +91,8 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).enableSorting().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).enableSorting().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).docValues().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableSearch().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).disableNorms().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().docValues().build();
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_NAME).enableSorting().enableWordSearch().build();
     ruleMapping.setProperty(FIELD_RULE_HTML_DESCRIPTION, ImmutableSortedMap.of(
@@ -102,15 +102,15 @@ public class RuleIndexDefinition implements IndexDefinition {
       "index_analyzer", "html_analyzer",
       "search_analyzer", "html_analyzer"
       ));
-    ruleMapping.stringFieldBuilder(FIELD_RULE_SEVERITY).docValues().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_STATUS).docValues().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_LANGUAGE).build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_STATUS).disableNorms().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_LANGUAGE).disableNorms().build();
 
     ruleMapping.createBooleanField(FIELD_RULE_IS_TEMPLATE);
-    ruleMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_TEMPLATE_KEY).disableNorms().docValues().build();
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_ALL_TAGS).enableGramSearch().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_TYPE).build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_TYPE).disableNorms().build();
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
     ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);
@@ -123,11 +123,11 @@ public class RuleIndexDefinition implements IndexDefinition {
     activeRuleMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY));
 
     activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY).enableSorting().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).disableSearch().docValues().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY).disableSearch().docValues().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY).docValues().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).docValues().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).disableNorms().disableSearch().docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY).disableNorms().disableSearch().docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY).disableNorms().docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).disableNorms().docValues().build();
 
     activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT);
     activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT);

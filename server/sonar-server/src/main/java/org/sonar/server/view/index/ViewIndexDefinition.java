@@ -51,7 +51,7 @@ public class ViewIndexDefinition implements IndexDefinition {
     // type "view"
     NewIndex.NewIndexType mapping = index.createType(TYPE_VIEW);
     mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_UUID));
-    mapping.stringFieldBuilder(FIELD_UUID).build();
-    mapping.stringFieldBuilder(FIELD_PROJECTS).build();
+    mapping.stringFieldBuilder(FIELD_UUID).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_PROJECTS).disableNorms().build();
   }
 }

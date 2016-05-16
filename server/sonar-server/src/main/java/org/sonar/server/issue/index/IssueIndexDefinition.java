@@ -97,9 +97,9 @@ public class IssueIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
     authorizationMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_AUTHORIZATION_PROJECT_UUID));
     authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).build();
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).build();
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).disableNorms().build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).disableNorms().build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).disableNorms().build();
 
     // type "issue"
     NewIndex.NewIndexType issueMapping = index.createType(TYPE_ISSUE);
@@ -107,9 +107,9 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
     issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_ISSUE_PROJECT_UUID));
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).docValues().disableSearch().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).docValues().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).docValues().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).docValues().disableNorms().disableSearch().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().docValues().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_COMPONENT_UUID).disableNorms().docValues().build();
     issueMapping.createLongField(FIELD_ISSUE_EFFORT);
     issueMapping.createDoubleField(FIELD_ISSUE_GAP);
     issueMapping.stringFieldBuilder(FIELD_ISSUE_FILE_PATH).enableSorting().build();
@@ -117,20 +117,20 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_UPDATED_AT);
     issueMapping.createDateTimeField(FIELD_ISSUE_FUNC_CLOSED_AT);
     issueMapping.stringFieldBuilder(FIELD_ISSUE_KEY).enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_LANGUAGE).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_LANGUAGE).disableNorms().build();
     issueMapping.createIntegerField(FIELD_ISSUE_LINE);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_MESSAGE).docValues().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).docValues().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_MESSAGE).disableNorms().docValues().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_MODULE_UUID).disableNorms().docValues().build();
     issueMapping.createUuidPathField(FIELD_ISSUE_MODULE_PATH);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).docValues().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_RULE_KEY).build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_SEVERITY).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_PROJECT_UUID).disableNorms().enableSorting().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_DIRECTORY_PATH).disableNorms().docValues().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_RESOLUTION).disableNorms().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_RULE_KEY).disableNorms().build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_SEVERITY).disableNorms().build();
     issueMapping.createByteField(FIELD_ISSUE_SEVERITY_VALUE);
     issueMapping.stringFieldBuilder(FIELD_ISSUE_STATUS).enableSorting().build();
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_TAGS).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
     issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
-    issueMapping.stringFieldBuilder(FIELD_ISSUE_TYPE).build();
+    issueMapping.stringFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
   }
 }

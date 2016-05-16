@@ -696,15 +696,6 @@ public class IssueIndex extends BaseIndex {
   }
 
   /**
-   * TODO used only by tests, so must be replaced by EsTester#countDocuments()
-   */
-  public long countAll() {
-    return getClient().prepareCount(IssueIndexDefinition.INDEX)
-      .setTypes(IssueIndexDefinition.TYPE_ISSUE)
-      .get().getCount();
-  }
-
-  /**
    * Return non closed issues for a given project, module, or file. Other kind of components are not allowed.
    * Only fields needed for the batch are returned.
    */
