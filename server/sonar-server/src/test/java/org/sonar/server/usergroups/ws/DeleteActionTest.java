@@ -188,6 +188,31 @@ public class DeleteActionTest {
     assertThat(groupDao.selectById(dbSession, group.getId())).isNull();
   }
 
+  @Test
+  public void can_delete_system_admin_group_if_not_last() throws Exception {
+    assertThat(roleDao.countGroupsWithSystemAdminRole(dbSession)).isEqualTo(0);
+
+    GroupDto group0 = groupDao.insert(dbSession, newGroupDto().setName("system-admins0"));
+    assertThat(groupDao.selectById(dbSession, group0.getId())).isNotNull();
+    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group0.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
+    assertThat(roleDao.countGroupsWithSystemAdminRole(dbSession)).isEqualTo(1);
+
+    GroupDto group = groupDao.insert(dbSession, newGroupDto().setName("system-admins"));
+    assertThat(groupDao.selectById(dbSession, group.getId())).isNotNull();
+    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
+    assertThat(roleDao.countGroupsWithSystemAdminRole(dbSession)).isEqualTo(2);
+
+    dbSession.commit();
+
+    loginAsAdmin();
+    newRequest()
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .execute().assertNoContent();
+
+    assertThat(groupDao.selectById(dbSession, group.getId())).isNull();
+    assertThat(roleDao.countGroupsWithSystemAdminRole(dbSession)).isEqualTo(1);
+  }
+
   private void loginAsAdmin() {
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
