@@ -57,6 +57,12 @@ class Coverage extends React.Component {
         .find(measure => measure.metric.key === `new_${prefix}coverage`);
   }
 
+  getNewLinesToCover (prefix) {
+    const { measures } = this.props;
+    return measures
+        .find(measure => measure.metric.key === `new_${prefix}lines_to_cover`);
+  }
+
   renderHeader () {
     return this.props.renderHeader(
         'Coverage',
@@ -109,18 +115,42 @@ class Coverage extends React.Component {
   renderNewCoverage (coverageMetricPrefix) {
     const { component, leakPeriod } = this.props;
     const newCoverageMeasure = this.getNewCoverageMeasure(coverageMetricPrefix);
+    const newLinesToCover = this.getNewLinesToCover(coverageMetricPrefix);
 
     const value = newCoverageMeasure ? (
-        <DrilldownLink
-            component={component.key}
-            metric={newCoverageMeasure.metric.key}
-            period={leakPeriod.index}>
-          <span className="js-overview-main-new-coverage">
-            {formatMeasure(getPeriodValue(newCoverageMeasure, leakPeriod.index), 'PERCENT')}
-          </span>
-        </DrilldownLink>
+        <div>
+          <DrilldownLink
+              component={component.key}
+              metric={newCoverageMeasure.metric.key}
+              period={leakPeriod.index}>
+            <span className="js-overview-main-new-coverage">
+              {formatMeasure(getPeriodValue(newCoverageMeasure, leakPeriod.index), 'PERCENT')}
+            </span>
+          </DrilldownLink>
+        </div>
     ) : (
         <span>—</span>
+    );
+
+    const label = newLinesToCover ? (
+        <div className="overview-domain-measure-label">
+          {translate('overview.coverage_on')}
+          <br/>
+          <DrilldownLink
+              className="spacer-right overview-domain-secondary-measure-value"
+              component={component.key}
+              metric={newLinesToCover.metric.key}
+              period={leakPeriod.index}>
+            <span className="js-overview-main-new-coverage">
+              {formatMeasure(getPeriodValue(newLinesToCover, leakPeriod.index), 'SHORT_INT')}
+            </span>
+          </DrilldownLink>
+          {getMetricName('new_ncloc')}
+        </div>
+    ) : (
+        <div className="overview-domain-measure-label">
+          {getMetricName('new_coverage')}
+        </div>
     );
 
     return (
@@ -128,10 +158,7 @@ class Coverage extends React.Component {
           <div className="overview-domain-measure-value">
             {value}
           </div>
-
-          <div className="overview-domain-measure-label">
-            {getMetricName('new_coverage')}
-          </div>
+          {label}
         </div>
     );
   }

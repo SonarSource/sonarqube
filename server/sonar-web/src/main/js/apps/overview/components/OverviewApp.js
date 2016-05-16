@@ -65,6 +65,9 @@ const METRICS = [
   'new_coverage',
   'it_coverage',
   'new_it_coverage',
+  'new_lines_to_cover',
+  'new_it_lines_to_cover',
+  'new_overall_lines_to_cover',
   'tests',
 
   // duplications

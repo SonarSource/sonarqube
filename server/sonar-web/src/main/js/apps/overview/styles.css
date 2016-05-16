@@ -180,6 +180,12 @@
   font-weight: 300;
 }
 
+.overview-domain-secondary-measure-value {
+  line-height: 1;
+  font-size: 20px;
+  font-weight: 300;
+}
+
 .overview-domain-leak .overview-domain-measure-value {
   text-align: center;
 }
