@@ -143,7 +143,7 @@ public class ActiveRuleCompleter {
   }
 
   void completeShow(DbSession dbSession, RuleDto rule, ShowResponse.Builder response) {
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRule(dbSession, rule);
+    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, rule.getId());
     Map<Integer, ActiveRuleKey> activeRuleIdsByKey = new HashMap<>();
     for (ActiveRuleDto activeRuleDto : activeRuleDtos) {
       activeRuleIdsByKey.put(activeRuleDto.getId(), activeRuleDto.getKey());

@@ -252,7 +252,7 @@ public class RuleUpdater {
   }
 
   private Multimap<ActiveRuleDto, ActiveRuleParamDto> getActiveRuleParamsByActiveRule(DbSession dbSession, RuleDto customRule) {
-    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRule(dbSession, customRule);
+    List<ActiveRuleDto> activeRuleDtos = dbClient.activeRuleDao().selectByRuleId(dbSession, customRule.getId());
     Map<Integer, ActiveRuleDto> activeRuleById = from(activeRuleDtos).uniqueIndex(ActiveRuleDtoToId.INSTANCE);
     List<Integer> activeRuleIds = from(activeRuleDtos)
       .transform(ActiveRuleDtoToId.INSTANCE)

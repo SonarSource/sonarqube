@@ -335,7 +335,7 @@ public class RuleActivator {
    */
   public List<ActiveRuleChange> deactivate(DbSession dbSession, RuleDto ruleDto) {
     List<ActiveRuleChange> changes = Lists.newArrayList();
-    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRule(dbSession, ruleDto);
+    List<ActiveRuleDto> activeRules = db.activeRuleDao().selectByRuleId(dbSession, ruleDto.getId());
     for (ActiveRuleDto activeRule : activeRules) {
       changes.addAll(deactivate(dbSession, activeRule.getKey(), true));
     }

@@ -29,7 +29,6 @@ import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
-import org.sonar.db.rule.RuleDto;
 
 public class ActiveRuleDao implements Dao {
 
@@ -59,9 +58,8 @@ public class ActiveRuleDao implements Dao {
     return DatabaseUtils.executeLargeInputs(keys, new KeyToDto(mapper(dbSession)));
   }
 
-  public List<ActiveRuleDto> selectByRule(DbSession dbSession, RuleDto rule) {
-    Preconditions.checkNotNull(rule.getId(), RULE_IS_NOT_PERSISTED);
-    return mapper(dbSession).selectByRuleId(rule.getId());
+  public List<ActiveRuleDto> selectByRuleId(DbSession dbSession, int ruleId) {
+    return mapper(dbSession).selectByRuleId(ruleId);
   }
 
   public List<ActiveRuleDto> selectByRuleIds(DbSession dbSession, List<Integer> ids) {
@@ -168,8 +166,8 @@ public class ActiveRuleDao implements Dao {
     }
   }
 
-  public void deleteParamsByRuleParam(DbSession dbSession, RuleDto rule, String paramKey) {
-    List<ActiveRuleDto> activeRules = selectByRule(dbSession, rule);
+  public void deleteParamsByRuleParam(DbSession dbSession, int ruleId, String paramKey) {
+    List<ActiveRuleDto> activeRules = selectByRuleId(dbSession, ruleId);
     for (ActiveRuleDto activeRule : activeRules) {
       for (ActiveRuleParamDto activeParam : selectParamsByActiveRuleId(dbSession, activeRule.getId())) {
         if (activeParam.getKey().equals(paramKey)) {

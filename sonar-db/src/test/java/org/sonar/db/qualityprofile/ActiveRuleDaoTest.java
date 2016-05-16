@@ -153,8 +153,8 @@ public class ActiveRuleDaoTest {
     underTest.insert(dbTester.getSession(), activeRule2);
     dbSession.commit();
 
-    assertThat(underTest.selectByRule(dbSession, rule1)).extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey());
-    assertThat(underTest.selectByRule(dbSession, rule3)).isEmpty();
+    assertThat(underTest.selectByRuleId(dbSession, rule1.getId())).extracting("key").containsOnly(activeRule1.getKey(), activeRule2.getKey());
+    assertThat(underTest.selectByRuleId(dbSession, rule3.getId())).isEmpty();
   }
 
   @Test
@@ -512,7 +512,7 @@ public class ActiveRuleDaoTest {
 
     dbSession.commit();
 
-    underTest.deleteParamsByRuleParam(dbSession, rule1, rule1Param1.getName());
+    underTest.deleteParamsByRuleParam(dbSession, rule1.getId(), rule1Param1.getName());
     dbSession.commit();
 
     assertThat(underTest.selectParamByKeyAndName(activeRule1.getKey(), activeRuleParam1.getKey(), dbSession)).isNull();
@@ -533,6 +533,6 @@ public class ActiveRuleDaoTest {
 
     dbSession.commit();
 
-    underTest.deleteParamsByRuleParam(dbSession, rule1, "unknown");
+    underTest.deleteParamsByRuleParam(dbSession, rule1.getId(), "unknown");
   }
 }
