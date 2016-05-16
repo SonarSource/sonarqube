@@ -175,7 +175,7 @@ public class DeleteActionTest {
     GroupDto group = groupDao.insert(dbSession, newGroupDto().setName("system-admins"));
     assertThat(groupDao.selectById(dbSession, group.getId())).isNotNull();
 
-    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group.getId()).setRole(UserRole.ADMIN));
+    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group.getId()).setRole(GlobalPermissions.SYSTEM_ADMIN));
     assertThat(roleDao.countGroupsWithSystemAdminRole(dbSession)).isEqualTo(1);
 
     dbSession.commit();
