@@ -35,6 +35,7 @@ import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
@@ -145,7 +146,8 @@ public class EsTester extends ExternalResource {
       }
       bulk.add(new IndexRequest(index, type).source(IOUtils.toString(new FileInputStream(file))));
     }
-    bulk.get();
+    BulkResponse response = bulk.get();
+    assertThat(response.hasFailures()).as(response.buildFailureMessage()).isFalse();
   }
 
   public void putDocuments(String index, String type, BaseDoc... docs) throws Exception {
@@ -153,7 +155,8 @@ public class EsTester extends ExternalResource {
     for (BaseDoc doc : docs) {
       bulk.add(new IndexRequest(index, type).source(doc.getFields()));
     }
-    bulk.get();
+    BulkResponse response = bulk.get();
+    assertThat(response.hasFailures()).as(response.buildFailureMessage()).isFalse();
   }
 
   public void putDocuments(String index, String type, Map<String, Object>... docs) throws Exception {
@@ -161,7 +164,8 @@ public class EsTester extends ExternalResource {
     for (Map<String, Object> doc : docs) {
       bulk.add(new IndexRequest(index, type).source(doc));
     }
-    bulk.get();
+    BulkResponse response = bulk.get();
+    assertThat(response.hasFailures()).as(response.buildFailureMessage()).isFalse();
   }
 
   public long countDocuments(String indexName, String typeName) {
