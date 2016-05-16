@@ -233,7 +233,7 @@ public class EsClient implements Startable {
     }
   }
 
-  protected Client nativeClient() {
+  public Client nativeClient() {
     return nativeClient;
   }
 }

@@ -19,24 +19,39 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.collect.ImmutableMap;
+import java.util.List;
+import org.apache.commons.lang.StringUtils;
+import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
+import org.sonar.process.ProcessProperties;
+import org.sonar.server.es.EsTester;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_HTML_DESCRIPTION;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_RULE_REPOSITORY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
 
 public class RuleIndexDefinitionTest {
 
-  IndexDefinition.IndexDefinitionContext underTest = new IndexDefinition.IndexDefinitionContext();
+  Settings settings = new Settings();
+  RuleIndexDefinition underTest = new RuleIndexDefinition(settings);
+
+  @Rule
+  public EsTester tester = new EsTester().addDefinitions(underTest);
 
   @Test
-  public void define() {
-    RuleIndexDefinition def = new RuleIndexDefinition(new Settings());
-    def.define(underTest);
+  public void test_definition_of_index() {
+    IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
+    underTest.define(context);
 
-    assertThat(underTest.getIndices()).hasSize(1);
-    NewIndex ruleIndex = underTest.getIndices().get("rules");
+    assertThat(context.getIndices()).hasSize(1);
+    NewIndex ruleIndex = context.getIndices().get("rules");
     assertThat(ruleIndex).isNotNull();
     assertThat(ruleIndex.getTypes().keySet()).containsOnly("rule", "activeRule");
 
@@ -45,4 +60,53 @@ public class RuleIndexDefinitionTest {
     assertThat(ruleIndex.getSettings().get("index.number_of_replicas")).isEqualTo("0");
   }
 
+  @Test
+  public void enable_replica_if_clustering_is_enabled() {
+    settings.setProperty(ProcessProperties.CLUSTER_ACTIVATE, true);
+    IndexDefinition.IndexDefinitionContext context = new IndexDefinition.IndexDefinitionContext();
+    underTest.define(context);
+
+    NewIndex ruleIndex = context.getIndices().get("rules");
+    assertThat(ruleIndex.getSettings().get("index.number_of_replicas")).isEqualTo("1");
+  }
+
+  @Test
+  public void support_long_html_description() throws Exception {
+    String longText = StringUtils.repeat("hello  ", 10_000);
+    // the following method fails if PUT fails
+    tester.putDocuments(INDEX, RuleIndexDefinition.TYPE_RULE, ImmutableMap.<String, Object>of(
+      FIELD_RULE_HTML_DESCRIPTION, longText,
+      FIELD_RULE_REPOSITORY, "squid",
+      FIELD_RULE_KEY, "S001"));
+    assertThat(tester.countDocuments(INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(1);
+
+    List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(longText);
+    for (AnalyzeResponse.AnalyzeToken token : tokens) {
+      assertThat(token.getTerm().length()).isEqualTo("hello".length());
+    }
+  }
+
+  @Test
+  public void remove_html_characters_of_html_description() {
+    String text = "<p>html <i>line</i></p>";
+    List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(text);
+
+    assertThat(tokens).extracting("term").containsOnly("html", "line");
+  }
+
+  @Test
+  public void sanitize_html_description_as_it_is_english() {
+    String text = "this is a small list of words";
+    // "this", "is", "a" and "of" are not indexed.
+    // Plural "words" is converted to singular "word"
+    List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(text);
+    assertThat(tokens).extracting("term").containsOnly("small", "list", "word");
+  }
+
+  private List<AnalyzeResponse.AnalyzeToken> analyzeIndexedTokens(String text) {
+    return tester.client().nativeClient().admin().indices().prepareAnalyze(INDEX,
+      text)
+      .setField(FIELD_RULE_HTML_DESCRIPTION)
+      .execute().actionGet().getTokens();
+  }
 }
