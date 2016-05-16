@@ -168,6 +168,26 @@ public class DeleteActionTest {
       .execute();
   }
 
+  @Test(expected = IllegalArgumentException.class)
+  public void cannot_delete_last_admin_group() throws Exception {
+    assertThat(roleDao.countGroupsWithGlobalAdminRole(dbSession)).isEqualTo(0);
+
+    GroupDto group = groupDao.insert(dbSession, newGroupDto().setName("group_name"));
+    assertThat(groupDao.selectById(dbSession, group.getId())).isNotNull();
+
+    roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group.getId()).setRole(UserRole.ADMIN));
+    assertThat(roleDao.countGroupsWithGlobalAdminRole(dbSession)).isEqualTo(1);
+
+    dbSession.commit();
+
+    loginAsAdmin();
+    newRequest()
+            .setParam(PARAM_GROUP_NAME, group.getName())
+            .execute().assertNoContent();
+
+    assertThat(groupDao.selectById(dbSession, group.getId())).isNull();
+  }
+
   private void loginAsAdmin() {
     userSession.login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
