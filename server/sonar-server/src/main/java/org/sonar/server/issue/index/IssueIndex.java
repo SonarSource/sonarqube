@@ -511,10 +511,9 @@ public class IssueIndex extends BaseIndex {
     Min minValue = esRequest.get().getAggregations().get(facetNameAndField);
     Double actualValue = minValue.getValue();
     if (actualValue.isInfinite()) {
-      return Long.MIN_VALUE;
-    } else {
-      return actualValue.longValue();
+      return 0L;
     }
+    return Math.max(0L, actualValue.longValue());
   }
 
   private AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
