@@ -58,5 +58,5 @@ public interface RoleMapper {
 
   int countUsersWithPermission(@Param("permission") String permission, @Nullable @Param("groupId") Long groupId);
 
-  int countGroupsWithGlobalAdminRole();
+  int countGroupsWithSystemAdminRole();
 }
