@@ -57,4 +57,6 @@ public interface RoleMapper {
   void deleteGroupRolesByGroupId(long groupId);
 
   int countUsersWithPermission(@Param("permission") String permission, @Nullable @Param("groupId") Long groupId);
+
+  int countGroupsWithGlobalAdminRole();
 }

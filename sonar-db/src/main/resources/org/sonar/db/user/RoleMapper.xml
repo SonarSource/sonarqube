@@ -136,6 +136,11 @@
     ) c
   </select>
 
+  <select id="countGroupsWithGlobalAdminRole" resultType="int">
+    SELECT count(1)
+    FROM group_roles WHERE resource_id IS NULL AND role = 'admin'
+  </select>
+
   <delete id="deleteGroupRolesByGroupId" parameterType="long">
     delete from group_roles where group_id=#{id}
   </delete>
