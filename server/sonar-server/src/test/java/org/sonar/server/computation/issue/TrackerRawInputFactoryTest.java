@@ -36,11 +36,14 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
+import org.sonar.server.computation.issue.filter.IssueFilter;
 import org.sonar.server.computation.source.SourceLinesRepositoryRule;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -62,7 +65,9 @@ public class TrackerRawInputFactoryTest {
 
   CommonRuleEngine commonRuleEngine = mock(CommonRuleEngine.class);
 
-  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, commonRuleEngine);
+  IssueFilter issueFilter = mock(IssueFilter.class);
+
+  TrackerRawInputFactory underTest = new TrackerRawInputFactory(treeRootHolder, reportReader, fileSourceRepository, commonRuleEngine, issueFilter);
 
   @Test
   public void load_source_hash_sequences() throws Exception {
@@ -86,7 +91,8 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
-  public void load_issues() throws Exception {
+  public void load_issues_from_report() throws Exception {
+    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
       .setTextRange(TextRange.newBuilder().setStartLine(2).build())
@@ -118,6 +124,25 @@ public class TrackerRawInputFactoryTest {
   }
 
   @Test
+  public void ignore_issue_from_report() throws Exception {
+    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
+      .setTextRange(TextRange.newBuilder().setStartLine(2).build())
+      .setMsg("the message")
+      .setRuleRepository("java")
+      .setRuleKey("S001")
+      .setSeverity(Constants.Severity.BLOCKER)
+      .setGap(3.14)
+      .build();
+    reportReader.putIssues(FILE.getReportAttributes().getRef(), asList(reportIssue));
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    Collection<DefaultIssue> issues = input.getIssues();
+    assertThat(issues).isEmpty();
+  }
+
+  @Test
   public void ignore_report_issues_on_common_rules() throws Exception {
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     ScannerReport.Issue reportIssue = ScannerReport.Issue.newBuilder()
@@ -135,6 +160,7 @@ public class TrackerRawInputFactoryTest {
 
   @Test
   public void load_issues_of_compute_engine_common_rules() throws Exception {
+    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
     DefaultIssue ceIssue = new DefaultIssue()
       .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
@@ -146,6 +172,21 @@ public class TrackerRawInputFactoryTest {
 
     assertThat(input.getIssues()).containsOnly(ceIssue);
     assertInitializedIssue(input.getIssues().iterator().next());
+  }
+
+  @Test
+  public void ignore_issue_from_common_rule() throws Exception {
+    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(false);
+    fileSourceRepository.addLines(FILE_REF, "line 1;", "line 2;");
+    DefaultIssue ceIssue = new DefaultIssue()
+      .setRuleKey(RuleKey.of(CommonRuleKeys.commonRepositoryForLang("java"), "InsufficientCoverage"))
+      .setMessage("not enough coverage")
+      .setGap(10.0);
+    when(commonRuleEngine.process(FILE)).thenReturn(asList(ceIssue));
+
+    Input<DefaultIssue> input = underTest.create(FILE);
+
+    assertThat(input.getIssues()).isEmpty();
   }
 
   private void assertInitializedIssue(DefaultIssue issue) {

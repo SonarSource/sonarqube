@@ -70,6 +70,7 @@ import org.sonar.server.computation.issue.commonrule.DuplicatedBlockRule;
 import org.sonar.server.computation.issue.commonrule.LineCoverageRule;
 import org.sonar.server.computation.issue.commonrule.SkippedTestRule;
 import org.sonar.server.computation.issue.commonrule.TestErrorRule;
+import org.sonar.server.computation.issue.filter.IssueFilter;
 import org.sonar.server.computation.language.LanguageRepositoryImpl;
 import org.sonar.server.computation.measure.MeasureComputersHolderImpl;
 import org.sonar.server.computation.measure.MeasureComputersVisitor;
@@ -172,6 +173,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       IssueLifecycle.class,
       ComponentsWithUnprocessedIssues.class,
       ComponentIssuesRepositoryImpl.class,
+      IssueFilter.class,
 
       // common rules
       CommonRuleEngineImpl.class,

@@ -38,6 +38,7 @@ import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngine;
+import org.sonar.server.computation.issue.filter.IssueFilter;
 import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.rule.CommonRuleKeys;
 
@@ -50,13 +51,15 @@ public class TrackerRawInputFactory {
   private final BatchReportReader reportReader;
   private final SourceLinesRepository sourceLinesRepository;
   private final CommonRuleEngine commonRuleEngine;
+  private final IssueFilter issueFilter;
 
   public TrackerRawInputFactory(TreeRootHolder treeRootHolder, BatchReportReader reportReader,
-    SourceLinesRepository sourceLinesRepository, CommonRuleEngine commonRuleEngine) {
+    SourceLinesRepository sourceLinesRepository, CommonRuleEngine commonRuleEngine, IssueFilter issueFilter) {
     this.treeRootHolder = treeRootHolder;
     this.reportReader = reportReader;
     this.sourceLinesRepository = sourceLinesRepository;
     this.commonRuleEngine = commonRuleEngine;
+    this.issueFilter = issueFilter;
   }
 
   public Input<DefaultIssue> create(Component component) {
@@ -86,7 +89,9 @@ public class TrackerRawInputFactory {
       List<DefaultIssue> result = new ArrayList<>();
 
       for (DefaultIssue commonRuleIssue : commonRuleEngine.process(component)) {
-        result.add(init(commonRuleIssue));
+        if (issueFilter.accept(commonRuleIssue, component)) {
+          result.add(init(commonRuleIssue));
+        }
       }
       try (CloseableIterator<ScannerReport.Issue> reportIssues = reportReader.readComponentIssues(component.getReportAttributes().getRef())) {
         // optimization - do not load line hashes if there are no issues -> getLineHashSequence() is executed
@@ -95,7 +100,9 @@ public class TrackerRawInputFactory {
           ScannerReport.Issue reportIssue = reportIssues.next();
           if (isIssueOnUnsupportedCommonRule(reportIssue)) {
             DefaultIssue issue = toIssue(getLineHashSequence(), reportIssue);
-            result.add(issue);
+            if (issueFilter.accept(issue, component)) {
+              result.add(issue);
+            }
           } else {
             Loggers.get(getClass()).debug("Ignored issue from analysis report on rule {}:{}", reportIssue.getRuleRepository(), reportIssue.getRuleKey());
           }

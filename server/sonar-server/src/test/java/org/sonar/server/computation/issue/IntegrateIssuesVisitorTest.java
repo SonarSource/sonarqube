@@ -45,6 +45,7 @@ import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TypeAwareVisitor;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngineImpl;
+import org.sonar.server.computation.issue.filter.IssueFilter;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderRule;
 import org.sonar.server.computation.source.SourceLinesRepositoryRule;
 import org.sonar.server.issue.IssueTesting;
@@ -53,9 +54,11 @@ import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class IntegrateIssuesVisitorTest {
@@ -103,9 +106,11 @@ public class IntegrateIssuesVisitorTest {
 
   ArgumentCaptor<DefaultIssue> defaultIssueCaptor = ArgumentCaptor.forClass(DefaultIssue.class);
 
+  IssueFilter issueFilter = mock(IssueFilter.class);
+
   BaseIssuesLoader baseIssuesLoader = new BaseIssuesLoader(treeRootHolder, dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
   TrackerExecution tracker = new TrackerExecution(new TrackerBaseInputFactory(baseIssuesLoader, dbTester.getDbClient()), new TrackerRawInputFactory(treeRootHolder, reportReader,
-    fileSourceRepository, new CommonRuleEngineImpl()), new Tracker<DefaultIssue, DefaultIssue>());
+    fileSourceRepository, new CommonRuleEngineImpl(), issueFilter), new Tracker<DefaultIssue, DefaultIssue>());
   IssueCache issueCache;
 
   IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
@@ -119,6 +124,7 @@ public class IntegrateIssuesVisitorTest {
   public void setUp() throws Exception {
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
+    when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
     underTest = new IntegrateIssuesVisitor(tracker, issueCache, issueLifecycle, issueVisitors, componentsWithUnprocessedIssues, componentIssuesRepository);
   }
 
