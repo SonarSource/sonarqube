@@ -25,6 +25,7 @@ import {
     start,
     drilldown,
     useBreadcrumbs,
+    fetchMore,
     selectComponent,
     selectNext,
     selectPrevious
@@ -52,6 +53,7 @@ const mapDispatchToProps = dispatch => {
     onStart: (rootComponent, metric, periodIndex) => dispatch(start(rootComponent, metric, periodIndex)),
     onDrilldown: component => dispatch(drilldown(component)),
     onUseBreadcrumbs: component => dispatch(useBreadcrumbs(component)),
+    onFetchMore: () => dispatch(fetchMore()),
     onSelect: component => dispatch(selectComponent(component)),
     onSelectNext: component => dispatch(selectNext(component)),
     onSelectPrevious: component => dispatch(selectPrevious(component))
