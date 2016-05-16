@@ -182,8 +182,8 @@ public class DeleteActionTest {
 
     loginAsAdmin();
     newRequest()
-            .setParam(PARAM_GROUP_NAME, group.getName())
-            .execute().assertNoContent();
+      .setParam(PARAM_GROUP_NAME, group.getName())
+      .execute().assertNoContent();
 
     assertThat(groupDao.selectById(dbSession, group.getId())).isNull();
   }
