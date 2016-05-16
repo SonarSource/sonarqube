@@ -172,7 +172,7 @@ public class DeleteActionTest {
   public void cannot_delete_last_admin_group() throws Exception {
     assertThat(roleDao.countGroupsWithGlobalAdminRole(dbSession)).isEqualTo(0);
 
-    GroupDto group = groupDao.insert(dbSession, newGroupDto().setName("group_name"));
+    GroupDto group = groupDao.insert(dbSession, newGroupDto().setName("system-admins"));
     assertThat(groupDao.selectById(dbSession, group.getId())).isNotNull();
 
     roleDao.insertGroupRole(dbSession, new GroupRoleDto().setGroupId(group.getId()).setRole(UserRole.ADMIN));

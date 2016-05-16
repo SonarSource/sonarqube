@@ -19,6 +19,7 @@
  */
 package org.sonar.server.usergroups.ws;
 
+import java.util.List;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 import org.sonar.api.server.ws.Request;
@@ -77,6 +78,7 @@ public class DeleteAction implements UserGroupsWsAction {
       long groupId = group.getId();
 
       checkNotTryingToDeleteDefaultGroup(dbSession, groupId);
+      checkNotTryingToDeleteLastSystemAdminGroup(dbSession, group.getName());
       removeGroupMembers(dbSession, groupId);
       removeGroupPermissions(dbSession, groupId);
       removeFromPermissionTemplates(dbSession, groupId);
@@ -94,6 +96,12 @@ public class DeleteAction implements UserGroupsWsAction {
     GroupDto defaultGroup = dbClient.groupDao().selectOrFailByName(dbSession, defaultGroupName);
     checkArgument(groupId != defaultGroup.getId(),
       format("Default group '%s' cannot be deleted", defaultGroupName));
+  }
+
+  private void checkNotTryingToDeleteLastSystemAdminGroup(DbSession dbSession, String groupName) {
+    List<String> permissions = dbClient.roleDao().selectGroupPermissions(dbSession, groupName, null);
+    checkArgument(!permissions.contains(GlobalPermissions.SYSTEM_ADMIN),
+      format("The last system admin group '%s' cannot be deleted", groupName));
   }
 
   private void removeGroupMembers(DbSession dbSession, long groupId) {
