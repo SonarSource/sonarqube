@@ -22,7 +22,6 @@ package org.sonar.server.search.ws;
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.server.ServerSide;
@@ -51,18 +50,6 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
     return mappers.keySet();
   }
 
-  public org.sonar.server.es.SearchOptions newQueryOptions(SearchOptions options) {
-    org.sonar.server.es.SearchOptions result = new org.sonar.server.es.SearchOptions();
-    result.setPage(options.page(), options.pageSize());
-    List<String> optionFields = options.fields();
-    if (optionFields != null) {
-      for (String optionField : optionFields) {
-        result.addFields(indexFieldsByWsFields.get(optionField));
-      }
-    }
-    return result;
-  }
-
   /**
    * Write only requested document fields
    */
@@ -88,16 +75,8 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
     return map(key, new IndexStringMapper(key, indexKey));
   }
 
-  protected BaseMapping mapBoolean(String key, String indexKey) {
-    return map(key, new IndexBooleanMapper(key, indexKey));
-  }
-
   protected BaseMapping mapDateTime(String key, String indexKey) {
     return map(key, new IndexDatetimeMapper(key, indexKey));
-  }
-
-  protected BaseMapping mapArray(String key, String indexKey) {
-    return map(key, new IndexArrayMapper(key, indexKey));
   }
 
   protected BaseMapping map(String key, Mapper mapper) {
@@ -144,38 +123,6 @@ public abstract class BaseMapping<DOC extends BaseDoc, CTX> {
         val = doc.getNullableField(indexFields[1]);
       }
       json.prop(key, val != null ? val.toString() : null);
-    }
-  }
-
-  public static class IndexBooleanMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC, CTX> {
-    private final String key;
-
-    public IndexBooleanMapper(String key, String indexKey) {
-      super(indexKey);
-      this.key = key;
-    }
-
-    @Override
-    public void write(JsonWriter json, DOC doc, CTX context) {
-      Boolean val = doc.getNullableField(indexFields[0]);
-      json.prop(key, val != null ? val.booleanValue() : null);
-    }
-  }
-
-  public static class IndexArrayMapper<DOC extends BaseDoc, CTX> extends IndexMapper<DOC, CTX> {
-    private final String key;
-
-    public IndexArrayMapper(String key, String indexKey) {
-      super(indexKey);
-      this.key = key;
-    }
-
-    @Override
-    public void write(JsonWriter json, DOC doc, CTX context) {
-      Iterable<String> values = doc.getNullableField(indexFields[0]);
-      if (values != null) {
-        json.name(key).beginArray().values(values).endArray();
-      }
     }
   }
 
