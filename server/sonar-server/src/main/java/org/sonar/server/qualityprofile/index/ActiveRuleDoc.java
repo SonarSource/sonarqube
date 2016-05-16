@@ -19,14 +19,13 @@
  */
 package org.sonar.server.qualityprofile.index;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
-import java.util.Map;
 import javax.annotation.Nullable;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.qualityprofile.ActiveRule;
 import org.sonar.server.search.BaseDoc;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE;
@@ -37,19 +36,13 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT;
 
-public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
+public class ActiveRuleDoc extends BaseDoc {
 
   private final ActiveRuleKey key;
 
-  public ActiveRuleDoc(Map<String, Object> fields) {
-    super(fields);
-    this.key = ActiveRuleKey.parse((String) getField(FIELD_ACTIVE_RULE_KEY));
-    Preconditions.checkArgument(key != null, "ActiveRuleKey cannot be null");
-  }
-
   public ActiveRuleDoc(ActiveRuleKey key) {
     super(Maps.<String, Object>newHashMapWithExpectedSize(8));
-    Preconditions.checkNotNull(key, "ActiveRuleKey cannot be null");
+    checkNotNull(key, "ActiveRuleKey cannot be null");
     this.key = key;
     setField(FIELD_ACTIVE_RULE_KEY, key.toString());
     setField(FIELD_ACTIVE_RULE_PROFILE_KEY, key.qProfile());
@@ -57,13 +50,11 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
     setField(FIELD_ACTIVE_RULE_REPOSITORY, key.ruleKey().repository());
   }
 
-  @Override
   public ActiveRuleKey key() {
     return key;
   }
 
-  @Override
-  public String severity() {
+  String severity() {
     return (String) getNullableField(FIELD_ACTIVE_RULE_SEVERITY);
   }
 
@@ -72,16 +63,15 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
     return this;
   }
 
-  @Override
-  public ActiveRule.Inheritance inheritance() {
+  ActiveRule.Inheritance inheritance() {
     String inheritance = getNullableField(FIELD_ACTIVE_RULE_INHERITANCE);
     if (inheritance == null || inheritance.isEmpty() ||
       containsIgnoreCase(inheritance, "none")) {
-      return Inheritance.NONE;
+      return ActiveRule.Inheritance.NONE;
     } else if (containsIgnoreCase(inheritance, "herit")) {
-      return Inheritance.INHERITED;
+      return ActiveRule.Inheritance.INHERITED;
     } else if (containsIgnoreCase(inheritance, "over")) {
-      return Inheritance.OVERRIDES;
+      return ActiveRule.Inheritance.OVERRIDES;
     } else {
       throw new IllegalStateException("Value \"" + inheritance + "\" is not valid for rule's inheritance");
     }
@@ -92,8 +82,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
     return this;
   }
 
-  @Override
-  public long createdAt() {
+  long createdAt() {
     return (Long) getField(FIELD_ACTIVE_RULE_CREATED_AT);
   }
 
@@ -102,8 +91,7 @@ public class ActiveRuleDoc extends BaseDoc implements ActiveRule {
     return this;
   }
 
-  @Override
-  public long updatedAt() {
+  long updatedAt() {
     return (Long) getField(FIELD_ACTIVE_RULE_UPDATED_AT);
   }
 

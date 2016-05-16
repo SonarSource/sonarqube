@@ -110,6 +110,7 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     // Active rule type
     NewIndex.NewIndexType activeRuleMapping = index.createType(RuleIndexDefinition.TYPE_ACTIVE_RULE);
+    activeRuleMapping.setEnableSource(false);
     activeRuleMapping.setAttribute("_id", ImmutableMap.of("path", RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY));
     activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", RuleIndexDefinition.TYPE_RULE));
     activeRuleMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY));
