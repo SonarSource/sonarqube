@@ -73,8 +73,9 @@ export default class Conditions extends React.Component {
     });
 
     const duplicates = [];
-    conditions.forEach(condition => {
-      const sameCount = conditions
+    const savedConditions = conditions.filter(condition => condition.id != null);
+    savedConditions.forEach(condition => {
+      const sameCount = savedConditions
           .filter(sample => sample.metric === condition.metric && sample.period === condition.period)
           .length;
       if (sameCount > 1) {
