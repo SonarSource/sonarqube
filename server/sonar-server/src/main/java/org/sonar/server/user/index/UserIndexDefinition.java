@@ -84,7 +84,7 @@ public class UserIndexDefinition implements IndexDefinition {
     mapping.createDateTimeField(FIELD_CREATED_AT);
     mapping.createDateTimeField(FIELD_UPDATED_AT);
     mapping.createBooleanField(FIELD_ACTIVE);
-    mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).build();
+    mapping.stringFieldBuilder(FIELD_SCM_ACCOUNTS).disableNorms().build();
   }
 
   private static SortedMap<String, String> buildGramSearchField() {

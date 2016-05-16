@@ -168,6 +168,7 @@ public class NewIndex {
     private boolean docValues = false;
     private boolean disableSearch = false;
     private boolean hasAnalyzedField = false;
+    private boolean disableNorms = false;
     private SortedMap<String, Object> subFields = Maps.newTreeMap();
 
     private StringFieldBuilder(NewIndexType indexType, String fieldName) {
@@ -235,6 +236,17 @@ public class NewIndex {
     }
 
     /**
+     * Norms consume useless memory if string field is used for filtering or aggregations.
+     *
+     * https://www.elastic.co/guide/en/elasticsearch/reference/2.3/norms.html
+     * https://www.elastic.co/guide/en/elasticsearch/guide/current/scoring-theory.html#field-norm
+     */
+    public StringFieldBuilder disableNorms() {
+      this.disableNorms = true;
+      return this;
+    }
+
+    /**
      * "index: no" -> Don’t index this field at all. This field will not be searchable.
      * By default field is "not_analyzed": it is searchable, but index the value exactly
      * as specified.
@@ -251,7 +263,7 @@ public class NewIndex {
         hash.putAll(ImmutableMap.of(
           "type", "string",
           "index", disableSearch ? "no" : "not_analyzed",
-          "omit_norms", "true",
+          "norms", ImmutableMap.of("enabled", String.valueOf(!disableNorms)),
           "doc_values", docValues));
       } else {
         hash.put("type", "multi_field");
@@ -259,7 +271,7 @@ public class NewIndex {
         multiFields.put(fieldName, ImmutableMap.of(
           "type", "string",
           "index", "not_analyzed",
-          "omit_norms", "true",
+          "norms", ImmutableMap.of("enabled", "false"),
           "doc_values", docValues));
         hash.put("fields", multiFields);
       }

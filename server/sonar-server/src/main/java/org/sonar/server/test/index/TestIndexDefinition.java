@@ -60,14 +60,14 @@ public class TestIndexDefinition implements IndexDefinition {
     NewIndex.NewIndexType mapping = index.createType(TYPE);
     mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_TEST_UUID));
     mapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_PROJECT_UUID));
-    mapping.stringFieldBuilder(FIELD_PROJECT_UUID).build();
-    mapping.stringFieldBuilder(FIELD_FILE_UUID).build();
-    mapping.stringFieldBuilder(FIELD_TEST_UUID).build();
-    mapping.stringFieldBuilder(FIELD_NAME).disableSearch().build();
-    mapping.stringFieldBuilder(FIELD_STATUS).disableSearch().build();
+    mapping.stringFieldBuilder(FIELD_PROJECT_UUID).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_FILE_UUID).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_TEST_UUID).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_NAME).disableNorms().disableSearch().build();
+    mapping.stringFieldBuilder(FIELD_STATUS).disableNorms().disableSearch().build();
     mapping.createLongField(FIELD_DURATION_IN_MS);
-    mapping.stringFieldBuilder(FIELD_MESSAGE).disableSearch().build();
-    mapping.stringFieldBuilder(FIELD_STACKTRACE).disableSearch().build();
+    mapping.stringFieldBuilder(FIELD_MESSAGE).disableNorms().disableSearch().build();
+    mapping.stringFieldBuilder(FIELD_STACKTRACE).disableNorms().disableSearch().build();
     mapping.nestedObjectBuilder(FIELD_COVERED_FILES, nestedMapping).build();
     mapping.createDateTimeField(FIELD_UPDATED_AT);
   }

@@ -55,12 +55,12 @@ public class ActivityIndexDefinition implements IndexDefinition {
     // type "activity"
     NewIndex.NewIndexType mapping = index.createType(TYPE);
     mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_KEY));
-    mapping.stringFieldBuilder(FIELD_KEY).build();
-    mapping.stringFieldBuilder(FIELD_TYPE).build();
-    mapping.stringFieldBuilder(FIELD_ACTION).build();
-    mapping.stringFieldBuilder(FIELD_LOGIN).build();
+    mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_TYPE).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_ACTION).disableNorms().build();
+    mapping.stringFieldBuilder(FIELD_LOGIN).disableNorms().build();
     mapping.createDynamicNestedField(FIELD_DETAILS);
-    mapping.stringFieldBuilder(FIELD_MESSAGE).build();
+    mapping.stringFieldBuilder(FIELD_MESSAGE).disableNorms().build();
     mapping.createDateTimeField(FIELD_CREATED_AT);
   }
 }
