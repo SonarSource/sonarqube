@@ -105,8 +105,10 @@ public class DeleteAction implements UserGroupsWsAction {
     boolean isOneRemainingSystemAdminGroup =
       dbClient.roleDao().countGroupsWithSystemAdminRole(dbSession) == 1;
 
+    boolean existsOtherSystemAdminUser = false;  // TODO see SONAR-6912
+
     boolean willLockoutSystemAdmin =
-      hasSystemAdminRole && isOneRemainingSystemAdminGroup;
+      hasSystemAdminRole && isOneRemainingSystemAdminGroup && !existsOtherSystemAdminUser;
 
     checkArgument(!willLockoutSystemAdmin,
       format("The last system admin group '%s' cannot be deleted", groupName));
