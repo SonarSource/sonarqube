@@ -180,7 +180,7 @@ public class RuleIndex extends BaseIndex {
     // Human readable type of querying
     qb.should(simpleQueryStringQuery(query.getQueryText())
       .field(FIELD_RULE_NAME + "." + SEARCH_WORDS_SUFFIX, 20f)
-      .field(FIELD_RULE_HTML_DESCRIPTION + "." + SEARCH_WORDS_SUFFIX, 3f)
+      .field(FIELD_RULE_HTML_DESCRIPTION, 3f)
       .defaultOperator(SimpleQueryStringBuilder.Operator.AND)
       ).boost(20f);
 

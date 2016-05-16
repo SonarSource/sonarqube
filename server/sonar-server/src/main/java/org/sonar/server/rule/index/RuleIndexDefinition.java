@@ -21,6 +21,7 @@ package org.sonar.server.rule.index;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableSortedMap;
 import java.util.Set;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
@@ -95,7 +96,13 @@ public class RuleIndexDefinition implements IndexDefinition {
     ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableSearch().docValues().build();
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_NAME).enableSorting().enableWordSearch().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_HTML_DESCRIPTION).enableWordSearch().build();
+    ruleMapping.setProperty(FIELD_RULE_HTML_DESCRIPTION, ImmutableSortedMap.of(
+      "type", "string",
+      "index", "analyzed",
+      "doc_values", "false",
+      "index_analyzer", "html_analyzer",
+      "search_analyzer", "html_analyzer"
+      ));
     ruleMapping.stringFieldBuilder(FIELD_RULE_SEVERITY).docValues().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_STATUS).docValues().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_LANGUAGE).build();

@@ -62,6 +62,13 @@ class DefaultIndexSettings {
       .putArray("index.analysis.analyzer.search_words.filter",
         "standard", "lowercase", "stop", "asciifolding", "porter_stem")
 
+      // English HTML analyzer
+      .put("index.analysis.analyzer.html_analyzer.type", "custom")
+      .put("index.analysis.analyzer.html_analyzer.tokenizer", "standard")
+      .putArray("index.analysis.analyzer.html_analyzer.filter",
+        "standard", "lowercase", "stop", "asciifolding", "porter_stem")
+      .putArray("index.analysis.analyzer.html_analyzer.char_filter", "html_strip")
+
       // Edge NGram filter
       .put("index.analysis.filter.gram_filter.type", "edgeNGram")
       .put("index.analysis.filter.gram_filter.min_gram", 2)
