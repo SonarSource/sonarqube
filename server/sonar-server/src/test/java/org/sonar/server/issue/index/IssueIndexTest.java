@@ -39,7 +39,6 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.security.DefaultGroups;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.api.utils.System2;
@@ -62,6 +61,8 @@ import static org.assertj.core.api.Assertions.entry;
 import static org.assertj.core.api.Assertions.failBecauseExceptionWasNotThrown;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.api.utils.DateUtils.parseDate;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 public class IssueIndexTest {
 
@@ -602,14 +603,14 @@ public class IssueIndexTest {
     ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
-      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
 
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).hasSize(2);
     // Lower bound is included
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAfter(parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -618,14 +619,14 @@ public class IssueIndexTest {
     ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
-      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
 
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(DateUtils.parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(parseDate("2014-09-19")).build(), new SearchOptions()).getDocs()).isEmpty();
     // Upper bound is excluded
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).isEmpty();
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(DateUtils.parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdBefore(parseDate("2014-09-25")).build(), new SearchOptions()).getDocs()).hasSize(2);
   }
 
   @Test
@@ -634,49 +635,67 @@ public class IssueIndexTest {
     ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")),
-      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDate("2014-09-23")));
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDate("2014-09-23")));
 
     // 19 < createdAt < 25
     assertThat(index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDate("2014-09-19")).createdBefore(DateUtils.parseDate("2014-09-25"))
+      .createdAfter(parseDate("2014-09-19")).createdBefore(parseDate("2014-09-25"))
       .build(), new SearchOptions()).getDocs()).hasSize(2);
 
     // 20 < createdAt < 25: excludes first issue
     assertThat(index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-25"))
+      .createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-25"))
       .build(), new SearchOptions()).getDocs()).hasSize(2);
 
     // 21 < createdAt < 25
     assertThat(index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-25"))
+      .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-25"))
       .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 21 < createdAt < 24
     assertThat(index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-24"))
+      .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-24"))
       .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 21 < createdAt < 23: excludes second issue
     assertThat(index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDate("2014-09-21")).createdBefore(DateUtils.parseDate("2014-09-23"))
+      .createdAfter(parseDate("2014-09-21")).createdBefore(parseDate("2014-09-23"))
       .build(), new SearchOptions()).getDocs()).isEmpty();
 
     // 19 < createdAt < 21: only first issue
     assertThat(index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDate("2014-09-19")).createdBefore(DateUtils.parseDate("2014-09-21"))
+      .createdAfter(parseDate("2014-09-19")).createdBefore(parseDate("2014-09-21"))
       .build(), new SearchOptions()).getDocs()).hasSize(1);
 
     // 20 < createdAt < 20: nothing
     assertThat(index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-20"))
+      .createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-20"))
       .build(), new SearchOptions()).getDocs()).isEmpty();
+  }
+
+  @Test
+  public void filter_by_create_after_and_before_take_into_account_timezone() {
+    ComponentDto project = ComponentTesting.newProjectDto();
+    ComponentDto file = ComponentTesting.newFileDto(project);
+
+    indexIssues(
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-20T00:00:00+0100")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")));
+
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
+      .createdAfter(parseDateTime("2014-09-19T23:00:00+0000")).createdBefore(parseDateTime("2014-09-22T23:00:01+0000"))
+      .build(), new SearchOptions()).getDocs()).hasSize(2);
+
+    assertThat(index.search(IssueQuery.builder(userSessionRule)
+      .createdAfter(parseDateTime("2014-09-19T23:00:01+0000")).createdBefore(parseDateTime("2014-09-22T23:00:00+0000"))
+      .build(), new SearchOptions()).getDocs()).hasSize(0);
   }
 
   @Test
   public void filter_by_created_before_must_be_lower_than_after() {
     try {
-      index.search(IssueQuery.builder(userSessionRule).createdAfter(DateUtils.parseDate("2014-09-20")).createdBefore(DateUtils.parseDate("2014-09-19")).build(),
+      index.search(IssueQuery.builder(userSessionRule).createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-19")).build(),
         new SearchOptions());
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException exception) {
@@ -699,10 +718,10 @@ public class IssueIndexTest {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
-    indexIssues(IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDate("2014-09-20")));
+    indexIssues(IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDate("2014-09-20")));
 
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAt(DateUtils.parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAt(DateUtils.parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).isEmpty();
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAt(parseDate("2014-09-20")).build(), new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(IssueQuery.builder(userSessionRule).createdAt(parseDate("2014-09-21")).build(), new SearchOptions()).getDocs()).isEmpty();
   }
 
   @Test
@@ -711,8 +730,8 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     IssueQuery query = IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(DateUtils.parseDateTime("2014-09-08T00:00:00+0100"))
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2014-09-08T00:00:00+0100"))
       .checkAuthorization(false)
       .build();
     SearchResult<IssueDoc> result = index.search(query, options);
@@ -734,8 +753,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(DateUtils.parseDateTime("2014-09-21T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2014-09-21T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-25T00:00:00+0000", 0L),
@@ -750,8 +769,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDateTime("2014-09-01T00:00:00+0100"))
-      .createdBefore(DateUtils.parseDateTime("2015-01-19T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2015-01-19T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-08-01T00:00:00+0000", 0L),
@@ -767,8 +786,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDateTime("2011-01-01T00:00:00+0100"))
-      .createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdAfter(parseDateTime("2011-01-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2010-01-01T00:00:00+0000", 0L),
@@ -785,8 +804,8 @@ public class IssueIndexTest {
     SearchOptions options = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
-      .createdAfter(DateUtils.parseDateTime("2009-01-01T00:00:00+0100"))
-      .createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100"))
+      .createdAfter(parseDateTime("2009-01-01T00:00:00+0100"))
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100"))
       .build(), options).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2008-01-01T00:00:00+0000", 0L),
@@ -804,7 +823,7 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = index.search(IssueQuery.builder(userSessionRule)
-      .createdBefore(DateUtils.parseDateTime("2016-01-01T00:00:00+0100")).build(),
+      .createdBefore(parseDateTime("2016-01-01T00:00:00+0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2011-01-01T00:00:00+0000", 1L),
@@ -827,13 +846,13 @@ public class IssueIndexTest {
     ComponentDto project = ComponentTesting.newProjectDto();
     ComponentDto file = ComponentTesting.newFileDto(project);
 
-    IssueDoc issue0 = IssueTesting.newDoc("ISSUE0", file).setFuncCreationDate(DateUtils.parseDateTime("2011-04-25T01:05:13+0100"));
-    IssueDoc issue1 = IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T12:34:56+0100"));
-    IssueDoc issue2 = IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-01T23:46:00+0100"));
-    IssueDoc issue3 = IssueTesting.newDoc("ISSUE3", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-02T12:34:56+0100"));
-    IssueDoc issue4 = IssueTesting.newDoc("ISSUE4", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-05T12:34:56+0100"));
-    IssueDoc issue5 = IssueTesting.newDoc("ISSUE5", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-20T12:34:56+0100"));
-    IssueDoc issue6 = IssueTesting.newDoc("ISSUE6", file).setFuncCreationDate(DateUtils.parseDateTime("2015-01-18T12:34:56+0100"));
+    IssueDoc issue0 = IssueTesting.newDoc("ISSUE0", file).setFuncCreationDate(parseDateTime("2011-04-25T01:05:13+0100"));
+    IssueDoc issue1 = IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-01T12:34:56+0100"));
+    IssueDoc issue2 = IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-01T23:46:00+0100"));
+    IssueDoc issue3 = IssueTesting.newDoc("ISSUE3", file).setFuncCreationDate(parseDateTime("2014-09-02T12:34:56+0100"));
+    IssueDoc issue4 = IssueTesting.newDoc("ISSUE4", file).setFuncCreationDate(parseDateTime("2014-09-05T12:34:56+0100"));
+    IssueDoc issue5 = IssueTesting.newDoc("ISSUE5", file).setFuncCreationDate(parseDateTime("2014-09-20T12:34:56+0100"));
+    IssueDoc issue6 = IssueTesting.newDoc("ISSUE6", file).setFuncCreationDate(parseDateTime("2015-01-18T12:34:56+0100"));
 
     indexIssues(issue0, issue1, issue2, issue3, issue4, issue5, issue6);
 
@@ -959,20 +978,20 @@ public class IssueIndexTest {
     ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-23T00:00:00+0100")),
-      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(DateUtils.parseDateTime("2014-09-24T00:00:00+0100")));
+      IssueTesting.newDoc("ISSUE1", file).setFuncCreationDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCreationDate(parseDateTime("2014-09-24T00:00:00+0100")));
 
     IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_CREATION_DATE).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
-    assertThat(result.getDocs().get(0).creationDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
-    assertThat(result.getDocs().get(1).creationDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
+    assertThat(result.getDocs().get(0).creationDate()).isEqualTo(parseDateTime("2014-09-23T00:00:00+0100"));
+    assertThat(result.getDocs().get(1).creationDate()).isEqualTo(parseDateTime("2014-09-24T00:00:00+0100"));
 
     query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_CREATION_DATE).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
-    assertThat(result.getDocs().get(0).creationDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
-    assertThat(result.getDocs().get(1).creationDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
+    assertThat(result.getDocs().get(0).creationDate()).isEqualTo(parseDateTime("2014-09-24T00:00:00+0100"));
+    assertThat(result.getDocs().get(1).creationDate()).isEqualTo(parseDateTime("2014-09-23T00:00:00+0100"));
   }
 
   @Test
@@ -981,20 +1000,20 @@ public class IssueIndexTest {
     ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setFuncUpdateDate(DateUtils.parseDateTime("2014-09-23T00:00:00+0100")),
-      IssueTesting.newDoc("ISSUE2", file).setFuncUpdateDate(DateUtils.parseDateTime("2014-09-24T00:00:00+0100")));
+      IssueTesting.newDoc("ISSUE1", file).setFuncUpdateDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncUpdateDate(parseDateTime("2014-09-24T00:00:00+0100")));
 
     IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
-    assertThat(result.getDocs().get(0).updateDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
-    assertThat(result.getDocs().get(1).updateDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
+    assertThat(result.getDocs().get(0).updateDate()).isEqualTo(parseDateTime("2014-09-23T00:00:00+0100"));
+    assertThat(result.getDocs().get(1).updateDate()).isEqualTo(parseDateTime("2014-09-24T00:00:00+0100"));
 
     query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_UPDATE_DATE).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(2);
-    assertThat(result.getDocs().get(0).updateDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
-    assertThat(result.getDocs().get(1).updateDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
+    assertThat(result.getDocs().get(0).updateDate()).isEqualTo(parseDateTime("2014-09-24T00:00:00+0100"));
+    assertThat(result.getDocs().get(1).updateDate()).isEqualTo(parseDateTime("2014-09-23T00:00:00+0100"));
   }
 
   @Test
@@ -1003,22 +1022,22 @@ public class IssueIndexTest {
     ComponentDto file = ComponentTesting.newFileDto(project);
 
     indexIssues(
-      IssueTesting.newDoc("ISSUE1", file).setFuncCloseDate(DateUtils.parseDateTime("2014-09-23T00:00:00+0100")),
-      IssueTesting.newDoc("ISSUE2", file).setFuncCloseDate(DateUtils.parseDateTime("2014-09-24T00:00:00+0100")),
+      IssueTesting.newDoc("ISSUE1", file).setFuncCloseDate(parseDateTime("2014-09-23T00:00:00+0100")),
+      IssueTesting.newDoc("ISSUE2", file).setFuncCloseDate(parseDateTime("2014-09-24T00:00:00+0100")),
       IssueTesting.newDoc("ISSUE3", file).setFuncCloseDate(null));
 
     IssueQuery.Builder query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(true);
     SearchResult<IssueDoc> result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(3);
     assertThat(result.getDocs().get(0).closeDate()).isNull();
-    assertThat(result.getDocs().get(1).closeDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
-    assertThat(result.getDocs().get(2).closeDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
+    assertThat(result.getDocs().get(1).closeDate()).isEqualTo(parseDateTime("2014-09-23T00:00:00+0100"));
+    assertThat(result.getDocs().get(2).closeDate()).isEqualTo(parseDateTime("2014-09-24T00:00:00+0100"));
 
     query = IssueQuery.builder(userSessionRule).sort(IssueQuery.SORT_BY_CLOSE_DATE).asc(false);
     result = index.search(query.build(), new SearchOptions());
     assertThat(result.getDocs()).hasSize(3);
-    assertThat(result.getDocs().get(0).closeDate()).isEqualTo(DateUtils.parseDateTime("2014-09-24T00:00:00+0100"));
-    assertThat(result.getDocs().get(1).closeDate()).isEqualTo(DateUtils.parseDateTime("2014-09-23T00:00:00+0100"));
+    assertThat(result.getDocs().get(0).closeDate()).isEqualTo(parseDateTime("2014-09-24T00:00:00+0100"));
+    assertThat(result.getDocs().get(1).closeDate()).isEqualTo(parseDateTime("2014-09-23T00:00:00+0100"));
     assertThat(result.getDocs().get(2).closeDate()).isNull();
   }
 
