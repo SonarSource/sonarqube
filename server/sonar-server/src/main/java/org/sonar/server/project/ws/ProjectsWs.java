@@ -40,7 +40,7 @@ public class ProjectsWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController(ENDPOINT)
       .setSince("2.10")
-      .setDescription("Projects management");
+      .setDescription("Manage project existence.");
 
     defineIndexAction(controller);
     defineCreateAction(controller);

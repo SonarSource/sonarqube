@@ -28,7 +28,7 @@ public class AuthenticationWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/authentication");
-    controller.setDescription("Check authentication credentials");
+    controller.setDescription("Check authentication credentials.");
 
     defineValidateAction(controller);
 

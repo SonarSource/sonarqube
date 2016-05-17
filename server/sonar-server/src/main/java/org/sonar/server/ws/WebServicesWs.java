@@ -44,7 +44,7 @@ public class WebServicesWs implements WebService {
     NewController controller = context
       .createController("api/webservices")
       .setSince("4.2")
-      .setDescription("List web services");
+      .setDescription("Get information on the web api supported on this instance.");
     defineList(context, controller);
     defineResponseExample(context, controller);
     controller.done();

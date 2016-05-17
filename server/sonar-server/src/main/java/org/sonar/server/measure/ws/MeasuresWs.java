@@ -33,7 +33,7 @@ public class MeasuresWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController(MeasuresWsParameters.CONTROLLER_MEASURES)
       .setSince("5.4")
-      .setDescription("Measures search");
+      .setDescription("Get components or children with specified measures.");
 
     for (MeasuresWsAction action : actions) {
       action.define(controller);

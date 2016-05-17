@@ -35,7 +35,7 @@ public class LanguageWs implements WebService {
   @Override
   public void define(Context context) {
     NewController languages = context.createController("api/languages")
-      .setDescription("Programming languages")
+      .setDescription("Get the list of programming languages supported in this instance.")
       .setSince("5.1");
 
     list.define(languages);

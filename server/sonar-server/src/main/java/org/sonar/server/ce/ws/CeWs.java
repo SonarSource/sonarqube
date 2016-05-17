@@ -35,7 +35,7 @@ public class CeWs implements WebService {
   public void define(Context context) {
     NewController controller = context
       .createController(ENDPOINT)
-      .setDescription("Compute Engine");
+      .setDescription("Get information on Compute Engine tasks.");
     for (CeWsAction action : actions) {
       action.define(controller);
     }

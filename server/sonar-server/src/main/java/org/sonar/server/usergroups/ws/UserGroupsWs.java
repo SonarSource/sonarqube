@@ -32,7 +32,7 @@ public class UserGroupsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/user_groups")
-      .setDescription("User groups management")
+      .setDescription("Manage user groups.")
       .setSince("5.2");
 
     for (UserGroupsWsAction action : actions) {

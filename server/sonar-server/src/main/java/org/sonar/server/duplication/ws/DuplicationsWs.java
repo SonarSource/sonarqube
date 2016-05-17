@@ -33,7 +33,7 @@ public class DuplicationsWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/duplications")
       .setSince("4.4")
-      .setDescription("Display duplications information");
+      .setDescription("Get duplication information for a project.");
     showAction.define(controller);
     controller.done();
   }

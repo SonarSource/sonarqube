@@ -33,7 +33,7 @@ public class PermissionsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(CONTROLLER);
-    controller.setDescription("Permissions management");
+    controller.setDescription("Manage permission templates, and the granting and revoking of permissions at the global and project levels.");
     controller.setSince("3.7");
 
     for (PermissionsWsAction action : actions) {

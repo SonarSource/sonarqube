@@ -27,7 +27,7 @@ public class FavoritesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/favorites");
-    controller.setDescription("User's favorites management");
+    controller.setDescription("Manage user favorites.");
     controller.setSince("2.6");
 
     defineIndexAction(controller);

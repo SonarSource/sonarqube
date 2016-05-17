@@ -51,7 +51,7 @@ public class QGatesWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/qualitygates")
       .setSince("4.3")
-      .setDescription("This service manages quality gates, including conditions and project association");
+      .setDescription("Manage quality gates, including conditions and project association.");
 
     for (QGateWsAction action : actions) {
       action.define(controller);

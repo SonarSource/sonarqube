@@ -33,7 +33,7 @@ public class RulesWs implements WebService {
   public void define(Context context) {
     NewController controller = context
       .createController("api/rules")
-      .setDescription("Coding rules");
+      .setDescription("Get and update some details of automatic rules, and manage custom rules.");
 
     for (RulesWsAction action : actions) {
       action.define(controller);

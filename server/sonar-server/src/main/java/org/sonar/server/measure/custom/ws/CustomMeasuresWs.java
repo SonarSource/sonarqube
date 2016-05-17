@@ -33,7 +33,7 @@ public class CustomMeasuresWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(ENDPOINT)
-      .setDescription("Custom measures management")
+      .setDescription("Manage custom measures for a project. See also api/metrics.")
       .setSince("5.2");
 
     for (CustomMeasuresWsAction action : actions) {
