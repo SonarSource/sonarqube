@@ -463,17 +463,18 @@ public class IssueQueryService {
 
   @CheckForNull
   private static Date parseAsDateTime(@Nullable String stringDate) {
-    if (stringDate != null) {
+    if (stringDate == null) {
+      return null;
+    }
+
+    try {
+      return DateUtils.parseDateTime(stringDate);
+    } catch (SonarException notDateTime) {
       try {
-        return DateUtils.parseDateTime(stringDate);
-      } catch (SonarException notDateTime) {
-        try {
-          return DateUtils.parseDate(stringDate);
-        } catch (SonarException notDateEither) {
-          throw new SonarException(String.format("'%s' cannot be parsed as either a date or date+time", stringDate));
-        }
+        return DateUtils.parseDate(stringDate);
+      } catch (SonarException notDateEither) {
+        throw new IllegalArgumentException(String.format("'%s' cannot be parsed as either a date or date+time", stringDate));
       }
     }
-    return null;
   }
 }

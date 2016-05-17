@@ -32,11 +32,8 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.junit.runner.RunWith;
 import org.mockito.Matchers;
-import org.mockito.Mock;
 import org.mockito.invocation.InvocationOnMock;
-import org.mockito.runners.MockitoJUnitRunner;
 import org.mockito.stubbing.Answer;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.rule.RuleKey;
@@ -62,9 +59,9 @@ import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyCollection;
 import static org.mockito.Matchers.eq;
 import static org.mockito.Matchers.isA;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class IssueQueryServiceTest {
 
   @Rule
@@ -72,25 +69,14 @@ public class IssueQueryServiceTest {
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  @Mock
-  DbClient dbClient;
+  DbClient dbClient = mock(DbClient.class);
+  DbSession session = mock(DbSession.class);
+  ComponentDao componentDao = mock(ComponentDao.class);
+  AuthorDao authorDao = mock(AuthorDao.class);
+  ComponentService componentService = mock(ComponentService.class);
+  System2 system = mock(System2.class);
 
-  @Mock
-  DbSession session;
-
-  @Mock
-  ComponentDao componentDao;
-
-  @Mock
-  AuthorDao authorDao;
-
-  @Mock
-  ComponentService componentService;
-
-  @Mock
-  System2 system;
-
-  IssueQueryService issueQueryService;
+  IssueQueryService underTest;
 
   @Before
   public void setUp() {
@@ -106,7 +92,7 @@ public class IssueQueryServiceTest {
       }
     });
 
-    issueQueryService = new IssueQueryService(dbClient, componentService, system, userSessionRule);
+    underTest = new IssueQueryService(dbClient, componentService, system, userSessionRule);
   }
 
   @Test
@@ -152,7 +138,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(eq(session), Matchers.anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.PROJECT));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.issueKeys()).containsOnly("ABCDE1234");
     assertThat(query.severities()).containsOnly("MAJOR", "MINOR");
     assertThat(query.statuses()).containsOnly("CLOSED");
@@ -188,7 +174,7 @@ public class IssueQueryServiceTest {
       }
     });
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.componentUuids()).containsOnly("<UNKNOWN>");
   }
 
@@ -209,7 +195,7 @@ public class IssueQueryServiceTest {
     map.put("componentUuids", newArrayList("ABCD"));
 
     try {
-      issueQueryService.createFromMap(map);
+      underTest.createFromMap(map);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("components and componentUuids cannot be set simultaneously");
@@ -223,7 +209,7 @@ public class IssueQueryServiceTest {
     map.put("projectUuids", newArrayList("ABCD"));
 
     try {
-      issueQueryService.createFromMap(map);
+      underTest.createFromMap(map);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("projects and projectUuids cannot be set simultaneously");
@@ -237,7 +223,7 @@ public class IssueQueryServiceTest {
     map.put("componentRootUuids", newArrayList("ABCD"));
 
     try {
-      issueQueryService.createFromMap(map);
+      underTest.createFromMap(map);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("componentRoots and componentRootUuids cannot be set simultaneously");
@@ -251,7 +237,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.<String>newHashSet());
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.onComponentOnly()).isFalse();
     assertThat(query.componentUuids()).contains("ABCD");
   }
@@ -265,7 +251,7 @@ public class IssueQueryServiceTest {
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newTreeSet(Arrays.asList("TRK", "BRC")));
 
     try {
-      issueQueryService.createFromMap(map);
+      underTest.createFromMap(map);
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException exception) {
       assertThat(exception).hasMessage("All components must have the same qualifier, found BRC,TRK");
@@ -282,7 +268,7 @@ public class IssueQueryServiceTest {
 
     userSessionRule.addProjectUuidPermissions(UserRole.USER, viewUuid);
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.viewUuids()).containsExactly(viewUuid);
     assertThat(query.onComponentOnly()).isFalse();
   }
@@ -295,7 +281,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.VIEW));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.viewUuids()).isNotEmpty().doesNotContain(subViewUuid);
   }
 
@@ -307,7 +293,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.PROJECT));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.projectUuids()).containsExactly(projectUuid);
     assertThat(query.onComponentOnly()).isFalse();
   }
@@ -323,7 +309,7 @@ public class IssueQueryServiceTest {
     when(componentService.componentUuids(isA(DbSession.class), anyCollection(), eq(true))).thenReturn(Sets.newHashSet(projectUuid));
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.PROJECT));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.projectUuids()).isEmpty();
     assertThat(query.componentUuids()).containsExactly(projectUuid);
     assertThat(query.onComponentOnly()).isTrue();
@@ -340,7 +326,7 @@ public class IssueQueryServiceTest {
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet("DEV"));
     when(authorDao.selectScmAccountsByDeveloperUuids(isA(DbSession.class), anyCollection())).thenReturn(Lists.newArrayList(login1, login2));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.authors()).containsExactly(login1, login2);
   }
 
@@ -354,7 +340,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet("DEV"));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.authors()).containsExactly(login);
   }
 
@@ -378,7 +364,7 @@ public class IssueQueryServiceTest {
 
     Map<String, Object> map = newHashMap();
     map.put("componentUuids", newArrayList(copyProjectUuid));
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.authors()).containsExactly(login1, login2);
     assertThat(query.projectUuids()).containsExactly(projectUuid);
   }
@@ -391,7 +377,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.MODULE));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.moduleRootUuids()).containsExactly(moduleUuid);
     assertThat(query.onComponentOnly()).isFalse();
   }
@@ -407,7 +393,7 @@ public class IssueQueryServiceTest {
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.DIRECTORY));
     when(componentService.getByUuids(isA(DbSession.class), anyCollection())).thenReturn(Arrays.asList(new ComponentDto().setModuleUuid(moduleUuid).setPath(directoryPath)));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.moduleUuids()).contains(moduleUuid);
     assertThat(query.directories()).containsExactly(directoryPath);
     assertThat(query.onComponentOnly()).isFalse();
@@ -421,7 +407,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.FILE));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.fileUuids()).containsExactly(fileUuid);
   }
 
@@ -433,7 +419,7 @@ public class IssueQueryServiceTest {
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet(Qualifiers.UNIT_TEST_FILE));
 
-    IssueQuery query = issueQueryService.createFromMap(map);
+    IssueQuery query = underTest.createFromMap(map);
     assertThat(query.fileUuids()).containsExactly(fileUuid);
   }
 
@@ -444,7 +430,7 @@ public class IssueQueryServiceTest {
     map.put("createdInLast", "palap");
 
     try {
-      issueQueryService.createFromMap(map);
+      underTest.createFromMap(map);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("createdAfter and createdInLast cannot be set simultaneously");
@@ -458,7 +444,7 @@ public class IssueQueryServiceTest {
     Map<String, Object> map = newHashMap();
 
     map.put("createdInLast", "1y2m3w4d");
-    assertThat(issueQueryService.createFromMap(map).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
+    assertThat(underTest.createFromMap(map).createdAfter()).isEqualTo(DateUtils.parseDateTime("2012-04-30T07:35:00+0100"));
   }
 
   @Test
@@ -466,7 +452,7 @@ public class IssueQueryServiceTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("'createdAfter' and 'sinceLeakPeriod' cannot be set simultaneously");
 
-    issueQueryService.createFromRequest(new SearchWsRequest()
+    underTest.createFromRequest(new SearchWsRequest()
       .setSinceLeakPeriod(true)
       .setCreatedAfter("2013-07-25T07:35:00+0100"));
   }
@@ -476,7 +462,7 @@ public class IssueQueryServiceTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("One and only one component must be provided when searching since leak period");
 
-    issueQueryService.createFromRequest(new SearchWsRequest().setSinceLeakPeriod(true));
+    underTest.createFromRequest(new SearchWsRequest().setSinceLeakPeriod(true));
   }
 
   @Test
@@ -484,10 +470,19 @@ public class IssueQueryServiceTest {
     expectedException.expect(IllegalArgumentException.class);
     expectedException.expectMessage("One and only one component must be provided when searching since leak period");
 
-    issueQueryService.createFromRequest(new SearchWsRequest()
+    underTest.createFromRequest(new SearchWsRequest()
       .setSinceLeakPeriod(true)
       .setComponentUuids(Collections.singletonList("component-uuid"))
-      .setProjectUuids(Collections.singletonList("project-uuid"))
-      );
+      .setProjectUuids(Collections.singletonList("project-uuid")));
+  }
+
+  @Test
+  public void fail_if_date_is_not_formatted_correctly() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'unknown-date' cannot be parsed as either a date or date+time");
+
+    underTest.createFromRequest(new SearchWsRequest()
+      .setCreatedAfter("unknown-date"));
+
   }
 }
