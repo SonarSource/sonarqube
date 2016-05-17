@@ -154,6 +154,7 @@ import org.sonar.server.platform.monitoring.EsMonitor;
 import org.sonar.server.platform.monitoring.JvmPropsMonitor;
 import org.sonar.server.platform.monitoring.PluginsMonitor;
 import org.sonar.server.platform.monitoring.ProcessSystemInfoClient;
+import org.sonar.server.platform.monitoring.SettingsMonitor;
 import org.sonar.server.platform.monitoring.SonarQubeMonitor;
 import org.sonar.server.platform.monitoring.SystemMonitor;
 import org.sonar.server.platform.ws.ChangeLogLevelAction;
@@ -641,6 +642,7 @@ public class PlatformLevel4 extends PlatformLevel {
       StatusAction.class,
       SystemWs.class,
       SystemMonitor.class,
+      SettingsMonitor.class,
       SonarQubeMonitor.class,
       EsMonitor.class,
       PluginsMonitor.class,
