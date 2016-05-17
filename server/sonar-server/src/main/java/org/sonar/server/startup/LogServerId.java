@@ -19,6 +19,7 @@
  */
 package org.sonar.server.startup;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.picocontainer.Startable;
 import org.sonar.api.CoreProperties;
@@ -27,9 +28,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.property.PropertyDto;
 
-/**
- * @since 3.5
- */
 public final class LogServerId implements Startable {
 
   private final DbClient dbClient;
@@ -41,11 +39,12 @@ public final class LogServerId implements Startable {
   @Override
   public void start() {
     try (DbSession dbSession = dbClient.openSession(false)) {
-      PropertyDto serverIdProp = dbClient.propertiesDao().selectGlobalProperty(dbSession, CoreProperties.PERMANENT_SERVER_ID);
+      String propertyKey = CoreProperties.PERMANENT_SERVER_ID;
+      PropertyDto serverIdProp = selectProperty(dbSession, propertyKey);
       if (serverIdProp != null) {
         // a server ID has been generated, let's print out the other useful information that can help debugging license issues
-        PropertyDto organisationProp = dbClient.propertiesDao().selectGlobalProperty(dbSession, CoreProperties.ORGANISATION);
-        PropertyDto ipAddressProp = dbClient.propertiesDao().selectGlobalProperty(dbSession, CoreProperties.SERVER_ID_IP_ADDRESS);
+        PropertyDto organisationProp = selectProperty(dbSession, CoreProperties.ORGANISATION);
+        PropertyDto ipAddressProp = selectProperty(dbSession, CoreProperties.SERVER_ID_IP_ADDRESS);
 
         StringBuilder message = new StringBuilder("Server information:\n");
         message.append("  - ID           : ");
@@ -63,6 +62,11 @@ public final class LogServerId implements Startable {
   @Override
   public void stop() {
     // nothing to do
+  }
+
+  @CheckForNull
+  private PropertyDto selectProperty(DbSession dbSession, String propertyKey) {
+    return dbClient.propertiesDao().selectGlobalProperty(dbSession, propertyKey);
   }
 
   private static void addQuotedValue(@Nullable PropertyDto property, StringBuilder message) {
