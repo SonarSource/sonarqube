@@ -44,7 +44,7 @@
   },
   {
     "path": "api/webservices",
-    "description": "List web services",
+    "description": "Get information on the web api supported on this instance.",
     "since": "4.2",
     "actions": [
       {
