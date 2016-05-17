@@ -45,7 +45,7 @@ public enum TypeOfText {
 
   private final String cssClass;
 
-  private TypeOfText(String cssClass) {
+  TypeOfText(String cssClass) {
     this.cssClass = cssClass;
   }
 

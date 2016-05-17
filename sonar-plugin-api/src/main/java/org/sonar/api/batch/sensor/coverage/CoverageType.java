@@ -65,7 +65,7 @@ public enum CoverageType {
   private final Metric conditionsByLine;
   private final Set<Metric> all;
 
-  private CoverageType(Metric linesToCover, Metric uncoveredLines, Metric lineHitsData, Metric conditionsToCover, Metric uncoveredConditions, Metric coveredConditionsByLine,
+  CoverageType(Metric linesToCover, Metric uncoveredLines, Metric lineHitsData, Metric conditionsToCover, Metric uncoveredConditions, Metric coveredConditionsByLine,
     Metric conditionsByLine) {
     this.linesToCover = linesToCover;
     this.uncoveredLines = uncoveredLines;

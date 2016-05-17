@@ -25,7 +25,7 @@ public enum Phase {
 
   private final String label;
 
-  private Phase(String label) {
+  Phase(String label) {
     this.label = label;
   }
 

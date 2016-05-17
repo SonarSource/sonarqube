@@ -29,7 +29,7 @@ public enum FileType {
 
   private String typeValue;
 
-  private FileType(String typeValue) {
+  FileType(String typeValue) {
     this.typeValue = typeValue;
   }
 
