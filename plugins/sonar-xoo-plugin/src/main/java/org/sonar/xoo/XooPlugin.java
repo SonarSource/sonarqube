@@ -26,6 +26,7 @@ import org.sonar.xoo.coverage.UtCoverageSensor;
 import org.sonar.xoo.extensions.XooPostJob;
 import org.sonar.xoo.extensions.XooProjectBuilder;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
+import org.sonar.xoo.lang.LineMeasureSensor;
 import org.sonar.xoo.lang.MeasureSensor;
 import org.sonar.xoo.lang.SymbolReferencesSensor;
 import org.sonar.xoo.lang.SyntaxHighlightingSensor;
@@ -90,6 +91,7 @@ public class XooPlugin implements Plugin {
       // sensors
       HasTagSensor.class,
       MeasureSensor.class,
+      LineMeasureSensor.class,
       SyntaxHighlightingSensor.class,
       SymbolReferencesSensor.class,
       ChecksSensor.class,

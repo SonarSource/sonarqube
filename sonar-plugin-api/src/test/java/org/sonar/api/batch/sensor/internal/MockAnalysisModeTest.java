@@ -17,26 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.api.batch.sensor.internal;
 
 import org.junit.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.utils.Version;
-import org.sonar.xoo.lang.CpdTokenizerSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.SonarQubeVersion.V5_5;
 
-public class XooPluginTest {
+public class MockAnalysisModeTest {
 
   @Test
-  public void provide_extensions_for_5_5() {
-    Plugin.Context context = new Plugin.Context(V5_5);
-    new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(40).contains(CpdTokenizerSensor.class);
-
-    context = new Plugin.Context(Version.parse("5.4"));
-    new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(39).doesNotContain(CpdTokenizerSensor.class);
+  public void sanityCheck() {
+    MockAnalysisMode mode = new MockAnalysisMode();
+    assertThat(mode.isIssues()).isFalse();
+    assertThat(mode.isPreview()).isFalse();
+    assertThat(mode.isPublish()).isTrue();
+    mode.setPreviewOrIssue(true);
+    assertThat(mode.isIssues()).isTrue();
+    assertThat(mode.isPreview()).isTrue();
+    assertThat(mode.isPublish()).isFalse();
   }
+
 }

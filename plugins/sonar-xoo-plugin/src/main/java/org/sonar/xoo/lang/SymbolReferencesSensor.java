@@ -42,15 +42,15 @@ import org.sonar.xoo.Xoo;
  */
 public class SymbolReferencesSensor implements Sensor {
 
+  private static final Logger LOG = Loggers.get(SymbolReferencesSensor.class);
+
+  private static final String SYMBOL_EXTENSION = ".symbol";
+
   private ResourcePerspectives perspectives;
 
   public SymbolReferencesSensor(ResourcePerspectives perspectives) {
     this.perspectives = perspectives;
   }
-
-  private static final Logger LOG = Loggers.get(SymbolReferencesSensor.class);
-
-  private static final String SYMBOL_EXTENSION = ".symbol";
 
   private void processFileSymbol(InputFile inputFile, SensorContext context) {
     File ioFile = inputFile.file();

@@ -22,29 +22,24 @@ package org.sonar.api.batch.sensor.internal;
 import org.sonar.api.batch.AnalysisMode;
 
 public class MockAnalysisMode implements AnalysisMode {
-  private boolean isPreview = false;
-  private boolean isIssues = false;
+  private boolean previewOrIssue = false;
 
   @Override
   public boolean isPreview() {
-    return isPreview;
+    return previewOrIssue;
   }
 
-  public void setPreview(boolean value) {
-    this.isPreview = value;
+  public void setPreviewOrIssue(boolean value) {
+    this.previewOrIssue = value;
   }
 
   @Override
   public boolean isIssues() {
-    return this.isIssues;
-  }
-
-  public void setIssues(boolean issues) {
-    this.isIssues = issues;
+    return this.previewOrIssue;
   }
 
   @Override
   public boolean isPublish() {
-    return !isPreview && !isIssues;
+    return !previewOrIssue;
   }
 }

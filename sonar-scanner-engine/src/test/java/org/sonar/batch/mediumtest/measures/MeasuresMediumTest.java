@@ -125,4 +125,30 @@ public class MeasuresMediumTest {
       .contains(tuple("lines", 3), tuple("ncloc", 2));
   }
 
+  @Test
+  public void lineMeasures() throws IOException {
+    File xooFile = new File(srcDir, "sample.xoo");
+    FileUtils.write(xooFile, "Sample xoo\n\n\ncontent");
+
+    File lineMeasures = new File(srcDir, "sample.xoo.linemeasures");
+    FileUtils.write(lineMeasures, "ncloc_data:1=1;2=0;4=1");
+
+    TaskResult result = tester.newTask()
+      .properties(ImmutableMap.<String, String>builder()
+        .put("sonar.task", "scan")
+        .put("sonar.projectBaseDir", baseDir.getAbsolutePath())
+        .put("sonar.projectKey", "com.foo.project")
+        .put("sonar.projectName", "Foo Project")
+        .put("sonar.projectVersion", "1.0-SNAPSHOT")
+        .put("sonar.projectDescription", "Description of Foo Project")
+        .put("sonar.sources", "src")
+        .build())
+      .start();
+
+    Map<String, List<Measure>> allMeasures = result.allMeasures();
+
+    assertThat(allMeasures.get("com.foo.project:src/sample.xoo")).extracting("metricKey", "intValue.value", "stringValue.value")
+      .containsExactly(tuple("lines", 4, ""), tuple("ncloc_data", 0, "1=1;4=1"));
+  }
+
 }
