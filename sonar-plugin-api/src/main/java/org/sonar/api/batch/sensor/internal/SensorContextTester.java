@@ -65,7 +65,7 @@ import org.sonar.api.utils.Version;
 import org.sonar.duplications.internal.pmd.TokensLine;
 
 /**
- * Utility class to help testing {@link Sensor}.
+ * Utility class to help testing {@link Sensor}. This is not an API and method signature may evolve.
  * 
  * Usage: call {@link #create(File)} to create an "in memory" implementation of {@link SensorContext} with a filesystem initialized with provided baseDir.
  * <p>
@@ -78,7 +78,6 @@ import org.sonar.duplications.internal.pmd.TokensLine;
  * <p>
  * Then pass it to your {@link Sensor}. You can then query elements provided by your sensor using methods {@link #allIssues()}, ...
  * 
- * @since 5.1
  */
 @Beta
 public class SensorContextTester implements SensorContext {
@@ -140,16 +139,12 @@ public class SensorContextTester implements SensorContext {
   /**
    * Default value is the version of this API. You can override it
    * using {@link #setSonarQubeVersion(Version)} to test your Sensor behavior.
-   * @since 5.5
    */
   @Override
   public Version getSonarQubeVersion() {
     return sqVersion.get();
   }
 
-  /**
-   * @since 5.5
-   */
   public SensorContextTester setSonarQubeVersion(Version version) {
     this.sqVersion = new SonarQubeVersion(version);
     return this;
@@ -248,6 +243,14 @@ public class SensorContextTester implements SensorContext {
     return new DefaultSymbolTable(sensorStorage);
   }
 
+  /**
+   * Return list of syntax highlighting applied for a given position in a file. The result is a list because in theory you
+   * can apply several styles to the same range.
+   * @param componentKey Key of the file like 'myProjectKey:src/foo.php'
+   * @param line Line you want to query
+   * @param lineOffset Offset you want to query.
+   * @return List of styles applied to this position or empty list if there is no highlighting at this position.
+   */
   public List<TypeOfText> highlightingTypeAt(String componentKey, int line, int lineOffset) {
     DefaultHighlighting syntaxHighlightingData = sensorStorage.highlightingByComponent.get(componentKey);
     if (syntaxHighlightingData == null) {
@@ -263,6 +266,13 @@ public class SensorContextTester implements SensorContext {
     return result;
   }
 
+  /**
+   * Return list of symbol references ranges for the symbol at a given position in a file.
+   * @param componentKey Key of the file like 'myProjectKey:src/foo.php'
+   * @param line Line you want to query
+   * @param lineOffset Offset you want to query.
+   * @return List of references for the symbol or empty list if there is no symbol at this position or if there is no reference for this symbol.
+   */
   public Collection<TextRange> referencesForSymbolAt(String componentKey, int line, int lineOffset) {
     DefaultSymbolTable symbolTable = sensorStorage.symbolsPerComponent.get(componentKey);
     if (symbolTable == null) {
