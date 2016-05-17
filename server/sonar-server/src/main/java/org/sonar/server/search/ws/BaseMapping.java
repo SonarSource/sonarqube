@@ -32,6 +32,7 @@ import org.sonar.server.search.QueryContext;
 
 /**
  * Mapping of search documents (see {@link BaseDoc}) to WS JSON responses
+ * @deprecated no more "framework" to convert ES docs to WS responses.
  */
 @ServerSide
 @Deprecated
