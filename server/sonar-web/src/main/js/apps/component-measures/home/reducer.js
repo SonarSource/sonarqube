@@ -32,8 +32,8 @@ const initialState = {
 };
 
 function groupByDomains (measures) {
-  const KNOWN_DOMAINS = ['Reliability', 'Security', 'Maintainability', 'Coverage', 'Duplications', 'Size',
-    'Complexity'];
+  const KNOWN_DOMAINS = ['Releasability', 'Reliability', 'Security', 'Maintainability', 'Coverage', 'Duplications',
+    'Size', 'Complexity'];
 
   const domains = sortBy(toPairs(groupBy(measures, measure => measure.metric.domain)).map(r => {
     const [name, measures] = r;
