@@ -137,7 +137,7 @@ public class ComponentTreeDataLoader {
     }
   }
 
-  private int computeComponentCount(int dbComponentCount, List<ComponentDtoWithSnapshotId> components, boolean returnOnlyComponentsWithMeasures) {
+  private static int computeComponentCount(int dbComponentCount, List<ComponentDtoWithSnapshotId> components, boolean returnOnlyComponentsWithMeasures) {
     return returnOnlyComponentsWithMeasures ? components.size() : dbComponentCount;
   }
 
@@ -269,7 +269,7 @@ public class ComponentTreeDataLoader {
     checkState(metricToSort.isPresent(), "Metric '%s' not found", metricKeyToSort, wsRequest.getMetricKeys());
 
     return from(components)
-      .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get()))
+      .filter(new HasMeasure(measuresByComponentUuidAndMetric, metricToSort.get(), wsRequest))
       .toList();
   }
 
@@ -415,21 +415,6 @@ public class ComponentTreeDataLoader {
     @Override
     public Long apply(@Nonnull ComponentDtoWithSnapshotId input) {
       return input.getCopyResourceId();
-    }
-  }
-
-  private static class HasMeasure implements Predicate<ComponentDtoWithSnapshotId> {
-    private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
-    private final MetricDto metric;
-
-    private HasMeasure(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, MetricDto metric) {
-      this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
-      this.metric = metric;
-    }
-
-    @Override
-    public boolean apply(@Nonnull ComponentDtoWithSnapshotId input) {
-      return measuresByComponentUuidAndMetric.contains(input.uuid(), metric);
     }
   }
 

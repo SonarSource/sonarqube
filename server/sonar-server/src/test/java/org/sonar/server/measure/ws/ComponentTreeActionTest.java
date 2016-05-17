@@ -284,16 +284,18 @@ public class ComponentTreeActionTest {
   public void remove_components_without_measure_on_the_metric_sort() {
     ComponentDto projectDto = newProjectDto("project-uuid");
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
-    componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-4"), projectSnapshot);
+    SnapshotDto fileSnapshot4 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-4"), projectSnapshot);
     SnapshotDto fileSnapshot3 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-3"), projectSnapshot);
-    SnapshotDto fileSnapshot1 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-1"), projectSnapshot);
     SnapshotDto fileSnapshot2 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-2"), projectSnapshot);
+    SnapshotDto fileSnapshot1 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-1"), projectSnapshot);
     MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
       newMeasureDto(ncloc, fileSnapshot1.getId()).setValue(1.0d),
       newMeasureDto(ncloc, fileSnapshot2.getId()).setValue(2.0d),
-      newMeasureDto(ncloc, fileSnapshot3.getId()).setValue(3.0d));
+      newMeasureDto(ncloc, fileSnapshot3.getId()).setValue(3.0d),
+      // measure on period 1
+      newMeasureDto(ncloc, fileSnapshot4.getId()).setVariation(1, 4.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -332,6 +334,39 @@ public class ComponentTreeActionTest {
       .setParam(PARAM_METRIC_PERIOD_SORT, "1"));
 
     assertThat(response.getComponentsList()).extracting("id").containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3");
+  }
+
+  @Test
+  public void remove_components_without_measure_on_the_metric_period_sort() {
+    ComponentDto projectDto = newProjectDto("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
+    SnapshotDto fileSnapshot4 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-4"), projectSnapshot);
+    SnapshotDto fileSnapshot3 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-3"), projectSnapshot);
+    SnapshotDto fileSnapshot2 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-2"), projectSnapshot);
+    SnapshotDto fileSnapshot1 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-1"), projectSnapshot);
+    MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("new_ncloc").setValueType(ValueType.INT.name()).setDirection(1);
+    dbClient.metricDao().insert(dbSession, ncloc);
+    dbClient.measureDao().insert(dbSession,
+      newMeasureDto(ncloc, fileSnapshot1.getId()).setVariation(1, 1.0d),
+      newMeasureDto(ncloc, fileSnapshot2.getId()).setVariation(1, 2.0d),
+      newMeasureDto(ncloc, fileSnapshot3.getId()).setVariation(1, 3.0d),
+      // file 4 measure is on absolute value and period 2
+      newMeasureDto(ncloc, fileSnapshot4.getId())
+        .setValue(4.0d)
+        .setVariation(2, 4.0d));
+    db.commit();
+
+    ComponentTreeWsResponse response = call(ws.newRequest()
+      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(Param.SORT, METRIC_PERIOD_SORT + "," + NAME_SORT)
+      .setParam(PARAM_METRIC_SORT, "new_ncloc")
+      .setParam(PARAM_METRIC_KEYS, "new_ncloc")
+      .setParam(PARAM_METRIC_PERIOD_SORT, "1")
+      .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER));
+
+    assertThat(response.getComponentsList()).extracting("id")
+      .containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3")
+      .doesNotContain("file-uuid-4");
   }
 
   @Test
