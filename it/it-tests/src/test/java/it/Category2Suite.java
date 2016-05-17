@@ -28,6 +28,8 @@ import it.issue.IssueBulkChangeTest;
 import it.issue.IssueChangelogTest;
 import it.issue.IssueCreationTest;
 import it.issue.IssueFilterExtensionTest;
+import it.issue.IssueFilterOnCommonRulesTest;
+import it.issue.IssueFilterTest;
 import it.issue.IssueMeasureTest;
 import it.issue.IssueNotificationsTest;
 import it.issue.IssuePurgeTest;
@@ -73,6 +75,8 @@ import static util.ItUtils.xooPlugin;
   IssueBulkChangeTest.class,
   IssueChangelogTest.class,
   IssueCreationTest.class,
+  IssueFilterOnCommonRulesTest.class,
+  IssueFilterTest.class,
   IssueFilterExtensionTest.class,
   IssueMeasureTest.class,
   IssueNotificationsTest.class,

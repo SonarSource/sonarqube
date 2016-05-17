@@ -214,6 +214,12 @@ public class ItUtils {
     }
   }
 
+  public static void setServerProperties(Orchestrator orchestrator, @Nullable String componentKey, String... properties) {
+    for (int i = 0; i < properties.length; i += 2) {
+      setServerProperty(orchestrator, componentKey, properties[i], properties[i + 1]);
+    }
+  }
+
   public static void resetPeriods(Orchestrator orchestrator) {
     setServerProperty(orchestrator, "sonar.timemachine.period1", null);
     setServerProperty(orchestrator, "sonar.timemachine.period2", null);
