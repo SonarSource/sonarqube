@@ -31,8 +31,11 @@ import org.slf4j.LoggerFactory;
 import org.sonar.process.DefaultProcessCommands;
 import org.sonar.process.Lifecycle;
 import org.sonar.process.Lifecycle.State;
+import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessUtils;
 import org.sonar.process.SystemExit;
+
+import static org.sonar.process.DefaultProcessCommands.reset;
 
 public class Monitor {
 
@@ -123,6 +126,8 @@ public class Monitor {
       // failed to reset FileSystem
       throw new RuntimeException("Failed to reset file system", e);
     }
+    // reset sharedmemory of App
+    reset(fileSystem.getTempDir(), ProcessId.APP.getIpcIndex());
   }
 
   private void closeJavaLauncher() {
