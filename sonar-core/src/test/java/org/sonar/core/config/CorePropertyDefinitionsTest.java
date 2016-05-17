@@ -19,10 +19,16 @@
  */
 package org.sonar.core.config;
 
+import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import java.util.List;
+import javax.annotation.Nonnull;
 import org.junit.Test;
+import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
+import org.sonar.api.database.DatabaseProperties;
 
+import static com.google.common.collect.FluentIterable.from;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class CorePropertyDefinitionsTest {
@@ -30,5 +36,26 @@ public class CorePropertyDefinitionsTest {
   public void all() {
     List<PropertyDefinition> defs = CorePropertyDefinitions.all();
     assertThat(defs.size()).isGreaterThan(9);
+  }
+
+  @Test
+  public void jdbc_password_property_has_password_type() {
+    List<PropertyDefinition> defs = CorePropertyDefinitions.all();
+    Optional<PropertyDefinition> prop = from(defs).filter(new HasKeyPredicate(DatabaseProperties.PROP_PASSWORD)).first();
+    assertThat(prop.isPresent()).isTrue();
+    assertThat(prop.get().type()).isEqualTo(PropertyType.PASSWORD);
+  }
+
+  private final class HasKeyPredicate implements Predicate<PropertyDefinition> {
+    private final String key;
+
+    HasKeyPredicate(String key) {
+      this.key = key;
+    }
+
+    @Override
+    public boolean apply(@Nonnull PropertyDefinition input) {
+      return key.equals(input.key());
+    }
   }
 }

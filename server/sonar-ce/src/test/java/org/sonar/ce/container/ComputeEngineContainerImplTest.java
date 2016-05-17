@@ -102,7 +102,7 @@ public class ComputeEngineContainerImplTest {
         + 22 // level 1
         + 45 // content of DaoModule
         + 1 // content of EsSearchModule
-        + 56 // content of CorePropertyDefinitions
+        + 57 // content of CorePropertyDefinitions
         + 1 // content of CePropertyDefinitions
     );
     assertThat(picoContainer.getParent().getParent().getParent().getParent()).isNull();
