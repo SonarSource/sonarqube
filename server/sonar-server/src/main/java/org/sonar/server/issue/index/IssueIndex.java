@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.SortedSet;
+import java.util.TimeZone;
 import java.util.regex.Pattern;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -127,9 +128,7 @@ public class IssueIndex extends BaseIndex {
     LANGUAGES,
     TAGS,
     TYPES,
-    CREATED_AT
-  );
-
+    CREATED_AT);
 
   // TODO to be documented
   // TODO move to Facets ?
@@ -461,6 +460,7 @@ public class IssueIndex extends BaseIndex {
     long now = system.now();
 
     String timeZoneString = system.getDefaultTimeZone().getID();
+    String gmtTimeZoneString = TimeZone.getTimeZone("GMT").getID();
 
     DateHistogram.Interval bucketSize = DateHistogram.Interval.YEAR;
     Date createdAfter = query.createdAfter();
@@ -483,7 +483,7 @@ public class IssueIndex extends BaseIndex {
       .interval(bucketSize)
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
-      .timeZone(timeZoneString)
+      .timeZone(gmtTimeZoneString)
       .postZone(timeZoneString)
       .extendedBounds(startTime, endTime);
     dateHistogram = addEffortAggregationIfNeeded(query, dateHistogram);
