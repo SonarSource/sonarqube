@@ -28,6 +28,8 @@ import org.sonar.api.PropertyType;
 import org.sonar.api.config.PropertyDefinition;
 import org.sonar.api.resources.Qualifiers;
 
+import static org.sonar.api.database.DatabaseProperties.PROP_PASSWORD;
+
 public class CorePropertyDefinitions {
 
   /* Time machine periods */
@@ -57,6 +59,10 @@ public class CorePropertyDefinitions {
     defs.addAll(PurgeProperties.all());
 
     defs.addAll(ImmutableList.of(
+      PropertyDefinition.builder(PROP_PASSWORD)
+        .type(PropertyType.PASSWORD)
+        .hidden()
+        .build(),
       PropertyDefinition.builder(CoreProperties.SERVER_BASE_URL)
         .name("Server base URL")
         .description("HTTP URL of this SonarQube server, such as <i>http://yourhost.yourdomain/sonar</i>. This value is used i.e. to create links in emails.")
