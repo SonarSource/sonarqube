@@ -126,7 +126,6 @@ public class DefaultProcessCommandsTest {
 
     DefaultProcessCommands.main(temp.newFolder(), processNumber);
   }
-
   @Test
   public void main_fails_if_processNumber_is_MAX_PROCESSES() throws Exception {
     int processNumber = MAX_PROCESSES;
@@ -152,6 +151,24 @@ public class DefaultProcessCommandsTest {
     expectProcessNumberNoValidIAE(processNumber);
 
     DefaultProcessCommands.secondary(temp.newFolder(), processNumber);
+  }
+
+  @Test
+  public void reset_fails_if_processNumber_is_less_than_0() throws Exception {
+    int processNumber = -2;
+
+    expectProcessNumberNoValidIAE(processNumber);
+
+    DefaultProcessCommands.reset(temp.newFolder(), processNumber);
+  }
+
+  @Test
+  public void reset_fails_if_processNumber_is_higher_than_MAX_PROCESSES() throws Exception {
+    int processNumber = MAX_PROCESSES + 1;
+
+    expectProcessNumberNoValidIAE(processNumber);
+
+    DefaultProcessCommands.reset(temp.newFolder(), processNumber);
   }
 
   private void expectProcessNumberNoValidIAE(int processNumber) {

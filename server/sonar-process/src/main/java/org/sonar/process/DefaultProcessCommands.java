@@ -52,6 +52,15 @@ public class DefaultProcessCommands implements ProcessCommands {
     return new DefaultProcessCommands(directory, processNumber, false);
   }
 
+  /**
+   * Clears the shared memory space of the specified process number.
+   */
+  public static void reset(File directory, int processNumber) {
+    try (DefaultProcessCommands processCommands = new DefaultProcessCommands(directory, processNumber, true)) {
+      // nothing else to do than open file and reset the space of specified process
+    }
+  }
+
   @Override
   public boolean isUp() {
     return delegate.isUp();
