@@ -74,6 +74,26 @@ public class ValidateProjectStepTest {
   }
 
   @Test
+  public void fail_if_root_component_is_not_a_project_in_db() {
+    reportReader.putComponent(ScannerReport.Component.newBuilder()
+      .setRef(1)
+      .setType(ComponentType.PROJECT)
+      .setKey(PROJECT_KEY)
+      .build());
+    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+
+    ComponentDto project = ComponentTesting.newView("ABCD").setKey(PROJECT_KEY);
+    dbClient.componentDao().insert(dbTester.getSession(), project);
+    dbTester.getSession().commit();
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:\n" +
+        "  o Component (uuid=ABCD, key=PROJECT_KEY) is not a project");
+
+    underTest.execute();
+  }
+
+  @Test
   public void not_fail_on_valid_branch() {
     analysisMetadataHolder.setBranch(DEFAULT_BRANCH);
     reportReader.putComponent(ScannerReport.Component.newBuilder()
@@ -88,10 +108,6 @@ public class ValidateProjectStepTest {
 
   @Test
   public void fail_on_invalid_branch() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
-
     analysisMetadataHolder.setBranch("bran#ch");
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -100,17 +116,16 @@ public class ValidateProjectStepTest {
       .build());
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY + ":bran#ch").build());
 
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:\n" +
+      "  o \"bran#ch\" is not a valid branch name. Allowed characters are alphanumeric, '-', '_', '.' and '/'.");
+
     underTest.execute();
   }
 
   @Test
   public void fail_on_invalid_key() {
     String invalidProjectKey = "Project\\Key";
-
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o \"Project\\Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.\n" +
-      "  o \"Module$Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit");
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -127,17 +142,16 @@ public class ValidateProjectStepTest {
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey("Module$Key").build())
       .build());
 
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:\n" +
+      "  o \"Project\\Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit.\n" +
+      "  o \"Module$Key\" is not a valid project or module key. Allowed characters are alphanumeric, '-', '_', '.' and ':', with at least one non-digit");
+
     underTest.execute();
   }
 
   @Test
   public void fail_if_module_key_is_already_used_as_project_key() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o The project \"" + MODULE_KEY + "\" is already defined in SonarQube but not as a module of project \"" + PROJECT_KEY + "\". " +
-      "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
-      + PROJECT_KEY + "\".");
-
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(ComponentType.PROJECT)
@@ -158,16 +172,18 @@ public class ValidateProjectStepTest {
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
 
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:\n" +
+      "  o The project \"" + MODULE_KEY + "\" is already defined in SonarQube but not as a module of project \"" + PROJECT_KEY + "\". " +
+      "If you really want to stop directly analysing project \"" + MODULE_KEY + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
+      + PROJECT_KEY + "\".");
+
     underTest.execute();
   }
 
   @Test
   public void fail_if_module_key_already_exists_in_another_project() {
     String anotherProjectKey = "ANOTHER_PROJECT_KEY";
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
-
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
       .setType(ComponentType.PROJECT)
@@ -191,17 +207,16 @@ public class ValidateProjectStepTest {
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
 
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:\n" +
+      "  o Module \"" + MODULE_KEY + "\" is already part of project \"" + anotherProjectKey + "\"");
+
     underTest.execute();
   }
 
   @Test
   public void fail_if_project_key_already_exists_as_module() {
     String anotherProjectKey = "ANOTHER_PROJECT_KEY";
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:\n" +
-      "  o The project \"" + PROJECT_KEY + "\" is already defined in SonarQube but as a module of project \"" + anotherProjectKey + "\". " +
-      "If you really want to stop directly analysing project \"" + anotherProjectKey + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
-      + PROJECT_KEY + "\".");
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
       .setRef(1)
@@ -224,6 +239,13 @@ public class ValidateProjectStepTest {
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).addChildren(
       ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").setKey(MODULE_KEY).build())
       .build());
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:\n" +
+      "  o Component (uuid=ABCD, key=PROJECT_KEY) is not a project\n" +
+      "  o The project \"" + PROJECT_KEY + "\" is already defined in SonarQube but as a module of project \"" + anotherProjectKey + "\". " +
+      "If you really want to stop directly analysing project \"" + anotherProjectKey + "\", please first delete it from SonarQube and then relaunch the analysis of project \""
+      + PROJECT_KEY + "\".");
 
     underTest.execute();
   }
@@ -249,11 +271,6 @@ public class ValidateProjectStepTest {
 
   @Test
   public void fail_if_analysis_date_is_before_last_analysis() {
-    thrown.expect(MessageException.class);
-    thrown.expectMessage("Validation of project failed:");
-    thrown.expectMessage("Date of analysis cannot be older than the date of the last known analysis on this project. Value: ");
-    thrown.expectMessage("Latest analysis: ");
-
     analysisMetadataHolder.setAnalysisDate(DateUtils.parseDate("2015-01-01"));
 
     reportReader.putComponent(ScannerReport.Component.newBuilder()
@@ -269,6 +286,11 @@ public class ValidateProjectStepTest {
     dbTester.getSession().commit();
 
     treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setKey(PROJECT_KEY).build());
+
+    thrown.expect(MessageException.class);
+    thrown.expectMessage("Validation of project failed:");
+    thrown.expectMessage("Date of analysis cannot be older than the date of the last known analysis on this project. Value: ");
+    thrown.expectMessage("Latest analysis: ");
 
     underTest.execute();
   }
