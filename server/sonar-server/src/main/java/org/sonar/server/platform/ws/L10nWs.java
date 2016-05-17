@@ -23,7 +23,6 @@ import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.util.Date;
 import java.util.Locale;
-import org.apache.commons.lang.LocaleUtils;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.RequestHandler;
@@ -32,6 +31,8 @@ import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.text.JsonWriter;
 import org.sonar.core.i18n.DefaultI18n;
 import org.sonar.server.user.UserSession;
+
+import static com.google.common.base.Preconditions.checkArgument;
 
 public class L10nWs implements WebService {
 
@@ -65,13 +66,13 @@ public class L10nWs implements WebService {
       .setDescription("BCP47 language tag, used to override the browser Accept-Language header")
       .setExampleValue("fr-CH");
     indexAction.createParam("ts")
-    .setDescription("Date of the last cache update.")
-    .setExampleValue("2014-06-04T09:31:42+0000");
+      .setDescription("Date of the last cache update.")
+      .setExampleValue("2014-06-04T09:31:42+0000");
 
     l10n.done();
   }
 
-  protected void serializeMessages(Request request, Response response) throws IOException {
+  private void serializeMessages(Request request, Response response) throws IOException {
     Date timestamp = request.paramAsDateTime("ts");
     if (timestamp != null && timestamp.after(server.getStartedAt())) {
       response.stream().setStatus(HttpURLConnection.HTTP_NOT_MODIFIED).output().close();
@@ -79,10 +80,11 @@ public class L10nWs implements WebService {
       Locale locale = userSession.locale();
       String localeParam = request.param("locale");
       if (localeParam != null) {
-        locale = LocaleUtils.toLocale(localeParam);
+        locale = Locale.forLanguageTag(localeParam);
+        checkArgument(!locale.getISO3Language().isEmpty(), "'%s' cannot be parsed as a BCP47 language tag", localeParam);
       }
       JsonWriter json = response.newJsonWriter().beginObject();
-      for (String messageKey: i18n.getPropertyKeys()) {
+      for (String messageKey : i18n.getPropertyKeys()) {
         json.prop(messageKey, i18n.message(locale, messageKey, messageKey));
       }
       json.endObject().close();

@@ -24,9 +24,7 @@ import java.util.Date;
 import java.util.Locale;
 import org.junit.Rule;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.Mock;
-import org.mockito.runners.MockitoJUnitRunner;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.platform.Server;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.core.i18n.DefaultI18n;
@@ -34,20 +32,19 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 import org.sonar.server.ws.WsTester.Result;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
-@RunWith(MockitoJUnitRunner.class)
 public class L10nWsTest {
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
-  @Mock
-  DefaultI18n i18n;
-
-  @Mock
-  Server server;
+  DefaultI18n i18n = mock(DefaultI18n.class);
+  Server server = mock(Server.class);
 
   @Test
   public void should_allow_client_to_cache_messages() throws Exception {
@@ -114,5 +111,40 @@ public class L10nWsTest {
     verify(i18n).message(override, key3, key3);
 
     result.assertJson("{\"key1\":\"key1\",\"key2\":\"key2\",\"key3\":\"key3\"}");
+  }
+
+  @Test
+  public void support_BCP47_formatted_language_tags() throws Exception {
+    Locale locale = Locale.PRC;
+    userSessionRule.setLocale(locale);
+    Locale override = Locale.UK;
+
+    String key1 = "key1";
+
+    when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1));
+    when(i18n.message(override, key1, key1)).thenReturn(key1);
+
+    Result result = new WsTester(new L10nWs(i18n, server, userSessionRule)).newGetRequest("api/l10n", "index").setParam("locale", "en-GB").execute();
+    verify(i18n).getPropertyKeys();
+    verify(i18n).message(override, key1, key1);
+
+    result.assertJson("{\"key1\":\"key1\"}");
+  }
+
+  @Test
+  public void fail_when_java_formatted_language_tags() throws Exception {
+    Locale locale = Locale.PRC;
+    userSessionRule.setLocale(locale);
+    Locale override = Locale.UK;
+
+    String key1 = "key1";
+
+    when(i18n.getPropertyKeys()).thenReturn(ImmutableSet.of(key1));
+    when(i18n.message(override, key1, key1)).thenReturn(key1);
+
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("'en_GB' cannot be parsed as a BCP47 language tag");
+
+    new WsTester(new L10nWs(i18n, server, userSessionRule)).newGetRequest("api/l10n", "index").setParam("locale", "en_GB").execute();
   }
 }
