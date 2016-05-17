@@ -24,7 +24,7 @@ import Section from './section';
 import { translate } from '../../helpers/l10n';
 import RestartModal from '../../components/RestartModal';
 
-const SECTIONS_ORDER = ['SonarQube', 'Database', 'Plugins', 'System', 'Elasticsearch State', 'Elasticsearch',
+const SECTIONS_ORDER = ['SonarQube', 'Database', 'System', 'Elasticsearch State', 'Elasticsearch',
   'Compute Engine Tasks', 'Compute Engine State', 'Compute Engine Database Connection', 'JvmProperties'];
 
 export default React.createClass({
@@ -61,9 +61,11 @@ export default React.createClass({
   render() {
     let sections = null;
     if (this.state && this.state.sections) {
-      sections = this.state.sections.map(section => {
-        return <Section key={section.name} section={section.name} items={section.items}/>;
-      });
+      sections = this.state.sections
+        .filter(section => SECTIONS_ORDER.indexOf(section.name)>=0)
+        .map(section => {
+          return <Section key={section.name} section={section.name} items={section.items}/>;
+        });
     }
 
     return <div className="page">
