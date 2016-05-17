@@ -20,10 +20,6 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.Lists;
-import org.apache.commons.codec.digest.DigestUtils;
-import org.apache.commons.lang.StringUtils;
-import org.sonar.api.utils.log.Loggers;
-
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
@@ -32,6 +28,9 @@ import java.net.UnknownHostException;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.regex.Pattern;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.lang.StringUtils;
+import org.sonar.api.utils.log.Loggers;
 
 /**
  * @since 2.11
@@ -91,7 +90,7 @@ public class ServerIdGenerator {
     }
   }
 
-  public InetAddress toValidAddress(String ipAddress) {
+  private InetAddress toValidAddress(String ipAddress) {
     if (StringUtils.isNotBlank(ipAddress)) {
       List<InetAddress> validAddresses = getAvailableAddresses();
       try {

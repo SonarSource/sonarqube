@@ -19,7 +19,10 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import javax.annotation.CheckForNull;
+
 public interface SonarQubeMonitorMBean {
+  @CheckForNull
   String getServerId();
 
   String getVersion();

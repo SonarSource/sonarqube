@@ -21,6 +21,7 @@ package org.sonar.server.platform.monitoring;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import java.io.File;
 import java.util.LinkedHashMap;
@@ -36,6 +37,8 @@ import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
+import org.sonar.server.platform.ServerId;
+import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
@@ -52,19 +55,22 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   private final IdentityProviderRepository identityProviderRepository;
   private final Server server;
   private final ServerLogging serverLogging;
+  private final ServerIdLoader serverIdLoader;
 
   public SonarQubeMonitor(Settings settings, SecurityRealmFactory securityRealmFactory,
-    IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging) {
+    IdentityProviderRepository identityProviderRepository, Server server, ServerLogging serverLogging,
+    ServerIdLoader serverIdLoader) {
     this.settings = settings;
     this.securityRealmFactory = securityRealmFactory;
     this.identityProviderRepository = identityProviderRepository;
     this.server = server;
     this.serverLogging = serverLogging;
+    this.serverIdLoader = serverIdLoader;
   }
 
   @Override
   public String getServerId() {
-    return settings.getString(CoreProperties.PERMANENT_SERVER_ID);
+    return serverIdLoader.getRaw().orNull();
   }
 
   @Override
@@ -126,7 +132,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   @Override
   public Map<String, Object> attributes() {
     Map<String, Object> attributes = new LinkedHashMap<>();
-    attributes.put("Server ID", getServerId());
+    completeWithServerIdAttributes(attributes);
     attributes.put("Version", getVersion());
     addIfNotNull("External User Authentication", getExternalUserAuthentication(), attributes);
     addIfNotEmpty("Accepted external identity providers", getEnabledIdentityProviders(), attributes);
@@ -141,6 +147,14 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
     attributes.put("Logs Dir", settings.getString(ProcessProperties.PATH_LOGS));
     attributes.put("Logs Level", getLogLevel());
     return attributes;
+  }
+
+  private void completeWithServerIdAttributes(Map<String, Object> attributes) {
+    Optional<ServerId> serverId = serverIdLoader.get();
+    if (serverId.isPresent()) {
+      attributes.put("Server ID", serverId.get().getId());
+      attributes.put("Server ID validated", serverId.get().isValid());
+    }
   }
 
   private static void addIfNotNull(String key, @Nullable String value, Map<String, Object> attributes) {

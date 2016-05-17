@@ -42,7 +42,6 @@ public class CorePropertyDefinitionsTest {
   public void jdbc_password_property_has_password_type() {
     List<PropertyDefinition> defs = CorePropertyDefinitions.all();
     Optional<PropertyDefinition> prop = from(defs).filter(new HasKeyPredicate(DatabaseProperties.PROP_PASSWORD)).first();
-    assertThat(prop.isPresent()).isTrue();
     assertThat(prop.get().type()).isEqualTo(PropertyType.PASSWORD);
   }
 

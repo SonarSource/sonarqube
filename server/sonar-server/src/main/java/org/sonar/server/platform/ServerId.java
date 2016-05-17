@@ -17,30 +17,25 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.platform.platformlevel;
+package org.sonar.server.platform;
 
-import org.sonar.api.utils.UriReader;
-import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.server.db.CheckDatabaseCharsetAfterMigration;
-import org.sonar.server.platform.PersistentSettings;
-import org.sonar.server.platform.ServerIdGenerator;
-import org.sonar.server.platform.ServerIdLoader;
-import org.sonar.server.startup.ServerMetadataPersister;
+import javax.annotation.concurrent.Immutable;
 
-public class PlatformLevel3 extends PlatformLevel {
-  public PlatformLevel3(PlatformLevel parent) {
-    super("level3", parent);
+@Immutable
+public final class ServerId {
+  private final String id;
+  private final boolean valid;
+
+  public ServerId(String id, boolean valid) {
+    this.id = id;
+    this.valid = valid;
   }
 
-  @Override
-  protected void configureLevel() {
-    add(
-      CheckDatabaseCharsetAfterMigration.class,
-      PersistentSettings.class,
-      ServerMetadataPersister.class,
-      DefaultHttpDownloader.class,
-      UriReader.class,
-      ServerIdLoader.class,
-      ServerIdGenerator.class);
+  public String getId() {
+    return id;
+  }
+
+  public boolean isValid() {
+    return valid;
   }
 }
