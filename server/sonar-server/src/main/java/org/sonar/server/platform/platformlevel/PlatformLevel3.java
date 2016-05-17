@@ -24,6 +24,7 @@ import org.sonar.core.util.DefaultHttpDownloader;
 import org.sonar.server.db.CheckDatabaseCharsetAfterMigration;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerIdGenerator;
+import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.startup.ServerMetadataPersister;
 
 public class PlatformLevel3 extends PlatformLevel {
@@ -39,6 +40,7 @@ public class PlatformLevel3 extends PlatformLevel {
       ServerMetadataPersister.class,
       DefaultHttpDownloader.class,
       UriReader.class,
+      ServerIdLoader.class,
       ServerIdGenerator.class);
   }
 }

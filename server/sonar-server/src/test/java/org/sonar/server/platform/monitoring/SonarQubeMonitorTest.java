@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform.monitoring;
 
+import com.google.common.base.Optional;
 import java.io.File;
 import java.util.Map;
 import org.apache.commons.io.FileUtils;
@@ -29,18 +30,26 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
 import org.sonar.api.security.SecurityRealm;
-import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.authentication.IdentityProviderRepositoryRule;
 import org.sonar.server.authentication.TestIdentityProvider;
+import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.RETURNS_DEEP_STUBS;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 public class SonarQubeMonitorTest {
+
+  private static final String SERVER_ID_PROPERTY = "Server ID";
+  private static final String SERVER_ID_VALIDATED_PROPERTY = "Server ID validated";
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
@@ -50,10 +59,12 @@ public class SonarQubeMonitorTest {
 
   Settings settings = new Settings();
   Server server = mock(Server.class);
+  ServerIdLoader serverIdLoader = mock(ServerIdLoader.class, RETURNS_DEEP_STUBS);
   ServerLogging serverLogging = mock(ServerLogging.class);
   SecurityRealmFactory securityRealmFactory = mock(SecurityRealmFactory.class);
 
-  SonarQubeMonitor underTest = new SonarQubeMonitor(settings, securityRealmFactory, identityProviderRepository, server, serverLogging);
+  SonarQubeMonitor underTest = new SonarQubeMonitor(settings, securityRealmFactory, identityProviderRepository, server,
+    serverLogging, serverIdLoader);
 
   @Before
   public void setUp() throws Exception {
@@ -66,11 +77,30 @@ public class SonarQubeMonitorTest {
   }
 
   @Test
-  public void getServerId() {
-    when(server.getStartedAt()).thenReturn(DateUtils.parseDate("2015-01-01"));
+  public void test_getServerId() {
+    when(serverIdLoader.get()).thenReturn(Optional.of("ABC"));
+    assertThat(underTest.getServerId()).isEqualTo("ABC");
+
+    when(serverIdLoader.get()).thenReturn(Optional.<String>absent());
+    assertThat(underTest.getServerId()).isNull();
+  }
+
+  @Test
+  public void attributes_contain_information_about_server_id() {
+    when(serverIdLoader.get()).thenReturn(Optional.of("ABC"));
+    when(serverIdLoader.isValid("ABC")).thenReturn(true);
 
     Map<String, Object> attributes = underTest.attributes();
-    assertThat(attributes).containsKeys("Server ID", "Version");
+    assertThat(attributes).contains(entry(SERVER_ID_PROPERTY, "ABC"), entry(SERVER_ID_VALIDATED_PROPERTY, true));
+  }
+
+  @Test
+  public void attributes_do_not_contain_information_about_server_id_if_absent() {
+    when(serverIdLoader.get()).thenReturn(Optional.<String>absent());
+
+    Map<String, Object> attributes = underTest.attributes();
+    assertThat(attributes).doesNotContainKeys(SERVER_ID_PROPERTY, SERVER_ID_VALIDATED_PROPERTY);
+    verify(serverIdLoader, never()).isValid(anyString());
   }
 
   @Test
