@@ -73,6 +73,7 @@ public class FileSystemTest extends PerfTestCase {
   private void run(int xmx, long expectedDuration) throws IOException {
     SonarRunner runner = SonarRunner.create()
       .setProperties(
+        "sonar.projectKey", "filesystemXmx" + xmx,
         "sonar.projectName", "filesystem xmx" + xmx,
         "sonar.projectVersion", "1.0",
         "sonar.sources", "src",
@@ -83,7 +84,7 @@ public class FileSystemTest extends PerfTestCase {
 
     orchestrator.executeBuild(runner);
 
-    Properties prof = readProfiling(baseDir, "project");
+    Properties prof = readProfiling(baseDir, "filesystemXmx" + xmx);
     perfRule.assertDurationAround(Long.valueOf(prof.getProperty("Index filesystem")), expectedDuration);
   }
 

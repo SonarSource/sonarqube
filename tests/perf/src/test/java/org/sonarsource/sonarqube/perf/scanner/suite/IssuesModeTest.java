@@ -68,32 +68,6 @@ public class IssuesModeTest extends PerfTestCase {
     long duration = System.currentTimeMillis() - start;
     System.out.println("Issues analysis: " + duration + "ms");
 
-    perfRule.assertDurationAround(duration, 5230L);
+    perfRule.assertDurationAround(duration, 4200L);
   }
-
-  @Test
-  public void issues_mode_with_cache_scan_xoo_project() throws IOException {
-    File userHome = temp.newFolder();
-    orchestrator.getServer().provisionProject("sample", "xoo-sample");
-    orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-xoo-issue-per-line");
-    SonarRunner runner = newScanner(
-      "-Xmx512m -server -XX:MaxPermSize=64m",
-      "sonar.analysis.mode", "issues",
-      "sonar.useWsCache", "true",
-      "sonar.userHome", userHome.getAbsolutePath(),
-      "sonar.showProfiling", "true");
-    long start = System.currentTimeMillis();
-    orchestrator.executeBuild(runner);
-    long firstDuration = System.currentTimeMillis() - start;
-    System.out.println("First issues analysis: " + firstDuration + "ms");
-
-    // caches are warmed
-    start = System.currentTimeMillis();
-    orchestrator.executeBuild(runner);
-    long secondDuration = System.currentTimeMillis() - start;
-    System.out.println("Second issues analysis: " + secondDuration + "ms");
-
-    perfRule.assertDurationAround(secondDuration, 3350L);
-  }
-
 }
