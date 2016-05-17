@@ -36,6 +36,7 @@ import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.NewCoverage;
 import org.sonar.api.batch.sensor.highlighting.TypeOfText;
 import org.sonar.api.batch.sensor.issue.NewIssue;
+import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.rule.RuleKey;
@@ -131,12 +132,27 @@ public class SensorContextTesterTest {
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 3)).isEmpty();
     tester.newHighlighting()
       .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))))
-      .highlight(0, 4, TypeOfText.ANNOTATION)
+      .highlight(1, 0, 1, 5, TypeOfText.ANNOTATION)
       .highlight(8, 10, TypeOfText.CONSTANT)
       .highlight(9, 10, TypeOfText.COMMENT)
       .save();
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 3)).containsExactly(TypeOfText.ANNOTATION);
     assertThat(tester.highlightingTypeAt("foo:src/Foo.java", 1, 9)).containsExactly(TypeOfText.CONSTANT, TypeOfText.COMMENT);
+  }
+
+  @Test
+  public void testSymbolReferences() {
+    assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 3)).isEmpty();
+    NewSymbolTable symbolTable = tester.newSymbolTable()
+      .onFile(new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("annot dsf fds foo bar"))));
+    symbolTable
+      .newSymbol(1, 0, 1, 5)
+      .newReference(6, 9)
+      .newReference(1, 10, 1, 13);
+
+    symbolTable.save();
+    assertThat(tester.referencesForSymbolAt("foo:src/Foo.java", 1, 3)).extracting("start.line", "start.lineOffset", "end.line", "end.lineOffset").containsExactly(tuple(1, 6, 1, 9),
+      tuple(1, 10, 1, 13));
   }
 
   @Test
@@ -197,8 +213,7 @@ public class SensorContextTesterTest {
   @Test
   public void testCpdTokens() {
     assertThat(tester.cpdTokens("foo:src/Foo.java")).isNull();
-    DefaultInputFile inputFile =
-      new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("public class Foo {\n\n}")));
+    DefaultInputFile inputFile = new DefaultInputFile("foo", "src/Foo.java").initMetadata(new FileMetadata().readMetadata(new StringReader("public class Foo {\n\n}")));
     tester.newCpdTokens()
       .onFile(inputFile)
       .addToken(inputFile.newRange(0, 6), "public")
