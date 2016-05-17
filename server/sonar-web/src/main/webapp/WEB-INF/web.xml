@@ -15,10 +15,6 @@
   - embedded tomcat for production mode (see sonar-application)
    -->
   <context-param>
-    <param-name>public.root</param-name>
-    <param-value>/</param-value>
-  </context-param>
-  <context-param>
     <param-name>jruby.min.runtimes</param-name>
     <param-value>1</param-value>
   </context-param>
