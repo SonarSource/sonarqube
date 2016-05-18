@@ -17,9 +17,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
 import _ from 'underscore';
+
 import { translate } from '../../helpers/l10n';
+import { formatMeasure } from '../../helpers/measures';
+import { getChildren } from '../../api/components';
 
 (function () {
 
@@ -296,31 +298,35 @@ import { translate } from '../../helpers/l10n';
     }
   };
 
-  Treemap.prototype.formatComponents = function (data) {
-    const that = this;
-    const components = _.filter(data, function (component) {
-      const hasSizeMetric = function () {
-        return _.findWhere(component.msr, {
-          key: that.sizeMetric.key
+  Treemap.prototype.formatComponents = function (components, metrics) {
+    const nextComponents = components
+        .filter(component => {
+          const sizeMeasure = component.measures.find(measure => measure.metric === this.sizeMetric.key);
+          return sizeMeasure != null;
+        })
+        .map(component => {
+          const measures = component.measures.map(measure => {
+            const metric = metrics.find(metric => metric.key === measure.metric);
+            return { ...measure, metricType: metric.type };
+          });
+          return { ...component, measures };
         });
-      };
-      return _.isArray(component.msr) && component.msr.length > 0 && hasSizeMetric();
-    });
-    if (_.isArray(components) && components.length > 0) {
-      return components.map(function (component) {
+
+    if (nextComponents.length > 0) {
+      return nextComponents.map(component => {
         const measures = {};
-        component.msr.forEach(function (measure) {
-          measures[measure.key] = {
-            val: measure.val,
-            fval: measure.frmt_val,
-            text: measure.text,
-            data: measure.data
+
+        component.measures.forEach(measure => {
+          measures[measure.metric] = {
+            val: measure.value,
+            fval: formatMeasure(measure.value, measure.metricType)
           };
         });
+
         return {
-          key: component.copy != null ? component.copy : component.key,
+          key: component.refKey != null ? component.refKey : component.key,
           name: component.name,
-          longName: component.lname,
+          longName: component.name,
           qualifier: component.qualifier,
           measures
         };
@@ -329,24 +335,15 @@ import { translate } from '../../helpers/l10n';
   };
 
   Treemap.prototype.requestChildren = function (d) {
-    const that = this;
-    const metrics = this.metricsPriority().join(',');
-    const RESOURCES_URL = window.baseUrl + '/api/resources/index';
-    return $.get(RESOURCES_URL, {
-      resource: d.key,
-      depth: 1,
-      metrics
-    }).done(function (r) {
-      let components = that.formatComponents(r);
+    return getChildren(d.key, this.metricsPriority(), { additionalFields: 'metrics' }).then(r => {
+      let components = this.formatComponents(r.components, r.metrics);
       if (components != null) {
-        components = _.sortBy(components, function (component) {
-          return -that.sizeMetric.value(component);
-        });
-        components = _.initial(components, components.length - that.options().maxItems - 1);
-        that.updateTreemap(components, components.length > that.options().maxItems);
-        return that.addToBreadcrumbs(_.extend(d, {
+        components = _.sortBy(components, component => -this.sizeMetric.value(component));
+        components = _.initial(components, components.length - this.options().maxItems - 1);
+        this.updateTreemap(components, components.length > this.options().maxItems);
+        this.addToBreadcrumbs(_.extend(d, {
           components,
-          maxResultsReached: that.maxResultsReached()
+          maxResultsReached: this.maxResultsReached()
         }));
       }
     });

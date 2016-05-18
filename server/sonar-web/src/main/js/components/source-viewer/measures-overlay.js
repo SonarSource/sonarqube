@@ -21,21 +21,21 @@ import $ from 'jquery';
 import _ from 'underscore';
 import ModalView from '../common/modals';
 import Template from './templates/source-viewer-measures.hbs';
+import { getMeasures } from '../../api/measures';
+import { getMetrics } from '../../api/metrics';
+import { formatMeasure } from '../../helpers/measures';
 
 export default ModalView.extend({
   template: Template,
   testsOrder: ['ERROR', 'FAILURE', 'OK', 'SKIPPED'],
 
   initialize () {
-    const that = this;
+    this.testsScroll = 0;
     const requests = [this.requestMeasures(), this.requestIssues()];
     if (this.model.get('isUnitTest')) {
       requests.push(this.requestTests());
     }
-    this.testsScroll = 0;
-    $.when.apply($, requests).done(function () {
-      that.render();
-    });
+    Promise.all(requests).then(() => this.render());
   },
 
   events () {
@@ -121,9 +121,9 @@ export default ModalView.extend({
 
   calcAdditionalMeasures (measures) {
     measures.issuesRemediationEffort =
-        (measures.sqale_index_raw || 0) +
-        (measures.reliability_remediation_effort_raw || 0) +
-        (measures.security_remediation_effort_raw || 0);
+        (Number(measures.sqale_index_raw) || 0) +
+        (Number(measures.reliability_remediation_effort_raw) || 0) +
+        (Number(measures.security_remediation_effort_raw) || 0);
 
     if (measures.lines_to_cover && measures.uncovered_lines) {
       measures.covered_lines = measures.lines_to_cover_raw - measures.uncovered_lines_raw;
@@ -156,70 +156,77 @@ export default ModalView.extend({
   },
 
   requestMeasures () {
-    const that = this;
-    const url = window.baseUrl + '/api/resources';
-    const metrics = this.getMetrics();
-    const options = {
-      resource: this.model.key(),
-      metrics: _.pluck(metrics, 'key').join()
-    };
-    return $.get(url, options).done(function (data) {
-      const measuresList = data[0].msr || [];
-      let measures = that.model.get('measures') || {};
-      measuresList.forEach(function (m) {
-        const metric = _.findWhere(metrics, { key: m.key });
-        metric.value = m.frmt_val || m.data;
-        measures[m.key] = m.frmt_val || m.data;
-        measures[m.key + '_raw'] = m.val;
-      });
-      measures = that.calcAdditionalMeasures(measures);
-      that.model.set({
-        measures,
-        measuresToDisplay: that.prepareMetrics(metrics)
+    return getMetrics().then(metrics => {
+      const metricsToRequest = metrics
+          .filter(metric => metric.type !== 'DATA' && !metric.hidden)
+          .map(metric => metric.key);
+
+      return getMeasures(this.model.key(), metricsToRequest).then(measures => {
+        let nextMeasures = this.model.get('measures') || {};
+        measures.forEach(measure => {
+          const metric = metrics.find(metric => metric.key === measure.metric);
+          nextMeasures[metric.key] = formatMeasure(measure.value, metric.type);
+          nextMeasures[metric.key + '_raw'] = measure.value;
+          metric.value = nextMeasures[metric.key];
+        });
+        nextMeasures = this.calcAdditionalMeasures(nextMeasures);
+        this.model.set({
+          measures: nextMeasures,
+          measuresToDisplay: this.prepareMetrics(metrics)
+        });
       });
     });
   },
 
   requestIssues () {
-    const that = this;
-    const url = window.baseUrl + '/api/issues/search';
-    const options = {
-      componentUuids: this.model.id,
-      resolved: false,
-      ps: 1,
-      facets: 'types,severities,tags'
-    };
-    return $.get(url, options).done(function (data) {
-      const typesFacet = data.facets.find(facet => facet.property === 'types').values;
-      const typesOrder = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
-      const sortedTypesFacet = _.sortBy(typesFacet, function (v) {
-        return typesOrder.indexOf(v.val);
-      });
+    return new Promise(resolve => {
+      const that = this;
+      const url = window.baseUrl + '/api/issues/search';
+      const options = {
+        componentUuids: this.model.id,
+        resolved: false,
+        ps: 1,
+        facets: 'types,severities,tags'
+      };
 
-      const severitiesFacet = data.facets.find(facet => facet.property === 'severities').values;
-      const sortedSeveritiesFacet = _.sortBy(severitiesFacet, facet => window.severityComparator(facet.val));
+      $.get(url, options).done(function (data) {
+        const typesFacet = data.facets.find(facet => facet.property === 'types').values;
+        const typesOrder = ['BUG', 'VULNERABILITY', 'CODE_SMELL'];
+        const sortedTypesFacet = _.sortBy(typesFacet, function (v) {
+          return typesOrder.indexOf(v.val);
+        });
 
-      const tagsFacet = data.facets.find(facet => facet.property === 'tags').values;
+        const severitiesFacet = data.facets.find(facet => facet.property === 'severities').values;
+        const sortedSeveritiesFacet = _.sortBy(severitiesFacet, facet => window.severityComparator(facet.val));
 
-      that.model.set({
-        tagsFacet,
-        typesFacet: sortedTypesFacet,
-        severitiesFacet: sortedSeveritiesFacet,
-        issuesCount: data.total
+        const tagsFacet = data.facets.find(facet => facet.property === 'tags').values;
+
+        that.model.set({
+          tagsFacet,
+          typesFacet: sortedTypesFacet,
+          severitiesFacet: sortedSeveritiesFacet,
+          issuesCount: data.total
+        });
+
+        resolve();
       });
     });
   },
 
   requestTests () {
-    const that = this;
-    const url = window.baseUrl + '/api/tests/list';
-    const options = { testFileId: this.model.id };
-    return $.get(url, options).done(function (data) {
-      that.model.set({ tests: data.tests });
-      that.testSorting = 'status';
-      that.testAsc = true;
-      that.sortTests(function (test) {
-        return `${that.testsOrder.indexOf(test.status)}_______${test.name}`;
+    return new Promise(resolve => {
+      const that = this;
+      const url = window.baseUrl + '/api/tests/list';
+      const options = { testFileId: this.model.id };
+
+      $.get(url, options).done(function (data) {
+        that.model.set({ tests: data.tests });
+        that.testSorting = 'status';
+        that.testAsc = true;
+        that.sortTests(function (test) {
+          return `${that.testsOrder.indexOf(test.status)}_______${test.name}`;
+        });
+        resolve();
       });
     });
   },
