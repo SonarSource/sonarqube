@@ -37,12 +37,12 @@ public class ProcessUtilsTest {
     awaitTermination((Thread) null);
   }
 
-  @Test(timeout = 100L)
+  @Test(timeout = 250L)
   public void awaitTermination_does_not_wait_on_currentThread() {
     awaitTermination(Thread.currentThread());
   }
 
-  @Test(timeout = 3000)
+  @Test(timeout = 3_000L)
   public void awaitTermination_ignores_interrupted_exception_of_current_thread() throws InterruptedException {
     final EverRunningThread runningThread = new EverRunningThread();
     final Thread safeJoiner = new Thread() {
