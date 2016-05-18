@@ -33,7 +33,7 @@ public class TestsWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/tests")
       .setSince("4.4")
-      .setDescription("Get details on test files. See also api/sources.");
+      .setDescription("Get details on test files. See also api/sources. Deprecated since 5.6.");
 
     for (TestsWsAction action : actions) {
       action.define(controller);
