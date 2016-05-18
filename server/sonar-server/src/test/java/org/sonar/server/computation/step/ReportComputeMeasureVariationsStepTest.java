@@ -37,6 +37,7 @@ import org.sonar.server.computation.component.DumbDeveloper;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.measure.Measure;
 import org.sonar.server.computation.measure.MeasureRepositoryRule;
+import org.sonar.server.computation.measure.MeasureVariations;
 import org.sonar.server.computation.metric.Metric;
 import org.sonar.server.computation.metric.MetricImpl;
 import org.sonar.server.computation.metric.MetricRepositoryRule;
@@ -48,13 +49,13 @@ import static org.sonar.db.component.SnapshotTesting.createForComponent;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 import static org.sonar.server.computation.measure.Measure.newMeasureBuilder;
 
-
 public class ReportComputeMeasureVariationsStepTest {
 
   static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
   static final Metric DEBT_METRIC = new MetricImpl(2, "sqale_index", "sqale_index", Metric.MetricType.WORK_DUR);
   static final Metric FILE_COMPLEXITY_METRIC = new MetricImpl(3, "file_complexity", "file_complexity", Metric.MetricType.FLOAT);
   static final Metric BUILD_BREAKER_METRIC = new MetricImpl(4, "build_breaker", "build_breaker", Metric.MetricType.BOOL);
+  static final Metric NEW_DEBT = new MetricImpl(5, "new_debt", "new_debt", Metric.MetricType.WORK_DUR);
 
   static final ComponentDto PROJECT_DTO = ComponentTesting.newProjectDto();
 
@@ -74,7 +75,8 @@ public class ReportComputeMeasureVariationsStepTest {
     .add(ISSUES_METRIC)
     .add(DEBT_METRIC)
     .add(FILE_COMPLEXITY_METRIC)
-    .add(BUILD_BREAKER_METRIC);
+    .add(BUILD_BREAKER_METRIC)
+    .add(NEW_DEBT);
   @Rule
   public MeasureRepositoryRule measureRepository = MeasureRepositoryRule.create(treeRootHolder, metricRepository);
 
@@ -151,6 +153,64 @@ public class ReportComputeMeasureVariationsStepTest {
   }
 
   @Test
+  public void set_zero_variation_when_no_change() {
+    // Project
+    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
+    dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
+
+    // Directory
+    ComponentDto directoryDto = ComponentTesting.newDirectory(PROJECT_DTO, "dir");
+    dbClient.componentDao().insert(session, directoryDto);
+    SnapshotDto period1DirectorySnapshot = createForComponent(directoryDto, period1ProjectSnapshot);
+    dbClient.snapshotDao().insert(session, period1DirectorySnapshot);
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), directoryDto.getId(), period1DirectorySnapshot.getId(), 10d));
+    session.commit();
+
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
+
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid(directoryDto.uuid()).build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).addChildren(directory).build();
+    treeRootHolder.setRoot(project);
+
+    addRawMeasure(project, ISSUES_METRIC, newMeasureBuilder().create(60, null));
+    addRawMeasure(directory, ISSUES_METRIC, newMeasureBuilder().create(10, null));
+
+    underTest.execute();
+
+    assertThat(measureRepository.getRawMeasure(project, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(0d);
+    assertThat(measureRepository.getRawMeasure(directory, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(0d);
+  }
+
+  @Test
+  public void set_variation_to_raw_value_on_new_component() throws Exception {
+    // Project
+    SnapshotDto past1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setCreatedAt(1000_000_000L);
+    SnapshotDto currentProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setCreatedAt(2000_000_000L);
+    dbClient.snapshotDao().insert(session, past1ProjectSnapshot);
+    dbClient.snapshotDao().insert(session, currentProjectSnapshot);
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), past1ProjectSnapshot.getId(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), currentProjectSnapshot.getId(), 60d));
+    session.commit();
+
+    periodsHolder.setPeriods(newPeriod(1, past1ProjectSnapshot));
+
+    // Directory has just been added => no snapshot
+    Component directory = ReportComponent.builder(Component.Type.DIRECTORY, 2).setUuid("DIRECTORY").build();
+    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid(PROJECT_DTO.uuid()).addChildren(directory).build();
+    treeRootHolder.setRoot(project);
+
+    addRawMeasure(project, ISSUES_METRIC, newMeasureBuilder().create(90, null));
+    addRawMeasure(directory, ISSUES_METRIC, newMeasureBuilder().create(10, null));
+
+    underTest.execute();
+
+    assertThat(measureRepository.getRawMeasure(project, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(30d);
+    // Variation should be the raw value
+    assertThat(measureRepository.getRawMeasure(directory, ISSUES_METRIC).get().getVariations().getVariation1()).isEqualTo(10d);
+  }
+
+  @Test
   public void set_variations_on_all_periods() {
     SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
     SnapshotDto period2ProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setLast(false);
@@ -198,8 +258,7 @@ public class ReportComputeMeasureVariationsStepTest {
       newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d),
       newMeasureDto(DEBT_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 10d),
       newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 2d),
-      newMeasureDto(BUILD_BREAKER_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 1d)
-      );
+      newMeasureDto(BUILD_BREAKER_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 1d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
@@ -226,8 +285,7 @@ public class ReportComputeMeasureVariationsStepTest {
     SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d)
-      );
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
@@ -242,6 +300,23 @@ public class ReportComputeMeasureVariationsStepTest {
     assertThat(measureRepository.getRawMeasures(PROJECT).keys()).hasSize(1);
 
     assertThat(measureRepository.getRawMeasure(PROJECT, ISSUES_METRIC, developer).get().hasVariations()).isFalse();
+  }
+
+  @Test
+  public void does_not_update_existing_variations() throws Exception {
+    SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
+    dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
+    dbClient.measureDao().insert(session, newMeasureDto(NEW_DEBT.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
+    session.commit();
+    periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
+    treeRootHolder.setRoot(PROJECT);
+
+    addRawMeasure(PROJECT, NEW_DEBT, newMeasureBuilder().setVariations(new MeasureVariations(10d)).createNoValue());
+
+    underTest.execute();
+
+    // As the measure has already variations it has been ignored, then variations will be the same
+    assertThat(measureRepository.getRawMeasure(PROJECT, NEW_DEBT).get().getVariations().getVariation1()).isEqualTo(10d);
   }
 
   private static MeasureDto newMeasureDto(int metricId, long projectId, long snapshotId, double value) {

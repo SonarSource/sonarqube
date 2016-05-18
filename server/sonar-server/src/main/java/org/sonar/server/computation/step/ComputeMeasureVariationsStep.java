@@ -20,6 +20,7 @@
 package org.sonar.server.computation.step;
 
 import com.google.common.base.Function;
+import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import java.util.Collection;
 import java.util.HashMap;
@@ -48,6 +49,7 @@ import org.sonar.server.computation.period.PeriodsHolder;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
 import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
 import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
@@ -100,14 +102,14 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
 
     private final DbSession session;
     private final Set<Integer> metricIds;
-    private final Map<String, Metric> metricByKeys;
+    private final List<Metric> metrics;
 
-    public VariationMeasuresVisitor(DbSession session, Iterable<Metric> metrics) {
+    VariationMeasuresVisitor(DbSession session, List<Metric> metrics) {
       // measures on files are currently purged, so past measures are not available on files
       super(CrawlerDepthLimit.reportMaxDepth(DIRECTORY).withViewsMaxDepth(SUBVIEW), PRE_ORDER);
       this.session = session;
       this.metricIds = from(metrics).transform(MetricDtoToMetricId.INSTANCE).toSet();
-      this.metricByKeys = from(metrics).uniqueIndex(MetricToKey.INSTANCE);
+      this.metrics = metrics;
     }
 
     @Override
@@ -126,6 +128,33 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
       return measuresWithVariationRepository;
     }
 
+    private void setVariationMeasures(Component component, List<PastMeasureDto> pastMeasures, int period, MeasuresWithVariationRepository measuresWithVariationRepository) {
+      Map<MeasureKey, PastMeasureDto> pastMeasuresByMeasureKey = from(pastMeasures).uniqueIndex(pastMeasureToMeasureKey);
+      for (Metric metric : metrics) {
+        Optional<Measure> measure = measureRepository.getRawMeasure(component, metric);
+        if (measure.isPresent() && !measure.get().hasVariations()) {
+          PastMeasureDto pastMeasure = pastMeasuresByMeasureKey.get(new MeasureKey(metric.getKey(), null));
+          double pastValue = (pastMeasure != null && pastMeasure.hasValue()) ? pastMeasure.getValue() : 0d;
+          measuresWithVariationRepository.add(metric, measure.get(), period, computeVariation(measure.get(), pastValue));
+        }
+      }
+    }
+
+    private double computeVariation(Measure measure, double pastValue) {
+      switch (measure.getValueType()) {
+        case INT:
+          return measure.getIntValue() - pastValue;
+        case LONG:
+          return measure.getLongValue() - pastValue;
+        case DOUBLE:
+          return measure.getDoubleValue() - pastValue;
+        case BOOLEAN:
+          return (measure.getBooleanValue() ? 1d : 0d) - pastValue;
+        default:
+          throw new IllegalArgumentException(format("Unsupported Measure.ValueType on measure '%s'", measure));
+      }
+    }
+
     private void processMeasuresWithVariation(Component component, MeasuresWithVariationRepository measuresWithVariationRepository) {
       for (MeasureWithVariations measureWithVariations : measuresWithVariationRepository.measures()) {
         Metric metric = measureWithVariations.getMetric();
@@ -138,34 +167,6 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
             measureWithVariations.getVariation(5)))
           .create();
         measureRepository.update(component, metric, measure);
-      }
-    }
-
-    private void setVariationMeasures(Component component, List<PastMeasureDto> pastMeasures, int period, MeasuresWithVariationRepository measuresWithVariationRepository) {
-      Map<MeasureKey, PastMeasureDto> pastMeasuresByMeasureKey = from(pastMeasures).uniqueIndex(pastMeasureToMeasureKey);
-      for (Map.Entry<String, Measure> entry : from(measureRepository.getRawMeasures(component).entries()).filter(NotDeveloperMeasure.INSTANCE)) {
-        String metricKey = entry.getKey();
-        Measure measure = entry.getValue();
-        PastMeasureDto pastMeasure = pastMeasuresByMeasureKey.get(new MeasureKey(metricKey, null));
-        if (pastMeasure != null && pastMeasure.hasValue()) {
-          Metric metric = metricByKeys.get(metricKey);
-          measuresWithVariationRepository.add(metric, measure, period, computeVariation(measure, pastMeasure.getValue()));
-        }
-      }
-    }
-
-    private double computeVariation(Measure measure, Double pastValue) {
-      switch (measure.getValueType()) {
-        case INT:
-          return measure.getIntValue() - pastValue;
-        case LONG:
-          return measure.getLongValue() - pastValue;
-        case DOUBLE:
-          return measure.getDoubleValue() - pastValue;
-        case BOOLEAN:
-          return (measure.getBooleanValue() ? 1d : 0d) - pastValue;
-        default:
-          throw new IllegalArgumentException("Unsupported Measure.ValueType " + measure.getValueType());
       }
     }
   }
@@ -195,7 +196,7 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     private final Measure measure;
     private final Double[] variations = new Double[5];
 
-    public MeasureWithVariations(Metric metric, Measure measure) {
+    MeasureWithVariations(Metric metric, Measure measure) {
       this.metric = metric;
       this.measure = measure;
     }
@@ -228,16 +229,6 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
     }
   }
 
-  private enum MetricToKey implements Function<Metric, String> {
-    INSTANCE;
-
-    @Nullable
-    @Override
-    public String apply(@Nonnull Metric metric) {
-      return metric.getKey();
-    }
-  }
-
   private enum NumericMetric implements Predicate<Metric> {
     INSTANCE;
 
@@ -248,15 +239,6 @@ public class ComputeMeasureVariationsStep implements ComputationStep {
         || Measure.ValueType.LONG.equals(valueType)
         || Measure.ValueType.DOUBLE.equals(valueType)
         || Measure.ValueType.BOOLEAN.equals(valueType);
-    }
-  }
-
-  private enum NotDeveloperMeasure implements Predicate<Map.Entry<String, Measure>> {
-    INSTANCE;
-
-    @Override
-    public boolean apply(@Nonnull Map.Entry<String, Measure> input) {
-      return input.getValue().getDeveloper() == null;
     }
   }
 
