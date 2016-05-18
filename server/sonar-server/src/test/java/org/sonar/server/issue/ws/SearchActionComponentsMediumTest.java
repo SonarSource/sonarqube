@@ -240,6 +240,7 @@ public class SearchActionComponentsMediumTest {
     tester.get(IssueIndexer.class).indexAll();
 
     wsTester.newGetRequest(IssuesWs.API_ENDPOINT, SearchAction.SEARCH_ACTION)
+      .setParam(IssueFilterParameters.COMPONENT_UUIDS, project.uuid())
       .setParam(IssueFilterParameters.FILE_UUIDS, file.uuid())
       .setParam(IssueFilterParameters.SINCE_LEAK_PERIOD, "true")
       .execute()

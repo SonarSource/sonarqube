@@ -24,7 +24,6 @@ import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Date;
 import java.util.Map;
 import org.assertj.core.api.Fail;
@@ -194,12 +193,10 @@ public class IssueQueryServiceTest {
     map.put("components", componentKeys);
     map.put("componentUuids", newArrayList("ABCD"));
 
-    try {
-      underTest.createFromMap(map);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("components and componentUuids cannot be set simultaneously");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys, componentUuids, components, componentRoots, componentUuids");
+
+    underTest.createFromMap(map);
   }
 
   @Test
@@ -222,12 +219,10 @@ public class IssueQueryServiceTest {
     map.put("componentRoots", newArrayList("org.apache"));
     map.put("componentRootUuids", newArrayList("ABCD"));
 
-    try {
-      underTest.createFromMap(map);
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(IllegalArgumentException.class).hasMessage("componentRoots and componentRootUuids cannot be set simultaneously");
-    }
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("At most one of the following parameters can be provided: componentKeys, componentUuids, components, componentRoots, componentUuids");
+
+    underTest.createFromMap(map);
   }
 
   @Test
@@ -472,8 +467,7 @@ public class IssueQueryServiceTest {
 
     underTest.createFromRequest(new SearchWsRequest()
       .setSinceLeakPeriod(true)
-      .setComponentUuids(Collections.singletonList("component-uuid"))
-      .setProjectUuids(Collections.singletonList("project-uuid")));
+      .setComponentUuids(newArrayList("component-uuid", "project-uuid")));
   }
 
   @Test

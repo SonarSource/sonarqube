@@ -264,8 +264,19 @@ public interface WebService extends Definable<WebService.Context> {
       return this;
     }
 
-    public NewAction setDescription(@Nullable String s) {
-      this.description = s;
+    /**
+     * Used in Orchestrator
+     */
+    public NewAction setDescription(@Nullable String description) {
+      this.description = description;
+      return this;
+    }
+
+    /**
+     * @since 5.6
+     */
+    public NewAction setDescription(@Nullable String description, Object... descriptionArgument) {
+      this.description = description == null ? null : String.format(description, descriptionArgument);
       return this;
     }
 
@@ -274,6 +285,9 @@ public interface WebService extends Definable<WebService.Context> {
       return this;
     }
 
+    /**
+     * @since 5.3
+     */
     public NewAction setDeprecatedSince(@Nullable String deprecatedSince) {
       this.deprecatedSince = deprecatedSince;
       return this;
@@ -592,11 +606,17 @@ public interface WebService extends Definable<WebService.Context> {
       this.key = key;
     }
 
+    /**
+     * @since 5.3
+     */
     public NewParam setSince(@Nullable String since) {
       this.since = since;
       return this;
     }
 
+    /**
+     * @since 5.3
+     */
     public NewParam setDeprecatedSince(@Nullable String deprecatedSince) {
       this.deprecatedSince = deprecatedSince;
       return this;
@@ -610,8 +630,16 @@ public interface WebService extends Definable<WebService.Context> {
       return this;
     }
 
-    public NewParam setDescription(@Nullable String s) {
-      this.description = s;
+    public NewParam setDescription(@Nullable String description) {
+      this.description = description;
+      return this;
+    }
+
+    /**
+     * @since 5.6
+     */
+    public NewParam setDescription(@Nullable String description, Object... descriptionArgument) {
+      this.description = description == null ? null : String.format(description, descriptionArgument);
       return this;
     }
 

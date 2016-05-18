@@ -21,7 +21,6 @@ package org.sonar.server.issue.ws;
 
 import com.google.common.base.Function;
 import com.google.common.collect.Lists;
-import com.google.common.io.Resources;
 import java.util.Collection;
 import java.util.EnumSet;
 import java.util.LinkedHashMap;
@@ -122,12 +121,14 @@ public class SearchAction implements IssuesWsAction {
       .createAction(SEARCH_ACTION)
       .setHandler(this)
       .setDescription(
-        "Search for issues. Requires Browse permission on project(s).<br/>" +
-          "Since 5.5, response field 'debt' has been renamed to 'effort'.<br/>" +
-          "Since 5.5, response field 'actionPlan' has been removed.<br/>" +
-          "Since 5.5, response field 'reporter' has been removed, as manual issue feature has been dropped")
+        "Search for issues. Requires Browse permission on project(s).<br>" +
+          "At most one of the following parameters can be provided at the same time: %s, %s, %s, %s, %s<br>" +
+          "Since 5.5, response field 'debt' has been renamed to 'effort'.<br>" +
+          "Since 5.5, response field 'actionPlan' has been removed.<br>" +
+          "Since 5.5, response field 'reporter' has been removed, as manual issue feature has been dropped.",
+        COMPONENT_KEYS, COMPONENT_UUIDS, COMPONENTS, COMPONENT_ROOT_UUIDS, COMPONENT_ROOTS)
       .setSince("3.6")
-      .setResponseExample(Resources.getResource(this.getClass(), "example-search.json"));
+      .setResponseExample(getClass().getResource("example-search.json"));
 
     action.addPagingParams(100, MAX_LIMIT);
     action.createParam(Param.FACETS)
@@ -231,8 +232,7 @@ public class SearchAction implements IssuesWsAction {
 
     action.createParam(COMPONENT_KEYS)
       .setDescription("To retrieve issues associated to a specific list of components sub-components (comma-separated list of component keys). " +
-        "A component can be a view, developer, project, module, directory or file. " +
-        "If this parameter is set, componentUuids must not be set.")
+        "A component can be a view, developer, project, module, directory or file.")
       .setExampleValue(KEY_PROJECT_EXAMPLE_001);
     action.createParam(COMPONENTS)
       .setDeprecatedSince("5.1")
@@ -240,10 +240,8 @@ public class SearchAction implements IssuesWsAction {
     action.createParam(COMPONENT_UUIDS)
       .setDescription("To retrieve issues associated to a specific list of components their sub-components (comma-separated list of component UUIDs). " +
         INTERNAL_PARAMETER_DISCLAIMER +
-        "A component can be a project, module, directory or file. " +
-        "If this parameter is set, componentKeys must not be set.")
+        "A component can be a project, module, directory or file.")
       .setExampleValue("584a89f2-8037-4f7b-b82c-8b45d2d63fb2");
-
     action.createParam(COMPONENT_ROOTS)
       .setDeprecatedSince("5.1")
       .setDescription("If used, will have the same meaning as componentKeys AND onComponentOnly=false.");
@@ -273,9 +271,10 @@ public class SearchAction implements IssuesWsAction {
       .setExampleValue("7d8749e8-3070-4903-9188-bdd82933bb92");
 
     action.createParam(DIRECTORIES)
-      .setDescription("Since 5.1. To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). " +
+      .setDescription("To retrieve issues associated to a specific list of directories (comma-separated list of directory paths). " +
         "This parameter is only meaningful when a module is selected. " +
         INTERNAL_PARAMETER_DISCLAIMER)
+      .setSince("5.1")
       .setExampleValue("src/main/java/org/sonar/server/");
 
     action.createParam(FILE_UUIDS)
@@ -362,12 +361,6 @@ public class SearchAction implements IssuesWsAction {
     addMandatoryValuesToFacet(facets, LANGUAGES, request.getLanguages());
     addMandatoryValuesToFacet(facets, TAGS, request.getTags());
     addMandatoryValuesToFacet(facets, TYPES, RuleType.names());
-    List<String> actionPlans = Lists.newArrayList("");
-    List<String> actionPlansFromRequest = request.getActionPlans();
-    if (actionPlansFromRequest != null) {
-      actionPlans.addAll(actionPlansFromRequest);
-    }
-    addMandatoryValuesToFacet(facets, DEPRECATED_ACTION_PLANS, actionPlans);
     addMandatoryValuesToFacet(facets, COMPONENT_UUIDS, request.getComponentUuids());
 
     for (String facetName : request.getFacets()) {

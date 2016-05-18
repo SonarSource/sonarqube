@@ -21,20 +21,24 @@ package org.sonar.server.issue;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
+import com.google.common.base.Predicate;
 import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import javax.annotation.CheckForNull;
+import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.BooleanUtils;
 import org.apache.commons.lang.ObjectUtils;
@@ -60,6 +64,8 @@ import org.sonarqube.ws.client.issue.IssueFilterParameters;
 import org.sonarqube.ws.client.issue.SearchWsRequest;
 
 import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Predicates.notNull;
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.longToDate;
@@ -68,6 +74,10 @@ import static org.sonar.db.component.ComponentDtoFunctions.toProjectUuid;
 import static org.sonar.db.component.ComponentDtoFunctions.toUuid;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENTS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_KEYS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_ROOTS;
+import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENT_UUIDS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AFTER;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_IN_LAST;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.SINCE_LEAK_PERIOD;
@@ -206,7 +216,7 @@ public class IssueQueryService {
         request.getFileUuids(),
         request.getAuthors());
 
-      builder.createdAfter(buildCreatedAfterFromRequest(session, request, allComponentUuids, effectiveOnComponentOnly));
+      builder.createdAfter(buildCreatedAfterFromRequest(session, request, allComponentUuids));
 
       String sort = request.getSort();
       if (!Strings.isNullOrEmpty(sort)) {
@@ -220,7 +230,7 @@ public class IssueQueryService {
     }
   }
 
-  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, Set<String> componentUuids, boolean effectiveOnComponentOnly) {
+  private Date buildCreatedAfterFromRequest(DbSession dbSession, SearchWsRequest request, Set<String> componentUuids) {
     Date createdAfter = parseAsDateTime(request.getCreatedAfter());
     String createdInLast = request.getCreatedInLast();
 
@@ -229,29 +239,15 @@ public class IssueQueryService {
     }
 
     checkRequest(createdAfter == null, "'%s' and '%s' cannot be set simultaneously", CREATED_AFTER, SINCE_LEAK_PERIOD);
-    Set<String> allComponentUuids = new HashSet<>(componentUuids);
-    if (!effectiveOnComponentOnly) {
-      if (request.getProjectKeys() != null) {
-        allComponentUuids.addAll(componentUuids(dbSession, request.getProjectKeys()));
-      }
-      if (request.getProjectUuids() != null) {
-        allComponentUuids.addAll(request.getProjectUuids());
-      }
-      if (request.getModuleUuids() != null) {
-        allComponentUuids.addAll(request.getModuleUuids());
-      }
-      if (request.getFileUuids() != null) {
-        allComponentUuids.addAll(request.getFileUuids());
-      }
-    }
 
-    checkArgument(allComponentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
-    String uuid = allComponentUuids.iterator().next();
+    checkArgument(componentUuids.size() == 1, "One and only one component must be provided when searching since leak period");
+    String uuid = componentUuids.iterator().next();
     // TODO use ComponentFinder instead
     Date createdAfterFromSnapshot = findCreatedAfterFromComponentUuid(dbSession, uuid);
     return buildCreatedAfterFromDates(createdAfterFromSnapshot, createdInLast);
   }
 
+  @CheckForNull
   private Date findCreatedAfterFromComponentUuid(DbSession dbSession, String uuid) {
     ComponentDto component = checkFoundWithOptional(componentService.getByUuid(uuid), "Component with id '%s' not found", uuid);
     SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, component.getId());
@@ -285,9 +281,9 @@ public class IssueQueryService {
     Set<String> allComponentUuids) {
     boolean effectiveOnComponentOnly = false;
 
-    failIfBothParametersSet(componentRootUuids, componentRoots, "componentRoots and componentRootUuids cannot be set simultaneously");
-    failIfBothParametersSet(componentUuids, components, "components and componentUuids cannot be set simultaneously");
-    failIfBothParametersSet(componentKeys, componentUuids, "componentKeys and componentUuids cannot be set simultaneously");
+    checkArgument(atMostOneNonNullElement(components, componentUuids, componentKeys, componentRootUuids, componentRoots),
+      "At most one of the following parameters can be provided: %s, %s, %s, %s, %s",
+      COMPONENT_KEYS, COMPONENT_UUIDS, COMPONENTS, COMPONENT_ROOTS, COMPONENT_UUIDS);
 
     if (componentRootUuids != null) {
       allComponentUuids.addAll(componentRootUuids);
@@ -308,10 +304,10 @@ public class IssueQueryService {
     return effectiveOnComponentOnly;
   }
 
-  private void failIfBothParametersSet(@Nullable Collection<String> uuids, @Nullable Collection<String> keys, String message) {
-    if (uuids != null && keys != null) {
-      throw new IllegalArgumentException(message);
-    }
+  private static boolean atMostOneNonNullElement(Object... objects) {
+    return !from(Arrays.asList(objects))
+      .filter(notNull())
+      .anyMatch(new HasTwoOrMoreElements());
   }
 
   private void addComponentParameters(IssueQuery.Builder builder, DbSession session,
@@ -330,7 +326,7 @@ public class IssueQueryService {
     }
 
     builder.authors(authors);
-    failIfBothParametersSet(projectUuids, projects, "projects and projectUuids cannot be set simultaneously");
+    checkArgument(projectUuids == null || projects == null, "projects and projectUuids cannot be set simultaneously");
     if (projectUuids != null) {
       builder.projectUuids(projectUuids);
     } else {
@@ -475,6 +471,20 @@ public class IssueQueryService {
       } catch (SonarException notDateEither) {
         throw new IllegalArgumentException(String.format("'%s' cannot be parsed as either a date or date+time", stringDate));
       }
+    }
+  }
+
+  private static class HasTwoOrMoreElements implements Predicate<Object> {
+    private AtomicInteger counter;
+
+    private HasTwoOrMoreElements() {
+      this.counter = new AtomicInteger();
+    }
+
+    @Override
+    public boolean apply(@Nonnull Object input) {
+      Objects.requireNonNull(input);
+      return counter.incrementAndGet() >= 2;
     }
   }
 }
