@@ -115,11 +115,12 @@ public class LogListenerTest {
    *   Check that log message is not formatted, i.e. has no log level and timestamp.
    */
   private void assertMsgClean(String msg) {
+    // FP: [JOURNAL_FLUSHER] WARNING Journal flush operation took 2,093ms last 8 cycles average is 262ms
+    if (msg.contains("[JOURNAL_FLUSHER]")) {
+      return;
+    }
+
     for (LogOutput.Level l : LogOutput.Level.values()) {
-      // FP: [JOURNAL_FLUSHER] WARNING Journal flush operation took 2,093ms last 8 cycles average is 262ms
-      if(msg.contains("[JOURNAL_FLUSHER]")) {
-        continue;
-      }
       assertThat(msg).doesNotContain(l.toString());
     }
 
