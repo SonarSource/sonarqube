@@ -106,6 +106,20 @@ public class BatchWsClientTest {
     new BatchWsClient(wsClient, true).call(request);
   }
 
+  @Test
+  public void fail_if_bad_request() throws Exception {
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Boo! bad request! bad!");
+
+    WsRequest request = newRequest();
+    WsResponse response = newResponse()
+      .setCode(400)
+      .setContent("{\"errors\":[{\"msg\":\"Boo! bad request! bad!\"}]}");
+    when(wsClient.wsConnector().call(request)).thenReturn(response);
+
+    new BatchWsClient(wsClient, true).call(request);
+  }
+
   private MockWsResponse newResponse() {
     return new MockWsResponse().setRequestUrl("https://local/api/issues/search");
   }

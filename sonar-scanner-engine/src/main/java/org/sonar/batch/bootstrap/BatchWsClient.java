@@ -25,7 +25,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import java.net.HttpURLConnection;
 import java.util.ArrayList;
 import java.util.List;
 import org.sonar.api.CoreProperties;
@@ -40,6 +39,9 @@ import org.sonarqube.ws.client.WsRequest;
 import org.sonarqube.ws.client.WsResponse;
 
 import static java.lang.String.format;
+import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
+import static java.net.HttpURLConnection.HTTP_FORBIDDEN;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
 
 public class BatchWsClient {
 
@@ -78,7 +80,8 @@ public class BatchWsClient {
   }
 
   private void failIfUnauthorized(WsResponse response) {
-    if (response.code() == HttpURLConnection.HTTP_UNAUTHORIZED) {
+    int code = response.code();
+    if (code == HTTP_UNAUTHORIZED) {
       if (hasCredentials) {
         // credentials are not valid
         throw MessageException.of(format("Not authorized. Please check the properties %s and %s.",
@@ -89,7 +92,7 @@ public class BatchWsClient {
         "Please provide the values of the properties %s and %s.", CoreProperties.LOGIN, CoreProperties.PASSWORD));
 
     }
-    if (response.code() == HttpURLConnection.HTTP_FORBIDDEN) {
+    if (code == HTTP_FORBIDDEN || code == HTTP_BAD_REQUEST) {
       // SONAR-4397 Details are in response content
       throw MessageException.of(tryParseAsJsonError(response.content()));
     }
