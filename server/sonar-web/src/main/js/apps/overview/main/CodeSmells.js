@@ -93,7 +93,7 @@ class CodeSmells extends React.Component {
 
             <div className="overview-domain-measure">
               <div className="overview-domain-measure-value">
-                {this.renderDebt('new_effort', 'CODE_SMELL')}
+                {this.renderDebt('new_technical_debt', 'CODE_SMELL')}
               </div>
               <div className="overview-domain-measure-label">
                 {getMetricName('new_effort')}
