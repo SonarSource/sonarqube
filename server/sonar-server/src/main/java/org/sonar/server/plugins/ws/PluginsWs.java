@@ -34,7 +34,7 @@ public class PluginsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/plugins");
-    controller.setDescription("Plugin management")
+    controller.setDescription("Manage the plugins on the server, including installing, uninstalling, and upgrading.")
       .setSince("5.2");
 
     for (PluginsWsAction action : actions) {

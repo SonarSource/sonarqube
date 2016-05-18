@@ -33,7 +33,7 @@ public class UsersWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/users")
       .setSince("3.6")
-      .setDescription("Users management");
+      .setDescription("Manage users.");
 
     for (UsersWsAction action : actions) {
       action.define(controller);

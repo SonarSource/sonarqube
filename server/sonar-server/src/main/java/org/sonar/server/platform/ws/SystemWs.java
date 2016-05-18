@@ -31,7 +31,8 @@ public class SystemWs implements WebService {
 
   @Override
   public void define(Context context) {
-    NewController controller = context.createController("api/system");
+    NewController controller = context.createController("api/system")
+      .setDescription("Get system details, and perform some management actions, such as restarting, and initiating a database migration (as part of a system upgrade).");
 
     for (SystemWsAction action : actions) {
       action.define(controller);

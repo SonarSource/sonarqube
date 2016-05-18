@@ -27,7 +27,7 @@ public class UserPropertiesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/user_properties");
-    controller.setDescription("User properties management");
+    controller.setDescription("Manage user properties.");
     controller.setSince("2.6");
 
     defineIndexAction(controller);

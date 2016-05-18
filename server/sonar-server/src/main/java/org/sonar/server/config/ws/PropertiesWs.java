@@ -27,7 +27,7 @@ public class PropertiesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/properties");
-    controller.setDescription("Properties management");
+    controller.setDescription("Manage global and project properties.");
     controller.setSince("2.6");
 
     defineIndexAction(controller);

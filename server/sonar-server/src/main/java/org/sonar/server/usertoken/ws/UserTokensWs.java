@@ -33,8 +33,7 @@ public class UserTokensWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(CONTROLLER)
-      .setDescription("User token management. To enhance security, tokens can be used to take the place " +
-        "of user credentials in analysis configuration. A token can be revoked at any time.")
+      .setDescription("List, create, and delete a user's access tokens.")
       .setSince("5.3");
 
     for (UserTokensWsAction action : actions) {

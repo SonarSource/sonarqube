@@ -27,7 +27,7 @@ public class EventsWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/events");
-    controller.setDescription("Project's events management");
+    controller.setDescription("Manage project events.");
     controller.setSince("2.6");
 
     defineIndexAction(controller);

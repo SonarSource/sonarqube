@@ -46,7 +46,7 @@ public class IssuesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(API_ENDPOINT);
-    controller.setDescription("Coding rule issues");
+    controller.setDescription("Read and update issues.");
     controller.setSince("3.6");
     for (IssuesWsAction action : actions) {
       action.define(controller);

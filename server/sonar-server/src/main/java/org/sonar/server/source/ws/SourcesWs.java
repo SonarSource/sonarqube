@@ -33,7 +33,7 @@ public class SourcesWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/sources")
       .setSince("4.2")
-      .setDescription("Display sources information");
+      .setDescription("Get details on source files. See also api/tests.");
     for (SourcesWsAction action : actions) {
       action.define(controller);
     }
