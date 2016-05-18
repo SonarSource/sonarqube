@@ -116,6 +116,10 @@ public class LogListenerTest {
    */
   private void assertMsgClean(String msg) {
     for (LogOutput.Level l : LogOutput.Level.values()) {
+      // FP: [JOURNAL_FLUSHER] WARNING Journal flush operation took 2,093ms last 8 cycles average is 262ms
+      if(msg.contains("[JOURNAL_FLUSHER]")) {
+        continue;
+      }
       assertThat(msg).doesNotContain(l.toString());
     }
 
