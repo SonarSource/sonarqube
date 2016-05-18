@@ -91,7 +91,7 @@ public class FileCache {
     return targetFile;
   }
 
-  private void download(Downloader downloader, String filename, File tempFile) {
+  private static void download(Downloader downloader, String filename, File tempFile) {
     try {
       downloader.download(filename, tempFile);
     } catch (IOException e) {
