@@ -459,9 +459,6 @@ public class IssueIndex extends BaseIndex {
   private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
     long now = system.now();
 
-    String timeZoneString = system.getDefaultTimeZone().getID();
-    String gmtTimeZoneString = TimeZone.getTimeZone("GMT").getID();
-
     DateHistogram.Interval bucketSize = DateHistogram.Interval.YEAR;
     Date createdAfter = query.createdAfter();
     long startTime = createdAfter == null ? getMinCreatedAt(filters, esQuery) : createdAfter.getTime();
@@ -478,13 +475,15 @@ public class IssueIndex extends BaseIndex {
       bucketSize = DateHistogram.Interval.MONTH;
     }
 
+    int offsetInSeconds = system.getDefaultTimeZone().getRawOffset() / 1_000;
+
     AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(CREATED_AT)
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
       .interval(bucketSize)
       .minDocCount(0L)
       .format(DateUtils.DATETIME_FORMAT)
-      .timeZone(gmtTimeZoneString)
-      .postZone(timeZoneString)
+      .timeZone(TimeZone.getTimeZone("GMT").getID())
+      .offset(offsetInSeconds + "s")
       .extendedBounds(startTime, endTime);
     dateHistogram = addEffortAggregationIfNeeded(query, dateHistogram);
     return dateHistogram;
