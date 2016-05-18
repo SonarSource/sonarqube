@@ -19,23 +19,37 @@
  */
 package org.sonar.server.db;
 
+import org.picocontainer.Startable;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
-/**
- * Checks charset of all database columns when at least one db migration has been executed. This requires
- * to be defined in platform level 3 ({@link org.sonar.server.platform.platformlevel.PlatformLevel3}).
- */
-public class CheckDatabaseCharsetAfterMigration extends CheckDatabaseCharsetAtStartup {
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
-  public CheckDatabaseCharsetAfterMigration(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
-    super(upgradeStatus, charsetChecker);
+/**
+ * Checks charset of all database columns when at least one db migration has been executed. 
+ */
+public class CheckDatabaseCollationDuringMigration implements Startable {
+
+  private final ServerUpgradeStatus upgradeStatus;
+  private final DatabaseCharsetChecker charsetChecker;
+
+  public CheckDatabaseCollationDuringMigration(ServerUpgradeStatus upgradeStatus, DatabaseCharsetChecker charsetChecker) {
+    this.upgradeStatus = upgradeStatus;
+    this.charsetChecker = charsetChecker;
   }
 
   @Override
   public void start() {
-    if (getUpgradeStatus().isFreshInstall() || getUpgradeStatus().isUpgraded()) {
-      check();
+    if (upgradeStatus.isFreshInstall()) {
+      charsetChecker.check(ENFORCE_UTF8, AUTO_REPAIR_COLLATION);
+    } else if (upgradeStatus.isUpgraded()) {
+      charsetChecker.check(AUTO_REPAIR_COLLATION);
     }
+  }
+
+  @Override
+  public void stop() {
+    // do nothing
   }
 }

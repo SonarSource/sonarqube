@@ -21,6 +21,9 @@ package org.sonar.db.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Set;
+import org.hamcrest.Description;
+import org.hamcrest.TypeSafeMatcher;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -35,13 +38,15 @@ import org.sonar.db.dialect.PostgreSql;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyBoolean;
-import static org.mockito.Matchers.eq;
+import static org.mockito.Matchers.anySet;
+import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 public class DatabaseCharsetCheckerTest {
 
@@ -58,8 +63,17 @@ public class DatabaseCharsetCheckerTest {
     when(underTest.getHandler(dialect)).thenReturn(handler);
     when(db.getDialect()).thenReturn(dialect);
 
-    underTest.check(true);
-    verify(handler).handle(any(Connection.class), eq(true));
+    underTest.check(ENFORCE_UTF8);
+    verify(handler).handle(any(Connection.class), argThat(new TypeSafeMatcher<Set<DatabaseCharsetChecker.Flag>>() {
+      @Override
+      protected boolean matchesSafely(Set<DatabaseCharsetChecker.Flag> flags) {
+        return flags.contains(ENFORCE_UTF8) && flags.size() == 1;
+      }
+
+      @Override
+      public void describeTo(Description description) {
+      }
+    }));
   }
 
   @Test
@@ -67,11 +81,11 @@ public class DatabaseCharsetCheckerTest {
     Oracle dialect = new Oracle();
     when(underTest.getHandler(dialect)).thenReturn(handler);
     when(db.getDialect()).thenReturn(dialect);
-    doThrow(new SQLException("failure")).when(handler).handle(any(Connection.class), anyBoolean());
+    doThrow(new SQLException("failure")).when(handler).handle(any(Connection.class), anySet());
 
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("failure");
-    underTest.check(true);
+    underTest.check(AUTO_REPAIR_COLLATION);
   }
 
   @Test

@@ -20,6 +20,7 @@
 package org.sonar.server.platform.platformlevel;
 
 import org.sonar.server.app.ProcessCommandWrapper;
+import org.sonar.server.db.CheckDatabaseCollationDuringMigration;
 import org.sonar.server.es.IndexerStartupTask;
 import org.sonar.server.issue.filter.RegisterIssueFilters;
 import org.sonar.server.platform.ServerLifecycleNotifier;
@@ -49,6 +50,7 @@ public class PlatformLevelStartup extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
+      CheckDatabaseCollationDuringMigration.class,
       IndexerStartupTask.class,
       RegisterMetrics.class,
       RegisterQualityGates.class,

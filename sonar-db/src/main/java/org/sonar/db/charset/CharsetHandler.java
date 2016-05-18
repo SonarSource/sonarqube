@@ -22,6 +22,7 @@ package org.sonar.db.charset;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 
 abstract class CharsetHandler {
@@ -34,7 +35,7 @@ abstract class CharsetHandler {
     this.selectExecutor = selectExecutor;
   }
 
-  abstract void handle(Connection connection, boolean enforceUtf8) throws SQLException;
+  abstract void handle(Connection connection, Set<DatabaseCharsetChecker.Flag> flags) throws SQLException;
 
   protected SqlExecutor getSqlExecutor() {
     return selectExecutor;
@@ -61,5 +62,4 @@ abstract class CharsetHandler {
   protected final <T> List<T> select(Connection connection, String sql, SqlExecutor.RowConverter<T> rowConverter) throws SQLException {
     return selectExecutor.executeSelect(connection, sql, rowConverter);
   }
-
 }

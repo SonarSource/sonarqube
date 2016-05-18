@@ -23,8 +23,9 @@ import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.ArrayList;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
@@ -34,6 +35,8 @@ import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 class MysqlCharsetHandler extends CharsetHandler {
 
@@ -45,20 +48,22 @@ class MysqlCharsetHandler extends CharsetHandler {
   }
 
   @Override
-  void handle(Connection connection, boolean enforceUtf8) throws SQLException {
-    logInit(enforceUtf8);
-    checkCollation(connection, enforceUtf8);
+  void handle(Connection connection, Set<DatabaseCharsetChecker.Flag> flags) throws SQLException {
+    logInit(flags);
+    checkCollation(connection, flags);
   }
 
-  private static void logInit(boolean enforceUtf8) {
-    String message = "Verify that database collation is case-sensitive";
-    if (enforceUtf8) {
-      message = "Verify that database collation is UTF8";
+  private static void logInit(Set<DatabaseCharsetChecker.Flag> flags) {
+    if (flags.contains(AUTO_REPAIR_COLLATION)) {
+      LOGGER.info("Repair case-insensitive database columns");
+    } else if (flags.contains(ENFORCE_UTF8)) {
+      LOGGER.info("Verify that database collation is UTF8");
+    } else {
+      LOGGER.info("Verify that database collation is case-sensitive");
     }
-    LOGGER.info(message);
   }
 
-  private void checkCollation(Connection connection, boolean enforceUtf8) throws SQLException {
+  private void checkCollation(Connection connection, Set<DatabaseCharsetChecker.Flag> flags) throws SQLException {
     // All VARCHAR columns are returned. No need to check database general collation.
     // Example of row:
     // issues | kee | utf8 | utf8_bin
@@ -66,16 +71,21 @@ class MysqlCharsetHandler extends CharsetHandler {
       ColumnDef.SELECT_COLUMNS +
         "FROM INFORMATION_SCHEMA.columns " +
         "WHERE table_schema=database() and character_set_name is not null and collation_name is not null", ColumnDef.ColumnDefRowConverter.INSTANCE);
-    List<String> utf8Errors = new ArrayList<>();
+    Set<String> errors = new LinkedHashSet<>();
     for (ColumnDef column : from(columns).filter(ColumnDef.IsInSonarQubeTablePredicate.INSTANCE)) {
-      if (enforceUtf8 && !containsIgnoreCase(column.getCharset(), UTF8)) {
-        utf8Errors.add(format("%s.%s", column.getTable(), column.getColumn()));
-      } else if (endsWithIgnoreCase(column.getCollation(), "_ci")) {
-        repairCaseInsensitiveColumn(connection, column);
+      if (flags.contains(ENFORCE_UTF8) && !containsIgnoreCase(column.getCharset(), UTF8)) {
+        errors.add(format("%s.%s", column.getTable(), column.getColumn()));
+      }
+      if (endsWithIgnoreCase(column.getCollation(), "_ci")) {
+        if (flags.contains(AUTO_REPAIR_COLLATION)) {
+          repairCaseInsensitiveColumn(connection, column);
+        } else {
+          errors.add(format("%s.%s", column.getTable(), column.getColumn()));
+        }
       }
     }
-    if (!utf8Errors.isEmpty()) {
-      throw MessageException.of(format("UTF8 case-sensitive collation is required for database columns [%s]", Joiner.on(", ").join(utf8Errors)));
+    if (!errors.isEmpty()) {
+      throw MessageException.of(format("UTF8 case-sensitive collation is required for database columns [%s]", Joiner.on(", ").join(errors)));
     }
   }
 

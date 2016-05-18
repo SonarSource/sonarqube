@@ -27,6 +27,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
 
+import static com.google.common.collect.Sets.immutableEnumSet;
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
@@ -35,6 +36,8 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 public class MysqlCharsetHandlerTest {
 
@@ -50,17 +53,29 @@ public class MysqlCharsetHandlerTest {
   MysqlCharsetHandler underTest = new MysqlCharsetHandler(selectExecutor);
 
   @Test
-  public void does_not_fail_if_charsets_of_all_columns_are_utf8() throws Exception {
+  public void do_not_fail_if_charsets_of_all_columns_are_utf8_and_case_sensitive() throws Exception {
     answerColumnDef(asList(
       new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin", "varchar", 10, false),
       new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "utf8", "utf8_bin", "varchar", 10, false)));
 
     // all columns are utf8
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
-  public void fails_if_not_utf8() throws Exception {
+  public void fail_if_charsets_of_a_column_is_utf8_but_case_insensitive() throws Exception {
+    answerColumnDef(asList(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "utf8", "utf8_general_ci", "varchar", 10, false)));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("UTF8 case-sensitive collation is required for database columns [projects.name]");
+
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
+  }
+
+  @Test
+  public void fail_if_not_utf8() throws Exception {
     answerColumnDef(asList(
       new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin", "varchar", 10, false),
       new ColumnDef(TABLE_PROJECTS, COLUMN_KEE, "latin1", "latin1_german1_ci", "varchar", 10, false),
@@ -68,17 +83,17 @@ public class MysqlCharsetHandlerTest {
 
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("UTF8 case-sensitive collation is required for database columns [projects.kee, projects.name]");
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
-  public void repairs_case_insensitive_column() throws Exception {
+  public void repair_case_insensitive_column() throws Exception {
     answerColumnDef(asList(
       new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "utf8", "utf8_bin", "varchar", 10, false),
       new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "latin1", "latin1_swedish_ci", "varchar", 10, false)));
 
     Connection connection = mock(Connection.class);
-    underTest.handle(connection, false);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
 
     verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects MODIFY name varchar(10) CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL");
   }
@@ -88,7 +103,7 @@ public class MysqlCharsetHandlerTest {
     answerColumnDef(asList(new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "latin1", "latin1_german1_ci", "longtext", 4_294_967_295L, false)));
 
     Connection connection = mock(Connection.class);
-    underTest.handle(connection, false);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
 
     verify(selectExecutor).executeUpdate(connection, "ALTER TABLE " + TABLE_ISSUES + " MODIFY " + COLUMN_KEE + " longtext CHARACTER SET 'latin1' COLLATE 'latin1_bin' NOT NULL");
   }

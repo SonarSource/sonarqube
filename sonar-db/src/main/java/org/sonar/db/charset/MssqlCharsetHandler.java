@@ -20,16 +20,21 @@
 package org.sonar.db.charset;
 
 import com.google.common.annotations.VisibleForTesting;
+import com.google.common.base.Joiner;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
+import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
 
 class MssqlCharsetHandler extends CharsetHandler {
 
@@ -40,15 +45,13 @@ class MssqlCharsetHandler extends CharsetHandler {
   }
 
   @Override
-  void handle(Connection connection, boolean enforceUtf8) throws SQLException {
-    LOGGER.info("Verify that database collation is case-sensitive and accent-sensitive");
-    checkCollation(connection);
-  }
+  void handle(Connection connection, Set<DatabaseCharsetChecker.Flag> flags) throws SQLException {
+    logInit(flags);
 
-  private void checkCollation(Connection connection) throws SQLException {
     // All VARCHAR columns are returned. No need to check database general collation.
     // Example of row:
     // issues | kee | Latin1_General_CS_AS
+    Set<String> errors = new LinkedHashSet<>();
     List<ColumnDef> columns = select(connection,
       ColumnDef.SELECT_COLUMNS +
         "FROM [INFORMATION_SCHEMA].[COLUMNS] " +
@@ -56,8 +59,25 @@ class MssqlCharsetHandler extends CharsetHandler {
         "ORDER BY table_name,column_name", ColumnDef.ColumnDefRowConverter.INSTANCE);
     for (ColumnDef column : from(columns).filter(ColumnDef.IsInSonarQubeTablePredicate.INSTANCE)) {
       if (!endsWithIgnoreCase(column.getCollation(), "_CS_AS")) {
-        repairColumnCollation(connection, column);
+        if (flags.contains(AUTO_REPAIR_COLLATION)) {
+          repairColumnCollation(connection, column);
+        } else {
+          errors.add(format("%s.%s", column.getTable(), column.getColumn()));
+        }
       }
+    }
+
+    if (!errors.isEmpty()) {
+      throw MessageException.of(format("Case-sensitive and accent-sensitive collation is required for database columns [%s]",
+        Joiner.on(", ").join(errors)));
+    }
+  }
+
+  private static void logInit(Set<DatabaseCharsetChecker.Flag> flags) {
+    if (flags.contains(AUTO_REPAIR_COLLATION)) {
+      LOGGER.info("Repair case-insensitive or accent-insensitive database columns");
+    } else {
+      LOGGER.info("Verify that database columns are case-sensitive and accent-sensitive");
     }
   }
 
