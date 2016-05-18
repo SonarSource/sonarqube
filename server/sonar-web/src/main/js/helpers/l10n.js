@@ -37,10 +37,7 @@ export function translateWithParameters (messageKey, ...parameters) {
 }
 
 function getCurrentLocale () {
-  const locale = window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
-  const tags = locale.split('-');
-  const [region, ...other] = tags;
-  return [region.toLowerCase(), ...other.map(t => t.toUpperCase())].join('_');
+  return window.navigator.languages ? window.navigator.languages[0] : window.navigator.language;
 }
 
 function makeRequest (params) {
