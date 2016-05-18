@@ -19,7 +19,10 @@
  */
 package org.sonar.server.platform;
 
-public class ServerId {
+import javax.annotation.concurrent.Immutable;
+
+@Immutable
+public final class ServerId {
   private final String id;
   private final boolean valid;
 
