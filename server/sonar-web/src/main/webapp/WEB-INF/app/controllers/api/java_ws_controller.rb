@@ -31,7 +31,7 @@ class Api::JavaWsController < Api::ApiController
     ws_request = Java::OrgSonarServerWs::ServletRequest.new(servlet_request, params.to_java)
     ws_response = Java::OrgSonarServerWs::ServletResponse.new()
     engine = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerWs::WebServiceEngine.java_class)
-    engine.execute(ws_request, ws_response, params[:wspath], params[:wsaction])
+    engine.execute(ws_request, ws_response, params[:wspath], params[:wsaction], params[:responseFormat])
 
     ws_response.getHeaderNames().to_a.each do |name|
       response.header[name] = ws_response.getHeader(name)

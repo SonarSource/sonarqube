@@ -22,6 +22,8 @@ package org.sonar.server.ws;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Locale;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.picocontainer.Startable;
 import org.sonar.api.i18n.I18n;
@@ -40,8 +42,12 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.MediaTypes;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Strings.isNullOrEmpty;
 import static java.lang.String.format;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
 import static org.sonar.server.ws.RequestVerifier.verifyRequest;
+import static org.sonar.server.ws.ServletRequest.SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX;
 
 /**
  * @since 4.2
@@ -83,19 +89,20 @@ public class WebServiceEngine implements LocalConnector, Startable {
   @Override
   public LocalResponse call(LocalRequest request) {
     String controller = StringUtils.substringBeforeLast(request.getPath(), "/");
-    String action = StringUtils.substringAfterLast(request.getPath(), "/");
+    String action = substringAfterLast(request.getPath(), "/");
     DefaultLocalResponse localResponse = new DefaultLocalResponse();
-    execute(new LocalRequestAdapter(request), localResponse, controller, action);
+    execute(new LocalRequestAdapter(request), localResponse, controller, action, null);
     return localResponse;
   }
 
-  public void execute(Request request, Response response, String controllerPath, String actionKey) {
+  public void execute(Request request, Response response, String controllerPath, String actionKey, @Nullable String actionExtension) {
     try {
       WebService.Action action = getAction(controllerPath, actionKey);
       if (request instanceof ValidatingRequest) {
         ((ValidatingRequest) request).setAction(action);
         ((ValidatingRequest) request).setLocalConnector(this);
       }
+      checkActionExtension(actionExtension);
       verifyRequest(action, request);
       action.handler().handle(request, response);
     } catch (IllegalArgumentException e) {
@@ -111,16 +118,13 @@ public class WebServiceEngine implements LocalConnector, Startable {
   }
 
   private WebService.Action getAction(String controllerPath, String actionKey) {
-    String actionKeyWithoutFormatSuffix = actionKey.contains(".") ?
-      actionKey.substring(0, actionKey.lastIndexOf('.'))
-      : actionKey;
     WebService.Controller controller = context.controller(controllerPath);
     if (controller == null) {
       throw new BadRequestException(format("Unknown web service: %s", controllerPath));
     }
-    WebService.Action action = controller.action(actionKeyWithoutFormatSuffix);
+    WebService.Action action = controller.action(actionKey);
     if (action == null) {
-      throw new BadRequestException(format("Unknown action: %s/%s", controllerPath, actionKeyWithoutFormatSuffix));
+      throw new BadRequestException(format("Unknown action: %s/%s", controllerPath, actionKey));
     }
     return action;
   }
@@ -144,4 +148,12 @@ public class WebServiceEngine implements LocalConnector, Startable {
       json.close();
     }
   }
+
+  private static void checkActionExtension(@Nullable String actionExtension) {
+    if (isNullOrEmpty(actionExtension)) {
+      return;
+    }
+    checkArgument(SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX.get(actionExtension.toLowerCase(Locale.ENGLISH)) != null, "Unknown action extension: %s", actionExtension);
+  }
+
 }

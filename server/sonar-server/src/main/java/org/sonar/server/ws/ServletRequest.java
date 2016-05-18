@@ -31,15 +31,17 @@ import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonarqube.ws.MediaTypes;
 
 import static com.google.common.base.Objects.firstNonNull;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
 
 public class ServletRequest extends ValidatingRequest {
 
   private final HttpServletRequest source;
   private final Map<String, Object> params;
-  private static final Map<String, String> SUPPORTED_FORMATS = ImmutableMap.of(
-    "JSON", MediaTypes.JSON,
-    "PROTOBUF", MediaTypes.PROTOBUF,
-    "TEXT", MediaTypes.TXT);
+
+  static final Map<String, String> SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX = ImmutableMap.of(
+    "json", MediaTypes.JSON,
+    "protobuf", MediaTypes.PROTOBUF,
+    "text", MediaTypes.TXT);
 
   public ServletRequest(HttpServletRequest source, Map<String, Object> params) {
     this.source = source;
@@ -103,7 +105,7 @@ public class ServletRequest extends ValidatingRequest {
 
   @CheckForNull
   private static String mediaTypeFromUrl(String url) {
-    String mediaType = url.substring(url.lastIndexOf('.') + 1);
-    return SUPPORTED_FORMATS.get(mediaType.toUpperCase(Locale.ENGLISH));
+    String formatSuffix = substringAfterLast(url, ".");
+    return SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX.get(formatSuffix.toLowerCase(Locale.ENGLISH));
   }
 }
