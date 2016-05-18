@@ -64,7 +64,7 @@ public class ServerSystemTest {
   }
 
   @Test
-  public void get_sonar_version() {
+  public void get_sonarqube_version() {
     String version = orchestrator.getServer().getWsClient().find(new ServerQuery()).getVersion();
     if (!StringUtils.startsWithAny(version, new String[] {"5.", "6."})) {
       fail("Bad version: " + version);
@@ -93,20 +93,22 @@ public class ServerSystemTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
-  /**
-   * SONAR-7436
-   */
   @Test
-  public void monitor_compute_engine_and_elasticsearch_processes() throws Exception {
+  public void download_system_info() throws Exception {
     waitForComputeEngineToBeUp(orchestrator);
 
     WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(
       new GetRequest("api/system/info"));
 
     assertThat(response.code()).isEqualTo(200);
+
     assertThat(response.content()).contains(
+      // SONAR-7436 monitor ES and CE
       "\"Compute Engine Database Connection\":", "\"Compute Engine State\":", "\"Compute Engine Tasks\":",
-      "\"Elasticsearch\":", "\"State\":\"GREEN\"");
+      "\"Elasticsearch\":", "\"State\":\"GREEN\"",
+
+      // SONAR-7271 get settings
+      "\"Settings\":", "\"sonar.jdbc.url\":", "\"sonar.path.data\":");
   }
 
   private static void waitForComputeEngineToBeUp(Orchestrator orchestrator) throws IOException {
