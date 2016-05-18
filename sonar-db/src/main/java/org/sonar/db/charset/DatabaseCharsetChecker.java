@@ -31,6 +31,9 @@ import org.sonar.db.dialect.MySql;
 import org.sonar.db.dialect.Oracle;
 import org.sonar.db.dialect.PostgreSql;
 
+import static com.google.common.collect.Sets.immutableEnumSet;
+import static java.util.Arrays.asList;
+
 /**
  * On fresh installations, checks that all db columns are UTF8. On all installations on MySQL or MSSQL,
  * whatever fresh or upgrade, fixes case-insensitive columns by converting them to
@@ -39,6 +42,10 @@ import org.sonar.db.dialect.PostgreSql;
  * See SONAR-6171 and SONAR-7549
  */
 public class DatabaseCharsetChecker {
+
+  public enum Flag {
+    ENFORCE_UTF8, AUTO_REPAIR_COLLATION
+  }
 
   private final Database db;
   private final SqlExecutor selectExecutor;
@@ -53,12 +60,12 @@ public class DatabaseCharsetChecker {
     this.selectExecutor = selectExecutor;
   }
 
-  public void check(boolean enforceUtf8) {
+  public void check(Flag... flags) {
     try {
       try (Connection connection = db.getDataSource().getConnection()) {
         CharsetHandler handler = getHandler(db.getDialect());
         if (handler != null) {
-          handler.handle(connection, enforceUtf8);
+          handler.handle(connection, immutableEnumSet(asList(flags)));
         }
       }
     } catch (SQLException e) {
@@ -85,5 +92,4 @@ public class DatabaseCharsetChecker {
         throw new IllegalArgumentException("Database not supported: " + dialect.getId());
     }
   }
-
 }

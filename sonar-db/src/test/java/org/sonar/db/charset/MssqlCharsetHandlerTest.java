@@ -26,7 +26,9 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.api.utils.MessageException;
 
+import static com.google.common.collect.Sets.immutableEnumSet;
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
@@ -35,6 +37,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
 
 public class MssqlCharsetHandlerTest {
 
@@ -50,28 +53,42 @@ public class MssqlCharsetHandlerTest {
   MssqlCharsetHandler underTest = new MssqlCharsetHandler(selectExecutor);
 
   @Test
-  public void does_not_fail_if_charsets_of_all_columns_are_utf8() throws Exception {
+  public void do_not_fail_if_charsets_of_all_columns_are_CS_AS() throws Exception {
     answerColumns(asList(
       new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
       new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false)));
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), Collections.<DatabaseCharsetChecker.Flag>emptySet());
   }
 
   @Test
-  public void repairs_case_insensitive_column_without_index() throws Exception {
+  public void fail_if_a_column_is_case_insensitive_and_repair_is_disabled() throws Exception {
+    answerColumns(asList(
+      new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
+      new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
+
+    expectedException.expect(MessageException.class);
+    expectedException.expectMessage("Case-sensitive and accent-sensitive collation is required for database columns [projects.name]");
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, Collections.<DatabaseCharsetChecker.Flag>emptySet());
+
+    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+  }
+
+  @Test
+  public void repair_case_insensitive_column_without_index() throws Exception {
     answerColumns(asList(
       new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
       new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
 
     Connection connection = mock(Connection.class);
-    underTest.handle(connection, false);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
 
     verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name varchar(10) COLLATE Latin1_General_CS_AS NOT NULL");
   }
 
   @Test
-  public void repairs_case_insensitive_column_with_indices() throws Exception {
+  public void repair_case_insensitive_column_with_indices() throws Exception {
     answerColumns(asList(
       new ColumnDef(TABLE_ISSUES, COLUMN_KEE, "Latin1_General", "Latin1_General_CS_AS", "varchar", 10, false),
       new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
@@ -81,7 +98,7 @@ public class MssqlCharsetHandlerTest {
       new MssqlCharsetHandler.ColumnIndex("projects_login_and_name", true, "login,name")));
 
     Connection connection = mock(Connection.class);
-    underTest.handle(connection, false);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
 
     verify(selectExecutor).executeUpdate(connection, "DROP INDEX projects.projects_name");
     verify(selectExecutor).executeUpdate(connection, "DROP INDEX projects.projects_login_and_name");
@@ -97,7 +114,7 @@ public class MssqlCharsetHandlerTest {
     answerIndices(Collections.<MssqlCharsetHandler.ColumnIndex>emptyList());
 
     Connection connection = mock(Connection.class);
-    underTest.handle(connection, false);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
 
     verify(selectExecutor).executeUpdate(connection, "ALTER TABLE projects ALTER COLUMN name nvarchar(max) COLLATE Latin1_General_CS_AS NOT NULL");
   }
@@ -107,7 +124,7 @@ public class MssqlCharsetHandlerTest {
     answerColumns(asList(new ColumnDef("sys.sysusers", COLUMN_NAME, "Latin1_General", "Latin1_General_CI_AI", "varchar", 10, false)));
 
     Connection connection = mock(Connection.class);
-    underTest.handle(connection, false);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
 
     verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
   }

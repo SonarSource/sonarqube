@@ -21,7 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import org.sonar.api.utils.UriReader;
 import org.sonar.core.util.DefaultHttpDownloader;
-import org.sonar.server.db.CheckDatabaseCharsetAfterMigration;
+import org.sonar.server.db.CheckDatabaseCollationDuringMigration;
 import org.sonar.server.platform.PersistentSettings;
 import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerIdLoader;
@@ -35,7 +35,7 @@ public class PlatformLevel3 extends PlatformLevel {
   @Override
   protected void configureLevel() {
     add(
-      CheckDatabaseCharsetAfterMigration.class,
+      CheckDatabaseCollationDuringMigration.class,
       PersistentSettings.class,
       ServerMetadataPersister.class,
       DefaultHttpDownloader.class,

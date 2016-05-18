@@ -22,17 +22,21 @@ package org.sonar.db.charset;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
+import org.sonar.db.charset.DatabaseCharsetChecker.Flag;
 
+import static com.google.common.collect.Sets.immutableEnumSet;
 import static java.util.Arrays.asList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 public class PostgresCharsetHandlerTest {
 
@@ -53,7 +57,7 @@ public class PostgresCharsetHandlerTest {
       new String[] {TABLE_ISSUES, COLUMN_KEE, "utf8"},
       new String[] {TABLE_PROJECTS, COLUMN_NAME, "utf8"}));
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
@@ -68,7 +72,7 @@ public class PostgresCharsetHandlerTest {
       Arrays.<String[]>asList(new String[] {"utf8"}));
 
     // no error
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
@@ -81,7 +85,7 @@ public class PostgresCharsetHandlerTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Database columns [projects.kee, projects.name] must support UTF8 collation.");
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
@@ -98,12 +102,12 @@ public class PostgresCharsetHandlerTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Database collation is latin. It must support UTF8.");
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
   public void does_nothing_if_utf8_must_not_verified() throws Exception {
-    underTest.handle(mock(Connection.class), false);
+    underTest.handle(mock(Connection.class), Collections.<Flag>emptySet());
   }
 
   private void answerSql(List<String[]> firstRequest, List<String[]>... otherRequests) throws SQLException {

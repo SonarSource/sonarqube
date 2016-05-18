@@ -19,49 +19,54 @@
  */
 package org.sonar.server.db;
 
+import org.junit.After;
 import org.junit.Test;
 import org.sonar.api.platform.ServerUpgradeStatus;
 import org.sonar.db.charset.DatabaseCharsetChecker;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
-public class CheckDatabaseCharsetAfterMigrationTest {
+public class CheckDatabaseCollationDuringMigrationTest {
   ServerUpgradeStatus upgradeStatus = mock(ServerUpgradeStatus.class);
   DatabaseCharsetChecker charsetChecker = mock(DatabaseCharsetChecker.class);
-  CheckDatabaseCharsetAfterMigration underTest = new CheckDatabaseCharsetAfterMigration(upgradeStatus, charsetChecker);
+  CheckDatabaseCollationDuringMigration underTest = new CheckDatabaseCollationDuringMigration(upgradeStatus, charsetChecker);
 
-  @Test
-  public void enforces_utf8_if_fresh_install() {
-    when(upgradeStatus.isFreshInstall()).thenReturn(true);
-    underTest.start();
-    verify(charsetChecker).check(true);
-
+  @After
+  public void tearDown() {
     underTest.stop();
-    verifyNoMoreInteractions(charsetChecker);
   }
 
   @Test
-  public void checks_charset_but_does_not_enforce_utf8_if_db_upgrade() {
+  public void enforce_utf8_and_optionally_repair_collation_if_fresh_install() {
+    when(upgradeStatus.isFreshInstall()).thenReturn(true);
+
+    underTest.start();
+
+    verify(charsetChecker).check(ENFORCE_UTF8, AUTO_REPAIR_COLLATION);
+  }
+
+  @Test
+  public void repair_collation_but_do_not_enforce_utf8_if_db_upgrade() {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
     when(upgradeStatus.isUpgraded()).thenReturn(true);
-    underTest.start();
-    verify(charsetChecker).check(false);
 
-    underTest.stop();
-    verifyNoMoreInteractions(charsetChecker);
+    underTest.start();
+
+    verify(charsetChecker).check(AUTO_REPAIR_COLLATION);
   }
 
   @Test
-  public void does_nothing_if_no_db_changes() {
+  public void do_nothing_if_no_db_changes() {
     when(upgradeStatus.isFreshInstall()).thenReturn(false);
     when(upgradeStatus.isUpgraded()).thenReturn(false);
 
     underTest.start();
-    underTest.stop();
+
     verifyZeroInteractions(charsetChecker);
   }
 

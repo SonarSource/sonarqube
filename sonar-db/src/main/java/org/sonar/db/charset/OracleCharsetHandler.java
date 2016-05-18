@@ -21,11 +21,13 @@ package org.sonar.db.charset;
 
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.util.Set;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 class OracleCharsetHandler extends CharsetHandler {
 
@@ -34,9 +36,9 @@ class OracleCharsetHandler extends CharsetHandler {
   }
 
   @Override
-  public void handle(Connection connection, boolean enforceUtf8) throws SQLException {
+  public void handle(Connection connection, Set<DatabaseCharsetChecker.Flag> flags) throws SQLException {
     // Oracle does not allow to override character set on tables. Only global charset is verified.
-    if (enforceUtf8) {
+    if (flags.contains(ENFORCE_UTF8)) {
       Loggers.get(getClass()).info("Verify that database charset is UTF8");
       checkUtf8(connection);
     }

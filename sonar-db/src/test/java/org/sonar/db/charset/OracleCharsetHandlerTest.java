@@ -27,12 +27,15 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.MessageException;
+import org.sonar.db.charset.DatabaseCharsetChecker.Flag;
 
+import static com.google.common.collect.Sets.immutableEnumSet;
 import static java.util.Collections.singletonList;
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 public class OracleCharsetHandlerTest {
 
@@ -47,7 +50,7 @@ public class OracleCharsetHandlerTest {
     answerSql(
       singletonList(new String[] {"UTF8"}), singletonList(new String[] {"BINARY"}));
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
@@ -55,7 +58,7 @@ public class OracleCharsetHandlerTest {
     answerSql(
       singletonList(new String[] {"AL32UTF8"}), singletonList(new String[] {"BINARY"}));
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
@@ -66,7 +69,7 @@ public class OracleCharsetHandlerTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is LATIN and NLS_SORT is BINARY.");
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
@@ -77,7 +80,7 @@ public class OracleCharsetHandlerTest {
     expectedException.expect(MessageException.class);
     expectedException.expectMessage("Oracle must be have UTF8 charset and BINARY sort. NLS_CHARACTERSET is UTF8 and NLS_SORT is LINGUISTIC.");
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
@@ -86,12 +89,12 @@ public class OracleCharsetHandlerTest {
 
     expectedException.expect(MessageException.class);
 
-    underTest.handle(mock(Connection.class), true);
+    underTest.handle(mock(Connection.class), immutableEnumSet(ENFORCE_UTF8));
   }
 
   @Test
   public void does_nothing_if_utf8_must_not_verified() throws Exception {
-    underTest.handle(mock(Connection.class), false);
+    underTest.handle(mock(Connection.class), Collections.<Flag>emptySet());
   }
 
   private void answerSql(List<String[]> firstRequest, List<String[]>... otherRequests) throws SQLException {

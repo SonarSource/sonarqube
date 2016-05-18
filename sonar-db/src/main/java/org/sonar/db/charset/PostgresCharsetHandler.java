@@ -24,12 +24,14 @@ import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.log.Loggers;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
+import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.ENFORCE_UTF8;
 
 class PostgresCharsetHandler extends CharsetHandler {
 
@@ -38,9 +40,9 @@ class PostgresCharsetHandler extends CharsetHandler {
   }
 
   @Override
-  void handle(Connection connection, boolean enforceUtf8) throws SQLException {
+  void handle(Connection connection, Set<DatabaseCharsetChecker.Flag> flags) throws SQLException {
     // PostgreSQL does not support case-insensitive collations. Only charset must be verified.
-    if (enforceUtf8) {
+    if (flags.contains(ENFORCE_UTF8)) {
       Loggers.get(getClass()).info("Verify that database collation supports UTF8");
       checkUtf8(connection);
     }
