@@ -26,7 +26,9 @@ import org.sonar.api.batch.BatchSide;
  * by dependency injection. It must not be extended by plugins.
  *
  * @since 4.2
+ * @deprecated since 6.0 sonar-check-api is deprecated
  */
+@Deprecated
 @BatchSide
 public class CheckFactory {
 

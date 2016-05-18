@@ -24,7 +24,9 @@ import org.sonar.api.utils.AnnotationUtils;
 
 /**
  * @since 2.3
+ * @deprecated since 5.6 sonar-check-api is deprecated and will be removed soon 
  */
+@Deprecated
 public final class RuleAnnotationUtils {
 
   private RuleAnnotationUtils() {

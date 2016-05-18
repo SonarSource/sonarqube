@@ -20,6 +20,7 @@
 package org.sonar.api.profiles;
 
 import org.junit.Test;
+import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.rules.RulePriority;
 import org.sonar.api.utils.MessageException;
@@ -27,14 +28,13 @@ import org.sonar.api.utils.MessageException;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
-
 public class RulesProfileTest {
 
   @Test
   public void searchRulesByConfigKey() {
     RulesProfile profile = RulesProfile.create();
-    profile.activateRule(Rule.create("repo", "key1", "name1"), null);
-    profile.activateRule(Rule.create("repo", "key2", "name2").setConfigKey("config2"), null);
+    profile.activateRule(Rule.create("repo", "key1", "name1"), (String) null);
+    profile.activateRule(Rule.create("repo", "key2", "name2").setConfigKey("config2"), (String) null);
 
     assertThat(profile.getActiveRuleByConfigKey("repo", "unknown")).isNull();
     assertThat(profile.getActiveRuleByConfigKey("repo", "config2").getRuleKey()).isEqualTo("key2");
@@ -44,7 +44,7 @@ public class RulesProfileTest {
   public void activateRuleWithDefaultPriority() {
     RulesProfile profile = RulesProfile.create();
     Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);
-    profile.activateRule(rule, null);
+    profile.activateRule(rule);
     assertThat(profile.getActiveRule("repo", "key1").getSeverity()).isEqualTo(RulePriority.CRITICAL);
   }
 
@@ -57,17 +57,26 @@ public class RulesProfileTest {
   }
 
   @Test
+  public void activateRuleWithSpecificSeverity() {
+    RulesProfile profile = RulesProfile.create();
+    Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);
+    profile.activateRule(rule, Severity.MINOR);
+    assertThat(profile.getActiveRule("repo", "key1").getSeverity()).isEqualTo(RulePriority.MINOR);
+  }
+
+  @Test
   public void fail_to_activate_already_activated_rule() {
     RulesProfile profile = RulesProfile.create("Default", "java");
     Rule rule = Rule.create("repo", "key1", "name1").setSeverity(RulePriority.CRITICAL);
-    profile.activateRule(rule, null);
+    profile.activateRule(rule, (String) null);
 
     try {
-      profile.activateRule(rule, null);
+      profile.activateRule(rule, (String) null);
       fail();
     } catch (Exception e) {
       assertThat(e).isInstanceOf(MessageException.class)
-        .hasMessage("The definition of the profile 'Default' (language 'java') contains multiple occurrences of the 'repo:key1' rule. The plugin which declares this profile should fix this.");
+        .hasMessage(
+          "The definition of the profile 'Default' (language 'java') contains multiple occurrences of the 'repo:key1' rule. The plugin which declares this profile should fix this.");
     }
   }
 }

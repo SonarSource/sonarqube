@@ -22,7 +22,7 @@ package org.sonar.check;
 import java.util.Locale;
 
 /**
- * @deprecated in 2.3
+ * @deprecated since 2.3
  */
 @Deprecated
 public interface Message {

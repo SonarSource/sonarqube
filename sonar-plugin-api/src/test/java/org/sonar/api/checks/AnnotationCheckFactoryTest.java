@@ -19,14 +19,13 @@
  */
 package org.sonar.api.checks;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.profiles.RulesProfile;
 import org.sonar.api.rules.ActiveRule;
 import org.sonar.api.rules.Rule;
 import org.sonar.api.utils.SonarException;
-
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.assertNotNull;
@@ -40,7 +39,7 @@ public class AnnotationCheckFactoryTest {
   @Test
   public void createCheckWithoutProperties() {
     RulesProfile profile = RulesProfile.create("repo", "java");
-    ActiveRule activeRule = profile.activateRule(Rule.create("repo", "org.sonar.api.checks.CheckWithoutProperties", ""), null);
+    ActiveRule activeRule = profile.activateRule(Rule.create("repo", "org.sonar.api.checks.CheckWithoutProperties", ""));
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithoutProperties.class));
 
     Object check = factory.getCheck(activeRule);
@@ -54,7 +53,7 @@ public class AnnotationCheckFactoryTest {
     Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithStringProperty", "");
     rule.createParameter("pattern");
 
-    ActiveRule activeRule = profile.activateRule(rule, null);
+    ActiveRule activeRule = profile.activateRule(rule, (String) null);
     activeRule.setParameter("pattern", "foo");
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithStringProperty.class));
 
@@ -72,7 +71,7 @@ public class AnnotationCheckFactoryTest {
     Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithStringProperty", "");
     rule.createParameter("unknown");
 
-    ActiveRule activeRule = profile.activateRule(rule, null);
+    ActiveRule activeRule = profile.activateRule(rule, (String) null);
     activeRule.setParameter("unknown", "bar");
     AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithStringProperty.class));
   }
@@ -84,7 +83,7 @@ public class AnnotationCheckFactoryTest {
     rule.createParameter("max");
     rule.createParameter("ignore");
 
-    ActiveRule activeRule = profile.activateRule(rule, null);
+    ActiveRule activeRule = profile.activateRule(rule, (String) null);
     activeRule.setParameter("max", "300");
     activeRule.setParameter("ignore", "true");
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithPrimitiveProperties.class));
@@ -100,7 +99,7 @@ public class AnnotationCheckFactoryTest {
     Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithIntegerProperty", "");
     rule.createParameter("max");
 
-    ActiveRule activeRule = profile.activateRule(rule, null);
+    ActiveRule activeRule = profile.activateRule(rule, (String) null);
     activeRule.setParameter("max", "300");
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithIntegerProperty.class));
 
@@ -117,7 +116,7 @@ public class AnnotationCheckFactoryTest {
     Rule rule = Rule.create("repo", "org.sonar.api.checks.ImplementedCheck", "");
     rule.createParameter("max");
 
-    ActiveRule activeRule = profile.activateRule(rule, null);
+    ActiveRule activeRule = profile.activateRule(rule, (String) null);
     activeRule.setParameter("max", "300");
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(ImplementedCheck.class));
 
@@ -133,7 +132,7 @@ public class AnnotationCheckFactoryTest {
     Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithUnsupportedPropertyType", "");
     rule.createParameter("max");
 
-    ActiveRule activeRule = profile.activateRule(rule, null);
+    ActiveRule activeRule = profile.activateRule(rule, (String) null);
     activeRule.setParameter("max", "300");
     AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithUnsupportedPropertyType.class));
   }
@@ -144,7 +143,7 @@ public class AnnotationCheckFactoryTest {
     Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithOverriddenPropertyKey", "");
     rule.createParameter("maximum");
 
-    ActiveRule activeRule = profile.activateRule(rule, null);
+    ActiveRule activeRule = profile.activateRule(rule, (String) null);
     activeRule.setParameter("maximum", "300");
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithOverriddenPropertyKey.class));
 
@@ -158,8 +157,8 @@ public class AnnotationCheckFactoryTest {
     Rule rule = Rule.create("repo", "CheckWithKey", "");
     Rule clonedRule = Rule.create("repo", "CheckWithKey_2", "").setConfigKey("CheckWithKey").setTemplate(rule);
 
-    profile.activateRule(rule, null);
-    profile.activateRule(clonedRule, null);
+    profile.activateRule(rule, (String) null);
+    profile.activateRule(clonedRule, (String) null);
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.<Class>asList(CheckWithKey.class));
 
     assertThat(factory.getChecks()).doesNotContain(new Object[] {null});
@@ -171,7 +170,7 @@ public class AnnotationCheckFactoryTest {
   @Test
   public void create_accept_objects() {
     RulesProfile profile = RulesProfile.create("repo", "java");
-    ActiveRule activeRule = profile.activateRule(Rule.create("repo", "org.sonar.api.checks.CheckWithoutProperties", ""), null);
+    ActiveRule activeRule = profile.activateRule(Rule.create("repo", "org.sonar.api.checks.CheckWithoutProperties", ""), (String) null);
     CheckWithoutProperties checkInstance = new CheckWithoutProperties();
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.asList(checkInstance));
 
@@ -186,7 +185,7 @@ public class AnnotationCheckFactoryTest {
     Rule rule = Rule.create("repo", "org.sonar.api.checks.CheckWithStringProperty", "");
     rule.createParameter("pattern");
 
-    ActiveRule activeRule = profile.activateRule(rule, null);
+    ActiveRule activeRule = profile.activateRule(rule, (String) null);
     activeRule.setParameter("pattern", "foo");
     CheckWithStringProperty checkInstance = new CheckWithStringProperty();
     AnnotationCheckFactory factory = AnnotationCheckFactory.create(profile, "repo", Arrays.asList(checkInstance));
