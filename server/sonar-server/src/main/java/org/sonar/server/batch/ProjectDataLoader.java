@@ -26,6 +26,8 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import org.sonar.api.resources.Qualifiers;
+import org.sonar.api.resources.Scopes;
 import org.sonar.api.server.ServerSide;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -35,11 +37,13 @@ import org.sonar.db.component.FilePathWithHashDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.scanner.protocol.input.FileData;
 import org.sonar.scanner.protocol.input.ProjectRepositories;
+import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.user.UserSession;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
 import static org.sonar.api.web.UserRole.USER;
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
@@ -61,6 +65,9 @@ public class ProjectDataLoader {
       ProjectRepositories data = new ProjectRepositories();
       ComponentDto module = checkFoundWithOptional(dbClient.componentDao().selectByKey(session, query.getModuleKey()),
         "Project or module with key '%s' is not found", query.getModuleKey());
+      if (!isProjectOrModule(module)) {
+        throw new BadRequestException(format("Key '%s' belongs to a component which is not a Project", query.getModuleKey()));
+      }
 
       boolean hasScanPerm = userSession.hasComponentUuidPermission(SCAN_EXECUTION, module.projectUuid());
       boolean hasBrowsePerm = userSession.hasComponentUuidPermission(USER, module.projectUuid());
@@ -90,6 +97,13 @@ public class ProjectDataLoader {
     } finally {
       MyBatis.closeQuietly(session);
     }
+  }
+
+  private static boolean isProjectOrModule(ComponentDto module) {
+    if (!Scopes.PROJECT.equals(module.scope())) {
+      return false;
+    }
+    return Qualifiers.PROJECT.equals(module.qualifier()) || Qualifiers.MODULE.equals(module.qualifier());
   }
 
   private List<FilePathWithHashDto> searchFilesWithHashAndRevision(DbSession session, ComponentDto module) {
