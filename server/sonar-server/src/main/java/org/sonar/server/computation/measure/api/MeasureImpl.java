@@ -19,9 +19,8 @@
  */
 package org.sonar.server.computation.measure.api;
 
-import com.google.common.collect.ImmutableSet;
+import java.util.EnumSet;
 import java.util.Locale;
-import java.util.Set;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.ce.measure.Measure;
 
@@ -36,7 +35,7 @@ import static org.sonar.server.computation.measure.Measure.ValueType.STRING;
 @Immutable
 public class MeasureImpl implements Measure {
 
-  private static final Set<org.sonar.server.computation.measure.Measure.ValueType> ALLOWED_VALUE_TYPES = ImmutableSet.of(INT, LONG, DOUBLE, STRING, BOOLEAN);
+  private static final EnumSet<org.sonar.server.computation.measure.Measure.ValueType> ALLOWED_VALUE_TYPES = EnumSet.of(INT, LONG, DOUBLE, STRING, BOOLEAN);
 
   private final org.sonar.server.computation.measure.Measure measure;
 
@@ -79,8 +78,7 @@ public class MeasureImpl implements Measure {
     checkState(measure.getValueType() == expected, String.format(
       "Value can not be converted to %s because current value type is a %s",
       expected.toString().toLowerCase(Locale.US),
-      measure.getValueType()
-      ));
+      measure.getValueType()));
   }
 
   @Override

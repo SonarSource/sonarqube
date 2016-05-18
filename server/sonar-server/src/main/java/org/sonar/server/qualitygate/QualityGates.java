@@ -288,7 +288,7 @@ public class QualityGates {
     }
   }
 
-  private void checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(Collection<QualityGateConditionDto> conditions, Metric metric, @Nullable final Integer period) {
+  private static void checkConditionDoesNotAlreadyExistOnSameMetricAndPeriod(Collection<QualityGateConditionDto> conditions, Metric metric, @Nullable final Integer period) {
     if (conditions.isEmpty()) {
       return;
     }
@@ -302,7 +302,7 @@ public class QualityGates {
     }
   }
 
-  private void checkPeriod(Metric metric, @Nullable Integer period, Errors errors) {
+  private static void checkPeriod(Metric metric, @Nullable Integer period, Errors errors) {
     if (period == null) {
       errors.check(!metric.getKey().startsWith("new_"), "A period must be selected for differential metrics.");
     } else {
@@ -310,24 +310,24 @@ public class QualityGates {
     }
   }
 
-  private void checkThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, Errors errors) {
+  private static void checkThresholds(@Nullable String warningThreshold, @Nullable String errorThreshold, Errors errors) {
     errors.check(warningThreshold != null || errorThreshold != null, "At least one threshold (warning, error) must be set.");
   }
 
-  private void checkOperator(Metric metric, String operator, Errors errors) {
+  private static void checkOperator(Metric metric, String operator, Errors errors) {
     errors
       .check(QualityGateConditionDto.isOperatorAllowed(operator, metric.getType()), format("Operator %s is not allowed for metric type %s.", operator, metric.getType()));
   }
 
-  private void validateMetric(Metric metric, Errors errors) {
+  private static void validateMetric(Metric metric, Errors errors) {
     errors.check(isAlertable(metric), format("Metric '%s' cannot be used to define a condition.", metric.getKey()));
   }
 
-  private boolean isAvailableForInit(Metric metric) {
+  private static boolean isAvailableForInit(Metric metric) {
     return !metric.isDataType() && !CoreMetrics.ALERT_STATUS.equals(metric) && ValueType.RATING != metric.getType();
   }
 
-  private boolean isAlertable(Metric metric) {
+  private static boolean isAlertable(Metric metric) {
     return isAvailableForInit(metric) && BooleanUtils.isFalse(metric.isHidden());
   }
 

@@ -21,7 +21,6 @@ package org.sonar.server.platform;
 
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
 import com.google.common.io.Resources;
 import java.io.File;
 import java.io.IOException;
@@ -238,10 +237,6 @@ public final class ServerImpl extends Server implements Startable {
     if (isNotEmpty(context)) {
       res.append(context);
     }
-  }
-
-  private String get(String key, String defaultValue) {
-    return Objects.firstNonNull(settings.getString(key), defaultValue);
   }
 
 }

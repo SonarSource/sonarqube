@@ -22,8 +22,6 @@ package org.sonar.server.computation.qualitymodel;
 import com.google.common.base.Optional;
 import org.sonar.api.ce.measure.Issue;
 import org.sonar.api.measures.CoreMetrics;
-import org.sonar.api.rule.Severity;
-import org.sonar.api.utils.Duration;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.server.computation.component.Component;
@@ -268,14 +266,6 @@ public class QualityModelMeasuresVisitor extends PathAwareVisitorAdapter<Quality
       if (securityRating.compareTo(rating) > 0) {
         securityRating = rating;
       }
-    }
-
-    private static long getEffortForNotMinorIssue(Issue issue) {
-      Duration effort = issue.effort();
-      if (!issue.severity().equals(Severity.INFO) && effort != null) {
-        return effort.toMinutes();
-      }
-      return 0L;
     }
 
     private static Rating getRatingFromSeverity(String severity) {

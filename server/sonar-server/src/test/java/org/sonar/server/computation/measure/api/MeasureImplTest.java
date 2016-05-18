@@ -109,7 +109,7 @@ public class MeasureImplTest {
   @Test
   public void fail_with_ISE_when_creating_measure_with_no_value() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Only following types are allowed [INT, LONG, DOUBLE, STRING, BOOLEAN]");
+    thrown.expectMessage("Only following types are allowed [BOOLEAN, INT, LONG, DOUBLE, STRING]");
 
     new MeasureImpl(Measure.newMeasureBuilder().createNoValue());
   }
@@ -117,7 +117,7 @@ public class MeasureImplTest {
   @Test
   public void fail_with_ISE_when_creating_measure_with_not_allowed_value() throws Exception {
     thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("Only following types are allowed [INT, LONG, DOUBLE, STRING, BOOLEAN]");
+    thrown.expectMessage("Only following types are allowed [BOOLEAN, INT, LONG, DOUBLE, STRING]");
 
     new MeasureImpl(Measure.newMeasureBuilder().create(Measure.Level.ERROR));
   }
