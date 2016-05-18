@@ -294,7 +294,7 @@
       <th align="left" colspan="2" nowrap>
         <div class="file_title">
           <img src="issuesreport_files/${resourceReport.getType()}.png" title="${resourceReport.getKey()}"/>
-          <a href="#" onclick="$('.resource-details-${resourceReport_index?c}').toggleClass('masked'); return false;" style="color: black">${resourceReport.getName()}</a>
+          <a href="#" onclick="$('.resource-details-${resourceReport_index?c}').toggleClass('masked'); return false;" style="color: black" title="${resourceReport.getKey()}">${resourceReport.getName()}</a>
         </div>
       </th>
       <th align="right" width="1%" nowrap class="resource-details-${resourceReport_index?c}">
