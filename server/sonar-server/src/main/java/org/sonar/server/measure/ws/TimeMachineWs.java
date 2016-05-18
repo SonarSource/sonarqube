@@ -30,7 +30,7 @@ public class TimeMachineWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/timemachine")
-      .setDescription("Get project measure data from old analyses.")
+      .setDescription("Get project measure data from past analyses.")
       .setSince("2.10");
 
     defineSystemAction(controller);
