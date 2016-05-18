@@ -52,5 +52,8 @@ export default {
   'new_it_line_coverage': ['new_it_uncovered_lines'],
   'new_it_branch_coverage': ['new_it_uncovered_conditions'],
   'new_it_uncovered_lines': ['new_it_line_coverage'],
-  'new_it_uncovered_conditions': ['new_it_branch_coverage']
+  'new_it_uncovered_conditions': ['new_it_branch_coverage'],
+
+  'duplicated_lines_density': ['duplicated_lines'],
+  'duplicated_lines': ['duplicated_lines_density']
 };
