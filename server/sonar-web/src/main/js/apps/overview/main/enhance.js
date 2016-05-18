@@ -56,12 +56,12 @@ export default function enhance (ComposedComponent) {
           measure.value;
     }
 
-    renderHeader (label, domain) {
+    renderHeader (domain, label) {
       const { component } = this.props;
       const domainUrl =
           window.baseUrl +
           `/component_measures/domain/${domain}` +
-          `id=${encodeURIComponent(component.key)}`;
+          `?id=${encodeURIComponent(component.key)}`;
 
       return (
           <div className="overview-card-header">

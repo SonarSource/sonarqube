@@ -27,7 +27,7 @@ class Size extends React.Component {
   renderHeader () {
     return this.props.renderHeader(
         'Size',
-        translate('overview.domain.structure'));
+        translate('overview.domain.size'));
   }
 
   renderTimeline (range) {
