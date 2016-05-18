@@ -37,6 +37,7 @@ import org.sonar.api.security.SecurityRealm;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
+import org.sonar.server.platform.ServerId;
 import org.sonar.server.platform.ServerIdLoader;
 import org.sonar.server.platform.ServerLogging;
 import org.sonar.server.user.SecurityRealmFactory;
@@ -69,8 +70,7 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
 
   @Override
   public String getServerId() {
-    Optional<String> idOpt = serverIdLoader.get();
-    return idOpt.isPresent() ? idOpt.get() : null;
+    return serverIdLoader.getRaw().orNull();
   }
 
   @Override
@@ -150,10 +150,10 @@ public class SonarQubeMonitor extends BaseMonitorMBean implements SonarQubeMonit
   }
 
   private void completeWithServerIdAttributes(Map<String, Object> attributes) {
-    Optional<String> serverId = serverIdLoader.get();
+    Optional<ServerId> serverId = serverIdLoader.get();
     if (serverId.isPresent()) {
-      attributes.put("Server ID", serverId.get());
-      attributes.put("Server ID validated", serverIdLoader.isValid(serverId.get()));
+      attributes.put("Server ID", serverId.get().getId());
+      attributes.put("Server ID validated", serverId.get().isValid());
     }
   }
 

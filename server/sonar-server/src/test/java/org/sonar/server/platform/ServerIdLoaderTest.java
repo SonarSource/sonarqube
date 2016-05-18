@@ -19,6 +19,7 @@
  */
 package org.sonar.server.platform;
 
+import com.google.common.base.Optional;
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
@@ -31,57 +32,90 @@ import static org.mockito.Mockito.when;
 
 public class ServerIdLoaderTest {
 
+  private static final String AN_ID = "ABC";
+  private static final String AN_IP = "1.2.3.4";
+  public static final String AN_ORGANISATION = "corp";
+
   Settings settings = new Settings();
   ServerIdGenerator idGenerator = mock(ServerIdGenerator.class);
   ServerIdLoader underTest = new ServerIdLoader(settings, idGenerator);
 
   @Test
-  public void isValid_returns_true_if_input_equals_newly_generated_id() {
-    settings.setProperty(CoreProperties.ORGANISATION, "corp");
-    settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, "1.2.3.4");
-    when(idGenerator.generate("corp", "1.2.3.4")).thenReturn("ABC");
+  public void get_returns_absent_if_id_property_is_not_set() {
+    settings.setProperty(CoreProperties.ORGANISATION, AN_ORGANISATION);
+    settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, AN_IP);
 
-    assertThat(underTest.isValid("ABC")).isTrue();
-    verify(idGenerator).generate("corp", "1.2.3.4");
-  }
-
-  @Test
-  public void isValid_returns_false_if_id_cant_be_generated_because_missing_organisation() {
-    settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, "1.2.3.4");
-
-    assertThat(underTest.isValid("ABC")).isFalse();
+    Optional<ServerId> serverIdOpt = underTest.get();
+    assertThat(serverIdOpt.isPresent()).isFalse();
     verifyZeroInteractions(idGenerator);
   }
 
   @Test
-  public void isValid_returns_false_if_id_cant_be_generated_because_missing_ip() {
-    settings.setProperty(CoreProperties.ORGANISATION, "corp");
+  public void get_returns_valid_id() {
+    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, AN_ID);
+    settings.setProperty(CoreProperties.ORGANISATION, AN_ORGANISATION);
+    settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, AN_IP);
+    when(idGenerator.generate(AN_ORGANISATION, AN_IP)).thenReturn(AN_ID);
 
-    assertThat(underTest.isValid("ABC")).isFalse();
+    Optional<ServerId> serverIdOpt = underTest.get();
+    verifyServerId(serverIdOpt.get(), AN_ID, true);
+    verify(idGenerator).generate(AN_ORGANISATION, AN_IP);
+  }
+
+  @Test
+  public void get_returns_invalid_id_if_id_cant_be_generated_because_missing_organisation() {
+    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, AN_ID);
+    settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, AN_IP);
+
+    Optional<ServerId> serverIdOpt = underTest.get();
+
+    verifyServerId(serverIdOpt.get(), AN_ID, false);
+  }
+
+  @Test
+  public void get_returns_invalid_id_if_id_cant_be_generated_because_missing_ip() {
+    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, AN_ID);
+    settings.setProperty(CoreProperties.ORGANISATION, AN_ORGANISATION);
+
+    Optional<ServerId> serverIdOpt = underTest.get();
+
+    verifyServerId(serverIdOpt.get(), AN_ID, false);
     verifyZeroInteractions(idGenerator);
   }
 
   @Test
-  public void isValid_returns_false_if_id_cant_be_generated_because_missing_ip_and_organisation() {
-    assertThat(underTest.isValid("ABC")).isFalse();
+  public void get_returns_invalid_id_if_id_cant_be_generated_because_missing_ip_and_organisation() {
+    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, AN_ID);
+
+    Optional<ServerId> serverIdOpt = underTest.get();
+
+    verifyServerId(serverIdOpt.get(), AN_ID, false);
     verifyZeroInteractions(idGenerator);
   }
 
   @Test
-  public void isValid_returns_false_if_input_different_than_newly_generated_id() {
-    settings.setProperty(CoreProperties.ORGANISATION, "corp");
-    settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, "1.2.3.4");
-    when(idGenerator.generate("corp", "1.2.3.4")).thenReturn("OTHER");
+  public void get_returns_invalid_id_if_input_is_different_than_newly_generated_id() {
+    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, AN_ID);
+    settings.setProperty(CoreProperties.ORGANISATION, AN_ORGANISATION);
+    settings.setProperty(CoreProperties.SERVER_ID_IP_ADDRESS, AN_IP);
+    when(idGenerator.generate(AN_ORGANISATION, AN_IP)).thenReturn("OTHER");
 
-    assertThat(underTest.isValid("ABC")).isFalse();
-    verify(idGenerator).generate("corp", "1.2.3.4");
+    Optional<ServerId> serverIdOpt = underTest.get();
+
+    verifyServerId(serverIdOpt.get(), AN_ID, false);
+    verify(idGenerator).generate(AN_ORGANISATION, AN_IP);
   }
 
   @Test
-  public void get_loads_id_from_settings() {
-    assertThat(underTest.get().isPresent()).isFalse();
+  public void getRaw_loads_id_from_settings() {
+    assertThat(underTest.getRaw().isPresent()).isFalse();
 
-    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "ABC");
-    assertThat(underTest.get().isPresent()).isTrue();
+    settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, AN_ID);
+    assertThat(underTest.getRaw().isPresent()).isTrue();
+  }
+
+  private static void verifyServerId(ServerId serverId, String expectedId, boolean expectedValid) {
+    assertThat(serverId.getId()).isEqualTo(expectedId);
+    assertThat(serverId.isValid()).isEqualTo(expectedValid);
   }
 }

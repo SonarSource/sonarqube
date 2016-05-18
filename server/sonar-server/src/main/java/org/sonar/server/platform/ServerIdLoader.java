@@ -24,7 +24,6 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
 
 import static com.google.common.base.Optional.fromNullable;
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class ServerIdLoader {
 
@@ -36,18 +35,25 @@ public class ServerIdLoader {
     this.idGenerator = idGenerator;
   }
 
-  public Optional<String> get() {
+  public Optional<String> getRaw() {
     return fromNullable(settings.getString(CoreProperties.PERMANENT_SERVER_ID));
   }
 
-  public boolean isValid(String serverId) {
-    checkNotNull(serverId, "Server ID can not be null");
+  public Optional<ServerId> get() {
+    Optional<String> rawId = getRaw();
+    if (!rawId.isPresent()) {
+      return Optional.absent();
+    }
+
     String organisation = settings.getString(CoreProperties.ORGANISATION);
     String ipAddress = settings.getString(CoreProperties.SERVER_ID_IP_ADDRESS);
+    boolean validated;
     if (organisation == null || ipAddress == null) {
-      return false;
+      validated = false;
+    } else {
+      String generatedId = idGenerator.generate(organisation, ipAddress);
+      validated = generatedId != null && generatedId.equals(rawId.get());
     }
-    String generatedId = idGenerator.generate(organisation, ipAddress);
-    return generatedId != null && generatedId.equals(serverId);
+    return Optional.of(new ServerId(rawId.get(), validated));
   }
 }
