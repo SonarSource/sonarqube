@@ -55,10 +55,7 @@ public class RestartAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("restart")
-      .setDescription("Restart server. " +
-          "In development mode (sonar.web.dev=true), performs a partial and quick restart of only the web server where " +
-          "Ruby on Rails extensions are not reloaded. " +
-          "In Production mode, require system administration permission and fully restart web server and Elastic Search processes.")
+      .setDescription("Restart server. Require 'Administer System' permission. Perform a full restart of the Web, Search and Compute Engine Servers processes.")
       .setSince("4.3")
       .setPost(true)
       .setHandler(this);
