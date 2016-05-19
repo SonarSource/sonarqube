@@ -182,7 +182,7 @@ public class FormulaExecutorComponentVisitor extends PathAwareVisitorAdapter<For
     }
   }
 
-  private void aggregateToParent(Path<FormulaExecutorComponentVisitor.Counters> path, Formula formula, Counter currentCounter) {
+  private static void aggregateToParent(Path<FormulaExecutorComponentVisitor.Counters> path, Formula formula, Counter currentCounter) {
     if (!path.isRoot()) {
       path.parent().aggregate(formula, currentCounter);
     }

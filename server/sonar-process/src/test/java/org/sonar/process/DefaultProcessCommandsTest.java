@@ -20,6 +20,7 @@
 package org.sonar.process;
 
 import java.io.File;
+import java.io.IOException;
 import org.apache.commons.io.FileUtils;
 import org.junit.Rule;
 import org.junit.Test;
@@ -61,6 +62,25 @@ public class DefaultProcessCommandsTest {
 
     commands.setUp();
     assertThat(commands.isUp()).isTrue();
+  }
+
+  @Test
+  public void reset_clears_only_the_memory_space_of_specified_process_number() throws IOException {
+    File dir = temp.newFolder();
+
+    AllProcessesCommands commands = new AllProcessesCommands(dir);
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+      commands.setOperational(i);
+      commands.setUp(i);
+    }
+
+    int resetProcess = 3;
+    DefaultProcessCommands.reset(dir, resetProcess);
+    for (int i = 0; i < MAX_PROCESSES; i++) {
+      assertThat(commands.isOperational(i)).isEqualTo(i != resetProcess);
+      assertThat(commands.isUp(i)).isEqualTo(i != resetProcess);
+    }
+    commands.close();
   }
 
   @Test

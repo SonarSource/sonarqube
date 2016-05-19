@@ -61,7 +61,7 @@ public class AuthorDao implements Dao {
     });
   }
 
-  private AuthorMapper getMapper(SqlSession session) {
+  private static AuthorMapper getMapper(SqlSession session) {
     return session.getMapper(AuthorMapper.class);
   }
 }

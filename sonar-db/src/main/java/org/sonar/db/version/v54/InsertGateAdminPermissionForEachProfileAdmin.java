@@ -44,7 +44,7 @@ public class InsertGateAdminPermissionForEachProfileAdmin extends BaseDataChange
     updateUsers(context);
   }
 
-  private void updateGroupAnyOne(Context context) throws SQLException {
+  private static void updateGroupAnyOne(Context context) throws SQLException {
     MassUpdate update = context.prepareMassUpdate().rowPluralName("Group AnyOne");
     update.select("select gr1.id from group_roles gr1 " +
       "where gr1.role = 'profileadmin' " +
@@ -63,7 +63,7 @@ public class InsertGateAdminPermissionForEachProfileAdmin extends BaseDataChange
     update.execute(GroupAnyOneHandler.INSTANCE);
   }
 
-  private void updateOtherGroups(Context context) throws SQLException {
+  private static void updateOtherGroups(Context context) throws SQLException {
     MassUpdate update = context.prepareMassUpdate().rowPluralName("Other groups");
     update.select("select gr1.group_id from group_roles gr1 " +
       "where gr1.role = 'profileadmin' " +
@@ -82,7 +82,7 @@ public class InsertGateAdminPermissionForEachProfileAdmin extends BaseDataChange
     update.execute(OtherGroupsHandler.INSTANCE);
   }
 
-  private void updateUsers(Context context) throws SQLException {
+  private static void updateUsers(Context context) throws SQLException {
     MassUpdate update = context.prepareMassUpdate().rowPluralName("Users");
     update.select("select ur1.user_id from user_roles ur1 " +
       "where ur1.role = 'profileadmin' " +
