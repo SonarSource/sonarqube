@@ -14,7 +14,9 @@
   <properties>
     <!-- self-analysis -->
     <sonar.sources>src/main/js,src/main/less</sonar.sources>
-    <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js</sonar.exclusions>
+    <sonar.tests>src/main/js</sonar.tests>
+    <sonar.test.inclusions>src/main/js/**/__tests__/**</sonar.test.inclusions>
+    <sonar.exclusions>src/main/js/libs/third-party/**/*,src/main/js/libs/require.js,src/main/js/**/__tests__/**</sonar.exclusions>
     <npm.script>build</npm.script>
   </properties>
   

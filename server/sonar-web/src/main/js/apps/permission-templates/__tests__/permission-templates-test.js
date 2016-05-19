@@ -1,19 +1,37 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
 /* eslint no-unused-expressions: 0 */
 import React from 'react';
 import TestUtils from 'react-addons-test-utils';
+import { expect } from 'chai';
+import sinon from 'sinon';
 
-import Defaults from '../../src/main/js/apps/permission-templates/permission-template-defaults';
-import SetDefaults from '../../src/main/js/apps/permission-templates/permission-template-set-defaults';
-
-let expect = require('chai').expect;
-let sinon = require('sinon');
+import Defaults from '../permission-template-defaults';
+import SetDefaults from '../permission-template-set-defaults';
 
 describe('Permission Templates', function () {
   describe('Defaults', () => {
     it('should display one qualifier', () => {
-      let permissionTemplate = { defaultFor: ['VW'] },
-          topQualifiers = ['TRK', 'VW'];
-      let result = TestUtils.renderIntoDocument(
+      const permissionTemplate = { defaultFor: ['VW'] };
+      const topQualifiers = ['TRK', 'VW'];
+      const result = TestUtils.renderIntoDocument(
           <Defaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers}/>
       );
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-qualifier-trk')).to.be.empty;
@@ -21,9 +39,9 @@ describe('Permission Templates', function () {
     });
 
     it('should display two qualifiers', () => {
-      let permissionTemplate = { defaultFor: ['TRK', 'VW'] },
-          topQualifiers = ['TRK', 'VW'];
-      let result = TestUtils.renderIntoDocument(
+      const permissionTemplate = { defaultFor: ['TRK', 'VW'] };
+      const topQualifiers = ['TRK', 'VW'];
+      const result = TestUtils.renderIntoDocument(
           <Defaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers}/>
       );
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-qualifier-trk')).to.have.length(1);
@@ -31,9 +49,9 @@ describe('Permission Templates', function () {
     });
 
     it('should not display qualifiers', () => {
-      let permissionTemplate = { defaultFor: [] },
-          topQualifiers = ['TRK', 'VW'];
-      let result = TestUtils.renderIntoDocument(
+      const permissionTemplate = { defaultFor: [] };
+      const topQualifiers = ['TRK', 'VW'];
+      const result = TestUtils.renderIntoDocument(
           <Defaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers}/>
       );
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-qualifier-trk')).to.be.empty;
@@ -41,9 +59,9 @@ describe('Permission Templates', function () {
     });
 
     it('should omit "project" if there is only one qualifier', () => {
-      let permissionTemplate = { defaultFor: ['TRK'] },
-          topQualifiers = ['TRK'];
-      let result = TestUtils.renderIntoDocument(
+      const permissionTemplate = { defaultFor: ['TRK'] };
+      const topQualifiers = ['TRK'];
+      const result = TestUtils.renderIntoDocument(
           <Defaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers}/>
       );
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'icon-qualifier-trk')).to.be.empty;
@@ -51,12 +69,12 @@ describe('Permission Templates', function () {
   });
 
   describe('SetDefaults', () => {
-    var refresh = sinon.spy();
+    const refresh = sinon.spy();
 
     it('should display a dropdown with one option', () => {
-      let permissionTemplate = { defaultFor: ['VW'] },
-          topQualifiers = ['TRK', 'VW'];
-      let result = TestUtils.renderIntoDocument(
+      const permissionTemplate = { defaultFor: ['VW'] };
+      const topQualifiers = ['TRK', 'VW'];
+      const result = TestUtils.renderIntoDocument(
           <SetDefaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers} refresh={refresh}/>
       );
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'dropdown')).to.have.length(1);
@@ -64,9 +82,9 @@ describe('Permission Templates', function () {
     });
 
     it('should display a dropdown with two options', () => {
-      let permissionTemplate = { defaultFor: [] },
-          topQualifiers = ['TRK', 'VW'];
-      let result = TestUtils.renderIntoDocument(
+      const permissionTemplate = { defaultFor: [] };
+      const topQualifiers = ['TRK', 'VW'];
+      const result = TestUtils.renderIntoDocument(
           <SetDefaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers} refresh={refresh}/>
       );
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'dropdown')).to.have.length(1);
@@ -74,9 +92,9 @@ describe('Permission Templates', function () {
     });
 
     it('should not display a dropdown', () => {
-      let permissionTemplate = { defaultFor: ['TRK', 'VW'] },
-          topQualifiers = ['TRK', 'VW'];
-      let result = TestUtils.renderIntoDocument(
+      const permissionTemplate = { defaultFor: ['TRK', 'VW'] };
+      const topQualifiers = ['TRK', 'VW'];
+      const result = TestUtils.renderIntoDocument(
           <SetDefaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers} refresh={refresh}/>
       );
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'dropdown')).to.be.empty;
@@ -84,9 +102,9 @@ describe('Permission Templates', function () {
     });
 
     it('should omit dropdown if there is only one qualifier', () => {
-      let permissionTemplate = { defaultFor: [] },
-          topQualifiers = ['TRK'];
-      let result = TestUtils.renderIntoDocument(
+      const permissionTemplate = { defaultFor: [] };
+      const topQualifiers = ['TRK'];
+      const result = TestUtils.renderIntoDocument(
           <SetDefaults permissionTemplate={permissionTemplate} topQualifiers={topQualifiers} refresh={refresh}/>
       );
       expect(TestUtils.scryRenderedDOMComponentsWithClass(result, 'dropdown')).to.be.empty;

@@ -1,68 +1,86 @@
-import Issue from '../../src/main/js/components/issue/models/issue';
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import chai, { expect } from 'chai';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
 
-let sinon = require('sinon'),
-    sinonChai = require('sinon-chai'),
-    chai = require('chai'),
-    expect = chai.expect;
+import Issue from '../issue/models/issue';
 
 chai.use(sinonChai);
 
 describe('Issue', function () {
   describe('Model', function () {
     it('should have correct urlRoot', function () {
-      var issue = new Issue();
+      const issue = new Issue();
       expect(issue.urlRoot()).to.equal('/api/issues');
     });
 
     it('should parse response without root issue object', function () {
-      var issue = new Issue();
-      var example = { a: 1 };
+      const issue = new Issue();
+      const example = { a: 1 };
       expect(issue.parse(example)).to.deep.equal(example);
     });
 
     it('should parse response with the root issue object', function () {
-      var issue = new Issue();
-      var example = { a: 1 };
+      const issue = new Issue();
+      const example = { a: 1 };
       expect(issue.parse({ issue: example })).to.deep.equal(example);
     });
 
     it('should reset attributes (no attributes initially)', function () {
-      var issue = new Issue();
-      var example = { a: 1 };
+      const issue = new Issue();
+      const example = { a: 1 };
       issue.reset(example);
       expect(issue.toJSON()).to.deep.equal(example);
     });
 
     it('should reset attributes (override attribute)', function () {
-      var issue = new Issue({ a: 2 });
-      var example = { a: 1 };
+      const issue = new Issue({ a: 2 });
+      const example = { a: 1 };
       issue.reset(example);
       expect(issue.toJSON()).to.deep.equal(example);
     });
 
     it('should reset attributes (different attributes)', function () {
-      var issue = new Issue({ a: 2 });
-      var example = { b: 1 };
+      const issue = new Issue({ a: 2 });
+      const example = { b: 1 };
       issue.reset(example);
       expect(issue.toJSON()).to.deep.equal(example);
     });
 
     it('should unset `textRange` of a closed issue', function () {
-      var issue = new Issue();
-      var result = issue.parse({ issue: { status: 'CLOSED', textRange: { startLine: 5 } } });
+      const issue = new Issue();
+      const result = issue.parse({ issue: { status: 'CLOSED', textRange: { startLine: 5 } } });
       expect(result.textRange).to.not.be.ok;
     });
 
     it('should unset `flows` of a closed issue', function () {
-      var issue = new Issue();
-      var result = issue.parse({ issue: { status: 'CLOSED', flows: [1, 2, 3] } });
+      const issue = new Issue();
+      const result = issue.parse({ issue: { status: 'CLOSED', flows: [1, 2, 3] } });
       expect(result.flows).to.deep.equal([]);
     });
 
     describe('Actions', function () {
       it('should assign', function () {
-        var issue = new Issue({ key: 'issue-key' });
-        var spy = sinon.spy();
+        const issue = new Issue({ key: 'issue-key' });
+        const spy = sinon.spy();
         issue._action = spy;
         issue.assign('admin');
         expect(spy).to.have.been.calledWith({
@@ -72,8 +90,8 @@ describe('Issue', function () {
       });
 
       it('should unassign', function () {
-        var issue = new Issue({ key: 'issue-key' });
-        var spy = sinon.spy();
+        const issue = new Issue({ key: 'issue-key' });
+        const spy = sinon.spy();
         issue._action = spy;
         issue.assign();
         expect(spy).to.have.been.calledWith({
@@ -83,24 +101,24 @@ describe('Issue', function () {
       });
 
       it('should plan', function () {
-        var issue = new Issue({ key: 'issue-key' });
-        var spy = sinon.spy();
+        const issue = new Issue({ key: 'issue-key' });
+        const spy = sinon.spy();
         issue._action = spy;
         issue.plan('plan');
         expect(spy).to.have.been.calledWith({ data: { plan: 'plan', issue: 'issue-key' }, url: '/api/issues/plan' });
       });
 
       it('should unplan', function () {
-        var issue = new Issue({ key: 'issue-key' });
-        var spy = sinon.spy();
+        const issue = new Issue({ key: 'issue-key' });
+        const spy = sinon.spy();
         issue._action = spy;
         issue.plan();
         expect(spy).to.have.been.calledWith({ data: { plan: undefined, issue: 'issue-key' }, url: '/api/issues/plan' });
       });
 
       it('should set severity', function () {
-        var issue = new Issue({ key: 'issue-key' });
-        var spy = sinon.spy();
+        const issue = new Issue({ key: 'issue-key' });
+        const spy = sinon.spy();
         issue._action = spy;
         issue.setSeverity('BLOCKER');
         expect(spy).to.have.been.calledWith({
@@ -112,8 +130,8 @@ describe('Issue', function () {
 
     describe('#getLinearLocations', function () {
       it('should return single line location', function () {
-        var issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 10 } }),
-            locations = issue.getLinearLocations();
+        const issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 0, endOffset: 10 } });
+        const locations = issue.getLinearLocations();
         expect(locations.length).to.equal(1);
 
         expect(locations[0].line).to.equal(1);
@@ -122,8 +140,8 @@ describe('Issue', function () {
       });
 
       it('should return location not from 0', function () {
-        var issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 5, endOffset: 10 } }),
-            locations = issue.getLinearLocations();
+        const issue = new Issue({ textRange: { startLine: 1, endLine: 1, startOffset: 5, endOffset: 10 } });
+        const locations = issue.getLinearLocations();
         expect(locations.length).to.equal(1);
 
         expect(locations[0].line).to.equal(1);
@@ -132,8 +150,8 @@ describe('Issue', function () {
       });
 
       it('should return 2-lines location', function () {
-        var issue = new Issue({ textRange: { startLine: 2, endLine: 3, startOffset: 5, endOffset: 10 } }),
-            locations = issue.getLinearLocations();
+        const issue = new Issue({ textRange: { startLine: 2, endLine: 3, startOffset: 5, endOffset: 10 } });
+        const locations = issue.getLinearLocations();
         expect(locations.length).to.equal(2);
 
         expect(locations[0].line).to.equal(2);
@@ -146,8 +164,8 @@ describe('Issue', function () {
       });
 
       it('should return 3-lines location', function () {
-        var issue = new Issue({ textRange: { startLine: 4, endLine: 6, startOffset: 5, endOffset: 10 } }),
-            locations = issue.getLinearLocations();
+        const issue = new Issue({ textRange: { startLine: 4, endLine: 6, startOffset: 5, endOffset: 10 } });
+        const locations = issue.getLinearLocations();
         expect(locations.length).to.equal(3);
 
         expect(locations[0].line).to.equal(4);
@@ -164,8 +182,8 @@ describe('Issue', function () {
       });
 
       it('should return [] when no location', function () {
-        var issue = new Issue(),
-            locations = issue.getLinearLocations();
+        const issue = new Issue();
+        const locations = issue.getLinearLocations();
         expect(locations.length).to.equal(0);
       });
     });

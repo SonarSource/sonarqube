@@ -21,41 +21,21 @@ import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 
-import QualityGateCondition from '../../../../src/main/js/apps/overview/qualityGate/QualityGateCondition';
-import { DrilldownLink } from '../../../../src/main/js/components/shared/drilldown-link';
+import EmptyOverview from '../EmptyOverview';
 
-describe('Overview :: QualityGateCondition', () => {
-  it('should render DrilldownLink', () => {
+describe('Overview :: EmptyOverview', () => {
+  it('should render component key', () => {
     const component = {
-      id: 'abcd',
-      key: 'abcd-key'
-    };
-    const periods = [];
-    const condition = {
-      actual: '10',
-      error: '0',
-      level: 'ERROR',
-      measure: {
-        metric: {
-          key: 'open_issues',
-          type: 'INT',
-          name: 'Open Issues'
-        },
-        value: '10'
-      },
-      metric: 'open_issues',
-      op: 'GT'
+      id: 'id',
+      key: 'abcd',
+      snapshotDate: '2016-01-01'
     };
 
     const output = shallow(
-        <QualityGateCondition
-            component={component}
-            periods={periods}
-            condition={condition}/>
+        <EmptyOverview component={component}/>
     );
 
-    const link = output.find(DrilldownLink);
-    expect(link.prop('component')).to.equal('abcd-key');
-    expect(link.prop('metric')).to.equal('open_issues');
+    expect(output.find('code').text())
+        .to.equal('abcd');
   });
 });

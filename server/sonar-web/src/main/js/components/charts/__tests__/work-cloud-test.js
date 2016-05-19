@@ -18,24 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import TestUtils from 'react-addons-test-utils';
 import { expect } from 'chai';
-import { shallow } from 'enzyme';
 
-import EmptyOverview from '../../../../src/main/js/apps/overview/components/EmptyOverview';
+import { WordCloud } from '../word-cloud';
 
-describe('Overview :: EmptyOverview', () => {
-  it('should render component key', () => {
-    const component = {
-      id: 'id',
-      key: 'abcd',
-      snapshotDate: '2016-01-01'
-    };
+describe('Word Cloud', function () {
 
-    const output = shallow(
-        <EmptyOverview component={component}/>
-    );
-
-    expect(output.find('code').text())
-        .to.equal('abcd');
+  it('should display', function () {
+    const items = [
+      { size: 10, link: '#', text: 'SonarQube :: Server' },
+      { size: 30, link: '#', text: 'SonarQube :: Web' },
+      { size: 20, link: '#', text: 'SonarQube :: Search' }
+    ];
+    const chart = TestUtils.renderIntoDocument(<WordCloud items={items} width={100} height={100}/>);
+    expect(TestUtils.scryRenderedDOMComponentsWithTag(chart, 'a')).to.have.length(3);
   });
+
 });

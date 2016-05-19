@@ -21,9 +21,9 @@ import React from 'react';
 import { expect } from 'chai';
 import { shallow } from 'enzyme';
 
-import App from '../../../../src/main/js/apps/overview/components/App';
-import OverviewApp from '../../../../src/main/js/apps/overview/components/OverviewApp';
-import EmptyOverview from '../../../../src/main/js/apps/overview/components/EmptyOverview';
+import App from '../App';
+import OverviewApp from '../OverviewApp';
+import EmptyOverview from '../EmptyOverview';
 
 describe('Overview :: App', () => {
   it('should render OverviewApp', () => {
