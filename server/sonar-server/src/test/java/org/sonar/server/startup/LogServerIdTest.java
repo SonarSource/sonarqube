@@ -99,6 +99,17 @@ public class LogServerIdTest {
     verifyLog("\"123456789\"", "-", "-");
   }
 
+  @Test
+  public void log_partial_information_if_property_is_set_without_value() {
+    setProperty(CoreProperties.PERMANENT_SERVER_ID, "123456789");
+    PropertyDto dto = new PropertyDto().setKey(CoreProperties.ORGANISATION).setValue(null);
+    when(dbClient.propertiesDao().selectGlobalProperty(any(DbSession.class), eq(CoreProperties.ORGANISATION))).thenReturn(dto);
+
+    underTest.start();
+
+    verifyLog("\"123456789\"", "-", "-");
+  }
+
   private void setProperty(String propertyKey, @Nullable String propertyValue) {
     PropertyDto dto = null;
     if (propertyValue != null) {
