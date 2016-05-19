@@ -31,7 +31,6 @@ import org.apache.commons.lang.time.DateFormatUtils;
 import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ErrorCollector;
@@ -173,7 +172,6 @@ public class PurgeTest {
    * SONAR-7175
    */
   @Test
-  @Ignore("Waiting for QA")
   public void keep_latest_snapshot() {
     // Keep all snapshots from last 4 weeks
     setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", "4");
