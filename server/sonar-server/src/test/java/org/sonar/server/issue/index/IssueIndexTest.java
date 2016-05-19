@@ -84,7 +84,7 @@ public class IssueIndexTest {
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, tester.client());
     viewIndexer = new ViewIndexer(null, tester.client());
     System2 system = mock(System2.class);
-    when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("GMT+1:00"));
+    when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("GMT-1:00"));
     when(system.now()).thenReturn(System.currentTimeMillis());
 
     index = new IssueIndex(tester.client(), system, userSessionRule);

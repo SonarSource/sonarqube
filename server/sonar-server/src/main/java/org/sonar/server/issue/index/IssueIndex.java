@@ -475,7 +475,7 @@ public class IssueIndex extends BaseIndex {
       bucketSize = DateHistogram.Interval.MONTH;
     }
 
-    int offsetInSeconds = system.getDefaultTimeZone().getRawOffset() / 1_000;
+    int offsetInSeconds = -system.getDefaultTimeZone().getRawOffset() / 1_000;
 
     AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(CREATED_AT)
       .field(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
