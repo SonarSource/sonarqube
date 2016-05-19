@@ -51,7 +51,7 @@ const QualityGateCondition = ({ component, periods, condition }) => {
           <div className="overview-quality-gate-condition-value">
             <DrilldownLink
                 component={component.key}
-                metric={metric.name}
+                metric={metric.key}
                 period={condition.period}
                 periodDate={periodDate}>
               <span className={'alert_' + condition.level.toUpperCase()}>
