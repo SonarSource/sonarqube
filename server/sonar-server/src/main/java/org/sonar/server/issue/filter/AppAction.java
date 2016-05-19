@@ -43,7 +43,7 @@ public class AppAction implements IssueFilterWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("app");
     action
-      .setDescription("Data required for rendering the page 'Issues'")
+      .setDescription("Get data required for rendering the page 'Issues'.")
       .setSince("4.2")
       .setInternal(true)
       .setHandler(this)

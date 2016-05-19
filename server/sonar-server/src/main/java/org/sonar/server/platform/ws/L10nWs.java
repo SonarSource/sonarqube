@@ -49,7 +49,7 @@ public class L10nWs implements WebService {
   @Override
   public void define(Context context) {
     NewController l10n = context.createController("api/l10n");
-    l10n.setDescription("Localization")
+    l10n.setDescription("Manage localization.")
       .setSince("4.4");
     NewAction indexAction = l10n.createAction("index")
       .setInternal(true)

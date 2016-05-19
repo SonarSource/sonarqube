@@ -33,7 +33,7 @@ public class DashboardsWs implements WebService {
   public void define(Context context) {
     NewController controller = context.createController("api/dashboards");
     controller.setSince("5.0");
-    controller.setDescription("Management of dashboards and widgets");
+    controller.setDescription("Manage dashboards and widgets.");
     for (DashboardsWsAction action : actions) {
       action.define(controller);
     }

@@ -52,7 +52,7 @@ public class SearchAction implements IssueFilterWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller.createAction("search");
     action
-      .setDescription("List of current user issue filters and shared issue filters.")
+      .setDescription("List issue filters and shared issue filters of the current user.")
       .setHandler(this)
       .setSince("5.2")
       .setResponseExample(getClass().getResource("search-example.json"));

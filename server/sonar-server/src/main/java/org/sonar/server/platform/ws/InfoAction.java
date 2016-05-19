@@ -50,7 +50,7 @@ public class InfoAction implements SystemWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("info")
-      .setDescription("Detailed information about system configuration.<br/>" +
+      .setDescription("Get detailed information about system configuration.<br/>" +
         "Requires 'Administer' permissions.<br/>" +
         "Since 5.5, this web service becomes internal in order to more easily update result.")
       .setSince("5.1")

@@ -43,7 +43,7 @@ public class IsQueueEmptyWs implements WebService {
   public void define(Context context) {
     NewController controller = context
       .createController(API_ENDPOINT)
-      .setDescription("For internal testing - do not use");
+      .setDescription("Get details about Compute Engine tasks.");
     action.define(controller);
     controller.done();
   }

@@ -30,7 +30,7 @@ public class ResourcesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/resources")
-      .setDescription("Former components web api. Deprecated since 5.4.")
+      .setDescription("Get details about components. Deprecated since 5.4.")
       .setSince("2.10");
 
     defineIndexAction(controller);

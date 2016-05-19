@@ -44,7 +44,7 @@ public class ListAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     controller
       .createAction("list")
-      .setDescription("List of rules, excluding the manual rules and the rules with status REMOVED. JSON format is not supported for response.")
+      .setDescription("List rules, excluding the manual rules and the rules with status REMOVED. JSON format is not supported for response.")
       .setSince("5.2")
       .setInternal(true)
       .setResponseExample(getClass().getResource("list-example.txt"))

@@ -49,7 +49,7 @@ public class ShowAction implements DashboardsWsAction {
   @Override
   public void define(WebService.NewController newController) {
     WebService.NewAction action = newController.createAction("show")
-      .setDescription("Detail of a dashboard (name, description, layout and widgets)")
+      .setDescription("Get details of a dashboard (name, description, layout and widgets).")
       .setInternal(true)
       .setSince("5.0")
       .setResponseExample(getClass().getResource("show-example.json"))

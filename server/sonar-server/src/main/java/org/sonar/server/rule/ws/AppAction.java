@@ -58,7 +58,7 @@ public class AppAction implements RulesWsAction {
   @Override
   public void define(WebService.NewController controller) {
     controller.createAction("app")
-      .setDescription("Data required for rendering the page 'Coding Rules'")
+      .setDescription("Get data required for rendering the page 'Coding Rules'.")
       .setResponseExample(getClass().getResource("app-example.json"))
       .setSince("4.5")
       .setInternal(true)

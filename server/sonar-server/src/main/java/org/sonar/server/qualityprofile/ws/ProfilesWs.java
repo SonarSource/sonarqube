@@ -42,7 +42,7 @@ public class ProfilesWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController(API_ENDPOINT)
-      .setDescription("Old Quality Profiles. Deprecated since 5.2")
+      .setDescription("Manage quality profiles. Deprecated since 5.2.")
       .setSince("4.4");
 
 

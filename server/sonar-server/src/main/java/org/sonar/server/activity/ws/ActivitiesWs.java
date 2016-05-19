@@ -35,7 +35,7 @@ public class ActivitiesWs implements WebService {
   public void define(Context context) {
     NewController controller = context
       .createController(ENDPOINT)
-      .setDescription("Tracking of activities");
+      .setDescription("Track activities.");
 
     search.define(controller);
     controller.done();
