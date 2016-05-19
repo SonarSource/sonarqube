@@ -475,6 +475,7 @@ public class IssueIndex extends BaseIndex {
       bucketSize = DateHistogram.Interval.MONTH;
     }
 
+    // from GMT to server TZ
     int offsetInSeconds = -system.getDefaultTimeZone().getRawOffset() / 1_000;
 
     AggregationBuilder dateHistogram = AggregationBuilders.dateHistogram(CREATED_AT)
@@ -484,7 +485,8 @@ public class IssueIndex extends BaseIndex {
       .format(DateUtils.DATETIME_FORMAT)
       .timeZone(TimeZone.getTimeZone("GMT").getID())
       .offset(offsetInSeconds + "s")
-      .extendedBounds(startTime, endTime);
+      // ES dateHistogram bounds are inclusive while createdBefore parameter is exclusive
+      .extendedBounds(startTime, endTime - 1_000L);
     dateHistogram = addEffortAggregationIfNeeded(query, dateHistogram);
     return dateHistogram;
   }
