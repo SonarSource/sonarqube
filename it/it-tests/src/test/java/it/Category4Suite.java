@@ -30,6 +30,7 @@ import it.dbCleaner.PurgeTest;
 import it.duplication.CrossProjectDuplicationsOnRemoveFileTest;
 import it.duplication.CrossProjectDuplicationsTest;
 import it.duplication.DuplicationsTest;
+import it.http.HttpHeadersTest;
 import it.projectComparison.ProjectComparisonTest;
 import it.projectEvent.EventTest;
 import it.serverSystem.ServerSystemTest;
@@ -82,6 +83,8 @@ import static util.ItUtils.xooPlugin;
   ProjectComparisonTest.class,
   // component search
   AllProjectsTest.class,
+  // http
+  HttpHeadersTest.class,
   // ui
   UiTest.class,
   // ui extensions

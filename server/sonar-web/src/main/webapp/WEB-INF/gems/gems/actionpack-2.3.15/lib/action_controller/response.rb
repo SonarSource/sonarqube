@@ -204,7 +204,7 @@ module ActionController # :nodoc:
 
       def set_conditional_cache_control!
         if headers['Cache-Control'] == DEFAULT_HEADERS['Cache-Control']
-          headers['Cache-Control'] = 'private, max-age=0, must-revalidate'
+          headers['Cache-Control'] = 'no-cache, no-store, must-revalidate'
         end
       end
 
