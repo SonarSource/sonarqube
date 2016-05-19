@@ -39,7 +39,8 @@ import static util.ItUtils.projectDir;
 @Category(QaOnly.class)
 public class CustomMeasuresTest {
 
-  public static final String PROJECT_KEY = "sample";
+  private static final String PROJECT_KEY = "sample";
+
   @ClassRule
   public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
 

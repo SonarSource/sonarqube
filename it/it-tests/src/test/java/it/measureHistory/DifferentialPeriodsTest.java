@@ -20,7 +20,6 @@
 package it.measureHistory;
 
 import com.sonar.orchestrator.Orchestrator;
-import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category1Suite;
@@ -39,12 +38,13 @@ import util.selenium.SeleneseTest;
 import static org.apache.commons.lang.time.DateUtils.addDays;
 import static org.assertj.core.api.Assertions.assertThat;
 import static util.ItUtils.formatDate;
-import static util.ItUtils.projectDir;
+import static util.ItUtils.runProjectAnalysis;
 import static util.ItUtils.setServerProperty;
 
 public class DifferentialPeriodsTest {
 
   static final String PROJECT_KEY = "sample";
+  static final String MULTI_MODULE_PROJECT_KEY = "com.sonarsource.it.samples:multi-modules-sample";
 
   @ClassRule
   public static final Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
@@ -77,14 +77,12 @@ public class DifferentialPeriodsTest {
 
     // Execute an analysis 60 days ago to have a past snapshot without any issues
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "empty");
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
-      .setProperty("sonar.projectDate", formatDate(addDays(new Date(), -60))));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.projectDate", formatDate(addDays(new Date(), -60)));
 
     // Second analysis, 20 days ago, issues will be created
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
-        .setProperty("sonar.projectDate", formatDate(addDays(new Date(), -20))));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.projectDate", formatDate(addDays(new Date(), -20)));
 
     // New technical debt only comes from new issues
     Resource newTechnicalDebt = orchestrator.getServer().getWsClient()
@@ -95,7 +93,7 @@ public class DifferentialPeriodsTest {
 
     // Third analysis, today, with exactly the same profile -> no new issues so no new technical debt
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     newTechnicalDebt = orchestrator.getServer().getWsClient().find(
       ResourceQuery.createForMetrics("sample:src/main/xoo/sample/Sample.xoo", "new_technical_debt").setIncludeTrends(true)
@@ -118,16 +116,15 @@ public class DifferentialPeriodsTest {
 
     // Execute an analysis in the past to have a past snapshot without any issues
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "empty");
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample"))
-      .setProperty("sonar.projectDate", formatDate(addDays(new Date(), -15))));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.projectDate", formatDate(addDays(new Date(), -15)));
 
     // Second analysis -> issues will be created
     orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "one-issue-per-line");
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     // Third analysis -> There's no new issue from previous analysis
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     // Project should have 17 new issues for period 1
     Resource newTechnicalDebt = orchestrator.getServer().getWsClient()
@@ -148,18 +145,47 @@ public class DifferentialPeriodsTest {
   public void not_display_periods_selection_dropdown_on_first_analysis() {
     orchestrator.getServer().provisionProject(PROJECT_KEY, PROJECT_KEY);
     orchestrator.getServer().associateProjectToQualityProfile(PROJECT_KEY, "xoo", "empty");
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
 
     // Use old way to execute Selenium because 'assertSelectOptions' action is not supported by SeleneseTest
     orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("not-display-periods-selection-dropdown-on-first-analysis",
       "/measureHistory/DifferentialPeriodsTest/not-display-periods-selection-dropdown-on-dashboard.html"
       ).build());
 
-    orchestrator.executeBuild(SonarRunner.create(projectDir("shared/xoo-sample")));
-
+    runProjectAnalysis(orchestrator, "shared/xoo-sample");
     orchestrator.executeSelenese(Selenese.builder().setHtmlTestsInClasspath("display-periods-selection-dropdown-after-first-analysis",
       "/measureHistory/DifferentialPeriodsTest/display-periods-selection-dropdown-on-dashboard.html"
       ).build());
+  }
+
+  /**
+   * SONAR-7237
+   */
+  @Test
+  public void ensure_differential_measures_are_computed_when_adding_new_component_after_period() throws Exception {
+    orchestrator.getServer().provisionProject(MULTI_MODULE_PROJECT_KEY, MULTI_MODULE_PROJECT_KEY);
+    setServerProperty(orchestrator, MULTI_MODULE_PROJECT_KEY, "sonar.timemachine.period1", "30");
+
+    // Execute an analysis 60 days ago without module b
+    orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "empty");
+    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
+      "sonar.projectDate", formatDate(addDays(new Date(), -60)),
+      "sonar.modules", "module_a"
+    );
+
+    // Second analysis, 20 days ago, issues will be created
+    orchestrator.getServer().restoreProfile(FileLocation.ofClasspath("/measureHistory/one-issue-per-line-profile.xml"));
+    orchestrator.getServer().associateProjectToQualityProfile(MULTI_MODULE_PROJECT_KEY, "xoo", "one-issue-per-line");
+    runProjectAnalysis(orchestrator, "shared/xoo-multi-modules-sample",
+      "sonar.projectDate", formatDate(addDays(new Date(), -20)),
+      "sonar.modules", "module_a,module_b"
+    );
+
+    // Variation on module b should exist
+    Resource ncloc = orchestrator.getServer().getWsClient()
+      .find(ResourceQuery.createForMetrics(MULTI_MODULE_PROJECT_KEY + ":module_b", "ncloc").setIncludeTrends(true));
+    List<Measure> measures = ncloc.getMeasures();
+    assertThat(measures.get(0).getVariation1()).isEqualTo(24);
   }
 
 }
