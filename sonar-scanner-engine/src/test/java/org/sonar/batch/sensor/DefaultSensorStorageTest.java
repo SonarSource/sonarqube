@@ -26,12 +26,9 @@ import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentCaptor;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.rule.ActiveRules;
-import org.sonar.api.batch.rule.internal.ActiveRulesBuilder;
 import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.config.Settings;
 import org.sonar.api.measures.CoreMetrics;
@@ -60,9 +57,7 @@ public class DefaultSensorStorageTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  private ActiveRules activeRules;
-  private DefaultFileSystem fs;
-  private DefaultSensorStorage sensorStorage;
+  private DefaultSensorStorage underTest;
   private Settings settings;
   private ModuleIssues moduleIssues;
   private Project project;
@@ -71,9 +66,7 @@ public class DefaultSensorStorageTest {
   private BatchComponentCache resourceCache;
 
   @Before
-  public void prepare() throws Exception {
-    activeRules = new ActiveRulesBuilder().build();
-    fs = new DefaultFileSystem(temp.newFolder().toPath());
+  public void prepare() {
     MetricFinder metricFinder = mock(MetricFinder.class);
     when(metricFinder.<Integer>findByKey(CoreMetrics.NCLOC_KEY)).thenReturn(CoreMetrics.NCLOC);
     when(metricFinder.<String>findByKey(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION_KEY)).thenReturn(CoreMetrics.FUNCTION_COMPLEXITY_DISTRIBUTION);
@@ -84,18 +77,18 @@ public class DefaultSensorStorageTest {
     CoverageExclusions coverageExclusions = mock(CoverageExclusions.class);
     when(coverageExclusions.accept(any(Resource.class), any(Measure.class))).thenReturn(true);
     resourceCache = new BatchComponentCache();
-    sensorStorage = new DefaultSensorStorage(metricFinder,
-      moduleIssues, settings, fs, activeRules, coverageExclusions, resourceCache, mock(ReportPublisher.class), measureCache, mock(SonarCpdBlockIndex.class));
+    underTest = new DefaultSensorStorage(metricFinder,
+      moduleIssues, settings, coverageExclusions, resourceCache, mock(ReportPublisher.class), measureCache, mock(SonarCpdBlockIndex.class));
   }
 
   @Test
-  public void shouldFailIfUnknowMetric() {
+  public void shouldFailIfUnknownMetric() {
     InputFile file = new DefaultInputFile("foo", "src/Foo.php");
 
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("Unknow metric with key: lines");
 
-    sensorStorage.store(new DefaultMeasure()
+    underTest.store(new DefaultMeasure()
       .on(file)
       .forMetric(CoreMetrics.LINES)
       .withValue(10));
@@ -109,7 +102,7 @@ public class DefaultSensorStorageTest {
     Resource sonarFile = File.create("src/Foo.php").setEffectiveKey("foo:src/Foo.php");
     resourceCache.add(sonarFile, null).setInputComponent(file);
     when(measureCache.put(eq(sonarFile), argumentCaptor.capture())).thenReturn(null);
-    sensorStorage.store(new DefaultMeasure()
+    underTest.store(new DefaultMeasure()
       .on(file)
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));
@@ -127,7 +120,7 @@ public class DefaultSensorStorageTest {
     ArgumentCaptor<org.sonar.api.measures.Measure> argumentCaptor = ArgumentCaptor.forClass(org.sonar.api.measures.Measure.class);
     when(measureCache.put(eq(project), argumentCaptor.capture())).thenReturn(null);
 
-    sensorStorage.store(new DefaultMeasure()
+    underTest.store(new DefaultMeasure()
       .on(module)
       .forMetric(CoreMetrics.NCLOC)
       .withValue(10));

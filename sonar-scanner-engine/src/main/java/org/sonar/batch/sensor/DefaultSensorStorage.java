@@ -29,13 +29,11 @@ import java.util.Set;
 import javax.annotation.Nonnull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputComponent;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.fs.TextRange;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.measure.MetricFinder;
-import org.sonar.api.batch.rule.ActiveRules;
 import org.sonar.api.batch.sensor.coverage.CoverageType;
 import org.sonar.api.batch.sensor.coverage.internal.DefaultCoverage;
 import org.sonar.api.batch.sensor.cpd.internal.DefaultCpdTokens;
@@ -75,7 +73,7 @@ public class DefaultSensorStorage implements SensorStorage {
     // Computed by LinesSensor
     CoreMetrics.LINES);
 
-  private static final List<String> DEPRECATED_METRICS_KEYS = Arrays.<String>asList(
+  private static final List<String> DEPRECATED_METRICS_KEYS = Arrays.asList(
     CoreMetrics.DEPENDENCY_MATRIX_KEY,
     CoreMetrics.DIRECTORY_CYCLES_KEY,
     CoreMetrics.DIRECTORY_EDGES_WEIGHT_KEY,
@@ -99,7 +97,7 @@ public class DefaultSensorStorage implements SensorStorage {
   private final Settings settings;
 
   public DefaultSensorStorage(MetricFinder metricFinder, ModuleIssues moduleIssues,
-    Settings settings, FileSystem fs, ActiveRules activeRules,
+    Settings settings,
     CoverageExclusions coverageExclusions, BatchComponentCache componentCache, ReportPublisher reportPublisher, MeasureCache measureCache, SonarCpdBlockIndex index) {
     this.metricFinder = metricFinder;
     this.moduleIssues = moduleIssues;

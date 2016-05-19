@@ -20,15 +20,13 @@
 package org.sonar.api.batch.sensor.internal;
 
 import com.google.common.base.Preconditions;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
-import org.sonar.api.batch.fs.InputFile;
-
-import javax.annotation.Nullable;
 
 public abstract class DefaultStorable {
 
-  protected transient final SensorStorage storage;
+  protected final transient SensorStorage storage;
   private transient boolean saved = false;
 
   public DefaultStorable() {
@@ -51,11 +49,6 @@ public abstract class DefaultStorable {
   @Override
   public String toString() {
     return ToStringBuilder.reflectionToString(this, ToStringStyle.SHORT_PREFIX_STYLE);
-  }
-
-  protected void validateLineArgument(InputFile inputFile, int line, String label) {
-    Preconditions.checkArgument(line > 0 && line <= inputFile.lines(), "Invalid " + label + ": " + line + ". File " + inputFile + " has " + inputFile.lines()
-      + " lines.");
   }
 
 }
