@@ -154,9 +154,9 @@ function failBackgroundProcess (uid, message) {
  * @param jqXHR
  */
 function handleAjaxError (jqXHR) {
-  if (jqXHR.processId != null) {
+  if (jqXHR != null && jqXHR.processId != null) {
     let message = null;
-    if (jqXHR != null && jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
+    if (jqXHR.responseJSON != null && jqXHR.responseJSON.errors != null) {
       message = _.pluck(jqXHR.responseJSON.errors, 'msg').join('. ');
     }
     failBackgroundProcess(jqXHR.processId, message);

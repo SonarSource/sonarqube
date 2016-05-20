@@ -39,8 +39,7 @@ const defaultComparator = function (item) {
 
 const defaultFilter = function (item) {
   const items = this.query[this.property];
-  return items == null ||
-      (items != null && items.split(',').indexOf(item.val) !== -1);
+  return items == null || items.split(',').indexOf(item.val) !== -1;
 };
 
 const defaultLabel = function (item) {
