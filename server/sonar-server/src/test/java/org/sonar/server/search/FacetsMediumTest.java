@@ -20,6 +20,9 @@
 package org.sonar.server.search;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -30,10 +33,6 @@ import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.NewIndex.NewIndexType;
-
-import java.util.Arrays;
-import java.util.Date;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -136,6 +135,7 @@ public class FacetsMediumTest {
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(
         AggregationBuilders.dateHistogram(FIELD_CREATED_AT)
+          .minDocCount(0L)
           .field(FIELD_CREATED_AT)
           .interval(Interval.MINUTE)
           .format(DateUtils.DATETIME_FORMAT));
@@ -150,7 +150,7 @@ public class FacetsMediumTest {
   }
 
   private static Map<String, Object> newTagsDocument(String key, String... tags) {
-    ImmutableMap<String, Object> doc = ImmutableMap.<String, Object>of(
+    ImmutableMap<String, Object> doc = ImmutableMap.of(
       FIELD_KEY, key,
       FIELD_TAGS, Arrays.asList(tags),
       FIELD_CREATED_AT, new Date());
