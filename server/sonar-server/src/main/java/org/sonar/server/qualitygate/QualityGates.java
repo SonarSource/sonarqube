@@ -277,7 +277,7 @@ public class QualityGates {
     return from(conditionDao.selectForQualityGate(qGateId)).filter(new MatchConditionId(conditionId)).toList();
   }
 
-  private void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
+  private static void validateCondition(Metric metric, String operator, @Nullable String warningThreshold, @Nullable String errorThreshold, @Nullable Integer period) {
     Errors errors = new Errors();
     validateMetric(metric, errors);
     checkOperator(metric, operator, errors);
