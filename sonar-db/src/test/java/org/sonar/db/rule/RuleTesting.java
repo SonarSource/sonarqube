@@ -21,6 +21,7 @@ package org.sonar.db.rule;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableSet;
+import java.util.Date;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
@@ -80,7 +81,9 @@ public class RuleTesting {
       .setDefaultRemediationGapMultiplier("5d")
       .setDefaultRemediationBaseEffort("10h")
       .setGapDescription(ruleKey.repository() + "." + ruleKey.rule() + ".effortToFix")
-      .setType(RuleType.CODE_SMELL);
+      .setType(RuleType.CODE_SMELL)
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime());
   }
 
   public static RuleDto newTemplateRule(RuleKey ruleKey) {

@@ -25,7 +25,6 @@ import java.util.Date;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -58,8 +57,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_ACTIVATION;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_AVAILABLE_SINCE;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_IS_TEMPLATE;
-import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_QPROFILE;
+import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_RULE_KEY;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_STATUSES;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TAGS;
 import static org.sonarqube.ws.client.rule.RulesWsParameters.PARAM_TEMPLATE_KEY;
@@ -575,7 +574,6 @@ public class SearchActionMediumTest {
   }
 
   @Test
-  @Ignore("Make following tests failing because no rule found, but why ???")
   public void available_since() throws Exception {
     Date since = new Date();
     ruleDao.insert(dbSession, RuleTesting.newXooX1()
