@@ -31,12 +31,20 @@ CI)
   elif [[ "${TRAVIS_BRANCH}" == "branch-"* ]] && [ "$TRAVIS_PULL_REQUEST" == "false" ]; then
     strongEcho 'Build and deploy'
 
-    # Do not deploy a SNAPSHOT version but the release version related to this build
-    set_maven_build_version $TRAVIS_BUILD_NUMBER
+    # get current version from pom
+    CURRENT_VERSION=`maven_expression "project.version"`
+
+    if [[ $CURRENT_VERSION =~ "-SNAPSHOT" ]]; then
+      echo "======= Found SNAPSHOT version ======="
+      # Do not deploy a SNAPSHOT version but the release version related to this build
+      set_maven_build_version $TRAVIS_BUILD_NUMBER
+    else
+      echo "======= Found RELEASE version ======="
+    fi
 
     # analysis is currently executed by SonarSource internal infrastructure
     mvn deploy \
-        -Pdeploy-sonarsource \
+        -Pdeploy-sonarsource,release \
         -B -e -V 
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
