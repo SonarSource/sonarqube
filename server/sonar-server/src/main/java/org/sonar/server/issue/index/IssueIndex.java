@@ -496,7 +496,7 @@ public class IssueIndex extends BaseIndex {
     SearchRequestBuilder esRequest = getClient()
       .prepareSearch(IssueIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
-      .setSearchType(SearchType.COUNT);
+      .setSize(0);
     BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
     for (FilterBuilder filter : filters.values()) {
       if (filter != null) {
@@ -666,7 +666,7 @@ public class IssueIndex extends BaseIndex {
     SearchRequestBuilder requestBuilder = getClient()
       .prepareSearch(IssueIndexDefinition.INDEX)
       // Avoids returning search hits
-      .setSearchType(SearchType.COUNT)
+      .setSize(0)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE);
 
     requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
