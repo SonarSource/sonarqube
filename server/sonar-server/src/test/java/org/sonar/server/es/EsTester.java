@@ -55,6 +55,7 @@ import org.sonar.test.TestUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 public class EsTester extends ExternalResource {
 
@@ -124,17 +125,10 @@ public class EsTester extends ExternalResource {
   }
 
   public void truncateIndices() {
-    client.prepareDeleteByQuery(client.prepareState().get()
-      .getState().getMetaData().concreteAllIndices())
-      .setQuery(QueryBuilders.matchAllQuery())
-      .get();
-    client.prepareRefresh(client.prepareState().get()
-      .getState().getMetaData().concreteAllIndices())
-      .setForce(true)
-      .get();
-    client.prepareFlush(client.prepareState().get()
-      .getState().getMetaData().concreteAllIndices())
-      .get();
+    String[] indices = client.prepareState().get().getState().getMetaData().concreteAllIndices();
+    for (String index : indices) {
+      BulkIndexer.delete(client, index, client().prepareSearch(index).setQuery(matchAllQuery()));
+    }
   }
 
   public void putDocuments(String index, String type, Class<?> testClass, String... jsonPaths) throws Exception {

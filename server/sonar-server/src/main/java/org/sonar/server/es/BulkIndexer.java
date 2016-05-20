@@ -21,6 +21,10 @@ package org.sonar.server.es;
 
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
+import java.util.Map;
+import java.util.concurrent.Semaphore;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import org.elasticsearch.action.ActionListener;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
@@ -40,11 +44,6 @@ import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.core.util.ProgressLogger;
-
-import java.util.Map;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicLong;
 
 import static java.lang.String.format;
 
@@ -174,6 +173,8 @@ public class BulkIndexer implements Startable {
   /**
    * Delete all the documents matching the given search request. This method is blocking.
    * Index is refreshed, so docs are not searchable as soon as method is executed.
+   *
+   * Note that the parameter indexName could be removed if progress logs are not needed.
    */
   public static void delete(EsClient client, String indexName, SearchRequestBuilder searchRequest) {
     BulkIndexer bulk = new BulkIndexer(client, indexName);

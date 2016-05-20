@@ -25,15 +25,17 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.commons.dbutils.DbUtils;
 import org.elasticsearch.action.support.IndicesOptions;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.version.DatabaseVersion;
+import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.view.index.ViewIndexDefinition;
+
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 @ServerSide
 public class BackendCleanup {
@@ -82,18 +84,11 @@ public class BackendCleanup {
   public void clearIndexes() {
     Loggers.get(getClass()).info("Truncate Elasticsearch indices");
     try {
-      esClient.prepareClearCache()
-        .get();
-      esClient.prepareDeleteByQuery(esClient.prepareState().get()
-        .getState().getMetaData().concreteAllIndices())
-        .setQuery(QueryBuilders.matchAllQuery())
-        .get();
-      esClient.prepareRefresh(esClient.prepareState().get()
-        .getState().getMetaData().concreteAllIndices())
-        .get();
-      esClient.prepareFlush(esClient.prepareState().get()
-        .getState().getMetaData().concreteAllIndices())
-        .get();
+      esClient.prepareClearCache().get();
+
+      for (String index : esClient.prepareState().get().getState().getMetaData().concreteAllIndices()) {
+        clearIndex(index);
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Unable to clear indexes", e);
     }
@@ -168,10 +163,10 @@ public class BackendCleanup {
    * Completely remove a index with all types
    */
   public void clearIndex(String indexName) {
-    esClient.prepareDeleteByQuery(esClient.prepareState().get()
-      .getState().getMetaData().concreteIndices(IndicesOptions.strictExpand(), indexName))
-      .setQuery(QueryBuilders.matchAllQuery())
-      .get();
+    String[] indicesToClear = esClient.prepareState().get().getState().getMetaData().concreteIndices(IndicesOptions.strictExpand(), indexName);
+    for (String index : indicesToClear) {
+      BulkIndexer.delete(esClient, index, esClient.prepareSearch(index).setQuery(matchAllQuery()));
+    }
   }
 
 }

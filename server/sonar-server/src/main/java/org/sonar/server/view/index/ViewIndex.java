@@ -25,14 +25,16 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.elasticsearch.index.query.FilterBuilders.termsFilter;
+import static org.elasticsearch.index.query.QueryBuilders.filteredQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 @ServerSide
 @ComputeEngineSide
@@ -53,7 +55,7 @@ public class ViewIndex {
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
       .setFetchSource(ViewIndexDefinition.FIELD_UUID, null)
       .setSize(100)
-      .setQuery(QueryBuilders.matchAllQuery());
+      .setQuery(matchAllQuery());
 
     SearchResponse response = esSearch.get();
     List<String> result = newArrayList();
@@ -74,12 +76,10 @@ public class ViewIndex {
   }
 
   public void delete(Collection<String> viewUuids) {
-    esClient
-      .prepareDeleteByQuery(ViewIndexDefinition.INDEX)
+    SearchRequestBuilder searchRequest = esClient.prepareSearch(ViewIndexDefinition.INDEX)
       .setTypes(ViewIndexDefinition.TYPE_VIEW)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-        FilterBuilders.termsFilter(ViewIndexDefinition.FIELD_UUID, viewUuids)
-        ))
-      .get();
+      .setQuery(filteredQuery(matchAllQuery(), termsFilter(ViewIndexDefinition.FIELD_UUID, viewUuids)
+        ));
+    BulkIndexer.delete(esClient, ViewIndexDefinition.INDEX, searchRequest);
   }
 }
