@@ -46,7 +46,6 @@
     "handlebars-loader": "1.1.4",
     "history": "2.0.0",
     "imports-loader": "0.6.5",
-    "isparta": "4.0.0",
     "jquery": "2.2.0",
     "jscs": "^2.11.0",
     "jsdom": "6.5.1",
@@ -86,7 +85,7 @@
     "build-fast": "gulp build:dev",
     "build": "gulp build",
     "test": "mocha --opts tests/mocha.opts src/main/js/**/__tests__/**/*",
-    "coverage": "babel-node node_modules/.bin/isparta cover --root 'src/main/js' --include-all-sources --excludes '**/libs/**' --dir 'target/coverage' node_modules/.bin/_mocha -- --opts tests/mocha.opts tests",
+    "coverage": "nyc --exclude tests,**/__tests__/** mocha --opts tests/mocha.opts src/main/js/**/__tests__/**/* && nyc report --reporter lcov --report-dir target/coverage",
     "lint": "eslint src/main/js && jscs src/main/js",
     "dev": "NODE_ENV=hot node devServer"
   },

@@ -17,3 +17,4 @@ src/main/webapp/WEB-INF/lib/*.jar
 # tests
 src/test/json/**/*.png
 lcov.info
+.nyc_output
