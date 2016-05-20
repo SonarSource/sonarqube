@@ -91,7 +91,7 @@ public class UserIndexDefinition implements IndexDefinition {
     return ImmutableSortedMap.of(
       "type", "string",
       "index", "analyzed",
-      "index_analyzer", "index_ngrams",
+      "analyzer", "index_ngrams",
       "search_analyzer", "search_ngrams");
   }
 }

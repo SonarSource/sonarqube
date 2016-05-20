@@ -218,7 +218,7 @@ public class NewIndex {
       addSubField(SEARCH_WORDS_SUFFIX, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
-        "index_analyzer", "index_words",
+        "analyzer", "index_words",
         "search_analyzer", "search_words"));
       return this;
     }
@@ -230,7 +230,7 @@ public class NewIndex {
       addSubField(SEARCH_PARTIAL_SUFFIX, ImmutableSortedMap.of(
         "type", "string",
         "index", "analyzed",
-        "index_analyzer", "index_grams",
+        "analyzer", "index_grams",
         "search_analyzer", "search_grams"));
       return this;
     }
