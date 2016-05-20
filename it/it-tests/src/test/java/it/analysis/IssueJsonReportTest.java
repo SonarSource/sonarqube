@@ -25,27 +25,28 @@ import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.locator.ResourceLocation;
 import it.Category3Suite;
-import org.apache.commons.io.FileUtils;
-import org.apache.commons.io.IOUtils;
-import org.json.simple.JSONArray;
-import org.json.simple.JSONObject;
-import org.junit.Before;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.skyscreamer.jsonassert.JSONAssert;
-import util.ItUtils;
-
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
+import org.apache.commons.io.FileUtils;
+import org.apache.commons.io.IOUtils;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
+import org.junit.Before;
+import org.junit.ClassRule;
+import org.junit.Ignore;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
+import org.skyscreamer.jsonassert.JSONAssert;
+import util.ItUtils;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@Ignore("Temporarily disabled as non-SNAPSHOT versions are not supported")
 public class IssueJsonReportTest {
 
   @ClassRule
