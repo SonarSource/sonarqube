@@ -25,9 +25,6 @@ import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.google.common.io.ByteStreams;
-import com.google.common.io.CharStreams;
-import com.google.common.io.Files;
-import com.google.common.io.InputSupplier;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -50,6 +47,7 @@ import org.sonar.api.utils.HttpDownloader;
 import org.sonar.api.utils.SonarException;
 import org.sonar.api.utils.log.Loggers;
 
+import static org.apache.commons.io.FileUtils.copyInputStreamToFile;
 import static org.apache.commons.lang.StringUtils.isNotEmpty;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
@@ -110,7 +108,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   @Override
   protected String readString(URI uri, Charset charset) {
     try {
-      return CharStreams.toString(CharStreams.newReaderSupplier(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout), charset));
+      return IOUtils.toString(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout).getInput(), charset);
     } catch (IOException e) {
       throw failToDownload(uri, e);
     }
@@ -124,7 +122,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   @Override
   public byte[] download(URI uri) {
     try {
-      return ByteStreams.toByteArray(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout));
+      return ByteStreams.toByteArray(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout).getInput());
     } catch (IOException e) {
       throw failToDownload(uri, e);
     }
@@ -146,7 +144,7 @@ public class DefaultHttpDownloader extends HttpDownloader {
   @Override
   public void download(URI uri, File toFile) {
     try {
-      Files.copy(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout), toFile);
+      copyInputStreamToFile(downloader.newInputSupplier(uri, this.connectTimeout, this.readTimeout).getInput(), toFile);
     } catch (IOException e) {
       deleteQuietly(toFile);
       throw failToDownload(uri, e);
@@ -244,65 +242,22 @@ public class DefaultHttpDownloader extends HttpDownloader {
       return Joiner.on(", ").join(descriptions);
     }
 
-    public InputSupplier<InputStream> newInputSupplier(URI uri) {
-      return newInputSupplier(uri, GET, null, null, null, null);
-    }
-
-    public InputSupplier<InputStream> newInputSupplier(URI uri, @Nullable Integer readTimeoutMillis) {
-      return newInputSupplier(uri, GET, readTimeoutMillis);
-    }
-
-    /**
-     * @since 5.2
-     */
-    public InputSupplier<InputStream> newInputSupplier(URI uri, @Nullable Integer connectTimeoutMillis, @Nullable Integer readTimeoutMillis) {
+    public HttpInputSupplier newInputSupplier(URI uri, @Nullable Integer connectTimeoutMillis, @Nullable Integer readTimeoutMillis) {
       return newInputSupplier(uri, GET, connectTimeoutMillis, readTimeoutMillis);
     }
 
-    /**
-     * @since 5.2
-     */
-    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, @Nullable Integer connectTimeoutMillis, @Nullable Integer readTimeoutMillis) {
+    public HttpInputSupplier newInputSupplier(URI uri, String requestMethod, @Nullable Integer connectTimeoutMillis, @Nullable Integer readTimeoutMillis) {
       return newInputSupplier(uri, requestMethod, null, null, connectTimeoutMillis, readTimeoutMillis);
     }
 
-    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, @Nullable Integer readTimeoutMillis) {
-      return newInputSupplier(uri, requestMethod, null, null, null, readTimeoutMillis);
-    }
-
-    public InputSupplier<InputStream> newInputSupplier(URI uri, String login, String password) {
-      return newInputSupplier(uri, GET, login, password);
-    }
-
-    /**
-     * @since 5.0
-     */
-    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, String login, String password) {
-      return newInputSupplier(uri, requestMethod, login, password, null, null);
-    }
-
-    public InputSupplier<InputStream> newInputSupplier(URI uri, String login, String password, @Nullable Integer readTimeoutMillis) {
-      return newInputSupplier(uri, GET, login, password, readTimeoutMillis);
-    }
-
-    /**
-     * @since 5.0
-     */
-    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, String login, String password, @Nullable Integer readTimeoutMillis) {
-      return newInputSupplier(uri, requestMethod, login, password, null, readTimeoutMillis);
-    }
-
-    /**
-     * @since 5.2
-     */
-    public InputSupplier<InputStream> newInputSupplier(URI uri, String requestMethod, String login, String password, @Nullable Integer connectTimeoutMillis,
+    public HttpInputSupplier newInputSupplier(URI uri, String requestMethod, String login, String password, @Nullable Integer connectTimeoutMillis,
       @Nullable Integer readTimeoutMillis) {
       int read = readTimeoutMillis != null ? readTimeoutMillis : TIMEOUT_MILLISECONDS;
       int connect = connectTimeoutMillis != null ? connectTimeoutMillis : TIMEOUT_MILLISECONDS;
       return new HttpInputSupplier(uri, requestMethod, userAgent, login, password, connect, read);
     }
 
-    private static class HttpInputSupplier implements InputSupplier<InputStream> {
+    private static class HttpInputSupplier {
       private final String login;
       private final String password;
       private final URI uri;
@@ -325,7 +280,6 @@ public class DefaultHttpDownloader extends HttpDownloader {
        * @throws IOException any I/O error, not limited to the network connection
        * @throws HttpException if HTTP response code > 400
        */
-      @Override
       public InputStream getInput() throws IOException {
         Loggers.get(getClass()).debug("Download: " + uri + " (" + getProxySynthesis(uri, ProxySelector.getDefault()) + ")");
         HttpURLConnection connection = (HttpURLConnection) uri.toURL().openConnection();
