@@ -62,9 +62,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_AUTHORIZATION;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_IDS;
 import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_KEYS;
-
 
 public class BulkDeleteActionTest {
 
@@ -153,9 +155,9 @@ public class BulkDeleteActionTest {
       .setParam(PARAM_KEYS, "project-key-1, project-key-3, project-key-4").execute();
 
     String remainingProjectUuid = "project-uuid-2";
-    assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID))
+    assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
-    assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID))
+    assertThat(es.getDocumentFieldValues(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION, FIELD_AUTHORIZATION_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
     assertThat(es.getDocumentFieldValues(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, TestIndexDefinition.FIELD_PROJECT_UUID))
       .containsOnly(remainingProjectUuid);
@@ -221,9 +223,8 @@ public class BulkDeleteActionTest {
     dbClient.componentDao().insert(dbSession, project);
     dbSession.commit();
 
-    es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc("issue-key-" + suffix, project));
-    es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
-      ImmutableMap.<String, Object>of(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, project.uuid()));
+    es.putDocuments(IssueIndexDefinition.INDEX, TYPE_ISSUE, IssueTesting.newDoc("issue-key-" + suffix, project));
+    es.index(IssueIndexDefinition.INDEX, TYPE_AUTHORIZATION, project.uuid(), ImmutableMap.<String, Object>of(FIELD_AUTHORIZATION_PROJECT_UUID, project.uuid()));
 
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);

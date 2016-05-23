@@ -19,31 +19,26 @@
  */
 package org.sonar.server.es;
 
-import org.elasticsearch.cluster.metadata.IndexMetaData;
+import com.google.common.collect.Maps;
+import java.util.Map;
 
-public class FakeIndexDefinition implements IndexDefinition {
+import static org.sonar.server.es.FakeIndexDefinition.INT_FIELD;
 
-  public static final String INDEX = "fakes";
-  public static final String TYPE = "fake";
-  public static final String INT_FIELD = "intField";
+public class FakeDoc extends BaseDoc {
+  public FakeDoc(Map<String, Object> fields) {
+    super(fields);
+  }
 
-  private int replicas = 0;
+  public FakeDoc() {
+    super(Maps.<String, Object>newHashMap());
+  }
 
-  public FakeIndexDefinition setReplicas(int replicas) {
-    this.replicas = replicas;
+  public int getInt() {
+    return getField(INT_FIELD);
+  }
+
+  public FakeDoc setInt(int i) {
+    setField(INT_FIELD, i);
     return this;
-  }
-
-  @Override
-  public void define(IndexDefinitionContext context) {
-    NewIndex index = context.create(INDEX);
-    index.getSettings().put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, replicas);
-    index.getSettings().put("index.refresh_interval", "-1");
-    NewIndex.NewIndexType type = index.createType(TYPE);
-    type.createIntegerField(INT_FIELD);
-  }
-
-  public static FakeDoc newDoc(int value) {
-    return new FakeDoc().setInt(value);
   }
 }

@@ -29,8 +29,6 @@ import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Rule;
 import org.junit.Test;
 
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class BulkIndexerTest {
@@ -92,9 +90,9 @@ public class BulkIndexerTest {
   public void bulk_delete() throws Exception {
     int max = 500;
     int removeFrom = 200;
-    Map[] docs = new Map[max];
+    FakeDoc[] docs = new FakeDoc[max];
     for (int i = 0; i < max; i++) {
-      docs[i] = ImmutableMap.of(FakeIndexDefinition.INT_FIELD, i);
+      docs[i] = FakeIndexDefinition.newDoc(i);
     }
     esTester.putDocuments(FakeIndexDefinition.INDEX, FakeIndexDefinition.TYPE, docs);
     assertThat(count()).isEqualTo(max);
@@ -123,7 +121,6 @@ public class BulkIndexerTest {
     esTester.client().prepareRefresh(FakeIndexDefinition.INDEX).get();
     assertThat(count()).isEqualTo(2);
   }
-
 
   private long count() {
     return esTester.countDocuments("fakes", "fake");

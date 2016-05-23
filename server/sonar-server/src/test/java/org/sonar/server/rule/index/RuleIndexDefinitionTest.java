@@ -74,10 +74,10 @@ public class RuleIndexDefinitionTest {
   public void support_long_html_description() throws Exception {
     String longText = StringUtils.repeat("hello  ", 10_000);
     // the following method fails if PUT fails
-    tester.putDocuments(INDEX, RuleIndexDefinition.TYPE_RULE, ImmutableMap.<String, Object>of(
+    tester.putDocuments(INDEX, RuleIndexDefinition.TYPE_RULE, new RuleDoc(ImmutableMap.<String, Object>of(
       FIELD_RULE_HTML_DESCRIPTION, longText,
       FIELD_RULE_REPOSITORY, "squid",
-      FIELD_RULE_KEY, "S001"));
+      FIELD_RULE_KEY, "S001")));
     assertThat(tester.countDocuments(INDEX, RuleIndexDefinition.TYPE_RULE)).isEqualTo(1);
 
     List<AnalyzeResponse.AnalyzeToken> tokens = analyzeIndexedTokens(longText);

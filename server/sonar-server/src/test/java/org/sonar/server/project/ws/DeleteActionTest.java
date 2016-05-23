@@ -64,7 +64,6 @@ import static org.mockito.Mockito.when;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_ID;
 import static org.sonar.server.project.ws.DeleteAction.PARAM_KEY;
 
-
 public class DeleteActionTest {
 
   private static final String ACTION = "delete";
@@ -244,8 +243,7 @@ public class DeleteActionTest {
     dbSession.commit();
 
     es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc("issue-key-" + suffix, project));
-    es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION,
-      ImmutableMap.<String, Object>of(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, project.uuid()));
+    es.index(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, project.uuid(), ImmutableMap.<String, Object>of(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, project.uuid()));
 
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);

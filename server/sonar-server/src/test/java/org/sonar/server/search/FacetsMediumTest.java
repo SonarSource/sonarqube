@@ -63,12 +63,11 @@ public class FacetsMediumTest {
 
   @Test
   public void should_ignore_unknown_aggregation_type() throws Exception {
-    esTester.putDocuments(INDEX, TYPE,
-      newTagsDocument("noTags"),
-      newTagsDocument("oneTag", "tag1"),
-      newTagsDocument("twoTags", "tag1", "tag2"),
-      newTagsDocument("twoTags", "tag1", "tag2", "tag3"),
-      newTagsDocument("twoTags", "tag1", "tag2", "tag3", "tag4"));
+    esTester.index(INDEX, TYPE, "noTags", newTagsDocument("noTags"));
+    esTester.index(INDEX, TYPE, "oneTag", newTagsDocument("oneTag", "tag1"));
+    esTester.index(INDEX, TYPE, "twoTags", newTagsDocument("twoTags", "tag1", "tag2"));
+    esTester.index(INDEX, TYPE, "threeTags", newTagsDocument("threeTags", "tag1", "tag2", "tag3"));
+    esTester.index(INDEX, TYPE, "fourTags", newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(AggregationBuilders.cardinality(FIELD_TAGS).field(FIELD_TAGS));
 
@@ -79,12 +78,9 @@ public class FacetsMediumTest {
 
   @Test
   public void should_process_result_with_nested_missing_and_terms_aggregations() throws Exception {
-    esTester.putDocuments(INDEX, TYPE,
-      newTagsDocument("noTags"),
-      newTagsDocument("oneTag", "tag1"),
-      newTagsDocument("twoTags", "tag1", "tag2"),
-      newTagsDocument("twoTags", "tag1", "tag2", "tag3"),
-      newTagsDocument("twoTags", "tag1", "tag2", "tag3", "tag4"));
+    esTester.index(INDEX, TYPE, "noTags", newTagsDocument("noTags"));
+    esTester.index(INDEX, TYPE, "oneTag", newTagsDocument("oneTag", "tag1"));
+    esTester.index(INDEX, TYPE, "fourTags", newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
 
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(AggregationBuilders.global("tags__global")
@@ -108,11 +104,10 @@ public class FacetsMediumTest {
 
   @Test
   public void should_ignore_empty_missing_aggregation() throws Exception {
-    esTester.putDocuments(INDEX, TYPE,
-      newTagsDocument("oneTag", "tag1"),
-      newTagsDocument("twoTags", "tag1", "tag2"),
-      newTagsDocument("twoTags", "tag1", "tag2", "tag3"),
-      newTagsDocument("twoTags", "tag1", "tag2", "tag3", "tag4"));
+    esTester.index(INDEX, TYPE, "oneTag", newTagsDocument("oneTag", "tag1"));
+    esTester.index(INDEX, TYPE, "twoTags", newTagsDocument("twoTags", "tag1", "tag2"));
+    esTester.index(INDEX, TYPE, "threeTags", newTagsDocument("threeTags", "tag1", "tag2", "tag3"));
+    esTester.index(INDEX, TYPE, "fourTags", newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
 
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(AggregationBuilders.global("tags__global")
@@ -129,8 +124,9 @@ public class FacetsMediumTest {
 
   @Test
   public void should_process_result_with_date_histogram() throws Exception {
-    esTester.putDocuments(INDEX, TYPE,
-      newTagsDocument("first"), newTagsDocument("second"), newTagsDocument("third"));
+    esTester.index(INDEX, TYPE, "first", newTagsDocument("first"));
+    esTester.index(INDEX, TYPE, "second", newTagsDocument("second"));
+    esTester.index(INDEX, TYPE, "third", newTagsDocument("third"));
 
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(
@@ -162,7 +158,6 @@ public class FacetsMediumTest {
     @Override
     public void define(IndexDefinitionContext context) {
       NewIndexType newType = context.create(INDEX).createType(TYPE);
-      newType.setAttribute("_id", ImmutableMap.of("path", FIELD_KEY));
       newType.stringFieldBuilder(FIELD_KEY).build();
       newType.stringFieldBuilder(FIELD_TAGS).build();
       newType.createDateTimeField(FIELD_CREATED_AT);

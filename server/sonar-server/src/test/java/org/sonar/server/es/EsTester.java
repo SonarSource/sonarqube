@@ -135,16 +135,7 @@ public class EsTester extends ExternalResource {
     assertThat(response.hasFailures()).as(response.buildFailureMessage()).isFalse();
   }
 
-  public void putDocuments(String index, String type, Map<String, Object>... docs) throws Exception {
-    BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
-    for (Map<String, Object> doc : docs) {
-      bulk.add(new IndexRequest(index, type).source(doc));
-    }
-    BulkResponse response = bulk.get();
-    assertThat(response.hasFailures()).as(response.buildFailureMessage()).isFalse();
-  }
-
-  public void index(String indexName, String typeName, String id, Map<String,Object> source) {
+  public void index(String indexName, String typeName, String id, Map<String, Object> source) {
     client.prepareIndex(indexName, typeName).setId(id).setSource(source).get();
     client.prepareRefresh(indexName).get();
   }
