@@ -25,7 +25,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.issue.IssueFilterDto;
 import org.sonar.server.user.UserSession;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 class IssueFilterJsonWriter {
 

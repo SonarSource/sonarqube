@@ -28,7 +28,7 @@ import java.util.Set;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.component.ComponentDto;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableTable.copyOf;

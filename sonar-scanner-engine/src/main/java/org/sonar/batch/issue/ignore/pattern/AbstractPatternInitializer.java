@@ -27,7 +27,7 @@ import org.sonar.api.config.Settings;
 
 import java.util.List;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 @BatchSide
 public abstract class AbstractPatternInitializer {

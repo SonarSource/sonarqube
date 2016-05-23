@@ -54,7 +54,7 @@ import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentWsResponse;
 import org.sonarqube.ws.client.measure.ComponentWsRequest;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;

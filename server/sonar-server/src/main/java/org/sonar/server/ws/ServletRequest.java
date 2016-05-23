@@ -30,7 +30,7 @@ import org.jruby.RubyFile;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonarqube.ws.MediaTypes;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.apache.commons.lang.StringUtils.substringAfterLast;
 
 public class ServletRequest extends ValidatingRequest {

@@ -36,7 +36,7 @@ import org.sonarqube.ws.WsPermissions.PermissionTemplate;
 import org.sonarqube.ws.WsPermissions.UpdateTemplateWsResponse;
 import org.sonarqube.ws.client.permission.UpdateTemplateWsRequest;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.MSG_TEMPLATE_WITH_SAME_NAME;

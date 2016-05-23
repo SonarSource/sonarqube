@@ -23,7 +23,7 @@ import java.util.List;
 import java.util.Map;
 import org.sonar.server.qualityprofile.QProfile;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableMap.copyOf;
 

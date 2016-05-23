@@ -24,7 +24,7 @@ import javax.annotation.Nonnull;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.server.computation.measure.Measure;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 
 enum MetricDtoToMetric implements Function<MetricDto, Metric> {
   INSTANCE;

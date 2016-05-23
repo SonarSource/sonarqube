@@ -59,7 +59,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;

@@ -35,7 +35,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.ShowWsResponse;
 import org.sonarqube.ws.client.component.ShowWsRequest;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;

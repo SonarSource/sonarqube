@@ -40,7 +40,7 @@ import org.sonar.server.es.SearchResult;
 import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.sonar.server.es.SearchOptions.MAX_LIMIT;
 
 public class SearchAction implements UsersWsAction {

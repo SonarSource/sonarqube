@@ -39,7 +39,7 @@ import org.sonarqube.ws.WsPermissions.Group;
 import org.sonarqube.ws.WsPermissions.WsGroupsResponse;
 import org.sonarqube.ws.client.permission.GroupsWsRequest;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;
 import static org.sonar.server.permission.ws.PermissionQueryParser.fromSelectionModeToMembership;
 import static org.sonar.server.permission.ws.PermissionRequestValidator.validateGlobalPermission;

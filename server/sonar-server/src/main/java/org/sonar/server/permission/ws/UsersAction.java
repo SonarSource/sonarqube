@@ -38,7 +38,7 @@ import org.sonarqube.ws.WsPermissions;
 import org.sonarqube.ws.WsPermissions.UsersWsResponse;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Strings.nullToEmpty;
 import static org.sonar.api.utils.Paging.forPageIndex;
 import static org.sonar.server.permission.PermissionPrivilegeChecker.checkProjectAdminUserByComponentDto;

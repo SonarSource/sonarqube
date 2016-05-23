@@ -51,7 +51,7 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
 import org.sonarqube.ws.client.component.TreeWsRequest;
 
-import static com.google.common.base.Objects.firstNonNull;
+import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.lang.String.format;
