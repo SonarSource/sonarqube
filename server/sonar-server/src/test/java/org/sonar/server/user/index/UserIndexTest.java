@@ -19,18 +19,28 @@
  */
 package org.sonar.server.user.index;
 
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Locale;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
-import org.sonar.server.exceptions.NotFoundException;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
+import static org.sonar.server.user.index.UserIndexDefinition.INDEX;
+import static org.sonar.server.user.index.UserIndexDefinition.TYPE_USER;
 
 public class UserIndexTest {
+
+  private static final String USER1_LOGIN = "user1";
+  private static final String USER2_LOGIN = "user2";
+  private static final long DATE_1 = 1_500_000_000_000L;
+  private static final long DATE_2 = 1_500_000_000_001L;
 
   @ClassRule
   public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
@@ -45,17 +55,19 @@ public class UserIndexTest {
 
   @Test
   public void get_nullable_by_login() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user2.json");
+    UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
+    esTester.index(INDEX, TYPE_USER, USER1_LOGIN, user1.getFields());
+    esTester.index(INDEX, TYPE_USER, USER2_LOGIN, newUser(USER2_LOGIN, Collections.<String>emptyList()).getFields());
 
-    UserDoc userDoc = index.getNullableByLogin("user1");
+    UserDoc userDoc = index.getNullableByLogin(USER1_LOGIN);
     assertThat(userDoc).isNotNull();
-    assertThat(userDoc.login()).isEqualTo("user1");
-    assertThat(userDoc.name()).isEqualTo("User1");
-    assertThat(userDoc.email()).isEqualTo("user1@mail.com");
+    assertThat(userDoc.login()).isEqualTo(user1.login());
+    assertThat(userDoc.name()).isEqualTo(user1.name());
+    assertThat(userDoc.email()).isEqualTo(user1.email());
     assertThat(userDoc.active()).isTrue();
-    assertThat(userDoc.scmAccounts()).containsOnly("user_1", "u1");
-    assertThat(userDoc.createdAt()).isEqualTo(1500000000000L);
-    assertThat(userDoc.updatedAt()).isEqualTo(1500000000000L);
+    assertThat(userDoc.scmAccounts()).isEqualTo(user1.scmAccounts());
+    assertThat(userDoc.createdAt()).isEqualTo(user1.createdAt());
+    assertThat(userDoc.updatedAt()).isEqualTo(user1.updatedAt());
 
     assertThat(index.getNullableByLogin("")).isNull();
     assertThat(index.getNullableByLogin("unknown")).isNull();
@@ -63,46 +75,27 @@ public class UserIndexTest {
 
   @Test
   public void get_nullable_by_login_should_be_case_sensitive() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json");
+    UserDoc user1 = newUser(USER1_LOGIN, asList("scmA", "scmB"));
+    esTester.index(INDEX, TYPE_USER, USER1_LOGIN, user1.getFields());
 
-    assertThat(index.getNullableByLogin("user1")).isNotNull();
-    assertThat(index.getNullableByLogin("User1")).isNull();
-  }
-
-  @Test
-  public void get_by_login() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user2.json");
-
-    UserDoc userDoc = index.getByLogin("user1");
-    assertThat(userDoc).isNotNull();
-    assertThat(userDoc.login()).isEqualTo("user1");
-    assertThat(userDoc.name()).isEqualTo("User1");
-    assertThat(userDoc.email()).isEqualTo("user1@mail.com");
-    assertThat(userDoc.active()).isTrue();
-    assertThat(userDoc.scmAccounts()).containsOnly("user_1", "u1");
-    assertThat(userDoc.createdAt()).isEqualTo(1500000000000L);
-    assertThat(userDoc.updatedAt()).isEqualTo(1500000000000L);
-  }
-
-  @Test
-  public void fail_to_get_by_login_on_unknown_user() {
-    try {
-      index.getByLogin("unknown");
-      fail();
-    } catch (Exception e) {
-      assertThat(e).isInstanceOf(NotFoundException.class).hasMessage("User 'unknown' not found");
-    }
+    assertThat(index.getNullableByLogin(USER1_LOGIN)).isNotNull();
+    assertThat(index.getNullableByLogin("UsEr1")).isNull();
   }
 
   @Test
   public void getAtMostThreeActiveUsersForScmAccount() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json", "user3-with-same-email-as-user1.json", "inactive-user.json");
+    UserDoc user1 = newUser("user1", asList("user_1", "u1"));
+    UserDoc user2 = newUser("user_with_same_email_as_user1", asList("user_2")).setEmail(user1.email());
+    UserDoc user3 = newUser("inactive_user_with_same_scm_as_user1", user1.scmAccounts()).setActive(false);
+    esTester.index(INDEX, TYPE_USER, user1.login(), user1.getFields());
+    esTester.index(INDEX, TYPE_USER, user2.login(), user2.getFields());
+    esTester.index(INDEX, TYPE_USER, user3.login(), user3.getFields());
 
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user_1")).extractingResultOf("login").containsOnly("user1");
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user1")).extractingResultOf("login").containsOnly("user1");
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount(user1.scmAccounts().get(0))).extractingResultOf("login").containsOnly(user1.login());
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount(user1.login())).extractingResultOf("login").containsOnly(user1.login());
 
     // both users share the same email
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user1@mail.com")).extractingResultOf("login").containsOnly("user1", "user3");
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount(user1.email())).extractingResultOf("login").containsOnly(user1.login(), user2.login());
 
     assertThat(index.getAtMostThreeActiveUsersForScmAccount("")).isEmpty();
     assertThat(index.getAtMostThreeActiveUsersForScmAccount("unknown")).isEmpty();
@@ -110,30 +103,50 @@ public class UserIndexTest {
 
   @Test
   public void getAtMostThreeActiveUsersForScmAccount_ignore_inactive_user() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "inactive-user.json");
+    String scmAccount = "scmA";
+    UserDoc user = newUser(USER1_LOGIN, asList(scmAccount)).setActive(false);
+    esTester.index(INDEX, TYPE_USER, user.login(), user.getFields());
 
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount("inactiveUser")).isEmpty();
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user_1")).isEmpty();
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount(user.login())).isEmpty();
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount(scmAccount)).isEmpty();
   }
 
   @Test
   public void getAtMostThreeActiveUsersForScmAccount_max_three() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(), "user1.json",
-      "user2-with-same-email-as-user1.json", "user3-with-same-email-as-user1.json", "user4-with-same-email-as-user1.json");
+    String email = "user@mail.com";
+    UserDoc user1 = newUser("user1", Collections.<String>emptyList()).setEmail(email);
+    UserDoc user2 = newUser("user2", Collections.<String>emptyList()).setEmail(email);
+    UserDoc user3 = newUser("user3", Collections.<String>emptyList()).setEmail(email);
+    UserDoc user4 = newUser("user4", Collections.<String>emptyList()).setEmail(email);
+    esTester.index(INDEX, TYPE_USER, user1.login(), user1.getFields());
+    esTester.index(INDEX, TYPE_USER, user2.login(), user2.getFields());
+    esTester.index(INDEX, TYPE_USER, user3.login(), user3.getFields());
+    esTester.index(INDEX, TYPE_USER, user4.login(), user4.getFields());
 
     // restrict results to 3 users
-    assertThat(index.getAtMostThreeActiveUsersForScmAccount("user1@mail.com")).hasSize(3);
+    assertThat(index.getAtMostThreeActiveUsersForScmAccount(email)).hasSize(3);
   }
 
   @Test
   public void searchUsers() throws Exception {
-    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, this.getClass(),
-      "user1.json", "user2.json");
+    esTester.index(INDEX, TYPE_USER, USER1_LOGIN, newUser(USER1_LOGIN, Arrays.asList("user_1", "u1")).getFields());
+    esTester.index(INDEX, TYPE_USER, USER2_LOGIN, newUser(USER2_LOGIN, Collections.<String>emptyList()).getFields());
 
     assertThat(index.search(null, new SearchOptions()).getDocs()).hasSize(2);
     assertThat(index.search("user", new SearchOptions()).getDocs()).hasSize(2);
     assertThat(index.search("ser", new SearchOptions()).getDocs()).hasSize(2);
-    assertThat(index.search("user1", new SearchOptions()).getDocs()).hasSize(1);
-    assertThat(index.search("user2", new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(USER1_LOGIN, new SearchOptions()).getDocs()).hasSize(1);
+    assertThat(index.search(USER2_LOGIN, new SearchOptions()).getDocs()).hasSize(1);
+  }
+
+  private static UserDoc newUser(String login, List<String> scmAccounts) {
+    return new UserDoc()
+      .setLogin(login)
+      .setName(login.toUpperCase(Locale.ENGLISH))
+      .setEmail(login + "@mail.com")
+      .setActive(true)
+      .setScmAccounts(scmAccounts)
+      .setCreatedAt(DATE_1)
+      .setUpdatedAt(DATE_2);
   }
 }

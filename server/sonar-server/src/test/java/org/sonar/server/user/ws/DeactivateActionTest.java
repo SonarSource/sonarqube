@@ -100,7 +100,7 @@ public class DeactivateActionTest {
       .execute()
       .assertJson(getClass(), "deactivate_user.json");
 
-    UserDoc user = index.getByLogin("john");
+    UserDoc user = index.getNullableByLogin("john");
     assertThat(user.active()).isFalse();
     assertThat(dbClient.userTokenDao().selectByLogin(dbSession, "john")).isEmpty();
   }

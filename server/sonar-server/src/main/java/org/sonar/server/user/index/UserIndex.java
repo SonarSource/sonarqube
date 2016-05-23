@@ -48,30 +48,16 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
-import org.sonar.server.exceptions.NotFoundException;
-
-import static java.lang.String.format;
 
 @ServerSide
 @ComputeEngineSide
 public class UserIndex {
 
-  /**
-   * Convert an Elasticsearch result (a map) to an {@link UserDoc}. It's
-   * used for {@link org.sonar.server.es.SearchResult}.
-   */
-  private static final Function<Map<String, Object>, UserDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String, Object>, UserDoc>() {
-    @Override
-    protected UserDoc doApply(Map<String, Object> input) {
-      return new UserDoc(input);
-    }
-  };
+  private final EsClient esClient;
 
   public UserIndex(EsClient esClient) {
     this.esClient = esClient;
   }
-
-  private final EsClient esClient;
 
   @CheckForNull
   public UserDoc getNullableByLogin(String login) {
@@ -83,14 +69,6 @@ public class UserIndex {
       return DOC_CONVERTER.apply(response.getSource());
     }
     return null;
-  }
-
-  public UserDoc getByLogin(String login) {
-    UserDoc userDoc = getNullableByLogin(login);
-    if (userDoc == null) {
-      throw new NotFoundException(format("User '%s' not found", login));
-    }
-    return userDoc;
   }
 
   /**
@@ -126,7 +104,7 @@ public class UserIndex {
       .setSearchType(SearchType.SCAN)
       .addSort(SortBuilders.fieldSort(UserIndexDefinition.FIELD_LOGIN).order(SortOrder.ASC))
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
-      .setSize(10000)
+      .setSize(10_000)
       .setFetchSource(
         new String[] {UserIndexDefinition.FIELD_LOGIN, UserIndexDefinition.FIELD_NAME},
         null)
@@ -146,7 +124,7 @@ public class UserIndex {
     BoolFilterBuilder userFilter = FilterBuilders.boolFilter()
       .must(FilterBuilders.termFilter(UserIndexDefinition.FIELD_ACTIVE, true));
 
-    QueryBuilder query = null;
+    QueryBuilder query;
     if (StringUtils.isEmpty(searchText)) {
       query = QueryBuilders.matchAllQuery();
     } else {
@@ -163,4 +141,15 @@ public class UserIndex {
 
     return new SearchResult<>(request.get(), DOC_CONVERTER);
   }
+
+  /**
+   * Convert an Elasticsearch result (a map) to an {@link UserDoc}. It's
+   * used for {@link org.sonar.server.es.SearchResult}.
+   */
+  private static final Function<Map<String, Object>, UserDoc> DOC_CONVERTER = new NonNullInputFunction<Map<String, Object>, UserDoc>() {
+    @Override
+    protected UserDoc doApply(Map<String, Object> input) {
+      return new UserDoc(input);
+    }
+  };
 }

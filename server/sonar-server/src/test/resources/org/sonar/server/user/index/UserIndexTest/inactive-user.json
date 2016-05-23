@@ -1,9 +1,0 @@
-{
-  "login": "inactiveUser",
-  "name": "User1",
-  "email": "user1@mail.com",
-  "active": false,
-  "scmAccounts": ["user_1", "u1"],
-  "createdAt": 1500000000000,
-  "updatedAt": 1500000000000
-}

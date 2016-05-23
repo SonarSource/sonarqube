@@ -119,7 +119,7 @@ public class CreateActionTest {
       .setParam("password", "1234").execute()
       .assertJson(getClass(), "create_user.json");
 
-    UserDoc user = index.getByLogin("john");
+    UserDoc user = index.getNullableByLogin("john");
     assertThat(user.login()).isEqualTo("john");
     assertThat(user.name()).isEqualTo("John");
     assertThat(user.email()).isEqualTo("john@email.com");
@@ -138,7 +138,7 @@ public class CreateActionTest {
       .setParam("password", "1234").execute()
       .assertJson(getClass(), "create_user.json");
 
-    UserDoc user = index.getByLogin("john");
+    UserDoc user = index.getNullableByLogin("john");
     assertThat(user.login()).isEqualTo("john");
     assertThat(user.name()).isEqualTo("John");
     assertThat(user.email()).isEqualTo("john@email.com");
@@ -164,7 +164,7 @@ public class CreateActionTest {
       .setParam("password", "1234").execute()
       .assertJson(getClass(), "reactivate_user.json");
 
-    assertThat(index.getByLogin("john").active()).isTrue();
+    assertThat(index.getNullableByLogin("john").active()).isTrue();
   }
 
   @Test(expected = ForbiddenException.class)

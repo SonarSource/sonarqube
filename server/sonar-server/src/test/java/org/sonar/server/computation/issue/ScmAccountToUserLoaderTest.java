@@ -27,9 +27,11 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
 import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
+import org.sonar.server.user.index.UserDoc;
 import org.sonar.server.user.index.UserIndex;
 import org.sonar.server.user.index.UserIndexDefinition;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -48,30 +50,51 @@ public class ScmAccountToUserLoaderTest {
 
   @Test
   public void load_login_for_scm_account() throws Exception {
-    esTester.putDocuments("users", "user", getClass(), "charlie.json");
-    UserIndex index = new UserIndex(esTester.client());
-    ScmAccountToUserLoader loader = new ScmAccountToUserLoader(index);
+    UserDoc user = new UserDoc()
+      .setLogin("charlie")
+      .setName("Charlie")
+      .setEmail("charlie@hebdo.com")
+      .setActive(true)
+      .setScmAccounts(asList("charlie", "jesuis@charlie.com"));
+    esTester.index(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, "charlie", user.getFields());
 
-    assertThat(loader.load("missing")).isNull();
-    assertThat(loader.load("jesuis@charlie.com")).isEqualTo("charlie");
+    UserIndex index = new UserIndex(esTester.client());
+    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
+
+    assertThat(underTest.load("missing")).isNull();
+    assertThat(underTest.load("jesuis@charlie.com")).isEqualTo("charlie");
   }
 
   @Test
-  public void warn_if_multiple_users_share_same_scm_account() throws Exception {
-    esTester.putDocuments("users", "user", getClass(), "charlie.json", "charlie_conflict.json");
-    UserIndex index = new UserIndex(esTester.client());
-    ScmAccountToUserLoader loader = new ScmAccountToUserLoader(index);
+  public void warn_if_multiple_users_share_the_same_scm_account() throws Exception {
+    UserDoc user1 = new UserDoc()
+      .setLogin("charlie")
+      .setName("Charlie")
+      .setEmail("charlie@hebdo.com")
+      .setActive(true)
+      .setScmAccounts(asList("charlie", "jesuis@charlie.com"));
+    esTester.index(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user1.login(), user1.getFields());
 
-    assertThat(loader.load("charlie")).isNull();
+    UserDoc user2 = new UserDoc()
+      .setLogin("another.charlie")
+      .setName("Another Charlie")
+      .setActive(true)
+      .setScmAccounts(asList("charlie"));
+    esTester.index(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user2.login(), user2.getFields());
+
+    UserIndex index = new UserIndex(esTester.client());
+    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
+
+    assertThat(underTest.load("charlie")).isNull();
     assertThat(logTester.logs(LoggerLevel.WARN)).contains("Multiple users share the SCM account 'charlie': another.charlie, charlie");
   }
 
   @Test
   public void load_by_multiple_scm_accounts_is_not_supported_yet() {
     UserIndex index = new UserIndex(esTester.client());
-    ScmAccountToUserLoader loader = new ScmAccountToUserLoader(index);
+    ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
     try {
-      loader.loadAll(Collections.<String>emptyList());
+      underTest.loadAll(Collections.<String>emptyList());
       fail();
     } catch (UnsupportedOperationException ignored) {
     }
