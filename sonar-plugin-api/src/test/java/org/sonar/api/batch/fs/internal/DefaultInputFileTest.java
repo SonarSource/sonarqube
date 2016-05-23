@@ -163,8 +163,13 @@ public class DefaultInputFileTest {
     file.newRange(file.newPointer(1, 0), file.newPointer(1, 9));
     file.newRange(file.newPointer(1, 0), file.newPointer(2, 0));
     assertThat(file.newRange(file.newPointer(1, 0), file.newPointer(2, 5))).isEqualTo(file.newRange(0, 15));
-    file.newRange(file.newPointer(1, 0), file.newPointer(1, 0));
 
+    try {
+      file.newRange(file.newPointer(1, 0), file.newPointer(1, 0));
+      fail();
+    } catch (Exception e) {
+      assertThat(e).hasMessage("Start pointer [line=1, lineOffset=0] should be before end pointer [line=1, lineOffset=0]");
+    }
     try {
       file.newRange(file.newPointer(1, 1), file.newPointer(1, 0));
       fail();
@@ -177,6 +182,19 @@ public class DefaultInputFileTest {
     } catch (Exception e) {
       assertThat(e).hasMessage("10 is not a valid line offset for pointer. File [moduleKey=ABCDE, relative=src/Foo.php, basedir=null] has 9 character(s) at line 1");
     }
+  }
+
+  @Test
+  public void selectEmptyLine() {
+    DefaultInputFile file = new DefaultInputFile("ABCDE", "src/Foo.php");
+    // Lines 2 is empty
+    file.setLines(3);
+    file.setOriginalLineOffsets(new int[] {0, 10, 11});
+    file.setLastValidOffset(15);
+    // Don't fail
+    file.selectLine(1);
+    file.selectLine(2);
+    file.selectLine(3);
   }
 
   @Test
