@@ -81,7 +81,6 @@ public class EsTester extends ExternalResource {
       // limit the number of threads created (see org.elasticsearch.common.util.concurrent.EsExecutors)
       .put("processors", 1)
       .put("http.enabled", false)
-      .put("index.store.type", "mmapfs")
       .put("config.ignore_system_properties", true)
       // reuse the same directory than other tests for faster initialization
       .put("path.home", "target/" + nodeName)
