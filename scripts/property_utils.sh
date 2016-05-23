@@ -8,12 +8,6 @@
 
 set -euo pipefail
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  SED_DISABLE_BACKUP=" ''"
-else
-  SED_DISABLE_BACKUP=""
-fi
-
 function cnt_lines() {
   FILE=$1
   cat $1 | wc -l
@@ -36,19 +30,27 @@ function set_property() {
   VALUE=$2
   FILE=$3
 
-  REGEXP="${1//\./\\\.}\s*="
-  if [ $(grep $REGEXP $FILE | wc -l) -eq 0 ]; then
-    write_prop $1 $2 $3
-  else
-    # delete line of specified property
+  REGEXP="${PROPERTY//\./\\.}\\s*="
+
+  if grep -q "$REGEXP" "$FILE"; then
+     # delete line of specified property
     LINE_COUNT=$(cnt_lines $FILE)
-    sed -i $SED_DISABLE_BACKUP "/${REGEXP}/d" $FILE
+
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' /${REGEXP}/d "$FILE"
+    else
+      sed -i /${REGEXP}/d "$FILE"
+    fi
 
     # add property if at least one line deleted
     NEW_LINE_COUNT=$(cnt_lines $FILE)
-    if [ $LINE_COUNT -gt $NEW_LINE_COUNT ]; then
+
+    if [[ $LINE_COUNT -gt $NEW_LINE_COUNT ]]; then
       write_prop $1 $2 $3
     fi
+
+  else
+    write_prop $1 $2 $3
   fi
 }
 
