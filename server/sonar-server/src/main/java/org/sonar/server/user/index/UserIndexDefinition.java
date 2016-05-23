@@ -19,7 +19,6 @@
  */
 package org.sonar.server.user.index;
 
-import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import java.util.SortedMap;
 import org.sonar.api.config.Settings;
@@ -76,8 +75,6 @@ public class UserIndexDefinition implements IndexDefinition {
 
     // type "user"
     NewIndex.NewIndexType mapping = index.createType(TYPE_USER);
-    mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_LOGIN));
-
     mapping.stringFieldBuilder(FIELD_LOGIN).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).build();
     mapping.stringFieldBuilder(FIELD_NAME).addSubField(SEARCH_SUB_SUFFIX, buildGramSearchField()).build();
     mapping.stringFieldBuilder(FIELD_EMAIL).enableSorting().build();
