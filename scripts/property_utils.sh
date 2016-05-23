@@ -36,8 +36,11 @@ function set_property() {
      # delete line of specified property
     LINE_COUNT=$(cnt_lines $FILE)
 
-    # Create new file and replace afterwards. Avoids corruption if update fails
-    sed -e /${REGEXP}/d "$FILE" > "${FILE}.new" && mv "${FILE}.new" "${FILE}"
+    if [[ "$OSTYPE" == "darwin"* ]]; then
+      sed -i '' /${REGEXP}/d "$FILE"
+    else
+      sed -i /${REGEXP}/d "$FILE"
+    fi
 
     # add property if at least one line deleted
     NEW_LINE_COUNT=$(cnt_lines $FILE)
