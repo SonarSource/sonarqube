@@ -176,13 +176,13 @@ public class PurgeTest {
     // Keep all snapshots from last 4 weeks
     setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", "4");
 
+    // Execute an analysis 11 days ago
+    String elevenDaysAgo = formatDate(addDays(new Date(), -11));
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", elevenDaysAgo);
+
     // Execute an analysis 10 days ago
     String tenDaysAgo = formatDate(addDays(new Date(), -10));
     runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", tenDaysAgo);
-
-    // Execute an analysis 8 days ago
-    String eightDaysAgo = formatDate(addDays(new Date(), -8));
-    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", eightDaysAgo);
 
     // Now only keep 1 snapshot per week
     setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", "0");
@@ -190,15 +190,15 @@ public class PurgeTest {
     // Execute an analysis today to execute the purge of previous weeks snapshots
     runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH);
 
-    // Check that only analysis from 8 days ago is kept (as it's the last one from previous week)
+    // Check that only analysis from 10 days ago is kept (as it's the last one from previous week)
     WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(
       new GetRequest("/api/timemachine/index")
         .setParam("resource", PROJECT_KEY)
         .setParam("metrics", "ncloc"))
       .failIfNotSuccessful();
     String content = response.content();
-    assertThat(content).contains(eightDaysAgo);
-    assertThat(content).doesNotContain(tenDaysAgo);
+    assertThat(content).contains(tenDaysAgo);
+    assertThat(content).doesNotContain(elevenDaysAgo);
   }
 
   /**
