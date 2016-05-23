@@ -10,7 +10,7 @@ set -euo pipefail
 
 function cnt_lines() {
   FILE=$1
-  cat $1 | wc -l
+  cat $FILE | wc -l
 }
 
 function write_prop() {
@@ -46,11 +46,11 @@ function set_property() {
     NEW_LINE_COUNT=$(cnt_lines $FILE)
 
     if [[ $LINE_COUNT -gt $NEW_LINE_COUNT ]]; then
-      write_prop $1 $2 $3
+      write_prop $PROPERTY $VALUE $FILE
     fi
 
   else
-    write_prop $1 $2 $3
+    write_prop $PROPERTY $VALUE $FILE
   fi
 }
 
