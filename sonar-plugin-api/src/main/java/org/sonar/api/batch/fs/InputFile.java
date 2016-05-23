@@ -130,7 +130,7 @@ public interface InputFile extends InputPath {
   TextPointer newPointer(int line, int lineOffset);
 
   /**
-   * Returns a {@link TextRange} in the given file.
+   * Returns a {@link TextRange} in the given file. Empty ranges are not permitted.
    * @param start start pointer
    * @param end end pointer
    * @throws IllegalArgumentException if start or stop pointers are not valid for the given file.
@@ -139,7 +139,7 @@ public interface InputFile extends InputPath {
   TextRange newRange(TextPointer start, TextPointer end);
 
   /**
-   * Returns a {@link TextRange} in the given file.
+   * Returns a {@link TextRange} in the given file. Empty ranges are not permitted.
    * <ul>
    * <li><code>newRange(1, 0, 1, 1)</code> selects the first character at line 1</li>
    * <li><code>newRange(1, 0, 1, 10)</code> selects the 10 first characters at line 1</li>
@@ -150,7 +150,8 @@ public interface InputFile extends InputPath {
   TextRange newRange(int startLine, int startLineOffset, int endLine, int endLineOffset);
 
   /**
-   * Returns a {@link TextRange} in the given file that select the full line.
+   * Returns a {@link TextRange} in the given file that select the full line (ommiting the line break character(s)).
+   * Selecting an empty line will return an "empty" TextRange with the same start and end pointer.
    * @param line Start at 1.
    * @throws IllegalArgumentException if line is not valid for the given file.
    * @since 5.2
