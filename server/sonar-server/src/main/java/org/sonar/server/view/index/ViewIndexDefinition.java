@@ -19,7 +19,6 @@
  */
 package org.sonar.server.view.index;
 
-import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
@@ -50,7 +49,6 @@ public class ViewIndexDefinition implements IndexDefinition {
 
     // type "view"
     NewIndex.NewIndexType mapping = index.createType(TYPE_VIEW);
-    mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_UUID));
     mapping.stringFieldBuilder(FIELD_UUID).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_PROJECTS).disableNorms().build();
   }
