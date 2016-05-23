@@ -108,18 +108,6 @@ public class DefaultHighlightingTest {
   }
 
   @Test
-  public void should_prevent_start_equal_end2() {
-    throwable.expect(IllegalArgumentException.class);
-    throwable
-      .expectMessage("Unable to highlight file");
-
-    new DefaultHighlighting(mock(SensorStorage.class))
-      .onFile(INPUT_FILE)
-      .highlight(1, 10, 1, 10, KEYWORD)
-      .save();
-  }
-
-  @Test
   public void should_prevent_boudaries_overlapping() {
     throwable.expect(IllegalStateException.class);
     throwable
