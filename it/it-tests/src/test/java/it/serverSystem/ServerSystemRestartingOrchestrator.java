@@ -67,7 +67,7 @@ public class ServerSystemRestartingOrchestrator {
       fail();
     } catch (Exception e) {
       assertThat(FileUtils.readFileToString(orchestrator.getServer().getLogs())).contains(
-        "Plugin incompatible-plugin [incompatibleplugin] requires at least SonarQube 5.9");
+        "Plugin incompatible-plugin [incompatibleplugin] requires at least SonarQube 100");
     }
   }
 
