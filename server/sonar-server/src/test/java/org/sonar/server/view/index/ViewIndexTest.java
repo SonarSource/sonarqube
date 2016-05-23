@@ -19,16 +19,18 @@
  */
 package org.sonar.server.view.index;
 
+import java.util.List;
 import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
 
-import java.util.List;
-
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.server.view.index.ViewIndexDefinition.INDEX;
+import static org.sonar.server.view.index.ViewIndexDefinition.TYPE_VIEW;
 
 public class ViewIndexTest {
 
@@ -45,11 +47,14 @@ public class ViewIndexTest {
 
   @Test
   public void find_all_view_uuids() throws Exception {
-    esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, this.getClass(), "view1.json", "view2.json");
+    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
+    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2"));
+    esTester.index(INDEX, TYPE_VIEW, view1.uuid(), view1.getFields());
+    esTester.index(INDEX, TYPE_VIEW, view2.uuid(), view2.getFields());
 
     List<String> result = newArrayList(index.findAllViewUuids());
 
-    assertThat(result).containsOnly("fed0a543-9d9c-4af5-a4ec-450a8fe78ce7", "8d0bc2a5-bfba-464b-92de-bb170e9d978e");
+    assertThat(result).containsOnly(view1.uuid(), view2.uuid());
   }
 
   @Test
@@ -61,11 +66,16 @@ public class ViewIndexTest {
 
   @Test
   public void delete_views() throws Exception {
-    esTester.putDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW, this.getClass(), "view1.json", "view2.json");
+    ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
+    ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
+    ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
+    esTester.index(INDEX, TYPE_VIEW, view1.uuid(), view1.getFields());
+    esTester.index(INDEX, TYPE_VIEW, view2.uuid(), view2.getFields());
+    esTester.index(INDEX, TYPE_VIEW, view3.uuid(), view3.getFields());
 
-    index.delete(newArrayList("fed0a543-9d9c-4af5-a4ec-450a8fe78ce7", "8d0bc2a5-bfba-464b-92de-bb170e9d978e"));
+    index.delete(asList(view1.uuid(), view2.uuid()));
 
-    assertThat(esTester.countDocuments(ViewIndexDefinition.INDEX, ViewIndexDefinition.TYPE_VIEW)).isEqualTo(0L);
+    assertThat(esTester.getDocumentFieldValues(INDEX, TYPE_VIEW, ViewIndexDefinition.FIELD_UUID)).containsOnly(view3.uuid());
   }
 
 }

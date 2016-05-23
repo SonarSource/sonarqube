@@ -24,13 +24,10 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
-import java.io.File;
-import java.io.FileInputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
@@ -51,7 +48,6 @@ import org.elasticsearch.search.SearchHit;
 import org.junit.rules.ExternalResource;
 import org.sonar.api.config.Settings;
 import org.sonar.core.platform.ComponentContainer;
-import org.sonar.test.TestUtils;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -130,19 +126,6 @@ public class EsTester extends ExternalResource {
     }
   }
 
-  public void putDocuments(String index, String type, Class<?> testClass, String... jsonPaths) throws Exception {
-    BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
-    for (String path : jsonPaths) {
-      File file = TestUtils.getResource(testClass, path);
-      if (file == null) {
-        throw new IllegalArgumentException(String.format("File '%s' hasn't been found in folder '%s'", path, testClass.getSimpleName()));
-      }
-      bulk.add(new IndexRequest(index, type).source(IOUtils.toString(new FileInputStream(file))));
-    }
-    BulkResponse response = bulk.get();
-    assertThat(response.hasFailures()).as(response.buildFailureMessage()).isFalse();
-  }
-
   public void putDocuments(String index, String type, BaseDoc... docs) throws Exception {
     BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
     for (BaseDoc doc : docs) {
@@ -159,6 +142,11 @@ public class EsTester extends ExternalResource {
     }
     BulkResponse response = bulk.get();
     assertThat(response.hasFailures()).as(response.buildFailureMessage()).isFalse();
+  }
+
+  public void index(String indexName, String typeName, String id, Map<String,Object> source) {
+    client.prepareIndex(indexName, typeName).setId(id).setSource(source).get();
+    client.prepareRefresh(indexName).get();
   }
 
   public long countDocuments(String indexName, String typeName) {
