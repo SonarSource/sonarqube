@@ -68,6 +68,6 @@ public class IssuesModeTest extends PerfTestCase {
     long duration = System.currentTimeMillis() - start;
     System.out.println("Issues analysis: " + duration + "ms");
 
-    perfRule.assertDurationAround(duration, 4200L);
+    perfRule.assertDurationAround(duration, 3600L);
   }
 }
