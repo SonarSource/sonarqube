@@ -24,7 +24,6 @@ import java.util.Map;
 import java.util.TimeZone;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -56,8 +55,9 @@ import static org.sonarqube.ws.client.issue.IssueFilterParameters.FACET_MODE_EFF
 
 public class IssueIndexDebtTest {
 
-  @ClassRule
-  public static EsTester tester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+  @Rule
+  public EsTester tester = new EsTester(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -69,14 +69,12 @@ public class IssueIndexDebtTest {
 
   @Before
   public void setUp() {
-    tester.truncateIndices();
     issueIndexer = new IssueIndexer(null, tester.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, tester.client());
     viewIndexer = new ViewIndexer(null, tester.client());
     System2 system = mock(System2.class);
     when(system.getDefaultTimeZone()).thenReturn(TimeZone.getTimeZone("+01:00"));
     when(system.now()).thenReturn(System.currentTimeMillis());
-
     index = new IssueIndex(tester.client(), system, userSessionRule);
   }
 

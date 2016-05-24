@@ -30,7 +30,6 @@ import java.util.TimeZone;
 import javax.annotation.Nullable;
 import org.assertj.core.api.Fail;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -66,8 +65,9 @@ import static org.sonar.api.utils.DateUtils.parseDateTime;
 
 public class IssueIndexTest {
 
-  @ClassRule
-  public static EsTester tester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+  @Rule
+  public EsTester tester = new EsTester(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -79,7 +79,6 @@ public class IssueIndexTest {
 
   @Before
   public void setUp() {
-    tester.truncateIndices();
     issueIndexer = new IssueIndexer(null, tester.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, tester.client());
     viewIndexer = new ViewIndexer(null, tester.client());

@@ -21,7 +21,6 @@ package org.sonar.server.project.ws;
 
 import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -71,8 +70,9 @@ public class DeleteActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()),
+  @Rule
+  public EsTester es = new EsTester(
+    new IssueIndexDefinition(new Settings()),
     new TestIndexDefinition(new Settings()));
 
   @Rule
@@ -108,8 +108,6 @@ public class DeleteActionTest {
         dbClient,
         userSessionRule)));
     userSessionRule.login("login").setGlobalPermissions(UserRole.ADMIN);
-    db.truncateTables();
-    es.truncateIndices();
   }
 
   @Test

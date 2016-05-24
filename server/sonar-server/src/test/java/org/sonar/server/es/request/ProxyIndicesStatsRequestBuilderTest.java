@@ -20,7 +20,6 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
@@ -33,8 +32,8 @@ import static org.junit.Assert.fail;
 
 public class ProxyIndicesStatsRequestBuilderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
+  @Rule
+  public EsTester esTester = new EsTester(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -56,7 +55,7 @@ public class ProxyIndicesStatsRequestBuilderTest {
 
     esTester.client().prepareStats(FakeIndexDefinition.INDEX).get();
 
-    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
 
   @Test

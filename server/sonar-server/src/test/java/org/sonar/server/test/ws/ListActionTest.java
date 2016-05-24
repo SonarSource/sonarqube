@@ -22,7 +22,6 @@ package org.sonar.server.test.ws;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -43,18 +42,20 @@ import org.sonar.server.test.index.TestIndexDefinition;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
-
 public class ListActionTest {
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new TestIndexDefinition(new Settings()));
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   DbClient dbClient = db.getDbClient();
 
   TestIndex testIndex;
@@ -62,10 +63,7 @@ public class ListActionTest {
 
   @Before
   public void setUp() {
-    db.truncateTables();
-    es.truncateIndices();
     testIndex = new TestIndex(es.client());
-
     ws = new WsTester(new TestsWs(new ListAction(dbClient, testIndex, userSessionRule, new ComponentFinder(dbClient))));
   }
 

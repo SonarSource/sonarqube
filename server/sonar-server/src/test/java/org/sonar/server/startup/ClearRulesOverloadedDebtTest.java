@@ -20,7 +20,6 @@
 package org.sonar.server.startup;
 
 import javax.annotation.Nullable;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -54,8 +53,8 @@ public class ClearRulesOverloadedDebtTest {
   @Rule
   public DbTester tester = DbTester.create(system2);
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new Settings()));
 
   @Rule
   public LogTester logTester = new LogTester();

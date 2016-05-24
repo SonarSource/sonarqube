@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -71,8 +70,8 @@ public class IssuesActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new IssueIndexDefinition(new Settings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -87,9 +86,6 @@ public class IssuesActionTest {
 
   @Before
   public void before() {
-    db.truncateTables();
-    es.truncateIndices();
-
     issueIndex = new IssueIndex(es.client(), System2.INSTANCE, userSessionRule);
     issueIndexer = new IssueIndexer(null, es.client());
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(null, es.client());

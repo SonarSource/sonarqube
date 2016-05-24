@@ -50,7 +50,6 @@ public class SearchViewComponentsActionTest {
 
   @Before
   public void setUp() {
-    db.truncateTables();
     ws = new WsTester(new ComponentsWs(mock(AppAction.class), new SearchViewComponentsAction(db.getDbClient(), userSessionRule, new ComponentFinder(db.getDbClient()))));
   }
 

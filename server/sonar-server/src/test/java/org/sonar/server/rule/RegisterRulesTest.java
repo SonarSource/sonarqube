@@ -22,7 +22,6 @@ package org.sonar.server.rule;
 import java.util.Date;
 import java.util.List;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Language;
@@ -69,8 +68,8 @@ public class RegisterRulesTest {
   @org.junit.Rule
   public DbTester dbTester = DbTester.create(system);
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
+  @org.junit.Rule
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new Settings()));
 
   RuleActivator ruleActivator = mock(RuleActivator.class);
 
@@ -83,7 +82,6 @@ public class RegisterRulesTest {
 
   @Before
   public void before() {
-    esTester.truncateIndices();
     when(system.now()).thenReturn(DATE1.getTime());
     ruleIndexer = new RuleIndexer(dbClient, esTester.client());
     ruleIndexer.setEnabled(true);

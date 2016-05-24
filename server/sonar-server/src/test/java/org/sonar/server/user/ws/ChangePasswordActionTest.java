@@ -21,7 +21,6 @@ package org.sonar.server.user.ws;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -62,8 +61,8 @@ public class ChangePasswordActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
+  @Rule
+  public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone().login("admin").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
@@ -86,9 +85,6 @@ public class ChangePasswordActionTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-    esTester.truncateIndices();
-
     System2 system2 = new System2();
     UserDao userDao = new UserDao(dbTester.myBatis(), system2);
     UserGroupDao userGroupDao = new UserGroupDao();

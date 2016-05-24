@@ -20,8 +20,6 @@
 package org.sonar.server.measure.custom.ws;
 
 import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -56,8 +54,8 @@ public class MetricsActionTest {
   private static final String DEFAULT_PROJECT_UUID = "project-uuid";
   private static final String DEFAULT_PROJECT_KEY = "project-key";
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -70,17 +68,13 @@ public class MetricsActionTest {
   WsTester ws;
   ComponentDto defaultProject;
 
-  @BeforeClass
-  public static void setUpClass() throws Exception {
+  @Before
+  public void setUp() throws Exception {
     es.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, new UserDoc()
       .setLogin("login")
       .setName("Login")
       .setEmail("login@login.com")
       .setActive(true));
-  }
-
-  @Before
-  public void setUp() {
     ws = new WsTester(new CustomMeasuresWs(new MetricsAction(dbClient, userSession, new ComponentFinder(dbClient))));
     userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
     defaultProject = insertDefaultProject();

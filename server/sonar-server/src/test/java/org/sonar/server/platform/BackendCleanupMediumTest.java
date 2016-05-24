@@ -20,8 +20,6 @@
 package org.sonar.server.platform;
 
 import com.google.common.collect.ImmutableMap;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -41,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class BackendCleanupMediumTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(
+  @Rule
+  public EsTester esTester = new EsTester(
     new RuleIndexDefinition(new Settings()),
     new IssueIndexDefinition(new Settings()),
     new ViewIndexDefinition(new Settings())
@@ -51,12 +49,7 @@ public class BackendCleanupMediumTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  BackendCleanup backendCleanup;
-
-  @Before
-  public void setUp() {
-    backendCleanup = new BackendCleanup(esTester.client(), dbTester.myBatis());
-  }
+  BackendCleanup backendCleanup = new BackendCleanup(esTester.client(), dbTester.myBatis());
 
   @Test
   public void clear_db() {

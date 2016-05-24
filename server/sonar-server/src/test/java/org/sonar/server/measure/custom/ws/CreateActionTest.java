@@ -23,7 +23,6 @@ import java.util.List;
 import org.assertj.core.data.Offset;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -78,8 +77,8 @@ public class CreateActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
 
   DbClient dbClient = db.getDbClient();
 
@@ -91,7 +90,6 @@ public class CreateActionTest {
   public void setUp() {
     ws = new WsTester(new CustomMeasuresWs(new CreateAction(dbClient, userSession, System2.INSTANCE, new CustomMeasureValidator(newFullTypeValidations()),
       new CustomMeasureJsonWriter(new UserJsonWriter(userSession)), new ComponentFinder(dbClient))));
-    db.truncateTables();
     userSession.login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
 
     db.getDbClient().userDao().insert(dbSession, new UserDto()

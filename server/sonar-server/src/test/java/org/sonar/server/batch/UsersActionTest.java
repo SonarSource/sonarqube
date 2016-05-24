@@ -23,7 +23,6 @@ import java.io.ByteArrayInputStream;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -46,8 +45,8 @@ public class UsersActionTest {
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -60,11 +59,8 @@ public class UsersActionTest {
 
   @Before
   public void before() {
-    es.truncateIndices();
-
     userIndex = new UserIndex(es.client());
     usersAction = new UsersAction(userIndex, userSessionRule);
-
     tester = new WsTester(new BatchWs(new BatchIndex(mock(Server.class)), usersAction));
   }
 

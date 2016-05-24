@@ -25,7 +25,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
@@ -74,17 +74,15 @@ public class RuleIndexTest {
   static final String QUALITY_PROFILE_KEY1 = "qp1";
   static final String QUALITY_PROFILE_KEY2 = "qp2";
 
-  @ClassRule
-  public static EsTester tester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
+  @Rule
+  public EsTester tester = new EsTester(new RuleIndexDefinition(new Settings()));
 
   RuleIndex index;
-
   RuleIndexer ruleIndexer;
   ActiveRuleIndexer activeRuleIndexer;
 
   @Before
   public void setUp() {
-    tester.truncateIndices();
     ruleIndexer = new RuleIndexer(null, tester.client());
     activeRuleIndexer = new ActiveRuleIndexer(null, tester.client());
     index = new RuleIndex(tester.client());

@@ -20,8 +20,6 @@
 package org.sonar.server.user.index;
 
 import java.util.List;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -32,20 +30,13 @@ import org.sonar.server.es.EsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class UserIndexerTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-    esTester.truncateIndices();
-  }
+  @Rule
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new Settings()));
 
   @Test
   public void index_nothing() {

@@ -24,7 +24,9 @@ import com.google.common.base.Throwables;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Iterables;
-import java.util.Collections;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nonnull;
@@ -49,58 +51,30 @@ import org.junit.rules.ExternalResource;
 import org.sonar.api.config.Settings;
 import org.sonar.core.platform.ComponentContainer;
 
+import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 
 public class EsTester extends ExternalResource {
 
-  private static final int INSTANCE_ID = RandomUtils.nextInt();
-  private Node node;
-  private EsClient client;
-  private final List<IndexDefinition> definitions = newArrayList();
+  private final List<IndexDefinition> indexDefinitions;
+  private EsClient client = new EsClient(new Settings(), NodeHolder.INSTANCE.node.client());
+  private ComponentContainer container;
 
-  public EsTester addDefinitions(IndexDefinition... defs) {
-    Collections.addAll(definitions, defs);
-    return this;
+  public EsTester(IndexDefinition... defs) {
+    this.indexDefinitions = asList(defs);
   }
 
+  @Override
   protected void before() throws Throwable {
-    String nodeName = "tmp-es-" + INSTANCE_ID;
-    node = NodeBuilder.nodeBuilder().local(true).data(true).settings(ImmutableSettings.builder()
-      .put("cluster.name", nodeName)
-      .put("node.name", nodeName)
-      // the two following properties are probably not used because they are
-      // declared on indices too
-      .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
-      .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
-      // limit the number of threads created (see org.elasticsearch.common.util.concurrent.EsExecutors)
-      .put("processors", 1)
-      .put("http.enabled", false)
-      .put("config.ignore_system_properties", true)
-      // reuse the same directory than other tests for faster initialization
-      .put("path.home", "target/" + nodeName)
-      .put("gateway.type", "none"))
-      .build();
-    node.start();
-    assertThat(DiscoveryNode.localNode(node.settings())).isTrue();
-
-    // wait for node to be ready
-    node.client().admin().cluster().prepareHealth()
-      .setWaitForGreenStatus()
-      .get();
-
-    // delete the indices created by previous tests
-    DeleteIndexResponse response = node.client().admin().indices().prepareDelete("_all").get();
-    assertThat(response.isAcknowledged()).isTrue();
-
-    client = new EsClient(new Settings(), node.client());
     client.start();
+    truncateIndices();
 
-    if (!definitions.isEmpty()) {
-      ComponentContainer container = new ComponentContainer();
+    if (!indexDefinitions.isEmpty()) {
+      container = new ComponentContainer();
       container.addSingleton(new Settings());
-      container.addSingletons(definitions);
+      container.addSingletons(indexDefinitions);
       container.addSingleton(client);
       container.addSingleton(IndexDefinitions.class);
       container.addSingleton(IndexCreator.class);
@@ -110,20 +84,16 @@ public class EsTester extends ExternalResource {
 
   @Override
   protected void after() {
+    if (container != null) {
+      container.stopComponents();
+    }
     if (client != null) {
       client.stop();
     }
-    if (node != null) {
-      node.stop();
-      node.close();
-    }
   }
 
-  public void truncateIndices() {
-    String[] indices = client.prepareState().get().getState().getMetaData().concreteAllIndices();
-    for (String index : indices) {
-      BulkIndexer.delete(client, index, client().prepareSearch(index).setQuery(matchAllQuery()));
-    }
+  private void truncateIndices() {
+    client.nativeClient().admin().indices().prepareDelete("_all").get();
   }
 
   public void putDocuments(String index, String type, BaseDoc... docs) throws Exception {
@@ -141,7 +111,7 @@ public class EsTester extends ExternalResource {
   }
 
   public long countDocuments(String indexName, String typeName) {
-    return client().prepareCount(indexName).setTypes(typeName).get().getCount();
+    return client().prepareSearch(indexName).setTypes(typeName).setSize(0).get().getHits().totalHits();
   }
 
   /**
@@ -200,10 +170,6 @@ public class EsTester extends ExternalResource {
     return FluentIterable.from(getDocuments(indexName, typeName)).transform(SearchHitToId.INSTANCE).toList();
   }
 
-  public Node node() {
-    return node;
-  }
-
   public EsClient client() {
     return client;
   }
@@ -217,4 +183,43 @@ public class EsTester extends ExternalResource {
     }
   }
 
+  private static class NodeHolder {
+    private static final NodeHolder INSTANCE = new NodeHolder();
+
+    private final Node node;
+
+    private NodeHolder() {
+      try {
+        String nodeName = "tmp-es-" + RandomUtils.nextInt();
+        Path tmpDir = Files.createTempDirectory("tmp-es");
+        tmpDir.toFile().deleteOnExit();
+
+        node = NodeBuilder.nodeBuilder().local(true).data(true).settings(ImmutableSettings.builder()
+          .put("cluster.name", nodeName)
+          .put("node.name", nodeName)
+          // the two following properties are probably not used because they are
+          // declared on indices too
+          .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
+          .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
+          // limit the number of threads created (see org.elasticsearch.common.util.concurrent.EsExecutors)
+          .put("processors", 1)
+          .put("http.enabled", false)
+          .put("config.ignore_system_properties", true)
+          .put("path.home", tmpDir))
+          .build();
+        node.start();
+        checkState(DiscoveryNode.localNode(node.settings()));
+        checkState(!node.isClosed());
+
+        // wait for node to be ready
+        node.client().admin().cluster().prepareHealth().setWaitForGreenStatus().get();
+
+        // delete the indices (should not exist)
+        DeleteIndexResponse response = node.client().admin().indices().prepareDelete("_all").get();
+        checkState(response.isAcknowledged());
+      } catch (IOException e) {
+        throw Throwables.propagate(e);
+      }
+    }
+  }
 }

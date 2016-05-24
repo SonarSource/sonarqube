@@ -20,8 +20,10 @@
 package org.sonar.server.activity.index;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.Arrays;
+import java.util.Date;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.activity.Activity;
@@ -29,15 +31,12 @@ import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 
-import java.util.Arrays;
-import java.util.Date;
-
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ActivityIndexTest {
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new ActivityIndexDefinition(new Settings()));
 
   ActivityIndex underTest;
 

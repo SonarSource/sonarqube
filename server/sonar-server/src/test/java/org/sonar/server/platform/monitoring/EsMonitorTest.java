@@ -21,7 +21,7 @@ package org.sonar.server.platform.monitoring;
 
 import java.util.Map;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
@@ -32,8 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class EsMonitorTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new Settings()));
 
   EsMonitor underTest = new EsMonitor(esTester.client());
 

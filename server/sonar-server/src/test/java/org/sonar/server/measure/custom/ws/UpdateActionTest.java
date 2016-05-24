@@ -20,7 +20,6 @@
 package org.sonar.server.measure.custom.ws;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -64,10 +63,10 @@ public class UpdateActionTest {
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
   DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
+  DbSession dbSession = db.getSession();
   System2 system = mock(System2.class);
   WsTester ws;
 

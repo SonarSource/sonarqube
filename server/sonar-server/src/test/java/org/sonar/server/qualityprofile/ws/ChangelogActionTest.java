@@ -24,7 +24,6 @@ import java.util.Date;
 import java.util.Map;
 import org.joda.time.DateTime;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -61,8 +60,8 @@ public class ChangelogActionTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new ActivityIndexDefinition(new Settings()));
 
   private DbClient db = dbTester.getDbClient();
   private DbSession dbSession = dbTester.getSession();
@@ -71,11 +70,6 @@ public class ChangelogActionTest {
 
   @Before
   public void before() {
-    dbTester.truncateTables();
-    esTester.truncateIndices();
-
-    System2 system = mock(System2.class);
-
     // create pre-defined rules
     RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
     db.ruleDao().insert(dbSession, xooRule1);

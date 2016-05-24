@@ -85,7 +85,6 @@ public class PersistFileSourcesStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    dbTester.truncateTables();
     when(system2.now()).thenReturn(NOW);
     underTest = new PersistFileSourcesStep(dbClient, system2, treeRootHolder, reportReader, fileSourceRepository, scmInfoRepository, duplicationRepository);
   }

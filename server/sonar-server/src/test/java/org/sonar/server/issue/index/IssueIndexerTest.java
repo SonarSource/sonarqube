@@ -26,8 +26,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import javax.annotation.Nonnull;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -44,16 +42,11 @@ import static org.sonar.server.issue.IssueTesting.newDoc;
 
 public class IssueIndexerTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new Settings()));
+
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-    esTester.truncateIndices();
-  }
 
   @Test
   public void index_nothing() {

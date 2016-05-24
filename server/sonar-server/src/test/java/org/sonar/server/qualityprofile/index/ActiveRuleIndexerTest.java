@@ -22,7 +22,6 @@ package org.sonar.server.qualityprofile.index;
 import com.google.common.collect.Iterators;
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -58,8 +57,8 @@ public class ActiveRuleIndexerTest {
   static final String QUALITY_PROFILE_KEY1 = "qp1";
   static final String QUALITY_PROFILE_KEY2 = "qp2";
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new Settings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -68,7 +67,6 @@ public class ActiveRuleIndexerTest {
 
   @Before
   public void setUp() {
-    esTester.truncateIndices();
     indexer = new ActiveRuleIndexer(dbTester.getDbClient(), esTester.client());
     indexer.setEnabled(true);
   }

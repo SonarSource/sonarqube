@@ -55,7 +55,6 @@ public class SettingsRepositoryTest {
 
   @Before
   public void createDao() {
-    dbTester.truncateTables();
     globalSettings = new Settings();
     PropertiesDao propertiesDao = new PropertiesDao(dbTester.myBatis());
     session = dbClient.openSession(false);

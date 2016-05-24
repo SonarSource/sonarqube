@@ -22,7 +22,6 @@ package org.sonar.server.es.request;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
@@ -35,8 +34,8 @@ import static org.junit.Assert.fail;
 
 public class ProxySearchScrollRequestBuilderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
+  @Rule
+  public EsTester esTester = new EsTester(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();

@@ -22,7 +22,6 @@ package org.sonar.server.user.ws;
 import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -55,13 +54,13 @@ import static org.mockito.Mockito.when;
 
 public class CreateActionTest {
 
-  static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
+  private static final Settings settings = new Settings().setProperty("sonar.defaultGroup", "sonar-users");
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
+  @Rule
+  public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -82,9 +81,6 @@ public class CreateActionTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-    esTester.truncateIndices();
-
     System2 system2 = new System2();
     UserDao userDao = new UserDao(dbTester.myBatis(), system2);
     UserGroupDao userGroupDao = new UserGroupDao();

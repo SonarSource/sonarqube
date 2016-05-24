@@ -20,8 +20,6 @@
 package org.sonar.server.rule.index;
 
 import com.google.common.collect.Iterators;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -41,8 +39,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class RuleIndexerTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new RuleIndexDefinition(new Settings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -67,11 +65,6 @@ public class RuleIndexerTest {
     .setType(RuleType.BUG)
     .setCreatedAt(1500000000000L)
     .setUpdatedAt(1600000000000L);
-
-  @Before
-  public void setUp() {
-    esTester.truncateIndices();
-  }
 
   @Test
   public void index_nothing() {

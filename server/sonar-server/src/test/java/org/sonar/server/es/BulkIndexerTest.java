@@ -34,12 +34,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class BulkIndexerTest {
 
   @Rule
-  public EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition().setReplicas(1));
+  public EsTester esTester = new EsTester(new FakeIndexDefinition().setReplicas(1));
 
   @Test
   public void index_nothing() {
-    esTester.truncateIndices();
-
     BulkIndexer indexer = new BulkIndexer(esTester.client(), FakeIndexDefinition.INDEX);
     indexer.start();
     indexer.stop();

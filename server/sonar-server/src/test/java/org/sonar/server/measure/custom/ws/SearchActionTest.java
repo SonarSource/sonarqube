@@ -22,7 +22,6 @@ package org.sonar.server.measure.custom.ws;
 import java.util.Date;
 import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -70,8 +69,8 @@ public class SearchActionTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
 
   WsTester ws;
   DbClient dbClient = db.getDbClient();

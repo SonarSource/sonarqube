@@ -20,8 +20,6 @@
 package org.sonar.server.computation.issue;
 
 import java.util.Collections;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.LogTester;
@@ -37,16 +35,11 @@ import static org.junit.Assert.fail;
 
 public class ScmAccountToUserLoaderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @org.junit.Rule
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new Settings()));
 
-  @ClassRule
-  public static LogTester logTester = new LogTester();
-
-  @Before
-  public void setUp() {
-    esTester.truncateIndices();
-  }
+  @org.junit.Rule
+  public LogTester logTester = new LogTester();
 
   @Test
   public void load_login_for_scm_account() throws Exception {

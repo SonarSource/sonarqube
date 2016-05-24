@@ -23,7 +23,6 @@ import com.google.common.base.Strings;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
@@ -65,8 +64,8 @@ public class UserUpdaterTest {
 
   static final String DEFAULT_LOGIN = "marius";
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new UserIndexDefinition(new Settings()));
 
   System2 system2 = mock(System2.class);
 
@@ -90,8 +89,6 @@ public class UserUpdaterTest {
 
   @Before
   public void setUp() {
-    es.truncateIndices();
-
     userIndexer = (UserIndexer) new UserIndexer(dbClient, es.client()).setEnabled(true);
     userUpdater = new UserUpdater(newUserNotifier, settings, dbClient,
       userIndexer, system2);

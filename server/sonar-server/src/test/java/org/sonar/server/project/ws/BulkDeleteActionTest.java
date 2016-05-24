@@ -22,7 +22,6 @@ package org.sonar.server.project.ws;
 import com.google.common.collect.ImmutableMap;
 import java.util.Arrays;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -71,11 +70,12 @@ import static org.sonar.server.project.ws.BulkDeleteAction.PARAM_KEYS;
 public class BulkDeleteActionTest {
 
   private static final String ACTION = "bulk_delete";
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()),
+  @Rule
+  public EsTester es = new EsTester(new IssueIndexDefinition(new Settings()),
     new TestIndexDefinition(new Settings()));
 
   @Rule
@@ -104,8 +104,6 @@ public class BulkDeleteActionTest {
         dbClient,
         userSessionRule)));
     userSessionRule.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
-    db.truncateTables();
-    es.truncateIndices();
   }
 
   @Test

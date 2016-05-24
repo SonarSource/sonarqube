@@ -23,8 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.List;
 import java.util.Map;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -60,8 +58,8 @@ public class ViewIndexerTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
@@ -71,12 +69,6 @@ public class ViewIndexerTest {
   DbSession dbSession = dbTester.getSession();
 
   ViewIndexer indexer = (ViewIndexer) new ViewIndexer(dbClient, esTester.client()).setEnabled(true);
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-    esTester.truncateIndices();
-  }
 
   @Test
   public void index_nothing() {

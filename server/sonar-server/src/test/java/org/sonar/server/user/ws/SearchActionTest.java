@@ -22,7 +22,6 @@ package org.sonar.server.user.ws;
 import com.google.common.collect.Lists;
 import java.util.List;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -55,23 +54,25 @@ import static org.sonar.test.JsonAssert.assertJson;
 
 public class SearchActionTest {
 
-  @ClassRule
-  public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new Settings()));
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   UserDbTester userDb = new UserDbTester(db);
   GroupDbTester groupDb = new GroupDbTester(db);
   DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
+  DbSession dbSession = db.getSession();
 
   WsTester ws;
   UserIndex index;
 
   @Before
   public void setUp() {
-    esTester.truncateIndices();
     index = new UserIndex(esTester.client());
     ws = new WsTester(new UsersWs(new SearchAction(index, dbClient, new UserJsonWriter(userSession))));
   }

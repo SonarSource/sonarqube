@@ -31,7 +31,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -59,19 +58,16 @@ import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
 public class TestIndexerTest {
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new TestIndexDefinition(new Settings()));
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  private TestIndexer underTest;
+  private TestIndexer underTest = new TestIndexer(db.getDbClient(), es.client());
 
   @Before
   public void setUp() {
-    es.truncateIndices();
-    db.truncateTables();
-    underTest = new TestIndexer(db.getDbClient(), es.client());
     underTest.setEnabled(true);
   }
 

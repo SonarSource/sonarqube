@@ -24,7 +24,6 @@ import java.util.Map;
 import org.elasticsearch.search.SearchHit;
 import org.junit.After;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -61,8 +60,8 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   private static final String ROOT_UUID = "ROOT_UUID";
   private static final long SOME_DATE = 1000L;
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new Settings()));
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -77,7 +76,7 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
 
   DbClient dbClient = dbTester.getDbClient();
 
-  Settings settings;
+  Settings settings = new Settings();
 
   IssueAuthorizationIndexer issueAuthorizationIndexer;
 
@@ -86,8 +85,6 @@ public class ApplyPermissionsStepTest extends BaseStepTest {
   @Before
   public void setUp() {
     dbSession = dbClient.openSession(false);
-    settings = new Settings();
-    esTester.truncateIndices();
 
     issueAuthorizationIndexer = new IssueAuthorizationIndexer(dbClient, esTester.client());
     issueAuthorizationIndexer.setEnabled(true);

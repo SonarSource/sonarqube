@@ -80,7 +80,6 @@ public class PersistIssuesStepTest extends BaseStepTest {
 
   @Before
   public void setup() throws Exception {
-    dbTester.truncateTables();
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     system2 = mock(System2.class);
     when(system2.now()).thenReturn(NOW);

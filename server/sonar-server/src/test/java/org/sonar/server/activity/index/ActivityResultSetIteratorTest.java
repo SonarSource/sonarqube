@@ -22,7 +22,6 @@ package org.sonar.server.activity.index;
 import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
@@ -36,11 +35,6 @@ public class ActivityResultSetIteratorTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
 
   /**
    * Iterate over two rows in table.

@@ -23,8 +23,6 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -41,14 +39,8 @@ public class IssueAuthorizationIndexerTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()));
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-    esTester.truncateIndices();
-  }
+  @Rule
+  public EsTester esTester = new EsTester(new IssueIndexDefinition(new Settings()));
 
   @Test
   public void index_nothing() {

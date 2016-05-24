@@ -22,8 +22,7 @@ package org.sonar.server.test.index;
 import com.google.common.base.Optional;
 import java.util.Arrays;
 import java.util.List;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
@@ -33,15 +32,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
 public class TestIndexTest {
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new TestIndexDefinition(new Settings()));
 
   TestIndex underTest = new TestIndex(es.client());
-
-  @Before
-  public void setup() {
-    es.truncateIndices();
-  }
 
   @Test
   public void coveredFiles() throws Exception {

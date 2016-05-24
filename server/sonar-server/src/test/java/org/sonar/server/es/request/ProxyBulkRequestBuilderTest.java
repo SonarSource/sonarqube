@@ -25,7 +25,6 @@ import org.elasticsearch.action.delete.DeleteRequest;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
@@ -37,8 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ProxyBulkRequestBuilderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
+  @Rule
+  public EsTester esTester = new EsTester(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -47,14 +46,14 @@ public class ProxyBulkRequestBuilderTest {
   public void no_trace_logs() {
     logTester.setLevel(LoggerLevel.INFO);
     testBulk();
-    assertThat(logTester.logs()).isEmpty();
+    assertThat(logTester.logs(LoggerLevel.TRACE)).isEmpty();
   }
 
   @Test
   public void trace_logs() {
     logTester.setLevel(LoggerLevel.TRACE);
     testBulk();
-    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
 
   private void testBulk() {

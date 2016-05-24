@@ -20,7 +20,6 @@
 package org.sonar.server.user.ws;
 
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -57,8 +56,10 @@ public class DeactivateActionTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
-  @ClassRule
-  public static final EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(settings));
+
+  @Rule
+  public EsTester esTester = new EsTester(new UserIndexDefinition(settings));
+
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
 
@@ -67,13 +68,10 @@ public class DeactivateActionTest {
   UserIndex index;
   DbClient dbClient;
   UserIndexer userIndexer;
-
   DbSession dbSession;
 
   @Before
   public void setUp() {
-    esTester.truncateIndices();
-
     System2 system2 = new System2();
     UserDao userDao = new UserDao(db.myBatis(), system2);
     dbClient = new DbClient(db.database(), db.myBatis(), userDao, new GroupMembershipDao(db.myBatis()), new UserTokenDao());

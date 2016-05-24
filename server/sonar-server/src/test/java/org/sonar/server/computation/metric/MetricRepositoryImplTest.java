@@ -19,7 +19,6 @@
  */
 package org.sonar.server.computation.metric;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,11 +40,6 @@ public class MetricRepositoryImplTest {
 
   private DbClient dbClient = dbTester.getDbClient();
   private MetricRepositoryImpl underTest = new MetricRepositoryImpl(dbClient);
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
 
   @Test(expected = NullPointerException.class)
   public void getByKey_throws_NPE_if_arg_is_null() {

@@ -75,7 +75,6 @@ public class ComponentServiceTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
     when(i18n.message(Locale.getDefault(), "qualifier.TRK", "Project")).thenReturn("Project");
     service = new ComponentService(dbClient, i18n, userSessionRule, System2.INSTANCE, new ComponentFinder(dbClient));
   }

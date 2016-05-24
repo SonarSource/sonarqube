@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.api.rule.RuleKey;
@@ -52,23 +52,20 @@ import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
 
 public class ActiveRuleIndexTest {
 
-  static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
-  static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
+  private static final RuleKey RULE_KEY_1 = RuleTesting.XOO_X1;
+  private static final RuleKey RULE_KEY_2 = RuleTesting.XOO_X2;
+  private static final String QUALITY_PROFILE_KEY1 = "qp1";
+  private static final String QUALITY_PROFILE_KEY2 = "qp2";
 
-  static final String QUALITY_PROFILE_KEY1 = "qp1";
-  static final String QUALITY_PROFILE_KEY2 = "qp2";
-
-  @ClassRule
-  public static EsTester tester = new EsTester().addDefinitions(new RuleIndexDefinition(new Settings()));
+  @Rule
+  public EsTester tester = new EsTester(new RuleIndexDefinition(new Settings()));
 
   ActiveRuleIndex index;
-
   ActiveRuleIndexer activeRuleIndexer;
   RuleIndexer ruleIndexer;
 
   @Before
   public void setUp() {
-    tester.truncateIndices();
     activeRuleIndexer = new ActiveRuleIndexer(null, tester.client());
     ruleIndexer = new RuleIndexer(null, tester.client());
     index = new ActiveRuleIndex(tester.client());

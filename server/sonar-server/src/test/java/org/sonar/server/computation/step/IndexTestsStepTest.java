@@ -21,8 +21,6 @@ package org.sonar.server.computation.step;
 
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
-import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -45,18 +43,13 @@ public class IndexTestsStepTest extends BaseStepTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new TestIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new TestIndexDefinition(new Settings()));
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
   DbClient dbClient = dbTester.getDbClient();
-
-  @Before
-  public void setUp() {
-    esTester.truncateIndices();
-  }
 
   @Override
   protected ComputationStep step() {

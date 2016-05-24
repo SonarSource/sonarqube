@@ -20,9 +20,10 @@
 package org.sonar.server.es.request;
 
 import com.google.common.collect.ImmutableMap;
+import java.util.HashMap;
+import java.util.Map;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
 import org.elasticsearch.common.unit.TimeValue;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.log.LogTester;
@@ -30,16 +31,13 @@ import org.sonar.api.utils.log.LoggerLevel;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.FakeIndexDefinition;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
 public class ProxyPutMappingRequestBuilderTest {
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new FakeIndexDefinition());
+  @Rule
+  public EsTester esTester = new EsTester(new FakeIndexDefinition());
 
   @Rule
   public LogTester logTester = new LogTester();
@@ -71,7 +69,7 @@ public class ProxyPutMappingRequestBuilderTest {
       .setSource(mapDomain());
     requestBuilder.get();
 
-    assertThat(logTester.logs()).hasSize(1);
+    assertThat(logTester.logs(LoggerLevel.TRACE)).hasSize(1);
   }
 
   @Test

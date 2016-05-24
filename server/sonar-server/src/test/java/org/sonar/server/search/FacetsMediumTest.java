@@ -27,8 +27,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram.Interval;
-import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.server.es.EsTester;
@@ -45,13 +44,8 @@ public class FacetsMediumTest {
   private static final String FIELD_TAGS = "tags";
   private static final String FIELD_CREATED_AT = "createdAt";
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new FacetsTestDefinition());
-
-  @Before
-  public void setUp() {
-    esTester.truncateIndices();
-  }
+  @Rule
+  public EsTester esTester = new EsTester(new FacetsTestDefinition());
 
   @Test
   public void should_ignore_result_without_aggregations() {

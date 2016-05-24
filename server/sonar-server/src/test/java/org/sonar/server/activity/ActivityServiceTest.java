@@ -23,7 +23,6 @@ import java.util.List;
 import java.util.Map;
 import org.assertj.core.data.MapEntry;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -45,8 +44,8 @@ public class ActivityServiceTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
 
-  @ClassRule
-  public static EsTester es = new EsTester().addDefinitions(new ActivityIndexDefinition(new Settings()));
+  @Rule
+  public EsTester es = new EsTester(new ActivityIndexDefinition(new Settings()));
 
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().login();

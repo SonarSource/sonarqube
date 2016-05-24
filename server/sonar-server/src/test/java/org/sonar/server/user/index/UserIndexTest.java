@@ -24,7 +24,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Locale;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
@@ -42,14 +42,13 @@ public class UserIndexTest {
   private static final long DATE_1 = 1_500_000_000_000L;
   private static final long DATE_2 = 1_500_000_000_001L;
 
-  @ClassRule
-  public static EsTester esTester = new EsTester().addDefinitions(new UserIndexDefinition(new Settings()));
+  @Rule
+  public EsTester esTester = new EsTester(new UserIndexDefinition(new Settings()));
 
   private UserIndex index;
 
   @Before
   public void setUp() {
-    esTester.truncateIndices();
     index = new UserIndex(esTester.client());
   }
 
