@@ -107,8 +107,8 @@ public class LogListenerTest {
   }
 
   private void assertNoStdOutput() {
-    assertThat(stdOutTarget.toByteArray()).isEmpty();
-    assertThat(stdErrTarget.toByteArray()).isEmpty();
+    assertThat(new String(stdOutTarget.toByteArray())).isEmpty();
+    assertThat(new String(stdErrTarget.toByteArray())).isEmpty();
   }
 
   /**
