@@ -79,6 +79,8 @@ public class DefaultHighlighting extends DefaultStorable implements NewHighlight
     checkInputFileNotNull();
     TextRange newRange;
     try {
+      // TODO remove when SONAR-7664 is implemented
+      Preconditions.checkArgument(startOffset < endOffset, "start offset should be strictly before end offset");
       newRange = inputFile.newRange(startOffset, endOffset);
     } catch (Exception e) {
       throw new IllegalArgumentException("Unable to highlight file " + inputFile, e);
