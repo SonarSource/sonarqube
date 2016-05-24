@@ -19,7 +19,7 @@
  */
 package org.sonar.api.security;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 /**
  * This class is not intended to be subclassed by clients.
@@ -68,7 +68,7 @@ public final class UserDetails {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("name", name)
       .add("email", email)
       .add("userId", userId)

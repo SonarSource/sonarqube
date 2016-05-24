@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -78,7 +78,7 @@ public final class QualityGateStatus {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
         .add("status", status)
         .add("text", text)
         .toString();

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.qualitygate;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -49,7 +49,7 @@ public final class EvaluationResult {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
         .add("level", level)
         .add("value", value)
         .toString();

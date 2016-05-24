@@ -19,7 +19,7 @@
  */
 package org.sonar.api.server.rule;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
@@ -514,7 +514,7 @@ public interface RulesDefinition {
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
+      return MoreObjects.toStringHelper(this)
         .add("key", key)
         .add("language", language)
         .toString();
@@ -614,7 +614,7 @@ public interface RulesDefinition {
 
     @Override
     public String toString() {
-      return Objects.toStringHelper(this)
+      return MoreObjects.toStringHelper(this)
         .add("language", language)
         .add("key", key)
         .toString();

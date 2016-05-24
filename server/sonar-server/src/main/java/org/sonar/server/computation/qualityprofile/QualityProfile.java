@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.qualityprofile;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.Date;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -80,7 +80,7 @@ public class QualityProfile {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("key", qpKey)
       .add("name", qpName)
       .add("language", languageKey)

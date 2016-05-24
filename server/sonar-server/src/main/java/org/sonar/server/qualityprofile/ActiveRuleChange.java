@@ -19,7 +19,7 @@
  */
 package org.sonar.server.qualityprofile;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
@@ -118,7 +118,7 @@ public class ActiveRuleChange {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("type", type)
       .add("key", key)
       .add("severity", severity)

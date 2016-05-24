@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.measure;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.Arrays;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -141,7 +141,7 @@ public final class MeasureVariations {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("1", variations[0])
       .add("2", variations[1])
       .add("3", variations[2])

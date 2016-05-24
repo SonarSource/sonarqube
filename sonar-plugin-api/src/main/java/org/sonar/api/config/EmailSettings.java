@@ -19,7 +19,7 @@
  */
 package org.sonar.api.config;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.ce.ComputeEngineSide;
@@ -88,6 +88,6 @@ public class EmailSettings {
   }
 
   private String get(String key, String defaultValue) {
-    return Objects.firstNonNull(settings.getString(key), defaultValue);
+    return MoreObjects.firstNonNull(settings.getString(key), defaultValue);
   }
 }

@@ -20,7 +20,7 @@
 package org.sonar.server.computation.issue;
 
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Ordering;
@@ -50,7 +50,7 @@ public class NewEffortCalculator {
 
   public long calculate(DefaultIssue issue, Collection<IssueChangeDto> debtChangelog, Period period) {
     if (issue.creationDate().getTime() > period.getSnapshotDate() + 1000L) {
-      return Objects.firstNonNull(issue.effortInMinutes(), 0L);
+      return MoreObjects.firstNonNull(issue.effortInMinutes(), 0L);
     }
     return calculateFromChangelog(issue, debtChangelog, period.getSnapshotDate());
   }

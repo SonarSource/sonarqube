@@ -19,7 +19,7 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -34,7 +34,7 @@ public class ThreadLocalUserSession implements UserSession {
   private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<>();
 
   public UserSession get() {
-    return Objects.firstNonNull(THREAD_LOCAL.get(), AnonymousUserSession.INSTANCE);
+    return MoreObjects.firstNonNull(THREAD_LOCAL.get(), AnonymousUserSession.INSTANCE);
   }
 
   public void set(UserSession session) {

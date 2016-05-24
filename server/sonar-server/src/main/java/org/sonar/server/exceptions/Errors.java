@@ -19,7 +19,7 @@
  */
 package org.sonar.server.exceptions;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Lists;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.i18n.I18n;
@@ -93,7 +93,7 @@ public class Errors {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("messages", messages)
       .toString();
   }

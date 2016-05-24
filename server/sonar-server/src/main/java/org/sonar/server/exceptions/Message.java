@@ -19,7 +19,7 @@
  */
 package org.sonar.server.exceptions;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.apache.commons.lang.StringUtils;
 
 import javax.annotation.CheckForNull;
@@ -81,7 +81,7 @@ public class Message {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("key", key)
       .add("params", params != null ? Arrays.toString(params) : null)
       .toString();

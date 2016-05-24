@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.app;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.io.IOException;
 import java.util.concurrent.CountDownLatch;
 import javax.annotation.CheckForNull;
@@ -180,7 +180,7 @@ public class CeServerTest {
       // if none stops, the test will fail with timeout
     }
 
-    Exception exception = Objects.firstNonNull(waitingThread1.getException(), waitingThread2.getException());
+    Exception exception = MoreObjects.firstNonNull(waitingThread1.getException(), waitingThread2.getException());
     assertThat(exception)
       .isInstanceOf(IllegalStateException.class)
       .hasMessage("There can't be more than one thread waiting for the Compute Engine to stop");

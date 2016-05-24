@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import javax.annotation.CheckForNull;
 import org.sonar.api.server.debt.DebtRemediationFunction;
@@ -48,7 +48,7 @@ public class DebtCalculator {
       Duration debt = Duration.create(0);
       String gapMultiplier =fn.gapMultiplier();
       if (fn.type().usesGapMultiplier() && !Strings.isNullOrEmpty(gapMultiplier)) {
-        int effortToFixValue = Objects.firstNonNull(issue.effortToFix(), 1).intValue();
+        int effortToFixValue = MoreObjects.firstNonNull(issue.effortToFix(), 1).intValue();
         // TODO convert to Duration directly in Rule#remediationFunction -> better performance + error handling
         debt = durations.decode(gapMultiplier).multiply(effortToFixValue);
       }

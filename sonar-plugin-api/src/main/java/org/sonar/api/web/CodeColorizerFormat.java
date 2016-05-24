@@ -19,7 +19,7 @@
  */
 package org.sonar.api.web;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.sonar.api.task.TaskExtension;
 import org.sonar.colorizer.Tokenizer;
 
@@ -75,7 +75,7 @@ public abstract class CodeColorizerFormat implements TaskExtension {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("lang", languageKey)
       .toString();
   }

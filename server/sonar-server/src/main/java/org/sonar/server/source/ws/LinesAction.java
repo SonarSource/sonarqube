@@ -19,7 +19,7 @@
  */
 package org.sonar.server.source.ws;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Optional;
 import com.google.common.io.Resources;
 import java.util.Date;
@@ -119,7 +119,7 @@ public class LinesAction implements SourcesWsAction {
       userSession.checkComponentUuidPermission(UserRole.CODEVIEWER, file.projectUuid());
 
       int from = request.mandatoryParamAsInt(PARAM_FROM);
-      int to = Objects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
+      int to = MoreObjects.firstNonNull(request.paramAsInt(PARAM_TO), Integer.MAX_VALUE);
 
       Optional<Iterable<DbFileSources.Line>> lines = sourceService.getLines(dbSession, file.uuid(), from, to);
       if (!lines.isPresent()) {

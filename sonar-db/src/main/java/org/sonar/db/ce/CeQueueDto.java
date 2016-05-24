@@ -19,7 +19,7 @@
  */
 package org.sonar.db.ce;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -121,7 +121,7 @@ public class CeQueueDto {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("uuid", uuid)
       .add("taskType", taskType)
       .add("componentUuid", componentUuid)

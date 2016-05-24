@@ -20,7 +20,7 @@
 package org.sonar.db.issue;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Splitter;
 import com.google.common.collect.ImmutableSet;
@@ -704,7 +704,7 @@ public final class IssueDto implements Serializable {
     issue.setChecksum(checksum);
     issue.setSeverity(severity);
     issue.setAssignee(assignee);
-    issue.setAttributes(KeyValueFormat.parse(Objects.firstNonNull(issueAttributes, "")));
+    issue.setAttributes(KeyValueFormat.parse(MoreObjects.firstNonNull(issueAttributes, "")));
     issue.setComponentKey(componentKey);
     issue.setComponentUuid(componentUuid);
     issue.setModuleUuid(moduleUuid);

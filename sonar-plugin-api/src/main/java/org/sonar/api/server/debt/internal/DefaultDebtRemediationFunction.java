@@ -19,7 +19,7 @@
  */
 package org.sonar.api.server.debt.internal;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -138,7 +138,7 @@ public class DefaultDebtRemediationFunction implements DebtRemediationFunction {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(DebtRemediationFunction.class)
+    return MoreObjects.toStringHelper(DebtRemediationFunction.class)
       .add("type", type)
       .add("gap multiplier", gapMultiplier)
       .add("base effort", baseEffort)

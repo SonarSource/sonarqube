@@ -19,7 +19,7 @@
  */
 package org.sonar.server.computation.issue;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.util.HashMap;
@@ -158,7 +158,7 @@ public class NewEffortAggregator extends IssueVisitor {
     private boolean isEmpty = true;
 
     void add(int periodIndex, long newEffort) {
-      double previous = Objects.firstNonNull(sums[periodIndex - 1], 0d);
+      double previous = MoreObjects.firstNonNull(sums[periodIndex - 1], 0d);
       sums[periodIndex - 1] = previous + newEffort;
       isEmpty = false;
     }

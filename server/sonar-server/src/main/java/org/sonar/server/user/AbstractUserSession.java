@@ -19,7 +19,7 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Sets;
@@ -117,7 +117,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
   }
 
   protected T setLocale(@Nullable Locale l) {
-    this.locale = Objects.firstNonNull(l, Locale.ENGLISH);
+    this.locale = MoreObjects.firstNonNull(l, Locale.ENGLISH);
     return clazz.cast(this);
   }
 

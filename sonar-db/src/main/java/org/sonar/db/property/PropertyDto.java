@@ -19,6 +19,7 @@
  */
 package org.sonar.db.property;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 
 public class PropertyDto {
@@ -96,7 +97,7 @@ public class PropertyDto {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .addValue(this.key)
       .addValue(this.value)
       .addValue(this.resourceId)

@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.queue;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -76,7 +76,7 @@ public class CeTask {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("componentUuid", componentUuid)
       .add("uuid", uuid)
       .add("type", type)

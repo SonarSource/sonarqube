@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.settings;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
 import java.util.Date;
 import java.util.List;
@@ -99,7 +99,7 @@ public class ComputeEngineSettings extends Settings implements ThreadLocalSettin
   }
 
   private ServerSettings currentDelegate() {
-    return Objects.firstNonNull(threadLocalDelegate.get(), defaultDelegate);
+    return MoreObjects.firstNonNull(threadLocalDelegate.get(), defaultDelegate);
   }
 
   private Settings currentSettings() {

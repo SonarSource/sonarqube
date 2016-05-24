@@ -19,7 +19,7 @@
  */
 package org.sonar.core.issue;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.Maps;
 import java.util.Map;
@@ -150,7 +150,7 @@ public class DefaultIssueBuilder implements Issuable.IssueBuilder {
     DefaultIssue issue = new DefaultIssue();
     String key = Uuids.create();
     issue.setKey(key);
-    issue.setType(Objects.firstNonNull(type, RuleType.CODE_SMELL));
+    issue.setType(MoreObjects.firstNonNull(type, RuleType.CODE_SMELL));
     issue.setComponentKey(componentKey);
     issue.setProjectKey(projectKey);
     issue.setRuleKey(ruleKey);

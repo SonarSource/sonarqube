@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.metric;
 
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -52,7 +53,7 @@ public final class MetricImpl implements Metric {
     this.name = checkNotNull(name);
     this.type = checkNotNull(type);
     if (type.getValueType() == Measure.ValueType.DOUBLE) {
-      this.decimalScale = Objects.firstNonNull(decimalScale, org.sonar.api.measures.Metric.DEFAULT_DECIMAL_SCALE);
+      this.decimalScale = MoreObjects.firstNonNull(decimalScale, org.sonar.api.measures.Metric.DEFAULT_DECIMAL_SCALE);
     } else {
       this.decimalScale = decimalScale;
     }
@@ -116,7 +117,7 @@ public final class MetricImpl implements Metric {
 
   @Override
   public String toString() {
-    return com.google.common.base.Objects.toStringHelper(this)
+    return com.google.common.base.MoreObjects.toStringHelper(this)
       .add("id", id)
       .add("key", key)
       .add("name", name)

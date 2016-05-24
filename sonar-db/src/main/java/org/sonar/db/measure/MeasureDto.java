@@ -19,7 +19,7 @@
  */
 package org.sonar.db.measure;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.nio.charset.StandardCharsets;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -226,7 +226,7 @@ public class MeasureDto {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("id", id)
       .add("value", value)
       .add("textValue", textValue)

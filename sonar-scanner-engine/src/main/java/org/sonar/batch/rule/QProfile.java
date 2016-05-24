@@ -19,7 +19,7 @@
  */
 package org.sonar.batch.rule;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 
 import java.util.Date;
 
@@ -86,7 +86,7 @@ public class QProfile {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("key", key)
       .add("name", name)
       .add("language", language)

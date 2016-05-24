@@ -19,7 +19,7 @@
  */
 package org.sonar.server.issue.ws;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
@@ -61,7 +61,7 @@ public class SetTagsAction implements IssuesWsAction {
   @Override
   public void handle(Request request, Response response) throws Exception {
     String key = request.mandatoryParam("key");
-    List<String> tags = Objects.firstNonNull(request.paramAsStrings("tags"), Collections.<String>emptyList());
+    List<String> tags = MoreObjects.firstNonNull(request.paramAsStrings("tags"), Collections.<String>emptyList());
     Collection<String> resultTags = service.setTags(key, tags);
     JsonWriter json = response.newJsonWriter().beginObject().name("tags").beginArray();
     for (String tag : resultTags) {

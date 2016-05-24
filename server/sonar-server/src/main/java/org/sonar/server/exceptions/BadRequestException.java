@@ -19,7 +19,7 @@
  */
 package org.sonar.server.exceptions;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import java.util.List;
 import org.sonar.api.utils.ValidationMessages;
 
@@ -70,7 +70,7 @@ public class BadRequestException extends ServerException {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("errors", errors)
       .toString();
   }

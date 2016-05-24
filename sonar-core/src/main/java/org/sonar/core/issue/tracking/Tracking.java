@@ -19,7 +19,7 @@
  */
 package org.sonar.core.issue.tracking;
 
-import com.google.common.base.Objects;
+import com.google.common.base.MoreObjects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
@@ -100,7 +100,7 @@ public class Tracking<RAW extends Trackable, BASE extends Trackable> {
 
   @Override
   public String toString() {
-    return Objects.toStringHelper(this)
+    return MoreObjects.toStringHelper(this)
       .add("rawToBase", rawToBase)
       .add("baseToRaw", baseToRaw)
       .add("raws", raws)
