@@ -20,7 +20,7 @@
 package org.sonar.db.version.v52;
 
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -28,8 +28,8 @@ import org.sonar.db.version.MigrationStep;
 
 public class RemoveDuplicatedComponentKeysTest {
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, RemoveDuplicatedComponentKeysTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, RemoveDuplicatedComponentKeysTest.class, "schema.sql");
 
   MigrationStep migration;
 

@@ -21,7 +21,7 @@ package org.sonar.db.version.v54;
 
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -42,8 +42,8 @@ public class InsertGateAdminPermissionForEachProfileAdminTest {
   private static final String NOT_PROFILE_ADMIN_ROLE = "ProfileAdmin";
   private static final String GATE_ADMIN_ROLE = "gateadmin";
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, InsertGateAdminPermissionForEachProfileAdminTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, InsertGateAdminPermissionForEachProfileAdminTest.class, "schema.sql");
 
   MigrationStep migration;
 

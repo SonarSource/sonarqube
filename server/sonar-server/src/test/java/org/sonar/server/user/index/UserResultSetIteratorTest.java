@@ -22,7 +22,6 @@ package org.sonar.server.user.index;
 import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -30,16 +29,10 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class UserResultSetIteratorTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
 
   @Test
   public void iterator_over_users() {

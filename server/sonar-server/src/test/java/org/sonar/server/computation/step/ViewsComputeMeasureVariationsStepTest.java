@@ -47,7 +47,6 @@ import static org.sonar.db.component.SnapshotTesting.createForComponent;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForView;
 
-
 public class ViewsComputeMeasureVariationsStepTest {
 
   static final Metric ISSUES_METRIC = new MetricImpl(1, "violations", "violations", Metric.MetricType.INT);
@@ -89,7 +88,6 @@ public class ViewsComputeMeasureVariationsStepTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
     dbClient.componentDao().insert(session, VIEW_DTO);
     session.commit();
 
@@ -202,7 +200,7 @@ public class ViewsComputeMeasureVariationsStepTest {
       newMeasureDto(DEBT_METRIC.getId(), VIEW_DTO.getId(), period1ViewSnapshot.getId(), 10d),
       newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), VIEW_DTO.getId(), period1ViewSnapshot.getId(), 2d),
       newMeasureDto(BUILD_BREAKER_METRIC.getId(), VIEW_DTO.getId(), period1ViewSnapshot.getId(), 1d)
-    );
+      );
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ViewSnapshot));

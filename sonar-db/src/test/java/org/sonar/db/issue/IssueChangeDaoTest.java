@@ -109,8 +109,6 @@ public class IssueChangeDaoTest {
 
   @Test
   public void select_comments_by_issues_empty_input() {
-    dbTester.truncateTables();
-
     // no need to connect to db
     DbSession session = mock(DbSession.class);
     List<DefaultIssueComment> comments = dao.selectCommentsByIssues(session, Collections.<String>emptyList());
@@ -136,8 +134,6 @@ public class IssueChangeDaoTest {
 
   @Test
   public void insert() {
-    dbTester.truncateTables();
-
     IssueChangeDto changeDto = new IssueChangeDto()
       .setKey("EFGH")
       .setUserLogin("emmerik")

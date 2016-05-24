@@ -88,7 +88,6 @@ public class ReportComputeMeasureVariationsStepTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
     dbClient.componentDao().insert(session, PROJECT_DTO);
     session.commit();
 

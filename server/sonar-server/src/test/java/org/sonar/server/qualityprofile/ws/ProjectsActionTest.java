@@ -77,7 +77,6 @@ public class ProjectsActionTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
     dbClient = new DbClient(dbTester.database(), dbTester.myBatis(),
       new QualityProfileDao(dbTester.myBatis(), system2),
       new ComponentDao(),

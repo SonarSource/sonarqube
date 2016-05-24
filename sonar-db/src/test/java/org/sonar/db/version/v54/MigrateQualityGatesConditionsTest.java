@@ -48,7 +48,6 @@ public class MigrateQualityGatesConditionsTest {
 
   @Before
   public void setUp() {
-    db.truncateTables();
     when(system2.now()).thenReturn(DateUtils.parseDate(NOW).getTime());
     migration = new MigrateQualityGatesConditions(db.database(), system2);
   }

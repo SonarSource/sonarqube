@@ -23,7 +23,6 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -34,7 +33,6 @@ import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.db.user.GroupDto;
@@ -58,27 +56,25 @@ import static org.sonar.db.user.UserTesting.newUserDto;
 import static org.sonar.server.permission.DefaultPermissionTemplates.defaultRootQualifierTemplateProperty;
 import static org.sonar.test.JsonAssert.assertJson;
 
-
 public class SearchTemplatesActionTest {
-  @ClassRule
-  public static DbTester db = DbTester.create(System2.INSTANCE);
+  @Rule
+  public DbTester db = DbTester.create(System2.INSTANCE);
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
 
   WsActionTester ws;
   I18nRule i18n = new I18nRule();
   DbClient dbClient = db.getDbClient();
-  final DbSession dbSession = db.getSession();
   ResourceTypes resourceTypes = mock(ResourceTypes.class);
   SearchTemplatesDataLoader dataLoader;
-
   SearchTemplatesAction underTest;
 
   @Before
   public void setUp() {
-    db.truncateTables();
     i18n.setProjectPermissions();
     when(resourceTypes.getRoots()).thenReturn(rootResourceTypes());
 
@@ -125,7 +121,7 @@ public class SearchTemplatesActionTest {
 
     addGroupToTemplate(developerTemplate.getId(), group1.getId(), UserRole.USER);
 
-    commit();
+    db.commit();
 
     String result = newRequest();
 
@@ -150,7 +146,7 @@ public class SearchTemplatesActionTest {
     insertProjectTemplate();
     insertViewsTemplate();
     insertDeveloperTemplate();
-    commit();
+    db.commit();
 
     String result = ws.newRequest()
       .setParam(TEXT_QUERY, "views")
@@ -214,27 +210,23 @@ public class SearchTemplatesActionTest {
   }
 
   private PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
-    return dbClient.permissionTemplateDao().insert(dbSession, template);
+    return dbClient.permissionTemplateDao().insert(db.getSession(), template);
   }
 
   private GroupDto insertGroup(GroupDto groupDto) {
-    return dbClient.groupDao().insert(dbSession, groupDto);
+    return dbClient.groupDao().insert(db.getSession(), groupDto);
   }
 
   private UserDto insertUser(UserDto userDto) {
-    return dbClient.userDao().insert(dbSession, userDto.setActive(true));
+    return dbClient.userDao().insert(db.getSession(), userDto.setActive(true));
   }
 
   private void addGroupToTemplate(long templateId, @Nullable Long groupId, String permission) {
-    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, templateId, groupId, permission);
+    dbClient.permissionTemplateDao().insertGroupPermission(db.getSession(), templateId, groupId, permission);
   }
 
   private void addUserToTemplate(long templateId, long userId, String permission) {
-    dbClient.permissionTemplateDao().insertUserPermission(dbSession, templateId, userId, permission);
-  }
-
-  private void commit() {
-    dbSession.commit();
+    dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateId, userId, permission);
   }
 
   private static List<ResourceType> rootResourceTypes() {

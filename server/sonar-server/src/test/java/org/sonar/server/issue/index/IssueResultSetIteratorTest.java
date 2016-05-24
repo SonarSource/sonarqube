@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -32,25 +31,10 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class IssueResultSetIteratorTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  private static Map<String, IssueDoc> issuesByKey(IssueResultSetIterator it) {
-    return Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
-      @Override
-      public String apply(@Nonnull IssueDoc issue) {
-        return issue.key();
-      }
-    });
-  }
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
 
   @Test
   public void iterator_over_one_issue() {
@@ -222,5 +206,14 @@ public class IssueResultSetIteratorTest {
 
     assertThat(it.hasNext()).isFalse();
     it.close();
+  }
+
+  private static Map<String, IssueDoc> issuesByKey(IssueResultSetIterator it) {
+    return Maps.uniqueIndex(it, new Function<IssueDoc, String>() {
+      @Override
+      public String apply(@Nonnull IssueDoc issue) {
+        return issue.key();
+      }
+    });
   }
 }

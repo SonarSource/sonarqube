@@ -72,8 +72,6 @@ public class LinesActionTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-
     htmlSourceDecorator = mock(HtmlSourceDecorator.class);
     when(htmlSourceDecorator.getDecoratedSourceAsHtml(anyString(), anyString(), anyString())).then(new Answer<String>() {
       @Override

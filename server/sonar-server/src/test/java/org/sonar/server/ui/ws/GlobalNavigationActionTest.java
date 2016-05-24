@@ -67,8 +67,6 @@ public class GlobalNavigationActionTest {
 
   @Before
   public void before() {
-    dbTester.truncateTables();
-
     userDao = new UserDao(dbTester.myBatis(), mock(System2.class));
     dashboardDao = new DashboardDao(dbTester.myBatis());
     activeDashboardDao = new ActiveDashboardDao(dbTester.myBatis());

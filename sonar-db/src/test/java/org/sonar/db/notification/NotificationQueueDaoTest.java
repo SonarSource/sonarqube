@@ -38,8 +38,6 @@ public class NotificationQueueDaoTest {
 
   @Test
   public void should_insert_new_notification_queue() throws Exception {
-    db.truncateTables();
-
     NotificationQueueDto notificationQueueDto = NotificationQueueDto.toNotificationQueueDto(new Notification("email"));
 
     dao.insert(Arrays.asList(notificationQueueDto));
@@ -50,8 +48,6 @@ public class NotificationQueueDaoTest {
 
   @Test
   public void should_count_notification_queue() {
-    db.truncateTables();
-
     NotificationQueueDto notificationQueueDto = NotificationQueueDto.toNotificationQueueDto(new Notification("email"));
 
     assertThat(dao.count()).isEqualTo(0);

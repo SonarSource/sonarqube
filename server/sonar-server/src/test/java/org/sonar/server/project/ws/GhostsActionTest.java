@@ -21,7 +21,6 @@ package org.sonar.server.project.ws;
 
 import com.google.common.io.Resources;
 import org.apache.commons.lang.StringUtils;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.server.ws.WebService.Param;
@@ -41,7 +40,6 @@ import org.sonar.test.JsonAssert;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class GhostsActionTest {
 
   @Rule
@@ -49,15 +47,9 @@ public class GhostsActionTest {
 
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
-  WsTester ws;
 
   DbClient dbClient = db.getDbClient();
-
-  @Before
-  public void setUp() {
-    ws = new WsTester(new ProjectsWs(new GhostsAction(dbClient, userSessionRule)));
-    db.truncateTables();
-  }
+  WsTester ws = new WsTester(new ProjectsWs(new GhostsAction(dbClient, userSessionRule)));
 
   @Test
   public void ghost_projects_without_analyzed_projects() throws Exception {

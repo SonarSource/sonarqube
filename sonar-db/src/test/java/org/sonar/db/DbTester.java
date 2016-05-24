@@ -91,7 +91,7 @@ public class DbTester extends ExternalResource {
   @Override
   protected void before() throws Throwable {
     db.start();
-    truncateTables();
+    db.truncateTables();
   }
 
   @Override
@@ -111,10 +111,6 @@ public class DbTester extends ExternalResource {
 
   public void commit() {
     getSession().commit();
-  }
-
-  public void truncateTables() {
-    db.truncateTables();
   }
 
   public DbClient getDbClient() {

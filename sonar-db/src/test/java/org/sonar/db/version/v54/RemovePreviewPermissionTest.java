@@ -20,7 +20,7 @@
 package org.sonar.db.version.v54;
 
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -31,8 +31,8 @@ public class RemovePreviewPermissionTest {
   static final String GROUP_ROLES_TABLE = "group_roles";
   static final String USER_ROLES_TABLE = "user_roles";
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, RemovePreviewPermissionTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, RemovePreviewPermissionTest.class, "schema.sql");
 
   MigrationStep migration;
 

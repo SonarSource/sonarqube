@@ -19,7 +19,6 @@
  */
 package org.sonar.db.issue;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -30,11 +29,6 @@ public class IssueChangeMapperTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
 
   @Test
   public void insert_diff() {

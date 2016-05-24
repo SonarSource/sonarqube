@@ -81,8 +81,6 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
 
   @Before
   public void setup() throws Exception {
-    dbTester.truncateTables();
-
     now = DATE_FORMAT.parse("2015-06-02");
     when(system2.now()).thenReturn(now.getTime());
 

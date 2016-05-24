@@ -104,8 +104,6 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-
     underTest = new PersistMeasuresStep(dbClient, metricRepository, new MeasureToMeasureDto(dbIdsRepository), treeRootHolder, measureRepository);
   }
 

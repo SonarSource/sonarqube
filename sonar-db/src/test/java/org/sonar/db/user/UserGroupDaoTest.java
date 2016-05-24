@@ -34,8 +34,6 @@ public class UserGroupDaoTest {
 
   @Test
   public void insert() {
-    dbTester.truncateTables();
-
     UserGroupDto userGroupDto = new UserGroupDto().setUserId(1L).setGroupId(2L);
     dao.insert(dbTester.getSession(), userGroupDto);
     dbTester.getSession().commit();

@@ -49,7 +49,6 @@ public class MetricDaoTest {
 
   @Before
   public void createDao() {
-    dbTester.truncateTables();
     session = dbTester.myBatis().openSession(false);
     underTest = new MetricDao();
   }

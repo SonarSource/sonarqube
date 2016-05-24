@@ -55,8 +55,6 @@ public class GroupsActionTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-
     System2 system2 = new System2();
     UserDao userDao = new UserDao(dbTester.myBatis(), system2);
     GroupDao groupDao = new GroupDao(system2);

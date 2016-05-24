@@ -116,8 +116,6 @@ public class UserDaoTest {
 
   @Test
   public void selectUsersByLogins_empty_logins() {
-    db.truncateTables();
-
     // no need to access db
     Collection<UserDto> users = underTest.selectByLogins(Collections.<String>emptyList());
     assertThat(users).isEmpty();

@@ -23,7 +23,6 @@ import com.google.common.base.Function;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.Nonnull;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.RuleKey;
@@ -79,11 +78,6 @@ public class RuleResultSetIteratorTest {
     .setType(RuleType.CODE_SMELL)
     .setCreatedAt(2000000000000L)
     .setUpdatedAt(2100000000000L);
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
 
   @Test
   public void iterator_over_one_rule() {

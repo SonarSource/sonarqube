@@ -20,7 +20,6 @@
 package org.sonar.server.computation.step;
 
 import java.util.Date;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -68,11 +67,6 @@ public class ValidateProjectStepTest {
 
   ValidateProjectStep underTest = new ValidateProjectStep(dbClient, reportReader, treeRootHolder, analysisMetadataHolder);
 
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
-
   @Test
   public void fail_if_root_component_is_not_a_project_in_db() {
     reportReader.putComponent(ScannerReport.Component.newBuilder()
@@ -88,7 +82,7 @@ public class ValidateProjectStepTest {
 
     thrown.expect(MessageException.class);
     thrown.expectMessage("Validation of project failed:\n" +
-        "  o Component (uuid=ABCD, key=PROJECT_KEY) is not a project");
+      "  o Component (uuid=ABCD, key=PROJECT_KEY) is not a project");
 
     underTest.execute();
   }

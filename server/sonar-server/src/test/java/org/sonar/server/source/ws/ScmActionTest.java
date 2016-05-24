@@ -57,7 +57,6 @@ public class ScmActionTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
     tester = new WsTester(
       new SourcesWs(new ScmAction(dbClient, new SourceService(dbTester.getDbClient(), new HtmlSourceDecorator()), userSessionRule, new ComponentFinder(dbClient))));
   }

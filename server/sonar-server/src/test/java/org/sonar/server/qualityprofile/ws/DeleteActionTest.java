@@ -68,8 +68,6 @@ public class DeleteActionTest {
 
   @Before
   public void setUp() {
-    dbTester.truncateTables();
-
     xoo1 = LanguageTesting.newLanguage("xoo1");
     xoo2 = LanguageTesting.newLanguage("xoo2");
 

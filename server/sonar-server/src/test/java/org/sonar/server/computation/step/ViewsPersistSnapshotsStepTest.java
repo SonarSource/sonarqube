@@ -53,7 +53,6 @@ import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
 import static org.sonar.server.computation.component.ComponentFunctions.toKey;
 
-
 public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
   private static final int PROJECT_KEY = 1;
@@ -84,7 +83,6 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    dbTester.truncateTables();
     analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
     analysisMetadataHolder.setAnalysisDate(analysisDate);
 

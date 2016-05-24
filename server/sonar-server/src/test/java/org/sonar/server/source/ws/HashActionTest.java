@@ -54,7 +54,6 @@ public class HashActionTest {
 
   @Before
   public void before() {
-    db.truncateTables();
     DbClient dbClient = db.getDbClient();
 
     tester = new WsTester(new SourcesWs(new HashAction(dbClient, userSessionRule, new ComponentFinder(dbClient))));

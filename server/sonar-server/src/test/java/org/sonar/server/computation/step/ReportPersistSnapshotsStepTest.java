@@ -78,7 +78,6 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    dbTester.truncateTables();
     analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
     analysisMetadataHolder.setAnalysisDate(analysisDate);
     dbIdsRepository = new DbIdsRepositoryImpl();

@@ -22,7 +22,6 @@ package org.sonar.server.issue.index;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import java.util.Collection;
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -30,18 +29,12 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class IssueAuthorizationDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   IssueAuthorizationDao dao = new IssueAuthorizationDao();
-
-  @Before
-  public void setUp() {
-    dbTester.truncateTables();
-  }
 
   @Test
   public void select_all() {

@@ -44,13 +44,13 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.component.SnapshotDto;
+import org.sonar.db.component.SnapshotTesting;
 import org.sonar.db.dashboard.ActiveDashboardDto;
 import org.sonar.db.dashboard.DashboardDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.server.component.ComponentFinder;
-import org.sonar.db.component.ComponentTesting;
-import org.sonar.db.component.SnapshotTesting;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -79,8 +79,6 @@ public class ComponentNavigationActionTest {
 
   @Before
   public void before() {
-    dbTester.truncateTables();
-
     i18n = mock(I18n.class);
     when(i18n.message(any(Locale.class), any(String.class), any(String.class)))
       .thenAnswer(new Answer<String>() {

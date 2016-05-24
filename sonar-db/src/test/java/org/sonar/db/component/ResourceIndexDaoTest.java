@@ -19,7 +19,6 @@
  */
 package org.sonar.db.component;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.resources.Qualifiers;
@@ -37,11 +36,6 @@ public class ResourceIndexDaoTest {
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
 
   ResourceIndexDao underTest = dbTester.getDbClient().componentIndexDao();
-
-  @Before
-  public void setUp() throws Exception {
-    dbTester.truncateTables();
-  }
 
   @Test
   public void shouldIndexResource() {

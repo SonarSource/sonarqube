@@ -55,20 +55,20 @@ import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_P
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_ID;
 import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_PROJECT_KEY;
 
-
 public class UsersActionTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
+
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
+
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
   DbClient dbClient = db.getDbClient();
   DbSession dbSession = db.getSession();
   WsActionTester ws;
-
   UsersAction underTest;
 
   @Before
@@ -79,24 +79,15 @@ public class UsersActionTest {
     ws = new WsActionTester(underTest);
 
     userSession.login("login").setGlobalPermissions(SYSTEM_ADMIN);
-
-    UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
-    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
-    UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
-    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
-    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
-    insertUserRole(new UserRoleDto().setRole(SYSTEM_ADMIN).setUserId(user3.getId()));
-    commit();
   }
 
   @Test
   public void search_for_users_with_response_example() {
-    db.truncateTables();
     UserDto user1 = insertUser(new UserDto().setLogin("admin").setName("Administrator").setEmail("admin@admin.com"));
     UserDto user2 = insertUser(new UserDto().setLogin("george.orwell").setName("George Orwell").setEmail("george.orwell@1984.net"));
     insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
     insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
-    commit();
+    dbSession.commit();
 
     String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
 
@@ -105,6 +96,7 @@ public class UsersActionTest {
 
   @Test
   public void search_for_users_with_one_permission() {
+    insertUsers();
     String result = ws.newRequest().setParam("permission", "scan").execute().getInput();
 
     assertJson(result).isSimilarTo(getClass().getResource("UsersActionTest/users.json"));
@@ -116,7 +108,7 @@ public class UsersActionTest {
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(dbSession, "project-uuid");
     UserDto user = insertUser(newUserDto().setLogin("project-user-login").setName("project-user-name"));
     insertUserRole(new UserRoleDto().setRole(ISSUE_ADMIN).setUserId(user.getId()).setResourceId(project.getId()));
-    commit();
+    dbSession.commit();
     userSession.login().addProjectUuidPermissions(SYSTEM_ADMIN, "project-uuid");
 
     String result = ws.newRequest()
@@ -130,6 +122,7 @@ public class UsersActionTest {
 
   @Test
   public void search_for_users_with_query_as_a_parameter() {
+    insertUsers();
     String result = ws.newRequest()
       .setParam("permission", "scan")
       .setParam(Param.TEXT_QUERY, "ame-1")
@@ -142,6 +135,7 @@ public class UsersActionTest {
 
   @Test
   public void search_for_users_with_select_as_a_parameter() {
+    insertUsers();
     String result = ws.newRequest()
       .setParam("permission", "scan")
       .setParam(Param.SELECTED, SelectionMode.ALL.value())
@@ -192,7 +186,7 @@ public class UsersActionTest {
     expectedException.expect(BadRequestException.class);
     expectedException.expectMessage("Project id or project key can be provided, not both.");
     dbClient.componentDao().insert(dbSession, newProjectDto("project-uuid").setKey("project-key"));
-    commit();
+    dbSession.commit();
 
     ws.newRequest()
       .setParam(PARAM_PERMISSION, SYSTEM_ADMIN)
@@ -203,16 +197,22 @@ public class UsersActionTest {
 
   private UserDto insertUser(UserDto userDto) {
     UserDto user = dbClient.userDao().insert(dbSession, userDto.setActive(true));
-    commit();
+    dbSession.commit();
     return user;
   }
 
   private void insertUserRole(UserRoleDto userRoleDto) {
     dbClient.roleDao().insertUserRole(dbSession, userRoleDto);
-    commit();
+    dbSession.commit();
   }
 
-  private void commit() {
+  private void insertUsers() {
+    UserDto user1 = insertUser(new UserDto().setLogin("login-1").setName("name-1").setEmail("email-1"));
+    UserDto user2 = insertUser(new UserDto().setLogin("login-2").setName("name-2").setEmail("email-2"));
+    UserDto user3 = insertUser(new UserDto().setLogin("login-3").setName("name-3").setEmail("email-3"));
+    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user1.getId()));
+    insertUserRole(new UserRoleDto().setRole(SCAN_EXECUTION).setUserId(user2.getId()));
+    insertUserRole(new UserRoleDto().setRole(SYSTEM_ADMIN).setUserId(user3.getId()));
     dbSession.commit();
   }
 }

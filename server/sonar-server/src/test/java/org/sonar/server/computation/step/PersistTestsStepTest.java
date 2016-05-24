@@ -79,7 +79,6 @@ public class PersistTestsStepTest extends BaseStepTest {
 
   @Before
   public void setup() {
-    db.truncateTables();
     System2 system2 = mock(System2.class);
     when(system2.now()).thenReturn(now);
 

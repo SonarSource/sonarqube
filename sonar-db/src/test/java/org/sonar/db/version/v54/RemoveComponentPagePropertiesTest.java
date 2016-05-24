@@ -21,7 +21,7 @@ package org.sonar.db.version.v54;
 
 import javax.annotation.Nullable;
 import org.junit.Before;
-import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
@@ -34,8 +34,8 @@ public class RemoveComponentPagePropertiesTest {
   private static final String TABLE_PROPERTIES = "properties";
   private static final String EXPECTED_PREFIX = "sonar.core.projectsdashboard.";
 
-  @ClassRule
-  public static DbTester db = DbTester.createForSchema(System2.INSTANCE, RemoveComponentPagePropertiesTest.class, "schema.sql");
+  @Rule
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, RemoveComponentPagePropertiesTest.class, "schema.sql");
 
   RemoveComponentPageProperties underTest;
 

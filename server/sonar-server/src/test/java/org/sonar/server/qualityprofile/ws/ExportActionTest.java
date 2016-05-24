@@ -73,8 +73,6 @@ public class ExportActionTest {
   public void before() {
     backuper = mock(QProfileBackuper.class);
 
-    db.truncateTables();
-
     ProfileExporter exporter1 = newExporter("polop");
     ProfileExporter exporter2 = newExporter("palap");
 

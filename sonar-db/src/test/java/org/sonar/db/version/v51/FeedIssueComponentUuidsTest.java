@@ -19,7 +19,6 @@
  */
 package org.sonar.db.version.v51;
 
-import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
@@ -29,14 +28,7 @@ public class FeedIssueComponentUuidsTest {
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, FeedIssueComponentUuidsTest.class, "schema.sql");
 
-  FeedIssueComponentUuids underTest;
-
-  @Before
-  public void setUp() {
-    db.truncateTables();
-
-    underTest = new FeedIssueComponentUuids(db.database());
-  }
+  FeedIssueComponentUuids underTest = new FeedIssueComponentUuids(db.database());
 
   @Test
   public void migrate_empty_db() throws Exception {
