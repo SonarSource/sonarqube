@@ -24,6 +24,7 @@ import com.sonar.orchestrator.build.BuildResult;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
 import it.Category4Suite;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -176,13 +177,21 @@ public class PurgeTest {
     // Keep all snapshots from last 4 weeks
     setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", "4");
 
-    // Execute an analysis 11 days ago
-    String elevenDaysAgo = formatDate(addDays(new Date(), -11));
-    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", elevenDaysAgo);
+    Date oneWeekAgo = addDays(new Date(), -7);
 
-    // Execute an analysis 10 days ago
-    String tenDaysAgo = formatDate(addDays(new Date(), -10));
-    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", tenDaysAgo);
+    // Execute an analysis wednesday last week
+    Calendar lastWednesday = Calendar.getInstance();
+    lastWednesday.setTime(oneWeekAgo);
+    lastWednesday.set(Calendar.DAY_OF_WEEK, Calendar.WEDNESDAY);
+    String lastWednesdayFormatted = formatDate(lastWednesday.getTime());
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", lastWednesdayFormatted);
+
+    // Execute an analysis thursday last week
+    Calendar lastThursday = Calendar.getInstance();
+    lastThursday.setTime(oneWeekAgo);
+    lastThursday.set(Calendar.DAY_OF_WEEK, Calendar.THURSDAY);
+    String lastThursdayFormatted = formatDate(lastThursday.getTime());
+    runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH, "sonar.projectDate", lastThursdayFormatted);
 
     // Now only keep 1 snapshot per week
     setServerProperty(orchestrator, "sonar.dbcleaner.weeksBeforeKeepingOnlyOneSnapshotByWeek", "0");
@@ -190,15 +199,15 @@ public class PurgeTest {
     // Execute an analysis today to execute the purge of previous weeks snapshots
     runProjectAnalysis(orchestrator, PROJECT_SAMPLE_PATH);
 
-    // Check that only analysis from 10 days ago is kept (as it's the last one from previous week)
+    // Check that only analysis from last thursday is kept (as it's the last one from previous week)
     WsResponse response = newAdminWsClient(orchestrator).wsConnector().call(
       new GetRequest("/api/timemachine/index")
         .setParam("resource", PROJECT_KEY)
         .setParam("metrics", "ncloc"))
       .failIfNotSuccessful();
     String content = response.content();
-    assertThat(content).contains(tenDaysAgo);
-    assertThat(content).doesNotContain(elevenDaysAgo);
+    assertThat(content).contains(lastThursdayFormatted);
+    assertThat(content).doesNotContain(lastWednesdayFormatted);
   }
 
   /**
