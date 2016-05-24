@@ -19,10 +19,10 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.user.RubyUserService;
@@ -101,7 +101,7 @@ public class DefaultUserService implements RubyUserService {
       throw new BadRequestException("Login is missing");
     }
     userSession.checkPermission(GlobalPermissions.SYSTEM_ADMIN);
-    if (Objects.equal(userSession.getLogin(), login)) {
+    if (Objects.equals(userSession.getLogin(), login)) {
       throw new BadRequestException("Self-deactivation is not possible");
     }
     userUpdater.deactivateUserByLogin(login);

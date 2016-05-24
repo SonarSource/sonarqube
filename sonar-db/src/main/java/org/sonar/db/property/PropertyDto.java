@@ -20,7 +20,7 @@
 package org.sonar.db.property;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public class PropertyDto {
   private Long id;
@@ -84,15 +84,15 @@ public class PropertyDto {
     }
     final PropertyDto other = (PropertyDto) obj;
 
-    return Objects.equal(this.key, other.key)
-      && Objects.equal(this.value, other.value)
-      && Objects.equal(this.userId, other.userId)
-      && Objects.equal(this.resourceId, other.resourceId);
+    return Objects.equals(this.key, other.key)
+      && Objects.equals(this.value, other.value)
+      && Objects.equals(this.userId, other.userId)
+      && Objects.equals(this.resourceId, other.resourceId);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hashCode(this.key, this.value, this.resourceId, this.userId);
+    return Objects.hash(this.key, this.value, this.resourceId, this.userId);
   }
 
   @Override

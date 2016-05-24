@@ -20,7 +20,7 @@
 package org.sonar.server.computation.metric;
 
 import com.google.common.base.MoreObjects;
-import com.google.common.base.Objects;
+import java.util.Objects;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
@@ -107,7 +107,7 @@ public final class MetricImpl implements Metric {
       return false;
     }
     MetricImpl metric = (MetricImpl) o;
-    return Objects.equal(key, metric.key);
+    return Objects.equals(key, metric.key);
   }
 
   @Override

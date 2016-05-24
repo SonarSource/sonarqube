@@ -19,10 +19,7 @@
  */
 package org.sonar.api.resources;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Lists;
-import org.apache.commons.lang.StringUtils;
-
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,6 +28,8 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Objects;
+import org.apache.commons.lang.StringUtils;
 
 /**
  * @since 2.8
@@ -152,7 +151,7 @@ public final class InputFileUtils {
       }
       if (o instanceof DefaultInputFile) {
         DefaultInputFile that = (DefaultInputFile) o;
-        return Objects.equal(basedir, that.basedir) && Objects.equal(relativePath, that.relativePath);
+        return Objects.equals(basedir, that.basedir) && Objects.equals(relativePath, that.relativePath);
       }
       return false;
     }

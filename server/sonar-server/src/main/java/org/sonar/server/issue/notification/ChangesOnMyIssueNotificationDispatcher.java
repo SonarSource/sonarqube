@@ -19,9 +19,9 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
@@ -66,7 +66,7 @@ public class ChangesOnMyIssueNotificationDispatcher extends NotificationDispatch
     String changeAuthor = notification.getFieldValue("changeAuthor");
     String assignee = notification.getFieldValue("assignee");
 
-    if (!Objects.equal(changeAuthor, assignee)) {
+    if (!Objects.equals(changeAuthor, assignee)) {
       addUserToContextIfSubscribed(context, assignee, subscribedRecipients);
     }
   }

@@ -19,7 +19,6 @@
  */
 package org.sonar.core.issue;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Strings;
 import com.google.common.collect.ImmutableList;
@@ -35,6 +34,7 @@ import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
@@ -509,7 +509,7 @@ public class DefaultIssue implements Issue, Trackable, org.sonar.api.ce.measure.
   }
 
   public DefaultIssue setFieldChange(IssueChangeContext context, String field, @Nullable Serializable oldValue, @Nullable Serializable newValue) {
-    if (!Objects.equal(oldValue, newValue)) {
+    if (!Objects.equals(oldValue, newValue)) {
       if (currentChange == null) {
         currentChange = new FieldDiffs();
         currentChange.setUserLogin(context.login());

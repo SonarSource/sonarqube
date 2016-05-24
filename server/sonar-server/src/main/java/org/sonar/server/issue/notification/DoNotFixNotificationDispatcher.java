@@ -19,10 +19,10 @@
  */
 package org.sonar.server.issue.notification;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.Map;
+import java.util.Objects;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.notifications.Notification;
 import org.sonar.api.notifications.NotificationChannel;
@@ -58,7 +58,7 @@ public class DoNotFixNotificationDispatcher extends NotificationDispatcher {
   @Override
   public void dispatch(Notification notification, Context context) {
     String newResolution = notification.getFieldValue("new.resolution");
-    if (Objects.equal(newResolution, Issue.RESOLUTION_FALSE_POSITIVE) || Objects.equal(newResolution, Issue.RESOLUTION_WONT_FIX)) {
+    if (Objects.equals(newResolution, Issue.RESOLUTION_FALSE_POSITIVE) || Objects.equals(newResolution, Issue.RESOLUTION_WONT_FIX)) {
       String author = notification.getFieldValue("changeAuthor");
       String projectKey = notification.getFieldValue("projectKey");
       Multimap<String, NotificationChannel> subscribedRecipients = notifications.findNotificationSubscribers(this, projectKey);
@@ -70,7 +70,7 @@ public class DoNotFixNotificationDispatcher extends NotificationDispatcher {
     for (Map.Entry<String, Collection<NotificationChannel>> channelsByRecipients : subscribedRecipients.asMap().entrySet()) {
       String login = channelsByRecipients.getKey();
       // Do not notify the person that resolved the issue
-      if (!Objects.equal(author, login)) {
+      if (!Objects.equals(author, login)) {
         for (NotificationChannel channel : channelsByRecipients.getValue()) {
           context.addUser(login, channel);
         }

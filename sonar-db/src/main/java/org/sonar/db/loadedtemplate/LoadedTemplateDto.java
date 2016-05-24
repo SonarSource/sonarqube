@@ -19,7 +19,7 @@
  */
 package org.sonar.db.loadedtemplate;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public final class LoadedTemplateDto {
 
@@ -79,7 +79,7 @@ public final class LoadedTemplateDto {
       return false;
     }
     LoadedTemplateDto other = (LoadedTemplateDto) o;
-    return Objects.equal(id, other.id) && Objects.equal(key, other.key) && Objects.equal(type, other.type);
+    return Objects.equals(id, other.id) && Objects.equals(key, other.key) && Objects.equals(type, other.type);
   }
 
   @Override

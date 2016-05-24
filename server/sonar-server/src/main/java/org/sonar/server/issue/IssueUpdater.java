@@ -21,7 +21,6 @@ package org.sonar.server.issue;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Sets;
@@ -29,6 +28,7 @@ import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
@@ -71,7 +71,7 @@ public class IssueUpdater {
   private static final Joiner CHANGELOG_TAG_JOINER = Joiner.on(" ").skipNulls();
 
   public boolean setType(DefaultIssue issue, RuleType type, IssueChangeContext context) {
-    if (!Objects.equal(type, issue.type())) {
+    if (!Objects.equals(type, issue.type())) {
       issue.setFieldChange(context, TYPE, issue.type(), type);
       issue.setType(type);
       issue.setUpdateDate(context.date());
@@ -85,7 +85,7 @@ public class IssueUpdater {
     if (issue.manualSeverity()) {
       throw new IllegalStateException("Severity can't be changed");
     }
-    if (!Objects.equal(severity, issue.severity())) {
+    if (!Objects.equals(severity, issue.severity())) {
       issue.setFieldChange(context, SEVERITY, issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setUpdateDate(context.date());
@@ -102,7 +102,7 @@ public class IssueUpdater {
   }
 
   public boolean setManualSeverity(DefaultIssue issue, String severity, IssueChangeContext context) {
-    if (!issue.manualSeverity() || !Objects.equal(severity, issue.severity())) {
+    if (!issue.manualSeverity() || !Objects.equals(severity, issue.severity())) {
       issue.setFieldChange(context, SEVERITY, issue.severity(), severity);
       issue.setSeverity(severity);
       issue.setManualSeverity(true);
@@ -119,7 +119,7 @@ public class IssueUpdater {
     if (user != null) {
       sanitizedAssignee = StringUtils.defaultIfBlank(user.login(), null);
     }
-    if (!Objects.equal(sanitizedAssignee, issue.assignee())) {
+    if (!Objects.equals(sanitizedAssignee, issue.assignee())) {
       String newAssigneeName = user != null ? user.name() : null;
       issue.setFieldChange(context, ASSIGNEE, UNUSED, newAssigneeName);
       issue.setAssignee(sanitizedAssignee);
@@ -148,7 +148,7 @@ public class IssueUpdater {
   }
 
   public boolean setLine(DefaultIssue issue, @Nullable Integer line) {
-    if (!Objects.equal(line, issue.line())) {
+    if (!Objects.equals(line, issue.line())) {
       issue.setLine(line);
       issue.setChanged(true);
       return true;
@@ -163,7 +163,7 @@ public class IssueUpdater {
   }
 
   public boolean setLocations(DefaultIssue issue, @Nullable Object locations) {
-    if (!Objects.equal(locations, issue.getLocations())) {
+    if (!Objects.equals(locations, issue.getLocations())) {
       issue.setLocations(locations);
       issue.setChanged(true);
       return true;
@@ -179,7 +179,7 @@ public class IssueUpdater {
   }
 
   public boolean setResolution(DefaultIssue issue, @Nullable String resolution, IssueChangeContext context) {
-    if (!Objects.equal(resolution, issue.resolution())) {
+    if (!Objects.equals(resolution, issue.resolution())) {
       issue.setFieldChange(context, RESOLUTION, issue.resolution(), resolution);
       issue.setResolution(resolution);
       issue.setUpdateDate(context.date());
@@ -191,7 +191,7 @@ public class IssueUpdater {
   }
 
   public boolean setStatus(DefaultIssue issue, String status, IssueChangeContext context) {
-    if (!Objects.equal(status, issue.status())) {
+    if (!Objects.equals(status, issue.status())) {
       issue.setFieldChange(context, STATUS, issue.status(), status);
       issue.setStatus(status);
       issue.setUpdateDate(context.date());
@@ -203,7 +203,7 @@ public class IssueUpdater {
   }
 
   public boolean setAuthorLogin(DefaultIssue issue, @Nullable String authorLogin, IssueChangeContext context) {
-    if (!Objects.equal(authorLogin, issue.authorLogin())) {
+    if (!Objects.equals(authorLogin, issue.authorLogin())) {
       issue.setFieldChange(context, AUTHOR, issue.authorLogin(), authorLogin);
       issue.setAuthorLogin(authorLogin);
       issue.setUpdateDate(context.date());
@@ -231,7 +231,7 @@ public class IssueUpdater {
   }
 
   public boolean setMessage(DefaultIssue issue, @Nullable String s, IssueChangeContext context) {
-    if (!Objects.equal(s, issue.message())) {
+    if (!Objects.equals(s, issue.message())) {
       issue.setMessage(s);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -254,7 +254,7 @@ public class IssueUpdater {
 
   public void setCloseDate(DefaultIssue issue, @Nullable Date d, IssueChangeContext context) {
     Date dateWithoutMilliseconds = d == null ? null : DateUtils.truncate(d, Calendar.SECOND);
-    if (!Objects.equal(dateWithoutMilliseconds, issue.closeDate())) {
+    if (!Objects.equals(dateWithoutMilliseconds, issue.closeDate())) {
       issue.setCloseDate(d);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -262,7 +262,7 @@ public class IssueUpdater {
   }
 
   public boolean setGap(DefaultIssue issue, @Nullable Double d, IssueChangeContext context) {
-    if (!Objects.equal(d, issue.gap())) {
+    if (!Objects.equals(d, issue.gap())) {
       issue.setGap(d);
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
@@ -281,7 +281,7 @@ public class IssueUpdater {
 
   public boolean setEffort(DefaultIssue issue, @Nullable Duration value, IssueChangeContext context) {
     Duration oldValue = issue.effort();
-    if (!Objects.equal(value, oldValue)) {
+    if (!Objects.equals(value, oldValue)) {
       issue.setEffort(value != null ? value : null);
       issue.setFieldChange(context, TECHNICAL_DEBT, oldValue != null ? oldValue.toMinutes() : null, value != null ? value.toMinutes() : null);
       issue.setUpdateDate(context.date());
@@ -299,7 +299,7 @@ public class IssueUpdater {
 
   public boolean setAttribute(DefaultIssue issue, String key, @Nullable String value, IssueChangeContext context) {
     String oldValue = issue.attribute(key);
-    if (!Objects.equal(oldValue, value)) {
+    if (!Objects.equals(oldValue, value)) {
       issue.setFieldChange(context, key, oldValue, value);
       issue.setAttribute(key, value);
       issue.setUpdateDate(context.date());

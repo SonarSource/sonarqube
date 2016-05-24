@@ -21,7 +21,6 @@ package org.sonar.api.resources;
 
 import com.google.common.annotations.Beta;
 import com.google.common.base.Function;
-import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
@@ -36,6 +35,7 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import javax.annotation.Nullable;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
@@ -156,7 +156,7 @@ public class ResourceTypes {
 
     @Override
     public boolean apply(@Nullable ResourceType input) {
-      return input != null && Objects.equal(propertyValue, input.getStringProperty(propertyKey));
+      return input != null && Objects.equals(propertyValue, input.getStringProperty(propertyKey));
     }
   }
 

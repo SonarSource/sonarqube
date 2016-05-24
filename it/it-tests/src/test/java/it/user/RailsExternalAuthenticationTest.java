@@ -19,12 +19,12 @@
  */
 package it.user;
 
-import com.google.common.base.Objects;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.selenium.Selenese;
 import java.util.Map;
+import java.util.Objects;
 import org.apache.commons.lang.RandomStringUtils;
 import org.junit.After;
 import org.junit.Before;
@@ -401,7 +401,7 @@ public class RailsExternalAuthenticationTest {
     }
     try {
       String value = wsClient.find(new UserPropertyQuery("auth")).getValue();
-      if (!Objects.equal(value, expectedValue)) {
+      if (!Objects.equals(value, expectedValue)) {
         // exceptional case - update+retrieval were successful, but value doesn't match
         throw new IllegalStateException("Expected " + expectedValue + " , but got " + value);
       }

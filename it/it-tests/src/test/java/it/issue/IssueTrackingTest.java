@@ -19,13 +19,13 @@
  */
 package it.issue;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import org.junit.Before;
 import org.junit.Test;
 import org.sonar.wsclient.issue.Issue;
@@ -162,8 +162,8 @@ public class IssueTrackingTest extends AbstractIssueTest {
   private Issue getIssueOnLine(final Integer line, final String repoKey, final String ruleKey, List<Issue> issues) {
     return Iterables.find(issues, new Predicate<Issue>() {
       public boolean apply(Issue issue) {
-        return Objects.equal(issue.line(), line) &&
-          Objects.equal(issue.ruleKey(), repoKey + ":" + ruleKey);
+        return Objects.equals(issue.line(), line) &&
+          Objects.equals(issue.ruleKey(), repoKey + ":" + ruleKey);
       }
     });
   }

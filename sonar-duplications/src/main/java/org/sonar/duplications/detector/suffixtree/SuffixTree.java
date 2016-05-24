@@ -19,7 +19,7 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 /**
  * Provides algorithm to construct suffix tree.
@@ -80,7 +80,7 @@ public final class SuffixTree {
         // implicit node, a little more complicated
         edge = active.getOriginNode().findEdge(symbolAt(active.getBeginIndex()));
         int span = active.getSpan();
-        if (Objects.equal(symbolAt(edge.getBeginIndex() + span + 1), symbolAt(endIndex))) {
+        if (Objects.equals(symbolAt(edge.getBeginIndex() + span + 1), symbolAt(endIndex))) {
           break;
         }
         parentNode = edge.splitEdge(active);

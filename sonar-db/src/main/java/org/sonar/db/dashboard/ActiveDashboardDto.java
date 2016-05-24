@@ -19,7 +19,7 @@
  */
 package org.sonar.db.dashboard;
 
-import com.google.common.base.Objects;
+import java.util.Objects;
 
 public final class ActiveDashboardDto {
   private Long id;

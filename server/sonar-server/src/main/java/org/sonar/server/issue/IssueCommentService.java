@@ -19,26 +19,25 @@
  */
 package org.sonar.server.issue;
 
-import com.google.common.base.Objects;
 import com.google.common.base.Strings;
+import java.util.Collection;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.issue.IssueComment;
+import org.sonar.api.utils.System2;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.IssueChangeContext;
-import org.sonar.api.utils.System2;
-import org.sonar.db.issue.IssueChangeDto;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.issue.IssueChangeDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.UnauthorizedException;
 import org.sonar.server.user.UserSession;
-
-import java.util.Collection;
-import java.util.Date;
-import java.util.List;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -111,7 +110,7 @@ public class IssueCommentService {
     if (comment == null) {
       throw new NotFoundException("Comment not found: " + commentKey);
     }
-    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.getLogin())) {
+    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equals(comment.userLogin(), userSession.getLogin())) {
       throw new ForbiddenException("You can only delete your own comments");
     }
 
@@ -130,7 +129,7 @@ public class IssueCommentService {
     if (comment == null) {
       throw new NotFoundException("Comment not found: " + commentKey);
     }
-    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equal(comment.userLogin(), userSession.getLogin())) {
+    if (Strings.isNullOrEmpty(comment.userLogin()) || !Objects.equals(comment.userLogin(), userSession.getLogin())) {
       throw new ForbiddenException("You can only edit your own comments");
     }
 

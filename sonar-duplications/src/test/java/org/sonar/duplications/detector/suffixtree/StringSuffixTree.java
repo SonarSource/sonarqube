@@ -19,9 +19,8 @@
  */
 package org.sonar.duplications.detector.suffixtree;
 
-import com.google.common.base.Objects;
-
 import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
 
 public class StringSuffixTree {
@@ -113,7 +112,7 @@ public class StringSuffixTree {
         if (i == str.length()) {
           break;
         }
-        if (!Objects.equal(tree.symbolAt(j), str.symbolAt(i))) {
+        if (!Objects.equals(tree.symbolAt(j), str.symbolAt(i))) {
           return -1;
         }
         i++;
