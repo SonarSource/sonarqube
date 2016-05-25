@@ -189,7 +189,6 @@ public class ProjectAdministrationTest {
     Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("project-bulk-update-keys",
         "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-duplicate-keys.html",
-        "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-input.html",
         "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-impossible-because-no-match.html",
         "/projectAdministration/ProjectAdministrationTest/project-update-keys/bulk-update-success.html"
       ).build();
