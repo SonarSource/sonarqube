@@ -22,6 +22,7 @@ package org.sonar.server.es.request;
 import java.io.IOException;
 import java.util.Arrays;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.Client;
@@ -35,7 +36,7 @@ import org.sonar.server.es.EsClient;
 public class ProxySearchRequestBuilder extends SearchRequestBuilder {
 
   public ProxySearchRequestBuilder(Client client) {
-    super(client);
+    super(client, SearchAction.INSTANCE);
   }
 
   @Override

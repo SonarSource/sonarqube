@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.cluster.stats.ClusterStatsAction;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsResponse;
 import org.elasticsearch.client.Client;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyClusterStatsRequestBuilder extends ClusterStatsRequestBuilder {
 
   public ProxyClusterStatsRequestBuilder(Client client) {
-    super(client.admin().cluster());
+    super(client.admin().cluster(), ClusterStatsAction.INSTANCE);
   }
 
   @Override
@@ -67,7 +68,7 @@ public class ProxyClusterStatsRequestBuilder extends ClusterStatsRequestBuilder 
   public String toString() {
     StringBuilder message = new StringBuilder();
     message.append("ES cluster stats request");
-    if (request.nodesIds().length > 0) {
+    if (request.nodesIds() != null) {
       message.append(String.format(" on nodes '%s'", StringUtils.join(request.nodesIds(), ",")));
     }
     return message.toString();

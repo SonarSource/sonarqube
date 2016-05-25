@@ -20,6 +20,7 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.create.CreateIndexAction;
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.client.Client;
@@ -32,7 +33,7 @@ public class ProxyCreateIndexRequestBuilder extends CreateIndexRequestBuilder {
   private final String index;
 
   public ProxyCreateIndexRequestBuilder(Client client, String index) {
-    super(client.admin().indices(), index);
+    super(client.admin().indices(), CreateIndexAction.INSTANCE, index);
     this.index = index;
   }
 

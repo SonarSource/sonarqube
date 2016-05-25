@@ -19,7 +19,6 @@
  */
 package org.sonar.server.platform;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;
@@ -111,9 +110,6 @@ public class BackendCleanupMediumTest {
   }
 
   private static RuleDoc newRuleDoc() {
-    return new RuleDoc(ImmutableMap.<String, Object>of(
-      RuleIndexDefinition.FIELD_RULE_KEY, RuleTesting.XOO_X1,
-      RuleIndexDefinition.FIELD_RULE_REPOSITORY, RuleTesting.XOO_X1.repository()
-      ));
+    return new RuleDoc().setKey(RuleTesting.XOO_X1.toString()).setRepository(RuleTesting.XOO_X1.repository());
   }
 }

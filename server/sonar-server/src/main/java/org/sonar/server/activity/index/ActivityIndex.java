@@ -20,11 +20,12 @@
 package org.sonar.server.activity.index;
 
 import com.google.common.base.Function;
+import java.util.Date;
+import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.AndFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.AndQueryBuilder;
+import org.elasticsearch.index.query.OrQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.sort.SortOrder;
 import org.sonar.core.util.NonNullInputFunction;
@@ -32,9 +33,6 @@ import org.sonar.server.es.BaseIndex;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
-
-import java.util.Date;
-import java.util.Map;
 
 public class ActivityIndex extends BaseIndex {
 
@@ -67,35 +65,33 @@ public class ActivityIndex extends BaseIndex {
     requestBuilder.setSize(options.getLimit());
     requestBuilder.addSort(ActivityIndexDefinition.FIELD_CREATED_AT, SortOrder.DESC);
 
-    AndFilterBuilder filter = FilterBuilders.andFilter();
+    AndQueryBuilder filter = QueryBuilders.andQuery();
     if (!query.getTypes().isEmpty()) {
-      OrFilterBuilder typeFilter = FilterBuilders.orFilter();
+      OrQueryBuilder typeQuery = QueryBuilders.orQuery();
       for (String type : query.getTypes()) {
-        typeFilter.add(FilterBuilders.termFilter(ActivityIndexDefinition.FIELD_TYPE, type));
+        typeQuery.add(QueryBuilders.termQuery(ActivityIndexDefinition.FIELD_TYPE, type));
       }
-      filter.add(typeFilter);
+      filter.add(typeQuery);
     }
 
     if (!query.getDataOrFilters().isEmpty()) {
       for (Map.Entry<String, Object> entry : query.getDataOrFilters().entrySet()) {
-        OrFilterBuilder orFilter = FilterBuilders.orFilter();
-        orFilter.add(FilterBuilders.nestedFilter(ActivityIndexDefinition.FIELD_DETAILS,
-          FilterBuilders.termFilter(ActivityIndexDefinition.FIELD_DETAILS + "." + entry.getKey(), entry.getValue())));
-        filter.add(orFilter);
+        OrQueryBuilder orQuery = QueryBuilders.orQuery();
+        orQuery.add(QueryBuilders.nestedQuery(ActivityIndexDefinition.FIELD_DETAILS,
+          QueryBuilders.termQuery(ActivityIndexDefinition.FIELD_DETAILS + "." + entry.getKey(), entry.getValue())));
+        filter.add(orQuery);
       }
     }
 
     Date since = query.getSince();
     if (since != null) {
-      filter.add(FilterBuilders.rangeFilter(ActivityIndexDefinition.FIELD_CREATED_AT)
-        .gt(since)
-        .cache(false));
+      filter.add(QueryBuilders.rangeQuery(ActivityIndexDefinition.FIELD_CREATED_AT)
+        .gt(since));
     }
     Date to = query.getTo();
     if (to != null) {
-      filter.add(FilterBuilders.rangeFilter(ActivityIndexDefinition.FIELD_CREATED_AT)
-        .lt(to)
-        .cache(false));
+      filter.add(QueryBuilders.rangeQuery(ActivityIndexDefinition.FIELD_CREATED_AT)
+        .lt(to));
     }
 
     requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));

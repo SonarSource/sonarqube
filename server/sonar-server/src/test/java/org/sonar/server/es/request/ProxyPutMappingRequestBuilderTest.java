@@ -46,7 +46,6 @@ public class ProxyPutMappingRequestBuilderTest {
   public void put_mapping() {
     PutMappingRequestBuilder requestBuilder = esTester.client().preparePutMapping(FakeIndexDefinition.INDEX)
       .setType(FakeIndexDefinition.TYPE)
-      .setIgnoreConflicts(true)
       .setSource(mapDomain());
     requestBuilder.get();
   }
@@ -65,7 +64,6 @@ public class ProxyPutMappingRequestBuilderTest {
 
     PutMappingRequestBuilder requestBuilder = esTester.client().preparePutMapping(FakeIndexDefinition.INDEX)
       .setType(FakeIndexDefinition.TYPE)
-      .setIgnoreConflicts(true)
       .setSource(mapDomain());
     requestBuilder.get();
 

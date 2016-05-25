@@ -20,6 +20,7 @@
 package org.sonar.server.user.index;
 
 import com.google.common.collect.Maps;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import javax.annotation.Nullable;
@@ -34,6 +35,21 @@ public class UserDoc extends BaseDoc implements User {
 
   public UserDoc() {
     this(Maps.<String, Object>newHashMap());
+  }
+
+  @Override
+  public String getId() {
+    return login();
+  }
+
+  @Override
+  public String getRouting() {
+    return null;
+  }
+
+  @Override
+  public String getParent() {
+    return null;
   }
 
   @Override
@@ -62,11 +78,11 @@ public class UserDoc extends BaseDoc implements User {
   }
 
   public long createdAt() {
-    return getField(UserIndexDefinition.FIELD_CREATED_AT);
+    return getFieldAsDate(UserIndexDefinition.FIELD_CREATED_AT).getTime();
   }
 
   public long updatedAt() {
-    return getField(UserIndexDefinition.FIELD_UPDATED_AT);
+    return getFieldAsDate(UserIndexDefinition.FIELD_UPDATED_AT).getTime();
   }
 
   public UserDoc setLogin(@Nullable String s) {
@@ -95,12 +111,12 @@ public class UserDoc extends BaseDoc implements User {
   }
 
   public UserDoc setCreatedAt(long l) {
-    setField(UserIndexDefinition.FIELD_CREATED_AT, l);
+    setField(UserIndexDefinition.FIELD_CREATED_AT, new Date(l));
     return this;
   }
 
   public UserDoc setUpdatedAt(long l) {
-    setField(UserIndexDefinition.FIELD_UPDATED_AT, l);
+    setField(UserIndexDefinition.FIELD_UPDATED_AT, new Date(l));
     return this;
   }
 }

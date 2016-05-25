@@ -21,8 +21,10 @@ package org.sonar.server.es.request;
 
 import com.google.common.collect.LinkedHashMultiset;
 import com.google.common.collect.Multiset;
+import java.util.Set;
 import org.elasticsearch.action.ActionRequest;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.bulk.BulkAction;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.delete.DeleteRequest;
@@ -33,12 +35,10 @@ import org.elasticsearch.common.unit.TimeValue;
 import org.sonar.api.utils.log.Profiler;
 import org.sonar.server.es.EsClient;
 
-import java.util.Set;
-
 public class ProxyBulkRequestBuilder extends BulkRequestBuilder {
 
   public ProxyBulkRequestBuilder(Client client) {
-    super(client);
+    super(client, BulkAction.INSTANCE);
   }
 
   @Override

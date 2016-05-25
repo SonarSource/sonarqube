@@ -29,6 +29,21 @@ public class FakeDoc extends BaseDoc {
     super(fields);
   }
 
+  @Override
+  public String getId() {
+    return null;
+  }
+
+  @Override
+  public String getRouting() {
+    return null;
+  }
+
+  @Override
+  public String getParent() {
+    return null;
+  }
+
   public FakeDoc() {
     super(Maps.<String, Object>newHashMap());
   }

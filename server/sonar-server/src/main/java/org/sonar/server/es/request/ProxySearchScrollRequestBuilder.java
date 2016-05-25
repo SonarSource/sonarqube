@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.elasticsearch.action.ListenableActionFuture;
 import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.action.search.SearchScrollAction;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.common.unit.TimeValue;
@@ -30,7 +31,7 @@ import org.sonar.server.es.EsClient;
 public class ProxySearchScrollRequestBuilder extends SearchScrollRequestBuilder {
 
   public ProxySearchScrollRequestBuilder(String scrollId, Client client) {
-    super(client, scrollId);
+    super(client, SearchScrollAction.INSTANCE, scrollId);
   }
 
   @Override

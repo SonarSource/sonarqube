@@ -39,6 +39,21 @@ public class ActivityDoc extends BaseDoc {
     super(new HashMap<String, Object>());
   }
 
+  @Override
+  public String getId() {
+    return getKey();
+  }
+
+  @Override
+  public String getRouting() {
+    return null;
+  }
+
+  @Override
+  public String getParent() {
+    return null;
+  }
+
   public void setCreatedAt(Date date) {
     setField(ActivityIndexDefinition.FIELD_CREATED_AT, date);
   }

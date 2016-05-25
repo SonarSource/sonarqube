@@ -20,13 +20,14 @@
 package org.sonar.search;
 
 import java.io.File;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.settings.Settings;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,7 +73,7 @@ public class EsSettings implements EsSettingsMBean {
   }
 
   Settings build() {
-    ImmutableSettings.Builder builder = ImmutableSettings.settingsBuilder();
+    Settings.Builder builder = Settings.builder();
     configureFileSystem(builder);
     configureIndexDefaults(builder);
     configureNetwork(builder);
@@ -81,10 +82,9 @@ public class EsSettings implements EsSettingsMBean {
     return builder.build();
   }
 
-  private void configureFileSystem(ImmutableSettings.Builder builder) {
+  private void configureFileSystem(Settings.Builder builder) {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
     File dataDir;
-    File workDir;
     File logDir;
 
     // data dir
@@ -96,15 +96,8 @@ public class EsSettings implements EsSettingsMBean {
     }
     builder.put("path.data", dataDir.getAbsolutePath());
 
-    // working dir
-    String workPath = props.value(ProcessProperties.PATH_TEMP);
-    if (StringUtils.isNotEmpty(workPath)) {
-      workDir = new File(workPath);
-    } else {
-      workDir = new File(homeDir, "temp");
-    }
-    builder.put("path.work", workDir.getAbsolutePath());
-    builder.put("path.plugins", workDir.getAbsolutePath());
+    String tempPath = props.value(ProcessProperties.PATH_TEMP);
+    builder.put("path.home", new File(tempPath, "es"));
 
     // log dir
     String logPath = props.value(ProcessProperties.PATH_LOGS);
@@ -116,16 +109,16 @@ public class EsSettings implements EsSettingsMBean {
     builder.put("path.logs", logDir.getAbsolutePath());
   }
 
-  private void configureNetwork(ImmutableSettings.Builder builder) {
-    // the following properties can't be null as default values are defined by app process
-    String host = props.nonNullValue(ProcessProperties.SEARCH_HOST);
+  private void configureNetwork(Settings.Builder builder) {
+    InetAddress host = readHost();
     int port = Integer.parseInt(props.nonNullValue(ProcessProperties.SEARCH_PORT));
     LOGGER.info("Elasticsearch listening on {}:{}", host, port);
 
     // disable multicast
     builder.put("discovery.zen.ping.multicast.enabled", "false");
     builder.put("transport.tcp.port", port);
-    builder.put("transport.host", host);
+    builder.put("transport.host", host.getHostAddress());
+    builder.put("network.host", host.getHostAddress());
 
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
     builder.put("network.tcp.reuse_address", true);
@@ -140,12 +133,21 @@ public class EsSettings implements EsSettingsMBean {
       // see https://github.com/lmenezes/elasticsearch-kopf/issues/195
       builder.put("http.cors.enabled", true);
       builder.put("http.enabled", true);
-      builder.put("http.host", host);
+      builder.put("http.host", host.getHostAddress());
       builder.put("http.port", httpPort);
     }
   }
 
-  private static void configureIndexDefaults(ImmutableSettings.Builder builder) {
+  private InetAddress readHost() {
+    String hostProperty = props.nonNullValue(ProcessProperties.SEARCH_HOST);
+    try {
+      return InetAddress.getByName(hostProperty);
+    } catch (UnknownHostException e) {
+      throw new IllegalStateException("Can not resolve host [" + hostProperty + "]. Please check network settings and property " + ProcessProperties.SEARCH_HOST, e);
+    }
+  }
+
+  private static void configureIndexDefaults(Settings.Builder builder) {
     builder
       .put("index.number_of_shards", "1")
       .put("index.refresh_interval", "30s")
@@ -153,7 +155,7 @@ public class EsSettings implements EsSettingsMBean {
       .put("index.mapper.dynamic", false);
   }
 
-  private void configureCluster(ImmutableSettings.Builder builder) {
+  private void configureCluster(Settings.Builder builder) {
     int replicationFactor = 0;
     if (inCluster()) {
       replicationFactor = 1;
@@ -178,7 +180,7 @@ public class EsSettings implements EsSettingsMBean {
     builder.put("node.name", nodeName);
   }
 
-  private void configureMarvel(ImmutableSettings.Builder builder) {
+  private void configureMarvel(Settings.Builder builder) {
     Set<String> marvels = new TreeSet<>();
     marvels.addAll(Arrays.asList(StringUtils.split(props.value(PROP_MARVEL_HOSTS, ""), ",")));
 

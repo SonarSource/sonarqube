@@ -23,9 +23,7 @@ import com.google.common.base.Joiner;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -35,22 +33,25 @@ import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+
 public class StickyFacetBuilder {
 
   private static final int FACET_DEFAULT_MIN_DOC_COUNT = 1;
   private static final int FACET_DEFAULT_SIZE = 10;
   private static final Order FACET_DEFAULT_ORDER = Terms.Order.count(false);
+  private static final Joiner PIPE_JOINER = Joiner.on('|');
 
   private final QueryBuilder query;
-  private final Map<String, FilterBuilder> filters;
+  private final Map<String, QueryBuilder> filters;
   private final AbstractAggregationBuilder subAggregation;
   private final Order order;
 
-  public StickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters) {
+  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters) {
     this(query, filters, null, FACET_DEFAULT_ORDER);
   }
 
-  public StickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, @Nullable AbstractAggregationBuilder subAggregation, @Nullable Order order) {
+  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters, @Nullable AbstractAggregationBuilder subAggregation, @Nullable Order order) {
     this.query = query;
     this.filters = filters;
     this.subAggregation = subAggregation;
@@ -61,7 +62,7 @@ public class StickyFacetBuilder {
     return query;
   }
 
-  public Map<String, FilterBuilder> filters() {
+  public Map<String, QueryBuilder> filters() {
     return filters;
   }
 
@@ -70,7 +71,7 @@ public class StickyFacetBuilder {
   }
 
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Object... selected) {
-    BoolFilterBuilder facetFilter = getStickyFacetFilter(fieldName);
+    BoolQueryBuilder facetFilter = getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size);
     facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, selected);
 
@@ -79,9 +80,9 @@ public class StickyFacetBuilder {
       .subAggregation(facetTopAggregation);
   }
 
-  public BoolFilterBuilder getStickyFacetFilter(String... fieldNames) {
-    BoolFilterBuilder facetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
-    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
+  public BoolQueryBuilder getStickyFacetFilter(String... fieldNames) {
+    BoolQueryBuilder facetFilter = boolQuery().must(query);
+    for (Map.Entry<String, QueryBuilder> filter : filters.entrySet()) {
       if (filter.getValue() != null && !ArrayUtils.contains(fieldNames, filter.getKey())) {
         facetFilter.must(filter.getValue());
       }
@@ -89,11 +90,10 @@ public class StickyFacetBuilder {
     return facetFilter;
   }
 
-  public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter, int size) {
+  public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolQueryBuilder facetFilter, int size) {
     TermsBuilder termsAggregation = AggregationBuilders.terms(facetName)
       .field(fieldName)
       .order(order)
-      // .order(Terms.Order.aggregation("debt", false))
       .size(size)
       .minDocCount(FACET_DEFAULT_MIN_DOC_COUNT);
     if (subAggregation != null) {
@@ -109,12 +109,11 @@ public class StickyFacetBuilder {
     if (selected.length > 0) {
       TermsBuilder selectedTerms = AggregationBuilders.terms(facetName + "_selected")
         .field(fieldName)
-        .include(Joiner.on('|').join(selected));
+        .include(PIPE_JOINER.join(selected));
       if (subAggregation != null) {
         selectedTerms = selectedTerms.subAggregation(subAggregation);
       }
-      facetTopAggregation.subAggregation(
-        selectedTerms);
+      facetTopAggregation.subAggregation(selectedTerms);
     }
     return facetTopAggregation;
   }

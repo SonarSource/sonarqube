@@ -43,9 +43,9 @@ public class IndexPurgeListenerTest {
 
   @Test
   public void test_onIssuesRemoval() {
-    underTest.onIssuesRemoval(asList("ISSUE1", "ISSUE2"));
+    underTest.onIssuesRemoval("P1", asList("ISSUE1", "ISSUE2"));
 
-    verify(issueIndexer).deleteByKeys(asList("ISSUE1", "ISSUE2"));
+    verify(issueIndexer).deleteByKeys("P1", asList("ISSUE1", "ISSUE2"));
   }
 
 }

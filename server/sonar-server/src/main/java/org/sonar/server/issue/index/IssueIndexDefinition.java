@@ -93,19 +93,10 @@ public class IssueIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings);
 
-    // type "authorization"
-    NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
-    authorizationMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_AUTHORIZATION_PROJECT_UUID));
-    authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).disableNorms().build();
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).disableNorms().build();
-    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).disableNorms().build();
-
     // type "issue"
     NewIndex.NewIndexType issueMapping = index.createType(TYPE_ISSUE);
-    issueMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_ISSUE_KEY));
     issueMapping.setAttribute("_parent", ImmutableMap.of("type", TYPE_AUTHORIZATION));
-    issueMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_ISSUE_PROJECT_UUID));
+    issueMapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ASSIGNEE).enableSorting().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_ATTRIBUTES).docValues().disableNorms().disableSearch().build();
     issueMapping.stringFieldBuilder(FIELD_ISSUE_AUTHOR_LOGIN).disableNorms().docValues().build();
@@ -132,5 +123,13 @@ public class IssueIndexDefinition implements IndexDefinition {
     issueMapping.stringFieldBuilder(FIELD_ISSUE_TAGS).disableNorms().build();
     issueMapping.createDateTimeField(FIELD_ISSUE_TECHNICAL_UPDATED_AT);
     issueMapping.stringFieldBuilder(FIELD_ISSUE_TYPE).disableNorms().build();
+
+    // type "authorization"
+    NewIndex.NewIndexType authorizationMapping = index.createType(TYPE_AUTHORIZATION);
+    authorizationMapping.setAttribute("_routing", ImmutableMap.of("required", "true"));
+    authorizationMapping.createDateTimeField(FIELD_AUTHORIZATION_UPDATED_AT);
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_PROJECT_UUID).disableNorms().build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_GROUPS).disableNorms().build();
+    authorizationMapping.stringFieldBuilder(FIELD_AUTHORIZATION_USERS).disableNorms().build();
   }
 }

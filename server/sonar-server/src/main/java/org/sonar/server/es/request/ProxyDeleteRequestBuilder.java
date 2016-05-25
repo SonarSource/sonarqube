@@ -20,6 +20,7 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.delete.DeleteAction;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.delete.DeleteResponse;
 import org.elasticsearch.client.Client;
@@ -30,7 +31,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyDeleteRequestBuilder extends DeleteRequestBuilder {
 
   public ProxyDeleteRequestBuilder(Client client, String index) {
-    super(client, index);
+    super(client, DeleteAction.INSTANCE, index);
   }
 
   @Override

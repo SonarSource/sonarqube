@@ -23,14 +23,14 @@ import com.google.common.base.Preconditions;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSortedMap;
 import com.google.common.collect.Maps;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.SortedMap;
 import java.util.TreeMap;
 import javax.annotation.CheckForNull;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.common.settings.ImmutableSettings;
-import org.sonar.api.config.Settings;
+import org.elasticsearch.common.settings.Settings;
 import org.sonar.process.ProcessProperties;
 
 import static java.lang.String.format;
@@ -89,10 +89,6 @@ public class NewIndex {
       return new StringFieldBuilder(this, fieldName);
     }
 
-    public NestedObjectBuilder nestedObjectBuilder(String fieldName, NewIndexType nestedMapping) {
-      return new NestedObjectBuilder(this, nestedMapping, fieldName);
-    }
-
     public NewIndexType createBooleanField(String fieldName) {
       return setProperty(fieldName, ImmutableMap.of("type", "boolean"));
     }
@@ -139,23 +135,6 @@ public class NewIndex {
     @CheckForNull
     public Object getProperty(String key) {
       return properties.get(key);
-    }
-  }
-
-  public static class NestedObjectBuilder {
-    private final NewIndexType indexType;
-    private final NewIndexType nestedType;
-    private final String fieldName;
-
-    public NestedObjectBuilder(NewIndexType indexType, NewIndexType nestedType, String fieldName) {
-      this.indexType = indexType;
-      this.nestedType = nestedType;
-      this.fieldName = fieldName;
-    }
-
-    public void build() {
-      nestedType.setAttribute("type", "nested");
-      indexType.setProperty(fieldName, nestedType.attributes);
     }
   }
 
@@ -290,8 +269,8 @@ public class NewIndex {
   }
 
   private final String indexName;
-  private final ImmutableSettings.Builder settings = DefaultIndexSettings.defaults();
-  private final SortedMap<String, NewIndexType> types = new TreeMap<>();
+  private final Settings.Builder settings = DefaultIndexSettings.defaults();
+  private final Map<String, NewIndexType> types = new LinkedHashMap<>();
 
   NewIndex(String indexName) {
     Preconditions.checkArgument(StringUtils.isAllLowerCase(indexName), "Index name must be lower-case: " + indexName);
@@ -302,7 +281,7 @@ public class NewIndex {
     return indexName;
   }
 
-  public ImmutableSettings.Builder getSettings() {
+  public Settings.Builder getSettings() {
     return settings;
   }
 
@@ -312,11 +291,11 @@ public class NewIndex {
     return type;
   }
 
-  public SortedMap<String, NewIndexType> getTypes() {
+  public Map<String, NewIndexType> getTypes() {
     return types;
   }
 
-  public void configureShards(Settings settings) {
+  public void configureShards(org.sonar.api.config.Settings settings) {
     boolean clusterMode = settings.getBoolean(ProcessProperties.CLUSTER_ACTIVATE);
     int shards = settings.getInt(format("sonar.search.%s.shards", indexName));
     if (shards == 0) {

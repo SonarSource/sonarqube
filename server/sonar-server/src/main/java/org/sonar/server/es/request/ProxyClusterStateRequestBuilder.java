@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.cluster.state.ClusterStateAction;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateResponse;
 import org.elasticsearch.client.Client;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyClusterStateRequestBuilder extends ClusterStateRequestBuilder {
 
   public ProxyClusterStateRequestBuilder(Client client) {
-    super(client.admin().cluster());
+    super(client.admin().cluster(), ClusterStateAction.INSTANCE);
   }
 
   @Override

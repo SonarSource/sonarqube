@@ -43,7 +43,7 @@ import org.sonar.server.computation.source.SourceLinesRepository;
 import org.sonar.server.rule.CommonRuleKeys;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.common.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 public class TrackerRawInputFactory {
 

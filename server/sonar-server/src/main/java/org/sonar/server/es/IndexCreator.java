@@ -19,17 +19,16 @@
  */
 package org.sonar.server.es;
 
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.indices.create.CreateIndexResponse;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.common.settings.Settings;
 import org.picocontainer.Startable;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-
-import java.util.Map;
 
 /**
  * Creates/deletes all indices in Elasticsearch during server startup.
@@ -76,7 +75,7 @@ public class IndexCreator implements Startable {
 
   private void createIndex(IndexDefinitions.Index index) {
     LOGGER.info(String.format("Create index %s", index.getName()));
-    ImmutableSettings.Builder settings = ImmutableSettings.builder();
+    Settings.Builder settings = Settings.builder();
     settings.put(index.getSettings());
     settings.put(SETTING_HASH, new IndexDefinitionHash().of(index));
     CreateIndexResponse indexResponse = client
@@ -93,7 +92,6 @@ public class IndexCreator implements Startable {
       LOGGER.info(String.format("Create type %s/%s", index.getName(), entry.getKey()));
       PutMappingResponse mappingResponse = client.preparePutMapping(index.getName())
         .setType(entry.getKey())
-        .setIgnoreConflicts(false)
         .setSource(entry.getValue().getAttributes())
         .get();
       if (!mappingResponse.isAcknowledged()) {

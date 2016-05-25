@@ -25,21 +25,24 @@ import javax.annotation.Nullable;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
+import org.sonar.server.es.EsUtils;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID;
 import static org.sonar.server.issue.index.IssueIndexDefinition.FIELD_ISSUE_TECHNICAL_UPDATED_AT;
 import static org.sonar.server.issue.index.IssueIndexDefinition.INDEX;
+import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_AUTHORIZATION;
 import static org.sonar.server.issue.index.IssueIndexDefinition.TYPE_ISSUE;
 
 public class IssueIndexer extends BaseIndexer {
 
+  private static final String DELETE_ERROR_MESSAGE = "Fail to delete some issues of project [%s]";
   private static final int MAX_BATCH_SIZE = 1000;
 
   private final DbClient dbClient;
@@ -106,16 +109,14 @@ public class IssueIndexer extends BaseIndexer {
     bulk.setDisableRefresh(false);
     bulk.start();
     SearchRequestBuilder search = esClient.prepareSearch(INDEX)
+      .setTypes(TYPE_ISSUE, TYPE_AUTHORIZATION)
       .setRouting(uuid)
-      .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.matchAllQuery(),
-        FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(FIELD_ISSUE_PROJECT_UUID, uuid))
-        ));
+      .setQuery(boolQuery().must(termQuery(FIELD_ISSUE_PROJECT_UUID, uuid)));
     bulk.addDeletion(search);
     bulk.stop();
   }
 
-  public void deleteByKeys(List<String> issueKeys){
+  public void deleteByKeys(String projectUuid, List<String> issueKeys) {
     if (issueKeys.isEmpty()) {
       return;
     }
@@ -123,15 +124,17 @@ public class IssueIndexer extends BaseIndexer {
     int count = 0;
     BulkRequestBuilder builder = esClient.prepareBulk();
     for (String issueKey : issueKeys) {
-      builder.add(esClient.prepareDelete(INDEX, TYPE_ISSUE, issueKey));
+      builder.add(esClient.prepareDelete(INDEX, TYPE_ISSUE, issueKey)
+        .setRefresh(false)
+        .setRouting(projectUuid));
       count++;
       if (count >= MAX_BATCH_SIZE) {
-        builder.get();
+        EsUtils.executeBulkRequest(builder, DELETE_ERROR_MESSAGE, projectUuid);
         builder = esClient.prepareBulk();
         count = 0;
       }
     }
-    builder.get();
+    EsUtils.executeBulkRequest(builder, DELETE_ERROR_MESSAGE, projectUuid);
     esClient.prepareRefresh(INDEX).get();
   }
 

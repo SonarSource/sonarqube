@@ -45,10 +45,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.OrFilterBuilder;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -56,7 +53,7 @@ import org.elasticsearch.search.aggregations.AggregationBuilders;
 import org.elasticsearch.search.aggregations.bucket.filter.FilterAggregationBuilder;
 import org.elasticsearch.search.aggregations.bucket.global.Global;
 import org.elasticsearch.search.aggregations.bucket.global.GlobalBuilder;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms.Order;
 import org.elasticsearch.search.aggregations.bucket.terms.TermsBuilder;
@@ -83,6 +80,11 @@ import org.sonar.server.user.UserSession;
 import org.sonar.server.view.index.ViewIndexDefinition;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.AUTHORS;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.CREATED_AT;
@@ -215,16 +217,16 @@ public class IssueIndex extends BaseIndex {
     configureSorting(query, requestBuilder);
     configurePagination(options, requestBuilder);
 
-    QueryBuilder esQuery = QueryBuilders.matchAllQuery();
-    BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
-    Map<String, FilterBuilder> filters = createFilters(query);
-    for (FilterBuilder filter : filters.values()) {
+    QueryBuilder esQuery = matchAllQuery();
+    BoolQueryBuilder esFilter = boolQuery();
+    Map<String, QueryBuilder> filters = createFilters(query);
+    for (QueryBuilder filter : filters.values()) {
       if (filter != null) {
         esFilter.must(filter);
       }
     }
     if (esFilter.hasClauses()) {
-      requestBuilder.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
+      requestBuilder.setQuery(boolQuery().must(esQuery).filter(esFilter));
     } else {
       requestBuilder.setQuery(esQuery);
     }
@@ -243,27 +245,27 @@ public class IssueIndex extends BaseIndex {
     }
   }
 
-  protected void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {
+  private void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {
     esSearch.setFrom(options.getOffset()).setSize(options.getLimit());
   }
 
-  private Map<String, FilterBuilder> createFilters(IssueQuery query) {
-    Map<String, FilterBuilder> filters = new HashMap<>();
+  private Map<String, QueryBuilder> createFilters(IssueQuery query) {
+    Map<String, QueryBuilder> filters = new HashMap<>();
     filters.put("__authorization", createAuthorizationFilter(query.checkAuthorization(), query.userLogin(), query.userGroups()));
 
     // Issue is assigned Filter
     if (BooleanUtils.isTrue(query.assigned())) {
-      filters.put(IS_ASSIGNED_FILTER, FilterBuilders.existsFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
+      filters.put(IS_ASSIGNED_FILTER, existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
     } else if (BooleanUtils.isFalse(query.assigned())) {
-      filters.put(IS_ASSIGNED_FILTER, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE));
+      filters.put(IS_ASSIGNED_FILTER, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE)));
     }
 
     // Issue is Resolved Filter
     String isResolved = "__isResolved";
     if (BooleanUtils.isTrue(query.resolved())) {
-      filters.put(isResolved, FilterBuilders.existsFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
+      filters.put(isResolved, existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
     } else if (BooleanUtils.isFalse(query.resolved())) {
-      filters.put(isResolved, FilterBuilders.missingFilter(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION));
+      filters.put(isResolved, boolQuery().mustNot(existsQuery(IssueIndexDefinition.FIELD_ISSUE_RESOLUTION)));
     }
 
     // Field Filters
@@ -286,14 +288,14 @@ public class IssueIndex extends BaseIndex {
     return filters;
   }
 
-  private void addComponentRelatedFilters(IssueQuery query, Map<String, FilterBuilder> filters) {
-    FilterBuilder viewFilter = createViewFilter(query.viewUuids());
-    FilterBuilder componentFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
-    FilterBuilder projectFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
-    FilterBuilder moduleRootFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.moduleRootUuids());
-    FilterBuilder moduleFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
-    FilterBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
-    FilterBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
+  private void addComponentRelatedFilters(IssueQuery query, Map<String, QueryBuilder> filters) {
+    QueryBuilder viewFilter = createViewFilter(query.viewUuids());
+    QueryBuilder componentFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.componentUuids());
+    QueryBuilder projectFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID, query.projectUuids());
+    QueryBuilder moduleRootFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, query.moduleRootUuids());
+    QueryBuilder moduleFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID, query.moduleUuids());
+    QueryBuilder directoryFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_DIRECTORY_PATH, query.directories());
+    QueryBuilder fileFilter = createTermsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, query.fileUuids());
 
     if (BooleanUtils.isTrue(query.onComponentOnly())) {
       filters.put(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, componentFilter);
@@ -312,68 +314,56 @@ public class IssueIndex extends BaseIndex {
   }
 
   @CheckForNull
-  private FilterBuilder createViewFilter(Collection<String> viewUuids) {
+  private QueryBuilder createViewFilter(Collection<String> viewUuids) {
     if (viewUuids.isEmpty()) {
       return null;
     }
 
-    OrFilterBuilder viewsFilter = FilterBuilders.orFilter();
+    BoolQueryBuilder viewsFilter = boolQuery();
     for (String viewUuid : viewUuids) {
-      viewsFilter.add(FilterBuilders.termsLookupFilter(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID)
+      viewsFilter.should(QueryBuilders.termsLookupQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID)
         .lookupIndex(ViewIndexDefinition.INDEX)
         .lookupType(ViewIndexDefinition.TYPE_VIEW)
         .lookupId(viewUuid)
-        .lookupPath(ViewIndexDefinition.FIELD_PROJECTS))
-        .cacheKey(viewsLookupCacheKey(viewUuid));
+        .lookupPath(ViewIndexDefinition.FIELD_PROJECTS));
     }
     return viewsFilter;
   }
 
-  public static String viewsLookupCacheKey(String viewUuid) {
-    return String.format("%s%s%s", IssueIndexDefinition.TYPE_ISSUE, viewUuid, ViewIndexDefinition.TYPE_VIEW);
-  }
-
-  private static FilterBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable String userLogin, Set<String> userGroups) {
+  private static QueryBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable String userLogin, Set<String> userGroups) {
     if (checkAuthorization) {
-      OrFilterBuilder groupsAndUser = FilterBuilders.orFilter();
+      BoolQueryBuilder groupsAndUser = boolQuery();
       if (userLogin != null) {
-        groupsAndUser.add(FilterBuilders.termFilter(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, userLogin));
+        groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, userLogin));
       }
       for (String group : userGroups) {
-        groupsAndUser.add(FilterBuilders.termFilter(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
+        groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
       }
-      return FilterBuilders.hasParentFilter(IssueIndexDefinition.TYPE_AUTHORIZATION,
-        QueryBuilders.filteredQuery(
-          QueryBuilders.matchAllQuery(),
-          FilterBuilders.boolFilter()
-            .must(groupsAndUser)
-            .cache(true)));
-    } else {
-      return FilterBuilders.matchAllFilter();
+      return QueryBuilders.hasParentQuery(IssueIndexDefinition.TYPE_AUTHORIZATION,
+        QueryBuilders.boolQuery().must(matchAllQuery()).filter(groupsAndUser));
     }
+    return matchAllQuery();
   }
 
-  private void addDatesFilter(Map<String, FilterBuilder> filters, IssueQuery query) {
+  private void addDatesFilter(Map<String, QueryBuilder> filters, IssueQuery query) {
     Date createdAfter = query.createdAfter();
     Date createdBefore = query.createdBefore();
 
     validateCreationDateBounds(createdBefore, createdAfter);
 
     if (createdAfter != null) {
-      filters.put("__createdAfter", FilterBuilders
-        .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .gte(createdAfter)
-        .cache(false));
+      filters.put("__createdAfter", QueryBuilders
+        .rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
+        .gte(createdAfter));
     }
     if (createdBefore != null) {
-      filters.put("__createdBefore", FilterBuilders
-        .rangeFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
-        .lt(createdBefore)
-        .cache(false));
+      filters.put("__createdBefore", QueryBuilders
+        .rangeQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT)
+        .lt(createdBefore));
     }
     Date createdAt = query.createdAt();
     if (createdAt != null) {
-      filters.put("__createdAt", FilterBuilders.termFilter(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt).cache(false));
+      filters.put("__createdAt", termQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt));
     }
   }
 
@@ -384,7 +374,7 @@ public class IssueIndex extends BaseIndex {
       "Start bound cannot be larger than end bound");
   }
 
-  private void configureStickyFacets(IssueQuery query, SearchOptions options, Map<String, FilterBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
+  private void configureStickyFacets(IssueQuery query, SearchOptions options, Map<String, QueryBuilder> filters, QueryBuilder esQuery, SearchRequestBuilder esSearch) {
     if (!options.getFacets().isEmpty()) {
       StickyFacetBuilder stickyFacetBuilder = newStickyFacetBuilder(query, filters, esQuery);
       // Execute Term aggregations
@@ -431,7 +421,7 @@ public class IssueIndex extends BaseIndex {
     }
   }
 
-  private static StickyFacetBuilder newStickyFacetBuilder(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+  private static StickyFacetBuilder newStickyFacetBuilder(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     if (hasQueryEffortFacet(query)) {
       return new StickyFacetBuilder(esQuery, filters, EFFORT_AGGREGATION, EFFORT_AGGREGATION_ORDER);
     }
@@ -456,10 +446,10 @@ public class IssueIndex extends BaseIndex {
     return FACET_MODE_EFFORT.equals(query.facetMode()) || DEPRECATED_FACET_MODE_DEBT.equals(query.facetMode());
   }
 
-  private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+  private AggregationBuilder getCreatedAtFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     long now = system.now();
 
-    DateHistogram.Interval bucketSize = DateHistogram.Interval.YEAR;
+    DateHistogramInterval bucketSize = DateHistogramInterval.YEAR;
     Date createdAfter = query.createdAfter();
     long startTime = createdAfter == null ? getMinCreatedAt(filters, esQuery) : createdAfter.getTime();
     Date createdBefore = query.createdBefore();
@@ -468,11 +458,11 @@ public class IssueIndex extends BaseIndex {
     Duration timeSpan = new Duration(startTime, endTime);
 
     if (timeSpan.isShorterThan(TWENTY_DAYS)) {
-      bucketSize = DateHistogram.Interval.DAY;
+      bucketSize = DateHistogramInterval.DAY;
     } else if (timeSpan.isShorterThan(TWENTY_WEEKS)) {
-      bucketSize = DateHistogram.Interval.WEEK;
+      bucketSize = DateHistogramInterval.WEEK;
     } else if (timeSpan.isShorterThan(TWENTY_MONTHS)) {
-      bucketSize = DateHistogram.Interval.MONTH;
+      bucketSize = DateHistogramInterval.MONTH;
     }
 
     // from GMT to server TZ
@@ -491,14 +481,14 @@ public class IssueIndex extends BaseIndex {
     return dateHistogram;
   }
 
-  private long getMinCreatedAt(Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+  private long getMinCreatedAt(Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String facetNameAndField = IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT;
     SearchRequestBuilder esRequest = getClient()
       .prepareSearch(IssueIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .setSize(0);
-    BoolFilterBuilder esFilter = FilterBuilders.boolFilter();
-    for (FilterBuilder filter : filters.values()) {
+    BoolQueryBuilder esFilter = boolQuery();
+    for (QueryBuilder filter : filters.values()) {
       if (filter != null) {
         esFilter.must(filter);
       }
@@ -518,16 +508,16 @@ public class IssueIndex extends BaseIndex {
     }
   }
 
-  private AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
+  private AggregationBuilder createAssigneesFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
     String fieldName = IssueIndexDefinition.FIELD_ISSUE_ASSIGNEE;
     String facetName = ASSIGNEES;
 
     // Same as in super.stickyFacetBuilder
-    Map<String, FilterBuilder> assigneeFilters = Maps.newHashMap(filters);
+    Map<String, QueryBuilder> assigneeFilters = Maps.newHashMap(filters);
     assigneeFilters.remove(IS_ASSIGNED_FILTER);
     assigneeFilters.remove(fieldName);
     StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, assigneeFilters, queryBuilder);
-    BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
+    BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
 
     Collection<String> assigneesEscaped = escapeValuesForFacetInclusion(query.assignees());
@@ -555,7 +545,7 @@ public class IssueIndex extends BaseIndex {
     });
   }
 
-  private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder queryBuilder) {
+  private void addAssignedToMeFacetIfNeeded(SearchRequestBuilder builder, SearchOptions options, IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder queryBuilder) {
     String login = userSession.getLogin();
 
     if (!options.getFacets().contains(FACET_ASSIGNED_TO_ME) || StringUtils.isEmpty(login)) {
@@ -567,7 +557,7 @@ public class IssueIndex extends BaseIndex {
 
     // Same as in super.stickyFacetBuilder
     StickyFacetBuilder assignedToMeFacetBuilder = newStickyFacetBuilder(query, filters, queryBuilder);
-    BoolFilterBuilder facetFilter = assignedToMeFacetBuilder.getStickyFacetFilter(IS_ASSIGNED_FILTER, fieldName);
+    BoolQueryBuilder facetFilter = assignedToMeFacetBuilder.getStickyFacetFilter(IS_ASSIGNED_FILTER, fieldName);
 
     FilterAggregationBuilder facetTopAggregation = AggregationBuilders
       .filter(facetName + "__filter")
@@ -579,16 +569,16 @@ public class IssueIndex extends BaseIndex {
         .subAggregation(facetTopAggregation));
   }
 
-  private static AggregationBuilder createResolutionFacet(IssueQuery query, Map<String, FilterBuilder> filters, QueryBuilder esQuery) {
+  private static AggregationBuilder createResolutionFacet(IssueQuery query, Map<String, QueryBuilder> filters, QueryBuilder esQuery) {
     String fieldName = IssueIndexDefinition.FIELD_ISSUE_RESOLUTION;
     String facetName = RESOLUTIONS;
 
     // Same as in super.stickyFacetBuilder
-    Map<String, FilterBuilder> resolutionFilters = Maps.newHashMap(filters);
+    Map<String, QueryBuilder> resolutionFilters = Maps.newHashMap(filters);
     resolutionFilters.remove("__isResolved");
     resolutionFilters.remove(fieldName);
     StickyFacetBuilder assigneeFacetBuilder = newStickyFacetBuilder(query, resolutionFilters, esQuery);
-    BoolFilterBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
+    BoolQueryBuilder facetFilter = assigneeFacetBuilder.getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = assigneeFacetBuilder.buildTopFacetAggregation(fieldName, facetName, facetFilter, DEFAULT_FACET_SIZE);
     facetTopAggregation = assigneeFacetBuilder.addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation);
 
@@ -604,9 +594,9 @@ public class IssueIndex extends BaseIndex {
   }
 
   @CheckForNull
-  private FilterBuilder createTermsFilter(String field, Collection<?> values) {
+  private QueryBuilder createTermsFilter(String field, Collection<?> values) {
     if (!values.isEmpty()) {
-      return FilterBuilders.termsFilter(field, values);
+      return termsQuery(field, values);
     } else {
       return null;
     }
@@ -617,8 +607,7 @@ public class IssueIndex extends BaseIndex {
       .prepareSearch(IssueIndexDefinition.INDEX, RuleIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE, RuleIndexDefinition.TYPE_RULE);
 
-    requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-      createBoolFilter(query)));
+    requestBuilder.setQuery(boolQuery().must(matchAllQuery()).filter(createBoolFilter(query)));
 
     GlobalBuilder topAggreg = AggregationBuilders.global("tags");
     String tagsOnIssuesSubAggregation = "tags__issues";
@@ -669,8 +658,7 @@ public class IssueIndex extends BaseIndex {
       .setSize(0)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE);
 
-    requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-      createBoolFilter(query)));
+    requestBuilder.setQuery(boolQuery().must(QueryBuilders.matchAllQuery()).filter(createBoolFilter(query)));
 
     TermsBuilder aggreg = AggregationBuilders.terms("_ref")
       .field(fieldName)
@@ -685,15 +673,14 @@ public class IssueIndex extends BaseIndex {
     return searchResponse.getAggregations().get("_ref");
   }
 
-  private BoolFilterBuilder createBoolFilter(IssueQuery query) {
-    BoolFilterBuilder boolFilter = FilterBuilders.boolFilter();
-    for (FilterBuilder filter : createFilters(query).values()) {
-      // TODO Can it be null ?
+  private BoolQueryBuilder createBoolFilter(IssueQuery query) {
+    BoolQueryBuilder boolQuery = boolQuery();
+    for (QueryBuilder filter : createFilters(query).values()) {
       if (filter != null) {
-        boolFilter.must(filter);
+        boolQuery.must(filter);
       }
     }
-    return boolFilter;
+    return boolQuery;
   }
 
   /**
@@ -701,16 +688,16 @@ public class IssueIndex extends BaseIndex {
    * Only fields needed for the batch are returned.
    */
   public Iterator<IssueDoc> selectIssuesForBatch(ComponentDto component) {
-    BoolFilterBuilder filter = FilterBuilders.boolFilter()
+    BoolQueryBuilder filter = boolQuery()
       .must(createAuthorizationFilter(true, userSession.getLogin(), userSession.getUserGroups()))
-      .mustNot(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
+      .mustNot(termsQuery(IssueIndexDefinition.FIELD_ISSUE_STATUS, Issue.STATUS_CLOSED));
 
     switch (component.scope()) {
       case Scopes.PROJECT:
-        filter.must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, component.uuid()));
+        filter.must(termsQuery(IssueIndexDefinition.FIELD_ISSUE_MODULE_PATH, component.uuid()));
         break;
       case Scopes.FILE:
-        filter.must(FilterBuilders.termsFilter(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, component.uuid()));
+        filter.must(termsQuery(IssueIndexDefinition.FIELD_ISSUE_COMPONENT_UUID, component.uuid()));
         break;
       default:
         throw new IllegalStateException(String.format("Component of scope '%s' is not allowed", component.scope()));
@@ -721,7 +708,7 @@ public class IssueIndex extends BaseIndex {
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
-      .setSize(10000)
+      .setSize(10_000)
       .setFetchSource(
         new String[] {IssueIndexDefinition.FIELD_ISSUE_KEY, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID,
           IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, IssueIndexDefinition.FIELD_ISSUE_SEVERITY, IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY,
@@ -729,7 +716,7 @@ public class IssueIndex extends BaseIndex {
           IssueIndexDefinition.FIELD_ISSUE_LINE, IssueIndexDefinition.FIELD_ISSUE_MESSAGE, IssueIndexDefinition.FIELD_ISSUE_CHECKSUM,
           IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT},
         null)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
+      .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
     SearchResponse response = requestBuilder.get();
 
     return EsUtils.scroll(getClient(), response.getScrollId(), DOC_CONVERTER);

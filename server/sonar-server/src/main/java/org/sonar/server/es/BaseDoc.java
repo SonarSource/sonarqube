@@ -46,6 +46,14 @@ public abstract class BaseDoc {
     return (String) fields.get("key");
   }
 
+  public abstract String getId();
+
+  @CheckForNull
+  public abstract String getRouting();
+
+  @CheckForNull
+  public abstract String getParent();
+
   /**
    * Use this method when field value can be null. See warning in {@link #getField(String)}
    */

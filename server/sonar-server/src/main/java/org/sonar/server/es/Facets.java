@@ -30,7 +30,7 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.Aggregations;
 import org.elasticsearch.search.aggregations.HasAggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
 import org.elasticsearch.search.aggregations.bucket.missing.Missing;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
 import org.elasticsearch.search.aggregations.metrics.sum.Sum;
@@ -64,8 +64,8 @@ public class Facets {
       processTermsAggregation((Terms) aggregation);
     } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
       processSubAggregations((HasAggregations) aggregation);
-    } else if (DateHistogram.class.isAssignableFrom(aggregation.getClass())) {
-      processDateHistogram((DateHistogram) aggregation);
+    } else if (Histogram.class.isAssignableFrom(aggregation.getClass())) {
+      processDateHistogram((Histogram) aggregation);
     } else if (Sum.class.isAssignableFrom(aggregation.getClass())) {
       processSum((Sum) aggregation);
     } else {
@@ -95,9 +95,9 @@ public class Facets {
     LinkedHashMap<String, Long> facet = getOrCreateFacet(facetName);
     for (Terms.Bucket value : aggregation.getBuckets()) {
       if (value.getAggregations().getAsMap().containsKey(FACET_MODE_EFFORT)) {
-        facet.put(value.getKey(), Math.round(((Sum) value.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
+        facet.put(value.getKeyAsString(), Math.round(((Sum) value.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
       } else {
-        facet.put(value.getKey(), value.getDocCount());
+        facet.put(value.getKeyAsString(), value.getDocCount());
       }
     }
   }
@@ -108,13 +108,13 @@ public class Facets {
     }
   }
 
-  private void processDateHistogram(DateHistogram aggregation) {
+  private void processDateHistogram(Histogram aggregation) {
     LinkedHashMap<String, Long> facet = getOrCreateFacet(aggregation.getName());
-    for (DateHistogram.Bucket value : aggregation.getBuckets()) {
+    for (Histogram.Bucket value : aggregation.getBuckets()) {
       if (value.getAggregations().getAsMap().containsKey(FACET_MODE_EFFORT)) {
-        facet.put(value.getKey(), Math.round(((Sum) value.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
+        facet.put(value.getKeyAsString(), Math.round(((Sum) value.getAggregations().get(FACET_MODE_EFFORT)).getValue()));
       } else {
-        facet.put(value.getKey(), value.getDocCount());
+        facet.put(value.getKeyAsString(), value.getDocCount());
       }
     }
   }

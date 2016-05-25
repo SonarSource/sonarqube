@@ -20,6 +20,7 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.get.GetAction;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.GetResponse;
 import org.elasticsearch.client.Client;
@@ -30,7 +31,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyGetRequestBuilder extends GetRequestBuilder {
 
   public ProxyGetRequestBuilder(Client client) {
-    super(client);
+    super(client, GetAction.INSTANCE);
   }
 
   @Override

@@ -53,13 +53,8 @@ public class TestIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings);
 
-    NewIndex.NewIndexType nestedMapping = index.createType(TYPE);
-    nestedMapping.stringFieldBuilder(FIELD_COVERED_FILE_UUID).build();
-    nestedMapping.createIntegerField(FIELD_COVERED_FILE_LINES);
-
     NewIndex.NewIndexType mapping = index.createType(TYPE);
-    mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_TEST_UUID));
-    mapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", FIELD_PROJECT_UUID));
+    mapping.setAttribute("_routing", ImmutableMap.of("required", true));
     mapping.stringFieldBuilder(FIELD_PROJECT_UUID).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_FILE_UUID).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_TEST_UUID).disableNorms().build();
@@ -68,7 +63,10 @@ public class TestIndexDefinition implements IndexDefinition {
     mapping.createLongField(FIELD_DURATION_IN_MS);
     mapping.stringFieldBuilder(FIELD_MESSAGE).disableNorms().disableSearch().build();
     mapping.stringFieldBuilder(FIELD_STACKTRACE).disableNorms().disableSearch().build();
-    mapping.nestedObjectBuilder(FIELD_COVERED_FILES, nestedMapping).build();
+    mapping.setProperty(FIELD_COVERED_FILES, ImmutableMap.of("type", "nested", "properties", ImmutableMap.of(
+      FIELD_COVERED_FILE_UUID, ImmutableMap.of("type", "string", "index", "not_analyzed"),
+      FIELD_COVERED_FILE_LINES, ImmutableMap.of("type", "integer")
+      )));
     mapping.createDateTimeField(FIELD_UPDATED_AT);
   }
 }

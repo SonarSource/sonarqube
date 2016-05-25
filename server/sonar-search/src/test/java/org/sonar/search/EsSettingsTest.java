@@ -19,6 +19,9 @@
  */
 package org.sonar.search;
 
+import java.io.File;
+import java.io.IOException;
+import java.util.Properties;
 import org.elasticsearch.common.settings.Settings;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,10 +29,6 @@ import org.junit.rules.TemporaryFolder;
 import org.sonar.process.MessageException;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
-
-import java.io.File;
-import java.io.IOException;
-import java.util.Properties;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -60,7 +59,7 @@ public class EsSettingsTest {
 
     assertThat(generated.get("path.data")).isNotNull();
     assertThat(generated.get("path.logs")).isNotNull();
-    assertThat(generated.get("path.work")).isNotNull();
+    assertThat(generated.get("path.home")).isNotNull();
 
     // http is disabled for security reasons
     assertThat(generated.get("http.enabled")).isEqualTo("false");
@@ -98,7 +97,7 @@ public class EsSettingsTest {
 
     assertThat(settings.get("path.data")).isEqualTo(new File(dataDir, "es").getAbsolutePath());
     assertThat(settings.get("path.logs")).isEqualTo(logDir.getAbsolutePath());
-    assertThat(settings.get("path.work")).isEqualTo(tempDir.getAbsolutePath());
+    assertThat(settings.get("path.home")).isEqualTo(new File(tempDir, "es").getAbsolutePath());
   }
 
   @Test

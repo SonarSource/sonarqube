@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.cluster.health.ClusterHealthAction;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthResponse;
 import org.elasticsearch.client.Client;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyClusterHealthRequestBuilder extends ClusterHealthRequestBuilder {
 
   public ProxyClusterHealthRequestBuilder(Client client) {
-    super(client.admin().cluster());
+    super(client.admin().cluster(), ClusterHealthAction.INSTANCE);
   }
 
   @Override

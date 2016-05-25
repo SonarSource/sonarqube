@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.flush.FlushAction;
 import org.elasticsearch.action.admin.indices.flush.FlushRequestBuilder;
 import org.elasticsearch.action.admin.indices.flush.FlushResponse;
 import org.elasticsearch.client.Client;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyFlushRequestBuilder extends FlushRequestBuilder {
 
   public ProxyFlushRequestBuilder(Client client) {
-    super(client.admin().indices());
+    super(client.admin().indices(), FlushAction.INSTANCE);
   }
 
   @Override

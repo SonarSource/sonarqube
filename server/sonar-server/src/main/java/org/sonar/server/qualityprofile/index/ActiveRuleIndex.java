@@ -27,8 +27,7 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.Aggregation;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -64,12 +63,12 @@ public class ActiveRuleIndex extends BaseIndex {
 
   public Map<String, Long> countAllByQualityProfileKey() {
     return countByField(FIELD_ACTIVE_RULE_PROFILE_KEY,
-      FilterBuilders.hasParentFilter(TYPE_RULE,
-        FilterBuilders.notFilter(
-          FilterBuilders.termFilter(FIELD_RULE_STATUS, "REMOVED"))));
+      QueryBuilders.hasParentQuery(TYPE_RULE,
+        QueryBuilders.boolQuery().mustNot(
+          QueryBuilders.termQuery(FIELD_RULE_STATUS, "REMOVED"))));
   }
 
-  private Map<String, Long> countByField(String indexField, FilterBuilder filter) {
+  private Map<String, Long> countByField(String indexField, QueryBuilder filter) {
     Map<String, Long> counts = new HashMap<>();
 
     SearchRequestBuilder request = getClient().prepareSearch(INDEX)
@@ -90,18 +89,17 @@ public class ActiveRuleIndex extends BaseIndex {
     Terms values = response.getAggregations().get(indexField);
 
     for (Terms.Bucket value : values.getBuckets()) {
-      counts.put(value.getKey(), value.getDocCount());
+      counts.put(value.getKeyAsString(), value.getDocCount());
     }
     return counts;
   }
 
   public Map<String, Multimap<String, FacetValue>> getStatsByProfileKeys(List<String> keys) {
     SearchRequestBuilder request = getClient().prepareSearch(INDEX)
-      .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.termsQuery(FIELD_ACTIVE_RULE_PROFILE_KEY, keys),
-        FilterBuilders.boolFilter()
-          .mustNot(FilterBuilders.hasParentFilter(TYPE_RULE,
-            FilterBuilders.termFilter(FIELD_RULE_STATUS, RuleStatus.REMOVED.name())))))
+      .setQuery(QueryBuilders.boolQuery().must(QueryBuilders.termsQuery(FIELD_ACTIVE_RULE_PROFILE_KEY, keys)).filter(
+        QueryBuilders.boolQuery()
+          .mustNot(QueryBuilders.hasParentQuery(TYPE_RULE,
+            QueryBuilders.termQuery(FIELD_RULE_STATUS, RuleStatus.REMOVED.name())))))
       .addAggregation(AggregationBuilders.terms(FIELD_ACTIVE_RULE_PROFILE_KEY)
         .field(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY).size(0)
         .subAggregation(AggregationBuilders.terms(FIELD_ACTIVE_RULE_INHERITANCE)
@@ -115,7 +113,7 @@ public class ActiveRuleIndex extends BaseIndex {
     Map<String, Multimap<String, FacetValue>> stats = new HashMap<>();
     Aggregation aggregation = response.getAggregations().get(FIELD_ACTIVE_RULE_PROFILE_KEY);
     for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
-      stats.put(value.getKey(), processAggregations(value.getAggregations()));
+      stats.put(value.getKeyAsString(), processAggregations(value.getAggregations()));
     }
 
     return stats;
@@ -127,7 +125,7 @@ public class ActiveRuleIndex extends BaseIndex {
       for (Aggregation aggregation : aggregations.asList()) {
         if (aggregation instanceof StringTerms) {
           for (Terms.Bucket value : ((Terms) aggregation).getBuckets()) {
-            FacetValue facetValue = new FacetValue(value.getKey(), value.getDocCount());
+            FacetValue facetValue = new FacetValue(value.getKeyAsString(), value.getDocCount());
             stats.put(aggregation.getName(), facetValue);
           }
         } else if (aggregation instanceof InternalValueCount) {

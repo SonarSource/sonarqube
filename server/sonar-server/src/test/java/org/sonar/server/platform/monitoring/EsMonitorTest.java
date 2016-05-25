@@ -20,7 +20,7 @@
 package org.sonar.server.platform.monitoring;
 
 import java.util.Map;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.config.Settings;

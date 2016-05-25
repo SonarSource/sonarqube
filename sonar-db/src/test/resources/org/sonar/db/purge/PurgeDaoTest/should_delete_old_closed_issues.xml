@@ -1,6 +1,6 @@
 <dataset>
 
-  <projects id="1" uuid="1" enabled="[true]" root_id="[null]" created_at="[null]"
+  <projects id="1" uuid="P1" enabled="[true]" root_id="[null]" created_at="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
@@ -19,7 +19,7 @@
   <!-- old closed issues on file and project -> to be purged -->
   <issues id="1" kee="ISSUE-1"
           component_uuid="100"
-          project_uuid="1"
+          project_uuid="P1"
           status="CLOSED"
           issue_close_date="1262300400000"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="[null]" assignee="arthur" rule_id="500"
@@ -34,7 +34,7 @@
 
   <issues id="2" kee="ISSUE-2"
           component_uuid="1"
-          project_uuid="1"
+          project_uuid="P1"
           status="CLOSED"
           issue_close_date="1262300400000"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="[null]" assignee="arthur" rule_id="500"
@@ -50,7 +50,7 @@
   <!-- old open issues -> do not purge -->
   <issues id="3" kee="ISSUE-3"
           component_uuid="1"
-          project_uuid="1"
+          project_uuid="P1"
           status="OPEN"
           issue_close_date="[null]"
           resolution="[null]" line="200" severity="BLOCKER" reporter="[null]" assignee="arthur" rule_id="500"
@@ -66,7 +66,7 @@
   <!-- recent open and closed issues -> do not purge -->
   <issues id="4" kee="ISSUE-4"
           component_uuid="100"
-          project_uuid="1"
+          project_uuid="P1"
           status="OPEN"
           issue_close_date="[null]"
           resolution="[null]" line="200" severity="BLOCKER" reporter="[null]" assignee="arthur" rule_id="500"
@@ -81,7 +81,7 @@
 
   <issues id="5" kee="ISSUE-5"
           component_uuid="100"
-          project_uuid="1"
+          project_uuid="P1"
           status="CLOSED"
           issue_close_date="1735686000000"
           resolution="FIXED" line="200" severity="BLOCKER" reporter="[null]" assignee="arthur" rule_id="500"

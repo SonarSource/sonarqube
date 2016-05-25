@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheAction;
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheRequestBuilder;
 import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheResponse;
 import org.elasticsearch.client.Client;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyClearCacheRequestBuilder extends ClearIndicesCacheRequestBuilder {
 
   public ProxyClearCacheRequestBuilder(Client client) {
-    super(client.admin().indices());
+    super(client.admin().indices(), ClearIndicesCacheAction.INSTANCE);
   }
 
   @Override
@@ -74,18 +75,14 @@ public class ProxyClearCacheRequestBuilder extends ClearIndicesCacheRequestBuild
     if (fields != null && fields.length > 0) {
       message.append(String.format(" on fields '%s'", StringUtils.join(fields, ",")));
     }
-    String[] filterKeys = request.filterKeys();
-    if (filterKeys != null && filterKeys.length > 0) {
-      message.append(String.format(" on filterKeys '%s'", StringUtils.join(filterKeys, ",")));
-    }
-    if (request.filterCache()) {
+    if (request.queryCache()) {
       message.append(" with filter cache");
     }
     if (request.fieldDataCache()) {
       message.append(" with field data cache");
     }
-    if (request.idCache()) {
-      message.append(" with id cache");
+    if (request.requestCache()) {
+      message.append(" with request cache");
     }
     return message.toString();
   }

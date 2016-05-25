@@ -45,7 +45,6 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_PROJECT_UUID
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STACKTRACE;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
-import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
 
 
 public class TestResultSetIteratorTest {
@@ -105,8 +104,7 @@ public class TestResultSetIteratorTest {
       entry(FIELD_MESSAGE, "MESSAGE_1"),
       entry(FIELD_DURATION_IN_MS, 1),
       entry(FIELD_STACKTRACE, "STACKTRACE_1"),
-      entry(FIELD_NAME, "NAME_1"),
-      entry(FIELD_UPDATED_AT, 1416239042000L));
+      entry(FIELD_NAME, "NAME_1"));
   }
 
   /**
@@ -135,8 +133,7 @@ public class TestResultSetIteratorTest {
       entry(FIELD_PROJECT_UUID, "P1"),
       entry(FIELD_FILE_UUID, "F1"),
       entry(FIELD_TEST_UUID, "U1"),
-      entry(FIELD_NAME, "N1"),
-      entry(FIELD_UPDATED_AT, 1416239042000L));
+      entry(FIELD_NAME, "N1"));
     ;
     // null values
     assertThat(doc).containsKeys(

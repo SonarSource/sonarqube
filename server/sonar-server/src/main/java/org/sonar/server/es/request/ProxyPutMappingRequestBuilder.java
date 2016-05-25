@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.mapping.put.PutMappingAction;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingResponse;
 import org.elasticsearch.client.Client;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyPutMappingRequestBuilder extends PutMappingRequestBuilder {
 
   public ProxyPutMappingRequestBuilder(Client client) {
-    super(client.admin().indices());
+    super(client.admin().indices(), PutMappingAction.INSTANCE);
   }
 
   @Override

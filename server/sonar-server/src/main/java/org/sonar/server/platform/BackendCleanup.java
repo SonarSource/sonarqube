@@ -24,7 +24,6 @@ import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Statement;
 import org.apache.commons.dbutils.DbUtils;
-import org.elasticsearch.action.support.IndicesOptions;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.DbSession;
@@ -163,10 +162,7 @@ public class BackendCleanup {
    * Completely remove a index with all types
    */
   public void clearIndex(String indexName) {
-    String[] indicesToClear = esClient.prepareState().get().getState().getMetaData().concreteIndices(IndicesOptions.strictExpand(), indexName);
-    for (String index : indicesToClear) {
-      BulkIndexer.delete(esClient, index, esClient.prepareSearch(index).setQuery(matchAllQuery()));
-    }
+    BulkIndexer.delete(esClient, indexName, esClient.prepareSearch(indexName).setQuery(matchAllQuery()));
   }
 
 }

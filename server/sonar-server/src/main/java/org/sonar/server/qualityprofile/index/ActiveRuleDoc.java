@@ -50,6 +50,21 @@ public class ActiveRuleDoc extends BaseDoc {
     setField(FIELD_ACTIVE_RULE_REPOSITORY, key.ruleKey().repository());
   }
 
+  @Override
+  public String getId() {
+    return key().toString();
+  }
+
+  @Override
+  public String getRouting() {
+    return null;
+  }
+
+  @Override
+  public String getParent() {
+    return key.ruleKey().toString();
+  }
+
   public ActiveRuleKey key() {
     return key;
   }

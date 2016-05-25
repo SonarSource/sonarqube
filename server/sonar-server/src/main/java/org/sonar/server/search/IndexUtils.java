@@ -19,12 +19,10 @@
  */
 package org.sonar.server.search;
 
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
-
+import java.util.Date;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import java.util.Date;
+import org.joda.time.format.ISODateTimeFormat;
 
 public class IndexUtils {
 

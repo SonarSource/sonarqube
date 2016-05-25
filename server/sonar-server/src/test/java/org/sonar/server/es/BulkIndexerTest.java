@@ -24,7 +24,6 @@ import org.elasticsearch.action.admin.indices.settings.get.GetSettingsResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.junit.Rule;
 import org.junit.Test;
@@ -97,9 +96,7 @@ public class BulkIndexerTest {
 
     SearchRequestBuilder req = esTester.client().prepareSearch(FakeIndexDefinition.INDEX)
       .setTypes(FakeIndexDefinition.TYPE)
-      .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.matchAllQuery(),
-        FilterBuilders.rangeFilter(FakeIndexDefinition.INT_FIELD).gte(removeFrom)));
+      .setQuery(QueryBuilders.rangeQuery(FakeIndexDefinition.INT_FIELD).gte(removeFrom));
     BulkIndexer.delete(esTester.client(), FakeIndexDefinition.INDEX, req);
 
     assertThat(count()).isEqualTo(removeFrom);

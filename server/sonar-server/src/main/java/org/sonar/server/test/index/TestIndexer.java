@@ -23,7 +23,6 @@ import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.update.UpdateRequest;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -103,9 +102,7 @@ public class TestIndexer extends BaseIndexer {
   public void deleteByFile(String fileUuid) {
     SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX)
       .setTypes(TYPE)
-      .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.matchAllQuery(),
-        FilterBuilders.termFilter(FIELD_FILE_UUID, fileUuid).cache(false)));
+      .setQuery(QueryBuilders.termsQuery(FIELD_FILE_UUID, fileUuid));
     BulkIndexer.delete(esClient, INDEX, searchRequest);
   }
 
@@ -113,9 +110,7 @@ public class TestIndexer extends BaseIndexer {
     SearchRequestBuilder searchRequest = esClient.prepareSearch(INDEX)
       .setRouting(projectUuid)
       .setTypes(TYPE)
-      .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.matchAllQuery(),
-        FilterBuilders.termFilter(TestIndexDefinition.FIELD_PROJECT_UUID, projectUuid).cache(false)));
+      .setQuery(QueryBuilders.termQuery(TestIndexDefinition.FIELD_PROJECT_UUID, projectUuid));
     BulkIndexer.delete(esClient, INDEX, searchRequest);
   }
 }

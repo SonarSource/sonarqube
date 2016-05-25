@@ -48,6 +48,21 @@ public class IssueDoc extends BaseDoc implements Issue {
   }
 
   @Override
+  public String getId() {
+    return key();
+  }
+
+  @Override
+  public String getRouting() {
+    return projectUuid();
+  }
+
+  @Override
+  public String getParent() {
+    return projectUuid();
+  }
+
+  @Override
   public String key() {
     return getField(IssueIndexDefinition.FIELD_ISSUE_KEY);
   }

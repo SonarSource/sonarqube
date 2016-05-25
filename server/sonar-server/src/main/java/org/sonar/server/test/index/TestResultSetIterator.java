@@ -35,6 +35,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.ResultSetIterator;
 import org.sonar.db.protobuf.DbFileSources;
 import org.sonar.db.source.FileSourceDto;
+import org.sonar.server.es.EsUtils;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper.Row;
 
@@ -99,7 +100,7 @@ public class TestResultSetIterator extends ResultSetIterator<Row> {
       writer.prop(FIELD_DURATION_IN_MS, test.hasExecutionTimeMs() ? test.getExecutionTimeMs() : null);
       writer.prop(FIELD_MESSAGE, test.hasMsg() ? test.getMsg() : null);
       writer.prop(FIELD_STACKTRACE, test.hasStacktrace() ? test.getStacktrace() : null);
-      writer.prop(FIELD_UPDATED_AT, updatedAt.getTime());
+      writer.prop(FIELD_UPDATED_AT, EsUtils.formatDateTime(updatedAt));
       writer.name(FIELD_COVERED_FILES);
       writer.beginArray();
       for (DbFileSources.Test.CoveredFile coveredFile : test.getCoveredFileList()) {

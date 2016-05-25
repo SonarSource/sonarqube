@@ -19,17 +19,18 @@
  */
 package org.sonar.server.search;
 
-import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.Map;
+import java.util.List;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram.Interval;
+import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogramInterval;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
+import org.sonar.server.es.BaseDoc;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.NewIndex.NewIndexType;
 
@@ -57,11 +58,11 @@ public class FacetsMediumTest {
 
   @Test
   public void should_ignore_unknown_aggregation_type() throws Exception {
-    esTester.index(INDEX, TYPE, "noTags", newTagsDocument("noTags"));
-    esTester.index(INDEX, TYPE, "oneTag", newTagsDocument("oneTag", "tag1"));
-    esTester.index(INDEX, TYPE, "twoTags", newTagsDocument("twoTags", "tag1", "tag2"));
-    esTester.index(INDEX, TYPE, "threeTags", newTagsDocument("threeTags", "tag1", "tag2", "tag3"));
-    esTester.index(INDEX, TYPE, "fourTags", newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("noTags"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("oneTag", "tag1"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("twoTags", "tag1", "tag2"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("threeTags", "tag1", "tag2", "tag3"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(AggregationBuilders.cardinality(FIELD_TAGS).field(FIELD_TAGS));
 
@@ -72,9 +73,9 @@ public class FacetsMediumTest {
 
   @Test
   public void should_process_result_with_nested_missing_and_terms_aggregations() throws Exception {
-    esTester.index(INDEX, TYPE, "noTags", newTagsDocument("noTags"));
-    esTester.index(INDEX, TYPE, "oneTag", newTagsDocument("oneTag", "tag1"));
-    esTester.index(INDEX, TYPE, "fourTags", newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("noTags"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("oneTag", "tag1"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
 
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(AggregationBuilders.global("tags__global")
@@ -98,10 +99,10 @@ public class FacetsMediumTest {
 
   @Test
   public void should_ignore_empty_missing_aggregation() throws Exception {
-    esTester.index(INDEX, TYPE, "oneTag", newTagsDocument("oneTag", "tag1"));
-    esTester.index(INDEX, TYPE, "twoTags", newTagsDocument("twoTags", "tag1", "tag2"));
-    esTester.index(INDEX, TYPE, "threeTags", newTagsDocument("threeTags", "tag1", "tag2", "tag3"));
-    esTester.index(INDEX, TYPE, "fourTags", newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("oneTag", "tag1"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("twoTags", "tag1", "tag2"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("threeTags", "tag1", "tag2", "tag3"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("fourTags", "tag1", "tag2", "tag3", "tag4"));
 
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(AggregationBuilders.global("tags__global")
@@ -118,16 +119,16 @@ public class FacetsMediumTest {
 
   @Test
   public void should_process_result_with_date_histogram() throws Exception {
-    esTester.index(INDEX, TYPE, "first", newTagsDocument("first"));
-    esTester.index(INDEX, TYPE, "second", newTagsDocument("second"));
-    esTester.index(INDEX, TYPE, "third", newTagsDocument("third"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("first"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("second"));
+    esTester.putDocuments(INDEX, TYPE, newTagsDocument("third"));
 
     SearchRequestBuilder search = esTester.client().prepareSearch(INDEX).setTypes(TYPE)
       .addAggregation(
         AggregationBuilders.dateHistogram(FIELD_CREATED_AT)
           .minDocCount(0L)
           .field(FIELD_CREATED_AT)
-          .interval(Interval.MINUTE)
+          .interval(DateHistogramInterval.MINUTE)
           .format(DateUtils.DATETIME_FORMAT));
 
     Facets facets = new Facets(search.get());
@@ -139,15 +140,11 @@ public class FacetsMediumTest {
     assertThat(value.getValue()).isEqualTo(3L);
   }
 
-  private static Map<String, Object> newTagsDocument(String key, String... tags) {
-    ImmutableMap<String, Object> doc = ImmutableMap.of(
-      FIELD_KEY, key,
-      FIELD_TAGS, Arrays.asList(tags),
-      FIELD_CREATED_AT, new Date());
-    return doc;
+  private static TagsDoc newTagsDocument(String key, String... tags) {
+    return new TagsDoc().setKey(key).setTags(Arrays.asList(tags)).setCreatedAt(new Date());
   }
 
-  static class FacetsTestDefinition implements org.sonar.server.es.IndexDefinition {
+  private static class FacetsTestDefinition implements org.sonar.server.es.IndexDefinition {
 
     @Override
     public void define(IndexDefinitionContext context) {
@@ -155,6 +152,50 @@ public class FacetsMediumTest {
       newType.stringFieldBuilder(FIELD_KEY).build();
       newType.stringFieldBuilder(FIELD_TAGS).build();
       newType.createDateTimeField(FIELD_CREATED_AT);
+    }
+  }
+
+  private static class TagsDoc extends BaseDoc {
+    public TagsDoc() {
+      super(Maps.<String, Object>newHashMap());
+    }
+
+    @Override
+    public String getId() {
+      return getKey();
+    }
+
+    @Override
+    public String getRouting() {
+      return null;
+    }
+
+    @Override
+    public String getParent() {
+      return null;
+    }
+
+    public String getKey() {
+      return getField(FIELD_KEY);
+    }
+
+    public List<String> getTags() {
+      return (List<String>) getField(FIELD_TAGS);
+    }
+
+    public TagsDoc setKey(String s) {
+      setField(FIELD_KEY, s);
+      return this;
+    }
+
+    public TagsDoc setTags(List<String> tags) {
+      setField(FIELD_TAGS, tags);
+      return this;
+    }
+
+    public TagsDoc setCreatedAt(Date date) {
+      setField(FIELD_CREATED_AT, date);
+      return this;
     }
   }
 }

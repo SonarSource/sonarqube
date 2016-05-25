@@ -38,6 +38,20 @@ public class BaseDocTest {
     fields.put("a_int", 42);
     fields.put("a_null", null);
     BaseDoc doc = new BaseDoc(fields) {
+      @Override
+      public String getId() {
+        return null;
+      }
+
+      @Override
+      public String getRouting() {
+        return null;
+      }
+
+      @Override
+      public String getParent() {
+        return null;
+      }
     };
 
     assertThat((String) doc.getNullableField("a_string")).isEqualTo("foo");
@@ -49,6 +63,20 @@ public class BaseDocTest {
   public void getField_fails_if_missing_field() {
     Map<String, Object> fields = Collections.emptyMap();
     BaseDoc doc = new BaseDoc(fields) {
+      @Override
+      public String getId() {
+        return null;
+      }
+
+      @Override
+      public String getRouting() {
+        return null;
+      }
+
+      @Override
+      public String getParent() {
+        return null;
+      }
     };
 
     try {
@@ -62,6 +90,20 @@ public class BaseDocTest {
   @Test
   public void getFieldAsDate() {
     BaseDoc doc = new BaseDoc(Maps.newHashMap()) {
+      @Override
+      public String getId() {
+        return null;
+      }
+
+      @Override
+      public String getRouting() {
+        return null;
+      }
+
+      @Override
+      public String getParent() {
+        return null;
+      }
     };
     long now = System.currentTimeMillis();
     doc.setField("javaDate", new Date(now));
@@ -74,6 +116,20 @@ public class BaseDocTest {
   @Test
   public void getNullableFieldAsDate() {
     BaseDoc doc = new BaseDoc(Maps.newHashMap()) {
+      @Override
+      public String getId() {
+        return null;
+      }
+
+      @Override
+      public String getRouting() {
+        return null;
+      }
+
+      @Override
+      public String getParent() {
+        return null;
+      }
     };
     long now = System.currentTimeMillis();
     doc.setField("javaDate", new Date(now));

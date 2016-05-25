@@ -21,19 +21,18 @@ package org.sonar.server.search;
 
 import com.google.common.collect.LinkedHashMultimap;
 import com.google.common.collect.Multimap;
-import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.search.aggregations.Aggregation;
-import org.elasticsearch.search.aggregations.HasAggregations;
-import org.elasticsearch.search.aggregations.bucket.histogram.DateHistogram;
-import org.elasticsearch.search.aggregations.bucket.missing.Missing;
-import org.elasticsearch.search.aggregations.bucket.terms.Terms;
-import org.sonar.api.utils.log.Logger;
-import org.sonar.api.utils.log.Loggers;
-
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import org.elasticsearch.action.search.SearchResponse;
+import org.elasticsearch.search.aggregations.Aggregation;
+import org.elasticsearch.search.aggregations.HasAggregations;
+import org.elasticsearch.search.aggregations.bucket.histogram.Histogram;
+import org.elasticsearch.search.aggregations.bucket.missing.Missing;
+import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 
 public class Facets {
 
@@ -58,7 +57,7 @@ public class Facets {
       processTermsAggregation(aggregation);
     } else if (HasAggregations.class.isAssignableFrom(aggregation.getClass())) {
       processSubAggregations(aggregation);
-    } else if (DateHistogram.class.isAssignableFrom(aggregation.getClass())) {
+    } else if (Histogram.class.isAssignableFrom(aggregation.getClass())) {
       processDateHistogram(aggregation);
     } else {
       LOGGER.warn("Cannot process {} type of aggregation", aggregation.getClass());
@@ -85,7 +84,7 @@ public class Facets {
         facetName = facetName.substring(0, facetName.indexOf("__"));
       }
       facetName = facetName.replace("_selected", "");
-      this.facetValues.put(facetName, new FacetValue(value.getKey(), value.getDocCount()));
+      this.facetValues.put(facetName, new FacetValue(value.getKeyAsString(), value.getDocCount()));
     }
   }
 
@@ -97,9 +96,9 @@ public class Facets {
   }
 
   private void processDateHistogram(Aggregation aggregation) {
-    DateHistogram dateHistogram = (DateHistogram) aggregation;
-    for (DateHistogram.Bucket value : dateHistogram.getBuckets()) {
-      this.facetValues.put(dateHistogram.getName(), new FacetValue(value.getKeyAsText().toString(), value.getDocCount()));
+    Histogram dateHistogram = (Histogram) aggregation;
+    for (Histogram.Bucket value : dateHistogram.getBuckets()) {
+      this.facetValues.put(dateHistogram.getName(), new FacetValue(value.getKeyAsString(), value.getDocCount()));
     }
   }
 
