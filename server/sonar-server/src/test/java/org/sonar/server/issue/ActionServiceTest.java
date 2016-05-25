@@ -23,12 +23,10 @@ import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import org.sonar.api.config.Settings;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.issue.IssueDto;
-import org.sonar.server.properties.ProjectSettingsFactory;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -57,8 +55,6 @@ public class ActionServiceTest {
   DbSession session = mock(DbSession.class);
 
   IssueService issueService = mock(IssueService.class);
-  ProjectSettingsFactory projectSettingsFactory = mock(ProjectSettingsFactory.class);
-  Settings settings = new Settings();
   ActionService underTest;
 
   ComponentDto project;
@@ -67,7 +63,6 @@ public class ActionServiceTest {
   @Before
   public void before() {
     when(dbClient.openSession(false)).thenReturn(session);
-    when(projectSettingsFactory.newProjectSettings(PROJECT_KEY)).thenReturn(settings);
 
     project = newProjectDto(PROJECT_UUID).setKey(PROJECT_KEY);
     issue = IssueTesting.newDto(newXooX1().setId(10), newFileDto(project), project).setKee(ISSUE_KEY);
