@@ -65,12 +65,17 @@
 </tr>
 <tr>
 	<td>waitForText</td>
-	<td>content</td>
-	<td>*Bulk update can not be performed*The replacement of &quot;com.sonarsource.it.samples:multi-modules-sample:module_a&quot; by &quot;com.sonarsource.it.samples:multi-modules-sample:module_b&quot; is impossible as it would result in duplicate keys (in red below):*</td>
+	<td>css=#content h1</td>
+	<td>*Bulk update can not be performed*</td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>content</td>
+	<td>assertText</td>
+	<td>css=#content p</td>
+	<td>*The replacement of &quot;com.sonarsource.it.samples:multi-modules-sample:module_a&quot; by &quot;com.sonarsource.it.samples:multi-modules-sample:module_b&quot; is impossible as it would result in duplicate keys (in red below):*</td>
+</tr>
+<tr>
+	<td>assertText</td>
+	<td>css=#content .data</td>
 	<td>*Duplicate key*</td>
 </tr>
 <tr>

@@ -9,61 +9,61 @@
 <table cellpadding="1" cellspacing="1" border="1">
   <tbody>
   <tr>
-    <td>open</td>
-    <td>/sessions/logout</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>open</td>
-    <td>/sessions/login</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>type</td>
-    <td>login</td>
-    <td>admin</td>
-  </tr>
-  <tr>
-    <td>type</td>
-    <td>password</td>
-    <td>admin</td>
-  </tr>
-  <tr>
-    <td>clickAndWait</td>
-    <td>commit</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>open</td>
-    <td>/dashboard/index/com.sonarsource.it.samples:multi-modules-sample</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>click</td>
-    <td>css=#context-navigation .navbar-admin-link</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>waitForElementPresent</td>
-    <td>link=Update Key</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>clickAndWait</td>
-    <td>link=Update Key</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>clickAndWait</td>
-    <td>id=bulk_update_button</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>waitForText</td>
-    <td>content</td>
-    <td>*The two fields can not be blank for the bulk update.*</td>
-  </tr>
-  </tbody>
+	<td>open</td>
+	<td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/login</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/dashboard/index/com.sonarsource.it.samples:multi-modules-sample</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#context-navigation .navbar-admin-link</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>link=Update Key</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>link=Update Key</td>
+	<td></td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>id=bulk_update_button</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=#content #error</td>
+	<td>*The two fields can not be blank for the bulk update.*</td>
+</tr>
+</tbody>
 </table>
 </body>
 </html>
