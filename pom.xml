@@ -65,7 +65,7 @@
     <logback.version>1.1.3</logback.version>
     <slf4j.version>1.7.12</slf4j.version>
     <tomcat.version>8.0.30</tomcat.version>
-    <elasticsearch.version>1.7.5</elasticsearch.version>
+    <elasticsearch.version>2.3.3</elasticsearch.version>
     <orchestrator.version>3.11</orchestrator.version>
     <okhttp.version>2.6.0</okhttp.version>
 
@@ -555,31 +555,14 @@
         <type>sonar-plugin</type>
       </dependency>
       <dependency>
+        <groupId>net.java.dev.jna</groupId>
+        <artifactId>jna</artifactId>
+        <version>4.1.0</version>
+      </dependency>
+      <dependency>
         <groupId>org.elasticsearch</groupId>
         <artifactId>elasticsearch</artifactId>
         <version>${elasticsearch.version}</version>
-        <exclusions>
-          <exclusion>
-            <groupId>org.apache.lucene</groupId>
-            <artifactId>lucene-spatial</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.ow2.asm</groupId>
-            <artifactId>asm-commons</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.antlr</groupId>
-            <artifactId>antlr-runtime</artifactId>
-          </exclusion>
-          <exclusion>
-            <groupId>org.yaml</groupId>
-            <artifactId>snakeyaml</artifactId>
-          </exclusion>
-        </exclusions>
       </dependency>
       <dependency>
         <groupId>com.github.tlrx</groupId>

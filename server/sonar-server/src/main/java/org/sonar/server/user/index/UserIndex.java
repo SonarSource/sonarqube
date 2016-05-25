@@ -33,8 +33,7 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -48,6 +47,9 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
+
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
 @ServerSide
 @ComputeEngineSide
@@ -81,11 +83,11 @@ public class UserIndex {
       SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
         .setTypes(UserIndexDefinition.TYPE_USER)
         .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-          FilterBuilders.boolFilter()
-            .must(FilterBuilders.termFilter(UserIndexDefinition.FIELD_ACTIVE, true))
-            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_LOGIN, scmAccount))
-            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_EMAIL, scmAccount))
-            .should(FilterBuilders.termFilter(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
+          QueryBuilders.boolQuery()
+            .must(termQuery(UserIndexDefinition.FIELD_ACTIVE, true))
+            .should(termQuery(UserIndexDefinition.FIELD_LOGIN, scmAccount))
+            .should(termQuery(UserIndexDefinition.FIELD_EMAIL, scmAccount))
+            .should(termQuery(UserIndexDefinition.FIELD_SCM_ACCOUNTS, scmAccount))))
         .setSize(3);
       for (SearchHit hit : request.get().getHits().getHits()) {
         result.add(DOC_CONVERTER.apply(hit.sourceAsMap()));
@@ -95,8 +97,8 @@ public class UserIndex {
   }
 
   public Iterator<UserDoc> selectUsersForBatch(List<String> logins) {
-    BoolFilterBuilder filter = FilterBuilders.boolFilter()
-      .must(FilterBuilders.termsFilter(UserIndexDefinition.FIELD_LOGIN, logins));
+    BoolQueryBuilder filter = QueryBuilders.boolQuery()
+      .must(termsQuery(UserIndexDefinition.FIELD_LOGIN, logins));
 
     SearchRequestBuilder requestBuilder = esClient
       .prepareSearch(UserIndexDefinition.INDEX)
@@ -121,8 +123,8 @@ public class UserIndex {
       .setFrom(options.getOffset())
       .addSort(UserIndexDefinition.FIELD_NAME, SortOrder.ASC);
 
-    BoolFilterBuilder userFilter = FilterBuilders.boolFilter()
-      .must(FilterBuilders.termFilter(UserIndexDefinition.FIELD_ACTIVE, true));
+    BoolQueryBuilder userQuery = QueryBuilders.boolQuery()
+      .must(termQuery(UserIndexDefinition.FIELD_ACTIVE, true));
 
     QueryBuilder query;
     if (StringUtils.isEmpty(searchText)) {
@@ -137,7 +139,7 @@ public class UserIndex {
     }
 
     request.setQuery(QueryBuilders.filteredQuery(query,
-      userFilter));
+      userQuery));
 
     return new SearchResult<>(request.get(), DOC_CONVERTER);
   }

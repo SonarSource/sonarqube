@@ -50,10 +50,8 @@ public class ProxyClearCacheRequestBuilderTest {
     assertThat(esTester.client().prepareClearCache().toString()).isEqualTo("ES clear cache request");
     assertThat(esTester.client().prepareClearCache("rules").toString()).isEqualTo("ES clear cache request on indices 'rules'");
     assertThat(esTester.client().prepareClearCache().setFields("key").toString()).isEqualTo("ES clear cache request on fields 'key'");
-    assertThat(esTester.client().prepareClearCache().setFilterKeys("rule1").toString()).isEqualTo("ES clear cache request on filterKeys 'rule1'");
-    assertThat(esTester.client().prepareClearCache().setFilterCache(true).toString()).isEqualTo("ES clear cache request with filter cache");
     assertThat(esTester.client().prepareClearCache().setFieldDataCache(true).toString()).isEqualTo("ES clear cache request with field data cache");
-    assertThat(esTester.client().prepareClearCache().setIdCache(true).toString()).isEqualTo("ES clear cache request with id cache");
+    assertThat(esTester.client().prepareClearCache().setRequestCache(true).toString()).isEqualTo("ES clear cache request with request cache");
   }
 
   @Test

@@ -93,7 +93,7 @@ public class PurgeDao implements Dao {
     List<String> issueKeys = mapper.selectOldClosedIssueKeys(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
     executeLargeInputs(issueKeys, new DeleteIssueChangesFromIssueKeys(mapper));
     executeLargeInputs(issueKeys, new DeleteIssuesFromKeys(mapper));
-    listener.onIssuesRemoval(issueKeys);
+    listener.onIssuesRemoval(conf.rootProjectIdUuid().getUuid(), issueKeys);
   }
 
   private static void deleteAbortedBuilds(ResourceDto project, PurgeCommands commands) {

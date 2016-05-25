@@ -32,7 +32,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Objects.requireNonNull;
-import static org.elasticsearch.common.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 /**
  * ScmInfo implementation based on the changeset information from the Report

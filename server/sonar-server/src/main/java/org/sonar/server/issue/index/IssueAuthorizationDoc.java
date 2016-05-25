@@ -17,25 +17,38 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.purge;
+package org.sonar.server.issue.index;
 
-import java.util.List;
+import com.google.common.collect.Maps;
+import org.sonar.server.es.BaseDoc;
 
-public interface PurgeListener {
+public class IssueAuthorizationDoc extends BaseDoc {
 
-  PurgeListener EMPTY = new PurgeListener() {
-    @Override
-    public void onComponentDisabling(String uuid) {
-      // do nothing
-    }
+  public IssueAuthorizationDoc() {
+    super(Maps.<String, Object>newHashMap());
+  }
 
-    @Override
-    public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
-      // do nothing
-    }
-  };
+  @Override
+  public String getId() {
+    return projectUuid();
+  }
 
-  void onComponentDisabling(String uuid);
+  @Override
+  public String getRouting() {
+    return projectUuid();
+  }
 
-  void onIssuesRemoval(String projectUuid, List<String> issueKeys);
+  @Override
+  public String getParent() {
+    return null;
+  }
+
+  public String projectUuid() {
+    return getField(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID);
+  }
+
+  public IssueAuthorizationDoc setProjectUuid(String s) {
+    setField(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, s);
+    return this;
+  }
 }

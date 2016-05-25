@@ -49,7 +49,7 @@ public class ScmAccountToUserLoaderTest {
       .setEmail("charlie@hebdo.com")
       .setActive(true)
       .setScmAccounts(asList("charlie", "jesuis@charlie.com"));
-    esTester.index(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, "charlie", user.getFields());
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user);
 
     UserIndex index = new UserIndex(esTester.client());
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);
@@ -66,14 +66,14 @@ public class ScmAccountToUserLoaderTest {
       .setEmail("charlie@hebdo.com")
       .setActive(true)
       .setScmAccounts(asList("charlie", "jesuis@charlie.com"));
-    esTester.index(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user1.login(), user1.getFields());
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user1);
 
     UserDoc user2 = new UserDoc()
       .setLogin("another.charlie")
       .setName("Another Charlie")
       .setActive(true)
       .setScmAccounts(asList("charlie"));
-    esTester.index(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user2.login(), user2.getFields());
+    esTester.putDocuments(UserIndexDefinition.INDEX, UserIndexDefinition.TYPE_USER, user2);
 
     UserIndex index = new UserIndex(esTester.client());
     ScmAccountToUserLoader underTest = new ScmAccountToUserLoader(index);

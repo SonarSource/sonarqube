@@ -19,7 +19,6 @@
  */
 package org.sonar.server.activity.index;
 
-import com.google.common.collect.ImmutableMap;
 import org.sonar.api.config.Settings;
 import org.sonar.server.es.IndexDefinition;
 import org.sonar.server.es.NewIndex;
@@ -54,7 +53,7 @@ public class ActivityIndexDefinition implements IndexDefinition {
 
     // type "activity"
     NewIndex.NewIndexType mapping = index.createType(TYPE);
-    mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_KEY));
+    // mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_KEY));
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_TYPE).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_ACTION).disableNorms().build();

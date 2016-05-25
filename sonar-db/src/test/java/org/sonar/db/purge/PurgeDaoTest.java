@@ -44,6 +44,9 @@ import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
 public class PurgeDaoTest {
 
+  private static final String THE_PROJECT_UUID = "P1";
+  private static final long THE_PROJECT_ID = 1L;
+
   System2 system2 = mock(System2.class);
 
   @Rule
@@ -79,7 +82,7 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteHistoricalDataOfDirectoriesAndFiles() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles.xml");
-    underTest.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[]{Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[] {Scopes.DIRECTORY, Scopes.FILE}, 30), PurgeListener.EMPTY, new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "shouldDeleteHistoricalDataOfDirectoriesAndFiles-result.xml", "projects", "snapshots");
   }
 
@@ -95,18 +98,18 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteSnapshots() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteSnapshots.xml");
-    underTest.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(1L), new PurgeProfiler());
+    underTest.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(THE_PROJECT_ID), new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "shouldDeleteSnapshots-result.xml", "snapshots");
   }
 
   @Test
   public void shouldSelectPurgeableSnapshots() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectPurgeableSnapshots.xml");
-    List<PurgeableSnapshotDto> snapshots = underTest.selectPurgeableSnapshots(1L);
+    List<PurgeableSnapshotDto> snapshots = underTest.selectPurgeableSnapshots(THE_PROJECT_ID);
 
     assertThat(snapshots).hasSize(3);
-    assertThat(getById(snapshots, 1L).isLast()).isTrue();
-    assertThat(getById(snapshots, 1L).hasEvents()).isFalse();
+    assertThat(getById(snapshots, THE_PROJECT_ID).isLast()).isTrue();
+    assertThat(getById(snapshots, THE_PROJECT_ID).hasEvents()).isFalse();
     assertThat(getById(snapshots, 4L).isLast()).isFalse();
     assertThat(getById(snapshots, 4L).hasEvents()).isFalse();
     assertThat(getById(snapshots, 5L).isLast()).isFalse();
@@ -182,16 +185,18 @@ public class PurgeDaoTest {
     dbTester.assertDbUnit(getClass(), "should_delete_old_closed_issues-result.xml", "issues", "issue_changes");
 
     Class<ArrayList<String>> listClass = (Class<ArrayList<String>>)(Class)ArrayList.class;
-    ArgumentCaptor<ArrayList<String>> argument = ArgumentCaptor.forClass(listClass);
+    ArgumentCaptor<ArrayList<String>> issueKeys = ArgumentCaptor.forClass(listClass);
+    ArgumentCaptor<String> projectUuid = ArgumentCaptor.forClass(String.class);
 
-    verify(purgeListener).onIssuesRemoval(argument.capture());
-    assertThat(argument.getValue()).containsOnly("ISSUE-1", "ISSUE-2");
+    verify(purgeListener).onIssuesRemoval(projectUuid.capture(), issueKeys.capture());
+    assertThat(projectUuid.getValue()).isEqualTo(THE_PROJECT_UUID);
+    assertThat(issueKeys.getValue()).containsOnly("ISSUE-1", "ISSUE-2");
   }
 
   @Test
   public void should_delete_all_closed_issues() {
     dbTester.prepareDbUnit(getClass(), "should_delete_all_closed_issues.xml");
-    underTest.purge(new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 0), PurgeListener.EMPTY, new PurgeProfiler());
+    underTest.purge(new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, "1"), new String[0], 0), PurgeListener.EMPTY, new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "should_delete_all_closed_issues-result.xml", "issues", "issue_changes");
   }
 
@@ -222,10 +227,10 @@ public class PurgeDaoTest {
   }
 
   private static PurgeConfiguration newConfigurationWith30Days() {
-    return new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30);
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30);
   }
 
   private static PurgeConfiguration newConfigurationWith30Days(System2 system2) {
-    return new PurgeConfiguration(new IdUuidPair(1L, "1"), new String[0], 30, system2);
+    return new PurgeConfiguration(new IdUuidPair(THE_PROJECT_ID, THE_PROJECT_UUID), new String[0], 30, system2);
   }
 }

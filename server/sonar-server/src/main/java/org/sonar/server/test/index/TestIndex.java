@@ -25,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.SearchHit;
 import org.sonar.core.util.NonNullInputFunction;
@@ -34,6 +33,8 @@ import org.sonar.server.es.EsClient;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 
+import static org.elasticsearch.index.query.QueryBuilders.nestedQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_LINES;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_COVERED_FILE_UUID;
@@ -58,7 +59,7 @@ public class TestIndex extends BaseIndex {
     for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(1)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_TEST_UUID, testUuid)))
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), termQuery(FIELD_TEST_UUID, testUuid)))
       .get().getHits().getHits()) {
       coveredFiles.addAll(new TestDoc(hit.sourceAsMap()).coveredFiles());
     }
@@ -71,7 +72,7 @@ public class TestIndex extends BaseIndex {
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(searchOptions.getLimit())
       .setFrom(searchOptions.getOffset())
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_FILE_UUID, testFileUuid)));
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), termQuery(FIELD_FILE_UUID, testFileUuid)));
 
     return new SearchResult<>(searchRequest.get(), CONVERTER);
   }
@@ -81,9 +82,9 @@ public class TestIndex extends BaseIndex {
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(searchOptions.getLimit())
       .setFrom(searchOptions.getOffset())
-      .setQuery(QueryBuilders.nestedQuery(FIELD_COVERED_FILES, FilterBuilders.boolFilter()
-        .must(FilterBuilders.termFilter(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_UUID, sourceFileUuid).cache(false))
-        .must(FilterBuilders.termFilter(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber).cache(false))));
+      .setQuery(nestedQuery(FIELD_COVERED_FILES, QueryBuilders.boolQuery()
+        .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_UUID, sourceFileUuid))
+        .must(termQuery(FIELD_COVERED_FILES + "." + FIELD_COVERED_FILE_LINES, lineNumber))));
 
     return new SearchResult<>(searchRequest.get(), CONVERTER);
   }
@@ -101,7 +102,7 @@ public class TestIndex extends BaseIndex {
     for (SearchHit hit : getClient().prepareSearch(TestIndexDefinition.INDEX)
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(1)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_TEST_UUID, testUuid)))
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), termQuery(FIELD_TEST_UUID, testUuid)))
       .get().getHits().getHits()) {
       return Optional.of(new TestDoc(hit.sourceAsMap()));
     }
@@ -114,7 +115,7 @@ public class TestIndex extends BaseIndex {
       .setTypes(TestIndexDefinition.TYPE)
       .setSize(searchOptions.getLimit())
       .setFrom(searchOptions.getOffset())
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), FilterBuilders.termFilter(FIELD_TEST_UUID, testUuid)));
+      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), termQuery(FIELD_TEST_UUID, testUuid)));
 
     return new SearchResult<>(searchRequest.get(), CONVERTER);
   }

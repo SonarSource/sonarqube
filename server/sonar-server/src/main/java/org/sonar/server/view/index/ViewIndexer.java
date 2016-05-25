@@ -29,7 +29,6 @@ import org.sonar.db.component.UuidWithProjectUuidDto;
 import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
-import org.sonar.server.issue.index.IssueIndex;
 
 import static com.google.common.collect.Maps.newHashMap;
 
@@ -127,8 +126,7 @@ public class ViewIndexer extends BaseIndexer {
   private void clearLookupCache(String viewUuid) {
     try {
       esClient.prepareClearCache()
-        .setFilterCache(true)
-        .setFilterKeys(IssueIndex.viewsLookupCacheKey(viewUuid))
+        .setQueryCache(true)
         .get();
     } catch (Exception e) {
       throw new IllegalStateException(String.format("Unable to clear lookup cache of view '%s'", viewUuid), e);

@@ -31,7 +31,7 @@ import org.sonar.server.computation.qualityprofile.QualityProfile;
 
 import static com.google.common.collect.Maps.transformValues;
 import static java.lang.String.format;
-import static org.elasticsearch.common.lang3.StringUtils.isNotEmpty;
+import static org.apache.commons.lang.StringUtils.isNotEmpty;
 
 /**
  * Feed analysis metadata holder with metadata from the analysis report.

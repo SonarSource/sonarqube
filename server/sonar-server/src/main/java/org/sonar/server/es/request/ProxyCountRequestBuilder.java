@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.count.CountAction;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.count.CountResponse;
 import org.elasticsearch.client.Client;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyCountRequestBuilder extends CountRequestBuilder {
 
   public ProxyCountRequestBuilder(Client client) {
-    super(client);
+    super(client, CountAction.INSTANCE);
   }
 
   @Override

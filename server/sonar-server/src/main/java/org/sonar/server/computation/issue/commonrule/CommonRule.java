@@ -21,13 +21,13 @@ package org.sonar.server.computation.issue.commonrule;
 
 import com.google.common.base.Optional;
 import javax.annotation.CheckForNull;
-import org.elasticsearch.common.lang3.StringUtils;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.qualityprofile.ActiveRule;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolder;
 
+import static org.apache.commons.lang.StringUtils.isNotBlank;
 import static org.sonar.server.rule.CommonRuleKeys.commonRepositoryForLang;
 
 public abstract class CommonRule {
@@ -80,7 +80,7 @@ public abstract class CommonRule {
 
   protected static double getMinDensityParam(ActiveRule activeRule, String paramKey) {
     String s = activeRule.getParams().get(paramKey);
-    if (StringUtils.isNoneBlank(s)) {
+    if (isNotBlank(s)) {
       double d = Double.parseDouble(s);
       if (d < 0.0 || d > 100.0) {
         throw new IllegalStateException(String.format("Minimum density of rule [%s] is incorrect. Got [%s] but must be between 0 and 100.", activeRule.getRuleKey(), s));

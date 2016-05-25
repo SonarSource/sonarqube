@@ -19,9 +19,9 @@
  */
 package org.sonar.search;
 
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.node.internal.InternalNode;
+import org.elasticsearch.node.Node;
 import org.sonar.process.Jmx;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
@@ -31,7 +31,7 @@ import org.sonar.process.Props;
 public class SearchServer implements Monitored {
 
   private final EsSettings settings;
-  private InternalNode node;
+  private Node node;
 
   public SearchServer(Props props) {
     this.settings = new EsSettings(props);
@@ -42,7 +42,7 @@ public class SearchServer implements Monitored {
   @Override
   public void start() {
     Jmx.register(EsSettingsMBean.OBJECT_NAME, settings);
-    node = new InternalNode(settings.build(), false);
+    node = new Node(settings.build());
     node.start();
   }
 

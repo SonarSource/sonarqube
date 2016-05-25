@@ -19,9 +19,10 @@
  */
 package org.sonar.server.es;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.admin.cluster.health.ClusterHealthRequestBuilder;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.action.admin.cluster.node.stats.NodesStatsRequestBuilder;
 import org.elasticsearch.action.admin.cluster.state.ClusterStateRequestBuilder;
 import org.elasticsearch.action.admin.cluster.stats.ClusterStatsRequestBuilder;
@@ -29,14 +30,13 @@ import org.elasticsearch.action.admin.indices.cache.clear.ClearIndicesCacheReque
 import org.elasticsearch.action.admin.indices.create.CreateIndexRequestBuilder;
 import org.elasticsearch.action.admin.indices.exists.indices.IndicesExistsRequestBuilder;
 import org.elasticsearch.action.admin.indices.flush.FlushRequestBuilder;
+import org.elasticsearch.action.admin.indices.forcemerge.ForceMergeRequestBuilder;
 import org.elasticsearch.action.admin.indices.mapping.put.PutMappingRequestBuilder;
-import org.elasticsearch.action.admin.indices.optimize.OptimizeRequestBuilder;
 import org.elasticsearch.action.admin.indices.refresh.RefreshRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.count.CountRequestBuilder;
 import org.elasticsearch.action.delete.DeleteRequestBuilder;
-import org.elasticsearch.action.deletebyquery.DeleteByQueryRequestBuilder;
 import org.elasticsearch.action.get.GetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.index.IndexRequestBuilder;
@@ -44,10 +44,10 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.Priority;
 import org.elasticsearch.common.logging.ESLoggerFactory;
 import org.elasticsearch.common.logging.slf4j.Slf4jESLoggerFactory;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -65,7 +65,6 @@ import org.sonar.server.es.request.ProxyClusterStateRequestBuilder;
 import org.sonar.server.es.request.ProxyClusterStatsRequestBuilder;
 import org.sonar.server.es.request.ProxyCountRequestBuilder;
 import org.sonar.server.es.request.ProxyCreateIndexRequestBuilder;
-import org.sonar.server.es.request.ProxyDeleteByQueryRequestBuilder;
 import org.sonar.server.es.request.ProxyDeleteRequestBuilder;
 import org.sonar.server.es.request.ProxyFlushRequestBuilder;
 import org.sonar.server.es.request.ProxyGetRequestBuilder;
@@ -78,6 +77,8 @@ import org.sonar.server.es.request.ProxyPutMappingRequestBuilder;
 import org.sonar.server.es.request.ProxyRefreshRequestBuilder;
 import org.sonar.server.es.request.ProxySearchRequestBuilder;
 import org.sonar.server.es.request.ProxySearchScrollRequestBuilder;
+
+import static org.apache.commons.lang.StringUtils.defaultIfEmpty;
 
 /**
  * Facade to connect to Elasticsearch node. Handles correctly errors (logging + exceptions
@@ -162,6 +163,10 @@ public class EsClient implements Startable {
     return new ProxyMultiGetRequestBuilder(nativeClient());
   }
 
+  /**
+   * @deprecated use {@link #prepareSearch(String...)} with size 0
+   */
+  @Deprecated
   public CountRequestBuilder prepareCount(String... indices) {
     return new ProxyCountRequestBuilder(nativeClient()).setIndices(indices);
   }
@@ -174,22 +179,13 @@ public class EsClient implements Startable {
     return new ProxyDeleteRequestBuilder(nativeClient(), index).setType(type).setId(id);
   }
 
-  /**
-   * @deprecated delete-by-query is dropped from ES 2.0 and should not be used. See
-   * https://www.elastic.co/guide/en/elasticsearch/reference/1.7/docs-delete-by-query.html
-   */
-  @Deprecated
-  public DeleteByQueryRequestBuilder prepareDeleteByQuery(String... indices) {
-    return new ProxyDeleteByQueryRequestBuilder(nativeClient()).setIndices(indices);
-  }
-
   public IndexRequestBuilder prepareIndex(String index, String type) {
     return new ProxyIndexRequestBuilder(nativeClient()).setIndex(index).setType(type);
   }
 
-  public OptimizeRequestBuilder prepareOptimize(String indexName) {
+  public ForceMergeRequestBuilder prepareForceMerge(String indexName) {
     // TODO add proxy for profiling
-    return nativeClient().admin().indices().prepareOptimize(indexName)
+    return nativeClient().admin().indices().prepareForceMerge(indexName)
       .setMaxNumSegments(1);
   }
 
@@ -212,17 +208,19 @@ public class EsClient implements Startable {
   public void start() {
     if (nativeClient == null) {
       ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
-      org.elasticsearch.common.settings.Settings esSettings = ImmutableSettings.settingsBuilder()
-        .put("node.name", StringUtils.defaultIfEmpty(settings.getString(ProcessProperties.CLUSTER_NODE_NAME), "sq_local_client"))
-        .put("network.bind_host", StringUtils.defaultIfEmpty(settings.getString(ProcessProperties.SEARCH_HOST), "localhost"))
-        .put("node.rack_id", StringUtils.defaultIfEmpty(settings.getString(ProcessProperties.CLUSTER_NODE_NAME), "unknown"))
+      org.elasticsearch.common.settings.Settings esSettings = org.elasticsearch.common.settings.Settings.builder()
+        .put("node.name", defaultIfEmpty(settings.getString(ProcessProperties.CLUSTER_NODE_NAME), "sq_local_client"))
+        .put("network.bind_host", defaultIfEmpty(settings.getString(ProcessProperties.SEARCH_HOST), "localhost"))
+        .put("node.rack_id", defaultIfEmpty(settings.getString(ProcessProperties.CLUSTER_NODE_NAME), "unknown"))
         .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(ProcessProperties.CLUSTER_NAME), "sonarqube"))
         .build();
-      nativeClient = new TransportClient(esSettings);
-      ((TransportClient) nativeClient).addTransportAddress(new InetSocketTransportAddress(StringUtils.defaultIfEmpty(settings.getString(ProcessProperties.SEARCH_HOST),
-        LoopbackAddress.get()
-          .getHostAddress()),
-        settings.getInt(ProcessProperties.SEARCH_PORT)));
+      nativeClient = TransportClient.builder().settings(esSettings).build();
+      String host = defaultIfEmpty(settings.getString(ProcessProperties.SEARCH_HOST), LoopbackAddress.get().getHostAddress());
+      try {
+        ((TransportClient) nativeClient).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), settings.getInt(ProcessProperties.SEARCH_PORT)));
+      } catch (UnknownHostException e) {
+        // TODO
+      }
     }
   }
 

@@ -24,6 +24,7 @@ import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import org.elasticsearch.search.SearchHit;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -189,6 +190,10 @@ public class RuleIndexTest {
       newDoc(RuleKey.of("findbugs", "S001")),
       newDoc(RuleKey.of("pmd", "S002")));
 
+    List<SearchHit> docs = tester.getDocuments("rules", "rule");
+    for (SearchHit doc : docs) {
+      System.out.println(doc.getSourceAsString());
+    }
     RuleQuery query = new RuleQuery().setRepositories(asList("checkstyle", "pmd"));
     SearchIdResult results = index.search(query, new SearchOptions());
     assertThat(results.getIds()).containsOnly(RuleKey.of("pmd", "S002"));

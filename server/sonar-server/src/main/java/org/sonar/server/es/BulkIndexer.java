@@ -32,14 +32,16 @@ import org.elasticsearch.action.admin.indices.settings.put.UpdateSettingsRequest
 import org.elasticsearch.action.bulk.BulkItemResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
 import org.elasticsearch.action.bulk.BulkResponse;
+import org.elasticsearch.action.delete.DeleteRequestBuilder;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
-import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.common.unit.ByteSizeUnit;
 import org.elasticsearch.common.unit.ByteSizeValue;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
+import org.elasticsearch.search.SearchHitField;
+import org.elasticsearch.search.sort.SortOrder;
 import org.picocontainer.Startable;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
@@ -144,8 +146,8 @@ public class BulkIndexer implements Startable {
 
   public void addDeletion(SearchRequestBuilder searchRequest) {
     searchRequest
+      .addSort("_doc", SortOrder.ASC)
       .setScroll(TimeValue.timeValueMinutes(5))
-      .setSearchType(SearchType.SCAN)
       .setSize(100)
       // load only doc ids, not _source fields
       .setFetchSource(false);
@@ -157,14 +159,20 @@ public class BulkIndexer implements Startable {
     SearchResponse searchResponse = searchRequest.get();
 
     while (true) {
-      searchResponse = client.prepareSearchScroll(searchResponse.getScrollId())
-        .setScroll(TimeValue.timeValueMinutes(5))
-        .get();
       SearchHit[] hits = searchResponse.getHits().getHits();
       for (SearchHit hit : hits) {
-        add(client.prepareDelete(hit.index(), hit.type(), hit.getId()).request());
+        DeleteRequestBuilder deleteRequestBuilder = client.prepareDelete(hit.index(), hit.type(), hit.getId());
+        SearchHitField routing = hit.field("_routing");
+        if (routing != null) {
+          deleteRequestBuilder.setRouting((String) routing.getValue());
+        }
+        add(deleteRequestBuilder.request());
       }
+
+      String scrollId = searchResponse.getScrollId();
+      searchResponse = client.prepareSearchScroll(scrollId).setScroll(TimeValue.timeValueMinutes(5)).get();
       if (hits.length == 0) {
+        client.nativeClient().prepareClearScroll().addScrollId(scrollId).get();
         break;
       }
     }
@@ -204,7 +212,7 @@ public class BulkIndexer implements Startable {
       // optimize lucene segments and revert index settings
       // Optimization must be done before re-applying replicas:
       // http://www.elasticsearch.org/blog/performance-considerations-elasticsearch-indexing/
-      client.prepareOptimize(indexName).get();
+      client.prepareForceMerge(indexName).get();
 
       updateSettings(largeInitialSettings);
     }

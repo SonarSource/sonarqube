@@ -28,20 +28,17 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-import java.util.Map;
 import javax.annotation.Nonnull;
 import org.apache.commons.lang.math.RandomUtils;
 import org.apache.commons.lang.reflect.ConstructorUtils;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.action.bulk.BulkRequestBuilder;
-import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.cluster.metadata.IndexMetaData;
 import org.elasticsearch.cluster.node.DiscoveryNode;
-import org.elasticsearch.common.settings.ImmutableSettings;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.node.Node;
@@ -54,7 +51,6 @@ import org.sonar.core.platform.ComponentContainer;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Arrays.asList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class EsTester extends ExternalResource {
 
@@ -99,15 +95,12 @@ public class EsTester extends ExternalResource {
   public void putDocuments(String index, String type, BaseDoc... docs) throws Exception {
     BulkRequestBuilder bulk = client.prepareBulk().setRefresh(true);
     for (BaseDoc doc : docs) {
-      bulk.add(new IndexRequest(index, type).source(doc.getFields()));
+      bulk.add(new IndexRequest(index, type, doc.getId())
+        .parent(doc.getParent())
+        .routing(doc.getRouting())
+        .source(doc.getFields()));
     }
-    BulkResponse response = bulk.get();
-    assertThat(response.hasFailures()).as(response.buildFailureMessage()).isFalse();
-  }
-
-  public void index(String indexName, String typeName, String id, Map<String, Object> source) {
-    client.prepareIndex(indexName, typeName).setId(id).setSource(source).get();
-    client.prepareRefresh(indexName).get();
+    EsUtils.executeBulkRequest(bulk, "");
   }
 
   public long countDocuments(String indexName, String typeName) {
@@ -194,7 +187,7 @@ public class EsTester extends ExternalResource {
         Path tmpDir = Files.createTempDirectory("tmp-es");
         tmpDir.toFile().deleteOnExit();
 
-        node = NodeBuilder.nodeBuilder().local(true).data(true).settings(ImmutableSettings.builder()
+        node = NodeBuilder.nodeBuilder().local(true).data(true).settings(org.elasticsearch.common.settings.Settings.builder()
           .put("cluster.name", nodeName)
           .put("node.name", nodeName)
           // the two following properties are probably not used because they are

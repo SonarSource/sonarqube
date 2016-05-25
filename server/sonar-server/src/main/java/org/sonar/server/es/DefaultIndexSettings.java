@@ -20,7 +20,7 @@
 package org.sonar.server.es;
 
 import org.elasticsearch.cluster.metadata.IndexMetaData;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 
 class DefaultIndexSettings {
 
@@ -28,8 +28,8 @@ class DefaultIndexSettings {
     // only static stuff
   }
 
-  static ImmutableSettings.Builder defaults() {
-    return ImmutableSettings.builder()
+  static Settings.Builder defaults() {
+    return Settings.builder()
       .put(IndexMetaData.SETTING_NUMBER_OF_SHARDS, 1)
       .put(IndexMetaData.SETTING_NUMBER_OF_REPLICAS, 0)
       .put("index.refresh_interval", "30s")

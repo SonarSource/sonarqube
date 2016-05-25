@@ -33,12 +33,16 @@ import java.util.NoSuchElementException;
 import java.util.Queue;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.elasticsearch.action.bulk.BulkRequestBuilder;
+import org.elasticsearch.action.bulk.BulkResponse;
 import org.elasticsearch.action.search.SearchScrollRequestBuilder;
-import org.elasticsearch.common.joda.time.format.ISODateTimeFormat;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.search.SearchHit;
 import org.elasticsearch.search.SearchHits;
 import org.elasticsearch.search.aggregations.bucket.terms.Terms;
+import org.joda.time.format.ISODateTimeFormat;
+
+import static java.lang.String.format;
 
 public class EsUtils {
 
@@ -60,7 +64,7 @@ public class EsUtils {
     LinkedHashMap<String, Long> map = new LinkedHashMap<>();
     List<Terms.Bucket> buckets = terms.getBuckets();
     for (Terms.Bucket bucket : buckets) {
-      map.put(bucket.getKey(), bucket.getDocCount());
+      map.put(bucket.getKeyAsString(), bucket.getDocCount());
     }
     return map;
   }
@@ -69,7 +73,7 @@ public class EsUtils {
     return Lists.transform(terms.getBuckets(), new Function<Terms.Bucket, String>() {
       @Override
       public String apply(Terms.Bucket bucket) {
-        return bucket.getKey();
+        return bucket.getKeyAsString();
       }
     });
   }
@@ -88,6 +92,15 @@ public class EsUtils {
       return ISODateTimeFormat.dateTime().print(date.getTime());
     }
     return null;
+  }
+
+  public static BulkResponse executeBulkRequest(BulkRequestBuilder builder, String errorMessage, Object... errorMessageArgs) {
+    BulkResponse bulkResponse = builder.get();
+    if (bulkResponse.hasFailures()) {
+      // do not use Preconditions as the message is expensive to generate (see buildFailureMessage())
+      throw new IllegalStateException(format(errorMessage, errorMessageArgs) + ": " + bulkResponse.buildFailureMessage());
+    }
+    return bulkResponse;
   }
 
   public static <D extends BaseDoc> Iterator<D> scroll(EsClient esClient, String scrollId, Function<Map<String, Object>, D> docConverter) {

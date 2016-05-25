@@ -21,6 +21,7 @@ package org.sonar.server.es.request;
 
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.admin.indices.stats.IndicesStatsAction;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsRequestBuilder;
 import org.elasticsearch.action.admin.indices.stats.IndicesStatsResponse;
 import org.elasticsearch.client.Client;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyIndicesStatsRequestBuilder extends IndicesStatsRequestBuilder {
 
   public ProxyIndicesStatsRequestBuilder(Client client) {
-    super(client.admin().indices());
+    super(client.admin().indices(), IndicesStatsAction.INSTANCE);
   }
 
   @Override

@@ -23,7 +23,7 @@ import java.io.File;
 import java.util.Properties;
 import org.elasticsearch.action.admin.indices.delete.DeleteIndexResponse;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.sonar.process.LoopbackAddress;
 import org.sonar.process.NetworkUtils;
@@ -63,9 +63,9 @@ public class EsServerHolder {
   public int getPort() {
     return port;
   }
-  
+
   public String getHostName() {
-  return hostName;
+    return hostName;
   }
 
   public SearchServer getServer() {
@@ -77,12 +77,12 @@ public class EsServerHolder {
   }
 
   private void reset() {
-    TransportClient client = new TransportClient(ImmutableSettings.settingsBuilder()
+    TransportClient client = TransportClient.builder().settings(Settings.builder()
       .put("node.name", nodeName)
       .put("network.bind_host", "localhost")
       .put("cluster.name", clusterName)
-      .build());
-    client.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get().getHostAddress(), port));
+      .build()).build();
+    client.addTransportAddress(new InetSocketTransportAddress(LoopbackAddress.get(), port));
 
     // wait for node to be ready
     client.admin().cluster().prepareHealth()

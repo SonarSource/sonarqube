@@ -19,7 +19,6 @@
  */
 package org.sonar.server.project.ws;
 
-import com.google.common.collect.ImmutableMap;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -46,6 +45,7 @@ import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.issue.IssueTesting;
+import org.sonar.server.issue.index.IssueAuthorizationDoc;
 import org.sonar.server.issue.index.IssueAuthorizationIndexer;
 import org.sonar.server.issue.index.IssueIndexDefinition;
 import org.sonar.server.issue.index.IssueIndexer;
@@ -241,7 +241,7 @@ public class DeleteActionTest {
     dbSession.commit();
 
     es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_ISSUE, IssueTesting.newDoc("issue-key-" + suffix, project));
-    es.index(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, project.uuid(), ImmutableMap.<String, Object>of(IssueIndexDefinition.FIELD_AUTHORIZATION_PROJECT_UUID, project.uuid()));
+    es.putDocuments(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, new IssueAuthorizationDoc().setProjectUuid(project.uuid()));
 
     TestDoc testDoc = new TestDoc().setUuid("test-uuid-" + suffix).setProjectUuid(project.uuid()).setFileUuid(project.uuid());
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE, testDoc);

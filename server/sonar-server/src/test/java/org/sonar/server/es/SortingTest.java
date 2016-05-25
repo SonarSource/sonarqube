@@ -19,7 +19,9 @@
  */
 package org.sonar.server.es;
 
+import java.util.List;
 import org.apache.commons.lang.reflect.FieldUtils;
+import org.elasticsearch.action.search.SearchAction;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.search.builder.SearchSourceBuilder;
@@ -27,8 +29,6 @@ import org.elasticsearch.search.sort.SortBuilder;
 import org.elasticsearch.search.sort.SortOrder;
 import org.junit.Test;
 import org.sonar.server.exceptions.BadRequestException;
-
-import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -58,7 +58,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt");
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class));
+    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
     sorting.fill(request, "updatedAt", true);
     List<SortBuilder> fields = fields(request);
     assertThat(fields).hasSize(1);
@@ -70,7 +70,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt");
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class));
+    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
     sorting.fill(request, "updatedAt", false);
     List<SortBuilder> fields = fields(request);
     assertThat(fields).hasSize(1);
@@ -82,7 +82,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt").missingLast();
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class));
+    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
     sorting.fill(request, "updatedAt", true);
     List<SortBuilder> fields = fields(request);
     assertThat(fields).hasSize(1);
@@ -94,7 +94,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.add("updatedAt").missingLast();
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class));
+    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
     sorting.fill(request, "updatedAt", false);
     List<SortBuilder> fields = fields(request);
     assertThat(fields).hasSize(1);
@@ -110,7 +110,7 @@ public class SortingTest {
     sorting.add("fileLine", "severity").reverse();
     sorting.add("fileLine", "key").missingLast();
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class));
+    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
     sorting.fill(request, "fileLine", true);
     List<SortBuilder> fields = fields(request);
     assertThat(fields).hasSize(4);
@@ -126,7 +126,7 @@ public class SortingTest {
     sorting.add("file");
 
     try {
-      sorting.fill(new SearchRequestBuilder(mock(Client.class)), "unknown", true);
+      sorting.fill(new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE), "unknown", true);
       fail();
     } catch (BadRequestException e) {
       assertThat(e.getMessage()).isEqualTo("Bad sort field: unknown");
@@ -138,7 +138,7 @@ public class SortingTest {
     Sorting sorting = new Sorting();
     sorting.addDefault("file");
 
-    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class));
+    SearchRequestBuilder request = new SearchRequestBuilder(mock(Client.class), SearchAction.INSTANCE);
     sorting.fillDefault(request);
     List<SortBuilder> fields = fields(request);
     assertThat(fields).hasSize(1);

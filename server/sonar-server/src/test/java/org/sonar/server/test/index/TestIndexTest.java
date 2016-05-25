@@ -20,7 +20,6 @@
 package org.sonar.server.test.index;
 
 import com.google.common.base.Optional;
-import java.util.Arrays;
 import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +27,7 @@ import org.sonar.api.config.Settings;
 import org.sonar.server.es.EsTester;
 import org.sonar.server.es.SearchOptions;
 
+import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
 
@@ -40,8 +40,8 @@ public class TestIndexTest {
   @Test
   public void coveredFiles() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
+      newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
     List<CoveredFileDoc> result = underTest.coveredFiles("1");
 
@@ -53,9 +53,9 @@ public class TestIndexTest {
   @Test
   public void searchByTestFileUuid() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")),
-      newTestDoc("3", "TESTFILE2", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
+      newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")),
+      newTestDoc("3", "TESTFILE2", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
     List<TestDoc> result = underTest.searchByTestFileUuid("TESTFILE1", searchOptions()).getDocs();
 
@@ -66,9 +66,9 @@ public class TestIndexTest {
   @Test
   public void searchBySourceFileUuidAndLineNumber() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", "TESTFILE1", newCoverageBlock("10"), newCoverageBlock("11"), newCoverageBlock("12")),
-      newTestDoc("2", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("3", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoveredFileDoc("10"), newCoveredFileDoc("11"), newCoveredFileDoc("12")),
+      newTestDoc("2", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
+      newTestDoc("3", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
     List<TestDoc> result = underTest.searchBySourceFileUuidAndLineNumber("main-uuid-5", 82, searchOptions()).getDocs();
 
@@ -79,8 +79,8 @@ public class TestIndexTest {
   @Test
   public void searchByTestUuid() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
+      newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
     TestDoc test = underTest.getByTestUuid("1");
 
@@ -97,8 +97,8 @@ public class TestIndexTest {
   @Test
   public void getNullableByTestUuid() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
+      newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
     Optional<TestDoc> result = underTest.getNullableByTestUuid("1");
 
@@ -124,8 +124,8 @@ public class TestIndexTest {
   @Test
   public void searchByTestUuid_with_SearchOptions() throws Exception {
     es.putDocuments(TestIndexDefinition.INDEX, TestIndexDefinition.TYPE,
-      newTestDoc("1", "TESTFILE1", newCoverageBlock("3"), newCoverageBlock("4"), newCoverageBlock("5")),
-      newTestDoc("2", "TESTFILE1", newCoverageBlock("5"), newCoverageBlock("6"), newCoverageBlock("7")));
+      newTestDoc("1", "TESTFILE1", newCoveredFileDoc("3"), newCoveredFileDoc("4"), newCoveredFileDoc("5")),
+      newTestDoc("2", "TESTFILE1", newCoveredFileDoc("5"), newCoveredFileDoc("6"), newCoveredFileDoc("7")));
 
     List<TestDoc> result = underTest.searchByTestUuid("1", searchOptions()).getDocs();
 
@@ -133,23 +133,23 @@ public class TestIndexTest {
     assertThat(result.get(0).testUuid()).isEqualTo("1");
   }
 
-  private CoveredFileDoc newCoverageBlock(String id) {
+  private CoveredFileDoc newCoveredFileDoc(String id) {
     return new CoveredFileDoc()
       .setFileUuid("main-uuid-" + id)
-      .setCoveredLines(Arrays.asList(25, 33, 82));
+      .setCoveredLines(asList(25, 33, 82));
   }
 
   private TestDoc newTestDoc(String testUuid, String fileUuid, CoveredFileDoc... coveredFiles) {
     return new TestDoc()
       .setUuid(testUuid)
-      .setProjectUuid("project-" + fileUuid)
+      .setProjectUuid("P1")
       .setName("name-" + testUuid)
       .setMessage("message-" + testUuid)
       .setStackTrace("stacktrace-" + testUuid)
       .setStatus("status-" + testUuid)
       .setDurationInMs(Long.valueOf(testUuid))
       .setFileUuid(fileUuid)
-      .setCoveredFiles(Arrays.asList(coveredFiles));
+      .setCoveredFiles(asList(coveredFiles));
   }
 
   private SearchOptions searchOptions() {

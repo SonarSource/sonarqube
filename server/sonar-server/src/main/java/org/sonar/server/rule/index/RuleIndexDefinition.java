@@ -83,15 +83,28 @@ public class RuleIndexDefinition implements IndexDefinition {
     index.refreshHandledByIndexer();
     index.configureShards(settings);
 
+    // Active rule type
+    NewIndex.NewIndexType activeRuleMapping = index.createType(RuleIndexDefinition.TYPE_ACTIVE_RULE);
+    activeRuleMapping.setEnableSource(false);
+    activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", RuleIndexDefinition.TYPE_RULE));
+
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY).enableSorting().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).enableSorting().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY).build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY).disableNorms().docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().docValues().build();
+    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).disableNorms().docValues().build();
+
+    activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT);
+    activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT);
+
     // Rule type
     NewIndex.NewIndexType ruleMapping = index.createType(TYPE_RULE);
-    ruleMapping.setAttribute("_id", ImmutableMap.of("path", FIELD_RULE_KEY));
-    ruleMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", RuleIndexDefinition.FIELD_RULE_REPOSITORY));
     ruleMapping.setEnableSource(false);
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_KEY).enableSorting().build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_RULE_KEY).enableSorting().build();
-    ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).disableNorms().docValues().build();
+    ruleMapping.stringFieldBuilder(FIELD_RULE_REPOSITORY).build();
     ruleMapping.stringFieldBuilder(FIELD_RULE_INTERNAL_KEY).disableNorms().disableSearch().docValues().build();
 
     ruleMapping.stringFieldBuilder(FIELD_RULE_NAME).enableSorting().enableWordSearch().build();
@@ -99,7 +112,7 @@ public class RuleIndexDefinition implements IndexDefinition {
       "type", "string",
       "index", "analyzed",
       "doc_values", "false",
-      "index_analyzer", "html_analyzer",
+      "analyzer", "html_analyzer",
       "search_analyzer", "html_analyzer"
       ));
     ruleMapping.stringFieldBuilder(FIELD_RULE_SEVERITY).disableNorms().docValues().build();
@@ -114,22 +127,5 @@ public class RuleIndexDefinition implements IndexDefinition {
 
     ruleMapping.createLongField(FIELD_RULE_CREATED_AT);
     ruleMapping.createLongField(FIELD_RULE_UPDATED_AT);
-
-    // Active rule type
-    NewIndex.NewIndexType activeRuleMapping = index.createType(RuleIndexDefinition.TYPE_ACTIVE_RULE);
-    activeRuleMapping.setEnableSource(false);
-    activeRuleMapping.setAttribute("_id", ImmutableMap.of("path", RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY));
-    activeRuleMapping.setAttribute("_parent", ImmutableMap.of("type", RuleIndexDefinition.TYPE_RULE));
-    activeRuleMapping.setAttribute("_routing", ImmutableMap.of("required", true, "path", RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY));
-
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY).enableSorting().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_RULE_KEY).disableNorms().disableSearch().docValues().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_REPOSITORY).disableNorms().disableSearch().docValues().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY).disableNorms().docValues().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_INHERITANCE).disableNorms().docValues().build();
-    activeRuleMapping.stringFieldBuilder(RuleIndexDefinition.FIELD_ACTIVE_RULE_SEVERITY).disableNorms().docValues().build();
-
-    activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_CREATED_AT);
-    activeRuleMapping.createLongField(RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT);
   }
 }

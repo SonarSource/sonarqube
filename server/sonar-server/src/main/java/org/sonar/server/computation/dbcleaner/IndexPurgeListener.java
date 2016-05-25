@@ -41,8 +41,8 @@ public class IndexPurgeListener implements PurgeListener {
   }
 
   @Override
-  public void onIssuesRemoval(List<String> issueKeys) {
-    issueIndexer.deleteByKeys(issueKeys);
+  public void onIssuesRemoval(String projectUuid, List<String> issueKeys) {
+    issueIndexer.deleteByKeys(projectUuid, issueKeys);
   }
 
 }

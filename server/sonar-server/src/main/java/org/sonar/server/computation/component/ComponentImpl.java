@@ -33,7 +33,7 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 import static java.util.Arrays.asList;
-import static org.elasticsearch.common.lang3.StringUtils.trimToNull;
+import static org.apache.commons.lang.StringUtils.trimToNull;
 
 @Immutable
 public class ComponentImpl implements Component {

@@ -19,7 +19,7 @@
  */
 package org.sonar.server.es;
 
-import org.elasticsearch.common.collect.ImmutableMap;
+import java.util.Map;
 import org.junit.Test;
 import org.sonar.test.TestUtils;
 
@@ -29,7 +29,7 @@ public class DefaultIndexSettingsTest {
 
   @Test
   public void defaults() {
-    ImmutableMap<String, String> map = DefaultIndexSettings.defaults().build().getAsMap();
+    Map<String, String> map = DefaultIndexSettings.defaults().build().getAsMap();
     assertThat(map).isNotEmpty();
 
     // test some values

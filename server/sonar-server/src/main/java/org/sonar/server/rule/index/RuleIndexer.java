@@ -83,8 +83,6 @@ public class RuleIndexer extends BaseIndexer {
   }
 
   private static IndexRequest newIndexRequest(RuleDoc rule) {
-    return new IndexRequest(INDEX, TYPE_RULE, rule.key().toString())
-      .routing(rule.repository())
-      .source(rule.getFields());
+    return new IndexRequest(INDEX, TYPE_RULE, rule.key().toString()).source(rule.getFields());
   }
 }

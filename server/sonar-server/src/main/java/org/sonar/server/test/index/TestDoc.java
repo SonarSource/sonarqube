@@ -38,6 +38,7 @@ import static org.sonar.server.test.index.TestIndexDefinition.FIELD_STATUS;
 import static org.sonar.server.test.index.TestIndexDefinition.FIELD_TEST_UUID;
 
 public class TestDoc extends BaseDoc {
+
   public TestDoc(Map<String, Object> fields) {
     super(fields);
   }
@@ -45,6 +46,21 @@ public class TestDoc extends BaseDoc {
   @VisibleForTesting
   public TestDoc() {
     super(Maps.<String, Object>newHashMapWithExpectedSize(10));
+  }
+
+  @Override
+  public String getId() {
+    return testUuid();
+  }
+
+  @Override
+  public String getRouting() {
+    return projectUuid();
+  }
+
+  @Override
+  public String getParent() {
+    return null;
   }
 
   public String projectUuid() {

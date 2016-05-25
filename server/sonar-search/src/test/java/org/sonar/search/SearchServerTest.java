@@ -21,11 +21,10 @@ package org.sonar.search;
 
 import java.net.InetAddress;
 import java.util.Properties;
-import org.elasticsearch.action.admin.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.client.Client;
 import org.elasticsearch.client.transport.NoNodeAvailableException;
 import org.elasticsearch.client.transport.TransportClient;
-import org.elasticsearch.common.settings.ImmutableSettings;
+import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.settings.Settings;
 import org.elasticsearch.common.transport.InetSocketTransportAddress;
 import org.junit.After;
@@ -72,8 +71,8 @@ public class SearchServerTest {
   public void start_stop_server() throws Exception {
     Props props = new Props(new Properties());
     // the following properties have always default values (see ProcessProperties)
-    String host = InetAddress.getLocalHost().getHostAddress();
-    props.set(ProcessProperties.SEARCH_HOST, host);
+    InetAddress host = InetAddress.getLocalHost();
+    props.set(ProcessProperties.SEARCH_HOST, host.getHostAddress());
     props.set(ProcessProperties.SEARCH_PORT, String.valueOf(port));
     props.set(ProcessProperties.CLUSTER_NAME, CLUSTER_NAME);
     props.set(ProcessProperties.CLUSTER_NODE_NAME, "test");
@@ -84,8 +83,8 @@ public class SearchServerTest {
     searchServer.start();
     assertThat(searchServer.isUp()).isTrue();
 
-    Settings settings = ImmutableSettings.settingsBuilder().put("cluster.name", CLUSTER_NAME).build();
-    client = new TransportClient(settings)
+    Settings settings = Settings.builder().put("cluster.name", CLUSTER_NAME).build();
+    client = TransportClient.builder().settings(settings).build()
       .addTransportAddress(new InetSocketTransportAddress(host, port));
     assertThat(client.admin().cluster().prepareClusterStats().get().getStatus()).isEqualTo(ClusterHealthStatus.GREEN);
 

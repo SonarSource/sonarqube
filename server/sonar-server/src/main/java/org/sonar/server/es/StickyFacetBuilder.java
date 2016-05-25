@@ -23,10 +23,9 @@ import com.google.common.base.Joiner;
 import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.ArrayUtils;
-import org.elasticsearch.index.query.BoolFilterBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
+import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
+import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AbstractAggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
 import org.elasticsearch.search.aggregations.AggregationBuilders;
@@ -42,15 +41,15 @@ public class StickyFacetBuilder {
   private static final Order FACET_DEFAULT_ORDER = Terms.Order.count(false);
 
   private final QueryBuilder query;
-  private final Map<String, FilterBuilder> filters;
+  private final Map<String, QueryBuilder> filters;
   private final AbstractAggregationBuilder subAggregation;
   private final Order order;
 
-  public StickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters) {
+  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters) {
     this(query, filters, null, FACET_DEFAULT_ORDER);
   }
 
-  public StickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters, @Nullable AbstractAggregationBuilder subAggregation, @Nullable Order order) {
+  public StickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters, @Nullable AbstractAggregationBuilder subAggregation, @Nullable Order order) {
     this.query = query;
     this.filters = filters;
     this.subAggregation = subAggregation;
@@ -61,7 +60,7 @@ public class StickyFacetBuilder {
     return query;
   }
 
-  public Map<String, FilterBuilder> filters() {
+  public Map<String, QueryBuilder> filters() {
     return filters;
   }
 
@@ -70,7 +69,7 @@ public class StickyFacetBuilder {
   }
 
   public AggregationBuilder buildStickyFacet(String fieldName, String facetName, int size, Object... selected) {
-    BoolFilterBuilder facetFilter = getStickyFacetFilter(fieldName);
+    BoolQueryBuilder facetFilter = getStickyFacetFilter(fieldName);
     FilterAggregationBuilder facetTopAggregation = buildTopFacetAggregation(fieldName, facetName, facetFilter, size);
     facetTopAggregation = addSelectedItemsToFacet(fieldName, facetName, facetTopAggregation, selected);
 
@@ -79,9 +78,9 @@ public class StickyFacetBuilder {
       .subAggregation(facetTopAggregation);
   }
 
-  public BoolFilterBuilder getStickyFacetFilter(String... fieldNames) {
-    BoolFilterBuilder facetFilter = FilterBuilders.boolFilter().must(FilterBuilders.queryFilter(query));
-    for (Map.Entry<String, FilterBuilder> filter : filters.entrySet()) {
+  public BoolQueryBuilder getStickyFacetFilter(String... fieldNames) {
+    BoolQueryBuilder facetFilter = QueryBuilders.boolQuery().must(QueryBuilders.queryFilter(query));
+    for (Map.Entry<String, QueryBuilder> filter : filters.entrySet()) {
       if (filter.getValue() != null && !ArrayUtils.contains(fieldNames, filter.getKey())) {
         facetFilter.must(filter.getValue());
       }
@@ -89,7 +88,7 @@ public class StickyFacetBuilder {
     return facetFilter;
   }
 
-  public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolFilterBuilder facetFilter, int size) {
+  public FilterAggregationBuilder buildTopFacetAggregation(String fieldName, String facetName, BoolQueryBuilder facetFilter, int size) {
     TermsBuilder termsAggregation = AggregationBuilders.terms(facetName)
       .field(fieldName)
       .order(order)

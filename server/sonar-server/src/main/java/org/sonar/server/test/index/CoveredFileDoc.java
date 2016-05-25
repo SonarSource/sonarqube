@@ -33,6 +33,21 @@ public class CoveredFileDoc extends BaseDoc {
     super(fields);
   }
 
+  @Override
+  public String getId() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getRouting() {
+    throw new UnsupportedOperationException();
+  }
+
+  @Override
+  public String getParent() {
+    throw new UnsupportedOperationException();
+  }
+
   @VisibleForTesting
   public CoveredFileDoc() {
     super(Maps.<String, Object>newHashMapWithExpectedSize(2));

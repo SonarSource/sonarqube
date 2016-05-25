@@ -175,6 +175,7 @@ public class TestIndexerTest {
   private void indexTest(String projectUuid, String fileUuid, String testName, String uuid) throws IOException {
     es.client().prepareIndex(INDEX, TYPE)
       .setId(uuid)
+      .setRouting(projectUuid)
       .setSource(FileUtils.readFileToString(TestUtils.getResource(this.getClass(), projectUuid + "_" + fileUuid + "_" + testName + ".json")))
       .setRefresh(true)
       .get();

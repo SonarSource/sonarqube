@@ -27,7 +27,6 @@ import java.util.List;
 import javax.annotation.Nonnull;
 import org.elasticsearch.action.index.IndexRequest;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -36,8 +35,10 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.qualityprofile.ActiveRuleChange;
-import org.sonar.server.rule.index.RuleIndexDefinition;
 
+import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY;
+import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY;
 import static org.sonar.server.rule.index.RuleIndexDefinition.FIELD_ACTIVE_RULE_UPDATED_AT;
 import static org.sonar.server.rule.index.RuleIndexDefinition.INDEX;
 import static org.sonar.server.rule.index.RuleIndexDefinition.TYPE_ACTIVE_RULE;
@@ -100,10 +101,7 @@ public class ActiveRuleIndexer extends BaseIndexer {
     bulk.start();
     SearchRequestBuilder search = esClient.prepareSearch(INDEX)
       .setTypes(TYPE_ACTIVE_RULE)
-      .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.matchAllQuery(),
-        FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(RuleIndexDefinition.FIELD_ACTIVE_RULE_PROFILE_KEY, qualityProfileKey))
-        ));
+      .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_PROFILE_KEY, qualityProfileKey)));
     bulk.addDeletion(search);
     bulk.stop();
   }
@@ -113,10 +111,7 @@ public class ActiveRuleIndexer extends BaseIndexer {
     bulk.start();
     SearchRequestBuilder search = esClient.prepareSearch(INDEX)
       .setTypes(TYPE_ACTIVE_RULE)
-      .setQuery(QueryBuilders.filteredQuery(
-        QueryBuilders.matchAllQuery(),
-        FilterBuilders.boolFilter().must(FilterBuilders.termsFilter(RuleIndexDefinition.FIELD_ACTIVE_RULE_KEY, keys))
-        ));
+      .setQuery(QueryBuilders.boolQuery().must(termsQuery(FIELD_ACTIVE_RULE_KEY, keys)));
     bulk.addDeletion(search);
     bulk.stop();
   }
@@ -130,7 +125,6 @@ public class ActiveRuleIndexer extends BaseIndexer {
   private static IndexRequest newIndexRequest(ActiveRuleDoc doc) {
     return new IndexRequest(INDEX, TYPE_ACTIVE_RULE, doc.key().toString())
       .parent(doc.key().ruleKey().toString())
-      .routing(doc.key().ruleKey().repository())
       .source(doc.getFields());
   }
 

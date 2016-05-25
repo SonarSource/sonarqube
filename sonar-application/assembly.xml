@@ -42,6 +42,7 @@
       <useProjectArtifact>false</useProjectArtifact>
       <includes>
         <include>org.elasticsearch:elasticsearch</include>
+        <include>net.java.dev.jna:jna</include>
       </includes>
       <scope>provided</scope>
     </dependencySet>

@@ -34,6 +34,21 @@ public class ViewDoc extends BaseDoc {
     super(Maps.<String, Object>newHashMap());
   }
 
+  @Override
+  public String getId() {
+    return uuid();
+  }
+
+  @Override
+  public String getRouting() {
+    return null;
+  }
+
+  @Override
+  public String getParent() {
+    return null;
+  }
+
   public String uuid() {
     return getField(ViewIndexDefinition.FIELD_UUID);
   }

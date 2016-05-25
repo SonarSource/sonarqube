@@ -87,6 +87,7 @@ public class IssueAuthorizationIndexer extends BaseIndexer {
     esClient
       .prepareDelete(IssueIndexDefinition.INDEX, IssueIndexDefinition.TYPE_AUTHORIZATION, uuid)
       .setRefresh(refresh)
+      .setRouting(uuid)
       .get();
   }
 

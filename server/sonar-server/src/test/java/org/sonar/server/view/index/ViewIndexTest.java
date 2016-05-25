@@ -42,8 +42,8 @@ public class ViewIndexTest {
   public void find_all_view_uuids() throws Exception {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2"));
-    esTester.index(INDEX, TYPE_VIEW, view1.uuid(), view1.getFields());
-    esTester.index(INDEX, TYPE_VIEW, view2.uuid(), view2.getFields());
+    esTester.putDocuments(INDEX, TYPE_VIEW, view1);
+    esTester.putDocuments(INDEX, TYPE_VIEW, view2);
 
     List<String> result = newArrayList(index.findAllViewUuids());
 
@@ -62,9 +62,9 @@ public class ViewIndexTest {
     ViewDoc view1 = new ViewDoc().setUuid("UUID1").setProjects(asList("P1"));
     ViewDoc view2 = new ViewDoc().setUuid("UUID2").setProjects(asList("P2", "P3", "P4"));
     ViewDoc view3 = new ViewDoc().setUuid("UUID3").setProjects(asList("P2", "P3", "P4"));
-    esTester.index(INDEX, TYPE_VIEW, view1.uuid(), view1.getFields());
-    esTester.index(INDEX, TYPE_VIEW, view2.uuid(), view2.getFields());
-    esTester.index(INDEX, TYPE_VIEW, view3.uuid(), view3.getFields());
+    esTester.putDocuments(INDEX, TYPE_VIEW, view1);
+    esTester.putDocuments(INDEX, TYPE_VIEW, view2);
+    esTester.putDocuments(INDEX, TYPE_VIEW, view3);
 
     index.delete(asList(view1.uuid(), view2.uuid()));
 

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.rule.index;
 
+import com.google.common.collect.Maps;
 import java.util.Collection;
 import java.util.Map;
 import javax.annotation.CheckForNull;
@@ -36,6 +37,25 @@ public class RuleDoc extends BaseDoc {
 
   public RuleDoc(Map<String, Object> fields) {
     super(fields);
+  }
+
+  public RuleDoc() {
+    super(Maps.<String, Object>newHashMap());
+  }
+
+  @Override
+  public String getId() {
+    return key().toString();
+  }
+
+  @Override
+  public String getRouting() {
+    return null;
+  }
+
+  @Override
+  public String getParent() {
+    return null;
   }
 
   public RuleKey key() {

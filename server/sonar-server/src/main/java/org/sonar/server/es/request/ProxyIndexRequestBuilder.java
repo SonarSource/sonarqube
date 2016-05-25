@@ -20,6 +20,7 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.index.IndexAction;
 import org.elasticsearch.action.index.IndexRequestBuilder;
 import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.client.Client;
@@ -30,7 +31,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyIndexRequestBuilder extends IndexRequestBuilder {
 
   public ProxyIndexRequestBuilder(Client client) {
-    super(client);
+    super(client, IndexAction.INSTANCE);
   }
 
   @Override

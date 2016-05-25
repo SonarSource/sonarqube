@@ -20,6 +20,7 @@
 package org.sonar.server.es.request;
 
 import org.elasticsearch.action.ListenableActionFuture;
+import org.elasticsearch.action.get.MultiGetAction;
 import org.elasticsearch.action.get.MultiGetRequest;
 import org.elasticsearch.action.get.MultiGetRequestBuilder;
 import org.elasticsearch.action.get.MultiGetResponse;
@@ -31,7 +32,7 @@ import org.sonar.server.es.EsClient;
 public class ProxyMultiGetRequestBuilder extends MultiGetRequestBuilder {
 
   public ProxyMultiGetRequestBuilder(Client client) {
-    super(client);
+    super(client, MultiGetAction.INSTANCE);
   }
 
   @Override

@@ -40,11 +40,8 @@ import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
-import org.elasticsearch.index.query.BoolFilterBuilder;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.FilterBuilder;
-import org.elasticsearch.index.query.FilterBuilders;
-import org.elasticsearch.index.query.HasParentFilterBuilder;
+import org.elasticsearch.index.query.HasParentQueryBuilder;
 import org.elasticsearch.index.query.MatchQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
@@ -120,7 +117,7 @@ public class RuleIndex extends BaseIndex {
       .setTypes(TYPE_RULE);
 
     QueryBuilder qb = buildQuery(query);
-    Map<String, FilterBuilder> filters = buildFilters(query);
+    Map<String, QueryBuilder> filters = buildFilters(query);
 
     if (!options.getFacets().isEmpty()) {
       for (AggregationBuilder aggregation : getFacets(query, options, qb, filters).values()) {
@@ -131,8 +128,8 @@ public class RuleIndex extends BaseIndex {
     setSorting(query, esSearch);
     setPagination(options, esSearch);
 
-    BoolFilterBuilder fb = FilterBuilders.boolFilter();
-    for (FilterBuilder filterBuilder : filters.values()) {
+    BoolQueryBuilder fb = QueryBuilders.boolQuery();
+    for (QueryBuilder filterBuilder : filters.values()) {
       fb.must(filterBuilder);
     }
 
@@ -151,11 +148,11 @@ public class RuleIndex extends BaseIndex {
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES));
 
     QueryBuilder qb = buildQuery(query);
-    Map<String, FilterBuilder> filters = buildFilters(query);
+    Map<String, QueryBuilder> filters = buildFilters(query);
     setSorting(query, esSearch);
 
-    BoolFilterBuilder fb = FilterBuilders.boolFilter();
-    for (FilterBuilder filterBuilder : filters.values()) {
+    BoolQueryBuilder fb = QueryBuilders.boolQuery();
+    for (QueryBuilder filterBuilder : filters.values()) {
       fb.must(filterBuilder);
     }
 
@@ -210,58 +207,58 @@ public class RuleIndex extends BaseIndex {
   }
 
   /* Build main filter (match based) */
-  private static Map<String, FilterBuilder> buildFilters(RuleQuery query) {
+  private static Map<String, QueryBuilder> buildFilters(RuleQuery query) {
 
-    Map<String, FilterBuilder> filters = new HashMap<>();
+    Map<String, QueryBuilder> filters = new HashMap<>();
 
     /* Add enforced filter on rules that are REMOVED */
     filters.put(FIELD_RULE_STATUS,
-      FilterBuilders.boolFilter().mustNot(
-        FilterBuilders.termFilter(FIELD_RULE_STATUS,
+      QueryBuilders.boolQuery().mustNot(
+        QueryBuilders.termQuery(FIELD_RULE_STATUS,
           RuleStatus.REMOVED.toString())));
 
     if (StringUtils.isNotEmpty(query.getInternalKey())) {
       filters.put(FIELD_RULE_INTERNAL_KEY,
-        FilterBuilders.termFilter(FIELD_RULE_INTERNAL_KEY, query.getInternalKey()));
+        QueryBuilders.termQuery(FIELD_RULE_INTERNAL_KEY, query.getInternalKey()));
     }
 
     if (StringUtils.isNotEmpty(query.getRuleKey())) {
       filters.put(FIELD_RULE_RULE_KEY,
-        FilterBuilders.termFilter(FIELD_RULE_RULE_KEY, query.getRuleKey()));
+        QueryBuilders.termQuery(FIELD_RULE_RULE_KEY, query.getRuleKey()));
     }
 
     if (isNotEmpty(query.getLanguages())) {
       filters.put(FIELD_RULE_LANGUAGE,
-        FilterBuilders.termsFilter(FIELD_RULE_LANGUAGE, query.getLanguages()));
+        QueryBuilders.termsQuery(FIELD_RULE_LANGUAGE, query.getLanguages()));
     }
 
     if (isNotEmpty(query.getRepositories())) {
       filters.put(FIELD_RULE_REPOSITORY,
-        FilterBuilders.termsFilter(FIELD_RULE_REPOSITORY, query.getRepositories()));
+        QueryBuilders.termsQuery(FIELD_RULE_REPOSITORY, query.getRepositories()));
     }
 
     if (isNotEmpty(query.getSeverities())) {
       filters.put(FIELD_RULE_SEVERITY,
-        FilterBuilders.termsFilter(FIELD_RULE_SEVERITY, query.getSeverities()));
+        QueryBuilders.termsQuery(FIELD_RULE_SEVERITY, query.getSeverities()));
     }
 
     if (StringUtils.isNotEmpty(query.getKey())) {
       filters.put(FIELD_RULE_KEY,
-        FilterBuilders.termFilter(FIELD_RULE_KEY, query.getKey()));
+        QueryBuilders.termQuery(FIELD_RULE_KEY, query.getKey()));
     }
 
     if (isNotEmpty(query.getTags())) {
       filters.put(FIELD_RULE_ALL_TAGS,
-        FilterBuilders.termsFilter(FIELD_RULE_ALL_TAGS, query.getTags()));
+        QueryBuilders.termsQuery(FIELD_RULE_ALL_TAGS, query.getTags()));
     }
 
     if (isNotEmpty(query.getTypes())) {
       filters.put(FIELD_RULE_TYPE,
-        FilterBuilders.termsFilter(FIELD_RULE_TYPE, query.getTypes()));
+        QueryBuilders.termsQuery(FIELD_RULE_TYPE, query.getTypes()));
     }
 
     if (query.getAvailableSinceLong() != null) {
-      filters.put("availableSince", FilterBuilders.rangeFilter(FIELD_RULE_CREATED_AT)
+      filters.put("availableSince", QueryBuilders.rangeQuery(FIELD_RULE_CREATED_AT)
         .gte(query.getAvailableSinceLong()));
     }
 
@@ -271,55 +268,55 @@ public class RuleIndex extends BaseIndex {
         stringStatus.add(status.name());
       }
       filters.put(FIELD_RULE_STATUS,
-        FilterBuilders.termsFilter(FIELD_RULE_STATUS, stringStatus));
+        QueryBuilders.termsQuery(FIELD_RULE_STATUS, stringStatus));
     }
 
     Boolean isTemplate = query.isTemplate();
     if (isTemplate != null) {
       filters.put(FIELD_RULE_IS_TEMPLATE,
-        FilterBuilders.termFilter(FIELD_RULE_IS_TEMPLATE, Boolean.toString(isTemplate)));
+        QueryBuilders.termQuery(FIELD_RULE_IS_TEMPLATE, Boolean.toString(isTemplate)));
     }
 
     String template = query.templateKey();
     if (template != null) {
       filters.put(FIELD_RULE_TEMPLATE_KEY,
-        FilterBuilders.termFilter(FIELD_RULE_TEMPLATE_KEY, template));
+        QueryBuilders.termQuery(FIELD_RULE_TEMPLATE_KEY, template));
     }
 
     // ActiveRule Filter (profile and inheritance)
-    BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
+    BoolQueryBuilder childrenFilter = QueryBuilders.boolQuery();
     addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
     addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
     addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
 
     // ChildQuery
-    FilterBuilder childQuery;
+    QueryBuilder childQuery;
     if (childrenFilter.hasClauses()) {
       childQuery = childrenFilter;
     } else {
-      childQuery = FilterBuilders.matchAllFilter();
+      childQuery = QueryBuilders.matchAllQuery();
     }
 
     /** Implementation of activation query */
     if (Boolean.TRUE.equals(query.getActivation())) {
       filters.put("activation",
-        FilterBuilders.hasChildFilter(TYPE_ACTIVE_RULE,
+        QueryBuilders.hasChildQuery(TYPE_ACTIVE_RULE,
           childQuery));
     } else if (Boolean.FALSE.equals(query.getActivation())) {
       filters.put("activation",
-        FilterBuilders.boolFilter().mustNot(
-          FilterBuilders.hasChildFilter(TYPE_ACTIVE_RULE,
+        QueryBuilders.boolQuery().mustNot(
+          QueryBuilders.hasChildQuery(TYPE_ACTIVE_RULE,
             childQuery)));
     }
 
     return filters;
   }
 
-  private static BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable Collection<String> values) {
+  private static BoolQueryBuilder addTermFilter(BoolQueryBuilder filter, String field, @Nullable Collection<String> values) {
     if (isNotEmpty(values)) {
-      BoolFilterBuilder valuesFilter = FilterBuilders.boolFilter();
+      BoolQueryBuilder valuesFilter = QueryBuilders.boolQuery();
       for (String value : values) {
-        FilterBuilder valueFilter = FilterBuilders.termFilter(field, value);
+        QueryBuilder valueFilter = QueryBuilders.termQuery(field, value);
         valuesFilter.should(valueFilter);
       }
       filter.must(valuesFilter);
@@ -327,14 +324,14 @@ public class RuleIndex extends BaseIndex {
     return filter;
   }
 
-  private static BoolFilterBuilder addTermFilter(BoolFilterBuilder filter, String field, @Nullable String value) {
+  private static BoolQueryBuilder addTermFilter(BoolQueryBuilder filter, String field, @Nullable String value) {
     if (StringUtils.isNotEmpty(value)) {
-      filter.must(FilterBuilders.termFilter(field, value));
+      filter.must(QueryBuilders.termQuery(field, value));
     }
     return filter;
   }
 
-  private static Map<String, AggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder, Map<String, FilterBuilder> filters) {
+  private static Map<String, AggregationBuilder> getFacets(RuleQuery query, SearchOptions options, QueryBuilder queryBuilder, Map<String, QueryBuilder> filters) {
     Map<String, AggregationBuilder> aggregations = new HashMap<>();
     StickyFacetBuilder stickyFacetBuilder = stickyFacetBuilder(queryBuilder, filters);
 
@@ -380,7 +377,7 @@ public class RuleIndex extends BaseIndex {
 
   private static void addStatusFacetIfNeeded(SearchOptions options, Map<String, AggregationBuilder> aggregations, StickyFacetBuilder stickyFacetBuilder) {
     if (options.getFacets().contains(FACET_STATUSES)) {
-      BoolFilterBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(FIELD_RULE_STATUS);
+      BoolQueryBuilder facetFilter = stickyFacetBuilder.getStickyFacetFilter(FIELD_RULE_STATUS);
       AggregationBuilder statuses = AggregationBuilders.filter(FACET_STATUSES + "_filter")
         .filter(facetFilter)
         .subAggregation(
@@ -400,15 +397,15 @@ public class RuleIndex extends BaseIndex {
       // We are building a children aggregation on active rules
       // so the rule filter has to be used as parent filter for active rules
       // from which we remove filters that concern active rules ("activation")
-      HasParentFilterBuilder ruleFilter = FilterBuilders.hasParentFilter(
+      HasParentQueryBuilder ruleFilter = QueryBuilders.hasParentQuery(
         TYPE_RULE,
         stickyFacetBuilder.getStickyFacetFilter("activation"));
 
       // Rebuilding the active rule filter without severities
-      BoolFilterBuilder childrenFilter = FilterBuilders.boolFilter();
+      BoolQueryBuilder childrenFilter = QueryBuilders.boolQuery();
       addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
       RuleIndex.addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
-      FilterBuilder activeRuleFilter;
+      QueryBuilder activeRuleFilter;
       if (childrenFilter.hasClauses()) {
         activeRuleFilter = childrenFilter.must(ruleFilter);
       } else {
@@ -430,7 +427,7 @@ public class RuleIndex extends BaseIndex {
     }
   }
 
-  private static StickyFacetBuilder stickyFacetBuilder(QueryBuilder query, Map<String, FilterBuilder> filters) {
+  private static StickyFacetBuilder stickyFacetBuilder(QueryBuilder query, Map<String, QueryBuilder> filters) {
     return new StickyFacetBuilder(query, filters);
   }
 
@@ -492,7 +489,7 @@ public class RuleIndex extends BaseIndex {
 
     if (aggregation != null) {
       for (Terms.Bucket value : aggregation.getBuckets()) {
-        tags.add(value.getKey());
+        tags.add(value.getKeyAsString());
       }
     }
     return tags;
