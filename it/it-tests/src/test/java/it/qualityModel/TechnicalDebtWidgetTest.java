@@ -24,12 +24,16 @@ import com.sonar.orchestrator.build.SonarRunner;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category2Suite;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import util.QaOnly;
 import util.selenium.SeleneseTest;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import static util.ItUtils.projectDir;
 
@@ -55,8 +59,8 @@ public class TechnicalDebtWidgetTest {
 
     // need to execute the build twice in order to have history widgets
     // we made some exclusions to have variations in diff mode
-    scanProject("2011-06-01", "**/a2/**");
-    scanProject("2012-02-01", "");
+    scanProject(getPastDate(20), "**/a2/**");
+    scanProject(getPastDate(10), "");
   }
 
   private static void scanProject(String date, String excludes) {
@@ -91,6 +95,10 @@ public class TechnicalDebtWidgetTest {
         "/qualityModel/TechnicalDebtWidgetTest/debt-overview/should-open-links-on-measures-service.html",
         "/qualityModel/TechnicalDebtWidgetTest/debt-overview/display-differential-values.html"
       ).build()).runOn(orchestrator);
+  }
+
+  private static String getPastDate(int nbPastDays){
+    return new SimpleDateFormat("yyyy-MM-dd").format(DateUtils.addDays(new Date(), nbPastDays * -1));
   }
 
 }
