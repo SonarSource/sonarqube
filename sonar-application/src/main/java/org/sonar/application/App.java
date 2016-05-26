@@ -26,7 +26,6 @@ import java.util.List;
 import java.util.Properties;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.ProcessId;
 import org.sonar.process.ProcessProperties;
 import org.sonar.process.Props;
@@ -128,7 +127,6 @@ public class App implements Stoppable {
   }
 
   public static void main(String[] args) throws Exception {
-    new MinimumViableSystem().checkJavaVersion();
     CommandLineParser cli = new CommandLineParser();
     Properties rawProperties = cli.parseArguments(args);
     Props props = new PropsBuilder(rawProperties, new JdbcSettings()).build();

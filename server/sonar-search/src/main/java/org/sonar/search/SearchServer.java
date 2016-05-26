@@ -36,7 +36,6 @@ public class SearchServer implements Monitored {
   public SearchServer(Props props) {
     this.settings = new EsSettings(props);
     new MinimumViableSystem()
-      .checkJavaVersion()
       .checkWritableTempDir();
   }
 

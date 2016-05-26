@@ -32,7 +32,6 @@ public class WebServer implements Monitored {
 
   WebServer(Props props) {
     new MinimumViableSystem()
-      .checkJavaVersion()
       .checkWritableTempDir()
       .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
     this.tomcat = new EmbeddedTomcat(props);
