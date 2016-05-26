@@ -40,9 +40,9 @@ public class BaseDocTest {
     BaseDoc doc = new BaseDoc(fields) {
     };
 
-    assertThat(doc.getNullableField("a_string")).isEqualTo("foo");
-    assertThat(doc.getNullableField("a_int")).isEqualTo(42);
-    assertThat(doc.getNullableField("a_null")).isNull();
+    assertThat((String) doc.getNullableField("a_string")).isEqualTo("foo");
+    assertThat((int) doc.getNullableField("a_int")).isEqualTo(42);
+    assertThat((String) doc.getNullableField("a_null")).isNull();
   }
 
   @Test
@@ -61,7 +61,7 @@ public class BaseDocTest {
 
   @Test
   public void getFieldAsDate() {
-    BaseDoc doc = new BaseDoc(Maps.<String,Object>newHashMap()) {
+    BaseDoc doc = new BaseDoc(Maps.newHashMap()) {
     };
     long now = System.currentTimeMillis();
     doc.setField("javaDate", new Date(now));
@@ -73,7 +73,7 @@ public class BaseDocTest {
 
   @Test
   public void getNullableFieldAsDate() {
-    BaseDoc doc = new BaseDoc(Maps.<String,Object>newHashMap()) {
+    BaseDoc doc = new BaseDoc(Maps.newHashMap()) {
     };
     long now = System.currentTimeMillis();
     doc.setField("javaDate", new Date(now));

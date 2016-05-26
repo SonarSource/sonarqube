@@ -1,7 +1,7 @@
 language: java
 sudo: false
 install: true
-jdk: oraclejdk7
+jdk: oraclejdk8
 script: ./travis.sh
 
 env:
