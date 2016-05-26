@@ -59,7 +59,7 @@ public class IssuesModeTest extends PerfTestCase {
     orchestrator.getServer().provisionProject("sample", "xoo-sample");
     orchestrator.getServer().associateProjectToQualityProfile("sample", "xoo", "one-xoo-issue-per-line");
     SonarScanner runner = newScanner(
-      "-Xmx512m -server -XX:MaxPermSize=64m",
+      "-Xmx512m -server",
       "sonar.analysis.mode", "issues",
       "sonar.userHome", userHome.getAbsolutePath(),
       "sonar.showProfiling", "true");

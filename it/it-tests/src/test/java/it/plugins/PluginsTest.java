@@ -141,7 +141,6 @@ public class PluginsTest {
 
   private static SonarScanner newAnalysis() {
     SonarScanner analysis = SonarScanner.create(Project.basedir());
-    analysis.setEnvironmentVariable("SONAR_RUNNER_OPTS", "-XX:MaxPermSize=128m");
 
     // required to bypass usage of build-wrapper
     analysis.setProperties("sonar.cfamily.build-wrapper-output.bypass", "true");

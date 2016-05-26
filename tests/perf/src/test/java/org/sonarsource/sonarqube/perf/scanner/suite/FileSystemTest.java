@@ -79,7 +79,7 @@ public class FileSystemTest extends PerfTestCase {
         "sonar.sources", "src",
         "sonar.analysis.mode", "issues",
         "sonar.showProfiling", "true")
-      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx" + xmx + "m -server -XX:MaxPermSize=64m")
+      .setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx" + xmx + "m -server")
       .setProjectDir(baseDir);
 
     orchestrator.executeBuild(runner);

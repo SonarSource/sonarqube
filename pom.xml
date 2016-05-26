@@ -82,7 +82,7 @@
     <skipServerTests>false</skipServerTests>
     <skipSanityChecks>false</skipSanityChecks>
 
-    <argLine>-Xmx512m -Djava.awt.headless=true -XX:MaxPermSize=160m</argLine>
+    <argLine>-Xmx512m -Djava.awt.headless=true</argLine>
     <maven.test.redirectTestOutputToFile>true</maven.test.redirectTestOutputToFile>
 
     <!-- used for deployment to SonarSource Artifactory -->
