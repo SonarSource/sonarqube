@@ -219,7 +219,7 @@ public class EsClient implements Startable {
       try {
         ((TransportClient) nativeClient).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), settings.getInt(ProcessProperties.SEARCH_PORT)));
       } catch (UnknownHostException e) {
-        // TODO
+        throw new IllegalStateException("Can not resolve host [" + host + "]", e);
       }
     }
   }

@@ -53,7 +53,6 @@ public class ActivityIndexDefinition implements IndexDefinition {
 
     // type "activity"
     NewIndex.NewIndexType mapping = index.createType(TYPE);
-    // mapping.setAttribute("_id", ImmutableMap.of("path", FIELD_KEY));
     mapping.stringFieldBuilder(FIELD_KEY).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_TYPE).disableNorms().build();
     mapping.stringFieldBuilder(FIELD_ACTION).disableNorms().build();

@@ -616,7 +616,7 @@ public class RuleIndexTest {
     SearchIdResult result = index.search(new RuleQuery(), new SearchOptions().addFacets(asList(FACET_LANGUAGES, FACET_REPOSITORIES, FACET_TAGS, FACET_TYPES)));
     assertThat(result.getFacets().getAll()).hasSize(4);
     assertThat(result.getFacets().getAll().get(FACET_LANGUAGES).keySet()).containsOnly("cpp", "java", "cobol");
-    assertThat(result.getFacets().getAll().get(FACET_REPOSITORIES).keySet()).containsOnly("xoo", "foo");
+    assertThat(result.getFacets().getAll().get(FACET_REPOSITORIES).keySet()).containsExactly("xoo", "foo");
     assertThat(result.getFacets().getAll().get(FACET_TAGS).keySet()).containsOnly("T1", "T2", "T3", "T4");
     assertThat(result.getFacets().getAll().get(FACET_TYPES).keySet()).containsOnly("BUG", "CODE_SMELL", "VULNERABILITY");
 

@@ -46,7 +46,6 @@ import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.action.search.SearchType;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.index.query.BoolQueryBuilder;
-import org.elasticsearch.index.query.OrQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.search.aggregations.AggregationBuilder;
@@ -83,6 +82,8 @@ import org.sonar.server.view.index.ViewIndexDefinition;
 import static com.google.common.collect.Lists.newArrayList;
 import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.existsQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
+import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.ASSIGNEES;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.AUTHORS;
@@ -216,7 +217,7 @@ public class IssueIndex extends BaseIndex {
     configureSorting(query, requestBuilder);
     configurePagination(options, requestBuilder);
 
-    QueryBuilder esQuery = QueryBuilders.matchAllQuery();
+    QueryBuilder esQuery = matchAllQuery();
     BoolQueryBuilder esFilter = boolQuery();
     Map<String, QueryBuilder> filters = createFilters(query);
     for (QueryBuilder filter : filters.values()) {
@@ -225,7 +226,7 @@ public class IssueIndex extends BaseIndex {
       }
     }
     if (esFilter.hasClauses()) {
-      requestBuilder.setQuery(QueryBuilders.filteredQuery(esQuery, esFilter));
+      requestBuilder.setQuery(boolQuery().must(esQuery).filter(esFilter));
     } else {
       requestBuilder.setQuery(esQuery);
     }
@@ -244,7 +245,7 @@ public class IssueIndex extends BaseIndex {
     }
   }
 
-  protected void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {
+  private void configurePagination(SearchOptions options, SearchRequestBuilder esSearch) {
     esSearch.setFrom(options.getOffset()).setSize(options.getLimit());
   }
 
@@ -318,9 +319,9 @@ public class IssueIndex extends BaseIndex {
       return null;
     }
 
-    OrQueryBuilder viewsFilter = QueryBuilders.orQuery();
+    BoolQueryBuilder viewsFilter = boolQuery();
     for (String viewUuid : viewUuids) {
-      viewsFilter.add(QueryBuilders.termsLookupQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID)
+      viewsFilter.should(QueryBuilders.termsLookupQuery(IssueIndexDefinition.FIELD_ISSUE_PROJECT_UUID)
         .lookupIndex(ViewIndexDefinition.INDEX)
         .lookupType(ViewIndexDefinition.TYPE_VIEW)
         .lookupId(viewUuid)
@@ -331,20 +332,20 @@ public class IssueIndex extends BaseIndex {
 
   private static QueryBuilder createAuthorizationFilter(boolean checkAuthorization, @Nullable String userLogin, Set<String> userGroups) {
     if (checkAuthorization) {
-      OrQueryBuilder groupsAndUser = QueryBuilders.orQuery();
+      BoolQueryBuilder groupsAndUser = boolQuery();
       if (userLogin != null) {
-        groupsAndUser.add(QueryBuilders.termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, userLogin));
+        groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_USERS, userLogin));
       }
       for (String group : userGroups) {
-        groupsAndUser.add(QueryBuilders.termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
+        groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
       }
       return QueryBuilders.hasParentQuery(IssueIndexDefinition.TYPE_AUTHORIZATION,
         QueryBuilders.filteredQuery(
-          QueryBuilders.matchAllQuery(),
+          matchAllQuery(),
           boolQuery()
             .must(groupsAndUser)));
     } else {
-      return QueryBuilders.matchAllQuery();
+      return matchAllQuery();
     }
   }
 
@@ -366,7 +367,7 @@ public class IssueIndex extends BaseIndex {
     }
     Date createdAt = query.createdAt();
     if (createdAt != null) {
-      filters.put("__createdAt", QueryBuilders.termQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt));
+      filters.put("__createdAt", termQuery(IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT, createdAt));
     }
   }
 
@@ -610,8 +611,7 @@ public class IssueIndex extends BaseIndex {
       .prepareSearch(IssueIndexDefinition.INDEX, RuleIndexDefinition.INDEX)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE, RuleIndexDefinition.TYPE_RULE);
 
-    requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-      createBoolFilter(query)));
+    requestBuilder.setQuery(boolQuery().must(matchAllQuery()).filter(createBoolFilter(query)));
 
     GlobalBuilder topAggreg = AggregationBuilders.global("tags");
     String tagsOnIssuesSubAggregation = "tags__issues";
@@ -681,7 +681,6 @@ public class IssueIndex extends BaseIndex {
   private BoolQueryBuilder createBoolFilter(IssueQuery query) {
     BoolQueryBuilder boolQuery = boolQuery();
     for (QueryBuilder filter : createFilters(query).values()) {
-      // TODO Can it be null ?
       if (filter != null) {
         boolQuery.must(filter);
       }
@@ -714,7 +713,7 @@ public class IssueIndex extends BaseIndex {
       .setTypes(IssueIndexDefinition.TYPE_ISSUE)
       .setSearchType(SearchType.SCAN)
       .setScroll(TimeValue.timeValueMinutes(EsUtils.SCROLL_TIME_IN_MINUTES))
-      .setSize(10000)
+      .setSize(10_000)
       .setFetchSource(
         new String[] {IssueIndexDefinition.FIELD_ISSUE_KEY, IssueIndexDefinition.FIELD_ISSUE_RULE_KEY, IssueIndexDefinition.FIELD_ISSUE_MODULE_UUID,
           IssueIndexDefinition.FIELD_ISSUE_FILE_PATH, IssueIndexDefinition.FIELD_ISSUE_SEVERITY, IssueIndexDefinition.FIELD_ISSUE_MANUAL_SEVERITY,
@@ -723,6 +722,7 @@ public class IssueIndex extends BaseIndex {
           IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT},
         null)
       .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
+    // .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
     SearchResponse response = requestBuilder.get();
 
     return EsUtils.scroll(getClient(), response.getScrollId(), DOC_CONVERTER);

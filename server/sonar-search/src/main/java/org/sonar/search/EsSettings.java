@@ -83,7 +83,6 @@ public class EsSettings implements EsSettingsMBean {
   private void configureFileSystem(Settings.Builder builder) {
     File homeDir = props.nonNullValueAsFile(ProcessProperties.PATH_HOME);
     File dataDir;
-    File workDir;
     File logDir;
 
     // data dir

@@ -48,6 +48,8 @@ import org.sonar.server.es.EsUtils;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.SearchResult;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
+import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
@@ -82,8 +84,8 @@ public class UserIndex {
     if (!StringUtils.isEmpty(scmAccount)) {
       SearchRequestBuilder request = esClient.prepareSearch(UserIndexDefinition.INDEX)
         .setTypes(UserIndexDefinition.TYPE_USER)
-        .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-          QueryBuilders.boolQuery()
+        .setQuery(boolQuery().must(matchAllQuery()).filter(
+          boolQuery()
             .must(termQuery(UserIndexDefinition.FIELD_ACTIVE, true))
             .should(termQuery(UserIndexDefinition.FIELD_LOGIN, scmAccount))
             .should(termQuery(UserIndexDefinition.FIELD_EMAIL, scmAccount))
@@ -97,7 +99,7 @@ public class UserIndex {
   }
 
   public Iterator<UserDoc> selectUsersForBatch(List<String> logins) {
-    BoolQueryBuilder filter = QueryBuilders.boolQuery()
+    BoolQueryBuilder filter = boolQuery()
       .must(termsQuery(UserIndexDefinition.FIELD_LOGIN, logins));
 
     SearchRequestBuilder requestBuilder = esClient
@@ -110,7 +112,7 @@ public class UserIndex {
       .setFetchSource(
         new String[] {UserIndexDefinition.FIELD_LOGIN, UserIndexDefinition.FIELD_NAME},
         null)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
+      .setQuery(QueryBuilders.filteredQuery(matchAllQuery(), filter));
     SearchResponse response = requestBuilder.get();
 
     return EsUtils.scroll(esClient, response.getScrollId(), DOC_CONVERTER);
@@ -123,12 +125,12 @@ public class UserIndex {
       .setFrom(options.getOffset())
       .addSort(UserIndexDefinition.FIELD_NAME, SortOrder.ASC);
 
-    BoolQueryBuilder userQuery = QueryBuilders.boolQuery()
+    BoolQueryBuilder userQuery = boolQuery()
       .must(termQuery(UserIndexDefinition.FIELD_ACTIVE, true));
 
     QueryBuilder query;
     if (StringUtils.isEmpty(searchText)) {
-      query = QueryBuilders.matchAllQuery();
+      query = matchAllQuery();
     } else {
       query = QueryBuilders.multiMatchQuery(searchText,
         UserIndexDefinition.FIELD_LOGIN,

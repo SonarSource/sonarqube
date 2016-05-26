@@ -63,6 +63,7 @@ import org.sonar.server.es.SearchIdResult;
 import org.sonar.server.es.SearchOptions;
 import org.sonar.server.es.StickyFacetBuilder;
 
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchQuery;
 import static org.elasticsearch.index.query.QueryBuilders.simpleQueryStringQuery;
 import static org.sonar.server.es.EsUtils.SCROLL_TIME_IN_MINUTES;
@@ -128,12 +129,12 @@ public class RuleIndex extends BaseIndex {
     setSorting(query, esSearch);
     setPagination(options, esSearch);
 
-    BoolQueryBuilder fb = QueryBuilders.boolQuery();
+    BoolQueryBuilder fb = boolQuery();
     for (QueryBuilder filterBuilder : filters.values()) {
       fb.must(filterBuilder);
     }
 
-    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+    esSearch.setQuery(boolQuery().must(qb).filter(fb));
     return new SearchIdResult<>(esSearch.get(), ToRuleKey.INSTANCE);
   }
 
@@ -151,12 +152,12 @@ public class RuleIndex extends BaseIndex {
     Map<String, QueryBuilder> filters = buildFilters(query);
     setSorting(query, esSearch);
 
-    BoolQueryBuilder fb = QueryBuilders.boolQuery();
+    BoolQueryBuilder fb = boolQuery();
     for (QueryBuilder filterBuilder : filters.values()) {
       fb.must(filterBuilder);
     }
 
-    esSearch.setQuery(QueryBuilders.filteredQuery(qb, fb));
+    esSearch.setQuery(boolQuery().must(qb).filter(fb));
     SearchResponse response = esSearch.get();
     return scrollIds(getClient(), response.getScrollId(), ToRuleKey.INSTANCE);
   }
@@ -171,7 +172,7 @@ public class RuleIndex extends BaseIndex {
     }
 
     // Build RuleBased contextual query
-    BoolQueryBuilder qb = QueryBuilders.boolQuery();
+    BoolQueryBuilder qb = boolQuery();
     String queryString = query.getQueryText();
 
     // Human readable type of querying
@@ -213,7 +214,7 @@ public class RuleIndex extends BaseIndex {
 
     /* Add enforced filter on rules that are REMOVED */
     filters.put(FIELD_RULE_STATUS,
-      QueryBuilders.boolQuery().mustNot(
+      boolQuery().mustNot(
         QueryBuilders.termQuery(FIELD_RULE_STATUS,
           RuleStatus.REMOVED.toString())));
 
@@ -284,7 +285,7 @@ public class RuleIndex extends BaseIndex {
     }
 
     // ActiveRule Filter (profile and inheritance)
-    BoolQueryBuilder childrenFilter = QueryBuilders.boolQuery();
+    BoolQueryBuilder childrenFilter = boolQuery();
     addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
     addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
     addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_SEVERITY, query.getActiveSeverities());
@@ -304,7 +305,7 @@ public class RuleIndex extends BaseIndex {
           childQuery));
     } else if (Boolean.FALSE.equals(query.getActivation())) {
       filters.put("activation",
-        QueryBuilders.boolQuery().mustNot(
+        boolQuery().mustNot(
           QueryBuilders.hasChildQuery(TYPE_ACTIVE_RULE,
             childQuery)));
     }
@@ -314,7 +315,7 @@ public class RuleIndex extends BaseIndex {
 
   private static BoolQueryBuilder addTermFilter(BoolQueryBuilder filter, String field, @Nullable Collection<String> values) {
     if (isNotEmpty(values)) {
-      BoolQueryBuilder valuesFilter = QueryBuilders.boolQuery();
+      BoolQueryBuilder valuesFilter = boolQuery();
       for (String value : values) {
         QueryBuilder valueFilter = QueryBuilders.termQuery(field, value);
         valuesFilter.should(valueFilter);
@@ -402,7 +403,7 @@ public class RuleIndex extends BaseIndex {
         stickyFacetBuilder.getStickyFacetFilter("activation"));
 
       // Rebuilding the active rule filter without severities
-      BoolQueryBuilder childrenFilter = QueryBuilders.boolQuery();
+      BoolQueryBuilder childrenFilter = boolQuery();
       addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_PROFILE_KEY, query.getQProfileKey());
       RuleIndex.addTermFilter(childrenFilter, FIELD_ACTIVE_RULE_INHERITANCE, query.getInheritance());
       QueryBuilder activeRuleFilter;

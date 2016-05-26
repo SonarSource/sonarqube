@@ -32,7 +32,7 @@ import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 
 import static com.google.common.collect.Lists.newArrayList;
-import static org.elasticsearch.index.query.QueryBuilders.filteredQuery;
+import static org.elasticsearch.index.query.QueryBuilders.boolQuery;
 import static org.elasticsearch.index.query.QueryBuilders.matchAllQuery;
 import static org.elasticsearch.index.query.QueryBuilders.termsQuery;
 
@@ -53,7 +53,7 @@ public class ViewIndex {
       .setTypes(ViewIndexDefinition.TYPE_VIEW)
       .addSort("_doc", SortOrder.ASC)
       .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
-      .setFetchSource(ViewIndexDefinition.FIELD_UUID, null)
+      .setFetchSource(false)
       .setSize(100)
       .setQuery(matchAllQuery());
 
@@ -62,13 +62,15 @@ public class ViewIndex {
     while (true) {
       List<SearchHit> hits = newArrayList(response.getHits());
       for (SearchHit hit : hits) {
-        result.add((String) hit.getSource().get(ViewIndexDefinition.FIELD_UUID));
+        result.add(hit.getId());
       }
-      response = esClient.prepareSearchScroll(response.getScrollId())
+      String scrollId = response.getScrollId();
+      response = esClient.prepareSearchScroll(scrollId)
         .setScroll(TimeValue.timeValueMinutes(SCROLL_TIME_IN_MINUTES))
         .get();
       // Break condition: No hits are returned
       if (response.getHits().getHits().length == 0) {
+        esClient.nativeClient().prepareClearScroll().addScrollId(scrollId).get();
         break;
       }
     }
@@ -78,8 +80,7 @@ public class ViewIndex {
   public void delete(Collection<String> viewUuids) {
     SearchRequestBuilder searchRequest = esClient.prepareSearch(ViewIndexDefinition.INDEX)
       .setTypes(ViewIndexDefinition.TYPE_VIEW)
-      .setQuery(filteredQuery(matchAllQuery(), termsQuery(ViewIndexDefinition.FIELD_UUID, viewUuids)
-        ));
+      .setQuery(boolQuery().must(matchAllQuery()).filter(termsQuery(ViewIndexDefinition.FIELD_UUID, viewUuids)));
     BulkIndexer.delete(esClient, ViewIndexDefinition.INDEX, searchRequest);
   }
 }
