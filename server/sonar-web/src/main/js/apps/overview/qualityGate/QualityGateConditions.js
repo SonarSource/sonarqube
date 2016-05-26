@@ -47,17 +47,17 @@ export default class QualityGateConditions extends React.Component {
 
   componentDidMount () {
     this.mounted = true;
-    this.loadFailedMeasures(this.props);
+    this.loadFailedMeasures();
   }
 
   shouldComponentUpdate (nextProps, nextState) {
     return shallowCompare(this, nextProps, nextState);
   }
 
-  componentDidUpdate (nextProps) {
-    if (nextProps.conditions !== this.props.conditions ||
-        nextProps.component !== this.props.component) {
-      this.loadFailedMeasures(nextProps);
+  componentDidUpdate (prevProps) {
+    if (prevProps.conditions !== this.props.conditions ||
+        prevProps.component !== this.props.component) {
+      this.loadFailedMeasures();
     }
   }
 
@@ -65,24 +65,27 @@ export default class QualityGateConditions extends React.Component {
     this.mounted = false;
   }
 
-  loadFailedMeasures (props) {
-    const { component, conditions } = props;
+  loadFailedMeasures () {
+    const { component, conditions } = this.props;
     const failedConditions = conditions.filter(c => c.level !== 'OK');
-    const metrics = failedConditions.map(condition => condition.metric);
-
-    getMeasuresAndMeta(
-        component.key,
-        metrics,
-        { additionalFields: 'metrics' }
-    ).then(r => {
-      if (this.mounted) {
-        const measures = enhanceMeasuresWithMetrics(r.component.measures, r.metrics);
-        this.setState({
-          conditions: enhanceConditions(failedConditions, measures),
-          loading: false
-        });
-      }
-    });
+    if (failedConditions.length > 0) {
+      const metrics = failedConditions.map(condition => condition.metric);
+      getMeasuresAndMeta(
+          component.key,
+          metrics,
+          { additionalFields: 'metrics' }
+      ).then(r => {
+        if (this.mounted) {
+          const measures = enhanceMeasuresWithMetrics(r.component.measures, r.metrics);
+          this.setState({
+            conditions: enhanceConditions(failedConditions, measures),
+            loading: false
+          });
+        }
+      });
+    } else {
+      this.setState({ loading: false });
+    }
   }
 
   render () {
