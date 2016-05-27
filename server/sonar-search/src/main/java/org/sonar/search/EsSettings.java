@@ -117,6 +117,7 @@ public class EsSettings implements EsSettingsMBean {
     builder.put("discovery.zen.ping.multicast.enabled", "false");
     builder.put("transport.tcp.port", port);
     builder.put("transport.host", host);
+    builder.put("network.host", host);
 
     // Elasticsearch sets the default value of TCP reuse address to true only on non-MSWindows machines, but why ?
     builder.put("network.tcp.reuse_address", true);
