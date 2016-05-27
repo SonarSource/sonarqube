@@ -41,7 +41,7 @@ public class IssueMapperTest {
 
   IssueMapper underTest = dbSession.getMapper(IssueMapper.class);
 
-  ComponentDto project, file;
+  ComponentDto project, file, file2;
   RuleDto rule;
 
   @Before
@@ -50,6 +50,8 @@ public class IssueMapperTest {
     dbTester.getDbClient().componentDao().insert(dbSession, project);
     file = ComponentTesting.newFileDto(project);
     dbTester.getDbClient().componentDao().insert(dbSession, file);
+    file2 = ComponentTesting.newFileDto(project).setUuid("file2 uuid");
+    dbTester.getDbClient().componentDao().insert(dbSession, file2);
     rule = RuleTesting.newXooX1();
     dbTester.getDbClient().ruleDao().insert(dbSession, rule);
     dbSession.commit();
@@ -94,7 +96,7 @@ public class IssueMapperTest {
 
     IssueDto update = new IssueDto();
     update.setKee("ABCDE");
-    update.setComponentUuid(file.uuid());
+    update.setComponentUuid("other component uuid");
     update.setProjectUuid(project.uuid());
     update.setRuleId(rule.getId());
     update.setType(3);
@@ -151,6 +153,7 @@ public class IssueMapperTest {
     underTest.insert(newIssue());
 
     IssueDto dto = newIssue()
+      .setComponentUuid(file2.uuid())
       .setType(3)
       .setLine(600)
       .setGap(1.12d)
@@ -167,6 +170,7 @@ public class IssueMapperTest {
 
     IssueDto result = underTest.selectByKey("ABCDE");
     assertThat(result).isNotNull();
+    assertThat(result.getComponentUuid()).isEqualTo(file2.uuid());
     assertThat(result.getType()).isEqualTo(3);
     assertThat(result.getLine()).isEqualTo(600);
     assertThat(result.getGap()).isEqualTo(1.12d);
@@ -180,6 +184,7 @@ public class IssueMapperTest {
     underTest.insert(newIssue());
 
     IssueDto dto = newIssue()
+        .setComponentUuid(file2.uuid())
       .setType(3)
       .setLine(600)
       .setGap(1.12d)
@@ -197,6 +202,7 @@ public class IssueMapperTest {
     // No change
     IssueDto result = underTest.selectByKey("ABCDE");
     assertThat(result).isNotNull();
+    assertThat(result.getComponentUuid()).isEqualTo(file.uuid());
     assertThat(result.getType()).isEqualTo(2);
     assertThat(result.getLine()).isEqualTo(500);
     assertThat(result.getGap()).isEqualTo(3.14d);

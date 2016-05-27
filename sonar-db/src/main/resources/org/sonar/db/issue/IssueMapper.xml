@@ -129,6 +129,7 @@
     assignee=#{assignee,jdbcType=VARCHAR},
     author_login=#{authorLogin,jdbcType=VARCHAR},
     tags=#{tagsString,jdbcType=VARCHAR},
+    component_uuid=#{componentUuid,jdbcType=VARCHAR},
     project_uuid=#{projectUuid,jdbcType=VARCHAR},
     issue_attributes=#{issueAttributes,jdbcType=VARCHAR},
     issue_creation_date=#{issueCreationTime,jdbcType=BIGINT},

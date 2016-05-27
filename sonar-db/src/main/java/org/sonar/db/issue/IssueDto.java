@@ -122,7 +122,6 @@ public final class IssueDto implements Serializable {
       .setComponentKey(issue.componentKey())
       .setModuleUuid(issue.moduleUuid())
       .setModuleUuidPath(issue.moduleUuidPath())
-      .setComponentUuid(issue.componentUuid())
       .setProjectUuid(issue.projectUuid())
       .setProjectKey(issue.projectKey())
       .setIssueAttributes(KeyValueFormat.format(issue.attributes()))
