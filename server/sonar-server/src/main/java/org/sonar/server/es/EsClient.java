@@ -56,7 +56,6 @@ import org.picocontainer.Startable;
 import org.sonar.api.config.Settings;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.process.LoopbackAddress;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.es.request.ProxyBulkRequestBuilder;
 import org.sonar.server.es.request.ProxyClearCacheRequestBuilder;
@@ -210,12 +209,11 @@ public class EsClient implements Startable {
       ESLoggerFactory.setDefaultFactory(new Slf4jESLoggerFactory());
       org.elasticsearch.common.settings.Settings esSettings = org.elasticsearch.common.settings.Settings.builder()
         .put("node.name", defaultIfEmpty(settings.getString(ProcessProperties.CLUSTER_NODE_NAME), "sq_local_client"))
-        .put("network.bind_host", defaultIfEmpty(settings.getString(ProcessProperties.SEARCH_HOST), "localhost"))
         .put("node.rack_id", defaultIfEmpty(settings.getString(ProcessProperties.CLUSTER_NODE_NAME), "unknown"))
         .put("cluster.name", StringUtils.defaultIfBlank(settings.getString(ProcessProperties.CLUSTER_NAME), "sonarqube"))
         .build();
       nativeClient = TransportClient.builder().settings(esSettings).build();
-      String host = defaultIfEmpty(settings.getString(ProcessProperties.SEARCH_HOST), LoopbackAddress.get().getHostAddress());
+      String host = settings.getString(ProcessProperties.SEARCH_HOST);
       try {
         ((TransportClient) nativeClient).addTransportAddress(new InetSocketTransportAddress(InetAddress.getByName(host), settings.getInt(ProcessProperties.SEARCH_PORT)));
       } catch (UnknownHostException e) {
