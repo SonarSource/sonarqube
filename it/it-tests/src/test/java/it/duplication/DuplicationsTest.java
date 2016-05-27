@@ -19,13 +19,13 @@
  */
 package it.duplication;
 
+import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
@@ -140,7 +140,7 @@ public class DuplicationsTest {
       Selenese.builder().setHtmlTestsInClasspath("duplications_widget",
         // SONAR-4347
         "/duplication/DuplicationsTest/duplications_widget.html").build())
-    .runOn(orchestrator);
+      .runOn(orchestrator);
   }
 
   private static Resource getComponent(String key) {
@@ -163,12 +163,12 @@ public class DuplicationsTest {
     orchestrator.getServer().associateProjectToQualityProfile(projectKey, "xoo", "xoo-duplication-profile");
 
     runProjectAnalysis(orchestrator, "duplications/file-duplications",
-      ArrayUtils.addAll(
+      ObjectArrays.concat(
         new String[] {
           "sonar.projectKey", projectKey,
           "sonar.projectName", projectKey
         },
-        additionalProperties));
+        additionalProperties, String.class));
   }
 
   private static void verifyWsResultOnDuplicateFile(String fileKey, String ws, String expectedFilePath) throws Exception {

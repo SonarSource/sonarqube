@@ -19,13 +19,13 @@
  */
 package it.duplication;
 
+import com.google.common.collect.ObjectArrays;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.locator.FileLocation;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
 import java.util.List;
 import org.apache.commons.io.IOUtils;
-import org.apache.commons.lang3.ArrayUtils;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -151,13 +151,13 @@ public class CrossProjectDuplicationsTest {
 
   private static void executeAnalysis(String projectKey, String path, String... additionalProperties) {
     runProjectAnalysis(orchestrator, path,
-      ArrayUtils.addAll(
+      ObjectArrays.concat(
         new String[] {
           "sonar.cpd.cross_project", "true",
           "sonar.projectKey", projectKey,
           "sonar.projectName", projectKey
         },
-        additionalProperties));
+        additionalProperties, String.class));
   }
 
   private static int getMeasure(String projectKey, String metricKey) {
