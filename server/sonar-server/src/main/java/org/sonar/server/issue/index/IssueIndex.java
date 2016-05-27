@@ -340,13 +340,9 @@ public class IssueIndex extends BaseIndex {
         groupsAndUser.should(termQuery(IssueIndexDefinition.FIELD_AUTHORIZATION_GROUPS, group));
       }
       return QueryBuilders.hasParentQuery(IssueIndexDefinition.TYPE_AUTHORIZATION,
-        QueryBuilders.filteredQuery(
-          matchAllQuery(),
-          boolQuery()
-            .must(groupsAndUser)));
-    } else {
-      return matchAllQuery();
+        QueryBuilders.boolQuery().must(matchAllQuery()).filter(groupsAndUser));
     }
+    return matchAllQuery();
   }
 
   private void addDatesFilter(Map<String, QueryBuilder> filters, IssueQuery query) {
@@ -662,8 +658,7 @@ public class IssueIndex extends BaseIndex {
       .setSize(0)
       .setTypes(IssueIndexDefinition.TYPE_ISSUE);
 
-    requestBuilder.setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(),
-      createBoolFilter(query)));
+    requestBuilder.setQuery(boolQuery().must(QueryBuilders.matchAllQuery()).filter(createBoolFilter(query)));
 
     TermsBuilder aggreg = AggregationBuilders.terms("_ref")
       .field(fieldName)
@@ -721,8 +716,7 @@ public class IssueIndex extends BaseIndex {
           IssueIndexDefinition.FIELD_ISSUE_LINE, IssueIndexDefinition.FIELD_ISSUE_MESSAGE, IssueIndexDefinition.FIELD_ISSUE_CHECKSUM,
           IssueIndexDefinition.FIELD_ISSUE_FUNC_CREATED_AT},
         null)
-      .setQuery(QueryBuilders.filteredQuery(QueryBuilders.matchAllQuery(), filter));
-    // .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
+      .setQuery(boolQuery().must(matchAllQuery()).filter(filter));
     SearchResponse response = requestBuilder.get();
 
     return EsUtils.scroll(getClient(), response.getScrollId(), DOC_CONVERTER);
