@@ -312,11 +312,27 @@ public class RuleDto {
   }
 
   public Set<String> getTags() {
-    return tags == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
+    return tags == null ? new HashSet<String>() : new TreeSet<>(Arrays.asList(StringUtils.split(tags, ',')));
   }
 
   public Set<String> getSystemTags() {
-    return systemTags == null ? new HashSet<>() : new TreeSet<>(Arrays.asList(StringUtils.split(systemTags, ',')));
+    return systemTags == null ? new HashSet<String>() : new TreeSet<>(Arrays.asList(StringUtils.split(systemTags, ',')));
+  }
+
+  private String getTagsField() {
+    return tags;
+  }
+
+  private String getSystemTagsField() {
+    return systemTags;
+  }
+
+  private void setTagsField(String s) {
+    tags = s;
+  }
+
+  private void setSystemTagsField(String s) {
+    systemTags = s;
   }
 
   public RuleDto setTags(Set<String> tags) {
