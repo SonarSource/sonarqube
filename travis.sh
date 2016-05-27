@@ -38,14 +38,22 @@ CI)
       echo "======= Found SNAPSHOT version ======="
       # Do not deploy a SNAPSHOT version but the release version related to this build
       set_maven_build_version $TRAVIS_BUILD_NUMBER
+      # analysis is currently executed by SonarSource internal infrastructure
+      mvn deploy \
+          -Pdeploy-sonarsource \
+          -B -e -V 
     else
       echo "======= Found RELEASE version ======="
+      # analysis is currently executed by SonarSource internal infrastructure
+      mvn deploy \
+          -Dmaven.test.skip=true \
+          -Pdeploy-sonarsource,release \
+          -B -e -V
+      ./distribution.sh
+
     fi
 
-    # analysis is currently executed by SonarSource internal infrastructure
-    mvn deploy \
-        -Pdeploy-sonarsource,release \
-        -B -e -V 
+    
 
   elif [ "$TRAVIS_PULL_REQUEST" != "false" ] && [ -n "${GITHUB_TOKEN:-}" ]; then
     strongEcho 'Build and analyze pull request, no deploy'
