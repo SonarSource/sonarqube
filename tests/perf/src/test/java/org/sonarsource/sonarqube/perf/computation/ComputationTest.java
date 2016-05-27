@@ -23,18 +23,18 @@ import com.google.common.base.Charsets;
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.locator.FileLocation;
-import org.sonarsource.sonarqube.perf.MavenLogs;
-import org.sonarsource.sonarqube.perf.PerfTestCase;
 import java.io.File;
 import java.io.IOException;
 import java.util.List;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang.StringUtils;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonarsource.sonarqube.perf.MavenLogs;
+import org.sonarsource.sonarqube.perf.PerfTestCase;
 
 public class ComputationTest extends PerfTestCase {
   private static int MAX_HEAP_SIZE_IN_MEGA = 600;
