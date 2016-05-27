@@ -250,7 +250,7 @@ public class IssueUpdaterTest {
     issue.setLocations("[1-3]");
     boolean updated = updater.setLocations(issue, "[1-4]");
     assertThat(updated).isTrue();
-    assertThat(issue.getLocations()).isEqualTo("[1-4]");
+    assertThat(issue.getLocations().toString()).isEqualTo("[1-4]");
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }
@@ -260,7 +260,7 @@ public class IssueUpdaterTest {
     issue.setLocations("[1-3]");
     boolean updated = updater.setLocations(issue, "[1-3]");
     assertThat(updated).isFalse();
-    assertThat(issue.getLocations()).isEqualTo("[1-3]");
+    assertThat(issue.getLocations().toString()).isEqualTo("[1-3]");
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }
@@ -270,7 +270,7 @@ public class IssueUpdaterTest {
     issue.setLocations(null);
     boolean updated = updater.setLocations(issue, "[1-4]");
     assertThat(updated).isTrue();
-    assertThat(issue.getLocations()).isEqualTo("[1-4]");
+    assertThat(issue.getLocations().toString()).isEqualTo("[1-4]");
     assertThat(issue.currentChange()).isNull();
     assertThat(issue.mustSendNotifications()).isFalse();
   }

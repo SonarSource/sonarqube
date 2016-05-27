@@ -67,7 +67,6 @@ public class CeServer implements Monitored {
     this.webServerWatcher = webServerWatcher;
     this.computeEngine = computeEngine;
     mvs
-      .checkJavaVersion()
       .checkWritableTempDir()
       .checkRequiredJavaOptions(ImmutableMap.of("file.encoding", "UTF-8"));
   }

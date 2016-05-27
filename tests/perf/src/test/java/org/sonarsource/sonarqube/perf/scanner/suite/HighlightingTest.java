@@ -92,7 +92,7 @@ public class HighlightingTest extends PerfTestCase {
         "sonar.projectVersion", "1.0",
         "sonar.sources", "src",
         "sonar.showProfiling", "true");
-    scanner.setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx512m -server -XX:MaxPermSize=64m")
+    scanner.setEnvironmentVariable("SONAR_RUNNER_OPTS", "-Xmx512m -server")
       .setProjectDir(baseDir);
 
     BuildResult result = orchestrator.executeBuild(scanner);

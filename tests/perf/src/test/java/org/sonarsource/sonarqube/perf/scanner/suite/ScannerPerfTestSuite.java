@@ -45,7 +45,7 @@ public class ScannerPerfTestSuite {
     .builderEnv()
     .addPlugin(FileLocation.byWildcardMavenFilename(new File("../../plugins/sonar-xoo-plugin/target"), "sonar-xoo-plugin-*.jar"))
     // should not be so high, but required as long embedded h2 is used -> requires more memory on server
-    .setServerProperty("sonar.web.javaOpts", "-Xmx1G -XX:MaxPermSize=100m -XX:+HeapDumpOnOutOfMemoryError")
+    .setServerProperty("sonar.web.javaOpts", "-Xmx1G -XX:+HeapDumpOnOutOfMemoryError")
     // Needed by DuplicationTest::hugeJavaFile
     .setOrchestratorProperty("javaVersion", "LATEST_RELEASE").addPlugin("java")
     .restoreProfileAtStartup(FileLocation.ofClasspath("/one-xoo-issue-per-line.xml"))

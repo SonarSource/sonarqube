@@ -91,10 +91,10 @@
         </dependency>
         <dependency>
           <groupId>com.microsoft.sqljdbc</groupId>
-          <artifactId>sqljdbc41</artifactId>
-          <version>4.1</version>
+          <artifactId>sqljdbc</artifactId>
+          <version>4.2</version>
           <scope>system</scope>
-          <systemPath>${project.basedir}/../../sonar-application/src/main/assembly/lib/jdbc/mssql/sqljdbc41.jar
+          <systemPath>${project.basedir}/../../sonar-application/src/main/assembly/lib/jdbc/mssql/sqljdbc42.jar
           </systemPath>
         </dependency>
       </dependencies>

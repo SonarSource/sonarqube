@@ -19,11 +19,10 @@
  */
 package org.sonar.process;
 
-import org.apache.commons.lang.StringUtils;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Map;
+import org.apache.commons.lang.StringUtils;
 
 import static java.lang.String.format;
 import static org.sonar.process.FileUtils.deleteQuietly;
@@ -58,19 +57,4 @@ public class MinimumViableSystem {
     }
     return this;
   }
-
-  public MinimumViableSystem checkJavaVersion() {
-    String javaVersion = System.getProperty("java.specification.version");
-    checkJavaVersion(javaVersion);
-    return this;
-  }
-
-  // Visible for testing
-  void checkJavaVersion(String javaVersion) {
-    if (!javaVersion.startsWith("1.7") && !javaVersion.startsWith("1.8")) {
-      // still better than "java.lang.UnsupportedClassVersionError: Unsupported major.minor version 49.0
-      throw new MessageException(format("Supported versions of Java are 1.7 and 1.8. Got %s.", javaVersion));
-    }
-  }
-
 }

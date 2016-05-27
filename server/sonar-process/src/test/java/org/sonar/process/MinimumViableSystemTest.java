@@ -20,11 +20,10 @@
 package org.sonar.process;
 
 import com.google.common.collect.ImmutableMap;
+import java.io.File;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
-
-import java.io.File;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
@@ -35,20 +34,6 @@ public class MinimumViableSystemTest {
   public TemporaryFolder temp = new TemporaryFolder();
 
   MinimumViableSystem underTest = new MinimumViableSystem();
-
-  @Test
-  public void checkJavaVersion() {
-    // yes, sources are compiled with a supported Java version!
-    underTest.checkJavaVersion();
-    underTest.checkJavaVersion("1.7");
-
-    try {
-      underTest.checkJavaVersion("1.6");
-      fail();
-    } catch (MessageException e) {
-      assertThat(e).hasMessage("Supported versions of Java are 1.7 and 1.8. Got 1.6.");
-    }
-  }
 
   @Test
   public void checkRequiredJavaOptions() {
