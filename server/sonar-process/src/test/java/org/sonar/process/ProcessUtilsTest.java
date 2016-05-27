@@ -89,7 +89,7 @@ public class ProcessUtilsTest {
     safeJoiner.join();
   }
 
-  @Test(timeout = 100L)
+  @Test(timeout = 1_000L)
   public void awaitTermination_of_vararg_does_not_fail_when_there_is_a_null_or_current_thread() {
     awaitTermination(null, Thread.currentThread(), null);
   }
