@@ -46,7 +46,6 @@ CI)
       echo "======= Found RELEASE version ======="
       # analysis is currently executed by SonarSource internal infrastructure
       mvn deploy \
-          -Dmaven.test.skip=true \
           -Pdeploy-sonarsource,release \
           -B -e -V
       ./distribution.sh
