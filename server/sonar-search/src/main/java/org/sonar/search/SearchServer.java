@@ -19,9 +19,11 @@
  */
 package org.sonar.search;
 
+import org.apache.lucene.util.StringHelper;
 import org.elasticsearch.cluster.health.ClusterHealthStatus;
 import org.elasticsearch.common.unit.TimeValue;
 import org.elasticsearch.node.Node;
+import org.elasticsearch.node.NodeBuilder;
 import org.sonar.process.Jmx;
 import org.sonar.process.MinimumViableSystem;
 import org.sonar.process.Monitored;
@@ -42,8 +44,15 @@ public class SearchServer implements Monitored {
   @Override
   public void start() {
     Jmx.register(EsSettingsMBean.OBJECT_NAME, settings);
-    node = new Node(settings.build());
+    initBootstrap();
+    node = NodeBuilder.nodeBuilder().settings(settings.build()).build();
     node.start();
+  }
+
+  // copied from https://github.com/elastic/elasticsearch/blob/v2.3.3/core/src/main/java/org/elasticsearch/bootstrap/Bootstrap.java
+  private void initBootstrap() {
+    // init lucene random seed. it will use /dev/urandom where available:
+    StringHelper.randomId();
   }
 
   @Override
