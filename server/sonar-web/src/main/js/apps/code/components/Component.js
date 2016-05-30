@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { connect } from 'react-redux';
+import shallowCompare from 'react-addons-shallow-compare';
 
 import ComponentName from './ComponentName';
 import ComponentMeasure from './ComponentMeasure';
@@ -31,9 +31,13 @@ import ComponentPin from './ComponentPin';
 const TOP_OFFSET = 200;
 const BOTTOM_OFFSET = 10;
 
-class Component extends React.Component {
+export default class Component extends React.Component {
   componentDidMount () {
     this.handleUpdate();
+  }
+
+  shouldComponentUpdate (nextProps, nextState) {
+    return shallowCompare(this, nextProps, nextState);
   }
 
   componentDidUpdate () {
@@ -42,6 +46,8 @@ class Component extends React.Component {
 
   handleUpdate () {
     const { selected } = this.props;
+
+    // scroll viewport so the current selected component is visible
     if (selected) {
       setTimeout(() => {
         this.handleScroll();
@@ -61,7 +67,8 @@ class Component extends React.Component {
   }
 
   render () {
-    const { component, selected, previous, coverageMetric, onBrowse, isView } = this.props;
+    const { component, rootComponent, selected, previous, coverageMetric, canBrowse } = this.props;
+    const isView = ['VW', 'SVW'].includes(rootComponent.qualifier);
 
     let componentAction = null;
 
@@ -91,8 +98,9 @@ class Component extends React.Component {
             )}
             <ComponentName
                 component={component}
+                rootComponent={rootComponent}
                 previous={previous}
-                onBrowse={onBrowse}/>
+                canBrowse={canBrowse}/>
           </td>
           <td className="thin nowrap text-right">
             <div className="code-components-cell">
@@ -146,12 +154,3 @@ class Component extends React.Component {
     );
   }
 }
-
-function mapStateToProps (state, ownProps) {
-  return {
-    selected: state.current.searchSelectedItem === ownProps.component,
-    isView: state.current.isView
-  };
-}
-
-export default connect(mapStateToProps)(Component);

@@ -146,21 +146,13 @@ export default React.createClass({
   },
 
   renderCodeLink() {
-    if (this.isView() || this.isDeveloper()) {
+    if (this.isDeveloper()) {
       return null;
     }
 
-    const url = `/code/index?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('code.page'), '/code');
-  },
-
-  renderProjectsLink() {
-    if (!this.isView()) {
-      return null;
-    }
-
-    const url = `/view_projects/index?id=${encodeURIComponent(this.props.component.key)}`;
-    return this.renderLink(url, translate('view_projects.page'), '/view_projects');
+    const url = `/code/?id=${encodeURIComponent(this.props.component.key)}`;
+    const header = this.isView() ? translate('view_projects.page') : translate('code.page');
+    return this.renderLink(url, header, '/code');
   },
 
   renderComponentIssuesLink() {
@@ -334,7 +326,6 @@ export default React.createClass({
             {this.renderComponentIssuesLink()}
             {this.renderComponentMeasuresLink()}
             {this.renderCodeLink()}
-            {this.renderProjectsLink()}
             {this.renderTools()}
             {this.renderAdministration()}
           </ul>
@@ -346,7 +337,6 @@ export default React.createClass({
             {this.renderComponentIssuesLink()}
             {this.renderComponentMeasuresLink()}
             {this.renderCodeLink()}
-            {this.renderProjectsLink()}
             {this.renderCustomDashboards()}
             {this.renderTools()}
             {this.renderAdministration()}

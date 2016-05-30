@@ -19,6 +19,7 @@
  */
 import _ from 'underscore';
 import React from 'react';
+import { Link } from 'react-router';
 
 import Truncated from './Truncated';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
@@ -47,12 +48,7 @@ function mostCommitPrefix (strings) {
   return prefix.substr(0, prefix.length - lastPrefixPart.length);
 }
 
-const Component = ({ component, previous, onBrowse }) => {
-  const handleClick = (e) => {
-    e.preventDefault();
-    onBrowse(component);
-  };
-
+const Component = ({ component, rootComponent, previous, canBrowse }) => {
   const areBothDirs = component.qualifier === 'DIR' && previous && previous.qualifier === 'DIR';
   const prefix = areBothDirs ? mostCommitPrefix([component.name + '/', previous.name + '/']) : '';
   const name = prefix ? (
@@ -67,8 +63,16 @@ const Component = ({ component, previous, onBrowse }) => {
   if (component.refKey) {
     inner = <a href={getComponentUrl(component.refKey)}>{name}</a>;
   } else {
-    if (onBrowse) {
-      inner = <a onClick={handleClick} href="#">{name}</a>;
+    if (canBrowse) {
+      const query = { id: rootComponent.key };
+      if (component.key !== rootComponent.key) {
+        Object.assign(query, { selected: component.key });
+      }
+      inner = (
+          <Link to={{ pathname: '/', query }}>
+            {name}
+          </Link>
+      );
     } else {
       inner = <span>{name}</span>;
     }

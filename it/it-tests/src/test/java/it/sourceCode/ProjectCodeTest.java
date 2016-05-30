@@ -39,7 +39,9 @@ public class ProjectCodeTest {
     executeBuild("shared/xoo-sample", "project-for-code", "Project For Code");
 
     Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("test_project_code_page",
-      "/sourceCode/ProjectCodeTest/test_project_code_page.html"
+      "/sourceCode/ProjectCodeTest/test_project_code_page.html",
+      "/sourceCode/ProjectCodeTest/search.html",
+      "/sourceCode/ProjectCodeTest/permalink.html"
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }

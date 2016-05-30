@@ -25,7 +25,7 @@ const ComponentsEmpty = () => (
       <td colSpan="2">
         {translate('no_results')}
       </td>
-      <td colSpan="5">
+      <td colSpan="6">
         &nbsp;
       </td>
     </tr>

@@ -19,32 +19,26 @@
  */
 import React from 'react';
 import { render } from 'react-dom';
-import { Provider } from 'react-redux';
-import { Router, Route, useRouterHistory } from 'react-router';
-import { createHashHistory } from 'history';
-import { syncReduxAndRouter } from 'redux-simple-router';
+import { Router, Route, Redirect, useRouterHistory } from 'react-router';
+import { createHistory } from 'history';
 
-import Code from './components/Code';
-import configureStore from './store/configureStore';
+import App from './components/App';
 
-import './styles/code.css';
+window.sonarqube.appStarted.then(options => {
+  const el = document.querySelector(options.el);
 
-const store = configureStore();
-const history = useRouterHistory(createHashHistory)({ queryKey: false });
+  const history = useRouterHistory(createHistory)({
+    basename: window.baseUrl + '/code'
+  });
 
-syncReduxAndRouter(history, store);
-
-window.sonarqube.appStarted.then(({ el, component }) => {
-  const CodeWithComponent = () => {
-    return <Code component={component}/>;
+  const AppWithComponent = (props) => {
+    return <App {...props} component={options.component}/>;
   };
 
-  render(
-      <Provider store={store}>
-        <Router history={history}>
-          <Route path="/" component={CodeWithComponent}/>
-          <Route path="/:path" component={CodeWithComponent}/>
-        </Router>
-      </Provider>,
-      document.querySelector(el));
+  render((
+      <Router history={history}>
+        <Redirect from="/index" to="/"/>
+        <Route path="/" component={AppWithComponent}/>
+      </Router>
+  ), el);
 });

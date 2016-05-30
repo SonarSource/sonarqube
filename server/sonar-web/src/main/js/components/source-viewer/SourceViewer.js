@@ -17,12 +17,19 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React, { Component } from 'react';
+import React from 'react';
 
-import BaseSourceViewer from '../../../components/source-viewer/main';
-import { getPeriodDate, getPeriodLabel } from '../../../helpers/periods';
+import BaseSourceViewer from './main';
+import { getPeriodDate, getPeriodLabel } from '../../helpers/periods';
 
-export default class SourceViewer extends Component {
+export default class SourceViewer extends React.Component {
+  static propTypes = {
+    component: React.PropTypes.shape({
+      id: React.PropTypes.string.isRequired
+    }).isRequired,
+    period: React.PropTypes.object
+  };
+
   componentDidMount () {
     this.renderSourceViewer();
   }
@@ -65,6 +72,6 @@ export default class SourceViewer extends Component {
   }
 
   render () {
-    return <div ref="container" className="code-source-viewer"></div>;
+    return <div ref="container"/>;
   }
 }

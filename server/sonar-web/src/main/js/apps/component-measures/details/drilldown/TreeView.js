@@ -22,7 +22,7 @@ import React from 'react';
 import ComponentsList from './ComponentsList';
 import ListHeader from './ListHeader';
 import Spinner from '../../components/Spinner';
-import SourceViewer from '../../../code/components/SourceViewer';
+import SourceViewer from '../../../../components/source-viewer/SourceViewer';
 import ListFooter from '../../../../components/shared/list-footer';
 
 export default class TreeView extends React.Component {
