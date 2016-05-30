@@ -1113,7 +1113,7 @@
       </properties>
     </profile>
     <profile>
-      <id>release</id>
+      <id>release</id>      
       <build>
         <plugins>
           <plugin>
@@ -1504,7 +1504,7 @@
         <module>it</module>
         <module>tests</module>
       </modules>
-    </profile>
+    </profile>    
   </profiles>
 
 </project>
