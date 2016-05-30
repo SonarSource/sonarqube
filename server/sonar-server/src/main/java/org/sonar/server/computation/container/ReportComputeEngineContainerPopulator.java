@@ -37,6 +37,9 @@ import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHol
 import org.sonar.server.computation.duplication.DuplicationRepositoryImpl;
 import org.sonar.server.computation.duplication.IntegrateCrossProjectDuplications;
 import org.sonar.server.computation.event.EventRepositoryImpl;
+import org.sonar.server.computation.filemove.FileSimilarityImpl;
+import org.sonar.server.computation.filemove.MutableMovedFilesRepositoryImpl;
+import org.sonar.server.computation.filemove.SourceSimilarityImpl;
 import org.sonar.server.computation.filesystem.ComputationTempFolderProvider;
 import org.sonar.server.computation.issue.BaseIssuesLoader;
 import org.sonar.server.computation.issue.CloseIssuesOnRemovedComponentsVisitor;
@@ -210,6 +213,11 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       Tracker.class,
       TrackerExecution.class,
       BaseIssuesLoader.class,
+
+      // filemove
+      SourceSimilarityImpl.class,
+      FileSimilarityImpl.class,
+      MutableMovedFilesRepositoryImpl.class,
 
       // duplication
       IntegrateCrossProjectDuplications.class,

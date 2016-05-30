@@ -26,6 +26,7 @@ import javax.annotation.Nonnull;
 import org.picocontainer.ComponentAdapter;
 import org.sonar.server.computation.container.ComputeEngineContainer;
 import org.sonar.server.computation.developer.PersistDevelopersDelegate;
+import org.sonar.server.computation.filemove.FileMoveDetectionStep;
 
 import static com.google.common.collect.FluentIterable.from;
 
@@ -48,6 +49,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
     // load project related stuffs
     LoadQualityGateStep.class,
     LoadPeriodsStep.class,
+    FileMoveDetectionStep.class,
 
     // load duplications related stuff
     LoadDuplicationsFromReportStep.class,
