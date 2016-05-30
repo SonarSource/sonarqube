@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.base.Optional;
 import java.util.Collections;
 import java.util.List;
 import org.junit.Before;
@@ -44,6 +45,7 @@ import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.TypeAwareVisitor;
+import org.sonar.server.computation.filemove.MovedFilesRepository;
 import org.sonar.server.computation.issue.commonrule.CommonRuleEngineImpl;
 import org.sonar.server.computation.issue.filter.IssueFilter;
 import org.sonar.server.computation.qualityprofile.ActiveRulesHolderRule;
@@ -82,25 +84,18 @@ public class IntegrateIssuesVisitorTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
   public ActiveRulesHolderRule activeRulesHolderRule = new ActiveRulesHolderRule();
-
   @Rule
   public RuleRepositoryRule ruleRepositoryRule = new RuleRepositoryRule();
-
   @Rule
   public ComponentIssuesRepositoryRule componentIssuesRepository = new ComponentIssuesRepositoryRule(treeRootHolder);
-
   @Rule
   public SourceLinesRepositoryRule fileSourceRepository = new SourceLinesRepositoryRule();
 
@@ -109,8 +104,11 @@ public class IntegrateIssuesVisitorTest {
   IssueFilter issueFilter = mock(IssueFilter.class);
 
   BaseIssuesLoader baseIssuesLoader = new BaseIssuesLoader(treeRootHolder, dbTester.getDbClient(), ruleRepositoryRule, activeRulesHolderRule);
-  TrackerExecution tracker = new TrackerExecution(new TrackerBaseInputFactory(baseIssuesLoader, dbTester.getDbClient()), new TrackerRawInputFactory(treeRootHolder, reportReader,
-    fileSourceRepository, new CommonRuleEngineImpl(), issueFilter), new Tracker<DefaultIssue, DefaultIssue>());
+  MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
+  TrackerExecution tracker = new TrackerExecution(new TrackerBaseInputFactory(baseIssuesLoader, dbTester.getDbClient(), movedFilesRepository),
+    new TrackerRawInputFactory(treeRootHolder, reportReader,
+      fileSourceRepository, new CommonRuleEngineImpl(), issueFilter),
+    new Tracker<>());
   IssueCache issueCache;
 
   IssueLifecycle issueLifecycle = mock(IssueLifecycle.class);
@@ -125,7 +123,8 @@ public class IntegrateIssuesVisitorTest {
     treeRootHolder.setRoot(PROJECT);
     issueCache = new IssueCache(temp.newFile(), System2.INSTANCE);
     when(issueFilter.accept(any(DefaultIssue.class), eq(FILE))).thenReturn(true);
-    underTest = new IntegrateIssuesVisitor(tracker, issueCache, issueLifecycle, issueVisitors, componentsWithUnprocessedIssues, componentIssuesRepository);
+    when(movedFilesRepository.getOriginalFile(any(Component.class))).thenReturn(Optional.<MovedFilesRepository.OriginalFile>absent());
+    underTest = new IntegrateIssuesVisitor(tracker, issueCache, issueLifecycle, issueVisitors, componentsWithUnprocessedIssues, componentIssuesRepository, movedFilesRepository);
   }
 
   @Test
@@ -262,6 +261,18 @@ public class IntegrateIssuesVisitorTest {
 
     underTest.visitAny(PROJECT);
     assertThat(componentIssuesRepository.getIssues(PROJECT)).isEmpty();
+  }
+
+  @Test
+  public void remove_uuid_of_original_file_from_componentsWithUnprocessedIssues_if_component_has_one() {
+    String originalFileUuid = "original file uuid";
+    componentsWithUnprocessedIssues.setUuids(newHashSet(FILE_UUID, originalFileUuid));
+    when(movedFilesRepository.getOriginalFile(FILE))
+      .thenReturn(Optional.of(new MovedFilesRepository.OriginalFile(4851, originalFileUuid, "original file key")));
+
+    underTest.visitAny(FILE);
+
+    assertThat(componentsWithUnprocessedIssues.getUuids()).isEmpty();
   }
 
   private void addBaseIssue(RuleKey ruleKey) {

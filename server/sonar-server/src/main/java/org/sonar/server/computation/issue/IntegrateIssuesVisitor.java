@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.issue;
 
+import com.google.common.base.Optional;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import org.sonar.core.issue.tracking.Tracking;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
+import org.sonar.server.computation.filemove.MovedFilesRepository;
 import org.sonar.server.util.cache.DiskCache;
 
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
@@ -39,11 +41,12 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
   private final IssueVisitors issueVisitors;
   private final MutableComponentIssuesRepository componentIssuesRepository;
   private final ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues;
+  private final MovedFilesRepository movedFilesRepository;
 
   private final List<DefaultIssue> componentIssues = new ArrayList<>();
 
   public IntegrateIssuesVisitor(TrackerExecution tracker, IssueCache issueCache, IssueLifecycle issueLifecycle, IssueVisitors issueVisitors,
-    ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, MutableComponentIssuesRepository componentIssuesRepository) {
+    ComponentsWithUnprocessedIssues componentsWithUnprocessedIssues, MutableComponentIssuesRepository componentIssuesRepository, MovedFilesRepository movedFilesRepository) {
     super(CrawlerDepthLimit.FILE, POST_ORDER);
     this.tracker = tracker;
     this.issueCache = issueCache;
@@ -51,13 +54,19 @@ public class IntegrateIssuesVisitor extends TypeAwareVisitorAdapter {
     this.issueVisitors = issueVisitors;
     this.componentsWithUnprocessedIssues = componentsWithUnprocessedIssues;
     this.componentIssuesRepository = componentIssuesRepository;
+    this.movedFilesRepository = movedFilesRepository;
   }
 
   @Override
   public void visitAny(Component component) {
     componentIssues.clear();
     processIssues(component);
+
     componentsWithUnprocessedIssues.remove(component.getUuid());
+    Optional<MovedFilesRepository.OriginalFile> originalFile = movedFilesRepository.getOriginalFile(component);
+    if (originalFile.isPresent()) {
+      componentsWithUnprocessedIssues.remove(originalFile.get().getUuid());
+    }
     componentIssuesRepository.setIssues(component, componentIssues);
   }
 

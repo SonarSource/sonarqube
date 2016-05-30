@@ -55,6 +55,7 @@ import org.sonar.server.computation.issue.IssueCounter;
 import org.sonar.server.computation.issue.IssueLifecycle;
 import org.sonar.server.computation.issue.IssueVisitors;
 import org.sonar.server.computation.issue.LoadComponentUuidsHavingOpenIssuesVisitor;
+import org.sonar.server.computation.issue.MovedIssueVisitor;
 import org.sonar.server.computation.issue.NewEffortAggregator;
 import org.sonar.server.computation.issue.NewEffortCalculator;
 import org.sonar.server.computation.issue.RuleRepositoryImpl;
@@ -197,6 +198,7 @@ public final class ReportComputeEngineContainerPopulator implements ContainerPop
       NewEffortAggregator.class,
       IssueAssigner.class,
       IssueCounter.class,
+      MovedIssueVisitor.class,
 
       // visitors : order is important, measure computers must be executed at the end in order to access to every measures / issues
       LoadComponentUuidsHavingOpenIssuesVisitor.class,

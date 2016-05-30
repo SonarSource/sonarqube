@@ -21,6 +21,8 @@ package org.sonar.server.computation.issue;
 
 import java.util.Collections;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.sonar.core.issue.DefaultIssue;
 import org.sonar.core.issue.tracking.Input;
 import org.sonar.core.issue.tracking.LazyInput;
@@ -29,6 +31,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.filemove.MovedFilesRepository;
+import org.sonar.server.computation.filemove.MovedFilesRepository.OriginalFile;
 
 /**
  * Factory of {@link Input} of base data for issue tracking. Data are lazy-loaded.
@@ -38,21 +42,26 @@ public class TrackerBaseInputFactory {
 
   private final BaseIssuesLoader baseIssuesLoader;
   private final DbClient dbClient;
+  private final MovedFilesRepository movedFilesRepository;
 
-  public TrackerBaseInputFactory(BaseIssuesLoader baseIssuesLoader, DbClient dbClient) {
+  public TrackerBaseInputFactory(BaseIssuesLoader baseIssuesLoader, DbClient dbClient, MovedFilesRepository movedFilesRepository) {
     this.baseIssuesLoader = baseIssuesLoader;
     this.dbClient = dbClient;
+    this.movedFilesRepository = movedFilesRepository;
   }
 
   public Input<DefaultIssue> create(Component component) {
-    return new BaseLazyInput(component);
+    return new BaseLazyInput(component, movedFilesRepository.getOriginalFile(component).orNull());
   }
 
   private class BaseLazyInput extends LazyInput<DefaultIssue> {
     private final Component component;
+    @CheckForNull
+    private final String effectiveUuid;
 
-    private BaseLazyInput(Component component) {
+    private BaseLazyInput(Component component, @Nullable OriginalFile originalFile) {
       this.component = component;
+      this.effectiveUuid = originalFile == null ? component.getUuid() : originalFile.getUuid();
     }
 
     @Override
@@ -63,7 +72,7 @@ public class TrackerBaseInputFactory {
       
       DbSession session = dbClient.openSession(false);
       try {
-        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, component.getUuid());
+        List<String> hashes = dbClient.fileSourceDao().selectLineHashes(session, effectiveUuid);
         if (hashes == null || hashes.isEmpty()) {
           return EMPTY_LINE_HASH_SEQUENCE;
         }
@@ -75,7 +84,7 @@ public class TrackerBaseInputFactory {
 
     @Override
     protected List<DefaultIssue> loadIssues() {
-      return baseIssuesLoader.loadForComponentUuid(component.getUuid());
+      return baseIssuesLoader.loadForComponentUuid(effectiveUuid);
     }
   }
 }

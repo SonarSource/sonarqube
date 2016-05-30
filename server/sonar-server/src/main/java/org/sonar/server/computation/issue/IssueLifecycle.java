@@ -85,6 +85,12 @@ public class IssueLifecycle {
     } else {
       updater.setPastSeverity(raw, base.severity(), changeContext);
     }
+    // set component/module related fields from base in case current component has been moved
+    // (in which case base issue belongs to original file and raw issue to component)
+    raw.setComponentUuid(base.componentUuid());
+    raw.setComponentKey(base.componentKey());
+    raw.setModuleUuid(base.moduleUuid());
+    raw.setModuleUuidPath(base.moduleUuidPath());
 
     // fields coming from raw
     updater.setPastLine(raw, base.getLine());
