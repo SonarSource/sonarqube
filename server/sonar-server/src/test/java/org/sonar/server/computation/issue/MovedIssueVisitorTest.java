@@ -20,15 +20,22 @@
 package org.sonar.server.computation.issue;
 
 import com.google.common.base.Optional;
+import java.util.Date;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.mockito.ArgumentCaptor;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.filemove.MovedFilesRepository;
+import org.sonar.server.issue.IssueUpdater;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -36,17 +43,21 @@ import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 public class MovedIssueVisitorTest {
+  private static final long ANALYSIS_DATE = 894521;
   private static final String FILE_UUID = "file uuid";
   private static final Component FILE = ReportComponent.builder(Component.Type.FILE, 1).setUuid(FILE_UUID).build();
 
   @org.junit.Rule
   public ExpectedException expectedException = ExpectedException.none();
+  @org.junit.Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   private MovedFilesRepository movedFilesRepository = mock(MovedFilesRepository.class);
-  private MovedIssueVisitor underTest = new MovedIssueVisitor(movedFilesRepository);
+  private MovedIssueVisitor underTest = new MovedIssueVisitor(analysisMetadataHolder, movedFilesRepository, new IssueUpdater());
 
   @Before
   public void setUp() throws Exception {
+    analysisMetadataHolder.setAnalysisDate(ANALYSIS_DATE);
     when(movedFilesRepository.getOriginalFile(any(Component.class)))
       .thenReturn(Optional.<MovedFilesRepository.OriginalFile>absent());
   }
@@ -107,8 +118,12 @@ public class MovedIssueVisitorTest {
     verify(issue).setComponentKey(FILE.getKey());
     verify(issue).setModuleUuid(null);
     verify(issue).setModuleUuidPath(null);
-
     verify(issue).setChanged(true);
+    ArgumentCaptor<IssueChangeContext> issueChangeContextCaptor = ArgumentCaptor.forClass(IssueChangeContext.class);
+    verify(issue).setFieldChange(issueChangeContextCaptor.capture(), eq("file"), eq(originalFile.getUuid()), eq(FILE.getUuid()));
+    assertThat(issueChangeContextCaptor.getValue().date()).isEqualTo(new Date(ANALYSIS_DATE));
+    assertThat(issueChangeContextCaptor.getValue().login()).isNull();
+    assertThat(issueChangeContextCaptor.getValue().scan()).isFalse();
   }
 
   private DefaultIssue mockIssue(String fileUuid) {

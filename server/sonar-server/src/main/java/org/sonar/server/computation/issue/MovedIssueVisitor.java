@@ -20,18 +20,26 @@
 package org.sonar.server.computation.issue;
 
 import com.google.common.base.Optional;
+import java.util.Date;
 import org.sonar.core.issue.DefaultIssue;
+import org.sonar.core.issue.IssueChangeContext;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.filemove.MovedFilesRepository;
 import org.sonar.server.computation.filemove.MovedFilesRepository.OriginalFile;
+import org.sonar.server.issue.IssueUpdater;
 
 import static com.google.common.base.Preconditions.checkState;
 
 public class MovedIssueVisitor extends IssueVisitor {
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final MovedFilesRepository movedFilesRepository;
+  private final IssueUpdater issueUpdater;
 
-  public MovedIssueVisitor(MovedFilesRepository movedFilesRepository) {
+  public MovedIssueVisitor(AnalysisMetadataHolder analysisMetadataHolder, MovedFilesRepository movedFilesRepository, IssueUpdater issueUpdater) {
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.movedFilesRepository = movedFilesRepository;
+    this.issueUpdater = issueUpdater;
   }
 
   @Override
@@ -45,17 +53,14 @@ public class MovedIssueVisitor extends IssueVisitor {
       issue, component);
     OriginalFile originalFile = originalFileOptional.get();
     checkState(originalFile.getUuid().equals(issue.componentUuid()),
-        "Issue %s doesn't belong to file %s registered as original file of current file %s",
-        issue, originalFile.getUuid(), component);
+      "Issue %s doesn't belong to file %s registered as original file of current file %s",
+      issue, originalFile.getUuid(), component);
 
-    // it's enough to change component uuid, only this field is written to table ISSUES
-    // other fields (such as module, modulePath, componentKey) are read-only and result of a join with other tables
-    issue.setComponentUuid(component.getUuid());
+    // changes the issue's component uuid, add a change and set issue as changed to enforce it is persisted to DB
+    issueUpdater.setIssueMoved(issue, component.getUuid(), IssueChangeContext.createUser(new Date(analysisMetadataHolder.getAnalysisDate()), null));
+    // other fields (such as module, modulePath, componentKey) are read-only and set/reset for consistency only
     issue.setComponentKey(component.getKey());
     issue.setModuleUuid(null);
     issue.setModuleUuidPath(null);
-
-    // ensure issue is updated in DB
-    issue.setChanged(true);
   }
 }

@@ -19,7 +19,10 @@
  */
 package org.sonar.server.issue;
 
+import java.util.Calendar;
 import java.util.Date;
+import java.util.Map;
+import org.apache.commons.lang.time.DateUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -485,4 +488,38 @@ public class IssueUpdaterTest {
     updater.setNewAuthor(issue, "julien", context);
   }
 
+  @Test
+  public void setIssueMoved_has_no_effect_if_component_uuid_is_not_changed() {
+    String componentUuid = "a";
+    issue.setComponentUuid(componentUuid);
+
+    updater.setIssueMoved(issue, componentUuid, context);
+
+    assertThat(issue.changes()).isEmpty();
+    assertThat(issue.componentUuid()).isEqualTo(componentUuid);
+    assertThat(issue.isChanged()).isFalse();
+    assertThat(issue.updateDate()).isNull();
+    assertThat(issue.mustSendNotifications()).isFalse();
+  }
+
+  @Test
+  public void setIssueMoved_changes_componentUuid_adds_a_change() {
+    String oldComponentUuid = "a";
+    String newComponentUuid = "b";
+    issue.setComponentUuid(oldComponentUuid);
+
+    updater.setIssueMoved(issue, newComponentUuid, context);
+
+    assertThat(issue.changes()).hasSize(1);
+    FieldDiffs fieldDiffs = issue.changes().get(0);
+    assertThat(fieldDiffs.creationDate()).isEqualTo(context.date());
+    assertThat(fieldDiffs.diffs()).hasSize(1);
+    Map.Entry<String, FieldDiffs.Diff> entry = fieldDiffs.diffs().entrySet().iterator().next();
+    assertThat(entry.getKey()).isEqualTo("file");
+    assertThat(entry.getValue().oldValue()).isEqualTo(oldComponentUuid);
+    assertThat(entry.getValue().newValue()).isEqualTo(newComponentUuid);
+    assertThat(issue.componentUuid()).isEqualTo(newComponentUuid);
+    assertThat(issue.isChanged()).isTrue();
+    assertThat(issue.updateDate()).isEqualTo(DateUtils.truncate(context.date(), Calendar.SECOND));
+  }
 }

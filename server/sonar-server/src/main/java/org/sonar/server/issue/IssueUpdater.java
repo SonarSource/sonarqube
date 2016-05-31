@@ -61,6 +61,7 @@ public class IssueUpdater {
   public static final String STATUS = "status";
   public static final String AUTHOR = "author";
   public static final String ACTION_PLAN = "actionPlan";
+  public static final String FILE = "file";
 
   /**
    * It should be renamed to 'effort', but it hasn't been done to prevent a massive update in database
@@ -335,6 +336,17 @@ public class IssueUpdater {
       issue.setUpdateDate(context.date());
       issue.setChanged(true);
       issue.setSendNotifications(true);
+      return true;
+    }
+    return false;
+  }
+
+  public boolean setIssueMoved(DefaultIssue issue, String newComponentUuid, IssueChangeContext context) {
+    if (!Objects.equals(newComponentUuid, issue.componentUuid())) {
+      issue.setFieldChange(context, FILE, issue.componentUuid(), newComponentUuid);
+      issue.setComponentUuid(newComponentUuid);
+      issue.setUpdateDate(context.date());
+      issue.setChanged(true);
       return true;
     }
     return false;
