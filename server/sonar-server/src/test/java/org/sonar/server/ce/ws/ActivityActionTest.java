@@ -65,8 +65,10 @@ import static org.sonar.api.utils.DateUtils.formatDateTime;
 import static org.sonar.db.component.ComponentTesting.newDeveloper;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
 import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
 public class ActivityActionTest {
 
@@ -92,7 +94,7 @@ public class ActivityActionTest {
 
   @Test
   public void get_all_past_activity() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
 
@@ -115,7 +117,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_status() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -130,7 +132,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_max_executed_at_exclude() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -144,7 +146,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_by_max_executed_at_include_day_filled() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     String today = formatDate(new Date(EXECUTED_AT));
     System.out.println(EXECUTED_AT + " - " + today);
@@ -157,7 +159,7 @@ public class ActivityActionTest {
 
   @Test
   public void filter_on_current_activities() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     // T2 is the current activity (the most recent one)
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_1", CeActivityDto.Status.FAILED);
@@ -173,7 +175,7 @@ public class ActivityActionTest {
 
   @Test
   public void limit_results() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "PROJECT_2", CeActivityDto.Status.FAILED);
     insertQueue("T3", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
@@ -221,7 +223,7 @@ public class ActivityActionTest {
     componentDb.insertProjectAndSnapshot(eclipse);
     dbTester.commit();
     componentDb.indexComponents(struts.getId(), zookeeper.getId(), eclipse.getId());
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
     insertActivity("T3", "P3", CeActivityDto.Status.SUCCESS);
@@ -238,7 +240,7 @@ public class ActivityActionTest {
     componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertViewAndSnapshot(apacheView);
     componentDb.indexComponents(developer.getId(), apacheView.getId());
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     insertActivity("T1", "D1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "V1", CeActivityDto.Status.SUCCESS);
 
@@ -249,6 +251,7 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_id_in_queue_ignoring_other_parameters() throws IOException {
+    globalAdmin();
     insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
 
     ActivityResponse result = call(
@@ -262,12 +265,38 @@ public class ActivityActionTest {
 
   @Test
   public void search_task_id_in_activity() {
+    globalAdmin();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
 
     ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
 
     assertThat(result.getTasksCount()).isEqualTo(1);
     assertThat(result.getTasks(0).getId()).isEqualTo("T1");
+  }
+
+  @Test
+  public void search_task_id_as_project_admin() {
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    userSession.login().addProjectUuidPermissions(UserRole.ADMIN, "PROJECT_1");
+
+    ActivityResponse result = call(ws.newRequest().setParam(Param.TEXT_QUERY, "T1"));
+
+    assertThat(result.getTasksCount()).isEqualTo(1);
+    assertThat(result.getTasks(0).getId()).isEqualTo("T1");
+  }
+
+  @Test
+  public void search_task_by_component_uuid() {
+    insertQueue("T1", "PROJECT_1", CeQueueDto.Status.IN_PROGRESS);
+    insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
+    globalAdmin();
+
+    ActivityResponse result = call(ws.newRequest()
+      .setParam(PARAM_COMPONENT_ID, "PROJECT_1")
+      .setParam(PARAM_TYPE, CeTaskTypes.REPORT)
+      .setParam(PARAM_STATUS, "SUCCESS,FAILED,CANCELED,IN_PROGRESS,PENDING"));
+
+    assertThat(result.getTasksCount()).isEqualTo(2);
   }
 
   @Test
@@ -304,12 +333,16 @@ public class ActivityActionTest {
 
   @Test
   public void support_json_response() {
-    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
+    globalAdmin();
     TestResponse wsResponse = ws.newRequest()
       .setMediaType(MediaTypes.JSON)
       .execute();
 
     JsonAssert.assertJson(wsResponse.getInput()).isSimilarTo("{\"tasks\":[]}");
+  }
+
+  private void globalAdmin() {
+    userSession.setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
   }
 
   private CeQueueDto insertQueue(String taskUuid, String componentUuid, CeQueueDto.Status status) {

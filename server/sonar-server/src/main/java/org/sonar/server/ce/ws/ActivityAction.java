@@ -166,9 +166,10 @@ public class ActivityAction implements CeWsAction {
       // if a task searched by uuid is found all other parameters are ignored
       Optional<WsCe.Task> taskSearchedById = searchTaskByUuid(dbSession, request);
       if (taskSearchedById.isPresent()) {
+        userSession.checkComponentUuidPermission(UserRole.ADMIN, taskSearchedById.get().getComponentId());
         return buildResponse(
           singletonList(taskSearchedById.get()),
-          Collections.<WsCe.Task>emptyList(),
+          Collections.emptyList(),
           request.getPageSize());
       }
 
