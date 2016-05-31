@@ -28,7 +28,9 @@ import java.util.List;
  * This property is automatically set by sonar-packaging-maven-plugin when building plugin.
  * 
  * @since 2.8
+ * @deprecated replaced by {@link Plugin} in version 5.6.
  */
+@Deprecated
 public abstract class SonarPlugin implements Plugin {
 
   /**

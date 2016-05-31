@@ -19,7 +19,6 @@
  */
 package org.sonar.api;
 
-import com.google.common.annotations.Beta;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -83,7 +82,6 @@ import static java.util.Objects.requireNonNull;
  *
  * @since 5.5
  */
-@Beta
 public interface Plugin {
 
   class Context {
