@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import com.google.common.base.Function;
 import com.google.common.base.Joiner;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
@@ -31,6 +32,7 @@ import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Lists.newArrayList;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.buildLikeValue;
 import static org.sonar.db.WildcardPosition.AFTER;
@@ -38,8 +40,9 @@ import static org.sonar.db.WildcardPosition.AFTER;
 public class ComponentTreeQuery {
   @CheckForNull
   private final String nameOrKeyQuery;
+  // SONAR-7681 a public implementation of List must be used in MyBatis - potential concurrency exceptions otherwise
   @CheckForNull
-  private final Collection<String> qualifiers;
+  private final ArrayList<String> qualifiers;
   @CheckForNull
   private final Integer page;
   @CheckForNull
@@ -51,7 +54,7 @@ public class ComponentTreeQuery {
 
   private ComponentTreeQuery(Builder builder) {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
-    this.qualifiers = builder.qualifiers;
+    this.qualifiers = builder.qualifiers == null ? null : newArrayList(builder.qualifiers);
     this.page = builder.page;
     this.pageSize = builder.pageSize;
     this.baseSnapshot = builder.baseSnapshot;

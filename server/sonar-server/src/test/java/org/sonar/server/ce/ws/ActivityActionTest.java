@@ -149,7 +149,6 @@ public class ActivityActionTest {
     globalAdmin();
     insertActivity("T1", "PROJECT_1", CeActivityDto.Status.SUCCESS);
     String today = formatDate(new Date(EXECUTED_AT));
-    System.out.println(EXECUTED_AT + " - " + today);
 
     ActivityResponse activityResponse = call(ws.newRequest()
       .setParam(CeWsParameters.PARAM_MAX_EXECUTED_AT, today));
