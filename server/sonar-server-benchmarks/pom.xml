@@ -78,7 +78,7 @@
           <argLine>
             -Xmx1G -Xms256m -server -Djava.awt.headless=true
             -DenableBenchmarkAssertions=${enableBenchmarkAssertions}
-            -Xss256k -Djava.net.preferIPv4Stack=true
+            -Xss256k
             -XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75
             -XX:+UseCMSInitiatingOccupancyOnly -XX:+HeapDumpOnOutOfMemoryError
           </argLine>

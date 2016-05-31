@@ -110,14 +110,14 @@ public class ProcessProperties {
     defaults.put(ProcessProperties.CLUSTER_NODE_NAME, "sonar-" + System.currentTimeMillis());
 
     defaults.put(ProcessProperties.SEARCH_HOST, "127.0.0.1");
-    defaults.put(ProcessProperties.SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djava.net.preferIPv4Stack=true " +
+    defaults.put(ProcessProperties.SEARCH_JAVA_OPTS, "-Xmx1G -Xms256m -Xss256k -Djna.nosys=true " +
       "-XX:+UseParNewGC -XX:+UseConcMarkSweepGC -XX:CMSInitiatingOccupancyFraction=75 -XX:+UseCMSInitiatingOccupancyOnly " +
       "-XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(ProcessProperties.SEARCH_JAVA_ADDITIONAL_OPTS, "");
 
-    defaults.put(ProcessProperties.WEB_JAVA_OPTS, "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
+    defaults.put(ProcessProperties.WEB_JAVA_OPTS, "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(ProcessProperties.WEB_JAVA_ADDITIONAL_OPTS, "");
-    defaults.put(ProcessProperties.CE_JAVA_OPTS, "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError -Djava.net.preferIPv4Stack=true");
+    defaults.put(ProcessProperties.CE_JAVA_OPTS, "-Xmx512m -Xms128m -XX:+HeapDumpOnOutOfMemoryError");
     defaults.put(ProcessProperties.CE_JAVA_ADDITIONAL_OPTS, "");
     defaults.put(ProcessProperties.JDBC_MAX_ACTIVE, "60");
     defaults.put(ProcessProperties.JDBC_MAX_IDLE, "5");
