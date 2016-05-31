@@ -33,6 +33,7 @@ import org.junit.Before;
 import org.junit.ClassRule;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.issue.Issue;
 import org.sonar.api.resources.Scopes;
@@ -70,6 +71,8 @@ public class IssueIndexTest {
   public static EsTester tester = new EsTester().addDefinitions(new IssueIndexDefinition(new Settings()), new ViewIndexDefinition(new Settings()));
   @Rule
   public UserSessionRule userSessionRule = UserSessionRule.standalone();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   IssueIndex underTest;
 
@@ -202,18 +205,21 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file));
 
     assertThat(
-      underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(file.uuid())).build(), new SearchOptions())
+        .getDocs())
+          .isEmpty();
     assertThat(
-      underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions()).getDocs())
-        .hasSize(1);
+      underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(module.uuid())).build(), new SearchOptions())
+        .getDocs())
+          .hasSize(1);
     assertThat(
       underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(subModule.uuid())).build(), new SearchOptions())
         .getDocs())
           .hasSize(2);
     assertThat(
-      underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions()).getDocs())
-        .isEmpty();
+      underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList(project.uuid())).build(), new SearchOptions())
+        .getDocs())
+          .isEmpty();
     assertThat(
       underTest.search(IssueQuery.builder(userSessionRule).projectUuids(newArrayList(project.uuid())).moduleUuids(newArrayList("unknown")).build(), new SearchOptions()).getDocs())
         .isEmpty();
@@ -399,7 +405,8 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE1", file).setStatus(Issue.STATUS_CLOSED),
       IssueTesting.newDoc("ISSUE2", file).setStatus(Issue.STATUS_OPEN));
 
-    assertThat(underTest.search(IssueQuery.builder(userSessionRule).statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new SearchOptions()).getDocs()).hasSize(2);
+    assertThat(underTest.search(IssueQuery.builder(userSessionRule).statuses(newArrayList(Issue.STATUS_CLOSED, Issue.STATUS_OPEN)).build(), new SearchOptions()).getDocs())
+      .hasSize(2);
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).statuses(newArrayList(Issue.STATUS_CLOSED)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).statuses(newArrayList(Issue.STATUS_CONFIRMED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -429,8 +436,9 @@ public class IssueIndexTest {
       IssueTesting.newDoc("ISSUE2", file).setResolution(Issue.RESOLUTION_FIXED));
 
     assertThat(
-      underTest.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions()).getDocs())
-        .hasSize(2);
+      underTest.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE, Issue.RESOLUTION_FIXED)).build(), new SearchOptions())
+        .getDocs())
+          .hasSize(2);
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_FALSE_POSITIVE)).build(), new SearchOptions()).getDocs()).hasSize(1);
     assertThat(underTest.search(IssueQuery.builder(userSessionRule).resolutions(newArrayList(Issue.RESOLUTION_REMOVED)).build(), new SearchOptions()).getDocs()).isEmpty();
   }
@@ -668,10 +676,11 @@ public class IssueIndexTest {
       .createdAfter(parseDate("2014-09-19")).createdBefore(parseDate("2014-09-21"))
       .build(), new SearchOptions()).getDocs()).hasSize(1);
 
-    // 20 < createdAt < 20: nothing
-    assertThat(underTest.search(IssueQuery.builder(userSessionRule)
+    // 20 < createdAt < 20: exception
+    expectedException.expect(IllegalArgumentException.class);
+    underTest.search(IssueQuery.builder(userSessionRule)
       .createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-20"))
-      .build(), new SearchOptions()).getDocs()).isEmpty();
+      .build(), new SearchOptions()).getDocs();
   }
 
   @Test
@@ -699,8 +708,16 @@ public class IssueIndexTest {
         new SearchOptions());
       Fail.failBecauseExceptionWasNotThrown(IllegalArgumentException.class);
     } catch (IllegalArgumentException exception) {
-      assertThat(exception.getMessage()).isEqualTo("Start bound cannot be larger than end bound");
+      assertThat(exception.getMessage()).isEqualTo("Start bound cannot be larger or equal to end bound");
     }
+  }
+
+  @Test
+  public void fail_if_created_before_equals_created_after() {
+    expectedException.expect(IllegalArgumentException.class);
+    expectedException.expectMessage("Start bound cannot be larger or equal to end bound");
+
+    underTest.search(IssueQuery.builder(userSessionRule).createdAfter(parseDate("2014-09-20")).createdBefore(parseDate("2014-09-20")).build(), new SearchOptions());
   }
 
   @Test
@@ -804,8 +821,8 @@ public class IssueIndexTest {
     SearchOptions SearchOptions = fixtureForCreatedAtFacet();
 
     Map<String, Long> createdAt = underTest.search(IssueQuery.builder(userSessionRule)
-        .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
-        .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
+      .createdAfter(parseDateTime("2014-09-01T00:00:00-0100"))
+      .createdBefore(parseDateTime("2014-09-02T00:00:00-0100")).build(),
       SearchOptions).getFacets().get("createdAt");
     assertThat(createdAt).containsOnly(
       entry("2014-09-01T01:00:00+0000", 2L));

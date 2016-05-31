@@ -41,7 +41,6 @@ import org.sonar.wsclient.component.Component;
 import org.sonar.wsclient.issue.Issue;
 import org.sonar.wsclient.issue.IssueQuery;
 import org.sonar.wsclient.issue.Issues;
-import org.sonar.wsclient.issue.NewIssue;
 import org.sonarqube.ws.Common;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.client.GetRequest;
@@ -191,7 +190,7 @@ public class IssueSearchTest extends AbstractIssueTest {
       search(IssueQuery.create().createdBefore(past).createdAfter(today)).list();
       Fail.fail("Expecting 400 from issues search WS");
     } catch (HttpException exception) {
-      assertThat(exception.getMessage()).contains("Start bound cannot be larger than end bound");
+      assertThat(exception.getMessage()).contains("Start bound cannot be larger or equal to end bound");
     }
 
   }
