@@ -66,6 +66,7 @@ public final class ComputationStepExecutor {
     }
   }
 
+  @FunctionalInterface
   public interface Listener {
     void finished(boolean allStepsExecuted);
   }

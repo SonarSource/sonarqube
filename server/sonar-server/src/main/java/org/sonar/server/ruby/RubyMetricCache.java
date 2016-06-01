@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ruby;
 
+@FunctionalInterface
 public interface RubyMetricCache {
   void invalidate();
 }

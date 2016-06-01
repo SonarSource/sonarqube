@@ -23,6 +23,7 @@ package org.sonar.server.ruby;
  * Interface which must be top-level public class to be used by the Ruby engine but that hides name of the Ruby method
  * in the Ruby script from the rest of the platform (only {@link RubyDatabaseMigration} is known to the platform).
  */
+@FunctionalInterface
 public interface CallDatabaseVersionUpgrade {
 
   /**

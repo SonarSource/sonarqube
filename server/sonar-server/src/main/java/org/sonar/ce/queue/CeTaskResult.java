@@ -27,6 +27,7 @@ import org.sonar.ce.taskprocessor.CeTaskProcessor;
  *
  * @see {@link CeTaskProcessor#process(CeTask)}
  */
+@FunctionalInterface
 public interface CeTaskResult {
   /**
    * The id of the snapshot created, if any, for the Component in {@link CeTask}

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.ruby;
 
+@FunctionalInterface
 public interface RubyRailsRoutes {
   /**
    * Triggers the (re)creation of web route in Ruby On Rails.

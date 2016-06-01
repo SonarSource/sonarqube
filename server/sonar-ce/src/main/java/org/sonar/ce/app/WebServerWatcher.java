@@ -19,6 +19,7 @@
  */
 package org.sonar.ce.app;
 
+@FunctionalInterface
 public interface WebServerWatcher {
   /**
    * This blocking call, waits for the Web Server to be operational until either the Web Server is actually

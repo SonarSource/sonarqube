@@ -22,6 +22,7 @@ package org.sonar.server.ruby;
 /**
  * Represents the database migration written in Ruby.
  */
+@FunctionalInterface
 public interface RubyDatabaseMigration {
   /**
    * Triggers the Ruby migration with ActiveRecord.
