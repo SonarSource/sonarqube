@@ -19,12 +19,13 @@
  */
 package org.sonar.db.ce;
 
+import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.db.DatabaseUtils;
 
-import static java.util.Collections.singletonList;
+import static com.google.common.collect.Lists.newArrayList;
 
 /**
  * Db Query used for CE_QUEUE and CE_ACTIVITY tables
@@ -34,8 +35,9 @@ public class CeTaskQuery {
   public static final int MAX_COMPONENT_UUIDS = DatabaseUtils.PARTITION_SIZE_FOR_ORACLE;
 
   private boolean onlyCurrents = false;
-  private List<String> componentUuids;
-  private List<String> statuses;
+  // SONAR-7681 a public implementation of List must be used in MyBatis - potential concurrency exceptions otherwise
+  private ArrayList<String> componentUuids;
+  private ArrayList<String> statuses;
   private String type;
   private Long minSubmittedAt;
   private Long maxExecutedAt;
@@ -46,7 +48,7 @@ public class CeTaskQuery {
   }
 
   public CeTaskQuery setComponentUuids(@Nullable List<String> l) {
-    this.componentUuids = l;
+    this.componentUuids = l == null ? null : newArrayList(l);
     return this;
   }
 
@@ -58,7 +60,7 @@ public class CeTaskQuery {
     if (s == null) {
       this.componentUuids = null;
     } else {
-      this.componentUuids = singletonList(s);
+      this.componentUuids = newArrayList(s);
     }
     return this;
   }
@@ -78,7 +80,7 @@ public class CeTaskQuery {
   }
 
   public CeTaskQuery setStatuses(@Nullable List<String> statuses) {
-    this.statuses = statuses;
+    this.statuses = statuses == null ? null : newArrayList(statuses);
     return this;
   }
 
