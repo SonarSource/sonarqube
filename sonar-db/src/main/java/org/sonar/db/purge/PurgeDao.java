@@ -19,17 +19,13 @@
  */
 package org.sonar.db.purge;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Date;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.apache.commons.lang.ArrayUtils;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
@@ -91,8 +87,14 @@ public class PurgeDao implements Dao {
   private static void deleteOldClosedIssues(PurgeConfiguration conf, PurgeMapper mapper, PurgeListener listener) {
     Date toDate = conf.maxLiveDateOfClosedIssues();
     List<String> issueKeys = mapper.selectOldClosedIssueKeys(conf.rootProjectIdUuid().getUuid(), dateToLong(toDate));
-    executeLargeInputs(issueKeys, new DeleteIssueChangesFromIssueKeys(mapper));
-    executeLargeInputs(issueKeys, new DeleteIssuesFromKeys(mapper));
+    executeLargeInputs(issueKeys, input -> {
+      mapper.deleteIssueChangesFromIssueKeys(input);
+      return emptyList();
+    });
+    executeLargeInputs(issueKeys, input -> {
+      mapper.deleteIssuesFromKeys(input);
+      return emptyList();
+    });
     listener.onIssuesRemoval(conf.rootProjectIdUuid().getUuid(), issueKeys);
   }
 
@@ -130,15 +132,13 @@ public class PurgeDao implements Dao {
 
   private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper, final PurgeListener purgeListener) {
     final List<IdUuidPair> componentIdUuids = new ArrayList<>();
-    session.select("org.sonar.db.purge.PurgeMapper.selectComponentIdUuidsToDisable", project.getId(), new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext resultContext) {
+    session.select("org.sonar.db.purge.PurgeMapper.selectComponentIdUuidsToDisable", project.getId(),
+      resultContext -> {
         IdUuidPair componentIdUuid = (IdUuidPair) resultContext.getResultObject();
         if (componentIdUuid.getId() != null) {
           componentIdUuids.add(componentIdUuid);
         }
-      }
-    });
+      });
 
     for (IdUuidPair componentIdUuid : componentIdUuids) {
       disableResource(componentIdUuid, purgeMapper);
@@ -215,31 +215,4 @@ public class PurgeDao implements Dao {
     return session.getMapper(PurgeMapper.class);
   }
 
-  private static class DeleteIssueChangesFromIssueKeys implements Function<List<String>, List<Void>> {
-    private final PurgeMapper mapper;
-
-    private DeleteIssueChangesFromIssueKeys(PurgeMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<Void> apply(@Nonnull List<String> input) {
-      mapper.deleteIssueChangesFromIssueKeys(input);
-      return emptyList();
-    }
-  }
-
-  private static class DeleteIssuesFromKeys implements Function<List<String>, List<Void>> {
-    private final PurgeMapper mapper;
-
-    private DeleteIssuesFromKeys(PurgeMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<Void> apply(@Nonnull List<String> input) {
-      mapper.deleteIssuesFromKeys(input);
-      return emptyList();
-    }
-  }
 }

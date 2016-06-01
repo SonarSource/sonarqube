@@ -19,14 +19,14 @@
  */
 package org.sonar.db.user;
 
-import com.google.common.base.Function;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 /**
  * Be careful when updating this class because it's used by the Dev Cockpit plugin.
@@ -53,12 +53,7 @@ public class AuthorDao implements Dao {
   }
 
   public List<String> selectScmAccountsByDeveloperUuids(final DbSession session, Collection<String> developerUuids) {
-    return DatabaseUtils.executeLargeInputs(developerUuids, new Function<List<String>, List<String>>() {
-      @Override
-      public List<String> apply(List<String> partition) {
-        return getMapper(session).selectScmAccountsByDeveloperUuids(partition);
-      }
-    });
+    return executeLargeInputs(developerUuids, partition -> getMapper(session).selectScmAccountsByDeveloperUuids(partition));
   }
 
   private static AuthorMapper getMapper(SqlSession session) {

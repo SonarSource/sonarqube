@@ -19,10 +19,8 @@
  */
 package org.sonar.db.measure.custom;
 
-import com.google.common.base.Function;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
 import org.sonar.db.DatabaseUtils;
@@ -42,14 +40,13 @@ public class CustomMeasureDao implements Dao {
     mapper(session).delete(id);
   }
 
-  public void deleteByMetricIds(final DbSession session, final List<Integer> metricIds) {
-    DatabaseUtils.executeLargeInputsWithoutOutput(metricIds, new Function<List<Integer>, Void>() {
-      @Override
-      public Void apply(@Nonnull List<Integer> input) {
+  public void deleteByMetricIds(DbSession session, List<Integer> metricIds) {
+    DatabaseUtils.executeLargeInputsWithoutOutput(
+      metricIds,
+      input -> {
         mapper(session).deleteByMetricIds(metricIds);
         return null;
-      }
-    });
+      });
   }
 
   @CheckForNull

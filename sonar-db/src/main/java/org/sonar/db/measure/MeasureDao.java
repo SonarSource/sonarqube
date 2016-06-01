@@ -19,20 +19,18 @@
  */
 package org.sonar.db.measure;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class MeasureDao implements Dao {
 
@@ -45,13 +43,10 @@ public class MeasureDao implements Dao {
     return mapper(session).selectByComponentAndMetric(componentKey, metricKey);
   }
 
-  public List<MeasureDto> selectByComponentKeyAndMetricKeys(final DbSession session, final String componentKey, List<String> metricKeys) {
-    return DatabaseUtils.executeLargeInputs(metricKeys, new Function<List<String>, List<MeasureDto>>() {
-      @Override
-      public List<MeasureDto> apply(List<String> keys) {
-        return mapper(session).selectByComponentAndMetrics(componentKey, keys);
-      }
-    });
+  public List<MeasureDto> selectByComponentKeyAndMetricKeys(DbSession session, String componentKey, List<String> metricKeys) {
+    return executeLargeInputs(
+      metricKeys,
+      keys -> mapper(session).selectByComponentAndMetrics(componentKey, keys));
   }
 
   /**
@@ -59,70 +54,50 @@ public class MeasureDao implements Dao {
    * <p/>
    * Uses by Views.
    */
-  public List<MeasureDto> selectBySnapshotIdAndMetricKeys(final long snapshotId, Set<String> metricKeys, final DbSession dbSession) {
-    return DatabaseUtils.executeLargeInputs(from(metricKeys).toSortedList(String.CASE_INSENSITIVE_ORDER),
-      new Function<List<String>, List<MeasureDto>>() {
-        @Override
-        public List<MeasureDto> apply(List<String> keys) {
-          return mapper(dbSession).selectBySnapshotAndMetricKeys(snapshotId, keys);
-        }
-      });
+  public List<MeasureDto> selectBySnapshotIdAndMetricKeys(long snapshotId, Set<String> metricKeys, DbSession dbSession) {
+    return executeLargeInputs(from(metricKeys).toSortedList(String.CASE_INSENSITIVE_ORDER),
+      keys -> mapper(dbSession).selectBySnapshotAndMetricKeys(snapshotId, keys));
   }
 
-  public List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndMetricIds(final DbSession session, final String componentUuid, final long projectSnapshotId,
+  public List<PastMeasureDto> selectByComponentUuidAndProjectSnapshotIdAndMetricIds(DbSession session, String componentUuid, long projectSnapshotId,
     Set<Integer> metricIds) {
-    return DatabaseUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<PastMeasureDto>>() {
-      @Override
-      public List<PastMeasureDto> apply(List<Integer> ids) {
-        return mapper(session).selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds(componentUuid, projectSnapshotId, ids,
-          SnapshotDto.STATUS_PROCESSED);
-      }
-    });
+    return executeLargeInputs(
+      metricIds,
+      ids -> mapper(session).selectByComponentUuidAndProjectSnapshotIdAndStatusAndMetricIds(componentUuid, projectSnapshotId, ids,
+        SnapshotDto.STATUS_PROCESSED));
   }
 
   /**
    * Used by plugin Developer Cockpit
    */
-  public List<MeasureDto> selectByDeveloperForSnapshotAndMetrics(final DbSession dbSession, @Nullable final Long developerId, final long snapshotId,
+  public List<MeasureDto> selectByDeveloperForSnapshotAndMetrics(DbSession dbSession, @Nullable Long developerId, long snapshotId,
     Collection<Integer> metricIds) {
-    return DatabaseUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<MeasureDto>>() {
-      @Override
-      @Nonnull
-      public List<MeasureDto> apply(@Nonnull List<Integer> input) {
-        return mapper(dbSession).selectByDeveloperForSnapshotAndMetrics(developerId, snapshotId, input);
-      }
-    });
+    return executeLargeInputs(
+      metricIds,
+      input -> mapper(dbSession).selectByDeveloperForSnapshotAndMetrics(developerId, snapshotId, input));
   }
 
   /**
    * Used by plugin Developer Cockpit
    */
-  public List<MeasureDto> selectBySnapshotAndMetrics(final DbSession dbSession, final long snapshotId, Collection<Integer> metricIds) {
-    return DatabaseUtils.executeLargeInputs(metricIds, new Function<List<Integer>, List<MeasureDto>>() {
-      @Override
-      @Nonnull
-      public List<MeasureDto> apply(@Nonnull List<Integer> input) {
-        return mapper(dbSession).selectBySnapshotAndMetrics(snapshotId, input);
-      }
-    });
+  public List<MeasureDto> selectBySnapshotAndMetrics(DbSession dbSession, long snapshotId, Collection<Integer> metricIds) {
+    return executeLargeInputs(
+      metricIds,
+      input -> mapper(dbSession).selectBySnapshotAndMetrics(snapshotId, input));
   }
 
   /**
    * Used by plugin Developer Cockpit
    */
-  public List<MeasureDto> selectBySnapshotIdsAndMetricIds(final DbSession dbSession, List<Long> snapshotIds, final List<Integer> metricIds) {
+  public List<MeasureDto> selectBySnapshotIdsAndMetricIds(DbSession dbSession, List<Long> snapshotIds, List<Integer> metricIds) {
     return selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession, null, snapshotIds, metricIds);
   }
 
-  public List<MeasureDto> selectByDeveloperAndSnapshotIdsAndMetricIds(final DbSession dbSession, @Nullable final Long developerId, List<Long> snapshotIds,
-    final List<Integer> metricIds) {
-    return DatabaseUtils.executeLargeInputs(snapshotIds, new Function<List<Long>, List<MeasureDto>>() {
-      @Override
-      @Nonnull
-      public List<MeasureDto> apply(@Nonnull List<Long> input) {
-        return mapper(dbSession).selectByDeveloperAndSnapshotIdsAndMetricIds(developerId, input, metricIds);
-      }
-    });
+  public List<MeasureDto> selectByDeveloperAndSnapshotIdsAndMetricIds(DbSession dbSession, @Nullable Long developerId, List<Long> snapshotIds,
+    List<Integer> metricIds) {
+    return executeLargeInputs(
+      snapshotIds,
+      input -> mapper(dbSession).selectByDeveloperAndSnapshotIdsAndMetricIds(developerId, input, metricIds));
   }
 
   /**

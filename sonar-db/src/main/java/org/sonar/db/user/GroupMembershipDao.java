@@ -20,7 +20,6 @@
 package org.sonar.db.user;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -28,13 +27,13 @@ import com.google.common.collect.Multimap;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import org.apache.ibatis.session.RowBounds;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class GroupMembershipDao implements Dao {
 
@@ -74,34 +73,32 @@ public class GroupMembershipDao implements Dao {
     return mapper(session).countMembers(params);
   }
 
-  public Map<String, Integer> countUsersByGroups(final DbSession session, Collection<Long> groupIds) {
-    final Map<String, Integer> result = Maps.newHashMap();
-    DatabaseUtils.executeLargeInputs(groupIds, new Function<List<Long>, List<GroupUserCount>>() {
-      @Override
-      public List<GroupUserCount> apply(@Nonnull List<Long> input) {
-        List<GroupUserCount> userCounts = mapper(session).countUsersByGroup(input);
-        for (GroupUserCount count : userCounts) {
-          result.put(count.groupName(), count.userCount());
-        }
-        return userCounts;
-      }
-    });
+  public Map<String, Integer> countUsersByGroups(DbSession session, Collection<Long> groupIds) {
+    Map<String, Integer> result = Maps.newHashMap();
+    executeLargeInputs(
+        groupIds,
+        input -> {
+          List<GroupUserCount> userCounts = mapper(session).countUsersByGroup(input);
+          for (GroupUserCount count : userCounts) {
+            result.put(count.groupName(), count.userCount());
+          }
+          return userCounts;
+        });
 
     return result;
   }
 
-  public Multimap<String, String> selectGroupsByLogins(final DbSession session, Collection<String> logins) {
-    final Multimap<String, String> result = ArrayListMultimap.create();
-    DatabaseUtils.executeLargeInputs(logins, new Function<List<String>, List<LoginGroup>>() {
-      @Override
-      public List<LoginGroup> apply(@Nonnull List<String> input) {
-        List<LoginGroup> groupMemberships = mapper(session).selectGroupsByLogins(input);
-        for (LoginGroup membership : groupMemberships) {
-          result.put(membership.login(), membership.groupName());
-        }
-        return groupMemberships;
-      }
-    });
+  public Multimap<String, String> selectGroupsByLogins(DbSession session, Collection<String> logins) {
+    Multimap<String, String> result = ArrayListMultimap.create();
+    executeLargeInputs(
+        logins,
+        input -> {
+          List<LoginGroup> groupMemberships = mapper(session).selectGroupsByLogins(input);
+          for (LoginGroup membership : groupMemberships) {
+            result.put(membership.login(), membership.groupName());
+          }
+          return groupMemberships;
+        });
 
     return result;
   }

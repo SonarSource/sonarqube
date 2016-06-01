@@ -19,14 +19,14 @@
  */
 package org.sonar.db.dashboard;
 
-import com.google.common.base.Function;
-import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class WidgetPropertyDao implements Dao {
 
@@ -73,14 +73,13 @@ public class WidgetPropertyDao implements Dao {
     return mapper(session).selectByDashboard(dashboardKey);
   }
 
-  public void deleteByWidgetIds(final DbSession session, List<Long> widgetIdsWithPropertiesToDelete) {
-    DatabaseUtils.executeLargeInputs(widgetIdsWithPropertiesToDelete, new Function<List<Long>, List<Void>>() {
-      @Override
-      public List<Void> apply(List<Long> input) {
-        mapper(session).deleteByWidgetIds(input);
-        return Arrays.asList();
-      }
-    });
+  public void deleteByWidgetIds(DbSession session, List<Long> widgetIdsWithPropertiesToDelete) {
+    executeLargeInputs(
+        widgetIdsWithPropertiesToDelete,
+        input -> {
+          mapper(session).deleteByWidgetIds(input);
+          return Collections.emptyList();
+        });
   }
 
   private static WidgetPropertyMapper mapper(DbSession session) {

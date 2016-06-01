@@ -19,7 +19,6 @@
  */
 package org.sonar.db.metric;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
@@ -34,11 +33,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class MetricDao implements Dao {
 
@@ -48,12 +48,7 @@ public class MetricDao implements Dao {
   }
 
   public List<MetricDto> selectByKeys(final DbSession session, List<String> keys) {
-    return DatabaseUtils.executeLargeInputs(keys, new Function<List<String>, List<MetricDto>>() {
-      @Override
-      public List<MetricDto> apply(@Nonnull List<String> input) {
-        return mapper(session).selectByKeys(input);
-      }
-    });
+    return executeLargeInputs(keys, input -> mapper(session).selectByKeys(input));
   }
 
   public MetricDto selectOrFailByKey(DbSession session, String key) {
@@ -109,14 +104,8 @@ public class MetricDao implements Dao {
     return mapper(session).selectAvailableCustomMetricsByComponentUuid(projectUuid);
   }
 
-  public List<MetricDto> selectByIds(final DbSession session, Set<Integer> idsSet) {
-    List<Integer> ids = new ArrayList<>(idsSet);
-    return DatabaseUtils.executeLargeInputs(ids, new Function<List<Integer>, List<MetricDto>>() {
-      @Override
-      public List<MetricDto> apply(@Nonnull List<Integer> ids) {
-        return mapper(session).selectByIds(ids);
-      }
-    });
+  public List<MetricDto> selectByIds(DbSession session, Set<Integer> idsSet) {
+    return executeLargeInputs(new ArrayList<>(idsSet), ids1 -> mapper(session).selectByIds(ids1));
   }
 
   private static class NotEmptyPredicate implements Predicate<String> {
@@ -132,13 +121,12 @@ public class MetricDao implements Dao {
   }
 
   public void disableCustomByIds(final DbSession session, List<Integer> ids) {
-    DatabaseUtils.executeLargeInputsWithoutOutput(ids, new Function<List<Integer>, Void>() {
-      @Override
-      public Void apply(@Nonnull List<Integer> input) {
+    executeLargeInputsWithoutOutput(
+      ids,
+      input -> {
         mapper(session).disableByIds(input);
         return null;
-      }
-    });
+      });
   }
 
   /**

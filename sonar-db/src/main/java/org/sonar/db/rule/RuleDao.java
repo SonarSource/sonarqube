@@ -19,15 +19,12 @@
  */
 package org.sonar.db.rule;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import java.util.List;
-import javax.annotation.Nonnull;
 import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rules.RuleQuery;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
@@ -58,7 +55,7 @@ public class RuleDao implements Dao {
   }
 
   public List<RuleDto> selectByIds(DbSession session, List<Integer> ids) {
-    return executeLargeInputs(ids, new IdToDto(mapper(session)));
+    return executeLargeInputs(ids, partitionOfIds -> mapper(session).selectByIds(partitionOfIds));
   }
 
   /**
@@ -66,7 +63,7 @@ public class RuleDao implements Dao {
    * if the list of {@code keys} is empty, without any db round trip.
    */
   public List<RuleDto> selectByKeys(DbSession session, List<RuleKey> keys) {
-    return executeLargeInputs(keys, new KeyToDto(mapper(session)));
+    return executeLargeInputs(keys, partitionOfKeys -> mapper(session).selectByKeys(partitionOfKeys));
   }
 
   public List<RuleDto> selectEnabled(DbSession session) {
@@ -97,32 +94,6 @@ public class RuleDao implements Dao {
     return session.getMapper(RuleMapper.class);
   }
 
-  private static class KeyToDto implements Function<List<RuleKey>, List<RuleDto>> {
-    private final RuleMapper mapper;
-
-    private KeyToDto(RuleMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<RuleDto> apply(@Nonnull List<RuleKey> partitionOfKeys) {
-      return mapper.selectByKeys(partitionOfKeys);
-    }
-  }
-
-  private static class IdToDto implements Function<List<Integer>, List<RuleDto>> {
-    private final RuleMapper mapper;
-
-    private IdToDto(RuleMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<RuleDto> apply(@Nonnull List<Integer> partitionOfIds) {
-      return mapper.selectByIds(partitionOfIds);
-    }
-  }
-
   /**
    * RuleParams
    */
@@ -132,11 +103,11 @@ public class RuleDao implements Dao {
   }
 
   public List<RuleParamDto> selectRuleParamsByRuleKeys(DbSession session, List<RuleKey> ruleKeys) {
-    return executeLargeInputs(ruleKeys, new KeyToRuleParamDto(mapper(session)));
+    return executeLargeInputs(ruleKeys, partitionOfKeys -> mapper(session).selectParamsByRuleKeys(partitionOfKeys));
   }
 
   public List<RuleParamDto> selectRuleParamsByRuleIds(DbSession dbSession, List<Integer> ruleIds) {
-    return DatabaseUtils.executeLargeInputs(ruleIds, new IdToRuleParamDto(mapper(dbSession)));
+    return executeLargeInputs(ruleIds, partitionOfIds -> mapper(dbSession).selectParamsByRuleIds(partitionOfIds));
   }
 
   public void insertRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {
@@ -157,30 +128,5 @@ public class RuleDao implements Dao {
     mapper(session).deleteParameter(ruleParameterId);
   }
 
-  private static class KeyToRuleParamDto implements Function<List<RuleKey>, List<RuleParamDto>> {
-    private final RuleMapper mapper;
-
-    private KeyToRuleParamDto(RuleMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<RuleParamDto> apply(@Nonnull List<RuleKey> partitionOfKeys) {
-      return mapper.selectParamsByRuleKeys(partitionOfKeys);
-    }
-  }
-
-  private static class IdToRuleParamDto implements Function<List<Integer>, List<RuleParamDto>> {
-    private final RuleMapper mapper;
-
-    private IdToRuleParamDto(RuleMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<RuleParamDto> apply(@Nonnull List<Integer> partitionOfIds) {
-      return mapper.selectParamsByRuleIds(partitionOfIds);
-    }
-  }
 }
 

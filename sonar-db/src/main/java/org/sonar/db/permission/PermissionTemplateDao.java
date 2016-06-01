@@ -20,14 +20,12 @@
 package org.sonar.db.permission;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -224,34 +222,32 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Each row returns a #{@link CountByProjectAndPermissionDto}
    */
-  public void usersCountByTemplateIdAndPermission(final DbSession dbSession, List<Long> templateIds, final ResultHandler resultHandler) {
-    final Map<String, Object> parameters = new HashMap<>();
+  public void usersCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler resultHandler) {
+    Map<String, Object> parameters = new HashMap<>(1);
 
-    executeLargeInputsWithoutOutput(templateIds, new Function<List<Long>, Void>() {
-      @Override
-      public Void apply(@Nonnull List<Long> partitionedTemplateIds) {
+    executeLargeInputsWithoutOutput(
+      templateIds,
+      partitionedTemplateIds -> {
         parameters.put("templateIds", partitionedTemplateIds);
         mapper(dbSession).usersCountByTemplateIdAndPermission(parameters, resultHandler);
         return null;
-      }
-    });
+      });
   }
 
   /**
    * Each row returns a #{@link CountByProjectAndPermissionDto}
    */
-  public void groupsCountByTemplateIdAndPermission(final DbSession dbSession, final List<Long> templateIds, final ResultHandler resultHandler) {
-    final Map<String, Object> parameters = new HashMap<>();
+  public void groupsCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds, ResultHandler resultHandler) {
+    Map<String, Object> parameters = new HashMap<>(2);
     parameters.put(ANYONE_GROUP_PARAMETER, DefaultGroups.ANYONE);
 
-    executeLargeInputsWithoutOutput(templateIds, new Function<List<Long>, Void>() {
-      @Override
-      public Void apply(@Nonnull List<Long> partitionedTemplateIds) {
+    executeLargeInputsWithoutOutput(
+      templateIds,
+      partitionedTemplateIds -> {
         parameters.put("templateIds", partitionedTemplateIds);
         mapper(dbSession).groupsCountByTemplateIdAndPermission(parameters, resultHandler);
         return null;
-      }
-    });
+      });
   }
 
   public void deleteById(DbSession session, long templateId) {

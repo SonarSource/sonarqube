@@ -19,20 +19,18 @@
  */
 package org.sonar.db.issue;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.sonar.core.issue.DefaultIssueComment;
 import org.sonar.core.issue.FieldDiffs;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 import static java.util.Arrays.asList;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueChangeDao implements Dao {
 
@@ -88,24 +86,7 @@ public class IssueChangeDao implements Dao {
   }
 
   public List<IssueChangeDto> selectByTypeAndIssueKeys(DbSession session, Collection<String> issueKeys, String changeType) {
-    return DatabaseUtils.executeLargeInputs(issueKeys, new SelectByIssueKeys(mapper(session), changeType));
-  }
-
-  private static class SelectByIssueKeys implements Function<List<String>, List<IssueChangeDto>> {
-
-    private final IssueChangeMapper mapper;
-    private final String changeType;
-
-    private SelectByIssueKeys(IssueChangeMapper mapper, String changeType) {
-      this.mapper = mapper;
-      this.changeType = changeType;
-    }
-
-    @Override
-    public List<IssueChangeDto> apply(@Nonnull List<String> issueKeys) {
-      return mapper.selectByIssuesAndType(issueKeys, changeType);
-    }
-
+    return executeLargeInputs(issueKeys, issueKeys1 -> mapper(session).selectByIssuesAndType(issueKeys1, changeType));
   }
 
   public void insert(DbSession session, IssueChangeDto change) {

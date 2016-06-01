@@ -19,21 +19,19 @@
  */
 package org.sonar.db.user;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 
 import static com.google.common.collect.Maps.newHashMap;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class AuthorizationDao implements Dao {
 
@@ -48,24 +46,25 @@ public class AuthorizationDao implements Dao {
     if (componentIds.isEmpty()) {
       return Collections.emptySet();
     }
-    return DatabaseUtils.executeLargeInputs(componentIds, new Function<List<Long>, List<Long>>() {
-      @Override
-      public List<Long> apply(List<Long> partition) {
+    return executeLargeInputs(
+      componentIds,
+      partition -> {
         if (userId == null) {
           return session.getMapper(AuthorizationMapper.class).keepAuthorizedProjectIdsForAnonymous(role, componentIds);
         } else {
           return session.getMapper(AuthorizationMapper.class).keepAuthorizedProjectIdsForUser(userId, role, componentIds);
         }
-      }
-    });
+      });
   }
 
   /**
    * Keep only authorized user that have the given permission on a given project.
    * Please Note that if the permission is 'Anyone' is NOT taking into account by thie method.
    */
-  public Collection<Long> keepAuthorizedUsersForRoleAndProject(final DbSession session, final Collection<Long> userIds, final String role, final long projectId) {
-    return DatabaseUtils.executeLargeInputs(userIds, new SelectUsersByPermissionAndProject(session.getMapper(AuthorizationMapper.class), role, projectId));
+  public Collection<Long> keepAuthorizedUsersForRoleAndProject(final DbSession session, Collection<Long> userIds, String role, final long projectId) {
+    return executeLargeInputs(
+      userIds,
+      partitionOfIds -> session.getMapper(AuthorizationMapper.class).keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds));
   }
 
   public boolean isAuthorizedComponentKey(String componentKey, @Nullable Integer userId, String role) {
@@ -136,20 +135,4 @@ public class AuthorizationDao implements Dao {
     }
   }
 
-  private static class SelectUsersByPermissionAndProject implements Function<List<Long>, List<Long>> {
-    private final AuthorizationMapper mapper;
-    private final String role;
-    private final long projectId;
-
-    private SelectUsersByPermissionAndProject(AuthorizationMapper mapper, String role, long projectId) {
-      this.mapper = mapper;
-      this.role = role;
-      this.projectId = projectId;
-    }
-
-    @Override
-    public List<Long> apply(@Nonnull List<Long> partitionOfIds) {
-      return mapper.keepAuthorizedUsersForRoleAndProject(role, projectId, partitionOfIds);
-    }
-  }
 }

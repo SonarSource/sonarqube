@@ -19,7 +19,6 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.util.Collection;
@@ -29,13 +28,11 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 
@@ -105,31 +102,16 @@ public class ComponentDao implements Dao {
     return mapper(session).selectEnabledFilesFromProject(rootComponentUuid);
   }
 
-  public List<ComponentDto> selectByIds(final DbSession session, Collection<Long> ids) {
-    return DatabaseUtils.executeLargeInputs(ids, new Function<List<Long>, List<ComponentDto>>() {
-      @Override
-      public List<ComponentDto> apply(@Nonnull List<Long> partition) {
-        return mapper(session).selectByIds(partition);
-      }
-    });
+  public List<ComponentDto> selectByIds(DbSession session, Collection<Long> ids) {
+    return executeLargeInputs(ids, partition -> mapper(session).selectByIds(partition));
   }
 
-  public List<ComponentDto> selectByUuids(final DbSession session, Collection<String> uuids) {
-    return DatabaseUtils.executeLargeInputs(uuids, new Function<List<String>, List<ComponentDto>>() {
-      @Override
-      public List<ComponentDto> apply(@Nonnull List<String> partition) {
-        return mapper(session).selectByUuids(partition);
-      }
-    });
+  public List<ComponentDto> selectByUuids(DbSession session, Collection<String> uuids) {
+    return executeLargeInputs(uuids, partition -> mapper(session).selectByUuids(partition));
   }
 
-  public List<String> selectExistingUuids(final DbSession session, Collection<String> uuids) {
-    return DatabaseUtils.executeLargeInputs(uuids, new Function<List<String>, List<String>>() {
-      @Override
-      public List<String> apply(@Nonnull List<String> partition) {
-        return mapper(session).selectExistingUuids(partition);
-      }
-    });
+  public List<String> selectExistingUuids(DbSession session, Collection<String> uuids) {
+    return executeLargeInputs(uuids, partition -> mapper(session).selectExistingUuids(partition));
   }
 
   /**
@@ -144,7 +126,7 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
-    return executeLargeInputs(keys, new KeyToDto(mapper(session)));
+    return executeLargeInputs(keys, partitionOfKeys -> mapper(session).selectByKeys(partitionOfKeys));
   }
 
   public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {
@@ -167,19 +149,6 @@ public class ComponentDao implements Dao {
 
   public int countAllChildren(DbSession dbSession, ComponentTreeQuery query) {
     return mapper(dbSession).countAllChildren(query);
-  }
-
-  private static class KeyToDto implements Function<List<String>, List<ComponentDto>> {
-    private final ComponentMapper mapper;
-
-    private KeyToDto(ComponentMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<ComponentDto> apply(@Nonnull List<String> partitionOfKeys) {
-      return mapper.selectByKeys(partitionOfKeys);
-    }
   }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {

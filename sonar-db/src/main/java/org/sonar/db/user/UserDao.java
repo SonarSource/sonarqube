@@ -31,7 +31,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.user.UserQuery;
 import org.sonar.api.utils.System2;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
@@ -39,6 +38,7 @@ import org.sonar.db.RowNotFoundException;
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.sonar.api.CoreProperties.DEFAULT_ISSUE_ASSIGNEE;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class UserDao implements Dao {
 
@@ -70,7 +70,9 @@ public class UserDao implements Dao {
    * Used by the Governance plugin
    */
   public List<UserDto> selectByIds(DbSession session, Collection<Long> ids) {
-    return DatabaseUtils.executeLargeInputs(ids, new SelectByIds(mapper(session)));
+    return executeLargeInputs(
+      ids,
+      partitionOfLogins -> session.getMapper(UserMapper.class).selectByIds(partitionOfLogins));
   }
 
   /**
@@ -99,7 +101,9 @@ public class UserDao implements Dao {
    * if list of logins is empty, without any db round trips.
    */
   public List<UserDto> selectByLogins(DbSession session, Collection<String> logins) {
-    return DatabaseUtils.executeLargeInputs(logins, new SelectByLogins(mapper(session)));
+    return executeLargeInputs(
+      logins,
+      partitionOfLogins -> session.getMapper(UserMapper.class).selectByLogins(partitionOfLogins));
   }
 
   public List<UserDto> selectByLogins(Collection<String> logins) {
@@ -120,19 +124,6 @@ public class UserDao implements Dao {
   public List<UserDto> selectByOrderedLogins(DbSession session, Collection<String> logins) {
     List<UserDto> unordered = selectByLogins(session, logins);
     return from(logins).transform(new LoginToUser(unordered)).filter(Predicates.notNull()).toList();
-  }
-
-  private static class SelectByLogins implements Function<List<String>, List<UserDto>> {
-    private final UserMapper mapper;
-
-    private SelectByLogins(UserMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<UserDto> apply(@Nonnull List<String> partitionOfLogins) {
-      return mapper.selectByLogins(partitionOfLogins);
-    }
   }
 
   public List<UserDto> selectUsers(UserQuery query) {
@@ -230,19 +221,6 @@ public class UserDao implements Dao {
     @Override
     public UserDto apply(@Nonnull String login) {
       return map.get(login);
-    }
-  }
-
-  private static class SelectByIds implements Function<List<Long>, List<UserDto>> {
-    private final UserMapper mapper;
-
-    private SelectByIds(UserMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<UserDto> apply(@Nonnull List<Long> partitionOfLogins) {
-      return mapper.selectByIds(partitionOfLogins);
     }
   }
 

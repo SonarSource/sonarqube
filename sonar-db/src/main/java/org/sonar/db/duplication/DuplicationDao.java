@@ -19,27 +19,23 @@
  */
 package org.sonar.db.duplication;
 
-import com.google.common.base.Function;
 import java.util.Collection;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class DuplicationDao implements Dao {
 
   /**
    * @param projectSnapshotId snapshot id of the project from the previous analysis (islast=true)
    */
-  public List<DuplicationUnitDto> selectCandidates(final DbSession session, @Nullable final Long projectSnapshotId, final String language, Collection<String> hashes) {
-    return DatabaseUtils.executeLargeInputs(hashes, new Function<List<String>, List<DuplicationUnitDto>>() {
-      @Override
-      public List<DuplicationUnitDto> apply(@Nonnull List<String> partition) {
-        return session.getMapper(DuplicationMapper.class).selectCandidates(projectSnapshotId, language, partition);
-      }
-    });
+  public List<DuplicationUnitDto> selectCandidates(DbSession session, @Nullable Long projectSnapshotId, String language, Collection<String> hashes) {
+    return executeLargeInputs(
+      hashes,
+      partition -> session.getMapper(DuplicationMapper.class).selectCandidates(projectSnapshotId, language, partition));
   }
 
   /**

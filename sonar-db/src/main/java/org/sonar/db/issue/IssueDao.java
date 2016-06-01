@@ -32,12 +32,12 @@ import javax.annotation.Nullable;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {
 
@@ -76,20 +76,7 @@ public class IssueDao implements Dao {
    * <p>Results may be in a different order as input keys (see {@link #selectByOrderedKeys(DbSession, List)}).</p>
    */
   public List<IssueDto> selectByKeys(final DbSession session, List<String> keys) {
-    return DatabaseUtils.executeLargeInputs(keys, new SelectByKeys(mapper(session)));
-  }
-
-  private static class SelectByKeys implements Function<List<String>, List<IssueDto>> {
-    private final IssueMapper mapper;
-
-    private SelectByKeys(IssueMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<IssueDto> apply(@Nonnull List<String> partitionOfKeys) {
-      return mapper.selectByKeys(partitionOfKeys);
-    }
+    return executeLargeInputs(keys, partitionOfKeys -> mapper(session).selectByKeys(partitionOfKeys));
   }
 
   /**

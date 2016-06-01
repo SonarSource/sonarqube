@@ -20,13 +20,11 @@
 package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.LinkedHashSet;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.apache.ibatis.session.SqlSession;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -40,13 +38,6 @@ class PurgeCommands {
   private final SqlSession session;
   private final PurgeMapper purgeMapper;
   private final PurgeProfiler profiler;
-  private final Function<PurgeSnapshotQuery, Iterable<Long>> purgeSnapshotQueryToSnapshotIds = new Function<PurgeSnapshotQuery, Iterable<Long>>() {
-    @Nullable
-    @Override
-    public Iterable<Long> apply(PurgeSnapshotQuery query) {
-      return purgeMapper.selectSnapshotIds(query);
-    }
-  };
 
   PurgeCommands(SqlSession session, PurgeMapper purgeMapper, PurgeProfiler profiler) {
     this.session = session;
@@ -156,7 +147,8 @@ class PurgeCommands {
 
   void deleteSnapshots(PurgeSnapshotQuery... queries) {
     List<Long> snapshotIds = from(asList(queries))
-      .transformAndConcat(purgeSnapshotQueryToSnapshotIds).toList();
+      .transformAndConcat(purgeMapper::selectSnapshotIds)
+      .toList();
     deleteSnapshots(snapshotIds);
   }
 
@@ -191,7 +183,7 @@ class PurgeCommands {
 
   void purgeSnapshots(PurgeSnapshotQuery... queries) {
     // use LinkedHashSet to keep order by remove duplicated ids
-    LinkedHashSet<Long> snapshotIds = Sets.newLinkedHashSet(from(asList(queries)).transformAndConcat(purgeSnapshotQueryToSnapshotIds));
+    LinkedHashSet<Long> snapshotIds = Sets.newLinkedHashSet(from(asList(queries)).transformAndConcat(purgeMapper::selectSnapshotIds));
     purgeSnapshots(snapshotIds);
   }
 

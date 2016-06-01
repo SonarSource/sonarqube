@@ -19,16 +19,15 @@
  */
 package org.sonar.db.qualityprofile;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.base.Preconditions;
 import java.util.List;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.sonar.db.Dao;
-import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+
+import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class ActiveRuleDao implements Dao {
 
@@ -55,7 +54,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public List<ActiveRuleDto> selectByKeys(DbSession dbSession, List<ActiveRuleKey> keys) {
-    return DatabaseUtils.executeLargeInputs(keys, new KeyToDto(mapper(dbSession)));
+    return executeLargeInputs(keys, partitionOfIds -> mapper(dbSession).selectByKeys(partitionOfIds));
   }
 
   public List<ActiveRuleDto> selectByRuleId(DbSession dbSession, int ruleId) {
@@ -63,7 +62,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public List<ActiveRuleDto> selectByRuleIds(DbSession dbSession, List<Integer> ids) {
-    return DatabaseUtils.executeLargeInputs(ids, new RuleIdsToDtos(mapper(dbSession)));
+    return executeLargeInputs(ids, partitionOfRuleIds -> mapper(dbSession).selectByRuleIds(partitionOfRuleIds));
   }
 
   // TODO As it's only used by MediumTest, it should be replaced by DbTester.countRowsOfTable()
@@ -111,7 +110,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(final DbSession dbSession, List<Integer> activeRuleIds) {
-    return DatabaseUtils.executeLargeInputs(activeRuleIds, new ParamIdToDto(mapper(dbSession)));
+    return executeLargeInputs(activeRuleIds, partitionOfIds -> mapper(dbSession).selectParamsByActiveRuleIds(partitionOfIds));
   }
 
   @CheckForNull
@@ -181,42 +180,4 @@ public class ActiveRuleDao implements Dao {
     return session.getMapper(ActiveRuleMapper.class);
   }
 
-  private static class KeyToDto implements Function<List<ActiveRuleKey>, List<ActiveRuleDto>> {
-    private final ActiveRuleMapper mapper;
-
-    private KeyToDto(ActiveRuleMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<ActiveRuleDto> apply(@Nonnull List<ActiveRuleKey> partitionOfIds) {
-      return mapper.selectByKeys(partitionOfIds);
-    }
-  }
-
-  private static class ParamIdToDto implements Function<List<Integer>, List<ActiveRuleParamDto>> {
-    private final ActiveRuleMapper mapper;
-
-    private ParamIdToDto(ActiveRuleMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<ActiveRuleParamDto> apply(@Nonnull List<Integer> partitionOfIds) {
-      return mapper.selectParamsByActiveRuleIds(partitionOfIds);
-    }
-  }
-
-  private static class RuleIdsToDtos implements Function<List<Integer>, List<ActiveRuleDto>> {
-    private final ActiveRuleMapper mapper;
-
-    private RuleIdsToDtos(ActiveRuleMapper mapper) {
-      this.mapper = mapper;
-    }
-
-    @Override
-    public List<ActiveRuleDto> apply(@Nonnull List<Integer> partitionOfRuleIds) {
-      return mapper.selectByRuleIds(partitionOfRuleIds);
-    }
-  }
 }
