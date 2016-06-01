@@ -19,7 +19,6 @@
  */
 package it.issue;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
 import com.sonar.orchestrator.locator.FileLocation;
 import java.text.SimpleDateFormat;
@@ -39,7 +38,8 @@ public class IssueTrackingTest extends AbstractIssueTest {
   private static final String SAMPLE_PROJECT_KEY = "sample";
 
   private static final String OLD_DATE = "2014-03-01";
-  private static final String NEW_DATE = new SimpleDateFormat("yyyy-MM-dd").format(new Date());
+  private static final Date NEW_DATE = new Date();
+  private static final String NEW_DATE_STR = new SimpleDateFormat("yyyy-MM-dd").format(NEW_DATE);
 
   @Before
   public void prepareData() {
@@ -62,7 +62,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
     // version 2
     runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v1",
-      "sonar.projectDate", NEW_DATE,
+      "sonar.projectDate", NEW_DATE_STR,
       "sonar.exclusions", "**/*.xoo");
 
     issues = searchIssuesByProject("sample");
@@ -89,7 +89,7 @@ public class IssueTrackingTest extends AbstractIssueTest {
 
     // version 2
     runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v2",
-      "sonar.projectDate", NEW_DATE);
+      "sonar.projectDate", NEW_DATE_STR);
 
     issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo");
     assertThat(issues).hasSize(3);
@@ -159,13 +159,37 @@ public class IssueTrackingTest extends AbstractIssueTest {
     }
   }
 
+  @Test
+  public void track_file_moves_based_on_identical_content() {
+    ORCHESTRATOR.getServer().associateProjectToQualityProfile(SAMPLE_PROJECT_KEY, "xoo", "issue-on-tag-foobar");
+
+    // version 1
+    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v1",
+      "sonar.projectDate", OLD_DATE);
+
+    List<Issue> issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo");
+    assertThat(issues).hasSize(1);
+    Issue issueOnSample = issues.iterator().next();
+
+    // version 2
+    runProjectAnalysis(ORCHESTRATOR, "issue/xoo-tracking-v3",
+      "sonar.projectDate", NEW_DATE_STR);
+
+    assertThat(searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample.xoo")).isEmpty();
+
+    issues = searchUnresolvedIssuesByComponent("sample:src/main/xoo/sample/Sample2.xoo");
+    assertThat(issues).hasSize(1);
+    Issue issueOnSample2 = issues.get(0);
+    assertThat(issueOnSample2.key()).isEqualTo(issueOnSample.key());
+    assertThat(issueOnSample2.creationDate()).isEqualTo(issueOnSample.creationDate());
+    assertThat(issueOnSample2.updateDate()).isNotEqualTo(issueOnSample.updateDate());
+    assertThat(issueOnSample2.status()).isEqualTo("OPEN");
+  }
+
   private Issue getIssueOnLine(final Integer line, final String repoKey, final String ruleKey, List<Issue> issues) {
-    return Iterables.find(issues, new Predicate<Issue>() {
-      public boolean apply(Issue issue) {
-        return Objects.equals(issue.line(), line) &&
-          Objects.equals(issue.ruleKey(), repoKey + ":" + ruleKey);
-      }
-    });
+    return Iterables.find(
+      issues,
+      issue -> Objects.equals(issue.line(), line) && Objects.equals(issue.ruleKey(), repoKey + ":" + ruleKey));
   }
 
   private List<Issue> searchUnresolvedIssuesByComponent(String componentKey) {
