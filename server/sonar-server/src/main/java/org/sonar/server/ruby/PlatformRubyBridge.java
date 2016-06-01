@@ -42,44 +42,29 @@ public class PlatformRubyBridge implements RubyBridge {
 
   @Override
   public RubyDatabaseMigration databaseMigration() {
-    final CallDatabaseVersionUpgrade callDatabaseVersionUpgrade = parseMethodScriptToInterface(
+    CallDatabaseVersionUpgrade callDatabaseVersionUpgrade = parseMethodScriptToInterface(
       CALL_UPGRADE_AND_START_RB_FILENAME, CallDatabaseVersionUpgrade.class
       );
 
-    return new RubyDatabaseMigration() {
-      @Override
-      public void trigger() {
-        callDatabaseVersionUpgrade.callUpgrade();
-      }
-    };
+    return callDatabaseVersionUpgrade::callUpgrade;
   }
 
   @Override
   public RubyRailsRoutes railsRoutes() {
-    final CallLoadJavaWebServices callLoadJavaWebServices = parseMethodScriptToInterface(
+    CallLoadJavaWebServices callLoadJavaWebServices = parseMethodScriptToInterface(
       CALL_LOAD_JAVA_WEB_SERVICES_RB_FILENAME, CallLoadJavaWebServices.class
       );
 
-    return new RubyRailsRoutes() {
-      @Override
-      public void recreate() {
-        callLoadJavaWebServices.callLoadJavaWebServices();
-      }
-    };
+    return callLoadJavaWebServices::callLoadJavaWebServices;
   }
 
   @Override
   public RubyMetricCache metricCache() {
-    final CallInvalidateMetricCache callInvalidateMetricCache = parseMethodScriptToInterface(
+    CallInvalidateMetricCache callInvalidateMetricCache = parseMethodScriptToInterface(
       CALL_INVALIDATE_METRIC_CACHE_RB_FILENAME, CallInvalidateMetricCache.class
       );
 
-    return new RubyMetricCache() {
-      @Override
-      public void invalidate() {
-        callInvalidateMetricCache.callInvalidate();
-      }
-    };
+    return callInvalidateMetricCache::callInvalidate;
   }
 
   /**

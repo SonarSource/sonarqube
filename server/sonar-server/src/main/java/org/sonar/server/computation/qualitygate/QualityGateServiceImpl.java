@@ -21,7 +21,6 @@ package org.sonar.server.computation.qualitygate;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import javax.annotation.Nonnull;
 import org.sonar.db.qualitygate.QualityGateConditionDao;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
 import org.sonar.db.qualitygate.QualityGateDao;
@@ -39,13 +38,9 @@ public class QualityGateServiceImpl implements QualityGateService {
   public QualityGateServiceImpl(QualityGateDao qualityGateDao, QualityGateConditionDao conditionDao, final MetricRepository metricRepository) {
     this.qualityGateDao = qualityGateDao;
     this.conditionDao = conditionDao;
-    this.conditionDtoToBean = new Function<QualityGateConditionDto, Condition>() {
-      @Override
-      @Nonnull
-      public Condition apply(@Nonnull QualityGateConditionDto input) {
-        Metric metric = metricRepository.getById(input.getMetricId());
-        return new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod());
-      }
+    this.conditionDtoToBean = (QualityGateConditionDto input) -> {
+      Metric metric = metricRepository.getById(input.getMetricId());
+      return new Condition(metric, input.getOperator(), input.getErrorThreshold(), input.getWarningThreshold(), input.getPeriod());
     };
   }
 

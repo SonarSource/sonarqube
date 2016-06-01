@@ -46,14 +46,10 @@ public class UpdatesAction implements PluginsWsAction {
   private static final String ARRAY_PLUGINS = "plugins";
   private static final String ARRAY_UPDATES = "updates";
 
-  private static final Ordering<PluginUpdateAggregate> NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING =
-    Ordering.from(PluginWSCommons.NAME_KEY_PLUGIN_ORDERING).onResultOf(PluginUpdateAggregateToPlugin.INSTANCE);
-  private static final Ordering<PluginUpdate> PLUGIN_UPDATE_BY_VERSION_ORDERING = Ordering.natural().onResultOf(new Function<PluginUpdate, String>() {
-    @Override
-    public String apply(@Nonnull PluginUpdate input) {
-      return input.getRelease().getVersion().toString();
-    }
-  });
+  private static final Ordering<PluginUpdateAggregate> NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING = Ordering.from(PluginWSCommons.NAME_KEY_PLUGIN_ORDERING)
+    .onResultOf(PluginUpdateAggregateToPlugin.INSTANCE);
+  private static final Ordering<PluginUpdate> PLUGIN_UPDATE_BY_VERSION_ORDERING = Ordering.natural()
+    .onResultOf(input -> input.getRelease().getVersion().toString());
 
   private final UpdateCenterMatrixFactory updateCenterMatrixFactory;
   private final PluginWSCommons pluginWSCommons;
@@ -135,8 +131,7 @@ public class UpdatesAction implements PluginsWsAction {
     // aggregates updates of the same plugin to a single object and sort these objects by plugin name then key
     return ImmutableSortedSet.copyOf(
       NAME_KEY_PLUGIN_UPGRADE_AGGREGATE_ORDERING,
-      aggregator.aggregate(pluginUpdates)
-      );
+      aggregator.aggregate(pluginUpdates));
   }
 
   private enum PluginUpdateAggregateToPlugin implements Function<PluginUpdateAggregate, Plugin> {

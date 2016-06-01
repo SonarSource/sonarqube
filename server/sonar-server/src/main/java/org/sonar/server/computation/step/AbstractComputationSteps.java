@@ -19,9 +19,7 @@
  */
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
-import javax.annotation.Nonnull;
 import org.sonar.core.platform.ContainerPopulator;
 
 /**
@@ -37,15 +35,14 @@ public abstract class AbstractComputationSteps implements ComputationSteps {
 
   @Override
   public Iterable<ComputationStep> instances() {
-    return Iterables.transform(orderedStepClasses(), new Function<Class<? extends ComputationStep>, ComputationStep>() {
-      @Override
-      public ComputationStep apply(@Nonnull Class<? extends ComputationStep> input) {
+    return Iterables.transform(
+      orderedStepClasses(),
+      input -> {
         ComputationStep computationStepType = container.getComponentByType(input);
         if (computationStepType == null) {
           throw new IllegalStateException(String.format("Component not found: %s", input));
         }
         return computationStepType;
-      }
-    });
+      });
   }
 }

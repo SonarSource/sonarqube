@@ -95,12 +95,7 @@ public class PlatformDatabaseMigration implements DatabaseMigration {
     }
 
     running.set(true);
-    executorService.execute(new Runnable() {
-      @Override
-      public void run() {
-        doDatabaseMigration();
-      }
-    });
+    executorService.execute(this::doDatabaseMigration);
   }
 
   private void doDatabaseMigration() {

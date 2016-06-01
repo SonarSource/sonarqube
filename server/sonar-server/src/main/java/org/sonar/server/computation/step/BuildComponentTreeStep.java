@@ -19,10 +19,8 @@
  */
 package org.sonar.server.computation.step;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.core.component.ComponentKeys;
 import org.sonar.db.DbClient;
@@ -83,11 +81,10 @@ public class BuildComponentTreeStep implements ComputationStep {
 
   @CheckForNull
   private static Snapshot toSnapshot(@Nullable SnapshotDto snapshotDto) {
-    return snapshotDto == null ? null :
-      new Snapshot.Builder()
-        .setId(snapshotDto.getId())
-        .setCreatedAt(snapshotDto.getCreatedAt())
-        .build();
+    return snapshotDto == null ? null : new Snapshot.Builder()
+      .setId(snapshotDto.getId())
+      .setCreatedAt(snapshotDto.getCreatedAt())
+      .build();
   }
 
   private class ComponentRootBuilder {
@@ -134,13 +131,7 @@ public class BuildComponentTreeStep implements ComputationStep {
     private Iterable<Component> buildChildren(ScannerReport.Component component, final String latestModuleKey) {
       return Iterables.transform(
         component.getChildRefList(),
-        new Function<Integer, Component>() {
-          @Override
-          public Component apply(@Nonnull Integer componentRef) {
-            return buildComponent(reportReader.readComponent(componentRef), latestModuleKey);
-          }
-        }
-        );
+        componentRef -> buildComponent(reportReader.readComponent(componentRef), latestModuleKey));
     }
   }
 
