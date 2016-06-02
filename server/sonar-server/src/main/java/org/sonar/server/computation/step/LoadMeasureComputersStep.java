@@ -43,7 +43,6 @@ import org.sonar.server.computation.measure.api.MeasureComputerWrapper;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinition;
-import static org.sonar.api.ce.measure.MeasureComputer.MeasureComputerDefinitionContext;
 
 public class LoadMeasureComputersStep implements ComputationStep {
 
@@ -172,11 +171,9 @@ public class LoadMeasureComputersStep implements ComputationStep {
   private enum ToMeasureWrapper implements Function<MeasureComputer, MeasureComputerWrapper> {
     INSTANCE;
 
-    private final MeasureComputerDefinitionContextImpl context = new MeasureComputerDefinitionContextImpl();
-
     @Override
     public MeasureComputerWrapper apply(@Nonnull MeasureComputer measureComputer) {
-      MeasureComputerDefinition def = measureComputer.define(context);
+      MeasureComputerDefinition def = measureComputer.define(MeasureComputerDefinitionImpl.BuilderImpl::new);
       return new MeasureComputerWrapper(measureComputer, validateDef(def));
     }
 
@@ -241,13 +238,6 @@ public class LoadMeasureComputersStep implements ComputationStep {
         allOutputMetrics.add(outputMetric);
       }
       return true;
-    }
-  }
-
-  private static class MeasureComputerDefinitionContextImpl implements MeasureComputerDefinitionContext {
-    @Override
-    public MeasureComputerDefinition.Builder newDefinitionBuilder() {
-      return new MeasureComputerDefinitionImpl.BuilderImpl();
     }
   }
 

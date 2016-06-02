@@ -100,6 +100,7 @@ public interface MeasureComputer {
   /**
    * Context specific to the definition of the measure computer
    */
+  @FunctionalInterface
   interface MeasureComputerDefinitionContext {
     Builder newDefinitionBuilder();
   }
