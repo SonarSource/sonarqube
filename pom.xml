@@ -1449,14 +1449,6 @@
     </profile>
 
     <profile>
-      <!-- add microbenchmarks module to IDE -->
-      <id>includeMicrobenchmarkModule</id>
-      <modules>
-        <module>microbenchmark-template</module>
-      </modules>
-    </profile>
-
-    <profile>
       <!--
       check if maven dependencies have vulnerabilities listed in CVE
       Standalone command: mvn org.owasp:dependency-check-maven:check
