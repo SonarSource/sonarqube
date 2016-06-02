@@ -1,5 +1,5 @@
 #!/bin/bash
-#
+# QA pipeline
 
 set -euo pipefail
 
@@ -19,10 +19,10 @@ case "$RUN_ACTIVITY" in
     ;;
 
   run-integration-tests-*)
-      CATEGORY=$(echo $RUN_ACTIVITY | sed "s/run-integration-tests-//g")
+    CATEGORY=$(echo $RUN_ACTIVITY | sed "s/run-integration-tests-//g")
 
-      ./run-integration-tests.sh "${CATEGORY}" "http://infra.internal.sonarsource.com/jenkins/orch-embedded.properties"
-      ;;
+    ./run-integration-tests.sh "${CATEGORY}" "http://infra.internal.sonarsource.com/jenkins/orch-embedded.properties"
+    ;;
 
   run-it-released-plugins)
     ./run-integration-tests.sh "Plugins" "http://infra.internal.sonarsource.com/jenkins/orch-h2.properties"

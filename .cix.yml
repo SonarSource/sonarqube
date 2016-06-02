@@ -1,7 +1,5 @@
-# Definition of QA pipeline at SonarSource
-#
-# Possible values for SLAVE_TYPE: "performance" (for perf tests) and "gva" (for linux machines connected to DB services)
-
+# QA pipeline at SonarSource
+# Based on https://wiki.jenkins-ci.org/display/JENKINS/Yaml+Axis+Plugin
 
 RUN_ACTIVITY:
   - run-db-unit-tests-mysql56
