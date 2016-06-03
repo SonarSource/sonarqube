@@ -42,6 +42,11 @@ const Nav = ({ user }) => (
             </a>
           </li>
           <li>
+            <IndexLink to="projects" activeClassName="active">
+              {translate('my_account.projects')}
+            </IndexLink>
+          </li>
+          <li>
             <IndexLink to="notifications" activeClassName="active">
               {translate('my_account.notifications')}
             </IndexLink>
