@@ -17,43 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.user;
 
 import org.junit.Test;
-import org.sonar.core.user.GroupMembership;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GroupMembershipDtoTest {
+public class GroupMembershipTest {
 
   @Test
-  public void to_group_with_permission_having_permission() {
-    GroupMembership group = new GroupMembershipDto()
+  public void test_setters_and_getters() throws Exception {
+    GroupMembership group = new GroupMembership()
       .setId(1L)
       .setName("users")
-      .setDescription("description")
-      .setUserId(10L)
-      .toGroupMembership();
+      .setMember(true);
 
-    assertThat(group.id()).isEqualTo(1);
+    assertThat(group.id()).isEqualTo(1L);
     assertThat(group.name()).isEqualTo("users");
-    assertThat(group.description()).isEqualTo("description");
     assertThat(group.isMember()).isTrue();
   }
 
   @Test
-  public void to_group_with_permission_not_having_permission() {
-    GroupMembership group = new GroupMembershipDto()
+  public void test_equals() throws Exception {
+    assertThat(new GroupMembership().setName("users")).isEqualTo(new GroupMembership().setName("users"));
+    assertThat(new GroupMembership().setName("users")).isNotEqualTo(new GroupMembership().setName("reviewers"));
+
+    GroupMembership group = new GroupMembership()
       .setId(1L)
       .setName("users")
-      .setDescription("description")
-      .setUserId(null)
-      .toGroupMembership();
-
-    assertThat(group.id()).isEqualTo(1);
-    assertThat(group.name()).isEqualTo("users");
-    assertThat(group.description()).isEqualTo("description");
-    assertThat(group.isMember()).isFalse();
+      .setMember(true);
+    assertThat(group).isEqualTo(group);
   }
 
 }
