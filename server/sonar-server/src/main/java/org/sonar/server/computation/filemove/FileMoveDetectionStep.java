@@ -64,7 +64,7 @@ import static java.util.Collections.singletonList;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class FileMoveDetectionStep implements ComputationStep {
-  protected static final int MIN_REQUIRED_SCORE = 90;
+  protected static final int MIN_REQUIRED_SCORE = 85;
   private static final Logger LOG = Loggers.get(FileMoveDetectionStep.class);
   private static final List<String> FILE_QUALIFIERS = asList(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   private static final List<String> SORT_FIELDS = singletonList("name");
