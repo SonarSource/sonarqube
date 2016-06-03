@@ -22,7 +22,6 @@ package org.sonar.server.user;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.ArgumentCaptor;
-import org.sonar.core.user.GroupMembership;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;

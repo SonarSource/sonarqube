@@ -21,7 +21,6 @@ package org.sonar.db.user;
 
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-import org.sonar.core.user.GroupMembership;
 
 /**
  * @since 4.1
@@ -71,11 +70,4 @@ public class GroupMembershipDto {
     return this;
   }
 
-  public GroupMembership toGroupMembership() {
-    return new GroupMembership()
-      .setId(id)
-      .setName(name)
-      .setDescription(description)
-      .setMember(userId != null);
-  }
 }

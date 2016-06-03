@@ -24,7 +24,6 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.core.user.GroupMembership;
 import org.sonar.db.DbTester;
 import org.sonar.server.exceptions.NotFoundException;
 

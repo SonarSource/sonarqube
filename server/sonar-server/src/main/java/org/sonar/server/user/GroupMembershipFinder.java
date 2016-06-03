@@ -21,7 +21,6 @@ package org.sonar.server.user;
 
 import java.util.List;
 import org.sonar.api.server.ServerSide;
-import org.sonar.core.user.GroupMembership;
 import org.sonar.db.user.GroupMembershipDao;
 import org.sonar.db.user.GroupMembershipDto;
 import org.sonar.db.user.GroupMembershipQuery;
@@ -88,8 +87,12 @@ public class GroupMembershipFinder {
 
   private static List<GroupMembership> toGroupMembership(List<GroupMembershipDto> dtos) {
     List<GroupMembership> groups = newArrayList();
-    for (GroupMembershipDto groupMembershipDto : dtos) {
-      groups.add(groupMembershipDto.toGroupMembership());
+    for (GroupMembershipDto dto : dtos) {
+      groups.add(new GroupMembership()
+        .setId(dto.getId())
+        .setName(dto.getName())
+        .setDescription(dto.getDescription())
+        .setMember(dto.getUserId() != null));
     }
     return groups;
   }

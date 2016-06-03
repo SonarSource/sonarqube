@@ -17,36 +17,37 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.user;
+package org.sonar.server.user;
 
 import org.junit.Test;
-import org.sonar.core.user.GroupMembership;
+import org.sonar.core.user.DefaultUser;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class GroupMembershipTest {
-
+public class DefaultUserTest {
   @Test
-  public void test_setters_and_getters() throws Exception {
-    GroupMembership group = new GroupMembership()
-      .setId(1L)
-      .setName("users")
-      .setMember(true);
+  public void test_object_methods() throws Exception {
+    DefaultUser john = new DefaultUser().setLogin("john").setName("John");
+    DefaultUser eric = new DefaultUser().setLogin("eric").setName("Eric");
 
-    assertThat(group.id()).isEqualTo(1L);
-    assertThat(group.name()).isEqualTo("users");
-    assertThat(group.isMember()).isTrue();
+    assertThat(john).isEqualTo(john);
+    assertThat(john).isNotEqualTo(eric);
+    assertThat(john.hashCode()).isEqualTo(john.hashCode());
+    assertThat(john.toString()).contains("login=john").contains("name=John");
   }
 
   @Test
-  public void test_equals() throws Exception {
-    assertThat(new GroupMembership().setName("users")).isEqualTo(new GroupMembership().setName("users"));
-    assertThat(new GroupMembership().setName("users")).isNotEqualTo(new GroupMembership().setName("reviewers"));
+  public void test_email() {
+    DefaultUser user = new DefaultUser();
+    assertThat(user.email()).isNull();
 
-    GroupMembership group = new GroupMembership()
-      .setId(1L)
-      .setName("users")
-      .setMember(true);
-    assertThat(group).isEqualTo(group);
+    user.setEmail("");
+    assertThat(user.email()).isNull();
+
+    user.setEmail("  ");
+    assertThat(user.email()).isNull();
+
+    user.setEmail("s@b.com");
+    assertThat(user.email()).isEqualTo("s@b.com");
   }
 }

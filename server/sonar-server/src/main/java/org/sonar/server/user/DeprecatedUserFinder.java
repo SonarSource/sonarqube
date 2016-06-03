@@ -17,53 +17,42 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.core.user;
+package org.sonar.server.user;
 
-import com.google.common.collect.Lists;
-import java.util.Collection;
-import java.util.List;
-import javax.annotation.CheckForNull;
-import org.sonar.api.user.User;
-import org.sonar.api.user.UserFinder;
-import org.sonar.api.user.UserQuery;
+import javax.annotation.Nullable;
+import org.sonar.api.database.model.User;
+import org.sonar.api.security.UserFinder;
 import org.sonar.db.user.UserDao;
 import org.sonar.db.user.UserDto;
 
 /**
- * @since 3.6
+ * @since 2.10
  */
-public class DefaultUserFinder implements UserFinder {
+public class DeprecatedUserFinder implements UserFinder {
 
   private final UserDao userDao;
 
-  public DefaultUserFinder(UserDao userDao) {
+  public DeprecatedUserFinder(UserDao userDao) {
     this.userDao = userDao;
   }
 
   @Override
-  @CheckForNull
+  public User findById(int id) {
+    return copy(userDao.selectUserById(id));
+  }
+
+  @Override
   public User findByLogin(String login) {
-    UserDto dto = userDao.selectActiveUserByLogin(login);
-    return dto != null ? dto.toUser() : null;
+    return copy(userDao.selectActiveUserByLogin(login));
   }
 
-  @Override
-  public List<User> findByLogins(List<String> logins) {
-    List<UserDto> dtos = userDao.selectByLogins(logins);
-    return toUsers(dtos);
-  }
-
-  @Override
-  public List<User> find(UserQuery query) {
-    List<UserDto> dtos = userDao.selectUsers(query);
-    return toUsers(dtos);
-  }
-
-  private static List<User> toUsers(Collection<UserDto> dtos) {
-    List<User> users = Lists.newArrayList();
-    for (UserDto dto : dtos) {
-      users.add(dto.toUser());
+  private static User copy(@Nullable UserDto dto) {
+    if (dto != null) {
+      User user = new User().setEmail(dto.getEmail()).setLogin(dto.getLogin()).setName(dto.getName());
+      user.setId(dto.getId().intValue());
+      return user;
     }
-    return users;
+    return null;
   }
+
 }
