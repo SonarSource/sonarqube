@@ -21,56 +21,81 @@ package org.sonar.server.computation.filemove;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import static org.sonar.server.computation.filemove.FileMoveDetectionStep.MIN_REQUIRED_SCORE;
 
-class MatchesByScore implements ScoreMatrix.ScoreMatrixVisitor, Iterable<List<Match>> {
-  private final ScoreMatrix scoreMatrix;
-  private final List<Match>[] matches;
-  private int totalMatches = 0;
-
-  private MatchesByScore(ScoreMatrix scoreMatrix) {
-    this.scoreMatrix = scoreMatrix;
-    this.matches = new List[Math.max(MIN_REQUIRED_SCORE, scoreMatrix.getMaxScore()) - MIN_REQUIRED_SCORE];
-  }
+abstract class MatchesByScore implements Iterable<List<Match>> {
 
   public static MatchesByScore create(ScoreMatrix scoreMatrix) {
-    MatchesByScore res = new MatchesByScore(scoreMatrix);
+    if (scoreMatrix.getMaxScore() < MIN_REQUIRED_SCORE) {
+      return EmptyMatchesByScore.INSTANCE;
+    }
+    MatchesByScoreImpl res = new MatchesByScoreImpl(scoreMatrix);
     res.populate();
     return res;
   }
 
-  private void populate() {
-    scoreMatrix.accept(this);
-  }
+  public abstract int getSize();
 
-  @Override
-  public void visit(String dbFileKey, String reportFileKey, int score) {
-    if (!isAcceptableScore(score)) {
-      return;
+  private static final class MatchesByScoreImpl extends MatchesByScore implements ScoreMatrix.ScoreMatrixVisitor {
+    private final ScoreMatrix scoreMatrix;
+    private final List<Match>[] matches;
+    private int totalMatches = 0;
+
+    private MatchesByScoreImpl(ScoreMatrix scoreMatrix) {
+      this.scoreMatrix = scoreMatrix;
+      this.matches = new List[scoreMatrix.getMaxScore() - MIN_REQUIRED_SCORE + 1];
     }
 
-    int index = score - MIN_REQUIRED_SCORE - 1;
-    if (matches[index] == null) {
-      matches[index] = new ArrayList<>(1);
+    private void populate() {
+      scoreMatrix.accept(this);
     }
-    Match match = new Match(dbFileKey, reportFileKey);
-    matches[index].add(match);
-    totalMatches++;
+
+    @Override
+    public void visit(String dbFileKey, String reportFileKey, int score) {
+      if (!isAcceptableScore(score)) {
+        return;
+      }
+
+      int index = score - MIN_REQUIRED_SCORE;
+      if (matches[index] == null) {
+        matches[index] = new ArrayList<>(1);
+      }
+      Match match = new Match(dbFileKey, reportFileKey);
+      matches[index].add(match);
+      totalMatches++;
+    }
+
+
+    private static boolean isAcceptableScore(int score) {
+      return score >= MIN_REQUIRED_SCORE;
+    }
+
+    @Override
+    public int getSize() {
+      return totalMatches;
+    }
+
+    @Override
+    public Iterator<List<Match>> iterator() {
+      return Arrays.asList(matches).iterator();
+    }
   }
 
-  private static boolean isAcceptableScore(int score) {
-    return score >= MIN_REQUIRED_SCORE;
-  }
+  private static class EmptyMatchesByScore extends MatchesByScore {
+    private static final EmptyMatchesByScore INSTANCE = new EmptyMatchesByScore();
 
-  public int getSize() {
-    return totalMatches;
-  }
+    @Override
+    public int getSize() {
+      return 0;
+    }
 
-  @Override
-  public Iterator<List<Match>> iterator() {
-    return Arrays.asList(matches).iterator();
+    @Override
+    public Iterator<List<Match>> iterator() {
+      return Collections.<List<Match>>emptyList().iterator();
+    }
   }
 }
