@@ -58,7 +58,7 @@ public class GroupDao implements Dao {
   }
 
   public List<GroupDto> selectByNames(DbSession session, Collection<String> names) {
-    return executeLargeInputs(names, partitionOfNames -> mapper(session).selectByNames(partitionOfNames));
+    return executeLargeInputs(names, mapper(session)::selectByNames);
   }
 
   public GroupDto selectOrFailById(DbSession dbSession, long groupId) {

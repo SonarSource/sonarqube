@@ -53,7 +53,7 @@ public class AuthorDao implements Dao {
   }
 
   public List<String> selectScmAccountsByDeveloperUuids(final DbSession session, Collection<String> developerUuids) {
-    return executeLargeInputs(developerUuids, partition -> getMapper(session).selectScmAccountsByDeveloperUuids(partition));
+    return executeLargeInputs(developerUuids, getMapper(session)::selectScmAccountsByDeveloperUuids);
   }
 
   private static AuthorMapper getMapper(SqlSession session) {

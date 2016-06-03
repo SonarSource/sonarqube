@@ -103,15 +103,15 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectByIds(DbSession session, Collection<Long> ids) {
-    return executeLargeInputs(ids, partition -> mapper(session).selectByIds(partition));
+    return executeLargeInputs(ids, mapper(session)::selectByIds);
   }
 
   public List<ComponentDto> selectByUuids(DbSession session, Collection<String> uuids) {
-    return executeLargeInputs(uuids, partition -> mapper(session).selectByUuids(partition));
+    return executeLargeInputs(uuids, mapper(session)::selectByUuids);
   }
 
   public List<String> selectExistingUuids(DbSession session, Collection<String> uuids) {
-    return executeLargeInputs(uuids, partition -> mapper(session).selectExistingUuids(partition));
+    return executeLargeInputs(uuids, mapper(session)::selectExistingUuids);
   }
 
   /**
@@ -126,7 +126,7 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectByKeys(DbSession session, Collection<String> keys) {
-    return executeLargeInputs(keys, partitionOfKeys -> mapper(session).selectByKeys(partitionOfKeys));
+    return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
   public List<ComponentDto> selectComponentsHavingSameKeyOrderedById(DbSession session, String key) {

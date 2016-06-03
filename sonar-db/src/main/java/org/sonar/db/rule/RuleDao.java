@@ -55,7 +55,7 @@ public class RuleDao implements Dao {
   }
 
   public List<RuleDto> selectByIds(DbSession session, List<Integer> ids) {
-    return executeLargeInputs(ids, partitionOfIds -> mapper(session).selectByIds(partitionOfIds));
+    return executeLargeInputs(ids, mapper(session)::selectByIds);
   }
 
   /**
@@ -63,7 +63,7 @@ public class RuleDao implements Dao {
    * if the list of {@code keys} is empty, without any db round trip.
    */
   public List<RuleDto> selectByKeys(DbSession session, List<RuleKey> keys) {
-    return executeLargeInputs(keys, partitionOfKeys -> mapper(session).selectByKeys(partitionOfKeys));
+    return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
   public List<RuleDto> selectEnabled(DbSession session) {
@@ -103,11 +103,11 @@ public class RuleDao implements Dao {
   }
 
   public List<RuleParamDto> selectRuleParamsByRuleKeys(DbSession session, List<RuleKey> ruleKeys) {
-    return executeLargeInputs(ruleKeys, partitionOfKeys -> mapper(session).selectParamsByRuleKeys(partitionOfKeys));
+    return executeLargeInputs(ruleKeys, mapper(session)::selectParamsByRuleKeys);
   }
 
   public List<RuleParamDto> selectRuleParamsByRuleIds(DbSession dbSession, List<Integer> ruleIds) {
-    return executeLargeInputs(ruleIds, partitionOfIds -> mapper(dbSession).selectParamsByRuleIds(partitionOfIds));
+    return executeLargeInputs(ruleIds, mapper(dbSession)::selectParamsByRuleIds);
   }
 
   public void insertRuleParam(DbSession session, RuleDto rule, RuleParamDto param) {

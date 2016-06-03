@@ -55,7 +55,7 @@ public class SnapshotDao implements Dao {
   }
 
   public List<SnapshotDto> selectByIds(DbSession dbSession, List<Long> snapshotIds) {
-    return executeLargeInputs(snapshotIds, (input) -> mapper(dbSession).selectByIds(input));
+    return executeLargeInputs(snapshotIds, mapper(dbSession)::selectByIds);
   }
 
   @CheckForNull

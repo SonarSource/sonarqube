@@ -54,7 +54,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public List<ActiveRuleDto> selectByKeys(DbSession dbSession, List<ActiveRuleKey> keys) {
-    return executeLargeInputs(keys, partitionOfIds -> mapper(dbSession).selectByKeys(partitionOfIds));
+    return executeLargeInputs(keys, mapper(dbSession)::selectByKeys);
   }
 
   public List<ActiveRuleDto> selectByRuleId(DbSession dbSession, int ruleId) {
@@ -62,7 +62,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public List<ActiveRuleDto> selectByRuleIds(DbSession dbSession, List<Integer> ids) {
-    return executeLargeInputs(ids, partitionOfRuleIds -> mapper(dbSession).selectByRuleIds(partitionOfRuleIds));
+    return executeLargeInputs(ids, mapper(dbSession)::selectByRuleIds);
   }
 
   // TODO As it's only used by MediumTest, it should be replaced by DbTester.countRowsOfTable()
@@ -110,7 +110,7 @@ public class ActiveRuleDao implements Dao {
   }
 
   public List<ActiveRuleParamDto> selectParamsByActiveRuleIds(final DbSession dbSession, List<Integer> activeRuleIds) {
-    return executeLargeInputs(activeRuleIds, partitionOfIds -> mapper(dbSession).selectParamsByActiveRuleIds(partitionOfIds));
+    return executeLargeInputs(activeRuleIds, mapper(dbSession)::selectParamsByActiveRuleIds);
   }
 
   @CheckForNull

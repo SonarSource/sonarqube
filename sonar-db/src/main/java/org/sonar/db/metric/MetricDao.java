@@ -48,7 +48,7 @@ public class MetricDao implements Dao {
   }
 
   public List<MetricDto> selectByKeys(final DbSession session, List<String> keys) {
-    return executeLargeInputs(keys, input -> mapper(session).selectByKeys(input));
+    return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
   public MetricDto selectOrFailByKey(DbSession session, String key) {
@@ -105,7 +105,7 @@ public class MetricDao implements Dao {
   }
 
   public List<MetricDto> selectByIds(DbSession session, Set<Integer> idsSet) {
-    return executeLargeInputs(new ArrayList<>(idsSet), ids1 -> mapper(session).selectByIds(ids1));
+    return executeLargeInputs(new ArrayList<>(idsSet), mapper(session)::selectByIds);
   }
 
   private static class NotEmptyPredicate implements Predicate<String> {

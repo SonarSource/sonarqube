@@ -70,9 +70,7 @@ public class UserDao implements Dao {
    * Used by the Governance plugin
    */
   public List<UserDto> selectByIds(DbSession session, Collection<Long> ids) {
-    return executeLargeInputs(
-      ids,
-      partitionOfLogins -> session.getMapper(UserMapper.class).selectByIds(partitionOfLogins));
+    return executeLargeInputs(ids, session.getMapper(UserMapper.class)::selectByIds);
   }
 
   /**
@@ -101,9 +99,7 @@ public class UserDao implements Dao {
    * if list of logins is empty, without any db round trips.
    */
   public List<UserDto> selectByLogins(DbSession session, Collection<String> logins) {
-    return executeLargeInputs(
-      logins,
-      partitionOfLogins -> session.getMapper(UserMapper.class).selectByLogins(partitionOfLogins));
+    return executeLargeInputs(logins, session.getMapper(UserMapper.class)::selectByLogins);
   }
 
   public List<UserDto> selectByLogins(Collection<String> logins) {

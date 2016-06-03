@@ -76,7 +76,7 @@ public class IssueDao implements Dao {
    * <p>Results may be in a different order as input keys (see {@link #selectByOrderedKeys(DbSession, List)}).</p>
    */
   public List<IssueDto> selectByKeys(final DbSession session, List<String> keys) {
-    return executeLargeInputs(keys, partitionOfKeys -> mapper(session).selectByKeys(partitionOfKeys));
+    return executeLargeInputs(keys, mapper(session)::selectByKeys);
   }
 
   /**
