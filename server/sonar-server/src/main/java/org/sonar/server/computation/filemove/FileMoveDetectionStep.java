@@ -20,21 +20,20 @@
 package org.sonar.server.computation.filemove;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Splitter;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.Multimap;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Set;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.log.Logger;
@@ -44,8 +43,6 @@ import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.component.ComponentDtoFunctions;
-import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.source.FileSourceDto;
@@ -62,16 +59,16 @@ import org.sonar.server.computation.step.ComputationStep;
 
 import static com.google.common.base.Splitter.on;
 import static com.google.common.collect.FluentIterable.from;
-import static java.lang.Math.max;
 import static java.util.Arrays.asList;
 import static java.util.Collections.singletonList;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.POST_ORDER;
 
 public class FileMoveDetectionStep implements ComputationStep {
+  protected static final int MIN_REQUIRED_SCORE = 90;
   private static final Logger LOG = Loggers.get(FileMoveDetectionStep.class);
-  private static final int MIN_REQUIRED_SCORE = 90;
   private static final List<String> FILE_QUALIFIERS = asList(Qualifiers.FILE, Qualifiers.UNIT_TEST_FILE);
   private static final List<String> SORT_FIELDS = singletonList("name");
+  private static final Splitter LINES_HASHES_SPLITTER = on('\n');
 
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder rootHolder;
@@ -104,15 +101,13 @@ public class FileMoveDetectionStep implements ComputationStep {
       return;
     }
 
-    Map<String, ComponentDtoWithSnapshotId> dbFilesByKey = getDbFilesByKey(baseProjectSnapshot);
-
+    Map<String, DbComponent> dbFilesByKey = getDbFilesByKey(baseProjectSnapshot);
     if (dbFilesByKey.isEmpty()) {
       LOG.debug("Previous snapshot has no file. Do nothing.");
       return;
     }
 
     Map<String, Component> reportFilesByKey = getReportFilesByKey(this.rootHolder.getRoot());
-
     if (reportFilesByKey.isEmpty()) {
       LOG.debug("No files in report. Do nothing.");
       return;
@@ -127,24 +122,27 @@ public class FileMoveDetectionStep implements ComputationStep {
       return;
     }
 
-    // retrieve file data from db and report
-    Map<String, File> dbFileSourcesByKey = getDbFileSourcesByKey(dbFilesByKey, removedFileKeys);
+    // retrieve file data from report
     Map<String, File> reportFileSourcesByKey = getReportFileSourcesByKey(reportFilesByKey, addedFileKeys);
 
     // compute score matrix
-    ScoreMatrix scoreMatrix = computeScoreMatrix(dbFileSourcesByKey, reportFileSourcesByKey);
+    ScoreMatrix scoreMatrix = computeScoreMatrix(dbFilesByKey, removedFileKeys, reportFileSourcesByKey);
     printIfDebug(scoreMatrix);
 
     // not a single match with score higher than MIN_REQUIRED_SCORE => abort
-    if (scoreMatrix.maxScore < MIN_REQUIRED_SCORE) {
+    if (scoreMatrix.getMaxScore() < MIN_REQUIRED_SCORE) {
       LOG.debug("max score in matrix is less than min required score (%s). Do nothing.", MIN_REQUIRED_SCORE);
       return;
     }
 
     MatchesByScore matchesByScore = MatchesByScore.create(scoreMatrix);
 
-    ElectedMatches electedMatches = electMatches(dbFileSourcesByKey, reportFileSourcesByKey, matchesByScore);
+    ElectedMatches electedMatches = electMatches(removedFileKeys, reportFileSourcesByKey, matchesByScore);
 
+    registerMatches(dbFilesByKey, reportFilesByKey, electedMatches);
+  }
+
+  private void registerMatches(Map<String, DbComponent> dbFilesByKey, Map<String, Component> reportFilesByKey, ElectedMatches electedMatches) {
     for (Match validatedMatch : electedMatches) {
       movedFilesRepository.setOriginalFile(
         reportFilesByKey.get(validatedMatch.getReportKey()),
@@ -153,8 +151,9 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
   }
 
-  private Map<String, ComponentDtoWithSnapshotId> getDbFilesByKey(Snapshot baseProjectSnapshot) {
+  private Map<String, DbComponent> getDbFilesByKey(Snapshot baseProjectSnapshot) {
     try (DbSession dbSession = dbClient.openSession(false)) {
+      // FIXME no need to use such a complex query, joining on SNAPSHOTS and retrieving all column of table PROJECTS, replace with dedicated mapper method
       return from(dbClient.componentDao().selectAllChildren(
         dbSession,
         ComponentTreeQuery.builder()
@@ -166,7 +165,8 @@ public class FileMoveDetectionStep implements ComputationStep {
           .setPageSize(Integer.MAX_VALUE)
           .setPage(1)
           .build()))
-            .uniqueIndex(ComponentDtoFunctions.toKey());
+            .transform(componentDto -> new DbComponent(componentDto.getId(), componentDto.key(), componentDto.uuid(), componentDto.path()))
+            .uniqueIndex(DbComponent::getKey);
     }
   }
 
@@ -180,20 +180,6 @@ public class FileMoveDetectionStep implements ComputationStep {
         }
       }).visit(root);
     return builder.build();
-  }
-
-  private Map<String, File> getDbFileSourcesByKey(Map<String, ComponentDtoWithSnapshotId> dbFilesByKey, Set<String> removedFileKeys) {
-    try (DbSession dbSession = dbClient.openSession(false)) {
-      ImmutableMap.Builder<String, File> builder = ImmutableMap.builder();
-      for (String fileKey : removedFileKeys) {
-        ComponentDtoWithSnapshotId componentDto = dbFilesByKey.get(fileKey);
-        FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, componentDto.uuid());
-        if (fileSourceDto != null) {
-          builder.put(fileKey, new File(componentDto.path(), fileSourceDto.getSrcHash(), on('\n').splitToList(fileSourceDto.getLineHashes())));
-        }
-      }
-      return builder.build();
-    }
   }
 
   private Map<String, File> getReportFileSourcesByKey(Map<String, Component> reportFilesByKey, Set<String> addedFileKeys) {
@@ -216,27 +202,42 @@ public class FileMoveDetectionStep implements ComputationStep {
     return builder.build();
   }
 
-  private ScoreMatrix computeScoreMatrix(Map<String, File> dbFileSourcesByKey, Map<String, File> reportFileSourcesByKey) {
-    int[][] scoreMatrix = new int[dbFileSourcesByKey.size()][reportFileSourcesByKey.size()];
+  private ScoreMatrix computeScoreMatrix(Map<String, DbComponent> dtosByKey, Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey) {
+    int[][] scoreMatrix = new int[dbFileKeys.size()][reportFileSourcesByKey.size()];
     int maxScore = 0;
 
-    int dbFileIndex = 0;
-    for (Map.Entry<String, File> dbFileSourceAndKey : dbFileSourcesByKey.entrySet()) {
-      File fileInDb = dbFileSourceAndKey.getValue();
-      int reportFileIndex = 0;
-      for (Map.Entry<String, File> reportFileSourceAndKey : reportFileSourcesByKey.entrySet()) {
-        File unmatchedFile = reportFileSourceAndKey.getValue();
-        int score = fileSimilarity.score(fileInDb, unmatchedFile);
-        scoreMatrix[dbFileIndex][reportFileIndex] = score;
-        if (score > maxScore) {
-          maxScore = score;
+    try (DbSession dbSession = dbClient.openSession(false)) {
+      int dbFileIndex = 0;
+      for (String removedFileKey : dbFileKeys) {
+        File fileInDb = getFile(dbSession, dtosByKey.get(removedFileKey));
+        if (fileInDb == null) {
+          continue;
         }
-        reportFileIndex++;
+
+        int reportFileIndex = 0;
+        for (Map.Entry<String, File> reportFileSourceAndKey : reportFileSourcesByKey.entrySet()) {
+          File unmatchedFile = reportFileSourceAndKey.getValue();
+          int score = fileSimilarity.score(fileInDb, unmatchedFile);
+          scoreMatrix[dbFileIndex][reportFileIndex] = score;
+          if (score > maxScore) {
+            maxScore = score;
+          }
+          reportFileIndex++;
+        }
+        dbFileIndex++;
       }
-      dbFileIndex++;
     }
 
-    return new ScoreMatrix(dbFileSourcesByKey, reportFileSourcesByKey, scoreMatrix, maxScore);
+    return new ScoreMatrix(dbFileKeys, reportFileSourcesByKey, scoreMatrix, maxScore);
+  }
+
+  @CheckForNull
+  private File getFile(DbSession dbSession, DbComponent dbComponent) {
+    FileSourceDto fileSourceDto = dbClient.fileSourceDao().selectSourceByFileUuid(dbSession, dbComponent.getUuid());
+    if (fileSourceDto == null) {
+      return null;
+    }
+    return new File(dbComponent.getPath(), fileSourceDto.getSrcHash(), LINES_HASHES_SPLITTER.splitToList(fileSourceDto.getLineHashes()));
   }
 
   private static void printIfDebug(ScoreMatrix scoreMatrix) {
@@ -245,8 +246,8 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
   }
 
-  private static ElectedMatches electMatches(Map<String, File> dbFileSourcesByKey, Map<String, File> reportFileSourcesByKey, MatchesByScore matchesByScore) {
-    ElectedMatches electedMatches = new ElectedMatches(matchesByScore, dbFileSourcesByKey, reportFileSourcesByKey);
+  private static ElectedMatches electMatches(Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey, MatchesByScore matchesByScore) {
+    ElectedMatches electedMatches = new ElectedMatches(matchesByScore, dbFileKeys, reportFileSourcesByKey);
     Multimap<String, Match> matchesPerFileForScore = ArrayListMultimap.create();
     for (List<Match> matches : matchesByScore) {
       // no match for this score value, ignore
@@ -280,153 +281,38 @@ public class FileMoveDetectionStep implements ComputationStep {
     return electedMatches;
   }
 
-  private static MovedFilesRepository.OriginalFile toOriginalFile(ComponentDtoWithSnapshotId componentDto) {
-    return new MovedFilesRepository.OriginalFile(componentDto.getId(), componentDto.uuid(), componentDto.getKey());
-  }
-
-  private static final class ScoreMatrix {
-    private final Map<String, File> dbFileSourcesByKey;
-    private final Map<String, File> reportFileSourcesByKey;
-    private final int[][] scores;
-    private final int maxScore;
-
-    public ScoreMatrix(Map<String, File> dbFileSourcesByKey, Map<String, File> reportFileSourcesByKey,
-      int[][] scores, int maxScore) {
-      this.dbFileSourcesByKey = dbFileSourcesByKey;
-      this.reportFileSourcesByKey = reportFileSourcesByKey;
-      this.scores = scores;
-      this.maxScore = maxScore;
-    }
-
-    public void accept(ScoreMatrixVisitor visitor) {
-      int dbFileIndex = 0;
-      for (Map.Entry<String, File> dbFileSourceAndKey : dbFileSourcesByKey.entrySet()) {
-        int reportFileIndex = 0;
-        for (Map.Entry<String, File> reportFileSourceAndKey : reportFileSourcesByKey.entrySet()) {
-          int score = scores[dbFileIndex][reportFileIndex];
-          visitor.visit(dbFileSourceAndKey.getKey(), reportFileSourceAndKey.getKey(), score);
-          reportFileIndex++;
-        }
-        dbFileIndex++;
-      }
-    }
-
-    public String toCsv(char separator) {
-      StringBuilder res = new StringBuilder();
-      // first row: empty column, then one column for each report file (its key)
-      res.append(separator);
-      for (Map.Entry<String, File> reportEntry : reportFileSourcesByKey.entrySet()) {
-        res.append(reportEntry.getKey()).append(separator);
-      }
-      // rows with data: column with db file (its key), then one column for each value
-      accept(new ScoreMatrix.ScoreMatrixVisitor() {
-        private String previousDbFileKey = null;
-
-        @Override
-        public void visit(String dbFileKey, String reportFileKey, int score) {
-          if (!Objects.equals(previousDbFileKey, dbFileKey)) {
-            res.append('\n').append(dbFileKey).append(separator);
-            previousDbFileKey = dbFileKey;
-          }
-          res.append(score).append(separator);
-        }
-      });
-      return res.toString();
-    }
-
-    @FunctionalInterface
-    private interface ScoreMatrixVisitor {
-      void visit(String dbFileKey, String reportFileKey, int score);
-    }
+  private static MovedFilesRepository.OriginalFile toOriginalFile(DbComponent dbComponent) {
+    return new MovedFilesRepository.OriginalFile(dbComponent.getId(), dbComponent.getUuid(), dbComponent.getKey());
   }
 
   @Immutable
-  private static final class Match {
-    private final String dbKey;
-    private final String reportKey;
+  private static final class DbComponent {
+    private final long id;
+    private final String key;
+    private final String uuid;
+    private final String path;
 
-    public Match(String dbKey, String reportKey) {
-      this.dbKey = dbKey;
-      this.reportKey = reportKey;
+    private DbComponent(long id, String key, String uuid, String path) {
+      this.id = id;
+      this.key = key;
+      this.uuid = uuid;
+      this.path = path;
     }
 
-    public String getDbKey() {
-      return dbKey;
+    public long getId() {
+      return id;
     }
 
-    public String getReportKey() {
-      return reportKey;
+    public String getKey() {
+      return key;
     }
 
-    @Override
-    public boolean equals(@Nullable Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-      Match match = (Match) o;
-      return dbKey.equals(match.dbKey) && reportKey.equals(match.reportKey);
+    public String getUuid() {
+      return uuid;
     }
 
-    @Override
-    public int hashCode() {
-      return Objects.hash(dbKey, reportKey);
-    }
-
-    @Override
-    public String toString() {
-      return '{' + dbKey + "=>" + reportKey + '}';
-    }
-  }
-
-  private static class MatchesByScore implements ScoreMatrix.ScoreMatrixVisitor, Iterable<List<Match>> {
-    private final ScoreMatrix scoreMatrix;
-    private List<Match>[] matches;
-    private int totalMatches = 0;
-
-    private MatchesByScore(ScoreMatrix scoreMatrix) {
-      this.scoreMatrix = scoreMatrix;
-      this.matches = new List[max(MIN_REQUIRED_SCORE, scoreMatrix.maxScore) - MIN_REQUIRED_SCORE];
-    }
-
-    public static MatchesByScore create(ScoreMatrix scoreMatrix) {
-      MatchesByScore res = new MatchesByScore(scoreMatrix);
-      res.populate();
-      return res;
-    }
-
-    private void populate() {
-      scoreMatrix.accept(this);
-    }
-
-    @Override
-    public void visit(String dbFileKey, String reportFileKey, int score) {
-      if (!isAcceptableScore(score)) {
-        return;
-      }
-
-      int index = score - MIN_REQUIRED_SCORE - 1;
-      if (matches[index] == null) {
-        matches[index] = new ArrayList<>(1);
-      }
-      Match match = new Match(dbFileKey, reportFileKey);
-      matches[index].add(match);
-      totalMatches++;
-    }
-
-    public int getSize() {
-      return totalMatches;
-    }
-
-    @Override
-    public Iterator<List<Match>> iterator() {
-      return Arrays.asList(matches).iterator();
-    }
-
-    private static boolean isAcceptableScore(int score) {
-      return score >= MIN_REQUIRED_SCORE;
+    public String getPath() {
+      return path;
     }
   }
 
@@ -440,10 +326,9 @@ public class FileMoveDetectionStep implements ComputationStep {
       }
     };
 
-    public ElectedMatches(MatchesByScore matchesByScore, Map<String, File> dbFileSourcesByKey,
-      Map<String, File> reportFileSourcesByKey) {
+    public ElectedMatches(MatchesByScore matchesByScore, Set<String> dbFileKeys, Map<String, File> reportFileSourcesByKey) {
       this.matches = new ArrayList<>(matchesByScore.getSize());
-      this.matchedFileKeys = new HashSet<>(dbFileSourcesByKey.size() + reportFileSourcesByKey.size());
+      this.matchedFileKeys = new HashSet<>(dbFileKeys.size() + reportFileSourcesByKey.size());
     }
 
     public void add(Match match) {
