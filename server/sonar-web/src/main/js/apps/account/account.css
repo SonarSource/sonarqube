@@ -7,9 +7,7 @@
   background-color: #f3f3f3;
 }
 
-.account-nav {
-
-}
+.account-nav { }
 
 .account-nav .nav-tabs {
   width: 100%;
@@ -44,4 +42,74 @@
 
 .account-bar-chart .histogram-value {
   text-anchor: start;
+}
+
+.account-projects {
+  max-width: 600px;
+}
+
+.account-projects-list > li + li {
+  margin-top: 10px;
+}
+
+.account-project-side {
+  float: right;
+  margin-left: 10px;
+  text-align: right;
+}
+
+.account-project-analysis {
+  line-height: 24px;
+  color: #777;
+  font-size: 12px;
+}
+
+.account-project-card {
+  position: relative;
+  display: block;
+  padding: 10px 15px;
+  border: 1px solid #e6e6e6;
+  border-radius: 3px;
+  background-color: #fff;
+}
+
+.account-project-name {
+  display: inline-block;
+  vertical-align: top;
+  max-width: 300px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.account-project-name > a {
+  border-bottom-color: #d0d0d0;
+  color: #444;
+}
+
+.account-project-name > a:hover {
+  border-bottom-color: #cae3f2;
+  color: #4b9fd5;
+}
+
+.account-project-quality-gate {
+  display: inline-block;
+  vertical-align: top;
+  line-height: 24px;
+  margin-left: 8px;
+}
+
+.account-project-description {
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.account-project-links {
+  margin-top: 4px;
+}
+
+.account-project-key {
+  margin-top: 6px;
+  color: #777;
+  font-size: 12px;
 }

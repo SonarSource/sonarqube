@@ -98,3 +98,8 @@ export function getProjectsWithInternalId (query) {
   };
   return getJSON(url, data).then(r => r.results);
 }
+
+export function getMyProjects (data) {
+  const url = window.baseUrl + '/api/projects/search_my_projects';
+  return getJSON(url, data);
+}

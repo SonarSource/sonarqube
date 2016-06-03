@@ -20,13 +20,10 @@
 package it.user;
 
 import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.build.SonarScanner;
 import com.sonar.orchestrator.selenium.Selenese;
 import it.Category4Suite;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.*;
 import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
@@ -34,6 +31,7 @@ import util.QaOnly;
 import util.selenium.SeleneseTest;
 
 import static util.ItUtils.newAdminWsClient;
+import static util.ItUtils.projectDir;
 
 @Category(QaOnly.class)
 public class MyAccountPageTest {
@@ -81,6 +79,24 @@ public class MyAccountPageTest {
     new SeleneseTest(selenese).runOn(orchestrator);
   }
 
+  @Test
+  public void should_display_projects() throws Exception {
+    // first, try on empty instance
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_projects",
+      "/user/MyAccountPageTest/should_display_no_projects.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+
+    // then, analyze a project
+    analyzeProject("sample");
+    grantAdminPermission("account-user", "sample");
+
+    selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_projects",
+      "/user/MyAccountPageTest/should_display_projects.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+  }
+
   private static void createUser(String login, String name, String email) {
     adminWsClient.wsConnector().call(
       new PostRequest("api/users/create")
@@ -96,4 +112,19 @@ public class MyAccountPageTest {
         .setParam("login", login));
   }
 
+  private static void analyzeProject(String projectKey) {
+    SonarScanner build = SonarScanner.create(projectDir("qualityGate/xoo-sample"))
+      .setProjectKey(projectKey)
+      .setProperty("sonar.projectDescription", "Description of a project")
+      .setProperty("sonar.links.homepage", "http://example.com");
+    orchestrator.executeBuild(build);
+  }
+
+  private static void grantAdminPermission(String login, String projectKey) {
+    adminWsClient.wsConnector().call(
+      new PostRequest("api/permissions/add_user")
+        .setParam("login", login)
+        .setParam("projectKey", projectKey)
+        .setParam("permission", "admin"));
+  }
 }
