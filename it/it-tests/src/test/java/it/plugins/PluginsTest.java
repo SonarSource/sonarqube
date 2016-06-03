@@ -74,8 +74,8 @@ public class PluginsTest {
     "maifcobolplugin");
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
-    "abap", "cobol", "cpp", "devcockpit", "objc", "pli", "plsql", "report", "rpg",
-    "sqale", "swift", "vb", "vbnet", "views");
+    "abap", "cobol", "cpp", "devcockpit", "governance", "objc", "pli", "plsql", "report", "rpg",
+    "swift", "vb", "vbnet");
 
   static final Set<String> DISABLED_PLUGINS_FOR_PREVIEW_MODE = Sets.newHashSet("mantis",
 
