@@ -22,6 +22,7 @@ import _ from 'underscore';
 import Backbone from 'backbone';
 import Marionette from 'backbone.marionette';
 import { translate } from '../helpers/l10n';
+import { getCSRFTokenName, getCSRFTokenValue } from '../helpers/request';
 
 const defaults = {
   queue: {},
@@ -165,6 +166,7 @@ function handleAjaxError (jqXHR) {
 
 $.ajaxSetup({
   beforeSend (jqXHR) {
+    jqXHR.setRequestHeader(getCSRFTokenName(), getCSRFTokenValue());
     jqXHR.processId = addBackgroundProcess();
   },
   complete (jqXHR) {

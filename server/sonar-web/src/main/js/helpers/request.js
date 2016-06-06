@@ -17,35 +17,44 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
+import { stringify } from 'querystring';
+import { getCookie } from './cookies';
+
+export function getCSRFTokenName () {
+  return 'X-XSRF-TOKEN';
+}
+
+export function getCSRFTokenValue () {
+  const cookieName = 'XSRF-TOKEN';
+  const cookieValue = getCookie(cookieName);
+  if (!cookieValue) {
+    return '';
+  }
+  return cookieValue;
+}
+
+/**
+ * Return an object containing a special http request header used to prevent CSRF attacks.
+ * @returns {Object}
+ */
+export function getCSRFToken () {
+  return { [getCSRFTokenName()]: getCSRFTokenValue() };
+}
 
 /**
  * Default options for any request
- * @type {{credentials: string}}
  */
-const OPTIONS = {
+const DEFAULT_OPTIONS = {
   method: 'GET',
   credentials: 'same-origin'
 };
 
 /**
  * Default request headers
- * @type {{Accept: string}}
  */
-const HEADERS = {
+const DEFAULT_HEADERS = {
   'Accept': 'application/json'
 };
-
-/**
- * Create a query string from an object
- * @param {object} parameters
- * @returns {string}
- */
-function queryString (parameters) {
-  return Object.keys(parameters)
-      .map(key => `${encodeURIComponent(key)}=${encodeURIComponent(parameters[key])}`)
-      .join('&');
-}
 
 /**
  * Request
@@ -59,16 +68,28 @@ class Request {
 
   submit () {
     let url = this.url;
-    const options = _.defaults(this.options, OPTIONS);
-    options.headers = _.defaults(this.headers, HEADERS);
+
+    const options = { ...DEFAULT_OPTIONS, ...this.options };
+    const customHeaders = {};
+
     if (this.data) {
-      if (options.method === 'GET') {
-        url += '?' + queryString(this.data);
+      if (this.data instanceof FormData) {
+        options.body = this.data;
+      } else if (options.method === 'GET') {
+        url += '?' + stringify(this.data);
       } else {
-        options.headers['Content-Type'] = 'application/x-www-form-urlencoded';
-        options.body = queryString(this.data);
+        customHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
+        options.body = stringify(this.data);
       }
     }
+
+    options.headers = {
+      ...DEFAULT_HEADERS,
+      ...customHeaders,
+      ...this.headers,
+      ...getCSRFToken()
+    };
+
     return window.fetch(window.baseUrl + url, options);
   }
 
@@ -79,6 +100,11 @@ class Request {
 
   setData (data) {
     this.data = data;
+    return this;
+  }
+
+  setHeader (name, value) {
+    this.headers[name] = value;
     return this;
   }
 }
@@ -144,7 +170,7 @@ export function postJSON (url, data) {
 }
 
 /**
- * Shortcut to do a POST request and return response json
+ * Shortcut to do a POST request
  * @param url
  * @param data
  */

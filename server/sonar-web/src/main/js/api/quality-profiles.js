@@ -17,30 +17,22 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { checkStatus, parseJSON } from '../helpers/request';
+import { request, checkStatus, parseJSON } from '../helpers/request';
 
 export function createQualityProfile (data) {
-  // TODO
-  const url = window.baseUrl + '/api/qualityprofiles/create';
-  const options = {
-    method: 'post',
-    credentials: 'same-origin',
-    body: data
-  };
-  return window.fetch(url, options)
+  return request('/api/qualityprofiles/create')
+      .setMethod('post')
+      .setData(data)
+      .submit()
       .then(checkStatus)
       .then(parseJSON);
 }
 
 export function restoreQualityProfile (data) {
-  // TODO
-  const url = window.baseUrl + '/api/qualityprofiles/restore';
-  const options = {
-    method: 'post',
-    credentials: 'same-origin',
-    body: data
-  };
-  return window.fetch(url, options)
+  return request('/api/qualityprofiles/restore')
+      .setMethod('post')
+      .setData(data)
+      .submit()
       .then(checkStatus)
       .then(parseJSON);
 }
