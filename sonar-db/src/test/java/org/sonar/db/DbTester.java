@@ -59,6 +59,8 @@ import org.sonar.api.utils.System2;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Maps.newHashMap;
+import static java.sql.ResultSetMetaData.columnNoNulls;
+import static java.sql.ResultSetMetaData.columnNullable;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
 
@@ -350,6 +352,10 @@ public class DbTester extends ExternalResource {
   }
 
   public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize) {
+    assertColumnDefinition(table, column, expectedType, expectedSize, null);
+  }
+
+  public void assertColumnDefinition(String table, String column, int expectedType, @Nullable Integer expectedSize, @Nullable Boolean isNullable) {
     try (Connection connection = db.getDatabase().getDataSource().getConnection();
       PreparedStatement stmt = connection.prepareStatement("select * from " + table);
       ResultSet res = stmt.executeQuery()) {
@@ -362,7 +368,9 @@ public class DbTester extends ExternalResource {
       if (expectedSize != null) {
         assertThat(res.getMetaData().getColumnDisplaySize(columnIndex)).isEqualTo(expectedSize);
       }
-
+      if (isNullable != null) {
+        assertThat(res.getMetaData().isNullable(columnIndex)).isEqualTo(isNullable ? columnNullable : columnNoNulls);
+      }
     } catch (Exception e) {
       throw new IllegalStateException("Fail to check column");
     }
