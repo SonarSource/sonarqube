@@ -17,26 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { connect } from 'react-redux';
+import React, { Component } from 'react';
 
-import { addProjectNotifications, removeProjectNotifications } from '../store/actions';
-import Notifications from './../components/Notifications';
+import IssuesApp from '../issues-app';
 
-function mapStateToProps (state) {
-  return {
-    globalNotifications: window.sonarqube.notifications.global,
-    projectNotifications: state.projectNotifications
-  };
+export default class Issues extends Component {
+  componentDidMount () {
+    this.issuesApp = IssuesApp;
+    this.issuesApp.start({
+      el: this.refs.container
+    });
+  }
+
+  componentWillUnmount () {
+    this.issuesApp.stop();
+  }
+
+  render () {
+    return <div ref="container"></div>;
+  }
 }
-
-function mapDispatchToProps (dispatch) {
-  return {
-    onAddProject: project => dispatch(addProjectNotifications(project)),
-    onRemoveProject: project => dispatch(removeProjectNotifications(project))
-  };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Notifications);
