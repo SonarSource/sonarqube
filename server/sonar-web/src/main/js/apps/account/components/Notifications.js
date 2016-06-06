@@ -23,7 +23,7 @@ import GlobalNotifications from './GlobalNotifications';
 import ProjectNotifications from './ProjectNotifications';
 import { translate } from '../../../helpers/l10n';
 
-export default function Notifications ({ globalNotifications, projectNotifications, onAddProject, onRemoveProject }) {
+const Notifications = ({ globalNotifications, projectNotifications, onAddProject, onRemoveProject }) => {
   const channels = globalNotifications[0].channels.map(c => c.id);
 
   return (
@@ -56,4 +56,6 @@ export default function Notifications ({ globalNotifications, projectNotificatio
         </form>
       </div>
   );
-}
+};
+
+export default Notifications;

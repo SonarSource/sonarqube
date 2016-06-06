@@ -18,37 +18,62 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React, { Component, cloneElement } from 'react';
-import { connect } from 'react-redux';
-
-import Nav from '../components/Nav';
-import { fetchUser } from '../store/actions';
+import Nav from './Nav';
+import { getCurrentUser } from '../../../api/users';
 import { getIssueFilters } from '../../../api/issues';
+import '../account.css';
 
-class AccountApp extends Component {
-  state = {};
+export default class AccountApp extends Component {
+  state = {
+    loading: true
+  };
 
   componentDidMount () {
-    this.props.fetchUser();
-    this.fetchFavoriteIssueFilters();
+    this.mounted = true;
+    Promise.all([
+      this.loadUser(),
+      this.loadFavoriteIssueFilters()
+    ]).then(() => this.finishLoading());
   }
 
-  fetchFavoriteIssueFilters () {
-    getIssueFilters().then(issueFilters => {
+  componentWillUnmount () {
+    this.mounted = false;
+  }
+
+  loadUser () {
+    return getCurrentUser().then(user => {
+      if (this.mounted) {
+        this.setState({ user });
+      }
+    });
+  }
+
+  loadFavoriteIssueFilters () {
+    return getIssueFilters().then(issueFilters => {
       const favoriteIssueFilters = issueFilters.filter(f => f.favorite);
       this.setState({ issueFilters: favoriteIssueFilters });
     });
   }
 
-  render () {
-    const { user } = this.props;
+  finishLoading () {
+    if (this.mounted) {
+      this.setState({ loading: false });
+    }
+  }
 
-    if (!user) {
-      return null;
+  render () {
+    const { user, issueFilters, loading } = this.state;
+
+    if (loading) {
+      return (
+          <div>
+            <i className="spinner spinner-margin"/>
+          </div>
+      );
     }
 
     const { favorites } = window.sonarqube.user;
     const measureFilters = window.sonarqube.user.favoriteMeasureFilters;
-    const { issueFilters } = this.state;
     const children = cloneElement(this.props.children, {
       measureFilters,
       user,
@@ -64,16 +89,3 @@ class AccountApp extends Component {
     );
   }
 }
-
-function mapStateToProps (state) {
-  return { user: state.user };
-}
-
-function mapDispatchToProps (dispatch) {
-  return { fetchUser: () => dispatch(fetchUser()) };
-}
-
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(AccountApp);

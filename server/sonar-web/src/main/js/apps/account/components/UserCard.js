@@ -23,7 +23,7 @@ import { IndexLink } from 'react-router';
 import UserExternalIdentity from './UserExternalIdentity';
 import Avatar from '../../../components/shared/avatar';
 
-export default function UserCard ({ user }) {
+const UserCard = ({ user }) => {
   return (
       <section className="account-user clearfix">
         <div id="avatar" className="account-nav-avatar">
@@ -45,4 +45,6 @@ export default function UserCard ({ user }) {
         <div id="email" className="little-spacer-top">{user.email}</div>
       </section>
   );
-}
+};
+
+export default UserCard;

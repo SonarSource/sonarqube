@@ -21,16 +21,11 @@ import React from 'react';
 import { render } from 'react-dom';
 import { Router, Route, IndexRoute, Redirect, useRouterHistory } from 'react-router';
 import { createHistory } from 'history';
-import { Provider } from 'react-redux';
-
-import configureStore from './store/configureStore';
-import AccountApp from './containers/AccountApp';
+import AccountApp from './components/AccountApp';
 import Home from './components/Home';
-import NotificationsContainer from './containers/NotificationsContainer';
-import SecurityContainer from './containers/SecurityContainer';
-import IssuesContainer from './containers/IssuesContainer';
-
-import './styles/account.css';
+import NotificationsContainer from './components/NotificationsContainer';
+import Security from './components/Security';
+import Issues from './components/Issues';
 
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
@@ -39,20 +34,16 @@ window.sonarqube.appStarted.then(options => {
     basename: window.baseUrl + '/account'
   });
 
-  const store = configureStore();
-
   render((
-      <Provider store={store}>
-        <Router history={history}>
-          <Route path="/" component={AccountApp}>
-            <IndexRoute component={Home}/>
-            <Route path="issues" component={IssuesContainer}/>
-            <Route path="notifications" component={NotificationsContainer}/>
-            <Route path="security" component={SecurityContainer}/>
+      <Router history={history}>
+        <Route path="/" component={AccountApp}>
+          <IndexRoute component={Home}/>
+          <Route path="issues" component={Issues}/>
+          <Route path="notifications" component={NotificationsContainer}/>
+          <Route path="security" component={Security}/>
 
-            <Redirect from="/index" to="/"/>
-          </Route>
-        </Router>
-      </Provider>
+          <Redirect from="/index" to="/"/>
+        </Route>
+      </Router>
   ), el);
 });
