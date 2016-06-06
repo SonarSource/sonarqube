@@ -230,7 +230,8 @@ public class LogListenerTest {
     synchronized (logOutput) {
       for (LogEvent e : logOutput) {
         if (e.level == Level.ERROR) {
-          assertThat(e.msg).contains("Error processing line 1 of file", "src/sample.xoo.measures", "java.lang.IllegalStateException: Unknow metric with key: foo",
+          assertThat(e.msg).contains("Error processing line 1 of file", "src" + File.separator + "sample.xoo.measures",
+            "java.lang.IllegalStateException: Unknow metric with key: foo",
             "at org.sonar.xoo.lang.MeasureSensor.saveMeasure");
 
         }
