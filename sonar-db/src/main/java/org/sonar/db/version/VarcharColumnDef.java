@@ -31,6 +31,8 @@ import static org.sonar.db.version.ColumnDefValidation.validateColumnName;
  * Used to define VARCHAR column
  */
 public class VarcharColumnDef extends AbstractColumnDef {
+  public static final int UUID_VARCHAR_SIZE = 50;
+
   private final int columnSize;
 
   private VarcharColumnDef(Builder builder) {

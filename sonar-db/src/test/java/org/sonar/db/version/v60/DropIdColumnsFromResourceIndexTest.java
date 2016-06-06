@@ -17,18 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v60;
 
+import java.sql.SQLException;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.PostgreSql;
+import org.sonar.db.version.DdlChange;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-public class MigrationStepModuleTest {
+public class DropIdColumnsFromResourceIndexTest {
+
+  private Database database = mock(Database.class);
+
+  private DropIdColumnsFromResourceIndex underTest = new DropIdColumnsFromResourceIndex(database);
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(70);
+  public void verify_generated_sql_on_postgresql() throws SQLException {
+    when(database.getDialect()).thenReturn(new PostgreSql());
+
+    DdlChange.Context context = mock(DdlChange.Context.class);
+    underTest.execute(context);
+
+    verify(context).execute("ALTER TABLE resource_index DROP COLUMN resource_id, DROP COLUMN root_project_id");
   }
 }
