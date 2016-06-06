@@ -17,28 +17,20 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-require('script!./third-party/jquery-ui.js');
-require('script!./third-party/select2.js');
-require('script!./third-party/keymaster.js');
-require('script!./third-party/bootstrap/tooltip.js');
-require('script!./third-party/bootstrap/dropdown.js');
-require('script!./select2-jquery-ui-fix.js');
-require('script!./inputs.js');
-require('script!./jquery-isolated-scroll.js');
-require('script!./application.js');
-var request = require('../helpers/request');
+let cookies;
 
-window.$j = jQuery.noConflict();
-
-jQuery(function () {
-  jQuery('.open-modal').modal();
-});
-
-jQuery.ajaxSetup({
-  beforeSend: function (jqXHR) {
-    jqXHR.setRequestHeader(request.getCSRFTokenName(), request.getCSRFTokenValue());
+export function getCookie (name) {
+  if (cookies) {
+    return cookies[name];
   }
-});
 
-window.sonarqube = {};
-window.sonarqube.el = '#content';
+  const rawCookies = document.cookie.split('; ');
+  cookies = {};
+
+  rawCookies.forEach(candidate => {
+    const [key, value] = candidate.split('=');
+    cookies[key] = value;
+  });
+
+  return cookies[name];
+}
