@@ -21,6 +21,11 @@ import { translate, translateWithParameters } from '../../helpers/l10n';
 
 module.exports = function (diff) {
   let message;
+
+  if (diff.key === 'file') {
+    return translate('issue.change.issue_was_moved');
+  }
+  
   if (diff.newValue != null) {
     message = translateWithParameters('issue.changelog.changed_to',
         translate('issue.changelog.field', diff.key), diff.newValue);
@@ -28,10 +33,12 @@ module.exports = function (diff) {
     message = translateWithParameters('issue.changelog.removed',
         translate('issue.changelog.field', diff.key));
   }
+
   if (diff.oldValue != null) {
     message += ' (';
     message += translateWithParameters('issue.changelog.was', diff.oldValue);
     message += ')';
   }
+
   return message;
 };
