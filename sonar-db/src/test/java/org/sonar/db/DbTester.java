@@ -21,6 +21,7 @@ package org.sonar.db;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Preconditions;
+import com.google.common.collect.ImmutableMap;
 import java.io.InputStream;
 import java.math.BigDecimal;
 import java.sql.Clob;
@@ -133,6 +134,23 @@ public class DbTester extends ExternalResource {
     } catch (Exception e) {
       throw new IllegalStateException("Fail to execute sql: " + sql, e);
     }
+  }
+
+  /**
+   * Very simple helper method to insert some data into a table.
+   * It's the responsibility of the caller to convert column values to string.
+   */
+  public void executeInsert(String table, String... valuesByColumn) {
+    executeInsert(table, mapOf(valuesByColumn));
+  }
+
+  private static Map<String, String> mapOf(String... values) {
+    ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
+    for (int i = 0; i < values.length; i++) {
+      builder.put(values[i], values[i + 1]);
+      i++;
+    }
+    return builder.build();
   }
 
   /**
