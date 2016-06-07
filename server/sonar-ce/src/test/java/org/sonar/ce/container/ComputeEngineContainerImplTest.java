@@ -100,7 +100,7 @@ public class ComputeEngineContainerImplTest {
     assertThat(picoContainer.getParent().getParent().getParent().getComponentAdapters()).hasSize(
       COMPONENTS_IN_LEVEL_1_AT_CONSTRUCTION
         + 22 // level 1
-        + 45 // content of DaoModule
+        + 46 // content of DaoModule
         + 1 // content of EsSearchModule
         + 57 // content of CorePropertyDefinitions
         + 1 // content of CePropertyDefinitions

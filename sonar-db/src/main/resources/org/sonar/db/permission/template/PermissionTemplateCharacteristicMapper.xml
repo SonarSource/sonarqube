@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper">
+  <sql id="columns">
+    ptc.id,
+    ptc.template_id as templateId,
+    ptc.permission_key as permission,
+    ptc.with_project_creator as withProjectCreator,
+    ptc.created_at as createdAt,
+    ptc.updated_at as updatedAt
+  </sql>
+
+  <select id="selectByTemplateId" parameterType="long" resultType="TemplatePermission">
+    select
+    <include refid="columns" />
+    from perm_tpl_characteristics ptc
+    where ptc.template_id=#{templateId}
+    order by id
+  </select>
+
+  <select id="selectByPermissionAndTemplateId" parameterType="map" resultType="TemplatePermission">
+    select
+    <include refid="columns" />
+    from perm_tpl_characteristics ptc
+    where ptc.template_id=#{templateId}
+    and ptc.permission_key=#{permission}
+    order by id
+  </select>
+
+  <select id="selectById" parameterType="long" resultType="TemplatePermission">
+    select
+    <include refid="columns" />
+    from perm_tpl_characteristics ptc
+    where ptc.id=#{id}
+    order by id
+  </select>
+
+  <insert id="insert" parameterType="TemplatePermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+    insert into perm_tpl_characteristics(template_id, permission_key, with_project_creator, created_at, updated_at)
+    values(#{templateId, jdbcType=BIGINT}, #{permission, jdbcType=VARCHAR}, #{withProjectCreator, jdbcType=BOOLEAN}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT})
+  </insert>
+
+  <update id="update" parameterType="TemplatePermission" useGeneratedKeys="false">
+    update perm_tpl_characteristics set
+    with_project_creator=#{withProjectCreator, jdbcType=BOOLEAN},
+    updated_at=#{updatedAt, jdbcType=BIGINT}
+    where id=#{id}
+  </update>
+</mapper>

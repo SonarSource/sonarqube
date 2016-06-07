@@ -50,6 +50,7 @@ import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -91,6 +92,7 @@ public class DbClient {
   private final RoleDao roleDao;
   private final PermissionDao permissionDao;
   private final PermissionTemplateDao permissionTemplateDao;
+  private final PermissionTemplateCharacteristicDao permissionTemplateCharacteristicDao;
   private final IssueDao issueDao;
   private final IssueFilterDao issueFilterDao;
   private final IssueFilterFavouriteDao issueFilterFavouriteDao;
@@ -145,6 +147,7 @@ public class DbClient {
     roleDao = getDao(map, RoleDao.class);
     permissionDao = getDao(map, PermissionDao.class);
     permissionTemplateDao = getDao(map, PermissionTemplateDao.class);
+    permissionTemplateCharacteristicDao = getDao(map, PermissionTemplateCharacteristicDao.class);
     issueDao = getDao(map, IssueDao.class);
     issueFilterDao = getDao(map, IssueFilterDao.class);
     issueFilterFavouriteDao = getDao(map, IssueFilterFavouriteDao.class);
@@ -281,6 +284,10 @@ public class DbClient {
 
   public PermissionTemplateDao permissionTemplateDao() {
     return permissionTemplateDao;
+  }
+
+  public PermissionTemplateCharacteristicDao permissionTemplateCharacteristicDao() {
+    return permissionTemplateCharacteristicDao;
   }
 
   public CeQueueDao ceQueueDao() {

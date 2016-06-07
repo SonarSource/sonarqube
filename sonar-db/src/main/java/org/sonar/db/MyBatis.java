@@ -88,6 +88,8 @@ import org.sonar.db.permission.PermissionTemplateGroupDto;
 import org.sonar.db.permission.PermissionTemplateMapper;
 import org.sonar.db.permission.PermissionTemplateUserDto;
 import org.sonar.db.permission.UserWithPermissionDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
 import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.purge.IdUuidPair;
@@ -196,6 +198,7 @@ public class MyBatis {
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
     confBuilder.loadAlias("UserWithPermission", UserWithPermissionDto.class);
     confBuilder.loadAlias("GroupWithPermission", GroupWithPermissionDto.class);
+    confBuilder.loadAlias("TemplatePermission", PermissionTemplateCharacteristicDto.class);
     confBuilder.loadAlias("QualityProfile", QualityProfileDto.class);
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);
@@ -220,8 +223,9 @@ public class MyBatis {
       DuplicationMapper.class,
       IssueMapper.class, IssueChangeMapper.class, IssueFilterMapper.class, IssueFilterFavouriteMapper.class,
       IsAliveMapper.class,
-      LoadedTemplateMapper.class, MeasureFilterMapper.class, MeasureFilterFavouriteMapper.class, PermissionTemplateMapper.class, PropertiesMapper.class, PurgeMapper.class,
-      ResourceKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
+      LoadedTemplateMapper.class, MeasureFilterMapper.class, MeasureFilterFavouriteMapper.class,
+      PermissionTemplateMapper.class, PermissionTemplateCharacteristicMapper.class,
+      PropertiesMapper.class, PurgeMapper.class, ResourceKeyUpdaterMapper.class, ResourceIndexMapper.class, RoleMapper.class, RuleMapper.class,
       SchemaMigrationMapper.class, WidgetMapper.class, WidgetPropertyMapper.class,
       UserMapper.class, GroupMapper.class, UserGroupMapper.class, UserTokenMapper.class,
       FileSourceMapper.class,

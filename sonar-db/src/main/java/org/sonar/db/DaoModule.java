@@ -50,6 +50,7 @@ import org.sonar.db.metric.MetricDao;
 import org.sonar.db.notification.NotificationQueueDao;
 import org.sonar.db.permission.PermissionDao;
 import org.sonar.db.permission.PermissionTemplateDao;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDao;
 import org.sonar.db.property.PropertiesDao;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDao;
@@ -97,6 +98,7 @@ public class DaoModule extends Module {
     NotificationQueueDao.class,
     PermissionDao.class,
     PermissionTemplateDao.class,
+    PermissionTemplateCharacteristicDao.class,
     PropertiesDao.class,
     QualityGateDao.class,
     QualityGateConditionDao.class,
