@@ -36,8 +36,6 @@ public class ProcessProperties {
   public static final String CLUSTER_NODE_NAME = "sonar.node.name";
 
   public static final String JDBC_URL = "sonar.jdbc.url";
-  public static final String JDBC_LOGIN = "sonar.jdbc.username";
-  public static final String JDBC_PASSWORD = "sonar.jdbc.password";
   public static final String JDBC_DRIVER_PATH = "sonar.jdbc.driverPath";
   public static final String JDBC_MAX_ACTIVE = "sonar.jdbc.maxActive";
   public static final String JDBC_MAX_IDLE = "sonar.jdbc.maxIdle";
@@ -68,11 +66,6 @@ public class ProcessProperties {
    * Used by Orchestrator to ask for shutdown of monitor process
    */
   public static final String ENABLE_STOP_COMMAND = "sonar.enableStopCommand";
-
-  public static final String ES_PLUGIN_LISTUPDATE_ID_FIELD = "idField";
-  public static final String ES_PLUGIN_LISTUPDATE_ID_VALUE = "idValue";
-  public static final String ES_PLUGIN_LISTUPDATE_FIELD = "field";
-  public static final String ES_PLUGIN_LISTUPDATE_VALUE = "value";
 
   public static final String WEB_ENFORCED_JVM_ARGS = "-Djava.awt.headless=true -Dfile.encoding=UTF-8 -Djruby.management.enabled=false " +
     // jruby is slow with java 8: https://jira.sonarsource.com/browse/SONAR-6115
