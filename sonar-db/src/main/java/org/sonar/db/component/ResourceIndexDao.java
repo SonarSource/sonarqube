@@ -21,8 +21,6 @@ package org.sonar.db.component;
 
 import java.util.List;
 import org.apache.commons.lang.StringUtils;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.SqlSession;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
@@ -87,12 +85,9 @@ public class ResourceIndexDao extends AbstractDao {
       .setScopes(NOT_RENAMABLE_SCOPES)
       .setRootProjectId(rootProjectId);
 
-    session.select(SELECT_RESOURCES, query, new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        ResourceDto resource = (ResourceDto) context.getResultObject();
-        doIndex(resource, mapper);
-      }
+    session.select(SELECT_RESOURCES, query, context -> {
+      ResourceDto resource = (ResourceDto) context.getResultObject();
+      doIndex(resource, mapper);
     });
 
     // some resources can be renamed, so index must be regenerated
@@ -103,78 +98,66 @@ public class ResourceIndexDao extends AbstractDao {
       .setScopes(RENAMABLE_SCOPES)
       .setRootProjectId(rootProjectId);
 
-    session.select(SELECT_RESOURCES, query, new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        ResourceDto resource = (ResourceDto) context.getResultObject();
+    session.select(SELECT_RESOURCES, query, context -> {
+      ResourceDto resource = (ResourceDto) context.getResultObject();
 
-        mapper.deleteByResourceId(resource.getId());
-        doIndex(resource, mapper);
-      }
+      mapper.deleteByComponentUuid(resource.getUuid());
+      doIndex(resource, mapper);
     });
   }
 
   void doIndex(ResourceDto resource, ResourceIndexMapper mapper) {
     String key = nameToKey(resource.getName());
     if (key.length() >= MINIMUM_KEY_SIZE || key.length() == SINGLE_INDEX_SIZE) {
-      insertIndexEntries(key, resource.getId(), resource.getQualifier(), resource.getRootId(), resource.getName().length(), mapper);
+      insertIndexEntries(key, resource.getUuid(), resource.getQualifier(), resource.getProjectUuid(), resource.getName().length(), mapper);
     }
   }
 
-  public boolean indexResource(long id) {
-    DbSession session = myBatis().openSession(false);
-    try {
-      return indexResource(session, id);
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
-  public boolean indexResource(DbSession session, long id) {
+  public boolean indexResource(DbSession session, String uuid) {
     boolean indexed = false;
     ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
-    ResourceDto resource = mapper.selectResourceToIndex(id);
+    ResourceDto resource = mapper.selectResourceToIndex(uuid);
     if (resource != null) {
-      Long rootId = resource.getRootId();
-      if (rootId == null) {
-        rootId = resource.getId();
+      String rootUuid = resource.getProjectUuid();
+      if (rootUuid == null) {
+        rootUuid = resource.getUuid();
       }
-      indexed = indexResource(resource.getId(), resource.getName(), resource.getQualifier(), rootId, session, mapper);
+      indexed = indexResource(resource.getUuid(), resource.getName(), resource.getQualifier(), rootUuid, session, mapper);
     }
     return indexed;
   }
 
-  public boolean indexResource(int id, String name, String qualifier, int rootId) {
+  public boolean indexResource(String uuid, String name, String qualifier, String rootUuid) {
     boolean indexed = false;
     SqlSession session = myBatis().openSession(false);
     ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
     try {
-      indexed = indexResource(id, name, qualifier, rootId, session, mapper);
+      indexed = indexResource(uuid, name, qualifier, rootUuid, session, mapper);
     } finally {
       MyBatis.closeQuietly(session);
     }
     return indexed;
   }
 
-  private static boolean indexResource(long id, String name, String qualifier, long rootId, SqlSession session, ResourceIndexMapper mapper) {
+  private static boolean indexResource(String componentUuid, String name, String qualifier, String rootUuid, SqlSession session, ResourceIndexMapper mapper) {
     boolean indexed = false;
     String key = nameToKey(name);
     if (key.length() >= MINIMUM_KEY_SIZE || key.length() == SINGLE_INDEX_SIZE) {
       indexed = true;
-      boolean toBeIndexed = sanitizeIndex(id, key, mapper);
+      boolean toBeIndexed = sanitizeIndex(componentUuid, key, mapper);
       if (toBeIndexed) {
-        insertIndexEntries(key, id, qualifier, rootId, name.length(), mapper);
+        insertIndexEntries(key, componentUuid, qualifier, rootUuid, name.length(), mapper);
         session.commit();
       }
     }
     return indexed;
   }
 
-  private static void insertIndexEntries(String key, long resourceId, String qualifier, long rootId, int nameLength, ResourceIndexMapper mapper) {
+  private static void insertIndexEntries(String key, String componentUuid, String qualifier, String rootId, int nameLength, ResourceIndexMapper mapper) {
     ResourceIndexDto dto = new ResourceIndexDto()
-      .setResourceId(resourceId)
+      .setComponentUuid(componentUuid)
       .setQualifier(qualifier)
-      .setRootProjectId(rootId)
+      .setRootComponentUuid(rootId)
       .setNameSize(nameLength);
 
     int maxPosition = key.length() == SINGLE_INDEX_SIZE ? 0 : key.length() - MINIMUM_KEY_SIZE;
@@ -190,11 +173,11 @@ public class ResourceIndexDao extends AbstractDao {
    * If the resource is indexed with a different key, then this index is dropped and the
    * resource must be indexed again.
    */
-  private static boolean sanitizeIndex(long resourceId, String key, ResourceIndexMapper mapper) {
-    ResourceIndexDto masterIndex = mapper.selectMasterIndexByResourceId(resourceId);
+  private static boolean sanitizeIndex(String componentUuid, String key, ResourceIndexMapper mapper) {
+    ResourceIndexDto masterIndex = mapper.selectMasterIndexByComponentUuid(componentUuid);
     if (masterIndex != null && !StringUtils.equals(key, masterIndex.getKey())) {
       // resource has been renamed -> drop existing indexes
-      mapper.deleteByResourceId(resourceId);
+      mapper.deleteByComponentUuid(componentUuid);
       masterIndex = null;
     }
     return masterIndex == null;

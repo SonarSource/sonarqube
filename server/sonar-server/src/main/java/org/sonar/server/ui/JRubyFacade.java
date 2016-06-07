@@ -28,7 +28,6 @@ import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarPlugin;
 import org.sonar.api.config.License;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
@@ -36,6 +35,7 @@ import org.sonar.api.platform.NewUserHandler;
 import org.sonar.api.resources.Language;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.api.web.Footer;
 import org.sonar.api.web.Page;
@@ -46,12 +46,10 @@ import org.sonar.core.platform.PluginInfo;
 import org.sonar.core.platform.PluginRepository;
 import org.sonar.core.timemachine.Periods;
 import org.sonar.db.Database;
-import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.db.version.DatabaseMigration;
 import org.sonar.db.version.DatabaseVersion;
 import org.sonar.process.ProcessProperties;
 import org.sonar.server.authentication.IdentityProviderRepository;
-import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.server.component.ComponentCleanerService;
 import org.sonar.server.db.migrations.DatabaseMigrator;
 import org.sonar.server.measure.MeasureFilterEngine;
@@ -405,13 +403,6 @@ public final class JRubyFacade {
 
     Database database = container.getComponentByType(Database.class);
     return !database.getDialect().supportsMigration();
-  }
-
-  /**
-   * Used by Developer Cockpit
-   */
-  public void indexResource(long resourceId) {
-    get(ResourceIndexDao.class).indexResource(resourceId);
   }
 
   public List<IdentityProvider> getIdentityProviders(){

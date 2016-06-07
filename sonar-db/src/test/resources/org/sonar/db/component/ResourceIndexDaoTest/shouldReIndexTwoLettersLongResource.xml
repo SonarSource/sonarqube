@@ -10,6 +10,6 @@
              qualifier="TRK"/>
 
   <!-- the index is on the old name "ST" but not on "AS" -->
-  <resource_index id="1" kee="st" position="0" name_size="2" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index id="1" kee="st" position="0" name_size="2" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
 
 </dataset>

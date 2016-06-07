@@ -1,4 +1,4 @@
-<dataset>
+<dataset>IncreasePrecisionOfNumericsTest.update_column_types:48
 
   <!-- Real projects -->
   <projects id="1" uuid="ABCD" project_uuid="ABCD" module_uuid_path=".ABCD." kee="project-one" copy_resource_id="[null]" name="Project One" qualifier="TRK" scope="PRJ"/>
@@ -11,22 +11,22 @@
   <!-- View containing all projects -->
   <projects id="5" uuid="EFGH" project_uuid="EFGH" module_uuid_path=".EFGH." kee="all-projects" copy_resource_id="[null]" name="All projects" qualifier="VW" scope="PRJ"/>
 
-  <resource_index id="1" kee="project one" resource_id="1" root_project_id="1" position="0" name_size="11" qualifier="TRK"/>
-  <resource_index id="2" kee="roject one" resource_id="1" root_project_id="1" position="1" name_size="11" qualifier="TRK"/>
-  <resource_index id="3" kee="oject one" resource_id="1" root_project_id="1" position="2" name_size="11" qualifier="TRK"/>
-  <resource_index id="4" kee="ject one" resource_id="1" root_project_id="1" position="3" name_size="11" qualifier="TRK"/>
-  <resource_index id="5" kee="ect one" resource_id="1" root_project_id="1" position="4" name_size="11" qualifier="TRK"/>
-  <resource_index id="6" kee="ct one" resource_id="1" root_project_id="1" position="5" name_size="11" qualifier="TRK"/>
-  <resource_index id="7" kee="t one" resource_id="1" root_project_id="1" position="6" name_size="11" qualifier="TRK"/>
-  <resource_index id="8" kee=" one" resource_id="1" root_project_id="1" position="7" name_size="11" qualifier="TRK"/>
-  <resource_index id="9" kee="one" resource_id="1" root_project_id="1" position="8" name_size="11" qualifier="TRK"/>
-  <resource_index id="10" kee="project two" resource_id="2" root_project_id="2" position="0" name_size="11" qualifier="TRK"/>
-  <resource_index id="11" kee="roject two" resource_id="2" root_project_id="2" position="1" name_size="11" qualifier="TRK"/>
-  <resource_index id="12" kee="oject two" resource_id="2" root_project_id="2" position="2" name_size="11" qualifier="TRK"/>
-  <resource_index id="13" kee="ject two" resource_id="2" root_project_id="2" position="3" name_size="11" qualifier="TRK"/>
-  <resource_index id="14" kee="ect two" resource_id="2" root_project_id="2" position="4" name_size="11" qualifier="TRK"/>
-  <resource_index id="15" kee="ct two" resource_id="2" root_project_id="2" position="5" name_size="11" qualifier="TRK"/>
-  <resource_index id="16" kee="t two" resource_id="2" root_project_id="2" position="6" name_size="11" qualifier="TRK"/>
-  <resource_index id="17" kee="two" resource_id="2" root_project_id="2" position="7" name_size="11" qualifier="TRK"/>
+  <resource_index id="1" kee="project one" component_uuid="ABCD" root_component_uuid="ABCD" position="0" name_size="11" qualifier="TRK"/>
+  <resource_index id="2" kee="roject one" component_uuid="ABCD" root_component_uuid="ABCD" position="1" name_size="11" qualifier="TRK"/>
+  <resource_index id="3" kee="oject one" component_uuid="ABCD" root_component_uuid="ABCD" position="2" name_size="11" qualifier="TRK"/>
+  <resource_index id="4" kee="ject one" component_uuid="ABCD" root_component_uuid="ABCD" position="3" name_size="11" qualifier="TRK"/>
+  <resource_index id="5" kee="ect one" component_uuid="ABCD" root_component_uuid="ABCD" position="4" name_size="11" qualifier="TRK"/>
+  <resource_index id="6" kee="ct one" component_uuid="ABCD" root_component_uuid="ABCD" position="5" name_size="11" qualifier="TRK"/>
+  <resource_index id="7" kee="t one" component_uuid="ABCD" root_component_uuid="ABCD" position="6" name_size="11" qualifier="TRK"/>
+  <resource_index id="8" kee=" one" component_uuid="ABCD" root_component_uuid="ABCD" position="7" name_size="11" qualifier="TRK"/>
+  <resource_index id="9" kee="one" component_uuid="ABCD" root_component_uuid="ABCD" position="8" name_size="11" qualifier="TRK"/>
+  <resource_index id="10" kee="project two" component_uuid="BCDE" root_component_uuid="BCDE" position="0" name_size="11" qualifier="TRK"/>
+  <resource_index id="11" kee="roject two" component_uuid="BCDE" root_component_uuid="BCDE" position="1" name_size="11" qualifier="TRK"/>
+  <resource_index id="12" kee="oject two" component_uuid="BCDE" root_component_uuid="BCDE" position="2" name_size="11" qualifier="TRK"/>
+  <resource_index id="13" kee="ject two" component_uuid="BCDE" root_component_uuid="BCDE" position="3" name_size="11" qualifier="TRK"/>
+  <resource_index id="14" kee="ect two" component_uuid="BCDE" root_component_uuid="BCDE" position="4" name_size="11" qualifier="TRK"/>
+  <resource_index id="15" kee="ct two" component_uuid="BCDE" root_component_uuid="BCDE" position="5" name_size="11" qualifier="TRK"/>
+  <resource_index id="16" kee="t two" component_uuid="BCDE" root_component_uuid="BCDE" position="6" name_size="11" qualifier="TRK"/>
+  <resource_index id="17" kee="two" component_uuid="BCDE" root_component_uuid="BCDE" position="7" name_size="11" qualifier="TRK"/>
 
 </dataset>

@@ -26,11 +26,11 @@ public interface ResourceIndexMapper {
 
   List<Long> selectProjectIdsFromQueryAndViewOrSubViewUuid(@Param("query") String query, @Param("viewUuidQuery") String viewUuidQuery);
 
-  ResourceIndexDto selectMasterIndexByResourceId(long resourceId);
+  ResourceIndexDto selectMasterIndexByComponentUuid(@Param("componentUuid") String componentUuid);
 
-  ResourceDto selectResourceToIndex(long resourceId);
+  ResourceDto selectResourceToIndex(@Param("componentUuid") String componentUuid);
 
-  void deleteByResourceId(long resourceId);
+  void deleteByComponentUuid(@Param("componentUuid") String componentUuid);
 
   void insert(ResourceIndexDto dto);
 }

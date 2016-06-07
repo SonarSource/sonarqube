@@ -52,7 +52,7 @@ public interface PurgeMapper {
 
   void resolveResourceIssuesNotAlreadyResolved(@Param("componentUuid") String componentUuid, @Param("dateAsLong") Long dateAsLong);
 
-  void deleteResourceIndex(@Param("resourceIds") List<Long> resourceIds);
+  void deleteResourceIndex(@Param("componentUuids") List<String> componentUuids);
 
   void deleteEvent(long eventId);
 

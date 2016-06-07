@@ -24,23 +24,23 @@
 
   <!-- java project -->
   <projects kee="java_project" long_name="Java project" scope="PRJ" qualifier="TRK" name="Java project"
-            id="1" root_id="[null]" uuid="ABCD"
+            id="1" root_id="[null]" uuid="ABCD" project_uuid="ABCD"
             description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
             created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo" scope="DIR" qualifier="PAC" long_name="org.sonar.foo" name="org.sonar.foo"
-            id="2" root_id="1" uuid="BCDE"
+            id="2" root_id="1" uuid="BCDE" project_uuid="ABCD"
             description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
             created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo.Big" scope="FIL" qualifier="CLA" long_name="org.sonar.foo.Big"
             name="Big"
-            id="3" root_id="1" uuid="CDEF"
+            id="3" root_id="1" uuid="CDEF" project_uuid="ABCD"
             description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
             created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo.Tiny" scope="FIL" qualifier="CLA" long_name="org.sonar.foo.Tiny" name="Tiny"
-            id="4" root_id="1" uuid="DEFG"
+            id="4" root_id="1" uuid="DEFG" project_uuid="ABCD"
             description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
             created_at="2008-12-19 00:00:00.00"/>
 
@@ -128,7 +128,7 @@
 
   <!-- php project -->
   <projects kee="php_project" long_name="PHP project" scope="PRJ" qualifier="TRK" name="PHP project"
-            id="10" root_id="[null]" uuid="EFGH"
+            id="10" root_id="[null]" uuid="EFGH" project_uuid="EFGH"
             description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
             created_at="2012-12-12 04:06:00.00"/>
 
@@ -158,15 +158,15 @@
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
 
-  <resource_index id="1" kee="java project" position="0" name_size="12" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index id="2" kee="java projec" position="1" name_size="12" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index id="3" kee="java proje" position="2" name_size="12" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index id="4" kee="java proj" position="3" name_size="12" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index id="1" kee="java project" position="0" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index id="2" kee="java projec" position="1" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index id="3" kee="java proje" position="2" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index id="4" kee="java proj" position="3" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
   <!-- etc -->
-  <resource_index id="5" kee="php project" position="0" name_size="11" resource_id="10" root_project_id="10" qualifier="TRK"/>
-  <resource_index id="6" kee="php projec" position="1" name_size="11" resource_id="10" root_project_id="10" qualifier="TRK"/>
-  <resource_index id="7" kee="php proje" position="2" name_size="11" resource_id="10" root_project_id="10" qualifier="TRK"/>
-  <resource_index id="8" kee="php proj" position="3" name_size="11" resource_id="10" root_project_id="10" qualifier="TRK"/>
+  <resource_index id="5" kee="php project" position="0" name_size="11" component_uuid="EFGH" root_component_uuid="EFGH" qualifier="TRK"/>
+  <resource_index id="6" kee="php projec" position="1" name_size="11" component_uuid="EFGH" root_component_uuid="EFGH" qualifier="TRK"/>
+  <resource_index id="7" kee="php proje" position="2" name_size="11" component_uuid="EFGH" root_component_uuid="EFGH" qualifier="TRK"/>
+  <resource_index id="8" kee="php proj" position="3" name_size="11" component_uuid="EFGH" root_component_uuid="EFGH" qualifier="TRK"/>
   <!-- etc -->
 
 

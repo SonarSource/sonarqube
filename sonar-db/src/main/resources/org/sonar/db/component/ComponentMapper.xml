@@ -293,8 +293,8 @@
         AND (
           p.kee=#{query.nameOrKeyQuery}
           OR
-          p.id IN (
-            SELECT ri.resource_id
+          p.uuid IN (
+            SELECT ri.component_uuid
             FROM resource_index ri
             WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
             <if test="query.qualifiers!=null">
@@ -361,16 +361,17 @@
       AND (
         p.kee=#{query.nameOrKeyQuery}
         OR
-        p.id IN (
-          SELECT ri.resource_id
+        p.uuid IN (
+          SELECT ri.component_uuid
           FROM resource_index ri
           WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
         )
         OR
         p.copy_resource_id IN (
-          SELECT ri.resource_id
-          FROM resource_index ri
+          SELECT p1.id
+          FROM resource_index ri, projects p1
           WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
+            and p1.uuid = ri.component_uuid
         )
       )
     </if>

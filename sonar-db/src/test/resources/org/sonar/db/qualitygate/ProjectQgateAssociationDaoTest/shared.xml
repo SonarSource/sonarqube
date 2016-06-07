@@ -11,32 +11,32 @@
   <projects id="6" uuid="F" kee="view-six" name="View Six" qualifier="VW" scope="PRJ"/>
   <projects id="7" uuid="G" kee="file-one" name="File One" qualifier="TRK" scope="FIL"/>
 
-  <resource_index id="1" kee="project one" resource_id="1" root_project_id="1" position="0" name_size="11"
+  <resource_index id="1" kee="project one" component_uuid="A" root_component_uuid="A" position="0" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="2" kee="roject one" resource_id="1" root_project_id="1" position="1" name_size="11"
+  <resource_index id="2" kee="roject one" component_uuid="A" root_component_uuid="A" position="1" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="3" kee="oject one" resource_id="1" root_project_id="1" position="2" name_size="11"
+  <resource_index id="3" kee="oject one" component_uuid="A" root_component_uuid="A" position="2" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="4" kee="ject one" resource_id="1" root_project_id="1" position="3" name_size="11"
+  <resource_index id="4" kee="ject one" component_uuid="A" root_component_uuid="A" position="3" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="5" kee="ect one" resource_id="1" root_project_id="1" position="4" name_size="11" qualifier="TRK"/>
-  <resource_index id="6" kee="ct one" resource_id="1" root_project_id="1" position="5" name_size="11" qualifier="TRK"/>
-  <resource_index id="7" kee="t one" resource_id="1" root_project_id="1" position="6" name_size="11" qualifier="TRK"/>
-  <resource_index id="8" kee=" one" resource_id="1" root_project_id="1" position="7" name_size="11" qualifier="TRK"/>
-  <resource_index id="9" kee="one" resource_id="1" root_project_id="1" position="8" name_size="11" qualifier="TRK"/>
-  <resource_index id="10" kee="project two" resource_id="2" root_project_id="2" position="0" name_size="11"
+  <resource_index id="5" kee="ect one" component_uuid="A" root_component_uuid="A" position="4" name_size="11" qualifier="TRK"/>
+  <resource_index id="6" kee="ct one" component_uuid="A" root_component_uuid="A" position="5" name_size="11" qualifier="TRK"/>
+  <resource_index id="7" kee="t one" component_uuid="A" root_component_uuid="A" position="6" name_size="11" qualifier="TRK"/>
+  <resource_index id="8" kee=" one" component_uuid="A" root_component_uuid="A" position="7" name_size="11" qualifier="TRK"/>
+  <resource_index id="9" kee="one" component_uuid="A" root_component_uuid="A" position="8" name_size="11" qualifier="TRK"/>
+  <resource_index id="10" kee="project two" component_uuid="B" root_component_uuid="B" position="0" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="11" kee="roject two" resource_id="2" root_project_id="2" position="1" name_size="11"
+  <resource_index id="11" kee="roject two" component_uuid="B" root_component_uuid="B" position="1" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="12" kee="oject two" resource_id="2" root_project_id="2" position="2" name_size="11"
+  <resource_index id="12" kee="oject two" component_uuid="B" root_component_uuid="B" position="2" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="13" kee="ject two" resource_id="2" root_project_id="2" position="3" name_size="11"
+  <resource_index id="13" kee="ject two" component_uuid="B" root_component_uuid="B" position="3" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="14" kee="ect two" resource_id="2" root_project_id="2" position="4" name_size="11"
+  <resource_index id="14" kee="ect two" component_uuid="B" root_component_uuid="B" position="4" name_size="11"
                   qualifier="TRK"/>
-  <resource_index id="15" kee="ct two" resource_id="2" root_project_id="2" position="5" name_size="11" qualifier="TRK"/>
-  <resource_index id="16" kee="t two" resource_id="2" root_project_id="2" position="6" name_size="11" qualifier="TRK"/>
-  <resource_index id="17" kee=" two" resource_id="2" root_project_id="2" position="7" name_size="11" qualifier="TRK"/>
+  <resource_index id="15" kee="ct two" component_uuid="B" root_component_uuid="B" position="5" name_size="11" qualifier="TRK"/>
+  <resource_index id="16" kee="t two" component_uuid="B" root_component_uuid="B" position="6" name_size="11" qualifier="TRK"/>
+  <resource_index id="17" kee=" two" component_uuid="B" root_component_uuid="B" position="7" name_size="11" qualifier="TRK"/>
 
   <properties id="1" prop_key="sonar.qualitygate" resource_id="[null]" text_value="43"/>
   <properties id="2" prop_key="sonar.qualitygate" resource_id="1" text_value="42"/>

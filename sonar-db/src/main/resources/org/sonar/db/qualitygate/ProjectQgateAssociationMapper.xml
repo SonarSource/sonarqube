@@ -7,7 +7,7 @@
     SELECT proj.id as id, proj.name as name, prop.text_value as gateId
     FROM projects proj
     <if test="query.projectSearch() != null">
-      JOIN resource_index ind ON ind.root_project_id=proj.id
+      JOIN resource_index ind ON ind.root_component_uuid=proj.uuid
     </if>
     LEFT JOIN properties prop ON prop.resource_id=proj.id AND prop.prop_key='sonar.qualitygate' AND prop.text_value LIKE
     #{query.gateId}

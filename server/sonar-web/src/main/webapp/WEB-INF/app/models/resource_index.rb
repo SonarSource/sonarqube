@@ -21,13 +21,14 @@ class ResourceIndex < ActiveRecord::Base
 
   set_table_name 'resource_index'
 
-  belongs_to :resource, :class_name => 'Project', :foreign_key => 'resource_id'
-  belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_project_id'
+  belongs_to :resource, :class_name => 'Project', :foreign_key => 'component_uuid', :primary_key => 'uuid'
+  belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_component_uuid', :primary_key => 'uuid'
 
   MIN_SEARCH_SIZE=2
 
   def resource_id_for_authorization
-    root_project_id
+    # FIXME this generates a join for every resource
+    root_project.id
   end
 
 end

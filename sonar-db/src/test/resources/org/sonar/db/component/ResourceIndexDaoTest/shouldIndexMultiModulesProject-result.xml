@@ -27,43 +27,43 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
-  <snapshots purge_status="[null]" id="1" islast="[true]" root_project_id="1" project_id="1"/>
-  <snapshots purge_status="[null]" id="2" islast="[true]" root_project_id="1" project_id="2"/>
-  <snapshots purge_status="[null]" id="3" islast="[true]" root_project_id="1" project_id="3"/>
-  <snapshots purge_status="[null]" id="4" islast="[true]" root_project_id="1" project_id="4"/>
+  <snapshots purge_status="[null]" id="1" islast="[true]" root_component_uuid="ABCD" project_id="1"/>
+  <snapshots purge_status="[null]" id="2" islast="[true]" root_component_uuid="ABCD" project_id="2"/>
+  <snapshots purge_status="[null]" id="3" islast="[true]" root_component_uuid="ABCD" project_id="3"/>
+  <snapshots purge_status="[null]" id="4" islast="[true]" root_component_uuid="ABCD" project_id="4"/>
 
   <!-- The major goal is to test root_project_id -->
 
   <!-- RequestContext -->
-  <resource_index kee="requestcontext" position="0" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="equestcontext" position="1" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="questcontext" position="2" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="uestcontext" position="3" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="estcontext" position="4" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="stcontext" position="5" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="tcontext" position="6" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="context" position="7" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="ontext" position="8" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="ntext" position="9" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="text" position="10" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
-  <resource_index kee="ext" position="11" name_size="14" resource_id="4" root_project_id="1" qualifier="CLA"/>
+  <resource_index kee="requestcontext" position="0" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="equestcontext" position="1" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="questcontext" position="2" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="uestcontext" position="3" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="estcontext" position="4" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="stcontext" position="5" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="tcontext" position="6" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="context" position="7" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="ontext" position="8" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="ntext" position="9" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="text" position="10" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index kee="ext" position="11" name_size="14" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
 
   <!-- Struts -->
-  <resource_index kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index kee="struts" position="0" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index kee="truts" position="1" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index kee="ruts" position="2" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index kee="uts" position="3" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
 
   <!-- Struts Core -->
-  <resource_index kee="struts core" position="0" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
-  <resource_index kee="truts core" position="1" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
-  <resource_index kee="ruts core" position="2" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
-  <resource_index kee="uts core" position="3" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
-  <resource_index kee="ts core" position="4" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
-  <resource_index kee="s core" position="5" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
-  <resource_index kee=" core" position="6" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
-  <resource_index kee="core" position="7" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
-  <resource_index kee="ore" position="8" name_size="11" resource_id="2" root_project_id="1" qualifier="BRC"/>
+  <resource_index kee="struts core" position="0" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
+  <resource_index kee="truts core" position="1" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
+  <resource_index kee="ruts core" position="2" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
+  <resource_index kee="uts core" position="3" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
+  <resource_index kee="ts core" position="4" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
+  <resource_index kee="s core" position="5" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
+  <resource_index kee=" core" position="6" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
+  <resource_index kee="core" position="7" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
+  <resource_index kee="ore" position="8" name_size="11" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="BRC"/>
 
 
 </dataset>

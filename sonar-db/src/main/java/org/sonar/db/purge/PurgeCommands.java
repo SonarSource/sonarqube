@@ -82,8 +82,8 @@ class PurgeCommands {
     profiler.stop();
 
     profiler.start("deleteResourceIndex (resource_index)");
-    for (List<Long> partResourceIds : componentIdPartitions) {
-      purgeMapper.deleteResourceIndex(partResourceIds);
+    for (List<String> componentUuidPartition : componentUuidsPartitions) {
+      purgeMapper.deleteResourceIndex(componentUuidPartition);
     }
     session.commit();
     profiler.stop();

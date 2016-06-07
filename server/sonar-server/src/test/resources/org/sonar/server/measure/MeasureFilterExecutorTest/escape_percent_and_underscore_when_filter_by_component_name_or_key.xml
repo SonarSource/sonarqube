@@ -58,10 +58,10 @@
              created_at="1229727600000" build_date="1229727600000"
              version="1.0" status="P" islast="[true]"/>
 
-  <resource_index id="1" kee="java class1" position="0" name_size="12" resource_id="1" root_project_id="1" qualifier="CLA"/>
-  <resource_index id="2" kee="java class2" position="1" name_size="12" resource_id="2" root_project_id="1" qualifier="CLA"/>
-  <resource_index id="3" kee="java%class3" position="2" name_size="12" resource_id="3" root_project_id="1" qualifier="CLA"/>
-  <resource_index id="4" kee="java%class4" position="3" name_size="12" resource_id="4" root_project_id="1" qualifier="CLA"/>
+  <resource_index id="1" kee="java class1" position="0" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index id="2" kee="java class2" position="1" name_size="12" component_uuid="BCDE" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index id="3" kee="java%class3" position="2" name_size="12" component_uuid="CDEF" root_component_uuid="ABCD" qualifier="CLA"/>
+  <resource_index id="4" kee="java%class4" position="3" name_size="12" component_uuid="DEFG" root_component_uuid="ABCD" qualifier="CLA"/>
 
 
 </dataset>

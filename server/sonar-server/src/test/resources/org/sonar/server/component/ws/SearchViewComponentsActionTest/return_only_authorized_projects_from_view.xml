@@ -23,8 +23,8 @@
             uuid="KLMN" project_uuid="KLMN" module_uuid="[null]" module_uuid_path="."
             enabled="[true]" copy_resource_id="[null]" path="[null]"/>
 
-  <resource_index id="1" kee="struts" resource_id="100" root_project_id="100" position="0" name_size="6" qualifier="TRK"/>
-  <resource_index id="2" kee="elasticsearch" resource_id="101" root_project_id="1" position="0" name_size="13" qualifier="TRK"/>
-  <resource_index id="3" kee="sticsearch" resource_id="101" root_project_id="1" position="1" name_size="13" qualifier="TRK"/>
+  <resource_index id="1" kee="struts" component_uuid="JKLM" root_component_uuid="JKLM" position="0" name_size="6" qualifier="TRK"/>
+  <resource_index id="2" kee="elasticsearch" component_uuid="KLMN" root_component_uuid="KLMN" position="0" name_size="13" qualifier="TRK"/>
+  <resource_index id="3" kee="sticsearch" component_uuid="KLMN" root_component_uuid="KLMN" position="1" name_size="13" qualifier="TRK"/>
 
 </dataset>

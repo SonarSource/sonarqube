@@ -196,7 +196,7 @@ public class ComponentService {
       .setQualifier(newComponent.qualifier())
       .setCreatedAt(new Date(system2.now()));
     dbClient.componentDao().insert(session, component);
-    dbClient.componentIndexDao().indexResource(session, component.getId());
+    dbClient.componentIndexDao().indexResource(session, component.uuid());
     session.commit();
     return component;
   }

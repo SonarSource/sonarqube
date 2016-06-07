@@ -45,15 +45,29 @@ public class IncreasePrecisionOfNumericsTest {
 
     underTest.execute(context);
 
-    verify(context).execute("ALTER TABLE metrics ALTER COLUMN worst_value TYPE NUMERIC (38,20), ALTER COLUMN best_value TYPE NUMERIC (38,20)");
+    verify(context).execute("ALTER TABLE metrics " +
+      "ALTER COLUMN worst_value TYPE NUMERIC (38,20), " +
+      "ALTER COLUMN worst_value DROP NOT NULL, " +
+      "ALTER COLUMN best_value TYPE NUMERIC (38,20), " +
+      "ALTER COLUMN best_value DROP NOT NULL"
+    );
     verify(context).execute("ALTER TABLE project_measures " +
       "ALTER COLUMN value TYPE NUMERIC (38,20), " +
+      "ALTER COLUMN value DROP NOT NULL, " +
       "ALTER COLUMN variation_value_1 TYPE NUMERIC (38,20), " +
+      "ALTER COLUMN variation_value_1 DROP NOT NULL, " +
       "ALTER COLUMN variation_value_2 TYPE NUMERIC (38,20), " +
+      "ALTER COLUMN variation_value_2 DROP NOT NULL, " +
       "ALTER COLUMN variation_value_3 TYPE NUMERIC (38,20), " +
+      "ALTER COLUMN variation_value_3 DROP NOT NULL, " +
       "ALTER COLUMN variation_value_4 TYPE NUMERIC (38,20), " +
-      "ALTER COLUMN variation_value_5 TYPE NUMERIC (38,20)");
-    verify(context).execute("ALTER TABLE manual_measures ALTER COLUMN value TYPE NUMERIC (38,20)");
+      "ALTER COLUMN variation_value_4 DROP NOT NULL, " +
+      "ALTER COLUMN variation_value_5 TYPE NUMERIC (38,20), " +
+      "ALTER COLUMN variation_value_5 DROP NOT NULL");
+    verify(context).execute("ALTER TABLE manual_measures " +
+        "ALTER COLUMN value TYPE NUMERIC (38,20), " +
+        "ALTER COLUMN value DROP NOT NULL"
+    );
   }
 
 }

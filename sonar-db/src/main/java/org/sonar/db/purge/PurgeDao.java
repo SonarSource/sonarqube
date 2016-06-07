@@ -182,7 +182,7 @@ public class PurgeDao implements Dao {
 
   private void disableResource(IdUuidPair componentIdUuid, PurgeMapper mapper) {
     long componentId = componentIdUuid.getId();
-    mapper.deleteResourceIndex(Arrays.asList(componentId));
+    mapper.deleteResourceIndex(Arrays.asList(componentIdUuid.getUuid()));
     mapper.setSnapshotIsLastToFalse(componentId);
     mapper.deleteFileSourcesByUuid(componentIdUuid.getUuid());
     mapper.disableResource(componentId);

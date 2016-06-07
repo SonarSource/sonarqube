@@ -10,9 +10,9 @@
              qualifier="TRK"/>
 
   <!-- the index is on the old name "Struts" but not on "Apache Struts -->
-  <resource_index id="1" kee="struts" position="0" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index id="2" kee="truts" position="1" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index id="3" kee="ruts" position="2" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
-  <resource_index id="4" kee="uts" position="3" name_size="6" resource_id="1" root_project_id="1" qualifier="TRK"/>
+  <resource_index id="1" kee="struts" position="0" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index id="2" kee="truts" position="1" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index id="3" kee="ruts" position="2" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index id="4" kee="uts" position="3" name_size="6" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
 
 </dataset>

@@ -145,9 +145,9 @@
   </update>
 
   <delete id="deleteResourceIndex" parameterType="map">
-    delete from resource_index where resource_id in
-    <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-      #{resourceId}
+    delete from resource_index where component_uuid in
+    <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+      #{componentUuid}
     </foreach>
   </delete>
 

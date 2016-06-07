@@ -194,7 +194,7 @@ class MeasureFilterSql {
 
   private void appendResourceNameCondition(StringBuilder sb) {
     if (StringUtils.isNotBlank(filter.getResourceName())) {
-      sb.append(" AND s.project_id IN (SELECT rindex.resource_id FROM resource_index rindex WHERE rindex.kee LIKE '");
+      sb.append(" AND p.uuid IN (SELECT rindex.component_uuid FROM resource_index rindex WHERE rindex.kee LIKE '");
       sb.append(escapePercentAndUnderscrore(StringEscapeUtils.escapeSql(StringUtils.lowerCase(filter.getResourceName()))));
       sb.append("%'");
       appendEscapeForSomeDb(sb);

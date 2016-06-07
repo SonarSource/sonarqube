@@ -32,7 +32,7 @@ class Project < ActiveRecord::Base
   belongs_to :copy_resource, :class_name => 'Project', :foreign_key => 'copy_resource_id'
   belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
   has_many :authors, :foreign_key => 'person_id', :dependent => :delete_all
-  has_one :index, :class_name => 'ResourceIndex', :foreign_key => 'resource_id', :conditions => 'position=0', :select => 'kee'
+  has_one :index, :class_name => 'ResourceIndex', :foreign_key => 'component_uuid', :primary_key => 'uuid', :conditions => 'position=0', :select => 'kee'
   has_many :resource_index, :foreign_key => 'resource_id'
 
   def self.by_key(k)

@@ -214,14 +214,14 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_by_component_name() throws IOException {
-    ComponentDto struts = newProjectDto().setName("old apache struts").setUuid("P1");
-    ComponentDto zookeeper = newProjectDto().setName("new apache zookeeper").setUuid("P2");
-    ComponentDto eclipse = newProjectDto().setName("eclipse").setUuid("P3");
+    ComponentDto struts = newProjectDto().setName("old apache struts").setUuid("P1").setProjectUuid("P1");
+    ComponentDto zookeeper = newProjectDto().setName("new apache zookeeper").setUuid("P2").setProjectUuid("P2");
+    ComponentDto eclipse = newProjectDto().setName("eclipse").setUuid("P3").setProjectUuid("P3");
     componentDb.insertProjectAndSnapshot(struts);
     componentDb.insertProjectAndSnapshot(zookeeper);
     componentDb.insertProjectAndSnapshot(eclipse);
     dbTester.commit();
-    componentDb.indexComponents(struts.getId(), zookeeper.getId(), eclipse.getId());
+    componentDb.indexComponents(struts.uuid(), zookeeper.uuid(), eclipse.uuid());
     globalAdmin();
     insertActivity("T1", "P1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "P2", CeActivityDto.Status.SUCCESS);
@@ -234,11 +234,11 @@ public class ActivityActionTest {
 
   @Test
   public void search_activity_returns_views_and_developers() {
-    ComponentDto developer = newDeveloper("Apache Developer").setUuid("D1");
-    ComponentDto apacheView = newView().setName("Apache View").setUuid("V1");
+    ComponentDto apacheView = newView().setName("Apache View").setUuid("V1").setProjectUuid("V1");
+    ComponentDto developer = newDeveloper("Apache Developer").setUuid("D1").setProjectUuid("D1");
     componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertViewAndSnapshot(apacheView);
-    componentDb.indexComponents(developer.getId(), apacheView.getId());
+    componentDb.indexComponents(developer.uuid(), apacheView.uuid());
     globalAdmin();
     insertActivity("T1", "D1", CeActivityDto.Status.SUCCESS);
     insertActivity("T2", "V1", CeActivityDto.Status.SUCCESS);

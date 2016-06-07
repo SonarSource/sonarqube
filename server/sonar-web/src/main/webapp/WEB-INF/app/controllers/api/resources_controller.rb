@@ -50,7 +50,7 @@ class Api::ResourcesController < Api::ApiController
       conditions<<'qualifier in (?)'
       condition_values<<qualifiers
     end
-    indexes = ResourceIndex.all(:select => 'distinct(resource_id),root_project_id,qualifier,name_size', # optimization to not load unused columns like 'kee'
+    indexes = ResourceIndex.all(:select => 'distinct(component_uuid),root_component_uuid,qualifier,name_size', # optimization to not load unused columns like 'kee'
                                  :conditions => [conditions.join(' and ')].concat(condition_values),
                                  :order => 'name_size')
 
@@ -61,16 +61,16 @@ class Api::ResourcesController < Api::ApiController
 
     if select2_format && qualifiers.size>1
       # select2.js does not manage lazy loading of grouped options -> (almost) all the results are returned
-      resource_ids=indexes[0...100].map { |index| index.resource_id }
+      resource_uuids=indexes[0...100].map { |index| index.component_uuid }
     else
       # we don't group results when only one qualifier is requested, so we can enable lazy loading (pagination)
       offset=(page-1)*page_size
-      resource_ids=indexes[offset...offset+page_size].map { |index| index.resource_id }
+      resource_uuids=indexes[offset...offset+page_size].map { |index| index.component_uuid }
     end
 
     resources=[]
-    unless resource_ids.empty?
-      resources=Project.all(:select => 'id,qualifier,name,long_name,kee,uuid', :conditions => ['id in (?) and enabled=?', resource_ids, true])
+    unless resource_uuids.empty?
+      resources=Project.all(:select => 'id,qualifier,name,long_name,kee,uuid', :conditions => ['uuid in (?) and enabled=?', resource_uuids, true])
     end
 
     if select2_format

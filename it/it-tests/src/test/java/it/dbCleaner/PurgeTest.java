@@ -291,12 +291,12 @@ public class PurgeTest {
 
   private void assertDeleted(String key) {
     assertThat(count("snapshots s where s.project_id=(select p.id from projects p where p.kee='" + key + "')")).isZero();
-    assertThat(count("resource_index ri where ri.resource_id=(select p.id from projects p where p.kee='" + key + "')")).isZero();
+    assertThat(count("resource_index ri where ri.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isZero();
   }
 
   private void assertSingleSnapshot(String key) {
     assertThat(count("snapshots s where s.project_id=(select p.id from projects p where p.kee='" + key + "')")).isEqualTo(1);
-    assertThat(count("resource_index ri where ri.resource_id=(select p.id from projects p where p.kee='" + key + "')")).isGreaterThan(1);
+    assertThat(count("resource_index ri where ri.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isGreaterThan(1);
   }
 
   private BuildResult scan(String path, String date) {
