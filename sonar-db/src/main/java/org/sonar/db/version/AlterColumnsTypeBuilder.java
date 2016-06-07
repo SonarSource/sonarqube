@@ -33,13 +33,16 @@ import static com.google.common.collect.Lists.newArrayList;
 /**
  * Generate SQL queries to update multiple column types from a table.
  *
- * This class should only be used to change the type of a column, as the nullable state is only used to not loose the nullable  information.
- * Indeed, on MsSQL, not setting the nullable state will set the column to NULL, but on Oracle setting a column NOT NULL when it's already NOT NULL will fail).
- *
- * The nullable information will then be ignored on Oracle.
- *
+ * Note that this operation will not be re-entrant on:
+ * <ul>
+ *   <li>Oracle 11G (may raise {@code ORA-01442: column to be modified to NOT NULL is already NOT NULL} or
+ *   {@code ORA-01451: column to be modified to NULL cannot be modified to NULL})</li>
+ * </ul>
  */
 public class AlterColumnsTypeBuilder {
+
+  private static final String ALTER_TABLE = "ALTER TABLE ";
+  private static final String ALTER_COLUMN = "ALTER COLUMN ";
 
   private final Dialect dialect;
   private final String tableName;
@@ -72,20 +75,31 @@ public class AlterColumnsTypeBuilder {
   }
 
   private List<String> createPostgresQuery() {
-    StringBuilder sql = new StringBuilder("ALTER TABLE " + tableName + " ");
-    addColumns(sql, "ALTER COLUMN ", "TYPE ", true);
+    StringBuilder sql = new StringBuilder(ALTER_TABLE + tableName + " ");
+    for (Iterator<ColumnDef> columnDefIterator = columnDefs.iterator(); columnDefIterator.hasNext();) {
+      ColumnDef columnDef = columnDefIterator.next();
+      sql.append(ALTER_COLUMN);
+      addColumn(sql, columnDef, "TYPE ", false);
+      sql.append(", ");
+      sql.append(ALTER_COLUMN);
+      sql.append(columnDef.getName());
+      sql.append(' ').append(columnDef.isNullable() ? "DROP" : "SET").append(" NOT NULL");
+      if (columnDefIterator.hasNext()) {
+        sql.append(", ");
+      }
+    }
     return Collections.singletonList(sql.toString());
   }
 
   private List<String> createMySqlQuery() {
-    StringBuilder sql = new StringBuilder("ALTER TABLE " + tableName + " ");
+    StringBuilder sql = new StringBuilder(ALTER_TABLE + tableName + " ");
     addColumns(sql, "MODIFY COLUMN ", "", true);
     return Collections.singletonList(sql.toString());
   }
 
   private List<String> createOracleQuery() {
-    StringBuilder sql = new StringBuilder("ALTER TABLE " + tableName + " ").append("MODIFY (");
-    addColumns(sql, "", "", false);
+    StringBuilder sql = new StringBuilder(ALTER_TABLE + tableName + " ").append("MODIFY (");
+    addColumns(sql, "", "", true);
     sql.append(")");
     return Collections.singletonList(sql.toString());
   }
@@ -93,8 +107,8 @@ public class AlterColumnsTypeBuilder {
   private List<String> createMsSqlAndH2Queries() {
     List<String> sqls = new ArrayList<>();
     for (ColumnDef columnDef : columnDefs) {
-      StringBuilder defaultQuery = new StringBuilder("ALTER TABLE " + tableName + " ");
-      defaultQuery.append("ALTER COLUMN ");
+      StringBuilder defaultQuery = new StringBuilder(ALTER_TABLE + tableName + " ");
+      defaultQuery.append(ALTER_COLUMN);
       addColumn(defaultQuery, columnDef, "", true);
       sqls.add(defaultQuery.toString());
     }
@@ -116,8 +130,8 @@ public class AlterColumnsTypeBuilder {
       .append(" ")
       .append(typePrefix)
       .append(columnDef.generateSqlType(dialect));
-    if (!columnDef.isNullable() && addNotNullableProperty) {
-      sql.append(" NOT NULL");
+    if (addNotNullableProperty) {
+      sql.append(columnDef.isNullable() ? " NULL" : " NOT NULL");
     }
   }
 

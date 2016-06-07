@@ -42,7 +42,7 @@ public class AlterColumnsTypeBuilderTest {
   @Test
   public void update_columns_on_h2() {
     assertThat(createSampleBuilder(new H2()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN value DOUBLE", "ALTER TABLE issues ALTER COLUMN name VARCHAR (10)");
+      .containsOnly("ALTER TABLE issues ALTER COLUMN value DOUBLE NULL", "ALTER TABLE issues ALTER COLUMN name VARCHAR (10) NULL");
   }
 
   @Test
@@ -54,7 +54,7 @@ public class AlterColumnsTypeBuilderTest {
   @Test
   public void update_columns_on_mssql() {
     assertThat(createSampleBuilder(new MsSql()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20)", "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10)");
+      .containsOnly("ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20) NULL", "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) NULL");
   }
 
   @Test
@@ -66,19 +66,21 @@ public class AlterColumnsTypeBuilderTest {
   @Test
   public void update_columns_on_postgres() {
     assertThat(createSampleBuilder(new PostgreSql()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN value TYPE NUMERIC (30,20), ALTER COLUMN name TYPE VARCHAR (10)");
+      .containsOnly("ALTER TABLE issues " +
+        "ALTER COLUMN value TYPE NUMERIC (30,20), ALTER COLUMN value DROP NOT NULL, " +
+        "ALTER COLUMN name TYPE VARCHAR (10), ALTER COLUMN name DROP NOT NULL");
   }
 
   @Test
   public void update_not_nullable_column_on_postgres() {
     assertThat(createNotNullableBuilder(new PostgreSql()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN name TYPE VARCHAR (10) NOT NULL");
+      .containsOnly("ALTER TABLE issues ALTER COLUMN name TYPE VARCHAR (10), ALTER COLUMN name SET NOT NULL");
   }
 
   @Test
   public void update_columns_on_mysql() {
     assertThat(createSampleBuilder(new MySql()).build())
-      .containsOnly("ALTER TABLE issues MODIFY COLUMN value DECIMAL (30,20), MODIFY COLUMN name VARCHAR (10)");
+      .containsOnly("ALTER TABLE issues MODIFY COLUMN value DECIMAL (30,20) NULL, MODIFY COLUMN name VARCHAR (10) NULL");
   }
 
   @Test
@@ -90,13 +92,13 @@ public class AlterColumnsTypeBuilderTest {
   @Test
   public void update_columns_on_oracle() {
     assertThat(createSampleBuilder(new Oracle()).build())
-      .containsOnly("ALTER TABLE issues MODIFY (value NUMERIC (30,20), name VARCHAR (10))");
+      .containsOnly("ALTER TABLE issues MODIFY (value NUMERIC (30,20) NULL, name VARCHAR (10) NULL)");
   }
 
   @Test
-  public void not_nullable_column_are_ignored_on_oracle() {
+  public void update_not_nullable_column_on_oracle() {
     assertThat(createNotNullableBuilder(new Oracle()).build())
-      .containsOnly("ALTER TABLE issues MODIFY (name VARCHAR (10))");
+      .containsOnly("ALTER TABLE issues MODIFY (name VARCHAR (10) NOT NULL)");
   }
 
   @Test
@@ -127,11 +129,11 @@ public class AlterColumnsTypeBuilderTest {
   private AlterColumnsTypeBuilder createNotNullableBuilder(Dialect dialect) {
     return new AlterColumnsTypeBuilder(dialect, TABLE_NAME)
       .updateColumn(
-      newVarcharColumnDefBuilder()
-        .setColumnName("name")
-        .setLimit(10)
-        .setIsNullable(false)
-        .build());
+        newVarcharColumnDefBuilder()
+          .setColumnName("name")
+          .setLimit(10)
+          .setIsNullable(false)
+          .build());
   }
 
 }
