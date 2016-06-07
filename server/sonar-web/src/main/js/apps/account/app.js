@@ -26,6 +26,7 @@ import Home from './components/Home';
 import NotificationsContainer from './components/NotificationsContainer';
 import Security from './components/Security';
 import Issues from './components/Issues';
+import ProjectsContainer from './projects/ProjectsContainer';
 
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
@@ -41,6 +42,7 @@ window.sonarqube.appStarted.then(options => {
           <Route path="issues" component={Issues}/>
           <Route path="notifications" component={NotificationsContainer}/>
           <Route path="security" component={Security}/>
+          <Route path="projects" component={ProjectsContainer}/>
 
           <Redirect from="/index" to="/"/>
         </Route>
