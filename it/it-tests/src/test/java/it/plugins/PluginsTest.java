@@ -70,7 +70,8 @@ public class PluginsTest {
     "citymodel",
     // status 1.0 is built for Java 8 so it is temporarily disabled
     "status",
-    // temporary incompatibility with cobol 3.1 java.lang.NoClassDefFoundError: com/sonarsource/cobol/api/pp/EnterPreprocessorEvent
+    // temporary incompatibility with cobol 3.1
+    // https://jira.sonarsource.com/browse/MAIF-213
     "maifcobolplugin");
 
   static final Set<String> LICENSED_PLUGINS = Sets.newHashSet(
