@@ -1092,7 +1092,6 @@
       <id>dev</id>
       <properties>
         <skipSanityChecks>true</skipSanityChecks>
-        <enforcer.skip>true</enforcer.skip>
       </properties>
     </profile>
     <profile>
