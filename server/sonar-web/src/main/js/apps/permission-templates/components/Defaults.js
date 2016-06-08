@@ -17,31 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ModalForm from '../../components/common/modal-form';
-import { deletePermissionTemplate } from '../../api/permissions';
-import Template from './templates/permission-templates-delete.hbs';
+import React from 'react';
+import sortBy from 'lodash/sortBy';
+import { translate } from '../../../helpers/l10n';
+import { PermissionTemplateType } from '../propTypes';
 
-export default ModalForm.extend({
-  template: Template,
+export default class Defaults extends React.Component {
+  static propTypes = {
+    permissionTemplate: PermissionTemplateType.isRequired
+  };
 
-  onFormSubmit () {
-    ModalForm.prototype.onFormSubmit.apply(this, arguments);
-    this.sendRequest();
-  },
+  render () {
+    const qualifiers = sortBy(this.props.permissionTemplate.defaultFor)
+        .map(qualifier => translate('qualifiers', qualifier))
+        .join(', ');
 
-  sendRequest () {
-    const that = this;
-    return deletePermissionTemplate({
-      data: { templateId: this.model.id },
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(function () {
-      that.options.refresh();
-      that.destroy();
-    }).fail(function (jqXHR) {
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
+    return (
+        <div>
+          <span className="badge spacer-right">
+            {translate('default')} for {qualifiers}
+          </span>
+        </div>
+    );
   }
-});
+}

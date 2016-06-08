@@ -17,35 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import CreateView from './create-view';
-import { translate } from '../../helpers/l10n';
+import ModalForm from '../../../components/common/modal-form';
+import { deletePermissionTemplate } from '../../../api/permissions';
+import Template from '../templates/permission-templates-delete.hbs';
 
-export default React.createClass({
-  onCreate(e) {
-    e.preventDefault();
-    new CreateView({
-      refresh: this.props.refresh
-    }).render();
+export default ModalForm.extend({
+  template: Template,
+
+  onFormSubmit () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    this.sendRequest();
   },
 
-  renderSpinner () {
-    if (this.props.ready) {
-      return null;
-    }
-    return <i className="spinner"/>;
-  },
-
-  render() {
-    return (
-        <header id="project-permissions-header" className="page-header">
-          <h1 className="page-title">{translate('permission_templates.page')}</h1>
-          {this.renderSpinner()}
-          <div className="page-actions">
-            <button onClick={this.onCreate}>Create</button>
-          </div>
-          <p className="page-description">{translate('roles.page.description')}</p>
-        </header>
-    );
+  sendRequest () {
+    const that = this;
+    return deletePermissionTemplate({
+      data: { templateId: this.model.id },
+      statusCode: {
+        // do not show global error
+        400: null
+      }
+    }).done(function () {
+      that.options.refresh();
+      that.destroy();
+    }).fail(function (jqXHR) {
+      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+    });
   }
 });

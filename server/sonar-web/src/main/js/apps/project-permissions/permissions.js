@@ -39,7 +39,9 @@ export default React.createClass({
           permissionTemplates={this.props.permissionTemplates}
           refresh={this.props.refresh}/>;
     });
-    const className = classNames('data zebra', { 'new-loading': !this.props.ready });
+    const className = classNames(
+        'data zebra permissions-table',
+        { 'new-loading': !this.props.ready });
     return (
         <table id="projects" className={className}>
           <PermissionsHeader permissions={this.props.permissions}/>

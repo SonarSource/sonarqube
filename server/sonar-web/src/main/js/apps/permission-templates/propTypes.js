@@ -17,30 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import FormView from './form-view';
-import { updatePermissionTemplate } from '../../api/permissions';
+import { PropTypes } from 'react';
 
-export default FormView.extend({
-  sendRequest () {
-    const that = this;
-    this.disableForm();
-    return updatePermissionTemplate({
-      data: {
-        id: this.model.id,
-        name: this.$('#permission-template-name').val(),
-        description: this.$('#permission-template-description').val(),
-        projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
-      },
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(function () {
-      that.options.refresh();
-      that.destroy();
-    }).fail(function (jqXHR) {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
-    });
-  }
+const { shape, arrayOf, string, number, func } = PropTypes;
+
+export const PermissionType = shape({
+  key: string.isRequired,
+  name: string.isRequired,
+  description: string.isRequired,
+  usersCount: number.isRequired,
+  groupsCount: number.isRequired
 });
+
+export const PermissionTemplateType = shape({
+  id: string.isRequired,
+  name: string.isRequired,
+  description: string,
+  permissions: arrayOf(PermissionType).isRequired,
+  defaultFor: arrayOf(string).isRequired
+});
+
+export const CallbackType = func.isRequired;

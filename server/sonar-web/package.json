@@ -59,6 +59,7 @@
     "react-addons-shallow-compare": "15.0.1",
     "react-addons-test-utils": "15.0.1",
     "react-dom": "15.0.1",
+    "react-helmet": "3.1.0",
     "react-redux": "4.4.1",
     "react-router": "2.0.1",
     "react-router-redux": "4.0.2",

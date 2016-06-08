@@ -17,28 +17,32 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import ModalForm from '../../components/common/modal-form';
-import Template from './templates/permission-templates-form.hbs';
+import React from 'react';
 
-export default ModalForm.extend({
-  template: Template,
+export default class ListHeader extends React.Component {
+  static propTypes = {
+    permissions: React.PropTypes.array.isRequired
+  };
 
-  onRender () {
-    ModalForm.prototype.onRender.apply(this, arguments);
-    this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
-    this.$('#create-custom-measure-metric').select2({
-      width: '250px',
-      minimumResultsForSearch: 20
-    });
-  },
+  render () {
+    const cells = this.props.permissions.map(p => (
+        <th key={p.key} className="permission-column">
+          {p.name}
+          <i
+              className="icon-help little-spacer-left"
+              title={p.description}
+              data-toggle="tooltip"/>
+        </th>
+    ));
 
-  onDestroy () {
-    ModalForm.prototype.onDestroy.apply(this, arguments);
-    this.$('[data-toggle="tooltip"]').tooltip('destroy');
-  },
-
-  onFormSubmit () {
-    ModalForm.prototype.onFormSubmit.apply(this, arguments);
-    this.sendRequest();
+    return (
+        <thead>
+        <tr>
+          <th>&nbsp;</th>
+          {cells}
+          <th className="actions-column">&nbsp;</th>
+        </tr>
+        </thead>
+    );
   }
-});
+}

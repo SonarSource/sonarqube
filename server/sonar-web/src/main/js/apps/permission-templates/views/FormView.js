@@ -17,29 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import FormView from './form-view';
-import { createPermissionTemplate } from '../../api/permissions';
+import ModalForm from '../../../components/common/modal-form';
+import Template from '../templates/permission-templates-form.hbs';
 
-export default FormView.extend({
-  sendRequest () {
-    const that = this;
-    this.disableForm();
-    return createPermissionTemplate({
-      data: {
-        name: this.$('#permission-template-name').val(),
-        description: this.$('#permission-template-description').val(),
-        projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
-      },
-      statusCode: {
-        // do not show global error
-        400: null
-      }
-    }).done(function () {
-      that.options.refresh();
-      that.destroy();
-    }).fail(function (jqXHR) {
-      that.enableForm();
-      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+export default ModalForm.extend({
+  template: Template,
+
+  onRender () {
+    ModalForm.prototype.onRender.apply(this, arguments);
+    this.$('[data-toggle="tooltip"]').tooltip({ container: 'body', placement: 'bottom' });
+    this.$('#create-custom-measure-metric').select2({
+      width: '250px',
+      minimumResultsForSearch: 20
     });
+  },
+
+  onDestroy () {
+    ModalForm.prototype.onDestroy.apply(this, arguments);
+    this.$('[data-toggle="tooltip"]').tooltip('destroy');
+  },
+
+  onFormSubmit () {
+    ModalForm.prototype.onFormSubmit.apply(this, arguments);
+    this.sendRequest();
   }
 });

@@ -26,6 +26,8 @@ import PermissionsFooter from './permissions-footer';
 import Search from './search';
 import ApplyTemplateView from './apply-template-view';
 import { translate } from '../../helpers/l10n';
+import { TooltipsContainer } from '../../components/mixins/tooltips-mixin';
+import '../permission-templates/styles.css';
 
 const PERMISSIONS_ORDER = ['user', 'codeviewer', 'issueadmin', 'admin', 'scan'];
 
@@ -130,34 +132,38 @@ export default React.createClass({
 
   render() {
     return (
-        <div className="page">
-          <header id="project-permissions-header" className="page-header">
-            <h1 className="page-title">{translate('roles.page')}</h1>
-            {this.renderSpinner()}
-            <div className="page-actions">
-              {this.renderBulkApplyButton()}
-            </div>
-            <p className="page-description">{translate('roles.page.description2')}</p>
-          </header>
+        <TooltipsContainer>
+          <div className="page">
+            <header id="project-permissions-header" className="page-header">
+              <h1 className="page-title">{translate('roles.page')}</h1>
+              {this.renderSpinner()}
+              <div className="page-actions">
+                {this.renderBulkApplyButton()}
+              </div>
+              <p className="page-description">
+                {translate('roles.page.description2')}
+              </p>
+            </header>
 
-          <Search {...this.props}
-              filter={this.state.filter}
-              search={this.search}
-              onFilter={this.handleFilter}/>
+            <Search {...this.props}
+                filter={this.state.filter}
+                search={this.search}
+                onFilter={this.handleFilter}/>
 
-          <Permissions
-              ready={this.state.ready}
-              projects={this.state.projects}
-              permissions={this.state.permissions}
-              permissionTemplates={this.props.permissionTemplates}
-              refresh={this.refresh}/>
+            <Permissions
+                ready={this.state.ready}
+                projects={this.state.projects}
+                permissions={this.state.permissions}
+                permissionTemplates={this.props.permissionTemplates}
+                refresh={this.refresh}/>
 
-          <PermissionsFooter {...this.props}
-              ready={this.state.ready}
-              count={this.state.projects.length}
-              total={this.state.total}
-              loadMore={this.loadMore}/>
-        </div>
+            <PermissionsFooter {...this.props}
+                ready={this.state.ready}
+                count={this.state.projects.length}
+                total={this.state.total}
+                loadMore={this.loadMore}/>
+          </div>
+        </TooltipsContainer>
     );
   }
 });

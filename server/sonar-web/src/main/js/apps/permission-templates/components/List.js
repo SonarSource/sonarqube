@@ -17,34 +17,35 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import classNames from 'classnames';
 import React from 'react';
+import ListHeader from './ListHeader';
+import ListItem from './ListItem';
+import { PermissionTemplateType, CallbackType } from '../propTypes';
 
-import PermissionsHeader from './permissions-header';
-import PermissionTemplate from './permission-template';
-
-export default React.createClass({
-  propTypes: {
-    permissionTemplates: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
-    permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired,
+export default class List extends React.Component {
+  static propTypes = {
+    permissionTemplates: React.PropTypes.arrayOf(
+        PermissionTemplateType).isRequired,
+    permissions: React.PropTypes.array.isRequired,
     topQualifiers: React.PropTypes.array.isRequired,
-    refresh: React.PropTypes.func.isRequired
-  },
+    refresh: CallbackType
+  };
 
-  render() {
-    const permissionTemplates = this.props.permissionTemplates.map(p => {
-      return <PermissionTemplate
-          key={p.id}
-          permissionTemplate={p}
-          topQualifiers={this.props.topQualifiers}
-          refresh={this.props.refresh}/>;
-    });
-    const className = classNames('data zebra', { 'new-loading': !this.props.ready });
+  render () {
+    const permissionTemplates = this.props.permissionTemplates.map(p => (
+        <ListItem
+            key={p.id}
+            permissionTemplate={p}
+            topQualifiers={this.props.topQualifiers}
+            refresh={this.props.refresh}/>
+    ));
+
     return (
-        <table id="permission-templates" className={className}>
-          <PermissionsHeader permissions={this.props.permissions}/>
+        <table id="permission-templates"
+               className="data zebra permissions-table">
+          <ListHeader permissions={this.props.permissions}/>
           <tbody>{permissionTemplates}</tbody>
         </table>
     );
   }
-});
+}
