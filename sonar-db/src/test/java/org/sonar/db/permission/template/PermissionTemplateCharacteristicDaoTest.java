@@ -30,6 +30,8 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class PermissionTemplateCharacteristicDaoTest {
@@ -52,7 +54,7 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setUpdatedAt(2_000_000_000L));
     PermissionTemplateCharacteristicDto templatePermission2 = underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
       .setPermission(UserRole.USER)
-      .setTemplateId(1L)
+      .setTemplateId(2L)
       .setWithProjectCreator(false)
       .setCreatedAt(1_000_000_000L)
       .setUpdatedAt(2_000_000_000L));
@@ -63,7 +65,7 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setCreatedAt(1_000_000_000L)
       .setUpdatedAt(2_000_000_000L));
 
-    List<PermissionTemplateCharacteristicDto> result = underTest.selectByTemplateId(dbSession, 1L);
+    List<PermissionTemplateCharacteristicDto> result = underTest.selectByTemplateIds(dbSession, newArrayList(1L, 2L));
     assertThat(result)
       .hasSize(2)
       .extracting("id")
@@ -71,6 +73,13 @@ public class PermissionTemplateCharacteristicDaoTest {
       .containsOnly(templatePermission1.getId(), templatePermission2.getId());
     assertThat(result.get(0))
       .isEqualToComparingFieldByField(templatePermission1);
+  }
+
+  @Test
+  public void selectByTemplateId_for_empty_list_of_template_id() {
+    List<PermissionTemplateCharacteristicDto> result = underTest.selectByTemplateIds(dbSession, emptyList());
+
+    assertThat(result).isEmpty();
   }
 
   @Test

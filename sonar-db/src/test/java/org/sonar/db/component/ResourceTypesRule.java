@@ -23,6 +23,7 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import org.sonar.api.resources.ResourceType;
@@ -54,7 +55,7 @@ public class ResourceTypesRule extends ResourceTypes {
   }
 
   public ResourceTypesRule setRootQualifiers(String... qualifiers) {
-    Set<ResourceType> resourceTypes = new HashSet<>();
+    Set<ResourceType> resourceTypes = new LinkedHashSet<>();
     for (String qualifier : qualifiers) {
       resourceTypes.add(ResourceType.builder(qualifier).build());
     }

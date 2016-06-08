@@ -132,7 +132,8 @@ public class SearchTemplatesAction implements PermissionsWsAction {
             .clear()
             .setKey(permission)
             .setUsersCount(data.userCount(templateDto.getId(), permission))
-            .setGroupsCount(data.groupCount(templateDto.getId(), permission)));
+            .setGroupsCount(data.groupCount(templateDto.getId(), permission))
+            .setWithProjectCreator(data.withProjectCreator(templateDto.getId(), permission)));
       }
       response.addPermissionTemplates(templateBuilder);
     }

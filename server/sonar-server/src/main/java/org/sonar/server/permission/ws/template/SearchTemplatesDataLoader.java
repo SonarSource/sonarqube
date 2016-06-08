@@ -19,22 +19,19 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import java.util.List;
-import javax.annotation.Nonnull;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.permission.CountByTemplateAndPermissionDto;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 
-import static org.sonar.server.permission.ws.template.SearchTemplatesData.newBuilder;
+import static org.sonar.server.permission.ws.template.SearchTemplatesData.builder;
 
 public class SearchTemplatesDataLoader {
   private final DbClient dbClient;
@@ -48,15 +45,16 @@ public class SearchTemplatesDataLoader {
   public SearchTemplatesData load(SearchTemplatesWsRequest request) {
     DbSession dbSession = dbClient.openSession(false);
     try {
-      SearchTemplatesData.Builder data = newBuilder();
+      SearchTemplatesData.Builder data = builder();
       List<PermissionTemplateDto> templates = searchTemplates(dbSession, request);
-      List<Long> templateIds = Lists.transform(templates, TemplateToIdFunction.INSTANCE);
+      List<Long> templateIds = Lists.transform(templates, PermissionTemplateDto::getId);
       List<TemplateUuidQualifier> defaultTemplates = defaultPermissionTemplateFinder.getDefaultTemplatesByQualifier();
 
       data.templates(templates)
         .defaultTemplates(defaultTemplates)
         .userCountByTemplateIdAndPermission(userCountByTemplateIdAndPermission(dbSession, templateIds))
-        .groupCountByTemplateIdAndPermission(groupCountByTemplateIdAndPermission(dbSession, templateIds));
+        .groupCountByTemplateIdAndPermission(groupCountByTemplateIdAndPermission(dbSession, templateIds))
+        .withProjectCreatorByTemplateIdAndPermission(withProjectCreatorsByTemplateIdAndPermission(dbSession, templateIds));
 
       return data.build();
     } finally {
@@ -74,12 +72,9 @@ public class SearchTemplatesDataLoader {
   private Table<Long, String, Integer> userCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds) {
     final Table<Long, String, Integer> userCountByTemplateIdAndPermission = TreeBasedTable.create();
 
-    dbClient.permissionTemplateDao().usersCountByTemplateIdAndPermission(dbSession, templateIds, new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        CountByTemplateAndPermissionDto row = (CountByTemplateAndPermissionDto) context.getResultObject();
-        userCountByTemplateIdAndPermission.put(row.getTemplateId(), row.getPermission(), row.getCount());
-      }
+    dbClient.permissionTemplateDao().usersCountByTemplateIdAndPermission(dbSession, templateIds, context -> {
+      CountByTemplateAndPermissionDto row = (CountByTemplateAndPermissionDto) context.getResultObject();
+      userCountByTemplateIdAndPermission.put(row.getTemplateId(), row.getPermission(), row.getCount());
     });
 
     return userCountByTemplateIdAndPermission;
@@ -88,23 +83,22 @@ public class SearchTemplatesDataLoader {
   private Table<Long, String, Integer> groupCountByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds) {
     final Table<Long, String, Integer> userCountByTemplateIdAndPermission = TreeBasedTable.create();
 
-    dbClient.permissionTemplateDao().groupsCountByTemplateIdAndPermission(dbSession, templateIds, new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        CountByTemplateAndPermissionDto row = (CountByTemplateAndPermissionDto) context.getResultObject();
-        userCountByTemplateIdAndPermission.put(row.getTemplateId(), row.getPermission(), row.getCount());
-      }
+    dbClient.permissionTemplateDao().groupsCountByTemplateIdAndPermission(dbSession, templateIds, context -> {
+      CountByTemplateAndPermissionDto row = (CountByTemplateAndPermissionDto) context.getResultObject();
+      userCountByTemplateIdAndPermission.put(row.getTemplateId(), row.getPermission(), row.getCount());
     });
 
     return userCountByTemplateIdAndPermission;
   }
 
-  private enum TemplateToIdFunction implements Function<PermissionTemplateDto, Long> {
-    INSTANCE;
+  private Table<Long, String, Boolean> withProjectCreatorsByTemplateIdAndPermission(DbSession dbSession, List<Long> templateIds) {
+    final Table<Long, String, Boolean> templatePermissionsByTemplateIdAndPermission = TreeBasedTable.create();
 
-    @Override
-    public Long apply(@Nonnull PermissionTemplateDto template) {
-      return template.getId();
-    }
+    List<PermissionTemplateCharacteristicDto> templatePermissions = dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, templateIds);
+    templatePermissions.stream()
+      .forEach(templatePermission -> templatePermissionsByTemplateIdAndPermission.put(templatePermission.getTemplateId(), templatePermission.getPermission(),
+        templatePermission.getWithProjectCreator()));
+
+    return templatePermissionsByTemplateIdAndPermission;
   }
 }

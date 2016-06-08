@@ -27,6 +27,10 @@ import org.sonarqube.ws.WsPermissions.PermissionTemplate;
 
 public class PermissionTemplateDtoToPermissionTemplateResponse {
 
+  private PermissionTemplateDtoToPermissionTemplateResponse() {
+    // prevent instantiation
+  }
+
   public static PermissionTemplate toPermissionTemplateResponse(PermissionTemplateDto dto) {
     return Singleton.INSTANCE.apply(dto);
   }

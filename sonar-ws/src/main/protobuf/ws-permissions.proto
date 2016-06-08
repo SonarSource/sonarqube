@@ -83,6 +83,7 @@ message Permission {
   optional string description = 3;
   optional int32 usersCount = 4;
   optional int32 groupsCount = 5;
+  optional bool withProjectCreator = 6;
 }
 
 message PermissionTemplate {

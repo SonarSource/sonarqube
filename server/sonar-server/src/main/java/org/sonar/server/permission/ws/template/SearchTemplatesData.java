@@ -34,15 +34,17 @@ class SearchTemplatesData {
   private final List<TemplateUuidQualifier> defaultTemplates;
   private final Table<Long, String, Integer> userCountByTemplateIdAndPermission;
   private final Table<Long, String, Integer> groupCountByTemplateIdAndPermission;
+  private final Table<Long, String, Boolean> withProjectCreatorByTemplateIdAndPermission;
 
   private SearchTemplatesData(Builder builder) {
     this.templates = copyOf(builder.templates);
     this.defaultTemplates = copyOf(builder.defaultTemplates);
     this.userCountByTemplateIdAndPermission = copyOf(builder.userCountByTemplateIdAndPermission);
     this.groupCountByTemplateIdAndPermission = copyOf(builder.groupCountByTemplateIdAndPermission);
+    this.withProjectCreatorByTemplateIdAndPermission = copyOf(builder.withProjectCreatorByTemplateIdAndPermission);
   }
 
-  public static Builder newBuilder() {
+  public static Builder builder() {
     return new Builder();
   }
 
@@ -62,11 +64,16 @@ class SearchTemplatesData {
     return firstNonNull(groupCountByTemplateIdAndPermission.get(templateId, permission), 0);
   }
 
+  public boolean withProjectCreator(long templateId, String permission) {
+    return firstNonNull(withProjectCreatorByTemplateIdAndPermission.get(templateId, permission), false);
+  }
+
   public static class Builder {
     private List<PermissionTemplateDto> templates;
     private List<TemplateUuidQualifier> defaultTemplates;
     private Table<Long, String, Integer> userCountByTemplateIdAndPermission;
     private Table<Long, String, Integer> groupCountByTemplateIdAndPermission;
+    private Table<Long, String, Boolean> withProjectCreatorByTemplateIdAndPermission;
 
     private Builder() {
       // prevents instantiation outside main class
@@ -77,6 +84,7 @@ class SearchTemplatesData {
       checkState(defaultTemplates != null);
       checkState(userCountByTemplateIdAndPermission != null);
       checkState(groupCountByTemplateIdAndPermission != null);
+      checkState(withProjectCreatorByTemplateIdAndPermission != null);
 
       return new SearchTemplatesData(this);
     }
@@ -98,6 +106,11 @@ class SearchTemplatesData {
 
     public Builder groupCountByTemplateIdAndPermission(Table<Long, String, Integer> groupCountByTemplateIdAndPermission) {
       this.groupCountByTemplateIdAndPermission = groupCountByTemplateIdAndPermission;
+      return this;
+    }
+
+    public Builder withProjectCreatorByTemplateIdAndPermission(Table<Long, String, Boolean> withProjectCreatorByTemplateIdAndPermission) {
+      this.withProjectCreatorByTemplateIdAndPermission = withProjectCreatorByTemplateIdAndPermission;
       return this;
     }
   }

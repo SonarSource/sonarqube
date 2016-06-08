@@ -20,7 +20,6 @@
 package org.sonar.server.permission.ws.template;
 
 import java.util.Date;
-import java.util.List;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -28,13 +27,14 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.ResourceType;
-import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.UnauthorizedException;
@@ -42,10 +42,7 @@ import org.sonar.server.i18n.I18nRule;
 import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsActionTester;
 
-import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 import static org.sonar.api.server.ws.WebService.Param.TEXT_QUERY;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
@@ -69,14 +66,14 @@ public class SearchTemplatesActionTest {
   WsActionTester ws;
   I18nRule i18n = new I18nRule();
   DbClient dbClient = db.getDbClient();
-  ResourceTypes resourceTypes = mock(ResourceTypes.class);
+  DbSession dbSession = db.getSession();
+  ResourceTypesRule resourceTypes = new ResourceTypesRule().setRootQualifiers(Qualifiers.PROJECT, Qualifiers.VIEW, "DEV");
   SearchTemplatesDataLoader dataLoader;
   SearchTemplatesAction underTest;
 
   @Before
   public void setUp() {
     i18n.setProjectPermissions();
-    when(resourceTypes.getRoots()).thenReturn(rootResourceTypes());
 
     Settings settings = new Settings();
     settings.setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), UUID_EXAMPLE_01);
@@ -112,6 +109,7 @@ public class SearchTemplatesActionTest {
     addUserToTemplate(projectTemplate.getId(), user3.getId(), UserRole.ISSUE_ADMIN);
     addUserToTemplate(projectTemplate.getId(), user1.getId(), UserRole.CODEVIEWER);
     addGroupToTemplate(projectTemplate.getId(), group1.getId(), UserRole.ADMIN);
+    addPermissionTemplateWithProjectCreator(projectTemplate.getId(), UserRole.ADMIN);
 
     addUserToTemplate(viewsTemplate.getId(), user1.getId(), UserRole.USER);
     addUserToTemplate(viewsTemplate.getId(), user2.getId(), UserRole.USER);
@@ -228,11 +226,13 @@ public class SearchTemplatesActionTest {
     dbClient.permissionTemplateDao().insertUserPermission(db.getSession(), templateId, userId, permission);
   }
 
-  private static List<ResourceType> rootResourceTypes() {
-    ResourceType project = ResourceType.builder(Qualifiers.PROJECT).build();
-    ResourceType view = ResourceType.builder(Qualifiers.VIEW).build();
-    ResourceType dev = ResourceType.builder("DEV").build();
-
-    return asList(project, view, dev);
+  private void addPermissionTemplateWithProjectCreator(long templateId, String permission) {
+    dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
+      .setWithProjectCreator(true)
+      .setTemplateId(templateId)
+      .setPermission(permission)
+      .setCreatedAt(1_000_000_000L)
+      .setUpdatedAt(2_000_000_000L));
+    db.commit();
   }
 }

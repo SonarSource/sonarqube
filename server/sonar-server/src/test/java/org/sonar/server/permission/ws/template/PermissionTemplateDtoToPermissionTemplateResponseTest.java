@@ -18,19 +18,17 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.db.permission.template;
+package org.sonar.server.permission.ws.template;
 
-import java.util.List;
-import org.apache.ibatis.annotations.Param;
+import org.junit.Test;
 
-public interface PermissionTemplateCharacteristicMapper {
-  List<PermissionTemplateCharacteristicDto> selectByTemplateIds(@Param("templateIds") List<Long> templateId);
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.test.TestUtils.hasOnlyPrivateConstructors;
 
-  PermissionTemplateCharacteristicDto selectByPermissionAndTemplateId(@Param("permission") String permission, @Param("templateId") long templateId);
+public class PermissionTemplateDtoToPermissionTemplateResponseTest {
 
-  PermissionTemplateCharacteristicDto selectById(long id);
-
-  void insert(PermissionTemplateCharacteristicDto templatePermissionDto);
-
-  void update(PermissionTemplateCharacteristicDto templatePermissionDto);
+  @Test
+  public void only_private_constructors() {
+    assertThat(hasOnlyPrivateConstructors(PermissionTemplateDtoToPermissionTemplateResponse.class)).isTrue();
+  }
 }

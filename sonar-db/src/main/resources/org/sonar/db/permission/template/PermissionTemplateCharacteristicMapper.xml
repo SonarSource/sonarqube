@@ -10,11 +10,15 @@
     ptc.updated_at as updatedAt
   </sql>
 
-  <select id="selectByTemplateId" parameterType="long" resultType="TemplatePermission">
+  <select id="selectByTemplateIds" parameterType="long" resultType="TemplatePermission">
     select
     <include refid="columns" />
     from perm_tpl_characteristics ptc
-    where ptc.template_id=#{templateId}
+    where
+    ptc.template_id in
+    <foreach collection="templateIds" open="(" close=")" item="templateId" separator=",">
+      #{templateId}
+    </foreach>
     order by id
   </select>
 
@@ -32,7 +36,6 @@
     <include refid="columns" />
     from perm_tpl_characteristics ptc
     where ptc.id=#{id}
-    order by id
   </select>
 
   <insert id="insert" parameterType="TemplatePermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

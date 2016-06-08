@@ -27,10 +27,11 @@ import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceType;
 import org.sonar.api.resources.ResourceTypes;
-import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder;
+import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.groups.Tuple.tuple;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.sonar.server.permission.DefaultPermissionTemplates.DEFAULT_TEMPLATE_PROPERTY;
@@ -63,13 +64,31 @@ public class DefaultPermissionTemplateFinderTest {
 
   @Test
   public void get_default_template_uuid_if_no_property() {
-    settings = new Settings();
-    settings.setProperty(DEFAULT_TEMPLATE_PROPERTY, "default-template-uuid");
+    settings
+      .clear()
+      .setProperty(DEFAULT_TEMPLATE_PROPERTY, "default-template-uuid");
     underTest = new DefaultPermissionTemplateFinder(settings, resourceTypes);
 
     Set<String> result = underTest.getDefaultTemplateUuids();
 
     assertThat(result).containsOnly("default-template-uuid");
+  }
+
+  @Test
+  public void get_default_project_template_uuid_if_no_property_for_views() {
+    settings
+      .clear()
+      .setProperty(DEFAULT_TEMPLATE_PROPERTY, "default-template-uuid")
+      .setProperty(defaultRootQualifierTemplateProperty(Qualifiers.PROJECT), "default-project-template-uuid")
+      .setProperty(defaultRootQualifierTemplateProperty("DEV"), "default-dev-template-uuid");
+
+    List<TemplateUuidQualifier> result = underTest.getDefaultTemplatesByQualifier();
+
+    assertThat(result).extracting(TemplateUuidQualifier::getQualifier, TemplateUuidQualifier::getTemplateUuid)
+      .containsOnly(
+        tuple(Qualifiers.PROJECT, "default-project-template-uuid"),
+        tuple(Qualifiers.VIEW, "default-project-template-uuid"),
+        tuple("DEV", "default-dev-template-uuid"));
   }
 
   private static List<ResourceType> rootResourceTypes() {

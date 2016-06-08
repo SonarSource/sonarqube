@@ -10,27 +10,32 @@
         {
           "key": "user",
           "usersCount": 0,
-          "groupsCount": 1
+          "groupsCount": 1,
+          "withProjectCreator": false
         },
         {
           "key": "admin",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "issueadmin",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "codeviewer",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "scan",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         }
       ]
     },
@@ -44,27 +49,32 @@
         {
           "key": "user",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "admin",
           "usersCount": 0,
-          "groupsCount": 1
+          "groupsCount": 1,
+          "withProjectCreator": true
         },
         {
           "key": "issueadmin",
           "usersCount": 3,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "codeviewer",
           "usersCount": 1,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "scan",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         }
       ]
     },
@@ -79,27 +89,32 @@
         {
           "key": "user",
           "usersCount": 2,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "admin",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "issueadmin",
           "usersCount": 0,
-          "groupsCount": 3
+          "groupsCount": 3,
+          "withProjectCreator": false
         },
         {
           "key": "codeviewer",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         },
         {
           "key": "scan",
           "usersCount": 0,
-          "groupsCount": 0
+          "groupsCount": 0,
+          "withProjectCreator": false
         }
       ]
     }
