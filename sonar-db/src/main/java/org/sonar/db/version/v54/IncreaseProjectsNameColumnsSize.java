@@ -22,7 +22,7 @@ package org.sonar.db.version.v54;
 import java.sql.SQLException;
 import java.util.List;
 import org.sonar.db.Database;
-import org.sonar.db.version.AlterColumnsTypeBuilder;
+import org.sonar.db.version.AlterColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
@@ -44,7 +44,7 @@ public class IncreaseProjectsNameColumnsSize extends DdlChange {
   }
 
   private List<String> generateSql() {
-    return new AlterColumnsTypeBuilder(getDialect(), "projects")
+    return new AlterColumnsBuilder(getDialect(), "projects")
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(2000).setIsNullable(true).build())
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("long_name").setLimit(2000).setIsNullable(true).build())
       .build();

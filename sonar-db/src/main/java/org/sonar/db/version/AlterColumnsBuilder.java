@@ -31,7 +31,7 @@ import org.sonar.db.dialect.PostgreSql;
 import static com.google.common.collect.Lists.newArrayList;
 
 /**
- * Generate SQL queries to update multiple column types from a table.
+ * Generate SQL queries to update multiple columns of a single table.
  *
  * Note that this operation will not be re-entrant on:
  * <ul>
@@ -39,7 +39,7 @@ import static com.google.common.collect.Lists.newArrayList;
  *   {@code ORA-01451: column to be modified to NULL cannot be modified to NULL})</li>
  * </ul>
  */
-public class AlterColumnsTypeBuilder {
+public class AlterColumnsBuilder {
 
   private static final String ALTER_TABLE = "ALTER TABLE ";
   private static final String ALTER_COLUMN = "ALTER COLUMN ";
@@ -48,12 +48,12 @@ public class AlterColumnsTypeBuilder {
   private final String tableName;
   private final List<ColumnDef> columnDefs = newArrayList();
 
-  public AlterColumnsTypeBuilder(Dialect dialect, String tableName) {
+  public AlterColumnsBuilder(Dialect dialect, String tableName) {
     this.dialect = dialect;
     this.tableName = tableName;
   }
 
-  public AlterColumnsTypeBuilder updateColumn(ColumnDef columnDef) {
+  public AlterColumnsBuilder updateColumn(ColumnDef columnDef) {
     columnDefs.add(columnDef);
     return this;
   }

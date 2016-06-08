@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.version.DecimalColumnDef.newDecimalColumnDefBuilder;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class AlterColumnsTypeBuilderTest {
+public class AlterColumnsBuilderTest {
 
   static final String TABLE_NAME = "issues";
   @Rule
@@ -106,11 +106,11 @@ public class AlterColumnsTypeBuilderTest {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("No column has been defined");
 
-    new AlterColumnsTypeBuilder(new H2(), TABLE_NAME).build();
+    new AlterColumnsBuilder(new H2(), TABLE_NAME).build();
   }
 
-  private AlterColumnsTypeBuilder createSampleBuilder(Dialect dialect) {
-    return new AlterColumnsTypeBuilder(dialect, TABLE_NAME)
+  private AlterColumnsBuilder createSampleBuilder(Dialect dialect) {
+    return new AlterColumnsBuilder(dialect, TABLE_NAME)
       .updateColumn(
         newDecimalColumnDefBuilder()
           .setColumnName("value")
@@ -126,8 +126,8 @@ public class AlterColumnsTypeBuilderTest {
           .build());
   }
 
-  private AlterColumnsTypeBuilder createNotNullableBuilder(Dialect dialect) {
-    return new AlterColumnsTypeBuilder(dialect, TABLE_NAME)
+  private AlterColumnsBuilder createNotNullableBuilder(Dialect dialect) {
+    return new AlterColumnsBuilder(dialect, TABLE_NAME)
       .updateColumn(
         newVarcharColumnDefBuilder()
           .setColumnName("name")

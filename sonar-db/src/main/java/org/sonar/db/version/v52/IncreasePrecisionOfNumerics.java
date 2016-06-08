@@ -22,7 +22,7 @@ package org.sonar.db.version.v52;
 import java.sql.SQLException;
 import java.util.List;
 import org.sonar.db.Database;
-import org.sonar.db.version.AlterColumnsTypeBuilder;
+import org.sonar.db.version.AlterColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
 import static org.sonar.db.version.DecimalColumnDef.newDecimalColumnDefBuilder;
@@ -63,7 +63,7 @@ public class IncreasePrecisionOfNumerics extends DdlChange {
   }
 
   private List<String> generateSql(String table, String... columns) {
-    AlterColumnsTypeBuilder columnsBuilder = new AlterColumnsTypeBuilder(getDialect(), table);
+    AlterColumnsBuilder columnsBuilder = new AlterColumnsBuilder(getDialect(), table);
     for (String column : columns) {
       columnsBuilder.updateColumn(newDecimalColumnDefBuilder().setColumnName(column).build());
     }

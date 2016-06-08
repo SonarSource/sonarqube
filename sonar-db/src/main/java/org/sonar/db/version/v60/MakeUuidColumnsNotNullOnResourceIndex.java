@@ -21,7 +21,7 @@ package org.sonar.db.version.v60;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.AlterColumnsTypeBuilder;
+import org.sonar.db.version.AlterColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
 import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
@@ -37,7 +37,7 @@ public class MakeUuidColumnsNotNullOnResourceIndex extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AlterColumnsTypeBuilder(getDialect(), TABLE_RESOURCE_INDEX)
+    context.execute(new AlterColumnsBuilder(getDialect(), TABLE_RESOURCE_INDEX)
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
       .build());
