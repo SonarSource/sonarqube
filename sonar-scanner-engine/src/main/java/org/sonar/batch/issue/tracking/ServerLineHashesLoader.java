@@ -21,6 +21,7 @@ package org.sonar.batch.issue.tracking;
 
 import org.sonar.api.batch.BatchSide;
 
+@FunctionalInterface
 @BatchSide
 public interface ServerLineHashesLoader {
 

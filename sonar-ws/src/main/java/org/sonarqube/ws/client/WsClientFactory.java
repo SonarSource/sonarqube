@@ -24,6 +24,7 @@ package org.sonarqube.ws.client;
  *
  * @since 5.5
  */
+@FunctionalInterface
 public interface WsClientFactory {
 
   WsClient newClient(WsConnector connector);

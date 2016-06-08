@@ -21,6 +21,7 @@ package org.sonar.server.computation.source;
 
 import org.sonar.server.computation.component.Component;
 
+@FunctionalInterface
 public interface SourceHashRepository {
 
   /**

@@ -21,6 +21,7 @@ package org.sonar.server.computation.source;
 
 import org.sonar.db.protobuf.DbFileSources;
 
+@FunctionalInterface
 public interface LineReader {
 
   void read(DbFileSources.Line.Builder lineBuilder);

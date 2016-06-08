@@ -22,6 +22,7 @@ package org.sonar.server.computation.source;
 import org.sonar.core.util.CloseableIterator;
 import org.sonar.server.computation.component.Component;
 
+@FunctionalInterface
 public interface SourceLinesRepository {
 
   /**

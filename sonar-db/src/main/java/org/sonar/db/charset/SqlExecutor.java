@@ -57,7 +57,8 @@ public class SqlExecutor {
     }
   }
 
-  public interface RowConverter<T> {
+  @FunctionalInterface
+    public interface RowConverter<T> {
     T convert(ResultSet rs) throws SQLException;
   }
 

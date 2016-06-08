@@ -20,6 +20,7 @@
 package org.sonar.batch.repository;
 
 
+@FunctionalInterface
 public interface ProjectRepositoriesLoader {
   ProjectRepositories load(String projectKeyWithBranch, boolean issuesMode);
 }

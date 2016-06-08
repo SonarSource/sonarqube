@@ -21,6 +21,7 @@ package org.sonar.process.systeminfo;
 
 import org.sonar.process.systeminfo.protobuf.ProtobufSystemInfo;
 
+@FunctionalInterface
 public interface SystemInfoSection {
 
   ProtobufSystemInfo.Section toProtobuf();

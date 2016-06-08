@@ -21,6 +21,7 @@ package org.sonar.server.computation.taskprocessor;
 
 import org.sonar.ce.queue.CeTaskResult;
 
+@FunctionalInterface
 public interface TaskResultHolder {
   /**
    * @throws IllegalStateException if holder holds no CeTaskResult

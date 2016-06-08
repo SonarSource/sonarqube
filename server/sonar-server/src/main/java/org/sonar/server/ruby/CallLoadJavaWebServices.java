@@ -23,6 +23,7 @@ package org.sonar.server.ruby;
  * Interface which must be a top-level public class to be used by the Ruby engine but that hides name of the Ruby
  * method in the Ruby script from the rest of the platform (only {@link RubyRailsRoutes} is known to the platform).
  */
+@FunctionalInterface
 public interface CallLoadJavaWebServices {
   /**
    * Java method that calls the call_upgrade_and_start method defined in the {@code call_load_java_web_services.rb} script.

@@ -19,6 +19,7 @@
  */
 package org.sonar.server.computation.duplication;
 
+@FunctionalInterface
 public interface Duplicate {
   TextBlock getTextBlock();
 }

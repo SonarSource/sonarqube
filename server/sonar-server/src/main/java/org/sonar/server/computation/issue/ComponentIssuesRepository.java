@@ -31,6 +31,7 @@ import org.sonar.server.computation.component.Component;
  *
  * This repository must NEVER contains more issues than in issues from one component order to not consume to much memory.
  */
+@FunctionalInterface
 public interface ComponentIssuesRepository {
 
   /**

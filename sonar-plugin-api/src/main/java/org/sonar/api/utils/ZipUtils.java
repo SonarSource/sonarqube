@@ -209,6 +209,7 @@ public final class ZipUtils {
     }
   }
 
+  @FunctionalInterface
   public interface ZipEntryFilter {
     boolean accept(ZipEntry entry);
   }

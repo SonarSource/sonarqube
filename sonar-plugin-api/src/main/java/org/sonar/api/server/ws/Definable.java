@@ -19,6 +19,7 @@
  */
 package org.sonar.api.server.ws;
 
+@FunctionalInterface
 public interface Definable<T> {
 
   void define(T context);

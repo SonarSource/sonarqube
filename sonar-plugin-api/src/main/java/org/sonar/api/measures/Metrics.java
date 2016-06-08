@@ -30,6 +30,7 @@ import org.sonar.api.server.ServerSide;
  * This is the extension point used by plugins to declare new metrics.
  * @since 1.10
  */
+@FunctionalInterface
 @BatchSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide

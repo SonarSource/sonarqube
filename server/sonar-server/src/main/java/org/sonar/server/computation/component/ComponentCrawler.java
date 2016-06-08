@@ -22,6 +22,7 @@ package org.sonar.server.computation.component;
 /**
  * Allow to crawl a component tree from a given component
  */
+@FunctionalInterface
 public interface ComponentCrawler {
 
   void visit(Component tree);

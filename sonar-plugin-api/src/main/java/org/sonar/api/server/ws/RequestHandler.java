@@ -27,6 +27,7 @@ import org.sonar.api.server.ServerSide;
  * @since 4.2
  * @see WebService
  */
+@FunctionalInterface
 @ServerSide
 @ExtensionPoint
 public interface RequestHandler {

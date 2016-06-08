@@ -21,6 +21,7 @@ package org.sonar.batch.repository;
 
 import org.sonar.scanner.protocol.input.GlobalRepositories;
 
+@FunctionalInterface
 public interface GlobalRepositoriesLoader {
   GlobalRepositories load();
 }

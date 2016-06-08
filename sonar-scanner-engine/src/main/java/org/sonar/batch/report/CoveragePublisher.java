@@ -133,6 +133,7 @@ public class CoveragePublisher implements ReportPublisherStep {
     }
   }
 
+  @FunctionalInterface
   interface MeasureOperation {
     void apply(String value, LineCoverage.Builder builder);
   }

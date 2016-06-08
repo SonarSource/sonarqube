@@ -21,6 +21,7 @@ package org.sonar.server.computation.filemove;
 
 import java.util.List;
 
+@FunctionalInterface
 public interface SourceSimilarity {
 
   // TODO verify algorithm http://stackoverflow.com/questions/6087281/similarity-score-levenshtein

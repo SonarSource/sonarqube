@@ -24,6 +24,7 @@ import org.sonar.api.batch.BatchSide;
 /**
  * @since 3.6
  */
+@FunctionalInterface
 @BatchSide
 public interface ExtensionMatcher {
   boolean accept(Object extension);

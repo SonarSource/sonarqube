@@ -364,6 +364,7 @@ public class FileMetadata {
     }
   }
 
+  @FunctionalInterface
   public interface LineHashConsumer {
 
     void consume(int lineIdx, @Nullable byte[] hash);

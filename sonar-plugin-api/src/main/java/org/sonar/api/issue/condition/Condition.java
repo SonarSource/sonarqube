@@ -25,6 +25,7 @@ import org.sonar.api.issue.Issue;
 /**
  * @since 3.6
  */
+@FunctionalInterface
 @Beta
 public interface Condition {
 

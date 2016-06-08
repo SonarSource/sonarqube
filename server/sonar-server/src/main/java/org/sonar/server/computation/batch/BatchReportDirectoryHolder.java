@@ -22,6 +22,7 @@ package org.sonar.server.computation.batch;
 import java.io.File;
 import org.sonar.ce.queue.CeTask;
 
+@FunctionalInterface
 public interface BatchReportDirectoryHolder {
   /**
    * The File of the directory where the Batch report files for the current {@link CeTask} are stored.

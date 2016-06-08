@@ -22,6 +22,7 @@ package org.sonar.server.computation.metric;
 /**
  * Validate metric to know if it can be read from the batch
  */
+@FunctionalInterface
 public interface ReportMetricValidator {
 
   boolean validate(String metricKey);

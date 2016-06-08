@@ -19,6 +19,7 @@
  */
 package org.sonar.core.util;
 
+@FunctionalInterface
 public interface UuidFactory {
 
   /**

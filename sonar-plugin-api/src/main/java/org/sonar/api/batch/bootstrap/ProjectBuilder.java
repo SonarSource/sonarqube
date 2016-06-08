@@ -44,6 +44,7 @@ public abstract class ProjectBuilder {
    * Plugins can use the implementation {@link org.sonar.api.batch.bootstrap.internal.ProjectBuilderContext}
    * for their unit tests.
    */
+  @FunctionalInterface
   public interface Context {
     ProjectReactor projectReactor();
   }

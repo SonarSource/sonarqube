@@ -19,6 +19,7 @@
  */
 package org.sonar.process;
 
+@FunctionalInterface
 public interface Stoppable {
 
   void stopAsync();

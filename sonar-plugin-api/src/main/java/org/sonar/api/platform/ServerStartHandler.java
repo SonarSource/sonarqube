@@ -26,6 +26,7 @@ import org.sonar.api.server.ServerSide;
 /**
  * @since 2.2
  */
+@FunctionalInterface
 @ServerSide
 @ComputeEngineSide
 @ExtensionPoint

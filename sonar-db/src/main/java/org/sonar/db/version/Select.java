@@ -126,6 +126,7 @@ public interface Select extends SqlStatement<Select> {
     }
   }
 
+  @FunctionalInterface
   interface RowReader<T> {
     T read(Row row) throws SQLException;
   }
@@ -154,6 +155,7 @@ public interface Select extends SqlStatement<Select> {
 
   RowReader<String> STRING_READER = new StringReader();
 
+  @FunctionalInterface
   interface RowHandler {
     void handle(Row row) throws SQLException;
   }

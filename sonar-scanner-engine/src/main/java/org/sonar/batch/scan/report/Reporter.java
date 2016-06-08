@@ -21,6 +21,7 @@ package org.sonar.batch.scan.report;
 
 import org.sonar.api.batch.BatchSide;
 
+@FunctionalInterface
 @BatchSide
 public interface Reporter {
 

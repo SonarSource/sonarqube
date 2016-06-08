@@ -26,6 +26,7 @@ import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
  *
  * A log will be displayed whether or not the cross project duplication is enabled or not.
  */
+@FunctionalInterface
 public interface CrossProjectDuplicationStatusHolder {
 
   /**

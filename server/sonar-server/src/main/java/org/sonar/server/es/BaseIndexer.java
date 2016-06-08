@@ -110,6 +110,7 @@ public abstract class BaseIndexer implements Startable {
     executor.shutdown();
   }
 
+  @FunctionalInterface
   public interface IndexerTask {
     long index(long lastUpdatedAt);
   }

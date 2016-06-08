@@ -22,6 +22,7 @@ package org.sonar.server.computation.language;
 import com.google.common.base.Optional;
 import org.sonar.api.resources.Language;
 
+@FunctionalInterface
 public interface LanguageRepository {
   Optional<Language> find(String languageKey);
 }

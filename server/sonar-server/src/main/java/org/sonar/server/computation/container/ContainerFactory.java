@@ -24,6 +24,7 @@ import org.sonar.ce.queue.CeTask;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.plugin.ce.ReportAnalysisComponentProvider;
 
+@FunctionalInterface
 public interface ContainerFactory {
 
   ComputeEngineContainer create(ComponentContainer parent, CeTask task, @Nullable ReportAnalysisComponentProvider[] componentProviders);

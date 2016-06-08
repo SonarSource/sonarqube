@@ -27,6 +27,7 @@ import org.sonar.db.Database;
 
 public class MassUpdate {
 
+  @FunctionalInterface
   public interface Handler {
     /**
      * Convert some column values of a given row.

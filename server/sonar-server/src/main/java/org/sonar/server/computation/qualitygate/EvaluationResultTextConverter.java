@@ -21,6 +21,7 @@ package org.sonar.server.computation.qualitygate;
 
 import javax.annotation.CheckForNull;
 
+@FunctionalInterface
 public interface EvaluationResultTextConverter {
   @CheckForNull
   String asText(Condition condition, EvaluationResult evaluationResult);

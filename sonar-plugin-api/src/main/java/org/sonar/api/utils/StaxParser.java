@@ -135,6 +135,7 @@ public class StaxParser {
   /**
    * Simple interface for handling XML stream to parse
    */
+  @FunctionalInterface
   public interface XmlStreamHandler {
     void stream(SMHierarchicCursor rootCursor) throws XMLStreamException;
   }

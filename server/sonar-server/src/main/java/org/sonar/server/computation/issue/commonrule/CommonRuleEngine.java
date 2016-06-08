@@ -27,6 +27,7 @@ import org.sonar.server.computation.component.Component;
  * Generate the issues related to "common rules", which are
  * the rules based on measure thresholds.
  */
+@FunctionalInterface
 public interface CommonRuleEngine {
 
   Collection<DefaultIssue> process(Component component);
