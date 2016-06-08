@@ -11,6 +11,26 @@
           "key": "user",
           "usersCount": 0,
           "groupsCount": 1
+        },
+        {
+          "key": "admin",
+          "usersCount": 0,
+          "groupsCount": 0
+        },
+        {
+          "key": "issueadmin",
+          "usersCount": 0,
+          "groupsCount": 0
+        },
+        {
+          "key": "codeviewer",
+          "usersCount": 0,
+          "groupsCount": 0
+        },
+        {
+          "key": "scan",
+          "usersCount": 0,
+          "groupsCount": 0
         }
       ]
     },
@@ -22,9 +42,19 @@
       "updatedAt": "2001-09-09T03:46:40+0200",
       "permissions": [
         {
+          "key": "user",
+          "usersCount": 0,
+          "groupsCount": 0
+        },
+        {
           "key": "admin",
           "usersCount": 0,
           "groupsCount": 1
+        },
+        {
+          "key": "issueadmin",
+          "usersCount": 3,
+          "groupsCount": 0
         },
         {
           "key": "codeviewer",
@@ -32,8 +62,8 @@
           "groupsCount": 0
         },
         {
-          "key": "issueadmin",
-          "usersCount": 3,
+          "key": "scan",
+          "usersCount": 0,
           "groupsCount": 0
         }
       ]
@@ -47,13 +77,28 @@
       "updatedAt": "2004-11-09T12:33:20+0100",
       "permissions": [
         {
+          "key": "user",
+          "usersCount": 2,
+          "groupsCount": 0
+        },
+        {
+          "key": "admin",
+          "usersCount": 0,
+          "groupsCount": 0
+        },
+        {
           "key": "issueadmin",
           "usersCount": 0,
           "groupsCount": 3
         },
         {
-          "key": "user",
-          "usersCount": 2,
+          "key": "codeviewer",
+          "usersCount": 0,
+          "groupsCount": 0
+        },
+        {
+          "key": "scan",
+          "usersCount": 0,
           "groupsCount": 0
         }
       ]

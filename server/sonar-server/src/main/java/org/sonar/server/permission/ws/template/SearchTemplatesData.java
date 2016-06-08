@@ -19,11 +19,8 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import com.google.common.collect.FluentIterable;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Table;
 import java.util.List;
-import java.util.Set;
 import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder.TemplateUuidQualifier;
 
@@ -31,7 +28,6 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.base.Preconditions.checkState;
 import static com.google.common.collect.ImmutableList.copyOf;
 import static com.google.common.collect.ImmutableTable.copyOf;
-import static com.google.common.collect.Ordering.natural;
 
 class SearchTemplatesData {
   private final List<PermissionTemplateDto> templates;
@@ -54,7 +50,7 @@ class SearchTemplatesData {
     return templates;
   }
 
-  public List<TemplateUuidQualifier> defaultTempltes() {
+  public List<TemplateUuidQualifier> defaultTemplates() {
     return defaultTemplates;
   }
 
@@ -64,15 +60,6 @@ class SearchTemplatesData {
 
   public int groupCount(long templateId, String permission) {
     return firstNonNull(groupCountByTemplateIdAndPermission.get(templateId, permission), 0);
-  }
-
-  public Set<String> permissions(long templateId) {
-    return FluentIterable.from(
-      Iterables.concat(
-        userCountByTemplateIdAndPermission.row(templateId).keySet(),
-        groupCountByTemplateIdAndPermission.row(templateId).keySet()
-        )
-      ).toSortedSet(natural());
   }
 
   public static class Builder {

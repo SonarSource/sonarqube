@@ -101,7 +101,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
 
   private static void buildDefaultTemplatesResponse(SearchTemplatesWsResponse.Builder response, SearchTemplatesData data) {
     TemplateIdQualifier.Builder templateUuidQualifierBuilder = TemplateIdQualifier.newBuilder();
-    for (DefaultPermissionTemplateFinder.TemplateUuidQualifier templateUuidQualifier : data.defaultTempltes()) {
+    for (DefaultPermissionTemplateFinder.TemplateUuidQualifier templateUuidQualifier : data.defaultTemplates()) {
       response.addDefaultTemplates(templateUuidQualifierBuilder
         .clear()
         .setQualifier(templateUuidQualifier.getQualifier())
@@ -126,7 +126,7 @@ public class SearchTemplatesAction implements PermissionsWsAction {
       if (templateDto.getDescription() != null) {
         templateBuilder.setDescription(templateDto.getDescription());
       }
-      for (String permission : data.permissions(templateDto.getId())) {
+      for (String permission : ProjectPermissions.ALL) {
         templateBuilder.addPermissions(
           permissionResponse
             .clear()
