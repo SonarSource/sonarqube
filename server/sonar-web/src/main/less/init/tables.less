@@ -39,15 +39,23 @@ table {
   color: @baseFontColor;
 }
 
+table.data > thead:after {
+  display: block;
+  line-height: 5px;
+  content: "\200C";
+}
+
 table.data > thead > tr > th {
   vertical-align: top;
-  font-size: 93%;
-  padding: 5px;
-  line-height: 1.4;
-  text-transform: uppercase;
+  line-height: 24px;
+  padding: 8px 10px;
+  border-bottom: 1px solid @barBorderColor;
+  font-weight: 500;
 
   & > .small {
-    text-transform: none;
+    display: block;
+    line-height: 1.4;
+    font-weight: 400;
   }
 }
 
@@ -58,7 +66,7 @@ table.data > tfoot > tr > td {
 }
 
 table.data > tbody > tr > td {
-  padding: 5px 5px;
+  padding: 8px 10px;
   vertical-align: text-top;
   line-height: 16px;
 
@@ -72,7 +80,7 @@ table.data td.small, table.data th.small {
   white-space: nowrap;
 }
 
-table.data.zebra > tbody > tr:nth-child(odd) {
+table.data.zebra > tbody > tr:nth-child(even) {
   background-color: #f5f5f5;
 }
 
@@ -82,6 +90,11 @@ table.data.zebra-hover > tbody > tr:hover {
 
 table.data.zebra > tbody > tr.selected {
   background-color: @lightBlue !important;
+}
+
+table.data.condensed > tbody > tr > td {
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
 
 .data thead tr.total {
