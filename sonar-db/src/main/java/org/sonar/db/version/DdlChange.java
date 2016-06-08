@@ -22,11 +22,12 @@ package org.sonar.db.version;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.regex.Pattern;
 import org.apache.commons.dbutils.DbUtils;
 import org.sonar.db.Database;
 import org.sonar.db.dialect.Dialect;
 
-import static java.lang.String.*;
+import static java.lang.String.format;
 import static java.util.Arrays.asList;
 
 public abstract class DdlChange implements MigrationStep {
@@ -62,6 +63,10 @@ public abstract class DdlChange implements MigrationStep {
   }
 
   public static class Context {
+    private static final int ERROR_HANDLING_THRESHOLD = 10;
+    // the tricky regexp is required to match "NULL" but not "NOT NULL"
+    private final Pattern nullPattern = Pattern.compile("\\h?(?<!NOT )NULL");
+    private final Pattern notNullPattern = Pattern.compile("\\h?NOT NULL");
     private final Connection writeConnection;
 
     public Context(Connection writeConnection) {
@@ -69,10 +74,36 @@ public abstract class DdlChange implements MigrationStep {
     }
 
     public void execute(String sql) throws SQLException {
+      execute(sql, sql, 0);
+    }
+
+    public void execute(String original, String sql, int errorCount) throws SQLException {
       try {
         UpsertImpl.create(writeConnection, sql).execute().commit();
+      } catch (SQLException e) {
+        if (errorCount < ERROR_HANDLING_THRESHOLD) {
+          String message = e.getMessage();
+          if (message.contains("ORA-01451")) {
+            String newSql = nullPattern.matcher(sql).replaceFirst("");
+            execute(original, newSql, errorCount + 1);
+            return;
+          } else if (message.contains("ORA-01442")) {
+            String newSql = notNullPattern.matcher(sql).replaceFirst("");
+            execute(original, newSql, errorCount + 1);
+            return;
+          }
+        }
+        throw new IllegalStateException(messageForIseOf(original, sql, errorCount), e);
       } catch (Exception e) {
-        throw new IllegalStateException(format("Fail to execute %s", sql), e);
+        throw new IllegalStateException(messageForIseOf(original, sql, errorCount), e);
+      }
+    }
+
+    private static String messageForIseOf(String original, String sql, int errorCount) {
+      if (!original.equals(sql) || errorCount > 0) {
+        return format("Fail to execute %s %n (caught %s error, original was %s)", sql, errorCount, original);
+      } else {
+        return format("Fail to execute %s", sql);
       }
     }
 

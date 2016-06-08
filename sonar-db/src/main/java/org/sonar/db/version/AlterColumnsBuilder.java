@@ -98,10 +98,14 @@ public class AlterColumnsBuilder {
   }
 
   private List<String> createOracleQuery() {
-    StringBuilder sql = new StringBuilder(ALTER_TABLE + tableName + " ").append("MODIFY (");
-    addColumns(sql, "", "", true);
-    sql.append(")");
-    return Collections.singletonList(sql.toString());
+    List<String> sqls = new ArrayList<>();
+    for (ColumnDef columnDef : columnDefs) {
+      StringBuilder sql = new StringBuilder(ALTER_TABLE + tableName + " ").append("MODIFY (");
+      addColumn(sql, columnDef, "", true);
+      sql.append(")");
+      sqls.add(sql.toString());
+    }
+    return sqls;
   }
 
   private List<String> createMsSqlAndH2Queries() {

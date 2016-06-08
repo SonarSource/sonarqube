@@ -42,7 +42,9 @@ public class AlterColumnsBuilderTest {
   @Test
   public void update_columns_on_h2() {
     assertThat(createSampleBuilder(new H2()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN value DOUBLE NULL", "ALTER TABLE issues ALTER COLUMN name VARCHAR (10) NULL");
+      .containsOnly(
+        "ALTER TABLE issues ALTER COLUMN value DOUBLE NULL",
+        "ALTER TABLE issues ALTER COLUMN name VARCHAR (10) NULL");
   }
 
   @Test
@@ -54,7 +56,9 @@ public class AlterColumnsBuilderTest {
   @Test
   public void update_columns_on_mssql() {
     assertThat(createSampleBuilder(new MsSql()).build())
-      .containsOnly("ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20) NULL", "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) NULL");
+      .containsOnly(
+        "ALTER TABLE issues ALTER COLUMN value DECIMAL (30,20) NULL",
+        "ALTER TABLE issues ALTER COLUMN name NVARCHAR (10) NULL");
   }
 
   @Test
@@ -92,7 +96,9 @@ public class AlterColumnsBuilderTest {
   @Test
   public void update_columns_on_oracle() {
     assertThat(createSampleBuilder(new Oracle()).build())
-      .containsOnly("ALTER TABLE issues MODIFY (value NUMERIC (30,20) NULL, name VARCHAR (10) NULL)");
+      .containsOnly(
+        "ALTER TABLE issues MODIFY (value NUMERIC (30,20) NULL)",
+        "ALTER TABLE issues MODIFY (name VARCHAR (10) NULL)");
   }
 
   @Test
