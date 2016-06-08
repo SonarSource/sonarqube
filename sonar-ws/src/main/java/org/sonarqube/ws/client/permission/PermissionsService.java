@@ -97,6 +97,13 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
   }
 
+  public void addProjectCreatorToTemplate(AddProjectCreatorToTemplateWsRequest request) {
+    call(new PostRequest(path("add_project_creator_to_template"))
+      .setParam(PARAM_PERMISSION, request.getPermission())
+      .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
+      .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
   public void applyTemplate(ApplyTemplateWsRequest request) {
     call(new PostRequest(path("apply_template"))
       .setParam(PARAM_PROJECT_ID, request.getProjectId())
@@ -110,8 +117,7 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName())
       .setParam("q", request.getQuery())
-      .setParam(PARAM_QUALIFIER, request.getQualifier())
-    );
+      .setParam(PARAM_QUALIFIER, request.getQualifier()));
   }
 
   public CreateTemplateWsResponse createTemplate(CreateTemplateWsRequest request) {

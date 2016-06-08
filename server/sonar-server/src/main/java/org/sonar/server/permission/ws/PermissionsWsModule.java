@@ -21,6 +21,7 @@ package org.sonar.server.permission.ws;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.permission.ws.template.AddGroupToTemplateAction;
+import org.sonar.server.permission.ws.template.AddProjectCreatorToTemplateAction;
 import org.sonar.server.permission.ws.template.AddUserToTemplateAction;
 import org.sonar.server.permission.ws.template.ApplyTemplateAction;
 import org.sonar.server.permission.ws.template.BulkApplyTemplateAction;
@@ -50,6 +51,7 @@ public class PermissionsWsModule extends Module {
       RemoveUserFromTemplateAction.class,
       AddUserToTemplateAction.class,
       AddGroupToTemplateAction.class,
+      AddProjectCreatorToTemplateAction.class,
       RemoveGroupFromTemplateAction.class,
       CreateTemplateAction.class,
       UpdateTemplateAction.class,
