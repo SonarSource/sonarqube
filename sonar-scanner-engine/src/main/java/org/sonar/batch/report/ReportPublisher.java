@@ -34,10 +34,10 @@ import java.util.Map;
 import javax.annotation.Nullable;
 import org.apache.commons.io.FileUtils;
 import org.picocontainer.Startable;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.Settings;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.ZipUtils;
@@ -52,7 +52,6 @@ import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsResponse;
 
-import static org.apache.commons.lang.StringUtils.trimToEmpty;
 import static org.sonar.core.util.FileUtils.deleteQuietly;
 
 @BatchSide
@@ -71,14 +70,16 @@ public class ReportPublisher implements Startable {
   private final DefaultAnalysisMode analysisMode;
   private final TempFolder temp;
   private final ReportPublisherStep[] publishers;
+  private final Server server;
 
   private File reportDir;
   private ScannerReportWriter writer;
 
-  public ReportPublisher(Settings settings, BatchWsClient wsClient, AnalysisContextReportPublisher contextPublisher,
+  public ReportPublisher(Settings settings, BatchWsClient wsClient, Server server, AnalysisContextReportPublisher contextPublisher,
     ImmutableProjectReactor projectReactor, DefaultAnalysisMode analysisMode, TempFolder temp, ReportPublisherStep[] publishers) {
     this.settings = settings;
     this.wsClient = wsClient;
+    this.server = server;
     this.contextPublisher = contextPublisher;
     this.projectReactor = projectReactor;
     this.analysisMode = analysisMode;
@@ -93,7 +94,7 @@ public class ReportPublisher implements Startable {
     contextPublisher.init(writer);
 
     if (!analysisMode.isIssues() && !analysisMode.isMediumTest()) {
-      String publicUrl = publicUrl();
+      String publicUrl = server.getPublicRootUrl();
       if (HttpUrl.parse(publicUrl) == null) {
         throw MessageException.of("Failed to parse public URL set in SonarQube server: " + publicUrl);
       }
@@ -185,7 +186,7 @@ public class ReportPublisher implements Startable {
     if (taskId == null) {
       LOG.info("ANALYSIS SUCCESSFUL");
     } else {
-      String publicUrl = publicUrl();
+      String publicUrl = server.getPublicRootUrl();
       HttpUrl httpUrl = HttpUrl.parse(publicUrl);
 
       Map<String, String> metadata = new LinkedHashMap<>();
@@ -229,18 +230,5 @@ public class ReportPublisher implements Startable {
     } catch (IOException e) {
       throw new IllegalStateException("Unable to dump " + file, e);
     }
-  }
-
-  /**
-   * The public URL is optionally configured on server. If not, then the regular URL is returned.
-   * See https://jira.sonarsource.com/browse/SONAR-4239
-   */
-  private String publicUrl() {
-    String baseUrl = trimToEmpty(settings.getString(CoreProperties.SERVER_BASE_URL));
-    if (baseUrl.isEmpty()) {
-      // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
-      baseUrl = wsClient.baseUrl();
-    }
-    return baseUrl.replaceAll("(/)+$", "");
   }
 }

@@ -29,10 +29,10 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.config.PropertyDefinitions;
 import org.sonar.api.config.Settings;
+import org.sonar.api.platform.Server;
 import org.sonar.api.utils.MessageException;
 import org.sonar.api.utils.TempFolder;
 import org.sonar.api.utils.log.LogTester;
@@ -54,13 +54,14 @@ public class ReportPublisherTest {
 
   @Rule
   public TemporaryFolder temp = new TemporaryFolder();
-  
+
   @Rule
   public ExpectedException exception = ExpectedException.none();
 
   DefaultAnalysisMode mode = mock(DefaultAnalysisMode.class);
   Settings settings = new Settings(new PropertyDefinitions(CorePropertyDefinitions.all()));
   BatchWsClient wsClient = mock(BatchWsClient.class, Mockito.RETURNS_DEEP_STUBS);
+  Server server = mock(Server.class);
   ImmutableProjectReactor reactor = mock(ImmutableProjectReactor.class);
   ProjectDefinition root;
   AnalysisContextReportPublisher contextPublisher = mock(AnalysisContextReportPublisher.class);
@@ -69,12 +70,12 @@ public class ReportPublisherTest {
   public void setUp() {
     root = ProjectDefinition.create().setKey("struts").setWorkDir(temp.getRoot());
     when(reactor.getRoot()).thenReturn(root);
-    when(wsClient.baseUrl()).thenReturn("https://localhost/");
+    when(server.getPublicRootUrl()).thenReturn("https://localhost");
   }
 
   @Test
   public void log_and_dump_information_about_report_uploading() throws IOException {
-    ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 
     underTest.logSuccess("TASK-123");
 
@@ -86,17 +87,16 @@ public class ReportPublisherTest {
     File detailsFile = new File(temp.getRoot(), "report-task.txt");
     assertThat(readFileToString(detailsFile)).isEqualTo(
       "projectKey=struts\n" +
-      "serverUrl=https://localhost\n" +
-      "dashboardUrl=https://localhost/dashboard/index/struts\n" +
-      "ceTaskId=TASK-123\n" +
-      "ceTaskUrl=https://localhost/api/ce/task?id=TASK-123\n"
-      );
+        "serverUrl=https://localhost\n" +
+        "dashboardUrl=https://localhost/dashboard/index/struts\n" +
+        "ceTaskId=TASK-123\n" +
+        "ceTaskUrl=https://localhost/api/ce/task?id=TASK-123\n");
   }
 
   @Test
   public void log_public_url_if_defined() throws IOException {
-    settings.setProperty(CoreProperties.SERVER_BASE_URL, "https://publicserver/sonarqube");
-    ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    when(server.getPublicRootUrl()).thenReturn("https://publicserver/sonarqube");
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 
     underTest.logSuccess("TASK-123");
 
@@ -107,18 +107,17 @@ public class ReportPublisherTest {
     File detailsFile = new File(temp.getRoot(), "report-task.txt");
     assertThat(readFileToString(detailsFile)).isEqualTo(
       "projectKey=struts\n" +
-      "serverUrl=https://publicserver/sonarqube\n" +
-      "dashboardUrl=https://publicserver/sonarqube/dashboard/index/struts\n" +
-      "ceTaskId=TASK-123\n" +
-      "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n"
-    );
+        "serverUrl=https://publicserver/sonarqube\n" +
+        "dashboardUrl=https://publicserver/sonarqube/dashboard/index/struts\n" +
+        "ceTaskId=TASK-123\n" +
+        "ceTaskUrl=https://publicserver/sonarqube/api/ce/task?id=TASK-123\n");
   }
-  
+
   @Test
   public void fail_if_public_url_malformed() throws IOException {
-    settings.setProperty(CoreProperties.SERVER_BASE_URL, "invalid");
-    ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
-    
+    when(server.getPublicRootUrl()).thenReturn("invalid");
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+
     exception.expect(MessageException.class);
     exception.expectMessage("Failed to parse public URL set in SonarQube server: invalid");
     underTest.start();
@@ -126,7 +125,7 @@ public class ReportPublisherTest {
 
   @Test
   public void log_but_not_dump_information_when_report_is_not_uploaded() {
-    ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 
     underTest.logSuccess(/* report not uploaded, no server task */null);
 
@@ -143,7 +142,7 @@ public class ReportPublisherTest {
     settings.setProperty("sonar.batch.keepReport", true);
     Path reportDir = temp.getRoot().toPath().resolve("batch-report");
     Files.createDirectory(reportDir);
-    ReportPublisher underTest = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    ReportPublisher underTest = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 
     underTest.start();
     underTest.stop();
@@ -154,7 +153,7 @@ public class ReportPublisherTest {
   public void should_delete_report_by_default() throws IOException {
     Path reportDir = temp.getRoot().toPath().resolve("batch-report");
     Files.createDirectory(reportDir);
-    ReportPublisher job = new ReportPublisher(settings, wsClient, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
+    ReportPublisher job = new ReportPublisher(settings, wsClient, server, contextPublisher, reactor, mode, mock(TempFolder.class), new ReportPublisherStep[0]);
 
     job.start();
     job.stop();

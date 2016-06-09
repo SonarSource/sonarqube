@@ -30,17 +30,19 @@ import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.config.Settings;
 import org.sonar.api.platform.Server;
-import org.sonar.batch.bootstrap.GlobalProperties;
+import org.sonar.batch.bootstrap.BatchWsClient;
+
+import static org.apache.commons.lang.StringUtils.trimToEmpty;
 
 @BatchSide
 public class DefaultServer extends Server {
 
   private Settings settings;
-  private GlobalProperties props;
+  private BatchWsClient client;
 
-  public DefaultServer(Settings settings, GlobalProperties props) {
+  public DefaultServer(Settings settings, BatchWsClient client) {
     this.settings = settings;
-    this.props = props;
+    this.client = client;
   }
 
   @Override
@@ -85,7 +87,12 @@ public class DefaultServer extends Server {
 
   @Override
   public String getPublicRootUrl() {
-    return null;
+    String baseUrl = trimToEmpty(settings.getString(CoreProperties.SERVER_BASE_URL));
+    if (baseUrl.isEmpty()) {
+      // If server base URL was not configured in Sonar server then is is better to take URL configured on batch side
+      baseUrl = client.baseUrl();
+    }
+    return StringUtils.removeEnd(baseUrl, "/");
   }
 
   @Override
@@ -100,7 +107,7 @@ public class DefaultServer extends Server {
 
   @Override
   public String getURL() {
-    return StringUtils.removeEnd(StringUtils.defaultIfBlank(props.property("sonar.host.url"), "http://localhost:9000"), "/");
+    return StringUtils.removeEnd(client.baseUrl(), "/");
   }
 
   @Override

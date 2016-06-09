@@ -19,11 +19,11 @@
  */
 package org.sonar.batch.platform;
 
-import org.sonar.batch.bootstrap.GlobalProperties;
-
 import org.junit.Test;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.config.Settings;
+import org.sonar.batch.bootstrap.BatchWsClient;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -37,10 +37,10 @@ public class DefaultServerTest {
     settings.setProperty(CoreProperties.SERVER_VERSION, "2.2");
     settings.setProperty(CoreProperties.SERVER_STARTTIME, "2010-05-18T17:59:00+0000");
     settings.setProperty(CoreProperties.PERMANENT_SERVER_ID, "abcde");
-    GlobalProperties props = mock(GlobalProperties.class);
-    when(props.property("sonar.host.url")).thenReturn("http://foo.com");
+    BatchWsClient client = mock(BatchWsClient.class);
+    when(client.baseUrl()).thenReturn("http://foo.com");
 
-    DefaultServer metadata = new DefaultServer(settings, props);
+    DefaultServer metadata = new DefaultServer(settings, client);
 
     assertThat(metadata.getId()).isEqualTo("123");
     assertThat(metadata.getVersion()).isEqualTo("2.2");
