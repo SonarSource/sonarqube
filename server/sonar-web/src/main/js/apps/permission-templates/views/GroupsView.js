@@ -18,9 +18,9 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import _ from 'underscore';
-import Modal from '../../components/common/modals';
-import '../../components/SelectList';
-import Template from './templates/permission-templates-groups.hbs';
+import Modal from '../../../components/common/modals';
+import Template from '../templates/permission-templates-groups.hbs';
+import '../../../components/SelectList';
 
 function getSearchUrl (permission, permissionTemplate) {
   return window.baseUrl +

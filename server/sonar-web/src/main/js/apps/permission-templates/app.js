@@ -18,10 +18,12 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import ReactDOM from 'react-dom';
-import Main from './main';
+import { render } from 'react-dom';
+import App from './components/App';
 
 window.sonarqube.appStarted.then(options => {
   const el = document.querySelector(options.el);
-  ReactDOM.render(<Main topQualifiers={options.rootQualifiers}/>, el);
+  render((
+      <App topQualifiers={options.rootQualifiers}/>
+  ), el);
 });

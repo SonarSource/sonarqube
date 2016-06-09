@@ -8,6 +8,9 @@
     <div class="modal-field">
       <label for="permission-template-name">Name<em class="mandatory">*</em></label>
       <input id="permission-template-name" name="name" type="text" maxlength="256" required value="{{name}}">
+      <div class="modal-field-description">
+        Should be unique.
+      </div>
     </div>
 
     <div class="modal-field">
@@ -19,6 +22,9 @@
       <label for="permission-template-project-key-pattern">Project Key Pattern</label>
       <input id="permission-template-project-key-pattern" name="keyPattern" type="text" maxlength="500"
              value="{{projectKeyPattern}}">
+      <div class="modal-field-description">
+        Should be a valid regular expression.
+      </div>
     </div>
   </div>
   <div class="modal-foot">

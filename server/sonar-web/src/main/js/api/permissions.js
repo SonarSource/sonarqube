@@ -19,6 +19,7 @@
  */
 import $ from 'jquery';
 import _ from 'underscore';
+import { getJSON, post } from '../helpers/request';
 
 function request (options) {
   return $.ajax(options);
@@ -102,13 +103,13 @@ export function revokeFromGroup (permission, group, project) {
   return request({ type: 'POST', url, data });
 }
 
-export function getPermissionTemplates (query) {
+/**
+ * Get list of permission templates
+ * @returns {Promise}
+ */
+export function getPermissionTemplates () {
   const url = window.baseUrl + '/api/permissions/search_templates';
-  const data = { };
-  if (query) {
-    data.q = query;
-  }
-  return request({ type: 'GET', url, data });
+  return getJSON(url);
 }
 
 export function createPermissionTemplate (options) {
@@ -126,14 +127,16 @@ export function deletePermissionTemplate (options) {
   return request(_.extend({ type: 'POST', url }, options));
 }
 
-export function setDefaultPermissionTemplate (template, qualifier) {
-  if (typeof template !== 'string' || !template.length) {
-    return typeError('setDefaultPermissionTemplate', 'please provide permission template ID');
-  }
-
+/**
+ * Set default permission template for a given qualifier
+ * @param {string} templateName
+ * @param {string} qualifier
+ * @returns {Promise}
+ */
+export function setDefaultPermissionTemplate (templateName, qualifier) {
   const url = window.baseUrl + '/api/permissions/set_default_template';
-  const data = { templateId: template, qualifier };
-  return request({ type: 'POST', url, data });
+  const data = { templateName, qualifier };
+  return post(url, data);
 }
 
 export function applyTemplateToProject (options) {

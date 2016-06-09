@@ -17,32 +17,30 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import FormView from './FormView';
+import { updatePermissionTemplate } from '../../../api/permissions';
 
-export default React.createClass({
-  propTypes: {
-    permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
-  },
-
-  render() {
-    const cells = this.props.permissions.map(p => (
-        <th key={p.key} className="permission-column">
-          {p.name}
-          <i
-              className="icon-help little-spacer-left"
-              title={p.description}
-              data-toggle="tooltip"/>
-        </th>
-    ));
-
-    return (
-        <thead>
-          <tr>
-            <th>&nbsp;</th>
-            {cells}
-            <th className="actions-column">&nbsp;</th>
-          </tr>
-        </thead>
-    );
+export default FormView.extend({
+  sendRequest () {
+    const that = this;
+    this.disableForm();
+    return updatePermissionTemplate({
+      data: {
+        id: this.model.id,
+        name: this.$('#permission-template-name').val(),
+        description: this.$('#permission-template-description').val(),
+        projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
+      },
+      statusCode: {
+        // do not show global error
+        400: null
+      }
+    }).done(function () {
+      that.options.refresh();
+      that.destroy();
+    }).fail(function (jqXHR) {
+      that.enableForm();
+      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
+    });
   }
 });

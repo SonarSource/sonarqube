@@ -17,30 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import FormView from './FormView';
+import { createPermissionTemplate } from '../../../api/permissions';
 
-export default React.createClass({
-  propTypes: {
-    permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
-  },
-
-  render() {
-    const cellWidth = (80 / this.props.permissions.length) + '%';
-    const cells = this.props.permissions.map(p => {
-      return (
-          <th key={p.key} style={{ width: cellWidth }}>
-            {p.name}<br/><span className="small">{p.description}</span>
-          </th>
-      );
+export default FormView.extend({
+  sendRequest () {
+    const that = this;
+    this.disableForm();
+    return createPermissionTemplate({
+      data: {
+        name: this.$('#permission-template-name').val(),
+        description: this.$('#permission-template-description').val(),
+        projectKeyPattern: this.$('#permission-template-project-key-pattern').val()
+      },
+      statusCode: {
+        // do not show global error
+        400: null
+      }
+    }).done(function () {
+      that.options.refresh();
+      that.destroy();
+    }).fail(function (jqXHR) {
+      that.enableForm();
+      that.showErrors(jqXHR.responseJSON.errors, jqXHR.responseJSON.warnings);
     });
-    return (
-        <thead>
-        <tr>
-          <th style={{ width: '20%' }}>&nbsp;</th>
-          {cells}
-          <th className="thin">&nbsp;</th>
-        </tr>
-        </thead>
-    );
   }
 });

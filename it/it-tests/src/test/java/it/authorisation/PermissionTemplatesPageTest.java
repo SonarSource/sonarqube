@@ -17,32 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+package it.authorisation;
 
-export default React.createClass({
-  propTypes: {
-    permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
-  },
+import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.selenium.Selenese;
+import it.Category1Suite;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import util.QaOnly;
+import util.selenium.SeleneseTest;
 
-  render() {
-    const cells = this.props.permissions.map(p => (
-        <th key={p.key} className="permission-column">
-          {p.name}
-          <i
-              className="icon-help little-spacer-left"
-              title={p.description}
-              data-toggle="tooltip"/>
-        </th>
-    ));
+@Category(QaOnly.class)
+public class PermissionTemplatesPageTest {
 
-    return (
-        <thead>
-          <tr>
-            <th>&nbsp;</th>
-            {cells}
-            <th className="actions-column">&nbsp;</th>
-          </tr>
-        </thead>
-    );
+  @ClassRule
+  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  @Test
+  public void should_display_page() throws Exception {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_display_page",
+      "/authorisation/PermissionTemplatesPageTest/should_display_page.html",
+      "/authorisation/PermissionTemplatesPageTest/should_create.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
   }
-});
+}

@@ -17,32 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
 import React from 'react';
+import Defaults from '../Defaults';
 
-export default React.createClass({
-  propTypes: {
-    permissions: React.PropTypes.arrayOf(React.PropTypes.object).isRequired
-  },
+const SAMPLE = {
+  id: 'id',
+  name: 'name',
+  permissions: []
+};
 
-  render() {
-    const cells = this.props.permissions.map(p => (
-        <th key={p.key} className="permission-column">
-          {p.name}
-          <i
-              className="icon-help little-spacer-left"
-              title={p.description}
-              data-toggle="tooltip"/>
-        </th>
-    ));
+describe('Permission Templates :: Defaults', () => {
+  it('should render one qualifier', () => {
+    const sample = { ...SAMPLE, defaultFor: ['DEV'] };
+    const output = shallow(<Defaults permissionTemplate={sample}/>);
+    expect(output.text()).to.contain('DEV');
+  });
 
-    return (
-        <thead>
-          <tr>
-            <th>&nbsp;</th>
-            {cells}
-            <th className="actions-column">&nbsp;</th>
-          </tr>
-        </thead>
-    );
-  }
+  it('should render several qualifiers', () => {
+    const sample = { ...SAMPLE, defaultFor: ['TRK', 'VW'] };
+    const output = shallow(<Defaults permissionTemplate={sample}/>);
+    expect(output.text()).to.contain('TRK');
+  });
 });
