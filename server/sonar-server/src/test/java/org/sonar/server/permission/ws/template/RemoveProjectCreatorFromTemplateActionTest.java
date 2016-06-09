@@ -152,6 +152,12 @@ public class RemoveProjectCreatorFromTemplateActionTest {
       .setParam(PARAM_TEMPLATE_ID, template.getUuid()));
   }
 
+  @Test
+  public void ws_metadata() {
+    assertThat(ws.getDef().key()).isEqualTo("remove_project_creator_from_template");
+    assertThat(ws.getDef().isPost()).isTrue();
+  }
+
   private void assertWithoutProjectCreatorFor(String permission) {
     Optional<PermissionTemplateCharacteristicDto> templatePermission = dao.selectByPermissionAndTemplateId(dbSession, permission, template.getId());
     assertThat(templatePermission).isPresent();
