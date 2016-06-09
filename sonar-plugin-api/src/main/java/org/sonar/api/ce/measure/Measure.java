@@ -29,35 +29,40 @@ public interface Measure {
   /**
    * The value of this measure as a integer.
    *
-   * @throws IllegalStateException if the value type of the metric is not a integer. See {@link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not an Integer as defined by {@link org.sonar.api.measures.Metric.ValueType#valueClass}
+   *         To find out the value type of a metric, check it's definition (eg., core metrics are defined in {@link org.sonar.api.measures.CoreMetrics}).
    */
   int getIntValue();
 
   /**
    * The value of this measure as a long.
    *
-   * @throws IllegalStateException if the value type of the metric is not a long. See {@link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not a Long as defined by {@link org.sonar.api.measures.Metric.ValueType#valueClass}
+   *         To find out the value type of a metric, check it's definition (eg., core metrics are defined in {@link org.sonar.api.measures.CoreMetrics}).
    */
   long getLongValue();
 
   /**
    * The value of this measure as a double.
    *
-   * @throws IllegalStateException if the value type of the metric is not a double. See {@link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not a Double as defined by {@link org.sonar.api.measures.Metric.ValueType#valueClass}.
+   *         To find out the value type of a metric, check it's definition (eg., core metrics are defined in {@link org.sonar.api.measures.CoreMetrics}).
    */
   double getDoubleValue();
 
   /**
    * The value of this measure as a string.
    *
-   * @throws IllegalStateException if the value type of the metric is not a string. See {@link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not a String as defined by {@link org.sonar.api.measures.Metric.ValueType#valueClass}
+   *         To find out the value type of a metric, check it's definition (eg., core metrics are defined in {@link org.sonar.api.measures.CoreMetrics}).
    */
   String getStringValue();
 
   /**
    * The value of this measure as a boolean.
    *
-   * @throws IllegalStateException if the value type of the metric is not a boolean. See {@link org.sonar.api.measures.Metric.ValueType}
+   * @throws IllegalStateException if the value type of the metric is not a Boolean as defined by {@link org.sonar.api.measures.Metric.ValueType#valueClass}
+   *         To find out the value type of a metric, check it's definition (eg., core metrics are defined in {@link org.sonar.api.measures.CoreMetrics}).
    */
   boolean getBooleanValue();
 
