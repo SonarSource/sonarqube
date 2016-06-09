@@ -19,7 +19,7 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-class SonarAuthorizer
+class DefaultAuthorizer
 
   def has_role?(user, role)
     global_roles(user).include?(role)

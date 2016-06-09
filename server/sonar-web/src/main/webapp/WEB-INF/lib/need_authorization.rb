@@ -18,21 +18,13 @@
 # Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 #
 
-#
-# This class loads your own authorization service from the configuration
-# in the <code>sonar.properties</code> file.
-# The property is <code>sonar.authorizer=[Your service file name]</code>.
-# Before that you should put your service file into the lib/authorization directory.
-# The service class must be named SonarAuthorizer.
-#
 class AuthorizerFactory
   @@authorizer = nil
 
   def self.authorizer
     if (@@authorizer.nil?)
-      filename = Java::OrgSonarServerUi::JRubyFacade.new.getConfigurationValue('sonar.authorizer') || 'default_authorizer'
-      require File.dirname(__FILE__) + "/authorization/#{filename}"
-      @@authorizer ||= SonarAuthorizer.new
+      require File.dirname(__FILE__) + "/default_authorizer"
+      @@authorizer ||= DefaultAuthorizer.new
     end
     @@authorizer
   end
@@ -40,7 +32,7 @@ class AuthorizerFactory
 end
 
 # NeedAuthorization is a set of modules that enhance your models and controller classes in authorization function.
-# All the methods in this module will finally delegate to the loaded SonarAuthorizer.
+# All the methods in this module will finally delegate to the loaded DefaultAuthorizer.
 module NeedAuthorization
 
   # ForUser module is used for the User class, to decide if the user has certain "global" permissions.
