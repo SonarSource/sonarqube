@@ -8,10 +8,10 @@
     <version>5.6-SNAPSHOT</version>
     <relativePath>../</relativePath>
   </parent>
-  
+
   <artifactId>sonar-process</artifactId>
   <name>SonarQube :: Process</name>
-  
+
   <properties>
     <sonar.exclusions>target/generated-sources/**/*</sonar.exclusions>
   </properties>
@@ -115,18 +115,5 @@
         </configuration>
       </plugin>
     </plugins>
-    <pluginManagement>
-      <plugins>
-        <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>animal-sniffer-maven-plugin</artifactId>
-          <configuration>
-            <ignores>
-              <ignore>sun.misc.VMSupport</ignore>
-            </ignores>
-          </configuration>
-        </plugin>
-      </plugins>
-    </pluginManagement>
   </build>
 </project>
