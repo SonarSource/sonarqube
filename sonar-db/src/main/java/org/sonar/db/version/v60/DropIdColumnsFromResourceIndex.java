@@ -28,18 +28,15 @@ public class DropIdColumnsFromResourceIndex extends DdlChange {
 
   private static final String TABLE_RESOURCE_INDEX = "resource_index";
 
-  private final Database db;
-
   public DropIdColumnsFromResourceIndex(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(
       new DropColumnsBuilder(
-        db.getDialect(), TABLE_RESOURCE_INDEX,
+        getDialect(), TABLE_RESOURCE_INDEX,
         "resource_id", "root_project_id")
           .build());
   }

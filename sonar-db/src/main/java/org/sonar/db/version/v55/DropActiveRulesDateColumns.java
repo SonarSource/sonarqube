@@ -32,11 +32,8 @@ import org.sonar.db.version.DropColumnsBuilder;
  */
 public class DropActiveRulesDateColumns extends DdlChange {
 
-  private final Database db;
-
   public DropActiveRulesDateColumns(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -46,7 +43,7 @@ public class DropActiveRulesDateColumns extends DdlChange {
 
   @VisibleForTesting
   String generateSql() {
-    return new DropColumnsBuilder(db.getDialect(), "active_rules",
+    return new DropColumnsBuilder(getDialect(), "active_rules",
       "created_at", "updated_at")
       .build();
   }

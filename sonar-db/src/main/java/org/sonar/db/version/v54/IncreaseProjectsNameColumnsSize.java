@@ -34,11 +34,8 @@ import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
  */
 public class IncreaseProjectsNameColumnsSize extends DdlChange {
 
-  private final Database db;
-
   public IncreaseProjectsNameColumnsSize(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -47,7 +44,7 @@ public class IncreaseProjectsNameColumnsSize extends DdlChange {
   }
 
   private List<String> generateSql() {
-    return new AlterColumnsTypeBuilder(db.getDialect(), "projects")
+    return new AlterColumnsTypeBuilder(getDialect(), "projects")
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("name").setLimit(2000).setIsNullable(true).build())
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("long_name").setLimit(2000).setIsNullable(true).build())
       .build();

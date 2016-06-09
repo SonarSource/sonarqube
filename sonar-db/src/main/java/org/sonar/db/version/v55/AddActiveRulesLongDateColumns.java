@@ -33,11 +33,8 @@ import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBui
  */
 public class AddActiveRulesLongDateColumns extends DdlChange {
 
-  private final Database db;
-
   public AddActiveRulesLongDateColumns(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -46,7 +43,7 @@ public class AddActiveRulesLongDateColumns extends DdlChange {
   }
 
   private String generateSql() {
-    return new AddColumnsBuilder(db.getDialect(), "active_rules")
+    return new AddColumnsBuilder(getDialect(), "active_rules")
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("created_at_ms").setIsNullable(true).build())
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("updated_at_ms").setIsNullable(true).build())
       .build();

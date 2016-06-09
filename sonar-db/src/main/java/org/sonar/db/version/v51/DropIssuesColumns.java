@@ -35,11 +35,8 @@ import org.sonar.db.version.DropColumnsBuilder;
  */
 public class DropIssuesColumns extends DdlChange {
 
-  private final Database db;
-
   public DropIssuesColumns(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -49,7 +46,7 @@ public class DropIssuesColumns extends DdlChange {
 
   @VisibleForTesting
   String generateSql() {
-    return new DropColumnsBuilder(db.getDialect(), "issues",
+    return new DropColumnsBuilder(getDialect(), "issues",
       "issue_creation_date", "issue_update_date", "issue_close_date", "component_id", "root_component_id")
       .build();
   }

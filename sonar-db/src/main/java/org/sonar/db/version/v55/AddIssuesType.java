@@ -27,11 +27,8 @@ import org.sonar.db.version.TinyIntColumnDef;
 
 public class AddIssuesType extends DdlChange {
 
-  private final Database db;
-
   public AddIssuesType(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -40,7 +37,7 @@ public class AddIssuesType extends DdlChange {
   }
 
   private String generateSql() {
-    return new AddColumnsBuilder(db.getDialect(), "issues")
+    return new AddColumnsBuilder(getDialect(), "issues")
       .addColumn(new TinyIntColumnDef.Builder().setColumnName("issue_type").setIsNullable(true).build())
       .build();
   }

@@ -63,7 +63,7 @@ public class IncreasePrecisionOfNumerics extends DdlChange {
   }
 
   private List<String> generateSql(String table, String... columns) {
-    AlterColumnsTypeBuilder columnsBuilder = new AlterColumnsTypeBuilder(getDatabase().getDialect(), table);
+    AlterColumnsTypeBuilder columnsBuilder = new AlterColumnsTypeBuilder(getDialect(), table);
     for (String column : columns) {
       columnsBuilder.updateColumn(newDecimalColumnDefBuilder().setColumnName(column).build());
     }

@@ -44,7 +44,7 @@ public class FixTypeOfRuleTypeOnMysql extends DdlChange {
     // In SQ 5.5, migration 1100 create columns with type TINYINT(1) instead of TINYINT(2)
     // In SQ 5.4 and lower, the type TINYINT(1) was used only for boolean columns, so no problem
     // As an optimization fix must be applied only for instances upgrading from 5.5.x
-    if (getDatabase().getDialect().getId().equals(MySql.ID) &&
+    if (getDialect().getId().equals(MySql.ID) &&
       dbVersion.getInitialDbVersion() >= SQ_5_5 && dbVersion.getInitialDbVersion() < SQ_5_6) {
       Loggers.get(getClass()).info("Changing TINYINT(1) to TINYINT(2)");
       context.execute("ALTER TABLE rules MODIFY COLUMN rule_type TINYINT (2)");

@@ -32,11 +32,8 @@ import org.sonar.db.version.DropColumnsBuilder;
  */
 public class DropRulesDatesAndCharacteristics extends DdlChange {
 
-  private final Database db;
-
   public DropRulesDatesAndCharacteristics(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -46,7 +43,7 @@ public class DropRulesDatesAndCharacteristics extends DdlChange {
 
   @VisibleForTesting
   String generateSql() {
-    return new DropColumnsBuilder(db.getDialect(), "rules",
+    return new DropColumnsBuilder(getDialect(), "rules",
       "created_at", "updated_at", "characteristic_id", "default_characteristic_id")
       .build();
   }

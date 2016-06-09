@@ -31,16 +31,13 @@ public class MakeUuidColumnsNotNullOnResourceIndex extends DdlChange {
 
   private static final String TABLE_RESOURCE_INDEX = "resource_index";
 
-  private final Database db;
-
   public MakeUuidColumnsNotNullOnResourceIndex(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AlterColumnsTypeBuilder(db.getDialect(), TABLE_RESOURCE_INDEX)
+    context.execute(new AlterColumnsTypeBuilder(getDialect(), TABLE_RESOURCE_INDEX)
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
       .build());

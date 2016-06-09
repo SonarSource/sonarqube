@@ -35,11 +35,8 @@ import static org.sonar.db.version.BigDecimalColumnDef.newBigDecimalColumnDefBui
  */
 public class AddRulesColumns extends DdlChange {
 
-  private final Database db;
-
   public AddRulesColumns(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -48,7 +45,7 @@ public class AddRulesColumns extends DdlChange {
   }
 
   private String generateSql() {
-    return new AddColumnsBuilder(db.getDialect(), "rules")
+    return new AddColumnsBuilder(getDialect(), "rules")
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("created_at_ms").setIsNullable(true).build())
       .addColumn(newBigDecimalColumnDefBuilder().setColumnName("updated_at_ms").setIsNullable(true).build())
       .addColumn(new TinyIntColumnDef.Builder().setColumnName("rule_type").setIsNullable(true).build())

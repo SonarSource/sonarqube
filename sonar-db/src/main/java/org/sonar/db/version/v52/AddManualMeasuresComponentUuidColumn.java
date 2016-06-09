@@ -42,7 +42,7 @@ public class AddManualMeasuresComponentUuidColumn extends DdlChange {
   }
 
   private String generateSql() {
-    return new AddColumnsBuilder(getDatabase().getDialect(), "manual_measures")
+    return new AddColumnsBuilder(getDialect(), "manual_measures")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(50).setIsNullable(true).build())
       .build();
   }

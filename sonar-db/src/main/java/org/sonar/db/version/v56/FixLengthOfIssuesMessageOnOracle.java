@@ -32,7 +32,7 @@ public class FixLengthOfIssuesMessageOnOracle extends DdlChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    if (getDatabase().getDialect().getId().equals(Oracle.ID)) {
+    if (getDialect().getId().equals(Oracle.ID)) {
       // in order to not depend on value of variable NLS_LENGTH_SEMANTICS, unit of length
       // is enforced to CHAR so that we're sure that type can't be 4000 BYTE.
       context.execute("ALTER TABLE issues MODIFY (message VARCHAR (4000 CHAR))");

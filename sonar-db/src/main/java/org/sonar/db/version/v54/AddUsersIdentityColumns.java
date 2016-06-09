@@ -33,11 +33,8 @@ import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
  */
 public class AddUsersIdentityColumns extends DdlChange {
 
-  private final Database db;
-
   public AddUsersIdentityColumns(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
@@ -46,7 +43,7 @@ public class AddUsersIdentityColumns extends DdlChange {
   }
 
   private String generateSql() {
-    return new AddColumnsBuilder(db.getDialect(), "users")
+    return new AddColumnsBuilder(getDialect(), "users")
       .addColumn(newVarcharColumnDefBuilder().setColumnName("external_identity").setLimit(255).setIsNullable(true).build())
       .addColumn(newVarcharColumnDefBuilder().setColumnName("external_identity_provider").setLimit(100).setIsNullable(true).build())
       .build();
