@@ -19,44 +19,55 @@
  */
 import React from 'react';
 
-export default React.createClass({
-  propTypes: {
+export default class RadioToggle extends React.Component {
+  static propTypes = {
     value: React.PropTypes.string,
-    options: React.PropTypes.array.isRequired,
+    options: React.PropTypes.arrayOf(React.PropTypes.shape({
+      value: React.PropTypes.string.isRequired,
+      label: React.PropTypes.string.isRequired
+    })).isRequired,
     name: React.PropTypes.string.isRequired,
     onCheck: React.PropTypes.func.isRequired
-  },
+  };
 
-  getDefaultProps () {
-    return { disabled: false, value: null };
-  },
+  static defaultProps = {
+    disabled: false,
+    value: null
+  };
 
-  onChange(e) {
+  componentWillMount () {
+    this.renderOption = this.renderOption.bind(this);
+    this.handleChange = this.handleChange.bind(this);
+  }
+
+  handleChange (e) {
     const newValue = e.currentTarget.value;
     this.props.onCheck(newValue);
-  },
+  }
 
-  renderOption(option) {
+  renderOption (option) {
     const checked = option.value === this.props.value;
     const htmlId = this.props.name + '__' + option.value;
     return (
         <li key={option.value}>
-          <input onChange={this.onChange}
-                 type="radio"
-                 name={this.props.name}
-                 value={option.value}
-                 id={htmlId}
-                 checked={checked}
-                 disabled={this.props.disabled}/>
+          <input
+              type="radio"
+              name={this.props.name}
+              value={option.value}
+              id={htmlId}
+              checked={checked}
+              onChange={this.handleChange}/>
+
           <label htmlFor={htmlId}>{option.label}</label>
         </li>
     );
-  },
+  }
 
-  render() {
-    const options = this.props.options.map(this.renderOption);
+  render () {
     return (
-        <ul className="radio-toggle">{options}</ul>
+        <ul className="radio-toggle">
+          {this.props.options.map(this.renderOption)}
+        </ul>
     );
   }
-});
+}
