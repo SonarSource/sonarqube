@@ -147,7 +147,7 @@ public class ValidateProjectStep implements ComputationStep {
 
     private void validateAnalysisDate(Optional<ComponentDto> baseProject) {
       if (baseProject.isPresent()) {
-        SnapshotDto snapshotDto = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, baseProject.get().getId());
+        SnapshotDto snapshotDto = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(session, baseProject.get().uuid());
         long currentAnalysisDate = analysisMetadataHolder.getAnalysisDate();
         Long lastAnalysisDate = snapshotDto != null ? snapshotDto.getCreatedAt() : null;
         if (lastAnalysisDate != null && currentAnalysisDate <= snapshotDto.getCreatedAt()) {

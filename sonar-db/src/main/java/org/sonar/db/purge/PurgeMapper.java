@@ -27,7 +27,7 @@ public interface PurgeMapper {
 
   List<Long> selectSnapshotIds(PurgeSnapshotQuery query);
 
-  List<Long> selectSnapshotIdsByResource(@Param("resourceIds") List<Long> resourceIds);
+  List<Long> selectSnapshotIdsByResource(@Param("componentUuids") List<String> componentUuids);
 
   /**
    * Returns the list of components of a project from a project_uuid. The project itself is also returned.
@@ -56,7 +56,7 @@ public interface PurgeMapper {
 
   void deleteEvent(long eventId);
 
-  void setSnapshotIsLastToFalse(long resourceId);
+  void setSnapshotIsLastToFalse(@Param("componentUuid") String componentUuid);
 
   void deleteResourceLinks(@Param("componentUuids") List<String> componentUuids);
 
@@ -74,9 +74,9 @@ public interface PurgeMapper {
 
   void deleteAuthors(@Param("resourceIds") List<Long> resourceIds);
 
-  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithEvents(long resourceId);
+  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithEvents(@Param("componentUuid") String componentUuid);
 
-  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutEvents(long resourceId);
+  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutEvents(@Param("componentUuid") String componentUuid);
 
   void deleteComponentIssueChanges(@Param("componentUuids") List<String> componentUuids);
 

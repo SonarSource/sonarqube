@@ -250,7 +250,7 @@ public class IssueQueryService {
   @CheckForNull
   private Date findCreatedAfterFromComponentUuid(DbSession dbSession, String uuid) {
     ComponentDto component = checkFoundWithOptional(componentService.getByUuid(uuid), "Component with id '%s' not found", uuid);
-    SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, component.getId());
+    SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, component.uuid());
     Long projectSnapshotId = snapshot == null ? null : snapshot.getRootId();
     SnapshotDto projectSnapshot = projectSnapshotId == null ? snapshot : dbClient.snapshotDao().selectById(dbSession, projectSnapshotId);
     return projectSnapshot == null ? null : longToDate(projectSnapshot.getPeriodDate(1));

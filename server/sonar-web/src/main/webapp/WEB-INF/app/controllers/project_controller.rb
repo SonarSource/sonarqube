@@ -221,7 +221,7 @@ class ProjectController < ApplicationController
     end
 
     @snapshot=@project.last_snapshot
-    @snapshots = Snapshot.all(:conditions => ["status='P' AND project_id=?", @project.id],
+    @snapshots = Snapshot.all(:conditions => ["status='P' AND component_uuid=?", @project.uuid],
                               :include => 'events', :order => 'snapshots.created_at DESC')
   end
 
@@ -320,7 +320,7 @@ class ProjectController < ApplicationController
       end
     end
 
-    redirect_to :action => 'history', :id => snapshot.root_project_id
+    redirect_to :action => 'history', :id => snapshot.root_project.id
   end
 
   def delete_version
@@ -329,7 +329,7 @@ class ProjectController < ApplicationController
     access_denied unless is_admin?(parent_snapshot)
 
     # We update all the related snapshots to have the same version as the next snapshot
-    next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and project_id=?', parent_snapshot.created_at.to_i*1000, parent_snapshot.project_id], :order => 'created_at asc')
+    next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and component_uuid=?', parent_snapshot.created_at.to_i*1000, parent_snapshot.component_uuid], :order => 'created_at asc')
     snapshots = find_project_snapshots(parent_snapshot.id)
     snapshots.each do |snapshot|
       snapshot.version = next_snapshot.version
@@ -348,7 +348,7 @@ class ProjectController < ApplicationController
     end
 
     flash[:notice] = message('project_history.version_removed', :params => h(old_version_name))
-    redirect_to :action => 'history', :id => parent_snapshot.root_project_id
+    redirect_to :action => 'history', :id => parent_snapshot.root_project.id
   end
 
   def create_event
@@ -371,7 +371,7 @@ class ProjectController < ApplicationController
       flash[:notice] = message('project_history.event_created', :params => h(params[:event_name]))
     end
 
-    redirect_to :action => 'history', :id => snapshot.project_id
+    redirect_to :action => 'history', :id => snapshot.project.id
   end
 
   def update_event

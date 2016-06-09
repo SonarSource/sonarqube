@@ -60,10 +60,10 @@ public class ResourceIndexDao extends AbstractDao {
   /**
    * This method is reentrant. It can be executed even if the project is already indexed.
    */
-  public ResourceIndexDao indexProject(final long rootProjectId) {
+  public ResourceIndexDao indexProject(String rootComponentUuid) {
     DbSession session = myBatis().openSession(true);
     try {
-      indexProject(session, rootProjectId);
+      indexProject(session, rootComponentUuid);
       session.commit();
       return this;
 
@@ -72,18 +72,18 @@ public class ResourceIndexDao extends AbstractDao {
     }
   }
 
-  public void indexProject(DbSession session, final long rootProjectId) {
+  public void indexProject(DbSession session, String rootComponentUuid) {
     ResourceIndexMapper mapper = session.getMapper(ResourceIndexMapper.class);
-    doIndexProject(session, rootProjectId, mapper);
+    doIndexProject(session, rootComponentUuid, mapper);
   }
 
-  private void doIndexProject(DbSession session, long rootProjectId, final ResourceIndexMapper mapper) {
+  private void doIndexProject(DbSession session, String rootProjectUuid, final ResourceIndexMapper mapper) {
     // non indexed resources
     ResourceIndexQuery query = ResourceIndexQuery.create()
       .setNonIndexedOnly(true)
       .setQualifiers(NOT_RENAMABLE_QUALIFIERS)
       .setScopes(NOT_RENAMABLE_SCOPES)
-      .setRootProjectId(rootProjectId);
+      .setRootComponentUuid(rootProjectUuid);
 
     session.select(SELECT_RESOURCES, query, context -> {
       ResourceDto resource = (ResourceDto) context.getResultObject();
@@ -96,7 +96,7 @@ public class ResourceIndexDao extends AbstractDao {
       .setNonIndexedOnly(false)
       .setQualifiers(RENAMABLE_QUALIFIERS)
       .setScopes(RENAMABLE_SCOPES)
-      .setRootProjectId(rootProjectId);
+      .setRootComponentUuid(rootProjectUuid);
 
     session.select(SELECT_RESOURCES, query, context -> {
       ResourceDto resource = (ResourceDto) context.getResultObject();

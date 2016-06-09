@@ -287,15 +287,11 @@ class MeasureFilter < ActiveRecord::Base
       end
 
       if require_links?
-        project_ids = []
         project_uuids = []
-        project_id_by_uuid = {}
-        rows_by_project_id = {}
+        rows_by_project_uuid = {}
         snapshots.each do |snapshot|
-          project_ids << snapshot.project_id
-          project_uuids << snapshot.project.uuid
-          project_id_by_uuid[snapshot.project.uuid] = snapshot.project_id
-          rows_by_project_id[snapshot.project_id] = rows_by_snapshot_id[snapshot.id]
+          project_uuids << snapshot.component_uuid
+          rows_by_project_uuid[snapshot.component_uuid] = rows_by_snapshot_id[snapshot.id]
         end
 
         links = []
@@ -303,7 +299,7 @@ class MeasureFilter < ActiveRecord::Base
           links.concat(ProjectLink.all(:conditions => {:component_uuid => safe_for_oracle_uuids}, :order => 'link_type'))
         end
         links.each do |link|
-          rows_by_project_id[project_id_by_uuid[link.component_uuid]].add_link(link)
+          rows_by_project_uuid[link.component_uuid].add_link(link)
         end
       end
     end

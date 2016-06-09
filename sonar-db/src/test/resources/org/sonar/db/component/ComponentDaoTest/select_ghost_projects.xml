@@ -14,7 +14,7 @@
             uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
             description="the description" long_name="Apache Struts"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="123456789"/>
-  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+  <snapshots id="1" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -23,7 +23,7 @@
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
-  <snapshots id="10" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+  <snapshots id="10" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -32,7 +32,7 @@
              period5_mode="[null]" period5_param="[null]" period5_date="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228136280000" build_date="1228136280000"
              version="[null]" path=""/>
-  <snapshots id="11" project_id="42" parent_snapshot_id="[null]" root_project_id="42" root_snapshot_id="[null]"
+  <snapshots id="11" component_uuid="PPAA" parent_snapshot_id="[null]" root_component_uuid="PPAA" root_snapshot_id="[null]"
              status="U" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -47,7 +47,7 @@
             uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD.EFGH."
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
             description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
-  <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
+  <snapshots id="2" component_uuid="EFGH" parent_snapshot_id="1" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -63,7 +63,7 @@
             name="src/org/struts" root_id="2"
             description="[null]"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/org/struts" authorization_updated_at="[null]"/>
-  <snapshots id="3" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+  <snapshots id="3" component_uuid="GHIJ" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -80,7 +80,7 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" authorization_updated_at="[null]"/>
 
-  <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
+  <snapshots id="4" component_uuid="KLMN" parent_snapshot_id="3" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"

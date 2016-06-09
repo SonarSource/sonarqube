@@ -25,7 +25,6 @@ import org.sonar.db.component.ResourceIndexDao;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.MutableDbIdsRepositoryRule;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.component.ViewsComponent;
 
@@ -37,37 +36,34 @@ import static org.sonar.server.computation.component.Component.Type.VIEW;
 public class IndexComponentsStepTest extends BaseStepTest {
 
   private static final String PROJECT_KEY = "PROJECT_KEY";
+  private static final String PROJECT_UUID = "PROJECT_UUID";
 
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-  @Rule
-  public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(treeRootHolder);
 
   ResourceIndexDao resourceIndexDao = mock(ResourceIndexDao.class);
-  IndexComponentsStep underTest = new IndexComponentsStep(resourceIndexDao, dbIdsRepository, treeRootHolder);
+  IndexComponentsStep underTest = new IndexComponentsStep(resourceIndexDao, treeRootHolder);
 
   @Test
   public void call_indexProject_of_dao_for_project() {
-    Component project = ReportComponent.builder(PROJECT, 1).setUuid("PROJECT_UUID").setKey(PROJECT_KEY).build();
-    dbIdsRepository.setComponentId(project, 123L);
+    Component project = ReportComponent.builder(PROJECT, 1).setUuid(PROJECT_UUID).setKey(PROJECT_KEY).build();
     treeRootHolder.setRoot(project);
 
     underTest.execute();
 
-    verify(resourceIndexDao).indexProject(123L);
+    verify(resourceIndexDao).indexProject(PROJECT_UUID);
   }
 
   @Test
   public void call_indexProject_of_dao_for_view() {
-    Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid("PROJECT_UUID").build();
-    dbIdsRepository.setComponentId(view, 123L);
+    Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid(PROJECT_UUID).build();
     treeRootHolder.setRoot(view);
 
     underTest.execute();
 
-    verify(resourceIndexDao).indexProject(123L);
+    verify(resourceIndexDao).indexProject(PROJECT_UUID);
   }
 
   @Override

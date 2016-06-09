@@ -96,13 +96,13 @@ public class ShowAction implements ComponentsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto component = getComponentByUuidOrKey(dbSession, request);
-      SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, component.getId());
+      SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, component.uuid());
       List<ComponentDto> orderedAncestors = emptyList();
       if (lastSnapshot != null) {
         ShowData.Builder showDataBuilder = ShowData.builder(lastSnapshot);
         List<SnapshotDto> ancestorsSnapshots = dbClient.snapshotDao().selectByIds(dbSession, showDataBuilder.getOrderedSnapshotIds());
         showDataBuilder.withAncestorsSnapshots(ancestorsSnapshots);
-        List<ComponentDto> ancestorComponents = dbClient.componentDao().selectByIds(dbSession, showDataBuilder.getOrderedComponentIds());
+        List<ComponentDto> ancestorComponents = dbClient.componentDao().selectByUuids(dbSession, showDataBuilder.getOrderedComponentUuids());
         ShowData showData = showDataBuilder.andAncestorComponents(ancestorComponents);
         orderedAncestors = showData.getComponents();
       }

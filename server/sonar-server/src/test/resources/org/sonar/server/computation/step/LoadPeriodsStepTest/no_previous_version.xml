@@ -7,7 +7,7 @@
   <snapshots id="1000" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
              period5_param="[null]" period5_date="[null]"
-             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1226379600000" build_date="1226379600000" version="0.9" path=""
              status="P" islast="[false]" depth="0"/>
 
@@ -15,7 +15,7 @@
   <!-- Version 1.0 -->
   <snapshots id="1001" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
-             period5_param="[null]" period5_date="[null]" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             period5_param="[null]" period5_date="[null]" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1226494680000" build_date="1226494680000" version="1.0" path=""
              status="P" islast="[false]" depth="0"/>
 
@@ -24,7 +24,7 @@
   <snapshots id="1002" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
              period5_param="[null]" period5_date="[null]"
-             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1227157200000" build_date="1227157200000" version="1.1" path=""
              status="P" islast="[false]" depth="0"/>
 
@@ -32,7 +32,7 @@
   <snapshots id="1003" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
              period5_param="[null]" period5_date="[null]"
-             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1227358680000" build_date="1227358680000" version="1.1" path=""
              status="P" islast="[false]" depth="0"/>
 
@@ -40,7 +40,7 @@
   <!-- Last version 1.1 -->
   <snapshots id="1004" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
-             period5_param="[null]" period5_date="[null]" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             period5_param="[null]" period5_date="[null]" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1227934800000" build_date="1227934800000" version="1.1" path=""
              status="P" islast="[true]" depth="0"/>
 

@@ -1,27 +1,27 @@
 <dataset>
 
-  <snapshots id="1" project_id="1" status="P" islast="[false]" purge_status="[null]"/>
-  <snapshots id="2" project_id="1" status="P" islast="[false]" purge_status="[null]"/>
-  <projects id="1" uuid="1" kee="bar-old" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+  <snapshots id="1" component_uuid="uuid_1" status="P" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <snapshots id="2" component_uuid="uuid_1" status="P" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <projects id="1" uuid="uuid_1" kee="bar-old" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
 
-  <snapshots id="3" project_id="2" status="P" islast="[true]" purge_status="[null]"/>
-  <snapshots id="4" project_id="2" status="P" islast="[true]" purge_status="[null]"/>
-  <projects id="2" uuid="2" kee="bar-last" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+  <snapshots id="3" component_uuid="uuid_2" status="P" islast="[true]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <snapshots id="4" component_uuid="uuid_2" status="P" islast="[true]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <projects id="2" uuid="uuid_2" kee="bar-last" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
 
-  <snapshots id="5" project_id="3" status="P" islast="[false]" purge_status="[null]"/>
-  <snapshots id="6" project_id="3" status="P" islast="[false]" purge_status="[null]"/>
-  <projects id="3" uuid="3" kee="foo-old" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+  <snapshots id="5" component_uuid="uuid_3" status="P" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <snapshots id="6" component_uuid="uuid_3" status="P" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <projects id="3" uuid="uuid_3" kee="foo-old" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
 
-  <snapshots id="7" project_id="4" status="P" islast="[true]" purge_status="[null]"/>
-  <snapshots id="8" project_id="4" status="P" islast="[true]" purge_status="[null]"/>
-  <projects id="4" uuid="4" kee="foo-last" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+  <snapshots id="7" component_uuid="uuid_4" status="P" islast="[true]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <snapshots id="8" component_uuid="uuid_4" status="P" islast="[true]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <projects id="4" uuid="uuid_4" kee="foo-last" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
 
-  <snapshots id="9" project_id="5" status="U" islast="[false]" purge_status="[null]"/>
-  <snapshots id="10" project_id="5" status="U" islast="[false]" purge_status="[null]"/>
-  <projects id="5" uuid="5" kee="foo" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+  <snapshots id="9" component_uuid="uuid_5" status="U" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <snapshots id="10" component_uuid="uuid_5" status="U" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+  <projects id="5" uuid="uuid_5" kee="foo" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
 
-  <snapshots id="11" project_id="6" purge_status="[null]" status="P" islast="1"/>
-  <projects id="6" uuid="6" kee="baz" enabled="[true]" scope="FIL" qualifier="CLA" language="grvy"/>
+  <snapshots id="11" component_uuid="uuid_6" purge_status="[null]" status="P" islast="1" root_component_uuid="uuid_1"/>
+  <projects id="6" uuid="uuid_6" kee="baz" enabled="[true]" scope="FIL" qualifier="CLA" language="grvy"/>
 
   <!-- Old snapshot of another project -->
   <!-- bar-old -->

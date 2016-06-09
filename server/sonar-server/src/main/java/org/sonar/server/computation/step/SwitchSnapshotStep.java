@@ -64,7 +64,7 @@ public class SwitchSnapshotStep implements ComputationStep {
   private void disablePreviousSnapshot(DbSession session, long reportSnapshotId) {
     List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotAndChildrenOfProjectScope(session, reportSnapshotId);
     for (SnapshotDto snapshot : snapshots) {
-      SnapshotDto previousLastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, snapshot.getComponentId());
+      SnapshotDto previousLastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(session, snapshot.getComponentUuid());
       if (previousLastSnapshot != null) {
         dbClient.snapshotDao().updateSnapshotAndChildrenLastFlag(session, previousLastSnapshot, false);
         session.commit();
@@ -75,7 +75,7 @@ public class SwitchSnapshotStep implements ComputationStep {
   private void enableCurrentSnapshot(DbSession session, long reportSnapshotId) {
     SnapshotDao dao = dbClient.snapshotDao();
     SnapshotDto snapshot = dao.selectOrFailById(session, reportSnapshotId);
-    SnapshotDto previousLastSnapshot = dao.selectLastSnapshotByComponentId(session, snapshot.getComponentId());
+    SnapshotDto previousLastSnapshot = dao.selectLastSnapshotByComponentUuid(session, snapshot.getComponentUuid());
 
     boolean isLast = isLast(snapshot, previousLastSnapshot);
     dao.updateSnapshotAndChildrenLastFlagAndStatus(session, snapshot, isLast, SnapshotDto.STATUS_PROCESSED);

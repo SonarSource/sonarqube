@@ -59,7 +59,7 @@ public class ProjectCleaner {
 
     PurgeConfiguration configuration = newDefaultPurgeConfiguration(projectSettings, idUuidPair);
 
-    cleanHistoricalData(session, configuration.rootProjectIdUuid().getId(), projectSettings);
+    cleanHistoricalData(session, configuration.rootProjectIdUuid().getUuid(), projectSettings);
     doPurge(session, configuration);
 
     session.commit();
@@ -76,12 +76,12 @@ public class ProjectCleaner {
     }
   }
 
-  private void cleanHistoricalData(DbSession session, long resourceId, Settings settings) {
+  private void cleanHistoricalData(DbSession session, String componentUuid, Settings settings) {
     try {
-      periodCleaner.clean(session, resourceId, settings);
+      periodCleaner.clean(session, componentUuid, settings);
     } catch (Exception e) {
       // purge errors must no fail the batch
-      LOG.error("Fail to clean historical data [id=" + resourceId + "]", e);
+      LOG.error("Fail to clean historical data [uuid=" + componentUuid + "]", e);
     }
   }
 

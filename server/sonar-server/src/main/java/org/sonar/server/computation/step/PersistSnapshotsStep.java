@@ -67,7 +67,7 @@ public class PersistSnapshotsStep implements ComputationStep {
     try {
       new PathAwareCrawler<>(
         new PersistSnapshotsPathAwareVisitor(session, analysisMetadataHolder.getAnalysisDate(), dbIdsRepository))
-        .visit(treeRootHolder.getRoot());
+          .visit(treeRootHolder.getRoot());
       session.commit();
     } finally {
       dbClient.closeSession(session);
@@ -80,7 +80,7 @@ public class PersistSnapshotsStep implements ComputationStep {
     private final long analysisDate;
     private final MutableDbIdsRepository dbIdsRepository;
 
-    private long rootId;
+    private String rootUuid;
 
     public PersistSnapshotsPathAwareVisitor(DbSession dbSession, long analysisDate, MutableDbIdsRepository dbIdsRepository) {
       super(CrawlerDepthLimit.LEAVES, Order.PRE_ORDER, SnapshotDtoHolderFactory.INSTANCE);
@@ -91,7 +91,7 @@ public class PersistSnapshotsStep implements ComputationStep {
 
     @Override
     public void visitProject(Component project, Path<SnapshotDtoHolder> path) {
-      this.rootId = dbIdsRepository.getComponentId(project);
+      this.rootUuid = project.getUuid();
       SnapshotDto snapshot = createSnapshot(project, path, Qualifiers.PROJECT, Scopes.PROJECT, true);
       updateSnapshotPeriods(snapshot);
       commonForAnyVisit(project, path, snapshot);
@@ -118,7 +118,7 @@ public class PersistSnapshotsStep implements ComputationStep {
 
     @Override
     public void visitView(Component view, Path<SnapshotDtoHolder> path) {
-      this.rootId = dbIdsRepository.getComponentId(view);
+      this.rootUuid = view.getUuid();
       SnapshotDto snapshot = createSnapshot(view, path, Qualifiers.VIEW, Scopes.PROJECT, false);
       updateSnapshotPeriods(snapshot);
       commonForAnyVisit(view, path, snapshot);
@@ -157,11 +157,11 @@ public class PersistSnapshotsStep implements ComputationStep {
 
     private SnapshotDto createSnapshot(Component component, Path<SnapshotDtoHolder> path,
       String qualifier, String scope, boolean setVersion) {
-      long componentId = dbIdsRepository.getComponentId(component);
+      String componentUuid = component.getUuid();
       SnapshotDto snapshotDto = new SnapshotDto()
-        .setRootProjectId(rootId)
+        .setRootComponentUuid(rootUuid)
         .setVersion(setVersion ? component.getReportAttributes().getVersion() : null)
-        .setComponentId(componentId)
+        .setComponentUuid(componentUuid)
         .setQualifier(qualifier)
         .setScope(scope)
         .setLast(false)

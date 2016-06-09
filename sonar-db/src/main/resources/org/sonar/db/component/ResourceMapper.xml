@@ -9,7 +9,7 @@
     <result property="rootId" column="root_snapshot_id"/>
     <result property="createdAt" column="created_at"/>
     <result property="buildDate" column="build_date"/>
-    <result property="componentId" column="project_id"/>
+    <result property="componentUuid" column="component_uuid"/>
     <result property="status" column="status"/>
     <result property="purgeStatus" column="purge_status"/>
     <result property="last" column="islast"/>
@@ -18,7 +18,7 @@
     <result property="version" column="version"/>
     <result property="path" column="path"/>
     <result property="depth" column="depth"/>
-    <result property="rootProjectId" column="root_project_id"/>
+    <result property="rootComponentUuid" column="root_component_uuid"/>
     <result property="period1Mode" column="period1_mode"/>
     <result property="period2Mode" column="period2_mode"/>
     <result property="period3Mode" column="period3_mode"/>
@@ -111,7 +111,7 @@
 
   <select id="selectLastSnapshotByResourceKey" parameterType="string" resultMap="snapshotResultMap">
     SELECT s.* FROM snapshots s
-    INNER JOIN projects p on p.id=s.project_id AND p.enabled=${_true} AND p.copy_resource_id IS NULL
+    INNER JOIN projects p on p.uuid=s.component_uuid AND p.enabled=${_true} AND p.copy_resource_id IS NULL
     <where>
       AND p.kee=#{id}
       AND s.islast=${_true}
@@ -120,7 +120,7 @@
 
   <select id="selectLastSnapshotByResourceUuid" parameterType="string" resultMap="snapshotResultMap">
     SELECT s.* from snapshots s
-    INNER JOIN projects p on p.id=s.project_id AND p.enabled=${_true} AND p.copy_resource_id IS NULL
+    INNER JOIN projects p on p.uuid=s.component_uuid AND p.enabled=${_true} AND p.copy_resource_id IS NULL
     <where>
       AND p.uuid=#{uuid}
       AND s.islast=${_true}
@@ -135,25 +135,6 @@
     <where>
       pAll.scope = #{scope}
     </where>
-  </select>
-
-  <select id="selectRootProjectByComponentKey" parameterType="string" resultMap="resourceResultMap">
-    select rootProject.*
-    from projects p
-    inner join snapshots s on s.project_id=p.id and s.islast=${_true}
-    inner join projects rootProject on rootProject.id=s.root_project_id
-    <where>
-      and p.kee=#{componentKey}
-    </where>
-  </select>
-
-  <select id="selectRootProjectByComponentId" parameterType="long" resultMap="resourceResultMap">
-    select rootProject.*
-    from snapshots s
-    inner join projects rootProject on rootProject.id=s.root_project_id
-    where
-    s.project_id=#{componentId}
-    and s.islast=${_true}
   </select>
 
   <select id="selectProjectsIncludingNotCompletedOnesByQualifiers" parameterType="map" resultMap="resourceResultMap">
@@ -176,7 +157,7 @@
 
   <sql id="selectProjectsByQualifiersQuery">
     select p.* from projects p
-    inner join snapshots s on s.project_id=p.id
+    inner join snapshots s on s.component_uuid=p.uuid
     <where>
       <if test="qualifiers != null and qualifiers.size() > 0">
         and
@@ -192,8 +173,8 @@
 
   <select id="selectGhostsProjects" parameterType="map" resultMap="resourceResultMap">
     select distinct p.* from projects p
-    inner join snapshots s1 on s1.project_id = p.id and s1.status='U'
-    left join snapshots s2 on s2.project_id = p.id and s2.status='P'
+    inner join snapshots s1 on s1.component_uuid = p.uuid and s1.status='U'
+    left join snapshots s2 on s2.component_uuid = p.uuid and s2.status='P'
     <where>
       and s2.id is null
       <if test="qualifiers != null and qualifiers.size() > 0">
@@ -208,7 +189,7 @@
 
   <select id="selectProvisionedProjects" parameterType="map" resultMap="resourceResultMap">
     select p.* from projects p
-    left join snapshots s on s.project_id=p.id
+    left join snapshots s on s.component_uuid=p.uuid
     <where>
       and s.id is null
       <if test="qualifiers != null and qualifiers.size() > 0">
@@ -223,7 +204,7 @@
 
   <select id="selectProvisionedProject" parameterType="string" resultMap="resourceResultMap">
     select p.* from projects p
-    left join snapshots s on s.project_id=p.id
+    left join snapshots s on s.component_uuid=p.uuid
     where s.id is null
     and p.kee = #{key}
     and p.copy_resource_id is null

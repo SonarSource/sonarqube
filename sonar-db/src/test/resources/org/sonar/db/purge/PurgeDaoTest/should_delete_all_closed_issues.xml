@@ -6,7 +6,7 @@
             authorization_updated_at="[null]"/>
 
   <snapshots id="1"
-             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             component_uuid="1" parent_snapshot_id="[null]" root_component_uuid="1" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"

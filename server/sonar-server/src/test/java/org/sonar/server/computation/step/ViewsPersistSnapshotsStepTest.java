@@ -47,7 +47,6 @@ import static org.sonar.db.component.ComponentTesting.newProjectCopy;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.ComponentTesting.newSubView;
 import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 import static org.sonar.server.computation.component.Component.Type.PROJECT_VIEW;
 import static org.sonar.server.computation.component.Component.Type.SUBVIEW;
 import static org.sonar.server.computation.component.Component.Type.VIEW;
@@ -114,17 +113,13 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     Component view = ViewsComponent.builder(VIEW, 1).setUuid("ABCD").addChildren(subView).build();
     treeRootHolder.setRoot(view);
 
-    dbIdsRepository.setComponentId(view, viewDto.getId());
-    dbIdsRepository.setComponentId(subView, subViewDto.getId());
-    dbIdsRepository.setComponentId(projectView, projectViewDto.getId());
-
     underTest.execute();
 
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(3);
 
-    SnapshotDto projectSnapshot = getUnprocessedSnapshot(viewDto.getId());
-    assertThat(projectSnapshot.getComponentId()).isEqualTo(viewDto.getId());
-    assertThat(projectSnapshot.getRootProjectId()).isEqualTo(viewDto.getId());
+    SnapshotDto projectSnapshot = getUnprocessedSnapshot(viewDto.uuid());
+    assertThat(projectSnapshot.getComponentUuid()).isEqualTo(view.getUuid());
+    assertThat(projectSnapshot.getRootComponentUuid()).isEqualTo(view.getUuid());
     assertThat(projectSnapshot.getRootId()).isNull();
     assertThat(projectSnapshot.getParentId()).isNull();
     assertThat(projectSnapshot.getDepth()).isEqualTo(0);
@@ -137,9 +132,9 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(projectSnapshot.getBuildDate()).isEqualTo(now);
 
-    SnapshotDto subViewSnapshot = getUnprocessedSnapshot(subViewDto.getId());
-    assertThat(subViewSnapshot.getComponentId()).isEqualTo(subViewDto.getId());
-    assertThat(subViewSnapshot.getRootProjectId()).isEqualTo(viewDto.getId());
+    SnapshotDto subViewSnapshot = getUnprocessedSnapshot(subViewDto.uuid());
+    assertThat(subViewSnapshot.getComponentUuid()).isEqualTo(subView.getUuid());
+    assertThat(subViewSnapshot.getRootComponentUuid()).isEqualTo(view.getUuid());
     assertThat(subViewSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(subViewSnapshot.getParentId()).isEqualTo(projectSnapshot.getId());
     assertThat(subViewSnapshot.getDepth()).isEqualTo(1);
@@ -152,9 +147,9 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     assertThat(subViewSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(subViewSnapshot.getBuildDate()).isEqualTo(now);
 
-    SnapshotDto projectViewSnapshot = getUnprocessedSnapshot(projectViewDto.getId());
-    assertThat(projectViewSnapshot.getComponentId()).isEqualTo(projectViewDto.getId());
-    assertThat(projectViewSnapshot.getRootProjectId()).isEqualTo(viewDto.getId());
+    SnapshotDto projectViewSnapshot = getUnprocessedSnapshot(projectViewDto.uuid());
+    assertThat(projectViewSnapshot.getComponentUuid()).isEqualTo(projectView.getUuid());
+    assertThat(projectViewSnapshot.getRootComponentUuid()).isEqualTo(view.getUuid());
     assertThat(projectViewSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(projectViewSnapshot.getParentId()).isEqualTo(subViewSnapshot.getId());
     assertThat(projectViewSnapshot.getDepth()).isEqualTo(2);
@@ -168,20 +163,16 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     assertThat(projectViewSnapshot.getBuildDate()).isEqualTo(now);
 
     assertThat(dbIdsRepository.getSnapshotId(view)).isEqualTo(projectSnapshot.getId());
-    assertThat(dbIdsRepository.getComponentId(subView)).isEqualTo(subViewDto.getId());
-    assertThat(dbIdsRepository.getComponentId(projectView)).isEqualTo(projectViewDto.getId());
   }
 
   @Test
   public void persist_snapshots_with_periods() {
     ComponentDto viewDto = save(newView("ABCD").setKey(valueOf(PROJECT_KEY)).setName("Project"));
     ComponentDto subViewDto = save(newSubView(viewDto, "CDEF", "key").setKey("2"));
-    SnapshotDto viewSnapshotDto = save(newSnapshotForProject(viewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
-    SnapshotDto subViewSnapshotDto = save(newSnapshotForProject(subViewDto).setCreatedAt(DateUtils.parseDateQuietly("2015-01-01").getTime()));
     dbTester.getSession().commit();
 
     Component subView = ViewsComponent.builder(SUBVIEW, 2).setUuid("ABCD").build();
-    Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid("ABCD").addChildren(subView).build();
+    Component view = ViewsComponent.builder(VIEW, PROJECT_KEY).setUuid("CDEF").addChildren(subView).build();
     treeRootHolder.setRoot(view);
     dbIdsRepository.setComponentId(view, viewDto.getId());
     dbIdsRepository.setComponentId(subView, subViewDto.getId());
@@ -190,12 +181,12 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.getId());
+    SnapshotDto viewSnapshot = getUnprocessedSnapshot(viewDto.uuid());
     assertThat(viewSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(viewSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
     assertThat(viewSnapshot.getPeriodModeParameter(1)).isNotNull();
 
-    SnapshotDto subViewSnapshot = getUnprocessedSnapshot(subViewDto.getId());
+    SnapshotDto subViewSnapshot = getUnprocessedSnapshot(subViewDto.uuid());
     assertThat(subViewSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(subViewSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
     assertThat(subViewSnapshot.getPeriodModeParameter(1)).isNotNull();
@@ -206,14 +197,9 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
     return componentDto;
   }
 
-  private SnapshotDto save(SnapshotDto snapshotDto) {
-    dbClient.snapshotDao().insert(dbTester.getSession(), snapshotDto);
-    return snapshotDto;
-  }
-
-  private SnapshotDto getUnprocessedSnapshot(long componentId) {
+  private SnapshotDto getUnprocessedSnapshot(String componentUuid) {
     List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectSnapshotsByQuery(dbTester.getSession(),
-      new SnapshotQuery().setComponentId(componentId).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
+      new SnapshotQuery().setComponentUuid(componentUuid).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
     assertThat(projectSnapshots).hasSize(1);
     return projectSnapshots.get(0);
   }

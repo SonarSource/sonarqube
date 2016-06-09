@@ -7,7 +7,7 @@
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]"
             authorization_updated_at="[null]"/>
 
-  <snapshots id="1" project_id="1" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+  <snapshots id="1" component_uuid="ABCD" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -16,7 +16,7 @@
              period5_mode="days5" period5_param="34" period5_date="1317160800000"
              depth="1" scope="PRJ" qualifier="PAC" created_at="1228172400001" build_date="1317247200000"
              version="2.0-SNAPSHOT" path="1.2."/>
-  <snapshots id="2" project_id="1" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="3"
+  <snapshots id="2" component_uuid="ABCD" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="3"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -25,7 +25,7 @@
              period5_mode="days5" period5_param="34" period5_date="1317160800000"
              depth="1" scope="DIR" qualifier="PAC" created_at="1228172400002" build_date="1317247200000"
              version="2.1-SNAPSHOT" path="1.2."/>
-  <snapshots id="3" project_id="1" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="3"
+  <snapshots id="3" component_uuid="ABCD" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="3"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -42,7 +42,7 @@
             description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
 
-  <snapshots id="4" project_id="2" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="3"
+  <snapshots id="4" component_uuid="EFGH" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="3"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -52,7 +52,7 @@
              depth="1" scope="DIR" qualifier="PAC" created_at="1228172400000" build_date="1317247200000"
              version="2.1-SNAPSHOT" path="1.2."/>
   <!-- Unprocessed snapshot -->
-  <snapshots id="5" project_id="2" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="3"
+  <snapshots id="5" component_uuid="EFGH" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="3"
              status="U" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"
@@ -69,7 +69,7 @@
             description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
 
-  <snapshots id="6" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="3"
+  <snapshots id="6" component_uuid="FGHI" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="3"
              status="P" islast="[false]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1316815200000"
              period2_mode="days2" period2_param="31" period2_date="1316901600000"

@@ -52,16 +52,16 @@ public class PeriodResolver {
 
   private final DbClient dbClient;
   private final DbSession session;
-  private final long projectId;
+  private final String projectUuid;
   private final long analysisDate;
   @CheckForNull
   private final String currentVersion;
   private final String qualifier;
 
-  public PeriodResolver(DbClient dbClient, DbSession session, long projectId, long analysisDate, @Nullable String currentVersion, String qualifier) {
+  public PeriodResolver(DbClient dbClient, DbSession session, String projectUuid, long analysisDate, @Nullable String currentVersion, String qualifier) {
     this.dbClient = dbClient;
     this.session = session;
-    this.projectId = projectId;
+    this.projectUuid = projectUuid;
     this.analysisDate = analysisDate;
     this.currentVersion = currentVersion;
     this.qualifier = qualifier;
@@ -100,7 +100,7 @@ public class PeriodResolver {
   }
 
   private Period findByDate(int index, Date date) {
-    SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setCreatedAfter(date.getTime()).setSort(BY_DATE, ASC));
+    SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectUuid).setCreatedAfter(date.getTime()).setSort(BY_DATE, ASC));
     if (snapshot == null) {
       return null;
     }
@@ -110,7 +110,7 @@ public class PeriodResolver {
 
   @CheckForNull
   private Period findByDays(int index, int days) {
-    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session, createCommonQuery(projectId).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
+    List<SnapshotDto> snapshots = dbClient.snapshotDao().selectSnapshotsByQuery(session, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setSort(BY_DATE, ASC));
     long targetDate = DateUtils.addDays(new Date(analysisDate), -days).getTime();
     SnapshotDto snapshot = findNearestSnapshotToTargetDate(snapshots, targetDate);
     if (snapshot == null) {
@@ -122,7 +122,7 @@ public class PeriodResolver {
 
   @CheckForNull
   private Period findByPreviousAnalysis(int index) {
-    SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setCreatedBefore(analysisDate).setIsLast(true).setSort(BY_DATE, DESC));
+    SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectUuid).setCreatedBefore(analysisDate).setIsLast(true).setSort(BY_DATE, DESC));
     if (snapshot == null) {
       return null;
     }
@@ -135,7 +135,7 @@ public class PeriodResolver {
     if (currentVersion == null) {
       return null;
     }
-    List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectId, currentVersion);
+    List<SnapshotDto> snapshotDtos = dbClient.snapshotDao().selectPreviousVersionSnapshots(session, projectUuid, currentVersion);
     if (snapshotDtos.isEmpty()) {
       // If no previous version is found, the first analysis is returned
       return findByFirstAnalysis(index);
@@ -147,7 +147,7 @@ public class PeriodResolver {
 
   @CheckForNull
   private Period findByFirstAnalysis(int index) {
-    SnapshotDto snapshotDto = dbClient.snapshotDao().selectOldestSnapshot(session, projectId);
+    SnapshotDto snapshotDto = dbClient.snapshotDao().selectOldestSnapshot(session, projectUuid);
     if (snapshotDto == null) {
       return null;
     }
@@ -157,7 +157,7 @@ public class PeriodResolver {
 
   @CheckForNull
   private Period findByVersion(int index, String version) {
-    SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectId).setVersion(version).setSort(BY_DATE, DESC));
+    SnapshotDto snapshot = findFirstSnapshot(session, createCommonQuery(projectUuid).setVersion(version).setSort(BY_DATE, DESC));
     if (snapshot == null) {
       return null;
     }
@@ -198,8 +198,8 @@ public class PeriodResolver {
     return nearest;
   }
 
-  private static SnapshotQuery createCommonQuery(Long projectId) {
-    return new SnapshotQuery().setComponentId(projectId).setStatus(STATUS_PROCESSED);
+  private static SnapshotQuery createCommonQuery(String projectUuid) {
+    return new SnapshotQuery().setComponentUuid(projectUuid).setStatus(STATUS_PROCESSED);
   }
 
   private static String formatDate(long date) {

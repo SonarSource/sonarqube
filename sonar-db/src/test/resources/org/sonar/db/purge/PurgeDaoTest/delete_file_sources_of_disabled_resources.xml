@@ -28,7 +28,7 @@
             deprecated_kee="[null]" authorization_updated_at="[null]"/>
 
   <snapshots id="1"
-             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -39,7 +39,7 @@
              build_date="1228222680000" version="[null]" path="[null]"/>
 
   <snapshots id="2"
-             project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
+             component_uuid="EFGH" parent_snapshot_id="1" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -50,7 +50,7 @@
              build_date="1228222680000" version="[null]" path="[null]"/>
 
   <snapshots id="3"
-             project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+             component_uuid="GHIJ" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -62,7 +62,7 @@
 
   <!-- isLast is true, don't want to delete associated source lines -->
   <snapshots id="4"
-             project_id="4" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+             component_uuid="KLMN" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"

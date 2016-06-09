@@ -5,36 +5,36 @@
             uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
             scope="PRJ" qualifier="TRK" long_name="Apache Struts" description="the description"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="[null]" authorization_updated_at="[null]"/>
-  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]" islast="[true]" scope="PRJ" qualifier="TRK"/>
-  <snapshots id="10" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]" islast="[false]" scope="PRJ" qualifier="TRK"/>
+  <snapshots id="1" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]" islast="[true]" scope="PRJ" qualifier="TRK"/>
+  <snapshots id="10" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]" islast="[false]" scope="PRJ" qualifier="TRK"/>
 
   <!-- module -->
   <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
             uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD.EFGH."
             scope="PRJ" qualifier="BRC" long_name="Struts Core" description="[null]"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
-  <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1" islast="[true]" scope="PRJ" qualifier="BRC"/>
+  <snapshots id="2" component_uuid="EFGH" parent_snapshot_id="1" root_component_uuid="ABCD" root_snapshot_id="1" islast="[true]" scope="PRJ" qualifier="BRC"/>
 
   <!-- sub module -->
   <projects id="3" root_id="1" kee="org.struts:struts-data" name="Struts Data"
             uuid="FGHI" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH.FGHI."
             scope="PRJ" qualifier="BRC" long_name="Struts Data" description="[null]"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" authorization_updated_at="[null]"/>
-  <snapshots id="3" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1" islast="[true]" scope="PRJ" qualifier="BRC"/>
+  <snapshots id="3" component_uuid="FGHI" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="1" islast="[true]" scope="PRJ" qualifier="BRC"/>
 
   <!-- directory -->
   <projects id="4" root_id="3" scope="DIR" qualifier="DIR" kee="org.struts:struts-core:src/org/struts"
             uuid="GHIJ" project_uuid="ABCD" module_uuid="FGHI" module_uuid_path=".ABCD.EFGH.FGHI."
             name="src/org/struts" long_name="org.struts" description="[null]"
             enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]" path="src/org/struts" authorization_updated_at="[null]"/>
-  <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1" islast="[true]" scope="DIR" qualifier="DIR"/>
+  <snapshots id="4" component_uuid="GHIJ" parent_snapshot_id="3" root_component_uuid="ABCD" root_snapshot_id="1" islast="[true]" scope="DIR" qualifier="DIR"/>
 
   <!-- file -->
   <projects id="5" root_id="3" scope="FIL" qualifier="FIL" kee="org.struts:struts-core:src/org/struts/RequestContext.java"
             uuid="HIJK" project_uuid="ABCD" module_uuid="FGHI" module_uuid_path=".ABCD.EFGH.FGHI."
             name="RequestContext.java" long_name="org.struts.RequestContext" description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="src/org/struts/RequestContext.java" authorization_updated_at="[null]"/>
-  <snapshots id="5" project_id="5" parent_snapshot_id="4" root_project_id="1" root_snapshot_id="1" islast="[true]" scope="FIL" qualifier="FIL"/>
+  <snapshots id="5" component_uuid="HIJK" parent_snapshot_id="4" root_component_uuid="ABCD" root_snapshot_id="1" islast="[true]" scope="FIL" qualifier="FIL"/>
 
   <!-- removed sub module -->
   <projects id="10" root_id="1" kee="org.struts:struts-data-removed" name="Struts Data Removed"

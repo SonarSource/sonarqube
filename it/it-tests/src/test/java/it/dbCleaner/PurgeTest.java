@@ -146,7 +146,7 @@ public class PurgeTest {
     // analyse twice
     scan(PROJECT_SAMPLE_PATH);
     // and check we have 2 snapshots
-    assertThat(count("snapshots s where s.project_id=(select p.id from projects p where p.kee='com.sonarsource.it.samples:multi-modules-sample')")).isEqualTo(2);
+    assertThat(count("snapshots s where s.component_uuid=(select p.uuid from projects p where p.kee='com.sonarsource.it.samples:multi-modules-sample')")).isEqualTo(2);
   }
 
   /**
@@ -290,12 +290,12 @@ public class PurgeTest {
   }
 
   private void assertDeleted(String key) {
-    assertThat(count("snapshots s where s.project_id=(select p.id from projects p where p.kee='" + key + "')")).isZero();
+    assertThat(count("snapshots s where s.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isZero();
     assertThat(count("resource_index ri where ri.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isZero();
   }
 
   private void assertSingleSnapshot(String key) {
-    assertThat(count("snapshots s where s.project_id=(select p.id from projects p where p.kee='" + key + "')")).isEqualTo(1);
+    assertThat(count("snapshots s where s.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isEqualTo(1);
     assertThat(count("resource_index ri where ri.component_uuid=(select p.uuid from projects p where p.kee='" + key + "')")).isGreaterThan(1);
   }
 

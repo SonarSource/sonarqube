@@ -1,6 +1,6 @@
 <dataset>
 
-  <snapshots id="1" project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+  <snapshots id="1" component_uuid="uuid_3" parent_snapshot_id="2" root_component_uuid="uuid_1" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="1"
              period1_mode="days1" period1_param="30" period1_date="1500000000001"
              period2_mode="days2" period2_param="31" period2_date="1500000000002"

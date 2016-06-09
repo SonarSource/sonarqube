@@ -11,13 +11,13 @@
   <projects id="402" uuid="DEFG" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path=".ABCD.BCDE." kee="Filter.java"
             root_id="400" qualifier="CLA" scope="PRJ"/>
 
-  <snapshots id="100" project_id="399" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_project_id="399"
+  <snapshots id="100" component_uuid="ABCD" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_component_uuid="ABCD"
              path="" islast="[true]"/>
-  <snapshots id="101" project_id="400" root_snapshot_id="100" parent_snapshot_id="100" root_project_id="399" path="100."
+  <snapshots id="101" component_uuid="BCDE" root_snapshot_id="100" parent_snapshot_id="100" root_component_uuid="ABCD" path="100."
              islast="[true]"/>
-  <snapshots id="102" project_id="401" root_snapshot_id="100" parent_snapshot_id="101" root_project_id="399"
+  <snapshots id="102" component_uuid="CDEF" root_snapshot_id="100" parent_snapshot_id="101" root_component_uuid="ABCD"
              path="100.101." islast="[true]"/>
-  <snapshots id="103" project_id="402" root_snapshot_id="100" parent_snapshot_id="101" root_project_id="399"
+  <snapshots id="103" component_uuid="DEFG" root_snapshot_id="100" parent_snapshot_id="101" root_component_uuid="ABCD"
              path="100.101." islast="[true]"/>
 
   <rules id="500" tags="[null]" system_tags="[null]" plugin_rule_key="AvoidCycle" plugin_name="squid" language="java"/>

@@ -21,8 +21,6 @@ package org.sonar.db.measure;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
-import com.google.common.base.Predicate;
-import com.google.common.collect.FluentIterable;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import java.util.Collections;
@@ -42,6 +40,7 @@ import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricTesting;
 
+import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
@@ -135,12 +134,7 @@ public class MeasureDaoTest {
     List<MeasureDto> results = underTest.selectBySnapshotIdAndMetricKeys(SNAPSHOT_ID, ImmutableSet.of("ncloc", "authors_by_line"), dbSession);
     assertThat(results).hasSize(2);
 
-    Optional<MeasureDto> optional = FluentIterable.from(results).filter(new Predicate<MeasureDto>() {
-      @Override
-      public boolean apply(@Nullable MeasureDto input) {
-        return input.getId() == 22;
-      }
-    }).first();
+    Optional<MeasureDto> optional = from(results).filter(input -> input.getId() == 22).first();
     assertThat(optional).isPresent();
 
     MeasureDto result = optional.get();
@@ -467,7 +461,8 @@ public class MeasureDaoTest {
   }
 
   private SnapshotDto insertSnapshot(ComponentDto componentDto, boolean last) {
-    SnapshotDto snapshotDto = new SnapshotDto().setComponentId(componentDto.getId()).setLast(last).setQualifier(componentDto.qualifier()).setScope(componentDto.scope());
+    SnapshotDto snapshotDto = new SnapshotDto().setComponentUuid(componentDto.uuid()).setRootComponentUuid(componentDto.projectUuid())
+      .setLast(last).setQualifier(componentDto.qualifier()).setScope(componentDto.scope());
     dbClient.snapshotDao().insert(dbSession, snapshotDto);
     dbSession.commit();
     return snapshotDto;
@@ -525,7 +520,7 @@ public class MeasureDaoTest {
   }
 
   private static Map<Long, PastMeasureDto> pastMeasuresById(List<PastMeasureDto> pastMeasures) {
-    return FluentIterable.from(pastMeasures).uniqueIndex(new Function<PastMeasureDto, Long>() {
+    return from(pastMeasures).uniqueIndex(new Function<PastMeasureDto, Long>() {
       @Nullable
       @Override
       public Long apply(PastMeasureDto input) {
@@ -534,13 +529,4 @@ public class MeasureDaoTest {
     });
   }
 
-  private static Map<Long, MeasureDto> measuresById(List<MeasureDto> pastMeasures) {
-    return FluentIterable.from(pastMeasures).uniqueIndex(new Function<MeasureDto, Long>() {
-      @Nullable
-      @Override
-      public Long apply(MeasureDto input) {
-        return input.getId();
-      }
-    });
-  }
 }

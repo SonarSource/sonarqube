@@ -42,13 +42,13 @@ public class DefaultPeriodCleaner {
     this.profiler = profiler;
   }
 
-  public void clean(DbSession session, long projectId, Settings settings) {
-    doClean(projectId, new Filters(settings).all(), session);
+  public void clean(DbSession session, String componentUuid, Settings settings) {
+    doClean(componentUuid, new Filters(settings).all(), session);
   }
 
   @VisibleForTesting
-  void doClean(long projectId, List<Filter> filters, DbSession session) {
-    List<PurgeableSnapshotDto> history = selectProjectSnapshots(projectId, session);
+  void doClean(String componentUuid, List<Filter> filters, DbSession session) {
+    List<PurgeableSnapshotDto> history = selectProjectSnapshots(componentUuid, session);
     for (Filter filter : filters) {
       filter.log();
       delete(filter.filter(history), session);
@@ -65,7 +65,7 @@ public class DefaultPeriodCleaner {
     }
   }
 
-  private List<PurgeableSnapshotDto> selectProjectSnapshots(long resourceId, DbSession session) {
-    return purgeDao.selectPurgeableSnapshots(resourceId, session);
+  private List<PurgeableSnapshotDto> selectProjectSnapshots(String componentUuid, DbSession session) {
+    return purgeDao.selectPurgeableSnapshots(componentUuid, session);
   }
 }

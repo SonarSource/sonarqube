@@ -38,7 +38,7 @@ class Api::ProjectsController < Api::ApiController
     begin
       @show_description=(params[:desc]=='true')
       @projects=load_projects
-      @snapshots_by_pid=load_snapshots_by_project
+      @snapshots_by_puuid=load_snapshots_by_project
       respond_to do |format|
         format.json{ render :json => jsonp(to_json) }
         format.xml { render :xml => to_xml }
@@ -115,7 +115,7 @@ class Api::ProjectsController < Api::ApiController
     end
 
     # this is really an advanced optimization !
-    select_columns='id,kee,name,language,long_name,scope,qualifier,root_id'
+    select_columns='id,uuid,kee,name,language,long_name,scope,qualifier,root_id'
     select_columns += ',description' if @show_description
 
     projects=Project.find(:all, :select => select_columns, :conditions => [conditions.join(' AND '), values], :order => 'name')
@@ -123,21 +123,21 @@ class Api::ProjectsController < Api::ApiController
   end
 
   def load_snapshots_by_project
-    select_columns='id,project_id,version,islast,created_at'
+    select_columns='id,component_uuid,version,islast,created_at'
     if params[:versions]=='true'
-      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND s1.project_id IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.project_id=s1.project_id AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', @projects.map{|p| p.id}])
+      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND s1.component_uuid IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.component_uuid=s1.component_uuid AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', @projects.map{|p| p.uuid}])
     elsif params[:versions]=='last'
-      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND islast=? AND s1.project_id IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.project_id=s1.project_id AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', true, @projects.map{|p| p.id}])
+      snapshots=Snapshot.find_by_sql(["SELECT #{select_columns} FROM snapshots s1 WHERE s1.status=? AND islast=? AND s1.component_uuid IN (?) AND NOT EXISTS(SELECT * FROM snapshots s2 WHERE s2.component_uuid=s1.component_uuid AND s2.created_at>s1.created_at AND s2.version=s1.version)", 'P', true, @projects.map{|p| p.uuid}])
     else
       snapshots=[]
     end
 
-    snapshots_by_project_id={}
+    snapshots_by_project_uuid={}
     snapshots.each do |s|
-      snapshots_by_project_id[s.project_id]||=[]
-      snapshots_by_project_id[s.project_id]<<s
+      snapshots_by_project_uuid[s.component_uuid]||=[]
+      snapshots_by_project_uuid[s.component_uuid]<<s
     end
-    snapshots_by_project_id
+    snapshots_by_project_uuid
   end
 
   def to_json
@@ -145,9 +145,9 @@ class Api::ProjectsController < Api::ApiController
     @projects.each do |project|
       hash=to_json_hash(project)
 
-      if @snapshots_by_pid && @snapshots_by_pid[project.id]
+      if @snapshots_by_puuid && @snapshots_by_puuid[project.uuid]
         versions={}
-        @snapshots_by_pid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
+        @snapshots_by_puuid[project.uuid].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
           version={:sid => snapshot.id.to_s}
           version[:d]=Api::Utils.format_datetime(snapshot.created_at) if snapshot.created_at
           if snapshot.last?
@@ -189,8 +189,8 @@ class Api::ProjectsController < Api::ApiController
       xml.qualifier(project.qualifier)
       xml.desc(project.description) if @show_description && project.description
 
-      if @snapshots_by_pid && @snapshots_by_pid[project.id]
-        @snapshots_by_pid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
+      if @snapshots_by_puuid && @snapshots_by_puuid[project.uuid]
+        @snapshots_by_puuid[project.id].sort{|s1,s2| s2.version <=> s1.version}.each do |snapshot|
           attributes={:sid => snapshot.id.to_s, :last => snapshot.last?}
           attributes[:date]=Api::Utils.format_datetime(snapshot.created_at) if snapshot.created_at
           xml.version(snapshot.version, attributes)

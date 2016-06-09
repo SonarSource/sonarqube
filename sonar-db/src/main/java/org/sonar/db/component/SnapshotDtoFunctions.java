@@ -27,8 +27,8 @@ public class SnapshotDtoFunctions {
     return ToId.INSTANCE;
   }
 
-  public static Function<SnapshotDto, Long> toComponentId() {
-    return ToComponentId.INSTANCE;
+  public static Function<SnapshotDto, String> toComponentUuid() {
+    return SnapshotDto::getComponentUuid;
   }
 
   private enum ToId implements Function<SnapshotDto, Long> {
@@ -39,15 +39,5 @@ public class SnapshotDtoFunctions {
       return input.getId();
     }
   }
-
-  private enum ToComponentId implements Function<SnapshotDto, Long> {
-    INSTANCE;
-
-    @Override
-    public Long apply(@Nonnull SnapshotDto input) {
-      return input.getComponentId();
-    }
-  }
-
 
 }

@@ -29,7 +29,7 @@
     <include refid="extendedMeasureColumns"/>
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
-    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true}
     INNER JOIN metrics metric ON metric.id=pm.metric_id
     <where>
       AND p.kee = #{componentKey}
@@ -43,7 +43,7 @@
     <include refid="extendedMeasureColumns"/>
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
-    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true}
     INNER JOIN metrics metric ON metric.id=pm.metric_id
     <where>
       AND p.kee = #{componentKey}
@@ -115,9 +115,10 @@
   <select id="selectProjectMeasuresByDeveloperForMetrics" parameterType="map" resultType="Measure">
     SELECT
     <include refid="measureColumns"/>,
-    s.project_id as componentId
+    p.id as componentId
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true} AND s.scope='PRJ' AND s.qualifier='TRK'
+    INNER JOIN projects p ON p.uuid=s.component_uuid
     <where>
       pm.person_id = #{developerId}
       AND
@@ -147,7 +148,7 @@
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.islast=${_true}
     INNER JOIN metrics metric ON metric.id=pm.metric_id
-    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true}
     <where>
       AND p.kee = #{componentKey}
       AND metric.name = #{metricKey}
@@ -161,7 +162,7 @@
     pm.person_id as personId, pm.value as value
     FROM project_measures pm
     INNER JOIN snapshots s ON s.id=pm.snapshot_id AND s.status=#{status}
-    INNER JOIN projects p ON p.id=s.project_id AND p.enabled=${_true}
+    INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true}
     <where>
       AND p.uuid = #{componentUuid}
       AND (s.root_snapshot_id=#{rootSnapshotId} OR s.id=#{rootSnapshotId})

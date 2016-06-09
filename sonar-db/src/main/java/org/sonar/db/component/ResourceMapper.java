@@ -52,16 +52,6 @@ public interface ResourceMapper {
    */
   void selectResources(ResourceQuery query, ResultHandler resultHandler);
 
-  /**
-   * @since 3.6
-   */
-  ResourceDto selectRootProjectByComponentKey(@Param("componentKey") String componentKey);
-
-  /**
-   * @since 3.6
-   */
-  ResourceDto selectRootProjectByComponentId(@Param("componentId") long componentId);
-
   List<ResourceDto> selectProjectsIncludingNotCompletedOnesByQualifiers(@Param("qualifiers") Collection<String> qualifier);
 
   List<ResourceDto> selectProjectsByQualifiers(@Param("qualifiers") Collection<String> qualifier);

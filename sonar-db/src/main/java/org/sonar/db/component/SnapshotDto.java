@@ -35,11 +35,12 @@ public final class SnapshotDto {
   private Long id;
   private Long parentId;
   private Long rootId;
-  private Long rootProjectId;
+
+  private String rootComponentUuid;
+  private String componentUuid;
 
   private Long createdAt;
   private Long buildDate;
-  private Long componentId;
   private String status = STATUS_UNPROCESSED;
   private Integer purgeStatus;
   private Boolean last;
@@ -108,12 +109,21 @@ public final class SnapshotDto {
     return this;
   }
 
-  public Long getComponentId() {
-    return componentId;
+  public String getRootComponentUuid() {
+    return rootComponentUuid;
   }
 
-  public SnapshotDto setComponentId(Long componentId) {
-    this.componentId = componentId;
+  public SnapshotDto setRootComponentUuid(String rootComponentUuid) {
+    this.rootComponentUuid = rootComponentUuid;
+    return this;
+  }
+
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public SnapshotDto setComponentUuid(String componentUuid) {
+    this.componentUuid = componentUuid;
     return this;
   }
 
@@ -195,15 +205,6 @@ public final class SnapshotDto {
 
   public SnapshotDto setDepth(Integer depth) {
     this.depth = depth;
-    return this;
-  }
-
-  public Long getRootProjectId() {
-    return rootProjectId;
-  }
-
-  public SnapshotDto setRootProjectId(Long rootProjectId) {
-    this.rootProjectId = rootProjectId;
     return this;
   }
 

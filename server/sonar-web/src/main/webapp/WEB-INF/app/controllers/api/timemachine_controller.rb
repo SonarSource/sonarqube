@@ -68,8 +68,8 @@ class Api::TimemachineController < Api::ApiController
       @measures_by_sid={}
 
       unless @metrics.empty?
-        sql_conditions = ['snapshots.project_id=:rid AND snapshots.status=:status AND project_measures.person_id IS NULL']
-        sql_values = {:rid => @resource.id, :status => Snapshot::STATUS_PROCESSED}
+        sql_conditions = ['snapshots.component_uuid=:rid AND snapshots.status=:status AND project_measures.person_id IS NULL']
+        sql_values = {:rid => @resource.uuid, :status => Snapshot::STATUS_PROCESSED}
 
         if params[:fromDateTime]
           from = parse_datetime(params[:fromDateTime])

@@ -3,14 +3,14 @@
   <!-- Simple View -->
   <projects id="10" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." copy_resource_id="[null]" enabled="[true]"
             kee="MASTER_PROJECT" scope="PRJ" qualifier="VW" name="All projects" path="[null]"/>
-  <snapshots id="10" project_id="10" parent_snapshot_id="[null]" root_project_id="10" root_snapshot_id="[null]"
+  <snapshots id="10" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="VW" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <projects id="110" uuid="BCDE" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD." copy_resource_id="100" enabled="[true]"
             kee="MASTER_PROJECTorg.struts:struts" scope="FIL" qualifier="TRK" name="Struts" path="[null]"/>
-  <snapshots id="110" project_id="110" parent_snapshot_id="[null]" root_project_id="110" root_snapshot_id="[null]"
+  <snapshots id="110" component_uuid="BCDE" parent_snapshot_id="[null]" root_component_uuid="BCDE" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
@@ -18,13 +18,13 @@
   <!-- View with sub view -->
   <projects id="11" uuid="EFGH" project_uuid="EFGH" module_uuid="[null]" module_uuid_path="." copy_resource_id="[null]" enabled="[true]"
             kee="LANGUAGE_VIEW" scope="PRJ" qualifier="VW" name="By Language" path="[null]"/>
-  <snapshots id="11" project_id="11" parent_snapshot_id="[null]" root_project_id="11" root_snapshot_id="[null]"
+  <snapshots id="11" component_uuid="EFGH" parent_snapshot_id="[null]" root_component_uuid="EFGH" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="VW" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
   <projects id="112" uuid="GHIJ" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="101" enabled="[true]"
             kee="VIEW2org.elasticsearch:elasticsearch" scope="FIL" qualifier="TRK" name="SSLR" path="[null]"/>
-  <snapshots id="112" project_id="112" parent_snapshot_id="[null]" root_project_id="112" root_snapshot_id="[null]"
+  <snapshots id="112" component_uuid="GHIJ" parent_snapshot_id="[null]" root_component_uuid="GHIJ" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
@@ -32,14 +32,14 @@
   <!-- Sub view -->
   <projects id="13" uuid="FGHI" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_resource_id="[null]" enabled="[true]"
             kee="JAVA_PROJECTS" scope="PRJ" qualifier="SVW" name="Java projects" path="[null]"/>
-  <snapshots id="13" project_id="13" parent_snapshot_id="[null]" root_project_id="13" root_snapshot_id="[null]"
+  <snapshots id="13" component_uuid="FGHI" parent_snapshot_id="[null]" root_component_uuid="FGHI" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="SVW" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
 
   <projects id="113" uuid="HIJK" project_uuid="EFGH" module_uuid="FGHI" module_uuid_path=".EFGH.FGHI." copy_resource_id="100" enabled="[true]"
             kee="VIEW2org.struts:struts" scope="FIL" qualifier="TRK" name="Struts" path="[null]"/>
-  <snapshots id="113" project_id="113" parent_snapshot_id="[null]" root_project_id="113" root_snapshot_id="[null]"
+  <snapshots id="113" component_uuid="HIJK" parent_snapshot_id="[null]" root_component_uuid="HIJK" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
@@ -47,7 +47,7 @@
   <!-- View without project -->
   <projects id="14" uuid="IJKL" project_uuid="IJKL" module_uuid="[null]" module_uuid_path="." copy_resource_id="[null]" enabled="[true]"
             kee="OTHER" scope="PRJ" qualifier="VW" name="Other projects" path="[null]"/>
-  <snapshots id="14" project_id="14" parent_snapshot_id="[null]" root_project_id="14" root_snapshot_id="[null]"
+  <snapshots id="14" component_uuid="IJKL" parent_snapshot_id="[null]" root_component_uuid="IJKL" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="VW" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
@@ -57,7 +57,7 @@
   <projects id="100" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             uuid="JKLM" project_uuid="JKLM" module_uuid="[null]" module_uuid_path="."
             enabled="[true]" copy_resource_id="[null]" path="[null]"/>
-  <snapshots id="100" project_id="100" parent_snapshot_id="[null]" root_project_id="100" root_snapshot_id="[null]"
+  <snapshots id="100" component_uuid="JKLM" parent_snapshot_id="[null]" root_component_uuid="JKLM" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>
@@ -65,7 +65,7 @@
   <projects id="101" scope="PRJ" qualifier="TRK" kee="org.elasticsearch:elasticsearch" name="Elasticsearch"
             uuid="KLMN" project_uuid="KLMN" module_uuid="[null]" module_uuid_path="."
             enabled="[true]" copy_resource_id="[null]" path="[null]"/>
-  <snapshots id="101" project_id="101" parent_snapshot_id="[null]" root_project_id="101" root_snapshot_id="[null]"
+  <snapshots id="101" component_uuid="KLMN" parent_snapshot_id="[null]" root_component_uuid="KLMN" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000" build_date="1228222680000"
              version="[null]" path=""/>

@@ -348,7 +348,7 @@
 
   <sql id="sqlSelectByTreeQuery">
     from projects p
-    inner join snapshots s on p.id = s.project_id
+    inner join snapshots s on p.uuid = s.component_uuid
     where
     p.enabled=${_true}
     <if test="query.qualifiers!=null">
@@ -443,7 +443,7 @@
   </select>
 
   <sql id="provisionClauses">
-    left join snapshots s on s.project_id=p.id
+    left join snapshots s on s.component_uuid=p.uuid
     where
     s.id is null
     and p.enabled=${_true}
@@ -471,8 +471,8 @@
   </select>
 
   <sql id="ghostClauses">
-    inner join snapshots s1 on s1.project_id = p.id and s1.status='U'
-    left join snapshots s2 on s2.project_id = p.id and s2.status='P'
+    inner join snapshots s1 on s1.component_uuid = p.uuid and s1.status='U'
+    left join snapshots s2 on s2.component_uuid = p.uuid and s2.status='P'
     where
     s2.id is null
     and p.qualifier=#{qualifier}

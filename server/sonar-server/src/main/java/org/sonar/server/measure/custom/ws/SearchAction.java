@@ -115,7 +115,7 @@ public class SearchAction implements CustomMeasuresWsAction {
 
   @CheckForNull
   private Long searchLastSnapshot(DbSession dbSession, ComponentDto project) {
-    SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, project.getId());
+    SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, project.uuid());
 
     return lastSnapshot == null ? null : lastSnapshot.getBuildDate();
   }

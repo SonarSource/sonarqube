@@ -300,7 +300,7 @@ public class ViewsPersistComponentsStepTest extends BaseStepTest {
       .setUuid(PROJECT_VIEW_1_UUID)
       .setName(PROJECT_VIEW_1_NAME)
       .setDescription("project view description is not persisted")
-      .setProjectViewAttributes(new ProjectViewAttributes(project.getId()));
+      .setProjectViewAttributes(new ProjectViewAttributes(project.getId(), project.uuid()));
   }
 
   private void persistComponents(ComponentDto... componentDtos) {

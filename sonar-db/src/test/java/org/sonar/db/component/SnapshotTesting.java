@@ -31,7 +31,7 @@ public class SnapshotTesting {
   public static SnapshotDto createForComponent(ComponentDto component, SnapshotDto parentSnapshot) {
     checkNotNull(parentSnapshot.getId(), "The parent snapshot need to be persisted before creating this snapshot");
     Long parentRootId = parentSnapshot.getRootId();
-    return createBasicSnapshot(component, parentSnapshot.getRootProjectId())
+    return createBasicSnapshot(component, parentSnapshot.getRootComponentUuid())
       .setRootId(parentRootId != null ? parentRootId : parentSnapshot.getId())
       .setParentId(parentSnapshot.getId())
       .setDepth(parentSnapshot.getDepth()+1)
@@ -40,29 +40,29 @@ public class SnapshotTesting {
   }
 
   public static SnapshotDto newSnapshotForProject(ComponentDto project) {
-    return createBasicSnapshot(project, project.getId())
+    return createBasicSnapshot(project, project.uuid())
       .setDepth(0)
       .setPath("");
   }
 
   public static SnapshotDto newSnapshotForView(ComponentDto view) {
-    return createBasicSnapshot(view, view.getId())
+    return createBasicSnapshot(view, view.uuid())
       .setDepth(0)
       .setPath("");
   }
 
   public static SnapshotDto newSnapshotForDeveloper(ComponentDto developer) {
-    return createBasicSnapshot(developer, developer.getId())
+    return createBasicSnapshot(developer, developer.uuid())
       .setDepth(0)
       .setPath("");
   }
 
-  private static SnapshotDto createBasicSnapshot(ComponentDto component, Long rootProjectId) {
+  private static SnapshotDto createBasicSnapshot(ComponentDto component, String rootComponentUuid) {
     checkNotNull(component.getId(), "The project need to be persisted before creating this snapshot");
-    checkNotNull(rootProjectId, "Root project id is null");
+    checkNotNull(rootComponentUuid, "Root component uuid is null");
     return new SnapshotDto()
-      .setComponentId(component.getId())
-      .setRootProjectId(rootProjectId)
+      .setComponentUuid(component.uuid())
+      .setRootComponentUuid(rootComponentUuid)
       .setStatus(SnapshotDto.STATUS_PROCESSED)
       .setQualifier(component.qualifier())
       .setScope(component.scope())

@@ -6,7 +6,7 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
-  <snapshots purge_status="[null]" id="1" islast="[true]" root_project_id="1" project_id="1" scope="PRJ"
+  <snapshots purge_status="[null]" id="1" islast="[true]" root_component_uuid="ABCD" component_uuid="ABCD" scope="PRJ"
              qualifier="TRK"/>
 
   <!-- the index is on the old name "Struts" but not on "Apache Struts -->

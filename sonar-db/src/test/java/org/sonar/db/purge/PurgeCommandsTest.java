@@ -91,7 +91,7 @@ public class PurgeCommandsTest {
   public void shouldDeleteResource() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteResource.xml");
 
-    new PurgeCommands(dbTester.getSession(), profiler).deleteComponents(newArrayList(new IdUuidPair(1L, "1")));
+    new PurgeCommands(dbTester.getSession(), profiler).deleteComponents(newArrayList(new IdUuidPair(1L, "uuid_1")));
 
     assertThat(dbTester.countRowsOfTable("projects")).isZero();
     assertThat(dbTester.countRowsOfTable("snapshots")).isZero();

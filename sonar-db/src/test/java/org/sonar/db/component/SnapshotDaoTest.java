@@ -59,8 +59,8 @@ public class SnapshotDaoTest {
     SnapshotDto result = underTest.selectById(db.getSession(), 3L);
     assertThat(result).isNotNull();
     assertThat(result.getId()).isEqualTo(3L);
-    assertThat(result.getComponentId()).isEqualTo(3L);
-    assertThat(result.getRootProjectId()).isEqualTo(1L);
+    assertThat(result.getComponentUuid()).isEqualTo("uuid_3");
+    assertThat(result.getRootComponentUuid()).isEqualTo("uuid_1");
     assertThat(result.getParentId()).isEqualTo(2L);
     assertThat(result.getRootId()).isEqualTo(1L);
     assertThat(result.getStatus()).isEqualTo("P");
@@ -108,7 +108,7 @@ public class SnapshotDaoTest {
 
   @Test
   public void lastSnapshot_returns_null_when_no_last_snapshot() {
-    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentId(db.getSession(), 123L);
+    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentUuid(db.getSession(), "uuid_123");
 
     assertThat(snapshot).isNull();
   }
@@ -117,7 +117,7 @@ public class SnapshotDaoTest {
   public void lastSnapshot_from_one_resource() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentId(db.getSession(), 2L);
+    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentUuid(db.getSession(), "uuid_2");
 
     assertThat(snapshot).isNotNull();
     assertThat(snapshot.getId()).isEqualTo(4L);
@@ -127,7 +127,7 @@ public class SnapshotDaoTest {
   public void lastSnapshot_from_one_resource_without_last_is_null() {
     db.prepareDbUnit(getClass(), "snapshots.xml");
 
-    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentId(db.getSession(), 5L);
+    SnapshotDto snapshot = underTest.selectLastSnapshotByComponentUuid(db.getSession(), "uuid_5");
 
     assertThat(snapshot).isNull();
   }
@@ -143,35 +143,10 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void select_snapshots_by_component_id() {
-    db.prepareDbUnit(getClass(), "snapshots.xml");
-
-    List<SnapshotDto> snapshots = underTest.selectSnapshotsByComponentId(db.getSession(), 1L);
-
-    assertThat(snapshots).hasSize(3);
-  }
-
-  @Test
   public void select_snapshots_by_query() {
     db.prepareDbUnit(getClass(), "select_snapshots_by_query.xml");
 
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery())).hasSize(6);
-
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L))).hasSize(3);
-
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setVersion("2.2-SNAPSHOT"))).extracting("id").containsOnly(3L);
-
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setIsLast(true))).extracting("id").containsOnly(1L);
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setIsLast(false))).extracting("id").containsOnly(2L, 3L);
-
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setCreatedAfter(1228172400002L))).extracting("id").containsOnly(2L, 3L);
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setCreatedBefore(1228172400002L))).extracting("id").containsOnly(1L);
-
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(2L).setStatus("P"))).hasSize(1);
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(2L).setStatus("U"))).hasSize(1);
-
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, ASC)).get(0).getId()).isEqualTo(1L);
-    assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentId(1L).setSort(BY_DATE, DESC)).get(0).getId()).isEqualTo(3L);
 
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setSort(BY_DATE, ASC)).get(0).getId()).isEqualTo(1L);
     assertThat(underTest.selectSnapshotsByQuery(db.getSession(), new SnapshotQuery().setComponentUuid("ABCD").setSort(BY_DATE, DESC)).get(0).getId()).isEqualTo(3L);
@@ -208,14 +183,14 @@ public class SnapshotDaoTest {
   public void select_previous_version_snapshots() {
     db.prepareDbUnit(getClass(), "select_previous_version_snapshots.xml");
 
-    List<SnapshotDto> snapshots = underTest.selectPreviousVersionSnapshots(db.getSession(), 1L, "1.2-SNAPSHOT");
+    List<SnapshotDto> snapshots = underTest.selectPreviousVersionSnapshots(db.getSession(), "ABCD", "1.2-SNAPSHOT");
     assertThat(snapshots).hasSize(2);
 
     SnapshotDto firstSnapshot = snapshots.get(0);
     assertThat(firstSnapshot.getVersion()).isEqualTo("1.1");
 
     // All snapshots are returned on an unknown version
-    assertThat(underTest.selectPreviousVersionSnapshots(db.getSession(), 1L, "UNKNOWN")).hasSize(3);
+    assertThat(underTest.selectPreviousVersionSnapshots(db.getSession(), "ABCD", "UNKNOWN")).hasSize(3);
   }
 
   @Test
@@ -230,11 +205,11 @@ public class SnapshotDaoTest {
       );
     dbSession.commit();
 
-    SnapshotDto dto = underTest.selectOldestSnapshot(dbSession, project.getId());
+    SnapshotDto dto = underTest.selectOldestSnapshot(dbSession, project.uuid());
     assertThat(dto).isNotNull();
     assertThat(dto.getCreatedAt()).isEqualTo(1L);
 
-    assertThat(underTest.selectOldestSnapshot(dbSession, 123456789)).isNull();
+    assertThat(underTest.selectOldestSnapshot(dbSession, "blabla")).isNull();
   }
 
   @Test
@@ -255,8 +230,8 @@ public class SnapshotDaoTest {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     underTest.insert(db.getSession(),
-      new SnapshotDto().setComponentId(1L).setLast(false),
-      new SnapshotDto().setComponentId(2L).setLast(false));
+      new SnapshotDto().setComponentUuid("uuid_1").setRootComponentUuid("uuid_1").setLast(false),
+      new SnapshotDto().setComponentUuid("uuid_2").setRootComponentUuid("uuid_1").setLast(false));
     db.getSession().commit();
 
     assertThat(db.countRowsOfTable("snapshots")).isEqualTo(2);
@@ -337,8 +312,8 @@ public class SnapshotDaoTest {
 
   private static SnapshotDto defaultSnapshot() {
     return new SnapshotDto()
-      .setComponentId(3L)
-      .setRootProjectId(1L)
+      .setComponentUuid("uuid_3")
+      .setRootComponentUuid("uuid_1")
       .setParentId(2L)
       .setRootId(1L)
       .setStatus("P")

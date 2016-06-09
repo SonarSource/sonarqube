@@ -7,7 +7,7 @@
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
 
-  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
+  <snapshots id="1" component_uuid="A" parent_snapshot_id="[null]" root_component_uuid="A" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -58,7 +58,7 @@
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
 
-  <snapshots id="2" project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
+  <snapshots id="2" component_uuid="B" parent_snapshot_id="1" root_component_uuid="A" root_snapshot_id="1"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -76,7 +76,7 @@
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
 
-  <snapshots id="3" project_id="3" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
+  <snapshots id="3" component_uuid="C" parent_snapshot_id="1" root_component_uuid="A" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -94,7 +94,7 @@
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
             authorization_updated_at="[null]"/>
 
-  <snapshots id="4" project_id="4" parent_snapshot_id="3" root_project_id="1" root_snapshot_id="1"
+  <snapshots id="4" component_uuid="D" parent_snapshot_id="3" root_component_uuid="A" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"

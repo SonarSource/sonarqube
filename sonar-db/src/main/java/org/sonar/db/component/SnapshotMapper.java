@@ -34,28 +34,24 @@ public interface SnapshotMapper {
   void insert(SnapshotDto snapshot);
 
   @CheckForNull
-  SnapshotDto selectLastSnapshot(Long resourceId);
+  SnapshotDto selectLastSnapshot(@Param("componentUuid") String componentUuid);
 
   int countLastSnapshotByComponentUuid(String componentUuid);
 
-  @CheckForNull
-  SnapshotDto selectLastSnapshotByComponentUuid(String componentUuid);
-
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);
 
-  List<SnapshotDto> selectPreviousVersionSnapshots(@Param(value = "componentId") Long componentId, @Param(value = "lastVersion") String lastVersion);
+  List<SnapshotDto> selectPreviousVersionSnapshots(@Param("componentUuid") String componentUuid, @Param("lastVersion") String lastVersion);
 
-  List<SnapshotDto> selectOldestSnapshots(@Param(value = "componentId") Long componentId, RowBounds rowBounds);
+  List<SnapshotDto> selectOldestSnapshots(@Param("componentUuid") String componentUuid, RowBounds rowBounds);
 
-  List<SnapshotDto> selectSnapshotAndChildrenOfScope(@Param(value = "snapshot") Long resourceId, @Param(value = "scope") String scope);
+  List<SnapshotDto> selectSnapshotAndChildrenOfScope(@Param("snapshot") Long resourceId, @Param("scope") String scope);
 
-  int updateSnapshotAndChildrenLastFlagAndStatus(@Param(value = "root") Long rootId, @Param(value = "pathRootId") Long pathRootId,
-    @Param(value = "path") String path, @Param(value = "isLast") boolean isLast, @Param(value = "status") String status);
+  int updateSnapshotAndChildrenLastFlagAndStatus(@Param("root") Long rootId, @Param("pathRootId") Long pathRootId,
+    @Param("path") String path, @Param("isLast") boolean isLast, @Param("status") String status);
 
-  int updateSnapshotAndChildrenLastFlag(@Param(value = "root") Long rootId, @Param(value = "pathRootId") Long pathRootId,
-    @Param(value = "path") String path, @Param(value = "isLast") boolean isLast);
+  int updateSnapshotAndChildrenLastFlag(@Param("root") Long rootId, @Param("pathRootId") Long pathRootId,
+    @Param("path") String path, @Param("isLast") boolean isLast);
 
-  List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentId") long componentId, @Param("date") long date);
+  List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentUuid") String componentUuid, @Param("date") long date);
 
-  ViewsSnapshotDto selectLatestSnapshot(@Param("componentId") long componentId);
 }

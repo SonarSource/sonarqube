@@ -54,13 +54,10 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
-
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-
   @Rule
   public PeriodsHolderRule periodsHolder = new PeriodsHolderRule();
 
@@ -124,9 +121,9 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(4);
 
-    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.getId());
-    assertThat(projectSnapshot.getComponentId()).isEqualTo(projectDto.getId());
-    assertThat(projectSnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
+    assertThat(projectSnapshot.getComponentUuid()).isEqualTo(project.getUuid());
+    assertThat(projectSnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(projectSnapshot.getRootId()).isNull();
     assertThat(projectSnapshot.getParentId()).isNull();
     assertThat(projectSnapshot.getDepth()).isEqualTo(0);
@@ -139,9 +136,9 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
     assertThat(projectSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(projectSnapshot.getBuildDate()).isEqualTo(now);
 
-    SnapshotDto moduleSnapshot = getUnprocessedSnapshot(moduleDto.getId());
-    assertThat(moduleSnapshot.getComponentId()).isEqualTo(moduleDto.getId());
-    assertThat(moduleSnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    SnapshotDto moduleSnapshot = getUnprocessedSnapshot(moduleDto.uuid());
+    assertThat(moduleSnapshot.getComponentUuid()).isEqualTo(module.getUuid());
+    assertThat(moduleSnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(moduleSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(moduleSnapshot.getParentId()).isEqualTo(projectSnapshot.getId());
     assertThat(moduleSnapshot.getDepth()).isEqualTo(1);
@@ -154,9 +151,9 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
     assertThat(moduleSnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(moduleSnapshot.getBuildDate()).isEqualTo(now);
 
-    SnapshotDto directorySnapshot = getUnprocessedSnapshot(directoryDto.getId());
-    assertThat(directorySnapshot.getComponentId()).isEqualTo(directoryDto.getId());
-    assertThat(directorySnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    SnapshotDto directorySnapshot = getUnprocessedSnapshot(directoryDto.uuid());
+    assertThat(directorySnapshot.getComponentUuid()).isEqualTo(directory.getUuid());
+    assertThat(directorySnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(directorySnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(directorySnapshot.getParentId()).isEqualTo(moduleSnapshot.getId());
     assertThat(directorySnapshot.getDepth()).isEqualTo(2);
@@ -169,9 +166,9 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
     assertThat(directorySnapshot.getCreatedAt()).isEqualTo(analysisDate);
     assertThat(directorySnapshot.getBuildDate()).isEqualTo(now);
 
-    SnapshotDto fileSnapshot = getUnprocessedSnapshot(fileDto.getId());
-    assertThat(fileSnapshot.getComponentId()).isEqualTo(fileDto.getId());
-    assertThat(fileSnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    SnapshotDto fileSnapshot = getUnprocessedSnapshot(fileDto.uuid());
+    assertThat(fileSnapshot.getComponentUuid()).isEqualTo(file.getUuid());
+    assertThat(fileSnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(fileSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(fileSnapshot.getParentId()).isEqualTo(directorySnapshot.getId());
     assertThat(fileSnapshot.getDepth()).isEqualTo(3);
@@ -214,7 +211,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    SnapshotDto fileSnapshot = getUnprocessedSnapshot(fileDto.getId());
+    SnapshotDto fileSnapshot = getUnprocessedSnapshot(fileDto.uuid());
     assertThat(fileSnapshot.getQualifier()).isEqualTo("UTS");
     assertThat(fileSnapshot.getScope()).isEqualTo("FIL");
   }
@@ -246,29 +243,29 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     assertThat(dbTester.countRowsOfTable("snapshots")).isEqualTo(4);
 
-    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.getId());
-    assertThat(projectSnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
+    assertThat(projectSnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(projectSnapshot.getRootId()).isNull();
     assertThat(projectSnapshot.getParentId()).isNull();
     assertThat(projectSnapshot.getDepth()).isEqualTo(0);
     assertThat(projectSnapshot.getPath()).isNullOrEmpty();
 
-    SnapshotDto moduleASnapshot = getUnprocessedSnapshot(moduleADto.getId());
-    assertThat(moduleASnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    SnapshotDto moduleASnapshot = getUnprocessedSnapshot(moduleADto.uuid());
+    assertThat(moduleASnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(moduleASnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(moduleASnapshot.getParentId()).isEqualTo(projectSnapshot.getId());
     assertThat(moduleASnapshot.getDepth()).isEqualTo(1);
     assertThat(moduleASnapshot.getPath()).isEqualTo(projectSnapshot.getId() + ".");
 
-    SnapshotDto subModuleASnapshot = getUnprocessedSnapshot(subModuleADto.getId());
-    assertThat(subModuleASnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    SnapshotDto subModuleASnapshot = getUnprocessedSnapshot(subModuleADto.uuid());
+    assertThat(subModuleASnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(subModuleASnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(subModuleASnapshot.getParentId()).isEqualTo(moduleASnapshot.getId());
     assertThat(subModuleASnapshot.getDepth()).isEqualTo(2);
     assertThat(subModuleASnapshot.getPath()).isEqualTo(projectSnapshot.getId() + "." + moduleASnapshot.getId() + ".");
 
-    SnapshotDto moduleBSnapshot = getUnprocessedSnapshot(moduleBDto.getId());
-    assertThat(moduleBSnapshot.getRootProjectId()).isEqualTo(projectDto.getId());
+    SnapshotDto moduleBSnapshot = getUnprocessedSnapshot(moduleBDto.uuid());
+    assertThat(moduleBSnapshot.getRootComponentUuid()).isEqualTo(project.getUuid());
     assertThat(moduleBSnapshot.getRootId()).isEqualTo(projectSnapshot.getId());
     assertThat(moduleBSnapshot.getParentId()).isEqualTo(projectSnapshot.getId());
     assertThat(moduleBSnapshot.getDepth()).isEqualTo(1);
@@ -290,7 +287,7 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.getId());
+    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
     assertThat(projectSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_DATE);
     assertThat(projectSnapshot.getPeriodDate(1)).isEqualTo(analysisDate);
     assertThat(projectSnapshot.getPeriodModeParameter(1)).isNotNull();
@@ -335,16 +332,16 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    SnapshotDto newProjectSnapshot = getUnprocessedSnapshot(projectDto.getId());
+    SnapshotDto newProjectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
     assertThat(newProjectSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
 
-    SnapshotDto newModuleSnapshot = getUnprocessedSnapshot(moduleDto.getId());
+    SnapshotDto newModuleSnapshot = getUnprocessedSnapshot(moduleDto.uuid());
     assertThat(newModuleSnapshot.getPeriodMode(1)).isEqualTo(TIMEMACHINE_MODE_PREVIOUS_ANALYSIS);
 
-    SnapshotDto newDirectorySnapshot = getUnprocessedSnapshot(directoryDto.getId());
+    SnapshotDto newDirectorySnapshot = getUnprocessedSnapshot(directoryDto.uuid());
     assertThat(newDirectorySnapshot.getPeriodMode(1)).isNull();
 
-    SnapshotDto newFileSnapshot = getUnprocessedSnapshot(fileDto.getId());
+    SnapshotDto newFileSnapshot = getUnprocessedSnapshot(fileDto.uuid());
     assertThat(newFileSnapshot.getPeriodMode(1)).isNull();
   }
 
@@ -362,15 +359,15 @@ public class ReportPersistSnapshotsStepTest extends BaseStepTest {
 
     underTest.execute();
 
-    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.getId());
+    SnapshotDto projectSnapshot = getUnprocessedSnapshot(projectDto.uuid());
     assertThat(projectSnapshot.getPeriodMode(1)).isNull();
     assertThat(projectSnapshot.getPeriodDate(1)).isNull();
     assertThat(projectSnapshot.getPeriodModeParameter(1)).isNull();
   }
 
-  private SnapshotDto getUnprocessedSnapshot(long componentId) {
+  private SnapshotDto getUnprocessedSnapshot(String componentUuid) {
     List<SnapshotDto> projectSnapshots = dbClient.snapshotDao().selectSnapshotsByQuery(dbTester.getSession(),
-      new SnapshotQuery().setComponentId(componentId).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
+      new SnapshotQuery().setComponentUuid(componentUuid).setIsLast(false).setStatus(SnapshotDto.STATUS_UNPROCESSED));
     assertThat(projectSnapshots).hasSize(1);
     return projectSnapshots.get(0);
   }

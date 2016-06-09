@@ -96,9 +96,11 @@ class MeasureFilterSql {
 
   private String generateSql() {
     StringBuilder sb = new StringBuilder(1000);
-    sb.append("SELECT s.id, s.project_id, s.root_project_id, ");
+    sb.append("SELECT s.id, p.id, root.id, ");
     sb.append(filter.sort().column());
-    sb.append(" FROM snapshots s INNER JOIN projects p ON s.project_id=p.id ");
+    sb.append(" FROM snapshots s");
+    sb.append(" INNER JOIN projects p ON s.component_uuid=p.uuid ");
+    sb.append(" INNER JOIN projects root ON s.root_component_uuid=root.uuid ");
 
     for (int index = 0; index < filter.getMeasureConditions().size(); index++) {
       MeasureFilterCondition condition = filter.getMeasureConditions().get(index);
@@ -108,7 +110,7 @@ class MeasureFilterSql {
     }
 
     if (filter.isOnFavourites()) {
-      sb.append(" INNER JOIN properties props ON props.resource_id=s.project_id ");
+      sb.append(" INNER JOIN properties props ON props.resource_id=p.id ");
     }
 
     if (filter.sort().isOnMeasure()) {

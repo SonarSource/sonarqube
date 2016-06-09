@@ -52,7 +52,7 @@ class ShowData {
   static class Builder {
     private Ordering<SnapshotDto> snapshotOrdering;
     private List<Long> orderedSnapshotIds;
-    private List<Long> orderedComponentIds;
+    private List<String> orderedComponentUuids;
 
     private Builder(SnapshotDto snapshot) {
       List<String> orderedSnapshotIdsAsString = snapshot.getPath() == null ? Collections.<String>emptyList() : Splitter.on(".").omitEmptyStrings().splitToList(snapshot.getPath());
@@ -67,20 +67,20 @@ class ShowData {
       checkNotNull(snapshotOrdering, "Snapshot must be set before the ancestors");
       checkState(orderedSnapshotIds.size() == ancestorsSnapshots.size(), "Missing ancestor");
 
-      orderedComponentIds = Lists.transform(
+      orderedComponentUuids = Lists.transform(
         snapshotOrdering.immutableSortedCopy(ancestorsSnapshots),
-        SnapshotDtoFunctions.toComponentId());
+        SnapshotDtoFunctions.toComponentUuid());
 
       return this;
     }
 
     ShowData andAncestorComponents(List<ComponentDto> ancestorComponents) {
-      checkNotNull(orderedComponentIds, "Snapshot ancestors must be set before the component ancestors");
-      checkState(orderedComponentIds.size() == ancestorComponents.size(), "Missing ancestor");
+      checkNotNull(orderedComponentUuids, "Snapshot ancestors must be set before the component ancestors");
+      checkState(orderedComponentUuids.size() == ancestorComponents.size(), "Missing ancestor");
 
       return new ShowData(Ordering
-        .explicit(orderedComponentIds)
-        .onResultOf(ComponentDtoFunctions.toId())
+        .explicit(orderedComponentUuids)
+        .onResultOf(ComponentDtoFunctions.toUuid())
         .immutableSortedCopy(ancestorComponents));
     }
 
@@ -88,8 +88,8 @@ class ShowData {
       return orderedSnapshotIds;
     }
 
-    List<Long> getOrderedComponentIds() {
-      return orderedComponentIds;
+    List<String> getOrderedComponentUuids() {
+      return orderedComponentUuids;
     }
   }
 

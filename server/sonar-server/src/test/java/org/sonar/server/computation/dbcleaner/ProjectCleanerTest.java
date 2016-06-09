@@ -33,6 +33,7 @@ import org.sonar.db.purge.PurgeListener;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.period.DefaultPeriodCleaner;
 
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.doThrow;
@@ -78,7 +79,7 @@ public class ProjectCleanerTest {
 
     underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
-    verify(periodCleaner).clean(any(DbSession.class), any(Long.class), any(Settings.class));
+    verify(periodCleaner).clean(any(DbSession.class), anyString(), any(Settings.class));
     verify(dao).purge(any(DbSession.class), any(PurgeConfiguration.class), any(PurgeListener.class), any(PurgeProfiler.class));
   }
 
@@ -93,10 +94,10 @@ public class ProjectCleanerTest {
 
   @Test
   public void if_profiler_cleaning_fails_it_should_not_interrupt_program_execution() {
-    doThrow(RuntimeException.class).when(periodCleaner).clean(any(DbSession.class), anyLong(), any(Settings.class));
+    doThrow(RuntimeException.class).when(periodCleaner).clean(any(DbSession.class), anyString(), any(Settings.class));
 
     underTest.purge(mock(DbSession.class), mock(IdUuidPair.class), settings);
 
-    verify(periodCleaner).clean(any(DbSession.class), anyLong(), any(Settings.class));
+    verify(periodCleaner).clean(any(DbSession.class), anyString(), any(Settings.class));
   }
 }

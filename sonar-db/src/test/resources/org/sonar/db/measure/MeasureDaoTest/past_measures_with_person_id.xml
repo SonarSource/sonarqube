@@ -8,7 +8,7 @@
             enabled="[true]"/>
 
   <!-- snapshots -->
-  <snapshots id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+  <snapshots id="1000" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
              status="P" islast="[false]" depth="0"/>
 

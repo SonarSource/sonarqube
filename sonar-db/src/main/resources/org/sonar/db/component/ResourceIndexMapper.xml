@@ -24,7 +24,7 @@
     <where>
       p.enabled=${_true}
       and p.copy_resource_id is null
-      and p.id=s.project_id
+      and p.uuid=s.component_uuid
       and s.islast=${_true}
       <if test="scopes != null">
         and p.scope in
@@ -35,13 +35,13 @@
         <foreach item="qualifier" index="index" collection="qualifiers" open="(" separator="," close=")">#{qualifier}
         </foreach>
       </if>
-      <if test="rootProjectId != null">
-        and s.root_project_id=#{rootProjectId}
+      <if test="rootComponentUuid != null">
+        and s.root_component_uuid=#{rootComponentUuid}
       </if>
       <if test="nonIndexedOnly">
         and not exists(select * from resource_index ri where ri.component_uuid=p.uuid)
       </if>
-      and root.id = s.root_project_id
+      and root.uuid = s.root_component_uuid
     </where>
     order by p.id
   </select>

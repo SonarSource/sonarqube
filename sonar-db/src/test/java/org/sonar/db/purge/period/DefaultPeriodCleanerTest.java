@@ -48,13 +48,13 @@ public class DefaultPeriodCleanerTest {
   public void doClean() {
     PurgeDao dao = mock(PurgeDao.class);
     DbSession session = mock(DbSession.class);
-    when(dao.selectPurgeableSnapshots(123L, session)).thenReturn(Arrays.asList(
+    when(dao.selectPurgeableSnapshots("uuid_123", session)).thenReturn(Arrays.asList(
       new PurgeableSnapshotDto().setSnapshotId(999L).setDate(System2.INSTANCE.now())));
     Filter filter1 = newLazyFilter();
     Filter filter2 = newLazyFilter();
 
     DefaultPeriodCleaner cleaner = new DefaultPeriodCleaner(dao, new PurgeProfiler());
-    cleaner.doClean(123L, Arrays.asList(filter1, filter2), session);
+    cleaner.doClean("uuid_123", Arrays.asList(filter1, filter2), session);
 
     verify(filter1).log();
     verify(filter2).log();

@@ -54,7 +54,7 @@ public class ResourceIndexDaoTest {
   public void shouldIndexMultiModulesProject() {
     dbTester.prepareDbUnit(getClass(), "shouldIndexMultiModulesProject.xml");
 
-    underTest.indexProject(1);
+    underTest.indexProject("ABCD");
 
     dbTester.assertDbUnit(getClass(), "shouldIndexMultiModulesProject-result.xml", EXCLUDED_ID_COLUMN, "resource_index");
   }
@@ -63,7 +63,7 @@ public class ResourceIndexDaoTest {
   public void shouldReindexProjectAfterRenaming() {
     dbTester.prepareDbUnit(getClass(), "shouldReindexProjectAfterRenaming.xml");
 
-    underTest.indexProject(1);
+    underTest.indexProject("ABCD");
 
     dbTester.assertDbUnit(getClass(), "shouldReindexProjectAfterRenaming-result.xml", EXCLUDED_ID_COLUMN, "resource_index");
   }
@@ -72,7 +72,7 @@ public class ResourceIndexDaoTest {
   public void shouldNotIndexPackages() {
     dbTester.prepareDbUnit(getClass(), "shouldNotIndexPackages.xml");
 
-    underTest.indexProject(1);
+    underTest.indexProject("ABCD");
     // project
     assertThat(dbTester.countSql("select count(1) from resource_index where component_uuid='ABCD'")).isGreaterThan(0);
     // directory
@@ -150,9 +150,9 @@ public class ResourceIndexDaoTest {
     ComponentDto project = new ComponentDto().setUuid(ROOT_UUID).setKey("the_key").setName(longName).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT);
     DbSession session = dbTester.getSession();
     dbTester.getDbClient().componentDao().insert(session, project);
-    dbTester.getDbClient().snapshotDao().insert(session, new SnapshotDto().setComponentId(project.getId()).setRootProjectId(project.getId()).setLast(true));
+    dbTester.getDbClient().snapshotDao().insert(session, new SnapshotDto().setComponentUuid(project.uuid()).setRootComponentUuid(project.uuid()).setLast(true));
 
-    underTest.indexProject(session, project.getId());
+    underTest.indexProject(session, project.uuid());
     session.commit();
 
     assertThat(dbTester.countRowsOfTable("resource_index")).isEqualTo(longName.length() - ResourceIndexDao.MINIMUM_KEY_SIZE + 1);

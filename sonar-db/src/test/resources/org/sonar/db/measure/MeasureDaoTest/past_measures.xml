@@ -30,13 +30,13 @@
 
 
   <!-- snapshots -->
-  <snapshots id="1000" project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+  <snapshots id="1000" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000" version="[null]" path=""
              status="P" islast="[false]" depth="0"/>
-  <snapshots id="1001" project_id="2" parent_snapshot_id="1000" root_project_id="1" root_snapshot_id="1000"
+  <snapshots id="1001" component_uuid="BCDE" parent_snapshot_id="1000" root_component_uuid="ABCD" root_snapshot_id="1000"
              scope="DIR" qualifier="PAC" created_at="1225544280000" build_date="1225544280000" version="[null]" path="1000."
              status="P" islast="[false]" depth="1"/>
-  <snapshots id="1002" project_id="3" parent_snapshot_id="1001" root_project_id="1" root_snapshot_id="1000"
+  <snapshots id="1002" component_uuid="CDEF" parent_snapshot_id="1001" root_component_uuid="ABCD" root_snapshot_id="1000"
              scope="FIL" qualifier="CLA" created_at="1225544280000" build_date="1225544280000" version="[null]" path="1000.1001."
              status="P" islast="[false]" depth="2"/>
 

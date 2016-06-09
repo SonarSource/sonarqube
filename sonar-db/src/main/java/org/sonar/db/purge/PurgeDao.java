@@ -103,14 +103,14 @@ public class PurgeDao implements Dao {
     PurgeSnapshotQuery query = PurgeSnapshotQuery.create()
       .setIslast(false)
       .setStatus(UNPROCESSED_STATUS)
-      .setRootProjectId(project.getId());
+      .setRootComponentUuid(project.getUuid());
     commands.deleteSnapshots(query);
   }
 
   private static void purge(ResourceDto project, String[] scopesWithoutHistoricalData, PurgeCommands purgeCommands) {
     List<Long> projectSnapshotIds = purgeCommands.selectSnapshotIds(
       PurgeSnapshotQuery.create()
-        .setResourceId(project.getId())
+        .setComponentUuid(project.getUuid())
         .setIslast(false)
         .setNotPurged(true));
     for (Long projectSnapshotId : projectSnapshotIds) {
@@ -148,19 +148,19 @@ public class PurgeDao implements Dao {
     session.commit();
   }
 
-  public List<PurgeableSnapshotDto> selectPurgeableSnapshots(long resourceId) {
+  public List<PurgeableSnapshotDto> selectPurgeableSnapshots(String componentUuid) {
     DbSession session = mybatis.openSession(true);
     try {
-      return selectPurgeableSnapshots(resourceId, session);
+      return selectPurgeableSnapshots(componentUuid, session);
     } finally {
       MyBatis.closeQuietly(session);
     }
   }
 
-  public List<PurgeableSnapshotDto> selectPurgeableSnapshots(long resourceId, DbSession session) {
+  public List<PurgeableSnapshotDto> selectPurgeableSnapshots(String componentUuid, DbSession session) {
     List<PurgeableSnapshotDto> result = Lists.newArrayList();
-    result.addAll(mapper(session).selectPurgeableSnapshotsWithEvents(resourceId));
-    result.addAll(mapper(session).selectPurgeableSnapshotsWithoutEvents(resourceId));
+    result.addAll(mapper(session).selectPurgeableSnapshotsWithEvents(componentUuid));
+    result.addAll(mapper(session).selectPurgeableSnapshotsWithoutEvents(componentUuid));
     // sort by date
     Collections.sort(result);
     return result;
@@ -181,11 +181,10 @@ public class PurgeDao implements Dao {
   }
 
   private void disableResource(IdUuidPair componentIdUuid, PurgeMapper mapper) {
-    long componentId = componentIdUuid.getId();
     mapper.deleteResourceIndex(Arrays.asList(componentIdUuid.getUuid()));
-    mapper.setSnapshotIsLastToFalse(componentId);
+    mapper.setSnapshotIsLastToFalse(componentIdUuid.getUuid());
     mapper.deleteFileSourcesByUuid(componentIdUuid.getUuid());
-    mapper.disableResource(componentId);
+    mapper.disableResource(componentIdUuid.getId());
     mapper.resolveResourceIssuesNotAlreadyResolved(componentIdUuid.getUuid(), system2.now());
   }
 

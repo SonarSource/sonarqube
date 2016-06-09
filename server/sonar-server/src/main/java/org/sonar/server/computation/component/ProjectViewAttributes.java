@@ -21,22 +21,31 @@ package org.sonar.server.computation.component;
 
 import javax.annotation.concurrent.Immutable;
 
+import static java.util.Objects.requireNonNull;
+
 @Immutable
 public class ProjectViewAttributes {
   private final long projectId;
+  private final String projectUuid;
 
-  public ProjectViewAttributes(long projectId) {
+  public ProjectViewAttributes(long projectId, String projectUuid) {
     this.projectId = projectId;
+    this.projectUuid = requireNonNull(projectUuid, "projectUuid can't be null");
   }
 
   public long getProjectId() {
     return projectId;
   }
 
+  public String getProjectUuid() {
+    return projectUuid;
+  }
+
   @Override
   public String toString() {
     return "ProjectViewAttributes{" +
         "projectId=" + projectId +
+        ", projectUuid='" + projectUuid + '\'' +
         '}';
   }
 }

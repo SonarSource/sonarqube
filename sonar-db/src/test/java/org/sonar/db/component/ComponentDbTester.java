@@ -91,7 +91,7 @@ public class ComponentDbTester {
       .build();
     List<ComponentDto> rootProjects = dbClient.componentDao().selectByQuery(dbSession, dbQuery, 0, Integer.MAX_VALUE);
     for (ComponentDto project : rootProjects) {
-      dbClient.componentIndexDao().indexProject(dbSession, project.getId());
+      dbClient.componentIndexDao().indexProject(dbSession, project.uuid());
     }
     db.commit();
   }

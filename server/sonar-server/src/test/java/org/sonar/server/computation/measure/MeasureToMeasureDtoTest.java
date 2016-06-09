@@ -52,7 +52,7 @@ public class MeasureToMeasureDtoTest {
   private static final MetricImpl SOME_STRING_METRIC = new MetricImpl(5, "5", "5", Metric.MetricType.STRING);
   private static final MetricImpl SOME_LEVEL_METRIC = new MetricImpl(6, "6", "6", Metric.MetricType.LEVEL);
 
-  static final Component SOME_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).build();
+  static final Component SOME_COMPONENT = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("uuid_1").build();
 
   @Rule
   public MutableDbIdsRepositoryRule dbIdsRepository = MutableDbIdsRepositoryRule.create(SOME_COMPONENT);

@@ -8,7 +8,7 @@
             id="1" root_id="[null]" uuid="ABCD"
             description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"/>
 
-  <snapshots id="101" project_id="1" root_project_id="1" root_snapshot_id="[null]" parent_snapshot_id="[null]"
+  <snapshots id="101" component_uuid="ABCD" root_component_uuid="ABCD" root_snapshot_id="[null]" parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"

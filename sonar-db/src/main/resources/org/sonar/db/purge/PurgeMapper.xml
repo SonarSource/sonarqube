@@ -18,11 +18,11 @@
       <if test="id != null">
         and s.id=#{id}
       </if>
-      <if test="rootProjectId != null">
-        and s.root_project_id=#{rootProjectId}
+      <if test="rootComponentUuid != null">
+        and s.root_component_uuid=#{rootComponentUuid}
       </if>
-      <if test="resourceId != null">
-        and s.project_id=#{resourceId}
+      <if test="componentUuid != null">
+        and s.component_uuid=#{componentUuid}
       </if>
       <if test="status != null">
         and s.status in
@@ -51,31 +51,31 @@
   <select id="selectSnapshotIdsByResource" parameterType="map" resultType="long">
     select s.id from snapshots s
     <where>
-      s.project_id in
-      <foreach collection="resourceIds" open="(" close=")" item="resourceId" separator=",">
-        #{resourceId}
+      s.component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
+        #{componentUuid}
       </foreach>
     </where>
   </select>
 
-  <select id="selectPurgeableSnapshotsWithEvents" parameterType="long" resultType="PurgeableSnapshot">
+  <select id="selectPurgeableSnapshotsWithEvents" parameterType="String" resultType="PurgeableSnapshot">
     select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast" from
     snapshots s where
-    s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
+    s.component_uuid=#{componentUuid} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
     exists(select e.id from events e where e.snapshot_id=s.id)
   </select>
 
-  <select id="selectPurgeableSnapshotsWithoutEvents" parameterType="long" resultType="PurgeableSnapshot">
+  <select id="selectPurgeableSnapshotsWithoutEvents" parameterType="String" resultType="PurgeableSnapshot">
     select s.id as "snapshotId", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast" from
     snapshots s where
-    s.project_id=#{id} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
+    s.component_uuid=#{componentUuid} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
     not exists(select e.id from events e where e.snapshot_id=s.id)
   </select>
 
   <select id="selectComponentIdUuidsToDisable" resultType="org.sonar.db.purge.IdUuidPair" parameterType="long">
     select p.id, p.uuid from projects p
     where (p.id=#{id} or p.root_id=#{id}) and p.enabled=${_true}
-    and not exists(select s.project_id from snapshots s where s.islast=${_true} and s.project_id=p.id)
+    and not exists(select s.component_uuid from snapshots s where s.islast=${_true} and s.component_uuid=p.uuid)
   </select>
 
   <select id="selectMetricIdsWithoutHistoricalData" resultType="long">
@@ -214,8 +214,8 @@
     </foreach>
   </delete>
 
-  <update id="setSnapshotIsLastToFalse" parameterType="long">
-    update snapshots set islast=${_false} where project_id=#{id}
+  <update id="setSnapshotIsLastToFalse" parameterType="String">
+    update snapshots set islast=${_false} where component_uuid=#{componentUuid}
   </update>
 
   <delete id="deleteComponentIssueChanges" parameterType="map">

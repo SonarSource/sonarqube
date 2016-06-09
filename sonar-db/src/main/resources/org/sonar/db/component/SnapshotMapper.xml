@@ -6,8 +6,8 @@
     s.id,
     s.parent_snapshot_id as parentId,
     s.root_snapshot_id as rootId,
-    s.root_project_id as rootProjectId,
-    s.project_id as componentId,
+    s.root_component_uuid as rootComponentUuid,
+    s.component_uuid as componentUuId,
     s.created_at as createdAt,
     s.build_date as buildDate,
     s.status as status,
@@ -64,14 +64,14 @@
     select
     <include refid="snapshotColumns"/>
     from snapshots s
-    where s.islast=${_true} and s.project_id = #{resource}
+    where s.islast=${_true} and s.component_uuid = #{componentUuid}
   </select>
 
   <select id="countLastSnapshotByComponentUuid" resultType="Integer">
     SELECT count(1)
     FROM snapshots s
-    INNER JOIN projects p ON p.id=s.project_id AND p.uuid=#{componentUuid}
     <where>
+      s.component_uuid=#{componentUuid}
       AND s.islast=${_true}
     </where>
   </select>
@@ -81,12 +81,9 @@
     <include refid="snapshotColumns"/>
     FROM snapshots s
     <if test="query.componentUuid != null">
-      INNER JOIN projects p ON p.id=s.project_id AND p.uuid=#{query.componentUuid} AND p.enabled=${_true}
+      INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid}
     </if>
     <where>
-      <if test="query.componentId != null">
-        AND s.project_id=#{query.componentId}
-      </if>
       <if test="query.scope != null">
         AND s.scope=#{query.scope}
       </if>
@@ -129,7 +126,7 @@
     FROM snapshots s
     INNER JOIN events e ON s.id = e.snapshot_id AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
     <where>
-      s.project_id=#{componentId}
+      s.component_uuid=#{componentUuid}
     </where>
     ORDER BY e.event_date DESC
   </select>
@@ -139,7 +136,7 @@
     <include refid="snapshotColumns"/>
     FROM snapshots s
     <where>
-      s.project_id=#{componentId}
+      s.component_uuid=#{componentUuid}
     </where>
     ORDER BY s.created_at ASC
   </select>
@@ -157,26 +154,15 @@
     <include refid="viewsSnapshotColumns"/>
     FROM snapshots s
     <where>
-      and s.project_id = #{componentId}
+      and s.component_uuid = #{componentUuid}
       and s.status = 'P'
       and s.created_at &lt; #{date}
     </where>
     order by created_at desc
   </select>
 
-  <select id="selectLatestSnapshot" resultType="ViewsSnapshot">
-    SELECT
-    <include refid="viewsSnapshotColumns"/>
-    FROM snapshots s
-    <where>
-      and s.project_id = #{componentId}
-      and s.status = 'P'
-      and s.islast = ${_true}
-    </where>
-  </select>
-
   <sql id="insertColumns">
-    (parent_snapshot_id, root_snapshot_id, root_project_id, project_id, created_at, build_date, status, purge_status,
+    (parent_snapshot_id, root_snapshot_id, root_component_uuid, component_uuid, created_at, build_date, status, purge_status,
     islast, scope, qualifier, version, path, depth,
     period1_mode, period2_mode, period3_mode, period4_mode, period5_mode,
     period1_param, period2_param, period3_param, period4_param, period5_param,
@@ -198,7 +184,7 @@
   <insert id="insert" parameterType="Snapshot" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into snapshots
     <include refid="insertColumns"/>
-    values (#{parentId}, #{rootId}, #{rootProjectId}, #{componentId}, #{createdAt}, #{buildDate}, #{status},
+    values (#{parentId}, #{rootId}, #{rootComponentUuid}, #{componentUuid}, #{createdAt}, #{buildDate}, #{status},
     #{purgeStatus}, #{last}, #{scope}, #{qualifier}, #{version}, #{path}, #{depth},
     #{period1Mode}, #{period2Mode}, #{period3Mode}, #{period4Mode}, #{period5Mode},
     #{period1Param}, #{period2Param}, #{period3Param}, #{period4Param}, #{period5Param},

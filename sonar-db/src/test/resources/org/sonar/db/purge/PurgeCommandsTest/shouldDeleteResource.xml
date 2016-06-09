@@ -1,10 +1,10 @@
 <dataset>
 
-  <projects id="1" uuid="1" enabled="[true]" root_id="[null]"
+  <projects id="1" uuid="uuid_1" enabled="[true]" root_id="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
             description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
-  <snapshots id="1" project_id="1" parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]"
+  <snapshots id="1" component_uuid="uuid_1" parent_snapshot_id="[null]" root_component_uuid="uuid_1" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -15,10 +15,10 @@
              build_date="1228222680000"
              version="[null]" path="[null]"/>
 
-  <events id="1" name="Version 1.0" component_uuid="1" snapshot_id="1" category="VERSION" description="[null]"
+  <events id="1" name="Version 1.0" component_uuid="uuid_1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="1228222680000" created_at="1228222680000" event_data="[null]"/>
 
-  <issues id="1" kee="ABCDE" component_uuid="1" project_uuid="1" status="CLOSED" resolution="[null]" line="200"
+  <issues id="1" kee="ABCDE" component_uuid="uuid_1" project_uuid="1" status="CLOSED" resolution="[null]" line="200"
           severity="BLOCKER"
           reporter="[null]" assignee="arthur" rule_id="500"
           manual_severity="[false]"

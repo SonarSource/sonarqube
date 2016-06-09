@@ -21,8 +21,8 @@ class Snapshot < ActiveRecord::Base
   include Resourceable
   acts_as_tree :foreign_key => 'parent_snapshot_id'
 
-  belongs_to :project
-  belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_project_id'
+  belongs_to :project, :class_name => 'Project', :foreign_key => 'component_uuid',:primary_key => 'uuid'
+  belongs_to :root_project, :class_name => 'Project', :foreign_key => 'root_component_uuid',:primary_key => 'uuid'
   belongs_to :parent_snapshot, :class_name => 'Snapshot', :foreign_key => 'parent_snapshot_id'
   belongs_to :root_snapshot, :class_name => 'Snapshot', :foreign_key => 'root_snapshot_id'
 
@@ -75,7 +75,7 @@ class Snapshot < ActiveRecord::Base
     #   2. project B, which depends on A 1.0, is analyzed -> new snapshot A 1.0 with qualifier LIB.
     #   3. project A has 2 snapshots : the first one with qualifier=TRK has measures, the second one with qualifier LIB has no measures. Its version must not be used in time machine
     # That's why the 2 following SQL requests check the qualifiers (and optionally scopes, just to be sure)
-    snapshots=Snapshot.find(:all, :conditions => ["snapshots.project_id=? AND events.snapshot_id=snapshots.id AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
+    snapshots=Snapshot.find(:all, :conditions => ["snapshots.component_uuid=? AND events.snapshot_id=snapshots.id AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.uuid, STATUS_PROCESSED, resource.scope, resource.qualifier],
                             :include => 'events',
                             :order => 'snapshots.created_at ASC')
 
@@ -84,7 +84,7 @@ class Snapshot < ActiveRecord::Base
     snapshots=snapshots[-5, 5] if snapshots.size>=5
 
     snapshots.insert(0, Snapshot.find(:first,
-                                      :conditions => ["project_id=? AND status=? AND scope=? AND qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier],
+                                      :conditions => ["component_uuid=? AND status=? AND scope=? AND qualifier=?", resource.uuid, STATUS_PROCESSED, resource.scope, resource.qualifier],
                                       :include => 'project', :order => 'snapshots.created_at ASC', :limit => 1))
 
     snapshots.compact.uniq
@@ -97,7 +97,7 @@ class Snapshot < ActiveRecord::Base
     end
 
     # Get 1rst & latests snapshots of the period
-    snapshot_conditions = ["snapshots.project_id=? AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.id, STATUS_PROCESSED, resource.scope, resource.qualifier]
+    snapshot_conditions = ["snapshots.component_uuid=? AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.uuid, STATUS_PROCESSED, resource.scope, resource.qualifier]
     if options[:from]
       snapshot_conditions[0] += " AND snapshots.created_at>=?"
       snapshot_conditions << options[:from].to_i * 1000
@@ -196,9 +196,9 @@ class Snapshot < ActiveRecord::Base
     nil
   end
 
-  def self.snapshot_by_date(resource_id, date)
-    if resource_id && date
-      Snapshot.find(:first, :conditions => ['created_at>=? and created_at<? and project_id=?', date.beginning_of_day.to_i*1000, date.end_of_day.to_i*1000, resource_id], :order => 'created_at desc')
+  def self.snapshot_by_date(resource_uuid, date)
+    if resource_uuid && date
+      Snapshot.find(:first, :conditions => ['created_at>=? and created_at<? and component_uuid=?', date.beginning_of_day.to_i*1000, date.end_of_day.to_i*1000, resource_uuid], :order => 'created_at desc')
     else
       nil
     end
@@ -209,7 +209,7 @@ class Snapshot < ActiveRecord::Base
   end
 
   def resource_id
-    project_id
+    project.id
   end
 
   def periods?
@@ -217,7 +217,7 @@ class Snapshot < ActiveRecord::Base
   end
 
   def resource_id_for_authorization
-    root_project_id || project_id
+    root_project.id
   end
 
   def path_name

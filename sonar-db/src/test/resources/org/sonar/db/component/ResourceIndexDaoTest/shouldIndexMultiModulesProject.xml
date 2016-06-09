@@ -27,8 +27,8 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
-  <snapshots purge_status="[null]" id="1" islast="[true]" root_project_id="1" project_id="1"/>
-  <snapshots purge_status="[null]" id="2" islast="[true]" root_project_id="1" project_id="2"/>
-  <snapshots purge_status="[null]" id="3" islast="[true]" root_project_id="1" project_id="3"/>
-  <snapshots purge_status="[null]" id="4" islast="[true]" root_project_id="1" project_id="4"/>
+  <snapshots purge_status="[null]" id="1" islast="[true]" root_component_uuid="ABCD" component_uuid="ABCD"/>
+  <snapshots purge_status="[null]" id="2" islast="[true]" root_component_uuid="ABCD" component_uuid="BCDE"/>
+  <snapshots purge_status="[null]" id="3" islast="[true]" root_component_uuid="ABCD" component_uuid="CDEF"/>
+  <snapshots purge_status="[null]" id="4" islast="[true]" root_component_uuid="ABCD" component_uuid="DEFG"/>
 </dataset>

@@ -20,7 +20,7 @@
 package org.sonar.db.component;
 
 final class ResourceIndexQuery {
-  private long rootProjectId;
+  private String rootComponentUuid;
   private String[] scopes = null;
   private String[] qualifiers = null;
   private boolean nonIndexedOnly = false;
@@ -50,12 +50,12 @@ final class ResourceIndexQuery {
     return this;
   }
 
-  public long getRootProjectId() {
-    return rootProjectId;
+  public String getRootComponentUuid() {
+    return rootComponentUuid;
   }
 
-  public ResourceIndexQuery setRootProjectId(long i) {
-    this.rootProjectId = i;
+  public ResourceIndexQuery setRootComponentUuid(String rootComponentUuid) {
+    this.rootComponentUuid = rootComponentUuid;
     return this;
   }
 

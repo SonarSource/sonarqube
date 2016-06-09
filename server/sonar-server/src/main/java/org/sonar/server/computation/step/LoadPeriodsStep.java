@@ -102,7 +102,7 @@ public class LoadPeriodsStep implements ComputationStep {
     }
 
     boolean isReportType = projectOrView.getType().isReportType();
-    PeriodResolver periodResolver = new PeriodResolver(dbClient, session, projectDto.get().getId(), analysisMetadataHolder.getAnalysisDate(),
+    PeriodResolver periodResolver = new PeriodResolver(dbClient, session, projectDto.get().uuid(), analysisMetadataHolder.getAnalysisDate(),
       isReportType ? projectOrView.getReportAttributes().getVersion() : null,
       isReportType ? Qualifiers.PROJECT : Qualifiers.VIEW);
 

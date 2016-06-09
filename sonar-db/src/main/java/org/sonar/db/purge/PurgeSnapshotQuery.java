@@ -21,9 +21,9 @@ package org.sonar.db.purge;
 
 public final class PurgeSnapshotQuery {
   private Long id;
-  private Long rootProjectId;
+  private String rootComponentUuid;
   private Long rootSnapshotId;
-  private Long resourceId;
+  private String componentUuid;
   private String[] scopes;
   private String[] qualifiers;
   private String[] status;
@@ -47,12 +47,12 @@ public final class PurgeSnapshotQuery {
     return this;
   }
 
-  public Long getRootProjectId() {
-    return rootProjectId;
+  public String getRootComponentUuid() {
+    return rootComponentUuid;
   }
 
-  public PurgeSnapshotQuery setRootProjectId(Long rootProjectId) {
-    this.rootProjectId = rootProjectId;
+  public PurgeSnapshotQuery setRootComponentUuid(String rootComponentUuid) {
+    this.rootComponentUuid = rootComponentUuid;
     return this;
   }
 
@@ -110,12 +110,12 @@ public final class PurgeSnapshotQuery {
     return this;
   }
 
-  public Long getResourceId() {
-    return resourceId;
+  public String getComponentUuid() {
+    return componentUuid;
   }
 
-  public PurgeSnapshotQuery setResourceId(Long l) {
-    this.resourceId = l;
+  public PurgeSnapshotQuery setComponentUuid(String componentUuid) {
+    this.componentUuid = componentUuid;
     return this;
   }
 

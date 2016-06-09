@@ -23,7 +23,7 @@
 
   <!-- do not purge last snapshots -->
   <snapshots id="1"
-             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -34,7 +34,7 @@
              version="[null]" path="[null]"/>
 
   <snapshots id="2"
-             project_id="2" parent_snapshot_id="1" root_project_id="1" root_snapshot_id="1"
+             component_uuid="EFGH" parent_snapshot_id="1" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -46,7 +46,7 @@
 
 
   <snapshots id="3"
-             project_id="3" parent_snapshot_id="2" root_project_id="1" root_snapshot_id="1"
+             component_uuid="GHIJ" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -58,7 +58,7 @@
 
   <!-- snapshots to be purged -->
   <snapshots id="4"
-             project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
+             component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -69,7 +69,7 @@
              version="[null]" path="[null]"/>
 
   <snapshots id="5"
-             project_id="2" parent_snapshot_id="4" root_project_id="1" root_snapshot_id="4"
+             component_uuid="EFGH" parent_snapshot_id="4" root_component_uuid="ABCD" root_snapshot_id="4"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -81,7 +81,7 @@
 
 
   <snapshots id="6"
-             project_id="3" parent_snapshot_id="5" root_project_id="1" root_snapshot_id="4"
+             component_uuid="GHIJ" parent_snapshot_id="5" root_component_uuid="ABCD" root_snapshot_id="4"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"

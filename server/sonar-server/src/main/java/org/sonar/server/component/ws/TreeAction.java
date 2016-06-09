@@ -158,7 +158,7 @@ public class TreeAction implements ComponentsWsAction {
     try {
       ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, treeWsRequest.getBaseComponentId(), treeWsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
       checkPermissions(baseComponent);
-      SnapshotDto baseSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(dbSession, baseComponent.getId());
+      SnapshotDto baseSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, baseComponent.uuid());
       if (baseSnapshot == null) {
         return emptyResponse(baseComponent, treeWsRequest);
       }

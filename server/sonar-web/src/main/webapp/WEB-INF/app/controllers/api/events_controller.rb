@@ -130,10 +130,10 @@ class Api::EventsController < Api::ApiController
       if (params[:dateTime])
         # try to find a snapshot on that day
         date = parse_datetime(params[:dateTime], true)
-        root_snapshot = Snapshot.find(:last, :conditions => ["project_id = ? AND created_at >= ? AND created_at <= ?", @resource.id, date.to_i*1000, (date + 1.day).to_i*1000], :order => :created_at)
+        root_snapshot = Snapshot.find(:last, :conditions => ["component_uuid = ? AND created_at >= ? AND created_at <= ?", @resource.uuid, date.to_i*1000, (date + 1.day).to_i*1000], :order => :created_at)
         raise "No snapshot exists for given date" unless root_snapshot
       else
-        root_snapshot = Snapshot.find(:last, :conditions => ["project_id = ?", @resource.id], :order => :created_at)
+        root_snapshot = Snapshot.find(:last, :conditions => ["component_uuid = ?", @resource.uuid], :order => :created_at)
       end
       
       raise "A version already exists on this resource." if params[:category]==EventCategory::KEY_VERSION && root_snapshot.event(EventCategory::KEY_VERSION)
@@ -161,7 +161,7 @@ class Api::EventsController < Api::ApiController
           :event_date => snapshot.created_at
         )
         event.save!
-        event_to_return = event if snapshot.project_id = @resource.id
+        event_to_return = event if snapshot.component_uuid = @resource.uuid
       end
       
       

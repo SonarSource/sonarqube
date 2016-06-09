@@ -61,8 +61,8 @@ class PurgeCommands {
     // voluntarily grouped by tables in order to benefit from JDBC batch mode.
     // Batch requests can only relate to the same PreparedStatement.
 
-    for (List<Long> partResourceIds : componentIdPartitions) {
-      deleteSnapshots(purgeMapper.selectSnapshotIdsByResource(partResourceIds));
+    for (List<String> componentUuidPartition : componentUuidsPartitions) {
+      deleteSnapshots(purgeMapper.selectSnapshotIdsByResource(componentUuidPartition));
     }
 
     // possible missing optimization: filter requests according to resource scope

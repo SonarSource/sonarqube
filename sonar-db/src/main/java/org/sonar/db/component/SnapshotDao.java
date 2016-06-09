@@ -59,16 +59,12 @@ public class SnapshotDao implements Dao {
   }
 
   @CheckForNull
-  public SnapshotDto selectLastSnapshotByComponentId(DbSession session, long componentId) {
-    return mapper(session).selectLastSnapshot(componentId);
+  public SnapshotDto selectLastSnapshotByComponentUuid(DbSession session, String componentUuid) {
+    return mapper(session).selectLastSnapshot(componentUuid);
   }
 
   public boolean hasLastSnapshotByComponentUuid(DbSession session, String componentUUid) {
     return mapper(session).countLastSnapshotByComponentUuid(componentUUid) > 0;
-  }
-
-  public List<SnapshotDto> selectSnapshotsByComponentId(DbSession session, long componentId) {
-    return mapper(session).selectSnapshotsByQuery(new SnapshotQuery().setComponentId(componentId));
   }
 
   public List<SnapshotDto> selectSnapshotsByQuery(DbSession session, SnapshotQuery query) {
@@ -85,13 +81,13 @@ public class SnapshotDao implements Dao {
     return snapshotDtos.get(0);
   }
 
-  public List<SnapshotDto> selectPreviousVersionSnapshots(DbSession session, long componentId, String lastVersion) {
-    return mapper(session).selectPreviousVersionSnapshots(componentId, lastVersion);
+  public List<SnapshotDto> selectPreviousVersionSnapshots(DbSession session, String componentUuid, String lastVersion) {
+    return mapper(session).selectPreviousVersionSnapshots(componentUuid, lastVersion);
   }
 
   @CheckForNull
-  public SnapshotDto selectOldestSnapshot(DbSession session, long componentId) {
-    List<SnapshotDto> snapshotDtos = mapper(session).selectOldestSnapshots(componentId, new RowBounds(0, 1));
+  public SnapshotDto selectOldestSnapshot(DbSession session, String componentUuid) {
+    List<SnapshotDto> snapshotDtos = mapper(session).selectOldestSnapshots(componentUuid, new RowBounds(0, 1));
     return snapshotDtos.isEmpty() ? null : snapshotDtos.get(0);
   }
 
@@ -130,16 +126,14 @@ public class SnapshotDao implements Dao {
     insert(session, Lists.asList(item, others));
   }
 
+  /**
+   * Used by Governance
+   */
   @CheckForNull
-  public ViewsSnapshotDto selectSnapshotBefore(long componentId, long date, DbSession dbSession) {
-    return from(mapper(dbSession).selectSnapshotBefore(componentId, date))
+  public ViewsSnapshotDto selectSnapshotBefore(String componentUuid, long date, DbSession dbSession) {
+    return from(mapper(dbSession).selectSnapshotBefore(componentUuid, date))
       .first()
       .orNull();
-  }
-
-  @CheckForNull
-  public ViewsSnapshotDto selectLatestSnapshot(long componentId, DbSession dbSession) {
-    return mapper(dbSession).selectLatestSnapshot(componentId);
   }
 
   private static SnapshotMapper mapper(DbSession session) {

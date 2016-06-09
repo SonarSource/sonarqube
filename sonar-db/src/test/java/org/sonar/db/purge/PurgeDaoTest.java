@@ -98,14 +98,14 @@ public class PurgeDaoTest {
   @Test
   public void shouldDeleteSnapshots() {
     dbTester.prepareDbUnit(getClass(), "shouldDeleteSnapshots.xml");
-    underTest.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setResourceId(THE_PROJECT_ID), new PurgeProfiler());
+    underTest.deleteSnapshots(PurgeSnapshotQuery.create().setIslast(false).setComponentUuid(THE_PROJECT_UUID), new PurgeProfiler());
     dbTester.assertDbUnit(getClass(), "shouldDeleteSnapshots-result.xml", "snapshots");
   }
 
   @Test
   public void shouldSelectPurgeableSnapshots() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectPurgeableSnapshots.xml");
-    List<PurgeableSnapshotDto> snapshots = underTest.selectPurgeableSnapshots(THE_PROJECT_ID);
+    List<PurgeableSnapshotDto> snapshots = underTest.selectPurgeableSnapshots(THE_PROJECT_UUID);
 
     assertThat(snapshots).hasSize(3);
     assertThat(getById(snapshots, THE_PROJECT_ID).isLast()).isTrue();

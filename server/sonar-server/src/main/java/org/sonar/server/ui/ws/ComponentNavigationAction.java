@@ -115,7 +115,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
 
       userSession.checkComponentUuidPermission(UserRole.USER, component.projectUuid());
 
-      SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentId(session, component.getId());
+      SnapshotDto snapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(session, component.uuid());
 
       JsonWriter json = response.newJsonWriter();
       json.beginObject();
@@ -267,7 +267,7 @@ public class ComponentNavigationAction implements NavigationWsAction {
       SnapshotDto currentSnapshot = snapshot;
       while (currentSnapshot.getParentId() != null) {
         currentSnapshot = dbClient.snapshotDao().selectOrFailById(session, currentSnapshot.getParentId());
-        componentPath.add(0, dbClient.componentDao().selectOrFailById(session, currentSnapshot.getComponentId()));
+        componentPath.add(0, dbClient.componentDao().selectOrFailByUuid(session, currentSnapshot.getComponentUuid()));
       }
     }
 

@@ -21,8 +21,8 @@ class Project < ActiveRecord::Base
   include Comparable
   include Resourceable
 
-  has_many :snapshots
-  has_many :processed_snapshots, :class_name => 'Snapshot', :conditions => "status='#{Snapshot::STATUS_PROCESSED}' AND qualifier<>'LIB'", :order => 'created_at asc'
+  has_many :snapshots, :class_name => 'Snapshot', :foreign_key => 'component_uuid', :primary_key => 'uuid'
+  has_many :processed_snapshots, :class_name => 'Snapshot', :foreign_key => 'component_uuid', :primary_key => 'uuid', :conditions => "status='#{Snapshot::STATUS_PROCESSED}' AND qualifier<>'LIB'", :order => 'created_at asc'
   has_many :events, :foreign_key => 'component_uuid', :primary_key => 'uuid', :order => 'event_date DESC'
   has_many :project_links, :foreign_key => 'component_uuid', :primary_key => 'uuid', :dependent => :delete_all, :order => 'link_type'
   has_many :user_roles, :foreign_key => 'resource_id'
@@ -108,7 +108,7 @@ class Project < ActiveRecord::Base
   def last_snapshot
     @last_snapshot ||=
       begin
-        snapshot=Snapshot.first(:conditions => {:islast => true, :project_id => id})
+        snapshot=Snapshot.first(:conditions => {:islast => true, :component_uuid => uuid})
         if snapshot
           snapshot.project=self
         end
@@ -146,7 +146,7 @@ class Project < ActiveRecord::Base
                                          ' from project_measures m, snapshots s ' +
                                          ' where s.id=m.snapshot_id and ' +
                                          " s.status='%s' and " +
-                                         ' s.project_id=%s and m.metric_id=%s ', 'P', self.id, metric_id]) +
+                                         ' s.component_uuid=%s and m.metric_id=%s ', 'P', self.uuid, metric_id]) +
       ' and m.person_id IS NULL' +
       ' order by s.created_at'
     create_chart_measures(Project.connection.select_all(sql), 'created_at', 'value')

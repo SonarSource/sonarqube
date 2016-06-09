@@ -42,7 +42,6 @@ public final class SnapshotQuery {
     }
   }
 
-  private Long componentId;
   private String componentUuid;
   private Long createdAfter;
   private Long createdBefore;
@@ -87,16 +86,6 @@ public final class SnapshotQuery {
 
   public SnapshotQuery setIsLast(@Nullable Boolean isLast) {
     this.isLast = isLast;
-    return this;
-  }
-
-  @CheckForNull
-  public Long getComponentId() {
-    return componentId;
-  }
-
-  public SnapshotQuery setComponentId(@Nullable Long componentId) {
-    this.componentId = componentId;
     return this;
   }
 

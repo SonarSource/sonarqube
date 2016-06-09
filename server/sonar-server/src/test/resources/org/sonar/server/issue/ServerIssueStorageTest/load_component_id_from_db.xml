@@ -1,7 +1,7 @@
 <dataset>
   <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="ABCD"/>
-  <snapshots id="10" project_id="10" root_project_id="[null]" islast="[true]"/>
+  <snapshots id="10" component_uuid="ABCD" root_component_uuid="ABCD" islast="[true]"/>
 
   <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="BCDE"/>
-  <snapshots id="100" project_id="100" root_project_id="10" islast="[true]"/>
+  <snapshots id="100" component_uuid="BCDE" root_component_uuid="ABCD" islast="[true]"/>
 </dataset>

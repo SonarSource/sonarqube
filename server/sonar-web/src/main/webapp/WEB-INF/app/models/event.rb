@@ -70,7 +70,7 @@ class Event < ActiveRecord::Base
   #
   def self.already_exists(snapshot_id, event_name, event_category)
     snapshot = Snapshot.find(snapshot_id.to_i)
-    snapshots = Snapshot.find(:all, :conditions => ["status='P' AND project_id=?", snapshot.project_id], :include => 'events')
+    snapshots = Snapshot.find(:all, :conditions => ["status='P' AND component_uuid=?", snapshot.component_uuid], :include => 'events')
     snapshots.each do |snapshot|
       snapshot.events.each do |event|
         return true if event.name==event_name && event.category==event_category
@@ -82,6 +82,6 @@ class Event < ActiveRecord::Base
   
   def populate_snapshot
     self.created_at=DateTime.now unless self.created_at
-    self.snapshot=Snapshot.snapshot_by_date(resource_id, event_date) unless self.snapshot
+    self.snapshot=Snapshot.snapshot_by_date(snapshot.uuid, event_date) unless self.snapshot
   end
 end
