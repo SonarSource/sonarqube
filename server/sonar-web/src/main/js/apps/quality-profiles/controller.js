@@ -22,6 +22,7 @@ import _ from 'underscore';
 import Marionette from 'backbone.marionette';
 import ProfileHeaderView from './profile-header-view';
 import ProfileDetailsView from './profile-details-view';
+import NotFoundView from './not-found-view';
 
 export default Marionette.Controller.extend({
 
@@ -36,11 +37,12 @@ export default Marionette.Controller.extend({
   },
 
   show (key) {
-    const that = this;
-    this.fetchProfiles().done(function () {
-      const profile = that.options.app.profiles.findWhere({ key });
+    this.fetchProfiles().done(() => {
+      const profile = this.options.app.profiles.findWhere({ key });
       if (profile != null) {
         profile.trigger('select', profile, { trigger: false });
+      } else {
+        this.notFound(key);
       }
     });
   },
@@ -67,6 +69,11 @@ export default Marionette.Controller.extend({
         profile.compareWith(withKey);
       }
     });
+  },
+
+  notFound (key) {
+    const notFoundView = new NotFoundView({ key });
+    this.options.app.layout.detailsRegion.show(notFoundView);
   },
 
   onProfileSelect (profile, options) {
