@@ -80,8 +80,8 @@ public class AddProjectCreatorToTemplateAction implements PermissionsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       PermissionTemplateDto template = dependenciesFinder.getTemplate(dbSession, WsTemplateRef.newTemplateRef(request.getTemplateId(), request.getTemplateName()));
-      Optional<PermissionTemplateCharacteristicDto> templatePermission = dbClient.permissionTemplateCharacteristicDao().selectByPermissionAndTemplateId(dbSession, request.getPermission(),
-        template.getId());
+      Optional<PermissionTemplateCharacteristicDto> templatePermission = dbClient.permissionTemplateCharacteristicDao()
+        .selectByPermissionAndTemplateId(dbSession, request.getPermission(), template.getId());
       if (templatePermission.isPresent()) {
         updateTemplatePermission(dbSession, templatePermission.get());
       } else {
