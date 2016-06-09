@@ -41,10 +41,6 @@ class SessionsController < ApplicationController
     begin
       self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
       if logged_in?
-        if params[:remember_me] == '1'
-          self.current_user.remember_me
-          cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at, :http_only => true }
-        end
         set_user_session
         redirect_back_or_default(home_url)
       else
@@ -58,9 +54,7 @@ class SessionsController < ApplicationController
   def logout
     if logged_in?
       self.current_user.on_logout
-      self.current_user.forget_me
     end
-    cookies.delete :auth_token
     cookies.delete 'JWT-SESSION'
     flash[:notice]=message('session.flash_notice.logged_out')
     redirect_to(home_path)

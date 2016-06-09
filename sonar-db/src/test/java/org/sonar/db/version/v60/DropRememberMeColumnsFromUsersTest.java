@@ -17,18 +17,31 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v60;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import java.sql.SQLException;
 import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import org.sonar.db.Database;
+import org.sonar.db.dialect.PostgreSql;
+import org.sonar.db.version.DdlChange;
 
-public class MigrationStepModuleTest {
+public class DropRememberMeColumnsFromUsersTest {
+
+  private Database database = mock(Database.class);
+
+  private DropRememberMeColumnsFromUsers underTest = new DropRememberMeColumnsFromUsers(database);
+
   @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(72);
+  public void verify_generated_sql_on_postgresql() throws SQLException {
+    when(database.getDialect()).thenReturn(new PostgreSql());
+
+    DdlChange.Context context = mock(DdlChange.Context.class);
+    underTest.execute(context);
+
+    verify(context).execute("ALTER TABLE users DROP COLUMN remember_token, DROP COLUMN remember_token_expires_at");
   }
 }
