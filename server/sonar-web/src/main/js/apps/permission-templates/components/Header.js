@@ -58,7 +58,7 @@ export default class Header extends React.Component {
           </div>
 
           <p className="page-description">
-            {translate('roles.page.description')}
+            {translate('permission_templates.page.description')}
           </p>
         </header>
     );
