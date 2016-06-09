@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-import Checkbox from '../../../components/shared/checkbox';
+import Checkbox from '../../../components/controls/Checkbox';
 import { CURRENTS } from '../constants';
 
 const CurrentsFilter = ({ value, onChange }) => {
@@ -40,7 +40,7 @@ const CurrentsFilter = ({ value, onChange }) => {
   return (
       <div className="bt-search-form-field">
         <Checkbox
-            initiallyChecked={checked}
+            checked={checked}
             onCheck={handleChange}/>
         &nbsp;
         <label

@@ -18,39 +18,39 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import classNames from 'classnames';
 
-export default React.createClass({
-  propTypes: {
+export default class Checkbox extends React.Component {
+  static propTypes = {
     onCheck: React.PropTypes.func.isRequired,
-    initiallyChecked: React.PropTypes.bool,
+    checked: React.PropTypes.bool.isRequired,
     thirdState: React.PropTypes.bool
-  },
+  };
 
-  getInitialState() {
-    return { checked: this.props.initiallyChecked || false };
-  },
+  static defaultProps = {
+    thirdState: false
+  };
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.initiallyChecked != null) {
-      this.setState({ checked: nextProps.initiallyChecked });
-    }
-  },
-
-  toggle(e) {
-    e.preventDefault();
-    this.props.onCheck(!this.state.checked);
-    this.setState({ checked: !this.state.checked });
-  },
-
-  render() {
-    const classNames = ['icon-checkbox'];
-    if (this.state.checked) {
-      classNames.push('icon-checkbox-checked');
-    }
-    if (this.props.thirdState) {
-      classNames.push('icon-checkbox-single');
-    }
-    const className = classNames.join(' ');
-    return <a onClick={this.toggle} className={className} href="#"/>;
+  componentWillMount () {
+    this.handleClick = this.handleClick.bind(this);
   }
-});
+
+  handleClick (e) {
+    e.preventDefault();
+    e.target.blur();
+    this.props.onCheck(!this.props.checked);
+  }
+
+  render () {
+    const className = classNames('icon-checkbox', {
+      'icon-checkbox-checked': this.props.checked,
+      'icon-checkbox-single': this.props.thirdState
+    });
+
+    return (
+        <a className={className}
+           href="#"
+           onClick={this.handleClick}/>
+    );
+  }
+}

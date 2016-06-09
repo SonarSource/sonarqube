@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Checkbox from '../shared/checkbox';
+import Checkbox from '../controls/Checkbox';
 
 export default React.createClass({
   propTypes: {
@@ -41,7 +41,9 @@ export default React.createClass({
     return (
         <li className="panel panel-vertical">
           <div className="display-inline-block text-middle spacer-right">
-            <Checkbox onCheck={this.onCheck} initiallyChecked={!!this.props.item.selected}/>
+            <Checkbox
+                checked={!!this.props.item.selected}
+                onCheck={this.onCheck}/>
           </div>
           <div className="display-inline-block text-middle" dangerouslySetInnerHTML={{ __html: renderedItem }}/>
         </li>

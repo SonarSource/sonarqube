@@ -24,7 +24,7 @@ export default Popup.extend({
   template: Template,
 
   events: {
-    'click': 'onClick'
+    'click': 'handleClick'
   },
 
   onRender () {

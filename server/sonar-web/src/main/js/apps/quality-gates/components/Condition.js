@@ -21,7 +21,7 @@ import React, { Component } from 'react';
 import Select from 'react-select';
 
 import DeleteConditionView from '../views/gate-conditions-delete-view';
-import Checkbox from '../../../components/shared/checkbox';
+import Checkbox from '../../../components/controls/Checkbox';
 import { createCondition, updateCondition } from '../../../api/quality-gates';
 import { translate, getLocalizedMetricName } from '../../../helpers/l10n';
 import { formatMeasure } from '../../../helpers/measures';
@@ -173,7 +173,7 @@ export default class Condition extends Component {
           <td className="thin text-middle nowrap">
             {(edit && !isDiffMetric) ? (
                 <Checkbox
-                    initiallyChecked={isLeakSelected}
+                    checked={isLeakSelected}
                     onCheck={this.handlePeriodChange.bind(this)}/>
             ) : this.renderPeriodValue()}
           </td>
