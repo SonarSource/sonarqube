@@ -17,13 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Modal from '../../../components/common/modals';
 import Template from '../templates/permission-templates-users.hbs';
 import '../../../components/SelectList';
+import {
+    addProjectCreatorToTemplate,
+    removeProjectCreatorFromTemplate
+} from '../../../api/permissions';
 
 export default Modal.extend({
   template: Template,
+
+  events () {
+    return {
+      ...Modal.prototype.events.apply(this, arguments),
+      'change #grant-to-project-creators': 'onCheckboxChange'
+    };
+  },
+
+  onCheckboxChange() {
+    const checked = this.$('#grant-to-project-creators').is(':checked');
+    if (checked) {
+      addProjectCreatorToTemplate(
+          this.options.permissionTemplate.name,
+          this.options.permission.key);
+    } else {
+      removeProjectCreatorFromTemplate(
+          this.options.permissionTemplate.name,
+          this.options.permission.key);
+    }
+  },
 
   onRender () {
     Modal.prototype.onRender.apply(this, arguments);
@@ -62,9 +85,10 @@ export default Modal.extend({
   },
 
   serializeData () {
-    return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
-      permissionName: this.options.permission.name,
+    return {
+      ...Modal.prototype.serializeData.apply(this, arguments),
+      permission: this.options.permission,
       permissionTemplateName: this.options.permissionTemplate.name
-    });
+    };
   }
 });
