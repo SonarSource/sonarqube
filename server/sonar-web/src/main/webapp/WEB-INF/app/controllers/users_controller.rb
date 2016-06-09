@@ -26,7 +26,6 @@ class UsersController < ApplicationController
 
   def create
     return unless request.post?
-    cookies.delete :auth_token
 
     call_backend do
       isUserReactivated = Internal.users_api.create(params[:user])
@@ -42,7 +41,6 @@ class UsersController < ApplicationController
   def signup
     access_denied unless request.post? && Property.value('sonar.allowUsersToSignUp')=='true'
 
-    cookies.delete :auth_token
     @user=prepare_user
     if @user.save
       Internal.users_api.index()

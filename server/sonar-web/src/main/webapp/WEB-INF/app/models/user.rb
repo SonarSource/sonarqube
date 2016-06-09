@@ -39,7 +39,6 @@ class User < ActiveRecord::Base
 
   include Authentication
   include Authentication::ByPassword
-  include Authentication::ByCookieToken
   include NeedAuthorization::ForUser
   include NeedAuthentication::ForUser
 
@@ -261,6 +260,11 @@ class User < ActiveRecord::Base
       end
     end
     hash
+  end
+
+  # Copy the method coming from ByCookieToken because it can be used by plugin, for instance by the Active Directory plugin
+  def forget_me
+    # Nothing to do
   end
 
 end

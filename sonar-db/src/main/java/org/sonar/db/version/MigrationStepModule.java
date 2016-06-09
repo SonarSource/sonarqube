@@ -90,6 +90,7 @@ import org.sonar.db.version.v60.CleanOrphanRowsInResourceIndex;
 import org.sonar.db.version.v60.CleanOrphanRowsInSnapshots;
 import org.sonar.db.version.v60.DeleteOrphanMeasuresWithoutComponent;
 import org.sonar.db.version.v60.DropIdColumnsFromResourceIndex;
+import org.sonar.db.version.v60.DropRememberMeColumnsFromUsers;
 import org.sonar.db.version.v60.DropUnusedMeasuresColumns;
 import org.sonar.db.version.v60.DropIdColumnsFromSnapshots;
 import org.sonar.db.version.v60.DropProjectIdColumnFromMeasures;
@@ -199,6 +200,7 @@ public class MigrationStepModule extends Module {
       PopulateComponentUuidOfMeasures.class,
       DeleteOrphanMeasuresWithoutComponent.class,
       MakeComponentUuidNotNullOnMeasures.class,
-      DropProjectIdColumnFromMeasures.class);
+      DropProjectIdColumnFromMeasures.class,
+      DropRememberMeColumnsFromUsers.class);
   }
 }
