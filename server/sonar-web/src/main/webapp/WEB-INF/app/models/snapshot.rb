@@ -188,22 +188,12 @@ class Snapshot < ActiveRecord::Base
   end
 
   def rule_measures(metrics=nil, rule=nil)
-    if metrics
-      metric_ids=[metrics].flatten.map { |metric| metric.id }
-    end
-    if metrics || rule
-      rulemeasures.select do |m|
-        (metric_ids.nil? || metric_ids.include?(m.metric_id)) && (rule.nil? || m.rule_id==rule.id)
-      end
-    else
-      rulemeasures
-    end
+    # SONAR-7501 kept for backward-compatibility
+    []
   end
 
   def rule_measure(metric, rule)
-    rulemeasures.each do |m|
-      return m if m.metric_id==metric.id && m.rule_id==rule.id
-    end
+    # SONAR-7501 kept for backward-compatibility
     nil
   end
 
