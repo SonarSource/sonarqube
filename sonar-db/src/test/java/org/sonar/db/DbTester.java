@@ -141,6 +141,8 @@ public class DbTester extends ExternalResource {
   /**
    * Very simple helper method to insert some data into a table.
    * It's the responsibility of the caller to convert column values to string.
+   *
+   * @param valuesByColumn column name and value pairs, if any value is null, the associated column won't be inserted
    */
   public void executeInsert(String table, String... valuesByColumn) {
     executeInsert(table, mapOf(valuesByColumn));
@@ -149,7 +151,11 @@ public class DbTester extends ExternalResource {
   private static Map<String, String> mapOf(String... values) {
     ImmutableMap.Builder<String, String> builder = ImmutableMap.builder();
     for (int i = 0; i < values.length; i++) {
-      builder.put(values[i], values[i + 1]);
+      String key = values[i];
+      String value = values[i + 1];
+      if (value != null) {
+        builder.put(key, value);
+      }
       i++;
     }
     return builder.build();
