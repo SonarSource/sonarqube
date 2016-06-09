@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
-import { QualityGateLink } from '../../../components/shared/quality-gate-link';
 import { translate } from '../../../helpers/l10n';
+import { getQualityGateUrl } from '../../../helpers/urls';
 
 const MetaQualityGate = ({ gate }) => {
   return (
@@ -36,9 +35,9 @@ const MetaQualityGate = ({ gate }) => {
                   {'(' + translate('default') + ')'}
                 </span>
             )}
-            <QualityGateLink gate={gate.key}>
+            <a href={getQualityGateUrl(gate.key)}>
               {gate.name}
-            </QualityGateLink>
+            </a>
           </li>
         </ul>
       </div>

@@ -83,3 +83,21 @@ export function getComponentFixedDashboardUrl (componentKey, dashboardKey) {
 export function getComponentDashboardManagementUrl (componentKey) {
   return window.baseUrl + '/dashboards?resource=' + encodeURIComponent(componentKey);
 }
+
+/**
+ * Generate URL for a quality profile
+ * @param {string} key
+ * @returns {string}
+ */
+export function getQualityProfileUrl (key) {
+  return window.baseUrl + '/profiles/show?key=' + encodeURIComponent(key);
+}
+
+/**
+ * Generate URL for a quality gate
+ * @param {string} key
+ * @returns {string}
+ */
+export function getQualityGateUrl (key) {
+  return window.baseUrl + '/quality_gates/show/' + encodeURIComponent(key);
+}
