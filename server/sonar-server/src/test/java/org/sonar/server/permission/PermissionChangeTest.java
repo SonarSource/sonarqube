@@ -131,7 +131,7 @@ public class PermissionChangeTest {
     PermissionChange query = PermissionChange.buildFromParams(inconsistentParams);
 
     thrown.expect(BadRequestException.class);
-    thrown.expectMessage("Invalid component permission key invalid. Valid values are [user, admin, issueadmin, codeviewer, scan]");
+    thrown.expectMessage("Invalid component permission key invalid. Valid values are [admin, codeviewer, issueadmin, scan, user]");
     query.validate();
   }
 }
