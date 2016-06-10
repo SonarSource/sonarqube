@@ -19,48 +19,56 @@
  */
 import classNames from 'classnames';
 import React from 'react';
-import { translate } from '../../helpers/l10n';
+import { translate, translateWithParameters } from '../../helpers/l10n';
 import { formatMeasure } from '../../helpers/measures';
 
-export default React.createClass({
-  propTypes: {
+export default class ListFooter extends React.Component {
+  static propTypes = {
     count: React.PropTypes.number.isRequired,
     total: React.PropTypes.number.isRequired,
     loadMore: React.PropTypes.func,
     ready: React.PropTypes.bool
-  },
+  };
 
-  getDefaultProps() {
-    return { ready: true };
-  },
+  static defaultProps = {
+    ready: true
+  };
 
-  canLoadMore() {
+  componentWillMount () {
+    this.handleLoadMore = this.handleLoadMore.bind(this);
+  }
+
+  canLoadMore () {
     return typeof this.props.loadMore === 'function';
-  },
+  }
 
-  handleLoadMore(e) {
+  handleLoadMore (e) {
     e.preventDefault();
     e.target.blur();
-    if (this.canLoadMore()) {
-      this.props.loadMore();
-    }
-  },
+    this.props.loadMore();
+  }
 
-  renderLoading() {
-    return <footer className="spacer-top note text-center">
-      {translate('loading')}
-    </footer>;
-  },
-
-  render() {
+  render () {
     const hasMore = this.props.total > this.props.count;
-    const loadMoreLink = <a onClick={this.handleLoadMore} className="spacer-left" href="#">show more</a>;
-    const className = classNames('spacer-top note text-center', { 'new-loading': !this.props.ready });
+    const loadMoreLink = (
+        <a className="spacer-left" href="#" onClick={this.handleLoadMore}>
+          {translate('show_more')}
+        </a>
+
+    );
+    const className = classNames('spacer-top note text-center', {
+      'new-loading': !this.props.ready
+    });
+
     return (
         <footer className={className}>
-          {formatMeasure(this.props.count, 'INT')} of {formatMeasure(this.props.total, 'INT')} shown
+          {translateWithParameters(
+              'x_of_y_shown',
+              formatMeasure(this.props.count, 'INT'),
+              formatMeasure(this.props.total, 'INT')
+          )}
           {this.canLoadMore() && hasMore ? loadMoreLink : null}
         </footer>
     );
   }
-});
+}

@@ -24,7 +24,7 @@ import Search from './search';
 import Projects from './projects';
 import { PAGE_SIZE, TYPE } from './constants';
 import { getComponents, getProvisioned, getGhosts, deleteComponents } from '../../api/components';
-import ListFooter from '../../components/shared/list-footer';
+import ListFooter from '../../components/controls/ListFooter';
 
 export default React.createClass({
   propTypes: {

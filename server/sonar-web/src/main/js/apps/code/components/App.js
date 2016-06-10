@@ -24,7 +24,7 @@ import Components from './Components';
 import Breadcrumbs from './Breadcrumbs';
 import SourceViewer from './../../../components/source-viewer/SourceViewer';
 import Search from './Search';
-import ListFooter from '../../../components/shared/list-footer';
+import ListFooter from '../../../components/controls/ListFooter';
 import { retrieveComponentBase, retrieveComponent, loadMoreChildren, parseError } from '../utils';
 import { addComponentBreadcrumbs } from '../bucket';
 import { selectCoverageMetric } from '../../../helpers/measures';
