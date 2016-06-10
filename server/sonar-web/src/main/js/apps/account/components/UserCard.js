@@ -21,7 +21,7 @@ import React from 'react';
 import { IndexLink } from 'react-router';
 
 import UserExternalIdentity from './UserExternalIdentity';
-import Avatar from '../../../components/shared/avatar';
+import Avatar from '../../../components/ui/Avatar';
 
 const UserCard = ({ user }) => {
   return (
