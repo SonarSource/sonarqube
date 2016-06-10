@@ -18,32 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import { formatMeasure } from '../../helpers/measures';
 
-import Rating from '../../../components/ui/Rating';
-import Level from '../../../components/ui/Level';
-import { formatMeasure } from '../../../helpers/measures';
-import { formatLeak, isDiffMetric } from '../utils';
+export default class Level extends React.Component {
+  static propTypes = {
+    level: React.PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired
+  };
 
-const Measure = ({ measure, metric }) => {
-  const finalMetric = metric || measure.metric;
-
-  if (finalMetric.type === 'RATING') {
-    return <Rating value={measure.value}/>;
+  render () {
+    const formatted = formatMeasure(this.props.level, 'LEVEL');
+    const className = 'level level-' + this.props.level;
+    return <span className={className}>{formatted}</span>;
   }
-
-  if (finalMetric.type === 'LEVEL') {
-    return <Level level={measure.value}/>;
-  }
-
-  const formattedValue = isDiffMetric(finalMetric) ?
-      formatLeak(measure.leak, finalMetric) :
-      formatMeasure(measure.value, finalMetric.type);
-
-  return (
-      <span>
-        {formattedValue != null ? formattedValue : '–'}
-      </span>
-  );
-};
-
-export default Measure;
+}
