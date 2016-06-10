@@ -17,18 +17,28 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v60;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.DropColumnsBuilder;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DropIdColumnsFromProjects extends DdlChange {
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(87);
+  private static final String TABLE_PROJECTS = "projects";
+
+  public DropIdColumnsFromProjects(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(
+      new DropColumnsBuilder(
+        getDialect(), TABLE_PROJECTS,
+        "root_id", "copy_resource_id", "person_id")
+          .build());
+  }
+
 }

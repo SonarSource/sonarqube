@@ -118,5 +118,4 @@ public class PopulateUuidColumnsOfSnapshotsTest {
     assertThat(row.get("ROOT_COMPONENT_UUID")).isEqualTo(rootComponentUuid);
   }
 
-
 }
