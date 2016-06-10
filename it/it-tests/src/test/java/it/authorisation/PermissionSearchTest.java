@@ -29,6 +29,7 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonarqube.ws.WsPermissions;
+import org.sonarqube.ws.WsPermissions.Permission;
 import org.sonarqube.ws.WsPermissions.SearchTemplatesWsResponse;
 import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
@@ -46,6 +47,7 @@ import org.sonarqube.ws.client.permission.UsersWsRequest;
 import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
 import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.projectDir;
 
@@ -155,7 +157,10 @@ public class PermissionSearchTest {
     SearchTemplatesWsResponse clearedSearchTemplatesWsResponse = permissionsWsClient.searchTemplates(
       new SearchTemplatesWsRequest()
         .setQuery("my-new-template"));
-    assertThat(clearedSearchTemplatesWsResponse.getPermissionTemplates(0).getPermissionsList()).isEmpty();
+    assertThat(clearedSearchTemplatesWsResponse.getPermissionTemplates(0).getPermissionsList())
+      .extracting(Permission::getUsersCount, Permission::getGroupsCount)
+      .hasSize(5)
+      .containsOnly(tuple(0, 0));
   }
 
   private static void createUser(String login, String name) {

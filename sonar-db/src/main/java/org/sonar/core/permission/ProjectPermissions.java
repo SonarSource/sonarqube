@@ -33,7 +33,7 @@ public final class ProjectPermissions {
   /**
    * All the component permissions values, ordered from {@link UserRole#USER} to {@link GlobalPermissions#SCAN_EXECUTION}.
    */
-  public static final List<String> ALL = ImmutableList.of(UserRole.USER, UserRole.ADMIN, UserRole.ISSUE_ADMIN, UserRole.CODEVIEWER, GlobalPermissions.SCAN_EXECUTION);
+  public static final List<String> ALL = ImmutableList.of(UserRole.ADMIN,  UserRole.CODEVIEWER, UserRole.ISSUE_ADMIN, GlobalPermissions.SCAN_EXECUTION, UserRole.USER);
 
   public static final String ALL_ON_ONE_LINE = Joiner.on(", ").join(ProjectPermissions.ALL);
 
