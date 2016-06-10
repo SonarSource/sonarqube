@@ -22,7 +22,7 @@ import moment from 'moment';
 import shallowCompare from 'react-addons-shallow-compare';
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
 import { DonutChart } from '../../../components/charts/donut-chart';
-import { Rating } from './../../../components/shared/rating';
+import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
 import {
     formatMeasure,

@@ -18,16 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import { formatMeasure } from '../../helpers/measures';
 
-export const Rating = React.createClass({
-  render() {
-    if (this.props.value == null || isNaN(this.props.value)) {
-      return null;
+export default class Rating extends React.Component {
+  static propTypes = {
+    value: (props, propName, componentName) => {
+      // allow both numbers and strings
+      const numberValue = Number(props[propName]);
+      if (numberValue < 1 || numberValue > 5) {
+        throw new Error(
+            `Invalid prop "${propName}" passed to "${componentName}".`);
+      }
     }
+  };
+
+  render () {
     const formatted = formatMeasure(this.props.value, 'RATING');
     const className = 'rating rating-' + formatted;
     return <span className={className}>{formatted}</span>;
   }
-});
+}
