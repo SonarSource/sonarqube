@@ -17,34 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.api.internal;
+package org.sonar.api;
 
-import com.google.common.io.Resources;
-import java.io.IOException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
-import org.sonar.api.SonarQubeVersion;
-import org.sonar.api.utils.System2;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.Version;
 
-/**
- * For internal use only.
- */
-public class SonarQubeVersionFactory {
+import static org.assertj.core.api.Assertions.assertThat;
 
-  private static final String FILE_PATH = "/sq-version.txt";
+public class RuntimeApiVersionTest {
 
-  private SonarQubeVersionFactory() {
-    // prevents instantiation
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+
+  @Test
+  public void isGte() {
+    Version version = Version.parse("1.2.3");
+    RuntimeApiVersion apiVersion = new RuntimeApiVersion(version, false);
+    assertThat(apiVersion.get()).isEqualTo(version);
+    assertThat(apiVersion.isSonarlintRuntime()).isFalse();
+    assertThat(apiVersion.isGreaterThanOrEqual(version)).isTrue();
+    assertThat(apiVersion.isGreaterThanOrEqual(Version.parse("1.1"))).isTrue();
+    assertThat(apiVersion.isGreaterThanOrEqual(Version.parse("1.3"))).isFalse();
   }
 
-  public static SonarQubeVersion create(System2 system) {
-    try {
-      URL url = system.getResource(FILE_PATH);
-      String versionInFile = Resources.toString(url, StandardCharsets.UTF_8);
-      return new SonarQubeVersion(Version.parse(versionInFile));
-    } catch (IOException e) {
-      throw new IllegalStateException("Can not load " + FILE_PATH + " from classpath", e);
-    }
-  }
 }

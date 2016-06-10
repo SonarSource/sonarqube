@@ -34,8 +34,9 @@ public class SonarQubeVersionTest {
   @Test
   public void isGte() {
     Version version = Version.parse("1.2.3");
-    SonarQubeVersion qubeVersion = new SonarQubeVersion(version);
+    SonarQubeVersion qubeVersion = new SonarQubeVersion(version, true);
     assertThat(qubeVersion.get()).isEqualTo(version);
+    assertThat(qubeVersion.isSonarlintRuntime()).isTrue();
     assertThat(qubeVersion.isGreaterThanOrEqual(version)).isTrue();
     assertThat(qubeVersion.isGreaterThanOrEqual(Version.parse("1.1"))).isTrue();
     assertThat(qubeVersion.isGreaterThanOrEqual(Version.parse("1.3"))).isFalse();

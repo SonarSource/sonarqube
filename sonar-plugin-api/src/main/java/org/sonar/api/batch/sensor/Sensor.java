@@ -22,6 +22,7 @@ package org.sonar.api.batch.sensor;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.internal.SensorContextTester;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * <p>
@@ -34,6 +35,7 @@ import org.sonar.api.batch.sensor.internal.SensorContextTester;
  * @since 5.1
  */
 @ScannerSide
+@SonarLintSide
 @ExtensionPoint
 public interface Sensor {
 

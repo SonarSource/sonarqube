@@ -24,6 +24,7 @@ import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.InstantiationStrategy;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 /**
  * The extension point to define a new language
@@ -35,6 +36,7 @@ import org.sonar.api.server.ServerSide;
 @ScannerSide
 @InstantiationStrategy(InstantiationStrategy.PER_BATCH)
 @ServerSide
+@SonarLintSide
 @ComputeEngineSide
 @ExtensionPoint
 public interface Language {

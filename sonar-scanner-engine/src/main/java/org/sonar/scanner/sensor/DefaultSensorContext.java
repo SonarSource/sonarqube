@@ -20,7 +20,7 @@
 package org.sonar.scanner.sensor;
 
 import java.io.Serializable;
-import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.RuntimeApiVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputModule;
@@ -57,10 +57,10 @@ public class DefaultSensorContext implements SensorContext {
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
   private final InputModule module;
-  private final SonarQubeVersion sqVersion;
+  private final RuntimeApiVersion sqVersion;
 
   public DefaultSensorContext(InputModule module, Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage,
-    SonarQubeVersion sqVersion) {
+    RuntimeApiVersion sqVersion) {
     this.module = module;
     this.settings = settings;
     this.fs = fs;
@@ -93,6 +93,16 @@ public class DefaultSensorContext implements SensorContext {
   @Override
   public Version getSonarQubeVersion() {
     return sqVersion.get();
+  }
+
+  @Override
+  public Version getRuntimeApiVersion() {
+    return sqVersion.get();
+  }
+
+  @Override
+  public boolean isSonarLintRuntime() {
+    return sqVersion.isSonarlintRuntime();
   }
 
   @Override

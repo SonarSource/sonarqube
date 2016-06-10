@@ -104,7 +104,7 @@ public class OneIssuePerLineSensorTest {
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
     context.settings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2");
-    context.setSonarQubeVersion(Version.parse("5.4"));
+    context.setRuntime(Version.parse("5.4"), false);
 
     sensor.execute(context);
 

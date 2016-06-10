@@ -31,16 +31,17 @@ import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
-public class SonarQubeVersionFactoryTest {
+public class RuntimeApiVersionFactoryTest {
 
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void create() {
-    SonarQubeVersion version = SonarQubeVersionFactory.create(System2.INSTANCE);
+    SonarQubeVersion version = RuntimeApiVersionFactory.create(System2.INSTANCE, true);
     assertThat(version).isNotNull();
     assertThat(version.get().major()).isGreaterThanOrEqualTo(5);
+    assertThat(version.isSonarlintRuntime()).isTrue();
   }
 
   @Test
@@ -50,7 +51,7 @@ public class SonarQubeVersionFactoryTest {
 
     System2 system = spy(System2.class);
     when(system.getResource(anyString())).thenReturn(new File("target/unknown").toURI().toURL());
-    SonarQubeVersionFactory.create(system);
+    RuntimeApiVersionFactory.create(system, false);
   }
 
 }

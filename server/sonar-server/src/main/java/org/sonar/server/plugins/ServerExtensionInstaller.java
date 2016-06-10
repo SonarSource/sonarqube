@@ -23,10 +23,9 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import java.lang.annotation.Annotation;
 import java.util.Map;
-import org.sonar.api.Extension;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
-import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.RuntimeApiVersion;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
@@ -39,14 +38,14 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class ServerExtensionInstaller {
 
-  private final SonarQubeVersion sonarQubeVersion;
+  private final RuntimeApiVersion runtimeApiVersion;
   private final PluginRepository pluginRepository;
   private final Class<? extends Annotation>[] supportedAnnotationTypes;
 
-  protected ServerExtensionInstaller(SonarQubeVersion sonarQubeVersion, PluginRepository pluginRepository,
+  protected ServerExtensionInstaller(RuntimeApiVersion runtimeApiVersion, PluginRepository pluginRepository,
     Class<? extends Annotation>... supportedAnnotationTypes) {
     requireNonNull(supportedAnnotationTypes, "At least one supported annotation type must be specified");
-    this.sonarQubeVersion = sonarQubeVersion;
+    this.runtimeApiVersion = runtimeApiVersion;
     this.pluginRepository = pluginRepository;
     this.supportedAnnotationTypes = supportedAnnotationTypes;
   }
@@ -60,7 +59,7 @@ public abstract class ServerExtensionInstaller {
         Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
         container.addExtension(pluginInfo, plugin);
 
-        Plugin.Context context = new Plugin.Context(sonarQubeVersion.get());
+        Plugin.Context context = new Plugin.Context(runtimeApiVersion.get(), runtimeApiVersion.isSonarlintRuntime());
         plugin.define(context);
         for (Object extension : context.getExtensions()) {
           if (installExtension(container, pluginInfo, extension, true) != null) {
@@ -119,7 +118,7 @@ public abstract class ServerExtensionInstaller {
     return isType(extension, ExtensionProvider.class) || extension instanceof ExtensionProvider;
   }
 
-  static boolean isType(Object extension, Class<? extends Extension> extensionClass) {
+  static boolean isType(Object extension, Class extensionClass) {
     Class clazz = extension instanceof Class ? (Class) extension : extension.getClass();
     return extensionClass.isAssignableFrom(clazz);
   }

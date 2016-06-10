@@ -58,7 +58,7 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
-import org.sonar.api.internal.SonarQubeVersionFactory;
+import org.sonar.api.internal.RuntimeApiVersionFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
@@ -95,7 +95,7 @@ public class SensorContextTester implements SensorContext {
     this.activeRules = new ActiveRulesBuilder().build();
     this.sensorStorage = new InMemorySensorStorage();
     this.module = new DefaultInputModule("projectKey");
-    this.sqVersion = SonarQubeVersionFactory.create(System2.INSTANCE);
+    this.sqVersion = RuntimeApiVersionFactory.create(System2.INSTANCE, false);
   }
 
   public static SensorContextTester create(File moduleBaseDir) {
@@ -145,8 +145,18 @@ public class SensorContextTester implements SensorContext {
     return sqVersion.get();
   }
 
-  public SensorContextTester setSonarQubeVersion(Version version) {
-    this.sqVersion = new SonarQubeVersion(version);
+  @Override
+  public Version getRuntimeApiVersion() {
+    return sqVersion.get();
+  }
+
+  @Override
+  public boolean isSonarLintRuntime() {
+    return sqVersion.isSonarlintRuntime();
+  }
+
+  public SensorContextTester setRuntime(Version version, boolean isSonarLint) {
+    this.sqVersion = new SonarQubeVersion(version, isSonarLint);
     return this;
   }
 

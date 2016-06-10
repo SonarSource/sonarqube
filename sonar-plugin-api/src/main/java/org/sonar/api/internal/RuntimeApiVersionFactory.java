@@ -17,26 +17,34 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonar.api.internal;
 
-import org.junit.Test;
-import org.sonar.api.Plugin;
+import com.google.common.io.Resources;
+import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
+import org.sonar.api.SonarQubeVersion;
+import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
-import org.sonar.xoo.lang.CpdTokenizerSensor;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.RuntimeApiVersion.V5_5;
+/**
+ * For internal use only.
+ */
+public class RuntimeApiVersionFactory {
 
-public class XooPluginTest {
+  private static final String FILE_PATH = "/sq-version.txt";
 
-  @Test
-  public void provide_extensions_for_5_5() {
-    Plugin.Context context = new Plugin.Context(V5_5, false);
-    new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(40).contains(CpdTokenizerSensor.class);
+  private RuntimeApiVersionFactory() {
+    // prevents instantiation
+  }
 
-    context = new Plugin.Context(Version.parse("5.4"), false);
-    new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(39).doesNotContain(CpdTokenizerSensor.class);
+  public static SonarQubeVersion create(System2 system, boolean isSonarLint) {
+    try {
+      URL url = system.getResource(FILE_PATH);
+      String versionInFile = Resources.toString(url, StandardCharsets.UTF_8);
+      return new SonarQubeVersion(Version.parse(versionInFile), isSonarLint);
+    } catch (IOException e) {
+      throw new IllegalStateException("Can not load " + FILE_PATH + " from classpath", e);
+    }
   }
 }

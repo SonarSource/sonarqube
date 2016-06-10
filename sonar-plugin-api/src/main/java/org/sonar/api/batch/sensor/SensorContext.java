@@ -64,8 +64,21 @@ public interface SensorContext {
 
   /**
    * @since 5.5
+   * @deprecated since 6.0 replaced by {@link #getRuntimeApiVersion()}
    */
+  @Deprecated
   Version getSonarQubeVersion();
+
+  /**
+   * @since 6.0
+   */
+  Version getRuntimeApiVersion();
+
+  /**
+   * Test if plugin is currently executed in SonarLint. This can allow to implement a different behavior.
+   * @since 6.0
+   */
+  boolean isSonarLintRuntime();
 
   // ----------- MEASURES --------------
 

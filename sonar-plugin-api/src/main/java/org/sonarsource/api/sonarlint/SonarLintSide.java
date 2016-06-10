@@ -17,26 +17,36 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+package org.sonarsource.api.sonarlint;
 
-import org.junit.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.utils.Version;
-import org.sonar.xoo.lang.CpdTokenizerSensor;
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.RuntimeApiVersion.V5_5;
-
-public class XooPluginTest {
-
-  @Test
-  public void provide_extensions_for_5_5() {
-    Plugin.Context context = new Plugin.Context(V5_5, false);
-    new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(40).contains(CpdTokenizerSensor.class);
-
-    context = new Plugin.Context(Version.parse("5.4"), false);
-    new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(39).doesNotContain(CpdTokenizerSensor.class);
-  }
+/**
+ * Marker annotation for all the components available in container of sonarlint. Note that
+ * injection of dependencies by constructor is used :
+ * <pre>
+ *   {@literal @}SonarLintSide
+ *   public class Foo {
+ *
+ *   }
+ *   {@literal @}SonarLintSide
+ *   public class Bar {
+ *     private final Foo foo;
+ *     public Bar(Foo f) {
+ *       this.foo = f;
+ *     }
+ *   }
+ *
+ * </pre>
+ *
+ * @since 6.0
+ */
+@Documented
+@Retention(RetentionPolicy.RUNTIME)
+@Target(ElementType.TYPE)
+public @interface SonarLintSide {
 }

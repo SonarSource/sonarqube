@@ -20,11 +20,13 @@
 package org.sonar.api;
 
 import javax.annotation.concurrent.Immutable;
-import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * Version of SonarQube at runtime. This component can be injected as a dependency
@@ -38,7 +40,7 @@ import org.sonar.api.utils.Version;
  * public class MySensor implements Sensor {
  *
  *   public void execute(SensorContext context) {
- *     if (context.getSonarQubeVersion().isGreaterThanOrEqual(SonarQubeVersion.V5_5)) {
+ *     if (context.getRuntimeApiVersion().isGreaterThanOrEqual(RuntimeApiVersion.V5_5)) {
  *       context.newMethodIntroducedIn5_5();
  *     }
  *   }
@@ -61,11 +63,11 @@ import org.sonar.api.utils.Version;
  * 
  * // Component provided by plugin
  * public class MyExtension {
- *   private final SonarQubeVersion sonarQubeVersion;
+ *   private final RuntimeApiVersion runtimeApiVersion;
  *   private final AnApi api;
  *
- *   public MyExtension(SonarQubeVersion sonarQubeVersion, AnApi api) {
- *     this.sonarQubeVersion = sonarQubeVersion;
+ *   public MyExtension(RuntimeApiVersion runtimeApiVersion, AnApi api) {
+ *     this.runtimeApiVersion = runtimeApiVersion;
  *     this.api = api;
  *   }
  *
@@ -73,14 +75,14 @@ import org.sonar.api.utils.Version;
  *     // assume that runtime is 5.5+
  *     api.foo();
  *
- *     if (sonarQubeVersion.isGreaterThanOrEqual(SonarQubeVersion.V5_6)) {
+ *     if (runtimeApiVersion.isGreaterThanOrEqual(SonarQubeVersion.V5_6)) {
  *       api.bar();
  *     }
  *   }
  * }
  * </pre>
  * <p>
- * The minimal supported version of SonarQube is verified at runtime. As plugin is built
+ * The minimal supported version of plugin API is verified at runtime. As plugin is built
  * with sonar-plugin-api 5.6, we assume that the plugin requires v5.6 or greater at runtime.
  * For this reason the plugin must default which is the minimal supported version
  * in the configuration of sonar-packaging-maven-plugin 1.16+:
@@ -114,18 +116,46 @@ import org.sonar.api.utils.Version;
  * </pre>
  *
  *
- * @since 5.5
- * @deprecated since 6.0 replaced by {@link RuntimeApiVersion}
+ * @since 6.0
  */
-@ScannerSide
+@BatchSide
 @ServerSide
 @ComputeEngineSide
 @Immutable
-@Deprecated
-public class SonarQubeVersion extends RuntimeApiVersion {
+public class RuntimeApiVersion {
 
-  public SonarQubeVersion(Version version, boolean sonarlint) {
-    super(version, sonarlint);
+  /**
+   * Constant for version 5.5
+   */
+  public static final Version V5_5 = Version.create(5, 5);
+
+  /**
+   * Constant for version 5.6
+   */
+  public static final Version V5_6 = Version.create(5, 6);
+
+  private final Version version;
+  private final boolean sonarlint;
+
+  public RuntimeApiVersion(Version version, boolean sonarlint) {
+    requireNonNull(version);
+    this.version = version;
+    this.sonarlint = sonarlint;
+  }
+
+  public Version get() {
+    return this.version;
+  }
+
+  public boolean isGreaterThanOrEqual(Version than) {
+    return this.version.isGreaterThanOrEqual(than);
+  }
+
+  /**
+   * @since 6.0 Test if current runtime is SonarLint. Can be used to implement a different behavior.
+   */
+  public boolean isSonarlintRuntime() {
+    return sonarlint;
   }
 
 }

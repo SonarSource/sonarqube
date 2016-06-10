@@ -19,16 +19,20 @@
  */
 package org.sonar.api;
 
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.server.ServerSide;
+
 /**
- * Factory of extensions. It allows to dynamically create extensions depending upon runtime context. A use-case is
+ * Factory of extensions. It allows to dynamically create extensions depending upon runtime context. One use-case is
  * to create one rule repository by language.
  *
  * <p>Notes :
  * <ul>
  * <li>the provider is declared in Plugin.getExtensions()</li>
- * <li>the provider must also implement ServerExtension and/or BatchExtension</li>
+ * <li>the provider must also add annotation {@link ServerSide}, {@link ComputeEngineSide} and/or {@link BatchSide}</li>
  * <li>the provider can accept dependencies (parameters) in its constructors.</li>
- * <li>the method provide() is executed once by sonar</li>
+ * <li>the method provide() is executed once by the platform</li>
  * <li>the method provide() must return an object, a class or an Iterable of objects. <strong>Arrays are excluded</strong>.</li>
  * </ul>
  * 
@@ -36,7 +40,8 @@ package org.sonar.api;
  * <p>Example:
  * <pre>
  * {@code
- * public class RuleRepositoryProvider extends ExtensionProvider implements ServerExtension {
+ * {@literal @}ServerSide
+ * public class RuleRepositoryProvider extends ExtensionProvider {
  *   private Language[] languages;
  *
  *   public RuleRepositoryProvider(Language[] languages) {
@@ -59,7 +64,8 @@ package org.sonar.api;
  * @deprecated since 6.0 should no more be used
  */
 @Deprecated
-public abstract class ExtensionProvider implements Extension {
+@ExtensionPoint
+public abstract class ExtensionProvider {
 
   public abstract Object provide();
 }

@@ -67,7 +67,7 @@ public class DefaultSensorContextTest {
     settings = new Settings();
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
-    sqVersion = new SonarQubeVersion(Version.parse("5.5"));
+    sqVersion = new SonarQubeVersion(Version.parse("5.5"), false);
     adaptor = new DefaultSensorContext(mock(InputModule.class), settings, fs, activeRules, analysisMode, sensorStorage, sqVersion);
   }
 
@@ -77,6 +77,7 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.settings()).isEqualTo(settings);
     assertThat(adaptor.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
+    assertThat(adaptor.isSonarLintRuntime()).isFalse();
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();

@@ -17,26 +17,7 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.xoo;
+@ParametersAreNonnullByDefault
+package org.sonarsource.api.sonarlint;
 
-import org.junit.Test;
-import org.sonar.api.Plugin;
-import org.sonar.api.utils.Version;
-import org.sonar.xoo.lang.CpdTokenizerSensor;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.RuntimeApiVersion.V5_5;
-
-public class XooPluginTest {
-
-  @Test
-  public void provide_extensions_for_5_5() {
-    Plugin.Context context = new Plugin.Context(V5_5, false);
-    new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(40).contains(CpdTokenizerSensor.class);
-
-    context = new Plugin.Context(Version.parse("5.4"), false);
-    new XooPlugin().define(context);
-    assertThat(context.getExtensions()).hasSize(39).doesNotContain(CpdTokenizerSensor.class);
-  }
-}
+import javax.annotation.ParametersAreNonnullByDefault;

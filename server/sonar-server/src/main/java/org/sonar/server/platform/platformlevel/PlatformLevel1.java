@@ -21,7 +21,7 @@ package org.sonar.server.platform.platformlevel;
 
 import java.util.Properties;
 import javax.annotation.Nullable;
-import org.sonar.api.internal.SonarQubeVersionFactory;
+import org.sonar.api.internal.RuntimeApiVersionFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.internal.TempFolderCleaner;
 import org.sonar.ce.property.CePropertyDefinitions;
@@ -68,7 +68,7 @@ public class PlatformLevel1 extends PlatformLevel {
     add(platform, properties);
     addExtraRootComponents();
     add(
-      SonarQubeVersionFactory.create(System2.INSTANCE),
+      RuntimeApiVersionFactory.create(System2.INSTANCE, false),
       ProcessCommandWrapperImpl.class,
       RestartFlagHolderImpl.class,
       WebServerSettings.class,

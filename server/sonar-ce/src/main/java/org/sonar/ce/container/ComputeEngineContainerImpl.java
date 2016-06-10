@@ -23,7 +23,7 @@ import com.google.common.annotations.VisibleForTesting;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import org.sonar.api.config.EmailSettings;
-import org.sonar.api.internal.SonarQubeVersionFactory;
+import org.sonar.api.internal.RuntimeApiVersionFactory;
 import org.sonar.api.profiles.AnnotationProfileParser;
 import org.sonar.api.profiles.XMLProfileParser;
 import org.sonar.api.profiles.XMLProfileSerializer;
@@ -135,7 +135,7 @@ import org.sonarqube.ws.Rules;
 public class ComputeEngineContainerImpl implements ComputeEngineContainer {
   private static final Object[] LEVEL_1_COMPONENTS = new Object[] {
     ComputeEngineSettings.class,
-    SonarQubeVersionFactory.create(System2.INSTANCE),
+    RuntimeApiVersionFactory.create(System2.INSTANCE, false),
     ServerImpl.class,
     UuidFactoryImpl.INSTANCE,
     // no EmbeddedDatabaseFactory.class, creating H2 DB if responsibility of WebServer

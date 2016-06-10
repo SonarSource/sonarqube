@@ -40,13 +40,14 @@ import javax.annotation.concurrent.Immutable;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.ExtensionPoint;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.api.utils.log.Loggers;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
@@ -149,6 +150,7 @@ import static org.apache.commons.lang.StringUtils.trimToNull;
  */
 @ServerSide
 @ComputeEngineSide
+@SonarLintSide
 @ExtensionPoint
 public interface RulesDefinition {
 
@@ -672,6 +674,7 @@ public interface RulesDefinition {
     private final Set<String> tags = Sets.newTreeSet();
     private final Map<String, NewParam> paramsByKey = Maps.newHashMap();
     private final DebtRemediationFunctions functions;
+    private boolean activatedByDefault;
 
     private NewRule(String repoKey, String key) {
       this.repoKey = repoKey;
@@ -693,6 +696,15 @@ public interface RulesDefinition {
 
     public NewRule setTemplate(boolean template) {
       this.template = template;
+      return this;
+    }
+
+    /**
+     * Should this rule be enabled by default. For example in SonarLint standalone.
+     * @since 6.0
+     */
+    public NewRule setActivatedByDefault(boolean activatedByDefault) {
+      this.activatedByDefault = activatedByDefault;
       return this;
     }
 
@@ -915,6 +927,7 @@ public interface RulesDefinition {
     private final Set<String> tags;
     private final Map<String, Param> params;
     private final RuleStatus status;
+    private final boolean activatedByDefault;
 
     private Rule(Repository repository, NewRule newRule) {
       this.repository = repository;
@@ -936,6 +949,7 @@ public interface RulesDefinition {
         paramsBuilder.put(newParam.key, new Param(newParam));
       }
       this.params = paramsBuilder.build();
+      this.activatedByDefault = newRule.activatedByDefault;
     }
 
     public Repository repository() {
@@ -974,6 +988,14 @@ public interface RulesDefinition {
 
     public boolean template() {
       return template;
+    }
+
+    /**
+     * Should this rule be enabled by default. For example in SonarLint standalone.
+     * @since 6.0
+     */
+    public boolean activatedByDefault() {
+      return activatedByDefault;
     }
 
     public RuleStatus status() {

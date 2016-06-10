@@ -32,13 +32,14 @@ import javax.xml.stream.XMLStreamException;
 import org.codehaus.staxmate.SMInputFactory;
 import org.codehaus.staxmate.in.SMHierarchicCursor;
 import org.codehaus.staxmate.in.SMInputCursor;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.rules.RuleType;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.debt.DebtRemediationFunction;
 import org.sonar.check.Cardinality;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static java.lang.String.format;
 import static org.apache.commons.lang.StringUtils.equalsIgnoreCase;
@@ -180,6 +181,7 @@ import static org.apache.commons.lang.StringUtils.trim;
  */
 @ServerSide
 @ComputeEngineSide
+@SonarLintSide
 public class RulesDefinitionXmlLoader {
 
   private enum DescriptionFormat {
