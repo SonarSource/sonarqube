@@ -51,6 +51,7 @@
     "jsdom": "6.5.1",
     "lodash": "4.6.1",
     "mocha": "2.3.4",
+    "mockery": "1.7.0",
     "moment": "2.10.6",
     "numeral": "1.5.3",
     "postcss-loader": "0.8.0",

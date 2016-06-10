@@ -157,6 +157,19 @@ export function post (url, data) {
 }
 
 /**
+ * Shortcut to do a POST request and return response json
+ * @param url
+ * @param data
+ */
+export function requestDelete (url, data) {
+  return request(url)
+      .setMethod('DELETE')
+      .setData(data)
+      .submit()
+      .then(checkStatus);
+}
+
+/**
  * Delay promise for testing purposes
  * @param response
  * @returns {Promise}

@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import Favorite from '../../../components/shared/favorite';
+import Favorite from '../../../components/controls/Favorite';
 
 export default React.createClass({
   render() {
@@ -27,7 +27,9 @@ export default React.createClass({
     }
     return (
         <div className="navbar-context-favorite">
-          <Favorite component={this.props.component} favorite={this.props.favorite}/>
+          <Favorite
+              component={this.props.component}
+              favorite={this.props.favorite}/>
         </div>
     );
   }

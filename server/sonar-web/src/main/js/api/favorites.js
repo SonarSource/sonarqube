@@ -17,15 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
-import Avatar from './avatar';
-import { translate } from '../../helpers/l10n';
+import { post, requestDelete } from '../helpers/request';
 
-export default class Assignee extends React.Component {
-  render () {
-    const avatar = this.props.user ?
-        <span className="spacer-right"><Avatar email={this.props.user.email} size={16}/></span> : null;
-    const name = this.props.user ? this.props.user.name : translate('unassigned');
-    return <span>{avatar}{name}</span>;
-  }
+export function addFavorite (componentKey) {
+  const url = window.baseUrl + '/api/favourites';
+  const data = { key: componentKey };
+  return post(url, data);
+}
+
+export function removeFavorite (componentKey) {
+  const url = window.baseUrl +
+      '/api/favourites/' + encodeURIComponent(componentKey);
+  return requestDelete(url);
 }
