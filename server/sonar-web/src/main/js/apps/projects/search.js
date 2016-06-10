@@ -21,8 +21,8 @@ import _ from 'underscore';
 import React from 'react';
 import { TYPE, QUALIFIERS_ORDER } from './constants';
 import DeleteView from './delete-view';
-import RadioToggle from '../../components/shared/radio-toggle';
-import Checkbox from '../../components/shared/checkbox';
+import RadioToggle from '../../components/controls/RadioToggle';
+import Checkbox from '../../components/controls/Checkbox';
 import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
@@ -63,8 +63,13 @@ export default React.createClass({
     const thirdState = this.props.projects.length > 0 &&
             this.props.selection.length > 0 &&
             this.props.selection.length < this.props.projects.length;
-    const isChecked = isAllChecked || thirdState;
-    return <Checkbox onCheck={this.onCheck} initiallyChecked={isChecked} thirdState={thirdState}/>;
+    const checked = isAllChecked || thirdState;
+    return (
+        <Checkbox
+            checked={checked}
+            thirdState={thirdState}
+            onCheck={this.onCheck}/>
+    );
   },
 
   renderSpinner() {
@@ -99,8 +104,11 @@ export default React.createClass({
     }
     return (
         <td className="thin nowrap text-middle">
-          <RadioToggle options={this.getQualifierOptions()} value={this.props.qualifiers}
-                       name="projects-qualifier" onCheck={this.props.onQualifierChanged}/>
+          <RadioToggle
+              options={this.getQualifierOptions()}
+              value={this.props.qualifiers}
+              name="projects-qualifier"
+              onCheck={this.props.onQualifierChanged}/>
         </td>
     );
   },
@@ -117,8 +125,11 @@ export default React.createClass({
               </td>
               {this.renderQualifierFilter()}
               <td className="thin nowrap text-middle">
-                <RadioToggle options={this.getTypeOptions()} value={this.props.type}
-                             name="projects-type" onCheck={this.props.onTypeChanged}/>
+                <RadioToggle
+                    options={this.getTypeOptions()}
+                    value={this.props.type}
+                    name="projects-type"
+                    onCheck={this.props.onTypeChanged}/>
               </td>
               <td className="text-middle">
                 <form onSubmit={this.onSubmit} className="search-box">

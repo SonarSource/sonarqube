@@ -18,13 +18,21 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import FavoriteBase from './FavoriteBase';
+import { addFavorite, removeFavorite } from '../../api/favorites';
 
-export default React.createClass({
-  render() {
-    if (!this.props.status) {
-      return null;
-    }
-    const className = 'icon-status-' + this.props.status.toLowerCase();
-    return <i className={className}></i>;
+export default class Favorite extends React.Component {
+  static propTypes = {
+    favorite: React.PropTypes.bool.isRequired,
+    component: React.PropTypes.string.isRequired
+  };
+
+  render () {
+    return (
+        <FavoriteBase
+            favorite={this.props.favorite}
+            addFavorite={() => addFavorite(this.props.component)}
+            removeFavorite={() => removeFavorite(this.props.component)}/>
+    );
   }
-});
+}

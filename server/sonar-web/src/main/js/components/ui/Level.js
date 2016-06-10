@@ -18,16 +18,16 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
 import { formatMeasure } from '../../helpers/measures';
 
-export const Rating = React.createClass({
-  render() {
-    if (this.props.value == null || isNaN(this.props.value)) {
-      return null;
-    }
-    const formatted = formatMeasure(this.props.value, 'RATING');
-    const className = 'rating rating-' + formatted;
+export default class Level extends React.Component {
+  static propTypes = {
+    level: React.PropTypes.oneOf(['ERROR', 'WARN', 'OK']).isRequired
+  };
+
+  render () {
+    const formatted = formatMeasure(this.props.level, 'LEVEL');
+    const className = 'level level-' + this.props.level;
     return <span className={className}>{formatted}</span>;
   }
-});
+}

@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-import FavoriteMeasureFilter from '../../../components/shared/FavoriteMeasureFilter';
+import FavoriteMeasureFilter from '../../../components/controls/FavoriteMeasureFilter';
 import { translate } from '../../../helpers/l10n';
 
 const FavoriteMeasureFilters = ({ measureFilters }) => (

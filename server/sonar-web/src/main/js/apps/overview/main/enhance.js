@@ -20,11 +20,9 @@
 import React from 'react';
 import moment from 'moment';
 import shallowCompare from 'react-addons-shallow-compare';
-
 import { DrilldownLink } from '../../../components/shared/drilldown-link';
-import { IssuesLink } from '../../../components/shared/issues-link';
 import { DonutChart } from '../../../components/charts/donut-chart';
-import { Rating } from './../../../components/shared/rating';
+import Rating from './../../../components/ui/Rating';
 import Timeline from '../components/Timeline';
 import {
     formatMeasure,
@@ -35,6 +33,7 @@ import {
 } from '../../../helpers/measures';
 import { translateWithParameters } from '../../../helpers/l10n';
 import { getPeriodDate } from '../../../helpers/periods';
+import { getComponentIssuesUrl } from '../../../helpers/urls';
 
 export default function enhance (ComposedComponent) {
   return class extends React.Component {
@@ -163,11 +162,11 @@ export default function enhance (ComposedComponent) {
       const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate);
 
       return (
-          <IssuesLink component={component.key} params={params}>
+          <a href={getComponentIssuesUrl(component.key, params)}>
             <span title={tooltip} data-toggle="tooltip">
               {formatMeasure(value, 'SHORT_INT')}
             </span>
-          </IssuesLink>
+          </a>
       );
     }
 

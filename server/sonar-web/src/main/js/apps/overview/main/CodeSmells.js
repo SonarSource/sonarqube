@@ -19,12 +19,11 @@
  */
 import moment from 'moment';
 import React from 'react';
-
 import enhance from './enhance';
-import { IssuesLink } from '../../../components/shared/issues-link';
 import { getMetricName } from '../helpers/metrics';
 import { translate, translateWithParameters } from '../../../helpers/l10n';
 import { formatMeasure, isDiffMetric } from '../../../helpers/measures';
+import { getComponentIssuesUrl } from '../../../helpers/urls';
 
 class CodeSmells extends React.Component {
   renderHeader () {
@@ -47,11 +46,11 @@ class CodeSmells extends React.Component {
     const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate);
 
     return (
-        <IssuesLink component={component.key} params={params}>
+        <a href={getComponentIssuesUrl(component.key, params)}>
           <span title={tooltip} data-toggle="tooltip">
             {formatMeasure(value, 'SHORT_WORK_DUR')}
           </span>
-        </IssuesLink>
+        </a>
     );
   }
 

@@ -18,9 +18,8 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-
-import { QualityProfileLink } from '../../../components/shared/quality-profile-link';
 import { translate } from '../../../helpers/l10n';
+import { getQualityProfileUrl } from '../../../helpers/urls';
 
 const MetaQualityProfiles = ({ profiles }) => {
   return (
@@ -35,9 +34,9 @@ const MetaQualityProfiles = ({ profiles }) => {
                 <span className="note spacer-right">
                   {'(' + profile.language + ')'}
                 </span>
-                <QualityProfileLink profile={profile.key}>
+                <a href={getQualityProfileUrl(profile.key)}>
                   {profile.name}
-                </QualityProfileLink>
+                </a>
               </li>
           ))}
         </ul>

@@ -18,25 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import StatusIcon from './status-icon';
-import { translate } from '../../helpers/l10n';
+import FavoriteBase from './FavoriteBase';
+import { toggleIssueFilter } from '../../api/issue-filters';
 
-export default React.createClass({
+export default class FavoriteIssueFilter extends React.Component {
+  static propTypes = {
+    favorite: React.PropTypes.bool.isRequired,
+    filter: React.PropTypes.shape({
+      id: React.PropTypes.string.isRequired
+    }).isRequired
+  };
+
   render () {
-    if (!this.props.status) {
-      return null;
-    }
-    let resolution;
-    if (this.props.resolution) {
-      resolution = ' (' + translate('issue.resolution', this.props.resolution) + ')';
-    }
     return (
-        <span>
-            <StatusIcon status={this.props.status}/>
-          &nbsp;
-          {translate('issue.status', this.props.status)}
-          {resolution}
-          </span>
+        <FavoriteBase
+            favorite={this.props.favorite}
+            addFavorite={() => toggleIssueFilter(this.props.filter.id)}
+            removeFavorite={() => toggleIssueFilter(this.props.filter.id)}/>
     );
   }
-});
+}

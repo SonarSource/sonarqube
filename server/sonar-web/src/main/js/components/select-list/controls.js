@@ -19,7 +19,7 @@
  */
 import _ from 'underscore';
 import React from 'react';
-import RadioToggle from '../shared/radio-toggle';
+import RadioToggle from '../controls/RadioToggle';
 import { translate } from '../../helpers/l10n';
 
 export default React.createClass({
@@ -46,8 +46,6 @@ export default React.createClass({
   },
 
   render() {
-    const selectionDisabled = !!this.props.query;
-
     const selectionOptions = [
       { value: 'selected', label: 'Selected' },
       { value: 'deselected', label: 'Not Selected' },
@@ -61,8 +59,7 @@ export default React.createClass({
                 name="select-list-selection"
                 options={selectionOptions}
                 onCheck={this.onCheck}
-                value={this.props.selection}
-                disabled={selectionDisabled}/>
+                value={this.props.selection}/>
           </div>
           <div className="pull-right">
             <input

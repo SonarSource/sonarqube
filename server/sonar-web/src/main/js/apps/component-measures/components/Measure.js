@@ -19,8 +19,8 @@
  */
 import React from 'react';
 
-import { Rating } from '../../../components/shared/rating';
-import Level from '../../../components/shared/Level';
+import Rating from '../../../components/ui/Rating';
+import Level from '../../../components/ui/Level';
 import { formatMeasure } from '../../../helpers/measures';
 import { formatLeak, isDiffMetric } from '../utils';
 

@@ -20,9 +20,10 @@
 import _ from 'underscore';
 import moment from 'moment';
 import React from 'react';
-
-import { IssuesLink } from './issues-link';
-import { getComponentDrilldownUrl } from '../../helpers/urls';
+import {
+    getComponentDrilldownUrl,
+    getComponentIssuesUrl
+} from '../../helpers/urls';
 
 const ISSUE_MEASURES = [
   'violations',
@@ -113,9 +114,13 @@ export const DrilldownLink = React.createClass({
   },
 
   renderIssuesLink() {
-    return <IssuesLink component={this.props.component} params={this.propsToIssueParams()}>
-      {this.props.children}
-    </IssuesLink>;
+    const url = getComponentIssuesUrl(
+        this.props.component,
+        this.propsToIssueParams());
+
+    return (
+        <a href={url}>{this.props.children}</a>
+    );
   },
 
   render() {

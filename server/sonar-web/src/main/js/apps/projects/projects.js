@@ -20,7 +20,7 @@
 import classNames from 'classnames';
 import React from 'react';
 import { getComponentUrl } from '../../helpers/urls';
-import Checkbox from '../../components/shared/checkbox';
+import Checkbox from '../../components/controls/Checkbox';
 import QualifierIcon from '../../components/shared/qualifier-icon';
 
 export default React.createClass({
@@ -46,8 +46,9 @@ export default React.createClass({
     return (
         <tr key={project.id}>
           <td className="thin">
-            <Checkbox onCheck={this.onProjectCheck.bind(this, project)}
-                      initiallyChecked={this.isProjectSelected(project)}/>
+            <Checkbox
+                checked={this.isProjectSelected(project)}
+                onCheck={this.onProjectCheck.bind(this, project)}/>
           </td>
           <td className="thin">
             <QualifierIcon qualifier={project.qualifier}/>

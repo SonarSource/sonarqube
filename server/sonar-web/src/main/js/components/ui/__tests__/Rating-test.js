@@ -17,15 +17,23 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
 import React from 'react';
-import Avatar from './avatar';
-import { translate } from '../../helpers/l10n';
+import Rating from '../Rating';
 
-export default class Assignee extends React.Component {
-  render () {
-    const avatar = this.props.user ?
-        <span className="spacer-right"><Avatar email={this.props.user.email} size={16}/></span> : null;
-    const name = this.props.user ? this.props.user.name : translate('unassigned');
-    return <span>{avatar}{name}</span>;
-  }
-}
+describe('Components :: UI :: Rating', () => {
+  it('should render with numeric value', () => {
+    const rating = shallow(
+        <Rating value={2}/>
+    );
+    expect(rating.is('.rating-B')).to.equal(true);
+  });
+
+  it('should render with string value', () => {
+    const rating = shallow(
+        <Rating value="2.0"/>
+    );
+    expect(rating.is('.rating-B')).to.equal(true);
+  });
+});

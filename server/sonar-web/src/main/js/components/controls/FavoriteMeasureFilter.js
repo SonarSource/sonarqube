@@ -18,17 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
+import FavoriteBase from './FavoriteBase';
+import { toggleMeasureFilter } from '../../api/measure-filters';
 
-import { formatMeasure } from '../../helpers/measures';
+export default class FavoriteMeasureFilter extends React.Component {
+  static propTypes = {
+    favorite: React.PropTypes.bool.isRequired,
+    filter: React.PropTypes.shape({
+      id: React.PropTypes.number.isRequired
+    }).isRequired
+  };
 
-const Level = ({ level }) => {
-  const formatted = formatMeasure(level, 'LEVEL');
-  const className = 'level level-' + level;
-  return (
-      <span className={className}>
-        {formatted}
-      </span>
-  );
-};
-
-export default Level;
+  render () {
+    return (
+        <FavoriteBase
+            favorite={this.props.favorite}
+            addFavorite={() => toggleMeasureFilter(this.props.filter.id)}
+            removeFavorite={() => toggleMeasureFilter(this.props.filter.id)}/>
+    );
+  }
+}

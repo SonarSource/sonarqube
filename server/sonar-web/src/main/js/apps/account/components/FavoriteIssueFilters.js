@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-import FavoriteIssueFilter from '../../../components/shared/FavoriteIssueFilter';
+import FavoriteIssueFilter from '../../../components/controls/FavoriteIssueFilter';
 import { translate } from '../../../helpers/l10n';
 
 const FavoriteIssueFilters = ({ issueFilters }) => (

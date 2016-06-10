@@ -20,7 +20,7 @@
 import React from 'react';
 import { translate } from '../../helpers/l10n';
 
-import RadioToggle from '../../components/shared/radio-toggle';
+import RadioToggle from '../../components/controls/RadioToggle';
 
 const rootQualifiersToOptions = (qualifiers) => {
   return qualifiers.map(q => {

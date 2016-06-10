@@ -32,7 +32,7 @@ export default Marionette.ItemView.extend({
   },
 
   events: {
-    'click': 'onClick'
+    'click': 'handleClick'
   },
 
   onRender () {

@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import { expect } from 'chai';
+import { shallow } from 'enzyme';
 import React from 'react';
+import Level from '../Level';
 
-export const QualityGateLink = React.createClass({
-  render() {
-    const url = `${window.baseUrl}/quality_gates/show/${this.props.gate}`;
-    return <a href={url}>{this.props.children}</a>;
-  }
+describe('Components :: UI :: Level', () => {
+  it('should render', () => {
+    const rating = shallow(
+        <Level level="ERROR"/>
+    );
+    expect(rating.is('.level-ERROR')).to.equal(true);
+  });
 });

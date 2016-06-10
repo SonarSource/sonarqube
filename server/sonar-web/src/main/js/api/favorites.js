@@ -17,11 +17,16 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import React from 'react';
+import { post, requestDelete } from '../helpers/request';
 
-export const QualityProfileLink = React.createClass({
-  render() {
-    const url = `${window.baseUrl}/profiles/show?key=${encodeURIComponent(this.props.profile)}`;
-    return <a href={url}>{this.props.children}</a>;
-  }
-});
+export function addFavorite (componentKey) {
+  const url = window.baseUrl + '/api/favourites';
+  const data = { key: componentKey };
+  return post(url, data);
+}
+
+export function removeFavorite (componentKey) {
+  const url = window.baseUrl +
+      '/api/favourites/' + encodeURIComponent(componentKey);
+  return requestDelete(url);
+}

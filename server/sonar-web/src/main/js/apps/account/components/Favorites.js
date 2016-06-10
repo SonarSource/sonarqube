@@ -19,7 +19,7 @@
  */
 import React from 'react';
 
-import Favorite from '../../../components/shared/favorite';
+import Favorite from '../../../components/controls/Favorite';
 import QualifierIcon from '../../../components/shared/qualifier-icon';
 import { translate } from '../../../helpers/l10n';
 import { getComponentUrl } from '../../../helpers/urls';

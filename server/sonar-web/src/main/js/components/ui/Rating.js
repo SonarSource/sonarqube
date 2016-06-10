@@ -18,27 +18,23 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 import React from 'react';
-import md5 from 'blueimp-md5';
+import { formatMeasure } from '../../helpers/measures';
 
-export default React.createClass({
-  propTypes: {
-    email: React.PropTypes.string,
-    size: React.PropTypes.number.isRequired
-  },
-
-  render() {
-    const shouldShowAvatar = window.SS && window.SS.lf && window.SS.lf.enableGravatar;
-    if (!shouldShowAvatar) {
-      return null;
+export default class Rating extends React.Component {
+  static propTypes = {
+    value: (props, propName, componentName) => {
+      // allow both numbers and strings
+      const numberValue = Number(props[propName]);
+      if (numberValue < 1 || numberValue > 5) {
+        throw new Error(
+            `Invalid prop "${propName}" passed to "${componentName}".`);
+      }
     }
-    const emailHash = md5.md5(this.props.email || '').trim();
-    const url = ('' + window.SS.lf.gravatarServerUrl)
-            .replace('{EMAIL_MD5}', emailHash)
-            .replace('{SIZE}', this.props.size * 2);
-    return <img className="rounded"
-                src={url}
-                width={this.props.size}
-                height={this.props.size}
-                alt={this.props.email}/>;
+  };
+
+  render () {
+    const formatted = formatMeasure(this.props.value, 'RATING');
+    const className = 'rating rating-' + formatted;
+    return <span className={className}>{formatted}</span>;
   }
-});
+}

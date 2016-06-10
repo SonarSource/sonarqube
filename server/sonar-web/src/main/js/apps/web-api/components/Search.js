@@ -20,7 +20,7 @@
 import _ from 'underscore';
 import React from 'react';
 
-import Checkbox from '../../../components/shared/checkbox';
+import Checkbox from '../../../components/controls/Checkbox';
 import { TooltipsContainer } from '../../../components/mixins/tooltips-mixin';
 import { translate } from '../../../helpers/l10n';
 
@@ -60,7 +60,7 @@ export default class Search extends React.Component {
           <TooltipsContainer>
             <div className="big-spacer-top">
               <Checkbox
-                  initiallyChecked={showInternal}
+                  checked={showInternal}
                   onCheck={onToggleInternal}/>
               {' '}
               <span
@@ -79,7 +79,7 @@ export default class Search extends React.Component {
           <TooltipsContainer>
             <div className="spacer-top">
               <Checkbox
-                  initiallyChecked={showOnlyDeprecated}
+                  checked={showOnlyDeprecated}
                   onCheck={onToggleDeprecated}/>
               {' '}
               <span
