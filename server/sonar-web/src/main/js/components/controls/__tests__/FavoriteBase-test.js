@@ -1,0 +1,70 @@
+/*
+ * SonarQube
+ * Copyright (C) 2009-2016 SonarSource SA
+ * mailto:contact AT sonarsource DOT com
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU Lesser General Public
+ * License as published by the Free Software Foundation; either
+ * version 3 of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with this program; if not, write to the Free Software Foundation,
+ * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+ */
+import chai, { expect } from 'chai';
+import { shallow } from 'enzyme';
+import sinon from 'sinon';
+import sinonChai from 'sinon-chai';
+import React from 'react';
+import FavoriteBase from '../FavoriteBase';
+
+chai.use(sinonChai);
+
+function click (element) {
+  return element.simulate('click', {
+    target: { blur () {} },
+    preventDefault () {}
+  });
+}
+
+function renderFavoriteBase (props) {
+  return shallow(
+      <FavoriteBase
+          favorite={true}
+          addFavorite={sinon.stub().throws()}
+          removeFavorite={sinon.stub().throws()}
+          {...props}/>
+  );
+}
+
+describe('Components :: Controls :: FavoriteBase', () => {
+  it('should render favorite', () => {
+    const favorite = renderFavoriteBase({ favorite: true });
+    expect(favorite.is('.icon-star-favorite')).to.equal(true);
+  });
+
+  it('should render not favorite', () => {
+    const favorite = renderFavoriteBase({ favorite: false });
+    expect(favorite.is('.icon-star-favorite')).to.equal(false);
+  });
+
+  it('should add favorite', () => {
+    const addFavorite = sinon.stub().returns(Promise.resolve());
+    const favorite = renderFavoriteBase({ favorite: false, addFavorite });
+    click(favorite.find('a'));
+    expect(addFavorite).to.have.been.called;
+  });
+
+  it('should remove favorite', () => {
+    const removeFavorite = sinon.stub().returns(Promise.resolve());
+    const favorite = renderFavoriteBase({ favorite: true, removeFavorite });
+    click(favorite.find('a'));
+    expect(removeFavorite).to.have.been.called;
+  });
+});

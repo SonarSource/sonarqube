@@ -19,20 +19,22 @@
  */
 import React from 'react';
 import FavoriteBase from './FavoriteBase';
-import { addFavorite, removeFavorite } from '../../api/favorites';
+import { toggleIssueFilter } from '../../api/issue-filters';
 
-export default class Favorite extends React.Component {
+export default class FavoriteIssueFilter extends React.Component {
   static propTypes = {
     favorite: React.PropTypes.bool.isRequired,
-    component: React.PropTypes.string.isRequired
+    filter: React.PropTypes.shape({
+      id: React.PropTypes.string.isRequired
+    }).isRequired
   };
 
   render () {
     return (
         <FavoriteBase
             favorite={this.props.favorite}
-            addFavorite={() => addFavorite(this.props.component)}
-            removeFavorite={() => removeFavorite(this.props.component)}/>
+            addFavorite={() => toggleIssueFilter(this.props.filter.id)}
+            removeFavorite={() => toggleIssueFilter(this.props.filter.id)}/>
     );
   }
 }
