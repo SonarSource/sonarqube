@@ -18,34 +18,34 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.db.user;
+package org.sonar.server.project.ws;
 
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
-import org.sonar.db.DbTester;
+import org.sonar.server.tester.UserSessionRule;
+import org.sonarqube.ws.client.project.SearchMyProjectsRequest;
 
-public class GroupDbTester {
-  private final DbTester db;
-  private final DbClient dbClient;
-  private final DbSession dbSession;
+import static org.mockito.Mockito.mock;
 
-  public GroupDbTester(DbTester db) {
-    this.db = db;
-    this.dbClient = db.getDbClient();
-    this.dbSession = db.getSession();
-  }
+public class SearchMyProjectsDataLoaderTest {
 
-  public GroupDto insertGroup(GroupDto groupDto) {
-    GroupDto updatedGroup = dbClient.groupDao().insert(dbSession, groupDto);
-    db.commit();
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.standalone();
 
-    return updatedGroup;
-  }
+  SearchMyProjectsDataLoader underTest = new SearchMyProjectsDataLoader(userSession, mock(DbClient.class));
 
-  public UserGroupDto addUserToGroup(long userId, long groupId) {
-    UserGroupDto dto = dbClient.userGroupDao().insert(dbSession, new UserGroupDto().setGroupId(groupId).setUserId(userId));
-    db.commit();
+  @Test
+  public void NPE_when_user_is_not_authenticated() {
+    expectedException.expect(NullPointerException.class);
+    expectedException.expectMessage("Current user must be authenticated");
 
-    return dto;
+    userSession.anonymous();
+
+    underTest.searchProjects(mock(DbSession.class), mock(SearchMyProjectsRequest.class));
   }
 }

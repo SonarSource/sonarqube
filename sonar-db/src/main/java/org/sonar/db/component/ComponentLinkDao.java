@@ -23,10 +23,16 @@ import java.util.List;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 
+import static java.util.Collections.emptyList;
+
 public class ComponentLinkDao implements Dao {
 
   public List<ComponentLinkDto> selectByComponentUuid(DbSession session, String componentUuid) {
     return session.getMapper(ComponentLinkMapper.class).selectByComponentUuid(componentUuid);
+  }
+
+  public List<ComponentLinkDto> selectByComponentUuids(DbSession dbSession, List<String> componentUuids) {
+    return componentUuids.isEmpty() ? emptyList() : mapper(dbSession).selectByComponentUuids(componentUuids);
   }
 
   public void insert(DbSession session, ComponentLinkDto dto) {
@@ -39,6 +45,10 @@ public class ComponentLinkDao implements Dao {
 
   public void delete(DbSession session, long id) {
     session.getMapper(ComponentLinkMapper.class).delete(id);
+  }
+
+  private static ComponentLinkMapper mapper(DbSession dbSession) {
+    return dbSession.getMapper(ComponentLinkMapper.class);
   }
 
 }

@@ -28,10 +28,12 @@ import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.db.component.ComponentTesting.newProjectDto;
 import static org.sonar.db.component.SnapshotQuery.SORT_FIELD.BY_DATE;
@@ -48,9 +50,10 @@ public class SnapshotDaoTest {
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
   ComponentDbTester componentDb = new ComponentDbTester(db);
-  final DbSession dbSession = db.getSession();
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
 
-  SnapshotDao underTest = db.getDbClient().snapshotDao();
+  SnapshotDao underTest = dbClient.snapshotDao();
 
   @Test
   public void get_by_key() {
@@ -130,6 +133,27 @@ public class SnapshotDaoTest {
     SnapshotDto snapshot = underTest.selectLastSnapshotByComponentUuid(db.getSession(), "uuid_5");
 
     assertThat(snapshot).isNull();
+  }
+
+  @Test
+  public void lastSnapshots_with_empty_component_uuids() {
+    List<SnapshotDto> result = underTest.selectLastSnapshotByComponentUuids(dbSession, emptyList());
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void lastSnapshots() {
+    ComponentDto firstProject = componentDb.insertComponent(newProjectDto("PROJECT_UUID_1"));
+    dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(firstProject).setLast(false));
+    SnapshotDto lastSnapshotOfFirstProject = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(firstProject).setLast(true));
+    ComponentDto secondProject = componentDb.insertComponent(newProjectDto("PROJECT_UUID_2"));
+    SnapshotDto lastSnapshotOfSecondProject = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(secondProject).setLast(true));
+    componentDb.insertProjectAndSnapshot(newProjectDto());
+
+    List<SnapshotDto> result = underTest.selectLastSnapshotByComponentUuids(dbSession, newArrayList(firstProject.uuid(), secondProject.uuid()));
+
+    assertThat(result).extracting(SnapshotDto::getId).containsOnly(lastSnapshotOfFirstProject.getId(), lastSnapshotOfSecondProject.getId());
   }
 
   @Test

@@ -20,15 +20,17 @@
 package org.sonar.db.component;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface ComponentLinkMapper {
 
   List<ComponentLinkDto> selectByComponentUuid(String componentUuid);
+
+  List<ComponentLinkDto> selectByComponentUuids(@Param("componentUuids") List<String> componentUuids);
 
   void insert(ComponentLinkDto dto);
 
   void update(ComponentLinkDto dto);
 
   void delete(long id);
-
 }

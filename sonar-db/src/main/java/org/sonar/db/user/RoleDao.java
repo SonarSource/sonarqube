@@ -29,7 +29,11 @@ import org.sonar.db.DbSession;
 public class RoleDao implements Dao {
 
   public List<String> selectUserPermissions(DbSession session, String userLogin, @Nullable Long resourceId) {
-    return session.getMapper(RoleMapper.class).selectUserPermissions(userLogin, resourceId);
+    return mapper(session).selectUserPermissions(userLogin, resourceId);
+  }
+
+  public List<Long> selectComponentIdsByPermissionAndUserId(DbSession dbSession, String permission, long userId) {
+    return mapper(dbSession).selectComponentIdsByPermissionAndUserId(permission, userId);
   }
 
   public List<String> selectGroupPermissions(DbSession session, String groupName, @Nullable Long resourceId) {

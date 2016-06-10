@@ -22,7 +22,6 @@ package org.sonar.db.component;
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -38,6 +37,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
+import static java.util.Collections.emptyList;
 import static org.sonar.api.utils.Paging.offset;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
@@ -68,6 +68,9 @@ public class ComponentDao implements Dao {
   }
 
   public List<ComponentDto> selectByQuery(DbSession session, ComponentQuery query, int offset, int limit) {
+    if (query.getComponentIds() != null && query.getComponentIds().isEmpty()) {
+      return emptyList();
+    }
     return mapper(session).selectByQuery(query, new RowBounds(offset, limit));
   }
 
@@ -81,7 +84,7 @@ public class ComponentDao implements Dao {
 
   public List<ComponentDto> selectSubProjectsByComponentUuids(DbSession session, Collection<String> keys) {
     if (keys.isEmpty()) {
-      return Collections.emptyList();
+      return emptyList();
     }
     return mapper(session).selectSubProjectsByComponentUuids(keys);
   }

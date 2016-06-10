@@ -43,6 +43,7 @@ import org.sonar.db.metric.MetricTesting;
 import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -385,6 +386,13 @@ public class MeasureDaoTest {
     assertThat(result)
       .extracting("developerId")
       .containsOnly(developer.getId());
+  }
+
+  @Test
+  public void selectDeveloperAndSnapshotIdsAndMetricIds_with_empty_lists() {
+    List<MeasureDto> result = underTest.selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession, null, emptyList(), emptyList());
+
+    assertThat(result).isEmpty();
   }
 
   @Test

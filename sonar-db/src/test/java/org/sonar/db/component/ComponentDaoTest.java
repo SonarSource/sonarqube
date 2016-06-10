@@ -34,6 +34,7 @@ import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static com.google.common.collect.Sets.newHashSet;
+import static java.util.Collections.emptySet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.guava.api.Assertions.assertThat;
@@ -739,6 +740,29 @@ public class ComponentDaoTest {
 
     assertThat(result).hasSize(1);
     assertThat(result.get(0).key()).isEqualTo("java-project-key");
+  }
+
+  @Test
+  public void select_by_query_on_empty_list_of_component_id() {
+    ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentIds(emptySet()).build();
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void select_by_query_on_component_ids() {
+    ComponentDto sonarqube = componentDb.insertComponent(newProjectDto());
+    ComponentDto jdk8 = componentDb.insertComponent(newProjectDto());
+    ComponentDto cLang = componentDb.insertComponent(newProjectDto());
+
+    ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT)
+      .setComponentIds(newHashSet(sonarqube.getId(), jdk8.getId())).build();
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+
+    assertThat(result).hasSize(2).extracting(ComponentDto::getId)
+      .containsOnlyOnce(sonarqube.getId(), jdk8.getId())
+      .doesNotContain(cLang.getId());
   }
 
   @Test

@@ -97,8 +97,8 @@ public class ComponentDbTester {
   }
 
   public void indexComponents(String... componentUuids) {
-    for (String componnentUuid : componentUuids) {
-      dbClient.componentIndexDao().indexResource(dbSession, componnentUuid);
+    for (String componentUuid : componentUuids) {
+      dbClient.componentIndexDao().indexResource(dbSession, componentUuid);
     }
     db.commit();
   }

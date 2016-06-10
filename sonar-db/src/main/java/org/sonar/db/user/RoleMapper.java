@@ -33,6 +33,8 @@ public interface RoleMapper {
    */
   List<String> selectUserPermissions(@Param("userLogin") String userLogin, @Nullable @Param("resourceId") Long resourceId);
 
+  List<Long> selectComponentIdsByPermissionAndUserId(@Param("permission") String permission, @Param("userId") long userId);
+
   /**
    * @return permissions from to a group
    */

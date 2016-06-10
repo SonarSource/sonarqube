@@ -30,6 +30,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
 
 import static com.google.common.collect.FluentIterable.from;
+import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class MeasureDao implements Dao {
@@ -52,7 +53,7 @@ public class MeasureDao implements Dao {
   /**
    * Selects all measures of a specific snapshot for the specified metric keys.
    * <p/>
-   * Uses by Views.
+   * Used by Views.
    */
   public List<MeasureDto> selectBySnapshotIdAndMetricKeys(long snapshotId, Set<String> metricKeys, DbSession dbSession) {
     return executeLargeInputs(from(metricKeys).toSortedList(String.CASE_INSENSITIVE_ORDER),
@@ -93,11 +94,18 @@ public class MeasureDao implements Dao {
     return selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession, null, snapshotIds, metricIds);
   }
 
-  public List<MeasureDto> selectByDeveloperAndSnapshotIdsAndMetricIds(DbSession dbSession, @Nullable Long developerId, List<Long> snapshotIds,
-    List<Integer> metricIds) {
+  public List<String> selectMetricKeysForSnapshot(DbSession session, long snapshotId) {
+    return mapper(session).selectMetricKeysForSnapshot(snapshotId);
+  }
+
+  public List<MeasureDto> selectByDeveloperAndSnapshotIdsAndMetricIds(DbSession dbSession, @Nullable Long developerId, List<Long> snapshotIds, List<Integer> metricIds) {
+    if (snapshotIds.isEmpty() || metricIds.isEmpty()) {
+      return emptyList();
+    }
+
     return executeLargeInputs(
       snapshotIds,
-      input -> mapper(dbSession).selectByDeveloperAndSnapshotIdsAndMetricIds(developerId, input, metricIds));
+      snapshotIdsPartition -> mapper(dbSession).selectByDeveloperAndSnapshotIdsAndMetricIds(developerId, snapshotIdsPartition, metricIds));
   }
 
   /**
@@ -122,10 +130,6 @@ public class MeasureDao implements Dao {
 
   public void insert(DbSession session, MeasureDto item, MeasureDto... others) {
     insert(session, Lists.asList(item, others));
-  }
-
-  public List<String> selectMetricKeysForSnapshot(DbSession session, long snapshotId) {
-    return mapper(session).selectMetricKeysForSnapshot(snapshotId);
   }
 
   private static MeasureMapper mapper(DbSession session) {

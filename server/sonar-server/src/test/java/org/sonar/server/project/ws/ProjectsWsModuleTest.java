@@ -29,6 +29,6 @@ public class ProjectsWsModuleTest {
   public void verify_count_of_added_components() {
     ComponentContainer container = new ComponentContainer();
     new ProjectsWsModule().configure(container);
-    assertThat(container.size()).isEqualTo(7);
+    assertThat(container.size()).isEqualTo(2 + 7);
   }
 }

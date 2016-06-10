@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.Locale;
+import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
@@ -31,6 +32,7 @@ public class ComponentQuery {
   private final String nameOrKeyQuery;
   private final String[] qualifiers;
   private final String language;
+  private final Set<Long> componentIds;
 
   /**
    * Used by Dev Cockpit 1.9.
@@ -43,12 +45,14 @@ public class ComponentQuery {
     this.nameOrKeyQuery = nameOrKeyQuery;
     this.qualifiers = Builder.validateQualifiers(qualifiers);
     this.language = null;
+    this.componentIds = null;
   }
 
   private ComponentQuery(Builder builder) {
     this.nameOrKeyQuery = builder.nameOrKeyQuery;
     this.qualifiers = builder.qualifiers;
     this.language = builder.language;
+    this.componentIds = builder.componentIds;
   }
 
   public String[] getQualifiers() {
@@ -75,6 +79,11 @@ public class ComponentQuery {
     return language;
   }
 
+  @CheckForNull
+  public Set<Long> getComponentIds() {
+    return componentIds;
+  }
+
   public static Builder builder() {
     return new Builder();
   }
@@ -83,6 +92,7 @@ public class ComponentQuery {
     private String nameOrKeyQuery;
     private String[] qualifiers;
     private String language;
+    private Set<Long> componentIds;
 
     public Builder setNameOrKeyQuery(@Nullable String nameOrKeyQuery) {
       this.nameOrKeyQuery = nameOrKeyQuery;
@@ -96,6 +106,11 @@ public class ComponentQuery {
 
     public Builder setLanguage(@Nullable String language) {
       this.language = language;
+      return this;
+    }
+
+    public Builder setComponentIds(@Nullable Set<Long> componentIds) {
+      this.componentIds = componentIds;
       return this;
     }
 

@@ -17,20 +17,21 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.project.ws;
 
-import org.sonar.core.platform.Module;
+package org.sonar.db.component;
 
-public class ProjectsWsModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      ProjectsWs.class,
-      BulkDeleteAction.class,
-      DeleteAction.class,
-      GhostsAction.class,
-      ProvisionedAction.class,
-      SearchMyProjectsAction.class,
-      SearchMyProjectsDataLoader.class);
+import org.sonar.core.util.Uuids;
+
+import static org.apache.commons.lang.RandomStringUtils.randomAlphabetic;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+
+public class ComponentLinkTesting {
+  public static ComponentLinkDto newComponentLinkDto() {
+    return new ComponentLinkDto()
+      .setComponentUuid(Uuids.createFast())
+      .setHref(randomAlphanumeric(128))
+      .setName(randomAlphabetic(128))
+      .setType(ComponentLinkDto.TYPE_SOURCES);
   }
+
 }

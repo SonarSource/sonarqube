@@ -42,7 +42,7 @@
 
   <select id="selectByKey" parameterType="Long" resultType="Snapshot">
     SELECT
-    <include refid="snapshotColumns"/>
+    <include refid="snapshotColumns" />
     FROM snapshots s
     <where>
       AND s.id=#{key}
@@ -51,7 +51,7 @@
 
   <select id="selectByIds" parameterType="Long" resultType="Snapshot">
     SELECT
-    <include refid="snapshotColumns"/>
+    <include refid="snapshotColumns" />
     FROM snapshots s
     WHERE
     s.id in
@@ -62,9 +62,22 @@
 
   <select id="selectLastSnapshot" resultType="Snapshot">
     select
-    <include refid="snapshotColumns"/>
+    <include refid="snapshotColumns" />
     from snapshots s
     where s.islast=${_true} and s.component_uuid = #{componentUuid}
+  </select>
+
+  <select id="selectLastSnapshotByComponentUuids" resultType="Snapshot">
+    select
+    <include refid="snapshotColumns" />
+    from snapshots s
+    <where>
+      and s.islast=${_true}
+      and s.component_uuid in
+      <foreach collection="componentUuids" item="componentUuid" separator="," open="(" close=")">
+        #{componentUuid}
+      </foreach>
+    </where>
   </select>
 
   <select id="countLastSnapshotByComponentUuid" resultType="Integer">
@@ -78,7 +91,7 @@
 
   <select id="selectSnapshotsByQuery" parameterType="map" resultType="Snapshot">
     SELECT
-    <include refid="snapshotColumns"/>
+    <include refid="snapshotColumns" />
     FROM snapshots s
     <if test="query.componentUuid != null">
       INNER JOIN projects p ON p.uuid=s.component_uuid AND p.enabled=${_true} AND s.component_uuid=#{query.componentUuid}
@@ -122,7 +135,7 @@
 
   <select id="selectPreviousVersionSnapshots" parameterType="map" resultType="Snapshot">
     SELECT
-    <include refid="snapshotColumns"/>
+    <include refid="snapshotColumns" />
     FROM snapshots s
     INNER JOIN events e ON s.id = e.snapshot_id AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
     <where>
@@ -133,7 +146,7 @@
 
   <select id="selectOldestSnapshots" parameterType="map" resultType="Snapshot">
     SELECT
-    <include refid="snapshotColumns"/>
+    <include refid="snapshotColumns" />
     FROM snapshots s
     <where>
       s.component_uuid=#{componentUuid}
@@ -143,7 +156,7 @@
 
   <select id="selectSnapshotAndChildrenOfScope" parameterType="map" resultType="Snapshot">
     select
-    <include refid="snapshotColumns"/>
+    <include refid="snapshotColumns" />
     from snapshots s
     where s.scope = #{scope}
     AND (s.id = #{snapshot} or s.root_snapshot_id = #{snapshot})
@@ -151,7 +164,7 @@
 
   <select id="selectSnapshotBefore" resultType="ViewsSnapshot">
     SELECT
-    <include refid="viewsSnapshotColumns"/>
+    <include refid="viewsSnapshotColumns" />
     FROM snapshots s
     <where>
       and s.component_uuid = #{componentUuid}

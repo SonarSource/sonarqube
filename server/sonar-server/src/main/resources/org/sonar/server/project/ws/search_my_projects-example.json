@@ -1,0 +1,37 @@
+{
+  "paging": {
+    "pageIndex": 1,
+    "pageSize": 100,
+    "total": 2
+  },
+  "projects": [
+    {
+      "id": "AU-Tpxb--iU5OvuD2FLy",
+      "key": "clang",
+      "name": "Clang",
+      "lastAnalysisDate": "2016-06-11T14:25:53+0000",
+      "qualityGate": "OK",
+      "links": []
+    },
+    {
+      "id": "AU-TpxcA-iU5OvuD2FLz",
+      "key": "net.java.openjdk:jdk7",
+      "name": "JDK 7",
+      "description": "JDK",
+      "lastAnalysisDate": "2016-06-10T13:17:53+0000",
+      "qualityGate": "ERROR",
+      "links": [
+        {
+          "name": "Home",
+          "type": "homepage",
+          "href": "http://www.oracle.com"
+        },
+        {
+          "name": "Sources",
+          "type": "scm",
+          "href": "http://download.java.net/openjdk/jdk8/"
+        }
+      ]
+    }
+  ]
+}

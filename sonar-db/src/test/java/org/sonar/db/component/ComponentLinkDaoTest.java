@@ -23,26 +23,35 @@ import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.component.ComponentLinkDto.TYPE_HOME_PAGE;
+import static org.sonar.db.component.ComponentLinkDto.TYPE_SOURCES;
+import static org.sonar.db.component.ComponentLinkTesting.newComponentLinkDto;
 
 
 public class ComponentLinkDaoTest {
 
   @Rule
-  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+  public DbTester db = DbTester.create(System2.INSTANCE);
+  DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
 
-  ComponentLinkDao dao = dbTester.getDbClient().componentLinkDao();
+  ComponentLinkDao underTest = db.getDbClient().componentLinkDao();
 
   @Test
   public void select_by_component_uuid() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml");
+    db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentLinkDto> links = dao.selectByComponentUuid(dbTester.getSession(), "ABCD");
+    List<ComponentLinkDto> links = underTest.selectByComponentUuid(db.getSession(), "ABCD");
     assertThat(links).hasSize(2);
 
-    links = dao.selectByComponentUuid(dbTester.getSession(), "BCDE");
+    links = underTest.selectByComponentUuid(db.getSession(), "BCDE");
     assertThat(links).hasSize(1);
 
     ComponentLinkDto link = links.get(0);
@@ -54,44 +63,66 @@ public class ComponentLinkDaoTest {
   }
 
   @Test
-  public void insert() {
-    dbTester.prepareDbUnit(getClass(), "empty.xml");
+  public void select_by_component_uuids() {
+    String firstUuid = "COMPONENT_UUID_1";
+    String secondUuid = "COMPONENT_UUID_2";
+    dbClient.componentLinkDao().insert(dbSession, newComponentLinkDto().setComponentUuid(firstUuid).setType(TYPE_HOME_PAGE));
+    dbClient.componentLinkDao().insert(dbSession, newComponentLinkDto().setComponentUuid(firstUuid).setType(TYPE_SOURCES));
+    dbClient.componentLinkDao().insert(dbSession, newComponentLinkDto().setComponentUuid(secondUuid).setType(TYPE_HOME_PAGE));
+    dbClient.componentLinkDao().insert(dbSession, newComponentLinkDto().setComponentUuid("ANOTHER_COMPONENT_UUID").setType(TYPE_HOME_PAGE));
+    db.commit();
 
-    dao.insert(dbTester.getSession(), new ComponentLinkDto()
+    List<ComponentLinkDto> result = underTest.selectByComponentUuids(dbSession, newArrayList(firstUuid, secondUuid));
+
+    assertThat(result).hasSize(3).extracting(ComponentLinkDto::getComponentUuid).containsOnly(firstUuid, secondUuid);
+  }
+
+  @Test
+  public void select_by_component_uuids_with_empty_list() {
+    List<ComponentLinkDto> result = underTest.selectByComponentUuids(dbSession, emptyList());
+
+    assertThat(result).isEmpty();
+  }
+
+  @Test
+  public void insert() {
+    db.prepareDbUnit(getClass(), "empty.xml");
+
+    underTest.insert(db.getSession(), new ComponentLinkDto()
       .setComponentUuid("ABCD")
       .setType("homepage")
       .setName("Home")
       .setHref("http://www.sonarqube.org")
       );
-    dbTester.getSession().commit();
+    db.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "project_links");
+    db.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "project_links");
   }
 
   @Test
   public void update() {
-    dbTester.prepareDbUnit(getClass(), "update.xml");
+    db.prepareDbUnit(getClass(), "update.xml");
 
-    dao.update(dbTester.getSession(), new ComponentLinkDto()
+    underTest.update(db.getSession(), new ComponentLinkDto()
       .setId(1L)
       .setComponentUuid("ABCD")
       .setType("homepage")
       .setName("Home")
       .setHref("http://www.sonarqube.org")
       );
-    dbTester.getSession().commit();
+    db.getSession().commit();
 
-    dbTester.assertDbUnit(getClass(), "update-result.xml", "project_links");
+    db.assertDbUnit(getClass(), "update-result.xml", "project_links");
   }
 
   @Test
   public void delete() {
-    dbTester.prepareDbUnit(getClass(), "delete.xml");
+    db.prepareDbUnit(getClass(), "delete.xml");
 
-    dao.delete(dbTester.getSession(), 1L);
-    dbTester.getSession().commit();
+    underTest.delete(db.getSession(), 1L);
+    db.getSession().commit();
 
-    assertThat(dbTester.countRowsOfTable("project_links")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("project_links")).isEqualTo(0);
   }
 
 }

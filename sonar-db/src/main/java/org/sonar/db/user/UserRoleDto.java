@@ -19,6 +19,7 @@
  */
 package org.sonar.db.user;
 
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 
 /**
@@ -48,7 +49,7 @@ public class UserRoleDto {
     return this;
   }
 
-  @Nullable
+  @CheckForNull
   public Long getResourceId() {
     return resourceId;
   }

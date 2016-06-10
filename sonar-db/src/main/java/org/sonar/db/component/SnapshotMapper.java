@@ -36,6 +36,8 @@ public interface SnapshotMapper {
   @CheckForNull
   SnapshotDto selectLastSnapshot(@Param("componentUuid") String componentUuid);
 
+  List<SnapshotDto> selectLastSnapshotByComponentUuids(@Param("componentUuids") List<String> componentIds);
+
   int countLastSnapshotByComponentUuid(String componentUuid);
 
   List<SnapshotDto> selectSnapshotsByQuery(@Param("query") SnapshotQuery query);

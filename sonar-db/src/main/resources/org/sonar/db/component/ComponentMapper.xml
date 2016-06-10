@@ -289,6 +289,12 @@
       <if test="query.language!=null">
         AND p.language = #{query.language}
       </if>
+      <if test="query.componentIds!=null">
+        AND p.id in
+        <foreach collection="query.componentIds" item="componentId" open="(" close=")" separator=",">
+          #{componentId}
+        </foreach>
+      </if>
       <if test="query.nameOrKeyQuery!=null">
         AND (
           p.kee=#{query.nameOrKeyQuery}

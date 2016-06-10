@@ -17,7 +17,22 @@
     <where>
       AND p.component_uuid=#{uuid}
     </where>
+    ORDER BY p.id
   </select>
+
+  <select id="selectByComponentUuids" parameterType="String" resultType="ComponentLink">
+    SELECT
+    <include refid="componentLinkColumns"/>
+    FROM project_links p
+    <where>
+      AND p.component_uuid in
+      <foreach collection="componentUuids" open="(" close=")" item="uuid" separator=",">
+        #{uuid}
+      </foreach>
+    </where>
+    order by p.id
+  </select>
+
 
   <insert id="insert" parameterType="ComponentLink" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     INSERT INTO project_links (component_uuid, link_type, name, href)

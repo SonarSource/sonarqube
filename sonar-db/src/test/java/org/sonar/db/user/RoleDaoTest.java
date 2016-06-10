@@ -19,6 +19,7 @@
  */
 package org.sonar.db.user;
 
+import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.security.DefaultGroups;
@@ -26,15 +27,17 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class RoleDaoTest {
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+  GroupDbTester groupDb = new GroupDbTester(db);
+  DbSession dbSession = db.getSession();
 
   RoleDao underTest = db.getDbClient().roleDao();
 
@@ -52,6 +55,50 @@ public class RoleDaoTest {
 
     assertThat(underTest.selectUserPermissions(db.getSession(), "admin_user", 1L)).containsOnly(UserRole.ADMIN, UserRole.USER);
     assertThat(underTest.selectUserPermissions(db.getSession(), "browse_admin_user", 1L)).containsOnly(UserRole.USER);
+  }
+
+  @Test
+  public void select_user_permissions_by_permission_and_user_id() {
+    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(1L).setResourceId(2L));
+    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(1L).setResourceId(3L));
+    // global permission - not returned
+    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(1L).setResourceId(null));
+    // project permission on another user id - not returned
+    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(42L).setResourceId(2L));
+    // project permission on another permission - not returned
+    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(GlobalPermissions.SCAN_EXECUTION).setUserId(1L).setResourceId(2L));
+    db.commit();
+
+    List<Long> result = underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, 1L);
+
+    assertThat(result).hasSize(2).containsExactly(2L, 3L);
+  }
+
+  @Test
+  public void select_group_permissions_by_permission_and_user_id() {
+    long userId = 11L;
+
+    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(1L).setResourceId(2L));
+    groupDb.addUserToGroup(userId, 1L);
+    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(2L).setResourceId(3L));
+    groupDb.addUserToGroup(userId, 2L);
+    // global permission - not returned
+    groupDb.addUserToGroup(userId, 3L);
+    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(3L).setResourceId(null));
+    // project permission on another user id - not returned
+    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(4L).setResourceId(4L));
+    groupDb.addUserToGroup(12L, 4L);
+    // project permission on another permission - not returned
+    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.USER).setGroupId(5L).setResourceId(5L));
+    groupDb.addUserToGroup(userId, 5L);
+    // duplicates on resource id - should be returned once
+    underTest.insertUserRole(dbSession, new UserRoleDto().setRole(UserRole.ADMIN).setUserId(userId).setResourceId(2L));
+    underTest.insertGroupRole(dbSession, new GroupRoleDto().setRole(UserRole.ADMIN).setGroupId(3L).setResourceId(3L));
+    db.commit();
+
+    List<Long> result = underTest.selectComponentIdsByPermissionAndUserId(dbSession, UserRole.ADMIN, userId);
+
+    assertThat(result).hasSize(2).containsExactly(2L, 3L);
   }
 
   @Test
