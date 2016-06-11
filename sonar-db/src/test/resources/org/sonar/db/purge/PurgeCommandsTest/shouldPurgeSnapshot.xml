@@ -11,11 +11,11 @@
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000"
              build_date="1228222680000" version="[null]" path="[null]"/>
 
-  <project_measures ID="1" project_id="1" SNAPSHOT_ID="1" RULE_ID="[null]" characteristic_id="[null]"
-                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
-                    variation_value_4="[null]" variation_value_5="[null]" rule_priority="[null]" alert_text="[null]"
-                    VALUE="10.0" METRIC_ID="1" rules_category_id="[null]" person_id="[null]" text_value="[null]"
-                    tendency="[null]" measure_date="[null]" alert_status="[null]" description="[null]"
+  <project_measures ID="1" project_id="1" SNAPSHOT_ID="1"
+                    variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
+                    variation_value_4="[null]" variation_value_5="[null]" alert_text="[null]"
+                    VALUE="10.0" METRIC_ID="1" person_id="[null]" text_value="[null]"
+                    alert_status="[null]" description="[null]"
                     measure_data="[null]"/>
 
   <events id="1" component_uuid="1" snapshot_id="1"
@@ -39,13 +39,12 @@
              depth="[null]" scope="PRJ" qualifier="TRK" created_at="1228222680000"
              build_date="1228222680000" version="[null]" path="[null]"/>
 
-  <project_measures ID="2" project_id="2" SNAPSHOT_ID="2" RULE_ID="[null]" characteristic_id="[null]"
-                    url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
+  <project_measures ID="2" project_id="2" SNAPSHOT_ID="2"
+                    variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]"
-                    variation_value_5="[null]" rule_priority="[null]" alert_text="[null]" VALUE="10.0" METRIC_ID="1"
-                    rules_category_id="[null]"
+                    variation_value_5="[null]" alert_text="[null]" VALUE="10.0" METRIC_ID="1"
                     person_id="[null]"
-                    text_value="[null]" tendency="[null]" measure_date="[null]" alert_status="[null]"
+                    text_value="[null]" alert_status="[null]"
                     description="[null]" measure_data="[null]"/>
 
   <events id="2" component_uuid="2" snapshot_id="2"

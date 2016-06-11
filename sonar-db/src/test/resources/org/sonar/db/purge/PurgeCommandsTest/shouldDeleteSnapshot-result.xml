@@ -13,14 +13,12 @@
              parent_snapshot_id="[null]" root_project_id="[null]" root_snapshot_id="[null]" status="P" islast="[false]"
              path="[null]"/>
 
-  <project_measures ID="1" characteristic_id="[null]" url="[null]" variation_value_1="[null]" variation_value_2="[null]"
+  <project_measures ID="1" variation_value_1="[null]" variation_value_2="[null]"
                     variation_value_3="[null]" variation_value_4="[null]"
                     variation_value_5="[null]"
-                    rule_priority="[null]"
-                    alert_text="[null]" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="1" rules_category_id="[null]"
-                    RULE_ID="[null]"
+                    alert_text="[null]" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="1"
                     person_id="[null]"
-                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    text_value="[null]" project_id="[null]"
                     alert_status="[null]" description="[null]" measure_data="[null]"/>
   <events id="1" name="Version 1.0" component_uuid="1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="1228222680000" created_at="1228222680000" event_data="[null]"/>

@@ -119,9 +119,6 @@ public class MeasureFilterCondition {
       sql.append(textValue);
     }
     sql.append(" AND ");
-    sql.append(table).append(".rule_id IS NULL AND ");
-    sql.append(table).append(".rule_priority IS NULL AND ");
-    sql.append(table).append(".characteristic_id IS NULL AND ");
     sql.append(table).append(".person_id IS NULL ");
     return sql;
   }

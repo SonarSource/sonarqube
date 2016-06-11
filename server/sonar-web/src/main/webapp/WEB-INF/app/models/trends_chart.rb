@@ -23,11 +23,10 @@ class TrendsChart
     unless metric_ids.empty?
       sql= "select s.created_at as created_at, m.value as value, m.metric_id as metric_id, s.id as sid " +
             " from project_measures m LEFT OUTER JOIN snapshots s ON s.id=m.snapshot_id " +
-            " where m.rule_id is null " +
-            " and s.status=? " +
+            " where s.status=? " +
             " and s.project_id=? " +
             " and m.metric_id in (?) " +
-            " and m.rule_priority is null and m.person_id is null"
+            " and  m.person_id is null"
       if (options[:from])
         sql += ' and s.created_at>=?'
       end

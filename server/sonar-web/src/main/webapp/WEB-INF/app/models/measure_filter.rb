@@ -277,7 +277,7 @@ class MeasureFilter < ActiveRecord::Base
         measures = []
         snapshot_ids.each_slice(999) do |safe_for_oracle_ids|
           measures.concat(ProjectMeasure.all(:conditions =>
-            ['rule_priority is null and rule_id is null and person_id is null and snapshot_id in (?) and metric_id in (?)', safe_for_oracle_ids, metric_ids]
+            ['person_id is null and snapshot_id in (?) and metric_id in (?)', safe_for_oracle_ids, metric_ids]
           ))
         end
         measures.each do |measure|
@@ -313,7 +313,7 @@ class MeasureFilter < ActiveRecord::Base
         @base_row = Row.new(base_snapshot)
         unless metric_ids.empty?
           base_measures = ProjectMeasure.all(:conditions =>
-            ['rule_priority is null and rule_id is null and person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, metric_ids]
+            ['person_id is null and snapshot_id=? and metric_id in (?)', base_snapshot.id, metric_ids]
           )
           base_measures.each do |base_measure|
             @base_row.add_measure(base_measure)

@@ -41,6 +41,10 @@ class ProjectMeasure < ActiveRecord::Base
     write_attribute(:metric_id, m.id) if m.id
   end
 
+  def rule_measure?
+    false
+  end
+
   def data
     if metric.data?
       text_value || measure_data

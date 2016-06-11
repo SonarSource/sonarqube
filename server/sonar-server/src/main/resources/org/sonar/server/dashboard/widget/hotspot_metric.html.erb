@@ -15,7 +15,7 @@
        snapshots_values[:root_sid] = (@snapshot.root_snapshot_id || @snapshot.id)
        snapshots_values[:path]="#{@snapshot.path}#{@snapshot.id}.%"
 
-       measures_conditions = ["project_measures.rule_id IS NULL", "project_measures.person_id IS NULL"]
+       measures_conditions = ["project_measures.person_id IS NULL"]
        measures_values = {}
        measures_conditions << "project_measures.metric_id = :m_id"
        measures_values[:m_id] = metric.id

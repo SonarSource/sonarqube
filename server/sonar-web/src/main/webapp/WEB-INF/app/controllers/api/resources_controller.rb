@@ -126,7 +126,6 @@ class Api::ResourcesController < Api::ApiController
       measures_limit = nil
       measures_by_sid={}
       measures=nil
-      rules_by_id=nil
 
       if params['scopes']
         snapshots_conditions << 'snapshots.scope in (:scopes)'
@@ -164,7 +163,6 @@ class Api::ResourcesController < Api::ApiController
       end
 
       if params['metrics'] && params['metrics']!='false'
-        set_backward_compatible
         load_measures=true
 
         if params['metrics']!='true'
@@ -184,7 +182,6 @@ class Api::ResourcesController < Api::ApiController
         end
 
         measures_conditions << 'project_measures.person_id IS NULL'
-        add_rule_filters(measures_conditions, measures_values)
 
         measures=ProjectMeasure.all(:joins => :snapshot,
                                      :select => select_columns_for_measures,
@@ -204,14 +201,6 @@ class Api::ResourcesController < Api::ApiController
           snapshots_values[:sids] = (measures_by_sid.empty? ? [-1] : measures_by_sid.keys)
         end
 
-        # load coding rules
-        rules_by_id={}
-        rule_ids=measures.map { |m| m.rule_id }.compact.uniq
-        unless rule_ids.empty?
-          Rule.find(rule_ids).each do |rule|
-            rules_by_id[rule.id]=rule
-          end
-        end
       end
 
       # ---------- LOAD RESOURCES
@@ -259,7 +248,7 @@ class Api::ResourcesController < Api::ApiController
       sorted_resources=sorted_resources.uniq.compact
 
       # ---------- FORMAT RESPONSE
-      objects={:sorted_resources => sorted_resources, :snapshots_by_rid => snapshots_by_rid, :measures_by_sid => measures_by_sid, :params => params, :rules_by_id => rules_by_id}
+      objects={:sorted_resources => sorted_resources, :snapshots_by_rid => snapshots_by_rid, :measures_by_sid => measures_by_sid, :params => params}
       respond_to do |format|
         format.json { render :json => jsonp(to_json(objects)) }
         format.xml { render :xml => to_xml(objects) }
@@ -272,15 +261,8 @@ class Api::ResourcesController < Api::ApiController
 
   private
 
-  def set_backward_compatible
-    # backward-compatibility with sonar 1.9
-    if params['filter_rules']
-      (params['filter_rules']=='true') ? params['rules']='false' : params['rules']='true'
-    end
-  end
-
   def select_columns_for_measures
-    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.rule_id,project_measures.text_value,project_measures.measure_data'
+    select_columns='project_measures.id,project_measures.value,project_measures.metric_id,project_measures.snapshot_id,project_measures.text_value,project_measures.measure_data'
     if params[:includetrends]=='true'
       select_columns+=',project_measures.variation_value_1,project_measures.variation_value_2,project_measures.variation_value_3,project_measures.variation_value_4,project_measures.variation_value_5'
     end
@@ -293,34 +275,16 @@ class Api::ResourcesController < Api::ApiController
     select_columns
   end
 
-  def add_rule_filters(measures_conditions, measures_values)
-    param_rules = params['rules'] || 'false'
-    if param_rules=='true'
-      measures_conditions << "project_measures.rule_id IS NOT NULL"
-
-    elsif param_rules=='false'
-      measures_conditions << "project_measures.rule_id IS NULL"
-    else
-      rule_ids=param_rules.split(',').map do |key_or_id|
-        Rule.to_i(key_or_id)
-      end
-      measures_conditions << 'project_measures.rule_id IN (:rule_ids)'
-      measures_values[:rule_ids]=rule_ids.compact
-    end
-
-  end
-
   def to_json(objects)
     resources = objects[:sorted_resources]
     snapshots_by_rid = objects[:snapshots_by_rid]
     measures_by_sid = objects[:measures_by_sid]
-    rules_by_id = objects[:rules_by_id]
     params = objects[:params]
 
     result=[]
     resources.each do |resource|
       snapshot=snapshots_by_rid[resource.id]
-      result<<resource_to_json(resource, snapshot, measures_by_sid[snapshot.id], rules_by_id, params)
+      result<<resource_to_json(resource, snapshot, measures_by_sid[snapshot.id], params)
     end
     result
   end
@@ -329,7 +293,6 @@ class Api::ResourcesController < Api::ApiController
     resources = objects[:sorted_resources]
     snapshots_by_rid = objects[:snapshots_by_rid]
     measures_by_sid = objects[:measures_by_sid]
-    rules_by_id = objects[:rules_by_id]
     params = objects[:params]
 
     xml = Builder::XmlMarkup.new(:indent => 0)
@@ -338,12 +301,12 @@ class Api::ResourcesController < Api::ApiController
     xml.resources do
       resources.each do |resource|
         snapshot=snapshots_by_rid[resource.id]
-        resource_to_xml(xml, resource, snapshot, measures_by_sid[snapshot.id], rules_by_id, params)
+        resource_to_xml(xml, resource, snapshot, measures_by_sid[snapshot.id], params)
       end
     end
   end
 
-  def resource_to_json(resource, snapshot, measures, rules_by_id, options={})
+  def resource_to_json(resource, snapshot, measures, options={})
     verbose=(options[:verbose]=='true')
     include_alerts=(options[:includealerts]=='true')
     include_trends=(options[:includetrends]=='true')
@@ -415,17 +378,12 @@ class Api::ResourcesController < Api::ApiController
           json_measure[:var5]=measure.variation_value_5.to_f if measure.variation_value_5
           json_measure[:fvar5]=measure.format_numeric_value(measure.variation_value_5.to_f) if measure.variation_value_5
         end
-        if measure.rule_id
-          rule = rules_by_id[measure.rule_id]
-          json_measure[:rule_key] = rule.key if rule
-          json_measure[:rule_name] = rule.name if rule
-        end
       end
     end
     json
   end
 
-  def resource_to_xml(xml, resource, snapshot, measures, rules_by_id, options={})
+  def resource_to_xml(xml, resource, snapshot, measures, options={})
     verbose=(options[:verbose]=='true')
     include_alerts=(options[:includealerts]=='true')
     include_trends=(options[:includetrends]=='true')
@@ -493,11 +451,6 @@ class Api::ResourcesController < Api::ApiController
               xml.fvar4(measure.format_numeric_value(measure.variation_value_4.to_f)) if measure.variation_value_4
               xml.var5(measure.variation_value_5.to_f) if measure.variation_value_5
               xml.fvar5(measure.format_numeric_value(measure.variation_value_5.to_f)) if measure.variation_value_5
-            end
-            if measure.rule_id
-              rule = rules_by_id[measure.rule_id]
-              xml.rule_key(rule.key) if rule
-              xml.rule_name(rule.name) if rule
             end
           end
         end
