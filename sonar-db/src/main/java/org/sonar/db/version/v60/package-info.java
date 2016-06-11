@@ -21,4 +21,3 @@
 package org.sonar.db.version.v60;
 
 import javax.annotation.ParametersAreNonnullByDefault;
-

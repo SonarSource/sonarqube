@@ -86,6 +86,7 @@ import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
 import org.sonar.db.version.v60.AddUuidColumnsToResourceIndex;
 import org.sonar.db.version.v60.CleanOrphanRowsInResourceIndex;
 import org.sonar.db.version.v60.DropIdColumnsFromResourceIndex;
+import org.sonar.db.version.v60.DropUnusedMeasuresColumns;
 import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnResourceIndex;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
 
@@ -177,6 +178,7 @@ public class MigrationStepModule extends Module {
       PopulateUuidColumnsOfResourceIndex.class,
       CleanOrphanRowsInResourceIndex.class,
       MakeUuidColumnsNotNullOnResourceIndex.class,
-      DropIdColumnsFromResourceIndex.class);
+      DropIdColumnsFromResourceIndex.class,
+      DropUnusedMeasuresColumns.class);
   }
 }
