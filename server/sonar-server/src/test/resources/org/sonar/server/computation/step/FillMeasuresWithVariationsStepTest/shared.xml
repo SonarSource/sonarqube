@@ -32,20 +32,20 @@
 
   <!-- project measures -->
   <project_measures id="1" VALUE="60" METRIC_ID="1" SNAPSHOT_ID="1000"
-                    RULE_ID="[null]" text_value="[null]" measure_date="[null]" project_id="[null]"
-                    characteristic_id="[null]" url="[null]" person_id="[null]"/>
+                    text_value="[null]" project_id="[null]"
+                    person_id="[null]"/>
 
   <project_measures id="2" VALUE="80" METRIC_ID="2" SNAPSHOT_ID="1000"
-                    RULE_ID="[null]" text_value="[null]" measure_date="[null]" project_id="[null]"
-                    characteristic_id="[null]" url="[null]" person_id="[null]"/>
+                    text_value="[null]" project_id="[null]"
+                    person_id="[null]"/>
 
   <!-- package measures -->
   <project_measures id="3" VALUE="20" METRIC_ID="1" SNAPSHOT_ID="1001"
-                    RULE_ID="[null]" text_value="[null]" measure_date="[null]" project_id="[null]"
-                    characteristic_id="[null]" url="[null]" person_id="[null]"/>
+                    text_value="[null]" project_id="[null]"
+                    person_id="[null]"/>
 
   <project_measures id="4" VALUE="70" METRIC_ID="2" SNAPSHOT_ID="1001"
-                    RULE_ID="[null]" text_value="[null]" measure_date="[null]" project_id="[null]"
-                    characteristic_id="[null]" url="[null]" person_id="[null]"/>
+                    text_value="[null]" project_id="[null]"
+                    person_id="[null]"/>
 
 </dataset>

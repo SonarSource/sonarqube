@@ -3,15 +3,10 @@
       id="1"
       snapshot_id="2"
       metric_id="3"
-      characteristic_id="[null]"
-      rule_id="[null]"
       project_id="6"
       person_id="23"
       value="2.0"
       text_value="measure-value"
-      tendency="[null]"
-      rule_priority="[null]"
-      measure_date="[null]"
       measure_data="[null]"
       variation_value_1="1.0"
       variation_value_2="2.0"
@@ -20,8 +15,6 @@
       variation_value_5="5.0"
       alert_status="alert"
       alert_text="alert-text"
-      url="[null]"
       description="measure-description"
-      rules_category_id="[null]"
-      />
+  />
 </dataset>

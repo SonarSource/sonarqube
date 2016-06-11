@@ -147,7 +147,6 @@ class Project < ActiveRecord::Base
                                          ' where s.id=m.snapshot_id and ' +
                                          " s.status='%s' and " +
                                          ' s.project_id=%s and m.metric_id=%s ', 'P', self.id, metric_id]) +
-      ' and m.rule_id IS NULL and m.rule_priority IS NULL' +
       ' and m.person_id IS NULL' +
       ' order by s.created_at'
     create_chart_measures(Project.connection.select_all(sql), 'created_at', 'value')
