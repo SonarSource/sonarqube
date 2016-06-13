@@ -27,7 +27,7 @@ public interface UuidFactory {
    * <p/>
    * UUID is a base64 ASCII encoded string and is URL-safe. It does not contain - and + characters
    * but only letters, digits, dash (-) and underscore (_). Length can vary but does
-   * not exceed 40 characters (arbitrary value).
+   * not exceed {@link Uuids#MAX_LENGTH} characters (arbitrary value).
    */
   String create();
 
