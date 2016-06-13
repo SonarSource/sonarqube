@@ -20,7 +20,8 @@
 package org.sonar.scanner.sensor;
 
 import java.io.Serializable;
-import org.sonar.api.RuntimeApiVersion;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputModule;
@@ -57,17 +58,17 @@ public class DefaultSensorContext implements SensorContext {
   private final SensorStorage sensorStorage;
   private final AnalysisMode analysisMode;
   private final InputModule module;
-  private final RuntimeApiVersion sqVersion;
+  private final SonarRuntime sonarRuntime;
 
   public DefaultSensorContext(InputModule module, Settings settings, FileSystem fs, ActiveRules activeRules, AnalysisMode analysisMode, SensorStorage sensorStorage,
-    RuntimeApiVersion sqVersion) {
+    SonarRuntime sonarRuntime) {
     this.module = module;
     this.settings = settings;
     this.fs = fs;
     this.activeRules = activeRules;
     this.analysisMode = analysisMode;
     this.sensorStorage = sensorStorage;
-    this.sqVersion = sqVersion;
+    this.sonarRuntime = sonarRuntime;
   }
 
   @Override
@@ -92,17 +93,17 @@ public class DefaultSensorContext implements SensorContext {
 
   @Override
   public Version getSonarQubeVersion() {
-    return sqVersion.get();
+    return sonarRuntime.getApiVersion();
   }
 
   @Override
   public Version getRuntimeApiVersion() {
-    return sqVersion.get();
+    return sonarRuntime.getApiVersion();
   }
 
   @Override
-  public boolean isSonarLintRuntime() {
-    return sqVersion.isSonarlintRuntime();
+  public SonarProduct getRuntimeProduct() {
+    return sonarRuntime.getProduct();
   }
 
   @Override

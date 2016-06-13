@@ -19,12 +19,15 @@
  */
 package org.sonar.api;
 
+import com.google.common.base.Preconditions;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.BatchSide;
 import org.sonar.api.batch.sensor.Sensor;
 import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.Version;
+import org.sonarsource.api.sonarlint.SonarLintSide;
 
 import static java.util.Objects.requireNonNull;
 
@@ -121,8 +124,9 @@ import static java.util.Objects.requireNonNull;
 @BatchSide
 @ServerSide
 @ComputeEngineSide
+@SonarLintSide
 @Immutable
-public class RuntimeApiVersion {
+public class SonarRuntime {
 
   /**
    * Constant for version 5.5
@@ -134,16 +138,28 @@ public class RuntimeApiVersion {
    */
   public static final Version V5_6 = Version.create(5, 6);
 
-  private final Version version;
-  private final boolean sonarlint;
+  /**
+   * Constant for version 6.0
+   */
+  public static final Version V6_0 = Version.create(6, 0);
 
-  public RuntimeApiVersion(Version version, boolean sonarlint) {
+  private final Version version;
+  private final SonarProduct product;
+  private final SonarQubeSide sonarQubeSide;
+
+  public SonarRuntime(Version version, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide) {
     requireNonNull(version);
+    requireNonNull(product);
+    Preconditions.checkArgument((product == SonarProduct.SONARQUBE) == (sonarQubeSide != null), "sonarQubeSide should be provided only for SonarQube product");
     this.version = version;
-    this.sonarlint = sonarlint;
+    this.product = product;
+    this.sonarQubeSide = sonarQubeSide;
   }
 
-  public Version get() {
+  /**
+   * Runtime version of sonar-plugin-api. This could be used to test if a new feature can be used or not without using reflection.
+   */
+  public Version getApiVersion() {
     return this.version;
   }
 
@@ -152,10 +168,23 @@ public class RuntimeApiVersion {
   }
 
   /**
-   * @since 6.0 Test if current runtime is SonarLint. Can be used to implement a different behavior.
+   * Allow to know what is current runtime product. Can be used to implement different behavior depending on runtime (SonarQube, SonarLint, ...).
+   * @since 6.0
    */
-  public boolean isSonarlintRuntime() {
-    return sonarlint;
+  public SonarProduct getProduct() {
+    return product;
+  }
+
+  /**
+   * Allow to know the precise runtime context in SonarQube product. Only valid when {@link #getProduct()} returns {@link SonarProduct#SONARQUBE}
+   * @since 6.0
+   * @throws UnsupportedOperationException if called and {@link #getProduct()} is not equal to {@link SonarProduct#SONARQUBE}
+   */
+  public SonarQubeSide getSonarQubeSide() {
+    if (sonarQubeSide == null) {
+      throw new UnsupportedOperationException("Can only be called in SonarQube");
+    }
+    return sonarQubeSide;
   }
 
 }

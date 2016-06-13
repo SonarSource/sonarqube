@@ -19,26 +19,13 @@
  */
 package org.sonar.api;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.Version;
+/**
+ * List of different products/runtimes. 
+ * @since 6.0
+ */
+public enum SonarProduct {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class SonarQubeVersionTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void isGte() {
-    Version version = Version.parse("1.2.3");
-    SonarQubeVersion qubeVersion = new SonarQubeVersion(version, SonarProduct.SONARLINT, null);
-    assertThat(qubeVersion.get()).isEqualTo(version);
-    assertThat(qubeVersion.isGreaterThanOrEqual(version)).isTrue();
-    assertThat(qubeVersion.isGreaterThanOrEqual(Version.parse("1.1"))).isTrue();
-    assertThat(qubeVersion.isGreaterThanOrEqual(Version.parse("1.3"))).isFalse();
-  }
+  SONARQUBE,
+  SONARLINT;
 
 }

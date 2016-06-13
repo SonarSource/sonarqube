@@ -25,7 +25,7 @@ import java.lang.annotation.Annotation;
 import java.util.Map;
 import org.sonar.api.ExtensionProvider;
 import org.sonar.api.Plugin;
-import org.sonar.api.RuntimeApiVersion;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.AnnotationUtils;
 import org.sonar.core.platform.ComponentContainer;
 import org.sonar.core.platform.PluginInfo;
@@ -38,14 +38,14 @@ import static java.util.Objects.requireNonNull;
  */
 public abstract class ServerExtensionInstaller {
 
-  private final RuntimeApiVersion runtimeApiVersion;
+  private final SonarRuntime sonarRuntime;
   private final PluginRepository pluginRepository;
   private final Class<? extends Annotation>[] supportedAnnotationTypes;
 
-  protected ServerExtensionInstaller(RuntimeApiVersion runtimeApiVersion, PluginRepository pluginRepository,
+  protected ServerExtensionInstaller(SonarRuntime sonarRuntime, PluginRepository pluginRepository,
     Class<? extends Annotation>... supportedAnnotationTypes) {
     requireNonNull(supportedAnnotationTypes, "At least one supported annotation type must be specified");
-    this.runtimeApiVersion = runtimeApiVersion;
+    this.sonarRuntime = sonarRuntime;
     this.pluginRepository = pluginRepository;
     this.supportedAnnotationTypes = supportedAnnotationTypes;
   }
@@ -59,7 +59,7 @@ public abstract class ServerExtensionInstaller {
         Plugin plugin = pluginRepository.getPluginInstance(pluginKey);
         container.addExtension(pluginInfo, plugin);
 
-        Plugin.Context context = new Plugin.Context(runtimeApiVersion.get(), runtimeApiVersion.isSonarlintRuntime());
+        Plugin.Context context = new Plugin.Context(sonarRuntime);
         plugin.define(context);
         for (Object extension : context.getExtensions()) {
           if (installExtension(container, pluginInfo, extension, true) != null) {

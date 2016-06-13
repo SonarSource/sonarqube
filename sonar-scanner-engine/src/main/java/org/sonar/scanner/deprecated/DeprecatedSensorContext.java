@@ -21,7 +21,7 @@ package org.sonar.scanner.deprecated;
 
 import java.io.Serializable;
 import java.util.Collection;
-import org.sonar.api.RuntimeApiVersion;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.SensorContext;
 import org.sonar.api.batch.fs.FileSystem;
@@ -51,8 +51,8 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   private final CoverageExclusions coverageFilter;
 
   public DeprecatedSensorContext(InputModule module, DefaultIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
-    AnalysisMode analysisMode, CoverageExclusions coverageFilter, SensorStorage sensorStorage, RuntimeApiVersion sqVersion) {
-    super(module, settings, fs, activeRules, analysisMode, sensorStorage, sqVersion);
+    AnalysisMode analysisMode, CoverageExclusions coverageFilter, SensorStorage sensorStorage, SonarRuntime sonarRuntime) {
+    super(module, settings, fs, activeRules, analysisMode, sensorStorage, sonarRuntime);
     this.index = index;
     this.project = project;
     this.coverageFilter = coverageFilter;

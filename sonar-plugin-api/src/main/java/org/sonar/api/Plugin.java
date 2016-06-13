@@ -85,21 +85,19 @@ import static java.util.Objects.requireNonNull;
 public interface Plugin {
 
   class Context {
-    private final Version runtimeApiVersion;
+    private final SonarRuntime sonarRuntime;
     private final List extensions = new ArrayList();
-    private final boolean sonarlintRuntime;
 
-    public Context(Version runtimeApiVersion, boolean sonarlintRuntime) {
-      this.runtimeApiVersion = runtimeApiVersion;
-      this.sonarlintRuntime = sonarlintRuntime;
+    public Context(SonarRuntime sonarRuntime) {
+      this.sonarRuntime = sonarRuntime;
     }
 
     /**
-     * @deprecated since 6.0
+     * @deprecated since 6.0 use {@link #getRuntimeApiVersion()}
      */
     @Deprecated
     public Version getSonarQubeVersion() {
-      return runtimeApiVersion;
+      return sonarRuntime.getApiVersion();
     }
 
     /**
@@ -107,7 +105,7 @@ public interface Plugin {
      * @since 6.0
      */
     public Version getRuntimeApiVersion() {
-      return runtimeApiVersion;
+      return sonarRuntime.getApiVersion();
     }
 
     /**
@@ -154,11 +152,11 @@ public interface Plugin {
     }
 
     /**
-     * Test if plugin is currently executed in SonarLint. Can be use to conditionnaly add some extensions.
+     * Test the product the plugin is currently executed in. This can allow to implement a different behavior.
      * @since 6.0
      */
-    public boolean isSonarlintRuntime() {
-      return sonarlintRuntime;
+    public SonarProduct getRuntimeProduct() {
+      return sonarRuntime.getProduct();
     }
   }
 

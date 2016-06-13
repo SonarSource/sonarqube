@@ -23,13 +23,13 @@ import java.util.Arrays;
 import org.junit.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.RuntimeApiVersion.V5_5;
+import static org.sonar.api.SonarRuntime.V5_5;
 
 public class PluginTest {
 
   @Test
   public void test_context() {
-    Plugin.Context context = new Plugin.Context(V5_5, true);
+    Plugin.Context context = new Plugin.Context(new SonarRuntime(V5_5, SonarProduct.SONARQUBE, SonarQubeSide.SERVER));
 
     assertThat(context.getSonarQubeVersion()).isEqualTo(V5_5);
     assertThat(context.getExtensions()).isEmpty();

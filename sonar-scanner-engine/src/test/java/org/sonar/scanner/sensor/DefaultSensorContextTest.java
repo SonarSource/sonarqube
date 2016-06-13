@@ -24,6 +24,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.fs.InputModule;
@@ -67,7 +69,7 @@ public class DefaultSensorContextTest {
     settings = new Settings();
     sensorStorage = mock(SensorStorage.class);
     analysisMode = mock(AnalysisMode.class);
-    sqVersion = new SonarQubeVersion(Version.parse("5.5"), false);
+    sqVersion = new SonarQubeVersion(Version.parse("5.5"), SonarProduct.SONARQUBE, SonarQubeSide.SCANNER);
     adaptor = new DefaultSensorContext(mock(InputModule.class), settings, fs, activeRules, analysisMode, sensorStorage, sqVersion);
   }
 
@@ -77,7 +79,7 @@ public class DefaultSensorContextTest {
     assertThat(adaptor.fileSystem()).isEqualTo(fs);
     assertThat(adaptor.settings()).isEqualTo(settings);
     assertThat(adaptor.getSonarQubeVersion()).isEqualTo(Version.parse("5.5"));
-    assertThat(adaptor.isSonarLintRuntime()).isFalse();
+    assertThat(adaptor.getRuntimeProduct()).isEqualTo(SonarProduct.SONARQUBE);
 
     assertThat(adaptor.newIssue()).isNotNull();
     assertThat(adaptor.newMeasure()).isNotNull();

@@ -19,6 +19,7 @@
  */
 package org.sonar.api;
 
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.sensor.Sensor;
@@ -115,17 +116,21 @@ import org.sonar.api.utils.Version;
  *
  *
  * @since 5.5
- * @deprecated since 6.0 replaced by {@link RuntimeApiVersion}
+ * @deprecated since 6.0 replaced by {@link SonarRuntime}
  */
 @ScannerSide
 @ServerSide
 @ComputeEngineSide
 @Immutable
 @Deprecated
-public class SonarQubeVersion extends RuntimeApiVersion {
+public class SonarQubeVersion extends SonarRuntime {
 
-  public SonarQubeVersion(Version version, boolean sonarlint) {
-    super(version, sonarlint);
+  public SonarQubeVersion(Version version, SonarProduct product, @Nullable SonarQubeSide sonarQubeSide) {
+    super(version, product, sonarQubeSide);
+  }
+
+  public Version get() {
+    return super.getApiVersion();
   }
 
 }

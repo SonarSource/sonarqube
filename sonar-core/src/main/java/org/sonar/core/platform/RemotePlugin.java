@@ -27,6 +27,7 @@ import org.apache.commons.lang.StringUtils;
 
 public class RemotePlugin {
   private String pluginKey;
+  private boolean sonarLintSupported;
   private RemotePluginFile file = null;
 
   public RemotePlugin(String pluginKey) {
@@ -36,14 +37,16 @@ public class RemotePlugin {
   public static RemotePlugin create(PluginInfo pluginInfo) {
     RemotePlugin result = new RemotePlugin(pluginInfo.getKey());
     result.setFile(pluginInfo.getNonNullJarFile());
+    result.setSonarLintSupported(pluginInfo.isSonarLintSupported());
     return result;
   }
 
   public static RemotePlugin unmarshal(String row) {
     String[] fields = StringUtils.split(row, ",");
     RemotePlugin result = new RemotePlugin(fields[0]);
-    if (fields.length >= 2) {
-      String[] nameAndHash = StringUtils.split(fields[1], "|");
+    if (fields.length >= 3) {
+      result.setSonarLintSupported(StringUtils.equals("true", fields[1]));
+      String[] nameAndHash = StringUtils.split(fields[2], "|");
       result.setFile(nameAndHash[0], nameAndHash[1]);
     }
     return result;
@@ -51,8 +54,13 @@ public class RemotePlugin {
 
   public String marshal() {
     StringBuilder sb = new StringBuilder();
-    sb.append(pluginKey);
-    sb.append(",").append(file.getFilename()).append("|").append(file.getHash());
+    sb.append(pluginKey)
+      .append(",")
+      .append(sonarLintSupported)
+      .append(",")
+      .append(file.getFilename())
+      .append("|")
+      .append(file.getHash());
     return sb.toString();
   }
 
@@ -62,6 +70,11 @@ public class RemotePlugin {
 
   public RemotePlugin setFile(String filename, String hash) {
     file = new RemotePluginFile(filename, hash);
+    return this;
+  }
+
+  public RemotePlugin setSonarLintSupported(boolean sonarLintPlugin) {
+    this.sonarLintSupported = sonarLintPlugin;
     return this;
   }
 
@@ -75,6 +88,10 @@ public class RemotePlugin {
 
   public RemotePluginFile file() {
     return file;
+  }
+
+  public boolean isSonarLintSupported() {
+    return sonarLintSupported;
   }
 
   @Override

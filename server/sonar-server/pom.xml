@@ -88,7 +88,7 @@
       <version>${project.version}</version>
     </dependency>
     <dependency>
-      <groupId>org.codehaus.sonar</groupId>
+      <groupId>org.sonarsource.update-center</groupId>
       <artifactId>sonar-update-center-common</artifactId>
     </dependency>
     <dependency>

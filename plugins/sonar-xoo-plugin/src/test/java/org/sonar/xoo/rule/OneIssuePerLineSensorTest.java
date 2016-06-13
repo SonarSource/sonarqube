@@ -23,6 +23,8 @@ import java.io.IOException;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.batch.rule.Severity;
 import org.sonar.api.batch.sensor.internal.DefaultSensorDescriptor;
@@ -104,7 +106,7 @@ public class OneIssuePerLineSensorTest {
     SensorContextTester context = SensorContextTester.create(temp.newFolder());
     context.fileSystem().add(inputFile);
     context.settings().setProperty(OneIssuePerLineSensor.EFFORT_TO_FIX_PROPERTY, "1.2");
-    context.setRuntime(Version.parse("5.4"), false);
+    context.setRuntime(Version.parse("5.4"), SonarProduct.SONARQUBE, SonarQubeSide.SCANNER);
 
     sensor.execute(context);
 

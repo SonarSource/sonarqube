@@ -136,6 +136,9 @@ public class PluginInfo implements Comparable<PluginInfo> {
   @CheckForNull
   private String implementationBuild;
 
+  @CheckForNull
+  private boolean sonarLintSupported;
+
   private final Set<RequiredPlugin> requiredPlugins = new HashSet<>();
 
   public PluginInfo(String key) {
@@ -217,6 +220,11 @@ public class PluginInfo implements Comparable<PluginInfo> {
   }
 
   @CheckForNull
+  public boolean isSonarLintSupported() {
+    return sonarLintSupported;
+  }
+
+  @CheckForNull
   public String getBasePlugin() {
     return basePlugin;
   }
@@ -285,6 +293,11 @@ public class PluginInfo implements Comparable<PluginInfo> {
 
   public PluginInfo setUseChildFirstClassLoader(boolean b) {
     this.useChildFirstClassLoader = b;
+    return this;
+  }
+
+  public PluginInfo setSonarLintSupported(boolean sonarLintPlugin) {
+    this.sonarLintSupported = sonarLintPlugin;
     return this;
   }
 
@@ -395,6 +408,7 @@ public class PluginInfo implements Comparable<PluginInfo> {
     info.setHomepageUrl(manifest.getHomepage());
     info.setIssueTrackerUrl(manifest.getIssueTrackerUrl());
     info.setUseChildFirstClassLoader(manifest.isUseChildFirstClassLoader());
+    info.setSonarLintSupported(manifest.isSonarLintSupported());
     info.setBasePlugin(manifest.getBasePlugin());
     info.setImplementationBuild(manifest.getImplementationBuild());
     String[] requiredPlugins = manifest.getRequirePlugins();

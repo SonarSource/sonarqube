@@ -21,8 +21,7 @@ package org.sonar.core.platform;
 
 import org.junit.Test;
 
-import static org.hamcrest.core.Is.is;
-import static org.junit.Assert.assertThat;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class RemotePluginTest {
   @Test
@@ -30,23 +29,31 @@ public class RemotePluginTest {
     RemotePlugin clirr1 = new RemotePlugin("clirr");
     RemotePlugin clirr2 = new RemotePlugin("clirr");
     RemotePlugin checkstyle = new RemotePlugin("checkstyle");
-    assertThat(clirr1.equals(clirr2), is(true));
-    assertThat(clirr1.equals(clirr1), is(true));
-    assertThat(clirr1.equals(checkstyle), is(false));
+    assertThat(clirr1).isEqualTo(clirr2);
+    assertThat(clirr1).isEqualTo(clirr1);
+    assertThat(clirr1).isNotEqualTo(checkstyle);
   }
 
   @Test
-  public void shouldMarshal() {
+  public void shouldMarshalNotSonarLintByDefault() {
     RemotePlugin clirr = new RemotePlugin("clirr").setFile("clirr-1.1.jar", "fakemd5");
     String text = clirr.marshal();
-    assertThat(text, is("clirr,clirr-1.1.jar|fakemd5"));
+    assertThat(text).isEqualTo("clirr,false,clirr-1.1.jar|fakemd5");
+  }
+
+  @Test
+  public void shouldMarshalSonarLint() {
+    RemotePlugin clirr = new RemotePlugin("clirr").setFile("clirr-1.1.jar", "fakemd5").setSonarLintSupported(true);
+    String text = clirr.marshal();
+    assertThat(text).isEqualTo("clirr,true,clirr-1.1.jar|fakemd5");
   }
 
   @Test
   public void shouldUnmarshal() {
-    RemotePlugin clirr = RemotePlugin.unmarshal("clirr,clirr-1.1.jar|fakemd5");
-    assertThat(clirr.getKey(), is("clirr"));
-    assertThat(clirr.file().getFilename(), is("clirr-1.1.jar"));
-    assertThat(clirr.file().getHash(), is("fakemd5"));
+    RemotePlugin clirr = RemotePlugin.unmarshal("clirr,true,clirr-1.1.jar|fakemd5");
+    assertThat(clirr.getKey()).isEqualTo("clirr");
+    assertThat(clirr.isSonarLintSupported()).isTrue();
+    assertThat(clirr.file().getFilename()).isEqualTo("clirr-1.1.jar");
+    assertThat(clirr.file().getHash()).isEqualTo("fakemd5");
   }
 }

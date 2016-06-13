@@ -23,7 +23,9 @@ import java.util.List;
 import java.util.Map;
 
 import org.sonar.api.Plugin;
-import org.sonar.api.internal.RuntimeApiVersionFactory;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.internal.SonarRuntimeFactory;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.UriReader;
 import org.sonar.api.utils.log.Logger;
@@ -76,7 +78,7 @@ public class GlobalContainer extends ComponentContainer {
       BatchPluginPredicate.class,
       ExtensionInstaller.class,
 
-      RuntimeApiVersionFactory.create(System2.INSTANCE, false),
+      SonarRuntimeFactory.create(System2.INSTANCE, SonarProduct.SONARQUBE, SonarQubeSide.SCANNER),
       CachesManager.class,
       GlobalSettings.class,
       new BatchWsClientProvider(),

@@ -30,6 +30,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.fs.TextRange;
@@ -58,7 +60,7 @@ import org.sonar.api.batch.sensor.measure.internal.DefaultMeasure;
 import org.sonar.api.batch.sensor.symbol.NewSymbolTable;
 import org.sonar.api.batch.sensor.symbol.internal.DefaultSymbolTable;
 import org.sonar.api.config.Settings;
-import org.sonar.api.internal.RuntimeApiVersionFactory;
+import org.sonar.api.internal.SonarRuntimeFactory;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
 import org.sonar.api.utils.Version;
@@ -95,7 +97,7 @@ public class SensorContextTester implements SensorContext {
     this.activeRules = new ActiveRulesBuilder().build();
     this.sensorStorage = new InMemorySensorStorage();
     this.module = new DefaultInputModule("projectKey");
-    this.sqVersion = RuntimeApiVersionFactory.create(System2.INSTANCE, false);
+    this.sqVersion = SonarRuntimeFactory.create(System2.INSTANCE, SonarProduct.SONARQUBE, SonarQubeSide.SCANNER);
   }
 
   public static SensorContextTester create(File moduleBaseDir) {
@@ -142,21 +144,21 @@ public class SensorContextTester implements SensorContext {
    */
   @Override
   public Version getSonarQubeVersion() {
-    return sqVersion.get();
+    return sqVersion.getApiVersion();
   }
 
   @Override
   public Version getRuntimeApiVersion() {
-    return sqVersion.get();
+    return sqVersion.getApiVersion();
   }
 
   @Override
-  public boolean isSonarLintRuntime() {
-    return sqVersion.isSonarlintRuntime();
+  public SonarProduct getRuntimeProduct() {
+    return sqVersion.getProduct();
   }
 
-  public SensorContextTester setRuntime(Version version, boolean isSonarLint) {
-    this.sqVersion = new SonarQubeVersion(version, isSonarLint);
+  public SensorContextTester setRuntime(Version version, SonarProduct product, SonarQubeSide sonarQubeSide) {
+    this.sqVersion = new SonarQubeVersion(version, product, sonarQubeSide);
     return this;
   }
 

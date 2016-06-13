@@ -54,7 +54,7 @@
   </distributionManagement>
 
   <properties>
-    <sonarUpdateCenter.version>1.13</sonarUpdateCenter.version>
+    <sonarUpdateCenter.version>1.16-build309</sonarUpdateCenter.version>
     <sonarJava.version>3.13.1</sonarJava.version>
     <sonarJavaScript.version>2.11</sonarJavaScript.version>
     <sonarCSharp.version>5.0</sonarCSharp.version>
@@ -465,7 +465,7 @@
         <version>${project.version}</version>
       </dependency>
       <dependency>
-        <groupId>org.codehaus.sonar</groupId>
+        <groupId>org.sonarsource.update-center</groupId>
         <artifactId>sonar-update-center-common</artifactId>
         <version>${sonarUpdateCenter.version}</version>
       </dependency>

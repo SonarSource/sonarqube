@@ -19,27 +19,14 @@
  */
 package org.sonar.api;
 
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.ExpectedException;
-import org.sonar.api.utils.Version;
+/**
+ * Differentiate runtime context in SonarQube product.
+ * @since 6.0
+ */
+public enum SonarQubeSide {
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-public class RuntimeApiVersionTest {
-
-  @Rule
-  public ExpectedException expectedException = ExpectedException.none();
-
-  @Test
-  public void isGte() {
-    Version version = Version.parse("1.2.3");
-    RuntimeApiVersion apiVersion = new RuntimeApiVersion(version, false);
-    assertThat(apiVersion.get()).isEqualTo(version);
-    assertThat(apiVersion.isSonarlintRuntime()).isFalse();
-    assertThat(apiVersion.isGreaterThanOrEqual(version)).isTrue();
-    assertThat(apiVersion.isGreaterThanOrEqual(Version.parse("1.1"))).isTrue();
-    assertThat(apiVersion.isGreaterThanOrEqual(Version.parse("1.3"))).isFalse();
-  }
+  SCANNER,
+  SERVER,
+  COMPUTE_ENGINE;
 
 }

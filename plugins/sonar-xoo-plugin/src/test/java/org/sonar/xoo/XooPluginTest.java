@@ -21,21 +21,23 @@ package org.sonar.xoo;
 
 import org.junit.Test;
 import org.sonar.api.Plugin;
+import org.sonar.api.SonarProduct;
+import org.sonar.api.SonarQubeSide;
+import org.sonar.api.SonarRuntime;
 import org.sonar.api.utils.Version;
 import org.sonar.xoo.lang.CpdTokenizerSensor;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.RuntimeApiVersion.V5_5;
 
 public class XooPluginTest {
 
   @Test
   public void provide_extensions_for_5_5() {
-    Plugin.Context context = new Plugin.Context(V5_5, false);
+    Plugin.Context context = new Plugin.Context(new SonarRuntime(Version.parse("5.5"), SonarProduct.SONARQUBE, SonarQubeSide.SCANNER));
     new XooPlugin().define(context);
     assertThat(context.getExtensions()).hasSize(40).contains(CpdTokenizerSensor.class);
 
-    context = new Plugin.Context(Version.parse("5.4"), false);
+    context = new Plugin.Context(new SonarRuntime(Version.parse("5.4"), SonarProduct.SONARLINT, null));
     new XooPlugin().define(context);
     assertThat(context.getExtensions()).hasSize(39).doesNotContain(CpdTokenizerSensor.class);
   }

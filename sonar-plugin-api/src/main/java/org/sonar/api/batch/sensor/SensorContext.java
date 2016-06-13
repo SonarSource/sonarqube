@@ -20,6 +20,7 @@
 package org.sonar.api.batch.sensor;
 
 import java.io.Serializable;
+import org.sonar.api.SonarProduct;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputModule;
 import org.sonar.api.batch.rule.ActiveRules;
@@ -75,10 +76,10 @@ public interface SensorContext {
   Version getRuntimeApiVersion();
 
   /**
-   * Test if plugin is currently executed in SonarLint. This can allow to implement a different behavior.
+   * Test the product the plugin is currently executed in. This can allow to implement a different behavior.
    * @since 6.0
    */
-  boolean isSonarLintRuntime();
+  SonarProduct getRuntimeProduct();
 
   // ----------- MEASURES --------------
 
