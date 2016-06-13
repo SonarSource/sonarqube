@@ -21,6 +21,7 @@ package org.sonar.core.util;
 
 public class Uuids {
 
+  public static final int MAX_LENGTH = 40;
   public static final String UUID_EXAMPLE_01 = "AU-Tpxb--iU5OvuD2FLy";
   public static final String UUID_EXAMPLE_02 = "AU-TpxcA-iU5OvuD2FLz";
   public static final String UUID_EXAMPLE_03 = "AU-TpxcA-iU5OvuD2FL0";
