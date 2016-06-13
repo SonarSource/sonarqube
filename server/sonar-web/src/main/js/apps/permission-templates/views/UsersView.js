@@ -50,6 +50,8 @@ export default Modal.extend({
 
   onRender () {
     Modal.prototype.onRender.apply(this, arguments);
+    this.$('[data-toggle="tooltip"]')
+        .tooltip({ container: 'body', placement: 'bottom' });
     const searchUrl = window.baseUrl + '/api/permissions/template_users?ps=100&permission=' +
         this.options.permission.key + '&templateId=' + this.options.permissionTemplate.id;
     new window.SelectList({
@@ -81,6 +83,7 @@ export default Modal.extend({
     if (this.options.refresh) {
       this.options.refresh();
     }
+    this.$('[data-toggle="tooltip"]').tooltip('destroy');
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 

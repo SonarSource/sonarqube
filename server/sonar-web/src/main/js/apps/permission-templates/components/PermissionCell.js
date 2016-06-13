@@ -84,7 +84,9 @@ export default class PermissionCell extends React.Component {
 
           {p.withProjectCreator && (
               <div className="spacer-top">
-                <span className="badge badge-warning js-project-creators">
+                <span className="badge badge-focus js-project-creators"
+                      title={translate('permission_templates.project_creators.explanation')}
+                      data-toggle="tooltip">
                   {translate('permission_templates.project_creators')}
                 </span>
               </div>
