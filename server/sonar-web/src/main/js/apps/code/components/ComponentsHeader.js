@@ -23,7 +23,7 @@ import { translate } from '../../../helpers/l10n';
 
 const ComponentsHeader = ({ baseComponent }) => (
     <thead>
-      <tr>
+      <tr className="code-components-header">
         <th className="thin nowrap">&nbsp;</th>
         <th>&nbsp;</th>
         <th className="thin nowrap text-right code-components-cell">

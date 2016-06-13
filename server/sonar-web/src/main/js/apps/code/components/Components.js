@@ -34,7 +34,7 @@ const Components = ({ rootComponent, baseComponent, components, selected, covera
                 component={baseComponent}
                 coverageMetric={coverageMetric}/>
             <tr className="blank">
-              <td colSpan="7">&nbsp;</td>
+              <td colSpan="8">&nbsp;</td>
             </tr>
           </tbody>
       )}

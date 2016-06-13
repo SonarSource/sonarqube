@@ -69,19 +69,25 @@ const Component = ({ component, rootComponent, previous, canBrowse }) => {
         Object.assign(query, { selected: component.key });
       }
       inner = (
-          <Link to={{ pathname: '/', query }}>
-            {name}
+          <Link to={{ pathname: '/', query }} className="link-with-icon">
+            <QualifierIcon qualifier={component.qualifier}/>
+            {' '}
+            <span>{name}</span>
           </Link>
       );
     } else {
-      inner = <span>{name}</span>;
+      inner = (
+          <span>
+            <QualifierIcon qualifier={component.qualifier}/>
+            {' '}
+            {name}
+          </span>
+      );
     }
   }
 
   return (
       <Truncated title={getTooltip(component)}>
-        <QualifierIcon qualifier={component.qualifier}/>
-        {' '}
         {inner}
       </Truncated>
   );

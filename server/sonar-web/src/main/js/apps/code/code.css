@@ -68,3 +68,9 @@
 .code-search .search-box input.touched ~ .note {
   opacity: 1;
 }
+
+.code-components-header {
+  position: sticky;
+  top: 95px;
+  background-color: rgba(255, 255, 255, 0.9);
+}
