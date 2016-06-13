@@ -41,4 +41,4 @@ $$$$"""$$$$$$$$$$uuu   uu$$$$$$$$$"""$$$"
 EOF
 
 ./stop.sh
-mvn clean install -B -e -V -DskipTests=true -Dsource.skip=true -Pdev $*
+mvn clean install -B -e -V -DskipTests=true -Dsource.skip=true -PskipSanityChecks,dev $*

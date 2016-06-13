@@ -5,7 +5,7 @@
   <parent>
     <groupId>org.sonarsource.parent</groupId>
     <artifactId>parent</artifactId>
-    <version>34</version>
+    <version>35</version>
   </parent>
   <groupId>org.sonarsource.sonarqube</groupId>
   <artifactId>sonarqube</artifactId>
@@ -1088,12 +1088,6 @@
   </developers>
 
   <profiles>
-    <profile>
-      <id>dev</id>
-      <properties>
-        <skipSanityChecks>true</skipSanityChecks>
-      </properties>
-    </profile>
     <profile>
       <id>release</id>      
       <build>
