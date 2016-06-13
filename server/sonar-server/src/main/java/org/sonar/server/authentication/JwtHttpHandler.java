@@ -50,6 +50,8 @@ public class JwtHttpHandler {
   private static final String JWT_COOKIE = "JWT-SESSION";
   private static final String LAST_REFRESH_TIME_PARAM = "lastRefreshTime";
 
+  private static final String CSRF_JWT_PARAM = "xsrfToken";
+
   // Time after which a user will be disconnected
   private static final int SESSION_DISCONNECT_IN_SECONDS = 3 * 30 * 24 * 60 * 60;
 
@@ -66,20 +68,26 @@ public class JwtHttpHandler {
 
   // This timeout is used to disconnect the user we he has not browse any page for a while
   private final int sessionTimeoutInSeconds;
+  private final JwtCsrfVerifier jwtCsrfVerifier;
 
-  public JwtHttpHandler(System2 system2, DbClient dbClient, Server server, Settings settings, JwtSerializer jwtSerializer) {
+  public JwtHttpHandler(System2 system2, DbClient dbClient, Server server, Settings settings, JwtSerializer jwtSerializer, JwtCsrfVerifier jwtCsrfVerifier) {
     this.jwtSerializer = jwtSerializer;
     this.server = server;
     this.dbClient = dbClient;
     this.system2 = system2;
     this.sessionTimeoutInSeconds = getSessionTimeoutInSeconds(settings);
+    this.jwtCsrfVerifier = jwtCsrfVerifier;
   }
 
   void generateToken(String userLogin, HttpServletResponse response) {
+    String csrfState = jwtCsrfVerifier.generateState(response, sessionTimeoutInSeconds);
+
     String token = jwtSerializer.encode(new JwtSerializer.JwtSession(
       userLogin,
       sessionTimeoutInSeconds,
-      ImmutableMap.of(LAST_REFRESH_TIME_PARAM, system2.now())));
+      ImmutableMap.of(
+        LAST_REFRESH_TIME_PARAM, system2.now(),
+        CSRF_JWT_PARAM, csrfState)));
     response.addCookie(createCookie(JWT_COOKIE, token, sessionTimeoutInSeconds));
   }
 
@@ -115,6 +123,7 @@ public class JwtHttpHandler {
       return;
     }
 
+    jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM));
     request.getSession().setAttribute(RAILS_USER_ID_SESSION, user.get().getId());
     if (now.after(DateUtils.addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
       refreshToken(token, response);
@@ -130,11 +139,13 @@ public class JwtHttpHandler {
   private void refreshToken(Claims token, HttpServletResponse response) {
     String refreshToken = jwtSerializer.refresh(token, sessionTimeoutInSeconds);
     response.addCookie(createCookie(JWT_COOKIE, refreshToken, sessionTimeoutInSeconds));
+    jwtCsrfVerifier.refreshState(response, (String) token.get(CSRF_JWT_PARAM), sessionTimeoutInSeconds);
   }
 
   private void removeSession(HttpServletRequest request, HttpServletResponse response) {
     request.getSession().removeAttribute(RAILS_USER_ID_SESSION);
     response.addCookie(createCookie(JWT_COOKIE, null, 0));
+    jwtCsrfVerifier.removeState(response);
   }
 
   private Cookie createCookie(String name, @Nullable String value, int expirationInSeconds) {
