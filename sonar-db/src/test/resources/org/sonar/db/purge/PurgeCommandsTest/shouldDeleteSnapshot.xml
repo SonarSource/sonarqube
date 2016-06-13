@@ -18,7 +18,7 @@
                     rule_priority="[null]"
                     alert_text="[null]" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="1" rules_category_id="[null]"
                     person_id="[null]"
-                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="1"
                     alert_status="[null]" description="[null]" measure_data="[null]"/>
   <events id="1" name="Version 1.0" component_uuid="1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="1228222680000" created_at="1228222680000" event_data="[null]"/>
@@ -45,7 +45,7 @@
                     alert_text="[null]" VALUE="10.0" METRIC_ID="1" SNAPSHOT_ID="5" rules_category_id="[null]"
                     RULE_ID="[null]"
                     person_id="[null]"
-                    text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="5"
                     alert_status="[null]" description="[null]" measure_data="[null]"/>
   <events id="2" name="Version 1.0" component_uuid="5" snapshot_id="5" category="VERSION" description="[null]"
           event_date="1228222680000" created_at="1228222680000" event_data="[null]"/>

@@ -98,7 +98,7 @@ public class ReportComputeMeasureVariationsStepTest {
   public void do_nothing_when_no_raw_measure() {
     SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 60d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
@@ -126,14 +126,14 @@ public class ReportComputeMeasureVariationsStepTest {
     // Project
     SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 60d));
 
     // Directory
     ComponentDto directoryDto = ComponentTesting.newDirectory(PROJECT_DTO, "dir");
     dbClient.componentDao().insert(session, directoryDto);
     SnapshotDto period1DirectorySnapshot = createForComponent(directoryDto, period1ProjectSnapshot);
     dbClient.snapshotDao().insert(session, period1DirectorySnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), directoryDto.getId(), period1DirectorySnapshot.getId(), 10d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), directoryDto.uuid(), period1DirectorySnapshot.getId(), 10d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
@@ -156,14 +156,14 @@ public class ReportComputeMeasureVariationsStepTest {
     // Project
     SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 60d));
 
     // Directory
     ComponentDto directoryDto = ComponentTesting.newDirectory(PROJECT_DTO, "dir");
     dbClient.componentDao().insert(session, directoryDto);
     SnapshotDto period1DirectorySnapshot = createForComponent(directoryDto, period1ProjectSnapshot);
     dbClient.snapshotDao().insert(session, period1DirectorySnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), directoryDto.getId(), period1DirectorySnapshot.getId(), 10d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), directoryDto.uuid(), period1DirectorySnapshot.getId(), 10d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
@@ -188,8 +188,8 @@ public class ReportComputeMeasureVariationsStepTest {
     SnapshotDto currentProjectSnapshot = newSnapshotForProject(PROJECT_DTO).setCreatedAt(2000_000_000L);
     dbClient.snapshotDao().insert(session, past1ProjectSnapshot);
     dbClient.snapshotDao().insert(session, currentProjectSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), past1ProjectSnapshot.getId(), 60d));
-    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), currentProjectSnapshot.getId(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), past1ProjectSnapshot.getId(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), currentProjectSnapshot.getId(), 60d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, past1ProjectSnapshot));
@@ -219,11 +219,11 @@ public class ReportComputeMeasureVariationsStepTest {
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot, period2ProjectSnapshot, period3ProjectSnapshot, period4ProjectSnapshot, period5ProjectSnapshot);
 
     dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 0d),
-      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period2ProjectSnapshot.getId(), 20d),
-      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period3ProjectSnapshot.getId(), 40d),
-      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period4ProjectSnapshot.getId(), 80d),
-      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period5ProjectSnapshot.getId(), 100d));
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 0d),
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period2ProjectSnapshot.getId(), 20d),
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period3ProjectSnapshot.getId(), 40d),
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period4ProjectSnapshot.getId(), 80d),
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period5ProjectSnapshot.getId(), 100d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot),
@@ -254,10 +254,10 @@ public class ReportComputeMeasureVariationsStepTest {
     SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d),
-      newMeasureDto(DEBT_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 10d),
-      newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 2d),
-      newMeasureDto(BUILD_BREAKER_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 1d));
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 60d),
+      newMeasureDto(DEBT_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 10d),
+      newMeasureDto(FILE_COMPLEXITY_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 2d),
+      newMeasureDto(BUILD_BREAKER_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 1d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
@@ -284,7 +284,7 @@ public class ReportComputeMeasureVariationsStepTest {
     SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
     dbClient.measureDao().insert(session,
-      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
+      newMeasureDto(ISSUES_METRIC.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 60d));
     session.commit();
 
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
@@ -305,7 +305,7 @@ public class ReportComputeMeasureVariationsStepTest {
   public void does_not_update_existing_variations() throws Exception {
     SnapshotDto period1ProjectSnapshot = newSnapshotForProject(PROJECT_DTO);
     dbClient.snapshotDao().insert(session, period1ProjectSnapshot);
-    dbClient.measureDao().insert(session, newMeasureDto(NEW_DEBT.getId(), PROJECT_DTO.getId(), period1ProjectSnapshot.getId(), 60d));
+    dbClient.measureDao().insert(session, newMeasureDto(NEW_DEBT.getId(), PROJECT_DTO.uuid(), period1ProjectSnapshot.getId(), 60d));
     session.commit();
     periodsHolder.setPeriods(newPeriod(1, period1ProjectSnapshot));
     treeRootHolder.setRoot(PROJECT);
@@ -318,8 +318,8 @@ public class ReportComputeMeasureVariationsStepTest {
     assertThat(measureRepository.getRawMeasure(PROJECT, NEW_DEBT).get().getVariations().getVariation1()).isEqualTo(10d);
   }
 
-  private static MeasureDto newMeasureDto(int metricId, long projectId, long snapshotId, double value) {
-    return new MeasureDto().setMetricId(metricId).setComponentId(projectId).setSnapshotId(snapshotId).setValue(value);
+  private static MeasureDto newMeasureDto(int metricId, String componentUuid, long snapshotId, double value) {
+    return new MeasureDto().setMetricId(metricId).setComponentUuid(componentUuid).setSnapshotId(snapshotId).setValue(value);
   }
 
   private static Period newPeriod(int index, SnapshotDto snapshotDto) {

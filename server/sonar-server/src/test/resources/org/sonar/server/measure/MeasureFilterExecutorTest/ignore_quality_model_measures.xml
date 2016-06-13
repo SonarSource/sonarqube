@@ -23,7 +23,7 @@
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="400"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="ABCD"
                     alert_status="[null]" description="[null]" person_id="[null]"/>
 
   <!-- details of the measure by model characteristic -->
@@ -31,14 +31,14 @@
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="400"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="ABCD"
                     alert_status="[null]" description="[null]" person_id="[null]"/>
 
   <project_measures id="1003" metric_id="1" value="200" snapshot_id="101" characteristic_id="40000"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="400"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="ABCD"
                     alert_status="[null]" description="[null]" person_id="[null]"/>
 
 </dataset>

@@ -40,8 +40,7 @@ public class MeasureDto {
   private String alertStatus;
   private String alertText;
   private String description;
-
-  private Long componentId;
+  private String componentUuid;
   private Long snapshotId;
   private Integer metricId;
   private Long developerId;
@@ -65,6 +64,15 @@ public class MeasureDto {
 
   public MeasureDto setValue(@Nullable Double value) {
     this.value = value;
+    return this;
+  }
+
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public MeasureDto setComponentUuid(String s) {
+    this.componentUuid = s;
     return this;
   }
 
@@ -162,15 +170,6 @@ public class MeasureDto {
     return this;
   }
 
-  public Long getComponentId() {
-    return componentId;
-  }
-
-  public MeasureDto setComponentId(Long componentId) {
-    this.componentId = componentId;
-    return this;
-  }
-
   public Integer getMetricId() {
     return metricId;
   }
@@ -239,7 +238,7 @@ public class MeasureDto {
       .add("alertStatus", alertStatus)
       .add("alertText", alertText)
       .add("description", description)
-      .add("componentId", componentId)
+      .add("componentUuid", componentUuid)
       .add("snapshotId", snapshotId)
       .add("metricId", metricId)
       .add("developerId", developerId)

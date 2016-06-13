@@ -5,7 +5,7 @@
       metric_id="3"
       characteristic_id="[null]"
       rule_id="[null]"
-      project_id="6"
+      component_uuid="FILE1"
       person_id="23"
       value="2.0"
       text_value="measure-value"

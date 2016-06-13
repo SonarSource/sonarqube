@@ -17,22 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.measure;
+package org.sonar.db.version.v60;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.sonar.core.util.Uuids;
-import org.sonar.db.metric.MetricDto;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AddColumnsBuilder;
+import org.sonar.db.version.DdlChange;
 
-public class MeasureTesting {
-  private MeasureTesting() {
-    // static methods only
+import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class AddComponentUuidColumnToMeasures extends DdlChange {
+
+  private static final String TABLE_MEASURES = "project_measures";
+
+  public AddComponentUuidColumnToMeasures(Database db) {
+    super(db);
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
-    return new MeasureDto()
-      .setMetricId(metricDto.getId())
-      .setMetricKey(metricDto.getKey())
-      .setComponentUuid(RandomStringUtils.randomAlphanumeric(Uuids.MAX_LENGTH))
-      .setSnapshotId(snapshotId);
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_MEASURES)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
+      .build());
   }
+
 }

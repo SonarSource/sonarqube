@@ -404,7 +404,7 @@ public class MeasureDaoTest {
 
     ComponentDto projectDto = insertProject("aa");
     SnapshotDto snapshotDto = insertSnapshot(projectDto, true);
-    insertMeasure(snapshotDto, DEVELOPER_ID, NCLOC_METRIC_ID, 12d);
+    insertMeasure(projectDto, snapshotDto, DEVELOPER_ID, NCLOC_METRIC_ID, 12d);
 
     List<MeasureDto> measureDtos = underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID));
     assertThat(measureDtos).hasSize(1);
@@ -412,7 +412,7 @@ public class MeasureDaoTest {
     assertThat(measureDto.getId()).isNotNull();
     assertThat(measureDto.getMetricId()).isEqualTo(NCLOC_METRIC_ID);
     assertThat(measureDto.getSnapshotId()).isEqualTo(snapshotDto.getId());
-    assertThat(measureDto.getComponentId()).isEqualTo(projectDto.getId());
+    assertThat(measureDto.getComponentUuid()).isEqualTo(projectDto.uuid());
     assertThat(measureDto.getDeveloperId()).isEqualTo(DEVELOPER_ID);
 
     assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, otherDeveloperId, ImmutableList.of(NCLOC_METRIC_ID))).isEmpty();
@@ -425,9 +425,9 @@ public class MeasureDaoTest {
 
     ComponentDto projectDto = insertProject("aa");
     SnapshotDto nonLastSnapshotDto = insertSnapshot(projectDto, false);
-    insertMeasure(nonLastSnapshotDto, DEVELOPER_ID, NCLOC_METRIC_ID, 12d);
+    insertMeasure(projectDto, nonLastSnapshotDto, DEVELOPER_ID, NCLOC_METRIC_ID, 12d);
     SnapshotDto lastSnapshotDto = insertSnapshot(projectDto, true);
-    insertMeasure(lastSnapshotDto, otherDeveloperId, NCLOC_METRIC_ID, 15d);
+    insertMeasure(projectDto, lastSnapshotDto, otherDeveloperId, NCLOC_METRIC_ID, 15d);
 
     assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID))).hasSize(0);
 
@@ -436,7 +436,7 @@ public class MeasureDaoTest {
     MeasureDto measureDto = measureDtos.iterator().next();
     assertThat(measureDto.getMetricId()).isEqualTo(NCLOC_METRIC_ID);
     assertThat(measureDto.getSnapshotId()).isEqualTo(lastSnapshotDto.getId());
-    assertThat(measureDto.getComponentId()).isEqualTo(projectDto.getId());
+    assertThat(measureDto.getComponentUuid()).isEqualTo(projectDto.uuid());
     assertThat(measureDto.getDeveloperId()).isEqualTo(otherDeveloperId);
     assertThat(measureDto.getValue()).isEqualTo(15d);
   }
@@ -446,11 +446,11 @@ public class MeasureDaoTest {
     ComponentDto projectDto = insertProject("aa");
     insertSnapshot(projectDto, true);
     ComponentDto moduleDto = insertComponent(ComponentTesting.newModuleDto(projectDto));
-    insertMeasure(insertSnapshot(moduleDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 15d);
+    insertMeasure(moduleDto, insertSnapshot(moduleDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 15d);
     ComponentDto dirDto = insertComponent(ComponentTesting.newDirectory(moduleDto, "toto"));
-    insertMeasure(insertSnapshot(dirDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 25d);
+    insertMeasure(dirDto, insertSnapshot(dirDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 25d);
     ComponentDto fileDto = insertComponent(ComponentTesting.newFileDto(moduleDto, "tutu"));
-    insertMeasure(insertSnapshot(fileDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 35d);
+    insertMeasure(fileDto, insertSnapshot(fileDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 35d);
 
     assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID))).isEmpty();
   }
@@ -473,8 +473,13 @@ public class MeasureDaoTest {
     return snapshotDto;
   }
 
-  private MeasureDto insertMeasure(SnapshotDto snapshotDto, Long developerId, int metricId, double value) {
-    MeasureDto measureDto = new MeasureDto().setMetricId(metricId).setValue(value).setSnapshotId(snapshotDto.getId()).setDeveloperId(developerId);
+  private MeasureDto insertMeasure(ComponentDto componentDto, SnapshotDto snapshotDto, Long developerId, int metricId, double value) {
+    MeasureDto measureDto = new MeasureDto()
+      .setMetricId(metricId)
+      .setValue(value)
+      .setComponentUuid(componentDto.uuid())
+      .setSnapshotId(snapshotDto.getId())
+      .setDeveloperId(developerId);
     dbClient.measureDao().insert(dbSession, measureDto);
     dbSession.commit();
     return measureDto;
@@ -488,8 +493,7 @@ public class MeasureDaoTest {
       .setSnapshotId(2L)
       .setMetricId(3)
       .setDeveloperId(23L)
-      .setRuleId(5)
-      .setComponentId(6L)
+      .setComponentUuid("FILE1")
       .setValue(2.0d)
       .setData("measure-value")
       .setVariation(1, 1.0d)
@@ -512,12 +516,12 @@ public class MeasureDaoTest {
     underTest.insert(dbSession, new MeasureDto()
       .setSnapshotId(2L)
       .setMetricId(3)
-      .setComponentId(6L)
+      .setComponentUuid("COMPONENT_1")
       .setValue(2.0d),
       new MeasureDto()
         .setSnapshotId(3L)
         .setMetricId(4)
-        .setComponentId(6L)
+        .setComponentUuid("COMPONENT_2")
         .setValue(4.0d));
     dbSession.commit();
 
@@ -529,16 +533,6 @@ public class MeasureDaoTest {
       @Nullable
       @Override
       public Long apply(PastMeasureDto input) {
-        return input.getId();
-      }
-    });
-  }
-
-  private static Map<Long, MeasureDto> measuresById(List<MeasureDto> pastMeasures) {
-    return FluentIterable.from(pastMeasures).uniqueIndex(new Function<MeasureDto, Long>() {
-      @Nullable
-      @Override
-      public Long apply(MeasureDto input) {
         return input.getId();
       }
     });

@@ -86,28 +86,28 @@
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="400"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="ABCD"
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
   <project_measures id="1002" metric_id="1" value="510" snapshot_id="102"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="BCDE"
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
   <project_measures id="1003" metric_id="1" value="500" snapshot_id="103"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="CDEF"
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
   <project_measures id="1004" metric_id="1" value="10" snapshot_id="104"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="DEFG"
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
   <!-- profile of java project -->
@@ -115,7 +115,8 @@
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="Sonar way" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="Sonar way" tendency="[null]" measure_date="[null]"
+                    component_uuid="ABCD"
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
   <!-- coverage of java project -->
@@ -123,7 +124,8 @@
                       url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                       variation_value_4="[null]" variation_value_5="[null]"
                       rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                      RULE_ID="[null]" text_value="Sonar way" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="Sonar way" tendency="[null]" measure_date="[null]"
+                    component_uuid="ABCD"
                       alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
   <!-- php project -->
@@ -147,14 +149,14 @@
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="4900"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="[null]" tendency="[null]" measure_date="[null]" component_uuid="EFGH"
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
   <project_measures id="1011" metric_id="2" value="[null]" snapshot_id="110"
                     url="[null]" variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     rule_priority="[null]" alert_text="[null]" RULES_CATEGORY_ID="[null]"
-                    RULE_ID="[null]" text_value="php way" tendency="[null]" measure_date="[null]" project_id="[null]"
+                    RULE_ID="[null]" text_value="php way" tendency="[null]" measure_date="[null]" component_uuid="EFGH"
                     alert_status="[null]" description="[null]" characteristic_id="[null]"/>
 
 

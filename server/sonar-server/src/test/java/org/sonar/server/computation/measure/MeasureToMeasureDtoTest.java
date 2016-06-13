@@ -134,7 +134,7 @@ public class MeasureToMeasureDtoTest {
   public void toMeasureDto_set_componentId_and_snapshotId_from_method_arguments(Measure measure, Metric metric) {
     MeasureDto measureDto = underTest.toMeasureDto(measure, metric, SOME_COMPONENT);
 
-    assertThat(measureDto.getComponentId()).isEqualTo(SOME_COMPONENT_ID);
+    assertThat(measureDto.getComponentUuid()).isEqualTo(SOME_COMPONENT.getUuid());
     assertThat(measureDto.getSnapshotId()).isEqualTo(SOME_SNAPSHOT_ID);
   }
 
