@@ -35,9 +35,9 @@ public class OAuth2ContextFactory {
 
   private final UserIdentityAuthenticator userIdentityAuthenticator;
   private final Server server;
-  private final CsrfVerifier csrfVerifier;
+  private final OAuthCsrfVerifier csrfVerifier;
 
-  public OAuth2ContextFactory(UserIdentityAuthenticator userIdentityAuthenticator, Server server, CsrfVerifier csrfVerifier) {
+  public OAuth2ContextFactory(UserIdentityAuthenticator userIdentityAuthenticator, Server server, OAuthCsrfVerifier csrfVerifier) {
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.server = server;
     this.csrfVerifier = csrfVerifier;

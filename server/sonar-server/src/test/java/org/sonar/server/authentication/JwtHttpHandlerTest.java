@@ -60,6 +60,7 @@ public class JwtHttpHandlerTest {
 
   static final String JWT_TOKEN = "TOKEN";
   static final String USER_LOGIN = "john";
+  static final String CSRF_STATE = "CSRF_STATE";
 
   static final long NOW = 10_000_000_000L;
   static final long FOUR_MINUTES_AGO = NOW - 4 * 60 * 1000L;
@@ -90,8 +91,9 @@ public class JwtHttpHandlerTest {
   Server server = mock(Server.class);
   Settings settings = new Settings();
   JwtSerializer jwtSerializer = mock(JwtSerializer.class);
+  JwtCsrfVerifier jwtCsrfVerifier = mock(JwtCsrfVerifier.class);
 
-  JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer);
+  JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
 
   @Before
   public void setUp() throws Exception {
@@ -100,6 +102,7 @@ public class JwtHttpHandlerTest {
     when(server.getContextPath()).thenReturn("");
     when(request.getSession()).thenReturn(httpSession);
     when(jwtSerializer.encode(any(JwtSerializer.JwtSession.class))).thenReturn(JWT_TOKEN);
+    when(jwtCsrfVerifier.generateState(eq(response), anyInt())).thenReturn(CSRF_STATE);
   }
 
   @Test
@@ -112,6 +115,17 @@ public class JwtHttpHandlerTest {
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
     verifyToken(jwtArgumentCaptor.getValue(), 3 * 24 * 60 * 60, NOW);
+  }
+
+  @Test
+  public void generate_csrf_state() throws Exception {
+    underTest.generateToken(USER_LOGIN, response);
+
+    verify(jwtCsrfVerifier).generateState(response, 3 * 24 * 60 * 60);
+
+    verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
+    JwtSerializer.JwtSession token = jwtArgumentCaptor.getValue();
+    assertThat(token.getProperties().get("xsrfToken")).isEqualTo(CSRF_STATE);
   }
 
   @Test
@@ -133,7 +147,7 @@ public class JwtHttpHandlerTest {
     int sessionTimeoutInHours = 10;
     settings.setProperty("sonar.auth.sessionTimeoutInHours", sessionTimeoutInHours);
 
-    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer);
+    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
     underTest.generateToken(USER_LOGIN, response);
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
@@ -145,7 +159,7 @@ public class JwtHttpHandlerTest {
     int firstSessionTimeoutInHours = 10;
     settings.setProperty("sonar.auth.sessionTimeoutInHours", firstSessionTimeoutInHours);
 
-    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer);
+    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
     underTest.generateToken(USER_LOGIN, response);
 
     // The property is updated, but it won't be taking into account
@@ -245,6 +259,47 @@ public class JwtHttpHandlerTest {
     underTest.validateToken(request, response);
 
     verifyZeroInteractions(httpSession, jwtSerializer);
+  }
+
+  @Test
+  public void verify_csrf_state() throws Exception {
+    addJwtCookie();
+    addUser();
+    Claims claims = createToken(NOW);
+    claims.put("xsrfToken", CSRF_STATE);
+    when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
+
+    underTest.validateToken(request, response);
+
+    verify(jwtCsrfVerifier).verifyState(request, CSRF_STATE);
+  }
+
+  @Test
+  public void refresh_state_when_refreshing_token() throws Exception {
+    addJwtCookie();
+    addUser();
+
+    // Token was created 10 days ago and refreshed 6 minutes ago
+    Claims claims = createToken(TEN_DAYS_AGO);
+    claims.put("xsrfToken", "CSRF_STATE");
+    when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
+
+    underTest.validateToken(request, response);
+
+    verify(jwtSerializer).refresh(any(Claims.class), anyInt());
+    verify(jwtCsrfVerifier).refreshState(response,  "CSRF_STATE", 3 * 24 * 60 * 60);
+  }
+
+  @Test
+  public void remove_state_when_removing_token() throws Exception {
+    addJwtCookie();
+    // Token is invalid => it will be removed
+    when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.empty());
+
+    underTest.validateToken(request, response);
+
+    verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
+    verify(jwtCsrfVerifier).removeState(response);
   }
 
   private void verifyToken(JwtSerializer.JwtSession token, int expectedExpirationTime, long expectedRefreshTime) {

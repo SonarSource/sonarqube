@@ -55,7 +55,7 @@ public class OAuth2ContextFactoryTest {
 
   UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
   Server server = mock(Server.class);
-  CsrfVerifier csrfVerifier = mock(CsrfVerifier.class);
+  OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
 
   HttpServletRequest request = mock(HttpServletRequest.class);
   HttpServletResponse response = mock(HttpServletResponse.class);

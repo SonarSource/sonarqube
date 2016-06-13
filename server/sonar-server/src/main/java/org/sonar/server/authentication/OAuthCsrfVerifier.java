@@ -31,13 +31,13 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
 import org.sonar.server.exceptions.UnauthorizedException;
 
-public class CsrfVerifier {
+public class OAuthCsrfVerifier {
 
   private static final String CSRF_STATE_COOKIE = "OAUTHSTATE";
 
   private final Server server;
 
-  public CsrfVerifier(Server server) {
+  public OAuthCsrfVerifier(Server server) {
     this.server = server;
   }
 
