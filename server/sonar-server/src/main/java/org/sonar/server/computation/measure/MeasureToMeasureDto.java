@@ -39,7 +39,7 @@ public class MeasureToMeasureDto {
   public MeasureDto toMeasureDto(Measure measure, Metric metric, Component component) {
     MeasureDto out = new MeasureDto();
     out.setMetricId(metric.getId());
-    out.setComponentId(dbIdsRepository.getComponentId(component));
+    out.setComponentUuid(component.getUuid());
     out.setSnapshotId(dbIdsRepository.getSnapshotId(component));
     if (measure.hasVariations()) {
       setVariations(out, measure.getVariations());

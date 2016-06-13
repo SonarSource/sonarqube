@@ -23,22 +23,28 @@
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="400"
                     alert_text="[null]"
-                    text_value="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
+                    text_value="[null]"
+                    component_uuid="ABCD"
+                    alert_status="[null]"
+                    description="[null]"/>
 
   <!-- details of the measure by person -->
   <project_measures id="1002" metric_id="1" value="300" snapshot_id="101" person_id="30000"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="400"
                     alert_text="[null]"
-                    text_value="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
+                    text_value="[null]"
+                    component_uuid="ABCD"
+                    alert_status="[null]"
+                    description="[null]"/>
 
   <project_measures id="1003" metric_id="1" value="200" snapshot_id="101" person_id="40000"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="400"
                     alert_text="[null]"
-                    text_value="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
+                    text_value="[null]"
+                    component_uuid="ABCD"
+                    alert_status="[null]"
+                    description="[null]"/>
 
 </dataset>

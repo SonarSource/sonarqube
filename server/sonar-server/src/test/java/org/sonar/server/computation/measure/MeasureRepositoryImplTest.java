@@ -34,13 +34,11 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.junit.runner.RunWith;
-import org.sonar.api.rule.RuleKey;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.measure.MeasureDto;
-import org.sonar.db.rule.RuleDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
 import org.sonar.scanner.protocol.output.ScannerReport.Measure.StringValue;
 import org.sonar.server.computation.batch.BatchReportReader;
@@ -84,10 +82,9 @@ public class MeasureRepositoryImplTest {
   private final Metric metric2 = mock(Metric.class);
   private static final long LAST_SNAPSHOT_ID = 123;
   private static final long OTHER_SNAPSHOT_ID = 369;
-  private static final long COMPONENT_ID = 567;
+  private static final String COMPONENT_UUID = "UUID1";
   private static final Measure SOME_MEASURE = Measure.newMeasureBuilder().create("some value");
   private static final String SOME_DATA = "some data";
-  private static final RuleDto SOME_RULE = RuleDto.createFor(RuleKey.of("A", "1")).setId(963);
 
   private ReportMetricValidator reportMetricValidator = mock(ReportMetricValidator.class);
 
@@ -143,8 +140,8 @@ public class MeasureRepositoryImplTest {
   @Test
   public void getBaseMeasure_returns_Measure_if_measure_of_last_snapshot_only_in_DB() {
     dbTester.prepareDbUnit(getClass(), "shared.xml");
-    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, LAST_SNAPSHOT_ID));
-    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_2, OTHER_SNAPSHOT_ID));
+    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_1, FILE_COMPONENT.getUuid(), LAST_SNAPSHOT_ID));
+    dbClient.measureDao().insert(dbSession, createMeasureDto(METRIC_ID_2, FILE_COMPONENT.getUuid(), OTHER_SNAPSHOT_ID));
     dbSession.commit();
 
     // metric 1 is associated to snapshot with "last=true"
@@ -419,9 +416,9 @@ public class MeasureRepositoryImplTest {
     assertThat(rawMeasures.get(METRIC_KEY_2)).containsOnly(Measure.newMeasureBuilder().create("some value"));
   }
 
-  private static MeasureDto createMeasureDto(int metricId, long snapshotId) {
+  private static MeasureDto createMeasureDto(int metricId, String componentUuid, long snapshotId) {
     return new MeasureDto()
-      .setComponentId(COMPONENT_ID)
+      .setComponentUuid(componentUuid)
       .setSnapshotId(snapshotId)
       .setData(SOME_DATA)
       .setMetricId(metricId);

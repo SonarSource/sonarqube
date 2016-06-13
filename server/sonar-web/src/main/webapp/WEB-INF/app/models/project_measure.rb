@@ -26,7 +26,7 @@ class ProjectMeasure < ActiveRecord::Base
   DAY = 1000 * 60 * 60 * 24
 
   belongs_to :snapshot
-  belongs_to :project
+  belongs_to :project, :class_name => 'Project', :foreign_key => 'component_uuid', :primary_key => 'uuid'
   belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
 
   def metric

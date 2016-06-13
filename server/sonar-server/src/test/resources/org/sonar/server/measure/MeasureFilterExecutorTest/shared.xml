@@ -86,36 +86,40 @@
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="400"
                     alert_text="[null]"
-                    text_value="[null]" project_id="[null]"
+                    text_value="[null]" component_uuid="ABCD"
                     alert_status="[null]" description="[null]"/>
 
   <project_measures id="1002" metric_id="1" value="510" snapshot_id="102"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     alert_text="[null]"
-                    text_value="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
+                    text_value="[null]"
+                    alert_status="[null]" description="[null]"
+                    component_uuid="BCDE" />
 
   <project_measures id="1003" metric_id="1" value="500" snapshot_id="103"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     alert_text="[null]"
-                    text_value="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
+                    text_value="[null]"
+                    alert_status="[null]" description="[null]"
+                    component_uuid="CDEF" />
 
   <project_measures id="1004" metric_id="1" value="10" snapshot_id="104"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     alert_text="[null]"
-                    text_value="[null]" project_id="[null]"
-                    alert_status="[null]" description="[null]"/>
+                    text_value="[null]"
+                    alert_status="[null]" description="[null]"
+                    component_uuid="DEFG"/>
 
   <!-- profile of java project -->
   <project_measures id="1005" metric_id="2" value="[null]" snapshot_id="101"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     alert_text="[null]"
-                    text_value="Sonar way" project_id="[null]"
+                    text_value="Sonar way"
+                    component_uuid="ABCD"
                     alert_status="[null]" description="[null]"/>
 
   <!-- coverage of java project -->
@@ -123,7 +127,8 @@
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                       variation_value_4="[null]" variation_value_5="[null]"
                     alert_text="[null]"
-                    text_value="Sonar way" project_id="[null]"
+                    text_value="Sonar way"
+                    component_uuid="ABCD"
                     alert_status="[null]" description="[null]"/>
 
   <!-- php project -->
@@ -147,14 +152,16 @@
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="4900"
                     alert_text="[null]"
-                    text_value="[null]" project_id="[null]"
+                    text_value="[null]"
+                    component_uuid="EFGH"
                     alert_status="[null]" description="[null]"/>
 
   <project_measures id="1011" metric_id="2" value="[null]" snapshot_id="110"
                     variation_value_1="[null]" variation_value_2="[null]" variation_value_3="[null]"
                     variation_value_4="[null]" variation_value_5="[null]"
                     alert_text="[null]"
-                    text_value="php way" project_id="[null]"
+                    text_value="php way"
+                    component_uuid="EFGH"
                     alert_status="[null]" description="[null]"/>
 
 

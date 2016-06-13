@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.utils.System2;
-import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ComponentDto;
@@ -108,13 +107,13 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   private void setupReportComponents() {
-    Component project = ReportComponent.builder(PROJECT, ROOT_REF)
+    Component project = ReportComponent.builder(PROJECT, ROOT_REF).setUuid("root-uuid")
       .addChildren(
-        ReportComponent.builder(MODULE, INTERMEDIATE_1_REF)
+        ReportComponent.builder(MODULE, INTERMEDIATE_1_REF).setUuid("intermediate1-uuid")
           .addChildren(
-            ReportComponent.builder(DIRECTORY, INTERMEDIATE_2_REF)
+            ReportComponent.builder(DIRECTORY, INTERMEDIATE_2_REF).setUuid("intermediate2-uuid")
               .addChildren(
-                ReportComponent.builder(FILE, LEAF_REF)
+                ReportComponent.builder(FILE, LEAF_REF).setUuid("leaf-uuid")
                   .build())
               .build())
           .build())
@@ -125,13 +124,13 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   private void setupViewsComponents() {
-    Component view = ViewsComponent.builder(VIEW, ROOT_REF)
+    Component view = ViewsComponent.builder(VIEW, ROOT_REF).setUuid("root-uuid")
       .addChildren(
-        ViewsComponent.builder(SUBVIEW, INTERMEDIATE_1_REF)
+        ViewsComponent.builder(SUBVIEW, INTERMEDIATE_1_REF).setUuid("intermediate1-uuid")
           .addChildren(
-            ViewsComponent.builder(SUBVIEW, INTERMEDIATE_2_REF)
+            ViewsComponent.builder(SUBVIEW, INTERMEDIATE_2_REF).setUuid("intermediate2-uuid")
               .addChildren(
-                ViewsComponent.builder(PROJECT_VIEW, LEAF_REF)
+                ViewsComponent.builder(PROJECT_VIEW, LEAF_REF).setUuid("leaf-uuid")
                   .build())
               .build())
           .build())
@@ -142,10 +141,10 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   }
 
   private void setupDbIds() {
-    rootDto = addComponent("root-key");
-    intermediate1Dto = addComponent("intermediate1-key");
-    intermediate2Dto = addComponent("intermediate2-key");
-    leafDto = addComponent("leaf-key");
+    rootDto = addComponent("root-key", "root-uuid");
+    intermediate1Dto = addComponent("intermediate1-key", "intermediate1-uuid");
+    intermediate2Dto = addComponent("intermediate2-key", "intermediate2-uuid");
+    leafDto = addComponent("leaf-key", "leaf-uuid");
 
     setDbIds(ROOT_REF, rootDto.getId(), ROOT_SNAPSHOT_ID);
     setDbIds(INTERMEDIATE_1_REF, intermediate1Dto.getId(), INTERMEDIATE_1_SNAPSHOT_ID);
@@ -195,7 +194,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(ROOT_SNAPSHOT_ID);
-    assertThat(dto.get("componentId")).isEqualTo(rootDto.getId());
+    assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("metricId")).isEqualTo((long) stringMetricId);
     assertThat(dto.get("value")).isNull();
     assertThat(dto.get("textValue")).isEqualTo("measure-data");
@@ -203,7 +202,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     dto = dtos.get(1);
     assertThat(dto.get("snapshotId")).isEqualTo(INTERMEDIATE_1_SNAPSHOT_ID);
-    assertThat(dto.get("componentId")).isEqualTo(intermediate1Dto.getId());
+    assertThat(dto.get("componentUuid")).isEqualTo(intermediate1Dto.uuid());
     assertThat(dto.get("metricId")).isEqualTo((long) intMetricId);
     assertValue(dto, 12d);
     assertThat(dto.get("textValue")).isNull();
@@ -211,7 +210,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     dto = dtos.get(2);
     assertThat(dto.get("snapshotId")).isEqualTo(INTERMEDIATE_2_SNAPSHOT_ID);
-    assertThat(dto.get("componentId")).isEqualTo(intermediate2Dto.getId());
+    assertThat(dto.get("componentUuid")).isEqualTo(intermediate2Dto.uuid());
     assertThat(dto.get("metricId")).isEqualTo((long) longMetricId);
     assertValue(dto, 9635d);
     assertThat(dto.get("textValue")).isNull();
@@ -219,7 +218,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     dto = dtos.get(3);
     assertThat(dto.get("snapshotId")).isEqualTo(LEAF_SNAPSHOT_ID);
-    assertThat(dto.get("componentId")).isEqualTo(leafDto.getId());
+    assertThat(dto.get("componentUuid")).isEqualTo(leafDto.uuid());
     assertThat(dto.get("metricId")).isEqualTo((long) doubleMetricId);
     assertValue(dto, 123.1d);
     assertThat(dto.get("textValue")).isNull();
@@ -325,7 +324,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(ROOT_SNAPSHOT_ID);
-    assertThat(dto.get("componentId")).isEqualTo(rootDto.getId());
+    assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
   }
 
@@ -346,7 +345,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(ROOT_SNAPSHOT_ID);
-    assertThat(dto.get("componentId")).isEqualTo(rootDto.getId());
+    assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
   }
 
@@ -367,7 +366,7 @@ public class PersistMeasuresStepTest extends BaseStepTest {
 
     Map<String, Object> dto = dtos.get(0);
     assertThat(dto.get("snapshotId")).isEqualTo(ROOT_SNAPSHOT_ID);
-    assertThat(dto.get("componentId")).isEqualTo(rootDto.getId());
+    assertThat(dto.get("componentUuid")).isEqualTo(rootDto.uuid());
     assertThat(dto.get("textValue")).isEqualTo("0=1;2=10");
   }
 
@@ -391,8 +390,8 @@ public class PersistMeasuresStepTest extends BaseStepTest {
     assertThat(dto.get("developerId")).isEqualTo(10L);
   }
 
-  private ComponentDto addComponent(String key) {
-    ComponentDto componentDto = new ComponentDto().setKey(key).setUuid(Uuids.create());
+  private ComponentDto addComponent(String key, String uuid) {
+    ComponentDto componentDto = new ComponentDto().setKey(key).setUuid(uuid);
     dbClient.componentDao().insert(dbTester.getSession(), componentDto);
     return componentDto;
   }
@@ -404,16 +403,16 @@ public class PersistMeasuresStepTest extends BaseStepTest {
   private List<Map<String, Object>> selectSnapshots() {
     return dbTester
       .select(
-        "SELECT snapshot_id as \"snapshotId\", project_id as \"componentId\", metric_id as \"metricId\",  person_id as \"developerId\", "
-          +
-          "value as \"value\", text_value as \"textValue\", " +
-          "variation_value_1 as \"variation_value_1\", " +
-          "variation_value_2 as \"variation_value_2\", " +
-          "variation_value_3 as \"variation_value_3\", " +
-          "variation_value_4 as \"variation_value_4\", " +
-          "variation_value_5 as \"variation_value_5\"" +
-          "FROM project_measures " +
-          "ORDER by snapshot_id asc");
+        "SELECT snapshot_id as \"snapshotId\", component_uuid as \"componentUuid\", metric_id as \"metricId\", person_id as \"developerId\", "
+        +
+        "value as \"value\", text_value as \"textValue\", " +
+        "variation_value_1 as \"variation_value_1\", " +
+        "variation_value_2 as \"variation_value_2\", " +
+        "variation_value_3 as \"variation_value_3\", " +
+        "variation_value_4 as \"variation_value_4\", " +
+        "variation_value_5 as \"variation_value_5\"" +
+        "FROM project_measures " +
+        "ORDER by snapshot_id asc");
   }
 
   @Override
