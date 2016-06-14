@@ -24,6 +24,10 @@
 class DropIndexProjectsRootIdFromProjects < ActiveRecord::Migration
 
   def self.up
-    remove_index :projects, :name => 'projects_root_id'
+    begin
+      remove_index :projects, :name => 'projects_root_id'
+    rescue
+      #ignore
+    end
   end
 end

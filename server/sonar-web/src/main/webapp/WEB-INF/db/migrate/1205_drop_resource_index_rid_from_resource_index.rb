@@ -24,6 +24,10 @@
 class DropResourceIndexRidFromResourceIndex < ActiveRecord::Migration
 
   def self.up
-    remove_index :resource_index, :name => 'resource_index_rid'
+    begin
+      remove_index :resource_index, :name => 'resource_index_rid'
+    rescue
+      #ignore
+    end
   end
 end

@@ -24,7 +24,15 @@
 class DropSnapshotProjectIdFromSnapshots < ActiveRecord::Migration
 
   def self.up
-    remove_index :snapshots, :name => 'snapshot_project_id'
-    remove_index :snapshots, :name => 'snapshots_root_project_id'
+    begin
+      remove_index :snapshots, :name => 'snapshot_project_id'
+    rescue
+      #ignore
+    end
+    begin
+      remove_index :snapshots, :name => 'snapshots_root_project_id'
+    rescue
+      #ignore
+    end
   end
 end
