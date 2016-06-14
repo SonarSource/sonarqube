@@ -199,7 +199,7 @@ public class PermissionRepository {
     return defaultTemplateKey;
   }
 
-  private void checkAtMostOneMatchForComponentKey(final String componentKey, List<PermissionTemplateDto> matchingTemplates) {
+  private static void checkAtMostOneMatchForComponentKey(final String componentKey, List<PermissionTemplateDto> matchingTemplates) {
     if (matchingTemplates.size() > 1) {
       StringBuilder templatesNames = new StringBuilder();
       for (Iterator<PermissionTemplateDto> it = matchingTemplates.iterator(); it.hasNext();) {

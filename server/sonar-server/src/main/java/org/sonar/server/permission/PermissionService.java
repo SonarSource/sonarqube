@@ -63,7 +63,6 @@ public class PermissionService {
     } finally {
       session.close();
     }
-    indexProjectPermissions();
   }
 
   public void applyDefaultPermissionTemplate(DbSession session, String componentKey) {
