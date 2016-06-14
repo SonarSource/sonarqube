@@ -19,6 +19,10 @@
  */
 package org.sonar.server.authentication;
 
+import static java.lang.String.format;
+import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
+import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
+
 import java.io.IOException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -26,10 +30,6 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.MessageException;
-
-import static java.lang.String.format;
-import static org.sonar.api.CoreProperties.SERVER_BASE_URL;
-import static org.sonar.server.authentication.OAuth2CallbackFilter.CALLBACK_PATH;
 
 public class OAuth2ContextFactory {
 
@@ -112,7 +112,7 @@ public class OAuth2ContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      userIdentityAuthenticator.authenticate(userIdentity, identityProvider, request.getSession());
+      userIdentityAuthenticator.authenticate(userIdentity, identityProvider, request, response);
     }
   }
 }

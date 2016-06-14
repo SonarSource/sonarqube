@@ -19,6 +19,10 @@
  */
 package org.sonar.server.authentication;
 
+import static com.google.common.collect.FluentIterable.from;
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
+
 import com.google.common.base.Function;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
@@ -27,7 +31,8 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.server.authentication.IdentityProvider;
 import org.sonar.api.server.authentication.UnauthorizedException;
 import org.sonar.api.server.authentication.UserIdentity;
@@ -43,37 +48,36 @@ import org.sonar.server.user.NewUser;
 import org.sonar.server.user.UpdateUser;
 import org.sonar.server.user.UserUpdater;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.lang.String.format;
-import static java.util.Collections.singletonList;
-
 public class UserIdentityAuthenticator {
 
   private static final Logger LOGGER = Loggers.get(UserIdentityAuthenticator.class);
 
   private final DbClient dbClient;
   private final UserUpdater userUpdater;
+  private final JwtHttpHandler jwtHttpHandler;
 
-  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater) {
+  public UserIdentityAuthenticator(DbClient dbClient, UserUpdater userUpdater, JwtHttpHandler jwtHttpHandler) {
     this.dbClient = dbClient;
     this.userUpdater = userUpdater;
+    this.jwtHttpHandler = jwtHttpHandler;
   }
 
-  public void authenticate(UserIdentity user, IdentityProvider provider, HttpSession session) {
-    long userDbId = register(user, provider);
+  public void authenticate(UserIdentity user, IdentityProvider provider, HttpServletRequest request, HttpServletResponse response) {
+    UserDto userDb = register(user, provider);
 
     // hack to disable Ruby on Rails authentication
-    session.setAttribute("user_id", userDbId);
+    request.getSession().setAttribute("user_id", userDb.getId());
+    jwtHttpHandler.generateToken(userDb.getLogin(), response);
   }
 
-  private long register(UserIdentity user, IdentityProvider provider) {
+  private UserDto register(UserIdentity user, IdentityProvider provider) {
     DbSession dbSession = dbClient.openSession(false);
     try {
       String userLogin = user.getLogin();
       UserDto userDto = dbClient.userDao().selectByLogin(dbSession, userLogin);
       if (userDto != null && userDto.isActive()) {
         registerExistingUser(dbSession, userDto, user, provider);
-        return userDto.getId();
+        return userDto;
       }
       return registerNewUser(dbSession, user, provider);
     } finally {
@@ -81,7 +85,7 @@ public class UserIdentityAuthenticator {
     }
   }
 
-  private long registerNewUser(DbSession dbSession, UserIdentity user, IdentityProvider provider) {
+  private UserDto registerNewUser(DbSession dbSession, UserIdentity user, IdentityProvider provider) {
     if (!provider.allowsUsersToSignUp()) {
       throw new UnauthorizedException(format("'%s' users are not allowed to sign up", provider.getKey()));
     }
@@ -101,7 +105,7 @@ public class UserIdentityAuthenticator {
       );
     UserDto newUser = dbClient.userDao().selectOrFailByLogin(dbSession, userLogin);
     syncGroups(dbSession, user, newUser);
-    return newUser.getId();
+    return newUser;
   }
 
   private void registerExistingUser(DbSession dbSession, UserDto userDto, UserIdentity user, IdentityProvider provider) {
