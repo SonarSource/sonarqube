@@ -73,7 +73,9 @@ class Request {
     const customHeaders = {};
 
     if (this.data) {
-      if (options.method === 'GET') {
+      if (this.data instanceof FormData) {
+        options.body = this.data;
+      } else if (options.method === 'GET') {
         url += '?' + stringify(this.data);
       } else {
         customHeaders['Content-Type'] = 'application/x-www-form-urlencoded';
