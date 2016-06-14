@@ -20,6 +20,7 @@
 package org.sonar.db.component;
 
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 /**
  * @since 3.2
@@ -28,11 +29,11 @@ public interface ResourceKeyUpdaterMapper {
 
   int countResourceByKey(String key);
 
-  ResourceDto selectProject(long projectId);
+  ResourceDto selectProject(@Param("uuid") String uuid);
 
-  List<ResourceDto> selectProjectResources(long projectId);
+  List<ResourceDto> selectProjectResources(@Param("rootUuid") String rootUuid);
 
-  List<ResourceDto> selectDescendantProjects(long projectId);
+  List<ResourceDto> selectDescendantProjects(@Param("rootUuid") String rootUuid);
 
   void update(ResourceDto resource);
 

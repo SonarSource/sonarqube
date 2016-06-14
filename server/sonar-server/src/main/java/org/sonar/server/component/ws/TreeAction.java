@@ -19,18 +19,15 @@
  */
 package org.sonar.server.component.ws;
 
-import com.google.common.base.Function;
 import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
-import javax.annotation.Nonnull;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.Request;
@@ -179,31 +176,26 @@ public class TreeAction implements ComponentsWsAction {
         default:
           throw new IllegalStateException("Unknown component tree strategy");
       }
-      Map<Long, ComponentDto> referenceComponentUuidsById = searchReferenceComponentUuidsById(dbSession, components);
+      Map<String, ComponentDto> referenceComponentsByUuid = searchreferenceComponentsByUuid(dbSession, components);
 
-      return buildResponse(baseComponent, components, referenceComponentUuidsById,
+      return buildResponse(baseComponent, components, referenceComponentsByUuid,
         Paging.forPageIndex(query.getPage()).withPageSize(query.getPageSize()).andTotal(total));
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private Map<Long, ComponentDto> searchReferenceComponentUuidsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
-    List<Long> referenceComponentIds = from(components)
-      .transform(ComponentDtoWithSnapshotIdToCopyResourceIdFunction.INSTANCE)
-      .filter(Predicates.<Long>notNull())
+  private Map<String, ComponentDto> searchreferenceComponentsByUuid(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
+    List<String> referenceComponentIds = from(components)
+      .transform(ComponentDto::getCopyResourceUuid)
+      .filter(Predicates.<String>notNull())
       .toList();
     if (referenceComponentIds.isEmpty()) {
       return emptyMap();
     }
 
-    List<ComponentDto> referenceComponents = dbClient.componentDao().selectByIds(dbSession, referenceComponentIds);
-    Map<Long, ComponentDto> referenceComponentUuidsById = new HashMap<>();
-    for (ComponentDto referenceComponent : referenceComponents) {
-      referenceComponentUuidsById.put(referenceComponent.getId(), referenceComponent);
-    }
-
-    return referenceComponentUuidsById;
+    return from(dbClient.componentDao().selectByUuids(dbSession, referenceComponentIds))
+      .uniqueIndex(ComponentDto::uuid);
   }
 
   private void checkPermissions(ComponentDto baseComponent) {
@@ -215,8 +207,8 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDtoWithSnapshotId> components, Map<Long, ComponentDto> referenceComponentsById,
-    Paging paging) {
+  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDtoWithSnapshotId> components,
+    Map<String, ComponentDto> referenceComponentsByUuid, Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
       .setPageIndex(paging.pageIndex())
@@ -224,9 +216,9 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(paging.total())
       .build();
 
-    response.setBaseComponent(componentDtoToWsComponent(baseComponent, referenceComponentsById));
+    response.setBaseComponent(componentDtoToWsComponent(baseComponent, referenceComponentsByUuid));
     for (ComponentDto dto : components) {
-      response.addComponents(componentDtoToWsComponent(dto, referenceComponentsById));
+      response.addComponents(componentDtoToWsComponent(dto, referenceComponentsByUuid));
     }
 
     return response.build();
@@ -238,7 +230,7 @@ public class TreeAction implements ComponentsWsAction {
       .setTotal(0)
       .setPageIndex(request.getPage())
       .setPageSize(request.getPageSize());
-    response.setBaseComponent(componentDtoToWsComponent(baseComponent, Collections.<Long, ComponentDto>emptyMap()));
+    response.setBaseComponent(componentDtoToWsComponent(baseComponent, Collections.<String, ComponentDto>emptyMap()));
 
     return response.build();
   }
@@ -302,11 +294,4 @@ public class TreeAction implements ComponentsWsAction {
     return treeWsRequest;
   }
 
-  private enum ComponentDtoWithSnapshotIdToCopyResourceIdFunction implements Function<ComponentDtoWithSnapshotId, Long> {
-    INSTANCE;
-    @Override
-    public Long apply(@Nonnull ComponentDtoWithSnapshotId input) {
-      return input.getCopyResourceId();
-    }
-  }
 }

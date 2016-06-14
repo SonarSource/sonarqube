@@ -347,15 +347,11 @@ public class IssueQueryServiceTest {
     String login2 = "darth.vader";
     String copyProjectUuid = devUuid + ":" + projectUuid;
 
-    long copyResourceId = 42L;
-    ComponentDto technicalProject = new ComponentDto().setProjectUuid(devUuid).setCopyResourceId(copyResourceId);
+    ComponentDto technicalProject = new ComponentDto().setProjectUuid(devUuid).setCopyComponentUuid(projectUuid);
     when(componentDao.selectByUuids(isA(DbSession.class), anyCollection())).thenReturn(Arrays.asList(technicalProject));
 
     when(componentService.getDistinctQualifiers(isA(DbSession.class), anyCollection())).thenReturn(Sets.newHashSet("DEV_PRJ"));
     when(authorDao.selectScmAccountsByDeveloperUuids(isA(DbSession.class), anyCollection())).thenReturn(Lists.newArrayList(login1, login2));
-
-    ComponentDto actualProject = new ComponentDto().setUuid(projectUuid);
-    when(componentDao.selectByIds(isA(DbSession.class), anyCollection())).thenReturn(Arrays.asList(actualProject));
 
     Map<String, Object> map = newHashMap();
     map.put("componentUuids", newArrayList(copyProjectUuid));

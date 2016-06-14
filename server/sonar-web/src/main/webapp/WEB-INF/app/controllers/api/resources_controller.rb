@@ -327,7 +327,6 @@ class Api::ResourcesController < Api::ApiController
     json['version']=snapshot.version if snapshot.version
     json['branch']=resource.branch if resource.branch
     json['description']=resource.description if resource.description
-    json['copy']=resource.copy_resource_id if resource.copy_resource_id
     if include_trends
       json[:p1]=snapshot.period1_mode if snapshot.period1_mode
       json[:p1p]=snapshot.period1_param if snapshot.period1_param
@@ -402,7 +401,6 @@ class Api::ResourcesController < Api::ApiController
       xml.date(Api::Utils.format_datetime(snapshot.created_at))
       xml.creationDate(Api::Utils.format_datetime(resource.created_at))
       xml.description(resource.description) if include_descriptions && resource.description
-      xml.copy(resource.copy_resource_id) if resource.copy_resource_id
 
       if include_trends
         xml.period1(snapshot.period1_mode) if snapshot.period1_mode

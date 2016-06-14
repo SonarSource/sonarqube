@@ -58,6 +58,8 @@ import static com.google.common.base.MoreObjects.firstNonNull;
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static java.util.Collections.emptyList;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.singletonMap;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ComponentFinder.ParamNames.COMPONENT_ID_AND_KEY;
 import static org.sonar.server.component.ComponentFinder.ParamNames.DEVELOPER_ID_AND_KEY;
@@ -156,11 +158,11 @@ public class ComponentAction implements MeasuresWsAction {
   }
 
   private Optional<ComponentDto> getReferenceComponent(DbSession dbSession, ComponentDto component) {
-    if (component.getCopyResourceId() == null) {
+    if (component.getCopyResourceUuid() == null) {
       return Optional.absent();
     }
 
-    return dbClient.componentDao().selectById(dbSession, component.getCopyResourceId());
+    return dbClient.componentDao().selectByUuid(dbSession, component.getCopyResourceUuid());
   }
 
   private static ComponentWsResponse buildResponse(ComponentWsRequest request, ComponentDto component, Optional<ComponentDto> refComponent, List<MeasureDto> measures,
@@ -172,12 +174,12 @@ public class ComponentAction implements MeasuresWsAction {
       MetricDto metric = metricsById.get(measure.getMetricId());
       measuresByMetric.put(metric, measure);
     }
-    Map<Long, ComponentDto> referenceComponentUuidById = new HashMap<>();
     if (refComponent.isPresent()) {
-      referenceComponentUuidById.put(refComponent.get().getId(), refComponent.get());
+      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, singletonMap(refComponent.get().uuid(), refComponent.get())));
+    } else {
+      response.setComponent(componentDtoToWsComponent(component, measuresByMetric, emptyMap()));
     }
 
-    response.setComponent(componentDtoToWsComponent(component, measuresByMetric, referenceComponentUuidById));
 
     List<String> additionalFields = request.getAdditionalFields();
     if (additionalFields != null) {

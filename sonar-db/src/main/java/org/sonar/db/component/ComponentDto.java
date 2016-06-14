@@ -42,9 +42,9 @@ public class ComponentDto implements Component {
   private String projectUuid;
   private String moduleUuid;
   private String moduleUuidPath;
-  private Long parentProjectId;
-  private Long copyResourceId;
-  private Long developerId;
+  private String rootUuid;
+  private String copyComponentUuid;
+  private String developerUuid;
 
   private String path;
   private String deprecatedKey;
@@ -197,13 +197,12 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  @CheckForNull
-  public Long parentProjectId() {
-    return parentProjectId;
+  public String getRootUuid() {
+    return rootUuid;
   }
 
-  public ComponentDto setParentProjectId(@Nullable Long parentProjectId) {
-    this.parentProjectId = parentProjectId;
+  public ComponentDto setRootUuid(String rootUuid) {
+    this.rootUuid = rootUuid;
     return this;
   }
 
@@ -216,21 +215,23 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  public Long getCopyResourceId() {
-    return copyResourceId;
+  @CheckForNull
+  public String getCopyResourceUuid() {
+    return copyComponentUuid;
   }
 
-  public ComponentDto setCopyResourceId(Long copyResourceId) {
-    this.copyResourceId = copyResourceId;
+  public ComponentDto setCopyComponentUuid(@Nullable String copyComponentUuid) {
+    this.copyComponentUuid = copyComponentUuid;
     return this;
   }
 
-  public Long getDeveloperId() {
-    return developerId;
+  @CheckForNull
+  public String getDeveloperUuid() {
+    return developerUuid;
   }
 
-  public ComponentDto setDeveloperId(Long developerId) {
-    this.developerId = developerId;
+  public ComponentDto setDeveloperUuid(@Nullable String developerUuid) {
+    this.developerUuid = developerUuid;
     return this;
   }
 
@@ -302,9 +303,9 @@ public class ComponentDto implements Component {
       .append("projectUuid", projectUuid)
       .append("moduleUuid", moduleUuid)
       .append("moduleUuidPath", moduleUuidPath)
-      .append("parentProjectId", parentProjectId)
-      .append("copyResourceId", copyResourceId)
-      .append("developerId", developerId)
+      .append("rootUuid", rootUuid)
+      .append("copyComponentUuid", copyComponentUuid)
+      .append("developerUuid", developerUuid)
       .append("path", path)
       .append("deprecatedKey", deprecatedKey)
       .append("name", name)

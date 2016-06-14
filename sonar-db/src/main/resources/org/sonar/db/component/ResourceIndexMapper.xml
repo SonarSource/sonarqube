@@ -5,7 +5,7 @@
   <select id="selectProjectIdsFromQueryAndViewOrSubViewUuid" parameterType="map" resultType="long">
     SELECT original.id FROM resource_index r
     INNER JOIN projects original ON r.component_uuid = original.uuid
-    INNER JOIN projects copy ON original.id = copy.copy_resource_id
+    INNER JOIN projects copy ON original.uuid = copy.copy_component_uuid
     <where>
       AND copy.module_uuid_path LIKE #{viewUuidQuery}
       AND r.kee LIKE #{query}
@@ -23,7 +23,7 @@
     from projects p, projects root, snapshots s
     <where>
       p.enabled=${_true}
-      and p.copy_resource_id is null
+      and p.copy_component_uuid is null
       and p.uuid=s.component_uuid
       and s.islast=${_true}
       <if test="scopes != null">

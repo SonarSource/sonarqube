@@ -62,10 +62,6 @@ public interface ResourceMapper {
 
   ResourceDto selectProvisionedProject(@Param("key") String key);
 
-  void insert(ResourceDto resource);
-
-  void update(ResourceDto resource);
-
   void updateAuthorizationDate(@Param("projectId") Long projectId, @Param("authorizationDate") Long authorizationDate);
 
 }

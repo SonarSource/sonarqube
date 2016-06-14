@@ -1,6 +1,6 @@
 <dataset>
 
-  <projects id="1" kee="ROOT_KEY" name="project" uuid="ABCD"/>
+  <projects id="1" kee="ROOT_KEY" name="project" uuid="ABCD" root_uuid="ABCD"/>
 
   <!-- 2008-11-11 -->
   <!-- Version 0.9 -->

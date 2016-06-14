@@ -84,7 +84,7 @@ public class DuplicationsJsonWriter {
 
   private void writeFiles(Map<String, String> refByComponentKey, JsonWriter json, DbSession session) {
     Map<String, ComponentDto> projectsByUuid = newHashMap();
-    Map<Long, ComponentDto> parentProjectsById = newHashMap();
+    Map<String, ComponentDto> parentProjectsByUuid = newHashMap();
     for (Map.Entry<String, String> entry : refByComponentKey.entrySet()) {
       String componentKey = entry.getKey();
       String ref = entry.getValue();
@@ -95,7 +95,7 @@ public class DuplicationsJsonWriter {
 
         addFile(json, file);
         ComponentDto project = getProject(file.projectUuid(), projectsByUuid, session);
-        ComponentDto parentProject = getParentProject(file.parentProjectId(), parentProjectsById, session);
+        ComponentDto parentProject = getParentProject(file.getRootUuid(), parentProjectsByUuid, session);
         addProject(json, project, parentProject);
 
         json.endObject();
@@ -116,7 +116,7 @@ public class DuplicationsJsonWriter {
       json.prop("projectName", project.longName());
 
       // Do not return sub project if sub project and project are the same
-      boolean displaySubProject = subProject != null && !subProject.getId().equals(project.getId());
+      boolean displaySubProject = subProject != null && !subProject.uuid().equals(project.uuid());
       if (displaySubProject) {
         json.prop("subProject", subProject.key());
         json.prop("subProjectUuid", subProject.uuid());
@@ -137,13 +137,13 @@ public class DuplicationsJsonWriter {
     return project;
   }
 
-  private ComponentDto getParentProject(@Nullable Long projectId, Map<Long, ComponentDto> subProjectsById, DbSession session) {
-    ComponentDto project = subProjectsById.get(projectId);
-    if (project == null && projectId != null) {
-      Optional<ComponentDto> projectOptional = componentDao.selectById(session, projectId);
+  private ComponentDto getParentProject(String rootUuid, Map<String, ComponentDto> subProjectsByUuid, DbSession session) {
+    ComponentDto project = subProjectsByUuid.get(rootUuid);
+    if (project == null) {
+      Optional<ComponentDto> projectOptional = componentDao.selectByUuid(session, rootUuid);
       if (projectOptional.isPresent()) {
         project = projectOptional.get();
-        subProjectsById.put(project.getId(), project);
+        subProjectsByUuid.put(project.uuid(), project);
       }
     }
     return project;

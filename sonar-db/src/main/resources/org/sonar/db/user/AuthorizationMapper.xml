@@ -9,7 +9,20 @@
     WHERE
     gr.role=#{role}
     and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
-    and (gr.resource_id = p.root_id or gr.resource_id = p.id) and
+    and gr.resource_id = p.id
+    and
+    <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
+      p.kee=#{element}
+    </foreach>
+    UNION
+    SELECT p.kee
+    FROM group_roles gr, projects root, projects p
+    WHERE
+    gr.role=#{role}
+    and (gr.group_id is null or gr.group_id in (select gu.group_id from groups_users gu where gu.user_id=#{userId}))
+    and gr.resource_id = root.id
+    and p.root_uuid = root.uuid
+    and
     <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
       p.kee=#{element}
     </foreach>
@@ -19,7 +32,8 @@
     INNER JOIN projects p on p.id = ur.resource_id
     WHERE
     ur.role=#{role}
-    and ur.user_id=#{userId} and
+    and ur.user_id=#{userId}
+    and
     <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
       p.kee=#{element}
     </foreach>
@@ -31,7 +45,20 @@
     WHERE
     gr.role=#{role}
     and gr.group_id is null
-    and (gr.resource_id = p.root_id or gr.resource_id = p.id) and
+    and gr.resource_id = p.id
+    and
+    <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
+      p.kee=#{element}
+    </foreach>
+    UNION
+    SELECT p.kee
+    FROM group_roles gr, projects root, projects p
+    WHERE
+    gr.role=#{role}
+    and gr.group_id is null
+    and gr.resource_id = root.id
+    and p.root_uuid = root.uuid
+    and
     <foreach collection="componentKeys" open="(" close=")" item="element" index="index" separator=" or ">
       p.kee=#{element}
     </foreach>

@@ -192,6 +192,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setLongName(res.name());
     res.setDescription(project.getDescription());
     res.setProjectUuid(res.uuid());
+    res.setRootUuid(res.uuid());
     res.setModuleUuidPath(MODULE_UUID_PATH_SEP + res.uuid() + MODULE_UUID_PATH_SEP);
 
     return res;
@@ -250,6 +251,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setDescription(view.getDescription());
     res.setLongName(res.name());
     res.setProjectUuid(res.uuid());
+    res.setRootUuid(res.uuid());
     res.setModuleUuidPath(MODULE_UUID_PATH_SEP + res.uuid() + MODULE_UUID_PATH_SEP);
 
     return res;
@@ -276,7 +278,7 @@ public class PersistComponentsStep implements ComputationStep {
     res.setQualifier(Qualifiers.PROJECT);
     res.setName(projectView.getName());
     res.setLongName(res.name());
-    res.setCopyResourceId(projectView.getProjectViewAttributes().getProjectId());
+    res.setCopyComponentUuid(projectView.getProjectViewAttributes().getProjectUuid());
 
     setRootAndParentModule(res, path);
 
@@ -301,7 +303,7 @@ public class PersistComponentsStep implements ComputationStep {
    */
   private static void setRootAndParentModule(ComponentDto res, PathAwareVisitor.Path<ComponentDtoHolder> path) {
     ComponentDto projectDto = from(path.getCurrentPath()).last().get().getElement().getDto();
-    res.setParentProjectId(projectDto.getId());
+    res.setRootUuid(projectDto.uuid());
     res.setProjectUuid(projectDto.uuid());
 
     ComponentDto parentModule = path.parent().getDto();
@@ -318,7 +320,7 @@ public class PersistComponentsStep implements ComputationStep {
       .first()
       .get()
       .getElement().getDto();
-    componentDto.setParentProjectId(parentModule.getId());
+    componentDto.setRootUuid(parentModule.uuid());
     componentDto.setProjectUuid(parentModule.projectUuid());
     componentDto.setModuleUuid(parentModule.uuid());
     componentDto.setModuleUuidPath(parentModule.moduleUuidPath());
@@ -350,12 +352,12 @@ public class PersistComponentsStep implements ComputationStep {
       existingComponent.setModuleUuidPath(newComponent.moduleUuidPath());
       modified = true;
     }
-    if (!ObjectUtils.equals(existingComponent.parentProjectId(), newComponent.parentProjectId())) {
-      existingComponent.setParentProjectId(newComponent.parentProjectId());
+    if (!ObjectUtils.equals(existingComponent.getRootUuid(), newComponent.getRootUuid())) {
+      existingComponent.setRootUuid(newComponent.getRootUuid());
       modified = true;
     }
-    if (!ObjectUtils.equals(existingComponent.getCopyResourceId(), newComponent.getCopyResourceId())) {
-      existingComponent.setCopyResourceId(newComponent.getCopyResourceId());
+    if (!ObjectUtils.equals(existingComponent.getCopyResourceUuid(), newComponent.getCopyResourceUuid())) {
+      existingComponent.setCopyComponentUuid(newComponent.getCopyResourceUuid());
       modified = true;
     }
     if (!existingComponent.isEnabled()) {

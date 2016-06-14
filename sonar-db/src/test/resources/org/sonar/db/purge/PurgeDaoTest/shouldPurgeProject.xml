@@ -4,7 +4,7 @@
   <projects id="1" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." enabled="[true]"
             created_at="[null]"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            root_id="[null]" description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
+            root_uuid="ABCD" description="[null]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             path="[null]" deprecated_kee="[null]"
             authorization_updated_at="[null]"/>
 

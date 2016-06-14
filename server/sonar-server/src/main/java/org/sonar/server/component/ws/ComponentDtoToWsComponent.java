@@ -50,11 +50,11 @@ class ComponentDtoToWsComponent {
     return wsComponent;
   }
 
-  static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto component, Map<Long, ComponentDto> referenceComponentsById) {
+  static WsComponents.Component.Builder componentDtoToWsComponent(ComponentDto component, Map<String, ComponentDto> referenceComponentsByUuid) {
     WsComponents.Component.Builder wsComponent = componentDtoToWsComponent(component);
 
-    ComponentDto referenceComponent = referenceComponentsById.get(component.getCopyResourceId());
-    if (!referenceComponentsById.isEmpty() && referenceComponent != null) {
+    ComponentDto referenceComponent = referenceComponentsByUuid.get(component.getCopyResourceUuid());
+    if (referenceComponent != null) {
       wsComponent.setRefId(referenceComponent.uuid());
       wsComponent.setRefKey(referenceComponent.key());
     }

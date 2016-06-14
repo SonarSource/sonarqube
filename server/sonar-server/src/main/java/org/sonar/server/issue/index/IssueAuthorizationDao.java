@@ -92,7 +92,7 @@ public class IssueAuthorizationDao {
       "      FROM projects " +
       "      WHERE " +
       "        projects.qualifier = 'TRK' " +
-      "        AND projects.copy_resource_id is NULL " +
+      "        AND projects.copy_component_uuid is NULL " +
       "        {dateCondition} " +
       "      UNION " +
 
@@ -108,7 +108,7 @@ public class IssueAuthorizationDao {
       "      INNER JOIN users ON users.id = user_roles.user_id " +
       "      WHERE " +
       "        projects.qualifier = 'TRK' " +
-      "        AND projects.copy_resource_id is NULL " +
+      "        AND projects.copy_component_uuid is NULL " +
       "        {dateCondition} " +
       "      UNION " +
 
@@ -124,7 +124,7 @@ public class IssueAuthorizationDao {
       "      INNER JOIN groups ON groups.id = group_roles.group_id " +
       "      WHERE " +
       "        projects.qualifier = 'TRK' " +
-      "        AND projects.copy_resource_id is NULL " +
+      "        AND projects.copy_component_uuid is NULL " +
       "        {dateCondition} " +
       "        AND group_id IS NOT NULL " +
       "      UNION " +
@@ -140,7 +140,7 @@ public class IssueAuthorizationDao {
       "      INNER JOIN group_roles ON group_roles.resource_id = projects.id AND group_roles.role='user' " +
       "      WHERE " +
       "        projects.qualifier = 'TRK' " +
-      "        AND projects.copy_resource_id is NULL " +
+      "        AND projects.copy_component_uuid is NULL " +
       "        {dateCondition} " +
       "        AND group_roles.group_id IS NULL " +
       "    ) project_authorization";

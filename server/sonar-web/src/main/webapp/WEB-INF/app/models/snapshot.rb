@@ -216,8 +216,8 @@ class Snapshot < ActiveRecord::Base
     (period1_mode || period2_mode || period3_mode || period4_mode || period5_mode) != nil
   end
 
-  def resource_id_for_authorization
-    root_project.id
+  def component_uuid_for_authorization
+    root_component_uuid
   end
 
   def path_name

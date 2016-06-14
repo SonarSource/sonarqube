@@ -6,8 +6,9 @@
   <resultMap id="resourceResultMap" type="Resource">
     <id property="id" column="id"/>
     <result property="key" column="kee"/>
+    <result property="uuid" column="uuid"/>
     <result property="deprecatedKey" column="deprecated_kee"/>
-    <result property="rootId" column="root_id"/>
+    <result property="rootUuid" column="root_uuid"/>
     <result property="scope" column="scope"/>
   </resultMap>
 
@@ -17,16 +18,16 @@
     WHERE kee = #{key}
   </select>
 
-  <select id="selectProject" parameterType="long" resultMap="resourceResultMap">
-    select * from projects where id=#{id}
+  <select id="selectProject" parameterType="String" resultMap="resourceResultMap">
+    select * from projects where uuid=#{uuid}
   </select>
 
-  <select id="selectProjectResources" parameterType="long" resultMap="resourceResultMap">
-    select * from projects where root_id=#{id} AND scope!='PRJ'
+  <select id="selectProjectResources" parameterType="String" resultMap="resourceResultMap">
+    select * from projects where root_uuid=#{rootUuid} AND scope!='PRJ'
   </select>
 
-  <select id="selectDescendantProjects" parameterType="long" resultMap="resourceResultMap">
-    select * from projects where scope='PRJ' and root_id=#{id}
+  <select id="selectDescendantProjects" parameterType="String" resultMap="resourceResultMap">
+    select * from projects where scope='PRJ' and root_uuid=#{rootUuid} and uuid!=#{rootUuid}
   </select>
 
   <update id="update" parameterType="Resource">

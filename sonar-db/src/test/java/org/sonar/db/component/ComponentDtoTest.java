@@ -40,8 +40,9 @@ public class ComponentDtoTest {
       .setLanguage("java")
       .setDescription("desc")
       .setPath("src/org/struts/RequestContext.java")
-      .setCopyResourceId(5L)
-      .setParentProjectId(3L)
+      .setCopyComponentUuid("uuid_5")
+      .setRootUuid("uuid_3")
+      .setDeveloperUuid("uuid_6")
       .setAuthorizationUpdatedAt(123456789L);
 
     assertThat(componentDto.getId()).isEqualTo(1L);
@@ -54,8 +55,9 @@ public class ComponentDtoTest {
     assertThat(componentDto.path()).isEqualTo("src/org/struts/RequestContext.java");
     assertThat(componentDto.language()).isEqualTo("java");
     assertThat(componentDto.description()).isEqualTo("desc");
-    assertThat(componentDto.parentProjectId()).isEqualTo(3L);
-    assertThat(componentDto.getCopyResourceId()).isEqualTo(5L);
+    assertThat(componentDto.getRootUuid()).isEqualTo("uuid_3");
+    assertThat(componentDto.getCopyResourceUuid()).isEqualTo("uuid_5");
+    assertThat(componentDto.getDeveloperUuid()).isEqualTo("uuid_6");
     assertThat(componentDto.getAuthorizationUpdatedAt()).isEqualTo(123456789L);
   }
 

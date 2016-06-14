@@ -68,7 +68,7 @@ public class ComponentDaoTest {
     assertThat(result.uuid()).isEqualTo("KLMN");
     assertThat(result.moduleUuid()).isEqualTo("EFGH");
     assertThat(result.moduleUuidPath()).isEqualTo(".ABCD.EFGH.");
-    assertThat(result.parentProjectId()).isEqualTo(2);
+    assertThat(result.getRootUuid()).isEqualTo("EFGH");
     assertThat(result.projectUuid()).isEqualTo("ABCD");
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
@@ -77,7 +77,8 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.getCopyResourceId()).isNull();
+    assertThat(result.getCopyResourceUuid()).isNull();
+    assertThat(result.getDeveloperUuid()).isNull();
 
     assertThat(underTest.selectByUuid(dbSession, "UNKNOWN")).isAbsent();
   }
@@ -91,7 +92,7 @@ public class ComponentDaoTest {
     assertThat(result.uuid()).isEqualTo("STUV");
     assertThat(result.moduleUuid()).isEqualTo("OPQR");
     assertThat(result.moduleUuidPath()).isEqualTo(".OPQR.");
-    assertThat(result.parentProjectId()).isEqualTo(11);
+    assertThat(result.getRootUuid()).isEqualTo("OPQR");
     assertThat(result.projectUuid()).isEqualTo("OPQR");
     assertThat(result.key()).isEqualTo("DEV:anakin@skywalker.name:org.struts:struts");
     assertThat(result.path()).isNull();
@@ -100,7 +101,8 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("DEV_PRJ");
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
-    assertThat(result.getCopyResourceId()).isEqualTo(1L);
+    assertThat(result.getCopyResourceUuid()).isEqualTo("ABCD");
+    assertThat(result.getDeveloperUuid()).isEqualTo("OPQR");
   }
 
   @Test
@@ -108,7 +110,7 @@ public class ComponentDaoTest {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     ComponentDto result = underTest.selectByUuid(dbSession, "STUV").get();
-    assertThat(result.getDeveloperId()).isEqualTo(11L);
+    assertThat(result.getDeveloperUuid()).isEqualTo("OPQR");
   }
 
   @Test
@@ -144,7 +146,8 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.parentProjectId()).isEqualTo(2);
+    assertThat(result.uuid()).isEqualTo("KLMN");
+    assertThat(result.getRootUuid()).isEqualTo("EFGH");
 
     assertThat(underTest.selectByKey(dbSession, "unknown")).isAbsent();
   }
@@ -180,7 +183,7 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("TRK");
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
-    assertThat(result.parentProjectId()).isNull();
+    assertThat(result.getRootUuid()).isEqualTo("ABCD");
     assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(123456789L);
   }
 
@@ -200,7 +203,7 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.parentProjectId()).isEqualTo(2);
+    assertThat(result.getRootUuid()).isEqualTo("EFGH");
 
     assertThat(underTest.selectByKeys(dbSession, singletonList("unknown"))).isEmpty();
   }
@@ -221,7 +224,7 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.parentProjectId()).isEqualTo(2);
+    assertThat(result.getRootUuid()).isEqualTo("EFGH");
 
     assertThat(underTest.selectByIds(dbSession, newArrayList(555L))).isEmpty();
   }
@@ -238,7 +241,7 @@ public class ComponentDaoTest {
     assertThat(result.uuid()).isEqualTo("KLMN");
     assertThat(result.moduleUuid()).isEqualTo("EFGH");
     assertThat(result.moduleUuidPath()).isEqualTo(".ABCD.EFGH.");
-    assertThat(result.parentProjectId()).isEqualTo(2);
+    assertThat(result.getRootUuid()).isEqualTo("EFGH");
     assertThat(result.projectUuid()).isEqualTo("ABCD");
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
     assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
@@ -358,7 +361,7 @@ public class ComponentDaoTest {
     assertThat(results.get(0).getKey()).isEqualTo("org.struts:struts");
 
     // Sub project of a project
-    assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, newArrayList("ABCD"))).isEmpty();
+    assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, newArrayList("ABCD"))).extracting("uuid").containsOnly("ABCD");
 
     // SUb projects of a component and a sub module
     assertThat(underTest.selectSubProjectsByComponentUuids(dbSession, newArrayList("HIJK", "FGHI"))).hasSize(2);
@@ -569,9 +572,9 @@ public class ComponentDaoTest {
       .setLanguage("java")
       .setDescription("description")
       .setPath("src/org/struts/RequestContext.java")
-      .setParentProjectId(3L)
-      .setCopyResourceId(5L)
-      .setDeveloperId(7L)
+      .setRootUuid("uuid_3")
+      .setCopyComponentUuid("uuid_5")
+      .setDeveloperUuid("uuid_7")
       .setEnabled(true)
       .setCreatedAt(DateUtils.parseDate("2014-06-18"))
       .setAuthorizationUpdatedAt(123456789L);
@@ -602,9 +605,9 @@ public class ComponentDaoTest {
         .setLanguage("java")
         .setDescription("description")
         .setPath("src/org/struts/RequestContext.java")
-        .setParentProjectId(3L)
-        .setCopyResourceId(5L)
-        .setDeveloperId(7L)
+        .setRootUuid("uuid_3")
+        .setCopyComponentUuid("uuid_5")
+        .setDeveloperUuid("uuid_7")
         .setEnabled(true)
         .setCreatedAt(DateUtils.parseDate("2014-06-18"))
         .setAuthorizationUpdatedAt(123456789L);
@@ -634,7 +637,7 @@ public class ComponentDaoTest {
       .setScope("FIL")
       .setLanguage("java")
       .setPath("src/org/struts/RequestContext.java")
-      .setParentProjectId(3L)
+      .setRootUuid("uuid_3")
       .setEnabled(false)
       .setCreatedAt(DateUtils.parseDate("2014-06-18"))
       .setAuthorizationUpdatedAt(123456789L);
@@ -664,9 +667,9 @@ public class ComponentDaoTest {
       .setLanguage("java2")
       .setDescription("description2")
       .setPath("src/org/struts/RequestContext2.java")
-      .setParentProjectId(4L)
-      .setCopyResourceId(6L)
-      .setDeveloperId(9L)
+      .setRootUuid("uuid_4")
+      .setCopyComponentUuid("uuid_6")
+      .setDeveloperUuid("uuid_9")
       .setEnabled(false)
       .setAuthorizationUpdatedAt(12345678910L);
 

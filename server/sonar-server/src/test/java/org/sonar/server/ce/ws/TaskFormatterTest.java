@@ -85,8 +85,9 @@ public class TaskFormatterTest {
   @Test
   public void formatQueue_with_component_and_other_fields() throws IOException {
     when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.of(temp.newFile()));
+    String uuid = "COMPONENT_UUID";
     db.getDbClient().componentDao().insert(db.getSession(), new ComponentDto()
-      .setUuid("COMPONENT_UUID").setKey("COMPONENT_KEY").setName("Component Name").setQualifier(Qualifiers.PROJECT));
+      .setUuid(uuid).setRootUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name").setQualifier(Qualifiers.PROJECT));
 
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");
@@ -94,14 +95,14 @@ public class TaskFormatterTest {
     dto.setStatus(CeQueueDto.Status.IN_PROGRESS);
     dto.setCreatedAt(1_450_000_000_000L);
     dto.setStartedAt(1_451_000_000_000L);
-    dto.setComponentUuid("COMPONENT_UUID");
+    dto.setComponentUuid(uuid);
     dto.setSubmitterLogin("rob");
 
     WsCe.Task wsTask = underTest.formatQueue(db.getSession(), dto);
 
     assertThat(wsTask.getType()).isEqualTo("TYPE");
     assertThat(wsTask.getId()).isEqualTo("UUID");
-    assertThat(wsTask.getComponentId()).isEqualTo("COMPONENT_UUID");
+    assertThat(wsTask.getComponentId()).isEqualTo(uuid);
     assertThat(wsTask.getComponentKey()).isEqualTo("COMPONENT_KEY");
     assertThat(wsTask.getComponentName()).isEqualTo("Component Name");
     assertThat(wsTask.getComponentQualifier()).isEqualTo("TRK");

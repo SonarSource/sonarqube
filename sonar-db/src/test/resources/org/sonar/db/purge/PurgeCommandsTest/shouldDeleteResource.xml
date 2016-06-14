@@ -1,8 +1,8 @@
 <dataset>
 
-  <projects id="1" uuid="uuid_1" enabled="[true]" root_id="[null]"
+  <projects id="1" uuid="uuid_1" enabled="[true]" root_uuid="uuid_1"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            description="[null]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"/>
 
   <snapshots id="1" component_uuid="uuid_1" parent_snapshot_id="[null]" root_component_uuid="uuid_1" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"

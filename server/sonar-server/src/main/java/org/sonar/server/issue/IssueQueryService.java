@@ -69,9 +69,7 @@ import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
 import static java.lang.String.format;
 import static org.sonar.api.utils.DateUtils.longToDate;
-import static org.sonar.db.component.ComponentDtoFunctions.toCopyResourceId;
 import static org.sonar.db.component.ComponentDtoFunctions.toProjectUuid;
-import static org.sonar.db.component.ComponentDtoFunctions.toUuid;
 import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonarqube.ws.client.issue.IssueFilterParameters.COMPONENTS;
@@ -403,9 +401,7 @@ public class IssueQueryService {
     Collection<String> developerUuids = Collections2.transform(technicalProjects, toProjectUuid());
     Collection<String> authorsFromProjects = authorsFromParamsOrFromDeveloper(session, developerUuids, authors);
     builder.authors(authorsFromProjects);
-    Collection<Long> projectIds = Collections2.transform(technicalProjects, toCopyResourceId());
-    List<ComponentDto> originalProjects = dbClient.componentDao().selectByIds(session, projectIds);
-    Collection<String> projectUuids = Collections2.transform(originalProjects, toUuid());
+    Collection<String> projectUuids = Collections2.transform(technicalProjects, ComponentDto::getCopyResourceUuid);
     builder.projectUuids(projectUuids);
   }
 

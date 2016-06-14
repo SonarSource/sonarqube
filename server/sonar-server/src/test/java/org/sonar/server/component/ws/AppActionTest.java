@@ -123,9 +123,9 @@ public class AppActionTest {
       .setProjectUuid("THE_PROJECT")
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java")
-      .setParentProjectId(5L);
+      .setRootUuid("uuid_5");
     when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.of(file));
-    when(componentDao.selectOrFailById(session, 5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.selectOrFailByUuid(session, "uuid_5")).thenReturn(new ComponentDto().setUuid("uuid_5").setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
     when(componentDao.selectOrFailByUuid(session, project.uuid())).thenReturn(project);
     when(propertiesDao.selectByQuery(any(PropertyQuery.class), eq(session))).thenReturn(newArrayList(new PropertyDto()));
 
@@ -227,9 +227,9 @@ public class AppActionTest {
       .setName("Plugin.java")
       .setLongName("src/main/java/org/sonar/api/Plugin.java")
       .setPath("src/main/java/org/sonar/api/Plugin.java")
-      .setParentProjectId(5L);
+      .setRootUuid("uuid_5");
     when(componentDao.selectByUuid(session, COMPONENT_UUID)).thenReturn(Optional.of(file));
-    when(componentDao.selectOrFailById(session, 5L)).thenReturn(new ComponentDto().setId(5L).setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
+    when(componentDao.selectOrFailByUuid(session, "uuid_5")).thenReturn(new ComponentDto().setUuid("uuid_5").setLongName("SonarQube :: Plugin API").setKey(SUB_PROJECT_KEY));
     when(componentDao.selectOrFailByUuid(session, project.uuid())).thenReturn(project);
     return file;
   }

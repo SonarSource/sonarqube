@@ -307,7 +307,7 @@ public class InternalCeQueueImplTest {
   }
 
   private static ComponentDto newComponentDto(String uuid) {
-    return new ComponentDto().setUuid(uuid).setName("name_" + uuid).setKey("key_" + uuid);
+    return new ComponentDto().setUuid(uuid).setRootUuid(uuid).setName("name_" + uuid).setKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, String componentUuid) {

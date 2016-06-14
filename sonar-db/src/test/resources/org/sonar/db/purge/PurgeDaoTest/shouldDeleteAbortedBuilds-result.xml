@@ -9,7 +9,7 @@ Snapshot 2 has been deleted
   <projects id="1" enabled="[true]" root_id="[null]"
             uuid="projectUUID" project_uuid="projectUUID"
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
+            description="[null]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
 
   <!-- past snapshot with status "processed" and already purged -->

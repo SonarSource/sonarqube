@@ -27,8 +27,6 @@ import javax.annotation.Nullable;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.component.Component;
-import org.sonar.api.resources.Qualifiers;
-import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
@@ -85,27 +83,6 @@ public class ResourceDaoTest {
     assertThat(underTest.getRootProjectByComponentKey("org.struts:struts").getKey()).isEqualTo("org.struts:struts");
 
     assertThat(underTest.getRootProjectByComponentKey("unknown")).isNull();
-  }
-
-  @Test
-  public void should_insert_using_existing_session() {
-    dbTester.prepareDbUnit(getClass(), "insert.xml");
-
-    ResourceDto file1 = new ResourceDto().setUuid("ABCD")
-      .setKey("org.struts:struts:/src/main/java/org/struts/Action.java")
-      .setDeprecatedKey("org.struts:struts:org.struts.Action").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
-      .setLanguage("java").setName("Action").setLongName("org.struts.Action");
-    ResourceDto file2 = new ResourceDto().setUuid("BCDE")
-      .setKey("org.struts:struts:/src/main/java/org/struts/Filter.java")
-      .setDeprecatedKey("org.struts:struts:org.struts.Filter").setScope(Scopes.FILE).setQualifier(Qualifiers.FILE)
-      .setLanguage("java").setName("Filter").setLongName("org.struts.Filter");
-
-    underTest.insertUsingExistingSession(file1, dbTester.getSession());
-    underTest.insertUsingExistingSession(file2, dbTester.getSession());
-
-    dbTester.getSession().rollback();
-
-    assertThat(dbTester.countRowsOfTable("projects")).isZero();
   }
 
   @Test

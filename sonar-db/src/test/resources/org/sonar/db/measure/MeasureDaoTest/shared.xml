@@ -4,7 +4,7 @@
   <metrics id="11" name="coverage_line_hits_data"/>
   <metrics id="12" name="ncloc"/>
 
-  <projects id="1" kee="org.struts:struts-core:src/org/struts/RequestContext.java" enabled="[true]" uuid="ABCD"/>
+  <projects id="1" kee="org.struts:struts-core:src/org/struts/RequestContext.java" enabled="[true]" uuid="ABCD" root_uuid="ABCD"/>
 
   <snapshots id="5" component_uuid="ABCD" root_component_uuid="ABCD" islast="[true]" />
 

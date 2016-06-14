@@ -2,14 +2,14 @@
 
   <group_roles id="1" group_id="[null]" resource_id="399" role="user"/>
 
-  <projects id="399" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." kee="struts"
-            root_id="[null]" qualifier="TRK" scope="PRJ"/>
-  <projects id="400" uuid="BCDE" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD." kee="struts-core"
-            root_id="399" qualifier="BRC" scope="PRJ"/>
-  <projects id="401" uuid="CDEF" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path=".ABCD.BCDE." kee="Action.java"
-            root_id="400" qualifier="CLA" scope="PRJ"/>
-  <projects id="402" uuid="DEFG" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path=".ABCD.BCDE." kee="Filter.java"
-            root_id="400" qualifier="CLA" scope="PRJ"/>
+  <projects id="399" uuid="ABCD" root_uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." kee="struts"
+            qualifier="TRK" scope="PRJ"/>
+  <projects id="400" uuid="BCDE" root_uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD." kee="struts-core"
+            qualifier="BRC" scope="PRJ"/>
+  <projects id="401" uuid="CDEF" root_uuid="BCDE" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path=".ABCD.BCDE." kee="Action.java"
+            qualifier="CLA" scope="PRJ"/>
+  <projects id="402" uuid="DEFG" root_uuid="CDEF" project_uuid="ABCD" module_uuid="BCDE" module_uuid_path=".ABCD.BCDE." kee="Filter.java"
+            qualifier="CLA" scope="PRJ"/>
 
   <snapshots id="100" component_uuid="ABCD" root_snapshot_id="[null]" parent_snapshot_id="[null]" root_component_uuid="ABCD"
              path="" islast="[true]"/>

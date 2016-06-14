@@ -19,6 +19,9 @@
  */
 package org.sonar.server.measure;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.Date;
@@ -34,20 +37,19 @@ import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.SnapshotDto;
 
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-
 
 public class MeasureFilterExecutorTest {
 
   private static final long JAVA_PROJECT_ID = 1L;
   private static final long JAVA_FILE_BIG_ID = 3L;
   private static final long JAVA_FILE_TINY_ID = 4L;
+  private static final String JAVA_PROJECT_UUID = "UUID_JAVA_PROJECT";
   private static final long JAVA_PROJECT_SNAPSHOT_ID = 101L;
   private static final long JAVA_FILE_BIG_SNAPSHOT_ID = 103L;
   private static final long JAVA_FILE_TINY_SNAPSHOT_ID = 104L;
   private static final long JAVA_PACKAGE_SNAPSHOT_ID = 102L;
   private static final long PHP_PROJECT_ID = 10L;
+  private static final String PHP_PROJECT_UUID = "UUID_PHP_PROJECT";
   private static final long PHP_SNAPSHOT_ID = 110L;
   private static final Metric METRIC_LINES = new Metric.Builder("lines", "Lines", Metric.ValueType.INT).create().setId(1);
   private static final Metric METRIC_PROFILE = new Metric.Builder("profile", "Profile", Metric.ValueType.STRING).create().setId(2);
@@ -373,7 +375,7 @@ public class MeasureFilterExecutorTest {
     assertThat(rows).hasSize(3);
     verifyPhpProject(rows.get(0));
     verifyJavaProject(rows.get(1));
-    verifyProject(rows.get(2), 120L, 20L, 20L);
+    verifyProject(rows.get(2), 120L, 20L, "CDEF");
   }
 
   @Test
@@ -386,7 +388,7 @@ public class MeasureFilterExecutorTest {
 
     // Js Project ERROR, Java Project WARN, then Php Project OK
     assertThat(rows).hasSize(3);
-    verifyProject(rows.get(0), 120L, 20L, 20L);
+    verifyProject(rows.get(0), 120L, 20L, "CDEF");
     verifyJavaProject(rows.get(1));
     verifyPhpProject(rows.get(2));
   }
@@ -589,24 +591,24 @@ public class MeasureFilterExecutorTest {
   }
 
   private void verifyJavaProject(MeasureFilterRow row) {
-    verifyProject(row, JAVA_PROJECT_SNAPSHOT_ID, JAVA_PROJECT_ID, JAVA_PROJECT_ID);
+    verifyProject(row, JAVA_PROJECT_SNAPSHOT_ID, JAVA_PROJECT_ID, JAVA_PROJECT_UUID);
   }
 
   private void verifyJavaBigFile(MeasureFilterRow row) {
-    verifyProject(row, JAVA_FILE_BIG_SNAPSHOT_ID, JAVA_FILE_BIG_ID, JAVA_PROJECT_ID);
+    verifyProject(row, JAVA_FILE_BIG_SNAPSHOT_ID, JAVA_FILE_BIG_ID, JAVA_PROJECT_UUID);
   }
 
   private void verifyJavaTinyFile(MeasureFilterRow row) {
-    verifyProject(row, JAVA_FILE_TINY_SNAPSHOT_ID, JAVA_FILE_TINY_ID, JAVA_PROJECT_ID);
+    verifyProject(row, JAVA_FILE_TINY_SNAPSHOT_ID, JAVA_FILE_TINY_ID, JAVA_PROJECT_UUID);
   }
 
   private void verifyPhpProject(MeasureFilterRow row) {
-    verifyProject(row, PHP_SNAPSHOT_ID, PHP_PROJECT_ID, PHP_PROJECT_ID);
+    verifyProject(row, PHP_SNAPSHOT_ID, PHP_PROJECT_ID, PHP_PROJECT_UUID);
   }
 
-  private void verifyProject(MeasureFilterRow row, Long snashotId, Long resourceId, Long resourceRootId) {
+  private void verifyProject(MeasureFilterRow row, Long snashotId, Long resourceId, String rootComponentUuid) {
     assertThat(row.getSnapshotId()).isEqualTo(snashotId);
     assertThat(row.getResourceId()).isEqualTo(resourceId);
-    assertThat(row.getResourceRootId()).isEqualTo(resourceRootId);
+    assertThat(row.getRootComponentUuid()).isEqualTo(rootComponentUuid);
   }
 }

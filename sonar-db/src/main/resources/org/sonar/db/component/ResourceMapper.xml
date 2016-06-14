@@ -47,14 +47,14 @@
     <result property="path" column="path"/>
     <result property="name" column="name"/>
     <result property="longName" column="long_name"/>
-    <result property="rootId" column="root_id"/>
+    <result property="rootUuid" column="root_uuid"/>
     <result property="scope" column="scope"/>
     <result property="qualifier" column="qualifier"/>
     <result property="enabled" column="enabled"/>
     <result property="description" column="description"/>
     <result property="language" column="language"/>
-    <result property="copyResourceId" column="copy_resource_id"/>
-    <result property="personId" column="person_id"/>
+    <result property="copyComponentUuid" column="copy_component_uuid"/>
+    <result property="developerUuid" column="developer_uuid"/>
     <result property="createdAt" column="created_at"/>
     <result property="authorizationUpdatedAt" column="authorization_updated_at"/>
   </resultMap>
@@ -111,7 +111,7 @@
 
   <select id="selectLastSnapshotByResourceKey" parameterType="string" resultMap="snapshotResultMap">
     SELECT s.* FROM snapshots s
-    INNER JOIN projects p on p.uuid=s.component_uuid AND p.enabled=${_true} AND p.copy_resource_id IS NULL
+    INNER JOIN projects p on p.uuid=s.component_uuid AND p.enabled=${_true} AND p.copy_component_uuid  is null
     <where>
       AND p.kee=#{id}
       AND s.islast=${_true}
@@ -120,7 +120,7 @@
 
   <select id="selectLastSnapshotByResourceUuid" parameterType="string" resultMap="snapshotResultMap">
     SELECT s.* from snapshots s
-    INNER JOIN projects p on p.uuid=s.component_uuid AND p.enabled=${_true} AND p.copy_resource_id IS NULL
+    INNER JOIN projects p on p.uuid=s.component_uuid AND p.enabled=${_true} AND p.copy_component_uuid  is null
     <where>
       AND p.uuid=#{uuid}
       AND s.islast=${_true}
@@ -147,7 +147,7 @@
         </foreach>
       </if>
       and p.enabled=${_true}
-      and p.copy_resource_id is null
+      and p.copy_component_uuid  is null
     </where>
   </select>
 
@@ -166,7 +166,7 @@
         </foreach>
       </if>
       and p.enabled=${_true}
-      and p.copy_resource_id is null
+      and p.copy_component_uuid  is null
       and s.islast=${_true}
     </where>
   </sql>
@@ -183,7 +183,7 @@
           p.qualifier=#{qualifier}
         </foreach>
       </if>
-      and p.copy_resource_id is null
+      and p.copy_component_uuid  is null
     </where>
   </select>
 
@@ -198,7 +198,7 @@
           p.qualifier=#{qualifier}
         </foreach>
       </if>
-      and p.copy_resource_id is null
+      and p.copy_component_uuid  is null
     </where>
   </select>
 
@@ -207,32 +207,8 @@
     left join snapshots s on s.component_uuid=p.uuid
     where s.id is null
     and p.kee = #{key}
-    and p.copy_resource_id is null
+    and p.copy_component_uuid  is null
   </select>
-
-  <insert id="insert" parameterType="Resource" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    insert into projects
-    (uuid, project_uuid, module_uuid, module_uuid_path, name, long_name, description, scope, qualifier, kee,
-    deprecated_kee, path, language, root_id, copy_resource_id, person_id,
-    enabled, authorization_updated_at, created_at)
-    values (
-    #{uuid,jdbcType=VARCHAR}, #{projectUuid,jdbcType=VARCHAR}, #{moduleUuid,jdbcType=VARCHAR},
-    #{moduleUuidPath,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR},
-    #{longName,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR},
-    #{qualifier,jdbcType=VARCHAR},
-    #{key,jdbcType=VARCHAR}, #{deprecatedKey,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{language,jdbcType=VARCHAR},
-    #{rootId,jdbcType=INTEGER}, #{copyResourceId,jdbcType=INTEGER},
-    #{personId,jdbcType=INTEGER}, #{enabled,jdbcType=BOOLEAN}, #{authorizationUpdatedAt,jdbcType=BIGINT},
-    #{createdAt,jdbcType=TIMESTAMP}
-    )
-  </insert>
-
-  <update id="update" parameterType="Resource">
-    update projects set name=#{name}, long_name=#{longName}, description=#{description},
-    scope=#{scope}, qualifier=#{qualifier}, kee=#{key}, deprecated_kee=#{deprecatedKey}, path=#{path},
-    language=#{language}, root_id=#{rootId}, copy_resource_id=#{copyResourceId},
-    person_id=#{personId}, enabled=#{enabled} where id=#{id}
-  </update>
 
   <update id="updateAuthorizationDate" parameterType="map">
     update projects set authorization_updated_at=#{authorizationDate}

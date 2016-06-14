@@ -20,6 +20,8 @@
 package org.sonar.db.component;
 
 import java.util.Date;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 import static org.sonar.db.component.ComponentValidator.checkComponentKey;
 import static org.sonar.db.component.ComponentValidator.checkComponentName;
@@ -35,15 +37,15 @@ public class ResourceDto {
   private String deprecatedKey;
   private String name;
   private String longName;
-  private Long rootId;
+  private String rootUuid;
   private String path;
   private String scope;
   private String qualifier;
   private boolean enabled = true;
   private String description;
   private String language;
-  private Long copyResourceId;
-  private Long personId;
+  private String copyComponentUuid;
+  private String developerUuid;
   private Date createdAt;
   private Long authorizationUpdatedAt;
 
@@ -119,12 +121,12 @@ public class ResourceDto {
     return this;
   }
 
-  public Long getRootId() {
-    return rootId;
+  public String getRootUuid() {
+    return rootUuid;
   }
 
-  public ResourceDto setRootId(Long rootId) {
-    this.rootId = rootId;
+  public ResourceDto setRootUuid(String rootUuid) {
+    this.rootUuid = rootUuid;
     return this;
   }
 
@@ -191,21 +193,23 @@ public class ResourceDto {
     return this;
   }
 
-  public Long getCopyResourceId() {
-    return copyResourceId;
+  @CheckForNull
+  public String getCopyComponentUuid() {
+    return copyComponentUuid;
   }
 
-  public ResourceDto setCopyResourceId(Long copyResourceId) {
-    this.copyResourceId = copyResourceId;
+  public ResourceDto setCopyComponentUuid(@Nullable String copyComponentUuid) {
+    this.copyComponentUuid = copyComponentUuid;
     return this;
   }
 
-  public Long getPersonId() {
-    return personId;
+  @CheckForNull
+  public String getDeveloperUuid() {
+    return developerUuid;
   }
 
-  public ResourceDto setPersonId(Long personId) {
-    this.personId = personId;
+  public ResourceDto setDeveloperUuid(@Nullable String developerUuid) {
+    this.developerUuid = developerUuid;
     return this;
   }
 

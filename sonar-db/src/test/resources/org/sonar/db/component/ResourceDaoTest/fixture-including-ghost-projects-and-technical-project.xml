@@ -1,10 +1,10 @@
 <dataset>
 
   <!-- root project -->
-  <projects id="1" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+  <projects id="1" root_uuid="ABCD" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
             uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="."
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            enabled="[true]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
   <snapshots id="1" component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
@@ -26,10 +26,10 @@
              version="[null]" path=""/>
 
   <!-- project -->
-  <projects id="2" root_id="1" kee="org.struts:struts-core" name="Struts Core"
+  <projects id="2" root_uuid="ABCD" kee="org.struts:struts-core" name="Struts Core"
             scope="PRJ" qualifier="BRC" long_name="Struts Core"
             uuid="EFGH" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            description="[null]" enabled="[true]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
   <snapshots id="2" component_uuid="EFGH" parent_snapshot_id="1" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
@@ -43,10 +43,10 @@
 
   <!-- directory -->
   <projects long_name="org.struts" id="3" scope="DIR" qualifier="PAC" kee="org.struts:struts:org.struts"
-            name="org.struts" root_id="1"
+            name="org.struts" root_uuid="ABCD"
             description="[null]"
             uuid="GHIJ" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            enabled="[true]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
   <snapshots id="3" component_uuid="GHIJ" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
@@ -61,10 +61,10 @@
   <!-- file -->
   <projects long_name="org.struts.RequestContext" id="4" scope="FIL" qualifier="CLA"
             kee="org.struts:struts:org.struts.RequestContext"
-            name="RequestContext" root_id="1"
+            name="RequestContext" root_uuid="ABCD"
             uuid="KLMN" project_uuid="ABCD" module_uuid="EFGH" module_uuid_path=".ABCD.EFGH."
             description="[null]"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            enabled="[true]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
 
   <snapshots id="4" component_uuid="KLMN" parent_snapshot_id="3" root_component_uuid="ABCD" root_snapshot_id="1"
@@ -78,16 +78,16 @@
              version="[null]" path="1.2.3."/>
 
   <!-- technical project -->
-  <projects id="5" root_id="[null]" scope="PRJ" qualifier="TRK" kee="COPYorg.struts:struts" name="Struts"
+  <projects id="5" root_uuid="ABCD" scope="PRJ" qualifier="TRK" kee="COPYorg.struts:struts" name="Struts"
             uuid="TECHPROJECT" project_uuid="[null]" module_uuid="[null]" module_uuid_path="."
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="java" copy_resource_id="1" person_id="[null]" authorization_updated_at="[null]"/>
+            enabled="[true]" language="java" copy_component_uuid="ABCD" developer_uuid="[null]" authorization_updated_at="[null]"/>
 
   <!-- project without snapshot status=P-->
-  <projects id="6" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.apache.shindig" name="Shinding"
+  <projects id="6" root_uuid="ABCD" scope="PRJ" qualifier="TRK" kee="org.apache.shindig" name="Shinding"
             uuid="ONLYERRORS" project_uuid="[null]" module_uuid="[null]" module_uuid_path="."
             description="the description" long_name="Shinding"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            enabled="[true]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"/>
   <snapshots id="6" component_uuid="ONLYERRORS" parent_snapshot_id="[null]" root_component_uuid="ONLYERRORS" root_snapshot_id="[null]"
              status="U" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -109,17 +109,17 @@
 
 
   <!-- project without snapshot -->
-  <projects id="7" root_id="[null]" kee="org.sample:sample" name="Sample"
+  <projects id="7" root_uuid="ABCD" kee="org.sample:sample" name="Sample"
             scope="PRJ" qualifier="TRK" long_name="Sample"
             uuid="NOSNAPSHOT" project_uuid="[null]" module_uuid="[null]" module_uuid_path="."
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            description="[null]" enabled="[true]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
 
   <!-- project not enabled -->
-  <projects id="8" root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.apache:tika" name="Tika"
+  <projects id="8" root_uuid="ABCD" scope="PRJ" qualifier="TRK" kee="org.apache:tika" name="Tika"
             description="the description" long_name="Tika"
             uuid="DISABLED" project_uuid="[null]" module_uuid="[null]" module_uuid_path="."
-            enabled="[false]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            enabled="[false]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"/>
   <snapshots id="8" component_uuid="DISABLED" parent_snapshot_id="[null]" root_component_uuid="DISABLED" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"

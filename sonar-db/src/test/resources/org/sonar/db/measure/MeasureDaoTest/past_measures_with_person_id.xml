@@ -4,7 +4,7 @@
 
   <!-- project -->
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            root_id="[null]" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
+            root_uuid="ABCD" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path=".ABCD."
             enabled="[true]"/>
 
   <!-- snapshots -->

@@ -80,6 +80,7 @@ public class ProjectDataLoaderTest {
     underTest.load(ProjectDataQuery.create().setModuleKey(key));
   }
 
+  private int uuidCounter = 0;
   @Test
   public void load_fails_with_BRE_if_component_is_neither_a_project_or_a_module() {
     String[][] allScopesAndQualifierButProjectAndModule = {
@@ -96,7 +97,8 @@ public class ProjectDataLoaderTest {
       String scope = scopeAndQualifier[0];
       String qualifier = scopeAndQualifier[1];
       String key = "theKey_" + scope + "_" + qualifier;
-      dbClient.componentDao().insert(dbSession, new ComponentDto().setScope(scope).setQualifier(qualifier).setKey(key));
+      String uuid = "uuid_" + uuidCounter++;
+      dbClient.componentDao().insert(dbSession, new ComponentDto().setUuid(uuid).setRootUuid(uuid).setScope(scope).setQualifier(qualifier).setKey(key));
       dbSession.commit();
 
       try {

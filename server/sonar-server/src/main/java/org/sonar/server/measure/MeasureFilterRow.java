@@ -24,15 +24,15 @@ import org.apache.commons.lang.StringUtils;
 public class MeasureFilterRow {
   private final long snapshotId;
   private final long resourceId;
-  private final long resourceRootId;
+  private final String rootComponentUuid;
   private String sortText = null;
   private Long sortDate = null;
   private Double sortDouble = null;
 
-  MeasureFilterRow(long snapshotId, long resourceId, long resourceRootId) {
+  MeasureFilterRow(long snapshotId, long resourceId, String rootComponentUuid) {
     this.snapshotId = snapshotId;
     this.resourceId = resourceId;
-    this.resourceRootId = resourceRootId;
+    this.rootComponentUuid = rootComponentUuid;
   }
 
   public long getSnapshotId() {
@@ -43,8 +43,8 @@ public class MeasureFilterRow {
     return resourceId;
   }
 
-  public long getResourceRootId() {
-    return resourceRootId;
+  public String getRootComponentUuid() {
+    return rootComponentUuid;
   }
 
   public String getSortText() {

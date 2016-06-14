@@ -1,9 +1,9 @@
 <dataset>
 
   <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            root_id="[null]" uuid="ABCD"
+            root_uuid="ABCD" uuid="ABCD"
             description="[null]"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
+            enabled="[true]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"/>
 
   <!-- version 1.0 -->
   <snapshots id="1000" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"

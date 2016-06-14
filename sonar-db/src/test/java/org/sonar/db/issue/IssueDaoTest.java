@@ -20,7 +20,6 @@
 package org.sonar.db.issue;
 
 import java.util.List;
-import org.apache.ibatis.executor.result.DefaultResultHandler;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -50,52 +49,6 @@ public class IssueDaoTest {
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
   IssueDao underTest = dbTester.getDbClient().issueDao();
-
-  @Test
-  public void select_non_closed_issues_by_module() {
-    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_select_non_closed_issues_by_module.xml");
-
-    // 400 is a non-root module, we should find 2 issues from classes and one on itself
-    DefaultResultHandler handler = new DefaultResultHandler();
-    underTest.selectNonClosedIssuesByModule(400, handler);
-    assertThat(handler.getResultList()).hasSize(3);
-
-    IssueDto issue = (IssueDto) handler.getResultList().get(0);
-    assertThat(issue.getRuleRepo()).isNotNull();
-    assertThat(issue.getRule()).isNotNull();
-    assertThat(issue.getComponentKey()).isNotNull();
-    assertThat(issue.getProjectKey()).isEqualTo("struts");
-
-    // 399 is the root module, we should only find 1 issue on itself
-    handler = new DefaultResultHandler();
-    underTest.selectNonClosedIssuesByModule(399, handler);
-    assertThat(handler.getResultList()).hasSize(1);
-
-    issue = (IssueDto) handler.getResultList().get(0);
-    assertThat(issue.getComponentKey()).isEqualTo("struts");
-    assertThat(issue.getProjectKey()).isEqualTo("struts");
-  }
-
-  /**
-   * SONAR-5218
-   */
-  @Test
-  public void select_non_closed_issues_by_module_on_removed_project() {
-    // All issues are linked on a project that is not existing anymore
-
-    dbTester.prepareDbUnit(getClass(), "shared.xml", "should_select_non_closed_issues_by_module_on_removed_project.xml");
-
-    // 400 is a non-root module, we should find 2 issues from classes and one on itself
-    DefaultResultHandler handler = new DefaultResultHandler();
-    underTest.selectNonClosedIssuesByModule(400, handler);
-    assertThat(handler.getResultList()).hasSize(3);
-
-    IssueDto issue = (IssueDto) handler.getResultList().get(0);
-    assertThat(issue.getRuleRepo()).isNotNull();
-    assertThat(issue.getRule()).isNotNull();
-    assertThat(issue.getComponentKey()).isNotNull();
-    assertThat(issue.getProjectKey()).isNull();
-  }
 
   @Test
   public void selectByKeyOrFail() {

@@ -2,10 +2,10 @@
   <rules tags="[null]" system_tags="[null]" id="200" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
          plugin_config_key="[null]" plugin_name="squid"/>
 
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT" path="[null]" module_uuid_path=".PROJECT."/>
-  <projects id="11" scope="PRJ" qualifier="BRC" kee="struts-core" name="Struts Core" uuid="MODULE" path="struts-core" module_uuid_path=".PROJECT.MODULE."/>
-  <projects id="100" scope="FIL" qualifier="FIL" kee="struts:Action" name="Action" uuid="FILE" path="src/main/java/Action.java" module_uuid_path=".PROJECT.MODULE."/>
-  <projects id="101" scope="FIL" qualifier="FIL" kee="pom" name="pom.xml" uuid="ROOT_FILE" path="pom.xml" module_uuid_path=".PROJECT.MODULE."/>
+  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT" root_uuid="MODULE" path="[null]" module_uuid_path=".PROJECT."/>
+  <projects id="11" scope="PRJ" qualifier="BRC" kee="struts-core" name="Struts Core" uuid="MODULE" root_uuid="PROJECT" path="struts-core" module_uuid_path=".PROJECT.MODULE."/>
+  <projects id="100" scope="FIL" qualifier="FIL" kee="struts:Action" name="Action" uuid="FILE" root_uuid="MODULE" path="src/main/java/Action.java" module_uuid_path=".PROJECT.MODULE."/>
+  <projects id="101" scope="FIL" qualifier="FIL" kee="pom" name="pom.xml" uuid="ROOT_FILE" root_uuid="MODULE" path="pom.xml" module_uuid_path=".PROJECT.MODULE."/>
 
   <issues
       id="1"

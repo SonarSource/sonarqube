@@ -12,7 +12,7 @@
   <group_roles id="1" group_id="200" resource_id="300" role="user"/>
   <group_roles id="2" group_id="201" resource_id="400" role="user"/>
 
-  <projects id="300" kee="pj-w-snapshot" uuid="DEFG" module_uuid="[null]"/>
-  <projects id="400" kee="pj-wo-snapshot" uuid="EFGH" module_uuid="[null]"/>
+  <projects id="300" kee="pj-w-snapshot" uuid="DEFG" root_uuid="DEFG" module_uuid="[null]"/>
+  <projects id="400" kee="pj-wo-snapshot" uuid="EFGH" root_uuid="EFGH" module_uuid="[null]"/>
 
 </dataset>

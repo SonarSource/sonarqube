@@ -68,6 +68,7 @@ public class QProfileProjectOperationsMediumTest {
 
     project = new ComponentDto()
       .setUuid(PROJECT_UUID)
+      .setRootUuid(PROJECT_UUID)
       .setKey(PROJECT_KEY)
       .setName("SonarQube")
       .setLongName("SonarQube")
@@ -123,6 +124,7 @@ public class QProfileProjectOperationsMediumTest {
   public void remove_all_projects() {
     ComponentDto project1 = new ComponentDto()
       .setUuid("BCDE")
+      .setRootUuid("BCDE")
       .setKey("project1")
       .setName("project1")
       .setLongName("project1")
@@ -131,6 +133,7 @@ public class QProfileProjectOperationsMediumTest {
       .setEnabled(true);
     ComponentDto project2 = new ComponentDto()
       .setUuid("CDEF")
+      .setRootUuid("CDEF")
       .setKey("project2")
       .setName("project2")
       .setLongName("project2")

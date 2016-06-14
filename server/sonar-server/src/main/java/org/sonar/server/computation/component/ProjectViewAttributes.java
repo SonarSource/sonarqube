@@ -25,16 +25,10 @@ import static java.util.Objects.requireNonNull;
 
 @Immutable
 public class ProjectViewAttributes {
-  private final long projectId;
   private final String projectUuid;
 
-  public ProjectViewAttributes(long projectId, String projectUuid) {
-    this.projectId = projectId;
+  public ProjectViewAttributes(String projectUuid) {
     this.projectUuid = requireNonNull(projectUuid, "projectUuid can't be null");
-  }
-
-  public long getProjectId() {
-    return projectId;
   }
 
   public String getProjectUuid() {
@@ -44,7 +38,6 @@ public class ProjectViewAttributes {
   @Override
   public String toString() {
     return "ProjectViewAttributes{" +
-        "projectId=" + projectId +
         ", projectUuid='" + projectUuid + '\'' +
         '}';
   }

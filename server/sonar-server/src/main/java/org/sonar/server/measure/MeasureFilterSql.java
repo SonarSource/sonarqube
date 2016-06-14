@@ -96,7 +96,7 @@ class MeasureFilterSql {
 
   private String generateSql() {
     StringBuilder sb = new StringBuilder(1000);
-    sb.append("SELECT s.id, p.id, root.id, ");
+    sb.append("SELECT s.id, p.id, root.uuid, ");
     sb.append(filter.sort().column());
     sb.append(" FROM snapshots s");
     sb.append(" INNER JOIN projects p ON s.component_uuid=p.uuid ");
@@ -134,7 +134,7 @@ class MeasureFilterSql {
   private void appendResourceConditions(StringBuilder sb) {
     sb.append(" s.status='P' AND s.islast=").append(database.getDialect().getTrueSqlValue());
     if (context.getBaseSnapshot() == null) {
-      sb.append(" AND p.copy_resource_id IS NULL ");
+      sb.append(" AND p.copy_component_uuid IS NULL ");
     }
     if (!filter.getResourceQualifiers().isEmpty()) {
       sb.append(" AND s.qualifier IN ");
@@ -259,7 +259,7 @@ class MeasureFilterSql {
   static class TextSortRowProcessor extends RowProcessor {
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getString(3));
       row.setSortText(rs.getString(4));
       return row;
     }
@@ -304,7 +304,7 @@ class MeasureFilterSql {
 
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getString(3));
       double value = rs.getDouble(4);
       if (!rs.wasNull()) {
         row.setSortDouble(value);
@@ -333,7 +333,7 @@ class MeasureFilterSql {
 
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getString(3));
       row.setSortDate(rs.getTimestamp(4).getTime());
       return row;
     }
@@ -352,7 +352,7 @@ class MeasureFilterSql {
 
     @Override
     MeasureFilterRow fetch(ResultSet rs) throws SQLException {
-      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getLong(3));
+      MeasureFilterRow row = new MeasureFilterRow(rs.getLong(1), rs.getLong(2), rs.getString(3));
       row.setSortDate(rs.getLong(4));
       return row;
     }

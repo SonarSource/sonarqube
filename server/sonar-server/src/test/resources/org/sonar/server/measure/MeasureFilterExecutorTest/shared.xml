@@ -24,27 +24,28 @@
 
   <!-- java project -->
   <projects kee="java_project" long_name="Java project" scope="PRJ" qualifier="TRK" name="Java project"
-            id="1" root_id="[null]" uuid="ABCD" project_uuid="ABCD"
-            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            id="1" root_uuid="UUID_JAVA_PROJECT" uuid="UUID_JAVA_PROJECT" project_uuid="UUID_JAVA_PROJECT"
+            description="[null]" enabled="[true]" language="[null]" 
             created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo" scope="DIR" qualifier="PAC" long_name="org.sonar.foo" name="org.sonar.foo"
-            id="2" root_id="1" uuid="BCDE" project_uuid="ABCD"
-            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            id="2" root_uuid="UUID_JAVA_PROJECT" uuid="BCDE" project_uuid="UUID_JAVA_PROJECT"
+            description="[null]" enabled="[true]" language="[null]" 
             created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo.Big" scope="FIL" qualifier="CLA" long_name="org.sonar.foo.Big"
             name="Big"
-            id="3" root_id="1" uuid="CDEF" project_uuid="ABCD"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            id="3" root_uuid="UUID_JAVA_PROJECT" uuid="CDEF" project_uuid="UUID_JAVA_PROJECT"
+            description="[null]" enabled="[true]" language="java" 
             created_at="2008-12-19 00:00:00.00"/>
 
   <projects kee="java_project:org.sonar.foo.Tiny" scope="FIL" qualifier="CLA" long_name="org.sonar.foo.Tiny" name="Tiny"
-            id="4" root_id="1" uuid="DEFG" project_uuid="ABCD"
-            description="[null]" enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"
+            id="4" root_uuid="UUID_JAVA_PROJECT" uuid="DEFG" project_uuid="UUID_JAVA_PROJECT"
+            description="[null]" enabled="[true]" language="java" 
             created_at="2008-12-19 00:00:00.00"/>
 
-  <snapshots id="101" component_uuid="ABCD" root_component_uuid="ABCD" root_snapshot_id="[null]" parent_snapshot_id="[null]"
+  <snapshots id="101" component_uuid="UUID_JAVA_PROJECT" root_component_uuid="UUID_JAVA_PROJECT"
+             root_snapshot_id="[null]" parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"
@@ -53,7 +54,8 @@
              created_at="1229727600000" build_date="1229727600000"
              version="1.0" status="P" islast="[true]"/>
 
-  <snapshots id="102" component_uuid="BCDE" root_component_uuid="ABCD" root_snapshot_id="101" parent_snapshot_id="101"
+  <snapshots id="102" component_uuid="BCDE" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
+             parent_snapshot_id="101"
              scope="DIR" qualifier="PAC" path="101." depth="1"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"
@@ -62,7 +64,8 @@
              created_at="1229727600000" build_date="1229727600000"
              version="1.0" status="P" islast="[true]"/>
 
-  <snapshots id="103" component_uuid="CDEF" root_component_uuid="ABCD" root_snapshot_id="101" parent_snapshot_id="102"
+  <snapshots id="103" component_uuid="CDEF" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
+             parent_snapshot_id="102"
              scope="FIL" qualifier="CLA" path="101.102." depth="2"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"
@@ -71,7 +74,8 @@
              created_at="1229727600000" build_date="1229727600000"
              version="1.0" status="P" islast="[true]"/>
 
-  <snapshots id="104" component_uuid="DEFG" root_component_uuid="ABCD" root_snapshot_id="101" parent_snapshot_id="102"
+  <snapshots id="104" component_uuid="DEFG" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
+             parent_snapshot_id="102"
              scope="FIL" qualifier="CLA" path="101.102." depth="2"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"
@@ -133,12 +137,13 @@
 
   <!-- php project -->
   <projects kee="php_project" long_name="PHP project" scope="PRJ" qualifier="TRK" name="PHP project"
-            id="10" root_id="[null]" uuid="EFGH" project_uuid="EFGH"
-            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"
+            id="10" root_uuid="UUID_JAVA_PROJECT" uuid="UUID_PHP_PROJECT" project_uuid="UUID_PHP_PROJECT"
+            description="[null]" enabled="[true]" language="[null]" 
             created_at="2012-12-12 04:06:00.00"/>
 
 
-  <snapshots id="110" component_uuid="EFGH" root_component_uuid="EFGH" root_snapshot_id="[null]" parent_snapshot_id="[null]"
+  <snapshots id="110" component_uuid="UUID_PHP_PROJECT" root_component_uuid="UUID_PHP_PROJECT" root_snapshot_id="[null]"
+             parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"
@@ -165,15 +170,23 @@
                     alert_status="[null]" description="[null]"/>
 
 
-  <resource_index id="1" kee="java project" position="0" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
-  <resource_index id="2" kee="java projec" position="1" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
-  <resource_index id="3" kee="java proje" position="2" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
-  <resource_index id="4" kee="java proj" position="3" name_size="12" component_uuid="ABCD" root_component_uuid="ABCD" qualifier="TRK"/>
+  <resource_index id="1" kee="java project" position="0" name_size="12" component_uuid="UUID_JAVA_PROJECT"
+                  root_component_uuid="UUID_JAVA_PROJECT" qualifier="TRK"/>
+  <resource_index id="2" kee="java projec" position="1" name_size="12" component_uuid="UUID_JAVA_PROJECT"
+                  root_component_uuid="UUID_JAVA_PROJECT" qualifier="TRK"/>
+  <resource_index id="3" kee="java proje" position="2" name_size="12" component_uuid="UUID_JAVA_PROJECT"
+                  root_component_uuid="UUID_JAVA_PROJECT" qualifier="TRK"/>
+  <resource_index id="4" kee="java proj" position="3" name_size="12" component_uuid="UUID_JAVA_PROJECT"
+                  root_component_uuid="UUID_JAVA_PROJECT" qualifier="TRK"/>
   <!-- etc -->
-  <resource_index id="5" kee="php project" position="0" name_size="11" component_uuid="EFGH" root_component_uuid="EFGH" qualifier="TRK"/>
-  <resource_index id="6" kee="php projec" position="1" name_size="11" component_uuid="EFGH" root_component_uuid="EFGH" qualifier="TRK"/>
-  <resource_index id="7" kee="php proje" position="2" name_size="11" component_uuid="EFGH" root_component_uuid="EFGH" qualifier="TRK"/>
-  <resource_index id="8" kee="php proj" position="3" name_size="11" component_uuid="EFGH" root_component_uuid="EFGH" qualifier="TRK"/>
+  <resource_index id="5" kee="php project" position="0" name_size="11" component_uuid="UUID_PHP_PROJECT"
+                  root_component_uuid="UUID_PHP_PROJECT" qualifier="TRK"/>
+  <resource_index id="6" kee="php projec" position="1" name_size="11" component_uuid="UUID_PHP_PROJECT"
+                  root_component_uuid="UUID_PHP_PROJECT" qualifier="TRK"/>
+  <resource_index id="7" kee="php proje" position="2" name_size="11" component_uuid="UUID_PHP_PROJECT"
+                  root_component_uuid="UUID_PHP_PROJECT" qualifier="TRK"/>
+  <resource_index id="8" kee="php proj" position="3" name_size="11" component_uuid="UUID_PHP_PROJECT"
+                  root_component_uuid="UUID_PHP_PROJECT" qualifier="TRK"/>
   <!-- etc -->
 
 

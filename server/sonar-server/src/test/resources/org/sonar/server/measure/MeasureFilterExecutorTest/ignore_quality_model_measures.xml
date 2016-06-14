@@ -5,10 +5,11 @@
            delete_historical_data="[null]"/>
 
   <projects kee="java_project" long_name="Java project" scope="PRJ" qualifier="TRK" name="Java project"
-            id="1" root_id="[null]" uuid="ABCD"
-            description="[null]" enabled="[true]" language="[null]" copy_resource_id="[null]" person_id="[null]"/>
+            id="1" root_uuid="UUID_JAVA_PROJECT" uuid="UUID_JAVA_PROJECT"
+            description="[null]" enabled="[true]" language="[null]"/>
 
-  <snapshots id="101" component_uuid="ABCD" root_component_uuid="ABCD" root_snapshot_id="[null]" parent_snapshot_id="[null]"
+  <snapshots id="101" component_uuid="UUID_JAVA_PROJECT" root_component_uuid="UUID_JAVA_PROJECT"
+             root_snapshot_id="[null]" parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"

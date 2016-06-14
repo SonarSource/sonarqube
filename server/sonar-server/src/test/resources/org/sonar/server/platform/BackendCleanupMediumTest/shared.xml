@@ -1,8 +1,8 @@
 <dataset>
 
   <projects id="100" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
-            uuid="JKLM" project_uuid="JKLM" module_uuid="[null]" module_uuid_path="."
-            enabled="[true]" copy_resource_id="[null]" path="[null]"/>
+            uuid="JKLM" root_uuid="JKLM" project_uuid="JKLM" module_uuid="[null]" module_uuid_path="."
+            enabled="[true]" path="[null]"/>
 
   <snapshots id="100" component_uuid="JKLM" parent_snapshot_id="[null]" root_component_uuid="JKLM" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"

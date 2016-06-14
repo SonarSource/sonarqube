@@ -1,5 +1,5 @@
 <dataset>
 
-  <projects id="1" root_id="[null]" kee="ROOT_KEY" uuid="ABCD"/>
+  <projects id="1" root_uuid="ABCD" kee="ROOT_KEY" uuid="ABCD"/>
 
 </dataset>

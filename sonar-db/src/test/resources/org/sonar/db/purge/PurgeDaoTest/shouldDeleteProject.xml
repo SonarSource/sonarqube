@@ -1,10 +1,10 @@
 <dataset>
 
   <!-- root -->
-  <projects id="1" enabled="[true]" root_id="[null]"
+  <projects id="1" enabled="[true]" root_uuid="A"
             uuid="A" project_uuid="A" module_uuid="[null]" module_uuid_path=".A."
             long_name="[null]" scope="PRJ" qualifier="TRK" kee="project" name="project"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
+            description="[null]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
 
   <snapshots id="1" component_uuid="A" parent_snapshot_id="[null]" root_component_uuid="A" root_snapshot_id="[null]"
@@ -52,10 +52,10 @@
                  change_type="comment" change_data="abc"/>
 
   <!-- modules -->
-  <projects id="2" enabled="[true]" root_id="1"
+  <projects id="2" enabled="[true]" root_uuid="A"
             uuid="B" project_uuid="A" module_uuid="A" module_uuid_path=".A.B."
             long_name="[null]" scope="PRJ" qualifier="BRC" kee="module1" name="module1"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
+            description="[null]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
 
   <snapshots id="2" component_uuid="B" parent_snapshot_id="1" root_component_uuid="A" root_snapshot_id="1"
@@ -70,10 +70,10 @@
              version="[null]" path="[null]"/>
 
 
-  <projects id="3" enabled="[false]" root_id="1"
+  <projects id="3" enabled="[false]" root_uuid="A"
             uuid="C" project_uuid="A" module_uuid="A" module_uuid_path=".A.C."
             long_name="[null]" scope="PRJ" qualifier="BRC" kee="module2" name="module2"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
+            description="[null]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
 
   <snapshots id="3" component_uuid="C" parent_snapshot_id="1" root_component_uuid="A" root_snapshot_id="1"
@@ -88,10 +88,10 @@
              version="[null]" path="[null]"/>
 
   <!-- file of module 2-->
-  <projects id="4" enabled="[false]" root_id="3"
+  <projects id="4" enabled="[false]" root_uuid="C"
             uuid="D" project_uuid="A" module_uuid="C" module_uuid_path=".A.C."
             long_name="[null]" scope="FIL" qualifier="FIL" kee="module2:File.java" name="File"
-            description="[null]" language="java" copy_resource_id="[null]" person_id="[null]"
+            description="[null]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"
             authorization_updated_at="[null]"/>
 
   <snapshots id="4" component_uuid="D" parent_snapshot_id="3" root_component_uuid="A" root_snapshot_id="1"

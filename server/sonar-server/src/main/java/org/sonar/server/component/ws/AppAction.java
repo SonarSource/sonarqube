@@ -134,11 +134,11 @@ public class AppAction implements RequestHandler {
     json.prop("longName", component.longName());
     json.prop("q", component.qualifier());
 
-    ComponentDto parentProject = nullableComponentById(component.parentProjectId(), session);
+    ComponentDto parentProject = retrieveRootIfNotCurrentComponent(component, session);
     ComponentDto project = dbClient.componentDao().selectOrFailByUuid(session, component.projectUuid());
 
     // Do not display parent project if parent project and project are the same
-    boolean displayParentProject = parentProject != null && !parentProject.getId().equals(project.getId());
+    boolean displayParentProject = parentProject != null && !parentProject.uuid().equals(project.uuid());
     json.prop("subProject", displayParentProject ? parentProject.key() : null);
     json.prop("subProjectName", displayParentProject ? parentProject.longName() : null);
     json.prop("project", project.key());
@@ -188,11 +188,11 @@ public class AppAction implements RequestHandler {
   }
 
   @CheckForNull
-  private ComponentDto nullableComponentById(@Nullable Long componentId, DbSession session) {
-    if (componentId != null) {
-      return dbClient.componentDao().selectOrFailById(session, componentId);
+  private ComponentDto retrieveRootIfNotCurrentComponent(ComponentDto componentDto, DbSession session) {
+    if (componentDto.uuid().equals(componentDto.getRootUuid())) {
+      return null;
     }
-    return null;
+    return dbClient.componentDao().selectOrFailByUuid(session, componentDto.getRootUuid());
   }
 
   @CheckForNull

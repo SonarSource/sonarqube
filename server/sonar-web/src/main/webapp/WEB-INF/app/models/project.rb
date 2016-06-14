@@ -28,9 +28,9 @@ class Project < ActiveRecord::Base
   has_many :user_roles, :foreign_key => 'resource_id'
   has_many :group_roles, :foreign_key => 'resource_id'
   has_many :manual_measures, :foreign_key => 'component_uuid', :primary_key => 'uuid'
-  belongs_to :root, :class_name => 'Project', :foreign_key => 'root_id'
-  belongs_to :copy_resource, :class_name => 'Project', :foreign_key => 'copy_resource_id'
-  belongs_to :person, :class_name => 'Project', :foreign_key => 'person_id'
+  belongs_to :root, :class_name => 'Project', :foreign_key => 'root_uuid', :primary_key => 'uuid'
+  belongs_to :copy_resource, :class_name => 'Project', :foreign_key => 'copy_component_uuid', :primary_key => 'uuid'
+  belongs_to :person, :class_name => 'Project', :foreign_key => 'developer_uuid', :primary_key => 'uuid'
   has_many :authors, :foreign_key => 'person_id', :dependent => :delete_all
   has_one :index, :class_name => 'ResourceIndex', :foreign_key => 'component_uuid', :primary_key => 'uuid', :conditions => 'position=0', :select => 'kee'
   has_many :resource_index, :foreign_key => 'resource_id'
@@ -79,7 +79,7 @@ class Project < ActiveRecord::Base
   def modules
     @modules ||=
       begin
-        Project.all(:conditions => {:root_id => self.id, :scope => 'PRJ'})
+        Project.all(:conditions => ['root_uuid=? and uuid <> ? and scope=?', self.uuid, self.uuid, 'PRJ'])
       end
   end
 
@@ -178,16 +178,16 @@ class Project < ActiveRecord::Base
     nil
   end
 
-  def resource_id_for_authorization
+  def component_uuid_for_authorization
     if library?
       # no security on libraries
       nil
     elsif set?
-      self.root_id || self.id
+      self.root_uuid || self.uuid
     elsif last_snapshot
-      last_snapshot.resource_id_for_authorization
+      last_snapshot.component_uuid_for_authorization
     else
-      nil
+      self.root_uuid
     end
   end
 
@@ -217,7 +217,7 @@ class Project < ActiveRecord::Base
   end
 
   def parent_module(current_module)
-    current_module.root ? parent_module(current_module.root) : current_module
+    current_module.root.uuid = current_module.uuid ? current_module : parent_module(current_module.root)
   end
 
 end

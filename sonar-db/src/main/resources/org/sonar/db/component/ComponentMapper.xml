@@ -16,11 +16,11 @@
     p.qualifier as qualifier,
     p.scope as scope,
     p.language as language,
-    p.root_id as parentProjectId,
+    p.root_uuid as rootUuid,
     p.path as path,
     p.enabled as enabled,
-    p.copy_resource_id as copyResourceId,
-    p.person_id as developerId,
+    p.copy_component_uuid as copyComponentUuid,
+    p.developer_uuid as developerUuid,
     p.authorization_updated_at as authorizationUpdatedAt,
     p.created_at as createdAt
   </sql>
@@ -32,7 +32,7 @@
     p.kee as kee,
     p.qualifier as qualifier,
     p.scope as scope,
-    P.copy_resource_id as copyResourceId,
+    P.copy_component_uuid as copyComponentUuid,
     p.module_uuid as moduleUuid
   </sql>
 
@@ -151,7 +151,7 @@
     SELECT
     <include refid="componentColumns"/>
     FROM projects p
-    INNER JOIN projects child ON child.root_id=p.id AND child.enabled=${_true}
+    INNER JOIN projects child ON child.root_uuid=p.uuid AND child.enabled=${_true}
     <where>
       AND p.enabled=${_true}
       AND p.scope='PRJ'
@@ -248,7 +248,7 @@
     from projects p
     <where>
       AND p.enabled=${_true}
-      AND p.copy_resource_id is null
+      AND p.copy_component_uuid is null
       AND p.qualifier in
       <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
         #{qualifier}
@@ -279,7 +279,7 @@
     from projects p
     <where>
       AND p.enabled=${_true}
-      AND p.copy_resource_id is null
+      AND p.copy_component_uuid is null
       <if test="query.qualifiers!=null">
       AND p.qualifier in
         <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
@@ -373,11 +373,10 @@
           WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
         )
         OR
-        p.copy_resource_id IN (
-          SELECT p1.id
-          FROM resource_index ri, projects p1
+        p.copy_component_uuid IN (
+          SELECT ri.component_uuid
+          FROM resource_index ri
           WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
-            and p1.uuid = ri.component_uuid
         )
       )
     </if>
@@ -388,7 +387,7 @@
     from projects p
     <where>
       p.enabled=${_true}
-      AND p.copy_resource_id is null
+      AND p.copy_component_uuid is null
       AND p.qualifier in
       <foreach collection="qualifiers" open="(" close=")" item="qualifier" separator=",">
         #{qualifier}
@@ -413,7 +412,7 @@
 
   <select id="selectProjectsFromView" resultType="String">
     SELECT p.uuid FROM projects technical_projects
-    INNER JOIN projects p on p.id=technical_projects.copy_resource_id AND p.enabled=${_true}
+    INNER JOIN projects p on p.uuid=technical_projects.copy_component_uuid AND p.enabled=${_true}
     <where>
       technical_projects.enabled=${_true} AND technical_projects.project_uuid=#{projectViewUuid}
       AND technical_projects.module_uuid_path LIKE #{viewUuidLikeQuery}
@@ -454,7 +453,7 @@
     s.id is null
     and p.enabled=${_true}
     and p.qualifier=#{qualifier}
-    and p.copy_resource_id is null
+    and p.copy_component_uuid is null
     <if test="query!=null">
       and (
       UPPER(p.name) like #{query}
@@ -482,7 +481,7 @@
     where
     s2.id is null
     and p.qualifier=#{qualifier}
-    and p.copy_resource_id is null
+    and p.copy_component_uuid is null
     <if test="query!=null">
       and (
       UPPER(p.name) like #{query}
@@ -493,14 +492,14 @@
 
   <sql id="insertSql">
     INSERT INTO projects (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name,
-    qualifier, scope, language, description, root_id, path, copy_resource_id, person_id, enabled,
+    qualifier, scope, language, description, root_uuid, path, copy_component_uuid, developer_uuid, enabled,
     created_at, authorization_updated_at)
     VALUES (#{kee,jdbcType=VARCHAR}, #{deprecatedKey,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
     #{projectUuid,jdbcType=VARCHAR}, #{moduleUuid,jdbcType=VARCHAR}, #{moduleUuidPath,jdbcType=VARCHAR},
     #{name,jdbcType=VARCHAR}, #{longName,jdbcType=VARCHAR}, #{qualifier,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR},
     #{language,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
-    #{parentProjectId,jdbcType=BIGINT}, #{path,jdbcType=VARCHAR}, #{copyResourceId,jdbcType=BIGINT},
-    #{developerId,jdbcType=BIGINT},
+    #{rootUuid,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{copyComponentUuid,jdbcType=VARCHAR},
+    #{developerUuid,jdbcType=VARCHAR},
     #{enabled,jdbcType=BOOLEAN},
     #{createdAt,jdbcType=TIMESTAMP}, #{authorizationUpdatedAt,jdbcType=BIGINT})
   </sql>
@@ -526,10 +525,10 @@
     scope=#{scope,jdbcType=VARCHAR},
     language=#{language,jdbcType=VARCHAR},
     description=#{description,jdbcType=VARCHAR},
-    root_id=#{parentProjectId,jdbcType=BIGINT},
+    root_uuid=#{rootUuid,jdbcType=VARCHAR},
     path=#{path,jdbcType=VARCHAR},
-    copy_resource_id=#{copyResourceId,jdbcType=BIGINT},
-    person_id=#{developerId,jdbcType=BIGINT},
+    copy_component_uuid=#{copyComponentUuid,jdbcType=VARCHAR},
+    developer_uuid=#{developerUuid,jdbcType=VARCHAR},
     enabled=#{enabled,jdbcType=BOOLEAN},
     authorization_updated_at=#{authorizationUpdatedAt,jdbcType=BIGINT}
     WHERE uuid=#{uuid}

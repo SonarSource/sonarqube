@@ -85,9 +85,8 @@ class ProjectController < ApplicationController
   def profile
     require_parameters :id
     @project_id = Api::Utils.project_id(params[:id])
-    access_denied unless (is_admin?(@project_id) || has_role?(:profileadmin))
-    # Need to display breadcrumb
     @project = Project.by_key(@project_id)
+    access_denied unless (is_admin?(@project.uuid) || has_role?(:profileadmin))
 
     call_backend do
       @all_quality_profiles = Internal.quality_profiles.allProfiles().to_a
@@ -118,9 +117,8 @@ class ProjectController < ApplicationController
   def qualitygate
     require_parameters :id
     @project_id = Api::Utils.project_id(params[:id])
-    access_denied unless (is_admin?(@project_id) || has_role?(:gateadmin))
-    # Need to display breadcrumb
     @project = Project.by_key(@project_id)
+    access_denied unless (is_admin?(@project.uuid) || has_role?(:gateadmin))
 
     call_backend do
       @all_quality_gates = Internal.quality_gates.list().to_a

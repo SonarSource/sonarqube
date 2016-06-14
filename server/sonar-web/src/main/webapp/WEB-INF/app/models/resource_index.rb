@@ -26,9 +26,8 @@ class ResourceIndex < ActiveRecord::Base
 
   MIN_SEARCH_SIZE=2
 
-  def resource_id_for_authorization
-    # FIXME this generates a join for every resource
-    root_project.id
+  def component_uuid_for_authorization
+    root_component_uuid
   end
 
 end

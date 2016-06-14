@@ -115,7 +115,7 @@ class Api::ProjectsController < Api::ApiController
     end
 
     # this is really an advanced optimization !
-    select_columns='id,uuid,kee,name,language,long_name,scope,qualifier,root_id'
+    select_columns='id,uuid,kee,name,language,long_name,scope,qualifier,root_uuid'
     select_columns += ',description' if @show_description
 
     projects=Project.find(:all, :select => select_columns, :conditions => [conditions.join(' AND '), values], :order => 'name')

@@ -35,7 +35,7 @@ class ComponentTreeData {
   private final ComponentDto baseComponent;
   private final List<ComponentDtoWithSnapshotId> components;
   private final int componentCount;
-  private final Map<Long, ComponentDto> referenceComponentsById;
+  private final Map<String, ComponentDto> referenceComponentsByUuid;
   private final List<MetricDto> metrics;
   private final List<WsMeasures.Period> periods;
   private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
@@ -44,7 +44,7 @@ class ComponentTreeData {
     this.baseComponent = builder.baseComponent;
     this.components = builder.componentsFromDb;
     this.componentCount = builder.componentCount;
-    this.referenceComponentsById = builder.referenceComponentsById;
+    this.referenceComponentsByUuid = builder.referenceComponentsByUuid;
     this.metrics = builder.metrics;
     this.measuresByComponentUuidAndMetric = builder.measuresByComponentUuidAndMetric;
     this.periods = builder.periods;
@@ -65,8 +65,8 @@ class ComponentTreeData {
   }
 
   @CheckForNull
-  public Map<Long, ComponentDto> getReferenceComponentsById() {
-    return referenceComponentsById;
+  public Map<String, ComponentDto> getReferenceComponentsByUuid() {
+    return referenceComponentsByUuid;
   }
 
   @CheckForNull
@@ -91,7 +91,7 @@ class ComponentTreeData {
   static class Builder {
     private ComponentDto baseComponent;
     private List<ComponentDtoWithSnapshotId> componentsFromDb;
-    private Map<Long, ComponentDto> referenceComponentsById;
+    private Map<String, ComponentDto> referenceComponentsByUuid;
     private int componentCount;
     private List<MetricDto> metrics;
     private List<WsMeasures.Period> periods;
@@ -131,8 +131,8 @@ class ComponentTreeData {
       return this;
     }
 
-    public Builder setReferenceComponentsById(Map<Long, ComponentDto> referenceComponentsById) {
-      this.referenceComponentsById = referenceComponentsById;
+    public Builder setReferenceComponentsByUuid(Map<String, ComponentDto> referenceComponentsByUuid) {
+      this.referenceComponentsByUuid = referenceComponentsByUuid;
       return this;
     }
 

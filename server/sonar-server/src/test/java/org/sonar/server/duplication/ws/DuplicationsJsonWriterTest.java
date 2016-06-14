@@ -70,14 +70,14 @@ public class DuplicationsJsonWriterTest {
   @Test
   public void write_duplications() {
     String key1 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyDeleteQuery.java";
-    ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery").setParentProjectId(5L);
+    ComponentDto file1 = ComponentTesting.newFileDto(project).setId(10L).setKey(key1).setLongName("PropertyDeleteQuery").setRootUuid("uuid_5");
     String key2 = "org.codehaus.sonar:sonar-ws-client:src/main/java/org/sonar/wsclient/services/PropertyUpdateQuery.java";
-    ComponentDto file2 = ComponentTesting.newFileDto(project).setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setParentProjectId(5L);
+    ComponentDto file2 = ComponentTesting.newFileDto(project).setId(11L).setQualifier("FIL").setKey(key2).setLongName("PropertyUpdateQuery").setRootUuid("uuid_5");
 
     when(componentDao.selectByKey(session, key1)).thenReturn(Optional.of(file1));
     when(componentDao.selectByKey(session, key2)).thenReturn(Optional.of(file2));
-    when(componentDao.selectById(session, 5L)).thenReturn(Optional.of(
-      new ComponentDto().setId(5L).setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client")));
+    when(componentDao.selectByUuid(session, "uuid_5")).thenReturn(Optional.of(
+      new ComponentDto().setUuid("uuid_5").setKey("org.codehaus.sonar:sonar-ws-client").setLongName("SonarQube :: Web Service Client")));
     when(componentDao.selectByUuid(session, project.uuid())).thenReturn(Optional.of(project));
 
     List<DuplicationsParser.Block> blocks = newArrayList();
@@ -123,7 +123,7 @@ public class DuplicationsJsonWriterTest {
     verify(componentDao, times(2)).selectByKey(eq(session), anyString());
     // Verify call to dao is cached when searching for project / sub project
     verify(componentDao, times(1)).selectByUuid(eq(session), eq(project.uuid()));
-    verify(componentDao, times(1)).selectById(eq(session), eq(5L));
+    verify(componentDao, times(1)).selectByUuid(eq(session), eq("uuid_5"));
   }
 
   @Test

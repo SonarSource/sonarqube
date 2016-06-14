@@ -46,10 +46,6 @@ public final class ComponentDtoFunctions {
     return ToUuid.INSTANCE;
   }
 
-  public static Function<ComponentDto, Long> toCopyResourceId() {
-    return ToCopyResourceId.INSTANCE;
-  }
-
   private enum ToId implements Function<ComponentDto, Long> {
     INSTANCE;
 
@@ -86,12 +82,4 @@ public final class ComponentDtoFunctions {
     }
   }
 
-  private enum ToCopyResourceId implements Function<ComponentDto, Long> {
-    INSTANCE;
-
-    @Override
-    public Long apply(ComponentDto input) {
-      return input.getCopyResourceId();
-    }
-  }
 }

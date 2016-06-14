@@ -29,8 +29,6 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.ResultHandler;
-import org.apache.ibatis.session.SqlSession;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
@@ -45,16 +43,6 @@ public class IssueDao implements Dao {
 
   public IssueDao(MyBatis mybatis) {
     this.mybatis = mybatis;
-  }
-
-  public void selectNonClosedIssuesByModule(long componentId, ResultHandler handler) {
-    SqlSession session = mybatis.openSession(false);
-    try {
-      session.select("org.sonar.db.issue.IssueMapper.selectNonClosedIssuesByModule", componentId, handler);
-
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
   }
 
   public Optional<IssueDto> selectByKey(DbSession session, String key) {

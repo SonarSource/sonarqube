@@ -1,9 +1,9 @@
 <dataset>
 
   <projects id="1" uuid="ABC" project_uuid="ABC" module_uuid="[null]" module_uuid_path="."
-            root_id="[null]" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
+            root_uuid="ABC" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
             description="the description" long_name="Apache Struts"
-            enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]" path="[null]"
+            enabled="[true]" language="java" path="[null]"
             authorization_updated_at="123456789"/>
 
   <!-- no authorizations project ABC. -->

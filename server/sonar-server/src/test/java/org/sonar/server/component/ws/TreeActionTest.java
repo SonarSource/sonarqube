@@ -402,6 +402,7 @@ public class TreeActionTest {
       JsonObject componentAsJsonObject = componentAsJsonElement.getAsJsonObject();
       componentDb.insertComponentAndSnapshot(new ComponentDto()
         .setUuid(getJsonField(componentAsJsonObject, "id"))
+        .setRootUuid("root_uuid")
         .setKey(getJsonField(componentAsJsonObject, "key"))
         .setName(getJsonField(componentAsJsonObject, "name"))
         .setLanguage(getJsonField(componentAsJsonObject, "language"))

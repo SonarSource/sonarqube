@@ -304,10 +304,11 @@ public class SearchResponseFormat {
     Collection<ComponentDto> components = data.getComponents();
     if (components != null) {
       for (ComponentDto dto : components) {
+        String uuid = dto.uuid();
         Issues.Component.Builder builder = Issues.Component.newBuilder()
           .setId(dto.getId())
           .setKey(dto.key())
-          .setUuid(dto.uuid())
+          .setUuid(uuid)
           .setQualifier(dto.qualifier())
           .setName(nullToEmpty(dto.name()))
           .setLongName(nullToEmpty(dto.longName()))
@@ -320,12 +321,11 @@ public class SearchResponseFormat {
         }
 
         // On a root project, parentProjectId is null but projectId is equal to itself, which make no sense.
-        if (dto.projectUuid() != null && dto.parentProjectId() != null) {
+        if (!uuid.equals(dto.getRootUuid())) {
           ComponentDto project = data.getComponentByUuid(dto.projectUuid());
           builder.setProjectId(project.getId());
-        }
-        if (dto.parentProjectId() != null) {
-          builder.setSubProjectId(dto.parentProjectId());
+          ComponentDto subProject = data.getComponentByUuid(dto.getRootUuid());
+          builder.setSubProjectId(subProject.getId());
         }
         result.add(builder.build());
       }

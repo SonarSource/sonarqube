@@ -75,21 +75,21 @@ module NeedAuthorization
     def has_role_for_resources?(role, objects)
       return [] if objects.nil? || objects.size==0
 
-      resource_ids=[]
+      component_uuids=[]
       objects.each do |obj|
-        resource_ids<<to_resource_id(obj)
+        component_uuids<<to_component_uuid(obj)
       end
 
-      compacted_resource_ids=resource_ids.compact.uniq
-      compacted_booleans=AuthorizerFactory.authorizer.has_role_for_resources?(self, role.to_sym, compacted_resource_ids)
-      boolean_per_resource_id={}
-      compacted_resource_ids.each_with_index do |rid, index|
-        boolean_per_resource_id[rid]=compacted_booleans[index]
+      compacted_component_uuids=component_uuids.compact.uniq
+      compacted_booleans=AuthorizerFactory.authorizer.has_role_for_resources?(self, role.to_sym, compacted_component_uuids)
+      boolean_per_component_uuid={}
+      compacted_component_uuids.each_with_index do |uuid, index|
+        boolean_per_component_uuid[uuid]=compacted_booleans[index]
       end
 
-      result=Array.new(resource_ids.size)
-      resource_ids.each_with_index do |rid, index|
-        authorized=boolean_per_resource_id[rid]
+      result=Array.new(component_uuids.size)
+      component_uuids.each_with_index do |uuid, index|
+        authorized=boolean_per_component_uuid[uuid]
 
         # security is sometimes ignored (for example on libraries), so default value is true if no id to check
         authorized=true if authorized.nil?
@@ -106,13 +106,15 @@ module NeedAuthorization
     end
 
     private
-    def to_resource_id(object)
+    def to_component_uuid(object)
       if object.is_a?(Fixnum)
+        raise 'Component ID is no more supported for checking of authorisation. UUID must be used'
+      elsif object.is_a?(String)
         object
-      elsif object.respond_to?(:resource_id_for_authorization)
-        object.resource_id_for_authorization
+      elsif object.respond_to?(:component_uuid_for_authorization)
+        object.component_uuid_for_authorization
       else
-        nil
+        raise 'Specified argument with type #{object.class} can not be converted to a component uuid'
       end
     end
   end
@@ -171,19 +173,6 @@ module NeedAuthorization
 
     def select_authorized(role, objects)
       booleans=has_role?(role, objects)
-      result=[]
-      objects.each_with_index do |obj, index|
-        result<<obj if booleans[index]==true
-      end
-      result
-    end
-
-    def select_authorized(role, objects, resource_method=nil)
-      if resource_method
-        booleans=has_role?(role, objects.map{|obj| obj.send(resource_method)})
-      else
-        booleans=has_role?(role, objects)
-      end
       result=[]
       objects.each_with_index do |obj, index|
         result<<obj if booleans[index]==true

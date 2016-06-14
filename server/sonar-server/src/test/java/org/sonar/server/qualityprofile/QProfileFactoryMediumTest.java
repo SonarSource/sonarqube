@@ -336,6 +336,7 @@ public class QProfileFactoryMediumTest {
     ComponentDto project = new ComponentDto()
       .setId(1L)
       .setUuid("ABCD")
+      .setRootUuid("ABCD")
       .setKey("org.codehaus.sonar:sonar")
       .setName("SonarQube")
       .setLongName("SonarQube")

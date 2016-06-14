@@ -132,7 +132,7 @@ public class PurgeDao implements Dao {
 
   private void disableOrphanResources(final ResourceDto project, final SqlSession session, final PurgeMapper purgeMapper, final PurgeListener purgeListener) {
     final List<IdUuidPair> componentIdUuids = new ArrayList<>();
-    session.select("org.sonar.db.purge.PurgeMapper.selectComponentIdUuidsToDisable", project.getId(),
+    session.select("org.sonar.db.purge.PurgeMapper.selectComponentIdUuidsToDisable", project.getUuid(),
       resultContext -> {
         IdUuidPair componentIdUuid = (IdUuidPair) resultContext.getResultObject();
         if (componentIdUuid.getId() != null) {

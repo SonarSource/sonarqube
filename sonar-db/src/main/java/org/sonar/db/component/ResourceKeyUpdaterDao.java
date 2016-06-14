@@ -44,7 +44,7 @@ public class ResourceKeyUpdaterDao implements Dao {
     this.mybatis = mybatis;
   }
 
-  public void updateKey(long projectId, String newKey) {
+  public void updateKey(String projectUuid, String newKey) {
     DbSession session = mybatis.openSession(true);
     ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     try {
@@ -53,9 +53,9 @@ public class ResourceKeyUpdaterDao implements Dao {
       }
 
       // must SELECT first everything
-      ResourceDto project = mapper.selectProject(projectId);
+      ResourceDto project = mapper.selectProject(projectUuid);
       String projectOldKey = project.getKey();
-      List<ResourceDto> resources = mapper.selectProjectResources(projectId);
+      List<ResourceDto> resources = mapper.selectProjectResources(projectUuid);
       resources.add(project);
 
       // and then proceed with the batch UPDATE at once
@@ -67,12 +67,12 @@ public class ResourceKeyUpdaterDao implements Dao {
     }
   }
 
-  public Map<String, String> checkModuleKeysBeforeRenaming(long projectId, String stringToReplace, String replacementString) {
+  public Map<String, String> checkModuleKeysBeforeRenaming(String projectUuid, String stringToReplace, String replacementString) {
     SqlSession session = mybatis.openSession(false);
     ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     Map<String, String> result = Maps.newHashMap();
     try {
-      Set<ResourceDto> modules = collectAllModules(projectId, stringToReplace, mapper);
+      Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
       for (ResourceDto module : modules) {
         String newKey = computeNewKey(module, stringToReplace, replacementString);
         if (mapper.countResourceByKey(newKey) > 0) {
@@ -87,14 +87,14 @@ public class ResourceKeyUpdaterDao implements Dao {
     return result;
   }
 
-  public void bulkUpdateKey(DbSession session, long projectId, String stringToReplace, String replacementString) {
+  public void bulkUpdateKey(DbSession session, String projectUuid, String stringToReplace, String replacementString) {
     ResourceKeyUpdaterMapper mapper = session.getMapper(ResourceKeyUpdaterMapper.class);
     // must SELECT first everything
-    Set<ResourceDto> modules = collectAllModules(projectId, stringToReplace, mapper);
+    Set<ResourceDto> modules = collectAllModules(projectUuid, stringToReplace, mapper);
     checkNewNameOfAllModules(modules, stringToReplace, replacementString, mapper);
     Map<ResourceDto, List<ResourceDto>> allResourcesByModuleMap = Maps.newHashMap();
     for (ResourceDto module : modules) {
-      allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getId()));
+      allResourcesByModuleMap.put(module, mapper.selectProjectResources(module.getUuid()));
     }
 
     // and then proceed with the batch UPDATE at once
@@ -104,16 +104,6 @@ public class ResourceKeyUpdaterDao implements Dao {
       Collection<ResourceDto> resources = Lists.newArrayList(module);
       resources.addAll(allResourcesByModuleMap.get(module));
       runBatchUpdateForAllResources(resources, oldModuleKey, newModuleKey, mapper);
-    }
-  }
-
-  public void bulkUpdateKey(long projectId, String stringToReplace, String replacementString) {
-    DbSession session = mybatis.openSession(true);
-    try {
-      bulkUpdateKey(session, projectId, stringToReplace, replacementString);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
     }
   }
 
@@ -135,14 +125,14 @@ public class ResourceKeyUpdaterDao implements Dao {
     }
   }
 
-  private static Set<ResourceDto> collectAllModules(long projectId, String stringToReplace, ResourceKeyUpdaterMapper mapper) {
-    ResourceDto project = mapper.selectProject(projectId);
+  private static Set<ResourceDto> collectAllModules(String projectUuid, String stringToReplace, ResourceKeyUpdaterMapper mapper) {
+    ResourceDto project = mapper.selectProject(projectUuid);
     Set<ResourceDto> modules = Sets.newHashSet();
     if (project.getKey().contains(stringToReplace)) {
       modules.add(project);
     }
-    for (ResourceDto submodule : mapper.selectDescendantProjects(projectId)) {
-      modules.addAll(collectAllModules(submodule.getId(), stringToReplace, mapper));
+    for (ResourceDto submodule : mapper.selectDescendantProjects(projectUuid)) {
+      modules.addAll(collectAllModules(submodule.getUuid(), stringToReplace, mapper));
     }
     return modules;
   }

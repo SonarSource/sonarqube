@@ -162,45 +162,6 @@
     i.status &lt;&gt; 'CLOSED'
   </select>
 
-  <select id="selectNonClosedIssuesByModule" parameterType="long" resultType="Issue">
-    select
-    i.id,
-    i.kee as kee,
-    i.rule_id as ruleId,
-    i.component_uuid as componentUuid,
-    i.project_uuid as projectUuid,
-    i.severity as severity,
-    i.manual_severity as manualSeverity,
-    i.message as message,
-    i.line as line,
-    i.locations as locations,
-    i.gap as gap,
-    i.effort as effort,
-    i.status as status,
-    i.resolution as resolution,
-    i.checksum as checksum,
-    i.assignee as assignee,
-    i.author_login as authorLogin,
-    i.tags as tagsString,
-    i.issue_attributes as issueAttributes,
-    i.issue_creation_date as issueCreationTime,
-    i.issue_update_date as issueUpdateTime,
-    i.issue_close_date as issueCloseTime,
-    i.created_at as createdAt,
-    i.updated_at as updatedAt,
-    i.issue_type as type,
-    r.plugin_rule_key as ruleKey,
-    r.plugin_name as ruleRepo,
-    p.kee as componentKey,
-    root.kee as projectKey
-    from issues i
-    inner join (select p.id, p.uuid,p.kee from projects p where (p.root_id=#{id} and p.qualifier &lt;&gt; 'BRC') or
-    (p.id=#{id})) p on p.uuid=i.component_uuid
-    inner join rules r on r.id=i.rule_id
-    left outer join projects root on root.uuid=i.project_uuid
-    where i.status &lt;&gt; 'CLOSED'
-  </select>
-
   <select id="selectComponentUuidsOfOpenIssuesForProjectUuid" parameterType="string" resultType="string">
     select distinct(i.component_uuid)
     from issues i

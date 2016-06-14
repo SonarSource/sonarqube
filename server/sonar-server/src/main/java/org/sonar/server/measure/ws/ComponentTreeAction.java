@@ -216,13 +216,13 @@ public class ComponentTreeAction implements MeasuresWsAction {
       componentDtoToWsComponent(
         data.getBaseComponent(),
         data.getMeasuresByComponentUuidAndMetric().row(data.getBaseComponent().uuid()),
-        data.getReferenceComponentsById()));
+        data.getReferenceComponentsByUuid()));
 
     for (ComponentDto componentDto : data.getComponents()) {
       response.addComponents(componentDtoToWsComponent(
         componentDto,
         data.getMeasuresByComponentUuidAndMetric().row(componentDto.uuid()),
-        data.getReferenceComponentsById()));
+        data.getReferenceComponentsByUuid()));
     }
 
     if (areMetricsInResponse(request)) {

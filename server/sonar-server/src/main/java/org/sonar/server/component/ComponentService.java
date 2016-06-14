@@ -31,9 +31,9 @@ import java.util.Map;
 import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Scopes;
-import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.server.ServerSide;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
@@ -112,7 +112,7 @@ public class ComponentService {
     try {
       ComponentDto projectOrModule = getByKey(session, projectOrModuleKey);
       userSession.checkComponentUuidPermission(UserRole.ADMIN, projectOrModule.projectUuid());
-      dbClient.resourceKeyUpdaterDao().updateKey(projectOrModule.getId(), newKey);
+      dbClient.resourceKeyUpdaterDao().updateKey(projectOrModule.uuid(), newKey);
       session.commit();
 
       session.commit();
@@ -126,7 +126,7 @@ public class ComponentService {
     try {
       ComponentDto project = getByKey(projectKey);
       userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
-      return dbClient.resourceKeyUpdaterDao().checkModuleKeysBeforeRenaming(project.getId(), stringToReplace, replacementString);
+      return dbClient.resourceKeyUpdaterDao().checkModuleKeysBeforeRenaming(project.uuid(), stringToReplace, replacementString);
     } finally {
       session.close();
     }
@@ -138,7 +138,7 @@ public class ComponentService {
     try {
       ComponentDto project = getByKey(session, projectKey);
       userSession.checkComponentUuidPermission(UserRole.ADMIN, project.projectUuid());
-      dbClient.resourceKeyUpdaterDao().bulkUpdateKey(session, project.getId(), stringToReplace, replacementString);
+      dbClient.resourceKeyUpdaterDao().bulkUpdateKey(session, project.uuid(), stringToReplace, replacementString);
       session.commit();
     } finally {
       session.close();
@@ -185,6 +185,7 @@ public class ComponentService {
     String uuid = Uuids.create();
     ComponentDto component = new ComponentDto()
       .setUuid(uuid)
+      .setRootUuid(uuid)
       .setModuleUuid(null)
       .setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + uuid + ComponentDto.MODULE_UUID_PATH_SEP)
       .setProjectUuid(uuid)

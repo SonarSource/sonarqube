@@ -116,6 +116,7 @@ public class ListActionTest {
       TestFile2.dto(),
       new ComponentDto()
         .setUuid(mainFileUuid)
+        .setRootUuid(TestFile1.PROJECT_UUID)
         .setProjectUuid(TestFile1.PROJECT_UUID));
     db.getSession().commit();
 
@@ -140,6 +141,7 @@ public class ListActionTest {
       TestFile2.dto(),
       new ComponentDto()
         .setUuid(sourceFileUuid)
+        .setRootUuid(TestFile1.PROJECT_UUID)
         .setKey(sourceFileKey)
         .setProjectUuid(TestFile1.PROJECT_UUID));
     db.getSession().commit();
@@ -192,7 +194,7 @@ public class ListActionTest {
   public void fail_when_no_sufficient_privilege_on_main_file_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     String mainFileUuid = "MAIN-FILE-UUID";
-    dbClient.componentDao().insert(db.getSession(), new ComponentDto().setUuid(mainFileUuid).setProjectUuid(TestFile1.PROJECT_UUID));
+    dbClient.componentDao().insert(db.getSession(), new ComponentDto().setUuid(mainFileUuid).setRootUuid(TestFile1.PROJECT_UUID).setProjectUuid(TestFile1.PROJECT_UUID));
     db.getSession().commit();
 
     ws.newGetRequest("api/tests", "list")
@@ -227,6 +229,7 @@ public class ListActionTest {
     public static ComponentDto dto() {
       return new ComponentDto()
         .setUuid(TestFile1.FILE_UUID)
+        .setRootUuid(TestFile1.PROJECT_UUID)
         .setLongName(TestFile1.LONG_NAME)
         .setProjectUuid(TestFile1.PROJECT_UUID)
         .setKey(TestFile1.KEY);
@@ -266,6 +269,7 @@ public class ListActionTest {
     public static ComponentDto dto() {
       return new ComponentDto()
         .setUuid(TestFile2.FILE_UUID)
+        .setRootUuid(TestFile2.PROJECT_UUID)
         .setLongName(TestFile2.LONG_NAME)
         .setProjectUuid(TestFile2.PROJECT_UUID)
         .setKey(TestFile2.KEY);

@@ -10,7 +10,7 @@
     login="simon"
     />
 
-  <projects id="42" uuid="PROJECT_A" kee="org.apache:struts"/>
+  <projects id="42" uuid="PROJECT_A" root_uuid="PROJECT_A" kee="org.apache:struts"/>
 
   <!-- global subscription -->
   <properties

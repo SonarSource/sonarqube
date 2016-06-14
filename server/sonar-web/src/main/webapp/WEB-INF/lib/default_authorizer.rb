@@ -25,16 +25,16 @@ class DefaultAuthorizer
     global_roles(user).include?(role)
   end
 
-  def has_role_for_resources?(user, role, resource_ids)
-    return [] if resource_ids.empty?
+  def has_role_for_resources?(user, role, component_uuids)
+    return [] if component_uuids.empty?
 
-    compacted_resource_ids=resource_ids.compact
+    compacted_component_uuids=component_uuids.compact
     group_ids=user.groups.map(&:id)
 
     # Oracle is limited to 1000 elements in clause "IN"
     page_size=999
-    page_count=(compacted_resource_ids.size/page_size)
-    page_count+=1 if (compacted_resource_ids.size % page_size)>0
+    page_count=(compacted_component_uuids.size/page_size)
+    page_count+=1 if (compacted_component_uuids.size % page_size)>0
 
     sanitized_role = ActiveRecord::Base.connection.quote_string(role.to_s)
 
@@ -42,9 +42,9 @@ class DefaultAuthorizer
     if group_ids.empty?
       # Some databases do not support empty IN
       page_count.times do |page_index|
-        page_rids=compacted_resource_ids[page_index*page_size...(page_index+1)*page_size]
+        page_component_uuids=compacted_component_uuids[page_index*page_size...(page_index+1)*page_size]
         group_roles.concat(
-          ActiveRecord::Base.connection.execute("SELECT resource_id FROM group_roles WHERE role='#{sanitized_role}' and group_id is null and resource_id in (#{page_rids.join(',')})")
+          ActiveRecord::Base.connection.execute("SELECT p.uuid FROM group_roles gr INNER JOIN projects p ON p.id=gr.resource_id WHERE gr.role='#{sanitized_role}' and gr.group_id is null and p.uuid in (#{page_component_uuids.map{ |u| "'#{u}'" }.join(',')})")
         )
       end
     else
@@ -53,11 +53,11 @@ class DefaultAuthorizer
       gr_page_count+=1 if (compacted_group_ids.size % page_size)>0
 
       page_count.times do |page_index|
-        page_rids=compacted_resource_ids[page_index*page_size...(page_index+1)*page_size]
+        page_component_uuids=compacted_component_uuids[page_index*page_size...(page_index+1)*page_size]
         gr_page_count.times do |gr_page_index|
           page_grids=compacted_group_ids[gr_page_index*page_size...(gr_page_index+1)*page_size]
           group_roles.concat(
-            ActiveRecord::Base.connection.execute("SELECT resource_id FROM group_roles WHERE role='#{sanitized_role}' and (group_id is null or group_id in(#{page_grids.join(',')})) and resource_id in (#{page_rids.join(',')})")
+            ActiveRecord::Base.connection.execute("SELECT p.uuid FROM group_roles gr INNER JOIN projects p ON p.id=gr.resource_id WHERE gr.role='#{sanitized_role}' and (gr.group_id is null or gr.group_id in(#{page_grids.join(',')})) and p.uuid in (#{page_component_uuids.map{ |u| "'#{u}'" }.join(',')})")
           )
         end
       end
@@ -66,21 +66,21 @@ class DefaultAuthorizer
     user_roles=[]
     if user.id
       page_count.times do |page_index|
-        page_rids=compacted_resource_ids[page_index*page_size...(page_index+1)*page_size]
+        page_component_uuids=compacted_component_uuids[page_index*page_size...(page_index+1)*page_size]
         user_roles.concat(
-          ActiveRecord::Base.connection.execute("SELECT resource_id FROM user_roles WHERE role='#{sanitized_role}' and user_id=#{user.id} and resource_id in (#{page_rids.join(',')})")
+          ActiveRecord::Base.connection.execute("SELECT p.uuid FROM user_roles ur INNER JOIN projects p ON p.id=ur.resource_id WHERE ur.role='#{sanitized_role}' and ur.user_id=#{user.id} and p.uuid in (#{page_component_uuids.map{ |u| "'#{u}'" }.join(',')})")
         )
       end
     end
 
-    authorized_resource_ids={}
+    authorized_component_uuids={}
     (group_roles.concat(user_roles)).each do |x|
-      authorized_resource_ids[x['resource_id'].to_i]=true
+      authorized_component_uuids[x['uuid']]=true
     end
 
-    result=Array.new(resource_ids.size)
-    resource_ids.each_with_index do |rid,index|
-      result[index]=((authorized_resource_ids[rid]) || false)
+    result=Array.new(component_uuids.size)
+    component_uuids.each_with_index do |uuid,index|
+      result[index]=((authorized_component_uuids[uuid]) || false)
     end
     result
   end

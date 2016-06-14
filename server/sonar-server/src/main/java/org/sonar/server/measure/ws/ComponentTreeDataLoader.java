@@ -24,6 +24,7 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.base.Predicate;
 import com.google.common.base.Predicates;
+import com.google.common.collect.FluentIterable;
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
@@ -121,7 +122,7 @@ public class ComponentTreeDataLoader {
       components = sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
       int componentCount = computeComponentCount(componentDtosAndTotal.total, components, componentWithMeasuresOnly(wsRequest));
       components = paginateComponents(components, wsRequest);
-      Map<Long, ComponentDto> referenceComponentsById = searchReferenceComponentsById(dbSession, components);
+      Map<String, ComponentDto> referenceComponentsById = searchReferenceComponentsById(dbSession, components);
 
       return ComponentTreeData.builder()
         .setBaseComponent(baseComponent)
@@ -130,7 +131,7 @@ public class ComponentTreeDataLoader {
         .setMeasuresByComponentUuidAndMetric(measuresByComponentUuidAndMetric)
         .setMetrics(metrics)
         .setPeriods(periods)
-        .setReferenceComponentsById(referenceComponentsById)
+        .setReferenceComponentsByUuid(referenceComponentsById)
         .build();
     } finally {
       dbClient.closeSession(dbSession);
@@ -150,22 +151,17 @@ public class ComponentTreeDataLoader {
     return componentFinder.getByUuidOrKey(dbSession, wsRequest.getDeveloperId(), wsRequest.getDeveloperKey(), DEVELOPER_ID_AND_KEY).getId();
   }
 
-  private Map<Long, ComponentDto> searchReferenceComponentsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
-    List<Long> referenceComponentIds = from(components)
-      .transform(ComponentDtoWithSnapshotIdToCopyResourceIdFunction.INSTANCE)
-      .filter(Predicates.<Long>notNull())
+  private Map<String, ComponentDto> searchReferenceComponentsById(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
+    List<String> referenceComponentUUids = from(components)
+      .transform(ComponentDto::getCopyResourceUuid)
+      .filter(Predicates.<String>notNull())
       .toList();
-    if (referenceComponentIds.isEmpty()) {
+    if (referenceComponentUUids.isEmpty()) {
       return emptyMap();
     }
 
-    List<ComponentDto> referenceComponents = dbClient.componentDao().selectByIds(dbSession, referenceComponentIds);
-    Map<Long, ComponentDto> referenceComponentUuidsById = new HashMap<>();
-    for (ComponentDto referenceComponent : referenceComponents) {
-      referenceComponentUuidsById.put(referenceComponent.getId(), referenceComponent);
-    }
-
-    return referenceComponentUuidsById;
+    return FluentIterable.from(dbClient.componentDao().selectByUuids(dbSession, referenceComponentUUids))
+      .uniqueIndex(ComponentDto::uuid);
   }
 
   private ComponentDtosAndTotal searchComponents(DbSession dbSession, ComponentTreeQuery dbQuery, ComponentTreeWsRequest wsRequest) {
@@ -406,15 +402,6 @@ public class ComponentTreeDataLoader {
     @Override
     public boolean apply(@Nonnull String input) {
       return !input.equals(METRIC_SORT) && !input.equals(METRIC_PERIOD_SORT);
-    }
-  }
-
-  private enum ComponentDtoWithSnapshotIdToCopyResourceIdFunction implements Function<ComponentDtoWithSnapshotId, Long> {
-    INSTANCE;
-
-    @Override
-    public Long apply(@Nonnull ComponentDtoWithSnapshotId input) {
-      return input.getCopyResourceId();
     }
   }
 

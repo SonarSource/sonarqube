@@ -72,9 +72,9 @@
     not exists(select e.id from events e where e.snapshot_id=s.id)
   </select>
 
-  <select id="selectComponentIdUuidsToDisable" resultType="org.sonar.db.purge.IdUuidPair" parameterType="long">
+  <select id="selectComponentIdUuidsToDisable" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
     select p.id, p.uuid from projects p
-    where (p.id=#{id} or p.root_id=#{id}) and p.enabled=${_true}
+    where p.root_uuid=#{uuid} and p.enabled=${_true}
     and not exists(select s.component_uuid from snapshots s where s.islast=${_true} and s.component_uuid=p.uuid)
   </select>
 
