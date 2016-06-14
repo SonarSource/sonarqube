@@ -42,4 +42,12 @@ public class PermissionTemplatesPageTest {
     ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
   }
+
+  @Test
+  public void should_manage_project_creators() throws Exception {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("should_manage_project_creators",
+      "/authorisation/PermissionTemplatesPageTest/should_manage_project_creators.html"
+    ).build();
+    new SeleneseTest(selenese).runOn(orchestrator);
+  }
 }

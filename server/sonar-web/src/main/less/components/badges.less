@@ -37,7 +37,7 @@
 
   &:empty { display: none; }
 
-  &:hover, &:focus, &:active { color: @white; }
+  a&:hover, a&:focus, a&:active { color: @white; }
 
   a& { .link-no-underline; }
 
@@ -73,4 +73,12 @@
 .badge-danger,
 .badge-error {
   background-color: @red
+}
+
+.badge-focus {
+  border: 1px solid #faebcc;
+  border-radius: 3px;
+  background-color: #fcf8e3;
+  color: #8a6d3b;
+  font-weight: 400;
 }

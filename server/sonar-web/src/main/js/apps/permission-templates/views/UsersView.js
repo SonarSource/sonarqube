@@ -17,16 +17,41 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import _ from 'underscore';
 import Modal from '../../../components/common/modals';
 import Template from '../templates/permission-templates-users.hbs';
 import '../../../components/SelectList';
+import {
+    addProjectCreatorToTemplate,
+    removeProjectCreatorFromTemplate
+} from '../../../api/permissions';
 
 export default Modal.extend({
   template: Template,
 
+  events () {
+    return {
+      ...Modal.prototype.events.apply(this, arguments),
+      'change #grant-to-project-creators': 'onCheckboxChange'
+    };
+  },
+
+  onCheckboxChange() {
+    const checked = this.$('#grant-to-project-creators').is(':checked');
+    if (checked) {
+      addProjectCreatorToTemplate(
+          this.options.permissionTemplate.name,
+          this.options.permission.key);
+    } else {
+      removeProjectCreatorFromTemplate(
+          this.options.permissionTemplate.name,
+          this.options.permission.key);
+    }
+  },
+
   onRender () {
     Modal.prototype.onRender.apply(this, arguments);
+    this.$('[data-toggle="tooltip"]')
+        .tooltip({ container: 'body', placement: 'bottom' });
     const searchUrl = window.baseUrl + '/api/permissions/template_users?ps=100&permission=' +
         this.options.permission.key + '&templateId=' + this.options.permissionTemplate.id;
     new window.SelectList({
@@ -58,13 +83,15 @@ export default Modal.extend({
     if (this.options.refresh) {
       this.options.refresh();
     }
+    this.$('[data-toggle="tooltip"]').tooltip('destroy');
     Modal.prototype.onDestroy.apply(this, arguments);
   },
 
   serializeData () {
-    return _.extend(Modal.prototype.serializeData.apply(this, arguments), {
-      permissionName: this.options.permission.name,
+    return {
+      ...Modal.prototype.serializeData.apply(this, arguments),
+      permission: this.options.permission,
       permissionTemplateName: this.options.permissionTemplate.name
-    });
+    };
   }
 });

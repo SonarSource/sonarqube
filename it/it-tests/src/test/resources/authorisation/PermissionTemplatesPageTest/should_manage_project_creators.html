@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head profile="http://selenium-ide.openqa.org/profiles/test-case">
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <title>should_manage_project_creators</title>
+</head>
+<body>
+<table cellpadding="1" cellspacing="1" border="1">
+  <tbody>
+  <tr>
+	<td>open</td>
+	<td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/sessions/new</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>name=commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/permission_templates</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=td[data-permission=&quot;user&quot;]</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=td[data-permission=&quot;user&quot;] .js-update-users</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=#grant-to-project-creators</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#grant-to-project-creators:not(:checked)</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#grant-to-project-creators</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=.js-modal-close</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=td[data-permission=&quot;user&quot;] .js-project-creators</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=td[data-permission=&quot;user&quot;] .js-update-users</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementPresent</td>
+	<td>css=#grant-to-project-creators</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>css=#grant-to-project-creators:checked</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=#grant-to-project-creators</td>
+	<td></td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>css=.js-modal-close</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForElementNotPresent</td>
+	<td>css=td[data-permission=&quot;user&quot;] .js-project-creators</td>
+	<td></td>
+</tr>
+</tbody>
+</table>
+</body>
+</html>

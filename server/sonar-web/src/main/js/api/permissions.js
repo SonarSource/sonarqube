@@ -148,3 +148,17 @@ export function bulkApplyTemplateToProject (options) {
   const url = window.baseUrl + '/api/permissions/bulk_apply_template';
   return request(_.extend({ type: 'POST', url }, options));
 }
+
+export function addProjectCreatorToTemplate (templateName, permission) {
+  const url = window.baseUrl +
+      '/api/permissions/add_project_creator_to_template';
+  const data = { templateName, permission };
+  return post(url, data);
+}
+
+export function removeProjectCreatorFromTemplate (templateName, permission) {
+  const url = window.baseUrl +
+      '/api/permissions/remove_project_creator_from_template';
+  const data = { templateName, permission };
+  return post(url, data);
+}

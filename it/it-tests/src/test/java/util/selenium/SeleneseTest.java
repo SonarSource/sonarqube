@@ -162,6 +162,9 @@ public class SeleneseTest {
       case "waitForElementPresent":
         waitForElementPresent(param1, param2);
         return this;
+      case "waitForElementNotPresent":
+        waitForElementNotPresent(param1, param2);
+        return this;
       case "waitForVisible":
         waitForVisible(param1);
         return this;
@@ -385,6 +388,14 @@ public class SeleneseTest {
       find(selector).should().exist();
     } else {
       find(selector).withText(text).should().exist();
+    }
+  }
+
+  private void waitForElementNotPresent(String selector, String text) {
+    if (Strings.isNullOrEmpty(text)) {
+      find(selector).should().not().exist();
+    } else {
+      find(selector).withText(text).should().not().exist();
     }
   }
 

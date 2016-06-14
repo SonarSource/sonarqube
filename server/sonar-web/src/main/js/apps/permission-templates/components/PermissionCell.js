@@ -19,6 +19,7 @@
  */
 import React from 'react';
 import { PermissionType, CallbackType } from '../propTypes';
+import { translate } from '../../../helpers/l10n';
 
 export default class PermissionCell extends React.Component {
   static propTypes = {
@@ -56,7 +57,7 @@ export default class PermissionCell extends React.Component {
                 <td className="spacer-left">
                   <a
                       onClick={this.handleShowUsers.bind(this)}
-                      className="icon-bullet-list"
+                      className="icon-bullet-list js-update-users"
                       title="Update Users"
                       data-toggle="tooltip"
                       href="#"/>
@@ -72,7 +73,7 @@ export default class PermissionCell extends React.Component {
                 <td className="spacer-left">
                   <a
                       onClick={this.handleShowGroups.bind(this)}
-                      className="icon-bullet-list"
+                      className="icon-bullet-list js-update-groups"
                       title="Update Users"
                       data-toggle="tooltip"
                       href="#"/>
@@ -80,6 +81,16 @@ export default class PermissionCell extends React.Component {
               </tr>
             </tbody>
           </table>
+
+          {p.withProjectCreator && (
+              <div className="spacer-top">
+                <span className="badge badge-focus js-project-creators"
+                      title={translate('permission_templates.project_creators.explanation')}
+                      data-toggle="tooltip">
+                  {translate('permission_templates.project_creators')}
+                </span>
+              </div>
+          )}
         </td>
     );
   }
