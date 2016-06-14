@@ -333,9 +333,9 @@ public class DefaultIndex extends SonarIndex {
       List<String> dirs;
       ProjectDefinition projectDef = projectTree.getProjectDefinition(getProject());
       if (isTest) {
-        dirs = projectDef.getTestDirs();
+        dirs = projectDef.tests();
       } else {
-        dirs = projectDef.getSourceDirs();
+        dirs = projectDef.sources();
       }
       for (String src : dirs) {
         java.io.File dirOrFile = pathResolver.relativeFile(projectDef.getBaseDir(), src);

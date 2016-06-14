@@ -19,34 +19,31 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.batch.fs.InputFile.Status;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.annotations.VisibleForTesting;
 import com.google.common.base.Function;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-
 import java.io.File;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.FilePredicate;
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
 import org.sonar.api.scan.filesystem.FileQuery;
 import org.sonar.api.scan.filesystem.ModuleFileSystem;
 import org.sonar.api.utils.MessageException;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
 /**
  * @since 3.5
@@ -60,7 +57,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
   private File buildDir;
   private List<File> sourceDirsOrFiles = Lists.newArrayList();
   private List<File> testDirsOrFiles = Lists.newArrayList();
-  private List<File> binaryDirs = Lists.newArrayList();
   private ComponentIndexer componentIndexer;
   private boolean initialized;
 
@@ -87,7 +83,6 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
     this.buildDir = initializer.buildDir();
     this.sourceDirsOrFiles = initializer.sources();
     this.testDirsOrFiles = initializer.tests();
-    this.binaryDirs = initializer.binaryDirs();
 
     // filter the files sensors have access to
     if (!mode.scanAllFiles()) {
@@ -139,7 +134,7 @@ public class DefaultModuleFileSystem extends DefaultFileSystem implements Module
 
   @Override
   public List<File> binaryDirs() {
-    return binaryDirs;
+    return Collections.emptyList();
   }
 
   @Override

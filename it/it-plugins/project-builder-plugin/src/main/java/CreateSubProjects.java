@@ -1,3 +1,4 @@
+
 /*
  * SonarQube
  * Copyright (C) 2009-2016 SonarSource SA
@@ -17,12 +18,11 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+import java.io.File;
 import org.sonar.api.batch.bootstrap.ProjectBuilder;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.bootstrap.ProjectReactor;
 import org.sonar.api.config.Settings;
-
-import java.io.File;
 
 /**
  * This plugin relates to projects/project-builder sample
@@ -58,7 +58,7 @@ public final class CreateSubProjects extends ProjectBuilder {
     subProject.setKey("com.sonarsource.it.projects.batch:project-builder-module-a");
     subProject.setVersion(root.getVersion());
     subProject.setName("Module A");
-    subProject.setSourceDirs("src");
+    subProject.addSources("src");
     root.addSubProject(subProject);
     return subProject;
   }
@@ -70,7 +70,7 @@ public final class CreateSubProjects extends ProjectBuilder {
     subProject.setKey("com.sonarsource.it.projects.batch:project-builder-module-b");
     subProject.setVersion(root.getVersion());
     subProject.setName("Module B");
-    subProject.addSourceFiles("src/HelloB.java");
+    subProject.addSources("src/HelloB.java");
     root.addSubProject(subProject);
     return subProject;
   }

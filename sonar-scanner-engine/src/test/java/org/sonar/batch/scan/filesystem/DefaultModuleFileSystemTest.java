@@ -19,11 +19,12 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.batch.fs.InputFile.Status;
-
-import org.junit.Before;
-import org.sonar.batch.analysis.DefaultAnalysisMode;
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.Charset;
+import java.util.Arrays;
+import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -31,14 +32,11 @@ import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
 import org.sonar.api.CoreProperties;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.config.Settings;
 import org.sonar.api.resources.Project;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.charset.Charset;
-import java.util.Arrays;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
@@ -146,7 +144,6 @@ public class DefaultModuleFileSystemTest {
     when(initializer.baseDir()).thenReturn(basedir);
     when(initializer.buildDir()).thenReturn(buildDir);
     when(initializer.workingDir()).thenReturn(workingDir);
-    when(initializer.binaryDirs()).thenReturn(Arrays.asList(new File(basedir, "target/classes")));
     File javaSrc = new File(basedir, "src/main/java");
     javaSrc.mkdirs();
     File groovySrc = new File(basedir, "src/main/groovy");
@@ -164,7 +161,6 @@ public class DefaultModuleFileSystemTest {
     assertThat(fs.buildDir().getCanonicalPath()).isEqualTo(buildDir.getCanonicalPath());
     assertThat(fs.sourceDirs()).hasSize(2);
     assertThat(fs.testDirs()).hasSize(1);
-    assertThat(fs.binaryDirs()).hasSize(1);
   }
 
   @Test

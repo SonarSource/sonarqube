@@ -50,7 +50,6 @@ public class FileSystemLogger {
     logDir(logger, "Working dir: ", fs.workDir());
     logPaths(logger, "Source paths: ", fs.baseDir(), fs.sources());
     logPaths(logger, "Test paths: ", fs.baseDir(), fs.tests());
-    logPaths(logger, "Binary dirs: ", fs.baseDir(), fs.binaryDirs());
     logEncoding(logger, fs.encoding());
   }
 
