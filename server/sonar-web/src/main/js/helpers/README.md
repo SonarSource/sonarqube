@@ -18,7 +18,7 @@ window.sonarqube.appStarted.then(function () {
 ```
 
 `window.sonarqube.appStarted` returns a `Promise` telling you when the
-application is stated and all the runtime libraries and hooks are installed.
+application is started and all the runtime libraries and hooks are installed.
 
 `window.SonarRequest` contains all the helper methods to do an API requests.
 
@@ -45,7 +45,7 @@ Send a GET request, get a response, parse it as JSON.
 Send a POST request, get a response, parse it as JSON.
 
 #### `window.SonarRequest.post(url: string[, data: object]): Promise`
-Send a POST request, ignore the response.
+Send a POST request, ignore the response content.
 
 ### Important to Know
 
