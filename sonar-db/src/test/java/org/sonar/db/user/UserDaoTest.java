@@ -19,9 +19,18 @@
  */
 package org.sonar.db.user;
 
+import static java.util.Arrays.asList;
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.user.GroupMembershipQuery.IN;
+import static org.sonar.db.user.GroupMembershipQuery.builder;
+import static org.sonar.db.user.UserTesting.newUserDto;
+
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import org.junit.Before;
 import org.junit.Rule;
@@ -42,16 +51,6 @@ import org.sonar.db.measure.MeasureFilterDto;
 import org.sonar.db.measure.MeasureFilterFavouriteDto;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.property.PropertyQuery;
-
-import static java.util.Arrays.asList;
-import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
-import static org.sonar.db.user.GroupMembershipQuery.builder;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserDaoTest {
 
@@ -212,8 +211,6 @@ public class UserDaoTest {
       .setExternalIdentity("johngithub")
       .setExternalIdentityProvider("github")
       .setLocal(true)
-      .setRememberToken("1234")
-      .setRememberTokenExpiresAt(new Date())
       .setCreatedAt(date)
       .setUpdatedAt(date);
     underTest.insert(db.getSession(), userDto);
@@ -232,8 +229,6 @@ public class UserDaoTest {
     assertThat(user.getExternalIdentity()).isEqualTo("johngithub");
     assertThat(user.getExternalIdentityProvider()).isEqualTo("github");
     assertThat(user.isLocal()).isTrue();
-    assertThat(user.getRememberToken()).isEqualTo("1234");
-    assertThat(user.getRememberTokenExpiresAt()).isNotNull();
     assertThat(user.getCreatedAt()).isEqualTo(date);
     assertThat(user.getUpdatedAt()).isEqualTo(date);
   }
@@ -312,8 +307,6 @@ public class UserDaoTest {
     assertThat(userReloaded.getCryptedPassword()).isNull();
     assertThat(userReloaded.getExternalIdentity()).isNull();
     assertThat(userReloaded.getExternalIdentityProvider()).isNull();
-    assertThat(userReloaded.getRememberToken()).isNull();
-    assertThat(userReloaded.getRememberTokenExpiresAt()).isNull();
     assertThat(userReloaded.getUpdatedAt()).isEqualTo(NOW);
 
     assertThat(underTest.selectUserById(session, otherUser.getId())).isNotNull();

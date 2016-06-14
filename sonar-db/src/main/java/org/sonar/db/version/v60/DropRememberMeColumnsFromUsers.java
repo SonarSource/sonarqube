@@ -17,28 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-require('script!./third-party/jquery-ui.js');
-require('script!./third-party/select2.js');
-require('script!./third-party/keymaster.js');
-require('script!./third-party/bootstrap/tooltip.js');
-require('script!./third-party/bootstrap/dropdown.js');
-require('script!./select2-jquery-ui-fix.js');
-require('script!./inputs.js');
-require('script!./jquery-isolated-scroll.js');
-require('script!./application.js');
-var request = require('../helpers/request');
+package org.sonar.db.version.v60;
 
-window.$j = jQuery.noConflict();
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.DropColumnsBuilder;
 
-jQuery(function () {
-  jQuery('.open-modal').modal();
-});
+public class DropRememberMeColumnsFromUsers extends DdlChange {
 
-jQuery.ajaxSetup({
-  beforeSend: function (jqXHR) {
-    jqXHR.setRequestHeader(request.getCSRFTokenName(), request.getCSRFTokenValue());
+  private static final String TABLE_USERS = "users";
+
+  public DropRememberMeColumnsFromUsers(Database db) {
+    super(db);
   }
-});
 
-window.sonarqube = {};
-window.sonarqube.el = '#content';
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new DropColumnsBuilder(getDialect(), TABLE_USERS, "remember_token", "remember_token_expires_at").build());
+  }
+
+}

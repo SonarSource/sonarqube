@@ -19,6 +19,13 @@
  */
 package org.sonar.server.authentication;
 
+import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -30,14 +37,7 @@ import org.mockito.ArgumentCaptor;
 import org.sonar.api.platform.Server;
 import org.sonar.server.exceptions.UnauthorizedException;
 
-import static org.apache.commons.codec.digest.DigestUtils.sha1Hex;
-import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
-public class CsrfVerifierTest {
+public class OAuthCsrfVerifierTest {
 
   @Rule
   public ExpectedException thrown = ExpectedException.none();
@@ -48,7 +48,7 @@ public class CsrfVerifierTest {
   HttpServletResponse response = mock(HttpServletResponse.class);
   HttpServletRequest request = mock(HttpServletRequest.class);
 
-  CsrfVerifier underTest = new CsrfVerifier(server);
+  OAuthCsrfVerifier underTest = new OAuthCsrfVerifier(server);
 
   @Before
   public void setUp() throws Exception {

@@ -42,6 +42,11 @@
       <param-name>addsHtmlToPathInfo</param-name>
       <param-value>false</param-value>
     </init-param>
+    <!--Do not reset unhandled response in order to be able to add cookie in java servlet -->
+    <init-param>
+      <param-name>resetUnhandledResponse</param-name>
+      <param-value>false</param-value>
+    </init-param>
   </filter>
   <filter>
     <filter-name>SecurityFilter</filter-name>

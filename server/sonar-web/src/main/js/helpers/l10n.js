@@ -17,8 +17,8 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import { stringify } from 'querystring';
 import moment from 'moment';
+import { request } from './request';
 
 let messages = {};
 
@@ -41,17 +41,20 @@ function getCurrentLocale () {
 }
 
 function makeRequest (params) {
-  const url = `${window.baseUrl}/api/l10n/index?${stringify(params)}`;
+  const url = window.baseUrl + '/api/l10n/index';
 
-  return fetch(url, { credentials: 'same-origin' }).then(response => {
-    if (response.status === 304) {
-      return JSON.parse(localStorage.getItem('l10n.bundle'));
-    } else if (response.status === 200) {
-      return response.json();
-    } else {
-      throw new Error(response.status);
-    }
-  });
+  return request(url)
+      .setData(params)
+      .submit()
+      .then(response => {
+        if (response.status === 304) {
+          return JSON.parse(localStorage.getItem('l10n.bundle'));
+        } else if (response.status === 200) {
+          return response.json();
+        } else {
+          throw new Error(response.status);
+        }
+      });
 }
 
 export function requestMessages () {

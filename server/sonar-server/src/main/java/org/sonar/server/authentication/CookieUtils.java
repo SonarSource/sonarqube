@@ -17,28 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-require('script!./third-party/jquery-ui.js');
-require('script!./third-party/select2.js');
-require('script!./third-party/keymaster.js');
-require('script!./third-party/bootstrap/tooltip.js');
-require('script!./third-party/bootstrap/dropdown.js');
-require('script!./select2-jquery-ui-fix.js');
-require('script!./inputs.js');
-require('script!./jquery-isolated-scroll.js');
-require('script!./application.js');
-var request = require('../helpers/request');
 
-window.$j = jQuery.noConflict();
+package org.sonar.server.authentication;
 
-jQuery(function () {
-  jQuery('.open-modal').modal();
-});
+import java.util.Arrays;
+import java.util.Optional;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
-jQuery.ajaxSetup({
-  beforeSend: function (jqXHR) {
-    jqXHR.setRequestHeader(request.getCSRFTokenName(), request.getCSRFTokenValue());
+public class CookieUtils {
+
+  private CookieUtils() {
+    // Only static methods
   }
-});
 
-window.sonarqube = {};
-window.sonarqube.el = '#content';
+  public static Optional<Cookie> findCookie(String cookieName, HttpServletRequest request) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return Optional.empty();
+    }
+    return Arrays.stream(cookies)
+      .filter(cookie -> cookieName.equals(cookie.getName()))
+      .findFirst();
+  }
+}

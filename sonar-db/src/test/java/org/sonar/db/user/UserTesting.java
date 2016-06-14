@@ -19,10 +19,7 @@
  */
 package org.sonar.db.user;
 
-import java.util.Date;
-
 import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
-import static org.apache.commons.lang.math.RandomUtils.nextInt;
 import static org.apache.commons.lang.math.RandomUtils.nextLong;
 
 public class UserTesting {
@@ -41,8 +38,6 @@ public class UserTesting {
       .setScmAccounts(randomAlphanumeric(40))
       .setExternalIdentity(login)
       .setExternalIdentityProvider("sonarqube")
-      .setRememberToken(randomAlphanumeric(500))
-      .setRememberTokenExpiresAt(new Date((long)nextInt()))
       .setSalt(randomAlphanumeric(40))
       .setCryptedPassword(randomAlphanumeric(40))
       .setCreatedAt(nextLong())
@@ -59,8 +54,6 @@ public class UserTesting {
       .setScmAccounts(randomAlphanumeric(40))
       .setExternalIdentity(login)
       .setExternalIdentityProvider("sonarqube")
-      .setRememberToken(randomAlphanumeric(500))
-      .setRememberTokenExpiresAt(new Date((long)nextInt()))
       .setSalt(randomAlphanumeric(40))
       .setCryptedPassword(randomAlphanumeric(40))
       .setCreatedAt(nextLong())
@@ -81,7 +74,7 @@ public class UserTesting {
       .setUpdatedAt(nextLong());
   }
 
-  public static UserDto newDisabledUser(String login){
+  public static UserDto newDisabledUser(String login) {
     return new UserDto()
       .setLogin(login)
       .setActive(false)
