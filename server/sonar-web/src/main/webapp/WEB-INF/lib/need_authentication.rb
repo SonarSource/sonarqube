@@ -26,7 +26,11 @@ class DefaultRealm
     result=nil
     if !username.blank? && !password.blank?
       user=User.find_active_by_login(username)
-      result=user if user && user.authenticated?(password)
+      if user && user.authenticated?(password)
+        result=user
+        Java::OrgSonarServerUser::RubyUserSession.setSession(user.id.to_i, user.login, user.name, user.groups.collect {|g| g.name}.to_a, nil)
+      end
+      result
     end
     result
   end
@@ -51,10 +55,14 @@ class PluginRealm
   def authenticate?(username, password, servlet_request)
     countUserLocal = User.count('id', :conditions => ['login=? and user_local=?', username, true])
     if countUserLocal > 0
-      local_auth(username, password)
+      result = local_auth(username, password)
     else
-      auth(username, password, servlet_request)
+      result = auth(username, password, servlet_request)
     end
+    if result
+      Java::OrgSonarServerUser::RubyUserSession.setSession(result.id.to_i, result.login, result.name, result.groups.collect {|g| g.name}.to_a, nil)
+    end
+    result
   end
 
   #
