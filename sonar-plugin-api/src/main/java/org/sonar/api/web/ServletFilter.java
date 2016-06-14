@@ -19,12 +19,14 @@
  */
 package org.sonar.api.web;
 
-import com.google.common.base.Preconditions;
-import com.google.common.base.Strings;
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.collect.ImmutableSet.copyOf;
+
+import java.util.HashSet;
+import java.util.Set;
+import javax.servlet.Filter;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
-
-import javax.servlet.Filter;
 
 /**
  * @since 3.1
@@ -37,53 +39,96 @@ public abstract class ServletFilter implements Filter {
    * Override to change URL. Default is /*
    */
   public UrlPattern doGetPattern() {
-    return UrlPattern.create("/*");
+    return UrlPattern.builder().build();
   }
 
   public static final class UrlPattern {
-    private int code;
-    private String url;
-    private String urlToMatch;
 
-    private UrlPattern(String url) {
-      Preconditions.checkArgument(!Strings.isNullOrEmpty(url), "Empty url");
-      this.url = url;
-      this.urlToMatch = url.replaceAll("/?\\*", "");
-      if ("/*".equals(url)) {
-        code = 1;
-      } else if (url.startsWith("*")) {
-        code = 2;
-      } else if (url.endsWith("*")) {
-        code = 3;
-      } else {
-        code = 4;
-      }
-    }
-    
-    public static UrlPattern create(String pattern) {
-      return new UrlPattern(pattern);
+    private final Set<String> includePatterns;
+    private final Set<String> excludePatterns;
+
+    private UrlPattern(Builder builder) {
+      this.includePatterns = builder.includePatterns;
+      this.excludePatterns = builder.excludePatterns;
     }
 
     public boolean matches(String path) {
-      switch (code) {
-        case 1:
-          return true;
-        case 2:
-          return path.endsWith(urlToMatch);
-        case 3:
-          return path.startsWith(urlToMatch);
-        default:
-          return path.equals(urlToMatch);
+      return !excludePatterns.stream().anyMatch(pattern -> matches(path, pattern))
+        && includePatterns.stream().anyMatch(pattern -> matches(path, pattern));
+    }
+
+    private static boolean matches(String path, String pattern) {
+      String urlToMatch = getUrlToMatch(pattern);
+      if ("/*".equals(pattern)) {
+        return true;
+      } else if (pattern.startsWith("*")) {
+        return path.endsWith(urlToMatch);
+      } else if (pattern.endsWith("*")) {
+        return path.startsWith(urlToMatch);
+      } else {
+        return path.equals(urlToMatch);
       }
     }
 
-    public String getUrl() {
-      return url;
+    private static String getUrlToMatch(String url) {
+      return url.replaceAll("/?\\*", "");
+    }
+
+    public Set<String> getIncludePatterns() {
+      return includePatterns;
+    }
+
+    public Set<String> getExcludePatterns() {
+      return excludePatterns;
     }
 
     @Override
     public String toString() {
-      return url;
+      return "UrlPattern{" +
+        "includePatterns=" + includePatterns +
+        ", excludePatterns=" + excludePatterns +
+        '}';
     }
+
+    public static UrlPattern create(String pattern) {
+      return new UrlPattern.Builder().setIncludePatterns(pattern).build();
+    }
+
+    public static Builder builder() {
+      return new Builder();
+    }
+
+    public static class Builder {
+      private Set<String> includePatterns = new HashSet<>();
+      private Set<String> excludePatterns = new HashSet<>();
+
+      private Builder() {
+        this.includePatterns = new HashSet<>();
+        this.includePatterns.add("/*");
+        this.excludePatterns = new HashSet<>();
+      }
+
+      public Builder setIncludePatterns(String... includePatterns) {
+        this.includePatterns = copyOf(includePatterns);
+        return this;
+      }
+
+      public Builder setExcludePatterns(String... excludePatterns) {
+        this.excludePatterns = copyOf(excludePatterns);
+        return this;
+      }
+
+      public UrlPattern build() {
+        checkArgument(!includePatterns.isEmpty() || !excludePatterns.isEmpty(), "Empty urls");
+        checkNoEmptyValue(includePatterns);
+        checkNoEmptyValue(excludePatterns);
+        return new UrlPattern(this);
+      }
+
+      private static void checkNoEmptyValue(Set<String> list) {
+        checkArgument(!list.stream().anyMatch(String::isEmpty), "Empty url");
+      }
+    }
+
   }
 }

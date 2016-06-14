@@ -32,7 +32,6 @@ import org.sonar.api.server.ServerSide;
 import org.sonar.api.web.ServletFilter;
 import org.sonar.server.exceptions.UnauthorizedException;
 
-// TODO do not enter here on static resources
 @ServerSide
 public class ValidateJwtTokenFilter extends ServletFilter {
 
@@ -44,7 +43,10 @@ public class ValidateJwtTokenFilter extends ServletFilter {
 
   @Override
   public UrlPattern doGetPattern() {
-    return UrlPattern.create("/*");
+    return UrlPattern.builder()
+      .setIncludePatterns("/*")
+      .setExcludePatterns("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*")
+      .build();
   }
 
   @Override
