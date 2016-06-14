@@ -44,6 +44,8 @@ public interface CpdMapping {
    * @deprecated since 4.2 not used anymore
    */
   @Deprecated
-  Resource createResource(File file, List<File> sourceDirs);
+  default Resource createResource(File file, List<File> sourceDirs) {
+    throw new UnsupportedOperationException("Never called by the platform");
+  }
 
 }

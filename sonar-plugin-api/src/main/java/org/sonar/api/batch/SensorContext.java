@@ -38,44 +38,6 @@ import org.sonar.api.resources.Resource;
 public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext {
 
   /**
-   * Indexes a resource as a direct child of project. This method does nothing and returns true if the resource already indexed.
-   *
-   * @return false if the resource is excluded
-   * @deprecated since 4.2 Resource indexing is done by the platform for all physical resources.
-   */
-  @Deprecated
-  boolean index(Resource resource);
-
-  /**
-   * Indexes a resource. This method does nothing if the resource is already indexed.
-   *
-   * @param resource        the resource to index. Not nullable
-   * @param parentReference a reference to the parent. If null, the the resource is indexed as a direct child of project.
-   * @return false if the parent is not indexed or if the resource is excluded
-   * @deprecated since 4.2 Resource indexing is done by the platform for all physical resources.
-   */
-  @Deprecated
-  boolean index(Resource resource, Resource parentReference);
-
-  /**
-   * Returns true if the referenced resource is indexed and excluded.
-   *
-   * @since 2.6
-   * @deprecated since 4.2 Excluded resources are not indexed.
-   */
-  @Deprecated
-  boolean isExcluded(Resource reference);
-
-  /**
-   * Returns true if the referenced resource is indexed.
-   *
-   * @since 2.6
-   * @deprecated since 4.2 Excluded resources are not indexed.
-   */
-  @Deprecated
-  boolean isIndexed(Resource reference, boolean acceptExcluded);
-
-  /**
    * Search for an indexed resource.
    *
    * @param reference the resource reference
@@ -168,18 +130,6 @@ public interface SensorContext extends org.sonar.api.batch.sensor.SensorContext 
    */
   @Deprecated
   Dependency saveDependency(Dependency dependency);
-
-  // ----------- FILE SOURCES --------------
-
-  /**
-   * Save the source code of a file. The file must be have been indexed before.
-   *
-   * @throws org.sonar.api.resources.DuplicatedSourceException if the source has already been set on this resource
-   * @since 1.10. Returns a boolean since 2.6.
-   * @deprecated since 4.2 Source import is done by the platform
-   */
-  @Deprecated
-  void saveSource(Resource reference, String source);
 
   /**
    * Save measure on {@link InputFile}

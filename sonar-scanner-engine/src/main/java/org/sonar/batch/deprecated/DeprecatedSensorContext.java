@@ -42,7 +42,6 @@ import org.sonar.api.resources.Directory;
 import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
-import org.sonar.api.utils.SonarException;
 import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
@@ -66,37 +65,6 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   public Project getProject() {
     return project;
-  }
-
-  @Override
-  public boolean index(Resource resource) {
-    // SONAR-5006
-    logWarning();
-    return true;
-  }
-
-  @Override
-  public boolean index(Resource resource, Resource parentReference) {
-    // SONAR-5006
-    logWarning();
-    return true;
-  }
-
-  private static void logWarning() {
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Plugins are no more responsible for indexing physical resources like directories and files. This is now handled by the platform.", new SonarException(
-        "Plugin should not index physical resources"));
-    }
-  }
-
-  @Override
-  public boolean isExcluded(Resource reference) {
-    return index.isExcluded(reference);
-  }
-
-  @Override
-  public boolean isIndexed(Resource reference, boolean acceptExcluded) {
-    return index.isIndexed(reference, acceptExcluded);
   }
 
   @Override
@@ -178,11 +146,6 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
   @Override
   public Dependency saveDependency(Dependency dependency) {
     return null;
-  }
-
-  @Override
-  public void saveSource(Resource reference, String source) {
-    // useless since 4.2.
   }
 
   private Resource resourceOrProject(Resource resource) {
