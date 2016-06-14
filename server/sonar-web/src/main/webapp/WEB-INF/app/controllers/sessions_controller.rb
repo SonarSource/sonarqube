@@ -41,7 +41,6 @@ class SessionsController < ApplicationController
     begin
       self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
       if logged_in?
-        set_user_session
         redirect_back_or_default(home_url)
       else
         render_unauthenticated
@@ -55,11 +54,9 @@ class SessionsController < ApplicationController
     if logged_in?
       self.current_user.on_logout
     end
-    cookies.delete 'JWT-SESSION'
-    cookies.delete 'XSRF-TOKEN'
     flash[:notice]=message('session.flash_notice.logged_out')
-    redirect_to(home_path)
     reset_session
+    redirect_to(home_path)
   end
 
   def new
