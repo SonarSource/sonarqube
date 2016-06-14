@@ -45,6 +45,7 @@ class SessionsController < ApplicationController
           self.current_user.remember_me
           cookies[:auth_token] = { :value => self.current_user.remember_token , :expires => self.current_user.remember_token_expires_at, :http_only => true }
         end
+        set_user_session
         redirect_back_or_default(home_url)
       else
         render_unauthenticated
@@ -60,6 +61,7 @@ class SessionsController < ApplicationController
       self.current_user.forget_me
     end
     cookies.delete :auth_token
+    cookies.delete 'JWT-SESSION'
     flash[:notice]=message('session.flash_notice.logged_out')
     redirect_to(home_path)
     reset_session
