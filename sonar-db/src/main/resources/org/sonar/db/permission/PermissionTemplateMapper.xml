@@ -254,6 +254,21 @@
     AND (g.name IS NOT NULL OR ptg.group_id IS NULL)
   </select>
 
+  <select id="selectTemplateCharacteristics" parameterType="String" resultMap="fullPermissionsTemplateResult">
+    SELECT pt.id AS template_id,
+    pt.name AS template_name,
+    pt.description AS template_description,
+    pt.key_pattern AS template_key_pattern,
+    pt.created_at AS template_created_at,
+    pt.updated_at AS template_updated_at,
+    ptc.id AS permission_template_characteristic_id,
+    ptc.permission_key AS characteristic_permission,
+    ptc.with_project_creator AS with_project_creator
+    FROM permission_templates pt
+      INNER JOIN perm_tpl_characteristics ptc ON ptc.template_id = pt.id
+    WHERE pt.kee = #{templateKey}
+  </select>
+
   <select id="usersCountByTemplateIdAndPermission" parameterType="map"
           resultType="org.sonar.db.permission.CountByTemplateAndPermissionDto">
     SELECT ptu.template_id as templateId, ptu.permission_reference as permission, count(u.login) as count
@@ -312,6 +327,11 @@
       <result property="groupId" column="group_id"/>
       <result property="permission" column="group_permission"/>
       <result property="groupName" column="group_name"/>
+    </collection>
+    <collection property="characteristics" ofType="TemplatePermission">
+      <id property="id" column="permission_template_characteristic_id"/>
+      <result property="permission" column="characteristic_permission"/>
+      <result property="withProjectCreator" column="with_project_creator"/>
     </collection>
   </resultMap>
 

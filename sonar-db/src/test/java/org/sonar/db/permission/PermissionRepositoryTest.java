@@ -81,13 +81,13 @@ public class PermissionRepositoryTest {
 
   @Test
   public void apply_default_permission_template_from_component_id() {
-    dbTester.prepareDbUnit(getClass(), "apply_default_permission_template.xml");
+    dbTester.prepareDbUnit(getClass(), "apply_default_permission_template_by_component_id.xml");
     settings.setProperty("sonar.permission.template.default", DEFAULT_TEMPLATE);
 
     underTest.applyDefaultPermissionTemplate(session, PROJECT_ID);
     session.commit();
 
-    dbTester.assertDbUnitTable(getClass(), "apply_default_permission_template-result.xml", "user_roles", "user_id", "resource_id", "role");
+    dbTester.assertDbUnitTable(getClass(), "apply_default_permission_template_by_component_id-result.xml", "user_roles", "user_id", "resource_id", "role");
   }
 
   @Test
@@ -95,7 +95,7 @@ public class PermissionRepositoryTest {
     dbTester.prepareDbUnit(getClass(), "apply_default_permission_template.xml");
     settings.setProperty("sonar.permission.template.default", DEFAULT_TEMPLATE);
 
-    underTest.applyDefaultPermissionTemplate(session, dbTester.getDbClient().componentDao().selectOrFailByKey(session, "org.struts:struts"));
+    underTest.applyDefaultPermissionTemplate(session, dbTester.getDbClient().componentDao().selectOrFailByKey(session, "org.struts:struts"), 201L);
     session.commit();
 
     dbTester.assertDbUnitTable(getClass(), "apply_default_permission_template-result.xml", "user_roles", "user_id", "resource_id", "role");

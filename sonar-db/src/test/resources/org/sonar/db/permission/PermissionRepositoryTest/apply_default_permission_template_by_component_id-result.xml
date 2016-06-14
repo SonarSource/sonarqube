@@ -21,8 +21,6 @@
 
   <!-- new user permission : marius (admin) & janette (user) -->
   <user_roles id="2" user_id="200" resource_id="123" role="admin"/>
-  <user_roles id="3" user_id="201" resource_id="123" role="admin"/>
-  <user_roles id="4" user_id="201" resource_id="123" role="user"/>
 
   <!-- default permission template for all qualifiers -->
   <permission_templates id="1" name="default" kee="default_20130101_010203"/>

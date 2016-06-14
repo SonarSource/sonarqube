@@ -20,6 +20,7 @@
 package org.sonar.server.permission;
 
 import java.util.List;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
@@ -73,7 +74,10 @@ public class PermissionService {
     } else {
       userSession.checkPermission(GlobalPermissions.PROVISIONING);
     }
-    permissionRepository.applyDefaultPermissionTemplate(session, component);
+
+    Integer currentUserId = userSession.getUserId();
+    Long userId = Qualifiers.PROJECT.equals(component.qualifier()) && currentUserId != null ? currentUserId.longValue() : null;
+    permissionRepository.applyDefaultPermissionTemplate(session, component, userId);
     session.commit();
     indexProjectPermissions();
   }

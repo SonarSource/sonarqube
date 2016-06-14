@@ -23,6 +23,8 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.api.config.Settings;
@@ -30,9 +32,12 @@ import org.sonar.api.security.DefaultGroups;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserRoleDto;
+
+import static java.util.Objects.requireNonNull;
 
 /**
  * This facade wraps db operations related to permissions
@@ -137,23 +142,30 @@ public class PermissionRepository {
   }
 
   public void applyPermissionTemplate(DbSession session, String templateUuid, long resourceId) {
+    applyPermissionTemplate(session, templateUuid, resourceId, null);
+  }
+
+  private void applyPermissionTemplate(DbSession session, String templateUuid, long componentId, @Nullable Long currentUserId) {
     PermissionTemplateDto permissionTemplate = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
-    updateProjectAuthorizationDate(session, resourceId);
-    dbClient.roleDao().removeAllPermissions(session, resourceId);
-    List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUsersPermissions();
-    //TODO should return an empty list if there's no user permissions
-    if (usersPermissions != null) {
-      for (PermissionTemplateUserDto userPermission : usersPermissions) {
-        insertUserPermission(resourceId, userPermission.getUserId(), userPermission.getPermission(), false, session);
-      }
-    }
-    List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupsPermissions();
-    //TODO should return an empty list if there's no group permission
-    if (groupsPermissions != null) {
-      for (PermissionTemplateGroupDto groupPermission : groupsPermissions) {
-        Long groupId = groupPermission.getGroupId() == null ? null : groupPermission.getGroupId();
-        insertGroupPermission(resourceId, groupId, groupPermission.getPermission(), false, session);
-      }
+    updateProjectAuthorizationDate(session, componentId);
+    dbClient.roleDao().removeAllPermissions(session, componentId);
+
+    List<PermissionTemplateUserDto> usersPermissions = requireNonNull(permissionTemplate.getUsersPermissions());
+    usersPermissions.forEach(userPermission -> insertUserPermission(componentId, userPermission.getUserId(), userPermission.getPermission(), false, session));
+
+    List<PermissionTemplateGroupDto> groupsPermissions = requireNonNull(permissionTemplate.getGroupsPermissions());
+    groupsPermissions.forEach(groupPermission -> insertGroupPermission(componentId, groupPermission.getGroupId(), groupPermission.getPermission(), false, session));
+
+    List<PermissionTemplateCharacteristicDto> characteristics = requireNonNull(permissionTemplate.getCharacteristics());
+    if (currentUserId != null) {
+      Set<String> permissionsForCurrentUserAlreadyInDb = usersPermissions.stream()
+        .filter(userPermission -> currentUserId.equals(userPermission.getUserId()))
+        .map(PermissionTemplateUserDto::getPermission)
+        .collect(Collectors.toSet());
+      characteristics.stream()
+        .filter(PermissionTemplateCharacteristicDto::getWithProjectCreator)
+        .filter(characteristic -> !permissionsForCurrentUserAlreadyInDb.contains(characteristic.getPermission()))
+        .forEach(characteristic -> insertUserPermission(componentId, currentUserId, characteristic.getPermission(), false, session));
     }
   }
 
@@ -162,12 +174,12 @@ public class PermissionRepository {
    */
   public void applyDefaultPermissionTemplate(DbSession session, long componentId) {
     ComponentDto component = dbClient.componentDao().selectOrFailById(session, componentId);
-    applyDefaultPermissionTemplate(session, component);
+    applyDefaultPermissionTemplate(session, component, null);
   }
 
-  public void applyDefaultPermissionTemplate(DbSession session, ComponentDto componentDto) {
-    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(session, componentDto.getKey(), componentDto.qualifier());
-    applyPermissionTemplate(session, applicablePermissionTemplateKey, componentDto.getId());
+  public void applyDefaultPermissionTemplate(DbSession dbSession, ComponentDto componentDto, @Nullable Long userId) {
+    String applicablePermissionTemplateKey = getApplicablePermissionTemplateKey(dbSession, componentDto.getKey(), componentDto.qualifier());
+    applyPermissionTemplate(dbSession, applicablePermissionTemplateKey, componentDto.getId(), userId);
   }
 
   /**
@@ -210,7 +222,8 @@ public class PermissionRepository {
       }
       throw new IllegalStateException(MessageFormat.format(
         "The \"{0}\" key matches multiple permission templates: {1}."
-          + " A system administrator must update these templates so that only one of them matches the key.", componentKey,
+          + " A system administrator must update these templates so that only one of them matches the key.",
+        componentKey,
         templatesNames.toString()));
     }
   }

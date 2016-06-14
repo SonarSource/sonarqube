@@ -50,6 +50,8 @@ public interface PermissionTemplateMapper {
 
   PermissionTemplateDto selectTemplateGroupsPermissions(String templateKey);
 
+  PermissionTemplateDto selectTemplateCharacteristics(String templateKey);
+
   void insertUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
   void insertGroupPermission(PermissionTemplateGroupDto permissionTemplateGroup);

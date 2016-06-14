@@ -23,6 +23,7 @@ import java.util.Date;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 
 public class PermissionTemplateDto {
 
@@ -33,6 +34,7 @@ public class PermissionTemplateDto {
   private String keyPattern;
   private List<PermissionTemplateUserDto> usersPermissions;
   private List<PermissionTemplateGroupDto> groupsPermissions;
+  private List<PermissionTemplateCharacteristicDto> characteristics;
   private Date createdAt;
   private Date updatedAt;
 
@@ -141,6 +143,15 @@ public class PermissionTemplateDto {
 
   public PermissionTemplateDto setUpdatedAt(Date updatedAt) {
     this.updatedAt = updatedAt;
+    return this;
+  }
+
+  public List<PermissionTemplateCharacteristicDto> getCharacteristics() {
+    return characteristics;
+  }
+
+  public PermissionTemplateDto setCharacteristics(List<PermissionTemplateCharacteristicDto> characteristics) {
+    this.characteristics = characteristics;
     return this;
   }
 }

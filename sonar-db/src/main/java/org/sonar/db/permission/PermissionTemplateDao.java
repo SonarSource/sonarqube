@@ -19,10 +19,6 @@
  */
 package org.sonar.db.permission;
 
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
-
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
 import java.util.HashMap;
@@ -40,7 +36,13 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
+
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static java.util.Collections.emptyList;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PermissionTemplateDao implements Dao {
 
@@ -155,18 +157,26 @@ public class PermissionTemplateDao implements Dao {
 
   @CheckForNull
   public PermissionTemplateDto selectByUuidWithUserAndGroupPermissions(DbSession session, String templateUuid) {
-    PermissionTemplateDto permissionTemplate;
+    PermissionTemplateDto template;
     PermissionTemplateMapper mapper = mapper(session);
-    permissionTemplate = mapper.selectByUuid(templateUuid);
-    PermissionTemplateDto templateUsersPermissions = mapper.selectTemplateUsersPermissions(templateUuid);
-    if (templateUsersPermissions != null) {
-      permissionTemplate.setUsersPermissions(templateUsersPermissions.getUsersPermissions());
+    template = mapper.selectByUuid(templateUuid);
+    if (template == null) {
+      return null;
     }
-    PermissionTemplateDto templateGroupsPermissions = mapper.selectTemplateGroupsPermissions(templateUuid);
-    if (templateGroupsPermissions != null) {
-      permissionTemplate.setGroupsByPermission(templateGroupsPermissions.getGroupsPermissions());
-    }
-    return permissionTemplate;
+
+    PermissionTemplateDto templateWithUserPermissions = mapper.selectTemplateUsersPermissions(templateUuid);
+    List<PermissionTemplateUserDto> userPermissions = templateWithUserPermissions == null ? emptyList() : templateWithUserPermissions.getUsersPermissions();
+    template.setUsersPermissions(userPermissions);
+
+    PermissionTemplateDto templateWithGroupPermissions = mapper.selectTemplateGroupsPermissions(templateUuid);
+    List<PermissionTemplateGroupDto> groupPermissions = templateWithGroupPermissions == null ? emptyList() : templateWithGroupPermissions.getGroupsPermissions();
+    template.setGroupsByPermission(groupPermissions);
+
+    PermissionTemplateDto templateWithCharacteristics = mapper.selectTemplateCharacteristics(templateUuid);
+    List<PermissionTemplateCharacteristicDto> characteristics = templateWithCharacteristics == null ? emptyList() : templateWithCharacteristics.getCharacteristics();
+    template.setCharacteristics(characteristics);
+
+    return template;
   }
 
   @CheckForNull
@@ -384,15 +394,14 @@ public class PermissionTemplateDao implements Dao {
   }
 
   /**
-   * Load permission template and load associated collections of users and groups permissions
+   * Load permission template and load associated collections of users and groups permissions, and characteristics
    */
-  @VisibleForTesting
   PermissionTemplateDto selectPermissionTemplateWithPermissions(DbSession session, String templateUuid) {
-    PermissionTemplateDto permissionTemplateDto = selectByUuid(session, templateUuid);
-    if (permissionTemplateDto == null) {
+    PermissionTemplateDto template = selectByUuid(session, templateUuid);
+    if (template == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with uuid " + templateUuid);
     }
-    PermissionTemplateDto templateWithPermissions = selectByUuidWithUserAndGroupPermissions(session, permissionTemplateDto.getUuid());
+    PermissionTemplateDto templateWithPermissions = selectByUuidWithUserAndGroupPermissions(session, template.getUuid());
     if (templateWithPermissions == null) {
       throw new IllegalArgumentException("Could not retrieve permissions for template with uuid " + templateUuid);
     }

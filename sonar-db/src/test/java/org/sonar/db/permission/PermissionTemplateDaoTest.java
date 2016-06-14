@@ -19,17 +19,6 @@
  */
 package org.sonar.db.permission;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.api.web.UserRole.ADMIN;
-import static org.sonar.api.web.UserRole.CODEVIEWER;
-import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
-import static org.sonar.api.web.UserRole.USER;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
-
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -43,24 +32,43 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.api.web.UserRole;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
+import org.sonar.db.user.GroupDbTester;
 import org.sonar.db.user.GroupDto;
+import org.sonar.db.user.UserDbTester;
 import org.sonar.db.user.UserDto;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.tuple;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.web.UserRole.ADMIN;
+import static org.sonar.api.web.UserRole.CODEVIEWER;
+import static org.sonar.api.web.UserRole.ISSUE_ADMIN;
+import static org.sonar.api.web.UserRole.USER;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateCharacteristicDto;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateGroupDto;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateUserDto;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class PermissionTemplateDaoTest {
 
   System2 system = mock(System2.class);
 
   @Rule
-  public DbTester db = DbTester.create(system);
-  @Rule
   public ExpectedException expectedException = ExpectedException.none();
-
-  final DbSession session = db.getSession();
+  @Rule
+  public DbTester db = DbTester.create(system);
   DbClient dbClient = db.getDbClient();
+  DbSession dbSession = db.getSession();
+  GroupDbTester groupDb = new GroupDbTester(db);
+  UserDbTester userDb = new UserDbTester(db);
 
   PermissionTemplateDao underTest = new PermissionTemplateDao(db.myBatis(), system);
 
@@ -103,19 +111,6 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_select_empty_permission_template() {
-    db.prepareDbUnit(getClass(), "selectEmptyPermissionTemplate.xml");
-
-    PermissionTemplateDto permissionTemplate = underTest.selectByUuidWithUserAndGroupPermissions("my_template_20130102_030405");
-
-    assertThat(permissionTemplate).isNotNull();
-    assertThat(permissionTemplate.getName()).isEqualTo("my template");
-    assertThat(permissionTemplate.getDescription()).isEqualTo("my description");
-    assertThat(permissionTemplate.getUsersPermissions()).isNull();
-    assertThat(permissionTemplate.getGroupsPermissions()).isNull();
-  }
-
-  @Test
   public void should_select_permission_template_by_key() {
     db.prepareDbUnit(getClass(), "selectPermissionTemplate.xml");
 
@@ -155,8 +150,8 @@ public class PermissionTemplateDaoTest {
   public void should_delete_permission_template() {
     db.prepareDbUnit(getClass(), "deletePermissionTemplate.xml");
 
-    underTest.deleteById(session, 1L);
-    session.commit();
+    underTest.deleteById(dbSession, 1L);
+    dbSession.commit();
 
     checkTemplateTables("deletePermissionTemplate-result.xml");
     db.assertDbUnitTable(getClass(), "deletePermissionTemplate-result.xml", "perm_tpl_characteristics");
@@ -227,17 +222,57 @@ public class PermissionTemplateDaoTest {
   }
 
   @Test
-  public void should_retrieve_permission_template() {
-    PermissionTemplateDto permissionTemplateDto = new PermissionTemplateDto().setName("Test template").setUuid("test_template");
-    PermissionTemplateDto templateWithPermissions = new PermissionTemplateDto().setUuid("test_template");
-    underTest = mock(PermissionTemplateDao.class);
-    when(underTest.selectByUuid(db.getSession(), "test_template")).thenReturn(permissionTemplateDto);
-    when(underTest.selectByUuidWithUserAndGroupPermissions(db.getSession(), "test_template")).thenReturn(templateWithPermissions);
-    when(underTest.selectPermissionTemplateWithPermissions(db.getSession(), "test_template")).thenCallRealMethod();
+  public void new_permission_template_with_empty_user_group_characteristics() {
+    PermissionTemplateDto template = underTest.insert(dbSession, newPermissionTemplateDto().setUuid("TEMPLATE_UUID"));
 
-    PermissionTemplateDto permissionTemplate = underTest.selectPermissionTemplateWithPermissions(db.getSession(), "test_template");
+    PermissionTemplateDto result = underTest.selectByUuidWithUserAndGroupPermissions(dbSession, "TEMPLATE_UUID");
 
-    assertThat(permissionTemplate).isSameAs(templateWithPermissions);
+    assertThat(result).extracting(PermissionTemplateDto::getId, PermissionTemplateDto::getUuid, PermissionTemplateDto::getName, PermissionTemplateDto::getDescription)
+      .containsExactly(template.getId(), template.getUuid(), template.getName(), template.getDescription());
+
+    assertThat(result.getUsersPermissions()).isEmpty();
+    assertThat(result.getGroupsPermissions()).isEmpty();
+    assertThat(result.getCharacteristics()).isEmpty();
+  }
+
+  @Test
+  public void unknown_permission_template() {
+    PermissionTemplateDto result = underTest.selectByUuidWithUserAndGroupPermissions(dbSession, "UNKNOWN_TEMPLATE_UUID");
+
+    assertThat(result).isNull();
+  }
+
+  @Test
+  public void permission_template_with_user_group_and_characteristics() {
+    PermissionTemplateDto template = dbClient.permissionTemplateDao().insert(dbSession, newPermissionTemplateDto().setUuid("TEMPLATE_UUID"));
+    PermissionTemplateCharacteristicDto characteristic = dbClient.permissionTemplateCharacteristicDao().insert(dbSession, newPermissionTemplateCharacteristicDto()
+      .setTemplateId(template.getId())
+      .setPermission(UserRole.USER)
+      .setWithProjectCreator(true));
+    GroupDto group = groupDb.insertGroup(newGroupDto());
+    PermissionTemplateGroupDto groupTemplate = newPermissionTemplateGroupDto()
+      .setTemplateId(template.getId())
+      .setGroupId(group.getId())
+      .setPermission(UserRole.ADMIN);
+    underTest.insertGroupPermission(dbSession, groupTemplate);
+    UserDto user = userDb.insertUser(newUserDto());
+    underTest.insertUserPermission(dbSession, newPermissionTemplateUserDto()
+      .setTemplateId(template.getId())
+      .setPermission(UserRole.CODEVIEWER)
+      .setUserId(user.getId()));
+    db.commit();
+
+    PermissionTemplateDto result = underTest.selectByUuidWithUserAndGroupPermissions(dbSession, "TEMPLATE_UUID");
+    assertThat(result).isEqualToIgnoringNullFields(template);
+    assertThat(result.getCharacteristics()).hasSize(1)
+      .extracting(PermissionTemplateCharacteristicDto::getId, PermissionTemplateCharacteristicDto::getPermission, PermissionTemplateCharacteristicDto::getWithProjectCreator)
+      .containsExactly(tuple(characteristic.getId(), UserRole.USER, true));
+    assertThat(result.getGroupsPermissions()).hasSize(1)
+      .extracting(PermissionTemplateGroupDto::getGroupId, PermissionTemplateGroupDto::getGroupName, PermissionTemplateGroupDto::getPermission)
+      .containsExactly(tuple(group.getId(), group.getName(), UserRole.ADMIN));
+    assertThat(result.getUsersPermissions()).hasSize(1)
+      .extracting(PermissionTemplateUserDto::getUserId, PermissionTemplateUserDto::getUserLogin, PermissionTemplateUserDto::getPermission)
+      .containsExactly(tuple(user.getId(), user.getLogin(), UserRole.CODEVIEWER));
   }
 
   @Test
@@ -268,7 +303,7 @@ public class PermissionTemplateDaoTest {
     commit();
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
-    underTest.groupsCountByTemplateIdAndPermission(session, Arrays.asList(template1.getId(), template2.getId(), template3.getId()), new ResultHandler() {
+    underTest.groupsCountByTemplateIdAndPermission(dbSession, Arrays.asList(template1.getId(), template2.getId(), template3.getId()), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {
         result.add((CountByTemplateAndPermissionDto) context.getResultObject());
@@ -301,7 +336,7 @@ public class PermissionTemplateDaoTest {
     commit();
 
     final List<CountByTemplateAndPermissionDto> result = new ArrayList<>();
-    underTest.usersCountByTemplateIdAndPermission(session, Arrays.asList(template1.getId(), template2.getId(), template3.getId()), new ResultHandler() {
+    underTest.usersCountByTemplateIdAndPermission(dbSession, Arrays.asList(template1.getId(), template2.getId(), template3.getId()), new ResultHandler() {
       @Override
       public void handleResult(ResultContext context) {
         result.add((CountByTemplateAndPermissionDto) context.getResultObject());
@@ -320,35 +355,35 @@ public class PermissionTemplateDaoTest {
     insertTemplate(newPermissionTemplateDto().setName("aaaccc"));
     commit();
 
-    List<PermissionTemplateDto> templates = underTest.selectAll(session, "aaa");
-    int count = underTest.countAll(session, "aaa");
+    List<PermissionTemplateDto> templates = underTest.selectAll(dbSession, "aaa");
+    int count = underTest.countAll(dbSession, "aaa");
 
     assertThat(templates.get(0).getName()).isEqualTo("aaabbb");
     assertThat(count).isEqualTo(2);
   }
 
   private PermissionTemplateDto insertTemplate(PermissionTemplateDto template) {
-    return dbClient.permissionTemplateDao().insert(session, template);
+    return dbClient.permissionTemplateDao().insert(dbSession, template);
   }
 
   private GroupDto insertGroup(GroupDto groupDto) {
-    return dbClient.groupDao().insert(session, groupDto);
+    return dbClient.groupDao().insert(dbSession, groupDto);
   }
 
   private UserDto insertUser(UserDto userDto) {
-    return dbClient.userDao().insert(session, userDto.setActive(true));
+    return dbClient.userDao().insert(dbSession, userDto.setActive(true));
   }
 
   private void addGroupToTemplate(long templateId, @Nullable Long groupId, String permission) {
-    dbClient.permissionTemplateDao().insertGroupPermission(session, templateId, groupId, permission);
+    dbClient.permissionTemplateDao().insertGroupPermission(dbSession, templateId, groupId, permission);
   }
 
   private void addUserToTemplate(long templateId, long userId, String permission) {
-    dbClient.permissionTemplateDao().insertUserPermission(session, templateId, userId, permission);
+    dbClient.permissionTemplateDao().insertUserPermission(dbSession, templateId, userId, permission);
   }
 
   private void commit() {
-    session.commit();
+    dbSession.commit();
   }
 
   private void checkTemplateTables(String fileName) {
