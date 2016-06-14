@@ -20,7 +20,6 @@
 package org.sonar.batch.scan.filesystem;
 
 import org.sonar.api.batch.ScannerSide;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.resources.File;
@@ -29,6 +28,7 @@ import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.index.DefaultIndex;
 
 /**
  * Index all files/directories of the module in SQ database and importing source code.
@@ -39,11 +39,11 @@ import org.sonar.batch.index.BatchComponentCache;
 public class ComponentIndexer {
 
   private final Languages languages;
-  private final SonarIndex sonarIndex;
+  private final DefaultIndex sonarIndex;
   private final Project module;
   private final BatchComponentCache componentCache;
 
-  public ComponentIndexer(Project module, Languages languages, SonarIndex sonarIndex, BatchComponentCache componentCache) {
+  public ComponentIndexer(Project module, Languages languages, DefaultIndex sonarIndex, BatchComponentCache componentCache) {
     this.module = module;
     this.languages = languages;
     this.sonarIndex = sonarIndex;

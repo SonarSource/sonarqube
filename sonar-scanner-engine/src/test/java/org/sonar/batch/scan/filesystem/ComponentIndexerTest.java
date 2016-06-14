@@ -19,21 +19,16 @@
  */
 package org.sonar.batch.scan.filesystem;
 
-import org.sonar.api.batch.fs.InputFile.Status;
-
-import org.sonar.batch.analysis.DefaultAnalysisMode;
-
 import java.io.File;
 import java.io.IOException;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.ArgumentMatcher;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputFile;
+import org.sonar.api.batch.fs.InputFile.Status;
 import org.sonar.api.batch.fs.internal.DefaultFileSystem;
 import org.sonar.api.batch.fs.internal.DefaultInputFile;
 import org.sonar.api.resources.AbstractLanguage;
@@ -43,8 +38,11 @@ import org.sonar.api.resources.Languages;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Resource;
+import org.sonar.batch.analysis.DefaultAnalysisMode;
 import org.sonar.batch.index.BatchComponent;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.index.DefaultIndex;
+
 import static org.mockito.Matchers.any;
 import static org.mockito.Matchers.argThat;
 import static org.mockito.Mockito.mock;
@@ -57,7 +55,7 @@ public class ComponentIndexerTest {
   public TemporaryFolder temp = new TemporaryFolder();
   private File baseDir;
   private DefaultFileSystem fs;
-  private SonarIndex sonarIndex;
+  private DefaultIndex sonarIndex;
   private AbstractLanguage cobolLanguage;
   private Project project;
   private ModuleFileSystemInitializer initializer;
@@ -67,7 +65,7 @@ public class ComponentIndexerTest {
   public void prepare() throws IOException {
     baseDir = temp.newFolder();
     fs = new DefaultFileSystem(baseDir.toPath());
-    sonarIndex = mock(SonarIndex.class);
+    sonarIndex = mock(DefaultIndex.class);
     project = new Project("myProject");
     initializer = mock(ModuleFileSystemInitializer.class);
     mode = mock(DefaultAnalysisMode.class);

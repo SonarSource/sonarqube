@@ -26,7 +26,6 @@ import org.slf4j.LoggerFactory;
 import org.sonar.api.SonarQubeVersion;
 import org.sonar.api.batch.AnalysisMode;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.FileSystem;
 import org.sonar.api.batch.fs.InputDir;
 import org.sonar.api.batch.fs.InputFile;
@@ -44,6 +43,7 @@ import org.sonar.api.resources.File;
 import org.sonar.api.resources.Project;
 import org.sonar.api.resources.Resource;
 import org.sonar.api.utils.SonarException;
+import org.sonar.batch.index.DefaultIndex;
 import org.sonar.batch.sensor.DefaultSensorContext;
 import org.sonar.batch.sensor.coverage.CoverageExclusions;
 
@@ -51,11 +51,11 @@ public class DeprecatedSensorContext extends DefaultSensorContext implements Sen
 
   private static final Logger LOG = LoggerFactory.getLogger(DeprecatedSensorContext.class);
 
-  private final SonarIndex index;
+  private final DefaultIndex index;
   private final Project project;
   private final CoverageExclusions coverageFilter;
 
-  public DeprecatedSensorContext(InputModule module, SonarIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
+  public DeprecatedSensorContext(InputModule module, DefaultIndex index, Project project, Settings settings, FileSystem fs, ActiveRules activeRules,
     AnalysisMode analysisMode, CoverageExclusions coverageFilter, SensorStorage sensorStorage, SonarQubeVersion sqVersion) {
     super(module, settings, fs, activeRules, analysisMode, sensorStorage, sqVersion);
     this.index = index;

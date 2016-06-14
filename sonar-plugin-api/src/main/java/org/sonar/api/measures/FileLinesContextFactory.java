@@ -21,7 +21,6 @@ package org.sonar.api.measures;
 
 import org.sonar.api.batch.ScannerSide;
 import org.sonar.api.batch.fs.InputFile;
-import org.sonar.api.resources.Resource;
 
 /**
  * <p>This interface is not intended to be implemented by clients.
@@ -30,12 +29,6 @@ import org.sonar.api.resources.Resource;
  */
 @ScannerSide
 public interface FileLinesContextFactory {
-
-  /**
-   * @deprecated since 4.4 use {@link #createFor(InputFile)}
-   */
-  @Deprecated
-  FileLinesContext createFor(Resource resource);
 
   /**
    * @since 4.2

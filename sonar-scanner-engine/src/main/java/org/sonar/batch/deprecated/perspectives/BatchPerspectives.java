@@ -22,20 +22,20 @@ package org.sonar.batch.deprecated.perspectives;
 import com.google.common.collect.Maps;
 import java.util.Map;
 import javax.annotation.CheckForNull;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputPath;
 import org.sonar.api.component.Perspective;
 import org.sonar.api.component.ResourcePerspectives;
 import org.sonar.api.resources.Resource;
 import org.sonar.batch.index.BatchComponentCache;
+import org.sonar.batch.index.DefaultIndex;
 
 public class BatchPerspectives implements ResourcePerspectives {
 
   private final Map<Class<?>, PerspectiveBuilder<?>> builders = Maps.newHashMap();
-  private final SonarIndex resourceIndex;
+  private final DefaultIndex resourceIndex;
   private final BatchComponentCache componentCache;
 
-  public BatchPerspectives(PerspectiveBuilder[] builders, SonarIndex resourceIndex, BatchComponentCache componentCache) {
+  public BatchPerspectives(PerspectiveBuilder[] builders, DefaultIndex resourceIndex, BatchComponentCache componentCache) {
     this.resourceIndex = resourceIndex;
     this.componentCache = componentCache;
     for (PerspectiveBuilder builder : builders) {

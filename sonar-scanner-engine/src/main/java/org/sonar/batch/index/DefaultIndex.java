@@ -35,7 +35,6 @@ import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.bootstrap.ProjectDefinition;
 import org.sonar.api.batch.fs.internal.DefaultInputModule;
 import org.sonar.api.design.Dependency;
@@ -54,7 +53,7 @@ import org.sonar.batch.scan.measure.MeasureCache;
 import org.sonar.batch.sensor.DefaultSensorStorage;
 import org.sonar.core.component.ComponentKeys;
 
-public class DefaultIndex extends SonarIndex {
+public class DefaultIndex {
 
   private static final Logger LOG = LoggerFactory.getLogger(DefaultIndex.class);
 
@@ -109,7 +108,6 @@ public class DefaultIndex extends SonarIndex {
     }
   }
 
-  @Override
   public Project getProject() {
     return currentProject;
   }
@@ -138,13 +136,11 @@ public class DefaultIndex extends SonarIndex {
   }
 
   @CheckForNull
-  @Override
   public Measure getMeasure(Resource resource, org.sonar.api.batch.measure.Metric<?> metric) {
     return getMeasures(resource, MeasuresFilters.metric(metric));
   }
 
   @CheckForNull
-  @Override
   public <M> M getMeasures(Resource resource, MeasuresFilter<M> filter) {
     // Reload resource so that effective key is populated
     Resource indexedResource = getResource(resource);
@@ -166,7 +162,6 @@ public class DefaultIndex extends SonarIndex {
     return filter.filter(unfiltered);
   }
 
-  @Override
   public Measure addMeasure(Resource resource, Measure measure) {
     Bucket bucket = getBucket(resource);
     if (bucket != null) {
@@ -175,17 +170,14 @@ public class DefaultIndex extends SonarIndex {
     return measure;
   }
 
-  @Override
   public Dependency addDependency(Dependency dependency) {
     return dependency;
   }
 
-  @Override
   public Set<Resource> getResources() {
     return buckets.keySet();
   }
 
-  @Override
   public String getSource(Resource reference) {
     Resource resource = getResource(reference);
     if (resource instanceof File) {
@@ -204,13 +196,11 @@ public class DefaultIndex extends SonarIndex {
   /**
    * Does nothing if the resource is already registered.
    */
-  @Override
   public Resource addResource(Resource resource) {
     Bucket bucket = doIndex(resource);
     return bucket != null ? bucket.getResource() : null;
   }
 
-  @Override
   @CheckForNull
   public <R extends Resource> R getResource(@Nullable R reference) {
     Bucket bucket = getBucket(reference);
@@ -220,7 +210,6 @@ public class DefaultIndex extends SonarIndex {
     return null;
   }
 
-  @Override
   public List<Resource> getChildren(Resource resource) {
     List<Resource> children = Lists.newLinkedList();
     Bucket bucket = getBucket(resource);
@@ -232,7 +221,6 @@ public class DefaultIndex extends SonarIndex {
     return children;
   }
 
-  @Override
   public Resource getParent(Resource resource) {
     Bucket bucket = getBucket(resource);
     if (bucket != null && bucket.getParent() != null) {
@@ -241,7 +229,6 @@ public class DefaultIndex extends SonarIndex {
     return null;
   }
 
-  @Override
   public boolean index(Resource resource) {
     Bucket bucket = doIndex(resource);
     return bucket != null;
@@ -254,7 +241,6 @@ public class DefaultIndex extends SonarIndex {
     return doIndex(resource, resource.getParent());
   }
 
-  @Override
   public boolean index(Resource resource, Resource parentReference) {
     Bucket bucket = doIndex(resource, parentReference);
     return bucket != null;
@@ -296,12 +282,10 @@ public class DefaultIndex extends SonarIndex {
     return bucket;
   }
 
-  @Override
   public boolean isExcluded(@Nullable Resource reference) {
     return false;
   }
 
-  @Override
   public boolean isIndexed(@Nullable Resource reference, boolean acceptExcluded) {
     return getBucket(reference) != null;
   }

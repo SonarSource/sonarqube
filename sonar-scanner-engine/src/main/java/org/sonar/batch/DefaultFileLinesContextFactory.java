@@ -19,45 +19,23 @@
  */
 package org.sonar.batch;
 
-import com.google.common.base.Preconditions;
 import org.sonar.api.batch.SensorContext;
-import org.sonar.api.batch.SonarIndex;
 import org.sonar.api.batch.fs.InputFile;
 import org.sonar.api.batch.measure.MetricFinder;
 import org.sonar.api.measures.FileLinesContext;
 import org.sonar.api.measures.FileLinesContextFactory;
-import org.sonar.api.resources.File;
-import org.sonar.api.resources.Resource;
-import org.sonar.api.resources.ResourceUtils;
-import org.sonar.batch.index.BatchComponentCache;
 import org.sonar.batch.scan.measure.MeasureCache;
 
 public class DefaultFileLinesContextFactory implements FileLinesContextFactory {
 
-  private final SonarIndex index;
   private final SensorContext sensorContext;
   private final MetricFinder metricFinder;
   private final MeasureCache measureCache;
-  private final BatchComponentCache scannerComponentCache;
 
-  public DefaultFileLinesContextFactory(SonarIndex index, SensorContext sensorContext, MetricFinder metricFinder, BatchComponentCache scannerComponentCache,
-    MeasureCache measureCache) {
-    this.index = index;
+  public DefaultFileLinesContextFactory(SensorContext sensorContext, MetricFinder metricFinder, MeasureCache measureCache) {
     this.sensorContext = sensorContext;
     this.metricFinder = metricFinder;
-    this.scannerComponentCache = scannerComponentCache;
     this.measureCache = measureCache;
-  }
-
-  @Override
-  public FileLinesContext createFor(Resource resource) {
-    Preconditions.checkArgument(ResourceUtils.isFile(resource));
-    // Reload resource in case it use deprecated key
-    File file = (File) index.getResource(resource);
-    if (file == null) {
-      throw new IllegalArgumentException("Unable to find resource " + resource + " in index.");
-    }
-    return new DefaultFileLinesContext(sensorContext, (InputFile) scannerComponentCache.get(file).inputComponent(), metricFinder, measureCache);
   }
 
   @Override
