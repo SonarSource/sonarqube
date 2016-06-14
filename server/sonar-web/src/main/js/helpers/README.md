@@ -10,7 +10,7 @@ Let's start with a simple GET request.
 window.sonarqube.appStarted.then(function () {
   // some code here
   window.SonarRequest
-      .getJSON(window.baseUrl + '/api/issues/search')
+      .getJSON('/api/issues/search')
       .then(function (response) {
         // here 'response' contains the object representing the JSON output
       });
@@ -32,7 +32,7 @@ A promise telling when the application has started.
 You must put your code in the `resolve` path.
 
 #### `window.SonarRequest.request(url: string): Request`
-Start making an API call. `url` must start from `window.baseUrl`.
+Start making an API call.
 Return a `Request` instance which has the following methods:
 * `setMethod(method: string): Request` sets the http method, can be `GET`, `POST`, etc.
 * `setData(data: object): Request` sets the request parameters`
@@ -59,7 +59,7 @@ They reject the Promise if the status is not in [200, 300).
 #### Get the list of unresolved issues
 ```
 window.SonarRequest.getJSON(
-  window.baseUrl + '/api/issues/search',
+  '/api/issues/search',
   { resolved: false }
 ).then(function (response) {
   // response.issues contains the list of issues
@@ -69,7 +69,7 @@ window.SonarRequest.getJSON(
 #### Create new project
 ```
 window.SonarRequest.post(
-  window.baseUrl + '/api/projects/create',
+  '/api/projects/create',
   { key: 'sample', name: 'Sample' }
 ).then(function () {
   // the project has been created
@@ -79,7 +79,7 @@ window.SonarRequest.post(
 #### Handle bad requests
 ```
 window.SonarRequest.post(
-  window.baseUrl + '/api/users/deactivate',
+  '/api/users/deactivate',
   { login: 'admin' }
 ).catch(function (error) {
   // error.response.status === 400
