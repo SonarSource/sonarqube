@@ -52,7 +52,8 @@ public class ValidateJwtTokenFilterTest {
 
   @Test
   public void do_get_pattern() throws Exception {
-    assertThat(underTest.doGetPattern().getUrl()).isEqualTo("/*");
+    assertThat(underTest.doGetPattern().getIncludePatterns()).containsOnly("/*");
+    assertThat(underTest.doGetPattern().getExcludePatterns()).containsOnly("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*");
   }
 
   @Test
