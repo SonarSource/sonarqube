@@ -188,6 +188,10 @@
       <groupId>${project.groupId}</groupId>
       <artifactId>sonar-plugin-bridge</artifactId>
     </dependency>
+    <dependency>
+      <groupId>io.jsonwebtoken</groupId>
+      <artifactId>jjwt</artifactId>
+    </dependency>
 
     <!-- unit tests -->
     <dependency>

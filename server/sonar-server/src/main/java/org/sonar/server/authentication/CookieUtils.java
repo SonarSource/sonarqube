@@ -17,26 +17,27 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
+
 package org.sonar.server.authentication;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.authentication.ws.AuthenticationWs;
+import java.util.Arrays;
+import java.util.Optional;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
-public class AuthenticationModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      AuthenticationWs.class,
-      InitFilter.class,
-      OAuth2CallbackFilter.class,
-      IdentityProviderRepository.class,
-      BaseContextFactory.class,
-      OAuth2ContextFactory.class,
-      UserIdentityAuthenticator.class,
-      CsrfVerifier.class,
-      GenerateJwtTokenFilter.class,
-      ValidateJwtTokenFilter.class,
-      JwtSerializer.class,
-      JwtHttpHandler.class);
+public class CookieUtils {
+
+  private CookieUtils() {
+    // Only static methods
+  }
+
+  public static Optional<Cookie> findCookie(String cookieName, HttpServletRequest request) {
+    Cookie[] cookies = request.getCookies();
+    if (cookies == null) {
+      return Optional.empty();
+    }
+    return Arrays.stream(cookies)
+      .filter(cookie -> cookieName.equals(cookie.getName()))
+      .findFirst();
   }
 }

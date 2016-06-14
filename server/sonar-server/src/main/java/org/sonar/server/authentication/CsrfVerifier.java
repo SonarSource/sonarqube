@@ -19,16 +19,17 @@
  */
 package org.sonar.server.authentication;
 
+import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
+import static org.apache.commons.lang.StringUtils.isBlank;
+
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.Optional;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
 import org.sonar.server.exceptions.UnauthorizedException;
-
-import static org.apache.commons.codec.digest.DigestUtils.sha256Hex;
-import static org.apache.commons.lang.StringUtils.isBlank;
 
 public class CsrfVerifier {
 
@@ -54,27 +55,24 @@ public class CsrfVerifier {
   }
 
   public void verifyState(HttpServletRequest request, HttpServletResponse response) {
-    Cookie stateCookie = null;
-    Cookie[] cookies = request.getCookies();
-    for (Cookie cookie : cookies) {
-      if (CSRF_STATE_COOKIE.equals(cookie.getName())) {
-        stateCookie = cookie;
-      }
-    }
-    if (stateCookie == null) {
+    Optional<Cookie> stateCookie = CookieUtils.findCookie(CSRF_STATE_COOKIE, request);
+    if (!stateCookie.isPresent()) {
       throw new UnauthorizedException();
     }
-    String hashInCookie = stateCookie.getValue();
+    Cookie cookie = stateCookie.get();
+
+    String hashInCookie = cookie.getValue();
 
     // remove cookie
-    stateCookie.setValue(null);
-    stateCookie.setMaxAge(0);
-    stateCookie.setPath(server.getContextPath() + "/");
-    response.addCookie(stateCookie);
+    cookie.setValue(null);
+    cookie.setMaxAge(0);
+    cookie.setPath(server.getContextPath() + "/");
+    response.addCookie(cookie);
 
     String stateInRequest = request.getParameter("state");
     if (isBlank(stateInRequest) || !sha256Hex(stateInRequest).equals(hashInCookie)) {
       throw new UnauthorizedException();
     }
   }
+
 }
