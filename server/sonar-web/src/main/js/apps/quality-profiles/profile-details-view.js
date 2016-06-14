@@ -36,7 +36,7 @@ export default Marionette.LayoutView.extend({
   },
 
   modelEvents: {
-    'change': 'handleChange',
+    'change': 'onChange',
     'flashChangelog': 'flashChangelog'
   },
 
