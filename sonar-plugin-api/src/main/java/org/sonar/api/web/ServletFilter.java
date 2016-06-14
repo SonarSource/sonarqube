@@ -22,7 +22,9 @@ package org.sonar.api.web;
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.ImmutableSet.copyOf;
 
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 import javax.servlet.Filter;
 import org.sonar.api.ExtensionPoint;
@@ -44,42 +46,63 @@ public abstract class ServletFilter implements Filter {
 
   public static final class UrlPattern {
 
-    private final Set<String> includePatterns;
-    private final Set<String> excludePatterns;
+    private enum PatternType {
+      MATCH_ALL, START_WITH_STAR, END_WITH_START, ANY
+    }
+
+    private static final String MATCH_ALL_URL = "/*";
+
+    private final boolean matchAllUrls;
+    private final Map<String, UrlWithType> includePatterns = new HashMap<>();
+    private final Map<String, UrlWithType> excludePatterns = new HashMap<>();
 
     private UrlPattern(Builder builder) {
-      this.includePatterns = builder.includePatterns;
-      this.excludePatterns = builder.excludePatterns;
+      for (String includePattern : builder.includePatterns) {
+        includePatterns.put(includePattern, new UrlWithType(includePattern));
+      }
+      for (String excludePattern : builder.excludePatterns) {
+        excludePatterns.put(excludePattern, new UrlWithType(excludePattern));
+      }
+      this.matchAllUrls = excludePatterns.isEmpty() && includePatterns.size() == 1 && includePatterns.keySet().iterator().next().equals(MATCH_ALL_URL);
     }
 
     public boolean matches(String path) {
-      return !excludePatterns.stream().anyMatch(pattern -> matches(path, pattern))
-        && includePatterns.stream().anyMatch(pattern -> matches(path, pattern));
+      // Optimization for filter that match all urls
+      if (matchAllUrls) {
+        return true;
+      }
+      for (Map.Entry<String, UrlWithType> excludePattern : excludePatterns.entrySet()) {
+        if (matches(path, excludePattern.getValue())) {
+          return false;
+        }
+      }
+      for (Map.Entry<String, UrlWithType> includePattern : includePatterns.entrySet()) {
+        if (matches(path, includePattern.getValue())) {
+          return true;
+        }
+      }
+      return false;
     }
 
-    private static boolean matches(String path, String pattern) {
-      String urlToMatch = getUrlToMatch(pattern);
-      if ("/*".equals(pattern)) {
-        return true;
-      } else if (pattern.startsWith("*")) {
-        return path.endsWith(urlToMatch);
-      } else if (pattern.endsWith("*")) {
-        return path.startsWith(urlToMatch);
-      } else {
-        return path.equals(urlToMatch);
+    private static boolean matches(String path, UrlWithType urlWithType) {
+      switch (urlWithType.getPatternType()) {
+        case MATCH_ALL:
+          return true;
+        case START_WITH_STAR:
+          return path.endsWith(urlWithType.getUrlToMatch());
+        case END_WITH_START:
+          return path.startsWith(urlWithType.getUrlToMatch());
+        default:
+          return path.equals(urlWithType.getUrlToMatch());
       }
     }
 
-    private static String getUrlToMatch(String url) {
-      return url.replaceAll("/?\\*", "");
-    }
-
     public Set<String> getIncludePatterns() {
-      return includePatterns;
+      return includePatterns.keySet();
     }
 
     public Set<String> getExcludePatterns() {
-      return excludePatterns;
+      return excludePatterns.keySet();
     }
 
     @Override
@@ -104,7 +127,7 @@ public abstract class ServletFilter implements Filter {
 
       private Builder() {
         this.includePatterns = new HashSet<>();
-        this.includePatterns.add("/*");
+        this.includePatterns.add(MATCH_ALL_URL);
         this.excludePatterns = new HashSet<>();
       }
 
@@ -127,6 +150,32 @@ public abstract class ServletFilter implements Filter {
 
       private static void checkNoEmptyValue(Set<String> list) {
         checkArgument(!list.stream().anyMatch(String::isEmpty), "Empty url");
+      }
+    }
+
+    private static class UrlWithType {
+      private String urlToMatch;
+      private PatternType urlType;
+
+      UrlWithType(String url) {
+        this.urlToMatch = url.replaceAll("/?\\*", "");
+        if ("/*".equals(url)) {
+          this.urlType = PatternType.MATCH_ALL;
+        } else if (url.startsWith("*")) {
+          this.urlType = PatternType.START_WITH_STAR;
+        } else if (url.endsWith("*")) {
+          this.urlType = PatternType.END_WITH_START;
+        } else {
+          this.urlType = PatternType.ANY;
+        }
+      }
+
+      String getUrlToMatch() {
+        return urlToMatch;
+      }
+
+      PatternType getPatternType() {
+        return urlType;
       }
     }
 
