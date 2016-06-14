@@ -69,7 +69,7 @@ class Request {
         options.body = queryString(this.data);
       }
     }
-    return window.fetch(url, options);
+    return window.fetch(window.baseUrl + url, options);
   }
 
   setMethod (method) {

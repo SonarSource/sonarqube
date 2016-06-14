@@ -108,7 +108,7 @@ export function revokeFromGroup (permission, group, project) {
  * @returns {Promise}
  */
 export function getPermissionTemplates () {
-  const url = window.baseUrl + '/api/permissions/search_templates';
+  const url = '/api/permissions/search_templates';
   return getJSON(url);
 }
 
@@ -134,7 +134,7 @@ export function deletePermissionTemplate (options) {
  * @returns {Promise}
  */
 export function setDefaultPermissionTemplate (templateName, qualifier) {
-  const url = window.baseUrl + '/api/permissions/set_default_template';
+  const url = '/api/permissions/set_default_template';
   const data = { templateName, qualifier };
   return post(url, data);
 }
@@ -150,15 +150,13 @@ export function bulkApplyTemplateToProject (options) {
 }
 
 export function addProjectCreatorToTemplate (templateName, permission) {
-  const url = window.baseUrl +
-      '/api/permissions/add_project_creator_to_template';
+  const url = '/api/permissions/add_project_creator_to_template';
   const data = { templateName, permission };
   return post(url, data);
 }
 
 export function removeProjectCreatorFromTemplate (templateName, permission) {
-  const url = window.baseUrl +
-      '/api/permissions/remove_project_creator_from_template';
+  const url = '/api/permissions/remove_project_creator_from_template';
   const data = { templateName, permission };
   return post(url, data);
 }

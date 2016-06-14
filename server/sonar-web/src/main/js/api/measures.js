@@ -20,13 +20,13 @@
 import { getJSON } from '../helpers/request.js';
 
 export function getMeasures (componentKey, metrics) {
-  const url = window.baseUrl + '/api/measures/component';
+  const url = '/api/measures/component';
   const data = { componentKey, metricKeys: metrics.join(',') };
   return getJSON(url, data).then(r => r.component.measures);
 }
 
 export function getMeasuresAndMeta (componentKey, metrics, additional = {}) {
-  const url = window.baseUrl + '/api/measures/component';
+  const url = '/api/measures/component';
   const data = Object.assign({}, additional, {
     componentKey,
     metricKeys: metrics.join(',')

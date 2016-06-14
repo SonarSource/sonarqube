@@ -20,13 +20,12 @@
 import { post, requestDelete } from '../helpers/request';
 
 export function addFavorite (componentKey) {
-  const url = window.baseUrl + '/api/favourites';
+  const url = '/api/favourites';
   const data = { key: componentKey };
   return post(url, data);
 }
 
 export function removeFavorite (componentKey) {
-  const url = window.baseUrl +
-      '/api/favourites/' + encodeURIComponent(componentKey);
+  const url = '/api/favourites/' + encodeURIComponent(componentKey);
   return requestDelete(url);
 }
