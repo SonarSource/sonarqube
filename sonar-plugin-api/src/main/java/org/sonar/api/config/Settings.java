@@ -379,22 +379,6 @@ public class Settings {
     return this;
   }
 
-  /**
-   * @deprecated since 4.4 For embedding purpose all properties should be provided by the bootstrapper
-   */
-  @Deprecated
-  public Settings addSystemProperties() {
-    return addProperties(System.getProperties());
-  }
-
-  /**
-   * @deprecated since 4.4 For embedding purpose all properties should be provided by the bootstrapper
-   */
-  @Deprecated
-  public Settings addEnvironmentVariables() {
-    return addProperties(System.getenv());
-  }
-
   public Settings setProperties(Map<String, String> props) {
     clear();
     return addProperties(props);

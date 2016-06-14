@@ -84,8 +84,7 @@ public class DefaultSensorStorage implements SensorStorage {
     CoreMetrics.FILE_EDGES_WEIGHT_KEY,
     CoreMetrics.FILE_FEEDBACK_EDGES_KEY,
     CoreMetrics.FILE_TANGLE_INDEX_KEY,
-    CoreMetrics.FILE_TANGLES_KEY,
-    CoreMetrics.DUPLICATIONS_DATA_KEY);
+    CoreMetrics.FILE_TANGLES_KEY);
 
   private final MetricFinder metricFinder;
   private final ModuleIssues moduleIssues;

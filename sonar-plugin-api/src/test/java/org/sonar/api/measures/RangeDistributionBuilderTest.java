@@ -169,8 +169,8 @@ public class RangeDistributionBuilderTest {
 
   @Test
   public void aggregateEmptyDistribution() {
-    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.LCOM4_DISTRIBUTION);
-    builder.add(new Measure(CoreMetrics.LCOM4_DISTRIBUTION, (String) null));
+    RangeDistributionBuilder builder = new RangeDistributionBuilder(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION);
+    builder.add(new Measure(CoreMetrics.CLASS_COMPLEXITY_DISTRIBUTION, (String) null));
     Measure distribution = builder.build();
     assertThat(distribution.getData()).isEmpty();
   }

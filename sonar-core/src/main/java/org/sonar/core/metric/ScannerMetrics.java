@@ -26,15 +26,14 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.batch.ScannerSide;
+import org.sonar.api.ce.ComputeEngineSide;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metrics;
-import org.sonar.api.ce.ComputeEngineSide;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.util.Arrays.asList;
 import static org.sonar.api.measures.CoreMetrics.ACCESSORS;
 import static org.sonar.api.measures.CoreMetrics.CLASSES;
-import static org.sonar.api.measures.CoreMetrics.COMMENTED_OUT_CODE_LINES;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES;
 import static org.sonar.api.measures.CoreMetrics.COMMENT_LINES_DATA;
 import static org.sonar.api.measures.CoreMetrics.COMPLEXITY;
@@ -99,7 +98,6 @@ public class ScannerMetrics {
     COMMENT_LINES,
     COMMENT_LINES_DATA,
     NCLOC_LANGUAGE_DISTRIBUTION,
-    COMMENTED_OUT_CODE_LINES,
 
     PUBLIC_API,
     PUBLIC_UNDOCUMENTED_API,

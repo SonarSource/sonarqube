@@ -90,7 +90,7 @@ public class ComputeEngineSettings extends Settings implements ThreadLocalSettin
     res.activateDatabaseSettings(databaseProperties);
     return res;
   }
-  
+
   private DbClient getDbClient() {
     if (dbClient == null) {
       this.dbClient = componentContainer.getComponentByType(DbClient.class);
@@ -286,18 +286,6 @@ public class ComputeEngineSettings extends Settings implements ThreadLocalSettin
   @Override
   public Settings addProperties(Properties props) {
     return currentSettings().addProperties(props);
-  }
-
-  @Override
-  @Deprecated
-  public Settings addSystemProperties() {
-    return currentSettings().addSystemProperties();
-  }
-
-  @Override
-  @Deprecated
-  public Settings addEnvironmentVariables() {
-    return currentSettings().addEnvironmentVariables();
   }
 
   @Override
