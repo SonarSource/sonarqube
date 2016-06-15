@@ -74,7 +74,7 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void exclude_all() throws Exception {
+  public void exclude_all() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
       .excludes("/*")
       .build();
@@ -120,7 +120,7 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void use_multiple_include_patterns() throws Exception {
+  public void use_multiple_include_patterns() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
       .includes("/foo", "/foo2")
       .build();
@@ -132,7 +132,7 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void use_multiple_exclude_patterns() throws Exception {
+  public void use_multiple_exclude_patterns() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
       .excludes("/foo", "/foo2")
       .build();
@@ -144,7 +144,7 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void use_include_and_exclude_patterns() throws Exception {
+  public void use_include_and_exclude_patterns() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
       .includes("/foo/*", "/foo/lo*")
       .excludes("/foo/login", "/foo/logout", "/foo/list")
@@ -159,7 +159,7 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void exclude_pattern_has_higher_priority_than_include_pattern() throws Exception {
+  public void exclude_pattern_has_higher_priority_than_include_pattern() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
       .includes("/foo")
       .excludes("/foo")
@@ -198,22 +198,33 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void getUrl_returns_single_inclusion() throws Exception {
+  public void getUrl_returns_single_inclusion() {
     assertThat(ServletFilter.UrlPattern.create("/*").getUrl()).isEqualTo("/*");
     assertThat(ServletFilter.UrlPattern.create("/foo/bar").getUrl()).isEqualTo("/foo/bar");
   }
 
   @Test
-  public void getUrl_throws_ISE_if_many_urls() throws Exception {
+  public void getUrl_throws_ISE_if_many_urls() {
     thrown.expect(IllegalStateException.class);
     thrown.expectMessage("this method is deprecated and should not be used anymore");
+
     ServletFilter.UrlPattern.builder()
       .includes("/foo/*", "/foo/lo*")
       .excludes("/foo/login", "/foo/logout", "/foo/list")
       .build().getUrl();
   }
 
-  static class FakeFilter extends ServletFilter {
+  @Test
+  public void test_staticResourcePatterns() {
+    assertThat(ServletFilter.UrlPattern.Builder.staticResourcePatterns()).containsOnly(
+      "/css/*",
+      "/fonts/*",
+      "/images/*",
+      "/js/*",
+      "/static/*");
+  }
+
+  private static class FakeFilter extends ServletFilter {
     @Override
     public UrlPattern doGetPattern() {
       return UrlPattern.create("/fake");
@@ -229,7 +240,7 @@ public class ServletFilterTest {
     }
   }
 
-  static class DefaultFilter extends ServletFilter {
+  private static class DefaultFilter extends ServletFilter {
     public void init(FilterConfig filterConfig) throws ServletException {
     }
 

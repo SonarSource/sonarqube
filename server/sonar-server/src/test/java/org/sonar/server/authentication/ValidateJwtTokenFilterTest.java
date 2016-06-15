@@ -59,7 +59,7 @@ public class ValidateJwtTokenFilterTest {
     assertThat(underTest.doGetPattern().matches("/css/style.css")).isFalse();
     assertThat(underTest.doGetPattern().matches("/fonts/font.ttf")).isFalse();
     assertThat(underTest.doGetPattern().matches("/images/logo.png")).isFalse();
-    assertThat(underTest.doGetPattern().matches("/styles/style.css")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/js/jquery.js")).isFalse();
   }
 
   @Test
