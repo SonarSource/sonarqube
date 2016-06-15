@@ -19,17 +19,13 @@
  */
 package org.sonar.server.permission.ws;
 
-import com.google.common.base.Function;
 import com.google.common.base.Optional;
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 import com.google.common.collect.TreeBasedTable;
 import java.util.List;
-import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.apache.ibatis.session.ResultContext;
-import org.apache.ibatis.session.ResultHandler;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.utils.Paging;
 import org.sonar.db.DbClient;
@@ -62,7 +58,7 @@ public class SearchProjectPermissionsDataLoader {
       SearchProjectPermissionsData.Builder data = newBuilder();
       int countRootComponents = countRootComponents(dbSession, request);
       List<ComponentDto> rootComponents = searchRootComponents(dbSession, request, paging(request, countRootComponents));
-      List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentToIdFunction.INSTANCE);
+      List<Long> rootComponentIds = Lists.transform(rootComponents, ComponentDto::getId);
 
       data.rootComponents(rootComponents)
         .paging(paging(request, countRootComponents))
@@ -111,12 +107,9 @@ public class SearchProjectPermissionsDataLoader {
   private Table<Long, String, Integer> userCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
     final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
 
-    dbClient.permissionDao().usersCountByComponentIdAndPermission(dbSession, rootComponentIds, new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        CountByProjectAndPermissionDto row = (CountByProjectAndPermissionDto) context.getResultObject();
-        userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
-      }
+    dbClient.permissionDao().usersCountByComponentIdAndPermission(dbSession, rootComponentIds, context -> {
+      CountByProjectAndPermissionDto row = (CountByProjectAndPermissionDto) context.getResultObject();
+      userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
     });
 
     return userCountByRootComponentIdAndPermission;
@@ -125,23 +118,11 @@ public class SearchProjectPermissionsDataLoader {
   private Table<Long, String, Integer> groupCountByRootComponentIdAndPermission(DbSession dbSession, List<Long> rootComponentIds) {
     final Table<Long, String, Integer> userCountByRootComponentIdAndPermission = TreeBasedTable.create();
 
-    dbClient.permissionDao().groupsCountByComponentIdAndPermission(dbSession, rootComponentIds, new ResultHandler() {
-      @Override
-      public void handleResult(ResultContext context) {
-        CountByProjectAndPermissionDto row = (CountByProjectAndPermissionDto) context.getResultObject();
-        userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
-      }
+    dbClient.permissionDao().groupsCountByComponentIdAndPermission(dbSession, rootComponentIds, context -> {
+      CountByProjectAndPermissionDto row = (CountByProjectAndPermissionDto) context.getResultObject();
+      userCountByRootComponentIdAndPermission.put(row.getComponentId(), row.getPermission(), row.getCount());
     });
 
     return userCountByRootComponentIdAndPermission;
-  }
-
-  private enum ComponentToIdFunction implements Function<ComponentDto, Long> {
-    INSTANCE;
-
-    @Override
-    public Long apply(@Nonnull ComponentDto component) {
-      return component.getId();
-    }
   }
 }

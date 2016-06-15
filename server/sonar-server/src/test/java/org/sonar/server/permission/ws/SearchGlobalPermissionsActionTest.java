@@ -39,6 +39,7 @@ import org.sonar.server.ws.WsActionTester;
 import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsPermissions;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.sonar.core.permission.GlobalPermissions.DASHBOARD_SHARING;
 import static org.sonar.core.permission.GlobalPermissions.PROVISIONING;
 import static org.sonar.core.permission.GlobalPermissions.QUALITY_GATE_ADMIN;
@@ -94,11 +95,12 @@ public class SearchGlobalPermissionsActionTest {
 
   @Test
   public void protobuf_response() throws IOException {
-    WsPermissions.WsSearchGlobalPermissionsResponse wsSearchGlobalPermissionsResponse = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
+    WsPermissions.WsSearchGlobalPermissionsResponse result = WsPermissions.WsSearchGlobalPermissionsResponse.parseFrom(
       ws.newRequest()
         .setMediaType(MediaTypes.PROTOBUF)
         .execute().getInputStream());
-    System.out.println(wsSearchGlobalPermissionsResponse.getPermissionsList());
+
+    assertThat(result).isNotNull();
   }
 
   @Test

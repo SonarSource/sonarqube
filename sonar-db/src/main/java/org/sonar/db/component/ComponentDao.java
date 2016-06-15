@@ -75,6 +75,9 @@ public class ComponentDao implements Dao {
   }
 
   public int countByQuery(DbSession session, ComponentQuery query) {
+    if (query.getComponentIds() != null && query.getComponentIds().isEmpty()) {
+      return 0;
+    }
     return mapper(session).countByQuery(query);
   }
 

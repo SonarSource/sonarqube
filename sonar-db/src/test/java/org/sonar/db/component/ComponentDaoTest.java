@@ -700,9 +700,10 @@ public class ComponentDaoTest {
 
     ComponentQuery query = ComponentQuery.builder().setNameOrKeyQuery("oJect").setQualifiers(Qualifiers.PROJECT).build();
     List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 1, 3);
+    int count = underTest.countByQuery(dbSession, query);
 
     assertThat(result).hasSize(3);
-    assertThat(underTest.countByQuery(dbSession, query)).isEqualTo(9);
+    assertThat(count).isEqualTo(9);
     assertThat(result).extracting("name").containsExactly("project-2", "project-3", "project-4");
   }
 
@@ -744,10 +745,12 @@ public class ComponentDaoTest {
 
   @Test
   public void select_by_query_on_empty_list_of_component_id() {
-    ComponentQuery query = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentIds(emptySet()).build();
-    List<ComponentDto> result = underTest.selectByQuery(dbSession, query, 0, 10);
+    ComponentQuery dbQuery = ComponentQuery.builder().setQualifiers(Qualifiers.PROJECT).setComponentIds(emptySet()).build();
+    List<ComponentDto> result = underTest.selectByQuery(dbSession, dbQuery, 0, 10);
+    int count = underTest.countByQuery(dbSession, dbQuery);
 
     assertThat(result).isEmpty();
+    assertThat(count).isEqualTo(0);
   }
 
   @Test
