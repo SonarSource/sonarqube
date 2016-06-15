@@ -19,7 +19,17 @@
  */
 package org.sonar.server.permission.ws.template;
 
+import static com.google.common.primitives.Longs.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.util.collections.Sets.newSet;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+
 import java.util.Collections;
+import java.util.Date;
 import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
@@ -34,6 +44,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.component.ResourceTypesRule;
 import org.sonar.db.permission.PermissionTemplateDto;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicDto;
 import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupTesting;
 import org.sonar.db.user.UserDto;
@@ -50,14 +61,6 @@ import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.util.collections.Sets.newSet;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class DeleteTemplateActionTest {
 
@@ -151,6 +154,22 @@ public class DeleteTemplateActionTest {
     expectedException.expect(BadRequestException.class);
 
     newRequest(null);
+  }
+
+  @Test
+  public void delete_perm_tpl_characteristic_when_delete_template() throws Exception {
+    dbClient.permissionTemplateCharacteristicDao().insert(dbSession, new PermissionTemplateCharacteristicDto()
+      .setPermission(UserRole.USER)
+      .setTemplateId(permissionTemplate.getId())
+      .setWithProjectCreator(true)
+      .setCreatedAt(new Date().getTime())
+      .setUpdatedAt(new Date().getTime()));
+    dbSession.commit();
+    assertThat(dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, asList(permissionTemplate.getId()))).hasSize(1);
+
+    newRequest(TEMPLATE_UUID);
+
+    assertThat(dbClient.permissionTemplateCharacteristicDao().selectByTemplateIds(dbSession, asList(permissionTemplate.getId()))).isEmpty();
   }
 
   private PermissionTemplateDto insertTemplateAndAssociatedPermissions(PermissionTemplateDto template) {

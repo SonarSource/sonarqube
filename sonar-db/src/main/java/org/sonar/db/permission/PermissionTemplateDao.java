@@ -19,6 +19,10 @@
  */
 package org.sonar.db.permission;
 
+import static com.google.common.collect.Maps.newHashMap;
+import static java.lang.String.format;
+import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
+
 import com.google.common.annotations.VisibleForTesting;
 import java.util.Date;
 import java.util.HashMap;
@@ -36,10 +40,7 @@ import org.sonar.api.web.UserRole;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
 import org.sonar.db.MyBatis;
-
-import static com.google.common.collect.Maps.newHashMap;
-import static java.lang.String.format;
-import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
+import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
 
 public class PermissionTemplateDao implements Dao {
 
@@ -202,10 +203,6 @@ public class PermissionTemplateDao implements Dao {
     return mapper(dbSession).countAll(upperCasedNameQuery);
   }
 
-  public int countAll(DbSession session) {
-    return mapper(session).countAll(null);
-  }
-
   private static String toUppercaseSqlQuery(String nameMatch) {
     String wildcard = "%";
     return format("%s%s%s", wildcard, nameMatch.toUpperCase(Locale.ENGLISH), wildcard);
@@ -254,6 +251,7 @@ public class PermissionTemplateDao implements Dao {
     PermissionTemplateMapper mapper = mapper(session);
     mapper.deleteUserPermissions(templateId);
     mapper.deleteGroupPermissions(templateId);
+    session.getMapper(PermissionTemplateCharacteristicMapper.class).deleteByTemplateId(templateId);
     mapper.delete(templateId);
   }
 

@@ -20,6 +20,11 @@
 
 package org.sonar.db.permission.template;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.primitives.Longs.asList;
+import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.List;
 import java.util.Optional;
 import org.junit.Rule;
@@ -29,10 +34,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static java.util.Collections.emptyList;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class PermissionTemplateCharacteristicDaoTest {
   @Rule
@@ -178,5 +179,29 @@ public class PermissionTemplateCharacteristicDaoTest {
       .setWithProjectCreator(true)
       .setCreatedAt(123_456_789L)
       .setUpdatedAt(2_000_000_000L));
+  }
+
+  @Test
+  public void delete_by_permission_template_id() throws Exception {
+    underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
+      .setPermission(UserRole.USER)
+      .setTemplateId(1L)
+      .setWithProjectCreator(true)
+      .setCreatedAt(123_456_789L)
+      .setUpdatedAt(2_000_000_000L));
+    underTest.insert(dbSession, new PermissionTemplateCharacteristicDto()
+      .setPermission(UserRole.USER)
+      .setTemplateId(2L)
+      .setWithProjectCreator(true)
+      .setCreatedAt(123_456_789L)
+      .setUpdatedAt(2_000_000_000L));
+
+    assertThat(underTest.selectByTemplateIds(dbSession, asList(1L))).hasSize(1);
+    assertThat(underTest.selectByTemplateIds(dbSession, asList(1L, 2L))).hasSize(2);
+
+    dbSession.getMapper(PermissionTemplateCharacteristicMapper.class).deleteByTemplateId(1L);
+
+    assertThat(underTest.selectByTemplateIds(dbSession, asList(1L))).hasSize(0);
+    assertThat(underTest.selectByTemplateIds(dbSession, asList(1L, 2L))).hasSize(1);
   }
 }

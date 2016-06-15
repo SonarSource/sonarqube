@@ -19,6 +19,13 @@
  */
 package org.sonar.server.permission.ws;
 
+import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+
 import java.util.Set;
 import org.sonar.api.server.ws.Request;
 import org.sonar.api.server.ws.Response;
@@ -29,13 +36,6 @@ import org.sonar.db.permission.PermissionTemplateDto;
 import org.sonar.server.permission.ws.template.DefaultPermissionTemplateFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.DeleteTemplateWsRequest;
-
-import static org.sonar.server.permission.PermissionPrivilegeChecker.checkGlobalAdminUser;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
-import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class DeleteTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;

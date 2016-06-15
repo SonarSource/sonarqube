@@ -33,4 +33,6 @@ public interface PermissionTemplateCharacteristicMapper {
   void insert(PermissionTemplateCharacteristicDto templatePermissionDto);
 
   void update(PermissionTemplateCharacteristicDto templatePermissionDto);
+
+  void deleteByTemplateId(long id);
 }

@@ -49,4 +49,9 @@
     updated_at=#{updatedAt, jdbcType=BIGINT}
     where id=#{id}
   </update>
+
+  <delete id="deleteByTemplateId" parameterType="long">
+    DELETE FROM perm_tpl_characteristics
+    WHERE template_id = #{permissionTemplateId}
+  </delete>
 </mapper>
