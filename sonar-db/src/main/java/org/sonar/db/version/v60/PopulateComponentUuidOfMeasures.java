@@ -20,8 +20,6 @@
 package org.sonar.db.version.v60;
 
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.Map;
 import org.sonar.db.Database;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
@@ -36,40 +34,17 @@ public class PopulateComponentUuidOfMeasures extends BaseDataChange {
 
   @Override
   public void execute(Context context) throws SQLException {
-    Map<Long, String> componentUuidById = buildComponentUuidMap(context);
-    if (componentUuidById.isEmpty()) {
-      return;
-    }
-
-    populateUuidColumns(context, componentUuidById);
-  }
-
-  private Map<Long, String> buildComponentUuidMap(Context context) throws SQLException {
-    Map<Long, String> componentUuidById = new HashMap<>();
-    context.prepareSelect("select distinct p.id, p.uuid from projects p" +
-      " join project_measures pm on pm.project_id = p.id and pm.component_uuid is null")
-      .scroll(row -> componentUuidById.put(row.getLong(1), row.getString(2)));
-    return componentUuidById;
-  }
-
-  private void populateUuidColumns(Context context, Map<Long, String> componentUuidById) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
-    massUpdate.select("SELECT pm.id, pm.project_id from project_measures pm where pm.component_uuid is null");
+    massUpdate.select("select pm.id, s.component_uuid from project_measures pm inner join snapshots s on s.id=pm.snapshot_id where pm.component_uuid is null");
     massUpdate.update("UPDATE project_measures SET component_uuid=? WHERE id=?");
     massUpdate.rowPluralName("measures");
-    massUpdate.execute((row, update) -> this.handle(componentUuidById, row, update));
+    massUpdate.execute(this::handle);
   }
 
-  public boolean handle(Map<Long, String> componentUuidById, Select.Row row, SqlStatement update) throws SQLException {
+  public boolean handle(Select.Row row, SqlStatement update) throws SQLException {
     long id = row.getLong(1);
-    long componentId = row.getLong(2);
 
-    String componentUuid = componentUuidById.get(componentId);
-
-    if (componentUuid == null) {
-      return false;
-    }
-
+    String componentUuid = row.getString(2);
     update.setString(1, componentUuid);
     update.setLong(2, id);
 
