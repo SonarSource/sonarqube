@@ -22,7 +22,7 @@ import _ from 'underscore';
 import { getJSON } from '../helpers/request.js';
 
 export function getFacets (query, facets) {
-  const url = window.baseUrl + '/api/issues/search';
+  const url = '/api/issues/search';
   const data = _.extend({}, query, { facets: facets.join(), ps: 1, additionalFields: '_all' });
   return getJSON(url, data).then(r => {
     return { facets: r.facets, response: r };
@@ -55,7 +55,7 @@ export function getAssignees (query) {
 }
 
 export function getIssuesCount (query) {
-  const url = window.baseUrl + '/api/issues/search';
+  const url = '/api/issues/search';
   const data = _.extend({}, query, { ps: 1, facetMode: 'effort' });
   return getJSON(url, data).then(r => {
     return { issues: r.total, debt: r.debtTotal };
@@ -63,6 +63,6 @@ export function getIssuesCount (query) {
 }
 
 export function getIssueFilters () {
-  const url = window.baseUrl + '/api/issue_filters/search';
+  const url = '/api/issue_filters/search';
   return getJSON(url).then(r => r.issueFilters);
 }

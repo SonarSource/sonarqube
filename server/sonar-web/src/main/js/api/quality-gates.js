@@ -20,13 +20,13 @@
 import { getJSON, post, postJSON } from '../helpers/request';
 
 export function fetchQualityGatesAppDetails () {
-  const url = window.baseUrl + '/api/qualitygates/app';
+  const url = '/api/qualitygates/app';
 
   return getJSON(url);
 }
 
 export function fetchQualityGates () {
-  const url = window.baseUrl + '/api/qualitygates/list';
+  const url = '/api/qualitygates/list';
 
   return getJSON(url).then(r => r.qualitygates.map(qualityGate => {
     return {
@@ -37,51 +37,51 @@ export function fetchQualityGates () {
 }
 
 export function fetchQualityGate (id) {
-  const url = window.baseUrl + '/api/qualitygates/show';
+  const url = '/api/qualitygates/show';
   return getJSON(url, { id });
 }
 
 export function createQualityGate (name) {
-  const url = window.baseUrl + '/api/qualitygates/create';
+  const url = '/api/qualitygates/create';
   return postJSON(url, { name });
 }
 
 export function deleteQualityGate (id) {
-  const url = window.baseUrl + '/api/qualitygates/destroy';
+  const url = '/api/qualitygates/destroy';
   return post(url, { id });
 }
 
 export function renameQualityGate (id, name) {
-  const url = window.baseUrl + '/api/qualitygates/rename';
+  const url = '/api/qualitygates/rename';
   return post(url, { id, name });
 }
 
 export function copyQualityGate (id, name) {
-  const url = window.baseUrl + '/api/qualitygates/copy';
+  const url = '/api/qualitygates/copy';
   return postJSON(url, { id, name });
 }
 
 export function setQualityGateAsDefault (id) {
-  const url = window.baseUrl + '/api/qualitygates/set_as_default';
+  const url = '/api/qualitygates/set_as_default';
   return post(url, { id });
 }
 
 export function unsetQualityGateAsDefault (id) {
-  const url = window.baseUrl + '/api/qualitygates/unset_default';
+  const url = '/api/qualitygates/unset_default';
   return post(url, { id });
 }
 
 export function createCondition (gateId, condition) {
-  const url = window.baseUrl + '/api/qualitygates/create_condition';
+  const url = '/api/qualitygates/create_condition';
   return postJSON(url, { ...condition, gateId });
 }
 
 export function updateCondition (condition) {
-  const url = window.baseUrl + '/api/qualitygates/update_condition';
+  const url = '/api/qualitygates/update_condition';
   return postJSON(url, { ...condition });
 }
 
 export function deleteCondition (id) {
-  const url = window.baseUrl + '/api/qualitygates/delete_condition';
+  const url = '/api/qualitygates/delete_condition';
   return post(url, { id });
 }

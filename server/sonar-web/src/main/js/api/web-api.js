@@ -20,7 +20,7 @@
 import { getJSON } from '../helpers/request';
 
 export function fetchWebApi (showInternal = true) {
-  const url = window.baseUrl + '/api/webservices/list';
+  const url = '/api/webservices/list';
   const data = { 'include_internals': showInternal };
 
   return getJSON(url, data).then(r => r.webServices.map(domain => {
@@ -31,7 +31,7 @@ export function fetchWebApi (showInternal = true) {
 }
 
 export function fetchResponseExample (domain, action) {
-  const url = window.baseUrl + '/api/webservices/response_example';
+  const url = '/api/webservices/response_example';
   const data = { controller: domain, action };
 
   return getJSON(url, data);

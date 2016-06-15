@@ -20,6 +20,7 @@
 import { checkStatus, parseJSON } from '../helpers/request';
 
 export function createQualityProfile (data) {
+  // TODO
   const url = window.baseUrl + '/api/qualityprofiles/create';
   const options = {
     method: 'post',
@@ -32,6 +33,7 @@ export function createQualityProfile (data) {
 }
 
 export function restoreQualityProfile (data) {
+  // TODO
   const url = window.baseUrl + '/api/qualityprofiles/restore';
   const options = {
     method: 'post',

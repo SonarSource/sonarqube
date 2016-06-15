@@ -25,7 +25,7 @@ import { getJSON, postJSON, post } from '../helpers/request.js';
  * @returns {Promise}
  */
 export function getTokens (login) {
-  const url = window.baseUrl + '/api/user_tokens/search';
+  const url = '/api/user_tokens/search';
   const data = { login };
   return getJSON(url, data).then(r => r.userTokens);
 }
@@ -37,7 +37,7 @@ export function getTokens (login) {
  * @returns {Promise}
  */
 export function generateToken (userLogin, tokenName) {
-  const url = window.baseUrl + '/api/user_tokens/generate';
+  const url = '/api/user_tokens/generate';
   const data = { login: userLogin, name: tokenName };
   return postJSON(url, data);
 }
@@ -49,7 +49,7 @@ export function generateToken (userLogin, tokenName) {
  * @returns {Promise}
  */
 export function revokeToken (userLogin, tokenName) {
-  const url = window.baseUrl + '/api/user_tokens/revoke';
+  const url = '/api/user_tokens/revoke';
   const data = { login: userLogin, name: tokenName };
   return post(url, data);
 }

@@ -20,7 +20,7 @@
 import { post } from '../helpers/request.js';
 
 export function toggleMeasureFilter (id) {
-  const url = window.baseUrl + '/measures/toggle_fav';
+  const url = '/measures/toggle_fav';
   const data = { id };
   return post(url, data);
 }
