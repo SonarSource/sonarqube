@@ -40,13 +40,10 @@ public class ServletFilterTest {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.create("/*");
     assertThat(pattern.matches("/")).isTrue();
     assertThat(pattern.matches("/foo/ooo")).isTrue();
-
-    assertThat(pattern.getIncludePatterns()).containsOnly("/*");
-    assertThat(pattern.getExcludePatterns()).isEmpty();
   }
 
   @Test
-  public void includeend_of_url() {
+  public void include_end_of_url() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.create("*foo");
     assertThat(pattern.matches("/")).isFalse();
     assertThat(pattern.matches("/hello/foo")).isTrue();
@@ -74,18 +71,18 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void reject_all() throws Exception {
+  public void exclude_all() throws Exception {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-      .setExcludePatterns("/*")
+      .excludes("/*")
       .build();
     assertThat(pattern.matches("/")).isFalse();
     assertThat(pattern.matches("/foo/ooo")).isFalse();
   }
 
   @Test
-  public void reject_end_of_url() {
+  public void exclude_end_of_url() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-      .setExcludePatterns("*foo")
+      .excludes("*foo")
       .build();
 
     assertThat(pattern.matches("/")).isTrue();
@@ -96,9 +93,9 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void reject_beginning_of_url() {
+  public void exclude_beginning_of_url() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-      .setExcludePatterns("/foo/*")
+      .excludes("/foo/*")
       .build();
 
     assertThat(pattern.matches("/")).isTrue();
@@ -108,9 +105,9 @@ public class ServletFilterTest {
   }
 
   @Test
-  public void reject_exact_url() {
+  public void exclude_exact_url() {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-      .setExcludePatterns("/foo")
+      .excludes("/foo")
       .build();
 
     assertThat(pattern.matches("/")).isTrue();
@@ -122,7 +119,7 @@ public class ServletFilterTest {
   @Test
   public void use_multiple_include_patterns() throws Exception {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-      .setIncludePatterns("/foo", "/foo2")
+      .includes("/foo", "/foo2")
       .build();
     assertThat(pattern.matches("/")).isFalse();
     assertThat(pattern.matches("/foo")).isTrue();
@@ -134,7 +131,7 @@ public class ServletFilterTest {
   @Test
   public void use_multiple_exclude_patterns() throws Exception {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-      .setExcludePatterns("/foo", "/foo2")
+      .excludes("/foo", "/foo2")
       .build();
     assertThat(pattern.matches("/")).isTrue();
     assertThat(pattern.matches("/foo")).isFalse();
@@ -146,8 +143,8 @@ public class ServletFilterTest {
   @Test
   public void use_include_and_exclude_patterns() throws Exception {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-      .setIncludePatterns("/foo/*", "/foo/lo*")
-      .setExcludePatterns("/foo/login", "/foo/logout", "/foo/list")
+      .includes("/foo/*", "/foo/lo*")
+      .excludes("/foo/login", "/foo/logout", "/foo/list")
       .build();
     assertThat(pattern.matches("/")).isFalse();
     assertThat(pattern.matches("/foo")).isTrue();
@@ -161,56 +158,45 @@ public class ServletFilterTest {
   @Test
   public void exclude_pattern_has_higher_priority_than_include_pattern() throws Exception {
     ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
-      .setIncludePatterns("/foo")
-      .setExcludePatterns("/foo")
+      .includes("/foo")
+      .excludes("/foo")
       .build();
     assertThat(pattern.matches("/foo")).isFalse();
   }
 
   @Test
-  public void url_pattern_cannot_contain_empty_patterns() {
-    thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Empty urls");
-    ServletFilter.UrlPattern.builder()
-      .setExcludePatterns()
-      .setIncludePatterns()
+  public void accept_empty_patterns() {
+    ServletFilter.UrlPattern pattern = ServletFilter.UrlPattern.builder()
+      .excludes()
+      .includes()
       .build();
+    assertThat(pattern.matches("/")).isTrue();
+    assertThat(pattern.matches("/foo/bar")).isTrue();
   }
 
   @Test
-  public void url_pattern_cant_be_empty() {
+  public void create_throws_IAE_if_empty_url() {
     thrown.expect(IllegalArgumentException.class);
-    thrown.expectMessage("Empty url");
+    thrown.expectMessage("URL pattern must start with slash '/': ");
     ServletFilter.UrlPattern.create("");
   }
 
   @Test
   public void filter_should_return_url_pattern() {
     ServletFilter filter = new FakeFilter();
-    assertThat(filter.doGetPattern().getIncludePatterns()).containsOnly("/fake");
-    assertThat(filter.doGetPattern().getExcludePatterns()).isEmpty();
+    assertThat(filter.doGetPattern()).isNotNull();
   }
 
   @Test
   public void filter_should_apply_to_all_urls_by_default() {
     ServletFilter filter = new DefaultFilter();
-    assertThat(filter.doGetPattern().getIncludePatterns()).containsOnly("/*");
-    assertThat(filter.doGetPattern().getExcludePatterns()).isEmpty();
+    assertThat(filter.doGetPattern().matches("/")).isTrue();
+    assertThat(filter.doGetPattern().matches("/foo/bar")).isTrue();
   }
 
   @Test
-  public void get_url() throws Exception {
-    assertThat(ServletFilter.UrlPattern.create("/*").getUrl()).isEqualTo("/*");
-  }
-
-  @Test
-  public void fail_to_get_url_when_building_pattern_with_many_urls() throws Exception {
-    thrown.expect(IllegalStateException.class);
-    thrown.expectMessage("this method is deprecated and should not be used anymore");
-    ServletFilter.UrlPattern.builder()
-      .setIncludePatterns("/foo/*", "/foo/lo*")
-      .setExcludePatterns("/foo/login", "/foo/logout", "/foo/list")
-      .build().getUrl();
+  public void getUrl_is_deprecated_and_returns_empty_string() {
+    assertThat(ServletFilter.UrlPattern.create("/*").getUrl()).isEqualTo("");
   }
 
   static class FakeFilter extends ServletFilter {

@@ -44,8 +44,8 @@ public class ValidateJwtTokenFilter extends ServletFilter {
   @Override
   public UrlPattern doGetPattern() {
     return UrlPattern.builder()
-      .setIncludePatterns("/*")
-      .setExcludePatterns("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*")
+      .includes("/*")
+      .excludes(UrlPattern.Builder.staticResourcePatterns())
       .build();
   }
 

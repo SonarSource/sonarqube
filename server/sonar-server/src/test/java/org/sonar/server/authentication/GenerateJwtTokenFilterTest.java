@@ -61,8 +61,8 @@ public class GenerateJwtTokenFilterTest {
 
   @Test
   public void do_get_pattern() throws Exception {
-    assertThat(underTest.doGetPattern().getIncludePatterns()).containsOnly("/sessions/login");
-    assertThat(underTest.doGetPattern().getExcludePatterns()).isEmpty();
+    assertThat(underTest.doGetPattern().matches("/sessions/login")).isTrue();
+    assertThat(underTest.doGetPattern().matches("/")).isFalse();
   }
 
   @Test
