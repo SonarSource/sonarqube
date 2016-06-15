@@ -19,6 +19,8 @@
  */
 package org.sonarsource.sonarqube.upgrade;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.OrchestratorBuilder;
 import com.sonar.orchestrator.build.MavenBuild;
@@ -33,8 +35,6 @@ import org.apache.commons.io.IOUtils;
 import org.junit.After;
 import org.junit.Test;
 import org.sonar.wsclient.services.ResourceQuery;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class UpgradeTest {
 
@@ -51,7 +51,7 @@ public class UpgradeTest {
   }
 
   @Test
-  public void test_upgrade_from_4_5_lts() {
+  public void test_upgrade_from_4_5() {
     testDatabaseUpgrade(Version.create("4.5.1"));
   }
 
@@ -60,15 +60,11 @@ public class UpgradeTest {
     testDatabaseUpgrade(Version.create("5.2"));
   }
 
-  private void testDatabaseUpgrade(Version fromVersion, BeforeUpgrade... tasks) {
+  private void testDatabaseUpgrade(Version fromVersion) {
     startServer(fromVersion, false);
     scanProject();
     int files = countFiles(PROJECT_KEY);
     assertThat(files).isGreaterThan(0);
-
-    for (BeforeUpgrade task : tasks) {
-      task.execute();
-    }
 
     stopServer();
     // latest version
@@ -164,9 +160,5 @@ public class UpgradeTest {
         connection.disconnect();
       }
     }
-  }
-
-  private static interface BeforeUpgrade {
-    void execute();
   }
 }
