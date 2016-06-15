@@ -52,8 +52,14 @@ public class ValidateJwtTokenFilterTest {
 
   @Test
   public void do_get_pattern() throws Exception {
-    assertThat(underTest.doGetPattern().getIncludePatterns()).containsOnly("/*");
-    assertThat(underTest.doGetPattern().getExcludePatterns()).containsOnly("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*");
+    assertThat(underTest.doGetPattern().matches("/")).isTrue();
+    assertThat(underTest.doGetPattern().matches("/foo")).isTrue();
+
+    // exclude static resources
+    assertThat(underTest.doGetPattern().matches("/css/style.css")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/fonts/font.ttf")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/images/logo.png")).isFalse();
+    assertThat(underTest.doGetPattern().matches("/styles/style.css")).isFalse();
   }
 
   @Test

@@ -20,6 +20,8 @@
 
 package org.sonar.server.authentication;
 
+import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
+
 import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.FilterConfig;
@@ -44,8 +46,8 @@ public class ValidateJwtTokenFilter extends ServletFilter {
   @Override
   public UrlPattern doGetPattern() {
     return UrlPattern.builder()
-      .setIncludePatterns("/*")
-      .setExcludePatterns("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*")
+      .includes("/*")
+      .excludes(staticResourcePatterns())
       .build();
   }
 

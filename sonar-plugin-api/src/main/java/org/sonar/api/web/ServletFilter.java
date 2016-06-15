@@ -19,20 +19,21 @@
  */
 package org.sonar.api.web;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.ImmutableSet.copyOf;
-import static org.sonar.api.web.ServletFilter.UrlPattern.Pattern.Type.END_WITH_START;
-import static org.sonar.api.web.ServletFilter.UrlPattern.Pattern.Type.MATCH_ALL;
-import static org.sonar.api.web.ServletFilter.UrlPattern.Pattern.Type.START_WITH_STAR;
-
-import java.util.ArrayList;
+import com.google.common.collect.ImmutableList;
+import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import javax.servlet.Filter;
 import org.sonar.api.ExtensionPoint;
 import org.sonar.api.server.ServerSide;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static java.util.Arrays.asList;
 
 /**
  * @since 3.1
@@ -50,141 +51,148 @@ public abstract class ServletFilter implements Filter {
 
   public static final class UrlPattern {
 
-    private static final String MATCH_ALL_URL = "/*";
+    private static final String MATCH_ALL = "/*";
 
-    private final boolean matchAllUrls;
-    private final List<Pattern> includePatterns = new ArrayList<>();
-    private final List<Pattern> excludePatterns = new ArrayList<>();
+    private final List<String> inclusions;
+    private final List<String> exclusions;
+    private final Predicate<String>[] inclusionPredicates;
+    private final Predicate<String>[] exclusionPredicates;
 
     private UrlPattern(Builder builder) {
-      this.includePatterns.addAll(builder.includePatterns.stream().map(Pattern::new).collect(Collectors.toList()));
-      this.excludePatterns.addAll(builder.excludePatterns.stream().map(Pattern::new).collect(Collectors.toList()));
-      this.matchAllUrls = excludePatterns.isEmpty() && includePatterns.size() == 1 && includePatterns.get(0).getUrl().equals(MATCH_ALL_URL);
+      this.inclusions = ImmutableList.copyOf(builder.inclusions);
+      this.exclusions = ImmutableList.copyOf(builder.exclusions);
+      if (builder.inclusionPredicates.isEmpty()) {
+        // because Stream#anyMatch() returns false if stream is empty
+        this.inclusionPredicates = new Predicate[] {s -> true};
+      } else {
+        this.inclusionPredicates = builder.inclusionPredicates.stream().toArray(Predicate[]::new);
+      }
+      this.exclusionPredicates = builder.exclusionPredicates.stream().toArray(Predicate[]::new);
     }
 
     public boolean matches(String path) {
-      // Optimization for filter that match all urls
-      return matchAllUrls ||
-      // Otherwise we first verify if the url is not excluded, then we verify if the url is included
-        (!excludePatterns.stream().anyMatch(pattern -> pattern.matches(path)) && includePatterns.stream().anyMatch(pattern -> pattern.matches(path)));
+      return !Arrays.stream(exclusionPredicates).anyMatch(pattern -> pattern.test(path)) &&
+        Arrays.stream(inclusionPredicates).anyMatch(pattern -> pattern.test(path));
     }
 
     /**
      * @since 6.0
      */
-    public Set<String> getIncludePatterns() {
-      return includePatterns.stream().map(Pattern::getUrl).collect(Collectors.toSet());
+    public Collection<String> getInclusions() {
+      return inclusions;
     }
 
     /**
      * @since 6.0
      */
-    public Set<String> getExcludePatterns() {
-      return excludePatterns.stream().map(Pattern::getUrl).collect(Collectors.toSet());
+    public Collection<String> getExclusions() {
+      return exclusions;
     }
 
     /**
-     * @deprecated since 6.0, use {@link #getIncludePatterns()} or {@link #getExcludePatterns()} instead
+     * @deprecated replaced in version 6.0 by {@link #getInclusions()} and {@link #getExclusions()}
+     * @throws IllegalStateException if at least one exclusion or more than one inclusions are defined
      */
     @Deprecated
-    public String getUrl(){
+    public String getUrl() {
       // Before 6.0, it was only possible to include one url
-      if (excludePatterns.isEmpty() && includePatterns.size() == 1 ) {
-        return includePatterns.get(0).getUrl();
+      if (exclusions.isEmpty() && inclusions.size() == 1) {
+        return inclusions.get(0);
       }
       throw new IllegalStateException("this method is deprecated and should not be used anymore");
     }
 
-    @Override
-    public String toString() {
-      return "UrlPattern{" +
-        "includePatterns=" + includePatterns +
-        ", excludePatterns=" + excludePatterns +
-        '}';
+    /**
+     * Defines only a single inclusion pattern. This is a shortcut for {@code builder().includes(inclusionPattern).build()}.
+     */
+    public static UrlPattern create(String inclusionPattern) {
+      return builder().includes(inclusionPattern).build();
     }
 
-    public static UrlPattern create(String pattern) {
-      return new UrlPattern.Builder().setIncludePatterns(pattern).build();
-    }
-
+    /**
+     * @since 6.0
+     */
     public static Builder builder() {
       return new Builder();
     }
 
+    /**
+     * @since 6.0
+     */
     public static class Builder {
-      private Set<String> includePatterns = new HashSet<>();
-      private Set<String> excludePatterns = new HashSet<>();
+      private static final String WILDCARD_CHAR = "*";
+      private static final Collection<String> STATIC_RESOURCES = ImmutableList.of("/css/*", "/fonts/*", "/images/*", "/js/*", "/static/*");
+
+      private final Set<String> inclusions = new LinkedHashSet<>();
+      private final Set<String> exclusions = new LinkedHashSet<>();
+      private final Set<Predicate<String>> inclusionPredicates = new HashSet<>();
+      private final Set<Predicate<String>> exclusionPredicates = new HashSet<>();
 
       private Builder() {
-        // By default, every urls is accepted
-        this.includePatterns = new HashSet<>();
-        this.includePatterns.add(MATCH_ALL_URL);
-        this.excludePatterns = new HashSet<>();
       }
 
-      public Builder setIncludePatterns(String... includePatterns) {
-        this.includePatterns = copyOf(includePatterns);
+      public static Collection<String> staticResourcePatterns() {
+        return STATIC_RESOURCES;
+      }
+
+      /**
+       * Add inclusion patterns. Supported formats are:
+       * <ul>
+       *   <li>path prefixed by / and ended by *, for example "/api/foo/*", to match all paths "/api/foo" and "api/api/foo/something/else"</li>
+       *   <li>path prefixed by *, for example "*\/foo", to match all paths "/api/foo" and "something/else/foo"</li>
+       *   <li>path with leading slash and no wildcard, for example "/api/foo", to match exact path "/api/foo"</li>
+       * </ul>
+       */
+      public Builder includes(String... includePatterns) {
+        return includes(asList(includePatterns));
+      }
+
+      /**
+       * Add exclusion patterns. See format described in {@link #includes(String...)}
+       */
+      public Builder includes(Collection<String> includePatterns) {
+        this.inclusions.addAll(includePatterns);
+        this.inclusionPredicates.addAll(includePatterns.stream()
+          .filter(pattern -> !MATCH_ALL.equals(pattern))
+          .map(Builder::compile)
+          .collect(Collectors.toList()));
         return this;
       }
 
-      public Builder setExcludePatterns(String... excludePatterns) {
-        this.excludePatterns = copyOf(excludePatterns);
+      public Builder excludes(String... excludePatterns) {
+        return excludes(asList(excludePatterns));
+      }
+
+      public Builder excludes(Collection<String> excludePatterns) {
+        this.exclusions.addAll(excludePatterns);
+        this.exclusionPredicates.addAll(excludePatterns.stream()
+          .map(Builder::compile)
+          .collect(Collectors.toList()));
         return this;
       }
 
       public UrlPattern build() {
-        checkArgument(!includePatterns.isEmpty() || !excludePatterns.isEmpty(), "Empty urls");
-        checkNoEmptyValue(includePatterns);
-        checkNoEmptyValue(excludePatterns);
         return new UrlPattern(this);
       }
 
-      private static void checkNoEmptyValue(Set<String> list) {
-        checkArgument(!list.stream().anyMatch(String::isEmpty), "Empty url");
+      private static Predicate<String> compile(String pattern) {
+        int countStars = pattern.length() - pattern.replace(WILDCARD_CHAR, "").length();
+        if (countStars == 0) {
+          checkArgument(pattern.startsWith("/"), "URL pattern must start with slash '/': %s", pattern);
+          return url -> url.equals(pattern);
+        }
+        checkArgument(countStars == 1, "URL pattern accepts only zero or one wildcard character '*': %s", pattern);
+        if (pattern.charAt(0) == '/') {
+          checkArgument(pattern.endsWith(WILDCARD_CHAR), "URL pattern must end with wildcard character '*': %s", pattern);
+          // remove the ending /* or *
+          String path = pattern.replaceAll("/?\\*", "");
+          return url -> url.startsWith(path);
+        }
+        checkArgument(pattern.startsWith(WILDCARD_CHAR), "URL pattern must start with wildcard character '*': %s", pattern);
+        // remove the leading *
+        String path = pattern.substring(1);
+        return url -> url.endsWith(path);
       }
     }
-
-    static class Pattern {
-
-      enum Type {
-        MATCH_ALL, START_WITH_STAR, END_WITH_START, ANY
-      }
-
-      private String url;
-      private String urlToMatch;
-      private Type urlType;
-
-      Pattern(String url) {
-        this.url = url;
-        this.urlToMatch = url.replaceAll("/?\\*", "");
-        if (MATCH_ALL_URL.equals(url)) {
-          this.urlType = MATCH_ALL;
-        } else if (url.startsWith("*")) {
-          this.urlType = START_WITH_STAR;
-        } else if (url.endsWith("*")) {
-          this.urlType = END_WITH_START;
-        } else {
-          this.urlType = Type.ANY;
-        }
-      }
-
-      boolean matches(String path) {
-        switch (urlType) {
-          case MATCH_ALL:
-            return true;
-          case START_WITH_STAR:
-            return path.endsWith(urlToMatch);
-          case END_WITH_START:
-            return path.startsWith(urlToMatch);
-          default:
-            return path.equals(urlToMatch);
-        }
-      }
-
-      String getUrl() {
-        return url;
-      }
-    }
-
   }
 }
