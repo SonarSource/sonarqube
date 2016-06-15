@@ -41,7 +41,7 @@ function getCurrentLocale () {
 }
 
 function makeRequest (params) {
-  const url = window.baseUrl + '/api/l10n/index';
+  const url = '/api/l10n/index';
 
   return request(url)
       .setData(params)
