@@ -42,6 +42,7 @@ public class MyAccountPageTest {
 
   @BeforeClass
   public static void setUp() {
+    orchestrator.resetData();
     adminWsClient = newAdminWsClient(orchestrator);
   }
 
