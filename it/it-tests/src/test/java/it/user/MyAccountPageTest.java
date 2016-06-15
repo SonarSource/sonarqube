@@ -114,7 +114,7 @@ public class MyAccountPageTest {
   }
 
   private static void analyzeProject(String projectKey) {
-    SonarScanner build = SonarScanner.create(projectDir("qualityGate/xoo-sample"))
+    SonarScanner build = SonarScanner.create(projectDir("qualitygate/xoo-sample"))
       .setProjectKey(projectKey)
       .setProperty("sonar.projectDescription", "Description of a project")
       .setProperty("sonar.links.homepage", "http://example.com");
