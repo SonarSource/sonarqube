@@ -39,39 +39,39 @@
 	<td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>css=.quality-profiles-results</td>
-	<td>*Basic*</td>
+  <td>waitForElementPresent</td>
+  <td>css=.quality-profiles-table-row[data-name=&quot;Basic&quot;]</td>
+  <td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>css=.search-navigator-filters</td>
-	<td>*Create*</td>
+  <td>click</td>
+  <td>css=.quality-profiles-table-row[data-name=&quot;Basic&quot;] .quality-profiles-table-name a</td>
+  <td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>css=.search-navigator-filters</td>
-	<td>*Restore Profile*</td>
+  <td>waitForText</td>
+  <td>css=.quality-profile-header</td>
+  <td>*Basic*</td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>css=.search-navigator-filters</td>
-	<td>*Restore Built-in Profiles*</td>
+  <td>assertElementPresent</td>
+  <td>css=.js-change-parent</td>
+  <td></td>
 </tr>
 <tr>
-	<td>open</td>
-	<td>/project/profile/sample</td>
-	<td></td>
+  <td>open</td>
+  <td>/project/profile/sample</td>
+  <td></td>
 </tr>
 <tr>
-	<td>waitForText</td>
-	<td>id=content</td>
-	<td>*Quality Profiles*</td>
+  <td>waitForText</td>
+  <td>id=content</td>
+  <td>*Quality Profiles*</td>
 </tr>
 <tr>
-	<td>assertValue</td>
-	<td>id=submit-xoo</td>
-	<td>glob:*Update*</td>
+  <td>assertValue</td>
+  <td>id=submit-xoo</td>
+  <td>glob:*Update*</td>
 </tr>
 </tbody>
 </table>

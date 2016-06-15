@@ -4,12 +4,12 @@
   </div>
   <div class="modal-body">
     <div class="js-modal-messages"></div>
-    {{#notEmpty children}}
+    {{#if childrenCount}}
       <div class="alert alert-warning">{{t 'quality_profiles.this_profile_has_descendants'}}</div>
       <p>{{tp 'quality_profiles.are_you_sure_want_delete_profile_x_and_descendants' name languageName}}</p>
     {{else}}
       <p>{{tp 'quality_profiles.are_you_sure_want_delete_profile_x' name languageName}}</p>
-    {{/notEmpty}}
+    {{/if}}
   </div>
   <div class="modal-foot">
     <button id="delete-profile-submit">{{t 'delete'}}</button>

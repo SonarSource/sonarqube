@@ -17,66 +17,43 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-import $ from 'jquery';
-import Backbone from 'backbone';
-import Marionette from 'backbone.marionette';
-import Router from './router';
-import Controller from './controller';
-import Layout from './layout';
-import Profiles from './profiles';
-import ActionsView from './actions-view';
-import ProfilesView from './profiles-view';
+import React from 'react';
+import { render } from 'react-dom';
+import {
+    Router,
+    Route,
+    IndexRoute,
+    Redirect,
+    useRouterHistory
+} from 'react-router';
+import { createHistory } from 'history';
+import App from './components/App';
+import ProfileContainer from './components/ProfileContainer';
+import HomeContainer from './home/HomeContainer';
+import ProfileDetails from './details/ProfileDetails';
+import ChangelogContainer from './changelog/ChangelogContainer';
+import ComparisonContainer from './compare/ComparisonContainer';
 
-const App = new Marionette.Application();
-const requestUser = $.get(window.baseUrl + '/api/users/current').done(function (r) {
-  App.canWrite = r.permissions.global.indexOf('profileadmin') !== -1;
+window.sonarqube.appStarted.then(options => {
+  const el = document.querySelector(options.el);
+
+  const history = useRouterHistory(createHistory)({
+    basename: window.baseUrl + '/profiles'
+  });
+
+  render((
+      <Router history={history}>
+        <Route path="/" component={App}>
+          <Redirect from="/index" to="/"/>
+
+          <IndexRoute component={HomeContainer}/>
+
+          <Route component={ProfileContainer}>
+            <Route path="show" component={ProfileDetails}/>
+            <Route path="changelog" component={ChangelogContainer}/>
+            <Route path="compare" component={ComparisonContainer}/>
+          </Route>
+        </Route>
+      </Router>
+  ), el);
 });
-const requestExporters = $.get(window.baseUrl + '/api/qualityprofiles/exporters').done(function (r) {
-  App.exporters = r.exporters;
-});
-const init = function () {
-  const options = window.sonarqube;
-
-  // Layout
-  this.layout = new Layout({ el: options.el });
-  this.layout.render();
-  $('#footer').addClass('search-navigator-footer');
-
-  // Profiles List
-  this.profiles = new Profiles();
-
-  // Controller
-  this.controller = new Controller({ app: this });
-
-  // Actions View
-  this.actionsView = new ActionsView({
-    collection: this.profiles,
-    canWrite: this.canWrite
-  });
-  this.actionsView.requestLanguages().done(function () {
-    App.layout.actionsRegion.show(App.actionsView);
-  });
-
-  // Profiles View
-  this.profilesView = new ProfilesView({
-    collection: this.profiles,
-    canWrite: this.canWrite
-  });
-  this.layout.resultsRegion.show(this.profilesView);
-
-  // Router
-  this.router = new Router({ app: this });
-  Backbone.history.start({
-    pushState: true,
-    root: options.urlRoot
-  });
-};
-
-App.on('start', function () {
-  $.when(requestUser, requestExporters).done(function () {
-    init.call(App);
-  });
-});
-
-window.sonarqube.appStarted.then(options => App.start(options));
-

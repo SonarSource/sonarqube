@@ -66,7 +66,7 @@ export const TooltipsContainer = React.createClass({
   },
 
   componentWillUpdate() {
-    this.hideTooltips();
+    this.destroyTooltips();
   },
 
   componentDidUpdate () {
