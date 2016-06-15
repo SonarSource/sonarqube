@@ -44,15 +44,15 @@ public class PopulateComponentUuidOfMeasuresTest {
     underTest.execute();
 
     assertThat(db.countRowsOfTable("project_measures")).isEqualTo(0);
-    assertThat(db.countRowsOfTable("projects")).isEqualTo(0);
+    assertThat(db.countRowsOfTable("snapshots")).isEqualTo(0);
   }
 
   @Test
-  public void migration_updates_component_uuid_with_values_from_table_projects_when_they_exist() throws SQLException {
-    String uuid1 = insertComponent(40);
-    String uuid2 = insertComponent(50);
-    String uuid3 = insertComponent(60);
-    String uuid4 = insertComponent(70);
+  public void migration_updates_component_uuid_with_values_from_table_snapshots_when_they_exist() throws SQLException {
+    String uuid1 = insertSnapshot(40);
+    String uuid2 = insertSnapshot(50);
+    String uuid3 = insertSnapshot(60);
+    String uuid4 = insertSnapshot(70);
 
     insertMeasure(1, 40);
     insertMeasure(2, 60);
@@ -70,8 +70,8 @@ public class PopulateComponentUuidOfMeasuresTest {
 
   @Test
   public void migration_is_reentrant() throws SQLException {
-    String uuid1 = insertComponent(40);
-    String uuid2 = insertComponent(50);
+    String uuid1 = insertSnapshot(40);
+    String uuid2 = insertSnapshot(50);
     insertMeasure(1, 40);
 
     underTest.execute();
@@ -82,31 +82,32 @@ public class PopulateComponentUuidOfMeasuresTest {
 
   }
 
-  private void verifyMeasure(long id, long componentId, @Nullable String componentUuid) {
-    List<Map<String, Object>> rows = db.select("select PROJECT_ID, COMPONENT_UUID from project_measures where ID=" + id);
+  private void verifyMeasure(long id, long snapshotId, @Nullable String componentUuid) {
+    List<Map<String, Object>> rows = db.select("select SNAPSHOT_ID, COMPONENT_UUID from project_measures where ID=" + id);
     assertThat(rows).hasSize(1);
     Map<String, Object> row = rows.get(0);
-    assertThat(row.get("PROJECT_ID")).isEqualTo(componentId);
+    assertThat(row.get("SNAPSHOT_ID")).isEqualTo(snapshotId);
     assertThat(row.get("COMPONENT_UUID")).isEqualTo(componentUuid);
   }
 
-  private String insertComponent(long id) {
+  private String insertSnapshot(long id) {
     String uuid = "uuid_" + id;
     db.executeInsert(
-      "projects",
-      "ID", valueOf(id),
-      "UUID", uuid);
+      "snapshots",
+      "id", valueOf(id),
+      "component_uuid", uuid,
+      "root_component_uuid", valueOf(id + 100));
     return uuid;
   }
 
-  private void insertMeasure(long id, long componentId) {
+  private void insertMeasure(long id, long snapshotId) {
     db.executeInsert(
       "project_measures",
       "ID", valueOf(id),
       "METRIC_ID", valueOf(id + 10),
-      "SNAPSHOT_ID", valueOf(id + 100),
+      "SNAPSHOT_ID", valueOf(snapshotId),
       "VALUE", valueOf(id + 1000),
-      "PROJECT_ID", valueOf(componentId));
+      "PROJECT_ID", valueOf(snapshotId + 1000));
 
   }
 }
