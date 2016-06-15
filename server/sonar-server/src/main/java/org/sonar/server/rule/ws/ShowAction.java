@@ -60,7 +60,7 @@ public class ShowAction implements RulesWsAction {
   public void define(WebService.NewController controller) {
     WebService.NewAction action = controller
       .createAction("show")
-      .setDescription("Get detailed information about a rule" +
+      .setDescription("Get detailed information about a rule<br>" +
         "Since 5.5, following fields in the response have been deprecated :" +
         "<ul>" +
         "<li>\"effortToFixDescription\" becomes \"gapDescription\"</li>" +
