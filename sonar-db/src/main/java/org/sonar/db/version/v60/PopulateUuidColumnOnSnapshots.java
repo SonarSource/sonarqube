@@ -20,27 +20,36 @@
 package org.sonar.db.version.v60;
 
 import java.sql.SQLException;
+import org.sonar.core.util.UuidFactory;
 import org.sonar.db.Database;
-import org.sonar.db.version.AddColumnsBuilder;
-import org.sonar.db.version.DdlChange;
+import org.sonar.db.version.BaseDataChange;
+import org.sonar.db.version.MassUpdate;
+import org.sonar.db.version.Select;
+import org.sonar.db.version.SqlStatement;
 
-import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
-import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+public class PopulateUuidColumnOnSnapshots extends BaseDataChange {
 
-public class AddUuidColumnsToSnapshots extends DdlChange {
+  private final UuidFactory uuidFactory;
 
-  private static final String TABLE_SNAPSHOTS = "snapshots";
-
-  public AddUuidColumnsToSnapshots(Database db) {
+  public PopulateUuidColumnOnSnapshots(Database db, UuidFactory uuidFactory) {
     super(db);
+    this.uuidFactory = uuidFactory;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_SNAPSHOTS)
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
-      .addColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
-      .build());
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT s.id from snapshots s where s.uuid is null");
+    massUpdate.update("UPDATE snapshots SET uuid=? WHERE id=?");
+    massUpdate.rowPluralName("snapshots");
+    massUpdate.execute(this::handle);
+  }
+
+  private boolean handle(Select.Row row, SqlStatement update) throws SQLException {
+    long id = row.getLong(1);
+    update.setString(1, uuidFactory.create());
+    update.setLong(2, id);
+    return true;
   }
 
 }

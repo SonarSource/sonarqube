@@ -62,6 +62,7 @@ public class SnapshotDaoTest {
     SnapshotDto result = underTest.selectById(db.getSession(), 3L);
     assertThat(result).isNotNull();
     assertThat(result.getId()).isEqualTo(3L);
+    assertThat(result.getUuid()).isEqualTo("u3");
     assertThat(result.getComponentUuid()).isEqualTo("uuid_3");
     assertThat(result.getRootComponentUuid()).isEqualTo("uuid_1");
     assertThat(result.getParentId()).isEqualTo(2L);
@@ -254,8 +255,8 @@ public class SnapshotDaoTest {
     db.prepareDbUnit(getClass(), "empty.xml");
 
     underTest.insert(db.getSession(),
-      new SnapshotDto().setComponentUuid("uuid_1").setRootComponentUuid("uuid_1").setLast(false),
-      new SnapshotDto().setComponentUuid("uuid_2").setRootComponentUuid("uuid_1").setLast(false));
+      new SnapshotDto().setComponentUuid("uuid_1").setRootComponentUuid("uuid_1").setLast(false).setUuid("u5"),
+      new SnapshotDto().setComponentUuid("uuid_2").setRootComponentUuid("uuid_1").setLast(false).setUuid("u6"));
     db.getSession().commit();
 
     assertThat(db.countRowsOfTable("snapshots")).isEqualTo(2);
@@ -336,6 +337,7 @@ public class SnapshotDaoTest {
 
   private static SnapshotDto defaultSnapshot() {
     return new SnapshotDto()
+      .setUuid("u1")
       .setComponentUuid("uuid_3")
       .setRootComponentUuid("uuid_1")
       .setParentId(2L)

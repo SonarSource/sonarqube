@@ -55,6 +55,7 @@ import static org.sonar.server.computation.component.ComponentFunctions.toKey;
 public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
 
   private static final int PROJECT_KEY = 1;
+  private static final String ANALYSIS_UUID = "U1";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
@@ -83,6 +84,7 @@ public class ViewsPersistSnapshotsStepTest extends BaseStepTest {
   @Before
   public void setup() {
     analysisDate = DateUtils.parseDateQuietly("2015-06-01").getTime();
+    analysisMetadataHolder.setUuid(ANALYSIS_UUID);
     analysisMetadataHolder.setAnalysisDate(analysisDate);
 
     now = DateUtils.parseDateQuietly("2015-06-02").getTime();

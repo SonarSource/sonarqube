@@ -31,19 +31,34 @@ import org.sonar.server.computation.util.InitializedProperty;
 import static com.google.common.base.Preconditions.checkNotNull;
 import static com.google.common.base.Preconditions.checkState;
 
-public class AnalysisMetadataHolderRule extends ExternalResource implements AnalysisMetadataHolder {
+public class AnalysisMetadataHolderRule extends ExternalResource implements MutableAnalysisMetadataHolder {
 
-  private InitializedProperty<Long> analysisDate = new InitializedProperty<>();
+  private final InitializedProperty<String> uuid = new InitializedProperty<>();
 
-  private InitializedProperty<Snapshot> baseProjectSnapshot = new InitializedProperty<>();
+  private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
-  private InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
+  private final InitializedProperty<Snapshot> baseProjectSnapshot = new InitializedProperty<>();
 
-  private InitializedProperty<String> branch = new InitializedProperty<>();
+  private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
 
-  private InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
+  private final InitializedProperty<String> branch = new InitializedProperty<>();
 
-  private InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
+  private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
+
+  private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
+
+  @Override
+  public String getUuid() {
+    checkState(uuid.isInitialized(), "Analysis UUID has not been set");
+    return this.uuid.getProperty();
+  }
+
+  @Override
+  public AnalysisMetadataHolderRule setUuid(String s) {
+    checkNotNull(s, "UUID must not be null");
+    this.uuid.setProperty(s);
+    return this;
+  }
 
   public AnalysisMetadataHolderRule setAnalysisDate(Date date) {
     checkNotNull(date, "Date must not be null");
@@ -51,6 +66,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
     return this;
   }
 
+  @Override
   public AnalysisMetadataHolderRule setAnalysisDate(long date) {
     checkNotNull(date, "Date must not be null");
     this.analysisDate.setProperty(date);
@@ -68,6 +84,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
     return getBaseProjectSnapshot() == null;
   }
 
+  @Override
   public AnalysisMetadataHolderRule setBaseProjectSnapshot(@Nullable Snapshot baseProjectSnapshot) {
     this.baseProjectSnapshot.setProperty(baseProjectSnapshot);
     return this;
@@ -80,6 +97,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
     return baseProjectSnapshot.getProperty();
   }
 
+  @Override
   public AnalysisMetadataHolderRule setCrossProjectDuplicationEnabled(boolean isCrossProjectDuplicationEnabled) {
     this.crossProjectDuplicationEnabled.setProperty(isCrossProjectDuplicationEnabled);
     return this;
@@ -91,6 +109,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
     return crossProjectDuplicationEnabled.getProperty();
   }
 
+  @Override
   public AnalysisMetadataHolderRule setBranch(@Nullable String branch) {
     this.branch.setProperty(branch);
     return this;
@@ -102,6 +121,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
     return branch.getProperty();
   }
 
+  @Override
   public AnalysisMetadataHolderRule setRootComponentRef(int rootComponentRef) {
     this.rootComponentRef.setProperty(rootComponentRef);
     return this;
@@ -113,6 +133,7 @@ public class AnalysisMetadataHolderRule extends ExternalResource implements Anal
     return rootComponentRef.getProperty();
   }
 
+  @Override
   public AnalysisMetadataHolderRule setQProfilesByLanguage(Map<String, QualityProfile> qProfilesPerLanguage) {
     this.qProfilesPerLanguage.setProperty(qProfilesPerLanguage);
     return this;

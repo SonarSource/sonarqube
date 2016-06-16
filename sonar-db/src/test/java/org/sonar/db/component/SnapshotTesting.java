@@ -19,6 +19,7 @@
  */
 package org.sonar.db.component;
 
+import org.apache.commons.lang.RandomStringUtils;
 import org.assertj.core.util.Strings;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -61,6 +62,7 @@ public class SnapshotTesting {
     checkNotNull(component.getId(), "The project need to be persisted before creating this snapshot");
     checkNotNull(rootComponentUuid, "Root component uuid is null");
     return new SnapshotDto()
+      .setUuid(RandomStringUtils.randomAlphanumeric(40))
       .setComponentUuid(component.uuid())
       .setRootComponentUuid(rootComponentUuid)
       .setStatus(SnapshotDto.STATUS_PROCESSED)

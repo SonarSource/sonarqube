@@ -150,7 +150,11 @@ public class ResourceIndexDaoTest {
     ComponentDto project = new ComponentDto().setUuid(ROOT_UUID).setRootUuid(ROOT_UUID).setKey("the_key").setName(longName).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT);
     DbSession session = dbTester.getSession();
     dbTester.getDbClient().componentDao().insert(session, project);
-    dbTester.getDbClient().snapshotDao().insert(session, new SnapshotDto().setComponentUuid(project.uuid()).setRootComponentUuid(project.uuid()).setLast(true));
+    dbTester.getDbClient().snapshotDao().insert(session, new SnapshotDto()
+      .setUuid("u1")
+      .setComponentUuid(project.uuid())
+      .setRootComponentUuid(project.uuid())
+      .setLast(true));
 
     underTest.indexProject(session, project.uuid());
     session.commit();

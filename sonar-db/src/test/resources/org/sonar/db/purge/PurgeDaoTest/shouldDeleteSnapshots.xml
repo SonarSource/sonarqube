@@ -2,6 +2,7 @@
 
   <!-- do not delete if islast=true -->
   <snapshots id="1"
+             uuid="u1"
              component_uuid="P1" parent_snapshot_id="[null]" root_component_uuid="P1" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -14,6 +15,7 @@
 
   <!-- delete only resource 1 -->
   <snapshots id="2"
+             uuid="u2"
              component_uuid="uuid_2" parent_snapshot_id="1" root_component_uuid="P1" root_snapshot_id="1"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -26,6 +28,7 @@
 
   <!-- to be deleted -->
   <snapshots id="3"
+             uuid="u3"
              component_uuid="P1" parent_snapshot_id="[null]" root_component_uuid="P1" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"

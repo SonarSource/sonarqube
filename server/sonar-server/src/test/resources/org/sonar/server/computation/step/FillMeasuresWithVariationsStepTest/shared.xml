@@ -22,10 +22,14 @@
             enabled="true"/>
 
   <!-- snapshots -->
-  <snapshots id="1000" project_id="1" root_project_id="1" root_snapshot_id="[null]"
+  <snapshots id="1000"
+             uuid="u1000"
+             project_id="1" root_project_id="1" root_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" created_at="1225544280000" build_date="1225544280000"
              status="P" islast="false"/>
-  <snapshots id="1001" project_id="2" root_project_id="1" root_snapshot_id="1000"
+  <snapshots id="1001"
+             uuid="u1001"
+             project_id="2" root_project_id="1" root_snapshot_id="1000"
              scope="DIR" qualifier="PAC" created_at="1225544280000" build_date="1225544280000"
              status="P" islast="false"/>
 

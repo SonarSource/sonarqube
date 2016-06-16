@@ -9,6 +9,7 @@
 
   <!-- past snapshot with status "processed" and already purged -->
   <snapshots id="1"
+             uuid="u1"
              component_uuid="projectUUID" parent_snapshot_id="[null]" root_component_uuid="projectUUID" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="1"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -21,6 +22,7 @@
 
   <!-- snapshot with status "unprocessed" -> to be deleted -->
   <snapshots id="2"
+             uuid="u2"
              component_uuid="projectUUID" parent_snapshot_id="[null]" root_component_uuid="projectUUID" root_snapshot_id="[null]"
              status="U" islast="[false]" purge_status="0"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -33,6 +35,7 @@
 
   <!-- snapshot with status "processed" and flagged as "last" -> do not purge and do not delete -->
   <snapshots id="3"
+             uuid="u3"
              component_uuid="projectUUID" parent_snapshot_id="[null]" root_component_uuid="projectUUID" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="0"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"

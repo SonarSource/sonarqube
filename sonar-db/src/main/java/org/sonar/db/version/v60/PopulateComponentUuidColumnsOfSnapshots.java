@@ -28,9 +28,9 @@ import org.sonar.db.version.MassUpdate;
 import org.sonar.db.version.Select;
 import org.sonar.db.version.SqlStatement;
 
-public class PopulateUuidColumnsOfSnapshots extends BaseDataChange {
+public class PopulateComponentUuidColumnsOfSnapshots extends BaseDataChange {
 
-  public PopulateUuidColumnsOfSnapshots(Database db) {
+  public PopulateComponentUuidColumnsOfSnapshots(Database db) {
     super(db);
   }
 

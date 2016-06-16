@@ -147,8 +147,15 @@ public class ComponentNavigationActionTest {
     ComponentDto project = ComponentTesting.newProjectDto("abcd")
       .setKey("polop").setName("Polop");
     dbClient.componentDao().insert(dbTester.getSession(), project);
-    dbClient.snapshotDao().insert(dbTester.getSession(), new SnapshotDto().setCreatedAt(snapshotDate.getTime()).setVersion("3.14")
-      .setLast(true).setQualifier(project.qualifier()).setComponentUuid(project.uuid()).setRootComponentUuid(project.uuid()).setScope(project.scope()));
+    dbClient.snapshotDao().insert(dbTester.getSession(), new SnapshotDto()
+      .setUuid("u1")
+      .setCreatedAt(snapshotDate.getTime())
+      .setVersion("3.14")
+      .setLast(true)
+      .setQualifier(project.qualifier())
+      .setComponentUuid(project.uuid())
+      .setRootComponentUuid(project.uuid())
+      .setScope(project.scope()));
     dbTester.getSession().commit();
 
     userSessionRule.login("obiwan").setUserId(userId).addProjectUuidPermissions(UserRole.USER, "abcd");

@@ -405,7 +405,7 @@ public class MeasureDaoTest {
     long otherDeveloperId = 666l;
 
     ComponentDto projectDto = insertProject("aa");
-    SnapshotDto snapshotDto = insertSnapshot(projectDto, true);
+    SnapshotDto snapshotDto = insertSnapshot("u1", projectDto, true);
     insertMeasure(projectDto, snapshotDto, DEVELOPER_ID, NCLOC_METRIC_ID, 12d);
 
     List<MeasureDto> measureDtos = underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID));
@@ -426,9 +426,9 @@ public class MeasureDaoTest {
     long otherDeveloperId = 666l;
 
     ComponentDto projectDto = insertProject("aa");
-    SnapshotDto nonLastSnapshotDto = insertSnapshot(projectDto, false);
+    SnapshotDto nonLastSnapshotDto = insertSnapshot("u1", projectDto, false);
     insertMeasure(projectDto, nonLastSnapshotDto, DEVELOPER_ID, NCLOC_METRIC_ID, 12d);
-    SnapshotDto lastSnapshotDto = insertSnapshot(projectDto, true);
+    SnapshotDto lastSnapshotDto = insertSnapshot("u2", projectDto, true);
     insertMeasure(projectDto, lastSnapshotDto, otherDeveloperId, NCLOC_METRIC_ID, 15d);
 
     assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID))).hasSize(0);
@@ -446,13 +446,13 @@ public class MeasureDaoTest {
   @Test
   public void selectProjectMeasuresByDeveloperForMetrics_returns_ignores_snapshots_of_any_component_but_project() {
     ComponentDto projectDto = insertProject("aa");
-    insertSnapshot(projectDto, true);
+    insertSnapshot("u1", projectDto, true);
     ComponentDto moduleDto = insertComponent(ComponentTesting.newModuleDto(projectDto));
-    insertMeasure(moduleDto, insertSnapshot(moduleDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 15d);
+    insertMeasure(moduleDto, insertSnapshot("u2", moduleDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 15d);
     ComponentDto dirDto = insertComponent(ComponentTesting.newDirectory(moduleDto, "toto"));
-    insertMeasure(dirDto, insertSnapshot(dirDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 25d);
+    insertMeasure(dirDto, insertSnapshot("u3", dirDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 25d);
     ComponentDto fileDto = insertComponent(ComponentTesting.newFileDto(moduleDto, "tutu"));
-    insertMeasure(fileDto, insertSnapshot(fileDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 35d);
+    insertMeasure(fileDto, insertSnapshot("u4", fileDto, true), DEVELOPER_ID, NCLOC_METRIC_ID, 35d);
 
     assertThat(underTest.selectProjectMeasuresByDeveloperForMetrics(dbSession, DEVELOPER_ID, ImmutableList.of(NCLOC_METRIC_ID))).isEmpty();
   }
@@ -468,9 +468,13 @@ public class MeasureDaoTest {
     return insertComponent(projectDto);
   }
 
-  private SnapshotDto insertSnapshot(ComponentDto componentDto, boolean last) {
-    SnapshotDto snapshotDto = new SnapshotDto().setComponentUuid(componentDto.uuid()).setRootComponentUuid(componentDto.projectUuid())
-      .setLast(last).setQualifier(componentDto.qualifier()).setScope(componentDto.scope());
+  private SnapshotDto insertSnapshot(String uuid, ComponentDto componentDto, boolean last) {
+    SnapshotDto snapshotDto = new SnapshotDto()
+      .setUuid(uuid)
+      .setComponentUuid(componentDto.uuid())
+      .setRootComponentUuid(componentDto.projectUuid())
+      .setLast(last)
+      .setQualifier(componentDto.qualifier()).setScope(componentDto.scope());
     dbClient.snapshotDao().insert(dbSession, snapshotDto);
     dbSession.commit();
     return snapshotDto;

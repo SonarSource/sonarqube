@@ -21,25 +21,24 @@ package org.sonar.db.version.v60;
 
 import java.sql.SQLException;
 import org.sonar.db.Database;
-import org.sonar.db.version.AlterColumnsBuilder;
+import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
 import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class MakeUuidColumnsNotNullOnSnapshots extends DdlChange {
+public class AddUuidColumnToSnapshots extends DdlChange {
 
   private static final String TABLE_SNAPSHOTS = "snapshots";
 
-  public MakeUuidColumnsNotNullOnSnapshots(Database db) {
+  public AddUuidColumnToSnapshots(Database db) {
     super(db);
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_SNAPSHOTS)
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
-      .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
+    context.execute(new AddColumnsBuilder(getDialect(), TABLE_SNAPSHOTS)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(true).build())
       .build());
   }
 

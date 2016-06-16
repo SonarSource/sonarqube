@@ -35,6 +35,7 @@ public final class SnapshotDto {
   private Long id;
   private Long parentId;
   private Long rootId;
+  private String uuid;
 
   private String rootComponentUuid;
   private String componentUuid;
@@ -75,6 +76,15 @@ public final class SnapshotDto {
   public SnapshotDto setId(Long id) {
     this.id = id;
     return this;
+  }
+
+  public SnapshotDto setUuid(String s) {
+    this.uuid = s;
+    return this;
+  }
+
+  public String getUuid() {
+    return this.uuid;
   }
 
   @CheckForNull

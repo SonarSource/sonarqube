@@ -84,9 +84,10 @@ import org.sonar.db.version.v55.FeedRulesTypes;
 import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
 import org.sonar.db.version.v60.AddComponentUuidColumnToMeasures;
+import org.sonar.db.version.v60.AddComponentUuidColumnsToSnapshots;
+import org.sonar.db.version.v60.AddUuidColumnToSnapshots;
 import org.sonar.db.version.v60.AddUuidColumnsToProjects;
 import org.sonar.db.version.v60.AddUuidColumnsToResourceIndex;
-import org.sonar.db.version.v60.AddUuidColumnsToSnapshots;
 import org.sonar.db.version.v60.CleanOrphanRowsInProjects;
 import org.sonar.db.version.v60.CleanOrphanRowsInResourceIndex;
 import org.sonar.db.version.v60.CleanOrphanRowsInSnapshots;
@@ -97,14 +98,16 @@ import org.sonar.db.version.v60.DropIdColumnsFromSnapshots;
 import org.sonar.db.version.v60.DropProjectIdColumnFromMeasures;
 import org.sonar.db.version.v60.DropRememberMeColumnsFromUsers;
 import org.sonar.db.version.v60.DropUnusedMeasuresColumns;
+import org.sonar.db.version.v60.MakeComponentUuidColumnsNotNullOnSnapshots;
 import org.sonar.db.version.v60.MakeComponentUuidNotNullOnMeasures;
+import org.sonar.db.version.v60.MakeUuidColumnNotNullOnSnapshots;
 import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnProjects;
 import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnResourceIndex;
-import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnSnapshots;
 import org.sonar.db.version.v60.PopulateComponentUuidOfMeasures;
+import org.sonar.db.version.v60.PopulateUuidColumnOnSnapshots;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfProjects;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
-import org.sonar.db.version.v60.PopulateUuidColumnsOfSnapshots;
+import org.sonar.db.version.v60.PopulateComponentUuidColumnsOfSnapshots;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -196,10 +199,10 @@ public class MigrationStepModule extends Module {
       MakeUuidColumnsNotNullOnResourceIndex.class,
       DropIdColumnsFromResourceIndex.class,
       DropUnusedMeasuresColumns.class,
-      AddUuidColumnsToSnapshots.class,
-      PopulateUuidColumnsOfSnapshots.class,
+      AddComponentUuidColumnsToSnapshots.class,
+      PopulateComponentUuidColumnsOfSnapshots.class,
       CleanOrphanRowsInSnapshots.class,
-      MakeUuidColumnsNotNullOnSnapshots.class,
+      MakeComponentUuidColumnsNotNullOnSnapshots.class,
       DropIdColumnsFromSnapshots.class,
       AddComponentUuidColumnToMeasures.class,
       PopulateComponentUuidOfMeasures.class,
@@ -211,6 +214,12 @@ public class MigrationStepModule extends Module {
       PopulateUuidColumnsOfProjects.class,
       CleanOrphanRowsInProjects.class,
       MakeUuidColumnsNotNullOnProjects.class,
-      DropIdColumnsFromProjects.class);
+      DropIdColumnsFromProjects.class,
+
+      // SNAPSHOTS.UUID
+      AddUuidColumnToSnapshots.class,
+      PopulateUuidColumnOnSnapshots.class,
+      MakeUuidColumnNotNullOnSnapshots.class
+    );
   }
 }

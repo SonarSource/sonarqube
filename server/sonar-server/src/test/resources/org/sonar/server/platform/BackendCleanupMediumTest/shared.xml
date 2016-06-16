@@ -4,7 +4,9 @@
             uuid="JKLM" root_uuid="JKLM" project_uuid="JKLM" module_uuid="[null]" module_uuid_path="."
             enabled="[true]" path="[null]"/>
 
-  <snapshots id="100" component_uuid="JKLM" parent_snapshot_id="[null]" root_component_uuid="JKLM" root_snapshot_id="[null]"
+  <snapshots id="100"
+             uuid="u100"
+             component_uuid="JKLM" parent_snapshot_id="[null]" root_component_uuid="JKLM" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              depth="[null]" scope="PRJ" qualifier="TRK" version="[null]" path=""/>
 

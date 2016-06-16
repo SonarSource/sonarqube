@@ -22,10 +22,20 @@
             description="[null]"
             enabled="[true]" language="java" />
 
-  <snapshots purge_status="[null]" id="1" islast="[true]" root_component_uuid="ABCD" component_uuid="ABCD" scope="PRJ"
+  <snapshots purge_status="[null]"
+             id="1"
+             uuid="u1"
+             islast="[true]" root_component_uuid="ABCD" component_uuid="ABCD" scope="PRJ"
              qualifier="TRK"/>
-  <snapshots purge_status="[null]" id="2" islast="[true]" root_component_uuid="ABCD" component_uuid="BCDE" scope="DIR"
+  <snapshots purge_status="[null]"
+             id="2"
+             uuid="u2"
+             islast="[true]" root_component_uuid="ABCD" component_uuid="BCDE" scope="DIR"
              qualifier="PAC"/>
-  <snapshots purge_status="[null]" id="3" islast="[true]" root_component_uuid="ABCD" component_uuid="CDEF" scope="FIL"
+  <snapshots purge_status="[null]"
+             id="3"
+             islast="[true]"
+             uuid="u3"
+             root_component_uuid="ABCD" component_uuid="CDEF" scope="FIL"
              qualifier="CLA"/>
 </dataset>
