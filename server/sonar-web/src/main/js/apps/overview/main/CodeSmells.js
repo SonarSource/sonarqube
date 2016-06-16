@@ -43,7 +43,8 @@ class CodeSmells extends React.Component {
     }
 
     const formattedSnapshotDate = moment(component.snapshotDate).format('LLL');
-    const tooltip = translateWithParameters('widget.as_calculated_on_x', formattedSnapshotDate);
+    const tooltip = translateWithParameters('widget.as_calculated_on_x',
+        formattedSnapshotDate);
 
     return (
         <a href={getComponentIssuesUrl(component.key, params)}>
@@ -83,19 +84,19 @@ class CodeSmells extends React.Component {
           <div className="overview-domain-measures">
             <div className="overview-domain-measure">
               <div className="overview-domain-measure-value">
-                {this.props.renderIssues('new_code_smells', 'CODE_SMELL')}
+                {this.renderDebt('new_technical_debt', 'CODE_SMELL')}
               </div>
               <div className="overview-domain-measure-label">
-                {getMetricName('new_code_smells')}
+                {getMetricName('new_effort')}
               </div>
             </div>
 
             <div className="overview-domain-measure">
               <div className="overview-domain-measure-value">
-                {this.renderDebt('new_technical_debt', 'CODE_SMELL')}
+                {this.props.renderIssues('new_code_smells', 'CODE_SMELL')}
               </div>
               <div className="overview-domain-measure-label">
-                {getMetricName('new_effort')}
+                {getMetricName('new_code_smells')}
               </div>
             </div>
           </div>
@@ -111,13 +112,14 @@ class CodeSmells extends React.Component {
           <div className="overview-domain-measures">
 
             <div className="overview-domain-measure">
-              <div className="display-inline-block text-middle" style={{ paddingLeft: 56 }}>
+              <div className="display-inline-block text-middle"
+                   style={{ paddingLeft: 56 }}>
                 <div className="overview-domain-measure-value">
-                  {this.props.renderIssues('code_smells', 'CODE_SMELL')}
+                  {this.renderDebt('sqale_index', 'CODE_SMELL')}
                   {this.props.renderRating('sqale_rating')}
                 </div>
                 <div className="overview-domain-measure-label">
-                  {getMetricName('code_smells')}
+                  {getMetricName('effort')}
                 </div>
               </div>
             </div>
@@ -125,10 +127,10 @@ class CodeSmells extends React.Component {
             <div className="overview-domain-measure">
               <div className="display-inline-block text-middle">
                 <div className="overview-domain-measure-value">
-                  {this.renderDebt('sqale_index', 'CODE_SMELL')}
+                  {this.props.renderIssues('code_smells', 'CODE_SMELL')}
                 </div>
                 <div className="overview-domain-measure-label">
-                  {getMetricName('effort')}
+                  {getMetricName('code_smells')}
                 </div>
               </div>
             </div>
@@ -141,7 +143,7 @@ class CodeSmells extends React.Component {
 
   render () {
     return (
-        <div className="overview-card">
+        <div className="overview-card" id="overview-code-smells">
           {this.renderHeader()}
 
           <div className="overview-domain-panel">
