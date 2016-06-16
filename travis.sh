@@ -58,7 +58,6 @@ CI)
 
     export MAVEN_OPTS="-Xmx1G -Xms128m"
     mvn org.jacoco:jacoco-maven-plugin:prepare-agent verify sonar:sonar \
-        -Dclirr=true \
         -Dsonar.analysis.mode=issues \
         -Dsonar.github.pullRequest=$TRAVIS_PULL_REQUEST \
         -Dsonar.github.repository=$TRAVIS_REPO_SLUG \

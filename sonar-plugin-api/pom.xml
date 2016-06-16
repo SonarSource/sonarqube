@@ -13,10 +13,6 @@
 
   <name>SonarQube :: Plugin API</name>
 
-  <properties>
-    <sonar.clirr.reportPath>${project.build.directory}/clirr-report.txt</sonar.clirr.reportPath>
-  </properties>
-
   <dependencies>
 
     <!--
@@ -224,42 +220,5 @@
       </resource>
     </resources>
   </build>
-
-  <profiles>
-    <profile>
-      <id>clirr</id>
-      <activation>
-        <property>
-          <name>clirr</name>
-          <value>true</value>
-        </property>
-      </activation>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.codehaus.mojo</groupId>
-            <artifactId>clirr-maven-plugin</artifactId>
-            <configuration>
-              <comparisonVersion>5.6</comparisonVersion>
-              <textOutputFile>${project.build.directory}/clirr-report.txt</textOutputFile>
-              <linkXRef>false</linkXRef>
-              <failOnError>false</failOnError>
-              <excludes>
-                <exclude>**/internal/**</exclude>
-              </excludes>
-            </configuration>
-            <executions>
-              <execution>
-                <id>clirr</id>
-                <goals>
-                  <goal>check-no-fork</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
-      </build>
-    </profile>
-  </profiles>
 
 </project>
