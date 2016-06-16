@@ -31,19 +31,12 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.db.Dao;
 import org.sonar.db.DbSession;
-import org.sonar.db.MyBatis;
 import org.sonar.db.RowNotFoundException;
 
 import static com.google.common.collect.FluentIterable.from;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class IssueDao implements Dao {
-
-  private final MyBatis mybatis;
-
-  public IssueDao(MyBatis mybatis) {
-    this.mybatis = mybatis;
-  }
 
   public Optional<IssueDto> selectByKey(DbSession session, String key) {
     return Optional.fromNullable(mapper(session).selectByKey(key));

@@ -19,10 +19,14 @@
  */
 package org.sonar.server.test.index;
 
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
+import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
+import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
+import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
+
 import java.util.Iterator;
 import javax.annotation.Nullable;
 import org.elasticsearch.action.search.SearchRequestBuilder;
-import org.elasticsearch.action.update.UpdateRequest;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -30,11 +34,6 @@ import org.sonar.server.es.BaseIndexer;
 import org.sonar.server.es.BulkIndexer;
 import org.sonar.server.es.EsClient;
 import org.sonar.server.source.index.FileSourcesUpdaterHelper;
-
-import static org.sonar.server.test.index.TestIndexDefinition.FIELD_FILE_UUID;
-import static org.sonar.server.test.index.TestIndexDefinition.FIELD_UPDATED_AT;
-import static org.sonar.server.test.index.TestIndexDefinition.INDEX;
-import static org.sonar.server.test.index.TestIndexDefinition.TYPE;
 
 /**
  * Add to Elasticsearch index {@link TestIndexDefinition} the rows of
@@ -51,12 +50,7 @@ public class TestIndexer extends BaseIndexer {
 
   public void index(final String projectUuid) {
     deleteByProject(projectUuid);
-    super.index(new IndexerTask() {
-      @Override
-      public long index(long lastUpdatedAt) {
-        return doIndex(lastUpdatedAt, projectUuid);
-      }
-    });
+    super.index(lastUpdatedAt -> doIndex(lastUpdatedAt, projectUuid));
   }
 
   public long index(Iterator<FileSourcesUpdaterHelper.Row> dbRows) {
@@ -90,9 +84,7 @@ public class TestIndexer extends BaseIndexer {
     bulk.start();
     while (dbRows.hasNext()) {
       FileSourcesUpdaterHelper.Row row = dbRows.next();
-      for (UpdateRequest updateRequest : row.getUpdateRequests()) {
-        bulk.add(updateRequest);
-      }
+      row.getUpdateRequests().forEach(bulk::add);
       maxUpdatedAt = Math.max(maxUpdatedAt, row.getUpdatedAt());
     }
     bulk.stop();

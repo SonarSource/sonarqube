@@ -47,7 +47,7 @@ public class SourceService {
    * @param toInclusive starts from 1, must be greater than or equal param {@code from}
    */
   public Optional<Iterable<DbFileSources.Line>> getLines(DbSession dbSession, String fileUuid, int from, int toInclusive) {
-    return getLines(dbSession, fileUuid, from, toInclusive, Functions.<DbFileSources.Line>identity());
+    return getLines(dbSession, fileUuid, from, toInclusive, Functions.identity());
   }
 
   /**
@@ -70,7 +70,7 @@ public class SourceService {
       return Optional.absent();
     }
     DbFileSources.Data data = dto.getSourceData();
-    return Optional.of((Iterable<E>) FluentIterable.from(data.getLinesList())
+    return Optional.of(FluentIterable.from(data.getLinesList())
       .filter(new IsGreaterOrEqualThanLine(from))
       .limit(toInclusive - from + 1)
       .transform(function));
@@ -81,12 +81,7 @@ public class SourceService {
   }
 
   private Function<DbFileSources.Line, String> lineToHtml() {
-    return new Function<DbFileSources.Line, String>() {
-      @Override
-      public String apply(@Nonnull DbFileSources.Line line) {
-        return htmlDecorator.getDecoratedSourceAsHtml(line.getSource(), line.getHighlighting(), line.getSymbols());
-      }
-    };
+    return line -> htmlDecorator.getDecoratedSourceAsHtml(line.getSource(), line.getHighlighting(), line.getSymbols());
   }
 
   private enum LineToRaw implements Function<DbFileSources.Line, String> {

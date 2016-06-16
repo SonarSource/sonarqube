@@ -50,7 +50,7 @@ public class SearchServer implements Monitored {
   }
 
   // copied from https://github.com/elastic/elasticsearch/blob/v2.3.3/core/src/main/java/org/elasticsearch/bootstrap/Bootstrap.java
-  private void initBootstrap() {
+  private static void initBootstrap() {
     // init lucene random seed. it will use /dev/urandom where available:
     StringHelper.randomId();
   }
