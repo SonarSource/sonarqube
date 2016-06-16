@@ -20,6 +20,21 @@
 
 package org.sonar.server.ce.ws;
 
+import static java.lang.String.format;
+import static java.util.Collections.singletonList;
+import static org.apache.commons.lang.StringUtils.defaultString;
+import static org.sonar.api.utils.DateUtils.parseDateQuietly;
+import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
+import static org.sonar.server.ws.WsUtils.checkRequest;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
+import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
@@ -55,21 +70,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsCe;
 import org.sonarqube.ws.WsCe.ActivityResponse;
 import org.sonarqube.ws.client.ce.ActivityWsRequest;
-
-import static java.lang.String.format;
-import static java.util.Collections.singletonList;
-import static org.apache.commons.lang.StringUtils.defaultString;
-import static org.sonar.api.utils.DateUtils.parseDateQuietly;
-import static org.sonar.api.utils.DateUtils.parseDateTimeQuietly;
-import static org.sonar.server.ws.WsUtils.checkRequest;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_ID;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_COMPONENT_QUERY;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MAX_EXECUTED_AT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_MIN_SUBMITTED_AT;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_ONLY_CURRENTS;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_STATUS;
-import static org.sonarqube.ws.client.ce.CeWsParameters.PARAM_TYPE;
 
 public class ActivityAction implements CeWsAction {
   private static final int OFFSET = 0;
@@ -242,12 +242,12 @@ public class ActivityAction implements CeWsAction {
     return null;
   }
 
-  private Iterable<WsCe.Task> loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
+  private List<WsCe.Task> loadQueuedTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
     List<CeQueueDto> dtos = dbClient.ceQueueDao().selectByQueryInDescOrder(dbSession, query, request.getPageSize());
     return formatter.formatQueue(dbSession, dtos);
   }
 
-  private Iterable<WsCe.Task> loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
+  private List<WsCe.Task> loadPastTasks(DbSession dbSession, ActivityWsRequest request, CeTaskQuery query) {
     List<CeActivityDto> dtos = dbClient.ceActivityDao().selectByQuery(dbSession, query, OFFSET, request.getPageSize());
     return formatter.formatActivity(dbSession, dtos);
   }
