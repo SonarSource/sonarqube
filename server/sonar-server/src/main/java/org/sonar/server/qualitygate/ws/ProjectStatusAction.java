@@ -49,7 +49,7 @@ import org.sonarqube.ws.client.qualitygate.ProjectStatusWsRequest;
 
 import static com.google.common.base.Strings.isNullOrEmpty;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
-import static org.sonar.server.ws.WsUtils.checkFound;
+import static org.sonar.server.ws.WsUtils.checkFoundWithOptional;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 import static org.sonar.server.ws.WsUtils.writeProtobuf;
 import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM_ANALYSIS_ID;
@@ -97,7 +97,7 @@ public class ProjectStatusAction implements QGateWsAction {
 
     action.createParam(PARAM_ANALYSIS_ID)
       .setDescription("Analysis id")
-      .setExampleValue("2963");
+      .setExampleValue(Uuids.UUID_EXAMPLE_04);
 
     action.createParam(PARAM_PROJECT_ID)
       .setSince("5.4")
@@ -132,9 +132,9 @@ public class ProjectStatusAction implements QGateWsAction {
   }
 
   private ProjectAndSnapshot getProjectAndSnapshot(DbSession dbSession, ProjectStatusWsRequest request) {
-    String snapshotId = request.getAnalysisId();
+    String analysisUuid = request.getAnalysisId();
     if (!isNullOrEmpty(request.getAnalysisId())) {
-      return getSnapshotThenProject(dbSession, snapshotId);
+      return getSnapshotThenProject(dbSession, analysisUuid);
     } else if (!isNullOrEmpty(request.getProjectId()) ^ !isNullOrEmpty(request.getProjectKey())) {
       return getProjectThenSnapshot(dbSession, request);
     }
@@ -154,20 +154,9 @@ public class ProjectStatusAction implements QGateWsAction {
     return new ProjectAndSnapshot(projectDto, snapshotDto);
   }
 
-  private SnapshotDto getSnapshot(DbSession dbSession, String snapshotIdFromRequest) {
-    Long snapshotId = null;
-    try {
-      snapshotId = Long.parseLong(snapshotIdFromRequest);
-    } catch (NumberFormatException e) {
-      // checks String is a long
-    }
-
-    SnapshotDto snapshotDto = null;
-    if (snapshotId != null) {
-      snapshotDto = dbClient.snapshotDao().selectById(dbSession, snapshotId);
-    }
-
-    return checkFound(snapshotDto, "Analysis with id '%s' is not found", snapshotIdFromRequest);
+  private SnapshotDto getSnapshot(DbSession dbSession, String analysisUuidFromRequest) {
+    java.util.Optional<SnapshotDto> snapshotDto = dbClient.snapshotDao().selectByUuid(dbSession, analysisUuidFromRequest);
+    return checkFoundWithOptional(snapshotDto, "Analysis with id '%s' is not found", analysisUuidFromRequest);
   }
 
   private Optional<String> getQualityGateDetailsMeasureData(DbSession dbSession, Optional<SnapshotDto> snapshotDto) {
@@ -179,7 +168,7 @@ public class ProjectStatusAction implements QGateWsAction {
       Collections.singleton(CoreMetrics.QUALITY_GATE_DETAILS_KEY), dbSession);
 
     return measures.isEmpty()
-      ? Optional.<String>absent()
+      ? Optional.absent()
       : Optional.fromNullable(measures.get(0).getData());
   }
 

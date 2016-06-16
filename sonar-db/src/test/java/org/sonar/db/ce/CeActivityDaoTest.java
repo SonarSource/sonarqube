@@ -39,6 +39,8 @@ import static org.sonar.db.ce.CeTaskTypes.REPORT;
 
 public class CeActivityDaoTest {
 
+  private static final String AN_ANALYSIS_UUID = "U1";
+
   TestSystem2 system2 = new TestSystem2().setNow(1_450_000_000_000L);
 
   @Rule
@@ -64,7 +66,7 @@ public class CeActivityDaoTest {
     assertThat(saved.get().getStartedAt()).isEqualTo(1_500_000_000_000L);
     assertThat(saved.get().getExecutedAt()).isEqualTo(1_500_000_000_500L);
     assertThat(saved.get().getExecutionTimeMs()).isEqualTo(500L);
-    assertThat(saved.get().getSnapshotId()).isEqualTo(123_456);
+    assertThat(saved.get().getAnalysisUuid()).isEqualTo("U1");
     assertThat(saved.get().toString()).isNotEmpty();
   }
 
@@ -244,7 +246,7 @@ public class CeActivityDaoTest {
     dto.setStartedAt(1_500_000_000_000L);
     dto.setExecutedAt(1_500_000_000_500L);
     dto.setExecutionTimeMs(500L);
-    dto.setSnapshotId(123_456L);
+    dto.setAnalysisUuid(AN_ANALYSIS_UUID);
     underTest.insert(db.getSession(), dto);
   }
 

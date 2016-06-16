@@ -21,6 +21,7 @@ package org.sonar.db.component;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -41,7 +42,6 @@ import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.ASC;
 import static org.sonar.db.component.SnapshotQuery.SORT_ORDER.DESC;
 import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
 
-
 public class SnapshotDaoTest {
 
   @Rule
@@ -56,7 +56,17 @@ public class SnapshotDaoTest {
   SnapshotDao underTest = dbClient.snapshotDao();
 
   @Test
-  public void get_by_key() {
+  public void test_selectByUuid() {
+    db.prepareDbUnit(getClass(), "shared.xml");
+
+    Optional<SnapshotDto> result = underTest.selectByUuid(db.getSession(), "u3");
+    assertThat(result.isPresent()).isTrue();
+
+    assertThat(underTest.selectByUuid(db.getSession(), "DOES_NOT_EXIST").isPresent()).isFalse();
+  }
+
+  @Test
+  public void test_selectById() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     SnapshotDto result = underTest.selectById(db.getSession(), 3L);
@@ -99,7 +109,7 @@ public class SnapshotDaoTest {
   }
 
   @Test
-  public void select_by_ids() {
+  public void test_selectByIds() {
     SnapshotDto snapshot1 = componentDb.insertProjectAndSnapshot(newProjectDto());
     SnapshotDto snapshot2 = componentDb.insertProjectAndSnapshot(newProjectDto());
     SnapshotDto snapshot3 = componentDb.insertProjectAndSnapshot(newProjectDto());
@@ -226,8 +236,7 @@ public class SnapshotDaoTest {
     db.getDbClient().snapshotDao().insert(dbSession,
       newSnapshotForProject(project).setCreatedAt(5L),
       newSnapshotForProject(project).setCreatedAt(2L),
-      newSnapshotForProject(project).setCreatedAt(1L)
-      );
+      newSnapshotForProject(project).setCreatedAt(1L));
     dbSession.commit();
 
     SnapshotDto dto = underTest.selectOldestSnapshot(dbSession, project.uuid());

@@ -8,7 +8,7 @@
     ca.uuid,
     ca.task_type as taskType,
     ca.component_uuid as componentUuid,
-    ca.snapshot_id as snapshotId,
+    ca.analysis_uuid as analysisUuid,
     ca.status as status,
     ca.submitter_login as submitterLogin,
     ca.submitted_at as submittedAt,
@@ -122,12 +122,13 @@
 
   <insert id="insert" parameterType="org.sonar.db.ce.CeActivityDto" useGeneratedKeys="false">
     insert into ce_activity
-    (uuid, component_uuid, snapshot_id, status, task_type, is_last, is_last_key, submitter_login, submitted_at, started_at,
+    (uuid, component_uuid, analysis_uuid, status, task_type, is_last, is_last_key, submitter_login, submitted_at,
+    started_at,
     executed_at, created_at, updated_at, execution_time_ms)
     values (
     #{uuid,jdbcType=VARCHAR},
     #{componentUuid,jdbcType=VARCHAR},
-    #{snapshotId,jdbcType=BIGINT},
+    #{analysisUuid,jdbcType=VARCHAR},
     #{status,jdbcType=VARCHAR},
     #{taskType,jdbcType=VARCHAR},
     #{isLast,jdbcType=BOOLEAN},

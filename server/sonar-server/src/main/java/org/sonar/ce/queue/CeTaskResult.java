@@ -19,7 +19,7 @@
  */
 package org.sonar.ce.queue;
 
-import javax.annotation.CheckForNull;
+import java.util.Optional;
 import org.sonar.ce.taskprocessor.CeTaskProcessor;
 
 /**
@@ -30,8 +30,7 @@ import org.sonar.ce.taskprocessor.CeTaskProcessor;
 @FunctionalInterface
 public interface CeTaskResult {
   /**
-   * The id of the snapshot created, if any, for the Component in {@link CeTask}
+   * The UUID of the analysis created, if any, for the Component in {@link CeTask}
    */
-  @CheckForNull
-  Long getSnapshotId();
+  Optional<String> getAnalysisUuid();
 }

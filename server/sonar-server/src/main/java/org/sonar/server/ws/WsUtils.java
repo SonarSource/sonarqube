@@ -99,4 +99,12 @@ public class WsUtils {
 
     return value.get();
   }
+
+  public static <T> T checkFoundWithOptional(java.util.Optional<T> value, String message, Object... messageArguments) {
+    if (!value.isPresent()) {
+      throw new NotFoundException(format(message, messageArguments));
+    }
+
+    return value.get();
+  }
 }

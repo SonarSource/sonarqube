@@ -56,4 +56,6 @@ public interface SnapshotMapper {
 
   List<ViewsSnapshotDto> selectSnapshotBefore(@Param("componentUuid") String componentUuid, @Param("date") long date);
 
+  @CheckForNull
+  SnapshotDto selectByUuid(String analysisUuid);
 }

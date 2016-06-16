@@ -21,27 +21,22 @@ package org.sonar.server.computation.step;
 
 import org.junit.Rule;
 import org.junit.Test;
-import org.sonar.server.computation.batch.TreeRootHolderRule;
-import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepository;
+import org.sonar.server.computation.analysis.MutableAnalysisMetadataHolderRule;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolder;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolderImpl;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 public class PublishTaskResultStepTest {
-  private static final Component ROOT_COMPONENT = mock(Component.class);
 
-  @Rule
-  public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule()
-      .setRoot(ROOT_COMPONENT);
+  private static final String AN_ANALYSIS_UUID = "U1";
 
-  private DbIdsRepository dbIdsRepository = mock(DbIdsRepository.class);
   private MutableTaskResultHolder taskResultHolder = new MutableTaskResultHolderImpl();
 
-  private PublishTaskResultStep underTest = new PublishTaskResultStep(taskResultHolder, treeRootHolder, dbIdsRepository);
+  @Rule
+  public MutableAnalysisMetadataHolderRule analysisMetadataHolder = new MutableAnalysisMetadataHolderRule();
+
+  private PublishTaskResultStep underTest = new PublishTaskResultStep(taskResultHolder, analysisMetadataHolder);
 
   @Test
   public void verify_getDescription() {
@@ -50,12 +45,10 @@ public class PublishTaskResultStepTest {
 
   @Test
   public void execute_populate_TaskResultHolder_with_a_TaskResult_with_snapshot_id_of_the_root_taken_from_DbIdsRepository() {
-    long snapshotId = 1233L;
-
-    when(dbIdsRepository.getSnapshotId(ROOT_COMPONENT)).thenReturn(snapshotId);
+    analysisMetadataHolder.setUuid(AN_ANALYSIS_UUID);
 
     underTest.execute();
 
-    assertThat(taskResultHolder.getResult().getSnapshotId()).isEqualTo(snapshotId);
+    assertThat(taskResultHolder.getResult().getAnalysisUuid().get()).isEqualTo(AN_ANALYSIS_UUID);
   }
 }

@@ -22,7 +22,6 @@ package org.sonar.server.ce.ws;
 
 import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
-import java.io.File;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.Date;
@@ -89,7 +88,7 @@ public class ActivityActionTest {
 
   @Before
   public void setUp() {
-    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.<File>absent());
+    when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.absent());
   }
 
   @Test
@@ -106,7 +105,7 @@ public class ActivityActionTest {
     assertThat(activityResponse.getTasks(0).getId()).isEqualTo("T2");
     assertThat(activityResponse.getTasks(0).getStatus()).isEqualTo(WsCe.TaskStatus.FAILED);
     assertThat(activityResponse.getTasks(0).getComponentId()).isEqualTo("PROJECT_2");
-    assertThat(activityResponse.getTasks(0).getAnalysisId()).isEqualTo("123456");
+    assertThat(activityResponse.getTasks(0).getAnalysisId()).isEqualTo("U1");
     assertThat(activityResponse.getTasks(0).getExecutionTimeMs()).isEqualTo(500L);
     assertThat(activityResponse.getTasks(0).getLogs()).isFalse();
     assertThat(activityResponse.getTasks(1).getId()).isEqualTo("T1");
@@ -182,7 +181,7 @@ public class ActivityActionTest {
     assertPage(1, asList("T3"));
     assertPage(2, asList("T3", "T2"));
     assertPage(10, asList("T3", "T2", "T1"));
-    assertPage(0, Collections.<String>emptyList());
+    assertPage(0, Collections.emptyList());
   }
 
   private void assertPage(int pageSize, List<String> expectedOrderedTaskIds) {
@@ -364,7 +363,7 @@ public class ActivityActionTest {
     activityDto.setStatus(status);
     activityDto.setExecutionTimeMs(500L);
     activityDto.setExecutedAt(EXECUTED_AT);
-    activityDto.setSnapshotId(123_456L);
+    activityDto.setAnalysisUuid("U1");
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();
     return activityDto;

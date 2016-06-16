@@ -60,6 +60,7 @@ import static org.sonarqube.ws.client.qualitygate.QualityGatesWsParameters.PARAM
 
 public class ProjectStatusActionTest {
   private static final String ANALYSIS_ID = "task-uuid";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
   @Rule
@@ -103,7 +104,7 @@ public class ProjectStatusActionTest {
     dbSession.commit();
 
     String response = ws.newRequest()
-      .setParam("analysisId", snapshot.getId().toString())
+      .setParam("analysisId", snapshot.getUuid())
       .execute().getInput();
 
     assertJson(response).isSimilarTo(getClass().getResource("project_status-example.json"));
@@ -175,7 +176,7 @@ public class ProjectStatusActionTest {
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
 
-    ProjectStatusWsResponse result = call(snapshot.getId().toString());
+    ProjectStatusWsResponse result = call(snapshot.getUuid());
 
     assertThat(result.getProjectStatus().getStatus()).isEqualTo(Status.NONE);
     assertThat(result.getProjectStatus().getConditionsCount()).isEqualTo(0);
@@ -200,7 +201,7 @@ public class ProjectStatusActionTest {
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
 
-    call(snapshot.getId().toString());
+    call(snapshot.getUuid());
   }
 
   @Test
@@ -211,7 +212,7 @@ public class ProjectStatusActionTest {
     SnapshotDto snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(project));
     dbSession.commit();
 
-    call(snapshot.getId().toString());
+    call(snapshot.getUuid());
   }
 
   @Test
@@ -233,7 +234,7 @@ public class ProjectStatusActionTest {
     dbSession.commit();
 
     expectedException.expect(ForbiddenException.class);
-    call(snapshot.getId().toString());
+    call(snapshot.getUuid());
   }
 
   @Test

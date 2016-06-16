@@ -19,21 +19,19 @@
  */
 package org.sonar.server.computation.step;
 
+import java.util.Optional;
 import javax.annotation.concurrent.Immutable;
-import org.sonar.server.computation.component.DbIdsRepository;
-import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.ce.queue.CeTaskResult;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.taskprocessor.MutableTaskResultHolder;
 
 public class PublishTaskResultStep implements ComputationStep {
   private final MutableTaskResultHolder taskResultHolder;
-  private final TreeRootHolder treeRootHolder;
-  private final DbIdsRepository dbIdsRepository;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
 
-  public PublishTaskResultStep(MutableTaskResultHolder taskResultHolder, TreeRootHolder treeRootHolder, DbIdsRepository dbIdsRepository) {
+  public PublishTaskResultStep(MutableTaskResultHolder taskResultHolder, AnalysisMetadataHolder analysisMetadataHolder) {
     this.taskResultHolder = taskResultHolder;
-    this.treeRootHolder = treeRootHolder;
-    this.dbIdsRepository = dbIdsRepository;
+    this.analysisMetadataHolder = analysisMetadataHolder;
   }
 
   @Override
@@ -43,21 +41,20 @@ public class PublishTaskResultStep implements ComputationStep {
 
   @Override
   public void execute() {
-    long snapshotId = dbIdsRepository.getSnapshotId(treeRootHolder.getRoot());
-    taskResultHolder.setResult(new CeTaskResultImpl(snapshotId));
+    taskResultHolder.setResult(new CeTaskResultImpl(analysisMetadataHolder.getUuid()));
   }
 
   @Immutable
   private static class CeTaskResultImpl implements CeTaskResult {
-    private final long snapshotId;
+    private final String analysisUuid;
 
-    public CeTaskResultImpl(long snapshotId) {
-      this.snapshotId = snapshotId;
+    public CeTaskResultImpl(String analysisUuid) {
+      this.analysisUuid = analysisUuid;
     }
 
     @Override
-    public Long getSnapshotId() {
-      return snapshotId;
+    public Optional<String> getAnalysisUuid() {
+      return Optional.of(analysisUuid);
     }
   }
 }

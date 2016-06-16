@@ -111,8 +111,8 @@ public class TaskFormatter {
       builder.setComponentId(dto.getComponentUuid());
       buildComponent(builder, componentDtoCache.get(dto.getComponentUuid()));
     }
-    if (dto.getSnapshotId() != null) {
-      builder.setAnalysisId(String.valueOf(dto.getSnapshotId()));
+    if (dto.getAnalysisUuid() != null) {
+      builder.setAnalysisId(dto.getAnalysisUuid());
     }
     if (dto.getSubmitterLogin() != null) {
       builder.setSubmitterLogin(dto.getSubmitterLogin());
