@@ -152,6 +152,14 @@ public class PermissionsService extends BaseService {
       .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
   }
 
+  public void removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateWsRequest request) {
+    call(
+      new PostRequest(path("remove_project_creator_from_template"))
+        .setParam(PARAM_PERMISSION, request.getPermission())
+        .setParam(PARAM_TEMPLATE_ID, request.getTemplateId())
+        .setParam(PARAM_TEMPLATE_NAME, request.getTemplateName()));
+  }
+
   public void removeUser(RemoveUserWsRequest request) {
     call(new PostRequest(path("remove_user"))
       .setParam(PARAM_PERMISSION, request.getPermission())

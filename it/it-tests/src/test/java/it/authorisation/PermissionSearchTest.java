@@ -35,12 +35,14 @@ import org.sonarqube.ws.client.PostRequest;
 import org.sonarqube.ws.client.WsClient;
 import org.sonarqube.ws.client.permission.AddGroupToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.AddGroupWsRequest;
+import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserToTemplateWsRequest;
 import org.sonarqube.ws.client.permission.AddUserWsRequest;
 import org.sonarqube.ws.client.permission.CreateTemplateWsRequest;
 import org.sonarqube.ws.client.permission.GroupsWsRequest;
 import org.sonarqube.ws.client.permission.PermissionsService;
 import org.sonarqube.ws.client.permission.RemoveGroupFromTemplateWsRequest;
+import org.sonarqube.ws.client.permission.RemoveProjectCreatorFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.RemoveUserFromTemplateWsRequest;
 import org.sonarqube.ws.client.permission.SearchTemplatesWsRequest;
 import org.sonarqube.ws.client.permission.UsersWsRequest;
@@ -134,6 +136,12 @@ public class PermissionSearchTest {
         .setTemplateName("my-new-template")
         .setGroupName(GROUP_NAME));
 
+    permissionsWsClient.addProjectCreatorToTemplate(
+      AddProjectCreatorToTemplateWsRequest.builder()
+        .setPermission("admin")
+        .setTemplateName("my-new-template")
+        .build());
+
     SearchTemplatesWsResponse searchTemplatesWsResponse = permissionsWsClient.searchTemplates(
       new SearchTemplatesWsRequest()
         .setQuery("my-new-template"));
@@ -141,6 +149,7 @@ public class PermissionSearchTest {
     assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getPermissions(0).getKey()).isEqualTo("admin");
     assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getPermissions(0).getUsersCount()).isEqualTo(1);
     assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getPermissions(0).getGroupsCount()).isEqualTo(1);
+    assertThat(searchTemplatesWsResponse.getPermissionTemplates(0).getPermissions(0).getWithProjectCreator()).isTrue();
 
     permissionsWsClient.removeGroupFromTemplate(
       new RemoveGroupFromTemplateWsRequest()
@@ -154,13 +163,20 @@ public class PermissionSearchTest {
         .setTemplateName("my-new-template")
         .setLogin(LOGIN));
 
+    permissionsWsClient.removeProjectCreatorFromTemplate(
+      RemoveProjectCreatorFromTemplateWsRequest.builder()
+        .setPermission("admin")
+        .setTemplateName("my-new-template")
+      .build()
+    );
+
     SearchTemplatesWsResponse clearedSearchTemplatesWsResponse = permissionsWsClient.searchTemplates(
       new SearchTemplatesWsRequest()
         .setQuery("my-new-template"));
     assertThat(clearedSearchTemplatesWsResponse.getPermissionTemplates(0).getPermissionsList())
-      .extracting(Permission::getUsersCount, Permission::getGroupsCount)
+      .extracting(Permission::getUsersCount, Permission::getGroupsCount, Permission::getWithProjectCreator)
       .hasSize(5)
-      .containsOnly(tuple(0, 0));
+      .containsOnly(tuple(0, 0, false));
   }
 
   private static void createUser(String login, String name) {

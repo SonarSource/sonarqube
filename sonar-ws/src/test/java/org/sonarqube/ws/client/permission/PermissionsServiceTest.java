@@ -472,4 +472,22 @@ public class PermissionsServiceTest {
       .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
       .andNoOtherParam();
   }
+
+  @Test
+  public void remove_project_creator_from_template() {
+    underTest.removeProjectCreatorFromTemplate(RemoveProjectCreatorFromTemplateWsRequest.builder()
+      .setPermission(PERMISSION_VALUE)
+      .setTemplateId(TEMPLATE_ID_VALUE)
+      .setTemplateName(TEMPLATE_NAME_VALUE)
+      .build());
+
+    assertThat(serviceTester.getPostParser()).isNull();
+    PostRequest getRequest = serviceTester.getPostRequest();
+    serviceTester.assertThat(getRequest)
+      .hasPath("remove_project_creator_from_template")
+      .hasParam(PARAM_PERMISSION, PERMISSION_VALUE)
+      .hasParam(PARAM_TEMPLATE_ID, TEMPLATE_ID_VALUE)
+      .hasParam(PARAM_TEMPLATE_NAME, TEMPLATE_NAME_VALUE)
+      .andNoOtherParam();
+  }
 }
