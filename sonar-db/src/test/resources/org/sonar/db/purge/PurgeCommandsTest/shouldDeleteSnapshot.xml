@@ -1,7 +1,9 @@
 <dataset>
 
   <!-- snapshot to keep -->
-  <snapshots id="1"  parent_snapshot_id="[null]" component_uuid="uuid_1" root_component_uuid="uuid_1" root_snapshot_id="[null]"
+  <snapshots id="1"
+             uuid="u1"
+             parent_snapshot_id="[null]" component_uuid="uuid_1" root_component_uuid="uuid_1" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"
@@ -28,7 +30,9 @@
 
 
   <!-- snapshot to remove, id 5 on resource 5-->
-  <snapshots id="5" component_uuid="uuid_5" parent_snapshot_id="[null]" root_component_uuid="uuid_5" root_snapshot_id="[null]"
+  <snapshots id="5"
+             uuid="u5"
+             component_uuid="uuid_5" parent_snapshot_id="[null]" root_component_uuid="uuid_5" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
              period2_mode="[null]" period2_param="[null]" period2_date="[null]"

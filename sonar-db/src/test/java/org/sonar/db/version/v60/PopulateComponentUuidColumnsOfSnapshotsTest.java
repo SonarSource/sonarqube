@@ -31,15 +31,15 @@ import org.sonar.db.DbTester;
 import static java.lang.String.valueOf;
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class PopulateUuidColumnsOfSnapshotsTest {
+public class PopulateComponentUuidColumnsOfSnapshotsTest {
 
   private static final String SNAPSHOTS_TABLE = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUuidColumnsOfSnapshotsTest.class,
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateComponentUuidColumnsOfSnapshotsTest.class,
       "in_progress_snapshots_with_projects.sql");
 
-  private PopulateUuidColumnsOfSnapshots underTest = new PopulateUuidColumnsOfSnapshots(db.database());
+  private PopulateComponentUuidColumnsOfSnapshots underTest = new PopulateComponentUuidColumnsOfSnapshots(db.database());
 
   @Test
   public void migration_has_no_effect_on_empty_tables() throws SQLException {

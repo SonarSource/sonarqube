@@ -8,7 +8,9 @@
             id="1" root_uuid="UUID_JAVA_PROJECT" uuid="UUID_JAVA_PROJECT"
             description="[null]" enabled="[true]" language="[null]" />
 
-  <snapshots id="101" component_uuid="UUID_JAVA_PROJECT" root_component_uuid="UUID_JAVA_PROJECT"
+  <snapshots id="101"
+             uuid="u101"
+             component_uuid="UUID_JAVA_PROJECT" root_component_uuid="UUID_JAVA_PROJECT"
              root_snapshot_id="[null]" parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"

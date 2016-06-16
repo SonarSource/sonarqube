@@ -6,7 +6,10 @@
             description="[null]"
             enabled="[true]" language="java"/>
 
-  <snapshots purge_status="[null]" id="1" islast="[true]" root_component_uuid="ABCD" component_uuid="ABCD" scope="PRJ"
+  <snapshots purge_status="[null]"
+             id="1"
+             uuid="u1"
+             islast="[true]" root_component_uuid="ABCD" component_uuid="ABCD" scope="PRJ"
              qualifier="TRK"/>
 
   <!-- the index is on the old name "ST" but not on "AS" -->

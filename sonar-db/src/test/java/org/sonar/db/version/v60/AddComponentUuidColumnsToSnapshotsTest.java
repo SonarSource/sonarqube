@@ -29,15 +29,15 @@ import org.sonar.db.DbTester;
 
 import static java.lang.String.valueOf;
 
-public class AddUuidColumnsToSnapshotsTest {
+public class AddComponentUuidColumnsToSnapshotsTest {
 
   public static final String SNAPSHOTS_TABLE = "snapshots";
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddUuidColumnsToSnapshotsTest.class, "old_snapshots.sql");
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddComponentUuidColumnsToSnapshotsTest.class, "old_snapshots.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddUuidColumnsToSnapshots underTest = new AddUuidColumnsToSnapshots(db.database());
+  private AddComponentUuidColumnsToSnapshots underTest = new AddComponentUuidColumnsToSnapshots(db.database());
 
   @Test
   public void migration_adds_columns_to_empty_table() throws SQLException {

@@ -11,6 +11,7 @@
            direction="1" hidden="[false]"/>
 
   <snapshots id="1"
+             uuid="u1"
              project_id="1" parent_snapshot_id="[null]" root_project_id="1" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"

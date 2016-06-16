@@ -31,23 +31,38 @@ import static com.google.common.base.Preconditions.checkState;
 
 public class AnalysisMetadataHolderImpl implements MutableAnalysisMetadataHolder {
 
-  private InitializedProperty<Long> analysisDate = new InitializedProperty<>();
+  private final InitializedProperty<String> uuid = new InitializedProperty<>();
 
-  private InitializedProperty<Snapshot> baseProjectSnapshot = new InitializedProperty<>();
+  private final InitializedProperty<Long> analysisDate = new InitializedProperty<>();
 
-  private InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
+  private final InitializedProperty<Snapshot> baseProjectSnapshot = new InitializedProperty<>();
 
-  private InitializedProperty<String> branch = new InitializedProperty<>();
+  private final InitializedProperty<Boolean> crossProjectDuplicationEnabled = new InitializedProperty<>();
 
-  private InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
+  private final InitializedProperty<String> branch = new InitializedProperty<>();
 
-  private InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
+  private final InitializedProperty<Integer> rootComponentRef = new InitializedProperty<>();
+
+  private final InitializedProperty<Map<String, QualityProfile>> qProfilesPerLanguage = new InitializedProperty<>();
+
+  @Override
+  public MutableAnalysisMetadataHolder setUuid(String s) {
+    checkState(!uuid.isInitialized(), "Analysis uuid has already been set");
+    this.uuid.setProperty(s);
+    return this;
+  }
 
   @Override
   public MutableAnalysisMetadataHolder setAnalysisDate(long date) {
     checkState(!analysisDate.isInitialized(), "Analysis date has already been set");
     this.analysisDate.setProperty(date);
     return this;
+  }
+
+  @Override
+  public String getUuid() {
+    checkState(uuid.isInitialized(), "Analysis uuid has not been set");
+    return this.uuid.getProperty();
   }
 
   @Override

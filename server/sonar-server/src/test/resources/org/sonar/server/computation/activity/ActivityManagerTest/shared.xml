@@ -1,7 +1,9 @@
 <dataset>
   <projects id="10" kee="P1" qualifier="TRK" uuid="ABCD" name="Project 1"/>
   <snapshots
-      id="110" project_id="10" parent_snapshot_id="[null]" root_project_id="10" root_snapshot_id="[null]"
+      id="110"
+      uuid="u110"
+      project_id="10" parent_snapshot_id="[null]" root_project_id="10" root_snapshot_id="[null]"
       purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
       period2_mode="[null]" period2_param="[null]" period2_date="[null]" period3_mode="[null]"
       period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]"

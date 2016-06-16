@@ -6,7 +6,9 @@
             enabled="[true]" language="java" copy_component_uuid="[null]" developer_uuid="[null]"/>
 
   <!-- version 1.0 -->
-  <snapshots id="1000" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+  <snapshots id="1000"
+             uuid="u1000"
+             purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
              period5_param="[null]" period5_date="[null]"
              component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
@@ -14,7 +16,9 @@
              status="P" islast="[false]" depth="0"/>
 
   <!-- version 1.1 -->
-  <snapshots id="1001" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+  <snapshots id="1001"
+             uuid="u1001"
+             purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
              period5_param="[null]" period5_date="[null]"
              component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
@@ -22,7 +26,9 @@
              status="P" islast="[false]" depth="0"/>
 
   <!-- version 1.2-SNAPSHOT -->
-  <snapshots id="1002" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+  <snapshots id="1002"
+             uuid="u1002"
+             purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
              period5_param="[null]" period5_date="[null]"
              component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
@@ -30,7 +36,9 @@
              status="P" islast="[false]" depth="0"/>
 
   <!-- version 1.2-SNAPSHOT, current analysis -->
-  <snapshots id="1003" purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
+  <snapshots id="1003"
+             uuid="u1003"
+             purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]" period2_mode="[null]" period2_param="[null]" period2_date="[null]"
              period3_mode="[null]" period3_param="[null]" period3_date="[null]" period4_mode="[null]" period4_param="[null]" period4_date="[null]" period5_mode="[null]"
              period5_param="[null]" period5_date="[null]"
              component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"

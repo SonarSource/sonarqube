@@ -44,7 +44,9 @@
             description="[null]" enabled="[true]" language="java" 
             created_at="2008-12-19 00:00:00.00"/>
 
-  <snapshots id="101" component_uuid="UUID_JAVA_PROJECT" root_component_uuid="UUID_JAVA_PROJECT"
+  <snapshots id="101"
+             uuid="u101"
+             component_uuid="UUID_JAVA_PROJECT" root_component_uuid="UUID_JAVA_PROJECT"
              root_snapshot_id="[null]" parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -54,7 +56,9 @@
              created_at="1229727600000" build_date="1229727600000"
              version="1.0" status="P" islast="[true]"/>
 
-  <snapshots id="102" component_uuid="BCDE" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
+  <snapshots id="102"
+             uuid="u102"
+             component_uuid="BCDE" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
              parent_snapshot_id="101"
              scope="DIR" qualifier="PAC" path="101." depth="1"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -64,7 +68,9 @@
              created_at="1229727600000" build_date="1229727600000"
              version="1.0" status="P" islast="[true]"/>
 
-  <snapshots id="103" component_uuid="CDEF" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
+  <snapshots id="103"
+             uuid="u103"
+             component_uuid="CDEF" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
              parent_snapshot_id="102"
              scope="FIL" qualifier="CLA" path="101.102." depth="2"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -74,7 +80,9 @@
              created_at="1229727600000" build_date="1229727600000"
              version="1.0" status="P" islast="[true]"/>
 
-  <snapshots id="104" component_uuid="DEFG" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
+  <snapshots id="104"
+             uuid="u104"
+             component_uuid="DEFG" root_component_uuid="UUID_JAVA_PROJECT" root_snapshot_id="101"
              parent_snapshot_id="102"
              scope="FIL" qualifier="CLA" path="101.102." depth="2"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -142,7 +150,9 @@
             created_at="2012-12-12 04:06:00.00"/>
 
 
-  <snapshots id="110" component_uuid="UUID_PHP_PROJECT" root_component_uuid="UUID_PHP_PROJECT" root_snapshot_id="[null]"
+  <snapshots id="110"
+             uuid="u110"
+             component_uuid="UUID_PHP_PROJECT" root_component_uuid="UUID_PHP_PROJECT" root_snapshot_id="[null]"
              parent_snapshot_id="[null]"
              scope="PRJ" qualifier="TRK" path="" depth="0"
              purge_status="[null]" period1_mode="[null]" period1_param="[null]" period1_date="[null]"

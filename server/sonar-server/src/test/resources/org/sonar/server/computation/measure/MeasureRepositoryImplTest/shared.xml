@@ -1,7 +1,11 @@
 <dataset>
-    <projects id="567" uuid="uuid_1" root_uuid="uuid_1" kee="file cpt key" enabled="[true]"/>
-    <snapshots id="123" component_uuid="uuid_1" root_component_uuid="uuid_1" islast="[true]"/>
-    <snapshots id="369" component_uuid="uuid_1" root_component_uuid="uuid_1" islast="[false]"/>
-    <metrics id="1" name="metric 1"  />
-    <metrics id="2" name="metric 2" />
+  <projects id="567" uuid="uuid_1" root_uuid="uuid_1" kee="file cpt key" enabled="[true]"/>
+  <snapshots id="123"
+             uuid="u123"
+             component_uuid="uuid_1" root_component_uuid="uuid_1" islast="[true]"/>
+  <snapshots id="369"
+             uuid="u369"
+             component_uuid="uuid_1" root_component_uuid="uuid_1" islast="[false]"/>
+  <metrics id="1" name="metric 1"/>
+  <metrics id="2" name="metric 2"/>
 </dataset>

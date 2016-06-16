@@ -36,6 +36,16 @@ public class MutableAnalysisMetadataHolderRule extends ExternalResource implemen
   }
 
   @Override
+  public String getUuid() {
+    return delegate.getUuid();
+  }
+
+  public MutableAnalysisMetadataHolderRule setUuid(String s) {
+    delegate.setUuid(s);
+    return this;
+  }
+
+  @Override
   public long getAnalysisDate() {
     return delegate.getAnalysisDate();
   }

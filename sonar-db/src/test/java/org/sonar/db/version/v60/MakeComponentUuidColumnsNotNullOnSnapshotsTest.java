@@ -29,17 +29,17 @@ import org.sonar.db.DbTester;
 
 import static java.lang.String.valueOf;
 
-public class MakeUuidColumnsNotNullOnSnapshotsTest {
+public class MakeComponentUuidColumnsNotNullOnSnapshotsTest {
 
   private static final String SNAPSHOTS_TABLE = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeUuidColumnsNotNullOnSnapshotsTest.class,
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeComponentUuidColumnsNotNullOnSnapshotsTest.class,
     "in_progress_snapshots.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private MakeUuidColumnsNotNullOnSnapshots underTest = new MakeUuidColumnsNotNullOnSnapshots(db.database());
+  private MakeComponentUuidColumnsNotNullOnSnapshots underTest = new MakeComponentUuidColumnsNotNullOnSnapshots(db.database());
 
   @Test
   public void migration_sets_uuid_columns_not_nullable_on_empty_table() throws SQLException {

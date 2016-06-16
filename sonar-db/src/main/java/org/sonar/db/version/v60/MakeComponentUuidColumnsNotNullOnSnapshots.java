@@ -27,13 +27,13 @@ import org.sonar.db.version.DdlChange;
 import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
-public class MakeUuidColumnsNotNullOnSnapshots extends DdlChange {
+public class MakeComponentUuidColumnsNotNullOnSnapshots extends DdlChange {
 
   private static final String TABLE_SNAPSHOTS = "snapshots";
 
   private final Database db;
 
-  public MakeUuidColumnsNotNullOnSnapshots(Database db) {
+  public MakeComponentUuidColumnsNotNullOnSnapshots(Database db) {
     super(db);
     this.db = db;
   }

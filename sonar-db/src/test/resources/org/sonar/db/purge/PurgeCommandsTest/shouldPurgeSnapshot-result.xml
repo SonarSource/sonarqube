@@ -9,6 +9,7 @@ Note that measures, events and reviews are not deleted.
 -->
 <dataset>
   <snapshots id="1"
+             uuid="u1"
              component_uuid="uuid_1" parent_snapshot_id="[null]" root_component_uuid="uuid_1" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="1"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -45,6 +46,7 @@ Note that measures, events and reviews are not deleted.
 
   <!-- The following is not purged but is kept for DBUnit -->
   <snapshots id="2"
+             uuid="u2"
              component_uuid="uuid_2" parent_snapshot_id="[null]" root_component_uuid="uuid_2" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="1"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"

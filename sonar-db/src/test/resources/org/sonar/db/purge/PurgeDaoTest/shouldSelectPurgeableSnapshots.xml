@@ -2,6 +2,7 @@
 
   <!-- last -> select -->
   <snapshots id="1"
+             uuid="u1"
              component_uuid="P1" parent_snapshot_id="[null]" root_component_uuid="P1" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -14,6 +15,7 @@
 
   <!-- not processed -> exclude -->
   <snapshots id="2"
+             uuid="u2"
              component_uuid="P1" parent_snapshot_id="[null]" root_component_uuid="P1" root_snapshot_id="[null]"
              status="U" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -26,6 +28,7 @@
 
   <!-- on other resource -> exclude -->
   <snapshots id="3"
+             uuid="u3"
              component_uuid="uuid_222" parent_snapshot_id="[null]" root_component_uuid="uuid_222" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -38,6 +41,7 @@
 
   <!-- without event -> select -->
   <snapshots id="4"
+             uuid="u4"
              component_uuid="P1" parent_snapshot_id="[null]" root_component_uuid="P1" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -50,6 +54,7 @@
 
   <!-- with event -> select -->
   <snapshots id="5"
+             uuid="u5"
              component_uuid="P1" parent_snapshot_id="[null]" root_component_uuid="P1" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
