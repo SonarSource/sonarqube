@@ -35,7 +35,7 @@ public class CeActivityDto {
 
   private String uuid;
   private String componentUuid;
-  private Long snapshotId;
+  private String analysisUuid;
   private Status status;
   private String taskType;
   private boolean isLast;
@@ -178,12 +178,12 @@ public class CeActivityDto {
   }
 
   @CheckForNull
-  public Long getSnapshotId() {
-    return snapshotId;
+  public String getAnalysisUuid() {
+    return analysisUuid;
   }
 
-  public CeActivityDto setSnapshotId(@Nullable Long snapshotId) {
-    this.snapshotId = snapshotId;
+  public CeActivityDto setAnalysisUuid(@Nullable String s) {
+    this.analysisUuid = s;
     return this;
   }
 
@@ -193,6 +193,7 @@ public class CeActivityDto {
       .add("uuid", uuid)
       .add("taskType", taskType)
       .add("componentUuid", componentUuid)
+      .add("analysisUuid", analysisUuid)
       .add("status", status)
       .add("isLast", isLast)
       .add("isLastKey", isLastKey)

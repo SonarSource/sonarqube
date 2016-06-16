@@ -23,6 +23,7 @@ import com.google.common.base.Strings;
 import com.google.common.collect.Lists;
 import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.ibatis.session.RowBounds;
@@ -42,11 +43,19 @@ public class SnapshotDao implements Dao {
     return previousLastSnapshot == null || previousLastSnapshot.getCreatedAt() < snapshotTested.getCreatedAt();
   }
 
+  /**
+   * @deprecated use {@link #selectByUuid(DbSession, String)}
+   */
+  @Deprecated
   @CheckForNull
   public SnapshotDto selectById(DbSession session, long id) {
     return mapper(session).selectByKey(id);
   }
 
+  /**
+   * @deprecated use {@link #selectByUuid(DbSession, String)}
+   */
+  @Deprecated
   public SnapshotDto selectOrFailById(DbSession session, long id) {
     SnapshotDto value = selectById(session, id);
     if (value == null) {
@@ -98,6 +107,10 @@ public class SnapshotDao implements Dao {
 
   public List<SnapshotDto> selectSnapshotAndChildrenOfProjectScope(DbSession session, long snapshotId) {
     return mapper(session).selectSnapshotAndChildrenOfScope(snapshotId, Scopes.PROJECT);
+  }
+
+  public Optional<SnapshotDto> selectByUuid(DbSession dbSession, String analysisUuid) {
+    return Optional.ofNullable(mapper(dbSession).selectByUuid(analysisUuid));
   }
 
   public int updateSnapshotAndChildrenLastFlagAndStatus(DbSession session, SnapshotDto snapshot, boolean isLast, String status) {

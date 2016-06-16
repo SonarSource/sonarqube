@@ -55,6 +55,8 @@ import static org.mockito.Mockito.when;
 
 public class InternalCeQueueImplTest {
 
+  private static final String AN_ANALYSIS_UUID = "U1";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
@@ -149,13 +151,13 @@ public class InternalCeQueueImplTest {
     assertThat(history.isPresent()).isTrue();
     assertThat(history.get().getStatus()).isEqualTo(CeActivityDto.Status.SUCCESS);
     assertThat(history.get().getIsLast()).isTrue();
-    assertThat(history.get().getSnapshotId()).isNull();
+    assertThat(history.get().getAnalysisUuid()).isNull();
 
     verify(listener).onRemoved(task, CeActivityDto.Status.SUCCESS);
   }
 
   @Test
-  public void remove_does_not_set_snapshotId_in_CeActivity_when_CeTaskResult_has_no_snapshot_id() {
+  public void remove_does_not_set_analysisUuid_in_CeActivity_when_CeTaskResult_has_no_analysis_uuid() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
     Optional<CeTask> peek = underTest.peek();
     underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(null));
@@ -163,21 +165,20 @@ public class InternalCeQueueImplTest {
     // available in history
     Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
     assertThat(history.isPresent()).isTrue();
-    assertThat(history.get().getSnapshotId()).isNull();
+    assertThat(history.get().getAnalysisUuid()).isNull();
   }
 
   @Test
   public void remove_sets_snapshotId_in_CeActivity_when_CeTaskResult_has_no_snapshot_id() {
     CeTask task = submit(CeTaskTypes.REPORT, "PROJECT_1");
-    long snapshotId = 663L;
 
     Optional<CeTask> peek = underTest.peek();
-    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(snapshotId));
+    underTest.remove(peek.get(), CeActivityDto.Status.SUCCESS, newTaskResult(AN_ANALYSIS_UUID));
 
     // available in history
     Optional<CeActivityDto> history = dbTester.getDbClient().ceActivityDao().selectByUuid(dbTester.getSession(), task.getUuid());
     assertThat(history.isPresent()).isTrue();
-    assertThat(history.get().getSnapshotId()).isEqualTo(snapshotId);
+    assertThat(history.get().getAnalysisUuid()).isEqualTo("U1");
   }
 
   @Test
@@ -326,9 +327,9 @@ public class InternalCeQueueImplTest {
     return submission.build();
   }
 
-  private CeTaskResult newTaskResult(Long snapshotId) {
+  private CeTaskResult newTaskResult(@Nullable String analysisUuid) {
     CeTaskResult taskResult = mock(CeTaskResult.class);
-    when(taskResult.getSnapshotId()).thenReturn(snapshotId);
+    when(taskResult.getAnalysisUuid()).thenReturn(java.util.Optional.ofNullable(analysisUuid));
     return taskResult;
   }
 

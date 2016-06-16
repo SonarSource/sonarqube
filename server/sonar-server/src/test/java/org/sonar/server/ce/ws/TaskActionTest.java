@@ -26,6 +26,8 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
+import org.sonar.ce.log.CeLogging;
+import org.sonar.ce.log.LogFileRef;
 import org.sonar.core.util.Protobuf;
 import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
@@ -33,8 +35,6 @@ import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTesting;
-import org.sonar.ce.log.CeLogging;
-import org.sonar.ce.log.LogFileRef;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.tester.UserSessionRule;
@@ -118,7 +118,7 @@ public class TaskActionTest {
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(CeActivityDto.Status.FAILED);
     activityDto.setExecutionTimeMs(500L);
-    activityDto.setSnapshotId(123_456L);
+    activityDto.setAnalysisUuid("U1");
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();
 
@@ -134,7 +134,7 @@ public class TaskActionTest {
     assertThat(task.getComponentId()).isEqualTo(PROJECT.uuid());
     assertThat(task.getComponentKey()).isEqualTo(PROJECT.key());
     assertThat(task.getComponentName()).isEqualTo(PROJECT.name());
-    assertThat(task.getAnalysisId()).isEqualTo("123456");
+    assertThat(task.getAnalysisId()).isEqualTo("U1");
     assertThat(task.getExecutionTimeMs()).isEqualTo(500L);
     assertThat(task.getLogs()).isFalse();
   }
@@ -230,7 +230,7 @@ public class TaskActionTest {
     CeActivityDto activityDto = new CeActivityDto(queueDto);
     activityDto.setStatus(CeActivityDto.Status.FAILED);
     activityDto.setExecutionTimeMs(500L);
-    activityDto.setSnapshotId(123_456L);
+    activityDto.setAnalysisUuid("U1");
     activityDto.setComponentUuid(PROJECT.uuid());
     dbTester.getDbClient().ceActivityDao().insert(dbTester.getSession(), activityDto);
     dbTester.commit();

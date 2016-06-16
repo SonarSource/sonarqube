@@ -83,6 +83,7 @@ import org.sonar.db.version.v55.FeedRulesLongDateColumns;
 import org.sonar.db.version.v55.FeedRulesTypes;
 import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
+import org.sonar.db.version.v60.AddAnalysisUuidColumnToCeActivity;
 import org.sonar.db.version.v60.AddComponentUuidColumnToMeasures;
 import org.sonar.db.version.v60.AddComponentUuidColumnsToSnapshots;
 import org.sonar.db.version.v60.AddUuidColumnToSnapshots;
@@ -97,17 +98,19 @@ import org.sonar.db.version.v60.DropIdColumnsFromResourceIndex;
 import org.sonar.db.version.v60.DropIdColumnsFromSnapshots;
 import org.sonar.db.version.v60.DropProjectIdColumnFromMeasures;
 import org.sonar.db.version.v60.DropRememberMeColumnsFromUsers;
+import org.sonar.db.version.v60.DropSnapshotIdColumnFromCeActivity;
 import org.sonar.db.version.v60.DropUnusedMeasuresColumns;
 import org.sonar.db.version.v60.MakeComponentUuidColumnsNotNullOnSnapshots;
 import org.sonar.db.version.v60.MakeComponentUuidNotNullOnMeasures;
 import org.sonar.db.version.v60.MakeUuidColumnNotNullOnSnapshots;
 import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnProjects;
 import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnResourceIndex;
+import org.sonar.db.version.v60.PopulateAnalysisUuidColumnOnCeActivity;
+import org.sonar.db.version.v60.PopulateComponentUuidColumnsOfSnapshots;
 import org.sonar.db.version.v60.PopulateComponentUuidOfMeasures;
 import org.sonar.db.version.v60.PopulateUuidColumnOnSnapshots;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfProjects;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
-import org.sonar.db.version.v60.PopulateComponentUuidColumnsOfSnapshots;
 
 public class MigrationStepModule extends Module {
   @Override
@@ -219,7 +222,12 @@ public class MigrationStepModule extends Module {
       // SNAPSHOTS.UUID
       AddUuidColumnToSnapshots.class,
       PopulateUuidColumnOnSnapshots.class,
-      MakeUuidColumnNotNullOnSnapshots.class
+      MakeUuidColumnNotNullOnSnapshots.class,
+
+      // CE_ACTIVITY.ANALYSIS_UUID
+      AddAnalysisUuidColumnToCeActivity.class,
+      PopulateAnalysisUuidColumnOnCeActivity.class,
+      DropSnapshotIdColumnFromCeActivity.class
     );
   }
 }

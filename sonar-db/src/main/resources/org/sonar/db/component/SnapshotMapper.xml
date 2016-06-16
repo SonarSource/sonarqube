@@ -50,6 +50,13 @@
     </where>
   </select>
 
+  <select id="selectByUuid" parameterType="String" resultType="Snapshot">
+    SELECT
+    <include refid="snapshotColumns"/>
+    FROM snapshots s
+    WHERE s.uuid=#{uuid}
+  </select>
+
   <select id="selectByIds" parameterType="Long" resultType="Snapshot">
     SELECT
     <include refid="snapshotColumns" />
