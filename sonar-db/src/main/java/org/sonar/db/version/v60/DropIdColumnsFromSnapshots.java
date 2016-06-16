@@ -28,18 +28,15 @@ public class DropIdColumnsFromSnapshots extends DdlChange {
 
   private static final String TABLE_SNAPSHOTS = "snapshots";
 
-  private final Database db;
-
   public DropIdColumnsFromSnapshots(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
     context.execute(
       new DropColumnsBuilder(
-        db.getDialect(), TABLE_SNAPSHOTS,
+        getDatabase().getDialect(), TABLE_SNAPSHOTS,
         "project_id", "root_project_id")
           .build());
   }

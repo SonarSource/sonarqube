@@ -31,7 +31,8 @@ import static java.lang.String.valueOf;
 
 public class AddUuidColumnsToSnapshotsTest {
 
-  public static final String SNAPSHOTS_TABLE = "snapshots";
+  private static final String SNAPSHOTS_TABLE = "snapshots";
+
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddUuidColumnsToSnapshotsTest.class, "old_snapshots.sql");
   @Rule

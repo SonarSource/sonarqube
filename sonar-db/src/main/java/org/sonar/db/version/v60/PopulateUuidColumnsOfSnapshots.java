@@ -44,7 +44,7 @@ public class PopulateUuidColumnsOfSnapshots extends BaseDataChange {
     populateUuidColumns(context, componentUuidById);
   }
 
-  private Map<Long, String> buildComponentUuidMap(Context context) throws SQLException {
+  private static Map<Long, String> buildComponentUuidMap(Context context) throws SQLException {
     Map<Long, String> componentUuidById = new HashMap<>();
     context.prepareSelect("select distinct p.id, p.uuid from projects p" +
       " join snapshots sn1 on sn1.project_id = p.id and sn1.component_uuid is null")

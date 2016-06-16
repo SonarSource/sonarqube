@@ -31,16 +31,13 @@ public class MakeUuidColumnsNotNullOnSnapshots extends DdlChange {
 
   private static final String TABLE_SNAPSHOTS = "snapshots";
 
-  private final Database db;
-
   public MakeUuidColumnsNotNullOnSnapshots(Database db) {
     super(db);
-    this.db = db;
   }
 
   @Override
   public void execute(Context context) throws SQLException {
-    context.execute(new AlterColumnsBuilder(db.getDialect(), TABLE_SNAPSHOTS)
+    context.execute(new AlterColumnsBuilder(getDatabase().getDialect(), TABLE_SNAPSHOTS)
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
       .updateColumn(newVarcharColumnDefBuilder().setColumnName("root_component_uuid").setLimit(UUID_VARCHAR_SIZE).setIsNullable(false).build())
       .build());

@@ -24,12 +24,12 @@ import org.sonar.db.Database;
 import org.sonar.db.version.AddColumnsBuilder;
 import org.sonar.db.version.DdlChange;
 
+import static org.sonar.db.version.VarcharColumnDef.UUID_VARCHAR_SIZE;
 import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
 
 public class AddUuidColumnsToProjects extends DdlChange {
 
   private static final String TABLE_PROJECTS = "projects";
-  private static final int UUID_VARCHAR_SIZE = 50;
 
   public AddUuidColumnsToProjects(Database db) {
     super(db);

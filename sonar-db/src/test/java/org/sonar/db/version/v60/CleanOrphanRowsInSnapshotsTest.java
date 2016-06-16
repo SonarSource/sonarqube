@@ -32,7 +32,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class CleanOrphanRowsInSnapshotsTest {
 
-  public static final String SNAPSHOTS_TABLE = "snapshots";
+  private static final String SNAPSHOTS_TABLE = "snapshots";
+
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, CleanOrphanRowsInSnapshotsTest.class,
     "in_progress_snapshots_and_children_tables.sql");

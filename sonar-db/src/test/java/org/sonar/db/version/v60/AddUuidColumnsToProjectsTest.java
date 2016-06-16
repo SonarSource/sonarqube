@@ -29,7 +29,8 @@ import org.sonar.db.DbTester;
 
 public class AddUuidColumnsToProjectsTest {
 
-  public static final String PROJECTS_TABLE = "projects";
+  private static final String PROJECTS_TABLE = "projects";
+
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddUuidColumnsToProjectsTest.class, "old_projects.sql");
   @Rule
