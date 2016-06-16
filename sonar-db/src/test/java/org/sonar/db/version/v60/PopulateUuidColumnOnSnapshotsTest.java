@@ -36,7 +36,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PopulateUuidColumnOnSnapshotsTest {
 
-  public static final String TABLE_SNAPSHOTS = "snapshots";
+  private static final String TABLE_SNAPSHOTS = "snapshots";
+
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateUuidColumnOnSnapshotsTest.class,
     "in_progress_snapshots.sql");
