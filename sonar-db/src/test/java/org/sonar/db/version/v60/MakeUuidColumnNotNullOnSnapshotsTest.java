@@ -29,50 +29,60 @@ import org.sonar.db.DbTester;
 
 import static java.lang.String.valueOf;
 
-public class AddUuidColumnsToSnapshotsTest {
 
-  private static final String SNAPSHOTS_TABLE = "snapshots";
+public class MakeUuidColumnNotNullOnSnapshotsTest {
+
+  private static final String TABLE_SNAPSHOTS = "snapshots";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddUuidColumnsToSnapshotsTest.class, "old_snapshots.sql");
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, MakeUuidColumnNotNullOnSnapshotsTest.class,
+    "in_progress_snapshots.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddUuidColumnsToSnapshots underTest = new AddUuidColumnsToSnapshots(db.database());
+  private MakeUuidColumnNotNullOnSnapshots underTest = new MakeUuidColumnNotNullOnSnapshots(db.database());
 
   @Test
-  public void migration_adds_columns_to_empty_table() throws SQLException {
+  public void migration_sets_uuid_column_not_nullable_on_empty_table() throws SQLException {
     underTest.execute();
 
-    verifyAddedColumns();
+    verifyColumnDefinitions();
   }
 
   @Test
-  public void migration_adds_columns_to_populated_table() throws SQLException {
-    for (int i = 0; i < 9; i++) {
-      db.executeInsert(
-          SNAPSHOTS_TABLE,
-          "PROJECT_ID", valueOf(i),
-          "ISLAST", "TRUE");
-    }
-    db.commit();
+  public void migration_sets_uuid_column_not_nullable_on_populated_table() throws SQLException {
+    insertSnapshot(1, true);
+    insertSnapshot(2, true);
 
     underTest.execute();
 
-    verifyAddedColumns();
-  }
-
-  private void verifyAddedColumns() {
-    db.assertColumnDefinition(SNAPSHOTS_TABLE, "component_uuid", Types.VARCHAR, 50, true);
-    db.assertColumnDefinition(SNAPSHOTS_TABLE, "root_component_uuid", Types.VARCHAR, 50, true);
+    verifyColumnDefinitions();
   }
 
   @Test
-  public void migration_is_not_reentrant() throws SQLException {
-    underTest.execute();
+  public void migration_fails_if_some_row_has_a_null_uuid() throws SQLException {
+    insertSnapshot(1, false);
 
     expectedException.expect(IllegalStateException.class);
-    expectedException.expectMessage("Fail to execute ");
+    expectedException.expectMessage("Fail to execute");
+
     underTest.execute();
   }
+
+
+  private void verifyColumnDefinitions() {
+    db.assertColumnDefinition(TABLE_SNAPSHOTS, "uuid", Types.VARCHAR, 50, false);
+  }
+
+  private String insertSnapshot(long id, boolean hasUuid) {
+    String uuid = "uuid_" + id;
+    db.executeInsert(
+      TABLE_SNAPSHOTS,
+      "ID", valueOf(id),
+      "COMPONENT_UUID", valueOf(id + 10),
+      "ROOT_COMPONENT_UUID", valueOf(id + 100),
+      "UUID", hasUuid ? "uuid_" + id : null);
+    return uuid;
+  }
+
 }

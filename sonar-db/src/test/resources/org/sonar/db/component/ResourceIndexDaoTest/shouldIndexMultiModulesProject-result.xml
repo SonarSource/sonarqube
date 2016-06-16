@@ -27,10 +27,22 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
-  <snapshots purge_status="[null]" id="1" islast="[true]" root_component_uuid="ABCD" project_id="1"/>
-  <snapshots purge_status="[null]" id="2" islast="[true]" root_component_uuid="ABCD" project_id="2"/>
-  <snapshots purge_status="[null]" id="3" islast="[true]" root_component_uuid="ABCD" project_id="3"/>
-  <snapshots purge_status="[null]" id="4" islast="[true]" root_component_uuid="ABCD" project_id="4"/>
+  <snapshots purge_status="[null]"
+             id="1"
+             uuid="u1"
+             islast="[true]" root_component_uuid="ABCD" project_id="1"/>
+  <snapshots purge_status="[null]"
+             id="2"
+             uuid="u2"
+             islast="[true]" root_component_uuid="ABCD" project_id="2"/>
+  <snapshots purge_status="[null]"
+             id="3"
+             uuid="u3"
+             islast="[true]" root_component_uuid="ABCD" project_id="3"/>
+  <snapshots purge_status="[null]"
+             id="4"
+             uuid="u4"
+             islast="[true]" root_component_uuid="ABCD" project_id="4"/>
 
   <!-- The major goal is to test root_project_id -->
 

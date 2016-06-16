@@ -29,6 +29,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
 
   <!-- do not purge last snapshots -->
   <snapshots id="1"
+             uuid="u1"
              component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -40,6 +41,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
              version="[null]" path="[null]"/>
 
   <snapshots id="2"
+             uuid="u2"
              component_uuid="EFGH" parent_snapshot_id="1" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -52,6 +54,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
 
 
   <snapshots id="3"
+             uuid="u3"
              component_uuid="GHIJ" parent_snapshot_id="2" root_component_uuid="ABCD" root_snapshot_id="1"
              status="P" islast="[true]" purge_status="[null]"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"
@@ -64,6 +67,7 @@ What has been changed : purge_status=1 on snapshot 4 (PRJ) and snapshots 5 and 6
 
   <!-- snapshots to be purged -->
   <snapshots id="4"
+             uuid="u4"
              component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]"
              status="P" islast="[false]" purge_status="1"
              period1_mode="[null]" period1_param="[null]" period1_date="[null]"

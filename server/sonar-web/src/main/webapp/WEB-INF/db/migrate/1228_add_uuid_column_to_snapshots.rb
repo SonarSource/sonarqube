@@ -21,9 +21,9 @@
 #
 # SonarQube 6.0
 #
-class AddUuidColumnsToSnapshots < ActiveRecord::Migration
+class AddUuidColumnToSnapshots < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.db.version.v60.AddUuidColumnsToSnapshots')
+    execute_java_migration('org.sonar.db.version.v60.AddUuidColumnToSnapshots')
   end
 end

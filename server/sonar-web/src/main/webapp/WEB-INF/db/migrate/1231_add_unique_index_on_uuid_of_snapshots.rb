@@ -21,12 +21,9 @@
 #
 # SonarQube 6.0
 #
-class MakeUuidColumnsNotNullOnSnapshots < ActiveRecord::Migration
+class AddUniqueIndexOnUuidOfSnapshots < ActiveRecord::Migration
 
   def self.up
-    execute_java_migration('org.sonar.db.version.v60.MakeUuidColumnsNotNullOnSnapshots')
-
-    add_index :snapshots, :component_uuid, :name => 'snapshot_component'
-    add_index :snapshots, :root_component_uuid, :name => 'snapshot_root_component'
+    add_index :snapshots, :uuid, :name => 'analyses_uuid', :unique => true
   end
 end

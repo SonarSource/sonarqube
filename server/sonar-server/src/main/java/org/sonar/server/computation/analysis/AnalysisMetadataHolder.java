@@ -25,6 +25,13 @@ import org.sonar.server.computation.qualityprofile.QualityProfile;
 import org.sonar.server.computation.snapshot.Snapshot;
 
 public interface AnalysisMetadataHolder {
+
+  /**
+   * Returns the UUID generated for this analysis.
+   * @throws IllegalStateException if uuid has not been set
+   */
+  String getUuid();
+
   /**
    * @throws IllegalStateException if no analysis date has been set
    */

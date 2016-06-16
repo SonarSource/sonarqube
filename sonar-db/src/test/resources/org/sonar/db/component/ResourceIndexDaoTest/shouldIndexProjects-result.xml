@@ -22,11 +22,20 @@
             description="[null]"
             enabled="[true]" language="java" copy_resource_id="[null]" person_id="[null]"/>
 
-  <snapshots purge_status="[null]" id="1" islast="[true]" root_project_id="1" project_id="1" scope="PRJ"
+  <snapshots purge_status="[null]"
+             id="1"
+             uuid="u1"
+             islast="[true]" root_project_id="1" project_id="1" scope="PRJ"
              qualifier="TRK"/>
-  <snapshots purge_status="[null]" id="2" islast="[true]" root_project_id="1" project_id="2" scope="DIR"
+  <snapshots purge_status="[null]"
+             id="2"
+             uuid="u2"
+             islast="[true]" root_project_id="1" project_id="2" scope="DIR"
              qualifier="PAC"/>
-  <snapshots purge_status="[null]" id="3" islast="[true]" root_project_id="1" project_id="3" scope="CLA"
+  <snapshots purge_status="[null]"
+             id="3"
+             uuid="u3"
+             islast="[true]" root_project_id="1" project_id="3" scope="CLA"
              qualifier="CLA"/>
 
   <!-- RequestContext -->

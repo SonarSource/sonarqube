@@ -6,7 +6,11 @@
 
   <projects id="1" kee="org.struts:struts-core:src/org/struts/RequestContext.java" enabled="[true]" uuid="ABCD" root_uuid="ABCD"/>
 
-  <snapshots id="5" component_uuid="ABCD" root_component_uuid="ABCD" islast="[true]" />
+  <snapshots id="5"
+             uuid="u5"
+             component_uuid="ABCD"
+             root_component_uuid="ABCD"
+             islast="[true]" />
 
   <project_measures id="20"
                     component_uuid="ABCD"

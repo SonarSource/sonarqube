@@ -27,6 +27,11 @@ import org.sonar.server.computation.snapshot.Snapshot;
 public interface MutableAnalysisMetadataHolder extends AnalysisMetadataHolder {
 
   /**
+   * @throws IllegalStateException if the analysis uuid has already been set
+   */
+  MutableAnalysisMetadataHolder setUuid(String uuid);
+
+  /**
    * @throws IllegalStateException if the analysis date has already been set
    */
   MutableAnalysisMetadataHolder setAnalysisDate(long date);

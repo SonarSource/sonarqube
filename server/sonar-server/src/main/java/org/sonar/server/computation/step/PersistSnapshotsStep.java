@@ -24,6 +24,7 @@ import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.api.utils.System2;
+import org.sonar.core.util.Uuids;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.SnapshotDto;
@@ -92,48 +93,48 @@ public class PersistSnapshotsStep implements ComputationStep {
     @Override
     public void visitProject(Component project, Path<SnapshotDtoHolder> path) {
       this.rootUuid = project.getUuid();
-      SnapshotDto snapshot = createSnapshot(project, path, Qualifiers.PROJECT, Scopes.PROJECT, true);
+      SnapshotDto snapshot = createSnapshot(analysisMetadataHolder.getUuid(), project, path, Qualifiers.PROJECT, Scopes.PROJECT, true);
       updateSnapshotPeriods(snapshot);
       commonForAnyVisit(project, path, snapshot);
     }
 
     @Override
     public void visitModule(Component module, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(module, path, Qualifiers.MODULE, Scopes.PROJECT, true);
+      SnapshotDto snapshot = createSnapshot(Uuids.create(), module, path, Qualifiers.MODULE, Scopes.PROJECT, true);
       updateSnapshotPeriods(snapshot);
       commonForAnyVisit(module, path, snapshot);
     }
 
     @Override
     public void visitDirectory(Component directory, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(directory, path, Qualifiers.DIRECTORY, Scopes.DIRECTORY, false);
+      SnapshotDto snapshot = createSnapshot(Uuids.create(), directory, path, Qualifiers.DIRECTORY, Scopes.DIRECTORY, false);
       commonForAnyVisit(directory, path, snapshot);
     }
 
     @Override
     public void visitFile(Component file, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(file, path, getFileQualifier(file), Scopes.FILE, false);
+      SnapshotDto snapshot = createSnapshot(Uuids.create(), file, path, getFileQualifier(file), Scopes.FILE, false);
       commonForAnyVisit(file, path, snapshot);
     }
 
     @Override
     public void visitView(Component view, Path<SnapshotDtoHolder> path) {
       this.rootUuid = view.getUuid();
-      SnapshotDto snapshot = createSnapshot(view, path, Qualifiers.VIEW, Scopes.PROJECT, false);
+      SnapshotDto snapshot = createSnapshot(Uuids.create(), view, path, Qualifiers.VIEW, Scopes.PROJECT, false);
       updateSnapshotPeriods(snapshot);
       commonForAnyVisit(view, path, snapshot);
     }
 
     @Override
     public void visitSubView(Component subView, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(subView, path, Qualifiers.SUBVIEW, Scopes.PROJECT, false);
+      SnapshotDto snapshot = createSnapshot(Uuids.create(), subView, path, Qualifiers.SUBVIEW, Scopes.PROJECT, false);
       updateSnapshotPeriods(snapshot);
       commonForAnyVisit(subView, path, snapshot);
     }
 
     @Override
     public void visitProjectView(Component projectView, Path<SnapshotDtoHolder> path) {
-      SnapshotDto snapshot = createSnapshot(projectView, path, Qualifiers.PROJECT, Scopes.FILE, false);
+      SnapshotDto snapshot = createSnapshot(Uuids.create(), projectView, path, Qualifiers.PROJECT, Scopes.FILE, false);
       updateSnapshotPeriods(snapshot);
       commonForAnyVisit(projectView, path, snapshot);
     }
@@ -155,10 +156,11 @@ public class PersistSnapshotsStep implements ComputationStep {
       }
     }
 
-    private SnapshotDto createSnapshot(Component component, Path<SnapshotDtoHolder> path,
+    private SnapshotDto createSnapshot(String snapshotUuid, Component component, Path<SnapshotDtoHolder> path,
       String qualifier, String scope, boolean setVersion) {
       String componentUuid = component.getUuid();
       SnapshotDto snapshotDto = new SnapshotDto()
+        .setUuid(snapshotUuid)
         .setRootComponentUuid(rootUuid)
         .setVersion(setVersion ? component.getReportAttributes().getVersion() : null)
         .setComponentUuid(componentUuid)
