@@ -29,10 +29,15 @@ import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import org.sonar.wsclient.SonarClient;
 import org.sonar.wsclient.user.UserParameters;
+import org.sonarqube.ws.client.WsClient;
+import org.sonarqube.ws.client.permission.AddGroupWsRequest;
+import org.sonarqube.ws.client.permission.AddProjectCreatorToTemplateWsRequest;
+import org.sonarqube.ws.client.permission.RemoveGroupWsRequest;
 import util.QaOnly;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.Assert.fail;
+import static util.ItUtils.newAdminWsClient;
 import static util.ItUtils.runProjectAnalysis;
 
 /**
@@ -48,20 +53,22 @@ public class ExecuteAnalysisPermissionTest {
   private final static String USER_PASSWORD = "thewhite";
   private final static String PROJECT_KEY = "sample";
 
-  private static SonarClient adminClient;
+  private static WsClient adminWsClient;
+  private static SonarClient oldAdminWsClient;
 
   @Before
   public void setUp() {
     orchestrator.resetData();
-    adminClient = orchestrator.getServer().adminWsClient();
-    adminClient.userClient().create(UserParameters.create().login(USER_LOGIN).name(USER_LOGIN).password(USER_PASSWORD).passwordConfirmation(USER_PASSWORD));
+    oldAdminWsClient = orchestrator.getServer().adminWsClient();
+    oldAdminWsClient.userClient().create(UserParameters.create().login(USER_LOGIN).name(USER_LOGIN).password(USER_PASSWORD).passwordConfirmation(USER_PASSWORD));
     orchestrator.getServer().provisionProject(PROJECT_KEY, "Sample");
+    adminWsClient = newAdminWsClient(orchestrator);
   }
 
   @After
   public void tearDown() {
     addGlobalPermission("anyone", "scan");
-    adminClient.userClient().deactivate(USER_LOGIN);
+    oldAdminWsClient.userClient().deactivate(USER_LOGIN);
   }
 
   @Test
@@ -70,7 +77,7 @@ public class ExecuteAnalysisPermissionTest {
 
     removeGlobalPermission("anyone", "scan");
     try {
-      // Execute logged analysis, but without the "Execute Anaylsis" permission
+      // Execute logged analysis, but without the "Execute Analysis" permission
       executeLoggedAnalysis();
       fail();
     } catch (BuildFailureException e) {
@@ -80,7 +87,8 @@ public class ExecuteAnalysisPermissionTest {
 
     try {
       // Execute anonymous analysis
-      executeAnonymousAnalysis();;
+      executeAnonymousAnalysis();
+      ;
       fail();
     } catch (BuildFailureException e) {
       assertThat(e.getResult().getLogs()).contains(
@@ -108,37 +116,38 @@ public class ExecuteAnalysisPermissionTest {
     executeLoggedAnalysis();
   }
 
+  @Test
+  public void execute_analysis_with_scan_on_default_template() {
+    removeGlobalPermission("anyone", "scan");
+    adminWsClient.permissions().addProjectCreatorToTemplate(AddProjectCreatorToTemplateWsRequest.builder()
+      .setPermission("scan")
+      .setTemplateId("default_template")
+      .build());
+
+    runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", USER_PASSWORD, "sonar.projectKey", "ANOTHER_PROJECT_KEY");
+  }
+
   private static void addProjectPermission(String groupName, String projectKey, String permission) {
-    adminClient.post("api/permissions/add_group",
-      "groupName", groupName,
-      "projectKey", projectKey,
-      "permission", permission);
+    adminWsClient.permissions().addGroup(new AddGroupWsRequest().setGroupName(groupName).setProjectKey(projectKey).setPermission(permission));
   }
 
   private static void addGlobalPermission(String groupName, String permission) {
-    adminClient.post("api/permissions/add_group",
-      "groupName", groupName,
-      "permission", permission);
+    adminWsClient.permissions().addGroup(new AddGroupWsRequest().setGroupName(groupName).setPermission(permission));
   }
 
   private static void removeProjectPermission(String groupName, String projectKey, String permission) {
-    adminClient.post("api/permissions/remove_group",
-      "groupName", groupName,
-      "projectKey", projectKey,
-      "permission", permission);
+    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest().setGroupName(groupName).setProjectKey(projectKey).setPermission(permission));
   }
 
   private static void removeGlobalPermission(String groupName, String permission) {
-    adminClient.post("api/permissions/remove_group",
-      "groupName", groupName,
-      "permission", permission);
+    adminWsClient.permissions().removeGroup(new RemoveGroupWsRequest().setGroupName(groupName).setPermission(permission));
   }
 
-  private static void executeLoggedAnalysis(){
+  private static void executeLoggedAnalysis() {
     runProjectAnalysis(orchestrator, "shared/xoo-sample", "sonar.login", USER_LOGIN, "sonar.password", USER_PASSWORD);
   }
 
-  private static void executeAnonymousAnalysis(){
+  private static void executeAnonymousAnalysis() {
     runProjectAnalysis(orchestrator, "shared/xoo-sample");
   }
 }
