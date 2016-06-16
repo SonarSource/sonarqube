@@ -24,6 +24,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+
 public class GroupDbTester {
   private final DbTester db;
   private final DbClient dbClient;
@@ -33,6 +35,10 @@ public class GroupDbTester {
     this.db = db;
     this.dbClient = db.getDbClient();
     this.dbSession = db.getSession();
+  }
+
+  public GroupDto insertGroup() {
+    return insertGroup(newGroupDto());
   }
 
   public GroupDto insertGroup(GroupDto groupDto) {

@@ -20,14 +20,17 @@
 package org.sonar.ce.queue.report;
 
 import java.io.InputStream;
+import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.ce.ComputeEngineSide;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.ce.queue.CeQueue;
 import org.sonar.ce.queue.CeTask;
 import org.sonar.ce.queue.CeTaskSubmit;
 import org.sonar.core.component.ComponentKeys;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.server.component.ComponentService;
@@ -36,6 +39,7 @@ import org.sonar.server.permission.PermissionService;
 import org.sonar.server.user.UserSession;
 
 import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
+import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
 
 @ComputeEngineSide
 public class ReportSubmitter {
@@ -45,35 +49,53 @@ public class ReportSubmitter {
   private final ReportFiles reportFiles;
   private final ComponentService componentService;
   private final PermissionService permissionService;
+  private final DbClient dbClient;
 
   public ReportSubmitter(CeQueue queue, UserSession userSession, ReportFiles reportFiles,
-    ComponentService componentService, PermissionService permissionService) {
+    ComponentService componentService, PermissionService permissionService, DbClient dbClient) {
     this.queue = queue;
     this.userSession = userSession;
     this.reportFiles = reportFiles;
     this.componentService = componentService;
     this.permissionService = permissionService;
+    this.dbClient = dbClient;
   }
 
   public CeTask submit(String projectKey, @Nullable String projectBranch, @Nullable String projectName, InputStream reportInput) {
     String effectiveProjectKey = ComponentKeys.createKey(projectKey, projectBranch);
     ComponentDto project = componentService.getNullableByKey(effectiveProjectKey);
     if (project == null) {
-      // the project does not exist -> require global permission
-      userSession.checkPermission(SCAN_EXECUTION);
+      project = createProject(projectKey, projectBranch, projectName);
+    }
 
-      // the project does not exist -> requires to provision it
+    userSession.checkComponentPermission(SCAN_EXECUTION, projectKey);
+
+    return submitReport(reportInput, project);
+  }
+
+  @CheckForNull
+  private ComponentDto createProject(String projectKey, @Nullable String projectBranch, @Nullable String projectName) {
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      boolean wouldCurrentUserHaveScanPermission = permissionService.wouldCurrentUserHavePermissionWithDefaultTemplate(dbSession, SCAN_EXECUTION, projectBranch, projectKey,
+        Qualifiers.PROJECT);
+      if (!wouldCurrentUserHaveScanPermission) {
+        throw insufficientPrivilegesException();
+      }
+
       NewComponent newProject = new NewComponent(projectKey, StringUtils.defaultIfBlank(projectName, projectKey));
       newProject.setBranch(projectBranch);
       newProject.setQualifier(Qualifiers.PROJECT);
-      // no need to verify the permission "provisioning" as it's already handled by componentService
-      project = componentService.create(newProject);
-      permissionService.applyDefaultPermissionTemplate(project.getKey());
-    } else {
-      // the project exists -> require global or project permission
-      userSession.checkComponentPermission(SCAN_EXECUTION, projectKey);
+      // "provisioning" permission is check in ComponentService
+      ComponentDto project = componentService.create(dbSession, newProject);
+      permissionService.applyDefaultPermissionTemplate(dbSession, project.getKey());
+      return project;
+    } finally {
+      dbClient.closeSession(dbSession);
     }
+  }
 
+  private CeTask submitReport(InputStream reportInput, ComponentDto project) {
     // the report file must be saved before submitting the task
     CeTaskSubmit.Builder submit = queue.prepareSubmit();
     reportFiles.save(submit.getUuid(), reportInput);

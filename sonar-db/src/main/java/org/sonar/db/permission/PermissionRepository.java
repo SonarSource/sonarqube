@@ -37,8 +37,6 @@ import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.GroupRoleDto;
 import org.sonar.db.user.UserRoleDto;
 
-import static java.util.Objects.requireNonNull;
-
 /**
  * This facade wraps db operations related to permissions
  * <p/>
@@ -146,17 +144,17 @@ public class PermissionRepository {
   }
 
   private void applyPermissionTemplate(DbSession session, String templateUuid, long componentId, @Nullable Long currentUserId) {
-    PermissionTemplateDto permissionTemplate = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
+    PermissionTemplate permissionTemplate = dbClient.permissionTemplateDao().selectPermissionTemplateWithPermissions(session, templateUuid);
     updateProjectAuthorizationDate(session, componentId);
     dbClient.roleDao().removeAllPermissions(session, componentId);
 
-    List<PermissionTemplateUserDto> usersPermissions = requireNonNull(permissionTemplate.getUsersPermissions());
+    List<PermissionTemplateUserDto> usersPermissions = permissionTemplate.getUserPermissions();
     usersPermissions.forEach(userPermission -> insertUserPermission(componentId, userPermission.getUserId(), userPermission.getPermission(), false, session));
 
-    List<PermissionTemplateGroupDto> groupsPermissions = requireNonNull(permissionTemplate.getGroupsPermissions());
+    List<PermissionTemplateGroupDto> groupsPermissions = permissionTemplate.getGroupPermissions();
     groupsPermissions.forEach(groupPermission -> insertGroupPermission(componentId, groupPermission.getGroupId(), groupPermission.getPermission(), false, session));
 
-    List<PermissionTemplateCharacteristicDto> characteristics = requireNonNull(permissionTemplate.getCharacteristics());
+    List<PermissionTemplateCharacteristicDto> characteristics = permissionTemplate.getCharacteristics();
     if (currentUserId != null) {
       Set<String> permissionsForCurrentUserAlreadyInDb = usersPermissions.stream()
         .filter(userPermission -> currentUserId.equals(userPermission.getUserId()))
@@ -209,6 +207,18 @@ public class PermissionRepository {
       throw new IllegalStateException("At least one default permission template should be defined");
     }
     return defaultTemplateKey;
+  }
+
+  public boolean wouldUserHavePermissionWithDefaultTemplate(DbSession dbSession, @Nullable Long currentUserId, String permission, String projectKey, String qualifier) {
+    String templateUuid = getApplicablePermissionTemplateKey(dbSession, projectKey, qualifier);
+    PermissionTemplateDto template = dbClient.permissionTemplateDao().selectByUuid(dbSession, templateUuid);
+    if (template == null) {
+      return false;
+    }
+
+    List<String> potentialPermissions = dbClient.permissionTemplateDao().selectPotentialPermissionsByUserIdAndTemplateId(dbSession, currentUserId, template.getId());
+
+    return potentialPermissions.contains(permission);
   }
 
   private static void checkAtMostOneMatchForComponentKey(final String componentKey, List<PermissionTemplateDto> matchingTemplates) {

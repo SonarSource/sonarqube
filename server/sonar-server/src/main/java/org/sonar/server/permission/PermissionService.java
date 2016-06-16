@@ -20,8 +20,10 @@
 package org.sonar.server.permission;
 
 import java.util.List;
+import javax.annotation.Nullable;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.server.ServerSide;
+import org.sonar.core.component.ComponentKeys;
 import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
@@ -80,6 +82,17 @@ public class PermissionService {
     permissionRepository.applyDefaultPermissionTemplate(session, component, userId);
     session.commit();
     indexProjectPermissions();
+  }
+
+  public boolean wouldCurrentUserHavePermissionWithDefaultTemplate(DbSession dbSession, String permission, @Nullable String branch, String projectKey, String qualifier) {
+    if (userSession.hasPermission(permission)) {
+      return true;
+    }
+
+    String effectiveKey = ComponentKeys.createKey(projectKey, branch);
+
+    Long userId = userSession.getUserId() == null ? null : userSession.getUserId().longValue();
+    return permissionRepository.wouldUserHavePermissionWithDefaultTemplate(dbSession, userId, permission, effectiveKey, qualifier);
   }
 
   /**

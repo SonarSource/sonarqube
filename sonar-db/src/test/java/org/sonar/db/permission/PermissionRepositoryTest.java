@@ -19,21 +19,29 @@
  */
 package org.sonar.db.permission;
 
+import javax.annotation.Nullable;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import org.sonar.api.config.Settings;
+import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.System2;
 import org.sonar.api.web.UserRole;
+import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+import org.sonar.db.permission.template.PermissionTemplateDbTester;
+import org.sonar.db.user.GroupDbTester;
+import org.sonar.db.user.GroupDto;
 import org.sonar.db.user.RoleDao;
+import org.sonar.db.user.UserDbTester;
+import org.sonar.db.user.UserDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
+import static org.sonar.core.permission.GlobalPermissions.SCAN_EXECUTION;
 
 public class PermissionRepositoryTest {
 
@@ -48,6 +56,10 @@ public class PermissionRepositoryTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
+  GroupDbTester groupDb = new GroupDbTester(dbTester);
+  UserDbTester userDb = new UserDbTester(dbTester);
+  PermissionTemplateDbTester templateDb = new PermissionTemplateDbTester(dbTester);
+  DbClient dbClient = dbTester.getDbClient();
   DbSession session = dbTester.getSession();
 
   Settings settings = new Settings();
@@ -183,12 +195,58 @@ public class PermissionRepositoryTest {
     dbTester.assertDbUnitTable(getClass(), "should_delete_group_permission-result.xml", "projects", "authorization_updated_at");
   }
 
+  @Test
+  public void would_user_have_permission_with_default_permission_template() {
+    UserDto user = userDb.insertUser();
+    GroupDto group = groupDb.insertGroup();
+    groupDb.addUserToGroup(user.getId(), group.getId());
+    PermissionTemplateDto template = templateDb.insertTemplate();
+    setDefaultTemplateUuid(template.getUuid());
+    templateDb.addProjectCreatorToTemplate(template.getId(), SCAN_EXECUTION);
+    templateDb.addUserToTemplate(template.getId(), user.getId(), UserRole.USER);
+    templateDb.addGroupToTemplate(template.getId(), group.getId(), UserRole.CODEVIEWER);
+    templateDb.addGroupToTemplate(template.getId(), null, UserRole.ISSUE_ADMIN);
+
+    // authenticated user
+    checkWouldUserHavePermission(user.getId(), UserRole.ADMIN, false);
+    checkWouldUserHavePermission(user.getId(), SCAN_EXECUTION, true);
+    checkWouldUserHavePermission(user.getId(), UserRole.USER, true);
+    checkWouldUserHavePermission(user.getId(), UserRole.CODEVIEWER, true);
+    checkWouldUserHavePermission(user.getId(), UserRole.ISSUE_ADMIN, true);
+
+    // anonymous user
+    checkWouldUserHavePermission(null, UserRole.ADMIN, false);
+    checkWouldUserHavePermission(null, SCAN_EXECUTION, false);
+    checkWouldUserHavePermission(null, UserRole.USER, false);
+    checkWouldUserHavePermission(null, UserRole.CODEVIEWER, false);
+    checkWouldUserHavePermission(null, UserRole.ISSUE_ADMIN, true);
+  }
+
+  @Test
+  public void would_user_have_permission_with_unknown_default_permission_template() {
+    setDefaultTemplateUuid("UNKNOWN_TEMPLATE_UUID");
+
+    checkWouldUserHavePermission(null, UserRole.ADMIN, false);
+  }
+
+  @Test
+  public void would_user_have_permission_with_empty_template() {
+    PermissionTemplateDto template = templateDb.insertTemplate();
+    setDefaultTemplateUuid(template.getUuid());
+
+    checkWouldUserHavePermission(null, UserRole.ADMIN, false);
+  }
+
+  private void checkWouldUserHavePermission(@Nullable Long userId, String permission, boolean expectedResult) {
+    assertThat(underTest.wouldUserHavePermissionWithDefaultTemplate(session, userId, permission, "PROJECT_KEY", Qualifiers.PROJECT)).isEqualTo(expectedResult);
+  }
+
   private void checkAuthorizationUpdatedAtIsUpdated() {
     assertThat(dbTester.getDbClient().resourceDao().selectResource(PROJECT_ID, session).getAuthorizationUpdatedAt()).isEqualTo(NOW);
   }
 
-  private void checkAuthorizationUpdatedAtIsNotUpdated() {
-    assertThat(dbTester.getDbClient().resourceDao().selectResource(PROJECT_ID, session).getAuthorizationUpdatedAt()).isNull();
+  private void setDefaultTemplateUuid(String templateUuid) {
+    settings.setProperty("sonar.permission.template.default", templateUuid);
   }
 
 }

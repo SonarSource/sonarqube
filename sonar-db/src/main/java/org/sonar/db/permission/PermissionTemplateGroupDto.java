@@ -23,7 +23,6 @@ import java.util.Date;
 import javax.annotation.Nullable;
 
 public class PermissionTemplateGroupDto {
-
   private Long id;
   private Long templateId;
   private Long groupId;

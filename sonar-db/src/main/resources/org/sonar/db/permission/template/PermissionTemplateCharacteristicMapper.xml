@@ -10,7 +10,16 @@
     ptc.updated_at as updatedAt
   </sql>
 
-  <select id="selectByTemplateIds" parameterType="long" resultType="TemplatePermission">
+  <select id="selectByTemplateId" parameterType="long" resultType="PermissionTemplateCharacteristic">
+    select
+    <include refid="columns" />
+    from perm_tpl_characteristics ptc
+    where
+    ptc.template_id = #{templateId}
+    order by id
+  </select>
+
+  <select id="selectByTemplateIds" parameterType="long" resultType="PermissionTemplateCharacteristic">
     select
     <include refid="columns" />
     from perm_tpl_characteristics ptc
@@ -22,7 +31,7 @@
     order by id
   </select>
 
-  <select id="selectByPermissionAndTemplateId" parameterType="map" resultType="TemplatePermission">
+  <select id="selectByPermissionAndTemplateId" parameterType="map" resultType="PermissionTemplateCharacteristic">
     select
     <include refid="columns" />
     from perm_tpl_characteristics ptc
@@ -31,19 +40,19 @@
     order by id
   </select>
 
-  <select id="selectById" parameterType="long" resultType="TemplatePermission">
+  <select id="selectById" parameterType="long" resultType="PermissionTemplateCharacteristic">
     select
     <include refid="columns" />
     from perm_tpl_characteristics ptc
     where ptc.id=#{id}
   </select>
 
-  <insert id="insert" parameterType="TemplatePermission" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
+  <insert id="insert" parameterType="PermissionTemplateCharacteristic" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
     insert into perm_tpl_characteristics(template_id, permission_key, with_project_creator, created_at, updated_at)
     values(#{templateId, jdbcType=BIGINT}, #{permission, jdbcType=VARCHAR}, #{withProjectCreator, jdbcType=BOOLEAN}, #{createdAt, jdbcType=BIGINT}, #{updatedAt, jdbcType=BIGINT})
   </insert>
 
-  <update id="update" parameterType="TemplatePermission" useGeneratedKeys="false">
+  <update id="update" parameterType="PermissionTemplateCharacteristic" useGeneratedKeys="false">
     update perm_tpl_characteristics set
     with_project_creator=#{withProjectCreator, jdbcType=BOOLEAN},
     updated_at=#{updatedAt, jdbcType=BIGINT}

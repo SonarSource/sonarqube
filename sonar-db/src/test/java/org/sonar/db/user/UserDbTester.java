@@ -23,6 +23,8 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
+import static org.sonar.db.user.UserTesting.newUserDto;
+
 public class UserDbTester {
   private final DbTester db;
   private final DbClient dbClient;
@@ -32,6 +34,10 @@ public class UserDbTester {
     this.db = db;
     this.dbClient = db.getDbClient();
     this.dbSession = db.getSession();
+  }
+
+  public UserDto insertUser() {
+    return insertUser(newUserDto());
   }
 
   public UserDto insertUser(UserDto userDto) {

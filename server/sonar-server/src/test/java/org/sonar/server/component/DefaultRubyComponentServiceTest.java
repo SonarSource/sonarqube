@@ -38,9 +38,7 @@ import static com.google.common.collect.Maps.newHashMap;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyListOf;
-import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -102,16 +100,6 @@ public class DefaultRubyComponentServiceTest {
     assertThat(newComponent.qualifier()).isEqualTo(Qualifiers.PROJECT);
 
     verify(permissionService).applyDefaultPermissionTemplate(componentKey);
-  }
-
-  @Test
-  public void not_create_component_on_sub_views() {
-    when(resourceDao.selectByKey(anyString())).thenReturn(ComponentTesting.newProjectDto());
-
-    service.createComponent("new-project", "New Project", Qualifiers.SUBVIEW);
-
-    verify(componentService, never()).create(any(NewComponent.class));
-    verify(permissionService, never()).applyDefaultPermissionTemplate(anyString());
   }
 
   @Test(expected = BadRequestException.class)

@@ -22,7 +22,6 @@ package org.sonar.db.permission;
 import java.util.Date;
 
 public class PermissionTemplateUserDto {
-
   private Long id;
   private Long templateId;
   private Long userId;

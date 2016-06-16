@@ -27,13 +27,13 @@ import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.component.Component;
 import org.sonar.api.component.RubyComponentService;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ResourceDao;
 import org.sonar.db.component.ResourceDto;
-import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.util.RubyUtils;
+
+import static org.sonar.server.ws.WsUtils.checkRequest;
 
 public class DefaultRubyComponentService implements RubyComponentService {
 
@@ -71,20 +71,13 @@ public class DefaultRubyComponentService implements RubyComponentService {
 
   @CheckForNull
   public Long createComponent(String key, @Nullable String branch, String name, @Nullable String qualifier) {
-    // Sub view should not be created with provisioning. Will be fixed by http://jira.sonarsource.com/browse/VIEWS-296
-    if (!Qualifiers.SUBVIEW.equals(qualifier)) {
-      ComponentDto componentDto = componentService.create(NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
-      if (componentDto == null) {
-        throw new BadRequestException(String.format("Component not created: %s", key));
-      }
-      ComponentDto component = (ComponentDto) resourceDao.selectByKey(componentDto.getKey());
-      if (component == null) {
-        throw new BadRequestException(String.format("Component not created: %s", key));
-      }
-      permissionService.applyDefaultPermissionTemplate(component.getKey());
-      return component.getId();
-    }
-    return null;
+    ComponentDto provisionedComponent = componentService.create(NewComponent.create(key, name).setQualifier(qualifier).setBranch(branch));
+    checkRequest(provisionedComponent != null, "Component not created: %s", key);
+    ComponentDto componentInDb = (ComponentDto) resourceDao.selectByKey(provisionedComponent.getKey());
+    checkRequest(componentInDb != null, "Component not created: %s", key);
+
+    permissionService.applyDefaultPermissionTemplate(componentInDb.getKey());
+    return componentInDb.getId();
   }
 
   public DefaultComponentQueryResult find(Map<String, Object> params) {

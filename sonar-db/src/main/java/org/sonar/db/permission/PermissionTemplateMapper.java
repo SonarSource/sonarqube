@@ -21,6 +21,7 @@ package org.sonar.db.permission;
 
 import java.util.List;
 import java.util.Map;
+import javax.annotation.Nullable;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ResultHandler;
 import org.apache.ibatis.session.RowBounds;
@@ -46,11 +47,9 @@ public interface PermissionTemplateMapper {
 
   PermissionTemplateDto selectByUuid(String templateUuid);
 
-  PermissionTemplateDto selectTemplateUsersPermissions(String templateKey);
+  List<PermissionTemplateUserDto> selectUserPermissionsByTemplateId(long templateId);
 
-  PermissionTemplateDto selectTemplateGroupsPermissions(String templateKey);
-
-  PermissionTemplateDto selectTemplateCharacteristics(String templateKey);
+  List<PermissionTemplateGroupDto> selectGroupPermissionsByTemplateId(long templateId);
 
   void insertUserPermission(PermissionTemplateUserDto permissionTemplateUser);
 
@@ -75,4 +74,6 @@ public interface PermissionTemplateMapper {
   void usersCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
 
   void groupsCountByTemplateIdAndPermission(Map<String, Object> parameters, ResultHandler resultHandler);
+
+  List<String> selectPotentialPermissionsByUserIdAndTemplateId(@Param("userId") @Nullable Long currentUserId, @Param("templateId") long templateId);
 }

@@ -19,15 +19,6 @@
  */
 package org.sonar.server.permission.ws.template;
 
-import static com.google.common.primitives.Longs.asList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.mockito.internal.util.collections.Sets.newSet;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-
 import java.util.Collections;
 import java.util.Date;
 import javax.annotation.Nullable;
@@ -62,6 +53,15 @@ import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.TestResponse;
 import org.sonar.server.ws.WsActionTester;
 
+import static com.google.common.primitives.Longs.asList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.mockito.internal.util.collections.Sets.newSet;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+
 public class DeleteTemplateActionTest {
 
   static final String TEMPLATE_UUID = "permission-template-uuid";
@@ -91,12 +91,7 @@ public class DeleteTemplateActionTest {
     when(defaultTemplatePermissionFinder.getDefaultTemplateUuids()).thenReturn(Collections.<String>emptySet());
     PermissionDependenciesFinder finder = new PermissionDependenciesFinder(dbClient, new ComponentFinder(dbClient), new UserGroupFinder(dbClient), resourceTypes);
     ws = new WsActionTester(new DeleteTemplateAction(dbClient, userSession, finder, defaultTemplatePermissionFinder));
-
     permissionTemplate = insertTemplateAndAssociatedPermissions(newPermissionTemplateDto().setUuid(TEMPLATE_UUID));
-    PermissionTemplateDto permissionTemplateInDatabase = dbClient.permissionTemplateDao().selectByUuidWithUserAndGroupPermissions(dbSession, TEMPLATE_UUID);
-    assertThat(permissionTemplateInDatabase.getUuid()).isEqualTo(TEMPLATE_UUID);
-    assertThat(permissionTemplateInDatabase.getGroupsPermissions()).isNotEmpty();
-    assertThat(permissionTemplateInDatabase.getUsersPermissions()).isNotEmpty();
   }
 
   @Test

@@ -196,9 +196,9 @@ public class MyBatis {
     confBuilder.loadAlias("PermissionTemplate", PermissionTemplateDto.class);
     confBuilder.loadAlias("PermissionTemplateUser", PermissionTemplateUserDto.class);
     confBuilder.loadAlias("PermissionTemplateGroup", PermissionTemplateGroupDto.class);
+    confBuilder.loadAlias("PermissionTemplateCharacteristic", PermissionTemplateCharacteristicDto.class);
     confBuilder.loadAlias("UserWithPermission", UserWithPermissionDto.class);
     confBuilder.loadAlias("GroupWithPermission", GroupWithPermissionDto.class);
-    confBuilder.loadAlias("TemplatePermission", PermissionTemplateCharacteristicDto.class);
     confBuilder.loadAlias("QualityProfile", QualityProfileDto.class);
     confBuilder.loadAlias("ActiveRule", ActiveRuleDto.class);
     confBuilder.loadAlias("ActiveRuleParam", ActiveRuleParamDto.class);

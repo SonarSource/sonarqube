@@ -41,7 +41,6 @@ import org.sonar.db.permission.template.PermissionTemplateCharacteristicMapper;
 
 import static com.google.common.collect.Maps.newHashMap;
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputsWithoutOutput;
 
 public class PermissionTemplateDao implements Dao {
@@ -156,31 +155,24 @@ public class PermissionTemplateDao implements Dao {
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectByUuidWithUserAndGroupPermissions(DbSession session, String templateUuid) {
-    PermissionTemplateDto template;
+  public PermissionTemplate selectByUuidWithUserAndGroupPermissions(DbSession session, String templateUuid) {
     PermissionTemplateMapper mapper = mapper(session);
-    template = mapper.selectByUuid(templateUuid);
+
+    PermissionTemplateDto template = mapper.selectByUuid(templateUuid);
     if (template == null) {
       return null;
     }
 
-    PermissionTemplateDto templateWithUserPermissions = mapper.selectTemplateUsersPermissions(templateUuid);
-    List<PermissionTemplateUserDto> userPermissions = templateWithUserPermissions == null ? emptyList() : templateWithUserPermissions.getUsersPermissions();
-    template.setUsersPermissions(userPermissions);
+    List<PermissionTemplateUserDto> userPermissions = mapper.selectUserPermissionsByTemplateId(template.getId());
+    List<PermissionTemplateGroupDto> groupPermissions = mapper.selectGroupPermissionsByTemplateId(template.getId());
+    PermissionTemplateCharacteristicMapper characteristicMapper = session.getMapper(PermissionTemplateCharacteristicMapper.class);
+    List<PermissionTemplateCharacteristicDto> characteristics = characteristicMapper.selectByTemplateId(template.getId());
 
-    PermissionTemplateDto templateWithGroupPermissions = mapper.selectTemplateGroupsPermissions(templateUuid);
-    List<PermissionTemplateGroupDto> groupPermissions = templateWithGroupPermissions == null ? emptyList() : templateWithGroupPermissions.getGroupsPermissions();
-    template.setGroupsByPermission(groupPermissions);
-
-    PermissionTemplateDto templateWithCharacteristics = mapper.selectTemplateCharacteristics(templateUuid);
-    List<PermissionTemplateCharacteristicDto> characteristics = templateWithCharacteristics == null ? emptyList() : templateWithCharacteristics.getCharacteristics();
-    template.setCharacteristics(characteristics);
-
-    return template;
+    return new PermissionTemplate(template, userPermissions, groupPermissions, characteristics);
   }
 
   @CheckForNull
-  public PermissionTemplateDto selectByUuidWithUserAndGroupPermissions(String templateUuid) {
+  public PermissionTemplate selectByUuidWithUserAndGroupPermissions(String templateUuid) {
     DbSession session = myBatis.openSession(false);
     try {
       return selectByUuidWithUserAndGroupPermissions(session, templateUuid);
@@ -396,20 +388,24 @@ public class PermissionTemplateDao implements Dao {
   /**
    * Load permission template and load associated collections of users and groups permissions, and characteristics
    */
-  PermissionTemplateDto selectPermissionTemplateWithPermissions(DbSession session, String templateUuid) {
+  PermissionTemplate selectPermissionTemplateWithPermissions(DbSession session, String templateUuid) {
     PermissionTemplateDto template = selectByUuid(session, templateUuid);
     if (template == null) {
       throw new IllegalArgumentException("Could not retrieve permission template with uuid " + templateUuid);
     }
-    PermissionTemplateDto templateWithPermissions = selectByUuidWithUserAndGroupPermissions(session, template.getUuid());
-    if (templateWithPermissions == null) {
+    PermissionTemplate templateWithDependencies = selectByUuidWithUserAndGroupPermissions(session, template.getUuid());
+    if (templateWithDependencies == null) {
       throw new IllegalArgumentException("Could not retrieve permissions for template with uuid " + templateUuid);
     }
-    return templateWithPermissions;
+    return templateWithDependencies;
   }
 
   public PermissionTemplateDto selectByName(DbSession dbSession, String name) {
     return mapper(dbSession).selectByName(name.toUpperCase(Locale.ENGLISH));
+  }
+
+  public List<String> selectPotentialPermissionsByUserIdAndTemplateId(DbSession dbSession, @Nullable Long currentUserId, long templateId) {
+    return mapper(dbSession).selectPotentialPermissionsByUserIdAndTemplateId(currentUserId, templateId);
   }
 
   /**
