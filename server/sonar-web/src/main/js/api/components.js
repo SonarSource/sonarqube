@@ -100,6 +100,6 @@ export function getProjectsWithInternalId (query) {
 }
 
 export function getMyProjects (data) {
-  const url = window.baseUrl + '/api/projects/search_my_projects';
+  const url = '/api/projects/search_my_projects';
   return getJSON(url, data);
 }

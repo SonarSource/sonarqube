@@ -46,7 +46,7 @@ export default class ProjectsContainer extends React.Component {
 
   loadProjects (page = this.state.page, query = this.state.query) {
     this.setState({ loading: true });
-    const data = { ps: 20 }; // FIXME
+    const data = { ps: 100 };
     if (page > 1) {
       data.p = page;
     }
