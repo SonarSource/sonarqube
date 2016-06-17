@@ -84,6 +84,7 @@ import org.sonar.db.version.v55.FeedRulesTypes;
 import org.sonar.db.version.v56.FixLengthOfIssuesMessageOnOracle;
 import org.sonar.db.version.v56.FixTypeOfRuleTypeOnMysql;
 import org.sonar.db.version.v60.AddAnalysisUuidColumnToCeActivity;
+import org.sonar.db.version.v60.AddAnalysisUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddComponentUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddComponentUuidColumnToMeasures;
 import org.sonar.db.version.v60.AddComponentUuidColumnsToSnapshots;
@@ -93,6 +94,7 @@ import org.sonar.db.version.v60.AddUuidColumnsToResourceIndex;
 import org.sonar.db.version.v60.CleanOrphanRowsInProjects;
 import org.sonar.db.version.v60.CleanOrphanRowsInResourceIndex;
 import org.sonar.db.version.v60.CleanOrphanRowsInSnapshots;
+import org.sonar.db.version.v60.DeleteOrphanDuplicationsIndexRowsWithoutAnalysis;
 import org.sonar.db.version.v60.DeleteOrphanDuplicationsIndexRowsWithoutComponent;
 import org.sonar.db.version.v60.DeleteOrphanMeasuresWithoutComponent;
 import org.sonar.db.version.v60.DropIdColumnsFromProjects;
@@ -101,7 +103,9 @@ import org.sonar.db.version.v60.DropIdColumnsFromSnapshots;
 import org.sonar.db.version.v60.DropProjectIdColumnFromMeasures;
 import org.sonar.db.version.v60.DropRememberMeColumnsFromUsers;
 import org.sonar.db.version.v60.DropSnapshotIdColumnFromCeActivity;
+import org.sonar.db.version.v60.DropSnapshotIdColumnsFromDuplicationsIndex;
 import org.sonar.db.version.v60.DropUnusedMeasuresColumns;
+import org.sonar.db.version.v60.MakeAnalysisUuidNotNullOnDuplicationsIndex;
 import org.sonar.db.version.v60.MakeComponentUuidColumnsNotNullOnSnapshots;
 import org.sonar.db.version.v60.MakeComponentUuidNotNullOnDuplicationsIndex;
 import org.sonar.db.version.v60.MakeComponentUuidNotNullOnMeasures;
@@ -109,6 +113,7 @@ import org.sonar.db.version.v60.MakeUuidColumnNotNullOnSnapshots;
 import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnProjects;
 import org.sonar.db.version.v60.MakeUuidColumnsNotNullOnResourceIndex;
 import org.sonar.db.version.v60.PopulateAnalysisUuidColumnOnCeActivity;
+import org.sonar.db.version.v60.PopulateAnalysisUuidOfDuplicationsIndex;
 import org.sonar.db.version.v60.PopulateComponentUuidColumnsOfSnapshots;
 import org.sonar.db.version.v60.PopulateComponentUuidOfDuplicationsIndex;
 import org.sonar.db.version.v60.PopulateComponentUuidOfMeasures;
@@ -237,6 +242,13 @@ public class MigrationStepModule extends Module {
       AddComponentUuidColumnToDuplicationsIndex.class,
       PopulateComponentUuidOfDuplicationsIndex.class,
       DeleteOrphanDuplicationsIndexRowsWithoutComponent.class,
-      MakeComponentUuidNotNullOnDuplicationsIndex.class);
+      MakeComponentUuidNotNullOnDuplicationsIndex.class,
+
+      // analysis_uuid in duplications_index
+      AddAnalysisUuidColumnToDuplicationsIndex.class,
+      PopulateAnalysisUuidOfDuplicationsIndex.class,
+      DeleteOrphanDuplicationsIndexRowsWithoutAnalysis.class,
+      MakeAnalysisUuidNotNullOnDuplicationsIndex.class,
+      DropSnapshotIdColumnsFromDuplicationsIndex.class);
   }
 }
