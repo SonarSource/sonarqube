@@ -36,7 +36,7 @@ public class PopulateComponentUuidOfMeasures extends BaseDataChange {
   public void execute(Context context) throws SQLException {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select distinct pm.project_id, s.component_uuid from project_measures pm inner join snapshots s on s.id=pm.snapshot_id where pm.component_uuid is null");
-    massUpdate.update("UPDATE project_measures SET component_uuid=? WHERE project_id=? and pm.component_uuid is null");
+    massUpdate.update("UPDATE project_measures SET component_uuid=? WHERE project_id=? and component_uuid is null");
     massUpdate.rowPluralName("measures");
     massUpdate.execute(this::handle);
   }
