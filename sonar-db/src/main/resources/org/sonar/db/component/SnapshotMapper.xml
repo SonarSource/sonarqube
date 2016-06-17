@@ -242,7 +242,7 @@
     #{qualifier, jdbcType=VARCHAR},
     #{version, jdbcType=VARCHAR},
     #{path, jdbcType=VARCHAR},
-    #{depth, jdbcType=BOOLEAN},
+    #{depth, jdbcType=INTEGER},
     #{period1Mode, jdbcType=VARCHAR},
     #{period2Mode, jdbcType=VARCHAR},
     #{period3Mode, jdbcType=VARCHAR},
