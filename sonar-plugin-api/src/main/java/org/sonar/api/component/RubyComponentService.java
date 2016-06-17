@@ -24,8 +24,10 @@ import org.sonar.api.server.ServerSide;
 
 /**
  * @since 3.6
+ * @deprecated in 6.0
  */
 @ServerSide
+@Deprecated
 public interface RubyComponentService {
 
   @CheckForNull

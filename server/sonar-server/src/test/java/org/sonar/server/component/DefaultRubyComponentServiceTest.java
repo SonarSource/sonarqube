@@ -45,7 +45,6 @@ import static org.mockito.Mockito.when;
 public class DefaultRubyComponentServiceTest {
 
   ResourceDao resourceDao = mock(ResourceDao.class);
-  DefaultComponentFinder finder = mock(DefaultComponentFinder.class);
   ComponentService componentService = mock(ComponentService.class);
   PermissionService permissionService = mock(PermissionService.class);
 
@@ -53,7 +52,7 @@ public class DefaultRubyComponentServiceTest {
 
   @Before
   public void before() {
-    service = new DefaultRubyComponentService(resourceDao, finder, componentService, permissionService);
+    service = new DefaultRubyComponentService(resourceDao, componentService, permissionService);
   }
 
   @Test
@@ -115,60 +114,6 @@ public class DefaultRubyComponentServiceTest {
   @Test(expected = BadRequestException.class)
   public void should_throw_if_malformed_key1() {
     service.createComponent("1234", "New Project", Qualifiers.PROJECT);
-  }
-
-  @Test
-  public void should_find() {
-    List<String> qualifiers = newArrayList("TRK");
-
-    Map<String, Object> map = newHashMap();
-    map.put("keys", newArrayList("org.codehaus.sonar"));
-    map.put("names", newArrayList("Sonar"));
-    map.put("qualifiers", qualifiers);
-    map.put("pageSize", 10l);
-    map.put("pageIndex", 50);
-    map.put("sort", "NAME");
-    map.put("asc", true);
-
-    service.find(map);
-    verify(resourceDao).selectProjectsByQualifiers(anyListOf(String.class));
-    verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
-  }
-
-  @Test
-  public void should_find_with_uncomplete_projects() {
-    List<String> qualifiers = newArrayList("TRK");
-
-    Map<String, Object> map = newHashMap();
-    map.put("keys", newArrayList("org.codehaus.sonar"));
-    map.put("names", newArrayList("Sonar"));
-    map.put("qualifiers", qualifiers);
-    map.put("pageSize", 10l);
-    map.put("pageIndex", 50);
-    map.put("sort", "NAME");
-    map.put("asc", true);
-
-    service.findWithUncompleteProjects(map);
-    verify(resourceDao).selectProjectsIncludingNotCompletedOnesByQualifiers(anyListOf(String.class));
-    verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
-  }
-
-  @Test
-  public void should_find_ghosts_projects() {
-    List<String> qualifiers = newArrayList("TRK");
-
-    Map<String, Object> map = newHashMap();
-    map.put("keys", newArrayList("org.codehaus.sonar"));
-    map.put("names", newArrayList("Sonar"));
-    map.put("qualifiers", qualifiers);
-    map.put("pageSize", 10l);
-    map.put("pageIndex", 50);
-    map.put("sort", "NAME");
-    map.put("asc", true);
-
-    service.findGhostsProjects(map);
-    verify(resourceDao).selectGhostsProjects(anyListOf(String.class));
-    verify(finder).find(any(ComponentQuery.class), anyListOf(Component.class));
   }
 
   @Test

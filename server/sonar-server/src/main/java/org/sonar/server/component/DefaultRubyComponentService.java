@@ -38,13 +38,11 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class DefaultRubyComponentService implements RubyComponentService {
 
   private final ResourceDao resourceDao;
-  private final DefaultComponentFinder finder;
   private final ComponentService componentService;
   private final PermissionService permissionService;
 
-  public DefaultRubyComponentService(ResourceDao resourceDao, DefaultComponentFinder finder, ComponentService componentService, PermissionService permissionService) {
+  public DefaultRubyComponentService(ResourceDao resourceDao, ComponentService componentService, PermissionService permissionService) {
     this.resourceDao = resourceDao;
-    this.finder = finder;
     this.componentService = componentService;
     this.permissionService = permissionService;
   }
@@ -78,24 +76,6 @@ public class DefaultRubyComponentService implements RubyComponentService {
 
     permissionService.applyDefaultPermissionTemplate(componentInDb.getKey());
     return componentInDb.getId();
-  }
-
-  public DefaultComponentQueryResult find(Map<String, Object> params) {
-    ComponentQuery query = toQuery(params);
-    List<Component> components = resourceDao.selectProjectsByQualifiers(query.qualifiers());
-    return finder.find(query, components);
-  }
-
-  public DefaultComponentQueryResult findWithUncompleteProjects(Map<String, Object> params) {
-    ComponentQuery query = toQuery(params);
-    List<Component> components = resourceDao.selectProjectsIncludingNotCompletedOnesByQualifiers(query.qualifiers());
-    return finder.find(query, components);
-  }
-
-  public DefaultComponentQueryResult findGhostsProjects(Map<String, Object> params) {
-    ComponentQuery query = toQuery(params);
-    List<Component> components = resourceDao.selectGhostsProjects(query.qualifiers());
-    return finder.find(query, components);
   }
 
   public List<ResourceDto> findProvisionedProjects(Map<String, Object> params) {

@@ -59,15 +59,8 @@ import org.sonar.server.platform.ServerIdGenerator;
 import org.sonar.server.platform.ServerSettings;
 import org.sonar.server.platform.SettingsChangeNotifier;
 import org.sonar.server.platform.ws.UpgradesAction;
-import org.sonar.server.plugins.InstalledPluginReferentialFactory;
-import org.sonar.server.plugins.PluginDownloader;
-import org.sonar.server.plugins.ServerPluginRepository;
-import org.sonar.server.plugins.UpdateCenterMatrixFactory;
 import org.sonar.server.rule.RuleRepositories;
 import org.sonar.server.user.NewUserNotifier;
-import org.sonar.updatecenter.common.PluginReferential;
-import org.sonar.updatecenter.common.UpdateCenter;
-import org.sonar.updatecenter.common.Version;
 
 import static com.google.common.collect.Lists.newArrayList;
 
@@ -103,14 +96,6 @@ public final class JRubyFacade {
     return get(ResourceTypes.class).get(qualifier);
   }
 
-  public String getResourceTypeStringProperty(String resourceTypeQualifier, String resourceTypeProperty) {
-    ResourceType resourceType = getResourceType(resourceTypeQualifier);
-    if (resourceType != null) {
-      return resourceType.getStringProperty(resourceTypeProperty);
-    }
-    return null;
-  }
-
   public List<String> getQualifiersWithProperty(final String propertyKey) {
     List<String> qualifiers = newArrayList();
     for (ResourceType type : getResourceTypes()) {
@@ -138,37 +123,6 @@ public final class JRubyFacade {
   }
 
   // UPDATE CENTER ------------------------------------------------------------
-  public void downloadPlugin(String pluginKey, String pluginVersion) {
-    get(PluginDownloader.class).download(pluginKey, Version.create(pluginVersion));
-  }
-
-  public void cancelPluginDownloads() {
-    get(PluginDownloader.class).cancelDownloads();
-  }
-
-  public List<String> getPluginDownloads() {
-    return get(PluginDownloader.class).getDownloadedPluginFilenames();
-  }
-
-  public void uninstallPlugin(String pluginKey) {
-    get(ServerPluginRepository.class).uninstall(pluginKey);
-  }
-
-  public void cancelPluginUninstalls() {
-    get(ServerPluginRepository.class).cancelUninstalls();
-  }
-
-  public List<String> getPluginUninstalls() {
-    return get(ServerPluginRepository.class).getUninstalledPluginFilenames();
-  }
-
-  public UpdateCenter getUpdatePluginCenter(boolean forceReload) {
-    return get(UpdateCenterMatrixFactory.class).getUpdateCenter(forceReload).orNull();
-  }
-
-  public PluginReferential getInstalledPluginReferential() {
-    return get(InstalledPluginReferentialFactory.class).getInstalledPluginReferential();
-  }
 
   // PLUGINS ------------------------------------------------------------------
   public PropertyDefinitions getPropertyDefinitions() {
