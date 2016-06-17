@@ -19,11 +19,11 @@
  */
 package org.sonar.server.user;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 public class UpdateUser {
 
@@ -34,11 +34,11 @@ public class UpdateUser {
   private String password;
   private ExternalIdentity externalIdentity;
 
-  boolean nameChanged;
-  boolean emailChanged;
-  boolean scmAccountsChanged;
-  boolean passwordChanged;
-  boolean externalIdentityChanged;
+  private boolean nameChanged;
+  private boolean emailChanged;
+  private boolean scmAccountsChanged;
+  private boolean passwordChanged;
+  private boolean externalIdentityChanged;
 
   private UpdateUser(String login) {
     // No direct call to this constructor
@@ -98,6 +98,9 @@ public class UpdateUser {
     return externalIdentity;
   }
 
+  /**
+   * This method should only be used when updating a none local user
+   */
   public UpdateUser setExternalIdentity(@Nullable ExternalIdentity externalIdentity) {
     this.externalIdentity = externalIdentity;
     externalIdentityChanged = true;

@@ -19,6 +19,17 @@
  */
 package org.sonar.server.user;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.data.MapEntry.entry;
+import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
+import static org.sonar.db.user.UserTesting.newDisabledUser;
+import static org.sonar.db.user.UserTesting.newUserDto;
+
 import com.google.common.base.Strings;
 import java.util.List;
 import org.elasticsearch.search.SearchHit;
@@ -45,17 +56,6 @@ import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.index.UserIndexDefinition;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.data.MapEntry.entry;
-import static org.junit.Assert.fail;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.sonar.api.CoreProperties.CORE_DEFAULT_GROUP;
-import static org.sonar.db.user.UserTesting.newDisabledUser;
-import static org.sonar.db.user.UserTesting.newUserDto;
 
 public class UserUpdaterTest {
 
@@ -104,7 +104,7 @@ public class UserUpdaterTest {
       .setLogin("user")
       .setName("User")
       .setEmail("user@mail.com")
-      .setPassword("password")
+      .setPassword("PASSWORD")
       .setScmAccounts(newArrayList("u1", "u_1", "User 1")));
 
     UserDto dto = userDao.selectByLogin(session, "user");

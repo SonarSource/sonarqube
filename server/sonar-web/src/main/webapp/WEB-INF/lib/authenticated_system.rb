@@ -8,16 +8,14 @@ module AuthenticatedSystem
   # Accesses the current user from the session.
   # Future calls avoid the database because nil is not equal to false.
   def current_user
-    @current_user ||= (login_from_session || login_from_basic_auth) unless @current_user == false
+    @current_user ||= (login_from_java_user_session || login_from_basic_auth) unless @current_user == false
   end
 
-  # Store the given user id in the session.
+  # Store the given user
   def current_user=(new_user)
     if new_user
-      session['user_id'] = new_user.id
       @current_user = new_user
     else
-      session['user_id'] = nil
       @current_user = false
     end
   end
@@ -120,8 +118,10 @@ module AuthenticatedSystem
   #
 
   # Called from #current_user.  First attempt to login by the user id stored in the session.
-  def login_from_session
-    self.current_user = User.find_by_id(session['user_id']) if session['user_id']
+  def login_from_java_user_session
+    userSession = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerUser::UserSession.java_class)
+    user_id = userSession.getUserId() if userSession && userSession.isLoggedIn()
+    self.current_user = User.find_by_id(user_id) if user_id
   end
 
   # Called from #current_user.  Now, attempt to login by basic authentication information.

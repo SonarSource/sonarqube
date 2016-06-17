@@ -58,7 +58,7 @@ class Api::AuthenticationController < Api::ApiController
   end
 
   def anonymous?
-    !session.has_key?('user_id')
+    current_user.nil?
   end
 
   def set_cache_buster

@@ -30,17 +30,20 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.MessageException;
+import org.sonar.db.user.UserDto;
 
 public class OAuth2ContextFactory {
 
   private final UserIdentityAuthenticator userIdentityAuthenticator;
   private final Server server;
   private final OAuthCsrfVerifier csrfVerifier;
+  private final JwtHttpHandler jwtHttpHandler;
 
-  public OAuth2ContextFactory(UserIdentityAuthenticator userIdentityAuthenticator, Server server, OAuthCsrfVerifier csrfVerifier) {
+  public OAuth2ContextFactory(UserIdentityAuthenticator userIdentityAuthenticator, Server server, OAuthCsrfVerifier csrfVerifier, JwtHttpHandler jwtHttpHandler) {
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.server = server;
     this.csrfVerifier = csrfVerifier;
+    this.jwtHttpHandler = jwtHttpHandler;
   }
 
   public OAuth2IdentityProvider.InitContext newContext(HttpServletRequest request, HttpServletResponse response, OAuth2IdentityProvider identityProvider) {
@@ -112,7 +115,8 @@ public class OAuth2ContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      userIdentityAuthenticator.authenticate(userIdentity, identityProvider, request, response);
+      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider);
+      jwtHttpHandler.generateToken(userDto, response);
     }
   }
 }

@@ -34,10 +34,12 @@ public class AuthenticationModule extends Module {
       OAuth2ContextFactory.class,
       UserIdentityAuthenticator.class,
       OAuthCsrfVerifier.class,
-      GenerateJwtTokenFilter.class,
       ValidateJwtTokenFilter.class,
       JwtSerializer.class,
       JwtHttpHandler.class,
-      JwtCsrfVerifier.class);
+      JwtCsrfVerifier.class,
+      AuthLoginAction.class,
+      CredentialsAuthenticator.class,
+      RealmAuthenticator.class);
   }
 }
