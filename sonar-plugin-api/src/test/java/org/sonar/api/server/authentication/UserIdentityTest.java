@@ -19,13 +19,13 @@
  */
 package org.sonar.api.server.authentication;
 
+import static com.google.common.collect.Sets.newHashSet;
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.base.Strings;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-
-import static com.google.common.collect.Sets.newHashSet;
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class UserIdentityTest {
 
@@ -195,7 +195,7 @@ public class UserIdentityTest {
   @Test
   public void fail_when_groups_are_null() throws Exception {
     thrown.expect(NullPointerException.class);
-    thrown.expectMessage("Groups cannot be null, please don't this method if groups should not be synchronized.");
+    thrown.expectMessage("Groups cannot be null, please don't use this method if groups should not be synchronized.");
 
     UserIdentity.builder()
       .setProviderLogin("john")

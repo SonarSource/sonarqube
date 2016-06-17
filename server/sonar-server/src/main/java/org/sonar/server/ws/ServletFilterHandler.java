@@ -17,29 +17,26 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.server.authentication;
+package org.sonar.server.ws;
 
-import org.sonar.core.platform.Module;
-import org.sonar.server.authentication.ws.AuthenticationWs;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.RequestHandler;
+import org.sonar.api.server.ws.Response;
 
-public class AuthenticationModule extends Module {
-  @Override
-  protected void configureModule() {
-    add(
-      AuthenticationWs.class,
-      InitFilter.class,
-      OAuth2CallbackFilter.class,
-      IdentityProviderRepository.class,
-      BaseContextFactory.class,
-      OAuth2ContextFactory.class,
-      UserIdentityAuthenticator.class,
-      OAuthCsrfVerifier.class,
-      ValidateJwtTokenFilter.class,
-      JwtSerializer.class,
-      JwtHttpHandler.class,
-      JwtCsrfVerifier.class,
-      AuthLoginAction.class,
-      CredentialsAuthenticator.class,
-      RealmAuthenticator.class);
+/**
+ * Used to declare web services that are implemented by a servlet filter.
+ */
+public class ServletFilterHandler implements RequestHandler {
+
+  public static final RequestHandler INSTANCE = new ServletFilterHandler();
+
+  private ServletFilterHandler() {
+    // Nothing
   }
+
+  @Override
+  public void handle(Request request, Response response) {
+    throw new UnsupportedOperationException("This web service is implemented as a servlet filter");
+  }
+
 }

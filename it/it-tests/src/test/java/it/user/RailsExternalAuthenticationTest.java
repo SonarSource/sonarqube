@@ -19,6 +19,13 @@
  */
 package it.user;
 
+import static java.net.HttpURLConnection.HTTP_OK;
+import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static util.ItUtils.pluginArtifact;
+import static util.ItUtils.setServerProperty;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.sonar.orchestrator.Orchestrator;
@@ -50,13 +57,6 @@ import org.sonarqube.ws.client.WsClientFactories;
 import org.sonarqube.ws.client.WsResponse;
 import util.QaOnly;
 import util.selenium.SeleneseTest;
-
-import static java.net.HttpURLConnection.HTTP_OK;
-import static java.net.HttpURLConnection.HTTP_UNAUTHORIZED;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static util.ItUtils.pluginArtifact;
-import static util.ItUtils.setServerProperty;
 
 /**
  * Test deprecated authentication done by Rails. It's kept has every features has not bee migrated to java yet.

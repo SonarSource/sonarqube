@@ -22,7 +22,7 @@ class ApplicationController < ActionController::Base
   include AuthenticatedSystem
   include NeedAuthorization::Helper
 
-  before_filter :check_database_version, :set_user_session, :check_authentication
+  before_filter :check_database_version, :set_i18n, :check_authentication
 
   # Required for JRuby 1.7
   rescue_from 'Java::JavaLang::Exception', :with => :render_java_exception
@@ -92,18 +92,12 @@ class ApplicationController < ActionController::Base
     end
   end
 
-  def set_user_session
+  def set_i18n
+    # TODO Is it really needed to do this ?
     if params[:locale]
       I18n.locale = request.compatible_language_from(available_locales, [params[:locale]])
     else
       I18n.locale = request.compatible_language_from(available_locales)
-    end
-
-    if current_user && current_user.id
-      user_groups_name = current_user.groups.collect {|g| g.name}.to_a
-      Java::OrgSonarServerUser::RubyUserSession.setSession(current_user.id.to_i, current_user.login, current_user.name, user_groups_name, I18n.locale.to_s)
-    else
-      Java::OrgSonarServerUser::RubyUserSession.setSession(nil, nil, nil, nil, I18n.locale.to_s)
     end
   end
 

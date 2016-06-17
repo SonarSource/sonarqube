@@ -23,15 +23,12 @@ import static com.google.common.collect.Sets.newHashSet;
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -84,32 +81,28 @@ public class UserIdentityAuthenticatorTest {
   UserDao userDao = dbClient.userDao();
   GroupDao groupDao = dbClient.groupDao();
   Settings settings = new Settings();
-  JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
   HttpServletRequest request = mock(HttpServletRequest.class);
   HttpServletResponse response = mock(HttpServletResponse.class);
-  HttpSession httpSession = mock(HttpSession.class);
 
   UserUpdater userUpdater = new UserUpdater(
     mock(NewUserNotifier.class),
     settings,
     dbClient,
     mock(UserIndexer.class),
-    system2
-    );
+    system2);
 
-  UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(dbClient, userUpdater, jwtHttpHandler);
+  UserIdentityAuthenticator underTest = new UserIdentityAuthenticator(dbClient, userUpdater);
 
   @Before
   public void setUp() throws Exception {
     settings.setProperty("sonar.defaultGroup", DEFAULT_GROUP);
     addGroup(DEFAULT_GROUP);
-    when(request.getSession()).thenReturn(httpSession);
   }
 
   @Test
   public void authenticate_new_user() throws Exception {
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, request, response);
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
     dbSession.commit();
 
     UserDto userDto = userDao.selectByLogin(dbSession, USER_LOGIN);
@@ -134,7 +127,7 @@ public class UserIdentityAuthenticatorTest {
       .setName("John")
       // group3 doesn't exist in db, it will be ignored
       .setGroups(newHashSet("group1", "group2", "group3"))
-      .build(), IDENTITY_PROVIDER, request, response);
+      .build(), IDENTITY_PROVIDER);
     dbSession.commit();
 
     UserDto userDto = userDao.selectByLogin(dbSession, USER_LOGIN);
@@ -151,11 +144,10 @@ public class UserIdentityAuthenticatorTest {
       .setName("Old name")
       .setEmail("Old email")
       .setExternalIdentity("old identity")
-      .setExternalIdentityProvider("old provide")
-      );
+      .setExternalIdentityProvider("old provide"));
     dbSession.commit();
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, request, response);
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
     dbSession.commit();
 
     UserDto userDto = userDao.selectByLogin(dbSession, USER_LOGIN);
@@ -175,11 +167,10 @@ public class UserIdentityAuthenticatorTest {
       .setName("Old name")
       .setEmail("Old email")
       .setExternalIdentity("old identity")
-      .setExternalIdentityProvider("old provide")
-      );
+      .setExternalIdentityProvider("old provide"));
     dbSession.commit();
 
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, request, response);
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
     dbSession.commit();
 
     UserDto userDto = userDao.selectByLogin(dbSession, USER_LOGIN);
@@ -196,8 +187,7 @@ public class UserIdentityAuthenticatorTest {
     userDao.insert(dbSession, new UserDto()
       .setLogin(USER_LOGIN)
       .setActive(true)
-      .setName("John")
-      );
+      .setName("John"));
     addGroup("group1");
     addGroup("group2");
     dbSession.commit();
@@ -208,7 +198,7 @@ public class UserIdentityAuthenticatorTest {
       .setName("John")
       // group3 doesn't exist in db, it will be ignored
       .setGroups(newHashSet("group1", "group2", "group3"))
-      .build(), IDENTITY_PROVIDER, request, response);
+      .build(), IDENTITY_PROVIDER);
     dbSession.commit();
 
     Set<String> userGroups = new HashSet<>(dbClient.groupMembershipDao().selectGroupsByLogins(dbSession, singletonList(USER_LOGIN)).get(USER_LOGIN));
@@ -238,7 +228,7 @@ public class UserIdentityAuthenticatorTest {
       .setName("John")
       // Only group1 is returned by the id provider => group2 will be removed
       .setGroups(newHashSet("group1"))
-      .build(), IDENTITY_PROVIDER, request, response);
+      .build(), IDENTITY_PROVIDER);
     dbSession.commit();
 
     verifyUserGroups(USER_LOGIN, "group1");
@@ -267,33 +257,10 @@ public class UserIdentityAuthenticatorTest {
       .setName("John")
       // No group => group1 and group2 will be removed
       .setGroups(Collections.<String>emptySet())
-      .build(), IDENTITY_PROVIDER, request, response);
+      .build(), IDENTITY_PROVIDER);
     dbSession.commit();
 
     verifyNoUserGroups(USER_LOGIN);
-  }
-
-  @Test
-  public void update_session_for_rails() throws Exception {
-    UserDto userDto = UserTesting.newUserDto().setLogin(USER_LOGIN);
-    userDao.insert(dbSession, userDto);
-    dbSession.commit();
-
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, request, response);
-
-    verify(httpSession).setAttribute("user_id", userDto.getId());
-  }
-
-  @Test
-  public void create_jwt_token() throws Exception {
-    UserDto userDto = UserTesting.newUserDto().setLogin(USER_LOGIN);
-    userDao.insert(dbSession, userDto);
-    dbSession.commit();
-
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, request, response);
-
-    verify(httpSession).setAttribute("user_id", userDto.getId());
-    verify(jwtHttpHandler).generateToken(USER_LOGIN, response);
   }
 
   @Test
@@ -306,7 +273,7 @@ public class UserIdentityAuthenticatorTest {
 
     thrown.expect(UnauthorizedException.class);
     thrown.expectMessage("'github' users are not allowed to sign up");
-    underTest.authenticate(USER_IDENTITY, identityProvider, request, response);
+    underTest.authenticate(USER_IDENTITY, identityProvider);
   }
 
   @Test
@@ -321,7 +288,7 @@ public class UserIdentityAuthenticatorTest {
     thrown.expect(UnauthorizedException.class);
     thrown.expectMessage("You can't sign up because email 'john@email.com' is already used by an existing user. " +
       "This means that you probably already registered with another account.");
-    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER, request, response);
+    underTest.authenticate(USER_IDENTITY, IDENTITY_PROVIDER);
   }
 
   private void verifyUserGroups(String userLogin, String... groups) {

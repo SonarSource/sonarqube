@@ -20,6 +20,8 @@
 package org.sonar.server.authentication;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -32,6 +34,7 @@ import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.db.user.UserDto;
 
 public class BaseContextFactoryTest {
 
@@ -50,8 +53,9 @@ public class BaseContextFactoryTest {
   HttpServletRequest request = mock(HttpServletRequest.class);
   HttpServletResponse response = mock(HttpServletResponse.class);
   BaseIdentityProvider identityProvider = mock(BaseIdentityProvider.class);
+  JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  BaseContextFactory underTest = new BaseContextFactory(userIdentityAuthenticator, server);
+  BaseContextFactory underTest = new BaseContextFactory(userIdentityAuthenticator, server, jwtHttpHandler);
 
   @Before
   public void setUp() throws Exception {
@@ -74,6 +78,7 @@ public class BaseContextFactoryTest {
     when(request.getSession()).thenReturn(session);
 
     context.authenticate(USER_IDENTITY);
-    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider, request, response);
+    verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider);
+    verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(response));
   }
 }

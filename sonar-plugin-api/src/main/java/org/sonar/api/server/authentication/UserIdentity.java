@@ -19,6 +19,12 @@
  */
 package org.sonar.api.server.authentication;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+import static com.google.common.collect.FluentIterable.from;
+import static org.apache.commons.lang.StringUtils.isNotBlank;
+import static org.sonar.api.user.UserGroupValidation.validateGroupName;
+
 import com.google.common.base.Predicate;
 import java.util.HashSet;
 import java.util.Set;
@@ -27,12 +33,6 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 import org.sonar.api.CoreProperties;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
-import static com.google.common.collect.FluentIterable.from;
-import static org.apache.commons.lang.StringUtils.isNotBlank;
-import static org.sonar.api.user.UserGroupValidation.validateGroupName;
 
 /**
  * User information provided by the Identity Provider to be register into the platform.
@@ -171,7 +171,7 @@ public final class UserIdentity {
      * @since 5.5
      */
     public Builder setGroups(Set<String> groups) {
-      checkNotNull(groups, "Groups cannot be null, please don't this method if groups should not be synchronized.");
+      checkNotNull(groups, "Groups cannot be null, please don't use this method if groups should not be synchronized.");
       from(groups).filter(ValidateGroupName.INSTANCE).toList();
       this.groupsProvided = true;
       this.groups = groups;

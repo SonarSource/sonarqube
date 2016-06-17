@@ -19,6 +19,10 @@
  */
 package org.sonar.server.user;
 
+import static com.google.common.base.Strings.isNullOrEmpty;
+import static com.google.common.collect.Lists.newArrayList;
+import static org.sonar.db.user.UserDto.encryptPassword;
+
 import com.google.common.base.Joiner;
 import com.google.common.base.Predicate;
 import com.google.common.collect.Iterables;
@@ -46,9 +50,6 @@ import org.sonar.server.exceptions.NotFoundException;
 import org.sonar.server.exceptions.ServerException;
 import org.sonar.server.user.index.UserIndexer;
 import org.sonar.server.util.Validation;
-
-import static com.google.common.base.Strings.isNullOrEmpty;
-import static com.google.common.collect.Lists.newArrayList;
 
 @ServerSide
 public class UserUpdater {
@@ -115,10 +116,12 @@ public class UserUpdater {
     UpdateUser updateUser = UpdateUser.create(login)
       .setName(newUser.name())
       .setEmail(newUser.email())
-      .setScmAccounts(newUser.scmAccounts())
-      .setExternalIdentity(newUser.externalIdentity());
+      .setScmAccounts(newUser.scmAccounts());
     if (newUser.password() != null) {
       updateUser.setPassword(newUser.password());
+    }
+    if (newUser.externalIdentity() != null) {
+      updateUser.setExternalIdentity(newUser.externalIdentity());
     }
     // Hack to allow to change the password of the user
     existingUser.setLocal(true);
@@ -178,22 +181,22 @@ public class UserUpdater {
     List<Message> messages = newArrayList();
 
     String login = newUser.login();
-    validateLoginFormat(login, messages);
-    userDto.setLogin(login);
+    if (validateLoginFormat(login, messages)) {
+      userDto.setLogin(login);
+    }
 
     String name = newUser.name();
-    validateNameFormat(name, messages);
-    userDto.setName(name);
+    if (validateNameFormat(name, messages)) {
+      userDto.setName(name);
+    }
 
     String email = newUser.email();
-    if (email != null) {
-      validateEmailFormat(email, messages);
+    if (email != null && validateEmailFormat(email, messages)) {
       userDto.setEmail(email);
     }
 
     String password = newUser.password();
-    if (password != null) {
-      validatePasswords(password, messages);
+    if (password != null && validatePasswords(password, messages)) {
       setEncryptedPassWord(password, userDto);
     }
 
@@ -215,26 +218,22 @@ public class UserUpdater {
     List<Message> messages = newArrayList();
 
     String name = updateUser.name();
-    if (updateUser.isNameChanged()) {
-      validateNameFormat(name, messages);
+    if (updateUser.isNameChanged() && validateNameFormat(name, messages)) {
       userDto.setName(name);
     }
 
     String email = updateUser.email();
-    if (updateUser.isEmailChanged()) {
-      validateEmailFormat(email, messages);
+    if (updateUser.isEmailChanged() && validateEmailFormat(email, messages)) {
       userDto.setEmail(email);
     }
 
-    if (isNewExternalIdentityNotEqualsToSonaQube(updateUser)) {
+    if (updateUser.isExternalIdentityChanged()) {
       setExternalIdentity(userDto, updateUser.externalIdentity());
       userDto.setSalt(null);
       userDto.setCryptedPassword(null);
     } else {
       String password = updateUser.password();
-      if (updateUser.isPasswordChanged()) {
-        validatePasswords(password, messages);
-        checkPasswordChangeAllowed(userDto, messages);
+      if (updateUser.isPasswordChanged() && validatePasswords(password, messages) && checkPasswordChangeAllowed(userDto, messages)) {
         setEncryptedPassWord(password, userDto);
       }
     }
@@ -242,15 +241,13 @@ public class UserUpdater {
     if (updateUser.isScmAccountsChanged()) {
       List<String> scmAccounts = sanitizeScmAccounts(updateUser.scmAccounts());
       if (scmAccounts != null && !scmAccounts.isEmpty()) {
-        validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), email != null ? email : userDto.getEmail(), userDto, messages);
-        userDto.setScmAccounts(scmAccounts);
+        String newOrOldEmail = email != null ? email : userDto.getEmail();
+        if (validateScmAccounts(dbSession, scmAccounts, userDto.getLogin(), newOrOldEmail, userDto, messages)) {
+          userDto.setScmAccounts(scmAccounts);
+        }
       } else {
         userDto.setScmAccounts((String) null);
       }
-    }
-
-    if (updateUser.isExternalIdentityChanged()) {
-      setExternalIdentity(userDto, updateUser.externalIdentity());
     }
 
     if (!messages.isEmpty()) {
@@ -270,64 +267,71 @@ public class UserUpdater {
     }
   }
 
-  private static void checkNotEmptyParam(@Nullable String value, String param, List<Message> messages) {
+  private static boolean checkNotEmptyParam(@Nullable String value, String param, List<Message> messages) {
     if (isNullOrEmpty(value)) {
       messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, param));
+      return false;
     }
+    return true;
   }
 
-  private static String validateLoginFormat(@Nullable String login, List<Message> messages) {
-    checkNotEmptyParam(login, LOGIN_PARAM, messages);
+  private static boolean validateLoginFormat(@Nullable String login, List<Message> messages) {
+    boolean isValid = checkNotEmptyParam(login, LOGIN_PARAM, messages);
     if (!isNullOrEmpty(login)) {
       if (login.length() < LOGIN_MIN_LENGTH) {
         messages.add(Message.of(Validation.IS_TOO_SHORT_MESSAGE, LOGIN_PARAM, LOGIN_MIN_LENGTH));
+        return false;
       } else if (login.length() > LOGIN_MAX_LENGTH) {
         messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, LOGIN_PARAM, LOGIN_MAX_LENGTH));
+        return false;
       } else if (!login.matches("\\A\\w[\\w\\.\\-_@]+\\z")) {
         messages.add(Message.of("user.bad_login"));
+        return false;
       }
     }
-    return login;
+    return isValid;
   }
 
-  private static void validateNameFormat(@Nullable String name, List<Message> messages) {
-    checkNotEmptyParam(name, NAME_PARAM, messages);
+  private static boolean validateNameFormat(@Nullable String name, List<Message> messages) {
+    boolean isValid = checkNotEmptyParam(name, NAME_PARAM, messages);
     if (name != null && name.length() > NAME_MAX_LENGTH) {
       messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, NAME_PARAM, 200));
+      return false;
     }
+    return isValid;
   }
 
-  private static void validateEmailFormat(@Nullable String email, List<Message> messages) {
+  private static boolean validateEmailFormat(@Nullable String email, List<Message> messages) {
     if (email != null && email.length() > EMAIL_MAX_LENGTH) {
       messages.add(Message.of(Validation.IS_TOO_LONG_MESSAGE, EMAIL_PARAM, 100));
+      return false;
     }
+    return true;
   }
 
-  private static void checkPasswordChangeAllowed(UserDto userDto, List<Message> messages) {
+  private static boolean checkPasswordChangeAllowed(UserDto userDto, List<Message> messages) {
     if (!userDto.isLocal()) {
       messages.add(Message.of("user.password_cant_be_changed_on_external_auth"));
+      return false;
     }
+    return true;
   }
 
-  private static boolean isNewExternalIdentityNotEqualsToSonaQube(UpdateUser updateUser) {
-    ExternalIdentity externalIdentity = updateUser.externalIdentity();
-    if (updateUser.isExternalIdentityChanged() && externalIdentity != null) {
-      return !externalIdentity.getProvider().equals(SQ_AUTHORITY);
-    }
-    return false;
-  }
-
-  private static void validatePasswords(@Nullable String password, List<Message> messages) {
+  private static boolean validatePasswords(@Nullable String password, List<Message> messages) {
     if (password == null || password.length() == 0) {
       messages.add(Message.of(Validation.CANT_BE_EMPTY_MESSAGE, PASSWORD_PARAM));
+      return false;
     }
+    return true;
   }
 
-  private void validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
+  private boolean validateScmAccounts(DbSession dbSession, List<String> scmAccounts, @Nullable String login, @Nullable String email, @Nullable UserDto existingUser,
     List<Message> messages) {
+    boolean isValid = true;
     for (String scmAccount : scmAccounts) {
       if (scmAccount.equals(login) || scmAccount.equals(email)) {
         messages.add(Message.of("user.login_or_email_used_as_scm_account"));
+        isValid = false;
       } else {
         List<UserDto> matchingUsers = dbClient.userDao().selectByScmAccountOrLoginOrEmail(dbSession, scmAccount);
         List<String> matchingUsersWithoutExistingUser = newArrayList();
@@ -338,9 +342,11 @@ public class UserUpdater {
         }
         if (!matchingUsersWithoutExistingUser.isEmpty()) {
           messages.add(Message.of("user.scm_account_already_used", scmAccount, Joiner.on(", ").join(matchingUsersWithoutExistingUser)));
+          isValid = false;
         }
       }
     }
+    return isValid;
   }
 
   @CheckForNull
@@ -371,10 +377,6 @@ public class UserUpdater {
     String saltHex = DigestUtils.sha1Hex(salt);
     userDto.setSalt(saltHex);
     userDto.setCryptedPassword(encryptPassword(password, saltHex));
-  }
-
-  private static String encryptPassword(String password, String salt) {
-    return DigestUtils.sha1Hex("--" + salt + "--" + password + "--");
   }
 
   private void notifyNewUser(String login, String name, String email) {

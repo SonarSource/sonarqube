@@ -90,7 +90,7 @@ public class FakeAuthenticator implements LoginPasswordAuthenticator {
 
   private void checkExistence(String username) {
     if (!data.containsKey(username + ".password")) {
-      throw new RuntimeException("No such user");
+      throw new IllegalArgumentException("No such user : " + username);
     }
   }
 
