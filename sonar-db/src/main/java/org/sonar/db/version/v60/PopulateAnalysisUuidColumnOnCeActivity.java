@@ -43,11 +43,7 @@ public class PopulateAnalysisUuidColumnOnCeActivity extends BaseDataChange {
 
   private boolean handle(Select.Row row, SqlStatement update) throws SQLException {
     long id = row.getLong(1);
-    String analysisUuid = row.getNullableString(2);
-
-    if (analysisUuid == null) {
-      return false;
-    }
+    String analysisUuid = row.getString(2);
 
     update.setString(1, analysisUuid);
     update.setLong(2, id);

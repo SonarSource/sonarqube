@@ -66,11 +66,6 @@ public class PopulateAnalysisUuidColumnOnCeActivityTest {
     verifyAnalysisUuid(3, "U2");
   }
 
-  private void verifyAnalysisUuid(int activityId, @Nullable String expectedAnalysisUuid) {
-    Map<String, Object> rows = db.selectFirst("select analysis_uuid as \"analysisUuid\" from ce_activity where id=" + activityId);
-    assertThat(rows.get("analysisUuid")).isEqualTo(expectedAnalysisUuid);
-  }
-
   @Test
   public void migration_is_reentrant() throws SQLException {
     insertSnapshot(1, "U1");
@@ -84,6 +79,11 @@ public class PopulateAnalysisUuidColumnOnCeActivityTest {
     underTest.execute();
     verifyAnalysisUuid(1, null);
     verifyAnalysisUuid(2, "U1");
+  }
+
+  private void verifyAnalysisUuid(int activityId, @Nullable String expectedAnalysisUuid) {
+    Map<String, Object> rows = db.selectFirst("select analysis_uuid as \"analysisUuid\" from ce_activity where id=" + activityId);
+    assertThat(rows.get("analysisUuid")).isEqualTo(expectedAnalysisUuid);
   }
 
   private String insertSnapshot(long id, String uuid) {
