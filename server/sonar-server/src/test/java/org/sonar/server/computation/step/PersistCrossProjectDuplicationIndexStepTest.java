@@ -23,7 +23,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -91,12 +90,13 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     underTest.execute();
 
     Map<String, Object> dto = dbTester.selectFirst("select hash as \"hash\", start_line as \"startLine\", end_line as \"endLine\", index_in_file as \"indexInFile\", " +
-      "snapshot_id as \"snapshotId\", project_snapshot_id as \"projectSnapshotId\" from duplications_index");
+      "snapshot_id as \"snapshotId\", component_uuid as \"componentUuid\", project_snapshot_id as \"projectSnapshotId\" from duplications_index");
     assertThat(dto.get("hash")).isEqualTo(CPD_TEXT_BLOCK.getHash());
     assertThat(dto.get("startLine")).isEqualTo(30L);
     assertThat(dto.get("endLine")).isEqualTo(45L);
     assertThat(dto.get("indexInFile")).isEqualTo(0L);
     assertThat(dto.get("snapshotId")).isEqualTo(FILE_SNAPSHOT_ID);
+    assertThat(dto.get("componentUuid")).isEqualTo(FILE.getUuid());
     assertThat(dto.get("projectSnapshotId")).isEqualTo(PROJECT_SNAPSHOT_ID);
   }
 
@@ -114,12 +114,13 @@ public class PersistCrossProjectDuplicationIndexStepTest {
     underTest.execute();
 
     List<Map<String, Object>> dtos = dbTester.select("select hash as \"hash\", start_line as \"startLine\", end_line as \"endLine\", index_in_file as \"indexInFile\", " +
-      "snapshot_id as \"snapshotId\", project_snapshot_id as \"projectSnapshotId\" from duplications_index");
+      "snapshot_id as \"snapshotId\", component_uuid as \"componentUuid\", project_snapshot_id as \"projectSnapshotId\" from duplications_index");
     assertThat(dtos).extracting("hash").containsOnly(CPD_TEXT_BLOCK.getHash(), "b1234353e96320ff");
     assertThat(dtos).extracting("startLine").containsOnly(30L, 20L);
     assertThat(dtos).extracting("endLine").containsOnly(45L, 15L);
     assertThat(dtos).extracting("indexInFile").containsOnly(0L, 1L);
     assertThat(dtos).extracting("snapshotId").containsOnly(FILE_SNAPSHOT_ID);
+    assertThat(dtos).extracting("componentUuid").containsOnly(FILE.getUuid());
     assertThat(dtos).extracting("projectSnapshotId").containsOnly(PROJECT_SNAPSHOT_ID);
   }
 

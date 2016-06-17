@@ -23,6 +23,7 @@ public final class DuplicationUnitDto {
 
   private long id;
   private long snapshotId;
+  private String componentUuid;
   private long projectSnapshotId;
 
   private String hash;
@@ -48,6 +49,15 @@ public final class DuplicationUnitDto {
 
   public DuplicationUnitDto setSnapshotId(long snapshotId) {
     this.snapshotId = snapshotId;
+    return this;
+  }
+
+  public String getComponentUuid() {
+    return componentUuid;
+  }
+
+  public DuplicationUnitDto setComponentUuid(String componentUuid) {
+    this.componentUuid = componentUuid;
     return this;
   }
 

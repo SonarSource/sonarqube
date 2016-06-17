@@ -19,8 +19,12 @@
  */
 package org.sonar.server.computation.step;
 
-import java.util.*;
-
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -50,7 +54,11 @@ import org.sonar.server.computation.snapshot.Snapshot;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyZeroInteractions;
+import static org.mockito.Mockito.when;
 import static org.sonar.server.computation.component.Component.Type.FILE;
 import static org.sonar.server.computation.component.Component.Type.PROJECT;
 
@@ -73,8 +81,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(
     ReportComponent.builder(PROJECT, PROJECT_REF)
-      .addChildren(CURRENT_FILE
-      ).build());
+      .addChildren(CURRENT_FILE).build());
 
   @Rule
   public BatchReportReaderRule batchReportReader = new BatchReportReaderRule();
@@ -130,7 +137,8 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setEndLine(55)
       .setIndexInFile(0)
       .setProjectSnapshotId(otherProjectSnapshot.getId())
-      .setSnapshotId(otherFileSnapshot.getId());
+      .setSnapshotId(otherFileSnapshot.getId())
+      .setComponentUuid(otherFileSnapshot.getComponentUuid());
     dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
 
@@ -153,17 +161,14 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
           .setIndexInFile(0)
           .setLines(originBlock.getStartLine(), originBlock.getEndLine())
           .setUnit(originBlock.getStartTokenIndex(), originBlock.getEndTokenIndex())
-          .build()
-        ),
+          .build()),
       Arrays.asList(
         new Block.Builder()
           .setResourceId(otherFIle.getKey())
           .setBlockHash(new ByteArray(hash))
           .setIndexInFile(duplicate.getIndexInFile())
           .setLines(duplicate.getStartLine(), duplicate.getEndLine())
-          .build()
-        )
-      );
+          .build()));
   }
 
   @Test
@@ -199,7 +204,8 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setEndLine(55)
       .setIndexInFile(0)
       .setProjectSnapshotId(otherProjectSnapshot.getId())
-      .setSnapshotId(otherFileSnapshot.getId());
+      .setSnapshotId(otherFileSnapshot.getId())
+      .setComponentUuid(otherFileSnapshot.getComponentUuid());
 
     DuplicationUnitDto duplicate2 = new DuplicationUnitDto()
       .setHash(originBlock2.getHash())
@@ -207,7 +213,8 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setEndLine(35)
       .setIndexInFile(1)
       .setProjectSnapshotId(otherProjectSnapshot.getId())
-      .setSnapshotId(otherFileSnapshot.getId());
+      .setSnapshotId(otherFileSnapshot.getId())
+      .setComponentUuid(otherFileSnapshot.getComponentUuid());
     dbClient.duplicationDao().insert(dbSession, duplicate1);
     dbClient.duplicationDao().insert(dbSession, duplicate2);
     dbSession.commit();
@@ -228,8 +235,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
         .setIndexInFile(0)
         .setLines(originBlock1.getStartLine(), originBlock1.getEndLine())
         .setUnit(originBlock1.getStartTokenIndex(), originBlock1.getEndTokenIndex())
-        .build()
-      );
+        .build());
     assertThat(originBlocksByIndex.get(1)).isEqualTo(
       new Block.Builder()
         .setResourceId(CURRENT_FILE_KEY)
@@ -237,8 +243,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
         .setIndexInFile(1)
         .setLines(originBlock2.getStartLine(), originBlock2.getEndLine())
         .setUnit(originBlock2.getStartTokenIndex(), originBlock2.getEndTokenIndex())
-        .build()
-      );
+        .build());
 
     Map<Integer, Block> duplicationBlocksByIndex = blocksByIndexInFile(duplicationBlocks.getValue());
     assertThat(duplicationBlocksByIndex.get(0)).isEqualTo(
@@ -247,16 +252,14 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
         .setBlockHash(new ByteArray(originBlock1.getHash()))
         .setIndexInFile(duplicate1.getIndexInFile())
         .setLines(duplicate1.getStartLine(), duplicate1.getEndLine())
-        .build()
-      );
+        .build());
     assertThat(duplicationBlocksByIndex.get(1)).isEqualTo(
       new Block.Builder()
         .setResourceId(otherFIle.getKey())
         .setBlockHash(new ByteArray(originBlock2.getHash()))
         .setIndexInFile(duplicate2.getIndexInFile())
         .setLines(duplicate2.getStartLine(), duplicate2.getEndLine())
-        .build()
-      );
+        .build());
   }
 
   @Test
@@ -277,7 +280,8 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setEndLine(55)
       .setIndexInFile(0)
       .setProjectSnapshotId(otherProjectSnapshot.getId())
-      .setSnapshotId(otherFileSnapshot.getId());
+      .setSnapshotId(otherFileSnapshot.getId())
+      .setComponentUuid(otherFileSnapshot.getComponentUuid());
     dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
 

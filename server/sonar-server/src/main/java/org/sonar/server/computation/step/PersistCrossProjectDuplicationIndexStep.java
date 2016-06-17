@@ -100,8 +100,8 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
               .setEndLine(block.getEndLine())
               .setIndexInFile(indexInFile)
               .setSnapshotId(dbIdsRepository.getSnapshotId(component))
-              .setProjectSnapshotId(projectSnapshotId)
-            );
+              .setComponentUuid(component.getUuid())
+              .setProjectSnapshotId(projectSnapshotId));
           indexInFile++;
         }
       } finally {

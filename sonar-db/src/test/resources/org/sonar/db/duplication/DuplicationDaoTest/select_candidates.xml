@@ -47,37 +47,79 @@
 
   <!-- Old snapshot of another project -->
   <!-- bar-old -->
-  <duplications_index id="1" project_snapshot_id="1" snapshot_id="2" hash="bb" index_in_file="0" start_line="0"
+  <duplications_index id="1"
+                      project_snapshot_id="1"
+                      snapshot_id="2"
+                      component_uuid="uuid_1"
+                      hash="bb"
+                      index_in_file="0"
+                      start_line="0"
                       end_line="0"/>
 
   <!-- Last snapshot of another project -->
   <!-- bar-last -->
-  <duplications_index id="2" project_snapshot_id="3" snapshot_id="4" hash="aa" index_in_file="0" start_line="1"
+  <duplications_index id="2"
+                      project_snapshot_id="3"
+                      snapshot_id="4"
+                      component_uuid="uuid_2"
+                      hash="aa"
+                      index_in_file="0"
+                      start_line="1"
                       end_line="2"/>
 
   <!-- Old snapshot of current project -->
   <!-- foo-old -->
-  <duplications_index id="3" project_snapshot_id="5" snapshot_id="6" hash="bb" index_in_file="0" start_line="0"
+  <duplications_index id="3"
+                      project_snapshot_id="5"
+                      snapshot_id="6"
+                      component_uuid="uuid_3"
+                      hash="bb"
+                      index_in_file="0"
+                      start_line="0"
                       end_line="0"/>
 
   <!-- Last snapshot of current project -->
   <!-- foo-last -->
-  <duplications_index id="4" project_snapshot_id="7" snapshot_id="8" hash="aa" index_in_file="0" start_line="0"
+  <duplications_index id="4"
+                      project_snapshot_id="7"
+                      snapshot_id="8"
+                      component_uuid="uuid_4"
+                      hash="aa"
+                      index_in_file="0"
+                      start_line="0"
                       end_line="0"/>
 
   <!-- New snapshot of current project -->
   <!-- foo -->
-  <duplications_index id="5" project_snapshot_id="9" snapshot_id="10" hash="aa" index_in_file="0" start_line="0"
+  <duplications_index id="5"
+                      project_snapshot_id="9"
+                      snapshot_id="10"
+                      component_uuid="uuid_5"
+                      hash="aa"
+                      index_in_file="0"
+                      start_line="0"
                       end_line="0"/>
 
   <!-- Note that there is two blocks with same hash for current analysis to verify that we use "SELECT DISTINCT", -->
   <!-- without "DISTINCT" we will select block from "bar-last" two times. -->
-  <duplications_index id="6" project_snapshot_id="9" snapshot_id="10" hash="aa" index_in_file="1" start_line="1"
+  <duplications_index id="6"
+                      project_snapshot_id="9"
+                      snapshot_id="10"
+                      component_uuid="uuid_5"
+                      hash="aa"
+                      index_in_file="1"
+                      start_line="1"
                       end_line="1"/>
 
   <!-- Last snapshot of project with another language -->
   <!-- baz -->
-  <duplications_index id="7" project_snapshot_id="1" snapshot_id="11" hash="aa" index_in_file="0" start_line="0"
+  <duplications_index id="7"
+                      project_snapshot_id="1"
+                      snapshot_id="11"
+                      component_uuid="uuid_6"
+                      hash="aa"
+                      index_in_file="0"
+                      start_line="0"
                       end_line="0"/>
 
 </dataset>

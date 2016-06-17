@@ -7,6 +7,7 @@
     SELECT DISTINCT
     duplication_block.id as id,
     duplication_block.snapshot_id as snapshotId,
+    duplication_block.component_uuid as componentUuid,
     duplication_block.project_snapshot_id as projectSnapshotId,
     duplication_block.hash as hash,
     duplication_block.index_in_file as indexInFile,
@@ -15,7 +16,7 @@
     file_component.kee as componentKey
     FROM duplications_index duplication_block
     INNER JOIN snapshots snapshot ON duplication_block.snapshot_id=snapshot.id AND snapshot.islast=${_true}
-    INNER JOIN projects file_component ON file_component.uuid=snapshot.component_uuid AND file_component.language=#{language}
+    INNER JOIN projects file_component ON file_component.uuid=duplication_block.component_uuid AND file_component.language=#{language}
     AND file_component.enabled=${_true}
     <where>
       AND duplication_block.hash in
@@ -27,8 +28,8 @@
   </select>
 
   <insert id="batchInsert" parameterType="DuplicationUnit" useGeneratedKeys="false">
-    INSERT INTO duplications_index (snapshot_id, project_snapshot_id, hash, index_in_file, start_line, end_line)
-    VALUES (#{snapshotId}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
+    INSERT INTO duplications_index (snapshot_id, component_uuid, project_snapshot_id, hash, index_in_file, start_line, end_line)
+    VALUES (#{snapshotId}, #{componentUuid}, #{projectSnapshotId}, #{hash}, #{indexInFile}, #{startLine}, #{endLine})
   </insert>
 
 </mapper>

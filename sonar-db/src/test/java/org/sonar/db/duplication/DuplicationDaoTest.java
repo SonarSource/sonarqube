@@ -49,6 +49,7 @@ public class DuplicationDaoTest {
 
     DuplicationUnitDto block = blocks.get(0);
     assertThat(block.getComponentKey()).isEqualTo("bar-last");
+    assertThat(block.getComponentUuid()).isEqualTo("uuid_2");
     assertThat(block.getHash()).isEqualTo("aa");
     assertThat(block.getIndexInFile()).isEqualTo(0);
     assertThat(block.getStartLine()).isEqualTo(1);
@@ -67,6 +68,7 @@ public class DuplicationDaoTest {
     dao.insert(dbSession, new DuplicationUnitDto()
       .setProjectSnapshotId(1)
       .setSnapshotId(2)
+      .setComponentUuid("uuid_1")
       .setHash("bb")
       .setIndexInFile(0)
       .setStartLine(1)

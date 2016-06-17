@@ -25,7 +25,13 @@
                     alert_status="[null]" description="[null]" measure_data="[null]"/>
   <events id="1" name="Version 1.0" component_uuid="1" snapshot_id="1" category="VERSION" description="[null]"
           event_date="1228222680000" created_at="1228222680000" event_data="[null]"/>
-  <duplications_index id="1" project_snapshot_id="1" snapshot_id="1" hash="bb" index_in_file="0" start_line="0"
+  <duplications_index id="1"
+                      project_snapshot_id="1"
+                      snapshot_id="1"
+                      component_uuid="uuid_1"
+                      hash="bb"
+                      index_in_file="0"
+                      start_line="0"
                       end_line="0"/>
 
 
@@ -53,7 +59,13 @@
                     alert_status="[null]" description="[null]" measure_data="[null]"/>
   <events id="2" name="Version 1.0" component_uuid="5" snapshot_id="5" category="VERSION" description="[null]"
           event_date="1228222680000" created_at="1228222680000" event_data="[null]"/>
-  <duplications_index id="2" project_snapshot_id="5" snapshot_id="5" hash="bb" index_in_file="0" start_line="0"
+  <duplications_index id="2"
+                      project_snapshot_id="5"
+                      snapshot_id="5"
+                      component_uuid="uuid_5"
+                      hash="bb"
+                      index_in_file="0"
+                      start_line="0"
                       end_line="0"/>
 
 

@@ -73,7 +73,13 @@ Note that measures, events and reviews are not deleted.
           created_at="1228222680000"
           event_data="[null]"/>
 
-  <duplications_index id="2" project_snapshot_id="2" snapshot_id="2"
-                      hash="bb" index_in_file="0" start_line="0" end_line="0"/>
+  <duplications_index id="2"
+                      project_snapshot_id="2"
+                      snapshot_id="2"
+                      component_uuid="uuid_2"
+                      hash="bb"
+                      index_in_file="0"
+                      start_line="0"
+                      end_line="0"/>
 
 </dataset>
