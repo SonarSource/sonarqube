@@ -24,6 +24,6 @@
 class AddUniqueIndexOnUuidOfSnapshots < ActiveRecord::Migration
 
   def self.up
-    add_index :snapshots, :uuid, :name => 'analyses_uuid'
+    add_index :snapshots, :uuid, :name => 'analyses_uuid', :unique => true
   end
 end
