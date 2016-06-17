@@ -33,6 +33,19 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class PopulateComponentUuidOfMeasuresTest {
 
+  private static final int SNAPSHOT_ID_1 = 40;
+  private static final int SNAPSHOT_ID_2 = 50;
+  private static final int SNAPSHOT_ID_3 = 60;
+  private static final int SNAPSHOT_ID_4 = 70;
+  private static final int SNAPSHOT_ID_5 = 80;
+
+  private static final int COMPONENT_ID_1 = 400;
+  private static final int COMPONENT_ID_2 = 500;
+  private static final int COMPONENT_ID_3 = 600;
+
+  private static final String COMPONENT_UUID_1 = "U400";
+  private static final String COMPONENT_UUID_2 = "U500";
+
   @Rule
   public DbTester db = DbTester.createForSchema(System2.INSTANCE, PopulateComponentUuidOfMeasuresTest.class,
     "in_progress_measures_with_projects.sql");
@@ -49,36 +62,35 @@ public class PopulateComponentUuidOfMeasuresTest {
 
   @Test
   public void migration_updates_component_uuid_with_values_from_table_snapshots_when_they_exist() throws SQLException {
-    String uuid1 = insertSnapshot(40);
-    String uuid2 = insertSnapshot(50);
-    String uuid3 = insertSnapshot(60);
-    String uuid4 = insertSnapshot(70);
+    insertSnapshot(SNAPSHOT_ID_1, COMPONENT_UUID_1);
+    insertSnapshot(SNAPSHOT_ID_2, COMPONENT_UUID_1);
+    insertSnapshot(SNAPSHOT_ID_3, COMPONENT_UUID_2);
+    insertSnapshot(SNAPSHOT_ID_4, COMPONENT_UUID_2);
 
-    insertMeasure(1, 40);
-    insertMeasure(2, 60);
-    insertMeasure(3, 90); // 90 does not exist
-    insertMeasure(4, 100); // 100 does not exist
+    insertMeasure(1, SNAPSHOT_ID_1, COMPONENT_ID_1);
+    insertMeasure(2, SNAPSHOT_ID_2, COMPONENT_ID_1);
+    insertMeasure(3, SNAPSHOT_ID_3, COMPONENT_ID_2);
+    insertMeasure(4, SNAPSHOT_ID_5, COMPONENT_ID_3); // snapshot does not exist
     db.commit();
 
     underTest.execute();
 
-    verifyMeasure(1, 40, uuid1);
-    verifyMeasure(2, 60, uuid3);
-    verifyMeasure(3, 90, null);
-    verifyMeasure(4, 100, null);
+    verifyMeasure(1, SNAPSHOT_ID_1, COMPONENT_UUID_1);
+    verifyMeasure(2, SNAPSHOT_ID_2, COMPONENT_UUID_1);
+    verifyMeasure(3, SNAPSHOT_ID_3, COMPONENT_UUID_2);
+    verifyMeasure(4, SNAPSHOT_ID_5, null);
   }
 
   @Test
   public void migration_is_reentrant() throws SQLException {
-    String uuid1 = insertSnapshot(40);
-    String uuid2 = insertSnapshot(50);
-    insertMeasure(1, 40);
+    insertSnapshot(SNAPSHOT_ID_1, COMPONENT_UUID_1);
+    insertMeasure(1, SNAPSHOT_ID_1, COMPONENT_ID_1);
 
     underTest.execute();
-    verifyMeasure(1, 40, uuid1);
+    verifyMeasure(1, SNAPSHOT_ID_1, COMPONENT_UUID_1);
 
     underTest.execute();
-    verifyMeasure(1, 40, uuid1);
+    verifyMeasure(1, SNAPSHOT_ID_1, COMPONENT_UUID_1);
 
   }
 
@@ -90,24 +102,22 @@ public class PopulateComponentUuidOfMeasuresTest {
     assertThat(row.get("COMPONENT_UUID")).isEqualTo(componentUuid);
   }
 
-  private String insertSnapshot(long id) {
-    String uuid = "uuid_" + id;
+  private void insertSnapshot(long id, String componentUuid) {
     db.executeInsert(
       "snapshots",
       "id", valueOf(id),
-      "component_uuid", uuid,
-      "root_component_uuid", valueOf(id + 100));
-    return uuid;
+      "component_uuid", componentUuid,
+      "root_component_uuid", "ROOT_" + componentUuid);
   }
 
-  private void insertMeasure(long id, long snapshotId) {
+  private void insertMeasure(long id, long snapshotId, long componentId) {
     db.executeInsert(
       "project_measures",
       "ID", valueOf(id),
       "METRIC_ID", valueOf(id + 10),
       "SNAPSHOT_ID", valueOf(snapshotId),
       "VALUE", valueOf(id + 1000),
-      "PROJECT_ID", valueOf(snapshotId + 1000));
+      "PROJECT_ID", valueOf(componentId));
 
   }
 }
