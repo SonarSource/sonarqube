@@ -4,7 +4,7 @@
     conditions = "component_uuid=:component_uuid"
     values = {:component_uuid => @resource.uuid}
     # in order to not display events linked to deleted snapshot, we build the SQL request with 'NOT IN' as most of the time, there won't be unprocessed snapshots
-    snapshots_to_be_deleted = Snapshot.find(:all, :conditions => ["status='U' AND project_id=?", @resource.id])
+    snapshots_to_be_deleted = Snapshot.find(:all, :conditions => ["status='U' AND component_uuid=?", @resource.uuid])
     unless snapshots_to_be_deleted.empty?
       conditions << " AND snapshot_id NOT IN (:sids)"
       values[:sids] = snapshots_to_be_deleted.map { |s| s.id }
