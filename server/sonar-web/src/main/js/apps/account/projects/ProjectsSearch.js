@@ -46,7 +46,7 @@ export default class ProjectsSearch extends React.Component {
 
   render () {
     return (
-        <div className="big-spacer-bottom">
+        <div>
           <form onSubmit={this.handleSubmit}>
             <input
                 ref="input"
@@ -54,10 +54,10 @@ export default class ProjectsSearch extends React.Component {
                 className="input-large"
                 placeholder={translate('search_verb')}
                 onChange={this.handleChange}/>
-              <span className="note spacer-left">
-                {translateWithParameters(
-                    'my_account.projects.x_characters_min', 3)}
-              </span>
+            <div className="note little-spacer-top text-right">
+              {translateWithParameters(
+                  'my_account.projects.x_characters_min', 3)}
+            </div>
           </form>
         </div>
     );

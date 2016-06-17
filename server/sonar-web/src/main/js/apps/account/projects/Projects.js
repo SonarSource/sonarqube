@@ -38,13 +38,22 @@ export default class Projects extends React.Component {
 
     return (
         <div className="page page-limited account-projects">
-          <ProjectsSearch
-              onSearch={this.props.search}/>
+          <header className="page-header">
+            <h1 className="page-title">
+              My Projects
+            </h1>
+            <div className="pull-right">
+              <ProjectsSearch onSearch={this.props.search}/>
+            </div>
+            <div className="page-description">
+              {translate('my_account.projects.description')}
+            </div>
+          </header>
 
           {projects.length === 0 && (
               <div className="js-no-results">
                 {translate('no_results')}
-                </div>
+              </div>
           )}
 
           {projects.length > 0 && (

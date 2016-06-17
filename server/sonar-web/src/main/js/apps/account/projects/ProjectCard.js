@@ -37,7 +37,7 @@ export default class ProjectCard extends React.Component {
     const links = sortBy(project.links, 'type');
 
     return (
-        <div className="account-project-card" href="#">
+        <div className="account-project-card clearfix">
           <aside className="account-project-side">
             {isAnalyzed ? (
                 <div className="account-project-analysis"
@@ -53,22 +53,9 @@ export default class ProjectCard extends React.Component {
                 </div>
             )}
 
-            {links.length > 0 && (
-                <div className="account-project-links">
-                  <ul className="list-inline">
-                    {links.map(link => (
-                        <li key={link.type}>
-                          <a
-                              className="link-with-icon"
-                              href={link.href}
-                              title={link.name}
-                              target="_blank"
-                              rel="nofollow">
-                            <i className={`icon-color-link icon-${link.type}`}/>
-                          </a>
-                        </li>
-                    ))}
-                  </ul>
+            {project.qualityGate != null && (
+                <div className="account-project-quality-gate">
+                  <Level level={project.qualityGate}/>
                 </div>
             )}
           </aside>
@@ -79,9 +66,22 @@ export default class ProjectCard extends React.Component {
             </a>
           </h3>
 
-          {project.qualityGate != null && (
-              <div className="account-project-quality-gate">
-                <Level level={project.qualityGate}/>
+          {links.length > 0 && (
+              <div className="account-project-links">
+                <ul className="list-inline">
+                  {links.map(link => (
+                      <li key={link.type}>
+                        <a
+                            className="link-with-icon"
+                            href={link.href}
+                            title={link.name}
+                            target="_blank"
+                            rel="nofollow">
+                          <i className={`icon-color-link icon-${link.type}`}/>
+                        </a>
+                      </li>
+                  ))}
+                </ul>
               </div>
           )}
 
