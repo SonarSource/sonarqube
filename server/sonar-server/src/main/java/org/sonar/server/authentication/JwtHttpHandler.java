@@ -150,7 +150,7 @@ public class JwtHttpHandler {
 
   private Cookie createCookie(String name, @Nullable String value, int expirationInSeconds) {
     Cookie cookie = new Cookie(name, value);
-    cookie.setPath(server.getContextPath() + "/");
+    cookie.setPath("/");
     cookie.setSecure(server.isSecured());
     cookie.setHttpOnly(true);
     cookie.setMaxAge(expirationInSeconds);

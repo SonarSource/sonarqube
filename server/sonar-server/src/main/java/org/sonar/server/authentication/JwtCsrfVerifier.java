@@ -105,7 +105,7 @@ public class JwtCsrfVerifier {
 
   private Cookie createCookie(@Nullable String csrfState, int timeoutInSeconds){
     Cookie cookie = new Cookie(CSRF_STATE_COOKIE, csrfState);
-    cookie.setPath(server.getContextPath() + "/");
+    cookie.setPath("/");
     cookie.setSecure(server.isSecured());
     cookie.setHttpOnly(false);
     cookie.setMaxAge(timeoutInSeconds);

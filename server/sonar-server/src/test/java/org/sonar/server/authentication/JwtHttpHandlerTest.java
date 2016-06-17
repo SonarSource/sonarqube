@@ -99,7 +99,6 @@ public class JwtHttpHandlerTest {
   public void setUp() throws Exception {
     when(system2.now()).thenReturn(NOW);
     when(server.isSecured()).thenReturn(true);
-    when(server.getContextPath()).thenReturn("");
     when(request.getSession()).thenReturn(httpSession);
     when(jwtSerializer.encode(any(JwtSerializer.JwtSession.class))).thenReturn(JWT_TOKEN);
     when(jwtCsrfVerifier.generateState(eq(response), anyInt())).thenReturn(CSRF_STATE);
