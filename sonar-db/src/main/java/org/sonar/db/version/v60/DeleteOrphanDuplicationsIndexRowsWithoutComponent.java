@@ -17,18 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
+package org.sonar.db.version.v60;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.BaseDataChange;
+import org.sonar.db.version.MassUpdate;
 
-import static org.assertj.core.api.Assertions.assertThat;
+public class DeleteOrphanDuplicationsIndexRowsWithoutComponent extends BaseDataChange {
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(97);
+  public DeleteOrphanDuplicationsIndexRowsWithoutComponent(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    MassUpdate massUpdate = context.prepareMassUpdate();
+    massUpdate.select("SELECT id from duplications_index where component_uuid is null");
+    massUpdate.update("DELETE from duplications_index WHERE id=?");
+    massUpdate.rowPluralName("resources_index entries");
+    massUpdate.execute((row, update) -> {
+      update.setLong(1, row.getLong(1));
+      return true;
+    });
+  }
+
 }

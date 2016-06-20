@@ -19,6 +19,8 @@
  */
 package org.sonar.db.version.v60;
 
+import static java.lang.String.valueOf;
+
 import java.sql.SQLException;
 import java.sql.Types;
 import org.junit.Rule;
@@ -27,16 +29,17 @@ import org.junit.rules.ExpectedException;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbTester;
 
-import static java.lang.String.valueOf;
+public class AddComponentUuidColumnToDuplicationsIndexTest {
 
-public class AddComponentUuidColumnToMeasuresTest {
+  private static final String TABLE = "duplications_index";
 
   @Rule
-  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddComponentUuidColumnToMeasuresTest.class, "project_measures_5.6.sql");
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, AddComponentUuidColumnToDuplicationsIndexTest.class,
+    "duplications_index_5.6.sql");
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
-  private AddComponentUuidColumnToMeasures underTest = new AddComponentUuidColumnToMeasures(db.database());
+  private AddComponentUuidColumnToDuplicationsIndex underTest = new AddComponentUuidColumnToDuplicationsIndex(db.database());
 
   @Test
   public void migration_adds_column_to_empty_table() throws SQLException {
@@ -49,10 +52,14 @@ public class AddComponentUuidColumnToMeasuresTest {
   public void migration_adds_column_to_populated_table() throws SQLException {
     for (int i = 0; i < 9; i++) {
       db.executeInsert(
-        "project_measures",
-        "METRIC_ID", valueOf(i),
-        "VALUE", valueOf(i),
-        "SNAPSHOT_ID", valueOf(i));
+        TABLE,
+        "ID", valueOf(i),
+        "PROJECT_SNAPSHOT_ID", valueOf(10 + i),
+        "SNAPSHOT_ID", valueOf(20 + i),
+        "HASH", "some_hash_" + i,
+        "INDEX_IN_FILE", "2",
+        "START_LINE", "3",
+        "END_LINE", "4");
     }
     db.commit();
 
@@ -71,7 +78,7 @@ public class AddComponentUuidColumnToMeasuresTest {
   }
 
   private void verifyAddedColumns() {
-    db.assertColumnDefinition("project_measures", "component_uuid", Types.VARCHAR, 50, true);
+    db.assertColumnDefinition(TABLE, "component_uuid", Types.VARCHAR, 50, true);
   }
 
 }
