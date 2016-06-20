@@ -45,6 +45,7 @@ public class PropsBuilderTest {
 
   @Before
   public void before() throws IOException {
+    System.setProperty(ProcessProperties.PATH_HOME, "");
     homeDir = temp.newFolder();
   }
 
