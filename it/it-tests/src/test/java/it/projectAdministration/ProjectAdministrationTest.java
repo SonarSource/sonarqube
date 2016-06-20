@@ -174,8 +174,13 @@ public class ProjectAdministrationTest {
       ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
+    // GET /api/properties/sonar.exclusions?resource=sample
     assertThat(orchestrator.getServer().getAdminWsClient().find(PropertyQuery.createForResource("sonar.exclusions", "sample")).getValue())
       .isEqualTo("my-exclusions");
+
+    // GET /api/properties?resource=sample
+    // Note that this WS is used by SonarLint
+    assertThat(orchestrator.getServer().getAdminWsClient().findAll(PropertyQuery.createForResource(null, "sample"))).isNotEmpty();
   }
 
   /**
