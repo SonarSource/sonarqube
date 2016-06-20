@@ -23,6 +23,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Multimap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import org.sonar.api.rule.RuleStatus;
 import org.sonar.api.server.ServerSide;
@@ -86,10 +87,7 @@ public class QProfileLoader {
   }
 
   public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {
-    List<String> keys = Lists.newArrayList();
-    for (QualityProfileDto profile : this.findAll()) {
-      keys.add(profile.getKey());
-    }
+    List<String> keys = findAll().stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
     return activeRuleIndex.getStatsByProfileKeys(keys);
   }
 

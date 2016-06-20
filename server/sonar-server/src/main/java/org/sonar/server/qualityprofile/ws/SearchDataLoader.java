@@ -19,8 +19,6 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import com.google.common.base.Function;
-import com.google.common.base.Predicate;
 import com.google.common.collect.Sets;
 import java.util.Arrays;
 import java.util.Collection;
@@ -29,7 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import javax.annotation.Nonnull;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.Nullable;
 import org.apache.commons.lang.builder.CompareToBuilder;
 import org.sonar.api.resources.Language;
@@ -45,7 +44,6 @@ import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
-import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
 import static org.sonar.server.ws.WsUtils.checkRequest;
 
@@ -56,7 +54,6 @@ public class SearchDataLoader {
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
-  private final IsLanguageKnown isLanguageKnown;
 
   public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, DbClient dbClient,
     ComponentFinder componentFinder) {
@@ -66,7 +63,6 @@ public class SearchDataLoader {
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
-    this.isLanguageKnown = new IsLanguageKnown();
   }
 
   SearchData load(SearchWsRequest request) {
@@ -88,7 +84,7 @@ public class SearchDataLoader {
       profiles = findAllProfiles(request);
     }
 
-    return from(profiles).toSortedList(QProfileComparator.INSTANCE);
+    return profiles.stream().sorted(QProfileComparator.INSTANCE).collect(Collectors.toList());
   }
 
   private Collection<QProfile> findDefaultProfiles(SearchWsRequest request) {
@@ -136,7 +132,7 @@ public class SearchDataLoader {
     String language = request.getLanguage();
 
     if (language == null) {
-      return from(profileLookup.allProfiles()).filter(isLanguageKnown).toList();
+      return profileLookup.allProfiles().stream().filter(qProfile -> languages.get(qProfile.language()) != null).collect(Collectors.toList());
     }
     return profileLookup.profiles(language);
   }
@@ -182,25 +178,21 @@ public class SearchDataLoader {
   }
 
   private static void addAllFromDto(Map<String, QProfile> qualityProfiles, Collection<QualityProfileDto> list) {
-    for (QualityProfileDto qualityProfileDto : list) {
-      qualityProfiles.put(qualityProfileDto.getLanguage(), QualityProfileDtoToQProfile.INSTANCE.apply(qualityProfileDto));
-    }
+    list.forEach(qualityProfile -> qualityProfiles.put(qualityProfile.getLanguage(), QualityProfileDtoToQProfile.INSTANCE.apply(qualityProfile)));
   }
 
   private static void addAll(Map<String, QProfile> qualityProfiles, Collection<QProfile> list) {
-    for (QProfile qProfile : list) {
-      qualityProfiles.put(qProfile.language(), qProfile);
-    }
+    list.forEach(qualityProfile -> qualityProfiles.put(qualityProfile.language(), qualityProfile));
   }
 
   private Set<String> getLanguageKeys() {
-    return from(Arrays.asList(languages.all())).transform(LanguageToKey.INSTANCE).toSet();
+    return Arrays.stream(languages.all()).map(Language::getKey).collect(Collectors.toSet());
   }
 
   private List<QProfile> findDefaultProfiles(final DbSession dbSession, Set<String> languageKeys) {
-    return from(profileFactory.getDefaults(dbSession, languageKeys))
-      .transform(QualityProfileDtoToQProfile.INSTANCE)
-      .toList();
+    return profileFactory.getDefaults(dbSession, languageKeys).stream()
+      .map(QualityProfileDtoToQProfile.INSTANCE)
+      .collect(Collectors.toList());
   }
 
   private static void validateRequest(SearchWsRequest request) {
@@ -241,36 +233,17 @@ public class SearchDataLoader {
     }
   }
 
-  private enum LanguageToKey implements Function<Language, String> {
-    INSTANCE;
-
-    @Override
-    @Nonnull
-    public String apply(@Nonnull Language input) {
-      return input.getKey();
-    }
-  }
-
   private enum QualityProfileDtoToQProfile implements Function<QualityProfileDto, QProfile> {
     INSTANCE;
 
     @Override
-    @Nonnull
-    public QProfile apply(@Nonnull QualityProfileDto input) {
+    public QProfile apply(QualityProfileDto input) {
       return new QProfile()
         .setKey(input.getKey())
         .setName(input.getName())
         .setLanguage(input.getLanguage())
         .setDefault(input.isDefault())
         .setRulesUpdatedAt(input.getRulesUpdatedAt());
-    }
-
-  }
-
-  private class IsLanguageKnown implements Predicate<QProfile> {
-    @Override
-    public boolean apply(@Nonnull QProfile profile) {
-      return languages.get(profile.language()) != null;
     }
   }
 }

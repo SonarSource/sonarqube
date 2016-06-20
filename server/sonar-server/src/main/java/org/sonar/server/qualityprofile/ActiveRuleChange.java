@@ -21,14 +21,12 @@ package org.sonar.server.qualityprofile;
 
 import com.google.common.base.MoreObjects;
 import com.google.common.collect.Maps;
+import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.db.qualityprofile.ActiveRuleKey;
 import org.sonar.server.activity.Activity;
-
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
-import java.util.Map;
 
 public class ActiveRuleChange {
 
@@ -98,11 +96,10 @@ public class ActiveRuleChange {
     activity.setData("ruleKey", getKey().ruleKey().toString());
     activity.setData("profileKey", getKey().qProfile());
 
-    for (Map.Entry<String, String> param : parameters.entrySet()) {
-      if (!param.getKey().isEmpty()) {
-        activity.setData("param_" + param.getKey(), param.getValue());
-      }
-    }
+    parameters.entrySet().stream()
+      .filter(param -> !param.getKey().isEmpty())
+      .forEach(param -> activity.setData("param_" + param.getKey(), param.getValue()));
+
     if (StringUtils.isNotEmpty(severity)) {
       activity.setData("severity", severity);
     }

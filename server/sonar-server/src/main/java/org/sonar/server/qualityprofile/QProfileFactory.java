@@ -140,7 +140,6 @@ public class QProfileFactory {
     return db.qualityProfileDao().selectDefaultProfile(session, language);
   }
 
-  @CheckForNull
   public List<QualityProfileDto> getDefaults(DbSession session, Collection<String> languageKeys) {
     return db.qualityProfileDao().selectDefaultProfiles(session, languageKeys);
   }

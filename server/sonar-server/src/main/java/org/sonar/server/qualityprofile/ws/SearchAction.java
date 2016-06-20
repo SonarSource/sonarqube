@@ -89,7 +89,7 @@ public class SearchAction implements QProfileWsAction {
 
   @Override
   public void handle(Request request, Response response) throws Exception {
-    SearchWsResponse searchWsResponse = buildResponse(toSearchWsRequest(request));
+    SearchWsResponse searchWsResponse = doHandle(toSearchWsRequest(request));
     writeProtobuf(searchWsResponse, request, response);
   }
 
@@ -101,7 +101,7 @@ public class SearchAction implements QProfileWsAction {
         .setLanguage(request.param(PARAM_LANGUAGE));
   }
 
-  private SearchWsResponse buildResponse(SearchWsRequest request) {
+  private SearchWsResponse doHandle(SearchWsRequest request) {
     SearchData data = dataLoader.load(request);
     return buildResponse(data);
   }

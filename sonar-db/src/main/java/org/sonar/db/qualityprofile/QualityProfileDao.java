@@ -171,7 +171,6 @@ public class QualityProfileDao implements Dao {
     }
   }
 
-  @CheckForNull
   public List<QualityProfileDto> selectDefaultProfiles(DbSession session, Collection<String> languageKeys) {
     return executeLargeInputs(languageKeys, mapper(session)::selectDefaultProfiles);
   }

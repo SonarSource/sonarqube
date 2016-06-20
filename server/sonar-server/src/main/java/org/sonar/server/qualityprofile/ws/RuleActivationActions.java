@@ -19,11 +19,10 @@
  */
 package org.sonar.server.qualityprofile.ws;
 
-import org.sonar.api.server.ServerSide;
 import org.sonar.api.rule.RuleKey;
 import org.sonar.api.rule.Severity;
+import org.sonar.api.server.ServerSide;
 import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.RequestHandler;
 import org.sonar.api.server.ws.Response;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.api.utils.KeyValueFormat;
@@ -58,12 +57,7 @@ public class RuleActivationActions {
     WebService.NewAction activate = controller
       .createAction(ACTIVATE_ACTION)
       .setDescription("Activate a rule on a Quality profile")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) throws Exception {
-          activate(request, response);
-        }
-      })
+      .setHandler(this::activate)
       .setPost(true)
       .setSince("4.4");
 
@@ -87,18 +81,13 @@ public class RuleActivationActions {
     WebService.NewAction deactivate = controller
       .createAction(DEACTIVATE_ACTION)
       .setDescription("Deactivate a rule on a Quality profile")
-      .setHandler(new RequestHandler() {
-        @Override
-        public void handle(Request request, Response response) throws Exception {
-          deactivate(request, response);
-        }
-      })
+      .setHandler(this::deactivate)
       .setPost(true)
       .setSince("4.4");
     defineActiveRuleKeyParameters(deactivate);
   }
 
-  private void defineActiveRuleKeyParameters(WebService.NewAction action) {
+  private static void defineActiveRuleKeyParameters(WebService.NewAction action) {
     action.createParam(PROFILE_KEY)
       .setDescription("Key of Quality profile, can be obtained through <code>api/profiles/list</code>")
       .setRequired(true)
@@ -127,7 +116,7 @@ public class RuleActivationActions {
     service.deactivate(ActiveRuleKey.of(request.mandatoryParam(PROFILE_KEY), ruleKey));
   }
 
-  private RuleKey readRuleKey(Request request) {
+  private static RuleKey readRuleKey(Request request) {
     return RuleKey.parse(request.mandatoryParam(RULE_KEY));
   }
 
