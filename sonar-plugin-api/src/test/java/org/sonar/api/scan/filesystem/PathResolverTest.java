@@ -19,17 +19,18 @@
  */
 package org.sonar.api.scan.filesystem;
 
-import org.apache.commons.io.FilenameUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-
 import java.io.File;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import org.apache.commons.io.FilenameUtils;
+import org.apache.commons.lang.SystemUtils;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assume.assumeTrue;
 
 public class PathResolverTest {
   @Rule
@@ -91,6 +92,35 @@ public class PathResolverTest {
   }
 
   @Test
+  public void relative_path_for_not_normalized_dir() throws IOException {
+    PathResolver resolver = new PathResolver();
+    File rootDir = temp.newFolder();
+    File file = new File(rootDir, "level1/../dir/file.c");
+
+    assertThat(resolver.relativePath(rootDir, file)).isEqualTo("dir/file.c");
+  }
+
+  @Test
+  public void relative_path_for_not_normalized_dir_sub_level() throws IOException {
+    PathResolver resolver = new PathResolver();
+    File rootDir = temp.newFolder();
+    File file = new File(rootDir, "level1/level2/../dir/file.c");
+
+    assertThat(resolver.relativePath(rootDir, file)).isEqualTo("level1/dir/file.c");
+  }
+
+  @Test
+  public void relative_path_for_case_insensitive_fs() throws IOException {
+    assumeTrue(SystemUtils.IS_OS_WINDOWS);
+    PathResolver resolver = new PathResolver();
+    File rootDir = temp.newFolder();
+    File baseDir = new File(rootDir, "level1");
+    File file = new File(baseDir, "../Level1/dir/file.c");
+
+    assertThat(resolver.relativePath(baseDir, file)).isEqualTo("dir/file.c");
+  }
+
+  @Test
   public void relative_path_from_multiple_dirs() throws IOException {
     PathResolver resolver = new PathResolver();
     File dir1 = temp.newFolder("D1");
@@ -140,6 +170,14 @@ public class PathResolverTest {
     File rootDir = temp.newFolder();
 
     assertThat(resolver.relativePath(rootDir, new File("Elsewhere.java"))).isNull();
+  }
+
+  @Test
+  public void null_relative_path_when_file_is_not_in_dir2() throws IOException {
+    PathResolver resolver = new PathResolver();
+    File rootDir = temp.newFolder();
+
+    assertThat(resolver.relativePath(rootDir, new File(rootDir, "../Elsewhere.java"))).isNull();
   }
 
   @Test

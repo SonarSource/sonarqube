@@ -20,16 +20,15 @@
 package org.sonar.api.scan.filesystem;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Preconditions;
-import org.sonar.api.batch.BatchSide;
-import org.sonar.api.utils.PathUtils;
-
-import javax.annotation.CheckForNull;
-
 import java.io.File;
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import javax.annotation.CheckForNull;
+import org.apache.commons.io.FilenameUtils;
+import org.sonar.api.batch.BatchSide;
+import org.sonar.api.utils.PathUtils;
 
 /**
  * @since 3.5
@@ -38,16 +37,7 @@ import java.util.List;
 public class PathResolver {
 
   public File relativeFile(File dir, String path) {
-    Preconditions.checkArgument(dir.isDirectory(), "Not a directory: " + dir.getAbsolutePath());
-    File file = new File(path);
-    if (!file.isAbsolute()) {
-      try {
-        file = new File(dir, path).getAbsoluteFile();
-      } catch (Exception e) {
-        throw new IllegalStateException("Fail to resolve path '" + path + "' relative to: " + dir.getAbsolutePath(), e);
-      }
-    }
-    return file;
+    return dir.toPath().resolve(path).normalize().toFile();
   }
 
   public List<File> relativeFiles(File dir, List<String> paths) {
@@ -58,6 +48,10 @@ public class PathResolver {
     return result;
   }
 
+  /**
+   * @deprecated since 6.0 was used when component keys were relative to source dirs
+   */
+  @Deprecated
   @CheckForNull
   public RelativePath relativePath(Collection<File> dirs, File file) {
     List<String> stack = new ArrayList<>();
@@ -73,19 +67,32 @@ public class PathResolver {
     return null;
   }
 
+  /**
+   * Similar to {@link Path#relativize(Path)} except that:
+   *   <ul>
+   *   <li>null is returned if file is not a child of dir
+   *   <li>the resulting path is converted to use Unix separators
+   *   </ul> 
+   * @since 6.0
+   */
+  @CheckForNull
+  public String relativePath(Path dir, Path file) {
+    Path baseDir = dir.normalize();
+    Path path = file.normalize();
+    if (!path.startsWith(baseDir)) {
+      return null;
+    }
+    try {
+      Path relativized = baseDir.relativize(path);
+      return FilenameUtils.separatorsToUnix(relativized.toString());
+    } catch (IllegalArgumentException e) {
+      return null;
+    }
+  }
+
   @CheckForNull
   public String relativePath(File dir, File file) {
-    List<String> stack = new ArrayList<>();
-    String dirPath = PathUtils.canonicalPath(dir);
-    File cursor = file;
-    while (cursor != null) {
-      if (dirPath.equals(PathUtils.canonicalPath(cursor))) {
-        return Joiner.on("/").join(stack);
-      }
-      stack.add(0, cursor.getName());
-      cursor = cursor.getParentFile();
-    }
-    return null;
+    return relativePath(dir.toPath(), file.toPath());
   }
 
   @CheckForNull
@@ -98,6 +105,10 @@ public class PathResolver {
     return null;
   }
 
+  /**
+   * @deprecated since 6.0 was used when component keys were relative to source dirs
+   */
+  @Deprecated
   public static final class RelativePath {
     private File dir;
     private String path;
