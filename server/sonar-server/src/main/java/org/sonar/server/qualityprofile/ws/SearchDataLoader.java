@@ -40,8 +40,8 @@ import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.qualityprofile.QProfile;
 import org.sonar.server.qualityprofile.QProfileFactory;
-import org.sonar.server.qualityprofile.QProfileLoader;
 import org.sonar.server.qualityprofile.QProfileLookup;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonarqube.ws.client.qualityprofile.SearchWsRequest;
 
 import static java.lang.String.format;
@@ -50,19 +50,19 @@ import static org.sonar.server.ws.WsUtils.checkRequest;
 public class SearchDataLoader {
   private final Languages languages;
   private final QProfileLookup profileLookup;
-  private final QProfileLoader profileLoader;
   private final QProfileFactory profileFactory;
   private final DbClient dbClient;
   private final ComponentFinder componentFinder;
+  private final ActiveRuleIndex activeRuleIndex;
 
-  public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileLoader profileLoader, QProfileFactory profileFactory, DbClient dbClient,
-    ComponentFinder componentFinder) {
+  public SearchDataLoader(Languages languages, QProfileLookup profileLookup, QProfileFactory profileFactory, DbClient dbClient,
+    ComponentFinder componentFinder, ActiveRuleIndex activeRuleIndex) {
     this.languages = languages;
     this.profileLookup = profileLookup;
-    this.profileLoader = profileLoader;
     this.profileFactory = profileFactory;
     this.dbClient = dbClient;
     this.componentFinder = componentFinder;
+    this.activeRuleIndex = activeRuleIndex;
   }
 
   SearchData load(SearchWsRequest request) {
@@ -70,7 +70,8 @@ public class SearchDataLoader {
 
     return new SearchData()
       .setProfiles(findProfiles(request))
-      .setActiveRuleCountByProfileKey(profileLoader.countAllActiveRules())
+      .setActiveRuleCountByProfileKey(activeRuleIndex.countAllByQualityProfileKey())
+      .setActiveDeprecatedRuleCountByProfileKey(activeRuleIndex.countAllDeprecatedByQualityProfileKey())
       .setProjectCountByProfileKey(dbClient.qualityProfileDao().countProjectsByProfileKey());
   }
 

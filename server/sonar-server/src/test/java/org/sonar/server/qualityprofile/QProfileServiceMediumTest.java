@@ -50,6 +50,7 @@ import org.sonar.db.user.UserDto;
 import org.sonar.server.activity.Activity;
 import org.sonar.server.activity.ActivityService;
 import org.sonar.server.es.SearchOptions;
+import org.sonar.server.qualityprofile.index.ActiveRuleIndex;
 import org.sonar.server.qualityprofile.index.ActiveRuleIndexer;
 import org.sonar.server.rule.index.RuleIndex;
 import org.sonar.server.rule.index.RuleIndexDefinition;
@@ -61,6 +62,9 @@ import org.sonar.server.tester.ServerTester;
 import org.sonar.server.tester.UserSessionRule;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.db.rule.RuleTesting.newXooX1;
+import static org.sonar.db.rule.RuleTesting.newXooX2;
+import static org.sonar.db.rule.RuleTesting.newXooX3;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P1_KEY;
 import static org.sonar.server.qualityprofile.QProfileTesting.XOO_P2_KEY;
 
@@ -72,31 +76,33 @@ public class QProfileServiceMediumTest {
   @org.junit.Rule
   public UserSessionRule userSessionRule = UserSessionRule.forServerTester(tester);
 
-  DbClient db;
+  DbClient dbClient;
   DbSession dbSession;
   QProfileService service;
   QProfileLoader loader;
   RuleActivator activator;
+  ActiveRuleIndex activeRuleIndex;
   RuleIndexer ruleIndexer;
   ActiveRuleIndexer activeRuleIndexer;
+
+  RuleDto xooRule1 = newXooX1().setSeverity("MINOR");
 
   @Before
   public void before() {
     tester.clearDbAndIndexes();
-    db = tester.get(DbClient.class);
-    dbSession = db.openSession(false);
+    dbClient = tester.get(DbClient.class);
+    dbSession = dbClient.openSession(false);
     service = tester.get(QProfileService.class);
     loader = tester.get(QProfileLoader.class);
     activator = tester.get(RuleActivator.class);
     ruleIndexer = tester.get(RuleIndexer.class);
     activeRuleIndexer = tester.get(ActiveRuleIndexer.class);
+    activeRuleIndex = tester.get(ActiveRuleIndex.class);
 
-    // create pre-defined rules
-    RuleDto xooRule1 = RuleTesting.newXooX1().setSeverity("MINOR");
-    db.ruleDao().insert(dbSession, xooRule1);
+    dbClient.ruleDao().insert(dbSession, xooRule1);
 
     // create pre-defined profiles P1 and P2
-    db.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2());
+    dbClient.qualityProfileDao().insert(dbSession, QProfileTesting.newXooP1(), QProfileTesting.newXooP2());
 
     dbSession.commit();
     dbSession.clearCache();
@@ -123,7 +129,7 @@ public class QProfileServiceMediumTest {
   public void create_profile_with_xml() {
     userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
-    db.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
+    dbClient.ruleDao().insert(dbSession, RuleTesting.newDto(RuleKey.of("xoo", "R1")).setLanguage("xoo").setSeverity("MINOR"));
     dbSession.commit();
     ruleIndexer.index();
 
@@ -134,8 +140,8 @@ public class QProfileServiceMediumTest {
     assertThat(loader.getByKey(profile.getKey()).getLanguage()).isEqualTo("xoo");
     assertThat(loader.getByKey(profile.getKey()).getName()).isEqualTo("New Profile");
 
-    assertThat(db.activeRuleDao().selectByProfileKey(dbSession, profile.getKey())).hasSize(1);
-    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey( profile.getKey()).setActivation(true))).hasSize(1);
+    assertThat(dbClient.activeRuleDao().selectByProfileKey(dbSession, profile.getKey())).hasSize(1);
+    assertThat(tester.get(RuleIndex.class).searchAll(new RuleQuery().setQProfileKey(profile.getKey()).setActivation(true))).hasSize(1);
   }
 
   @Test
@@ -147,10 +153,36 @@ public class QProfileServiceMediumTest {
     dbSession.clearCache();
     activeRuleIndexer.index();
 
-    Map<String, Long> counts = loader.countAllActiveRules();
+    Map<String, Long> counts = activeRuleIndex.countAllByQualityProfileKey();
     assertThat(counts).hasSize(2);
     assertThat(counts.keySet()).containsOnly(XOO_P1_KEY, XOO_P2_KEY);
     assertThat(counts.values()).containsOnly(1L, 1L);
+  }
+
+  @Test
+  public void count_by_all_deprecated_profiles() {
+    userSessionRule.login().setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
+
+    RuleDto xooRule2 = newXooX2().setStatus(RuleStatus.DEPRECATED);
+    RuleDto xooRule3 = newXooX3().setStatus(RuleStatus.DEPRECATED);
+    dbClient.ruleDao().insert(dbSession, xooRule2);
+    dbClient.ruleDao().insert(dbSession, xooRule3);
+    dbSession.commit();
+    ruleIndexer.index();
+
+    // active some rules
+    service.activate(XOO_P1_KEY, new RuleActivation(xooRule1.getKey()));
+    service.activate(XOO_P1_KEY, new RuleActivation(xooRule2.getKey()));
+    service.activate(XOO_P1_KEY, new RuleActivation(xooRule3.getKey()));
+    service.activate(XOO_P2_KEY, new RuleActivation(xooRule1.getKey()));
+    service.activate(XOO_P2_KEY, new RuleActivation(xooRule3.getKey()));
+    dbSession.commit();
+
+    Map<String, Long> counts = activeRuleIndex.countAllDeprecatedByQualityProfileKey();
+    assertThat(counts)
+      .hasSize(2)
+      .containsEntry(XOO_P1_KEY, 2L)
+      .containsEntry(XOO_P2_KEY, 1L);
   }
 
   @Test
@@ -178,7 +210,7 @@ public class QProfileServiceMediumTest {
     // create deprecated rule
     RuleDto deprecatedXooRule = RuleTesting.newDto(RuleKey.of("xoo", "deprecated1"))
       .setSeverity("MINOR").setLanguage("xoo").setStatus(RuleStatus.DEPRECATED);
-    db.ruleDao().insert(dbSession, deprecatedXooRule);
+    dbClient.ruleDao().insert(dbSession, deprecatedXooRule);
     dbSession.commit();
     ruleIndexer.index();
 
@@ -195,11 +227,11 @@ public class QProfileServiceMediumTest {
     userSessionRule.login("david").setGlobalPermissions(GlobalPermissions.QUALITY_PROFILE_ADMIN);
 
     UserDto user = new UserDto().setLogin("david").setName("David").setEmail("dav@id.com").setCreatedAt(System.currentTimeMillis()).setUpdatedAt(System.currentTimeMillis());
-    db.userDao().insert(dbSession, user);
+    dbClient.userDao().insert(dbSession, user);
     dbSession.commit();
 
     // We need an actual rule in DB to test RuleName in Activity
-    RuleDto rule = db.ruleDao().selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
+    RuleDto rule = dbClient.ruleDao().selectOrFailByKey(dbSession, RuleTesting.XOO_X1);
 
     tester.get(ActivityService.class).save(ActiveRuleChange.createFor(ActiveRuleChange.Type.ACTIVATED, ActiveRuleKey.of(XOO_P1_KEY, RuleTesting.XOO_X1))
       .setSeverity(Severity.MAJOR)

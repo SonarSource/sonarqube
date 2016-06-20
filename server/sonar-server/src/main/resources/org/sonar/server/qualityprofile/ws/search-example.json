@@ -7,6 +7,7 @@
       "languageName": "C#",
       "isInherited": false,
       "activeRuleCount": 37,
+      "activeDeprecatedRuleCount": 0,
       "isDefault": true
     },
     {
@@ -18,6 +19,7 @@
       "parentKey": "my-company-profile-java-23456",
       "parentName": "My Company Profile",
       "activeRuleCount": 72,
+      "activeDeprecatedRuleCount": 5,
       "isDefault": false,
       "projectCount": 13
     },
@@ -28,7 +30,8 @@
       "languageName": "Java",
       "isInherited": false,
       "isDefault": true,
-      "activeRuleCount": 42
+      "activeRuleCount": 42,
+      "activeDeprecatedRuleCount": 3
     },
     {
       "key": "sonar-way-python-01234",
@@ -37,6 +40,7 @@
       "languageName": "Python",
       "isInherited": false,
       "activeRuleCount": 125,
+      "activeDeprecatedRuleCount": 0,
       "isDefault": true
     }
   ]

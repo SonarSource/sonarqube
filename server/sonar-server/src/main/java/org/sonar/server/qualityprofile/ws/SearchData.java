@@ -30,6 +30,7 @@ import static com.google.common.collect.ImmutableMap.copyOf;
 public class SearchData {
   private List<QProfile> profiles;
   private Map<String, Long> activeRuleCountByProfileKey;
+  private Map<String, Long> activeDeprecatedRuleCountByProfileKey;
   private Map<String, Long> projectCountByProfileKey;
 
   public List<QProfile> getProfiles() {
@@ -46,6 +47,11 @@ public class SearchData {
     return this;
   }
 
+  public SearchData setActiveDeprecatedRuleCountByProfileKey(Map<String, Long> activeDeprecatedRuleCountByProfileKey) {
+    this.activeDeprecatedRuleCountByProfileKey = activeDeprecatedRuleCountByProfileKey;
+    return this;
+  }
+
   public SearchData setProjectCountByProfileKey(Map<String, Long> projectCountByProfileKey) {
     this.projectCountByProfileKey = copyOf(projectCountByProfileKey);
     return this;
@@ -57,5 +63,9 @@ public class SearchData {
 
   public long getProjectCount(String profileKey) {
     return firstNonNull(projectCountByProfileKey.get(profileKey), 0L);
+  }
+
+  public long getActiveDeprecatedRuleCount(String profileKey) {
+    return firstNonNull(activeDeprecatedRuleCountByProfileKey.get(profileKey), 0L);
   }
 }

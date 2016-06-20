@@ -7,7 +7,8 @@
       "languageName": "Xoo1",
       "isInherited": false,
       "isDefault": true,
-      "activeRuleCount": 11
+      "activeRuleCount": 11,
+      "activeDeprecatedRuleCount":1
     },
     {
       "key": "my-sonar-way-xoo2-34567",
@@ -19,6 +20,7 @@
       "parentKey": "sonar-way-xoo2-23456",
       "parentName": "Sonar way",
       "activeRuleCount": 33,
+      "activeDeprecatedRuleCount": 2,
       "projectCount": 0
     },
     {
@@ -29,6 +31,7 @@
       "isInherited": false,
       "isDefault": false,
       "activeRuleCount": 0,
+      "activeDeprecatedRuleCount": 0,
       "projectCount": 2
     }
   ]

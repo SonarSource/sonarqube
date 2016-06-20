@@ -38,6 +38,7 @@ message SearchWsResponse {
     optional string parentName = 7;
     optional bool isDefault = 8;
     optional int64 activeRuleCount = 9;
+    optional int64 activeDeprecatedRuleCount = 12;
     optional int64 projectCount = 10;
     optional string rulesUpdatedAt = 11;
   }

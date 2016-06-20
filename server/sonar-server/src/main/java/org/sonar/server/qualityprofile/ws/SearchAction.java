@@ -60,7 +60,7 @@ public class SearchAction implements QProfileWsAction {
       .setSince("5.2")
       .setDescription("List quality profiles.")
       .setHandler(this)
-      .setResponseExample(getClass().getResource("example-search.json"));
+      .setResponseExample(getClass().getResource("search-example.json"));
 
     action
       .createParam(PARAM_LANGUAGE)
@@ -95,10 +95,10 @@ public class SearchAction implements QProfileWsAction {
 
   private static SearchWsRequest toSearchWsRequest(Request request) {
     return new SearchWsRequest()
-        .setProjectKey(request.param(PARAM_PROJECT_KEY))
-        .setProfileName(request.param(PARAM_PROFILE_NAME))
-        .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
-        .setLanguage(request.param(PARAM_LANGUAGE));
+      .setProjectKey(request.param(PARAM_PROJECT_KEY))
+      .setProfileName(request.param(PARAM_PROFILE_NAME))
+      .setDefaults(request.paramAsBoolean(PARAM_DEFAULTS))
+      .setLanguage(request.param(PARAM_LANGUAGE));
   }
 
   private SearchWsResponse doHandle(SearchWsRequest request) {
@@ -125,6 +125,7 @@ public class SearchAction implements QProfileWsAction {
         profileBuilder.setRulesUpdatedAt(profile.getRulesUpdatedAt());
       }
       profileBuilder.setActiveRuleCount(data.getActiveRuleCount(profileKey));
+      profileBuilder.setActiveDeprecatedRuleCount(data.getActiveDeprecatedRuleCount(profileKey));
       if (!profile.isDefault()) {
         profileBuilder.setProjectCount(data.getProjectCount(profileKey));
       }

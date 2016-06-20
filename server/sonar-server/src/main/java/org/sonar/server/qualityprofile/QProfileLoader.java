@@ -82,10 +82,6 @@ public class QProfileLoader {
     }
   }
 
-  public Map<String, Long> countAllActiveRules() {
-    return activeRuleIndex.countAllByQualityProfileKey();
-  }
-
   public Map<String, Multimap<String, FacetValue>> getAllProfileStats() {
     List<String> keys = findAll().stream().map(QualityProfileDto::getKey).collect(Collectors.toList());
     return activeRuleIndex.getStatsByProfileKeys(keys);
