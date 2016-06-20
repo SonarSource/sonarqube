@@ -86,7 +86,7 @@ class Project < ActiveRecord::Base
   # bottom-up array of projects,
   def ancestor_projects
     node, nodes = self, []
-    nodes << node = node.root while node.root
+    nodes << node = node.root while node.root_uuid != node.uuid
     nodes
   end
 
