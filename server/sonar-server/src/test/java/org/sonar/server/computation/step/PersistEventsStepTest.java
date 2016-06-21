@@ -38,18 +38,36 @@ import org.sonar.server.computation.event.EventRepository;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
+import static org.sonar.server.computation.component.Component.Type.DIRECTORY;
+import static org.sonar.server.computation.component.Component.Type.FILE;
+import static org.sonar.server.computation.component.Component.Type.MODULE;
+import static org.sonar.server.computation.component.Component.Type.PROJECT;
+import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class PersistEventsStepTest extends BaseStepTest {
+
+  private static final ReportComponent ROOT = builder(PROJECT, 1)
+    .setUuid("ABCD")
+    .addChildren(
+      builder(MODULE, 2)
+        .setUuid("BCDE")
+        .addChildren(
+          builder(DIRECTORY, 3)
+            .setUuid("Q")
+            .addChildren(
+              builder(FILE, 4)
+                .setUuid("Z")
+                .build())
+            .build())
+        .build())
+    .build();
 
   System2 system2 = mock(System2.class);
 
   @Rule
   public DbTester dbTester = DbTester.create(system2);
-
   @Rule
   public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule();
 
@@ -77,7 +95,7 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void nothing_to_do_when_no_events_in_report() {
     dbTester.prepareDbUnit(getClass(), "nothing_to_do_when_no_events_in_report.xml");
 
-    treeRootHolder.setRoot(ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").build());
+    treeRootHolder.setRoot(ROOT);
 
     step.execute();
 
@@ -88,19 +106,13 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void persist_report_events_with_component_children() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    ReportComponent module = ReportComponent.builder(Component.Type.MODULE, 2).setUuid("BCDE").build();
-    ReportComponent root = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").addChildren(module).build();
-    treeRootHolder.setRoot(root);
+    treeRootHolder.setRoot(ROOT);
 
-    dbIdsRepository.setSnapshotId(root, 1000L);
-    dbIdsRepository.setSnapshotId(module, 1001L);
+    dbIdsRepository.setSnapshotId(ROOT, 1000L);
 
-    Component child = root.getChildren().get(0);
+    when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
 
-    when(eventRepository.getEvents(root)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
-    when(eventRepository.getEvents(child)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
-
-    treeRootHolder.setRoot(root);
+    treeRootHolder.setRoot(ROOT);
     step.execute();
 
     dbTester.assertDbUnit(getClass(), "persist_report_events_with_component_children-result.xml", "events");
@@ -110,9 +122,24 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void create_version_event() {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.0").build();
+    Component project = builder(PROJECT, 1)
+      .setUuid("ABCD")
+      .setVersion("1.0")
+      .addChildren(
+        builder(MODULE, 2)
+          .setUuid("BCDE")
+          .addChildren(
+            builder(DIRECTORY, 3)
+              .setUuid("Q")
+              .addChildren(
+                builder(FILE, 4)
+                  .setUuid("Z")
+                  .build())
+              .build())
+          .build())
+      .build();
     treeRootHolder.setRoot(project);
-    dbIdsRepository.setSnapshotId(project, 1000L);
+    dbIdsRepository.setSnapshotId(ROOT, 1000L);
 
     step.execute();
 
@@ -123,9 +150,24 @@ public class PersistEventsStepTest extends BaseStepTest {
   public void keep_one_event_by_version() {
     dbTester.prepareDbUnit(getClass(), "keep_one_event_by_version.xml");
 
-    Component project = ReportComponent.builder(Component.Type.PROJECT, 1).setUuid("ABCD").setVersion("1.5-SNAPSHOT").build();
+    Component project = builder(PROJECT, 1)
+      .setUuid("ABCD")
+      .setVersion("1.5-SNAPSHOT")
+      .addChildren(
+        builder(MODULE, 2)
+          .setUuid("BCDE")
+          .addChildren(
+            builder(DIRECTORY, 3)
+              .setUuid("Q")
+              .addChildren(
+                builder(FILE, 4)
+                  .setUuid("Z")
+                  .build())
+              .build())
+          .build())
+      .build();
     treeRootHolder.setRoot(project);
-    dbIdsRepository.setSnapshotId(project, 1001L);
+    dbIdsRepository.setSnapshotId(ROOT, 1001L);
 
     step.execute();
 

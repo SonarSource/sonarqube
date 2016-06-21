@@ -294,25 +294,20 @@ class ProjectController < ApplicationController
       if Event.already_exists(snapshot.id, params[:version_name], EventCategory::KEY_VERSION)
         flash[:error] = message('project_history.version_already_exists', :params => h(params[:version_name]))
       else
-        snapshots = find_project_snapshots(snapshot.id)
-        # We update all the related snapshots to have a version attribute in sync with the new name
-        snapshots.each do |snapshot|
-          snapshot.version = params[:version_name]
-          snapshot.save!
-        end
-        # And then we update/create the event on each snapshot
+        # We update the snapshot to have a version attribute in sync with the new name
+        snapshot.version = params[:version_name]
+        snapshot.save!
+        # And then we update/create the event on the snapshot
         if snapshot.event(EventCategory::KEY_VERSION)
-          # This is an update: we update all the related events
+          # This is an update: we update the event
           Event.update_all({:name => params[:version_name]},
-                           ["category = ? AND snapshot_id IN (?)", EventCategory::KEY_VERSION, snapshots.map { |s| s.id }])
+                           ["category = ? AND snapshot_id = ?", EventCategory::KEY_VERSION, snapshot.id])
           flash[:notice] = message('project_history.version_updated', :params => h(params[:version_name]))
         else
-          # We create an event for every concerned snapshot
-          snapshots.each do |snapshot|
-            event = Event.create!(:name => params[:version_name], :snapshot => snapshot,
-                                  :component_uuid => snapshot.project.uuid, :category => EventCategory::KEY_VERSION,
-                                  :event_date => snapshot.created_at)
-          end
+          # We create an event on the snapshot
+          event = Event.create!(:name => params[:version_name], :snapshot => snapshot,
+                                :component_uuid => snapshot.project.uuid, :category => EventCategory::KEY_VERSION,
+                                :event_date => snapshot.created_at)
           flash[:notice] = message('project_history.version_created', :params => h(params[:version_name]))
         end
       end

@@ -148,7 +148,7 @@ public class ProjectAdministrationTest {
       ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
-    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(14);
+    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(2);
 
     selenese = Selenese.builder()
       .setHtmlTestsInClasspath("delete_version_of_multimodule_project",
@@ -156,7 +156,7 @@ public class ProjectAdministrationTest {
       ).build();
     new SeleneseTest(selenese).runOn(orchestrator);
 
-    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(7);
+    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(1);
   }
 
   /**

@@ -1,10 +1,13 @@
 <dataset>
 
-  <events id="1" name="Red (was Orange)" category="Alert" description="Open issues > 0"
+  <events id="1"
+          name="Red (was Orange)"
+          category="Alert"
+          description="Open issues > 0"
           event_data="[null]"
-          event_date="150000000" component_uuid="ABCD" snapshot_id="1000" created_at="1225630680000" />
-  <events id="2" name="Red (was Orange)" category="Alert" description="Open issues > 0"
-          event_data="[null]"
-          event_date="150000000" component_uuid="BCDE" snapshot_id="1001" created_at="1225630680000" />
+          event_date="150000000"
+          component_uuid="ABCD"
+          snapshot_id="1000"
+          created_at="1225630680000"/>
 
 </dataset>

@@ -70,11 +70,6 @@ public class PersistEventsStep implements ComputationStep {
     }
   }
 
-  private void processComponent(Component component, DbSession session, long analysisDate) {
-    processEvents(session, component, analysisDate);
-    saveVersionEvent(session, component, analysisDate);
-  }
-
   private void processEvents(DbSession session, Component component, Long analysisDate) {
     Function<Event, EventDto> eventToEventDto = event -> newBaseEvent(component, analysisDate)
       .setName(event.getName())
@@ -134,29 +129,16 @@ public class PersistEventsStep implements ComputationStep {
     private final long analysisDate;
 
     public PersistEventComponentVisitor(DbSession session, long analysisDate) {
-      super(CrawlerDepthLimit.FILE, ComponentVisitor.Order.PRE_ORDER);
+      super(CrawlerDepthLimit.PROJECT, ComponentVisitor.Order.PRE_ORDER);
       this.session = session;
       this.analysisDate = analysisDate;
     }
 
     @Override
     public void visitProject(Component project) {
-      processComponent(project, session, analysisDate);
+      processEvents(session, project, analysisDate);
+      saveVersionEvent(session, project, analysisDate);
     }
 
-    @Override
-    public void visitModule(Component module) {
-      processComponent(module, session, analysisDate);
-    }
-
-    @Override
-    public void visitDirectory(Component directory) {
-      processComponent(directory, session, analysisDate);
-    }
-
-    @Override
-    public void visitFile(Component file) {
-      processComponent(file, session, analysisDate);
-    }
   }
 }

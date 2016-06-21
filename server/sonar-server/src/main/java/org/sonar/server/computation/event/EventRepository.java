@@ -21,8 +21,17 @@ package org.sonar.server.computation.event;
 
 import org.sonar.server.computation.component.Component;
 
+import static org.sonar.server.computation.component.Component.Type;
+
 public interface EventRepository {
+  /**
+   * @throws NullPointerException if {@code component} or {@code event} is {@code null}
+   * @throws IllegalArgumentException if type of {@code component} is not {@link Type#PROJECT}
+   */
   void add(Component component, Event event);
 
+  /**
+   * @throws NullPointerException if {@code component} is {@code null}
+   */
   Iterable<Event> getEvents(Component component);
 }

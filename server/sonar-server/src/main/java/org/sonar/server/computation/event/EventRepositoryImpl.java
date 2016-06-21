@@ -23,6 +23,7 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import org.sonar.server.computation.component.Component;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static java.util.Objects.requireNonNull;
 
 public class EventRepositoryImpl implements EventRepository {
@@ -30,6 +31,7 @@ public class EventRepositoryImpl implements EventRepository {
 
   @Override
   public void add(Component component, Event event) {
+    checkArgument(component.getType() == Component.Type.PROJECT, "Component must be of type PROJECT");
     events.put(component.getReportAttributes().getRef(), requireNonNull(event));
   }
 

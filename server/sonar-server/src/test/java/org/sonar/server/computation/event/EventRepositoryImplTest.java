@@ -19,11 +19,14 @@
  */
 package org.sonar.server.computation.event;
 
+import java.util.Arrays;
 import org.junit.Test;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ReportComponent;
+import org.sonar.server.computation.component.ViewsComponent;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 public class EventRepositoryImplTest {
   private static final Component COMPONENT_1 = newComponent(1);
@@ -58,6 +61,27 @@ public class EventRepositoryImplTest {
   }
 
   @Test
+  public void add_throws_IAE_for_any_component_type_but_PROJECT() {
+    Arrays.stream(Component.Type.values())
+        .filter(type -> type != Component.Type.PROJECT)
+        .map(type -> {
+          if (type.isReportType()) {
+            return ReportComponent.builder(type, 1).build();
+          } else {
+            return ViewsComponent.builder(type, 1).build();
+          }
+        })
+        .forEach(component -> {
+          try {
+            underTest.add(component, EVENT_1);
+            fail("should have raised an IAE");
+          } catch (IllegalArgumentException e) {
+            assertThat(e).hasMessage("Component must be of type PROJECT");
+          }
+        });
+  }
+
+  @Test
   public void can_add_and_retrieve_many_events_per_component() {
     underTest.add(COMPONENT_1, EVENT_1);
     underTest.add(COMPONENT_1, EVENT_2);
@@ -66,6 +90,6 @@ public class EventRepositoryImplTest {
   }
 
   private static Component newComponent(int i) {
-    return ReportComponent.builder(Component.Type.FILE, i).build();
+    return ReportComponent.builder(Component.Type.PROJECT, i).build();
   }
 }
