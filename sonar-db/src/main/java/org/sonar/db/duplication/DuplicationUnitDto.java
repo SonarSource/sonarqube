@@ -22,9 +22,8 @@ package org.sonar.db.duplication;
 public final class DuplicationUnitDto {
 
   private long id;
-  private long snapshotId;
+  private String analysisUuid;
   private String componentUuid;
-  private long projectSnapshotId;
 
   private String hash;
   private int indexInFile;
@@ -43,12 +42,12 @@ public final class DuplicationUnitDto {
     return this;
   }
 
-  public long getSnapshotId() {
-    return snapshotId;
+  public String getAnalysisUuid() {
+    return analysisUuid;
   }
 
-  public DuplicationUnitDto setSnapshotId(long snapshotId) {
-    this.snapshotId = snapshotId;
+  public DuplicationUnitDto setAnalysisUuid(String analysisUuid) {
+    this.analysisUuid = analysisUuid;
     return this;
   }
 
@@ -58,15 +57,6 @@ public final class DuplicationUnitDto {
 
   public DuplicationUnitDto setComponentUuid(String componentUuid) {
     this.componentUuid = componentUuid;
-    return this;
-  }
-
-  public long getProjectSnapshotId() {
-    return projectSnapshotId;
-  }
-
-  public DuplicationUnitDto setProjectSnapshotId(long projectSnapshotId) {
-    this.projectSnapshotId = projectSnapshotId;
     return this;
   }
 

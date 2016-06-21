@@ -25,9 +25,9 @@ import org.apache.ibatis.annotations.Param;
 
 public interface PurgeMapper {
 
-  List<Long> selectSnapshotIds(PurgeSnapshotQuery query);
+  List<IdUuidPair> selectSnapshotIdsAndUuids(PurgeSnapshotQuery query);
 
-  List<Long> selectSnapshotIdsByResource(@Param("componentUuids") List<String> componentUuids);
+  List<IdUuidPair> selectSnapshotIdAndUuidsByResource(@Param("componentUuids") List<String> componentUuids);
 
   /**
    * Returns the list of components of a project from a project_uuid. The project itself is also returned.
@@ -36,7 +36,7 @@ public interface PurgeMapper {
 
   void deleteSnapshot(@Param("snapshotIds") List<Long> snapshotIds);
 
-  void deleteSnapshotDuplications(@Param("snapshotIds") List<Long> snapshotIds);
+  void deleteSnapshotDuplications(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteSnapshotEvents(@Param("snapshotIds") List<Long> snapshotIds);
 

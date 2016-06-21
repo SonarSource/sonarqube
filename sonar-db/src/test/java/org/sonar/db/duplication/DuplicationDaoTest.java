@@ -19,12 +19,13 @@
  */
 package org.sonar.db.duplication;
 
-import java.util.List;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
+
+import java.util.List;
 
 import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -44,7 +45,7 @@ public class DuplicationDaoTest {
     db.prepareDbUnit(getClass(), "select_candidates.xml");
     dbSession.commit();
 
-    List<DuplicationUnitDto> blocks = dao.selectCandidates(dbSession, 7L, "java", singletonList("aa"));
+    List<DuplicationUnitDto> blocks = dao.selectCandidates(dbSession, "u7", "java", singletonList("aa"));
     assertThat(blocks).hasSize(1);
 
     DuplicationUnitDto block = blocks.get(0);
@@ -66,8 +67,7 @@ public class DuplicationDaoTest {
     dbSession.commit();
 
     dao.insert(dbSession, new DuplicationUnitDto()
-      .setProjectSnapshotId(1)
-      .setSnapshotId(2)
+      .setAnalysisUuid("u1")
       .setComponentUuid("uuid_1")
       .setHash("bb")
       .setIndexInFile(0)

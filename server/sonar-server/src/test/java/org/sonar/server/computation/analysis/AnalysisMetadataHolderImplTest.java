@@ -33,6 +33,7 @@ public class AnalysisMetadataHolderImplTest {
 
   static Snapshot BASE_PROJECT_SNAPSHOT = new Snapshot.Builder()
     .setId(1)
+    .setUuid("uuid_1")
     .setCreatedAt(123456789L)
     .build();
 

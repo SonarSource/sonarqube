@@ -24,10 +24,10 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.duplication.DuplicationUnitDto;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.batch.BatchReportReader;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -42,28 +42,30 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
 
   private final DbClient dbClient;
   private final TreeRootHolder treeRootHolder;
+  private final AnalysisMetadataHolder analysisMetadataHolder;
   private final BatchReportReader reportReader;
-  private final DbIdsRepository dbIdsRepository;
   private final CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder;
 
-  public PersistCrossProjectDuplicationIndexStep(DbClient dbClient, DbIdsRepository dbIdsRepository, TreeRootHolder treeRootHolder, BatchReportReader reportReader,
-    CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder) {
+  public PersistCrossProjectDuplicationIndexStep(CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder, DbClient dbClient,
+    TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
+    BatchReportReader reportReader) {
     this.dbClient = dbClient;
     this.treeRootHolder = treeRootHolder;
+    this.analysisMetadataHolder = analysisMetadataHolder;
     this.reportReader = reportReader;
-    this.dbIdsRepository = dbIdsRepository;
     this.crossProjectDuplicationStatusHolder = crossProjectDuplicationStatusHolder;
   }
 
   @Override
   public void execute() {
+    if (!crossProjectDuplicationStatusHolder.isEnabled()) {
+      return;
+    }
+
     DbSession session = dbClient.openSession(true);
     try {
-      if (crossProjectDuplicationStatusHolder.isEnabled()) {
-        Component project = treeRootHolder.getRoot();
-        long projectSnapshotId = dbIdsRepository.getSnapshotId(project);
-        new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(session, projectSnapshotId)).visit(project);
-      }
+      Component project = treeRootHolder.getRoot();
+      new DepthTraversalTypeAwareCrawler(new DuplicationVisitor(session, analysisMetadataHolder.getUuid())).visit(project);
       session.commit();
     } finally {
       dbClient.closeSession(session);
@@ -73,12 +75,12 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
   private class DuplicationVisitor extends TypeAwareVisitorAdapter {
 
     private final DbSession session;
-    private final long projectSnapshotId;
+    private final String analysisUuid;
 
-    private DuplicationVisitor(DbSession session, long projectSnapshotId) {
+    private DuplicationVisitor(DbSession session, String analysisUuid) {
       super(CrawlerDepthLimit.FILE, PRE_ORDER);
       this.session = session;
-      this.projectSnapshotId = projectSnapshotId;
+      this.analysisUuid = analysisUuid;
     }
 
     @Override
@@ -99,9 +101,8 @@ public class PersistCrossProjectDuplicationIndexStep implements ComputationStep 
               .setStartLine(block.getStartLine())
               .setEndLine(block.getEndLine())
               .setIndexInFile(indexInFile)
-              .setSnapshotId(dbIdsRepository.getSnapshotId(component))
-              .setComponentUuid(component.getUuid())
-              .setProjectSnapshotId(projectSnapshotId));
+              .setAnalysisUuid(analysisUuid)
+              .setComponentUuid(component.getUuid()));
           indexInFile++;
         }
       } finally {

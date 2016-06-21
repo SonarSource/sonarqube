@@ -27,7 +27,7 @@ import org.apache.ibatis.annotations.Param;
 public interface DuplicationMapper {
 
   List<DuplicationUnitDto> selectCandidates(
-    @Nullable @Param("projectSnapshotId") Long projectSnapshotId,
+    @Nullable @Param("analysisUuid") String analysisUuid,
     @Param("language") String language,
     @Param("hashes") Collection<String> hashes);
 

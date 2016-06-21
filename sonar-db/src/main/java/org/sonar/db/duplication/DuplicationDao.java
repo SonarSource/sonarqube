@@ -30,12 +30,12 @@ import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 public class DuplicationDao implements Dao {
 
   /**
-   * @param projectSnapshotId snapshot id of the project from the previous analysis (islast=true)
+   * @param analysisUuid snapshot id of the project from the previous analysis (islast=true)
    */
-  public List<DuplicationUnitDto> selectCandidates(DbSession session, @Nullable Long projectSnapshotId, String language, Collection<String> hashes) {
+  public List<DuplicationUnitDto> selectCandidates(DbSession session, @Nullable String analysisUuid, String language, Collection<String> hashes) {
     return executeLargeInputs(
       hashes,
-      partition -> session.getMapper(DuplicationMapper.class).selectCandidates(projectSnapshotId, language, partition));
+      partition -> session.getMapper(DuplicationMapper.class).selectCandidates(analysisUuid, language, partition));
   }
 
   /**

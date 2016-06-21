@@ -58,6 +58,7 @@ public class FileMoveDetectionStepTest {
   private static final long SNAPSHOT_ID = 98765;
   private static final Snapshot SNAPSHOT = new Snapshot.Builder()
     .setId(SNAPSHOT_ID)
+    .setUuid("uuid_1")
     .setCreatedAt(86521)
     .build();
   private static final int ROOT_REF = 1;
@@ -400,11 +401,11 @@ public class FileMoveDetectionStepTest {
     ComponentDtoWithSnapshotId[] dtos = mockComponentsForSnapshot(FILE_1.getKey(), FILE_2.getKey(), file4.getKey(), file5.getKey());
     mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
     mockContentOfFileIdDb(FILE_2.getKey(), LESS_CONTENT1);
-    mockContentOfFileIdDb(file4.getKey(), new String[]{"e","f","g","h","i"});
+    mockContentOfFileIdDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
     mockContentOfFileIdDb(file5.getKey(), CONTENT2);
     setFilesInReport(FILE_3, file4, file6);
     setFileContentInReport(FILE_3_REF, CONTENT1);
-    setFileContentInReport(file4.getReportAttributes().getRef(), new String[]{"a","b"});
+    setFileContentInReport(file4.getReportAttributes().getRef(), new String[] {"a", "b"});
     setFileContentInReport(file6.getReportAttributes().getRef(), LESS_CONTENT2);
 
     underTest.execute();

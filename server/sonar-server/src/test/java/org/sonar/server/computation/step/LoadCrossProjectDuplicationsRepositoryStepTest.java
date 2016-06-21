@@ -115,6 +115,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
 
     baseProjectSnapshot = new Snapshot.Builder()
       .setId(projectSnapshot.getId())
+      .setUuid(projectSnapshot.getUuid())
       .setCreatedAt(projectSnapshot.getCreatedAt())
       .build();
   }
@@ -136,8 +137,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setStartLine(40)
       .setEndLine(55)
       .setIndexInFile(0)
-      .setProjectSnapshotId(otherProjectSnapshot.getId())
-      .setSnapshotId(otherFileSnapshot.getId())
+      .setAnalysisUuid(otherProjectSnapshot.getUuid())
       .setComponentUuid(otherFileSnapshot.getComponentUuid());
     dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();
@@ -203,8 +203,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setStartLine(40)
       .setEndLine(55)
       .setIndexInFile(0)
-      .setProjectSnapshotId(otherProjectSnapshot.getId())
-      .setSnapshotId(otherFileSnapshot.getId())
+      .setAnalysisUuid(otherProjectSnapshot.getUuid())
       .setComponentUuid(otherFileSnapshot.getComponentUuid());
 
     DuplicationUnitDto duplicate2 = new DuplicationUnitDto()
@@ -212,8 +211,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setStartLine(20)
       .setEndLine(35)
       .setIndexInFile(1)
-      .setProjectSnapshotId(otherProjectSnapshot.getId())
-      .setSnapshotId(otherFileSnapshot.getId())
+      .setAnalysisUuid(otherProjectSnapshot.getUuid())
       .setComponentUuid(otherFileSnapshot.getComponentUuid());
     dbClient.duplicationDao().insert(dbSession, duplicate1);
     dbClient.duplicationDao().insert(dbSession, duplicate2);
@@ -279,8 +277,7 @@ public class LoadCrossProjectDuplicationsRepositoryStepTest {
       .setStartLine(40)
       .setEndLine(55)
       .setIndexInFile(0)
-      .setProjectSnapshotId(otherProjectSnapshot.getId())
-      .setSnapshotId(otherFileSnapshot.getId())
+      .setAnalysisUuid(otherProjectSnapshot.getUuid())
       .setComponentUuid(otherFileSnapshot.getComponentUuid());
     dbClient.duplicationDao().insert(dbSession, duplicate);
     dbSession.commit();

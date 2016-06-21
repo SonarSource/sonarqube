@@ -20,11 +20,11 @@
 package org.sonar.db.purge;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.google.common.collect.Iterables;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.stream.Collectors;
 import org.apache.ibatis.session.SqlSession;
 
 import static com.google.common.collect.FluentIterable.from;
@@ -51,7 +51,7 @@ class PurgeCommands {
   }
 
   List<Long> selectSnapshotIds(PurgeSnapshotQuery query) {
-    return purgeMapper.selectSnapshotIds(query);
+    return purgeMapper.selectSnapshotIdsAndUuids(query).stream().map(IdUuidPair::getId).collect(Collectors.toList());
   }
 
   void deleteComponents(List<IdUuidPair> componentIdUuids) {
@@ -62,7 +62,7 @@ class PurgeCommands {
     // Batch requests can only relate to the same PreparedStatement.
 
     for (List<String> componentUuidPartition : componentUuidsPartitions) {
-      deleteSnapshots(purgeMapper.selectSnapshotIdsByResource(componentUuidPartition));
+      deleteSnapshots(purgeMapper.selectSnapshotIdAndUuidsByResource(componentUuidPartition));
     }
 
     // possible missing optimization: filter requests according to resource scope
@@ -146,18 +146,18 @@ class PurgeCommands {
   }
 
   void deleteSnapshots(PurgeSnapshotQuery... queries) {
-    List<Long> snapshotIds = from(asList(queries))
-      .transformAndConcat(purgeMapper::selectSnapshotIds)
+    List<IdUuidPair> snapshotIds = from(asList(queries))
+      .transformAndConcat(purgeMapper::selectSnapshotIdsAndUuids)
       .toList();
     deleteSnapshots(snapshotIds);
   }
 
   @VisibleForTesting
-  protected void deleteSnapshots(final List<Long> snapshotIds) {
+  protected void deleteSnapshots(List<IdUuidPair> snapshotIds) {
+    List<List<Long>> snapshotIdsPartition = Lists.partition(IdUuidPairs.ids(snapshotIds), MAX_SNAPSHOTS_PER_QUERY);
+    List<List<String>> snapshotUuidsPartition = Lists.partition(IdUuidPairs.uuids(snapshotIds), MAX_SNAPSHOTS_PER_QUERY);
 
-    List<List<Long>> snapshotIdsPartition = Lists.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
-
-    deleteSnapshotDuplications(snapshotIdsPartition);
+    deleteSnapshotDuplications(snapshotUuidsPartition);
 
     profiler.start("deleteSnapshotEvents (events)");
     for (List<Long> partSnapshotIds : snapshotIdsPartition) {
@@ -183,16 +183,18 @@ class PurgeCommands {
 
   void purgeSnapshots(PurgeSnapshotQuery... queries) {
     // use LinkedHashSet to keep order by remove duplicated ids
-    LinkedHashSet<Long> snapshotIds = Sets.newLinkedHashSet(from(asList(queries)).transformAndConcat(purgeMapper::selectSnapshotIds));
+    LinkedHashSet<IdUuidPair> snapshotIds = Sets.newLinkedHashSet(from(asList(queries))
+        .transformAndConcat(purgeMapper::selectSnapshotIdsAndUuids));
     purgeSnapshots(snapshotIds);
   }
 
   @VisibleForTesting
-  protected void purgeSnapshots(Iterable<Long> snapshotIds) {
+  protected void purgeSnapshots(Iterable<IdUuidPair> snapshotIdUuidPairs) {
     // note that events are not deleted
-    Iterable<List<Long>> snapshotIdsPartition = Iterables.partition(snapshotIds, MAX_SNAPSHOTS_PER_QUERY);
+    List<List<Long>> snapshotIdsPartition = Lists.partition(IdUuidPairs.ids(snapshotIdUuidPairs), MAX_SNAPSHOTS_PER_QUERY);
+    List<List<String>> snapshotUuidsPartition = Lists.partition(IdUuidPairs.uuids(snapshotIdUuidPairs), MAX_SNAPSHOTS_PER_QUERY);
 
-    deleteSnapshotDuplications(snapshotIdsPartition);
+    deleteSnapshotDuplications(snapshotUuidsPartition);
 
     profiler.start("deleteSnapshotWastedMeasures (project_measures)");
     List<Long> metricIdsWithoutHistoricalData = purgeMapper.selectMetricIdsWithoutHistoricalData();
@@ -203,17 +205,15 @@ class PurgeCommands {
     profiler.stop();
 
     profiler.start("updatePurgeStatusToOne (snapshots)");
-    for (Long snapshotId : snapshotIds) {
-      purgeMapper.updatePurgeStatusToOne(snapshotId);
-    }
+    snapshotIdUuidPairs.iterator().forEachRemaining(idUuidPair -> purgeMapper.updatePurgeStatusToOne(idUuidPair.getId()));
     session.commit();
     profiler.stop();
   }
 
-  private void deleteSnapshotDuplications(Iterable<List<Long>> snapshotIdsPartition) {
+  private void deleteSnapshotDuplications(Iterable<List<String>> snapshotUuidsPartition) {
     profiler.start("deleteSnapshotDuplications (duplications_index)");
-    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-      purgeMapper.deleteSnapshotDuplications(partSnapshotIds);
+    for (List<String> partSnapshotUuids : snapshotUuidsPartition) {
+      purgeMapper.deleteSnapshotDuplications(partSnapshotUuids);
     }
     session.commit();
     profiler.stop();

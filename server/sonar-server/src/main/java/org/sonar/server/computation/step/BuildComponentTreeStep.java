@@ -83,6 +83,7 @@ public class BuildComponentTreeStep implements ComputationStep {
   private static Snapshot toSnapshot(@Nullable SnapshotDto snapshotDto) {
     return snapshotDto == null ? null : new Snapshot.Builder()
       .setId(snapshotDto.getId())
+      .setUuid(snapshotDto.getUuid())
       .setCreatedAt(snapshotDto.getCreatedAt())
       .build();
   }

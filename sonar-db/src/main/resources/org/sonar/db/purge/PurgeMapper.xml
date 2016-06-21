@@ -3,8 +3,8 @@
 
 <mapper namespace="org.sonar.db.purge.PurgeMapper">
 
-  <select id="selectSnapshotIds" parameterType="map" resultType="long">
-    select s.id from snapshots s
+  <select id="selectSnapshotIdsAndUuids" parameterType="map" resultType="IdUuidPair">
+    select s.id as id, s.uuid as uuid from snapshots s
     <where>
       <if test="islast != null">
         and s.islast=#{islast}
@@ -48,8 +48,8 @@
     </where>
   </select>
 
-  <select id="selectSnapshotIdsByResource" parameterType="map" resultType="long">
-    select s.id from snapshots s
+  <select id="selectSnapshotIdAndUuidsByResource" parameterType="map" resultType="IdUuidPair">
+    select s.id as id, s.uuid as uuid from snapshots s
     <where>
       s.component_uuid in
       <foreach collection="componentUuids" open="(" close=")" item="componentUuid" separator=",">
@@ -94,9 +94,9 @@
   </delete>
 
   <delete id="deleteSnapshotDuplications" parameterType="map">
-    delete from duplications_index where snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-      #{snapshotId}
+    delete from duplications_index where analysis_uuid in
+    <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+      #{analysisUuid}
     </foreach>
   </delete>
 

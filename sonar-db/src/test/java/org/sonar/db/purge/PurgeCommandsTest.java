@@ -53,7 +53,7 @@ public class PurgeCommandsTest {
    */
   @Test
   public void should_not_fail_when_deleting_huge_number_of_snapshots() {
-    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(getHugeNumberOfIds());
+    new PurgeCommands(dbTester.getSession(), profiler).deleteSnapshots(getHugeNumberOfIdUuidPairs());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 
@@ -83,7 +83,7 @@ public class PurgeCommandsTest {
    */
   @Test
   public void should_not_fail_when_purging_huge_number_of_snapshots() {
-    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(getHugeNumberOfIds());
+    new PurgeCommands(dbTester.getSession(), profiler).purgeSnapshots(getHugeNumberOfIdUuidPairs());
     // The goal of this test is only to check that the query do no fail, not to check result
   }
 
@@ -118,10 +118,10 @@ public class PurgeCommandsTest {
     return hugeNbOfSnapshotIds;
   }
 
-  private List<Long> getHugeNumberOfIds() {
-    List<Long> hugeNbOfSnapshotIds = newArrayList();
+  private List<IdUuidPair> getHugeNumberOfIdUuidPairs() {
+    List<IdUuidPair> hugeNbOfSnapshotIds = newArrayList();
     for (long i = 0; i < 4500; i++) {
-      hugeNbOfSnapshotIds.add(i);
+      hugeNbOfSnapshotIds.add(new IdUuidPair(i, "uuid_" + i));
     }
     return hugeNbOfSnapshotIds;
   }

@@ -19,34 +19,36 @@
  */
 package org.sonar.db.purge;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Lists;
+import java.util.ArrayList;
 import java.util.List;
-import javax.annotation.Nonnull;
+import java.util.stream.Collectors;
 
-public class IdUuidPairs {
+public final class IdUuidPairs {
   private IdUuidPairs() {
+    // prevents instantiation
   }
 
   public static List<Long> ids(List<IdUuidPair> pairs) {
-    return Lists.transform(pairs, new IdUuidPairToIdFunction());
+    return pairs.stream().map(IdUuidPair::getId).collect(Collectors.toCollection(() -> new ArrayList<>(pairs.size())));
+  }
+
+  public static List<Long> ids(Iterable<IdUuidPair> pairs) {
+    if (pairs instanceof List) {
+      return ids((List<IdUuidPair>) pairs);
+    }
+    return ids(Lists.newArrayList(pairs));
   }
 
   public static List<String> uuids(List<IdUuidPair> pairs) {
-    return Lists.transform(pairs, new IdUuidPairToUuidFunction());
+    return pairs.stream().map(IdUuidPair::getUuid).collect(Collectors.toCollection(() -> new ArrayList<>(pairs.size())));
   }
 
-  private static class IdUuidPairToIdFunction implements Function<IdUuidPair, Long> {
-    @Override
-    public Long apply(@Nonnull IdUuidPair pair) {
-      return pair.getId();
+  public static List<String> uuids(Iterable<IdUuidPair> pairs) {
+    if (pairs instanceof List) {
+      return uuids((List<IdUuidPair>) pairs);
     }
+    return uuids(Lists.newArrayList(pairs));
   }
 
-  private static class IdUuidPairToUuidFunction implements Function<IdUuidPair, String> {
-    @Override
-    public String apply(@Nonnull IdUuidPair pair) {
-      return pair.getUuid();
-    }
-  }
 }

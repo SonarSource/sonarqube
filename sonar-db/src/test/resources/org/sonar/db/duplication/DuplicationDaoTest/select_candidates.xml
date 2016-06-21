@@ -2,54 +2,139 @@
 
   <snapshots id="1"
              uuid="u1"
-             component_uuid="uuid_1" status="P" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+             component_uuid="uuid_root_1"
+             status="P"
+             islast="[false]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_1"/>
   <snapshots id="2"
              uuid="u2"
-             component_uuid="uuid_1" status="P" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
-  <projects id="1" uuid="uuid_1" root_uuid="uuid_root" kee="bar-old" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+             component_uuid="uuid_1"
+             status="P"
+             islast="[false]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_1"/>
+  <projects id="1"
+            uuid="uuid_1"
+            root_uuid="uuid_root_1"
+            kee="bar-old"
+            enabled="[true]"
+            scope="FIL"
+            qualifier="CLA"
+            language="java"/>
 
   <snapshots id="3"
              uuid="u3"
-             component_uuid="uuid_2" status="P" islast="[true]" purge_status="[null]" root_component_uuid="uuid_1"/>
+             component_uuid="uuid_root_2"
+             status="P"
+             islast="[true]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_2"/>
   <snapshots id="4"
              uuid="u4"
-             component_uuid="uuid_2" status="P" islast="[true]" purge_status="[null]" root_component_uuid="uuid_1"/>
-  <projects id="2" uuid="uuid_2" root_uuid="uuid_root" kee="bar-last" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+             component_uuid="uuid_2"
+             status="P"
+             islast="[true]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_2"/>
+  <projects id="2"
+            uuid="uuid_2"
+            root_uuid="uuid_root_2"
+            kee="bar-last"
+            enabled="[true]"
+            scope="FIL"
+            qualifier="CLA"
+            language="java"/>
 
   <snapshots id="5"
              uuid="u5"
-             component_uuid="uuid_3" status="P" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+             component_uuid="uuid_root_3"
+             status="P"
+             islast="[false]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_3"/>
   <snapshots id="6"
              uuid="u6"
-             component_uuid="uuid_3" status="P" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
-  <projects id="3" uuid="uuid_3" root_uuid="uuid_root" kee="foo-old" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+             component_uuid="uuid_3"
+             status="P"
+             islast="[false]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_3"/>
+  <projects id="3"
+            uuid="uuid_3"
+            root_uuid="uuid_root_3"
+            kee="foo-old"
+            enabled="[true]"
+            scope="FIL"
+            qualifier="CLA"
+            language="java"/>
 
   <snapshots id="7"
              uuid="u7"
-             component_uuid="uuid_4" status="P" islast="[true]" purge_status="[null]" root_component_uuid="uuid_1"/>
+             component_uuid="uuid_root_4"
+             status="P"
+             islast="[true]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_4"/>
   <snapshots id="8"
              uuid="u8"
-             component_uuid="uuid_4" status="P" islast="[true]" purge_status="[null]" root_component_uuid="uuid_1"/>
-  <projects id="4" uuid="uuid_4" root_uuid="uuid_root" kee="foo-last" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+             component_uuid="uuid_4"
+             status="P"
+             islast="[true]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_4"/>
+  <projects id="4"
+            uuid="uuid_4"
+            root_uuid="uuid_root_4"
+            kee="foo-last"
+            enabled="[true]"
+            scope="FIL"
+            qualifier="CLA"
+            language="java"/>
 
   <snapshots id="9"
              uuid="u9"
-             component_uuid="uuid_5" status="U" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
+             component_uuid="uuid_root_5"
+             status="U"
+             islast="[false]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_5"/>
   <snapshots id="10"
              uuid="u10"
-             component_uuid="uuid_5" status="U" islast="[false]" purge_status="[null]" root_component_uuid="uuid_1"/>
-  <projects id="5" uuid="uuid_5" root_uuid="uuid_root" kee="foo" enabled="[true]" scope="FIL" qualifier="CLA" language="java"/>
+             component_uuid="uuid_5"
+             status="U"
+             islast="[false]"
+             purge_status="[null]"
+             root_component_uuid="uuid_root_5"/>
+  <projects id="5"
+            uuid="uuid_5"
+            root_uuid="uuid_root_5"
+            kee="foo"
+            enabled="[true]"
+            scope="FIL"
+            qualifier="CLA"
+            language="java"/>
 
   <snapshots id="11"
              uuid="u11"
-             component_uuid="uuid_6" purge_status="[null]" status="P" islast="1" root_component_uuid="uuid_1"/>
-  <projects id="6" uuid="uuid_6" root_uuid="uuid_root" kee="baz" enabled="[true]" scope="FIL" qualifier="CLA" language="grvy"/>
+             component_uuid="uuid_6"
+             purge_status="[null]"
+             status="P"
+             islast="[true]"
+             root_component_uuid="uuid_root_1"/>
+  <projects id="6"
+            uuid="uuid_6"
+            root_uuid="uuid_root_1"
+            kee="baz"
+            enabled="[true]"
+            scope="FIL"
+            qualifier="CLA"
+            language="grvy"/>
 
   <!-- Old snapshot of another project -->
   <!-- bar-old -->
   <duplications_index id="1"
-                      project_snapshot_id="1"
-                      snapshot_id="2"
+                      analysis_uuid="u1"
                       component_uuid="uuid_1"
                       hash="bb"
                       index_in_file="0"
@@ -59,8 +144,7 @@
   <!-- Last snapshot of another project -->
   <!-- bar-last -->
   <duplications_index id="2"
-                      project_snapshot_id="3"
-                      snapshot_id="4"
+                      analysis_uuid="u3"
                       component_uuid="uuid_2"
                       hash="aa"
                       index_in_file="0"
@@ -70,8 +154,7 @@
   <!-- Old snapshot of current project -->
   <!-- foo-old -->
   <duplications_index id="3"
-                      project_snapshot_id="5"
-                      snapshot_id="6"
+                      analysis_uuid="u5"
                       component_uuid="uuid_3"
                       hash="bb"
                       index_in_file="0"
@@ -81,8 +164,7 @@
   <!-- Last snapshot of current project -->
   <!-- foo-last -->
   <duplications_index id="4"
-                      project_snapshot_id="7"
-                      snapshot_id="8"
+                      analysis_uuid="u7"
                       component_uuid="uuid_4"
                       hash="aa"
                       index_in_file="0"
@@ -92,8 +174,7 @@
   <!-- New snapshot of current project -->
   <!-- foo -->
   <duplications_index id="5"
-                      project_snapshot_id="9"
-                      snapshot_id="10"
+                      analysis_uuid="u9"
                       component_uuid="uuid_5"
                       hash="aa"
                       index_in_file="0"
@@ -103,8 +184,7 @@
   <!-- Note that there is two blocks with same hash for current analysis to verify that we use "SELECT DISTINCT", -->
   <!-- without "DISTINCT" we will select block from "bar-last" two times. -->
   <duplications_index id="6"
-                      project_snapshot_id="9"
-                      snapshot_id="10"
+                      analysis_uuid="u9"
                       component_uuid="uuid_5"
                       hash="aa"
                       index_in_file="1"
@@ -114,8 +194,7 @@
   <!-- Last snapshot of project with another language -->
   <!-- baz -->
   <duplications_index id="7"
-                      project_snapshot_id="1"
-                      snapshot_id="11"
+                      analysis_uuid="u1"
                       component_uuid="uuid_6"
                       hash="aa"
                       index_in_file="0"

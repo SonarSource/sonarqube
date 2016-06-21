@@ -20,6 +20,7 @@
 package org.sonar.server.computation.snapshot;
 
 import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 import javax.annotation.concurrent.Immutable;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -28,15 +29,21 @@ import static com.google.common.base.Preconditions.checkNotNull;
 public class Snapshot {
 
   private long id;
+  private String uuid;
   private long createdAt;
 
   private Snapshot(Builder builder) {
     this.id = builder.id;
+    this.uuid = builder.uuid;
     this.createdAt = builder.createdAt;
   }
 
   public long getId() {
     return id;
+  }
+
+  public String getUuid() {
+    return uuid;
   }
 
   public long getCreatedAt() {
@@ -47,10 +54,17 @@ public class Snapshot {
     @CheckForNull
     private Long id;
     @CheckForNull
+    private String uuid;
+    @CheckForNull
     private Long createdAt;
 
     public Builder setId(long id) {
       this.id = id;
+      return this;
+    }
+
+    public Builder setUuid(String uuid) {
+      this.uuid = uuid;
       return this;
     }
 
@@ -61,13 +75,14 @@ public class Snapshot {
 
     public Snapshot build() {
       checkNotNull(id, "id cannot be null");
+      checkNotNull(uuid, "uuid cannot be null");
       checkNotNull(createdAt, "createdAt cannot be null");
       return new Snapshot(this);
     }
   }
 
   @Override
-  public boolean equals(Object o) {
+  public boolean equals(@Nullable Object o) {
     if (this == o) {
       return true;
     }
@@ -86,8 +101,9 @@ public class Snapshot {
 
   @Override
   public String toString() {
-    return "SnapshotImpl{" +
+    return "Snapshot{" +
       "id=" + id +
+      ", uuid='" + uuid + '\'' +
       ", createdAt=" + createdAt +
       '}';
   }

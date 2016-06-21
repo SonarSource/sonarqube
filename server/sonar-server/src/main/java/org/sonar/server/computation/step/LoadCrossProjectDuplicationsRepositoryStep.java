@@ -118,8 +118,8 @@ public class LoadCrossProjectDuplicationsRepositoryStep implements ComputationSt
       DbSession dbSession = dbClient.openSession(false);
       try {
         Snapshot projectSnapshot = analysisMetadataHolder.getBaseProjectSnapshot();
-        Long projectSnapshotId = projectSnapshot == null ? null : projectSnapshot.getId();
-        return dbClient.duplicationDao().selectCandidates(dbSession, projectSnapshotId, file.getFileAttributes().getLanguageKey(), hashes);
+        String analysisUuid = projectSnapshot == null ? null : projectSnapshot.getUuid();
+        return dbClient.duplicationDao().selectCandidates(dbSession, analysisUuid, file.getFileAttributes().getLanguageKey(), hashes);
       } finally {
         dbClient.closeSession(dbSession);
       }

@@ -30,10 +30,10 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbTester;
 import org.sonar.scanner.protocol.output.ScannerReport;
+import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.BatchReportReaderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.duplication.CrossProjectDuplicationStatusHolder;
 
@@ -44,42 +44,38 @@ import static org.mockito.Mockito.when;
 
 public class PersistCrossProjectDuplicationIndexStepTest {
 
-  static final int FILE_REF = 2;
-  static final Component FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).build();
-  static final long FILE_SNAPSHOT_ID = 11L;
+  private static final int FILE_REF = 2;
+  private static final Component FILE = ReportComponent.builder(Component.Type.FILE, FILE_REF).build();
 
-  static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1)
+  private static final Component PROJECT = ReportComponent.builder(Component.Type.PROJECT, 1)
     .addChildren(FILE)
     .build();
-  static final long PROJECT_SNAPSHOT_ID = 10L;
 
-  static final ScannerReport.CpdTextBlock CPD_TEXT_BLOCK = ScannerReport.CpdTextBlock.newBuilder()
+  private static final ScannerReport.CpdTextBlock CPD_TEXT_BLOCK = ScannerReport.CpdTextBlock.newBuilder()
     .setHash("a8998353e96320ec")
     .setStartLine(30)
     .setEndLine(45)
     .build();
+  private static final String ANALYSIS_UUID = "analysis uuid";
 
   @Rule
   public DbTester dbTester = DbTester.create(System2.INSTANCE);
-
   @Rule
   public BatchReportReaderRule reportReader = new BatchReportReaderRule();
-
   @Rule
   public TreeRootHolderRule treeRootHolder = new TreeRootHolderRule().setRoot(PROJECT);
+  @Rule
+  public AnalysisMetadataHolderRule analysisMetadataHolder = new AnalysisMetadataHolderRule();
 
   CrossProjectDuplicationStatusHolder crossProjectDuplicationStatusHolder = mock(CrossProjectDuplicationStatusHolder.class);
 
-  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
-
   DbClient dbClient = dbTester.getDbClient();
 
-  ComputationStep underTest = new PersistCrossProjectDuplicationIndexStep(dbClient, dbIdsRepository, treeRootHolder, reportReader, crossProjectDuplicationStatusHolder);
+  ComputationStep underTest = new PersistCrossProjectDuplicationIndexStep(crossProjectDuplicationStatusHolder, dbClient, treeRootHolder, analysisMetadataHolder, reportReader);
 
   @Before
   public void setUp() throws Exception {
-    dbIdsRepository.setSnapshotId(PROJECT, PROJECT_SNAPSHOT_ID);
-    dbIdsRepository.setSnapshotId(FILE, FILE_SNAPSHOT_ID);
+    analysisMetadataHolder.setUuid(ANALYSIS_UUID);
   }
 
   @Test
@@ -89,15 +85,13 @@ public class PersistCrossProjectDuplicationIndexStepTest {
 
     underTest.execute();
 
-    Map<String, Object> dto = dbTester.selectFirst("select hash as \"hash\", start_line as \"startLine\", end_line as \"endLine\", index_in_file as \"indexInFile\", " +
-      "snapshot_id as \"snapshotId\", component_uuid as \"componentUuid\", project_snapshot_id as \"projectSnapshotId\" from duplications_index");
-    assertThat(dto.get("hash")).isEqualTo(CPD_TEXT_BLOCK.getHash());
-    assertThat(dto.get("startLine")).isEqualTo(30L);
-    assertThat(dto.get("endLine")).isEqualTo(45L);
-    assertThat(dto.get("indexInFile")).isEqualTo(0L);
-    assertThat(dto.get("snapshotId")).isEqualTo(FILE_SNAPSHOT_ID);
-    assertThat(dto.get("componentUuid")).isEqualTo(FILE.getUuid());
-    assertThat(dto.get("projectSnapshotId")).isEqualTo(PROJECT_SNAPSHOT_ID);
+    Map<String, Object> dto = dbTester.selectFirst("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
+    assertThat(dto.get("HASH")).isEqualTo(CPD_TEXT_BLOCK.getHash());
+    assertThat(dto.get("START_LINE")).isEqualTo(30L);
+    assertThat(dto.get("END_LINE")).isEqualTo(45L);
+    assertThat(dto.get("INDEX_IN_FILE")).isEqualTo(0L);
+    assertThat(dto.get("COMPONENT_UUID")).isEqualTo(FILE.getUuid());
+    assertThat(dto.get("ANALYSIS_UUID")).isEqualTo(ANALYSIS_UUID);
   }
 
   @Test
@@ -113,15 +107,13 @@ public class PersistCrossProjectDuplicationIndexStepTest {
 
     underTest.execute();
 
-    List<Map<String, Object>> dtos = dbTester.select("select hash as \"hash\", start_line as \"startLine\", end_line as \"endLine\", index_in_file as \"indexInFile\", " +
-      "snapshot_id as \"snapshotId\", component_uuid as \"componentUuid\", project_snapshot_id as \"projectSnapshotId\" from duplications_index");
-    assertThat(dtos).extracting("hash").containsOnly(CPD_TEXT_BLOCK.getHash(), "b1234353e96320ff");
-    assertThat(dtos).extracting("startLine").containsOnly(30L, 20L);
-    assertThat(dtos).extracting("endLine").containsOnly(45L, 15L);
-    assertThat(dtos).extracting("indexInFile").containsOnly(0L, 1L);
-    assertThat(dtos).extracting("snapshotId").containsOnly(FILE_SNAPSHOT_ID);
-    assertThat(dtos).extracting("componentUuid").containsOnly(FILE.getUuid());
-    assertThat(dtos).extracting("projectSnapshotId").containsOnly(PROJECT_SNAPSHOT_ID);
+    List<Map<String, Object>> dtos = dbTester.select("select HASH, START_LINE, END_LINE, INDEX_IN_FILE, COMPONENT_UUID, ANALYSIS_UUID from duplications_index");
+    assertThat(dtos).extracting("HASH").containsOnly(CPD_TEXT_BLOCK.getHash(), "b1234353e96320ff");
+    assertThat(dtos).extracting("START_LINE").containsOnly(30L, 20L);
+    assertThat(dtos).extracting("END_LINE").containsOnly(45L, 15L);
+    assertThat(dtos).extracting("INDEX_IN_FILE").containsOnly(0L, 1L);
+    assertThat(dtos).extracting("COMPONENT_UUID").containsOnly(FILE.getUuid());
+    assertThat(dtos).extracting("ANALYSIS_UUID").containsOnly(ANALYSIS_UUID);
   }
 
   @Test
