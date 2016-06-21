@@ -4,11 +4,12 @@ set -euo pipefail
 
 function configureTravis {
   mkdir ~/.local
-  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v25 | tar zx --strip-components 1 -C ~/.local
+  curl -sSL https://github.com/SonarSource/travis-utils/tarball/v29 | tar zx --strip-components 1 -C ~/.local
   source ~/.local/bin/install
   echo "$ARTIFACTORY_URL/npmjs/" > .npmrc
 }
 configureTravis
+. installJDK8
 
 function strongEcho {
   echo ""
