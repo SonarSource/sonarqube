@@ -52,7 +52,7 @@ export default class Projects extends React.Component {
 
           {projects.length === 0 && (
               <div className="js-no-results">
-                {translate('no_results')}
+                {translate('my_account.projects.no_results')}
               </div>
           )}
 
