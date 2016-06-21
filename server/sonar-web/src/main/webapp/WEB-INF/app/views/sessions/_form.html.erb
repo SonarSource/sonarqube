@@ -19,15 +19,8 @@
   </section>
 <% end %>
 
-<form id="login_form" action="<%= url_for :controller => 'sessions', :action => 'login' -%>" method="post">
-  <input type="hidden" name="return_to_anchor" value="<%= h @return_to_anchor %>">
-
-  <% if flash[:loginerror] %>
-    <div class="alert alert-danger"> <%= flash[:loginerror] %></div>
-  <% end %>
-  <% if flash[:notice] %>
-    <div class="alert alert-info"><%= flash[:notice] %></div>
-  <% end %>
+<form id="login_form" action="<%= ApplicationController.root_context -%>/api/authentication/login" method="post">
+  <div class="alert alert-danger hidden"><%= message('session.flash_notice.authentication_failed') %></div>
 
   <div class="big-spacer-bottom">
     <label for="login" class="login-label"><%= message('login') %></label>
@@ -55,11 +48,12 @@
 </form>
 
 <script>
-  (function ($) {
-    $('#login').focus();
-    var returnToAnchor = $('[name="return_to_anchor"]');
-    if (!returnToAnchor.val()) {
-      returnToAnchor.val(window.location.hash);
+  $j("#login_form").modalForm({
+    success: function () {
+      window.location = '<%= ApplicationController.root_context + h(@return_to) -%>';
+    },
+    error: function () {
+      jQuery('.alert').removeClass('hidden');
     }
-  })(window.jQuery);
+  });
 </script>

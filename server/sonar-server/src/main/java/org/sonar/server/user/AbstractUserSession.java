@@ -19,6 +19,9 @@
  */
 package org.sonar.server.user;
 
+import static com.google.common.collect.Lists.newArrayList;
+import static com.google.common.collect.Maps.newHashMap;
+
 import com.google.common.base.MoreObjects;
 import com.google.common.base.Strings;
 import com.google.common.collect.HashMultimap;
@@ -33,18 +36,19 @@ import java.util.Set;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
 import org.sonar.api.security.DefaultGroups;
+import org.sonar.db.user.UserDto;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.UnauthorizedException;
-
-import static com.google.common.collect.Lists.newArrayList;
-import static com.google.common.collect.Maps.newHashMap;
 
 public abstract class AbstractUserSession<T extends AbstractUserSession> implements UserSession {
   protected static final String INSUFFICIENT_PRIVILEGES_MESSAGE = "Insufficient privileges";
   private static final ForbiddenException INSUFFICIENT_PRIVILEGES_EXCEPTION = new ForbiddenException(INSUFFICIENT_PRIVILEGES_MESSAGE);
 
+  protected UserDto userDto;
   protected Integer userId;
   protected String login;
+  protected String name;
+
   protected Set<String> userGroups = Sets.newHashSet(DefaultGroups.ANYONE);
   protected List<String> globalPermissions = Collections.emptyList();
   protected HashMultimap<String, String> projectKeyByPermission = HashMultimap.create();
@@ -52,7 +56,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
   protected Map<String, String> projectUuidByComponentUuid = newHashMap();
   protected List<String> projectPermissionsCheckedByKey = newArrayList();
   protected List<String> projectPermissionsCheckedByUuid = newArrayList();
-  protected String name;
+
   protected Locale locale = Locale.ENGLISH;
 
   private final Class<T> clazz;
@@ -61,13 +65,14 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
     this.clazz = clazz;
   }
 
+
   @Override
   @CheckForNull
   public String getLogin() {
     return login;
   }
 
-  protected T setLogin(@Nullable String s) {
+  public T setLogin(@Nullable String s) {
     this.login = Strings.emptyToNull(s);
     return clazz.cast(this);
   }
@@ -78,7 +83,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
     return name;
   }
 
-  protected T setName(@Nullable String s) {
+  public T setName(@Nullable String s) {
     this.name = Strings.emptyToNull(s);
     return clazz.cast(this);
   }
@@ -89,7 +94,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
     return userId;
   }
 
-  protected T setUserId(@Nullable Integer userId) {
+  public T setUserId(@Nullable Integer userId) {
     this.userId = userId;
     return clazz.cast(this);
   }
@@ -99,7 +104,7 @@ public abstract class AbstractUserSession<T extends AbstractUserSession> impleme
     return userGroups;
   }
 
-  protected T setUserGroups(@Nullable String... userGroups) {
+  public T setUserGroups(@Nullable String... userGroups) {
     if (userGroups != null) {
       this.userGroups.addAll(Arrays.asList(userGroups));
     }

@@ -24,32 +24,6 @@ class SessionsController < ApplicationController
   layout 'nonav'
   skip_before_filter :check_authentication
   
-  def login
-    return unless request.post?
-
-    return_to = session[:return_to]
-
-    # Needed to bypass session fixation vulnerability (https://jira.sonarsource.com/browse/SONAR-6880)
-    reset_session
-
-    if return_to
-      # user clicked on the link "login" : redirect to the original uri after authentication
-      session[:return_to] = Api::Utils.absolute_to_relative_url(return_to)
-      # else the original uri can be set by ApplicationController#access_denied
-    end
-
-    begin
-      self.current_user = User.authenticate(params[:login], params[:password], servlet_request)
-      if logged_in?
-        redirect_back_or_default(home_url)
-      else
-        render_unauthenticated
-      end
-    rescue Errors::AccessDenied
-      render_unauthenticated
-    end
-  end
-
   def logout
     if logged_in?
       self.current_user.on_logout
@@ -63,15 +37,29 @@ class SessionsController < ApplicationController
     if params[:return_to]
       # user clicked on the link "login" : redirect to the original uri after authentication
       session[:return_to] = Api::Utils.absolute_to_relative_url(params[:return_to])
+      return_to = Api::Utils.absolute_to_relative_url(params[:return_to])
     # else the original uri can be set by ApplicationController#access_denied
     end
+    @return_to = get_redirect_back_or_default(home_url)
+
+    # Needed to bypass session fixation vulnerability (https://jira.sonarsource.com/browse/SONAR-6880)
+    reset_session
   end
 
   private
 
-  def render_unauthenticated
-    @return_to_anchor = params[:return_to_anchor]
-    flash.now[:loginerror] = message('session.flash_notice.authentication_failed')
+  # Get redirection to the URI stored by the most recent store_location call or to the passed default.
+  def get_redirect_back_or_default(default)
+    # Prevent CSRF attack -> do not accept absolute urls
+    url = session[:return_to] || default
+    begin
+      url = URI(url).request_uri
+    rescue
+      url
+    end
+    anchor=params[:return_to_anchor]
+    url += anchor if anchor && anchor.start_with?('#')
+    url
   end
 
 end

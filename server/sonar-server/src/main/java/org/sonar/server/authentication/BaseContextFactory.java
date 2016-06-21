@@ -24,15 +24,18 @@ import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.db.user.UserDto;
 
 public class BaseContextFactory {
 
   private final UserIdentityAuthenticator userIdentityAuthenticator;
   private final Server server;
+  private final JwtHttpHandler jwtHttpHandler;
 
-  public BaseContextFactory(UserIdentityAuthenticator userIdentityAuthenticator, Server server) {
+  public BaseContextFactory(UserIdentityAuthenticator userIdentityAuthenticator, Server server, JwtHttpHandler jwtHttpHandler) {
     this.userIdentityAuthenticator = userIdentityAuthenticator;
     this.server = server;
+    this.jwtHttpHandler = jwtHttpHandler;
   }
 
   public BaseIdentityProvider.Context newContext(HttpServletRequest request, HttpServletResponse response, BaseIdentityProvider identityProvider) {
@@ -67,7 +70,8 @@ public class BaseContextFactory {
 
     @Override
     public void authenticate(UserIdentity userIdentity) {
-      userIdentityAuthenticator.authenticate(userIdentity, identityProvider, request, response);
+      UserDto userDto = userIdentityAuthenticator.authenticate(userIdentity, identityProvider);
+      jwtHttpHandler.generateToken(userDto, response);
     }
   }
 }

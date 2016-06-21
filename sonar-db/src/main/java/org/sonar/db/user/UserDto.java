@@ -19,12 +19,15 @@
  */
 package org.sonar.db.user;
 
+import static java.util.Objects.requireNonNull;
+
 import com.google.common.base.Splitter;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nullable;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import org.sonar.core.user.DefaultUser;
 
@@ -163,20 +166,22 @@ public class UserDto {
     return this;
   }
 
+  @CheckForNull
   public String getCryptedPassword() {
     return cryptedPassword;
   }
 
-  public UserDto setCryptedPassword(String cryptedPassword) {
+  public UserDto setCryptedPassword(@Nullable String cryptedPassword) {
     this.cryptedPassword = cryptedPassword;
     return this;
   }
 
+  @CheckForNull
   public String getSalt() {
     return salt;
   }
 
-  public UserDto setSalt(String salt) {
+  public UserDto setSalt(@Nullable String salt) {
     this.salt = salt;
     return this;
   }
@@ -197,6 +202,12 @@ public class UserDto {
   public UserDto setUpdatedAt(Long updatedAt) {
     this.updatedAt = updatedAt;
     return this;
+  }
+
+  public static String encryptPassword(String password, String salt) {
+    requireNonNull(password, "Password cannot be empty");
+    requireNonNull(salt, "Salt cannot be empty");
+    return DigestUtils.sha1Hex("--" + salt + "--" + password + "--");
   }
 
   public DefaultUser toUser() {

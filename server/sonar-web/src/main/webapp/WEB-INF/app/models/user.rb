@@ -37,10 +37,7 @@ class User < ActiveRecord::Base
   # the join table MEASURE_FILTER_FAVOURITES
   has_many :measure_filter_favourites, :class_name => 'MeasureFilterFavourite', :dependent => :delete_all
 
-  include Authentication
-  include Authentication::ByPassword
   include NeedAuthorization::ForUser
-  include NeedAuthentication::ForUser
 
   validates_presence_of :name
   validates_length_of :name, :maximum => 200, :unless => 'name.blank?'

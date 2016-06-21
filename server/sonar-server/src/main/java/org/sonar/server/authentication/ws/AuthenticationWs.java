@@ -28,8 +28,9 @@ public class AuthenticationWs implements WebService {
   @Override
   public void define(Context context) {
     NewController controller = context.createController("api/authentication");
-    controller.setDescription("Check authentication credentials.");
+    controller.setDescription("Handle authentication.");
 
+    defineLoginAction(controller);
     defineValidateAction(controller);
 
     controller.done();
@@ -37,12 +38,28 @@ public class AuthenticationWs implements WebService {
 
   private void defineValidateAction(NewController controller) {
     NewAction action = controller.createAction("validate")
-      .setDescription("Check credentials")
+      .setDescription("Check credentials.")
       .setSince("3.3")
       .setHandler(RailsHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-validate.json"));
 
     RailsHandler.addFormatParam(action);
+  }
+
+  private static void defineLoginAction(NewController controller) {
+    NewAction action = controller.createAction("login")
+      .setDescription("Authenticate a user.")
+      .setSince("6.0")
+      .setPost(true)
+      .setHandler((request, response) -> {
+        // This action will never be called as it's defined as a servlet filter
+      });
+    action.createParam("login")
+      .setDescription("Login of the user")
+      .setRequired(true);
+    action.createParam("password")
+      .setDescription("Password of the user")
+      .setRequired(true);
   }
 
 }

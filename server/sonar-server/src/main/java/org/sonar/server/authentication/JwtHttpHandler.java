@@ -23,6 +23,7 @@ package org.sonar.server.authentication;
 import static java.util.Objects.requireNonNull;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
 import static org.sonar.server.authentication.CookieUtils.findCookie;
+import static org.sonar.server.user.ServerUserSession.createForUser;
 
 import com.google.common.collect.ImmutableMap;
 import io.jsonwebtoken.Claims;
@@ -40,6 +41,9 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.user.ServerUserSession;
+import org.sonar.server.user.ThreadLocalUserSession;
 
 @ServerSide
 public class JwtHttpHandler {
@@ -59,8 +63,6 @@ public class JwtHttpHandler {
   // The value must be lower than sessionTimeoutInSeconds
   private static final int SESSION_REFRESH_IN_SECONDS = 5 * 60;
 
-  private static final String RAILS_USER_ID_SESSION = "user_id";
-
   private final System2 system2;
   private final DbClient dbClient;
   private final Server server;
@@ -69,65 +71,85 @@ public class JwtHttpHandler {
   // This timeout is used to disconnect the user we he has not browse any page for a while
   private final int sessionTimeoutInSeconds;
   private final JwtCsrfVerifier jwtCsrfVerifier;
+  private final ThreadLocalUserSession threadLocalUserSession;
 
-  public JwtHttpHandler(System2 system2, DbClient dbClient, Server server, Settings settings, JwtSerializer jwtSerializer, JwtCsrfVerifier jwtCsrfVerifier) {
+  public JwtHttpHandler(System2 system2, DbClient dbClient, Server server, Settings settings, JwtSerializer jwtSerializer, JwtCsrfVerifier jwtCsrfVerifier,
+    ThreadLocalUserSession threadLocalUserSession) {
     this.jwtSerializer = jwtSerializer;
     this.server = server;
     this.dbClient = dbClient;
     this.system2 = system2;
     this.sessionTimeoutInSeconds = getSessionTimeoutInSeconds(settings);
     this.jwtCsrfVerifier = jwtCsrfVerifier;
+    this.threadLocalUserSession = threadLocalUserSession;
   }
 
-  void generateToken(String userLogin, HttpServletResponse response) {
+  void generateToken(UserDto user, HttpServletResponse response) {
     String csrfState = jwtCsrfVerifier.generateState(response, sessionTimeoutInSeconds);
 
     String token = jwtSerializer.encode(new JwtSerializer.JwtSession(
-      userLogin,
+      user.getLogin(),
       sessionTimeoutInSeconds,
       ImmutableMap.of(
         LAST_REFRESH_TIME_PARAM, system2.now(),
         CSRF_JWT_PARAM, csrfState)));
     response.addCookie(createCookie(JWT_COOKIE, token, sessionTimeoutInSeconds));
+    threadLocalUserSession.set(createForUser(dbClient, user));
   }
 
   void validateToken(HttpServletRequest request, HttpServletResponse response) {
-    Optional<Cookie> jwtCookie = findCookie(JWT_COOKIE, request);
-    if (jwtCookie.isPresent()) {
-      Cookie cookie = jwtCookie.get();
-      String token = cookie.getValue();
-      if (!isNullOrEmpty(token)) {
-        validateToken(token, request, response);
-      }
+    validate(request, response);
+    if (!threadLocalUserSession.isLoggedIn()) {
+      threadLocalUserSession.set(ServerUserSession.createForAnonymous(dbClient));
     }
+  }
+
+  private void validate(HttpServletRequest request, HttpServletResponse response) {
+    Optional<String> token = getTokenFromCookie(request);
+    if (!token.isPresent()) {
+      return;
+    }
+    validateToken(token.get(), request, response);
+  }
+
+  private static Optional<String> getTokenFromCookie(HttpServletRequest request) {
+    Optional<Cookie> jwtCookie = findCookie(JWT_COOKIE, request);
+    if (!jwtCookie.isPresent()) {
+      return Optional.empty();
+    }
+    Cookie cookie = jwtCookie.get();
+    String token = cookie.getValue();
+    if (isNullOrEmpty(token)) {
+      return Optional.empty();
+    }
+    return Optional.of(token);
   }
 
   private void validateToken(String tokenEncoded, HttpServletRequest request, HttpServletResponse response) {
     Optional<Claims> claims = jwtSerializer.decode(tokenEncoded);
     if (!claims.isPresent()) {
-      removeSession(request, response);
+      removeToken(response);
       return;
     }
 
     Date now = new Date(system2.now());
-
     Claims token = claims.get();
     if (now.after(DateUtils.addSeconds(token.getIssuedAt(), SESSION_DISCONNECT_IN_SECONDS))) {
-      removeSession(request, response);
+      removeToken(response);
       return;
+    }
+    jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM));
+
+    if (now.after(DateUtils.addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
+      refreshToken(token, response);
     }
 
     Optional<UserDto> user = selectUserFromDb(token.getSubject());
     if (!user.isPresent()) {
-      removeSession(request, response);
-      return;
+      removeToken(response);
+      throw new UnauthorizedException("User does not exist");
     }
-
-    jwtCsrfVerifier.verifyState(request, (String) token.get(CSRF_JWT_PARAM));
-    request.getSession().setAttribute(RAILS_USER_ID_SESSION, user.get().getId());
-    if (now.after(DateUtils.addSeconds(getLastRefreshDate(token), SESSION_REFRESH_IN_SECONDS))) {
-      refreshToken(token, response);
-    }
+    threadLocalUserSession.set(createForUser(dbClient, user.get()));
   }
 
   private static Date getLastRefreshDate(Claims token) {
@@ -142,10 +164,10 @@ public class JwtHttpHandler {
     jwtCsrfVerifier.refreshState(response, (String) token.get(CSRF_JWT_PARAM), sessionTimeoutInSeconds);
   }
 
-  private void removeSession(HttpServletRequest request, HttpServletResponse response) {
-    request.getSession().removeAttribute(RAILS_USER_ID_SESSION);
+  void removeToken(HttpServletResponse response) {
     response.addCookie(createCookie(JWT_COOKIE, null, 0));
     jwtCsrfVerifier.removeState(response);
+    threadLocalUserSession.remove();
   }
 
   private Cookie createCookie(String name, @Nullable String value, int expirationInSeconds) {
