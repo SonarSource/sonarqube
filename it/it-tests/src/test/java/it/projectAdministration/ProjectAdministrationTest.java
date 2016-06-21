@@ -140,7 +140,7 @@ public class ProjectAdministrationTest {
     orchestrator.executeBuild(build);
 
     // There are 7 modules
-    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(7);
+    assertThat(count("events where category='Version'")).as("Different number of events").isEqualTo(1);
 
     Selenese selenese = Selenese.builder()
       .setHtmlTestsInClasspath("modify_version_of_multimodule_project",

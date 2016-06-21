@@ -68,9 +68,8 @@ class Event < ActiveRecord::Base
   # exists in the history of the corresponding resource (= in any existing 
   # processed snapshot for this resource).
   #
-  def self.already_exists(snapshot_id, event_name, event_category)
-    snapshot = Snapshot.find(snapshot_id.to_i)
-    snapshots = Snapshot.find(:all, :conditions => ["status='P' AND component_uuid=?", snapshot.component_uuid], :include => 'events')
+  def self.already_exists(componentUuid, event_name, event_category)
+    snapshots = Snapshot.find(:all, :conditions => ["status='P' AND component_uuid=?", componentUuid], :include => 'events')
     snapshots.each do |snapshot|
       snapshot.events.each do |event|
         return true if event.name==event_name && event.category==event_category
