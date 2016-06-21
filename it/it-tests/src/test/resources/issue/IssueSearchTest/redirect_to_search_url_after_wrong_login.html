@@ -8,61 +8,66 @@
 <table cellpadding="1" cellspacing="1" border="1">
   <tbody>
   <tr>
-    <td>open</td>
-    <td>/sessions/logout</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>open</td>
-    <td>/issues/search#resolved=true|statuses=OPEN</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>assertLocation</td>
-    <td>*/sessions/new*</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>assertElementPresent</td>
-    <td>login_form</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>type</td>
-    <td>id=login</td>
-    <td>wrong login</td>
-  </tr>
-  <tr>
-    <td>type</td>
-    <td>id=password</td>
-    <td>wrong password</td>
-  </tr>
-  <tr>
-    <td>clickAndWait</td>
-    <td>commit</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>type</td>
-    <td>id=login</td>
-    <td>admin</td>
-  </tr>
-  <tr>
-    <td>type</td>
-    <td>id=password</td>
-    <td>admin</td>
-  </tr>
-  <tr>
-    <td>clickAndWait</td>
-    <td>commit</td>
-    <td></td>
-  </tr>
-  <tr>
-    <td>assertLocation</td>
-    <td>*#resolved=true|statuses=OPEN*</td>
-    <td></td>
-  </tr>
-  </tbody>
+	<td>open</td>
+	<td>/sessions/logout</td>
+	<td></td>
+</tr>
+<tr>
+	<td>open</td>
+	<td>/issues/search#resolved=true|statuses=OPEN</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertLocation</td>
+	<td>*/sessions/new*</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertElementPresent</td>
+	<td>login_form</td>
+	<td></td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=login</td>
+	<td>wrong login</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=password</td>
+	<td>wrong password</td>
+</tr>
+<tr>
+	<td>click</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>waitForText</td>
+	<td>css=.alert</td>
+	<td>*Authentication failed*</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=login</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>type</td>
+	<td>id=password</td>
+	<td>admin</td>
+</tr>
+<tr>
+	<td>clickAndWait</td>
+	<td>commit</td>
+	<td></td>
+</tr>
+<tr>
+	<td>assertLocation</td>
+	<td>*#resolved=true|statuses=OPEN*</td>
+	<td></td>
+</tr>
+</tbody>
 </table>
 </body>
 </html>
