@@ -19,5 +19,24 @@
  */
 package it.qualityProfile;
 
-public class ToDoTest {
+import com.sonar.orchestrator.Orchestrator;
+import com.sonar.orchestrator.selenium.Selenese;
+import it.Category1Suite;
+import org.junit.ClassRule;
+import org.junit.Test;
+import org.junit.experimental.categories.Category;
+import util.QaOnly;
+
+@Category(QaOnly.class)
+public class QualityProfilesPageTest {
+
+  @ClassRule
+  public static Orchestrator orchestrator = Category1Suite.ORCHESTRATOR;
+
+  @Test
+  public void not_found() {
+    Selenese selenese = Selenese.builder().setHtmlTestsInClasspath("not_found",
+      "/qualityProfile/QualityProfilesPageTest/not_found.html").build();
+    orchestrator.executeSelenese(selenese);
+  }
 }
