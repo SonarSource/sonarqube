@@ -25,16 +25,24 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.BaseIdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.UserSession;
 
 public class BaseContextFactoryTest {
 
@@ -47,6 +55,15 @@ public class BaseContextFactoryTest {
     .setEmail("john@email.com")
     .build();
 
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  DbClient dbClient = dbTester.getDbClient();
+
+  DbSession dbSession = dbTester.getSession();
+
+  ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
+
   UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
   Server server = mock(Server.class);
 
@@ -55,11 +72,15 @@ public class BaseContextFactoryTest {
   BaseIdentityProvider identityProvider = mock(BaseIdentityProvider.class);
   JwtHttpHandler jwtHttpHandler = mock(JwtHttpHandler.class);
 
-  BaseContextFactory underTest = new BaseContextFactory(userIdentityAuthenticator, server, jwtHttpHandler);
+  BaseContextFactory underTest = new BaseContextFactory(dbClient, userIdentityAuthenticator, server, jwtHttpHandler, threadLocalUserSession);
 
   @Before
   public void setUp() throws Exception {
     when(server.getPublicRootUrl()).thenReturn(PUBLIC_ROOT_URL);
+
+    UserDto userDto = dbClient.userDao().insert(dbSession, newUserDto());
+    dbSession.commit();
+    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider)).thenReturn(userDto);
   }
 
   @Test
@@ -80,5 +101,6 @@ public class BaseContextFactoryTest {
     context.authenticate(USER_IDENTITY);
     verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider);
     verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(response));
+    verify(threadLocalUserSession).set(any(UserSession.class));
   }
 }

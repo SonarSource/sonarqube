@@ -25,6 +25,7 @@ import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTesting.newUserDto;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -37,7 +38,13 @@ import org.sonar.api.platform.Server;
 import org.sonar.api.server.authentication.OAuth2IdentityProvider;
 import org.sonar.api.server.authentication.UserIdentity;
 import org.sonar.api.utils.MessageException;
+import org.sonar.api.utils.System2;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
+import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.user.ThreadLocalUserSession;
+import org.sonar.server.user.UserSession;
 
 public class OAuth2ContextFactoryTest {
 
@@ -56,6 +63,14 @@ public class OAuth2ContextFactoryTest {
     .setEmail("john@email.com")
     .build();
 
+  @Rule
+  public DbTester dbTester = DbTester.create(System2.INSTANCE);
+
+  DbClient dbClient = dbTester.getDbClient();
+
+  DbSession dbSession = dbTester.getSession();
+
+  ThreadLocalUserSession threadLocalUserSession = mock(ThreadLocalUserSession.class);
   UserIdentityAuthenticator userIdentityAuthenticator = mock(UserIdentityAuthenticator.class);
   Server server = mock(Server.class);
   OAuthCsrfVerifier csrfVerifier = mock(OAuthCsrfVerifier.class);
@@ -66,12 +81,16 @@ public class OAuth2ContextFactoryTest {
   HttpSession session = mock(HttpSession.class);
   OAuth2IdentityProvider identityProvider = mock(OAuth2IdentityProvider.class);
 
-  OAuth2ContextFactory underTest = new OAuth2ContextFactory(userIdentityAuthenticator, server, csrfVerifier, jwtHttpHandler);
+  OAuth2ContextFactory underTest = new OAuth2ContextFactory(dbClient, threadLocalUserSession, userIdentityAuthenticator, server, csrfVerifier, jwtHttpHandler);
 
   @Before
   public void setUp() throws Exception {
+    UserDto userDto = dbClient.userDao().insert(dbSession, newUserDto());
+    dbSession.commit();
+
     when(request.getSession()).thenReturn(session);
     when(identityProvider.getKey()).thenReturn(PROVIDER_KEY);
+    when(userIdentityAuthenticator.authenticate(USER_IDENTITY, identityProvider)).thenReturn(userDto);
   }
 
   @Test
@@ -133,6 +152,7 @@ public class OAuth2ContextFactoryTest {
 
     verify(userIdentityAuthenticator).authenticate(USER_IDENTITY, identityProvider);
     verify(jwtHttpHandler).generateToken(any(UserDto.class), eq(response));
+    verify(threadLocalUserSession).set(any(UserSession.class));
   }
 
   @Test

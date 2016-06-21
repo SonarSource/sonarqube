@@ -19,6 +19,7 @@
  */
 package org.sonar.server.user;
 
+import com.google.common.annotations.VisibleForTesting;
 import java.io.IOException;
 import javax.servlet.Filter;
 import javax.servlet.FilterChain;
@@ -26,21 +27,49 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
-import org.sonar.api.utils.log.Loggers;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import org.sonar.server.authentication.UserSessionInitializer;
 import org.sonar.server.platform.Platform;
 
-/**
- * @since 3.6
- */
 public class UserSessionFilter implements Filter {
+
   private final Platform platform;
+  private UserSessionInitializer userSessionInitializer;
 
   public UserSessionFilter() {
     this.platform = Platform.getInstance();
   }
 
-  public UserSessionFilter(Platform platform) {
+  @VisibleForTesting
+  UserSessionFilter(Platform platform) {
     this.platform = platform;
+  }
+
+  @Override
+  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
+    try {
+      HttpServletRequest request = (HttpServletRequest) servletRequest;
+      HttpServletResponse response = (HttpServletResponse) servletResponse;
+      init();
+      if (!isInitialized() || userSessionInitializer.initUserSession(request, response)) {
+        chain.doFilter(servletRequest, servletResponse);
+      }
+    } finally {
+      if (isInitialized()) {
+        userSessionInitializer.removeUserSession();
+      }
+    }
+  }
+
+  private boolean isInitialized() {
+    return userSessionInitializer != null;
+  }
+
+  private void init() {
+    if (userSessionInitializer == null) {
+      userSessionInitializer = platform.getContainer().getComponentByType(UserSessionInitializer.class);
+    }
   }
 
   @Override
@@ -51,19 +80,5 @@ public class UserSessionFilter implements Filter {
   @Override
   public void destroy() {
     // nothing to do
-  }
-
-  @Override
-  public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain chain) throws IOException, ServletException {
-    try {
-      chain.doFilter(servletRequest, servletResponse);
-    } finally {
-      ThreadLocalUserSession userSession = platform.getContainer().getComponentByType(ThreadLocalUserSession.class);
-      if (userSession == null) {
-        Loggers.get(UserSessionFilter.class).error("Can not retrieve ThreadLocalUserSession from Platform");
-      } else {
-        userSession.remove();
-      }
-    }
   }
 }

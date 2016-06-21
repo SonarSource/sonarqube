@@ -21,6 +21,7 @@ package org.sonar.server.authentication;
 
 import org.sonar.core.platform.Module;
 import org.sonar.server.authentication.ws.AuthenticationWs;
+import org.sonar.server.authentication.ws.LoginAction;
 
 public class AuthenticationModule extends Module {
   @Override
@@ -34,12 +35,13 @@ public class AuthenticationModule extends Module {
       OAuth2ContextFactory.class,
       UserIdentityAuthenticator.class,
       OAuthCsrfVerifier.class,
-      ValidateJwtTokenFilter.class,
+      UserSessionInitializer.class,
       JwtSerializer.class,
       JwtHttpHandler.class,
       JwtCsrfVerifier.class,
-      AuthLoginAction.class,
+      LoginAction.class,
       CredentialsAuthenticator.class,
-      RealmAuthenticator.class);
+      RealmAuthenticator.class,
+      BasicAuthenticator.class);
   }
 }

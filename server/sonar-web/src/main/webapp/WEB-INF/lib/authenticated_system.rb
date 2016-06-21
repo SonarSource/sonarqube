@@ -8,7 +8,7 @@ module AuthenticatedSystem
   # Accesses the current user from the session.
   # Future calls avoid the database because nil is not equal to false.
   def current_user
-    @current_user ||= (login_from_java_user_session || login_from_basic_auth) unless @current_user == false
+    @current_user ||= login_from_java_user_session unless @current_user == false
   end
 
   # Store the given user
@@ -122,31 +122,6 @@ module AuthenticatedSystem
     userSession = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerUser::UserSession.java_class)
     user_id = userSession.getUserId() if userSession && userSession.isLoggedIn()
     self.current_user = User.find_by_id(user_id) if user_id
-  end
-
-  # Called from #current_user.  Now, attempt to login by basic authentication information.
-  def login_from_basic_auth
-    authenticate_with_http_basic do |login, password|
-      # The access token is sent as the login of Basic authentication. To distinguish with regular logins,
-      # the convention is that the password is empty
-      if password.empty? && login.present?
-        # authentication by access token
-        token_authenticator = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerUsertoken::UserTokenAuthenticator.java_class)
-        authenticated_login = token_authenticator.authenticate(login)
-        if authenticated_login.isPresent()
-          user = User.find_active_by_login(authenticated_login.get())
-          if user
-            user.token_authenticated=true
-            result = user
-          end
-        end
-      else
-        # regular Basic authentication with login and password
-        result = User.authenticate(login, password, servlet_request)
-      end
-      raise Errors::AccessDenied unless login.blank? || result
-      self.current_user = result
-    end
   end
 
   #

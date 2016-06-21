@@ -18,7 +18,7 @@
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
 
-package org.sonar.server.authentication;
+package org.sonar.server.authentication.ws;
 
 import static java.net.HttpURLConnection.HTTP_BAD_REQUEST;
 import static org.elasticsearch.common.Strings.isNullOrEmpty;
@@ -32,21 +32,30 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import org.sonar.api.web.ServletFilter;
+import org.sonar.db.DbClient;
 import org.sonar.db.user.UserDto;
+import org.sonar.server.authentication.CredentialsAuthenticator;
+import org.sonar.server.authentication.JwtHttpHandler;
 import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.user.ServerUserSession;
+import org.sonar.server.user.ThreadLocalUserSession;
 
-public class AuthLoginAction extends ServletFilter {
+public class LoginAction extends ServletFilter {
 
-  static final String AUTH_LOGIN_URL = "/api/authentication/login";
+  public static final String AUTH_LOGIN_URL = "/api/authentication/login";
 
   private static final String POST = "POST";
 
+  private final DbClient dbClient;
   private final CredentialsAuthenticator credentialsAuthenticator;
   private final JwtHttpHandler jwtHttpHandler;
+  private final ThreadLocalUserSession threadLocalUserSession;
 
-  public AuthLoginAction(CredentialsAuthenticator credentialsAuthenticator, JwtHttpHandler jwtHttpHandler) {
+  public LoginAction(DbClient dbClient, CredentialsAuthenticator credentialsAuthenticator, JwtHttpHandler jwtHttpHandler, ThreadLocalUserSession threadLocalUserSession) {
+    this.dbClient = dbClient;
     this.credentialsAuthenticator = credentialsAuthenticator;
     this.jwtHttpHandler = jwtHttpHandler;
+    this.threadLocalUserSession = threadLocalUserSession;
   }
 
   @Override
@@ -66,6 +75,7 @@ public class AuthLoginAction extends ServletFilter {
     try {
       UserDto userDto = authenticate(request);
       jwtHttpHandler.generateToken(userDto, response);
+      threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
       // TODO add chain.doFilter when Rack filter will not be executed after this filter (or use a Servlet)
     } catch (UnauthorizedException e) {
       response.setStatus(e.httpCode());

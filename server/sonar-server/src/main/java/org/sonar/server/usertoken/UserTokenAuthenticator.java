@@ -38,15 +38,15 @@ public class UserTokenAuthenticator {
    * The returned login is not validated. If database is corrupted (table USER_TOKENS badly purged
    * for instance), then the login may not relate to a valid user.
    */
-  public Optional<String> authenticate(String token) {
+  public java.util.Optional<String> authenticate(String token) {
     String tokenHash = tokenGenerator.hash(token);
     DbSession dbSession = dbClient.openSession(false);
     try {
       Optional<UserTokenDto> userToken = dbClient.userTokenDao().selectByTokenHash(dbSession, tokenHash);
       if (userToken.isPresent()) {
-        return Optional.of(userToken.get().getLogin());
+        return java.util.Optional.of(userToken.get().getLogin());
       }
-      return Optional.absent();
+      return java.util.Optional.empty();
     } finally {
       dbClient.closeSession(dbSession);
     }

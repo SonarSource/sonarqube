@@ -54,9 +54,6 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 import org.sonar.db.user.UserDto;
-import org.sonar.server.exceptions.UnauthorizedException;
-import org.sonar.server.user.ServerUserSession;
-import org.sonar.server.user.ThreadLocalUserSession;
 
 public class JwtHttpHandlerTest {
 
@@ -74,8 +71,6 @@ public class JwtHttpHandlerTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(INSTANCE);
-
-  ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
 
   DbClient dbClient = dbTester.getDbClient();
 
@@ -96,11 +91,10 @@ public class JwtHttpHandlerTest {
 
   UserDto userDto = newUserDto().setLogin(USER_LOGIN);
 
-  JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier, threadLocalUserSession);
+  JwtHttpHandler underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
 
   @Before
   public void setUp() throws Exception {
-    threadLocalUserSession.remove();
     when(system2.now()).thenReturn(NOW);
     when(server.isSecured()).thenReturn(true);
     when(request.getSession()).thenReturn(httpSession);
@@ -120,7 +114,6 @@ public class JwtHttpHandlerTest {
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
     verifyToken(jwtArgumentCaptor.getValue(), 3 * 24 * 60 * 60, NOW);
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isTrue();
   }
 
   @Test
@@ -139,7 +132,7 @@ public class JwtHttpHandlerTest {
     int sessionTimeoutInHours = 10;
     settings.setProperty("sonar.auth.sessionTimeoutInHours", sessionTimeoutInHours);
 
-    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier, threadLocalUserSession);
+    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
     underTest.generateToken(userDto, response);
 
     verify(jwtSerializer).encode(jwtArgumentCaptor.capture());
@@ -151,7 +144,7 @@ public class JwtHttpHandlerTest {
     int firstSessionTimeoutInHours = 10;
     settings.setProperty("sonar.auth.sessionTimeoutInHours", firstSessionTimeoutInHours);
 
-    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier, threadLocalUserSession);
+    underTest = new JwtHttpHandler(system2, dbClient, server, settings, jwtSerializer, jwtCsrfVerifier);
     underTest.generateToken(userDto, response);
 
     // The property is updated, but it won't be taking into account
@@ -169,10 +162,9 @@ public class JwtHttpHandlerTest {
     Claims claims = createToken(USER_LOGIN, NOW);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    underTest.validateToken(request, response);
+    assertThat(underTest.validateToken(request, response).isPresent()).isTrue();
 
     verify(jwtSerializer, never()).encode(any(JwtSerializer.JwtSession.class));
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isTrue();
   }
 
   @Test
@@ -184,10 +176,9 @@ public class JwtHttpHandlerTest {
     claims.put("lastRefreshTime", SIX_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    underTest.validateToken(request, response);
+    assertThat(underTest.validateToken(request, response).isPresent()).isTrue();
 
     verify(jwtSerializer).refresh(any(Claims.class), eq(3 * 24 * 60 * 60));
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isTrue();
   }
 
   @Test
@@ -199,10 +190,9 @@ public class JwtHttpHandlerTest {
     claims.put("lastRefreshTime", FOUR_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    underTest.validateToken(request, response);
+    assertThat(underTest.validateToken(request, response).isPresent()).isTrue();
 
     verify(jwtSerializer, never()).refresh(any(Claims.class), anyInt());
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isTrue();
   }
 
   @Test
@@ -215,22 +205,22 @@ public class JwtHttpHandlerTest {
     claims.put("lastRefreshTime", FOUR_MINUTES_AGO);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    underTest.validateToken(request, response);
+    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
 
     verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isFalse();
   }
 
   @Test
-  public void validate_token_fails_with_unauthorized_when_user_is_disabled() throws Exception {
+  public void validate_token_removes_session_when_user_is_disabled() throws Exception {
     addJwtCookie();
     UserDto user = addUser(false);
 
     Claims claims = createToken(user.getLogin(), NOW);
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.of(claims));
 
-    thrown.expect(UnauthorizedException.class);
-    underTest.validateToken(request, response);
+    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
+
+    verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
   }
 
   @Test
@@ -239,10 +229,9 @@ public class JwtHttpHandlerTest {
 
     when(jwtSerializer.decode(JWT_TOKEN)).thenReturn(Optional.empty());
 
-    underTest.validateToken(request, response);
+    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
 
     verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isFalse();
   }
 
   @Test
@@ -250,7 +239,7 @@ public class JwtHttpHandlerTest {
     underTest.validateToken(request, response);
 
     verifyZeroInteractions(httpSession, jwtSerializer);
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isFalse();
+    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
   }
 
   @Test
@@ -260,7 +249,7 @@ public class JwtHttpHandlerTest {
     underTest.validateToken(request, response);
 
     verifyZeroInteractions(httpSession, jwtSerializer);
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isFalse();
+    assertThat(underTest.validateToken(request, response).isPresent()).isFalse();
   }
 
   @Test
@@ -287,7 +276,7 @@ public class JwtHttpHandlerTest {
     underTest.validateToken(request, response);
 
     verify(jwtSerializer).refresh(any(Claims.class), anyInt());
-    verify(jwtCsrfVerifier).refreshState(response,  "CSRF_STATE", 3 * 24 * 60 * 60);
+    verify(jwtCsrfVerifier).refreshState(response, "CSRF_STATE", 3 * 24 * 60 * 60);
   }
 
   @Test
@@ -308,16 +297,6 @@ public class JwtHttpHandlerTest {
 
     verifyCookie(findCookie("JWT-SESSION").get(), null, 0);
     verify(jwtCsrfVerifier).removeState(response);
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isFalse();
-  }
-
-  @Test
-  public void remove_token_is_removing_user_session() throws Exception {
-    threadLocalUserSession.set(ServerUserSession.createForUser(dbClient, userDto));
-
-    underTest.removeToken(response);
-
-    assertThat(threadLocalUserSession.get().isLoggedIn()).isFalse();
   }
 
   private void verifyToken(JwtSerializer.JwtSession token, int expectedExpirationTime, long expectedRefreshTime) {

@@ -19,7 +19,12 @@
  */
 package org.sonar.server.usertoken;
 
-import com.google.common.base.Optional;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static org.sonar.db.user.UserTokenTesting.newUserToken;
+
+import java.util.Optional;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -27,12 +32,6 @@ import org.sonar.api.utils.System2;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static org.sonar.db.user.UserTokenTesting.newUserToken;
-
 
 public class UserTokenAuthenticatorTest {
   static final String GRACE_HOPPER = "grace.hopper";
