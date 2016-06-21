@@ -38,7 +38,7 @@ public class PopulateAnalysisUuidColumnOnCeActivity extends BaseDataChange {
     massUpdate.select("SELECT a.id, s.uuid from ce_activity a inner join snapshots s on s.id=a.snapshot_id where a.snapshot_id is not null and a.analysis_uuid is null");
     massUpdate.update("UPDATE ce_activity SET analysis_uuid=? WHERE id=?");
     massUpdate.rowPluralName("ce_activity");
-    massUpdate.execute((row, update) -> this.handle(row, update));
+    massUpdate.execute(this::handle);
   }
 
   private boolean handle(Select.Row row, SqlStatement update) throws SQLException {
