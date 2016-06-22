@@ -32,13 +32,14 @@ import org.sonar.core.hash.SourceLinesHashesComputer;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDao;
-import org.sonar.db.component.ComponentDtoWithSnapshotId;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.component.ComponentTreeQuery;
 import org.sonar.db.source.FileSourceDao;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
+import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.snapshot.Snapshot;
 import org.sonar.server.computation.source.SourceLinesRepositoryRule;
 
@@ -55,6 +56,7 @@ import static org.sonar.api.resources.Qualifiers.UNIT_TEST_FILE;
 import static org.sonar.server.computation.component.ReportComponent.builder;
 
 public class FileMoveDetectionStepTest {
+
   private static final long SNAPSHOT_ID = 98765;
   private static final Snapshot SNAPSHOT = new Snapshot.Builder()
     .setId(SNAPSHOT_ID)
@@ -65,6 +67,7 @@ public class FileMoveDetectionStepTest {
   private static final int FILE_1_REF = 2;
   private static final int FILE_2_REF = 3;
   private static final int FILE_3_REF = 4;
+  private static final ReportComponent PROJECT = builder(Component.Type.PROJECT, ROOT_REF).build();
   private static final Component FILE_1 = fileComponent(FILE_1_REF);
   private static final Component FILE_2 = fileComponent(FILE_2_REF);
   private static final Component FILE_3 = fileComponent(FILE_3_REF);
@@ -83,7 +86,7 @@ public class FileMoveDetectionStepTest {
     "public class Foo {",
     "}"
   };
-  public static final String[] CONTENT_EMPTY = {
+  private static final String[] CONTENT_EMPTY = {
     ""
   };
   private static final String[] CONTENT2 = {
@@ -228,6 +231,7 @@ public class FileMoveDetectionStepTest {
     when(dbClient.openSession(false)).thenReturn(dbSession);
     when(dbClient.componentDao()).thenReturn(componentDao);
     when(dbClient.fileSourceDao()).thenReturn(fileSourceDao);
+    treeRootHolder.setRoot(PROJECT);
   }
 
   @Test
@@ -236,7 +240,7 @@ public class FileMoveDetectionStepTest {
   }
 
   @Test
-  public void execute_detects_no_move_if_baseProjectSnaphost_is_null() {
+  public void execute_detects_no_move_if_baseProjectSnapshot_is_null() {
     analysisMetadataHolder.setBaseProjectSnapshot(null);
 
     underTest.execute();
@@ -267,14 +271,13 @@ public class FileMoveDetectionStepTest {
   public void execute_retrieves_only_file_and_unit_tests_from_last_snapshot() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
     ArgumentCaptor<ComponentTreeQuery> captor = ArgumentCaptor.forClass(ComponentTreeQuery.class);
-    when(componentDao.selectAllChildren(eq(dbSession), captor.capture()))
-      .thenReturn(Collections.<ComponentDtoWithSnapshotId>emptyList());
+    when(componentDao.selectDescendants(eq(dbSession), captor.capture()))
+      .thenReturn(Collections.emptyList());
 
     underTest.execute();
 
     ComponentTreeQuery query = captor.getValue();
-    assertThat(query.getBaseSnapshot().getId()).isEqualTo(SNAPSHOT_ID);
-    assertThat(query.getBaseSnapshot().getRootId()).isEqualTo(SNAPSHOT_ID);
+    assertThat(query.getBaseUuid()).isEqualTo(PROJECT.getUuid());
     assertThat(query.getPage()).isEqualTo(1);
     assertThat(query.getPageSize()).isEqualTo(Integer.MAX_VALUE);
     assertThat(query.getSqlSort()).isEqualTo("LOWER(p.name) ASC, p.name ASC");
@@ -284,7 +287,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_there_is_no_file_in_report() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
-    mockComponentsForSnapshot(1);
+    mockComponents( /* no components */);
     setFilesInReport();
 
     underTest.execute();
@@ -295,7 +298,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_file_key_exists_in_both_DB_and_report() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
-    mockComponentsForSnapshot(FILE_1.getKey(), FILE_2.getKey());
+    mockComponents(FILE_1.getKey(), FILE_2.getKey());
     setFilesInReport(FILE_2, FILE_1);
 
     underTest.execute();
@@ -306,7 +309,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_move_if_content_of_file_is_same_in_DB_and_report() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
-    ComponentDtoWithSnapshotId[] dtos = mockComponentsForSnapshot(FILE_1.getKey());
+    ComponentDto[] dtos = mockComponents(FILE_1.getKey());
     mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT1);
@@ -323,7 +326,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_not_similar_enough() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
-    mockComponentsForSnapshot(FILE_1.getKey());
+    mockComponents(FILE_1.getKey());
     mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, LESS_CONTENT1);
@@ -336,7 +339,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_DB() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
-    mockComponentsForSnapshot(FILE_1.getKey());
+    mockComponents(FILE_1.getKey());
     mockContentOfFileIdDb(FILE_1.getKey(), CONTENT_EMPTY);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT1);
@@ -349,7 +352,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_content_of_file_is_empty_in_report() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
-    mockComponentsForSnapshot(FILE_1.getKey());
+    mockComponents(FILE_1.getKey());
     mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2);
     setFileContentInReport(FILE_2_REF, CONTENT_EMPTY);
@@ -362,7 +365,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_two_added_files_have_same_content_as_the_one_in_db() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
-    mockComponentsForSnapshot(FILE_1.getKey());
+    mockComponents(FILE_1.getKey());
     mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
     setFilesInReport(FILE_2, FILE_3);
     setFileContentInReport(FILE_2_REF, CONTENT1);
@@ -376,7 +379,7 @@ public class FileMoveDetectionStepTest {
   @Test
   public void execute_detects_no_move_if_two_deleted_files_have_same_content_as_the_one_added() {
     analysisMetadataHolder.setBaseProjectSnapshot(SNAPSHOT);
-    mockComponentsForSnapshot(FILE_1.getKey(), FILE_2.getKey());
+    mockComponents(FILE_1.getKey(), FILE_2.getKey());
     mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
     mockContentOfFileIdDb(FILE_2.getKey(), CONTENT1);
     setFilesInReport(FILE_3);
@@ -398,7 +401,7 @@ public class FileMoveDetectionStepTest {
     Component file4 = fileComponent(5);
     Component file5 = fileComponent(6);
     Component file6 = fileComponent(7);
-    ComponentDtoWithSnapshotId[] dtos = mockComponentsForSnapshot(FILE_1.getKey(), FILE_2.getKey(), file4.getKey(), file5.getKey());
+    ComponentDto[] dtos = mockComponents(FILE_1.getKey(), FILE_2.getKey(), file4.getKey(), file5.getKey());
     mockContentOfFileIdDb(FILE_1.getKey(), CONTENT1);
     mockContentOfFileIdDb(FILE_2.getKey(), LESS_CONTENT1);
     mockContentOfFileIdDb(file4.getKey(), new String[] {"e", "f", "g", "h", "i"});
@@ -447,22 +450,18 @@ public class FileMoveDetectionStepTest {
       .build());
   }
 
-  private ComponentDtoWithSnapshotId[] mockComponentsForSnapshot(String... componentKeys) {
-    return mockComponentsForSnapshot(SNAPSHOT_ID, componentKeys);
-  }
-
-  private ComponentDtoWithSnapshotId[] mockComponentsForSnapshot(long snapshotId, String... componentKeys) {
-    List<ComponentDtoWithSnapshotId> componentDtoWithSnapshotIds = stream(componentKeys)
-      .map(key -> newComponentDto(snapshotId, key))
+  private ComponentDto[] mockComponents(String... componentKeys) {
+    List<ComponentDto> componentDtos = stream(componentKeys)
+      .map(key -> newComponentDto(key))
       .collect(toList());
-    when(componentDao.selectAllChildren(eq(dbSession), any(ComponentTreeQuery.class)))
-      .thenReturn(componentDtoWithSnapshotIds);
-    return componentDtoWithSnapshotIds.toArray(new ComponentDtoWithSnapshotId[componentDtoWithSnapshotIds.size()]);
+    when(componentDao.selectDescendants(eq(dbSession), any(ComponentTreeQuery.class)))
+      .thenReturn(componentDtos);
+    return componentDtos.toArray(new ComponentDto[componentDtos.size()]);
   }
 
-  private ComponentDtoWithSnapshotId newComponentDto(long snapshotId, String key) {
-    ComponentDtoWithSnapshotId res = new ComponentDtoWithSnapshotId();
-    res.setSnapshotId(snapshotId)
+  private ComponentDto newComponentDto(String key) {
+    ComponentDto res = new ComponentDto();
+    res
       .setId(dbIdGenerator)
       .setKey(key)
       .setUuid(componentUuidOf(key))

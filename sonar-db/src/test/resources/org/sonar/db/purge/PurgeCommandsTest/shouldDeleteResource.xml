@@ -2,6 +2,7 @@
 
   <projects id="1"
             uuid="uuid_1"
+            uuid_path="NOT_USED"
             enabled="[true]"
             root_uuid="uuid_1"
             long_name="[null]"

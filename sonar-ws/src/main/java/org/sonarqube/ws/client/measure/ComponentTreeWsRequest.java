@@ -102,12 +102,11 @@ public class ComponentTreeWsRequest {
     return this;
   }
 
-  @CheckForNull
   public List<String> getSort() {
     return sort;
   }
 
-  public ComponentTreeWsRequest setSort(@Nullable List<String> sort) {
+  public ComponentTreeWsRequest setSort(List<String> sort) {
     this.sort = sort;
     return this;
   }

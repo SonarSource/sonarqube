@@ -1,13 +1,37 @@
 <dataset>
 
-  <projects id="100" kee="struts" root_uuid="ABCD" qualifier="TRK" scope="PRJ" uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="." path="[null]"/>
-  <projects id="101" kee="Action.java" root_uuid="ABCD" qualifier="CLA" scope="PRJ" uuid="CDEF" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD."
-            path="src/main/java/Action.java"/>
+  <projects uuid="ABCD"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="[null]"
+            module_uuid_path="."
+            path="[null]"
+            id="100"
+            kee="struts"
+            root_uuid="ABCD"
+            qualifier="TRK"
+            scope="PRJ"/>
+  <projects uuid="CDEF"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="ABCD"
+            module_uuid_path=".ABCD."
+            path="src/main/java/Action.java"
+            id="101"
+            kee="Action.java"
+            root_uuid="ABCD"
+            qualifier="CLA"
+            scope="PRJ"/>
 
-  <file_sources id="101" project_uuid="ABCD" file_uuid="CDEF"
-                binary_data="" data_hash="hash"
+  <file_sources id="101"
+                project_uuid="ABCD"
+                file_uuid="CDEF"
+                binary_data=""
+                data_hash="hash"
                 line_hashes="987654"
                 src_hash="12345"
-                created_at="1414597442000" updated_at="1414683842000" data_type="SOURCE" />
+                created_at="1414597442000"
+                updated_at="1414683842000"
+                data_type="SOURCE"/>
 
 </dataset>

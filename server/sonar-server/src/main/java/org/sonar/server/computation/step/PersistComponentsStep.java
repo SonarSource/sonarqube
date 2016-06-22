@@ -42,7 +42,8 @@ import org.sonar.server.computation.component.PathAwareVisitorAdapter;
 import org.sonar.server.computation.component.TreeRootHolder;
 
 import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.db.component.ComponentDto.MODULE_UUID_PATH_SEP;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
+import static org.sonar.db.component.ComponentDto.formatUuidPathFromParent;
 import static org.sonar.db.component.ComponentDtoFunctions.toKey;
 import static org.sonar.server.computation.component.ComponentVisitor.Order.PRE_ORDER;
 
@@ -193,7 +194,8 @@ public class PersistComponentsStep implements ComputationStep {
     res.setDescription(project.getDescription());
     res.setProjectUuid(res.uuid());
     res.setRootUuid(res.uuid());
-    res.setModuleUuidPath(MODULE_UUID_PATH_SEP + res.uuid() + MODULE_UUID_PATH_SEP);
+    res.setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
 
     return res;
   }
@@ -252,7 +254,8 @@ public class PersistComponentsStep implements ComputationStep {
     res.setLongName(res.name());
     res.setProjectUuid(res.uuid());
     res.setRootUuid(res.uuid());
-    res.setModuleUuidPath(MODULE_UUID_PATH_SEP + res.uuid() + MODULE_UUID_PATH_SEP);
+    res.setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    res.setModuleUuidPath(UUID_PATH_SEPARATOR + res.uuid() + UUID_PATH_SEPARATOR);
 
     return res;
   }
@@ -307,8 +310,9 @@ public class PersistComponentsStep implements ComputationStep {
     res.setProjectUuid(projectDto.uuid());
 
     ComponentDto parentModule = path.parent().getDto();
+    res.setUuidPath(formatUuidPathFromParent(parentModule));
     res.setModuleUuid(parentModule.uuid());
-    res.setModuleUuidPath(parentModule.moduleUuidPath() + res.uuid() + MODULE_UUID_PATH_SEP);
+    res.setModuleUuidPath(parentModule.moduleUuidPath() + res.uuid() + UUID_PATH_SEPARATOR);
   }
 
   /**
@@ -320,6 +324,7 @@ public class PersistComponentsStep implements ComputationStep {
       .first()
       .get()
       .getElement().getDto();
+    componentDto.setUuidPath(formatUuidPathFromParent(path.parent().getDto()));
     componentDto.setRootUuid(parentModule.uuid());
     componentDto.setProjectUuid(parentModule.projectUuid());
     componentDto.setModuleUuid(parentModule.uuid());

@@ -1,11 +1,27 @@
 <dataset>
-  <projects id="1" kee="struts" root_uuid="ABCD" uuid="ABCD"/>
-  <projects id="2" kee="struts:Action.java" root_uuid="ABCD" uuid="BCDE"/>
+  <projects uuid="ABCD"
+            uuid_path="NOT_USED"
+            id="1"
+            kee="struts"
+            root_uuid="ABCD"/>
+  <projects uuid="BCDE"
+            uuid_path="NOT_USED"
+            id="2"
+            kee="struts:Action.java"
+            root_uuid="ABCD"/>
 
   <snapshots id="1"
              uuid="u1"
-             component_uuid="ABCD" parent_snapshot_id="[null]" root_component_uuid="ABCD" root_snapshot_id="[null]" islast="[true]" />
+             component_uuid="ABCD"
+             parent_snapshot_id="[null]"
+             root_component_uuid="ABCD"
+             root_snapshot_id="[null]"
+             islast="[true]"/>
   <snapshots id="2"
              uuid="u2"
-             component_uuid="BCDE" parent_snapshot_id="1" root_component_uuid="ABCD" root_snapshot_id="1" islast="[true]" />
+             component_uuid="BCDE"
+             parent_snapshot_id="1"
+             root_component_uuid="ABCD"
+             root_snapshot_id="1"
+             islast="[true]"/>
 </dataset>

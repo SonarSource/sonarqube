@@ -153,8 +153,8 @@ public class ComponentActionTest {
     SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(file, projectSnapshot);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(42.0d).setDeveloperId(null),
-      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(1984.0d).setDeveloperId(developer.getId()));
+      newMeasureDto(ncloc, fileSnapshot).setValue(42.0d).setDeveloperId(null),
+      newMeasureDto(ncloc, fileSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
     db.commit();
 
     ComponentWsResponse result = call(ws.newRequest()
@@ -176,8 +176,8 @@ public class ComponentActionTest {
     SnapshotDto fileSnapshot = componentDb.insertComponentAndSnapshot(file, projectSnapshot);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(42.0d).setDeveloperId(null),
-      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(1984.0d).setDeveloperId(developer.getId()));
+      newMeasureDto(ncloc, fileSnapshot).setValue(42.0d).setDeveloperId(null),
+      newMeasureDto(ncloc, fileSnapshot).setValue(1984.0d).setDeveloperId(developer.getId()));
     db.commit();
 
     ComponentWsResponse result = call(ws.newRequest()
@@ -334,7 +334,7 @@ public class ComponentActionTest {
 
     MetricDto complexity = insertComplexityMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(complexity, fileSnapshot.getId())
+      newMeasureDto(complexity, fileSnapshot)
         .setValue(12.0d)
         .setVariation(1, 2.0d)
         .setVariation(2, 0.0d)
@@ -342,7 +342,7 @@ public class ComponentActionTest {
 
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot.getId())
+      newMeasureDto(ncloc, fileSnapshot)
         .setValue(114.0d)
         .setVariation(1, 3.0d)
         .setVariation(2, -5.0d)
@@ -350,7 +350,7 @@ public class ComponentActionTest {
 
     MetricDto newViolations = insertNewViolationMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(newViolations, fileSnapshot.getId())
+      newMeasureDto(newViolations, fileSnapshot)
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 25.0d));

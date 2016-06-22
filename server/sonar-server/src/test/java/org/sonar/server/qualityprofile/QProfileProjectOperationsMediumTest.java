@@ -29,6 +29,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.permission.PermissionRepository;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.user.UserDto;
@@ -66,15 +67,10 @@ public class QProfileProjectOperationsMediumTest {
     factory = tester.get(QProfileFactory.class);
     projectOperations = tester.get(QProfileProjectOperations.class);
 
-    project = new ComponentDto()
-      .setUuid(PROJECT_UUID)
-      .setRootUuid(PROJECT_UUID)
+    project = ComponentTesting.newProjectDto(PROJECT_UUID)
       .setKey(PROJECT_KEY)
       .setName("SonarQube")
-      .setLongName("SonarQube")
-      .setQualifier("TRK")
-      .setScope("PRJ")
-      .setEnabled(true);
+      .setLongName("SonarQube");
     db.componentDao().insert(dbSession, project);
 
     profile = QProfileTesting.newXooP1();
@@ -122,24 +118,14 @@ public class QProfileProjectOperationsMediumTest {
 
   @Test
   public void remove_all_projects() {
-    ComponentDto project1 = new ComponentDto()
-      .setUuid("BCDE")
-      .setRootUuid("BCDE")
+    ComponentDto project1 = ComponentTesting.newProjectDto("BCDE")
       .setKey("project1")
       .setName("project1")
-      .setLongName("project1")
-      .setQualifier("TRK")
-      .setScope("PRJ")
-      .setEnabled(true);
-    ComponentDto project2 = new ComponentDto()
-      .setUuid("CDEF")
-      .setRootUuid("CDEF")
+      .setLongName("project1");
+    ComponentDto project2 = ComponentTesting.newProjectDto("CDEF")
       .setKey("project2")
       .setName("project2")
-      .setLongName("project2")
-      .setQualifier("TRK")
-      .setScope("PRJ")
-      .setEnabled(true);
+      .setLongName("project2");
     db.componentDao().insert(dbSession, project1);
     db.componentDao().insert(dbSession, project2);
 

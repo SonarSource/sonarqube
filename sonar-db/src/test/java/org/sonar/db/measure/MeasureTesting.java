@@ -19,20 +19,24 @@
  */
 package org.sonar.db.measure;
 
-import org.apache.commons.lang.RandomStringUtils;
-import org.sonar.core.util.Uuids;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class MeasureTesting {
   private MeasureTesting() {
     // static methods only
   }
 
-  public static MeasureDto newMeasureDto(MetricDto metricDto, long snapshotId) {
+  public static MeasureDto newMeasureDto(MetricDto metricDto, SnapshotDto snapshot) {
+    checkNotNull(metricDto.getId());
+    checkNotNull(metricDto.getKey());
+    checkNotNull(snapshot.getComponentUuid());
     return new MeasureDto()
       .setMetricId(metricDto.getId())
       .setMetricKey(metricDto.getKey())
-      .setComponentUuid(RandomStringUtils.randomAlphanumeric(Uuids.MAX_LENGTH))
-      .setSnapshotId(snapshotId);
+      .setComponentUuid(snapshot.getComponentUuid())
+      .setSnapshotId(snapshot.getId());
   }
 }

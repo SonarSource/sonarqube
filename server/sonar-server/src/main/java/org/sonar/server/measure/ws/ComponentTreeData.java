@@ -24,7 +24,6 @@ import java.util.List;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.WsMeasures;
@@ -33,7 +32,7 @@ import static java.util.Objects.requireNonNull;
 
 class ComponentTreeData {
   private final ComponentDto baseComponent;
-  private final List<ComponentDtoWithSnapshotId> components;
+  private final List<ComponentDto> components;
   private final int componentCount;
   private final Map<String, ComponentDto> referenceComponentsByUuid;
   private final List<MetricDto> metrics;
@@ -55,7 +54,7 @@ class ComponentTreeData {
   }
 
   @CheckForNull
-  List<ComponentDtoWithSnapshotId> getComponents() {
+  List<ComponentDto> getComponents() {
     return components;
   }
 
@@ -90,7 +89,7 @@ class ComponentTreeData {
 
   static class Builder {
     private ComponentDto baseComponent;
-    private List<ComponentDtoWithSnapshotId> componentsFromDb;
+    private List<ComponentDto> componentsFromDb;
     private Map<String, ComponentDto> referenceComponentsByUuid;
     private int componentCount;
     private List<MetricDto> metrics;
@@ -106,7 +105,7 @@ class ComponentTreeData {
       return this;
     }
 
-    public Builder setComponentsFromDb(List<ComponentDtoWithSnapshotId> componentsFromDbQuery) {
+    public Builder setComponentsFromDb(List<ComponentDto> componentsFromDbQuery) {
       this.componentsFromDb = componentsFromDbQuery;
       return this;
     }

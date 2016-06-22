@@ -1,41 +1,78 @@
 <dataset>
 
   <!-- project -->
-  <projects long_name="[null]" id="1" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
-            uuid="ABCD" project_uuid="ABCD" module_uuid="[null]" module_uuid_path="."
+  <projects long_name="[null]"
+            id="1"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.struts:struts"
+            name="Struts"
+            uuid="ABCD"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="[null]"
+            module_uuid_path="."
             root_uuid="ABCD"
             description="[null]"
-            enabled="[true]" language="java" />
+            enabled="[true]"
+            language="java"/>
 
   <!-- directory -->
-  <projects long_name="org.struts" id="2" scope="DIR" qualifier="PAC" kee="org.struts:struts:org.struts"
-            uuid="BCDE" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD."
-            name="org.struts" root_uuid="ABCD"
+  <projects long_name="org.struts"
+            id="2"
+            scope="DIR"
+            qualifier="PAC"
+            kee="org.struts:struts:org.struts"
+            uuid="BCDE"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="ABCD"
+            module_uuid_path=".ABCD."
+            name="org.struts"
+            root_uuid="ABCD"
             description="[null]"
-            enabled="[true]" language="java" />
+            enabled="[true]"
+            language="java"/>
 
   <!-- file -->
-  <projects long_name="org.struts.RequestContext" id="3" scope="FIL" qualifier="CLA"
+  <projects long_name="org.struts.RequestContext"
+            id="3"
+            scope="FIL"
+            qualifier="CLA"
             kee="org.struts:struts:org.struts.RequestContext"
-            uuid="CDEF" project_uuid="ABCD" module_uuid="ABCD" module_uuid_path=".ABCD."
-            name="RequestContext" root_uuid="1"
+            uuid="CDEF"
+            uuid_path="NOT_USED"
+            project_uuid="ABCD"
+            module_uuid="ABCD"
+            module_uuid_path=".ABCD."
+            name="RequestContext"
+            root_uuid="1"
             description="[null]"
-            enabled="[true]" language="java" />
+            enabled="[true]"
+            language="java"/>
 
   <snapshots purge_status="[null]"
              id="1"
              uuid="u1"
-             islast="[true]" root_component_uuid="ABCD" component_uuid="ABCD" scope="PRJ"
+             islast="[true]"
+             root_component_uuid="ABCD"
+             component_uuid="ABCD"
+             scope="PRJ"
              qualifier="TRK"/>
   <snapshots purge_status="[null]"
              id="2"
              uuid="u2"
-             islast="[true]" root_component_uuid="ABCD" component_uuid="BCDE" scope="DIR"
+             islast="[true]"
+             root_component_uuid="ABCD"
+             component_uuid="BCDE"
+             scope="DIR"
              qualifier="PAC"/>
   <snapshots purge_status="[null]"
              id="3"
              islast="[true]"
              uuid="u3"
-             root_component_uuid="ABCD" component_uuid="CDEF" scope="FIL"
+             root_component_uuid="ABCD"
+             component_uuid="CDEF"
+             scope="FIL"
              qualifier="CLA"/>
 </dataset>

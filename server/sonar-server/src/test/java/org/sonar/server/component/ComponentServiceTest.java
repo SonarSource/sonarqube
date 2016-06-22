@@ -81,33 +81,33 @@ public class ComponentServiceTest {
 
   @Test
   public void get_by_key() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     assertThat(service.getByKey(project.getKey())).isNotNull();
   }
 
   @Test
   public void get_nullable_by_key() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     assertThat(service.getNullableByKey(project.getKey())).isNotNull();
     assertThat(service.getNullableByKey("unknown")).isNull();
   }
 
   @Test
   public void get_by_uuid() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     assertThat(service.getNonNullByUuid(project.uuid())).isNotNull();
   }
 
   @Test
   public void get_nullable_by_uuid() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     assertThat(service.getByUuid(project.uuid())).isPresent();
     assertThat(service.getByUuid("unknown")).isAbsent();
   }
 
   @Test
   public void update_project_key() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     ComponentDto file = ComponentTesting.newFileDto(project).setKey("sample:root:src/File.xoo");
     dbClient.componentDao().insert(session, file);
 
@@ -128,7 +128,7 @@ public class ComponentServiceTest {
 
   @Test
   public void update_module_key() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(session, module);
 
@@ -171,14 +171,14 @@ public class ComponentServiceTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_to_update_project_key_without_admin_permission() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     service.updateKey(project.key(), "sample2:root");
   }
 
   @Test
   public void check_module_keys_before_renaming() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(session, module);
 
@@ -197,7 +197,7 @@ public class ComponentServiceTest {
 
   @Test
   public void check_module_keys_before_renaming_return_duplicate_key() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(session, module);
 
@@ -216,14 +216,14 @@ public class ComponentServiceTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_to_check_module_keys_before_renaming_without_admin_permission() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     userSessionRule.login("john").addProjectUuidPermissions(UserRole.USER, project.uuid());
     service.checkModuleKeysBeforeRenaming(project.key(), "sample", "sample2");
   }
 
   @Test
   public void bulk_update_project_key() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey("sample:root:module");
     dbClient.componentDao().insert(session, module);
 
@@ -267,7 +267,7 @@ public class ComponentServiceTest {
 
   @Test(expected = ForbiddenException.class)
   public void fail_to_bulk_update_project_key_without_admin_permission() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     userSessionRule.login("john").addProjectPermissions(UserRole.USER, project.key());
     service.bulkUpdateKey("sample:root", "sample", "sample2");
   }
@@ -425,7 +425,7 @@ public class ComponentServiceTest {
 
   @Test
   public void should_return_project_uuids() {
-    ComponentDto project = createProject("sample:root");
+    ComponentDto project = createProject();
     String moduleKey = "sample:root:module";
     ComponentDto module = ComponentTesting.newModuleDto(project).setKey(moduleKey);
     dbClient.componentDao().insert(session, module);
@@ -460,7 +460,7 @@ public class ComponentServiceTest {
     assertThat(service.componentUuids(session, Arrays.asList(moduleKey, fileKey), true)).isEmpty();
   }
 
-  private ComponentDto createProject(String key) {
+  private ComponentDto createProject() {
     ComponentDto project = ComponentTesting.newProjectDto().setKey("sample:root");
     dbClient.componentDao().insert(session, project);
     session.commit();

@@ -1,11 +1,52 @@
 <dataset>
-  <rules tags="[null]" system_tags="[null]" id="200" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
-         plugin_config_key="[null]" plugin_name="squid"/>
+  <rules tags="[null]"
+         system_tags="[null]"
+         id="200"
+         name="Avoid Cycles"
+         plugin_rule_key="AvoidCycles"
+         plugin_config_key="[null]"
+         plugin_name="squid"/>
 
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="PROJECT1" root_uuid="PROJECT1" path="[null]" module_uuid_path=".PROJECT1."/>
-  <projects id="50" scope="PRJ" qualifier="BRC" kee="struts:struts-tiles" name="Struts Tiles" uuid="MODULE1" root_uuid="PROJECT1" path="[null]" module_uuid_path=".PROJECT1.MODULE1."/>
-  <projects id="70" scope="DIR" qualifier="DIR" kee="struts:struts-tiles:/" name="src/main/java/" uuid="DIR1" root_uuid="MODULE1" path="src/main/java" module_uuid_path=".PROJECT1.MODULE1."/>
-  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="FILE1" root_uuid="MODULE1" path="src/main/java/Action.java" module_uuid_path=".PROJECT1."/>
+  <projects uuid="PROJECT1"
+            uuid_path="NOT_USED"
+            root_uuid="PROJECT1"
+            path="[null]"
+            module_uuid_path=".PROJECT1."
+            id="10"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="struts"
+            name="Struts"/>
+  <projects uuid="MODULE1"
+            uuid_path="NOT_USED"
+            root_uuid="PROJECT1"
+            path="[null]"
+            module_uuid_path=".PROJECT1.MODULE1."
+            id="50"
+            scope="PRJ"
+            qualifier="BRC"
+            kee="struts:struts-tiles"
+            name="Struts Tiles"/>
+  <projects uuid="DIR1"
+            uuid_path="NOT_USED"
+            root_uuid="MODULE1"
+            path="src/main/java"
+            module_uuid_path=".PROJECT1.MODULE1."
+            id="70"
+            scope="DIR"
+            qualifier="DIR"
+            kee="struts:struts-tiles:/"
+            name="src/main/java/"/>
+  <projects uuid="FILE1"
+            uuid_path="NOT_USED"
+            root_uuid="MODULE1"
+            path="src/main/java/Action.java"
+            module_uuid_path=".PROJECT1."
+            id="100"
+            scope="FIL"
+            qualifier="CLA"
+            kee="struts:Action"
+            name="Action"/>
 
   <issues
     id="1"
@@ -35,7 +76,7 @@
     issue_close_date="[null]"
     locations="[null]"
     issue_type="1"
-    />
+  />
 
   <issues
     id="2"
@@ -65,7 +106,7 @@
     issue_close_date="[null]"
     locations="[null]"
     issue_type="2"
-    />
+  />
 
   <issues
     id="3"
@@ -125,6 +166,6 @@
     issue_close_date="[null]"
     locations="[null]"
     issue_type="1"
-    />
+  />
 
 </dataset>

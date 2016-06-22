@@ -185,9 +185,10 @@ public class ComponentService {
     String uuid = Uuids.create();
     ComponentDto component = new ComponentDto()
       .setUuid(uuid)
+      .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setRootUuid(uuid)
       .setModuleUuid(null)
-      .setModuleUuidPath(ComponentDto.MODULE_UUID_PATH_SEP + uuid + ComponentDto.MODULE_UUID_PATH_SEP)
+      .setModuleUuidPath(ComponentDto.UUID_PATH_SEPARATOR + uuid + ComponentDto.UUID_PATH_SEPARATOR)
       .setProjectUuid(uuid)
       .setKey(keyWithBranch)
       .setDeprecatedKey(keyWithBranch)

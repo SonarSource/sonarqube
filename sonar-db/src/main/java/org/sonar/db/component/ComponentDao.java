@@ -21,7 +21,9 @@ package org.sonar.db.component;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.Lists;
+import com.google.common.collect.Ordering;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -32,8 +34,10 @@ import org.apache.ibatis.session.RowBounds;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.Scopes;
 import org.sonar.db.Dao;
+import org.sonar.db.DatabaseUtils;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
+import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.collect.Maps.newHashMapWithExpectedSize;
@@ -139,22 +143,99 @@ public class ComponentDao implements Dao {
     return mapper(session).selectComponentsHavingSameKeyOrderedById(key);
   }
 
-  public List<ComponentDtoWithSnapshotId> selectDirectChildren(DbSession dbSession, ComponentTreeQuery componentQuery) {
-    RowBounds rowBounds = new RowBounds(offset(componentQuery.getPage(), componentQuery.getPageSize()), componentQuery.getPageSize());
-    return mapper(dbSession).selectDirectChildren(componentQuery, rowBounds);
+  /**
+   * Optional parent. It is absent if specified component is root.
+   */
+  public Optional<ComponentDto> selectParent(DbSession dbSession, ComponentDto component) {
+    if (component.isRoot()) {
+      return Optional.absent();
+    }
+    List<String> path = component.getUuidPathAsList();
+    String parentUuid = path.get(path.size() - 1);
+    return Optional.of(mapper(dbSession).selectByUuid(parentUuid));
   }
 
-  public List<ComponentDtoWithSnapshotId> selectAllChildren(DbSession dbSession, ComponentTreeQuery componentQuery) {
-    RowBounds rowBounds = new RowBounds(offset(componentQuery.getPage(), componentQuery.getPageSize()), componentQuery.getPageSize());
-    return mapper(dbSession).selectAllChildren(componentQuery, rowBounds);
+  /**
+   * List of ancestors, ordered from root to parent. The list is empty
+   * if the component is a tree root.
+   */
+  public List<ComponentDto> selectAncestors(DbSession dbSession, ComponentDto component) {
+    if (component.isRoot()) {
+      return Collections.emptyList();
+    }
+    List<String> ancestorUuids = component.getUuidPathAsList();
+    List<ComponentDto> ancestors = selectByUuids(dbSession, ancestorUuids);
+    return Ordering.explicit(ancestorUuids).onResultOf(ComponentDto::uuid).immutableSortedCopy(ancestors);
   }
 
-  public int countDirectChildren(DbSession dbSession, ComponentTreeQuery query) {
-    return mapper(dbSession).countDirectChildren(query);
+  /**
+   * Select the children of a base component, given by its UUID. The components that are not present in last
+   * analysis are ignored.
+   *
+   * An empty list is returned if the base component does not exist or if the base component is a leaf.
+   */
+  public List<ComponentDto> selectChildren(DbSession dbSession, ComponentTreeQuery query) {
+    Optional<ComponentDto> componentOpt = selectByUuid(dbSession, query.getBaseUuid());
+    if (!componentOpt.isPresent()) {
+      return emptyList();
+    }
+    ComponentDto component = componentOpt.get();
+    RowBounds rowBounds = new RowBounds(offset(query.getPage(), query.getPageSize()), query.getPageSize());
+    return mapper(dbSession).selectChildren(query, uuidPathForChildrenQuery(component), rowBounds);
   }
 
-  public int countAllChildren(DbSession dbSession, ComponentTreeQuery query) {
-    return mapper(dbSession).countAllChildren(query);
+  /**
+   * Count the children of a base component, given by its UUID. The components that are not present in last
+   * analysis are ignored.
+   *
+   * Zero is returned if the base component does not exist or if the base component is a leaf.
+   */
+  public int countChildren(DbSession dbSession, ComponentTreeQuery query) {
+    Optional<ComponentDto> componentOpt = selectByUuid(dbSession, query.getBaseUuid());
+    if (!componentOpt.isPresent()) {
+      return 0;
+    }
+    ComponentDto component = componentOpt.get();
+    return mapper(dbSession).countChildren(query, uuidPathForChildrenQuery(component));
+  }
+
+  private static String uuidPathForChildrenQuery(ComponentDto component) {
+    return component.getUuidPath() + component.uuid() + ".";
+  }
+
+  /**
+   * Select the descendants of a base component, given by its UUID. The components that are not present in last
+   * analysis are ignored.
+   *
+   * An empty list is returned if the base component does not exist or if the base component is a leaf.
+   */
+  public List<ComponentDto> selectDescendants(DbSession dbSession, ComponentTreeQuery query) {
+    Optional<ComponentDto> componentOpt = selectByUuid(dbSession, query.getBaseUuid());
+    if (!componentOpt.isPresent()) {
+      return Collections.emptyList();
+    }
+    ComponentDto component = componentOpt.get();
+    RowBounds rowBounds = new RowBounds(offset(query.getPage(), query.getPageSize()), query.getPageSize());
+    return mapper(dbSession).selectDescendants(query, uuidPathForDescendantsQuery(component), rowBounds);
+  }
+
+  /**
+   * Count the descendants of a base component, given by its UUID. The components that are not present in last
+   * analysis are ignored.
+   *
+   * Zero is returned if the base component does not exist or if the base component is a leaf.
+   */
+  public int countDescendants(DbSession dbSession, ComponentTreeQuery query) {
+    Optional<ComponentDto> componentOpt = selectByUuid(dbSession, query.getBaseUuid());
+    if (!componentOpt.isPresent()) {
+      return 0;
+    }
+    ComponentDto component = componentOpt.get();
+    return mapper(dbSession).countDescendants(query, uuidPathForDescendantsQuery(component));
+  }
+
+  private static String uuidPathForDescendantsQuery(ComponentDto component) {
+    return DatabaseUtils.buildLikeValue(component.getUuidPath() + component.uuid() + ".", WildcardPosition.AFTER);
   }
 
   public ComponentDto selectOrFailByKey(DbSession session, String key) {

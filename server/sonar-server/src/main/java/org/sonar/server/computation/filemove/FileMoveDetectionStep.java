@@ -44,7 +44,6 @@ import org.sonar.core.util.CloseableIterator;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentTreeQuery;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.source.FileSourceDto;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
@@ -101,7 +100,7 @@ public class FileMoveDetectionStep implements ComputationStep {
       return;
     }
 
-    Map<String, DbComponent> dbFilesByKey = getDbFilesByKey(baseProjectSnapshot);
+    Map<String, DbComponent> dbFilesByKey = getDbFilesByKey();
     if (dbFilesByKey.isEmpty()) {
       LOG.debug("Previous snapshot has no file. Do nothing.");
       return;
@@ -151,15 +150,13 @@ public class FileMoveDetectionStep implements ComputationStep {
     }
   }
 
-  private Map<String, DbComponent> getDbFilesByKey(Snapshot baseProjectSnapshot) {
+  private Map<String, DbComponent> getDbFilesByKey() {
     try (DbSession dbSession = dbClient.openSession(false)) {
       // FIXME no need to use such a complex query, joining on SNAPSHOTS and retrieving all column of table PROJECTS, replace with dedicated mapper method
-      return from(dbClient.componentDao().selectAllChildren(
+      return from(dbClient.componentDao().selectDescendants(
         dbSession,
         ComponentTreeQuery.builder()
-          .setBaseSnapshot(new SnapshotDto()
-            .setId(baseProjectSnapshot.getId())
-            .setRootId(baseProjectSnapshot.getId()))
+          .setBaseUuid(rootHolder.getRoot().getUuid())
           .setQualifiers(FILE_QUALIFIERS)
           .setSortFields(SORT_FIELDS)
           .setPageSize(Integer.MAX_VALUE)

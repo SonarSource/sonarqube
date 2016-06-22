@@ -25,7 +25,7 @@ import org.sonar.api.resources.Scopes;
 import org.sonar.core.util.Uuids;
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static org.sonar.db.component.ComponentDto.MODULE_UUID_PATH_SEP;
+import static org.sonar.db.component.ComponentDto.UUID_PATH_SEPARATOR;
 
 public class ComponentTesting {
 
@@ -69,9 +69,9 @@ public class ComponentTesting {
         .setQualifier(Qualifiers.SUBVIEW);
   }
 
-  public static ComponentDto newModuleDto(String uuid, ComponentDto subProjectOrProject) {
-    return newChildComponent(uuid, subProjectOrProject)
-      .setModuleUuidPath(subProjectOrProject.moduleUuidPath() + uuid + MODULE_UUID_PATH_SEP)
+  public static ComponentDto newModuleDto(String uuid, ComponentDto parentModuleOrProject) {
+    return newChildComponent(uuid, parentModuleOrProject)
+      .setModuleUuidPath(parentModuleOrProject.moduleUuidPath() + uuid + UUID_PATH_SEPARATOR)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
       .setLongName("LONG_NAME_" + uuid)
@@ -92,8 +92,9 @@ public class ComponentTesting {
   public static ComponentDto newProjectDto(String uuid) {
     return new ComponentDto()
       .setUuid(uuid)
+      .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
-      .setModuleUuidPath(MODULE_UUID_PATH_SEP + uuid + MODULE_UUID_PATH_SEP)
+      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
       .setRootUuid(uuid)
       .setKey("KEY_" + uuid)
       .setName("NAME_" + uuid)
@@ -109,14 +110,33 @@ public class ComponentTesting {
     String uuid = Uuids.create();
     return new ComponentDto()
       .setUuid(uuid)
+      .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
       .setProjectUuid(uuid)
-      .setModuleUuidPath(MODULE_UUID_PATH_SEP + uuid + MODULE_UUID_PATH_SEP)
+      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
       .setRootUuid(uuid)
       .setKey(uuid)
       .setName(name)
       .setLongName(name)
       .setScope(Scopes.PROJECT)
         // XXX No constant !
+      .setQualifier("DEV")
+      .setPath(null)
+      .setLanguage(null)
+      .setEnabled(true);
+  }
+
+  public static ComponentDto newDeveloper(String name, String uuid) {
+    return new ComponentDto()
+      .setUuid(uuid)
+      .setUuidPath(ComponentDto.UUID_PATH_OF_ROOT)
+      .setProjectUuid(uuid)
+      .setModuleUuidPath(UUID_PATH_SEPARATOR + uuid + UUID_PATH_SEPARATOR)
+      .setRootUuid(uuid)
+      .setKey(uuid)
+      .setName(name)
+      .setLongName(name)
+      .setScope(Scopes.PROJECT)
+      // XXX No constant !
       .setQualifier("DEV")
       .setPath(null)
       .setLanguage(null)
@@ -162,13 +182,14 @@ public class ComponentTesting {
       .setLanguage(null);
   }
 
-  private static ComponentDto newChildComponent(String uuid, ComponentDto module) {
+  public static ComponentDto newChildComponent(String uuid, ComponentDto parent) {
     return new ComponentDto()
       .setUuid(uuid)
-      .setProjectUuid(module.projectUuid())
-      .setModuleUuid(module.uuid())
-      .setModuleUuidPath(module.moduleUuidPath())
-      .setRootUuid(module.uuid())
+      .setUuidPath(ComponentDto.formatUuidPathFromParent(parent))
+      .setProjectUuid(parent.projectUuid())
+      .setRootUuid(parent.uuid())
+      .setModuleUuid(parent.uuid())
+      .setModuleUuidPath(parent.moduleUuidPath())
       .setCreatedAt(new Date())
       .setEnabled(true);
   }

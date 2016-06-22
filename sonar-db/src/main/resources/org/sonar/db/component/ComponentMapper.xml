@@ -5,6 +5,7 @@
   <sql id="componentColumns">
     p.id,
     p.uuid as uuid,
+    p.uuid_path as uuidPath,
     p.project_uuid as projectUuid,
     p.module_uuid as moduleUuid,
     p.module_uuid_path as moduleUuidPath,
@@ -29,6 +30,7 @@
     p.id,
     p.name,
     p.uuid as uuid,
+    p.uuid_path as uuidPath,
     p.kee as kee,
     p.qualifier as qualifier,
     p.scope as scope,
@@ -315,71 +317,99 @@
     </where>
   </sql>
 
-  <select id="selectDirectChildren" resultType="ComponentWithSnapshot">
+  <!-- "p" is ancestors -->
+  <select id="selectAncestors" resultType="Component">
     select
-    <include refid="componentColumns"/>, s.id as snapshotId
-    <include refid="sqlSelectByTreeQuery"/>
-    and s.parent_snapshot_id = #{query.baseSnapshot.id}
+    <include refid="componentColumns"/>
+    from projects base
+    inner join projects p
+    where
+    base.uuid = #{query.baseUuid}
+    and p.project_uuid = base.project_uuid
+    and base.uuid_path like #{baseUuidPathLike}
+    and p.uuid != base.uuid
+    and p.enabled = ${_true}
     order by ${query.sqlSort}
   </select>
 
-  <select id="countDirectChildren" resultType="int">
-    select count(p.id)
-    <include refid="sqlSelectByTreeQuery"/>
-    and s.parent_snapshot_id = #{query.baseSnapshot.id}
-  </select>
-
-  <select id="selectAllChildren" resultType="ComponentWithSnapshot">
+  <!-- "p" is children -->
+  <select id="selectChildren" resultType="Component">
     select
-    <include refid="componentColumns"/>, s.id as snapshotId
-    <include refid="sqlSelectAllChildren" />
+    <include refid="componentColumns"/>
+    <include refid="sqlChildren"/>
     order by ${query.sqlSort}
   </select>
 
-  <select id="countAllChildren" resultType="int">
+  <select id="countChildren" resultType="int">
     select count(p.id)
-    <include refid="sqlSelectAllChildren"/>
+    <include refid="sqlChildren"/>
   </select>
 
-  <sql id="sqlSelectAllChildren">
-    <include refid="sqlSelectByTreeQuery"/>
-    <if test="query.baseSnapshot.rootId!=null">
-      and s.root_snapshot_id = #{query.baseSnapshot.rootId}
-    </if>
-    <if test="query.baseSnapshot.rootId==null">
-      and s.root_snapshot_id = #{query.baseSnapshot.id}
-    </if>
-    and s.path like #{query.baseSnapshotPath} ESCAPE '/'
+  <sql id="sqlChildren">
+    from projects p
+    inner join projects base
+    inner join snapshots s
+    where
+    base.uuid = #{query.baseUuid}
+    and base.project_uuid = p.project_uuid
+    and s.component_uuid = base.project_uuid
+    and p.enabled = ${_true}
+    and s.islast = ${_true}
+    and p.uuid_path = #{baseUuidPath}
+    <include refid="sqlTreeFilters"/>
   </sql>
 
-  <sql id="sqlSelectByTreeQuery">
-    from projects p
-    inner join snapshots s on p.uuid = s.component_uuid
-    where
-    p.enabled=${_true}
-    <if test="query.qualifiers!=null">
-      AND p.qualifier in
+  <sql id="sqlTreeFilters">
+    <if test="query.qualifiers != null">
+      and p.qualifier in
       <foreach collection="query.qualifiers" item="qualifier" open="(" close=")" separator=",">
         #{qualifier}
       </foreach>
     </if>
-    <if test="query.nameOrKeyQuery!=null">
-      AND (
-        p.kee=#{query.nameOrKeyQuery}
-        OR
-        p.uuid IN (
-          SELECT ri.component_uuid
-          FROM resource_index ri
-          WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
-        )
-        OR
-        p.copy_component_uuid IN (
-          SELECT ri.component_uuid
-          FROM resource_index ri
-          WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
-        )
+    <if test="query.nameOrKeyQuery != null">
+      and (
+      p.kee=#{query.nameOrKeyQuery}
+      or
+      p.uuid IN (
+      SELECT ri.component_uuid
+      FROM resource_index ri
+      WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
+      )
+      or
+      p.copy_component_uuid IN (
+      SELECT ri.component_uuid
+      FROM resource_index ri
+      WHERE ri.kee like #{query.nameOrKeyQueryToSqlForResourceIndex} ESCAPE '/'
+      )
       )
     </if>
+  </sql>
+
+  <!-- "p" is descendants -->
+  <select id="selectDescendants" resultType="Component">
+    select
+    <include refid="componentColumns"/>
+    <include refid="sqlDescendants"/>
+    order by ${query.sqlSort}
+  </select>
+
+  <select id="countDescendants" resultType="int">
+    select count(p.id)
+    <include refid="sqlDescendants"/>
+  </select>
+
+  <sql id="sqlDescendants">
+    from projects p
+    inner join projects base
+    inner join snapshots s
+    where
+    base.uuid = #{query.baseUuid}
+    and base.project_uuid=p.project_uuid
+    and p.enabled = ${_true}
+    and p.uuid_path like #{baseUuidPathLike} ESCAPE '/'
+    and s.component_uuid = base.project_uuid
+    and s.islast = ${_true}
+    <include refid="sqlTreeFilters"/>
   </sql>
 
   <select id="countRootComponents" resultType="int">
@@ -491,17 +521,47 @@
   </sql>
 
   <sql id="insertSql">
-    INSERT INTO projects (kee, deprecated_kee, uuid, project_uuid, module_uuid, module_uuid_path, name, long_name,
-    qualifier, scope, language, description, root_uuid, path, copy_component_uuid, developer_uuid, enabled,
-    created_at, authorization_updated_at)
-    VALUES (#{kee,jdbcType=VARCHAR}, #{deprecatedKey,jdbcType=VARCHAR}, #{uuid,jdbcType=VARCHAR},
-    #{projectUuid,jdbcType=VARCHAR}, #{moduleUuid,jdbcType=VARCHAR}, #{moduleUuidPath,jdbcType=VARCHAR},
-    #{name,jdbcType=VARCHAR}, #{longName,jdbcType=VARCHAR}, #{qualifier,jdbcType=VARCHAR}, #{scope,jdbcType=VARCHAR},
-    #{language,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR},
-    #{rootUuid,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{copyComponentUuid,jdbcType=VARCHAR},
+    INSERT INTO projects (kee,
+    deprecated_kee,
+    uuid,
+    uuid_path,
+    project_uuid,
+    module_uuid,
+    module_uuid_path,
+    name,
+    long_name,
+    qualifier,
+    scope,
+    language,
+    description,
+    root_uuid,
+    path,
+    copy_component_uuid,
+    developer_uuid,
+    enabled,
+    created_at,
+    authorization_updated_at)
+    VALUES (
+    #{kee,jdbcType=VARCHAR},
+    #{deprecatedKey,jdbcType=VARCHAR},
+    #{uuid,jdbcType=VARCHAR},
+    #{uuidPath,jdbcType=VARCHAR},
+    #{projectUuid,jdbcType=VARCHAR},
+    #{moduleUuid,jdbcType=VARCHAR},
+    #{moduleUuidPath,jdbcType=VARCHAR},
+    #{name,jdbcType=VARCHAR},
+    #{longName,jdbcType=VARCHAR},
+    #{qualifier,jdbcType=VARCHAR},
+    #{scope,jdbcType=VARCHAR},
+    #{language,jdbcType=VARCHAR},
+    #{description,jdbcType=VARCHAR},
+    #{rootUuid,jdbcType=VARCHAR},
+    #{path,jdbcType=VARCHAR},
+    #{copyComponentUuid,jdbcType=VARCHAR},
     #{developerUuid,jdbcType=VARCHAR},
     #{enabled,jdbcType=BOOLEAN},
-    #{createdAt,jdbcType=TIMESTAMP}, #{authorizationUpdatedAt,jdbcType=BIGINT})
+    #{createdAt,jdbcType=TIMESTAMP},
+    #{authorizationUpdatedAt,jdbcType=BIGINT})
   </sql>
 
   <insert id="insert" parameterType="Component" keyColumn="id" useGeneratedKeys="true" keyProperty="id">

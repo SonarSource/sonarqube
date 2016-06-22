@@ -155,9 +155,9 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = insertNclocMetric();
     MetricDto coverage = insertCoverageMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot.getId()).setValue(5.0d).setVariation(1, 4.0d),
-      newMeasureDto(coverage, fileSnapshot.getId()).setValue(15.5d).setVariation(3, 2.0d),
-      newMeasureDto(coverage, directorySnapshot.getId()).setValue(15.0d));
+      newMeasureDto(ncloc, fileSnapshot).setValue(5.0d).setVariation(1, 4.0d),
+      newMeasureDto(coverage, fileSnapshot).setValue(15.5d).setVariation(3, 2.0d),
+      newMeasureDto(coverage, directorySnapshot).setValue(15.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -194,8 +194,8 @@ public class ComponentTreeActionTest {
       .setBestValue(1984.0d)
       .setValueType(ValueType.INT.name()));
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(coverage, fileSnapshot.getId()).setValue(15.5d),
-      newMeasureDto(coverage, directorySnapshot.getId()).setValue(42.0d));
+      newMeasureDto(coverage, fileSnapshot).setValue(15.5d),
+      newMeasureDto(coverage, directorySnapshot).setValue(42.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -230,15 +230,15 @@ public class ComponentTreeActionTest {
     SnapshotDto fileSnapshot1 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-1").setName("file-1"), projectSnapshot);
     MetricDto coverage = insertCoverageMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(coverage, fileSnapshot1.getId()).setValue(1.0d),
-      newMeasureDto(coverage, fileSnapshot2.getId()).setValue(2.0d),
-      newMeasureDto(coverage, fileSnapshot3.getId()).setValue(3.0d),
-      newMeasureDto(coverage, fileSnapshot4.getId()).setValue(4.0d),
-      newMeasureDto(coverage, fileSnapshot5.getId()).setValue(5.0d),
-      newMeasureDto(coverage, fileSnapshot6.getId()).setValue(6.0d),
-      newMeasureDto(coverage, fileSnapshot7.getId()).setValue(7.0d),
-      newMeasureDto(coverage, fileSnapshot8.getId()).setValue(8.0d),
-      newMeasureDto(coverage, fileSnapshot9.getId()).setValue(9.0d));
+      newMeasureDto(coverage, fileSnapshot1).setValue(1.0d),
+      newMeasureDto(coverage, fileSnapshot2).setValue(2.0d),
+      newMeasureDto(coverage, fileSnapshot3).setValue(3.0d),
+      newMeasureDto(coverage, fileSnapshot4).setValue(4.0d),
+      newMeasureDto(coverage, fileSnapshot5).setValue(5.0d),
+      newMeasureDto(coverage, fileSnapshot6).setValue(6.0d),
+      newMeasureDto(coverage, fileSnapshot7).setValue(7.0d),
+      newMeasureDto(coverage, fileSnapshot8).setValue(8.0d),
+      newMeasureDto(coverage, fileSnapshot9).setValue(9.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -265,9 +265,9 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot1.getId()).setValue(1.0d),
-      newMeasureDto(ncloc, fileSnapshot2.getId()).setValue(2.0d),
-      newMeasureDto(ncloc, fileSnapshot3.getId()).setValue(3.0d));
+      newMeasureDto(ncloc, fileSnapshot1).setValue(1.0d),
+      newMeasureDto(ncloc, fileSnapshot2).setValue(2.0d),
+      newMeasureDto(ncloc, fileSnapshot3).setValue(3.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -282,32 +282,36 @@ public class ComponentTreeActionTest {
 
   @Test
   public void remove_components_without_measure_on_the_metric_sort() {
-    ComponentDto projectDto = newProjectDto("project-uuid");
-    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(projectDto);
-    SnapshotDto fileSnapshot4 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-4"), projectSnapshot);
-    SnapshotDto fileSnapshot3 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-3"), projectSnapshot);
-    SnapshotDto fileSnapshot2 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-2"), projectSnapshot);
-    SnapshotDto fileSnapshot1 = componentDb.insertComponentAndSnapshot(newFileDto(projectDto, "file-uuid-1"), projectSnapshot);
+    ComponentDto project = newProjectDto("project-uuid");
+    SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
+    ComponentDto file1 = newFileDto(project, "file-uuid-1");
+    ComponentDto file2 = newFileDto(project, "file-uuid-2");
+    ComponentDto file3 = newFileDto(project, "file-uuid-3");
+    ComponentDto file4 = newFileDto(project, "file-uuid-4");
+    SnapshotDto fileSnapshot1 = componentDb.insertComponentAndSnapshot(file1, projectSnapshot);
+    SnapshotDto fileSnapshot2 = componentDb.insertComponentAndSnapshot(file2, projectSnapshot);
+    SnapshotDto fileSnapshot3 = componentDb.insertComponentAndSnapshot(file3, projectSnapshot);
+    SnapshotDto fileSnapshot4 = componentDb.insertComponentAndSnapshot(file4, projectSnapshot);
     MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot1.getId()).setValue(1.0d),
-      newMeasureDto(ncloc, fileSnapshot2.getId()).setValue(2.0d),
-      newMeasureDto(ncloc, fileSnapshot3.getId()).setValue(3.0d),
+      newMeasureDto(ncloc, fileSnapshot1).setValue(1.0d),
+      newMeasureDto(ncloc, fileSnapshot2).setValue(2.0d),
+      newMeasureDto(ncloc, fileSnapshot3).setValue(3.0d),
       // measure on period 1
-      newMeasureDto(ncloc, fileSnapshot4.getId()).setVariation(1, 4.0d));
+      newMeasureDto(ncloc, fileSnapshot4).setVariation(1, 4.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "project-uuid")
+      .setParam(PARAM_BASE_COMPONENT_ID, project.uuid())
       .setParam(Param.SORT, METRIC_SORT)
       .setParam(PARAM_METRIC_SORT, "ncloc")
       .setParam(PARAM_METRIC_KEYS, "ncloc")
       .setParam(PARAM_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER));
 
     assertThat(response.getComponentsList()).extracting("id")
-      .containsExactly("file-uuid-1", "file-uuid-2", "file-uuid-3")
-      .doesNotContain("file-uuid-4");
+      .containsExactly(file1.uuid(), file2.uuid(), file3.uuid())
+      .doesNotContain(file4.uuid());
     assertThat(response.getPaging().getTotal()).isEqualTo(3);
   }
 
@@ -321,9 +325,9 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot1.getId()).setVariation(1, 1.0d),
-      newMeasureDto(ncloc, fileSnapshot2.getId()).setVariation(1, 2.0d),
-      newMeasureDto(ncloc, fileSnapshot3.getId()).setVariation(1, 3.0d));
+      newMeasureDto(ncloc, fileSnapshot1).setVariation(1, 1.0d),
+      newMeasureDto(ncloc, fileSnapshot2).setVariation(1, 2.0d),
+      newMeasureDto(ncloc, fileSnapshot3).setVariation(1, 3.0d));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -347,11 +351,11 @@ public class ComponentTreeActionTest {
     MetricDto ncloc = newMetricDtoWithoutOptimization().setKey("new_ncloc").setValueType(ValueType.INT.name()).setDirection(1);
     dbClient.metricDao().insert(dbSession, ncloc);
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, fileSnapshot1.getId()).setVariation(1, 1.0d),
-      newMeasureDto(ncloc, fileSnapshot2.getId()).setVariation(1, 2.0d),
-      newMeasureDto(ncloc, fileSnapshot3.getId()).setVariation(1, 3.0d),
+      newMeasureDto(ncloc, fileSnapshot1).setVariation(1, 1.0d),
+      newMeasureDto(ncloc, fileSnapshot2).setVariation(1, 2.0d),
+      newMeasureDto(ncloc, fileSnapshot3).setVariation(1, 3.0d),
       // file 4 measure is on absolute value and period 2
-      newMeasureDto(ncloc, fileSnapshot4.getId())
+      newMeasureDto(ncloc, fileSnapshot4)
         .setValue(4.0d)
         .setVariation(2, 4.0d));
     db.commit();
@@ -371,15 +375,16 @@ public class ComponentTreeActionTest {
 
   @Test
   public void load_developer_descendants() {
-    ComponentDto developer = newDeveloper("developer").setUuid("developer-uuid");
     ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
-    SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertProjectAndSnapshot(project);
+    ComponentDto developer = newDeveloper("developer", "developer-uuid");
+    SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-uuid-copy", project, developer), developerSnapshot);
     insertNclocMetric();
+    db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
-      .setParam(PARAM_BASE_COMPONENT_ID, "developer-uuid")
+      .setParam(PARAM_BASE_COMPONENT_ID, developer.uuid())
       .setParam(PARAM_METRIC_KEYS, "ncloc"));
 
     assertThat(response.getComponentsCount()).isEqualTo(1);
@@ -391,7 +396,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void load_developer_measures_by_developer_uuid() {
-    ComponentDto developer = newDeveloper("developer").setUuid("developer-uuid");
+    ComponentDto developer = newDeveloper("developer", "developer-uuid");
     ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
     SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
@@ -400,13 +405,13 @@ public class ComponentTreeActionTest {
     componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-uuid-copy", project, developer), developerSnapshot);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, projectSnapshot.getId()).setDeveloperId(developer.getId()),
-      newMeasureDto(ncloc, file1Snapshot.getId())
+      newMeasureDto(ncloc, projectSnapshot).setDeveloperId(developer.getId()),
+      newMeasureDto(ncloc, file1Snapshot)
         .setValue(3d)
         .setDeveloperId(developer.getId()),
       // measures are not specific to the developer
-      newMeasureDto(ncloc, file1Snapshot.getId()).setDeveloperId(null),
-      newMeasureDto(ncloc, file2Snapshot.getId()).setDeveloperId(null));
+      newMeasureDto(ncloc, file1Snapshot).setDeveloperId(null),
+      newMeasureDto(ncloc, file2Snapshot).setDeveloperId(null));
     db.commit();
 
     ComponentTreeWsResponse response = call(ws.newRequest()
@@ -424,7 +429,7 @@ public class ComponentTreeActionTest {
 
   @Test
   public void load_developer_measures_by_developer_key() {
-    ComponentDto developer = newDeveloper("developer").setUuid("developer-uuid");
+    ComponentDto developer = newDeveloper("developer", "developer-uuid");
     ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
     SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
@@ -432,7 +437,7 @@ public class ComponentTreeActionTest {
     componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-uuid-copy", project, developer), developerSnapshot);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file1Snapshot.getId())
+      newMeasureDto(ncloc, file1Snapshot)
         .setValue(3d)
         .setDeveloperId(developer.getId()));
     db.commit();
@@ -471,7 +476,7 @@ public class ComponentTreeActionTest {
   public void fail_when_developer_is_unknown() {
     expectedException.expect(NotFoundException.class);
 
-    ComponentDto developer = newDeveloper("developer").setUuid("developer-uuid");
+    ComponentDto developer = newDeveloper("developer", "developer-uuid");
     ComponentDto project = newProjectDto("project-uuid").setKey("project-key");
     SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
     SnapshotDto projectSnapshot = componentDb.insertProjectAndSnapshot(project);
@@ -479,7 +484,7 @@ public class ComponentTreeActionTest {
     componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-uuid-copy", project, developer), developerSnapshot);
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file1Snapshot.getId())
+      newMeasureDto(ncloc, file1Snapshot)
         .setValue(3d)
         .setDeveloperId(developer.getId()));
     db.commit();
@@ -666,35 +671,35 @@ public class ComponentTreeActionTest {
 
     MetricDto complexity = insertComplexityMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(complexity, file1Snapshot.getId())
+      newMeasureDto(complexity, file1Snapshot)
         .setValue(12.0d),
-      newMeasureDto(complexity, directorySnapshot.getId())
+      newMeasureDto(complexity, directorySnapshot)
         .setValue(35.0d)
         .setVariation(2, 0.0d),
-      newMeasureDto(complexity, projectSnapshot.getId())
+      newMeasureDto(complexity, projectSnapshot)
         .setValue(42.0d));
 
     MetricDto ncloc = insertNclocMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(ncloc, file1Snapshot.getId())
+      newMeasureDto(ncloc, file1Snapshot)
         .setValue(114.0d),
-      newMeasureDto(ncloc, directorySnapshot.getId())
+      newMeasureDto(ncloc, directorySnapshot)
         .setValue(217.0d)
         .setVariation(2, 0.0d),
-      newMeasureDto(ncloc, projectSnapshot.getId())
+      newMeasureDto(ncloc, projectSnapshot)
         .setValue(1984.0d));
 
     MetricDto newViolations = insertNewViolationsMetric();
     dbClient.measureDao().insert(dbSession,
-      newMeasureDto(newViolations, file1Snapshot.getId())
+      newMeasureDto(newViolations, file1Snapshot)
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 25.0d),
-      newMeasureDto(newViolations, directorySnapshot.getId())
+      newMeasureDto(newViolations, directorySnapshot)
         .setVariation(1, 25.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 25.0d),
-      newMeasureDto(newViolations, projectSnapshot.getId())
+      newMeasureDto(newViolations, projectSnapshot)
         .setVariation(1, 255.0d)
         .setVariation(2, 0.0d)
         .setVariation(3, 255.0d));

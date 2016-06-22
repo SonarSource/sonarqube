@@ -116,6 +116,7 @@ public class ListActionTest {
       TestFile2.dto(),
       new ComponentDto()
         .setUuid(mainFileUuid)
+        .setUuidPath(TestFile1.PROJECT_UUID + "." + mainFileUuid + ".")
         .setRootUuid(TestFile1.PROJECT_UUID)
         .setProjectUuid(TestFile1.PROJECT_UUID));
     db.getSession().commit();
@@ -141,6 +142,7 @@ public class ListActionTest {
       TestFile2.dto(),
       new ComponentDto()
         .setUuid(sourceFileUuid)
+        .setUuidPath(TestFile1.PROJECT_UUID + "." + sourceFileUuid + ".")
         .setRootUuid(TestFile1.PROJECT_UUID)
         .setKey(sourceFileKey)
         .setProjectUuid(TestFile1.PROJECT_UUID));
@@ -194,7 +196,11 @@ public class ListActionTest {
   public void fail_when_no_sufficient_privilege_on_main_file_uuid() throws Exception {
     userSessionRule.addProjectUuidPermissions(UserRole.USER, TestFile1.PROJECT_UUID);
     String mainFileUuid = "MAIN-FILE-UUID";
-    dbClient.componentDao().insert(db.getSession(), new ComponentDto().setUuid(mainFileUuid).setRootUuid(TestFile1.PROJECT_UUID).setProjectUuid(TestFile1.PROJECT_UUID));
+    dbClient.componentDao().insert(db.getSession(), new ComponentDto()
+      .setUuid(mainFileUuid)
+      .setUuidPath(TestFile1.PROJECT_UUID + "." + mainFileUuid + ".")
+      .setRootUuid(TestFile1.PROJECT_UUID)
+      .setProjectUuid(TestFile1.PROJECT_UUID));
     db.getSession().commit();
 
     ws.newGetRequest("api/tests", "list")
@@ -216,6 +222,7 @@ public class ListActionTest {
   private static final class TestFile1 {
     public static final String UUID = "TEST-UUID-1";
     public static final String FILE_UUID = "ABCD";
+    public static final String FILE_UUID_PATH = "PROJECT-UUID.ABCD.";
     public static final String PROJECT_UUID = "PROJECT-UUID";
     public static final String NAME = "test1";
     public static final String STATUS = "OK";
@@ -229,6 +236,7 @@ public class ListActionTest {
     public static ComponentDto dto() {
       return new ComponentDto()
         .setUuid(TestFile1.FILE_UUID)
+        .setUuidPath(TestFile1.FILE_UUID_PATH)
         .setRootUuid(TestFile1.PROJECT_UUID)
         .setLongName(TestFile1.LONG_NAME)
         .setProjectUuid(TestFile1.PROJECT_UUID)
@@ -256,6 +264,7 @@ public class ListActionTest {
   private static final class TestFile2 {
     public static final String UUID = "TEST-UUID-2";
     public static final String FILE_UUID = "BCDE";
+    public static final String FILE_UUID_PATH = "PROJECT-UUID.BCDE.";
     public static final String PROJECT_UUID = "PROJECT-UUID";
     public static final String NAME = "test2";
     public static final String STATUS = "ERROR";
@@ -268,7 +277,8 @@ public class ListActionTest {
 
     public static ComponentDto dto() {
       return new ComponentDto()
-        .setUuid(TestFile2.FILE_UUID)
+        .setUuid(FILE_UUID)
+        .setUuidPath(FILE_UUID_PATH)
         .setRootUuid(TestFile2.PROJECT_UUID)
         .setLongName(TestFile2.LONG_NAME)
         .setProjectUuid(TestFile2.PROJECT_UUID)

@@ -40,6 +40,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.server.computation.monitoring.CEQueueStatusImpl;
 
 import static java.util.Arrays.asList;
@@ -308,7 +309,7 @@ public class InternalCeQueueImplTest {
   }
 
   private static ComponentDto newComponentDto(String uuid) {
-    return new ComponentDto().setUuid(uuid).setRootUuid(uuid).setName("name_" + uuid).setKey("key_" + uuid);
+    return ComponentTesting.newProjectDto(uuid).setName("name_" + uuid).setKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, String componentUuid) {

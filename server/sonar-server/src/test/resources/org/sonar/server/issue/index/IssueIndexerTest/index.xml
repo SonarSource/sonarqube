@@ -1,12 +1,34 @@
 <dataset>
-  <rules id="1" tags="[null]" system_tags="[null]" name="Avoid Cycles" plugin_rule_key="AvoidCycles"
-         plugin_config_key="[null]" plugin_name="squid"/>
+  <rules id="1"
+         tags="[null]"
+         system_tags="[null]"
+         name="Avoid Cycles"
+         plugin_rule_key="AvoidCycles"
+         plugin_config_key="[null]"
+         plugin_name="squid"/>
 
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="the_project" name="TheProject"
-            uuid="THE_PROJECT" root_uuid="THE_PROJECT" module_uuid="[null]" module_uuid_path="." path="[null]"/>
-  <projects id="11" scope="FIL" qualifier="FIL" kee="abcde" name="TheFile"
-            uuid="THE_FILE" root_uuid="THE_PROJECT" module_uuid="THE_PROJECT" module_uuid_path=".THE_PROJECT."
-            path="src/main/java/TheFile.java"/>
+  <projects uuid="THE_PROJECT"
+            uuid_path="NOT_USED"
+            root_uuid="THE_PROJECT"
+            module_uuid="[null]"
+            module_uuid_path="."
+            path="[null]"
+            id="10"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="the_project"
+            name="TheProject"/>
+  <projects uuid="THE_FILE"
+            uuid_path="NOT_USED"
+            root_uuid="THE_PROJECT"
+            module_uuid="THE_PROJECT"
+            module_uuid_path=".THE_PROJECT."
+            path="src/main/java/TheFile.java"
+            id="11"
+            scope="FIL"
+            qualifier="FIL"
+            kee="abcde"
+            name="TheFile"/>
 
   <issues id="1"
           kee="ABCDE"
@@ -34,5 +56,5 @@
           issue_close_date="[null]"
           locations="[null]"
           issue_type="2"
-      />
+  />
 </dataset>

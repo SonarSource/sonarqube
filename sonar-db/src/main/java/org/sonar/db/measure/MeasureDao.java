@@ -21,6 +21,7 @@ package org.sonar.db.measure;
 
 import com.google.common.collect.Lists;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import javax.annotation.CheckForNull;
@@ -34,6 +35,19 @@ import static java.util.Collections.emptyList;
 import static org.sonar.db.DatabaseUtils.executeLargeInputs;
 
 public class MeasureDao implements Dao {
+
+  public List<MeasureDto> selectByQuery(DbSession dbSession, MeasureQuery query) {
+    if (query.returnsEmpty()) {
+      return Collections.emptyList();
+    }
+    if (query.getComponentUuids() == null) {
+      return mapper(dbSession).selectByQuery(query);
+    }
+    return executeLargeInputs(query.getComponentUuids(), componentUuids -> {
+      MeasureQuery pageQuery = MeasureQuery.copyWithSubsetOfComponentUuids(query, componentUuids);
+      return mapper(dbSession).selectByQuery(pageQuery);
+    });
+  }
 
   public boolean existsByKey(DbSession session, String componentKey, String metricKey) {
     return mapper(session).countByComponentAndMetric(componentKey, metricKey) > 0;

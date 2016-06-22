@@ -23,6 +23,7 @@ package org.sonar.server.measure.ws;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.db.component.SnapshotDto;
 import org.sonar.db.metric.MetricDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +44,7 @@ public class MeasureDtoToWsMeasureTest {
     expectedException.expect(IllegalStateException.class);
     expectedException.expectMessage("Error while mapping a measure of metric key 'metric-key' and parameters ");
 
-    MeasureDtoToWsMeasure.measureDtoToWsMeasure(metric, newMeasureDto(metric, 1L).setValue(5.5d).setData("data"));
+    MeasureDtoToWsMeasure.measureDtoToWsMeasure(metric, newMeasureDto(metric, new SnapshotDto().setId(1L).setComponentUuid("U1")).setValue(5.5d).setData("data"));
   }
 
   @Test

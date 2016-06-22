@@ -29,7 +29,7 @@ import org.sonar.api.measures.CoreMetrics;
 import org.sonar.api.measures.Metric.ValueType;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.core.util.Uuids;
-import org.sonar.db.component.ComponentDtoWithSnapshotId;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
@@ -50,7 +50,7 @@ public class ComponentTreeSortTest {
 
   private List<MetricDto> metrics;
   private Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
-  private List<ComponentDtoWithSnapshotId> components;
+  private List<ComponentDto> components;
 
   @Before
   public void setUp() {
@@ -77,7 +77,7 @@ public class ComponentTreeSortTest {
     measuresByComponentUuidAndMetric = HashBasedTable.create(components.size(), 2);
     // same number than path field
     double currentValue = 9;
-    for (ComponentDtoWithSnapshotId component : components) {
+    for (ComponentDto component : components) {
       measuresByComponentUuidAndMetric.put(component.uuid(), violationsMetric, new MeasureDto().setValue(currentValue)
         .setVariation(1, -currentValue)
         .setVariation(5, currentValue));
@@ -89,7 +89,7 @@ public class ComponentTreeSortTest {
   @Test
   public void sort_by_names() {
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(NAME_SORT), true, null);
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("name")
       .containsExactly("name-1", "name-2", "name-3", "name-4", "name-5", "name-6", "name-7", "name-8", "name-9");
@@ -99,7 +99,7 @@ public class ComponentTreeSortTest {
   public void sort_by_qualifier() {
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(QUALIFIER_SORT), false, null);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("qualifier")
       .containsExactly("qualifier-9", "qualifier-8", "qualifier-7", "qualifier-6", "qualifier-5", "qualifier-4", "qualifier-3", "qualifier-2", "qualifier-1");
@@ -109,7 +109,7 @@ public class ComponentTreeSortTest {
   public void sort_by_path() {
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(PATH_SORT), true, null);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9");
@@ -120,7 +120,7 @@ public class ComponentTreeSortTest {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, NUM_METRIC_KEY);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9", "path-without-measure");
@@ -131,7 +131,7 @@ public class ComponentTreeSortTest {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
@@ -152,13 +152,13 @@ public class ComponentTreeSortTest {
     measuresByComponentUuidAndMetric = HashBasedTable.create();
     List<String> statuses = newArrayList("OK", "WARN", "ERROR");
     for (int i = 0; i < components.size(); i++) {
-      ComponentDtoWithSnapshotId component = components.get(i);
+      ComponentDto component = components.get(i);
       String alertStatus = statuses.get(i % 3);
       measuresByComponentUuidAndMetric.put(component.uuid(), metrics.get(0), new MeasureDto().setData(alertStatus));
     }
     ComponentTreeWsRequest wsRequest = newRequest(newArrayList(METRIC_SORT, NAME_SORT), true, CoreMetrics.ALERT_STATUS_KEY);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("name").containsExactly(
       "PROJECT ERROR 1", "PROJECT ERROR 2",
@@ -171,7 +171,7 @@ public class ComponentTreeSortTest {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), true, NUM_METRIC_KEY).setMetricPeriodSort(1);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
@@ -182,7 +182,7 @@ public class ComponentTreeSortTest {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_PERIOD_SORT), false, NUM_METRIC_KEY).setMetricPeriodSort(1);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9", "path-without-measure");
@@ -193,7 +193,7 @@ public class ComponentTreeSortTest {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, NUM_METRIC_KEY).setMetricPeriodSort(5);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
@@ -204,7 +204,7 @@ public class ComponentTreeSortTest {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), true, TEXT_METRIC_KEY);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-1", "path-2", "path-3", "path-4", "path-5", "path-6", "path-7", "path-8", "path-9", "path-without-measure");
@@ -215,7 +215,7 @@ public class ComponentTreeSortTest {
     components.add(newComponentWithoutSnapshotId("name-without-measure", "qualifier-without-measure", "path-without-measure"));
     ComponentTreeWsRequest wsRequest = newRequest(singletonList(METRIC_SORT), false, TEXT_METRIC_KEY);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-9", "path-8", "path-7", "path-6", "path-5", "path-4", "path-3", "path-2", "path-1", "path-without-measure");
@@ -229,18 +229,18 @@ public class ComponentTreeSortTest {
       newComponentWithoutSnapshotId("name-1", "qualifier-1", "path-1"));
     ComponentTreeWsRequest wsRequest = newRequest(newArrayList(NAME_SORT, QUALIFIER_SORT, PATH_SORT), true, null);
 
-    List<ComponentDtoWithSnapshotId> result = sortComponents(wsRequest);
+    List<ComponentDto> result = sortComponents(wsRequest);
 
     assertThat(result).extracting("path")
       .containsExactly("path-1", "path-2", "path-3");
   }
 
-  private List<ComponentDtoWithSnapshotId> sortComponents(ComponentTreeWsRequest wsRequest) {
+  private List<ComponentDto> sortComponents(ComponentTreeWsRequest wsRequest) {
     return ComponentTreeSort.sortComponents(components, wsRequest, metrics, measuresByComponentUuidAndMetric);
   }
 
-  private static ComponentDtoWithSnapshotId newComponentWithoutSnapshotId(String name, String qualifier, String path) {
-    return (ComponentDtoWithSnapshotId) new ComponentDtoWithSnapshotId()
+  private static ComponentDto newComponentWithoutSnapshotId(String name, String qualifier, String path) {
+    return (ComponentDto) new ComponentDto()
       .setUuid(Uuids.createFast())
       .setName(name)
       .setQualifier(qualifier)
