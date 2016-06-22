@@ -22,6 +22,7 @@ package org.sonar.server.authentication;
 import org.sonar.core.platform.Module;
 import org.sonar.server.authentication.ws.AuthenticationWs;
 import org.sonar.server.authentication.ws.LoginAction;
+import org.sonar.server.authentication.ws.ValidateAction;
 
 public class AuthenticationModule extends Module {
   @Override
@@ -42,6 +43,7 @@ public class AuthenticationModule extends Module {
       LoginAction.class,
       CredentialsAuthenticator.class,
       RealmAuthenticator.class,
-      BasicAuthenticator.class);
+      BasicAuthenticator.class,
+      ValidateAction.class);
   }
 }

@@ -25,6 +25,7 @@ import static org.sonar.api.CoreProperties.CORE_FORCE_AUTHENTICATION_PROPERTY;
 import static org.sonar.api.web.ServletFilter.UrlPattern;
 import static org.sonar.api.web.ServletFilter.UrlPattern.Builder.staticResourcePatterns;
 import static org.sonar.server.authentication.ws.LoginAction.AUTH_LOGIN_URL;
+import static org.sonar.server.authentication.ws.ValidateAction.AUTH_VALIDATE_URL;
 import static org.sonar.server.user.ServerUserSession.createForAnonymous;
 import static org.sonar.server.user.ServerUserSession.createForUser;
 
@@ -51,7 +52,7 @@ public class UserSessionInitializer {
     "/sessions/*",
     "/api/system/db_migration_status", "/api/system/status", "/api/system/migrate_db",
     "/api/server/*",
-    AUTH_LOGIN_URL);
+    AUTH_LOGIN_URL, AUTH_VALIDATE_URL);
 
   private static final UrlPattern URL_PATTERN = UrlPattern.builder()
     .includes("/*")

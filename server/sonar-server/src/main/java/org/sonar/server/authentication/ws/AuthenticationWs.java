@@ -41,7 +41,7 @@ public class AuthenticationWs implements WebService {
     NewAction action = controller.createAction("validate")
       .setDescription("Check credentials.")
       .setSince("3.3")
-      .setHandler(RailsHandler.INSTANCE)
+      .setHandler(ServletFilterHandler.INSTANCE)
       .setResponseExample(Resources.getResource(this.getClass(), "example-validate.json"));
 
     RailsHandler.addFormatParam(action);

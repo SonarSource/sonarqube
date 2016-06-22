@@ -22,7 +22,6 @@ package org.sonar.server.authentication.ws;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import org.junit.Test;
-import org.sonar.api.server.ws.RailsHandler;
 import org.sonar.api.server.ws.WebService;
 import org.sonar.server.ws.ServletFilterHandler;
 import org.sonar.server.ws.WsTester;
@@ -40,7 +39,7 @@ public class AuthenticationWsTest {
 
     WebService.Action validate = controller.action("validate");
     assertThat(validate).isNotNull();
-    assertThat(validate.handler()).isInstanceOf(RailsHandler.class);
+    assertThat(validate.handler()).isInstanceOf(ServletFilterHandler.class);
     assertThat(validate.responseExampleAsString()).isNotEmpty();
     assertThat(validate.params()).hasSize(1);
 

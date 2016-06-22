@@ -86,6 +86,7 @@ public class UserSessionInitializerTest {
     assertPathIsNotIgnored("/foo");
 
     assertPathIsIgnored("/api/authentication/login");
+    assertPathIsIgnored("/api/authentication/validate");
     assertPathIsIgnored("/batch/index");
     assertPathIsIgnored("/batch/file");
     assertPathIsIgnored("/maintenance/index");
