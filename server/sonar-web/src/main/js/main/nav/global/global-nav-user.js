@@ -25,7 +25,7 @@ import { translate } from '../../../helpers/l10n';
 export default React.createClass({
   renderAuthenticated() {
     return (
-        <li className="dropdown">
+        <li className="dropdown js-user-authenticated">
           <a className="dropdown-toggle" data-toggle="dropdown" href="#">
             <Avatar email={window.SS.userEmail} size={20}/>&nbsp;
             {window.SS.userName}&nbsp;<i className="icon-dropdown"/>
