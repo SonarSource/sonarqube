@@ -23,7 +23,6 @@ import com.google.common.base.Predicates;
 import com.google.common.collect.ImmutableSortedSet;
 import com.google.common.collect.Sets;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -40,9 +39,7 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.ComponentDtoWithSnapshotId;
 import org.sonar.db.component.ComponentTreeQuery;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents.TreeWsResponse;
@@ -155,28 +152,24 @@ public class TreeAction implements ComponentsWsAction {
     try {
       ComponentDto baseComponent = componentFinder.getByUuidOrKey(dbSession, treeWsRequest.getBaseComponentId(), treeWsRequest.getBaseComponentKey(), BASE_COMPONENT_ID_AND_KEY);
       checkPermissions(baseComponent);
-      SnapshotDto baseSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, baseComponent.uuid());
-      if (baseSnapshot == null) {
-        return emptyResponse(baseComponent, treeWsRequest);
-      }
 
-      ComponentTreeQuery query = toComponentTreeQuery(treeWsRequest, baseSnapshot);
-      List<ComponentDtoWithSnapshotId> components;
+      ComponentTreeQuery query = toComponentTreeQuery(treeWsRequest, baseComponent);
+      List<ComponentDto> components;
       int total;
       switch (treeWsRequest.getStrategy()) {
         case CHILDREN_STRATEGY:
-          components = dbClient.componentDao().selectDirectChildren(dbSession, query);
-          total = dbClient.componentDao().countDirectChildren(dbSession, query);
+          components = dbClient.componentDao().selectChildren(dbSession, query);
+          total = dbClient.componentDao().countChildren(dbSession, query);
           break;
         case LEAVES_STRATEGY:
         case ALL_STRATEGY:
-          components = dbClient.componentDao().selectAllChildren(dbSession, query);
-          total = dbClient.componentDao().countAllChildren(dbSession, query);
+          components = dbClient.componentDao().selectDescendants(dbSession, query);
+          total = dbClient.componentDao().countDescendants(dbSession, query);
           break;
         default:
           throw new IllegalStateException("Unknown component tree strategy");
       }
-      Map<String, ComponentDto> referenceComponentsByUuid = searchreferenceComponentsByUuid(dbSession, components);
+      Map<String, ComponentDto> referenceComponentsByUuid = searchReferenceComponentsByUuid(dbSession, components);
 
       return buildResponse(baseComponent, components, referenceComponentsByUuid,
         Paging.forPageIndex(query.getPage()).withPageSize(query.getPageSize()).andTotal(total));
@@ -185,10 +178,10 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private Map<String, ComponentDto> searchreferenceComponentsByUuid(DbSession dbSession, List<ComponentDtoWithSnapshotId> components) {
+  private Map<String, ComponentDto> searchReferenceComponentsByUuid(DbSession dbSession, List<ComponentDto> components) {
     List<String> referenceComponentIds = from(components)
       .transform(ComponentDto::getCopyResourceUuid)
-      .filter(Predicates.<String>notNull())
+      .filter(Predicates.notNull())
       .toList();
     if (referenceComponentIds.isEmpty()) {
       return emptyMap();
@@ -207,7 +200,7 @@ public class TreeAction implements ComponentsWsAction {
     }
   }
 
-  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDtoWithSnapshotId> components,
+  private static TreeWsResponse buildResponse(ComponentDto baseComponent, List<ComponentDto> components,
     Map<String, ComponentDto> referenceComponentsByUuid, Paging paging) {
     TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
     response.getPagingBuilder()
@@ -224,22 +217,11 @@ public class TreeAction implements ComponentsWsAction {
     return response.build();
   }
 
-  private static TreeWsResponse emptyResponse(ComponentDto baseComponent, TreeWsRequest request) {
-    TreeWsResponse.Builder response = TreeWsResponse.newBuilder();
-    response.getPagingBuilder()
-      .setTotal(0)
-      .setPageIndex(request.getPage())
-      .setPageSize(request.getPageSize());
-    response.setBaseComponent(componentDtoToWsComponent(baseComponent, Collections.<String, ComponentDto>emptyMap()));
-
-    return response.build();
-  }
-
-  private ComponentTreeQuery toComponentTreeQuery(TreeWsRequest request, SnapshotDto baseSnapshot) {
-    List<String> childrenQualifiers = childrenQualifiers(request, baseSnapshot.getQualifier());
+  private ComponentTreeQuery toComponentTreeQuery(TreeWsRequest request, ComponentDto baseComponent) {
+    List<String> childrenQualifiers = childrenQualifiers(request, baseComponent.qualifier());
 
     ComponentTreeQuery.Builder query = ComponentTreeQuery.builder()
-      .setBaseSnapshot(baseSnapshot)
+      .setBaseUuid(baseComponent.uuid())
       .setPage(request.getPage())
       .setPageSize(request.getPageSize())
       .setSortFields(request.getSort())

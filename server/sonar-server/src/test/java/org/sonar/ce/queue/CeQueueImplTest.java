@@ -35,6 +35,7 @@ import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 
 import static java.util.Arrays.asList;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -69,7 +70,7 @@ public class CeQueueImplTest {
 
   @Test
   public void submit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto = insertComponent(newComponentDto("PROJECT_1"));
+    ComponentDto componentDto = insertComponent(ComponentTesting.newProjectDto("PROJECT_1"));
     CeTaskSubmit taskSubmit = createTaskSubmit(CeTaskTypes.REPORT, componentDto.uuid(), null);
 
     CeTask task = underTest.submit(taskSubmit);
@@ -112,7 +113,7 @@ public class CeQueueImplTest {
 
   @Test
   public void massSubmit_populates_component_name_and_key_of_CeTask_if_component_exists() {
-    ComponentDto componentDto1 = insertComponent(newComponentDto("PROJECT_1"));
+    ComponentDto componentDto1 = insertComponent(ComponentTesting.newProjectDto("PROJECT_1"));
     CeTaskSubmit taskSubmit1 = createTaskSubmit(CeTaskTypes.REPORT, componentDto1.uuid(), null);
     CeTaskSubmit taskSubmit2 = createTaskSubmit("something", "non existing component uuid", null);
 
@@ -204,10 +205,6 @@ public class CeQueueImplTest {
     assertThat(queueDto.get().getComponentUuid()).isEqualTo(taskSubmit.getComponentUuid());
     assertThat(queueDto.get().getSubmitterLogin()).isEqualTo(taskSubmit.getSubmitterLogin());
     assertThat(queueDto.get().getCreatedAt()).isEqualTo(1_450_000_000_000L);
-  }
-
-  private static ComponentDto newComponentDto(String uuid) {
-    return new ComponentDto().setUuid(uuid).setRootUuid(uuid).setName("name_" + uuid).setKey("key_" + uuid);
   }
 
   private CeTask submit(String reportType, String componentUuid) {

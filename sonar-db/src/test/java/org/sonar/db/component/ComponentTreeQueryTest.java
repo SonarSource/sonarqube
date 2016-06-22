@@ -29,13 +29,15 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ComponentTreeQueryTest {
 
+  private static final String AN_UUID = "u1";
+
   @Rule
   public ExpectedException expectedException = ExpectedException.none();
 
   @Test
   public void convert_sorts_in_sql_representation() {
     ComponentTreeQuery result = ComponentTreeQuery.builder()
-      .setBaseSnapshot(new SnapshotDto())
+      .setBaseUuid(AN_UUID)
       .setSortFields(newArrayList("name", "path", "qualifier"))
       .build();
 
@@ -43,7 +45,7 @@ public class ComponentTreeQueryTest {
   }
 
   @Test
-  public void fail_if_no_base_snapshot() {
+  public void fail_if_no_base_uuid() {
     expectedException.expect(NullPointerException.class);
 
     ComponentTreeQuery.builder()
@@ -56,7 +58,7 @@ public class ComponentTreeQueryTest {
     expectedException.expect(NullPointerException.class);
 
     ComponentTreeQuery.builder()
-      .setBaseSnapshot(new SnapshotDto())
+      .setBaseUuid(AN_UUID)
       .build();
   }
 }

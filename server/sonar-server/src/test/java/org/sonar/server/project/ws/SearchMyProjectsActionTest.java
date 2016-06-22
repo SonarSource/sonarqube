@@ -111,8 +111,8 @@ public class SearchMyProjectsActionTest {
     long anotherTime = DateUtils.parseDateTime("2016-06-11T14:25:53+0000").getTime();
     SnapshotDto jdk7Snapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(jdk7).setCreatedAt(oneTime));
     SnapshotDto cLangSnapshot = dbClient.snapshotDao().insert(dbSession, newSnapshotForProject(cLang).setCreatedAt(anotherTime));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, jdk7Snapshot.getId()).setData(Level.ERROR.name()));
-    dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, cLangSnapshot.getId()).setData(Level.OK.name()));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, jdk7Snapshot).setData(Level.ERROR.name()));
+    dbClient.measureDao().insert(dbSession, newMeasureDto(alertStatusMetric, cLangSnapshot).setData(Level.OK.name()));
     insertUserPermission(UserRole.ADMIN, user.getId(), jdk7.getId());
     insertUserPermission(UserRole.ADMIN, user.getId(), cLang.getId());
     db.commit();

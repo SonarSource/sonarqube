@@ -62,20 +62,15 @@ public interface ComponentMapper {
 
   int countByQuery(@Param("query") ComponentQuery query);
 
-  /**
-   * Return direct children components
-   */
-  List<ComponentDtoWithSnapshotId> selectDirectChildren(@Param("query") ComponentTreeQuery componentTreeQuery, RowBounds rowBounds);
+  List<ComponentDto> selectAncestors(@Param("query") ComponentTreeQuery query, @Param("baseUuidPathLike") String baseUuidPathLike);
 
-  int countDirectChildren(@Param("query") ComponentTreeQuery componentTreeQuery);
+  List<ComponentDto> selectChildren(@Param("query") ComponentTreeQuery query, @Param("baseUuidPath") String baseUuidPath, RowBounds rowBounds);
 
-  /**
-   * Return all children components.
-   */
-  List<ComponentDtoWithSnapshotId> selectAllChildren(@Param("query") ComponentTreeQuery componentTreeQuery,
-                                       RowBounds rowBounds);
+  int countChildren(@Param("query") ComponentTreeQuery query, @Param("baseUuidPath") String baseUuidPath);
 
-  int countAllChildren(@Param("query") ComponentTreeQuery componentTreeQuery);
+  List<ComponentDto> selectDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuidPathLike") String baseUuidPathLike, RowBounds rowBounds);
+
+  int countDescendants(@Param("query") ComponentTreeQuery query, @Param("baseUuidPathLike") String baseUuidPathLike);
 
   /**
    * Return all project (PRJ/TRK) uuids

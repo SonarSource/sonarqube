@@ -28,7 +28,6 @@ import org.sonar.core.permission.GlobalPermissions;
 import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.component.ComponentDto;
-import org.sonar.db.component.SnapshotDto;
 import org.sonar.server.component.ComponentFinder;
 import org.sonar.server.component.ComponentFinder.ParamNames;
 import org.sonar.server.user.UserSession;
@@ -37,7 +36,6 @@ import org.sonarqube.ws.client.component.ShowWsRequest;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.lang.String.format;
-import static java.util.Collections.emptyList;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_01;
 import static org.sonar.server.component.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
 import static org.sonar.server.user.AbstractUserSession.insufficientPrivilegesException;
@@ -96,28 +94,21 @@ public class ShowAction implements ComponentsWsAction {
     DbSession dbSession = dbClient.openSession(false);
     try {
       ComponentDto component = getComponentByUuidOrKey(dbSession, request);
-      SnapshotDto lastSnapshot = dbClient.snapshotDao().selectLastSnapshotByComponentUuid(dbSession, component.uuid());
-      List<ComponentDto> orderedAncestors = emptyList();
-      if (lastSnapshot != null) {
-        ShowData.Builder showDataBuilder = ShowData.builder(lastSnapshot);
-        List<SnapshotDto> ancestorsSnapshots = dbClient.snapshotDao().selectByIds(dbSession, showDataBuilder.getOrderedSnapshotIds());
-        showDataBuilder.withAncestorsSnapshots(ancestorsSnapshots);
-        List<ComponentDto> ancestorComponents = dbClient.componentDao().selectByUuids(dbSession, showDataBuilder.getOrderedComponentUuids());
-        ShowData showData = showDataBuilder.andAncestorComponents(ancestorComponents);
-        orderedAncestors = showData.getComponents();
-      }
-
-      return buildResponse(component, orderedAncestors);
+      List<ComponentDto> ancestors = dbClient.componentDao().selectAncestors(dbSession, component);
+      return buildResponse(component, ancestors);
     } finally {
       dbClient.closeSession(dbSession);
     }
   }
 
-  private static ShowWsResponse buildResponse(ComponentDto component, List<ComponentDto> orderedAncestorComponents) {
+  private static ShowWsResponse buildResponse(ComponentDto component, List<ComponentDto> orderedAncestors) {
     ShowWsResponse.Builder response = ShowWsResponse.newBuilder();
     response.setComponent(componentDtoToWsComponent(component));
 
-    for (ComponentDto ancestor : orderedAncestorComponents) {
+    // ancestors are ordered from root to leaf, whereas it's the opposite
+    // in WS response
+    for (int i = orderedAncestors.size() - 1; i >= 0; i--) {
+      ComponentDto ancestor = orderedAncestors.get(i);
       response.addAncestors(componentDtoToWsComponent(ancestor));
     }
 

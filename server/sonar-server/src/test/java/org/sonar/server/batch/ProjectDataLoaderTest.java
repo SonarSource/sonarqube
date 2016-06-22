@@ -98,7 +98,13 @@ public class ProjectDataLoaderTest {
       String qualifier = scopeAndQualifier[1];
       String key = "theKey_" + scope + "_" + qualifier;
       String uuid = "uuid_" + uuidCounter++;
-      dbClient.componentDao().insert(dbSession, new ComponentDto().setUuid(uuid).setRootUuid(uuid).setScope(scope).setQualifier(qualifier).setKey(key));
+      dbClient.componentDao().insert(dbSession, new ComponentDto()
+        .setUuid(uuid)
+        .setUuidPath(uuid + ".")
+        .setRootUuid(uuid)
+        .setScope(scope)
+        .setQualifier(qualifier)
+        .setKey(key));
       dbSession.commit();
 
       try {

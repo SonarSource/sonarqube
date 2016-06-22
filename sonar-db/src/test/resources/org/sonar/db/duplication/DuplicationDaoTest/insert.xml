@@ -14,6 +14,13 @@
              islast="0"
              component_uuid="uuid_1"
              root_component_uuid="uuid_1"/>
-  <projects id="1" uuid="uuid_1" root_uuid="uuid_root" kee="foo" enabled="1" scope="FIL" qualifier="CLA"/>
+  <projects uuid="uuid_1"
+            uuid_path="NOT_USED"
+            root_uuid="uuid_root"
+            kee="foo"
+            enabled="1"
+            scope="FIL"
+            qualifier="CLA"
+            id="1"/>
 
 </dataset>

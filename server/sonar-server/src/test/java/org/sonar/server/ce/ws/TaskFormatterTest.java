@@ -26,7 +26,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
 import org.mockito.Mockito;
-import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.System2;
 import org.sonar.ce.log.CeLogging;
@@ -35,7 +34,7 @@ import org.sonar.db.DbTester;
 import org.sonar.db.ce.CeActivityDto;
 import org.sonar.db.ce.CeQueueDto;
 import org.sonar.db.ce.CeTaskTypes;
-import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonarqube.ws.WsCe;
 
 import static java.util.Arrays.asList;
@@ -86,8 +85,8 @@ public class TaskFormatterTest {
   public void formatQueue_with_component_and_other_fields() throws IOException {
     when(ceLogging.getFile(any(LogFileRef.class))).thenReturn(Optional.of(temp.newFile()));
     String uuid = "COMPONENT_UUID";
-    db.getDbClient().componentDao().insert(db.getSession(), new ComponentDto()
-      .setUuid(uuid).setRootUuid(uuid).setKey("COMPONENT_KEY").setName("Component Name").setQualifier(Qualifiers.PROJECT));
+    db.getDbClient().componentDao().insert(db.getSession(),
+      ComponentTesting.newProjectDto(uuid).setKey("COMPONENT_KEY").setName("Component Name"));
 
     CeQueueDto dto = new CeQueueDto();
     dto.setUuid("UUID");

@@ -32,7 +32,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import org.sonar.api.measures.Metric;
 import org.sonar.api.measures.Metric.ValueType;
-import org.sonar.db.component.ComponentDtoWithSnapshotId;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonar.db.metric.MetricDtoFunctions;
@@ -66,14 +66,14 @@ class ComponentTreeSort {
     // static method only
   }
 
-  static List<ComponentDtoWithSnapshotId> sortComponents(List<ComponentDtoWithSnapshotId> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
+  static List<ComponentDto> sortComponents(List<ComponentDto> components, ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     List<String> sortParameters = wsRequest.getSort();
     if (sortParameters == null || sortParameters.isEmpty()) {
       return components;
     }
     boolean isAscending = wsRequest.getAsc();
-    Map<String, Ordering<ComponentDtoWithSnapshotId>> orderingsBySortField = ImmutableMap.<String, Ordering<ComponentDtoWithSnapshotId>>builder()
+    Map<String, Ordering<ComponentDto>> orderingsBySortField = ImmutableMap.<String, Ordering<ComponentDto>>builder()
       .put(NAME_SORT, componentNameOrdering(isAscending))
       .put(QUALIFIER_SORT, componentQualifierOrdering(isAscending))
       .put(PATH_SORT, componentPathOrdering(isAscending))
@@ -82,11 +82,11 @@ class ComponentTreeSort {
       .build();
 
     String firstSortParameter = sortParameters.get(0);
-    Ordering<ComponentDtoWithSnapshotId> primaryOrdering = orderingsBySortField.get(firstSortParameter);
+    Ordering<ComponentDto> primaryOrdering = orderingsBySortField.get(firstSortParameter);
     if (sortParameters.size() > 1) {
       for (int i = 1; i < sortParameters.size(); i++) {
         String secondarySortParameter = sortParameters.get(i);
-        Ordering<ComponentDtoWithSnapshotId> secondaryOrdering = orderingsBySortField.get(secondarySortParameter);
+        Ordering<ComponentDto> secondaryOrdering = orderingsBySortField.get(secondarySortParameter);
         primaryOrdering = primaryOrdering.compound(secondaryOrdering);
       }
     }
@@ -94,19 +94,19 @@ class ComponentTreeSort {
     return primaryOrdering.immutableSortedCopy(components);
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> componentNameOrdering(boolean isAscending) {
-    return stringOrdering(isAscending, ComponentDtoWithSnapshotIdToName.INSTANCE);
+  private static Ordering<ComponentDto> componentNameOrdering(boolean isAscending) {
+    return stringOrdering(isAscending, ComponentDtoToName.INSTANCE);
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> componentQualifierOrdering(boolean isAscending) {
-    return stringOrdering(isAscending, ComponentDtoWithSnapshotIdToQualifier.INSTANCE);
+  private static Ordering<ComponentDto> componentQualifierOrdering(boolean isAscending) {
+    return stringOrdering(isAscending, ComponentDtoToQualifier.INSTANCE);
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> componentPathOrdering(boolean isAscending) {
-    return stringOrdering(isAscending, ComponentDtoWithSnapshotIdToPath.INSTANCE);
+  private static Ordering<ComponentDto> componentPathOrdering(boolean isAscending) {
+    return stringOrdering(isAscending, ComponentDtoToPath.INSTANCE);
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> stringOrdering(boolean isAscending, Function<ComponentDtoWithSnapshotId, String> function) {
+  private static Ordering<ComponentDto> stringOrdering(boolean isAscending, Function<ComponentDto, String> function) {
     Ordering<String> ordering = Ordering.from(CASE_INSENSITIVE_ORDER);
     if (!isAscending) {
       ordering = ordering.reverse();
@@ -115,7 +115,7 @@ class ComponentTreeSort {
     return ordering.nullsLast().onResultOf(function);
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> metricValueOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
+  private static Ordering<ComponentDto> metricValueOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     if (wsRequest.getMetricSort() == null) {
       return componentNameOrdering(wsRequest.getAsc());
@@ -128,7 +128,7 @@ class ComponentTreeSort {
     if (NUMERIC_VALUE_TYPES.contains(metricValueType)) {
       return numericalMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     } else if (TEXTUAL_VALUE_TYPES.contains(metricValueType)) {
-      return stringOrdering(isAscending, new ComponentDtoWithSnapshotIdToTextualMeasureValue(metric, measuresByComponentUuidAndMetric));
+      return stringOrdering(isAscending, new ComponentDtoToTextualMeasureValue(metric, measuresByComponentUuidAndMetric));
     } else if (ValueType.LEVEL.equals(ValueType.valueOf(metric.getValueType()))) {
       return levelMetricOrdering(isAscending, metric, measuresByComponentUuidAndMetric);
     }
@@ -136,7 +136,7 @@ class ComponentTreeSort {
     throw new IllegalStateException("Unrecognized metric value type: " + metric.getValueType());
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> metricPeriodOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
+  private static Ordering<ComponentDto> metricPeriodOrdering(ComponentTreeWsRequest wsRequest, List<MetricDto> metrics,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     if (wsRequest.getMetricSort() == null || wsRequest.getMetricPeriodSort() == null) {
       return componentNameOrdering(wsRequest.getAsc());
@@ -152,7 +152,7 @@ class ComponentTreeSort {
     throw new BadRequestException(format("Impossible to sort metric '%s' by measure period.", metric.getKey()));
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> numericalMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
+  private static Ordering<ComponentDto> numericalMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     Ordering<Double> ordering = Ordering.natural();
 
@@ -160,10 +160,10 @@ class ComponentTreeSort {
       ordering = ordering.reverse();
     }
 
-    return ordering.nullsLast().onResultOf(new ComponentDtoWithSnapshotIdToNumericalMeasureValue(metric, measuresByComponentUuidAndMetric));
+    return ordering.nullsLast().onResultOf(new ComponentDtoToNumericalMeasureValue(metric, measuresByComponentUuidAndMetric));
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> numericalMetricPeriodOrdering(ComponentTreeWsRequest request, @Nullable MetricDto metric,
+  private static Ordering<ComponentDto> numericalMetricPeriodOrdering(ComponentTreeWsRequest request, @Nullable MetricDto metric,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     Ordering<Double> ordering = Ordering.natural();
 
@@ -171,10 +171,10 @@ class ComponentTreeSort {
       ordering = ordering.reverse();
     }
 
-    return ordering.nullsLast().onResultOf(new ComponentDtoWithSnapshotIdToMeasureVariationValue(metric, measuresByComponentUuidAndMetric, request.getMetricPeriodSort()));
+    return ordering.nullsLast().onResultOf(new ComponentDtoToMeasureVariationValue(metric, measuresByComponentUuidAndMetric, request.getMetricPeriodSort()));
   }
 
-  private static Ordering<ComponentDtoWithSnapshotId> levelMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
+  private static Ordering<ComponentDto> levelMetricOrdering(boolean isAscending, @Nullable MetricDto metric,
     Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
     Ordering<Integer> ordering = Ordering.natural();
 
@@ -183,21 +183,21 @@ class ComponentTreeSort {
       ordering = ordering.reverse();
     }
 
-    return ordering.nullsLast().onResultOf(new ComponentDtoWithSnapshotIdToLevelIndex(metric, measuresByComponentUuidAndMetric));
+    return ordering.nullsLast().onResultOf(new ComponentDtoToLevelIndex(metric, measuresByComponentUuidAndMetric));
   }
 
-  private static class ComponentDtoWithSnapshotIdToNumericalMeasureValue implements Function<ComponentDtoWithSnapshotId, Double> {
+  private static class ComponentDtoToNumericalMeasureValue implements Function<ComponentDto, Double> {
     private final MetricDto metric;
     private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
 
-    private ComponentDtoWithSnapshotIdToNumericalMeasureValue(@Nullable MetricDto metric,
+    private ComponentDtoToNumericalMeasureValue(@Nullable MetricDto metric,
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
       this.metric = metric;
       this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
     }
 
     @Override
-    public Double apply(@Nonnull ComponentDtoWithSnapshotId input) {
+    public Double apply(@Nonnull ComponentDto input) {
       MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
       if (measure == null || measure.getValue() == null) {
         return null;
@@ -207,18 +207,18 @@ class ComponentTreeSort {
     }
   }
 
-  private static class ComponentDtoWithSnapshotIdToLevelIndex implements Function<ComponentDtoWithSnapshotId, Integer> {
+  private static class ComponentDtoToLevelIndex implements Function<ComponentDto, Integer> {
     private final MetricDto metric;
     private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
 
-    private ComponentDtoWithSnapshotIdToLevelIndex(@Nullable MetricDto metric,
+    private ComponentDtoToLevelIndex(@Nullable MetricDto metric,
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
       this.metric = metric;
       this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
     }
 
     @Override
-    public Integer apply(@Nonnull ComponentDtoWithSnapshotId input) {
+    public Integer apply(@Nonnull ComponentDto input) {
       MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
       if (measure == null || measure.getData() == null) {
         return null;
@@ -228,12 +228,12 @@ class ComponentTreeSort {
     }
   }
 
-  private static class ComponentDtoWithSnapshotIdToMeasureVariationValue implements Function<ComponentDtoWithSnapshotId, Double> {
+  private static class ComponentDtoToMeasureVariationValue implements Function<ComponentDto, Double> {
     private final MetricDto metric;
     private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
     private final int variationIndex;
 
-    private ComponentDtoWithSnapshotIdToMeasureVariationValue(@Nullable MetricDto metric,
+    private ComponentDtoToMeasureVariationValue(@Nullable MetricDto metric,
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, int variationIndex) {
       this.metric = metric;
       this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
@@ -241,7 +241,7 @@ class ComponentTreeSort {
     }
 
     @Override
-    public Double apply(@Nonnull ComponentDtoWithSnapshotId input) {
+    public Double apply(@Nonnull ComponentDto input) {
       MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
       if (measure == null || measure.getVariation(variationIndex) == null) {
         return null;
@@ -251,18 +251,18 @@ class ComponentTreeSort {
     }
   }
 
-  private static class ComponentDtoWithSnapshotIdToTextualMeasureValue implements Function<ComponentDtoWithSnapshotId, String> {
+  private static class ComponentDtoToTextualMeasureValue implements Function<ComponentDto, String> {
     private final MetricDto metric;
     private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
 
-    private ComponentDtoWithSnapshotIdToTextualMeasureValue(@Nullable MetricDto metric,
+    private ComponentDtoToTextualMeasureValue(@Nullable MetricDto metric,
       Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric) {
       this.metric = metric;
       this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
     }
 
     @Override
-    public String apply(@Nonnull ComponentDtoWithSnapshotId input) {
+    public String apply(@Nonnull ComponentDto input) {
       MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
       if (measure == null || measure.getData() == null) {
         return null;
@@ -272,29 +272,29 @@ class ComponentTreeSort {
     }
   }
 
-  private enum ComponentDtoWithSnapshotIdToName implements Function<ComponentDtoWithSnapshotId, String> {
+  private enum ComponentDtoToName implements Function<ComponentDto, String> {
     INSTANCE;
 
     @Override
-    public String apply(@Nonnull ComponentDtoWithSnapshotId input) {
+    public String apply(@Nonnull ComponentDto input) {
       return input.name();
     }
   }
 
-  private enum ComponentDtoWithSnapshotIdToQualifier implements Function<ComponentDtoWithSnapshotId, String> {
+  private enum ComponentDtoToQualifier implements Function<ComponentDto, String> {
     INSTANCE;
 
     @Override
-    public String apply(@Nonnull ComponentDtoWithSnapshotId input) {
+    public String apply(@Nonnull ComponentDto input) {
       return input.qualifier();
     }
   }
 
-  private enum ComponentDtoWithSnapshotIdToPath implements Function<ComponentDtoWithSnapshotId, String> {
+  private enum ComponentDtoToPath implements Function<ComponentDto, String> {
     INSTANCE;
 
     @Override
-    public String apply(@Nonnull ComponentDtoWithSnapshotId input) {
+    public String apply(@Nonnull ComponentDto input) {
       return input.path();
     }
   }

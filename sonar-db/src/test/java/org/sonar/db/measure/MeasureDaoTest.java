@@ -341,9 +341,9 @@ public class MeasureDaoTest {
     SnapshotDto developerSnapshot = componentDb.insertDeveloperAndSnapshot(developer);
     componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-copy-uuid", project, developer), developerSnapshot);
     underTest.insert(dbSession,
-      newMeasureDto(metric, developerSnapshot.getId()).setDeveloperId(developer.getId()),
-      newMeasureDto(metric, projectSnapshot.getId()),
-      newMeasureDto(metric, fileSnapshot.getId()));
+      newMeasureDto(metric, developerSnapshot).setDeveloperId(developer.getId()),
+      newMeasureDto(metric, projectSnapshot),
+      newMeasureDto(metric, fileSnapshot));
     dbSession.commit();
 
     List<MeasureDto> result = underTest.selectBySnapshotIdsAndMetricIds(dbSession,
@@ -368,10 +368,10 @@ public class MeasureDaoTest {
     componentDb.insertComponentAndSnapshot(newDevProjectCopy("project-copy-uuid", project, developer), developerSnapshot);
 
     underTest.insert(dbSession,
-      newMeasureDto(metric, developerSnapshot.getId()).setDeveloperId(developer.getId()),
-      newMeasureDto(metric, projectSnapshot.getId()).setDeveloperId(developer.getId()),
-      newMeasureDto(metric, projectSnapshot.getId()).setDeveloperId(null),
-      newMeasureDto(metric, fileSnapshot.getId()).setDeveloperId(developer.getId()));
+      newMeasureDto(metric, developerSnapshot).setDeveloperId(developer.getId()),
+      newMeasureDto(metric, projectSnapshot).setDeveloperId(developer.getId()),
+      newMeasureDto(metric, projectSnapshot).setDeveloperId(null),
+      newMeasureDto(metric, fileSnapshot).setDeveloperId(developer.getId()));
     dbSession.commit();
 
     List<MeasureDto> result = underTest.selectByDeveloperAndSnapshotIdsAndMetricIds(dbSession,

@@ -25,6 +25,49 @@
     metric.name as metricKey
   </sql>
 
+
+  <select id="selectByQuery" parameterType="map" resultType="Measure">
+    select
+    <include refid="measureColumns"/>
+    from project_measures pm
+    inner join snapshots s
+    where
+    s.id=pm.snapshot_id
+    and pm.component_uuid in
+    <foreach item="componentUuid" collection="query.getComponentUuids()" open="(" separator="," close=")">
+      #{componentUuid}
+    </foreach>
+    and s.islast=${_true}
+    <if test="query.getMetricIds() != null">
+      and pm.metric_id in
+      <foreach item="metricId" collection="query.getMetricIds()" open="(" separator="," close=")">#{metricId}</foreach>
+    </if>
+    <choose>
+      <when test="query.getPersonId() != null">
+        and person_id = #{query.personId}
+      </when>
+      <otherwise>
+        and person_id is null
+      </otherwise>
+    </choose>
+  </select>
+
+  <select id="selectByComponentUuidsAndMetricIds" parameterType="map" resultType="Measure">
+    select
+    <include refid="measureColumns"/>
+    from project_measures pm
+    inner join snapshots s
+    where
+    s.id=pm.snapshot_id
+    and s.islast=${_true}
+    and pm.component_uuid in
+    <foreach item="componentUuid" collection="componentUuids" open="(" separator="," close=")">#{componentUuid}
+    </foreach>
+    and pm.person_id is null
+    and pm.metric_id in
+    <foreach item="metricId" collection="metricIds" open="(" separator="," close=")">#{metricId}</foreach>
+  </select>
+
   <select id="selectByComponentAndMetric" parameterType="map" resultType="Measure">
     SELECT metric.name as metric_name,
     <include refid="extendedMeasureColumns"/>

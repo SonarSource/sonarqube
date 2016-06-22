@@ -16,6 +16,7 @@
              root_component_uuid="uuid_root_1"/>
   <projects id="1"
             uuid="uuid_1"
+            uuid_path="NOT_USED"
             root_uuid="uuid_root_1"
             kee="bar-old"
             enabled="[true]"
@@ -39,6 +40,7 @@
              root_component_uuid="uuid_root_2"/>
   <projects id="2"
             uuid="uuid_2"
+            uuid_path="NOT_USED"
             root_uuid="uuid_root_2"
             kee="bar-last"
             enabled="[true]"
@@ -62,6 +64,7 @@
              root_component_uuid="uuid_root_3"/>
   <projects id="3"
             uuid="uuid_3"
+            uuid_path="NOT_USED"
             root_uuid="uuid_root_3"
             kee="foo-old"
             enabled="[true]"
@@ -85,6 +88,7 @@
              root_component_uuid="uuid_root_4"/>
   <projects id="4"
             uuid="uuid_4"
+            uuid_path="NOT_USED"
             root_uuid="uuid_root_4"
             kee="foo-last"
             enabled="[true]"
@@ -108,6 +112,7 @@
              root_component_uuid="uuid_root_5"/>
   <projects id="5"
             uuid="uuid_5"
+            uuid_path="NOT_USED"
             root_uuid="uuid_root_5"
             kee="foo"
             enabled="[true]"
@@ -124,6 +129,7 @@
              root_component_uuid="uuid_root_1"/>
   <projects id="6"
             uuid="uuid_6"
+            uuid_path="NOT_USED"
             root_uuid="uuid_root_1"
             kee="baz"
             enabled="[true]"

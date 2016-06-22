@@ -1,11 +1,29 @@
 <dataset>
-  <projects id="10" scope="PRJ" qualifier="TRK" kee="struts" name="Struts" uuid="ABCD" root_uuid="ABCD"/>
+  <projects uuid="ABCD"
+            uuid_path="NOT_USED"
+            root_uuid="ABCD"
+            id="10"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="struts"
+            name="Struts"/>
   <snapshots id="10"
              uuid="u10"
-             component_uuid="ABCD" root_component_uuid="ABCD" islast="[true]"/>
+             component_uuid="ABCD"
+             root_component_uuid="ABCD"
+             islast="[true]"/>
 
-  <projects id="100" scope="FIL" qualifier="CLA" kee="struts:Action" name="Action" uuid="BCDE" root_uuid="ABCD"/>
+  <projects uuid="BCDE"
+            uuid_path="NOT_USED"
+            root_uuid="ABCD"
+            id="100"
+            scope="FIL"
+            qualifier="CLA"
+            kee="struts:Action"
+            name="Action"/>
   <snapshots id="100"
              uuid="u100"
-             component_uuid="BCDE" root_component_uuid="ABCD" islast="[true]"/>
+             component_uuid="BCDE"
+             root_component_uuid="ABCD"
+             islast="[true]"/>
 </dataset>

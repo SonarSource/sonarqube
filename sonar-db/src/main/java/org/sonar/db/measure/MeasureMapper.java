@@ -27,8 +27,9 @@ import org.apache.ibatis.annotations.Param;
 
 public interface MeasureMapper {
 
-  MeasureDto selectByKey(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
+  List<MeasureDto> selectByQuery(@Param("query") MeasureQuery query);
 
+  MeasureDto selectByKey(@Param("componentKey") String componentKey, @Param("metricKey") String metricKey);
   List<MeasureDto> selectByComponentAndMetrics(@Param("componentKey") String componentKey, @Param("metricKeys") List<String> metricKeys);
 
   List<MeasureDto> selectBySnapshotAndMetricKeys(@Param("snapshotId") long snapshotId, @Param("metricKeys") List<String> metricKeys);

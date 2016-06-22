@@ -63,17 +63,17 @@ public class ComponentDtoTest {
 
   @Test
   public void equals_and_hashcode() {
-    ComponentDto dto = new ComponentDto().setId(1L);
-    ComponentDto dtoWithSameId = new ComponentDto().setId(1L);
-    ComponentDto dtoWithDifferentId = new ComponentDto().setId(2L);
+    ComponentDto dto = new ComponentDto().setUuid("u1");
+    ComponentDto dtoWithSameUuid = new ComponentDto().setUuid("u1");
+    ComponentDto dtoWithDifferentUuid = new ComponentDto().setUuid("u2");
 
     assertThat(dto).isEqualTo(dto);
-    assertThat(dto).isEqualTo(dtoWithSameId);
-    assertThat(dto).isNotEqualTo(dtoWithDifferentId);
+    assertThat(dto).isEqualTo(dtoWithSameUuid);
+    assertThat(dto).isNotEqualTo(dtoWithDifferentUuid);
 
     assertThat(dto.hashCode()).isEqualTo(dto.hashCode());
-    assertThat(dto.hashCode()).isEqualTo(dtoWithSameId.hashCode());
-    assertThat(dto.hashCode()).isNotEqualTo(dtoWithDifferentId.hashCode());
+    assertThat(dto.hashCode()).isEqualTo(dtoWithSameUuid.hashCode());
+    assertThat(dto.hashCode()).isNotEqualTo(dtoWithDifferentUuid.hashCode());
   }
 
   @Test
@@ -87,5 +87,20 @@ public class ComponentDtoTest {
     assertThat(new ComponentDto().setModuleUuid("ABCD").isRootProject()).isFalse();
     assertThat(new ComponentDto().setModuleUuid("ABCD").setScope(Scopes.DIRECTORY).isRootProject()).isFalse();
     assertThat(new ComponentDto().setModuleUuid(null).setScope(Scopes.PROJECT).setQualifier(Qualifiers.PROJECT).isRootProject()).isTrue();
+  }
+
+  @Test
+  public void test_formatUuidPathFromParent() {
+    ComponentDto parent = ComponentTesting.newProjectDto("123").setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    assertThat(ComponentDto.formatUuidPathFromParent(parent)).isEqualTo(".123.");
+  }
+
+  @Test
+  public void test_Name() {
+    ComponentDto root = new ComponentDto().setUuidPath(ComponentDto.UUID_PATH_OF_ROOT);
+    assertThat(root.getUuidPathAsList()).isEmpty();
+
+    ComponentDto nonRoot = new ComponentDto().setUuidPath(".12.34.56.");
+    assertThat(nonRoot.getUuidPathAsList()).containsExactly("12", "34", "56");
   }
 }

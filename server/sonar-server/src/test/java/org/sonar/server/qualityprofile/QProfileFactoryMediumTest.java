@@ -32,6 +32,7 @@ import org.sonar.db.DbClient;
 import org.sonar.db.DbSession;
 import org.sonar.db.RowNotFoundException;
 import org.sonar.db.component.ComponentDto;
+import org.sonar.db.component.ComponentTesting;
 import org.sonar.db.qualityprofile.QualityProfileDto;
 import org.sonar.db.rule.RuleDto;
 import org.sonar.db.rule.RuleParamDto;
@@ -333,16 +334,9 @@ public class QProfileFactoryMediumTest {
 
   @Test
   public void get_profile_by_project_and_language() {
-    ComponentDto project = new ComponentDto()
+    ComponentDto project = ComponentTesting.newProjectDto("ABCD")
       .setId(1L)
-      .setUuid("ABCD")
-      .setRootUuid("ABCD")
-      .setKey("org.codehaus.sonar:sonar")
-      .setName("SonarQube")
-      .setLongName("SonarQube")
-      .setQualifier("TRK")
-      .setScope("TRK")
-      .setEnabled(true);
+      .setKey("org.codehaus.sonar:sonar");
     db.componentDao().insert(dbSession, project);
 
     QualityProfileDto profileDto = QProfileTesting.newXooP1();

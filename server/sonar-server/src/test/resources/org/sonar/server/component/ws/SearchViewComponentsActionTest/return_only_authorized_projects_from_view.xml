@@ -1,30 +1,109 @@
 <dataset>
 
   <!-- Only struts is authorized for all user -->
-  <group_roles id="1" group_id="[null]" resource_id="100" role="user"/>
+  <group_roles id="1"
+               group_id="[null]"
+               resource_id="100"
+               role="user"/>
 
   <!-- View -->
-  <projects id="11" uuid="EFGH" root_uuid="EFGH" project_uuid="EFGH" module_uuid="[null]" module_uuid_path="." copy_component_uuid="[null]" enabled="[true]"
-            kee="LANGUAGE_VIEW" scope="PRJ" qualifier="VW" name="By Language" path="[null]"/>
+  <projects uuid="EFGH"
+            uuid_path="NOT_USED"
+            root_uuid="EFGH"
+            project_uuid="EFGH"
+            module_uuid="[null]"
+            module_uuid_path="."
+            copy_component_uuid="[null]"
+            enabled="[true]"
+            kee="LANGUAGE_VIEW"
+            scope="PRJ"
+            qualifier="VW"
+            name="By Language"
+            path="[null]"
+            id="11"/>
 
-  <projects id="112" uuid="GHIJ" root_uuid="EFGH" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_component_uuid="KLMN" enabled="[true]"
-            kee="VIEW2org.elasticsearch:elasticsearch" scope="FIL" qualifier="TRK" name="Elasticsearch" path="[null]"/>
+  <projects uuid="GHIJ"
+            uuid_path="NOT_USED"
+            root_uuid="EFGH"
+            project_uuid="EFGH"
+            module_uuid="EFGH"
+            module_uuid_path=".EFGH."
+            copy_component_uuid="KLMN"
+            enabled="[true]"
+            kee="VIEW2org.elasticsearch:elasticsearch"
+            scope="FIL"
+            qualifier="TRK"
+            name="Elasticsearch"
+            path="[null]"
+            id="112"/>
 
-  <projects id="113" uuid="HIJK" root_uuid="EFGH" project_uuid="EFGH" module_uuid="EFGH" module_uuid_path=".EFGH." copy_component_uuid="JKLM" enabled="[true]"
-            kee="VIEW2org.struts:struts" scope="FIL" qualifier="TRK" name="Struts" path="[null]"/>
+  <projects uuid="HIJK"
+            uuid_path="NOT_USED"
+            root_uuid="EFGH"
+            project_uuid="EFGH"
+            module_uuid="EFGH"
+            module_uuid_path=".EFGH."
+            copy_component_uuid="JKLM"
+            enabled="[true]"
+            kee="VIEW2org.struts:struts"
+            scope="FIL"
+            qualifier="TRK"
+            name="Struts"
+            path="[null]"
+            id="113"/>
 
   <!-- Real projects -->
 
-  <projects id="100" scope="PRJ" qualifier="TRK" kee="org.struts:struts" name="Struts"
-            uuid="JKLM" root_uuid="JKLM" root_project_uuid="JKLM" module_uuid="[null]" module_uuid_path="."
-            enabled="[true]" copy_component_uuid="[null]" path="[null]"/>
+  <projects uuid="JKLM"
+            uuid_path="NOT_USED"
+            root_uuid="JKLM"
+            root_project_uuid="JKLM"
+            module_uuid="[null]"
+            module_uuid_path="."
+            enabled="[true]"
+            copy_component_uuid="[null]"
+            path="[null]"
+            id="100"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.struts:struts"
+            name="Struts"/>
 
-  <projects id="101" scope="PRJ" qualifier="TRK" kee="org.elasticsearch:elasticsearch" name="Elasticsearch"
-            uuid="KLMN" root_uuid="KLMN" project_uuid="KLMN" module_uuid="[null]" module_uuid_path="."
-            enabled="[true]" copy_component_uuid="[null]" path="[null]"/>
+  <projects uuid="KLMN"
+            uuid_path="NOT_USED"
+            root_uuid="KLMN"
+            project_uuid="KLMN"
+            module_uuid="[null]"
+            module_uuid_path="."
+            enabled="[true]"
+            copy_component_uuid="[null]"
+            path="[null]"
+            id="101"
+            scope="PRJ"
+            qualifier="TRK"
+            kee="org.elasticsearch:elasticsearch"
+            name="Elasticsearch"/>
 
-  <resource_index id="1" kee="struts" component_uuid="JKLM" root_component_uuid="JKLM" position="0" name_size="6" qualifier="TRK"/>
-  <resource_index id="2" kee="elasticsearch" component_uuid="KLMN" root_component_uuid="KLMN" position="0" name_size="13" qualifier="TRK"/>
-  <resource_index id="3" kee="sticsearch" component_uuid="KLMN" root_component_uuid="KLMN" position="1" name_size="13" qualifier="TRK"/>
+  <resource_index id="1"
+                  kee="struts"
+                  component_uuid="JKLM"
+                  root_component_uuid="JKLM"
+                  position="0"
+                  name_size="6"
+                  qualifier="TRK"/>
+  <resource_index id="2"
+                  kee="elasticsearch"
+                  component_uuid="KLMN"
+                  root_component_uuid="KLMN"
+                  position="0"
+                  name_size="13"
+                  qualifier="TRK"/>
+  <resource_index id="3"
+                  kee="sticsearch"
+                  component_uuid="KLMN"
+                  root_component_uuid="KLMN"
+                  position="1"
+                  name_size="13"
+                  qualifier="TRK"/>
 
 </dataset>

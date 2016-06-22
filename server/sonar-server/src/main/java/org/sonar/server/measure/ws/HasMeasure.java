@@ -20,59 +20,59 @@
 
 package org.sonar.server.measure.ws;
 
-import com.google.common.base.Predicate;
 import com.google.common.collect.Table;
+import java.util.function.Predicate;
 import javax.annotation.Nonnull;
-import org.sonar.db.component.ComponentDtoWithSnapshotId;
+import org.sonar.db.component.ComponentDto;
 import org.sonar.db.measure.MeasureDto;
 import org.sonar.db.metric.MetricDto;
 import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
-class HasMeasure implements Predicate<ComponentDtoWithSnapshotId> {
-  private final Predicate<ComponentDtoWithSnapshotId> predicate;
+class HasMeasure implements Predicate<ComponentDto> {
+  private final Predicate<ComponentDto> predicate;
 
-  HasMeasure(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, MetricDto metric, ComponentTreeWsRequest request) {
+  HasMeasure(Table<String, MetricDto, MeasureDto> table, MetricDto metric, ComponentTreeWsRequest request) {
     Integer periodIndex = request.getMetricPeriodSort();
     this.predicate = periodIndex == null
-      ? new HasAbsoluteValue(measuresByComponentUuidAndMetric, metric)
-      : new HasValueOnPeriod(periodIndex, measuresByComponentUuidAndMetric, metric);
+      ? new HasAbsoluteValue(table, metric)
+      : new HasValueOnPeriod(periodIndex, table, metric);
   }
 
   @Override
-  public boolean apply(@Nonnull ComponentDtoWithSnapshotId input) {
-    return predicate.apply(input);
+  public boolean test(@Nonnull ComponentDto input) {
+    return predicate.test(input);
   }
 
-  private static class HasAbsoluteValue implements Predicate<ComponentDtoWithSnapshotId> {
-    private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
+  private static class HasAbsoluteValue implements Predicate<ComponentDto> {
+    private final Table<String, MetricDto, MeasureDto> table;
     private final MetricDto metric;
 
-    private HasAbsoluteValue(Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, MetricDto metric) {
-      this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
+    private HasAbsoluteValue(Table<String, MetricDto, MeasureDto> table, MetricDto metric) {
+      this.table = table;
       this.metric = metric;
     }
 
     @Override
-    public boolean apply(@Nonnull ComponentDtoWithSnapshotId input) {
-      MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
+    public boolean test(@Nonnull ComponentDto input) {
+      MeasureDto measure = table.get(input.uuid(), metric);
       return measure != null && (measure.getValue() != null || measure.getData() != null);
     }
   }
 
-  private static class HasValueOnPeriod implements Predicate<ComponentDtoWithSnapshotId> {
+  private static class HasValueOnPeriod implements Predicate<ComponentDto> {
     private final int periodIndex;
-    private final Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric;
+    private final Table<String, MetricDto, MeasureDto> table;
     private final MetricDto metric;
 
-    private HasValueOnPeriod(int periodIndex, Table<String, MetricDto, MeasureDto> measuresByComponentUuidAndMetric, MetricDto metric) {
+    private HasValueOnPeriod(int periodIndex, Table<String, MetricDto, MeasureDto> table, MetricDto metric) {
       this.periodIndex = periodIndex;
-      this.measuresByComponentUuidAndMetric = measuresByComponentUuidAndMetric;
+      this.table = table;
       this.metric = metric;
     }
 
     @Override
-    public boolean apply(@Nonnull ComponentDtoWithSnapshotId input) {
-      MeasureDto measure = measuresByComponentUuidAndMetric.get(input.uuid(), metric);
+    public boolean test(@Nonnull ComponentDto input) {
+      MeasureDto measure = table.get(input.uuid(), metric);
       return measure != null && measure.getVariation(periodIndex) != null;
     }
   }

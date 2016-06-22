@@ -19,20 +19,19 @@
  */
 package org.sonar.db.component;
 
-import com.google.common.base.Function;
-import com.google.common.base.Joiner;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 import javax.annotation.CheckForNull;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import org.sonar.db.WildcardPosition;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.collect.FluentIterable.from;
 import static com.google.common.collect.Lists.newArrayList;
+import static java.lang.String.format;
 import static java.util.Objects.requireNonNull;
 import static org.sonar.db.DatabaseUtils.buildLikeValue;
 import static org.sonar.db.WildcardPosition.AFTER;
@@ -47,8 +46,7 @@ public class ComponentTreeQuery {
   private final Integer page;
   @CheckForNull
   private final Integer pageSize;
-  private final SnapshotDto baseSnapshot;
-  private final String baseSnapshotPath;
+  private final String baseUuid;
   private final String sqlSort;
   private final String direction;
 
@@ -57,8 +55,7 @@ public class ComponentTreeQuery {
     this.qualifiers = builder.qualifiers == null ? null : newArrayList(builder.qualifiers);
     this.page = builder.page;
     this.pageSize = builder.pageSize;
-    this.baseSnapshot = builder.baseSnapshot;
-    this.baseSnapshotPath = buildBaseSnapshotPath(baseSnapshot);
+    this.baseUuid = builder.baseUuid;
     this.direction = builder.asc ? "ASC" : "DESC";
     this.sqlSort = sortFieldsToSqlSort(builder.sortFields, direction);
   }
@@ -85,12 +82,8 @@ public class ComponentTreeQuery {
     return pageSize;
   }
 
-  public SnapshotDto getBaseSnapshot() {
-    return baseSnapshot;
-  }
-
-  public String getBaseSnapshotPath() {
-    return baseSnapshotPath;
+  public String getBaseUuid() {
+    return baseUuid;
   }
 
   public String getSqlSort() {
@@ -106,15 +99,10 @@ public class ComponentTreeQuery {
   }
 
   private static String sortFieldsToSqlSort(List<String> sortFields, String direction) {
-    List<String> sqlSortFields = from(sortFields)
-      .transform(new SortFieldToSqlSortFieldFunction(direction)).toList();
-
-    return Joiner.on(", ").join(sqlSortFields);
-  }
-
-  private static String buildBaseSnapshotPath(SnapshotDto baseSnapshot) {
-    String existingSnapshotPath = baseSnapshot.getPath() == null ? "" : baseSnapshot.getPath();
-    return buildLikeValue(existingSnapshotPath + baseSnapshot.getId() + ".", WildcardPosition.AFTER);
+    return sortFields
+      .stream()
+      .map(new SortFieldToSqlSortFieldFunction(direction)::apply)
+      .collect(Collectors.joining(", "));
   }
 
   public static class Builder {
@@ -126,7 +114,7 @@ public class ComponentTreeQuery {
     private Integer page;
     @CheckForNull
     private Integer pageSize;
-    private SnapshotDto baseSnapshot;
+    private String baseUuid;
     private List<String> sortFields;
     private boolean asc = true;
 
@@ -135,7 +123,7 @@ public class ComponentTreeQuery {
     }
 
     public ComponentTreeQuery build() {
-      requireNonNull(baseSnapshot);
+      requireNonNull(baseUuid);
       return new ComponentTreeQuery(this);
     }
 
@@ -159,12 +147,12 @@ public class ComponentTreeQuery {
       return this;
     }
 
-    public Builder setBaseSnapshot(SnapshotDto baseSnapshot) {
-      this.baseSnapshot = baseSnapshot;
+    public Builder setBaseUuid(String uuid) {
+      this.baseUuid = uuid;
       return this;
     }
 
-    public Builder setSortFields(@Nullable List<String> sorts) {
+    public Builder setSortFields(List<String> sorts) {
       checkArgument(sorts != null && !sorts.isEmpty());
       this.sortFields = sorts;
       return this;
@@ -188,7 +176,7 @@ public class ComponentTreeQuery {
     @Nonnull
     @Override
     public String apply(@Nonnull String input) {
-      return String.format(PATTERN, input, direction);
+      return format(PATTERN, input, direction);
     }
   }
 }
