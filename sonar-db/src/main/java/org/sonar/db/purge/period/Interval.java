@@ -25,16 +25,16 @@ import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.List;
 import org.apache.commons.lang.time.DateUtils;
-import org.sonar.db.purge.PurgeableSnapshotDto;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 
 final class Interval {
-  List<PurgeableSnapshotDto> snapshots = Lists.newArrayList();
+  List<PurgeableAnalysisDto> snapshots = Lists.newArrayList();
 
-  void add(PurgeableSnapshotDto snapshot) {
+  void add(PurgeableAnalysisDto snapshot) {
     snapshots.add(snapshot);
   }
 
-  List<PurgeableSnapshotDto> get() {
+  List<PurgeableAnalysisDto> get() {
     return snapshots;
   }
 
@@ -42,7 +42,7 @@ final class Interval {
     return snapshots.size();
   }
 
-  static List<Interval> group(List<PurgeableSnapshotDto> snapshots, Date start, Date end, int calendarField) {
+  static List<Interval> group(List<PurgeableAnalysisDto> snapshots, Date start, Date end, int calendarField) {
     List<Interval> intervals = Lists.newArrayList();
 
     GregorianCalendar calendar = new GregorianCalendar();
@@ -50,7 +50,7 @@ final class Interval {
     int lastFieldValue = -1;
     Interval currentInterval = null;
 
-    for (PurgeableSnapshotDto snapshot : snapshots) {
+    for (PurgeableAnalysisDto snapshot : snapshots) {
       if (!DateUtils.isSameDay(start, snapshot.getDate()) && snapshot.getDate().after(start) &&
         (snapshot.getDate().before(end) || DateUtils.isSameDay(end, snapshot.getDate()))) {
         calendar.setTime(snapshot.getDate());

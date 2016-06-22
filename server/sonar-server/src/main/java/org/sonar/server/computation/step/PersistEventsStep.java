@@ -29,7 +29,6 @@ import org.sonar.server.computation.analysis.AnalysisMetadataHolder;
 import org.sonar.server.computation.component.Component;
 import org.sonar.server.computation.component.ComponentVisitor;
 import org.sonar.server.computation.component.CrawlerDepthLimit;
-import org.sonar.server.computation.component.DbIdsRepository;
 import org.sonar.server.computation.component.DepthTraversalTypeAwareCrawler;
 import org.sonar.server.computation.component.TreeRootHolder;
 import org.sonar.server.computation.component.TypeAwareVisitorAdapter;
@@ -45,16 +44,14 @@ public class PersistEventsStep implements ComputationStep {
   private final AnalysisMetadataHolder analysisMetadataHolder;
   private final TreeRootHolder treeRootHolder;
   private final EventRepository eventRepository;
-  private final DbIdsRepository dbIdsRepository;
 
   public PersistEventsStep(DbClient dbClient, System2 system2, TreeRootHolder treeRootHolder, AnalysisMetadataHolder analysisMetadataHolder,
-    EventRepository eventRepository, DbIdsRepository dbIdsRepository) {
+    EventRepository eventRepository) {
     this.dbClient = dbClient;
     this.system2 = system2;
     this.treeRootHolder = treeRootHolder;
     this.analysisMetadataHolder = analysisMetadataHolder;
     this.eventRepository = eventRepository;
-    this.dbIdsRepository = dbIdsRepository;
   }
 
   @Override
@@ -102,8 +99,8 @@ public class PersistEventsStep implements ComputationStep {
 
   private EventDto newBaseEvent(Component component, Long analysisDate) {
     return new EventDto()
+      .setAnalysisUuid(analysisMetadataHolder.getUuid())
       .setComponentUuid(component.getUuid())
-      .setSnapshotId(dbIdsRepository.getSnapshotId(component))
       .setCreatedAt(system2.now())
       .setDate(analysisDate);
   }

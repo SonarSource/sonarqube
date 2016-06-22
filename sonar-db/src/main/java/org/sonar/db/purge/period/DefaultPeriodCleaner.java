@@ -29,7 +29,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeSnapshotQuery;
-import org.sonar.db.purge.PurgeableSnapshotDto;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 
 public class DefaultPeriodCleaner {
 
@@ -48,24 +48,24 @@ public class DefaultPeriodCleaner {
 
   @VisibleForTesting
   void doClean(String componentUuid, List<Filter> filters, DbSession session) {
-    List<PurgeableSnapshotDto> history = selectProjectSnapshots(componentUuid, session);
+    List<PurgeableAnalysisDto> history = selectProjectSnapshots(componentUuid, session);
     for (Filter filter : filters) {
       filter.log();
       delete(filter.filter(history), session);
     }
   }
 
-  private void delete(List<PurgeableSnapshotDto> snapshots, DbSession session) {
-    for (PurgeableSnapshotDto snapshot : snapshots) {
-      LOG.debug("<- Delete snapshot: {} [{}]", DateUtils.formatDateTime(snapshot.getDate()), snapshot.getSnapshotId());
+  private void delete(List<PurgeableAnalysisDto> snapshots, DbSession session) {
+    for (PurgeableAnalysisDto snapshot : snapshots) {
+      LOG.debug("<- Delete snapshot: {} [{}]", DateUtils.formatDateTime(snapshot.getDate()), snapshot.getAnalysisUuid());
       purgeDao.deleteSnapshots(
         session, profiler,
-        PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getSnapshotId()),
-        PurgeSnapshotQuery.create().setId(snapshot.getSnapshotId()));
+        PurgeSnapshotQuery.create().setRootSnapshotId(snapshot.getAnalysisId()),
+        PurgeSnapshotQuery.create().setId(snapshot.getAnalysisId()));
     }
   }
 
-  private List<PurgeableSnapshotDto> selectProjectSnapshots(String componentUuid, DbSession session) {
+  private List<PurgeableAnalysisDto> selectProjectSnapshots(String componentUuid, DbSession session) {
     return purgeDao.selectPurgeableSnapshots(componentUuid, session);
   }
 }

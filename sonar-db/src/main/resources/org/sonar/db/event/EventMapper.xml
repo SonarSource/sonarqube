@@ -4,13 +4,13 @@
 
   <sql id="eventColumns">
     e.id,
+    e.analysis_uuid as "analysisUuid",
+    e.component_uuid as "componentUuid",
     e.name,
     e.category,
     e.description,
     e.event_data as "data",
     e.event_date as "date",
-    e.component_uuid as "componentUuid",
-    e.snapshot_id as "snapshotId",
     e.created_at as "createdAt"
   </sql>
 
@@ -24,8 +24,8 @@
   </select>
 
   <insert id="insert" parameterType="Event" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO events (name, category, description, event_data, event_date, component_uuid, snapshot_id, created_at)
-    VALUES (#{name}, #{category}, #{description}, #{data}, #{date}, #{componentUuid}, #{snapshotId}, #{createdAt})
+    INSERT INTO events (analysis_uuid, component_uuid, name, category, description, event_data, event_date, created_at)
+    VALUES (#{analysisUuid}, #{componentUuid}, #{name}, #{category}, #{description}, #{data}, #{date}, #{createdAt})
   </insert>
 
   <delete id="delete">

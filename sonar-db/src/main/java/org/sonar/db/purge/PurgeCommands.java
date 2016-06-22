@@ -160,8 +160,8 @@ class PurgeCommands {
     deleteSnapshotDuplications(snapshotUuidsPartition);
 
     profiler.start("deleteSnapshotEvents (events)");
-    for (List<Long> partSnapshotIds : snapshotIdsPartition) {
-      purgeMapper.deleteSnapshotEvents(partSnapshotIds);
+    for (List<String> partSnapshotUuids : snapshotUuidsPartition) {
+      purgeMapper.deleteSnapshotEvents(partSnapshotUuids);
     }
     session.commit();
     profiler.stop();

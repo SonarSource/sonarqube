@@ -38,7 +38,7 @@ public interface PurgeMapper {
 
   void deleteSnapshotDuplications(@Param("analysisUuids") List<String> analysisUuids);
 
-  void deleteSnapshotEvents(@Param("snapshotIds") List<Long> snapshotIds);
+  void deleteSnapshotEvents(@Param("analysisUuids") List<String> analysisUuids);
 
   void deleteSnapshotMeasures(@Param("snapshotIds") List<Long> snapshotIds);
 
@@ -74,9 +74,9 @@ public interface PurgeMapper {
 
   void deleteAuthors(@Param("resourceIds") List<Long> resourceIds);
 
-  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithEvents(@Param("componentUuid") String componentUuid);
+  List<PurgeableAnalysisDto> selectPurgeableAnalysesWithEvents(@Param("componentUuid") String componentUuid);
 
-  List<PurgeableSnapshotDto> selectPurgeableSnapshotsWithoutEvents(@Param("componentUuid") String componentUuid);
+  List<PurgeableAnalysisDto> selectPurgeableAnalysesWithoutEvents(@Param("componentUuid") String componentUuid);
 
   void deleteComponentIssueChanges(@Param("componentUuids") List<String> componentUuids);
 

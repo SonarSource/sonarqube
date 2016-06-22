@@ -25,32 +25,32 @@ import static org.hamcrest.Matchers.greaterThan;
 import static org.hamcrest.core.Is.is;
 import static org.junit.Assert.assertThat;
 
-public class PurgeableSnapshotDtoTest {
+public class PurgeableAnalysisDtoTest {
   @Test
   public void testEquals() {
-    PurgeableSnapshotDto dto1 = new PurgeableSnapshotDto().setSnapshotId(3L);
-    PurgeableSnapshotDto dto2 = new PurgeableSnapshotDto().setSnapshotId(4L);
+    PurgeableAnalysisDto dto1 = new PurgeableAnalysisDto().setAnalysisId(3L);
+    PurgeableAnalysisDto dto2 = new PurgeableAnalysisDto().setAnalysisId(4L);
     assertThat(dto1.equals(dto2), is(false));
     assertThat(dto2.equals(dto1), is(false));
     assertThat(dto1.equals(dto1), is(true));
-    assertThat(dto1.equals(new PurgeableSnapshotDto().setSnapshotId(3L)), is(true));
+    assertThat(dto1.equals(new PurgeableAnalysisDto().setAnalysisId(3L)), is(true));
     assertThat(dto1.equals("bi_bop_a_lou_la"), is(false));
     assertThat(dto1.equals(null), is(false));
   }
 
   @Test
   public void testHasCode() {
-    PurgeableSnapshotDto dto = new PurgeableSnapshotDto().setSnapshotId(3L);
+    PurgeableAnalysisDto dto = new PurgeableAnalysisDto().setAnalysisId(3L);
     assertThat(dto.hashCode(), is(dto.hashCode()));
 
     // no id
-    dto = new PurgeableSnapshotDto();
+    dto = new PurgeableAnalysisDto();
     assertThat(dto.hashCode(), is(dto.hashCode()));
   }
 
   @Test
   public void testToString() {
-    PurgeableSnapshotDto dto = new PurgeableSnapshotDto().setSnapshotId(3L);
+    PurgeableAnalysisDto dto = new PurgeableAnalysisDto().setAnalysisId(3L);
     assertThat(dto.toString().length(), greaterThan(0));
   }
 }

@@ -301,7 +301,7 @@ class ProjectController < ApplicationController
         if snapshot.event(EventCategory::KEY_VERSION)
           # This is an update: we update the event
           Event.update_all({:name => params[:version_name]},
-                           ["category = ? AND snapshot_id = ?", EventCategory::KEY_VERSION, snapshot.id])
+                           ["category = ? AND analysis_uuid = ?", EventCategory::KEY_VERSION, snapshot.uuid])
           flash[:notice] = message('project_history.version_updated', :params => h(params[:version_name]))
         else
           # We create an event on the snapshot
@@ -323,11 +323,8 @@ class ProjectController < ApplicationController
 
     # We update all the related snapshots to have the same version as the next snapshot
     next_snapshot = Snapshot.find(:first, :conditions => ['created_at>? and component_uuid=?', parent_snapshot.created_at.to_i*1000, parent_snapshot.component_uuid], :order => 'created_at asc')
-    snapshots = find_project_snapshots(parent_snapshot.id)
-    snapshots.each do |snapshot|
-      snapshot.version = next_snapshot.version
-      snapshot.save!
-    end
+    parent_snapshot.version = next_snapshot.version
+    parent_snapshot.save!
 
     # and we delete the events
     event = parent_snapshot.event(EventCategory::KEY_VERSION)
@@ -352,15 +349,12 @@ class ProjectController < ApplicationController
     if Event.already_exists(snapshot.component_uuid, params[:event_name], EventCategory::KEY_OTHER)
       flash[:error] = message('project_history.event_already_exists', :params => h(params[:event_name]))
     else
-      snapshots = find_project_snapshots(snapshot.id)
-      snapshots.each do |s|
-        e = Event.new({:name => params[:event_name],
-                       :category => EventCategory::KEY_OTHER,
-                       :snapshot => s,
-                       :component_uuid => s.project.uuid,
-                       :event_date => s.created_at})
-        e.save!
-      end
+      e = Event.new({:name => params[:event_name],
+                     :category => EventCategory::KEY_OTHER,
+                     :snapshot => snapshot,
+                     :component_uuid => snapshot.project.uuid,
+                     :event_date => snapshot.created_at})
+      e.save!
       flash[:notice] = message('project_history.event_created', :params => h(params[:event_name]))
     end
 
@@ -413,20 +407,13 @@ class ProjectController < ApplicationController
     project
   end
 
-  def find_project_snapshots(root_snapshot_id)
-    Snapshot.find(:all, :include => ['events', 'project'], :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", root_snapshot_id, root_snapshot_id])
-  end
-
-  # Returns all an array that contains the given event + all the events that are the same, but which are attached on the submodules
+  # Returns all an array that contains the given event + all the events that are the same
   def find_events(event)
     events = []
     name = event.name
     category = event.category
-    snapshots = find_project_snapshots(event.snapshot_id)
-    snapshots.each do |snapshot|
-      snapshot.events.reject { |e| e.name!=name || e.category!=category }.each do |event|
-        events << event
-      end
+    event.snapshot.events.reject { |e| e.name!=name || e.category!=category }.each do |event|
+      events << event
     end
     events
   end

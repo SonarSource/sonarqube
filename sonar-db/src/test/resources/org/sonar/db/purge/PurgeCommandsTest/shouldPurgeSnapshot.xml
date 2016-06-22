@@ -50,8 +50,8 @@
                     measure_data="[null]"/>
 
   <events id="1"
+          analysis_uuid="u1"
           component_uuid="1"
-          snapshot_id="1"
           category="VERSION"
           description="[null]"
           name="Version 1.0"
@@ -120,8 +120,8 @@
                     measure_data="[null]"/>
 
   <events id="2"
+          analysis_uuid="u2"
           component_uuid="2"
-          snapshot_id="2"
           category="VERSION"
           description="[null]"
           name="Version 1.0"

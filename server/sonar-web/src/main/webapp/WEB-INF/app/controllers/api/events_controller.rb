@@ -190,11 +190,9 @@ class Api::EventsController < Api::ApiController
       events = []
       name = event.name
       category = event.category
-      snapshots = Snapshot.find(:all, :include => 'events', :conditions => ["(root_snapshot_id = ? OR id = ?) AND scope = 'PRJ'", event.snapshot_id, event.snapshot_id])
-      snapshots.each do |snapshot|
-        snapshot.events.reject {|e| e.name!=name || e.category!=category}.each do |event|
-          events << event
-        end
+      snapshot = Snapshot.find(:first, :include => 'events', :conditions => ["uuid = ? AND scope = 'PRJ'", event.analysis_uuid])
+      snapshot.events.reject {|e| e.name!=name || e.category!=category}.each do |event|
+        events << event
       end
 
       Event.transaction do

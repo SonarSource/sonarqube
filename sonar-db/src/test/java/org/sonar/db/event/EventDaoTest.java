@@ -27,7 +27,6 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class EventDaoTest {
 
   @Rule
@@ -47,8 +46,8 @@ public class EventDaoTest {
 
     EventDto dto = dtos.get(0);
     assertThat(dto.getId()).isEqualTo(4L);
+    assertThat(dto.getAnalysisUuid()).isEqualTo("uuid_1");
     assertThat(dto.getComponentUuid()).isEqualTo("BCDE");
-    assertThat(dto.getSnapshotId()).isEqualTo(1000L);
     assertThat(dto.getName()).isEqualTo("1.0");
     assertThat(dto.getCategory()).isEqualTo("Version");
     assertThat(dto.getDescription()).isEqualTo("Version 1.0");
@@ -70,15 +69,14 @@ public class EventDaoTest {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     dao.insert(dbTester.getSession(), new EventDto()
+      .setAnalysisUuid("uuid_1")
+      .setComponentUuid("ABCD")
       .setName("1.0")
       .setCategory(EventDto.CATEGORY_VERSION)
       .setDescription("Version 1.0")
       .setData("some data")
       .setDate(1413407091086L)
-      .setComponentUuid("ABCD")
-      .setSnapshotId(1000L)
-      .setCreatedAt(1225630680000L)
-      );
+      .setCreatedAt(1225630680000L));
     dbTester.getSession().commit();
 
     dbTester.assertDbUnit(getClass(), "insert-result.xml", new String[] {"id"}, "events");

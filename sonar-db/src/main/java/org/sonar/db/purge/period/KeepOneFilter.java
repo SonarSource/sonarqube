@@ -25,7 +25,7 @@ import java.util.Date;
 import java.util.List;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.api.utils.log.Loggers;
-import org.sonar.db.purge.PurgeableSnapshotDto;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 
 class KeepOneFilter implements Filter {
 
@@ -42,9 +42,9 @@ class KeepOneFilter implements Filter {
   }
 
   @Override
-  public List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> history) {
+  public List<PurgeableAnalysisDto> filter(List<PurgeableAnalysisDto> history) {
     List<Interval> intervals = Interval.group(history, start, end, dateField);
-    List<PurgeableSnapshotDto> result = Lists.newArrayList();
+    List<PurgeableAnalysisDto> result = Lists.newArrayList();
     for (Interval interval : intervals) {
       appendSnapshotsToDelete(interval, result);
     }
@@ -57,11 +57,11 @@ class KeepOneFilter implements Filter {
     Loggers.get(getClass()).debug("-> Keep one snapshot per {} between {} and {}", label, DateUtils.formatDate(start), DateUtils.formatDate(end));
   }
 
-  private void appendSnapshotsToDelete(Interval interval, List<PurgeableSnapshotDto> toDelete) {
+  private void appendSnapshotsToDelete(Interval interval, List<PurgeableAnalysisDto> toDelete) {
     if (interval.count() > 1) {
-      List<PurgeableSnapshotDto> deletables = Lists.newArrayList();
-      List<PurgeableSnapshotDto> toKeep = Lists.newArrayList();
-      for (PurgeableSnapshotDto snapshot : interval.get()) {
+      List<PurgeableAnalysisDto> deletables = Lists.newArrayList();
+      List<PurgeableAnalysisDto> toKeep = Lists.newArrayList();
+      for (PurgeableAnalysisDto snapshot : interval.get()) {
         if (isDeletable(snapshot)) {
           deletables.add(snapshot);
         } else {
@@ -80,7 +80,7 @@ class KeepOneFilter implements Filter {
   }
 
   @VisibleForTesting
-  static boolean isDeletable(PurgeableSnapshotDto snapshot) {
+  static boolean isDeletable(PurgeableAnalysisDto snapshot) {
     return !snapshot.isLast() && !snapshot.hasEvents();
   }
 

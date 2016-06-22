@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 import org.sonar.server.computation.analysis.AnalysisMetadataHolderRule;
 import org.sonar.server.computation.batch.TreeRootHolderRule;
 import org.sonar.server.computation.component.Component;
-import org.sonar.server.computation.component.DbIdsRepositoryImpl;
 import org.sonar.server.computation.component.ReportComponent;
 import org.sonar.server.computation.event.Event;
 import org.sonar.server.computation.event.EventRepository;
@@ -61,6 +60,7 @@ public class PersistEventsStepTest extends BaseStepTest {
             .build())
         .build())
     .build();
+  private static final String ANALYSIS_UUID = "uuid_1";
 
   System2 system2 = mock(System2.class);
 
@@ -73,16 +73,14 @@ public class PersistEventsStepTest extends BaseStepTest {
 
   private Date someDate = new Date(150000000L);
 
-  DbIdsRepositoryImpl dbIdsRepository = new DbIdsRepositoryImpl();
-
   EventRepository eventRepository = mock(EventRepository.class);
   PersistEventsStep step;
 
   @Before
   public void setup() {
     when(system2.now()).thenReturn(1225630680000L);
-    analysisMetadataHolder.setAnalysisDate(someDate.getTime());
-    step = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository, dbIdsRepository);
+    analysisMetadataHolder.setAnalysisDate(someDate.getTime()).setUuid(ANALYSIS_UUID);
+    step = new PersistEventsStep(dbTester.getDbClient(), system2, treeRootHolder, analysisMetadataHolder, eventRepository);
     when(eventRepository.getEvents(any(Component.class))).thenReturn(Collections.<Event>emptyList());
   }
 
@@ -107,8 +105,6 @@ public class PersistEventsStepTest extends BaseStepTest {
     dbTester.prepareDbUnit(getClass(), "empty.xml");
 
     treeRootHolder.setRoot(ROOT);
-
-    dbIdsRepository.setSnapshotId(ROOT, 1000L);
 
     when(eventRepository.getEvents(ROOT)).thenReturn(ImmutableList.of(Event.createAlert("Red (was Orange)", null, "Open issues > 0")));
 
@@ -139,7 +135,6 @@ public class PersistEventsStepTest extends BaseStepTest {
           .build())
       .build();
     treeRootHolder.setRoot(project);
-    dbIdsRepository.setSnapshotId(ROOT, 1000L);
 
     step.execute();
 
@@ -167,7 +162,6 @@ public class PersistEventsStepTest extends BaseStepTest {
           .build())
       .build();
     treeRootHolder.setRoot(project);
-    dbIdsRepository.setSnapshotId(ROOT, 1001L);
 
     step.execute();
 

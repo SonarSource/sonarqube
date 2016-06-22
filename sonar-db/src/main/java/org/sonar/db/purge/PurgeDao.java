@@ -148,7 +148,7 @@ public class PurgeDao implements Dao {
     session.commit();
   }
 
-  public List<PurgeableSnapshotDto> selectPurgeableSnapshots(String componentUuid) {
+  public List<PurgeableAnalysisDto> selectPurgeableSnapshots(String componentUuid) {
     DbSession session = mybatis.openSession(true);
     try {
       return selectPurgeableSnapshots(componentUuid, session);
@@ -157,10 +157,10 @@ public class PurgeDao implements Dao {
     }
   }
 
-  public List<PurgeableSnapshotDto> selectPurgeableSnapshots(String componentUuid, DbSession session) {
-    List<PurgeableSnapshotDto> result = Lists.newArrayList();
-    result.addAll(mapper(session).selectPurgeableSnapshotsWithEvents(componentUuid));
-    result.addAll(mapper(session).selectPurgeableSnapshotsWithoutEvents(componentUuid));
+  public List<PurgeableAnalysisDto> selectPurgeableSnapshots(String componentUuid, DbSession session) {
+    List<PurgeableAnalysisDto> result = Lists.newArrayList();
+    result.addAll(mapper(session).selectPurgeableAnalysesWithEvents(componentUuid));
+    result.addAll(mapper(session).selectPurgeableAnalysesWithoutEvents(componentUuid));
     // sort by date
     Collections.sort(result);
     return result;

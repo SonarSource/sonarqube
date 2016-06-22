@@ -19,36 +19,29 @@
  */
 package org.sonar.db.purge.period;
 
-import com.google.common.base.Function;
 import com.google.common.collect.Iterables;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
-import javax.annotation.Nullable;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.DbCleanerTestUtils;
-import org.sonar.db.purge.PurgeableSnapshotDto;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 
 import static com.google.common.collect.Lists.newArrayList;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class KeepOneFilterTest {
 
-  private static List<Long> snapshotIds(List<PurgeableSnapshotDto> snapshotDtos) {
-    return newArrayList(Iterables.transform(snapshotDtos, new Function<PurgeableSnapshotDto, Long>() {
-      @Override
-      public Long apply(@Nullable PurgeableSnapshotDto input) {
-        return input != null ? input.getSnapshotId() : null;
-      }
-    }));
+  private static List<Long> snapshotIds(List<PurgeableAnalysisDto> snapshotDtos) {
+    return newArrayList(Iterables.transform(snapshotDtos, input -> input == null ? null : input.getAnalysisId()));
   }
 
   @Test
   public void shouldOnlyOneSnapshotPerInterval() {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
-    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.<PurgeableSnapshotDto>asList(
+    List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.<PurgeableAnalysisDto>asList(
       DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"), // out of scope -> keep
       DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-05-01"), // may -> keep
       DbCleanerTestUtils.createSnapshotWithDate(3L, "2011-05-02"), // may -> to be deleted
@@ -67,7 +60,7 @@ public class KeepOneFilterTest {
   public void shouldKeepNonDeletableSnapshots() {
     Filter filter = new KeepOneFilter(DateUtils.parseDate("2011-03-25"), DateUtils.parseDate("2011-08-25"), Calendar.MONTH, "month");
 
-    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.<PurgeableSnapshotDto>asList(
+    List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.<PurgeableAnalysisDto>asList(
       DbCleanerTestUtils.createSnapshotWithDate(1L, "2011-05-01"), // to be deleted
       DbCleanerTestUtils.createSnapshotWithDate(2L, "2011-05-02").setLast(true),
       DbCleanerTestUtils.createSnapshotWithDate(3L, "2011-05-19").setHasEvents(true).setLast(false),

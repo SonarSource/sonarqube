@@ -39,13 +39,13 @@ class ComparisonController < ApplicationController
       end
     else
       # the request comes from the comparison page: let's compare the given snapshots
-      sids = get_params_as_array(:sids)
-      unless sids.empty?
-        selected_snapshots = Snapshot.all(:conditions => ['id in (?)', sids])
-        # next loop is required to keep the order that was decided by the user and which comes from the "sids" parameter
-        sids.each do |id|
+      suuids = get_params_as_array(:suuids)
+      unless suuids.empty?
+        selected_snapshots = Snapshot.all(:conditions => ['uuid in (?)', suuids])
+        # next loop is required to keep the order that was decided by the user and which comes from the "suuids" parameter
+        suuids.each do |uuid|
           selected_snapshots.each do |s|
-            snapshots << s if id==s.id.to_s
+            snapshots << s if uuid==s.uuid.to_s
           end
         end
       end
@@ -69,20 +69,20 @@ class ComparisonController < ApplicationController
   end
 
   def versions
-    key = params[:resource]
-    sids = get_params_as_array(:sids)
+    id = params[:id]
+    suuids = get_params_as_array(:suuids)
 
-    unless key.blank?
-      resource = Project.by_key(params[:resource])
+    unless id.blank?
+      project = Project.by_key(id)
 
       # we look for the events that are versions and that are not linked to snapshots already displayed on the page
-      @versions = resource.events.select { |event| !event.snapshot_id.nil? && event.category==EventCategory::KEY_VERSION && !sids.include?(event.snapshot_id.to_s) }
+      @versions = project.events.select { |event| event.category==EventCategory::KEY_VERSION && !suuids.include?(event.analysis_uuid.to_s) }
 
       # check if the latest snapshot if suggested or not (and if not, suggest it as "LATEST" => this is used for views or developers which do not have events)
-      latest_snapshot_id = resource.last_snapshot.id
-      current_and_suggested_sids = sids + @versions.map {|e| e.snapshot_id.to_s}
-      unless current_and_suggested_sids.include?(latest_snapshot_id.to_s)
-        @versions.unshift Event.new(:name => Api::Utils.message('comparison.version.latest'), :snapshot_id => latest_snapshot_id)
+      latest_snapshot_uuid = project.last_snapshot.uuid
+      current_and_suggested_suuids = suuids + @versions.map {|e| e.analysis_uuid.to_s}
+      unless current_and_suggested_suuids.include?(latest_snapshot_uuid.to_s)
+        @versions.unshift Event.new(:name => Api::Utils.message('comparison.version.latest'), :analysis_uuid => latest_snapshot_uuid)
       end
     end
 

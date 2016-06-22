@@ -50,9 +50,9 @@
                     description="[null]"
                     measure_data="[null]"/>
   <events id="1"
-          name="Version 1.0"
+          analysis_uuid="u1"
           component_uuid="1"
-          snapshot_id="1"
+          name="Version 1.0"
           category="VERSION"
           description="[null]"
           event_date="1228222680000"

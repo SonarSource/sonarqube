@@ -29,7 +29,7 @@ class Snapshot < ActiveRecord::Base
   has_many :measures, :class_name => 'ProjectMeasure', :conditions => 'person_id IS NULL'
   has_many :person_measures, :class_name => 'ProjectMeasure', :conditions => 'person_id IS NOT NULL'
 
-  has_many :events, :dependent => :destroy, :order => 'event_date DESC'
+  has_many :events, :class_name => 'Event', :foreign_key => 'analysis_uuid', :primary_key => 'uuid', :dependent => :destroy, :order => 'event_date DESC'
 
   STATUS_UNPROCESSED = 'U'
   STATUS_PROCESSED = 'P'
@@ -75,7 +75,7 @@ class Snapshot < ActiveRecord::Base
     #   2. project B, which depends on A 1.0, is analyzed -> new snapshot A 1.0 with qualifier LIB.
     #   3. project A has 2 snapshots : the first one with qualifier=TRK has measures, the second one with qualifier LIB has no measures. Its version must not be used in time machine
     # That's why the 2 following SQL requests check the qualifiers (and optionally scopes, just to be sure)
-    snapshots=Snapshot.find(:all, :conditions => ["snapshots.component_uuid=? AND events.snapshot_id=snapshots.id AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.uuid, STATUS_PROCESSED, resource.scope, resource.qualifier],
+    snapshots=Snapshot.find(:all, :conditions => ["snapshots.component_uuid=? AND events.analysis_uuid=snapshots.uuid AND snapshots.status=? AND snapshots.scope=? AND snapshots.qualifier=?", resource.uuid, STATUS_PROCESSED, resource.scope, resource.qualifier],
                             :include => 'events',
                             :order => 'snapshots.created_at ASC')
 
@@ -112,7 +112,7 @@ class Snapshot < ActiveRecord::Base
     # Look for the number_of_columns-2 last snapshots to display  (they must have 'Version' events)
     version_snapshots = []
     if number_of_columns > 2
-      snapshot_conditions[0] += " AND events.snapshot_id=snapshots.id AND events.category='Version' AND snapshots.id NOT IN (?)"
+      snapshot_conditions[0] += " AND events.analysis_uuid=snapshots.uuid AND events.category='Version' AND snapshots.id NOT IN (?)"
       snapshot_conditions << [first_snapshot.id, last_snapshot.id]
       version_snapshots=Snapshot.find(:all, :conditions => snapshot_conditions, :include => 'events', :order => 'snapshots.created_at ASC').last(number_of_columns-2)
     end
@@ -153,7 +153,7 @@ class Snapshot < ActiveRecord::Base
   def user_events
     categories=EventCategory.categories(true)
     category_names=categories.map { |cat| cat.name }
-    Event.find(:all, :conditions => ["snapshot_id=? AND category IS NOT NULL", id], :order => 'event_date desc').select do |event|
+    Event.find(:all, :conditions => ["analysis_uuid=? AND category IS NOT NULL", uuid], :order => 'event_date desc').select do |event|
       category_names.include?(event.category)
     end
   end

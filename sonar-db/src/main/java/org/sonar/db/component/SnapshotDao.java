@@ -95,6 +95,9 @@ public class SnapshotDao implements Dao {
     return snapshotDtos.get(0);
   }
 
+  /**
+   * Since this relies on tables EVENTS, this can return results only for root components (PROJECT, VIEW or DEVELOPER).
+   */
   public List<SnapshotDto> selectPreviousVersionSnapshots(DbSession session, String componentUuid, String lastVersion) {
     return mapper(session).selectPreviousVersionSnapshots(componentUuid, lastVersion);
   }

@@ -31,7 +31,7 @@ import org.sonar.db.DbSession;
 import org.sonar.db.purge.PurgeDao;
 import org.sonar.db.purge.PurgeProfiler;
 import org.sonar.db.purge.PurgeSnapshotQuery;
-import org.sonar.db.purge.PurgeableSnapshotDto;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.anyListOf;
@@ -49,7 +49,7 @@ public class DefaultPeriodCleanerTest {
     PurgeDao dao = mock(PurgeDao.class);
     DbSession session = mock(DbSession.class);
     when(dao.selectPurgeableSnapshots("uuid_123", session)).thenReturn(Arrays.asList(
-      new PurgeableSnapshotDto().setSnapshotId(999L).setDate(System2.INSTANCE.now())));
+      new PurgeableAnalysisDto().setAnalysisId(999L).setDate(System2.INSTANCE.now())));
     Filter filter1 = newLazyFilter();
     Filter filter2 = newLazyFilter();
 
@@ -83,7 +83,7 @@ public class DefaultPeriodCleanerTest {
 
   private Filter newLazyFilter() {
     Filter filter1 = mock(Filter.class);
-    when(filter1.filter(anyListOf(PurgeableSnapshotDto.class))).thenAnswer(new Answer<Object>() {
+    when(filter1.filter(anyListOf(PurgeableAnalysisDto.class))).thenAnswer(new Answer<Object>() {
       public Object answer(InvocationOnMock invocation) throws Throwable {
         return invocation.getArguments()[0];
       }

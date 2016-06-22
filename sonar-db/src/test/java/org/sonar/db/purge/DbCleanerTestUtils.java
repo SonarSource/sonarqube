@@ -26,16 +26,16 @@ public final class DbCleanerTestUtils {
   private DbCleanerTestUtils() {
   }
 
-  public static PurgeableSnapshotDto createSnapshotWithDate(long snapshotId, String date) {
-    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
-    snapshot.setSnapshotId(snapshotId);
+  public static PurgeableAnalysisDto createSnapshotWithDate(long snapshotId, String date) {
+    PurgeableAnalysisDto snapshot = new PurgeableAnalysisDto();
+    snapshot.setAnalysisId(snapshotId);
     snapshot.setDate(DateUtils.parseDate(date).getTime());
     return snapshot;
   }
 
-  public static PurgeableSnapshotDto createSnapshotWithDateTime(long snapshotId, String datetime) {
-    PurgeableSnapshotDto snapshot = new PurgeableSnapshotDto();
-    snapshot.setSnapshotId(snapshotId);
+  public static PurgeableAnalysisDto createSnapshotWithDateTime(long snapshotId, String datetime) {
+    PurgeableAnalysisDto snapshot = new PurgeableAnalysisDto();
+    snapshot.setAnalysisId(snapshotId);
     snapshot.setDate(DateUtils.parseDateTime(datetime).getTime());
     return snapshot;
   }

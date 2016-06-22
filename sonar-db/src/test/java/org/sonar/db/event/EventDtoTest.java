@@ -29,22 +29,22 @@ public class EventDtoTest {
   public void test_getters_and_setters() throws Exception {
     EventDto dto = new EventDto()
       .setId(1L)
+      .setAnalysisUuid("uuid_1")
+      .setComponentUuid("ABCD")
       .setName("1.0")
       .setCategory("Version")
       .setDescription("Version 1.0")
       .setData("some data")
       .setDate(1413407091086L)
-      .setComponentUuid("ABCD")
-      .setSnapshotId(1000L)
       .setCreatedAt(1225630680000L);
 
     assertThat(dto.getId()).isEqualTo(1L);
+    assertThat(dto.getAnalysisUuid()).isEqualTo("uuid_1");
+    assertThat(dto.getComponentUuid()).isEqualTo("ABCD");
     assertThat(dto.getName()).isEqualTo("1.0");
     assertThat(dto.getCategory()).isEqualTo("Version");
     assertThat(dto.getDescription()).isEqualTo("Version 1.0");
     assertThat(dto.getData()).isEqualTo("some data");
-    assertThat(dto.getComponentUuid()).isEqualTo("ABCD");
-    assertThat(dto.getSnapshotId()).isEqualTo(1000L);
     assertThat(dto.getCreatedAt()).isEqualTo(1225630680000L);
   }
 

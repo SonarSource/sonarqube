@@ -58,18 +58,18 @@
     </where>
   </select>
 
-  <select id="selectPurgeableSnapshotsWithEvents" parameterType="String" resultType="PurgeableSnapshot">
-    select s.id as "snapshotId", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast" from
+  <select id="selectPurgeableAnalysesWithEvents" parameterType="String" resultType="PurgeableAnalysis">
+    select s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_true} as "hasEvents", islast as "isLast" from
     snapshots s where
     s.component_uuid=#{componentUuid} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
-    exists(select e.id from events e where e.snapshot_id=s.id)
+    exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
 
-  <select id="selectPurgeableSnapshotsWithoutEvents" parameterType="String" resultType="PurgeableSnapshot">
-    select s.id as "snapshotId", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast" from
+  <select id="selectPurgeableAnalysesWithoutEvents" parameterType="String" resultType="PurgeableAnalysis">
+    select s.id as "analysisId", s.uuid as "analysisUuid", s.created_at as "date", ${_false} as "hasEvents", islast as "isLast" from
     snapshots s where
     s.component_uuid=#{componentUuid} and s.status='P' and s.qualifier &lt;&gt; 'LIB' and
-    not exists(select e.id from events e where e.snapshot_id=s.id)
+    not exists(select e.id from events e where e.analysis_uuid=s.uuid)
   </select>
 
   <select id="selectComponentIdUuidsToDisable" resultType="org.sonar.db.purge.IdUuidPair" parameterType="String">
@@ -101,9 +101,9 @@
   </delete>
 
   <delete id="deleteSnapshotEvents" parameterType="map">
-    delete from events where snapshot_id in
-    <foreach collection="snapshotIds" open="(" close=")" item="snapshotId" separator=",">
-      #{snapshotId}
+    delete from events where analysis_uuid in
+    <foreach collection="analysisUuids" open="(" close=")" item="analysisUuid" separator=",">
+      #{analysisUuid}
     </foreach>
   </delete>
 

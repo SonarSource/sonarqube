@@ -20,10 +20,10 @@
 package org.sonar.db.purge.period;
 
 import java.util.List;
-import org.sonar.db.purge.PurgeableSnapshotDto;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 
 interface Filter {
-  List<PurgeableSnapshotDto> filter(List<PurgeableSnapshotDto> snapshots);
+  List<PurgeableAnalysisDto> filter(List<PurgeableAnalysisDto> snapshots);
 
   void log();
 }

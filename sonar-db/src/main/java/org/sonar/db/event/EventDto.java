@@ -29,22 +29,14 @@ public class EventDto {
   public static final String CATEGORY_PROFILE = "Profile";
 
   private Long id;
-
-  private String name;
-
-  private String description;
-
-  private String category;
-
-  private Long date;
-
-  private Long createdAt;
-
-  private String data;
-
-  private Long snapshotId;
-
+  private String analysisUuid;
   private String componentUuid;
+  private String name;
+  private String description;
+  private String category;
+  private Long date;
+  private Long createdAt;
+  private String data;
 
   public Long getId() {
     return id;
@@ -55,12 +47,12 @@ public class EventDto {
     return this;
   }
 
-  public String getCategory() {
-    return category;
+  public String getAnalysisUuid() {
+    return analysisUuid;
   }
 
-  public EventDto setCategory(String category) {
-    this.category = category;
+  public EventDto setAnalysisUuid(String analysisUuid) {
+    this.analysisUuid = analysisUuid;
     return this;
   }
 
@@ -70,6 +62,24 @@ public class EventDto {
 
   public EventDto setComponentUuid(String componentUuid) {
     this.componentUuid = componentUuid;
+    return this;
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public EventDto setName(String name) {
+    this.name = name;
+    return this;
+  }
+
+  public String getCategory() {
+    return category;
+  }
+
+  public EventDto setCategory(String category) {
+    this.category = category;
     return this;
   }
 
@@ -111,21 +121,4 @@ public class EventDto {
     return this;
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public EventDto setName(String name) {
-    this.name = name;
-    return this;
-  }
-
-  public Long getSnapshotId() {
-    return snapshotId;
-  }
-
-  public EventDto setSnapshotId(Long snapshotId) {
-    this.snapshotId = snapshotId;
-    return this;
-  }
 }

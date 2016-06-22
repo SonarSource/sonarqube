@@ -94,7 +94,7 @@ import org.sonar.db.property.PropertiesMapper;
 import org.sonar.db.property.PropertyDto;
 import org.sonar.db.purge.IdUuidPair;
 import org.sonar.db.purge.PurgeMapper;
-import org.sonar.db.purge.PurgeableSnapshotDto;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationDto;
 import org.sonar.db.qualitygate.ProjectQgateAssociationMapper;
 import org.sonar.db.qualitygate.QualityGateConditionDto;
@@ -173,7 +173,7 @@ public class MyBatis {
     confBuilder.loadAlias("MeasureFilterFavourite", MeasureFilterFavouriteDto.class);
     confBuilder.loadAlias("NotificationQueue", NotificationQueueDto.class);
     confBuilder.loadAlias("Property", PropertyDto.class);
-    confBuilder.loadAlias("PurgeableSnapshot", PurgeableSnapshotDto.class);
+    confBuilder.loadAlias("PurgeableAnalysis", PurgeableAnalysisDto.class);
     confBuilder.loadAlias("QualityGate", QualityGateDto.class);
     confBuilder.loadAlias("QualityGateCondition", QualityGateConditionDto.class);
     confBuilder.loadAlias("ProjectQgateAssociation", ProjectQgateAssociationDto.class);

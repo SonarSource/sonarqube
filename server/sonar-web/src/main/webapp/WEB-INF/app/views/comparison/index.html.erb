@@ -20,20 +20,20 @@
     }
 
     function moveLeft(index) {
-      sids = $j('#sids').val().split(',');
-      idToLeft = sids[index];
-      idToRight = sids[index - 1];
-      sids.splice(index - 1, 2, [idToLeft, idToRight]);
-      $j('#sids').val(sids.join(','));
+      suuids = $j('#suuids').val().split(',');
+      idToLeft = suuids[index];
+      idToRight = suuids[index - 1];
+      suuids.splice(index - 1, 2, [idToLeft, idToRight]);
+      $j('#suuids').val(suuids.join(','));
       submitForm();
     }
 
     function moveRight(index) {
-      sids = $j('#sids').val().split(',');
-      idToRight = sids[index];
-      idToLeft = sids[index + 1];
-      sids.splice(index, 2, [idToLeft, idToRight]);
-      $j('#sids').val(sids.join(','));
+      suuids = $j('#suuids').val().split(',');
+      idToRight = suuids[index];
+      idToLeft = suuids[index + 1];
+      suuids.splice(index, 2, [idToLeft, idToRight]);
+      $j('#suuids').val(suuids.join(','));
       submitForm();
     }
 
@@ -70,7 +70,7 @@
       <h1 class="page-title"><%= h message('comparison.page') -%></h1>
     </header>
     <form method="GET" id="compare-form" action="<%= ApplicationController.root_context -%>/comparison/index">
-      <input type="hidden" name="sids" id="sids" value="<%= @snapshots.map { |s| s.id.to_s }.join(',') -%>">
+      <input type="hidden" name="suuids" id="suuids" value="<%= @snapshots.map { |s| s.uuid.to_s }.join(',') -%>">
       <input type="hidden" name="metrics" id="metrics" value="<%= @metrics.map { |m| m.key }.join(',') -%>">
 
 	  <div style="margin-bottom: 4px">
@@ -112,9 +112,9 @@
                   $j('#version_loading').show();
                   $j.ajax({
                     type:'GET',
-                    url:'<%= ApplicationController.root_context -%>/comparison/versions?resource='
-                      + id + '&sids='
-                      + $j('#sids').val(),
+                    url:'<%= ApplicationController.root_context -%>/comparison/versions?id='
+                      + id + '&suuids='
+                      + $j('#suuids').val(),
                     success:function (data) {
                       $j('#new_version').html(data);
                       $j('#new_version').select2({
@@ -140,14 +140,14 @@
             </select>
             <script>
               $j('#new_version').change(function (event) {
-                var id = event.target.value;
-                if (id != null) {
-                  var currentSnapshotIds = $j('#sids').val();
-                  if (currentSnapshotIds.length > 0) {
-                    currentSnapshotIds += ',';
+                var uuid = event.target.value;
+                if (uuid != null) {
+                  var currentSnapshotUuids = $j('#suuids').val();
+                  if (currentSnapshotUuids.length > 0) {
+                    currentSnapshotUuids += ',';
                   }
-                  currentSnapshotIds += id;
-                  $j('#sids').val(currentSnapshotIds);
+                  currentSnapshotUuids += uuid;
+                  $j('#suuids').val(currentSnapshotUuids);
                   $j('#compare-form').submit();
                 }
               });
@@ -177,7 +177,7 @@
                   </td>
                   <td style="text-align: center; min-width: 100px">
                     <div style="width: 100%; text-align: center;">
-                      <a class="icon-delete" href="#" onclick="removeFromList(<%= index -%>, $j('#sids'))" id="del-r-<%= index -%>" title="<%= message('comparison.suppress_column') -%>"></a>
+                      <a class="icon-delete" href="#" onclick="removeFromList(<%= index -%>, $j('#suuids'))" id="del-r-<%= index -%>" title="<%= message('comparison.suppress_column') -%>"></a>
                     </div>
                   </td>
                   <td style="vertical-align: bottom;">

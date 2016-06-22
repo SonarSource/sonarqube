@@ -116,10 +116,6 @@ class Project < ActiveRecord::Base
       end
   end
 
-  def events_with_snapshot
-    events.select { |event| !event.snapshot_id.nil? }
-  end
-
   def key
     kee
   end

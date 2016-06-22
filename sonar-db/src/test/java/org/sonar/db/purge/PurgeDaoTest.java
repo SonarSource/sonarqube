@@ -105,7 +105,7 @@ public class PurgeDaoTest {
   @Test
   public void shouldSelectPurgeableSnapshots() {
     dbTester.prepareDbUnit(getClass(), "shouldSelectPurgeableSnapshots.xml");
-    List<PurgeableSnapshotDto> snapshots = underTest.selectPurgeableSnapshots(THE_PROJECT_UUID);
+    List<PurgeableAnalysisDto> snapshots = underTest.selectPurgeableSnapshots(THE_PROJECT_UUID);
 
     assertThat(snapshots).hasSize(3);
     assertThat(getById(snapshots, THE_PROJECT_ID).isLast()).isTrue();
@@ -217,9 +217,9 @@ public class PurgeDaoTest {
     return dto;
   }
 
-  private static PurgeableSnapshotDto getById(List<PurgeableSnapshotDto> snapshots, long id) {
-    for (PurgeableSnapshotDto snapshot : snapshots) {
-      if (snapshot.getSnapshotId() == id) {
+  private static PurgeableAnalysisDto getById(List<PurgeableAnalysisDto> snapshots, long id) {
+    for (PurgeableAnalysisDto snapshot : snapshots) {
+      if (snapshot.getAnalysisId() == id) {
         return snapshot;
       }
     }

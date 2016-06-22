@@ -24,7 +24,7 @@ import java.util.List;
 import org.junit.Test;
 import org.sonar.api.utils.DateUtils;
 import org.sonar.db.purge.DbCleanerTestUtils;
-import org.sonar.db.purge.PurgeableSnapshotDto;
+import org.sonar.db.purge.PurgeableAnalysisDto;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -34,12 +34,12 @@ public class DeleteAllFilterTest {
   public void shouldDeleteAllSnapshotsPriorToDate() {
     Filter filter = new DeleteAllFilter(DateUtils.parseDate("2011-12-25"));
 
-    List<PurgeableSnapshotDto> toDelete = filter.filter(Arrays.asList(
+    List<PurgeableAnalysisDto> toDelete = filter.filter(Arrays.asList(
       DbCleanerTestUtils.createSnapshotWithDate(1L, "2010-01-01"),
       DbCleanerTestUtils.createSnapshotWithDate(2L, "2010-12-25"),
       DbCleanerTestUtils.createSnapshotWithDate(3L, "2012-01-01")
       ));
 
-    assertThat(toDelete).extracting("snapshotId").containsOnly(1L, 2L);
+    assertThat(toDelete).extracting("analysisId").containsOnly(1L, 2L);
   }
 }

@@ -23,9 +23,11 @@ import java.util.Date;
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 
-public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
+public class PurgeableAnalysisDto implements Comparable<PurgeableAnalysisDto> {
   private Date date;
-  private long snapshotId;
+  // FIXME this property will be useless once we refactor table SNAPSHOTS into ANALYSES
+  private long analysisId;
+  private String analysisUuid;
   private boolean hasEvents;
   private boolean isLast;
 
@@ -33,40 +35,49 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
     return date;
   }
 
-  public long getSnapshotId() {
-    return snapshotId;
+  public PurgeableAnalysisDto setDate(Long aLong) {
+    this.date = new Date(aLong);
+    return this;
+  }
+
+  public long getAnalysisId() {
+    return analysisId;
+  }
+
+  public PurgeableAnalysisDto setAnalysisId(long analysisId) {
+    this.analysisId = analysisId;
+    return this;
+  }
+
+  public String getAnalysisUuid() {
+    return analysisUuid;
+  }
+
+  public PurgeableAnalysisDto setAnalysisUuid(String analysisUuid) {
+    this.analysisUuid = analysisUuid;
+    return this;
   }
 
   public boolean hasEvents() {
     return hasEvents;
   }
 
-  public boolean isLast() {
-    return isLast;
-  }
-
-  public PurgeableSnapshotDto setDate(Long aLong) {
-    this.date = new Date(aLong);
-    return this;
-  }
-
-  public PurgeableSnapshotDto setSnapshotId(long snapshotId) {
-    this.snapshotId = snapshotId;
-    return this;
-  }
-
-  public PurgeableSnapshotDto setHasEvents(boolean b) {
+  public PurgeableAnalysisDto setHasEvents(boolean b) {
     this.hasEvents = b;
     return this;
   }
 
-  public PurgeableSnapshotDto setLast(boolean last) {
+  public boolean isLast() {
+    return isLast;
+  }
+
+  public PurgeableAnalysisDto setLast(boolean last) {
     isLast = last;
     return this;
   }
 
   @Override
-  public int compareTo(PurgeableSnapshotDto other) {
+  public int compareTo(PurgeableAnalysisDto other) {
     return date.compareTo(other.date);
   }
 
@@ -78,13 +89,13 @@ public class PurgeableSnapshotDto implements Comparable<PurgeableSnapshotDto> {
     if (o == null || getClass() != o.getClass()) {
       return false;
     }
-    PurgeableSnapshotDto that = (PurgeableSnapshotDto) o;
-    return snapshotId == that.snapshotId;
+    PurgeableAnalysisDto that = (PurgeableAnalysisDto) o;
+    return analysisId == that.analysisId;
   }
 
   @Override
   public int hashCode() {
-    return (int) snapshotId;
+    return (int) analysisId;
   }
 
   @Override

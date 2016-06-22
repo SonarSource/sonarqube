@@ -145,7 +145,7 @@
     SELECT
     <include refid="snapshotColumns" />
     FROM snapshots s
-    INNER JOIN events e ON s.id = e.snapshot_id AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
+    INNER JOIN events e ON s.uuid = e.analysis_uuid AND e.name &lt;&gt; #{lastVersion} AND e.category='Version'
     <where>
       s.component_uuid=#{componentUuid}
     </where>
