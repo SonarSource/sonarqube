@@ -33,6 +33,7 @@ public class QualityProfileDto extends Dto<String> {
   private String language;
   private String parentKee;
   private String rulesUpdatedAt;
+  private Long lastUsed;
   private boolean isDefault;
 
   /**
@@ -109,6 +110,16 @@ public class QualityProfileDto extends Dto<String> {
 
   public QualityProfileDto setRulesUpdatedAtAsDate(Date d) {
     this.rulesUpdatedAt = UtcDateUtils.formatDateTime(d);
+    return this;
+  }
+
+  @CheckForNull
+  public Long getLastUsed() {
+    return lastUsed;
+  }
+
+  public QualityProfileDto setLastUsed(@Nullable Long lastUsed) {
+    this.lastUsed = lastUsed;
     return this;
   }
 

@@ -35,6 +35,7 @@ public class QualityProfileDbTester {
 
   public void insertQualityProfiles(QualityProfileDto qualityProfile, QualityProfileDto... qualityProfiles) {
     dbClient.qualityProfileDao().insert(dbSession, qualityProfile, qualityProfiles);
+    dbSession.commit();
   }
 
   public void insertProjectWithQualityProfileAssociations(ComponentDto project, QualityProfileDto... qualityProfiles) {
@@ -42,6 +43,8 @@ public class QualityProfileDbTester {
     for (QualityProfileDto qualityProfile : qualityProfiles) {
       dbClient.qualityProfileDao().insertProjectProfileAssociation(project.uuid(), qualityProfile.getKey(), dbSession);
     }
+    
+    dbSession.commit();
   }
 
 }

@@ -52,6 +52,8 @@ public interface QualityProfileMapper {
 
   List<QualityProfileDto> selectByLanguage(String language);
 
+  List<QualityProfileDto> selectByKeys(@Param("keys") List<String> keys);
+
   // INHERITANCE
 
   @CheckForNull

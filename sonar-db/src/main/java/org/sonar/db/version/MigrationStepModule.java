@@ -88,6 +88,7 @@ import org.sonar.db.version.v60.AddAnalysisUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddComponentUuidColumnToDuplicationsIndex;
 import org.sonar.db.version.v60.AddComponentUuidColumnToMeasures;
 import org.sonar.db.version.v60.AddComponentUuidColumnsToSnapshots;
+import org.sonar.db.version.v60.AddLastUsedColumnToRulesProfiles;
 import org.sonar.db.version.v60.AddUuidColumnToSnapshots;
 import org.sonar.db.version.v60.AddUuidColumnsToProjects;
 import org.sonar.db.version.v60.AddUuidColumnsToResourceIndex;
@@ -117,6 +118,7 @@ import org.sonar.db.version.v60.PopulateAnalysisUuidOfDuplicationsIndex;
 import org.sonar.db.version.v60.PopulateComponentUuidColumnsOfSnapshots;
 import org.sonar.db.version.v60.PopulateComponentUuidOfDuplicationsIndex;
 import org.sonar.db.version.v60.PopulateComponentUuidOfMeasures;
+import org.sonar.db.version.v60.PopulateLastUsedColumnOfRulesProfiles;
 import org.sonar.db.version.v60.PopulateUuidColumnOnSnapshots;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfProjects;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
@@ -227,6 +229,8 @@ public class MigrationStepModule extends Module {
       CleanOrphanRowsInProjects.class,
       MakeUuidColumnsNotNullOnProjects.class,
       DropIdColumnsFromProjects.class,
+      AddLastUsedColumnToRulesProfiles.class,
+      PopulateLastUsedColumnOfRulesProfiles.class,
 
       // SNAPSHOTS.UUID
       AddUuidColumnToSnapshots.class,

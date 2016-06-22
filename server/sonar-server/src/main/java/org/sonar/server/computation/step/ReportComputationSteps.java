@@ -98,6 +98,7 @@ public class ReportComputationSteps extends AbstractComputationSteps {
 
     // Switch snapshot and purge
     SwitchSnapshotStep.class,
+    UpdateQualityProfilesLastUsedDateStep.class,
     IndexComponentsStep.class,
     PurgeDatastoresStep.class,
     ApplyPermissionsStep.class,

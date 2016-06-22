@@ -61,6 +61,10 @@ public class QualityProfileDao implements Dao {
     return dto;
   }
 
+  public List<QualityProfileDto> selectByKeys(DbSession session, List<String> keys) {
+    return executeLargeInputs(keys, mapper(session)::selectByKeys);
+  }
+
   public List<QualityProfileDto> selectAll(DbSession session) {
     return mapper(session).selectAll();
   }

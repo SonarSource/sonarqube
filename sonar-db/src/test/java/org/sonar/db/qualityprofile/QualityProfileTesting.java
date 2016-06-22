@@ -17,18 +17,24 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+package org.sonar.db.qualityprofile;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.util.Date;
+import org.sonar.core.util.Uuids;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(104);
+import static org.apache.commons.lang.RandomStringUtils.randomAlphanumeric;
+import static org.apache.commons.lang.math.RandomUtils.nextLong;
+
+public class QualityProfileTesting {
+  public static QualityProfileDto newQualityProfileDto() {
+    String uuid = Uuids.createFast();
+    QualityProfileDto dto = QualityProfileDto.createFor(uuid)
+      .setName(uuid)
+      .setLanguage(randomAlphanumeric(20))
+      .setLastUsed(nextLong());
+    dto.setCreatedAt(new Date())
+      .setUpdatedAt(new Date());
+    return dto;
   }
 }

@@ -12,22 +12,25 @@
     p.is_default as isDefault,
     p.created_at as createdAt,
     p.updated_at as updatedAt,
-    p.rules_updated_at as rulesUpdatedAt
+    p.rules_updated_at as rulesUpdatedAt,
+    p.last_used as lastUsed
   </sql>
 
   <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO rules_profiles (kee, parent_kee, name, language, is_default, created_at, updated_at, rules_updated_at)
-    VALUES (#{kee}, #{parentKee}, #{name}, #{language}, #{isDefault}, #{createdAt}, #{updatedAt}, #{rulesUpdatedAt,})
+    INSERT INTO rules_profiles (kee, parent_kee, name, language, is_default, created_at, updated_at, rules_updated_at, last_used)
+    VALUES (#{kee, jdbcType=VARCHAR}, #{parentKee,jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{language, jdbcType=VARCHAR}, #{isDefault, jdbcType=BOOLEAN},
+    #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP}, #{rulesUpdatedAt, jdbcType=VARCHAR}, #{lastUsed, jdbcType=BIGINT})
   </insert>
 
   <update id="update" parameterType="QualityProfile">
     UPDATE rules_profiles SET
-    name=#{name},
-    language=#{language},
-    is_default=#{isDefault},
-    parent_kee=#{parentKee},
-    updated_at=#{updatedAt},
-    rules_updated_at=#{rulesUpdatedAt}
+    name=#{name, jdbcType=VARCHAR},
+    language=#{language, jdbcType=VARCHAR},
+    is_default=#{isDefault, jdbcType=BOOLEAN},
+    parent_kee=#{parentKee, jdbcType=VARCHAR},
+    updated_at=#{updatedAt, jdbcType=TIMESTAMP},
+    rules_updated_at=#{rulesUpdatedAt, jdbcType=VARCHAR},
+    last_used=#{lastUsed, jdbcType=BIGINT}
     WHERE id=#{id}
   </update>
 
@@ -67,6 +70,16 @@
     <include refid="profilesColumns"/>
     FROM rules_profiles p
     WHERE p.kee=#{id}
+  </select>
+
+  <select id="selectByKeys" parameterType="string" resultType="QualityProfile">
+    SELECT
+    <include refid="profilesColumns"/>
+    FROM rules_profiles p
+    WHERE p.kee in
+    <foreach collection="keys" open="(" close=")" item="key" separator=",">
+      #{key}
+    </foreach>
   </select>
 
   <select id="selectByLanguage" parameterType="String" resultType="QualityProfile">
