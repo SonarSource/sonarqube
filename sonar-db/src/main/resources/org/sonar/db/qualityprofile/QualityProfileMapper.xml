@@ -13,13 +13,23 @@
     p.created_at as createdAt,
     p.updated_at as updatedAt,
     p.rules_updated_at as rulesUpdatedAt,
-    p.last_used as lastUsed
+    p.last_used as lastUsed,
+    p.user_updated_at as userUpdatedAt
   </sql>
 
   <insert id="insert" parameterType="QualityProfile" keyColumn="id" useGeneratedKeys="true" keyProperty="id">
-    INSERT INTO rules_profiles (kee, parent_kee, name, language, is_default, created_at, updated_at, rules_updated_at, last_used)
-    VALUES (#{kee, jdbcType=VARCHAR}, #{parentKee,jdbcType=VARCHAR}, #{name, jdbcType=VARCHAR}, #{language, jdbcType=VARCHAR}, #{isDefault, jdbcType=BOOLEAN},
-    #{createdAt, jdbcType=TIMESTAMP}, #{updatedAt, jdbcType=TIMESTAMP}, #{rulesUpdatedAt, jdbcType=VARCHAR}, #{lastUsed, jdbcType=BIGINT})
+    INSERT INTO rules_profiles (kee, parent_kee, name, language, is_default, created_at, updated_at, rules_updated_at, last_used, user_updated_at)
+    VALUES (
+    #{kee, jdbcType=VARCHAR},
+    #{parentKee, jdbcType=VARCHAR},
+    #{name, jdbcType=VARCHAR},
+    #{language, jdbcType=VARCHAR},
+    #{isDefault, jdbcType=BOOLEAN},
+    #{createdAt, jdbcType=TIMESTAMP},
+    #{updatedAt, jdbcType=TIMESTAMP},
+    #{rulesUpdatedAt, jdbcType=VARCHAR},
+    #{lastUsed, jdbcType=BIGINT},
+    #{userUpdatedAt, jdbcType=BIGINT})
   </insert>
 
   <update id="update" parameterType="QualityProfile">
@@ -30,7 +40,8 @@
     parent_kee=#{parentKee, jdbcType=VARCHAR},
     updated_at=#{updatedAt, jdbcType=TIMESTAMP},
     rules_updated_at=#{rulesUpdatedAt, jdbcType=VARCHAR},
-    last_used=#{lastUsed, jdbcType=BIGINT}
+    last_used=#{lastUsed, jdbcType=BIGINT},
+    user_updated_at=#{userUpdatedAt, jdbcType=BIGINT}
     WHERE id=#{id}
   </update>
 
