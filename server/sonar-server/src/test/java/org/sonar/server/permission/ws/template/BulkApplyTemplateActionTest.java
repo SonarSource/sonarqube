@@ -20,6 +20,19 @@
 
 package org.sonar.server.permission.ws.template;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.mock;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.ComponentTesting.newView;
+import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
+import static org.sonar.db.user.GroupMembershipQuery.IN;
+import static org.sonar.db.user.GroupTesting.newGroupDto;
+import static org.sonar.db.user.UserTesting.newUserDto;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.FluentIterable;
 import java.util.List;
@@ -63,19 +76,6 @@ import org.sonar.server.usergroups.ws.UserGroupFinder;
 import org.sonar.server.ws.TestRequest;
 import org.sonar.server.ws.WsActionTester;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.component.ComponentTesting.newView;
-import static org.sonar.db.permission.PermissionTemplateTesting.newPermissionTemplateDto;
-import static org.sonar.db.user.GroupMembershipQuery.IN;
-import static org.sonar.db.user.GroupTesting.newGroupDto;
-import static org.sonar.db.user.UserTesting.newUserDto;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
-
 public class BulkApplyTemplateActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone().login("login").setGlobalPermissions(GlobalPermissions.SYSTEM_ADMIN);
@@ -108,7 +108,7 @@ public class BulkApplyTemplateActionTest {
     PermissionService permissionService = new PermissionService(dbClient, repository, issueAuthorizationIndexer, userSession, componentFinder);
     PermissionDependenciesFinder permissionDependenciesFinder = new PermissionDependenciesFinder(dbClient, componentFinder, new UserGroupFinder(dbClient), resourceTypes);
 
-    BulkApplyTemplateAction underTest = new BulkApplyTemplateAction(dbClient, permissionService, permissionDependenciesFinder, userSession, i18n, resourceTypes);
+    BulkApplyTemplateAction underTest = new BulkApplyTemplateAction(dbClient, permissionService, permissionDependenciesFinder, i18n, resourceTypes);
     ws = new WsActionTester(underTest);
 
     user1 = userDb.insertUser(newUserDto().setLogin("user-login-1"));

@@ -19,21 +19,21 @@
  */
 package org.sonar.server.ws;
 
+import static com.google.common.base.Predicates.not;
+import static com.google.common.collect.FluentIterable.from;
+import static com.google.common.collect.Ordering.natural;
+import static java.lang.String.format;
+import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
+
 import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableSet;
+import java.util.Locale;
 import java.util.Set;
 import javax.annotation.Nullable;
 import org.sonar.api.i18n.I18n;
 import org.sonar.api.resources.Qualifiers;
 import org.sonar.api.resources.ResourceTypes;
 import org.sonar.api.server.ws.WebService;
-import org.sonar.server.user.UserSession;
-
-import static com.google.common.base.Predicates.not;
-import static com.google.common.collect.FluentIterable.from;
-import static com.google.common.collect.Ordering.natural;
-import static java.lang.String.format;
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
 
 public class WsParameterBuilder {
   private static final String PARAM_QUALIFIER = "qualifier";
@@ -94,7 +94,7 @@ public class WsParameterBuilder {
 
   private static String qualifierLabel(QualifierParameterContext context, String qualifier) {
     String qualifiersPropertyPrefix = "qualifiers.";
-    return context.getI18n().message(context.getUserSession().locale(), qualifiersPropertyPrefix + qualifier, "no description available");
+    return context.getI18n().message(Locale.ENGLISH, qualifiersPropertyPrefix + qualifier, "no description available");
   }
 
   private enum IsDeprecatedQualifier implements Predicate<String> {
@@ -109,16 +109,14 @@ public class WsParameterBuilder {
   public static class QualifierParameterContext {
     private final I18n i18n;
     private final ResourceTypes resourceTypes;
-    private final UserSession userSession;
 
-    private QualifierParameterContext(UserSession userSession, I18n i18n, ResourceTypes resourceTypes) {
+    private QualifierParameterContext(I18n i18n, ResourceTypes resourceTypes) {
       this.i18n = i18n;
       this.resourceTypes = resourceTypes;
-      this.userSession = userSession;
     }
 
-    public static QualifierParameterContext newQualifierParameterContext(UserSession userSession, I18n i18n, ResourceTypes resourceTypes) {
-      return new QualifierParameterContext(userSession, i18n, resourceTypes);
+    public static QualifierParameterContext newQualifierParameterContext(I18n i18n, ResourceTypes resourceTypes) {
+      return new QualifierParameterContext(i18n, resourceTypes);
     }
 
     public I18n getI18n() {
@@ -127,10 +125,6 @@ public class WsParameterBuilder {
 
     public ResourceTypes getResourceTypes() {
       return resourceTypes;
-    }
-
-    public UserSession getUserSession() {
-      return userSession;
     }
   }
 }

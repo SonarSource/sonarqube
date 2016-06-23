@@ -19,6 +19,35 @@
  */
 package org.sonar.server.measure.ws;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.api.utils.DateUtils.parseDateTime;
+import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
+import static org.sonar.db.component.ComponentTesting.newDeveloper;
+import static org.sonar.db.component.ComponentTesting.newDirectory;
+import static org.sonar.db.component.ComponentTesting.newFileDto;
+import static org.sonar.db.component.ComponentTesting.newProjectDto;
+import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
+import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
+import static org.sonar.db.metric.MetricTesting.newMetricDto;
+import static org.sonar.server.measure.ws.ComponentTreeAction.CHILDREN_STRATEGY;
+import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
+import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
+import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
+import static org.sonar.test.JsonAssert.assertJson;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
+import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
+
 import com.google.common.base.Throwables;
 import java.io.IOException;
 import java.io.InputStream;
@@ -55,35 +84,6 @@ import org.sonarqube.ws.MediaTypes;
 import org.sonarqube.ws.WsMeasures;
 import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.sonar.api.utils.DateUtils.parseDateTime;
-import static org.sonar.db.component.ComponentTesting.newDevProjectCopy;
-import static org.sonar.db.component.ComponentTesting.newDeveloper;
-import static org.sonar.db.component.ComponentTesting.newDirectory;
-import static org.sonar.db.component.ComponentTesting.newFileDto;
-import static org.sonar.db.component.ComponentTesting.newProjectDto;
-import static org.sonar.db.component.SnapshotTesting.newSnapshotForProject;
-import static org.sonar.db.measure.MeasureTesting.newMeasureDto;
-import static org.sonar.db.metric.MetricTesting.newMetricDto;
-import static org.sonar.server.measure.ws.ComponentTreeAction.CHILDREN_STRATEGY;
-import static org.sonar.server.measure.ws.ComponentTreeAction.LEAVES_STRATEGY;
-import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_PERIOD_SORT;
-import static org.sonar.server.measure.ws.ComponentTreeAction.METRIC_SORT;
-import static org.sonar.server.measure.ws.ComponentTreeAction.NAME_SORT;
-import static org.sonar.server.measure.ws.ComponentTreeAction.WITH_MEASURES_ONLY_METRIC_SORT_FILTER;
-import static org.sonar.test.JsonAssert.assertJson;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.ADDITIONAL_PERIODS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_ADDITIONAL_FIELDS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_BASE_COMPONENT_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_ID;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_DEVELOPER_KEY;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_KEYS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_PERIOD_SORT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
-import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
-
 public class ComponentTreeActionTest {
   @Rule
   public UserSessionRule userSession = UserSessionRule.standalone();
@@ -101,7 +101,7 @@ public class ComponentTreeActionTest {
   WsActionTester ws = new WsActionTester(
     new ComponentTreeAction(
       new ComponentTreeDataLoader(dbClient, new ComponentFinder(dbClient), userSession, resourceTypes),
-      userSession, i18n, resourceTypes));
+      i18n, resourceTypes));
 
   @Before
   public void setUp() {

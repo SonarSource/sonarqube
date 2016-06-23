@@ -20,6 +20,15 @@
 
 package org.sonar.server.permission.ws.template;
 
+import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
+import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
+import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
+import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
+
 import com.google.common.collect.Collections2;
 import com.google.common.collect.Lists;
 import java.util.List;
@@ -40,32 +49,20 @@ import org.sonar.server.permission.ApplyPermissionTemplateQuery;
 import org.sonar.server.permission.PermissionService;
 import org.sonar.server.permission.ws.PermissionDependenciesFinder;
 import org.sonar.server.permission.ws.PermissionsWsAction;
-import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.client.permission.BulkApplyTemplateWsRequest;
-
-import static org.sonar.server.component.ResourceTypeFunctions.RESOURCE_TYPE_TO_QUALIFIER;
-import static org.sonar.server.permission.ws.PermissionsWsParametersBuilder.createTemplateParameters;
-import static org.sonar.server.permission.ws.WsTemplateRef.newTemplateRef;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsParameterBuilder.createRootQualifierParameter;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_QUALIFIER;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_ID;
-import static org.sonarqube.ws.client.permission.PermissionsWsParameters.PARAM_TEMPLATE_NAME;
 
 public class BulkApplyTemplateAction implements PermissionsWsAction {
   private final DbClient dbClient;
   private final PermissionService permissionService;
   private final PermissionDependenciesFinder finder;
-  private final UserSession userSession;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
 
-  public BulkApplyTemplateAction(DbClient dbClient, PermissionService permissionService, PermissionDependenciesFinder finder, UserSession userSession, I18n i18n,
+  public BulkApplyTemplateAction(DbClient dbClient, PermissionService permissionService, PermissionDependenciesFinder finder, I18n i18n,
     ResourceTypes resourceTypes) {
     this.dbClient = dbClient;
     this.permissionService = permissionService;
     this.finder = finder;
-    this.userSession = userSession;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
   }
@@ -86,7 +83,7 @@ public class BulkApplyTemplateAction implements PermissionsWsAction {
         "<li>project keys that are exactly the same as the supplied string</li>" +
         "</ul>")
       .setExampleValue("apac");
-    createRootQualifierParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes));
+    createRootQualifierParameter(action, newQualifierParameterContext(i18n, resourceTypes));
     createTemplateParameters(action);
   }
 

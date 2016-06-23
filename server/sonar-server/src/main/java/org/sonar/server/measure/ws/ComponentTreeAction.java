@@ -19,22 +19,6 @@
  */
 package org.sonar.server.measure.ws;
 
-import com.google.common.collect.ImmutableSortedSet;
-import java.util.Set;
-import org.sonar.api.i18n.I18n;
-import org.sonar.api.resources.ResourceTypes;
-import org.sonar.api.server.ws.Request;
-import org.sonar.api.server.ws.Response;
-import org.sonar.api.server.ws.WebService;
-import org.sonar.api.server.ws.WebService.Param;
-import org.sonar.api.utils.Paging;
-import org.sonar.db.component.ComponentDto;
-import org.sonar.db.metric.MetricDto;
-import org.sonar.server.user.UserSession;
-import org.sonarqube.ws.WsMeasures;
-import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
-import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
-
 import static java.lang.String.format;
 import static org.sonar.core.util.Uuids.UUID_EXAMPLE_02;
 import static org.sonar.server.measure.ws.ComponentDtoToWsComponent.componentDtoToWsComponent;
@@ -61,6 +45,21 @@ import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_METRIC_SORT_FILTER;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_QUALIFIERS;
 import static org.sonarqube.ws.client.measure.MeasuresWsParameters.PARAM_STRATEGY;
+
+import com.google.common.collect.ImmutableSortedSet;
+import java.util.Set;
+import org.sonar.api.i18n.I18n;
+import org.sonar.api.resources.ResourceTypes;
+import org.sonar.api.server.ws.Request;
+import org.sonar.api.server.ws.Response;
+import org.sonar.api.server.ws.WebService;
+import org.sonar.api.server.ws.WebService.Param;
+import org.sonar.api.utils.Paging;
+import org.sonar.db.component.ComponentDto;
+import org.sonar.db.metric.MetricDto;
+import org.sonarqube.ws.WsMeasures;
+import org.sonarqube.ws.WsMeasures.ComponentTreeWsResponse;
+import org.sonarqube.ws.client.measure.ComponentTreeWsRequest;
 
 /**
  * <p>Navigate through components based on different strategy with specified measures.
@@ -98,14 +97,12 @@ public class ComponentTreeAction implements MeasuresWsAction {
   static final Set<String> METRIC_SORT_FILTERS = ImmutableSortedSet.of(ALL_METRIC_SORT_FILTER, WITH_MEASURES_ONLY_METRIC_SORT_FILTER);
 
   private final ComponentTreeDataLoader dataLoader;
-  private final UserSession userSession;
   private final I18n i18n;
   private final ResourceTypes resourceTypes;
 
-  public ComponentTreeAction(ComponentTreeDataLoader dataLoader, UserSession userSession, I18n i18n,
+  public ComponentTreeAction(ComponentTreeDataLoader dataLoader, I18n i18n,
     ResourceTypes resourceTypes) {
     this.dataLoader = dataLoader;
-    this.userSession = userSession;
     this.i18n = i18n;
     this.resourceTypes = resourceTypes;
   }
@@ -170,7 +167,7 @@ public class ComponentTreeAction implements MeasuresWsAction {
     createMetricKeysParameter(action);
     createAdditionalFieldsParameter(action);
     createDeveloperParameters(action);
-    createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes));
+    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes));
 
     action.createParam(PARAM_STRATEGY)
       .setDescription("Strategy to search for base component descendants:" +

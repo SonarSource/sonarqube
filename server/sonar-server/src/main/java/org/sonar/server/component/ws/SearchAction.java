@@ -19,6 +19,13 @@
  */
 package org.sonar.server.component.ws;
 
+import static com.google.common.collect.FluentIterable.from;
+import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
+import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
+import static org.sonar.server.ws.WsUtils.writeProtobuf;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
+import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
+
 import com.google.common.base.Function;
 import java.util.List;
 import javax.annotation.Nonnull;
@@ -39,13 +46,6 @@ import org.sonar.server.user.UserSession;
 import org.sonarqube.ws.WsComponents;
 import org.sonarqube.ws.WsComponents.SearchWsResponse;
 import org.sonarqube.ws.client.component.SearchWsRequest;
-
-import static com.google.common.collect.FluentIterable.from;
-import static org.sonar.server.ws.WsParameterBuilder.QualifierParameterContext.newQualifierParameterContext;
-import static org.sonar.server.ws.WsParameterBuilder.createQualifiersParameter;
-import static org.sonar.server.ws.WsUtils.writeProtobuf;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_LANGUAGE;
-import static org.sonarqube.ws.client.component.ComponentsWsParameters.PARAM_QUALIFIERS;
 
 public class SearchAction implements ComponentsWsAction {
   private final DbClient dbClient;
@@ -73,7 +73,7 @@ public class SearchAction implements ComponentsWsAction {
       .setResponseExample(getClass().getResource("search-components-example.json"))
       .setHandler(this);
 
-    createQualifiersParameter(action, newQualifierParameterContext(userSession, i18n, resourceTypes))
+    createQualifiersParameter(action, newQualifierParameterContext(i18n, resourceTypes))
       .setRequired(true);
 
     action
