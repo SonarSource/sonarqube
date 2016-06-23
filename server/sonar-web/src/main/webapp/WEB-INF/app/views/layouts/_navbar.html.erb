@@ -18,6 +18,6 @@
     window.sonarqube.space = 'settings';
     <% end %>
 
-    window.SS.isUserAdmin = <%= current_user && is_admin? ? 'true' : 'false' -%>;
+    window.SS.isUserAdmin = <%= logged_in? && is_admin? ? 'true' : 'false' -%>;
   })();
 </script>

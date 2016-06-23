@@ -102,7 +102,11 @@ class ApplicationController < ActionController::Base
   end
 
   def check_authentication
-    access_denied if !current_user && java_facade.getConfigurationValue('sonar.forceAuthentication')=='true'
+    begin
+      current_user
+    rescue Java::OrgSonarServerExceptions::UnauthorizedException => ex
+      access_denied
+    end
   end
 
   # i18n

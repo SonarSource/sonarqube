@@ -113,7 +113,7 @@ public class LoginActionTest {
     executeRequest(LOGIN, PASSWORD);
 
     verify(response).setStatus(401);
-    assertThat(threadLocalUserSession.isLoggedIn()).isFalse();
+    assertThat(threadLocalUserSession.hasSession()).isFalse();
   }
 
   @Test

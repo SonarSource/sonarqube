@@ -19,11 +19,14 @@
  */
 package org.sonar.server.qualityprofile;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import com.google.common.collect.MapDifference.ValueDifference;
 import org.assertj.core.data.MapEntry;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.ClassRule;
+import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.rule.Severity;
 import org.sonar.api.server.rule.RuleParamType;
@@ -36,13 +39,15 @@ import org.sonar.db.rule.RuleTesting;
 import org.sonar.server.qualityprofile.QProfileComparison.ActiveRuleDiff;
 import org.sonar.server.qualityprofile.QProfileComparison.QProfileComparisonResult;
 import org.sonar.server.tester.ServerTester;
-
-import static org.assertj.core.api.Assertions.assertThat;
+import org.sonar.server.tester.UserSessionRule;
 
 public class QProfileComparisonMediumTest {
 
   @ClassRule
   public static ServerTester tester = new ServerTester().withEsIndexes().addXoo();
+
+  @Rule
+  public UserSessionRule userSession = UserSessionRule.forServerTester(tester).anonymous();
 
   DbClient db;
   DbSession dbSession;

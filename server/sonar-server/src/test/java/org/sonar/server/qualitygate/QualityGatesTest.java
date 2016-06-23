@@ -19,6 +19,18 @@
  */
 package org.sonar.server.qualitygate;
 
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyLong;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Matchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import java.util.Collection;
@@ -57,22 +69,10 @@ import org.sonar.db.qualitygate.QualityGateDto;
 import org.sonar.server.exceptions.BadRequestException;
 import org.sonar.server.exceptions.ForbiddenException;
 import org.sonar.server.exceptions.NotFoundException;
+import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
 import org.sonar.server.tester.UserSessionRule;
-import org.sonar.server.user.AnonymousUserSession;
 import org.sonar.server.user.UserSession;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.Matchers.any;
-import static org.mockito.Matchers.anyLong;
-import static org.mockito.Matchers.anyString;
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
 public class QualityGatesTest {
@@ -116,7 +116,7 @@ public class QualityGatesTest {
   UserSession authorizedProfileAdminUserSession = new MockUserSession("gaudol").setName("Olivier").setGlobalPermissions(GlobalPermissions.QUALITY_GATE_ADMIN);
   UserSession authorizedProjectAdminUserSession = new MockUserSession("gaudol").setName("Olivier").addProjectPermissions(UserRole.ADMIN, PROJECT_KEY);
   UserSession unauthorizedUserSession = new MockUserSession("polop").setName("Polop");
-  UserSession unauthenticatedUserSession = AnonymousUserSession.INSTANCE;
+  UserSession unauthenticatedUserSession = new AnonymousMockUserSession();
 
   @Before
   public void initialize() {

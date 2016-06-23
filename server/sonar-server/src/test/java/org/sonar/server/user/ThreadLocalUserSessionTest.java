@@ -19,19 +19,22 @@
  */
 package org.sonar.server.user;
 
+import static org.assertj.core.api.Assertions.assertThat;
+
 import java.util.Locale;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
+import org.sonar.server.exceptions.UnauthorizedException;
+import org.sonar.server.tester.AnonymousMockUserSession;
 import org.sonar.server.tester.MockUserSession;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 public class ThreadLocalUserSessionTest {
 
   ThreadLocalUserSession threadLocalUserSession = new ThreadLocalUserSession();
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
@@ -48,9 +51,22 @@ public class ThreadLocalUserSessionTest {
   }
 
   @Test
-  public void getSession_get_anonymous_by_default() {
-    UserSession session = threadLocalUserSession.get();
+  public void get_session_for_user() {
+    threadLocalUserSession.set(new MockUserSession("karadoc").setUserId(123).setLocale(Locale.FRENCH));
 
+    UserSession session = threadLocalUserSession.get();
+    assertThat(session).isNotNull();
+    assertThat(session.getUserId()).isEqualTo(123);
+    assertThat(session.getLogin()).isEqualTo("karadoc");
+    assertThat(session.isLoggedIn()).isTrue();
+    assertThat(session.locale()).isEqualTo(Locale.FRENCH);
+  }
+
+  @Test
+  public void get_session_for_anonymous() {
+    threadLocalUserSession.set(new AnonymousMockUserSession());
+
+    UserSession session = threadLocalUserSession.get();
     assertThat(session).isNotNull();
     assertThat(session.getLogin()).isNull();
     assertThat(session.getUserId()).isNull();
@@ -60,15 +76,9 @@ public class ThreadLocalUserSessionTest {
   }
 
   @Test
-  public void get_session() {
-    threadLocalUserSession.set(new MockUserSession("karadoc").setUserId(123).setLocale(Locale.FRENCH));
-
-    UserSession session = threadLocalUserSession.get();
-    assertThat(session).isNotNull();
-    assertThat(session.getUserId()).isEqualTo(123);
-    assertThat(session.getLogin()).isEqualTo("karadoc");
-    assertThat(session.isLoggedIn()).isTrue();
-    assertThat(session.locale()).isEqualTo(Locale.FRENCH);
+  public void throw_UnauthorizedException_when_no_session() {
+    thrown.expect(UnauthorizedException.class);
+    threadLocalUserSession.get();
   }
 
 }

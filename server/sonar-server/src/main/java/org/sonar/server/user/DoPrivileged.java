@@ -92,13 +92,15 @@ public final class DoPrivileged {
     }
 
     private void start() {
-      oldUserSession = threadLocalUserSession.get();
+      oldUserSession = threadLocalUserSession.hasSession() ? threadLocalUserSession.get() : null;
       threadLocalUserSession.set(new PrivilegedUserSession().setLocale(Locale.getDefault()));
     }
   
     private void stop() {
       threadLocalUserSession.remove();
-      threadLocalUserSession.set(oldUserSession);
+      if (oldUserSession != null) {
+        threadLocalUserSession.set(oldUserSession);
+      }
     }
   }
 }

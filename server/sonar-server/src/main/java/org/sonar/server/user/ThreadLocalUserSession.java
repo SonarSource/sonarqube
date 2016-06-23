@@ -19,12 +19,12 @@
  */
 package org.sonar.server.user;
 
-import com.google.common.base.MoreObjects;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 import javax.annotation.CheckForNull;
+import org.sonar.server.exceptions.UnauthorizedException;
 
 /**
  * Part of the current HTTP session
@@ -34,7 +34,11 @@ public class ThreadLocalUserSession implements UserSession {
   private static final ThreadLocal<UserSession> THREAD_LOCAL = new ThreadLocal<>();
 
   public UserSession get() {
-    return MoreObjects.firstNonNull(THREAD_LOCAL.get(), AnonymousUserSession.INSTANCE);
+    UserSession currentUserSession = THREAD_LOCAL.get();
+    if (currentUserSession != null) {
+      return currentUserSession;
+    }
+    throw new UnauthorizedException();
   }
 
   public void set(UserSession session) {

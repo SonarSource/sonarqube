@@ -2,11 +2,19 @@ module AuthenticatedSystem
   # Returns true or false if the user is logged in.
   # Preloads @current_user with the user model if they're logged in.
   def logged_in?
-    !!current_user
+    if Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerUser::ThreadLocalUserSession.java_class).hasSession()
+      !!current_user
+    else
+      false
+    end
   end
 
   # Accesses the current user from the session.
   # Future calls avoid the database because nil is not equal to false.
+  #
+  # This method will generate a Java::OrgSonarServerExceptions::UnauthorizedException if user is unauthorized
+  # (bad credentials, not authenticated by force authentication is set to true, etc...)
+  #
   def current_user
     @current_user ||= login_from_java_user_session unless @current_user == false
   end
@@ -118,6 +126,10 @@ module AuthenticatedSystem
   #
 
   # Called from #current_user.  First attempt to login by the user id stored in the session.
+  #
+  # This method will generate a Java::OrgSonarServerExceptions::UnauthorizedException if user is unauthorized
+  # (bad credentials, not authenticated by force authentication is set to true, etc...)
+  #
   def login_from_java_user_session
     userSession = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerUser::UserSession.java_class)
     user_id = userSession.getUserId() if userSession && userSession.isLoggedIn()

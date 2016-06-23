@@ -52,6 +52,7 @@ class Api::JavaWsController < Api::ApiController
     (params[:wspath]=='batch' && params[:wsaction]=='index') ||
       (params[:wspath]=='batch' && params[:wsaction]=='file') ||
       (params[:wspath]=='api/system' && params[:wsaction]=='db_migration_status') ||
+      (params[:wspath]=='api/system' && params[:wsaction]=='migrate_db') ||
       (params[:wspath]=='api/system' && params[:wsaction]=='status')
   end
 

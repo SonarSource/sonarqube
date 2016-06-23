@@ -26,9 +26,9 @@
     <%# The two lines below mean that before full removal of Rails, we have to find a way to handle config properties %>
     window.SS = {
       hoursInDay: <%= configuration('sonar.technicalDebt.hoursInDay', 8) %>,
-      user: '<%= escape_javascript current_user.login if current_user -%>',
-      userName: '<%= escape_javascript current_user.name if current_user -%>',
-      userEmail: '<%= escape_javascript current_user.email if current_user -%>',
+      user: '<%= escape_javascript current_user.login if logged_in? -%>',
+      userName: '<%= escape_javascript current_user.name if logged_in? -%>',
+      userEmail: '<%= escape_javascript current_user.email if logged_in? -%>',
       lf: {
         enableGravatar: <%= configuration('sonar.lf.enableGravatar', true) %>,
         gravatarServerUrl: '<%= configuration('sonar.lf.gravatarServerUrl') %>'
