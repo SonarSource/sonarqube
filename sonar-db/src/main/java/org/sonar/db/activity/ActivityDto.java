@@ -27,6 +27,7 @@ import org.apache.commons.lang.builder.ToStringStyle;
 public class ActivityDto {
 
   private String key;
+  private String profileKey;
   private String message;
   private String type;
   private String action;
@@ -41,6 +42,15 @@ public class ActivityDto {
 
   public String getKey() {
     return key;
+  }
+
+  public String getProfileKey() {
+    return profileKey;
+  }
+
+  public ActivityDto setProfileKey(String profileKey) {
+    this.profileKey = profileKey;
+    return this;
   }
 
   public Date getCreatedAt() {

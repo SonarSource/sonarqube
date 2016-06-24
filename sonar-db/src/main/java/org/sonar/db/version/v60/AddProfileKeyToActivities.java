@@ -17,18 +17,29 @@
  * along with this program; if not, write to the Free Software Foundation,
  * Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
  */
-package org.sonar.db.version;
 
-import org.junit.Test;
-import org.sonar.core.platform.ComponentContainer;
+package org.sonar.db.version.v60;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import java.sql.SQLException;
+import org.sonar.db.Database;
+import org.sonar.db.version.AddColumnsBuilder;
+import org.sonar.db.version.DdlChange;
 
-public class MigrationStepModuleTest {
-  @Test
-  public void verify_count_of_added_MigrationStep_types() {
-    ComponentContainer container = new ComponentContainer();
-    new MigrationStepModule().configure(container);
-    assertThat(container.size()).isEqualTo(111);
+import static org.sonar.db.version.VarcharColumnDef.newVarcharColumnDefBuilder;
+
+public class AddProfileKeyToActivities extends DdlChange {
+
+  private static final String TABLE_ACTIVITIES = "activities";
+
+  public AddProfileKeyToActivities(Database db) {
+    super(db);
   }
+
+  @Override
+  public void execute(Context context) throws SQLException {
+    context.execute(new AddColumnsBuilder(getDatabase().getDialect(), TABLE_ACTIVITIES)
+      .addColumn(newVarcharColumnDefBuilder().setColumnName("profile_key").setLimit(255).setIsNullable(true).build())
+      .build());
+  }
+
 }

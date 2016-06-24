@@ -23,12 +23,12 @@ import java.util.Map;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
+import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-
 
 public class ActivityDaoTest {
 
@@ -36,6 +36,7 @@ public class ActivityDaoTest {
 
   @Rule
   public DbTester dbTester = DbTester.create(system);
+  DbSession dbSession = dbTester.getSession();
 
   ActivityDao underTest = dbTester.getDbClient().activityDao();
 
@@ -43,15 +44,23 @@ public class ActivityDaoTest {
   public void insert() {
     when(system.now()).thenReturn(1_500_000_000_000L);
     ActivityDto dto = new ActivityDto()
-      .setKey("UUID_1").setAction("THE_ACTION").setType("THE_TYPE")
-      .setAuthor("THE_AUTHOR").setData("THE_DATA");
-    underTest.insert(dto);
+      .setKey("UUID_1")
+      .setAction("THE_ACTION")
+      .setType("THE_TYPE")
+      .setAuthor("THE_AUTHOR")
+      .setData("THE_DATA")
+      .setProfileKey("PROFILE_KEY");
+    underTest.insert(dbSession, dto);
+    dbSession.commit();
 
-    Map<String, Object> map = dbTester.selectFirst("select created_at as \"createdAt\", log_action as \"action\", data_field as \"data\" from activities where log_key='UUID_1'");
+    Map<String, Object> map = dbTester.selectFirst("select created_at as \"createdAt\", log_action as \"action\", " +
+      "data_field as \"data\", profile_key as \"profileKey\" " +
+      "from activities where log_key='UUID_1'");
     assertThat(map.get("action")).isEqualTo("THE_ACTION");
     // not possible to check exact date yet. dbTester#selectFirst() uses ResultSet#getObject(), which returns
     // non-JDBC interface in Oracle driver.
     assertThat(map.get("createdAt")).isNotNull();
     assertThat(map.get("data")).isEqualTo("THE_DATA");
+    assertThat(map.get("profileKey")).isEqualTo("PROFILE_KEY");
   }
 }

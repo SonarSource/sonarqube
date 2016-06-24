@@ -31,16 +31,6 @@ public class ActivityDao extends AbstractDao {
     super(mybatis, system);
   }
 
-  public void insert(ActivityDto dto) {
-    DbSession session = myBatis().openSession(false);
-    try {
-      insert(session, dto);
-      session.commit();
-    } finally {
-      MyBatis.closeQuietly(session);
-    }
-  }
-
   public void insert(DbSession session, ActivityDto dto) {
     dto.setCreatedAt(new Date(now()));
     session.getMapper(ActivityMapper.class).insert(dto);

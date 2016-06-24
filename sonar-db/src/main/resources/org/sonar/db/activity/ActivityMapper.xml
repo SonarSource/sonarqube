@@ -5,10 +5,10 @@
 
   <insert id="insert" parameterType="Activity" useGeneratedKeys="false">
     insert into activities
-    (created_at, log_key, log_type, log_action, user_login, data_field, log_message)
+    (created_at, log_key, log_type, log_action, user_login, data_field, log_message, profile_key)
     values (#{createdAt,jdbcType=TIMESTAMP}, #{key,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
     #{action,jdbcType=VARCHAR},
-    #{author,jdbcType=VARCHAR}, #{data,jdbcType=VARCHAR}, #{message,jdbcType=VARCHAR})
+    #{author,jdbcType=VARCHAR}, #{data,jdbcType=VARCHAR}, #{message,jdbcType=VARCHAR}, #{profileKey, jdbcType=VARCHAR})
   </insert>
 
 </mapper>

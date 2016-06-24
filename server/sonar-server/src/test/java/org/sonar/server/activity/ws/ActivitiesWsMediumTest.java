@@ -31,6 +31,7 @@ import org.sonar.server.tester.UserSessionRule;
 import org.sonar.server.ws.WsTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.sonar.test.JsonAssert.assertJson;
 
 public class ActivitiesWsMediumTest {
 
@@ -68,12 +69,29 @@ public class ActivitiesWsMediumTest {
     activity.setAction("THE_ACTION");
     activity.setMessage("THE_MSG");
     activity.setData("foo", "bar");
-    service.save(activity);
+    activity.setData("profileKey", "PROFILE_KEY");
 
+    service.save(activity);
     WsTester.TestRequest request = tester.wsTester().newGetRequest("api/activities", "search");
-    WsTester.Result result = request.execute();
-    assertThat(result.outputAsString()).contains("\"total\":1");
-    assertThat(result.outputAsString()).contains("\"type\":\"ANALYSIS_REPORT\"");
-    assertThat(result.outputAsString()).contains("\"details\":{\"foo\":\"bar\"}");
+
+    String result = request.execute().outputAsString();
+    assertJson(result).isSimilarTo(
+      "{" +
+        "  \"total\": 1," +
+        "  \"p\": 1," +
+        "  \"ps\": 10," +
+        "  \"logs\": [" +
+        "    {" +
+        "      \"type\": \"ANALYSIS_REPORT\"," +
+        "      \"action\": \"THE_ACTION\"," +
+        "      \"message\": \"THE_MSG\"," +
+        "      \"details\": {" +
+        "        \"profileKey\": \"PROFILE_KEY\"," +
+        "        \"foo\": \"bar\"" +
+        "      }" +
+        "    }" +
+        "  ]" +
+        "}"
+    );
   }
 }
