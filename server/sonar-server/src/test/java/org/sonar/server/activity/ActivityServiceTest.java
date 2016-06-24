@@ -71,15 +71,21 @@ public class ActivityServiceTest {
     activity.setAction("THE_ACTION");
     activity.setMessage("THE_MSG");
     activity.setData("foo", "bar");
-    activity.setData("profileKey", "PROFILE_KEY");
     activity.setProfileKey("PROFILE_KEY");
     service.save(activity);
 
-    Map<String, Object> dbMap = db.selectFirst("select log_type as \"type\", log_action as \"action\", log_message as \"msg\", data_field as \"data\" from activities");
+    Map<String, Object> dbMap = db.selectFirst("select " +
+      "  log_type as \"type\", " +
+      "  log_action as \"action\", " +
+      "  log_message as \"msg\", " +
+      "  data_field as \"data\", " +
+      "  profile_key as \"profileKey\" " +
+      "from activities");
     assertThat(dbMap).containsEntry("type", "ANALYSIS_REPORT");
     assertThat(dbMap).containsEntry("action", "THE_ACTION");
     assertThat(dbMap).containsEntry("msg", "THE_MSG");
-    assertThat(dbMap.get("data")).isEqualTo("foo=bar;profileKey=PROFILE_KEY");
+    assertThat(dbMap).containsEntry("profileKey", "PROFILE_KEY");
+    assertThat(dbMap.get("data")).isEqualTo("foo=bar");
 
     List<ActivityDoc> docs = es.getDocuments("activities", "activity", ActivityDoc.class);
     assertThat(docs).hasSize(1);

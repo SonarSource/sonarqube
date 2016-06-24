@@ -95,7 +95,6 @@ public class ActiveRuleChange {
     activity.setProfileKey(getKey().qProfile());
     activity.setData("key", getKey().toString());
     activity.setData("ruleKey", getKey().ruleKey().toString());
-    activity.setData("profileKey", getKey().qProfile());
 
     parameters.entrySet().stream()
       .filter(param -> !param.getKey().isEmpty())

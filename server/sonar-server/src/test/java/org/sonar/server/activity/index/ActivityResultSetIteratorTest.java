@@ -49,7 +49,8 @@ public class ActivityResultSetIteratorTest {
     assertThat(doc.get(ActivityIndexDefinition.FIELD_KEY)).isEqualTo("UUID1");
     assertThat(doc.get(ActivityIndexDefinition.FIELD_ACTION)).isEqualTo("THE_ACTION");
     assertThat(doc.get(ActivityIndexDefinition.FIELD_MESSAGE)).isEqualTo("THE_MSG");
-    assertThat((Map) doc.get(ActivityIndexDefinition.FIELD_DETAILS)).containsOnly(MapEntry.entry("foo", "bar"));
+    assertThat((Map<String, String>) doc.get(ActivityIndexDefinition.FIELD_DETAILS))
+      .containsOnly(MapEntry.entry("foo", "bar"), MapEntry.entry("profileKey", "PROFILE_KEY"));
     assertThat(doc.get(ActivityIndexDefinition.FIELD_LOGIN)).isEqualTo("THE_AUTHOR");
 
     assertThat(it.hasNext()).isTrue();

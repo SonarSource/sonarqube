@@ -27,6 +27,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
 import java.util.Date;
+import java.util.Map;
 import org.apache.commons.lang.StringUtils;
 import org.elasticsearch.action.update.UpdateRequest;
 import org.sonar.api.utils.KeyValueFormat;
@@ -50,7 +51,8 @@ class ActivityResultSetIterator extends ResultSetIterator<UpdateRequest> {
     "data_field",
     "user_login",
     "log_type",
-    "created_at"
+    "created_at",
+    "profile_key"
   };
 
   private static final String SQL_ALL = "select " + StringUtils.join(FIELDS, ",") + " from activities ";
@@ -86,7 +88,9 @@ class ActivityResultSetIterator extends ResultSetIterator<UpdateRequest> {
     writer.prop(ActivityIndexDefinition.FIELD_KEY, key);
     writer.prop(ActivityIndexDefinition.FIELD_ACTION, rs.getString(2));
     writer.prop(ActivityIndexDefinition.FIELD_MESSAGE, rs.getString(3));
-    writer.name(ActivityIndexDefinition.FIELD_DETAILS).valueObject(KeyValueFormat.parse(rs.getString(4)));
+    Map<String, String> details = KeyValueFormat.parse(rs.getString(4));
+    details.put("profileKey", rs.getString(8));
+    writer.name(ActivityIndexDefinition.FIELD_DETAILS).valueObject(details);
     writer.prop(ActivityIndexDefinition.FIELD_LOGIN, rs.getString(5));
     writer.prop(ActivityIndexDefinition.FIELD_TYPE, rs.getString(6));
     Date createdAt = rs.getTimestamp(7);

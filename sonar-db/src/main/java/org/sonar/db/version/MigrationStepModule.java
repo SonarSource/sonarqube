@@ -128,6 +128,7 @@ import org.sonar.db.version.v60.PopulateComponentUuidColumnsOfSnapshots;
 import org.sonar.db.version.v60.PopulateComponentUuidOfDuplicationsIndex;
 import org.sonar.db.version.v60.PopulateComponentUuidOfMeasures;
 import org.sonar.db.version.v60.PopulateLastUsedColumnOfRulesProfiles;
+import org.sonar.db.version.v60.PopulateProfileKeyOfActivities;
 import org.sonar.db.version.v60.PopulateUuidColumnOnSnapshots;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfProjects;
 import org.sonar.db.version.v60.PopulateUuidColumnsOfResourceIndex;
@@ -243,6 +244,7 @@ public class MigrationStepModule extends Module {
       AddLastUsedColumnToRulesProfiles.class,
       PopulateLastUsedColumnOfRulesProfiles.class,
       AddProfileKeyToActivities.class,
+      PopulateProfileKeyOfActivities.class,
 
       // SNAPSHOTS.UUID
       AddUuidColumnToSnapshots.class,
