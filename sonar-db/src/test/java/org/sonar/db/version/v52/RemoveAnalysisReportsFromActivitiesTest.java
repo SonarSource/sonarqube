@@ -22,27 +22,24 @@ package org.sonar.db.version.v52;
 import org.junit.Rule;
 import org.junit.Test;
 import org.sonar.api.utils.System2;
-import org.sonar.db.DbClient;
-import org.sonar.db.DbSession;
 import org.sonar.db.DbTester;
-import org.sonar.db.activity.ActivityDto;
 import org.sonar.db.version.MigrationStep;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class RemoveAnalysisReportsFromActivitiesTest {
+  static final String TABLE_ACTIVITIES = "activities";
+
   @Rule
-  public DbTester db = DbTester.create(System2.INSTANCE);
-  DbClient dbClient = db.getDbClient();
-  DbSession dbSession = db.getSession();
+  public DbTester db = DbTester.createForSchema(System2.INSTANCE, RemoveAnalysisReportsFromActivitiesTest.class, "schema.sql");
 
   MigrationStep underTest = new RemoveAnalysisReportsFromActivities(db.database());
 
   @Test
   public void test() throws Exception {
-    dbClient.activityDao().insert(dbSession, new ActivityDto().setType("ANALYSIS_REPORT").setKey("1"));
-    dbClient.activityDao().insert(dbSession, new ActivityDto().setType("ANALYSIS_REPORT").setKey("2"));
-    dbClient.activityDao().insert(dbSession, new ActivityDto().setType("PROFILE_CHANGE").setKey("3"));
+    db.executeInsert(TABLE_ACTIVITIES, "log_type", "ANALYSIS_REPORT", "log_key", "1");
+    db.executeInsert(TABLE_ACTIVITIES, "log_type", "ANALYSIS_REPORT", "log_key", "2");
+    db.executeInsert(TABLE_ACTIVITIES, "log_type", "PROFILE_CHANGE", "log_key", "3");
 
     underTest.execute();
 

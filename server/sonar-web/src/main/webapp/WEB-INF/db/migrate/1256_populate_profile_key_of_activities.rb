@@ -19,10 +19,10 @@
 #
 #
 # SonarQube 6.0
-# SONAR-7794
+# SONAR-7824
 #
-class AddProfileKeyToActivities < ActiveRecord::Migration
+class PopulateProfileKeyOfActivities < ActiveRecord::Migration
   def self.up
-    execute_java_migration('org.sonar.db.version.v60.AddProfileKeyToActivities')
+    execute_java_migration('org.sonar.db.version.v60.PopulateProfileKeyOfActivities')
   end
 end
