@@ -37,7 +37,11 @@ class Snapshot < ActiveRecord::Base
   def created_at
     long_to_date(:created_at)
   end
-  
+
+  def created_at_long
+    read_attribute(:created_at)
+  end
+
   def build_date
     long_to_date(:build_date)
   end
