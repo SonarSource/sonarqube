@@ -56,14 +56,18 @@
     if (!returnToAnchor.val()) {
       returnToAnchor.val(window.location.hash);
     }
-  })(window.jQuery);
 
-  $j("#login_form").modalForm({
-    success: function () {
-      window.location = '<%= ApplicationController.root_context + h(@return_to) -%>' + $j('[name="return_to_anchor"]').val();
-    },
-    error: function () {
-      jQuery('.alert').removeClass('hidden');
-    }
-  });
+    $("#login_form").modalForm({
+      success: function () {
+        window.location = '<%= h(@return_to) -%>' + $('[name="return_to_anchor"]').val();
+      },
+      error: function () {
+        $('.alert').removeClass('hidden');
+        $('button').prop('disabled', false);
+      },
+      statusCode: {
+        401: null
+      }
+    });
+  })(window.jQuery);
 </script>

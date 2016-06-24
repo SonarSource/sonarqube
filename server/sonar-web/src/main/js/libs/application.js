@@ -187,7 +187,7 @@ function openModalWindow (url, options) {
       return this.each(function () {
         var obj = jQuery(this);
         obj.submit(function () {
-          jQuery('input[type=submit]', this).attr('disabled', 'disabled');
+          jQuery('input[type=submit], button', this).attr('disabled', 'disabled');
           jQuery.ajax(jQuery.extend({
             type: 'POST',
             url: obj.attr('action'),
@@ -202,7 +202,7 @@ function openModalWindow (url, options) {
                 // Hide all loading images
                 jQuery('.loading-image').addClass('hidden');
                 // Re activate submit button
-                jQuery('input[type=submit]', obj).removeAttr('disabled');
+                jQuery('input[type=submit], button', obj).removeAttr('disabled');
                 errorElt.show();
                 errorElt.html(jQuery('<div/>').html(xhr.responseText).text());
               } else {
