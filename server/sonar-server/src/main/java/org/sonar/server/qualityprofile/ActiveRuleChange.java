@@ -92,6 +92,7 @@ public class ActiveRuleChange {
     Activity activity = new Activity();
     activity.setType(Activity.Type.QPROFILE);
     activity.setAction(type.name());
+    activity.setProfileKey(getKey().qProfile());
     activity.setData("key", getKey().toString());
     activity.setData("ruleKey", getKey().ruleKey().toString());
     activity.setData("profileKey", getKey().qProfile());

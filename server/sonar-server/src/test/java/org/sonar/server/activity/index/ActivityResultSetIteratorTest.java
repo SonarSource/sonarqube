@@ -30,7 +30,6 @@ import org.sonar.db.DbTester;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-
 public class ActivityResultSetIteratorTest {
 
   @Rule

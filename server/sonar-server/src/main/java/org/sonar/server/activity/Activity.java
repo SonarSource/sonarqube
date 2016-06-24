@@ -19,11 +19,10 @@
  */
 package org.sonar.server.activity;
 
-import javax.annotation.CheckForNull;
-import javax.annotation.Nullable;
-
 import java.util.LinkedHashMap;
 import java.util.Map;
+import javax.annotation.CheckForNull;
+import javax.annotation.Nullable;
 
 public class Activity {
 
@@ -34,7 +33,8 @@ public class Activity {
   private Type type;
   private String action;
   private String message;
-  private final Map<String,Object> data = new LinkedHashMap<>();
+  private String profileKey;
+  private final Map<String, Object> data = new LinkedHashMap<>();
 
   public Type getType() {
     return type;
@@ -67,6 +67,15 @@ public class Activity {
 
   public Activity setData(String key, Object val) {
     this.data.put(key, val);
+    return this;
+  }
+
+  public String getProfileKey() {
+    return profileKey;
+  }
+
+  public Activity setProfileKey(String profileKey) {
+    this.profileKey = profileKey;
     return this;
   }
 }

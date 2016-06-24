@@ -21,9 +21,10 @@ package org.sonar.server.activity;
 
 import org.sonar.api.utils.KeyValueFormat;
 import org.sonar.core.util.Uuids;
+import org.sonar.db.DbClient;
+import org.sonar.db.DbSession;
 import org.sonar.db.activity.ActivityDto;
 import org.sonar.server.activity.index.ActivityIndexer;
-import org.sonar.db.DbClient;
 import org.sonar.server.user.UserSession;
 
 public class ActivityService {
@@ -45,8 +46,15 @@ public class ActivityService {
       .setAction(activity.getAction())
       .setMessage(activity.getMessage())
       .setData(KeyValueFormat.format(activity.getData()))
+      .setProfileKey(activity.getProfileKey())
       .setType(activity.getType().name());
-    dbClient.activityDao().insert(dto);
-    indexer.index();
+    DbSession dbSession = dbClient.openSession(false);
+    try {
+      dbClient.activityDao().insert(dbSession, dto);
+      dbSession.commit();
+      indexer.index();
+    } finally {
+      dbClient.closeSession(dbSession);
+    }
   }
 }
