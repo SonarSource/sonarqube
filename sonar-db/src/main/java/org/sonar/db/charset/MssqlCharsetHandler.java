@@ -33,12 +33,16 @@ import org.sonar.api.utils.log.Loggers;
 
 import static com.google.common.collect.FluentIterable.from;
 import static java.lang.String.format;
-import static org.apache.commons.lang.StringUtils.endsWithIgnoreCase;
+import static org.apache.commons.lang.StringUtils.containsIgnoreCase;
 import static org.sonar.db.charset.DatabaseCharsetChecker.Flag.AUTO_REPAIR_COLLATION;
 
 class MssqlCharsetHandler extends CharsetHandler {
 
   private static final Logger LOGGER = Loggers.get(MssqlCharsetHandler.class);
+  private static final String CASE_SENSITIVE_ACCENT_SENSITIVE = "_CS_AS";
+  private static final String CASE_INSENSITIVE_ACCENT_INSENSITIVE = "_CI_AI";
+  private static final String CASE_INSENSITIVE_ACCENT_SENSITIVE = "_CI_AS";
+  private static final String CASE_SENSITIVE_ACCENT_INSENSITIVE = "_CS_AI";
 
   protected MssqlCharsetHandler(SqlExecutor selectExecutor) {
     super(selectExecutor);
@@ -50,15 +54,16 @@ class MssqlCharsetHandler extends CharsetHandler {
 
     // All VARCHAR columns are returned. No need to check database general collation.
     // Example of row:
-    // issues | kee | Latin1_General_CS_AS
+    // issues | kee | Latin1_General_CS_AS or Latin1_General_100_CI_AS_KS_WS
     Set<String> errors = new LinkedHashSet<>();
     List<ColumnDef> columns = select(connection,
       ColumnDef.SELECT_COLUMNS +
         "FROM [INFORMATION_SCHEMA].[COLUMNS] " +
         "WHERE collation_name is not null " +
-        "ORDER BY table_name,column_name", ColumnDef.ColumnDefRowConverter.INSTANCE);
+        "ORDER BY table_name,column_name",
+      ColumnDef.ColumnDefRowConverter.INSTANCE);
     for (ColumnDef column : from(columns).filter(ColumnDef.IsInSonarQubeTablePredicate.INSTANCE)) {
-      if (!endsWithIgnoreCase(column.getCollation(), "_CS_AS")) {
+      if (!containsIgnoreCase(column.getCollation(), CASE_SENSITIVE_ACCENT_SENSITIVE)) {
         if (flags.contains(AUTO_REPAIR_COLLATION)) {
           repairColumnCollation(connection, column);
         } else {
@@ -132,8 +137,11 @@ class MssqlCharsetHandler extends CharsetHandler {
 
   @VisibleForTesting
   static String toCaseSensitive(String ciCollation) {
-    // Example: Latin1_General_CI_AI --> Latin1_General_CS_AS
-    return ciCollation.substring(0, ciCollation.length() - "_CI_AI".length()) + "_CS_AS";
+    // Example: Latin1_General_CI_AI --> Latin1_General_CS_AS or Latin1_General_100_CI_AS_KS_WS --> Latin1_General_100_CS_AS_KS_WS
+    return ciCollation
+      .replace(CASE_INSENSITIVE_ACCENT_INSENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE)
+      .replace(CASE_INSENSITIVE_ACCENT_SENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE)
+      .replace(CASE_SENSITIVE_ACCENT_INSENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE);
   }
 
   @VisibleForTesting
