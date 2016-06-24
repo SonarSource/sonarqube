@@ -129,16 +129,12 @@ public class MssqlCharsetHandlerTest {
   @DataProvider
   public static Object[][] combinationsOfCsAsAndSuffix() {
     List<String[]> res = new ArrayList<>();
-    for (String caseSensitivity : Arrays.asList("CS", "CI")) {
-      for (String accentSensitivity : Arrays.asList("AS", "AI")) {
-        if (caseSensitivity.equals("CI") || accentSensitivity.equals("AI")) {
-          for (String suffix : Arrays.asList("", "_KS_WS")) {
-            res.add(new String[] {
-              format("Latin1_General_%s_%s%s", caseSensitivity, accentSensitivity, suffix),
-              format("Latin1_General_CS_AS%s", suffix)
-            });
-          }
-        }
+    for (String sensitivity : Arrays.asList("CI_AI", "CI_AS", "CS_AI")) {
+      for (String suffix : Arrays.asList("", "_KS_WS")) {
+        res.add(new String[] {
+          format("Latin1_General_%s%s", sensitivity, suffix),
+          format("Latin1_General_CS_AS%s", suffix)
+        });
       }
     }
     return res.stream().toArray(Object[][]::new);
@@ -164,6 +160,44 @@ public class MssqlCharsetHandlerTest {
     underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
 
     verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+  }
+
+  @Test
+  @UseDataProvider("combinationOfBinAndSuffix")
+  public void do_not_repair_if_collation_contains_BIN(String collation) throws Exception {
+    answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", collation, "varchar", 10, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+
+    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+  }
+
+  @DataProvider
+  public static Object[][] combinationOfBinAndSuffix() {
+    return Arrays.asList("", "_KS_WS")
+      .stream()
+      .map(suffix -> new String[] {format("Latin1_General_BIN%s", suffix)})
+      .toArray(Object[][]::new);
+  }
+
+  @Test
+  @UseDataProvider("combinationOfBin2AndSuffix")
+  public void do_not_repair_if_collation_contains_BIN2(String collation) throws Exception {
+    answerColumns(asList(new ColumnDef(TABLE_PROJECTS, COLUMN_NAME, "Latin1_General", collation, "varchar", 10, false)));
+
+    Connection connection = mock(Connection.class);
+    underTest.handle(connection, immutableEnumSet(AUTO_REPAIR_COLLATION));
+
+    verify(selectExecutor, never()).executeUpdate(any(Connection.class), anyString());
+  }
+
+  @DataProvider
+  public static Object[][] combinationOfBin2AndSuffix() {
+    return Arrays.asList("", "_KS_WS")
+      .stream()
+      .map(suffix -> new String[] {format("Latin1_General_BIN2%s", suffix)})
+      .toArray(Object[][]::new);
   }
 
   private void answerColumns(List<ColumnDef> columnDefs) throws SQLException {

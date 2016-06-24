@@ -43,6 +43,8 @@ class MssqlCharsetHandler extends CharsetHandler {
   private static final String CASE_INSENSITIVE_ACCENT_INSENSITIVE = "_CI_AI";
   private static final String CASE_INSENSITIVE_ACCENT_SENSITIVE = "_CI_AS";
   private static final String CASE_SENSITIVE_ACCENT_INSENSITIVE = "_CS_AI";
+  private static final String BIN = "BIN";
+  private static final String BIN2 = "BIN2";
 
   protected MssqlCharsetHandler(SqlExecutor selectExecutor) {
     super(selectExecutor);
@@ -63,7 +65,7 @@ class MssqlCharsetHandler extends CharsetHandler {
         "ORDER BY table_name,column_name",
       ColumnDef.ColumnDefRowConverter.INSTANCE);
     for (ColumnDef column : from(columns).filter(ColumnDef.IsInSonarQubeTablePredicate.INSTANCE)) {
-      if (!containsIgnoreCase(column.getCollation(), CASE_SENSITIVE_ACCENT_SENSITIVE)) {
+      if (!isCollationCorrect(column)) {
         if (flags.contains(AUTO_REPAIR_COLLATION)) {
           repairColumnCollation(connection, column);
         } else {
@@ -76,6 +78,16 @@ class MssqlCharsetHandler extends CharsetHandler {
       throw MessageException.of(format("Case-sensitive and accent-sensitive collation is required for database columns [%s]",
         Joiner.on(", ").join(errors)));
     }
+  }
+
+  /**
+   * Collation is correct if is contains {@link #CASE_SENSITIVE_ACCENT_SENSITIVE} or {@link #BIN} or {@link #BIN2}.
+   */
+  private static boolean isCollationCorrect(ColumnDef column) {
+    String collation = column.getCollation();
+    return containsIgnoreCase(collation, CASE_SENSITIVE_ACCENT_SENSITIVE)
+      || containsIgnoreCase(collation, BIN)
+      || containsIgnoreCase(collation, BIN2);
   }
 
   private static void logInit(Set<DatabaseCharsetChecker.Flag> flags) {
@@ -136,9 +148,9 @@ class MssqlCharsetHandler extends CharsetHandler {
   }
 
   @VisibleForTesting
-  static String toCaseSensitive(String ciCollation) {
+  static String toCaseSensitive(String collation) {
     // Example: Latin1_General_CI_AI --> Latin1_General_CS_AS or Latin1_General_100_CI_AS_KS_WS --> Latin1_General_100_CS_AS_KS_WS
-    return ciCollation
+    return collation
       .replace(CASE_INSENSITIVE_ACCENT_INSENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE)
       .replace(CASE_INSENSITIVE_ACCENT_SENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE)
       .replace(CASE_SENSITIVE_ACCENT_INSENSITIVE, CASE_SENSITIVE_ACCENT_SENSITIVE);
