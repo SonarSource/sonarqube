@@ -19,26 +19,32 @@
  */
 package org.sonar.server.ws;
 
-import com.google.common.collect.ImmutableMap;
-import com.google.common.net.HttpHeaders;
-import java.util.Collections;
-import javax.servlet.http.HttpServletRequest;
-import org.jruby.RubyFile;
-import org.junit.Test;
-import org.sonarqube.ws.MediaTypes;
-
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.google.common.collect.ImmutableMap;
+import com.google.common.net.HttpHeaders;
+import java.io.InputStream;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.Part;
+import org.junit.Rule;
+import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import org.sonarqube.ws.MediaTypes;
+
 public class ServletRequestTest {
+
+  @Rule
+  public ExpectedException expectedException = ExpectedException.none();
 
   HttpServletRequest source = mock(HttpServletRequest.class);
 
   @Test
   public void call_method() {
-    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    ServletRequest request = new ServletRequest(source);
     request.method();
     verify(source).getMethod();
   }
@@ -47,20 +53,20 @@ public class ServletRequestTest {
   public void getMediaType() throws Exception {
     when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MediaTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
-    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    ServletRequest request = new ServletRequest(source);
     assertThat(request.getMediaType()).isEqualTo(MediaTypes.JSON);
   }
 
   @Test
   public void default_media_type_is_octet_stream() throws Exception {
-    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    ServletRequest request = new ServletRequest(source);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search");
     assertThat(request.getMediaType()).isEqualTo(MediaTypes.DEFAULT);
   }
 
   @Test
   public void media_type_taken_in_url_first() throws Exception {
-    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    ServletRequest request = new ServletRequest(source);
     when(source.getHeader(HttpHeaders.ACCEPT)).thenReturn(MediaTypes.JSON);
     when(source.getRequestURI()).thenReturn("/path/to/resource/search.protobuf");
     assertThat(request.getMediaType()).isEqualTo(MediaTypes.PROTOBUF);
@@ -69,49 +75,51 @@ public class ServletRequestTest {
   @Test
   public void has_param_from_source() {
     when(source.getParameterMap()).thenReturn(ImmutableMap.of("param", new String[] {"value"}));
-    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
-    assertThat(request.hasParam("param")).isTrue();
-  }
-
-  @Test
-  public void has_param_from_params() {
-    ServletRequest request = new ServletRequest(source, ImmutableMap.<String, Object>of("param", "value"));
+    ServletRequest request = new ServletRequest(source);
     assertThat(request.hasParam("param")).isTrue();
   }
 
   @Test
   public void read_param_from_source() {
     when(source.getParameter("param")).thenReturn("value");
-    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    ServletRequest request = new ServletRequest(source);
     assertThat(request.readParam("param")).isEqualTo("value");
   }
 
   @Test
-  public void read_param_from_param() {
-    ServletRequest request = new ServletRequest(source, ImmutableMap.<String, Object>of("param1", "value", "param2", 1));
-    assertThat(request.readParam("param1")).isEqualTo("value");
-    assertThat(request.readParam("param2")).isNull();
-    assertThat(request.readParam("param3")).isNull();
-  }
+  public void read_input_stream() throws Exception {
+    InputStream file = mock(InputStream.class);
+    Part part = mock(Part.class);
+    when(part.getInputStream()).thenReturn(file);
+    when(source.getPart("param1")).thenReturn(part);
 
-  @Test
-  public void read_input_stream() {
-    RubyFile file = mock(RubyFile.class);
-    ServletRequest request = new ServletRequest(source, ImmutableMap.<String, Object>of("param1", file, "param2", "value"));
-    request.readInputStreamParam("param1");
-    verify(file).getInStream();
+    ServletRequest request = new ServletRequest(source);
+    assertThat(request.readInputStreamParam("param1")).isEqualTo(file);
 
     assertThat(request.readInputStreamParam("param2")).isNull();
   }
 
   @Test
+  public void throw_ISE_when_invalid_part() throws Exception {
+    InputStream file = mock(InputStream.class);
+    Part part = mock(Part.class);
+    when(part.getInputStream()).thenReturn(file);
+    doThrow(IllegalArgumentException.class).when(source).getPart("param1");
+    ServletRequest request = new ServletRequest(source);
+
+    expectedException.expect(IllegalStateException.class);
+    expectedException.expectMessage("Can't read file part");
+    request.readInputStreamParam("param1");
+  }
+
+  @Test
   public void to_string() {
     when(source.getRequestURL()).thenReturn(new StringBuffer("http:localhost:9000/api/issues"));
-    ServletRequest request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    ServletRequest request = new ServletRequest(source);
     assertThat(request.toString()).isEqualTo("http:localhost:9000/api/issues");
 
     when(source.getQueryString()).thenReturn("components=sonar");
-    request = new ServletRequest(source, Collections.<String, Object>emptyMap());
+    request = new ServletRequest(source);
     assertThat(request.toString()).isEqualTo("http:localhost:9000/api/issues?components=sonar");
   }
 }

@@ -19,6 +19,9 @@
  */
 package org.sonar.server.ws;
 
+import static com.google.common.base.MoreObjects.firstNonNull;
+import static org.apache.commons.lang.StringUtils.substringAfterLast;
+
 import com.google.common.collect.ImmutableMap;
 import com.google.common.net.HttpHeaders;
 import java.io.InputStream;
@@ -26,26 +29,21 @@ import java.util.Locale;
 import java.util.Map;
 import javax.annotation.CheckForNull;
 import javax.servlet.http.HttpServletRequest;
-import org.jruby.RubyFile;
+import javax.servlet.http.Part;
 import org.sonar.api.server.ws.internal.ValidatingRequest;
 import org.sonarqube.ws.MediaTypes;
-
-import static com.google.common.base.MoreObjects.firstNonNull;
-import static org.apache.commons.lang.StringUtils.substringAfterLast;
 
 public class ServletRequest extends ValidatingRequest {
 
   private final HttpServletRequest source;
-  private final Map<String, Object> params;
 
   static final Map<String, String> SUPPORTED_MEDIA_TYPES_BY_URL_SUFFIX = ImmutableMap.of(
     "json", MediaTypes.JSON,
     "protobuf", MediaTypes.PROTOBUF,
     "text", MediaTypes.TXT);
 
-  public ServletRequest(HttpServletRequest source, Map<String, Object> params) {
+  public ServletRequest(HttpServletRequest source) {
     this.source = source;
-    this.params = params;
   }
 
   @Override
@@ -64,28 +62,22 @@ public class ServletRequest extends ValidatingRequest {
 
   @Override
   public boolean hasParam(String key) {
-    return source.getParameterMap().containsKey(key) || params.keySet().contains(key);
+    return source.getParameterMap().containsKey(key);
   }
 
   @Override
   protected String readParam(String key) {
-    String value = source.getParameter(key);
-    if (value == null) {
-      Object string = params.get(key);
-      if (string != null && string instanceof String) {
-        value = (String) string;
-      }
-    }
-    return value;
+    return source.getParameter(key);
   }
 
   @Override
   protected InputStream readInputStreamParam(String key) {
-    Object file = params.get(key);
-    if (file != null && file instanceof RubyFile) {
-      return ((RubyFile) file).getInStream();
+    try {
+      Part part = source.getPart(key);
+      return part == null ? null : part.getInputStream();
+    } catch (Exception e) {
+      throw new IllegalStateException("Can't read file part", e);
     }
-    return null;
   }
 
   @Override

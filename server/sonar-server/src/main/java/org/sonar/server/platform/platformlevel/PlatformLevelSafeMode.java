@@ -24,6 +24,7 @@ import org.sonar.server.platform.ws.MigrateDbAction;
 import org.sonar.server.platform.ws.StatusAction;
 import org.sonar.server.platform.ws.SystemWs;
 import org.sonar.server.ws.WebServiceEngine;
+import org.sonar.server.ws.WebServiceFilter;
 import org.sonar.server.ws.WebServicesWs;
 
 public class PlatformLevelSafeMode extends PlatformLevel {
@@ -44,6 +45,7 @@ public class PlatformLevelSafeMode extends PlatformLevel {
       WebServicesWs.class,
 
       // WS engine
-      WebServiceEngine.class);
+      WebServiceEngine.class,
+      WebServiceFilter.class);
   }
 }

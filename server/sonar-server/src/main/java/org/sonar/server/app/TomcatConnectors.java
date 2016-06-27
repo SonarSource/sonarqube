@@ -19,6 +19,9 @@
  */
 package org.sonar.server.app;
 
+import static com.google.common.collect.FluentIterable.from;
+import static java.util.Arrays.asList;
+
 import com.google.common.base.Predicates;
 import java.util.HashSet;
 import java.util.List;
@@ -29,9 +32,6 @@ import org.apache.catalina.connector.Connector;
 import org.apache.catalina.startup.Tomcat;
 import org.sonar.process.Props;
 
-import static com.google.common.collect.FluentIterable.from;
-import static java.util.Arrays.asList;
-
 /**
  * Configuration of Tomcat connectors
  */
@@ -41,6 +41,7 @@ class TomcatConnectors {
   public static final String HTTP_PROTOCOL = "HTTP/1.1";
   public static final String AJP_PROTOCOL = "AJP/1.3";
   public static final int MAX_HTTP_HEADER_SIZE_BYTES = 48 * 1024;
+  private static final int MAX_POST_SIZE = -1;
 
   private TomcatConnectors() {
     // only static stuff
@@ -82,6 +83,7 @@ class TomcatConnectors {
       connector = newConnector(props, HTTP_PROTOCOL, "http");
       configureMaxHttpHeaderSize(connector);
       connector.setPort(port);
+      connector.setMaxPostSize(MAX_POST_SIZE);
     }
     return connector;
   }

@@ -60,10 +60,18 @@
       <param-value>/images,/javascripts,/stylesheets</param-value>
     </init-param>
   </filter>
+  <filter>
+    <filter-name>RoutesFilter</filter-name>
+    <filter-class>org.sonar.server.platform.RoutesFilter</filter-class>
+  </filter>
 
   <!-- order of execution is important -->
   <filter-mapping>
     <filter-name>ProfilingFilter</filter-name>
+    <url-pattern>/*</url-pattern>
+  </filter-mapping>
+  <filter-mapping>
+    <filter-name>RoutesFilter</filter-name>
     <url-pattern>/*</url-pattern>
   </filter-mapping>
   <filter-mapping>

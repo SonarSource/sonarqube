@@ -19,6 +19,9 @@
  */
 package it.component;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static util.ItUtils.projectDir;
+
 import com.sonar.orchestrator.Orchestrator;
 import com.sonar.orchestrator.build.SonarRunner;
 import it.Category4Suite;
@@ -34,9 +37,6 @@ import org.junit.ClassRule;
 import org.junit.Test;
 import org.junit.experimental.categories.Category;
 import util.QaOnly;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static util.ItUtils.projectDir;
 
 @Category(QaOnly.class)
 public class ProjectSearchTest {
@@ -58,7 +58,7 @@ public class ProjectSearchTest {
     SonarRunner build = SonarRunner.create(projectDir("shared/xoo-sample"));
     orchestrator.executeBuild(build);
 
-    String url = orchestrator.getServer().getUrl() + "/api/projects?key=sample&versions=true";
+    String url = orchestrator.getServer().getUrl() + "/api/projects/index?key=sample&versions=true";
     HttpClient httpclient = new DefaultHttpClient();
     try {
       HttpGet get = new HttpGet(url);

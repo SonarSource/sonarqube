@@ -28,20 +28,6 @@ module ActionController
           eval(ws.getTemplate())
           prepend_route("api/plugins/#{ws.getId()}/:action/:id", {:controller => "api/#{ws.getId()}", :requirements => {:id => /.*/}})
         end
-
-        # Full Java web services
-        ws_engine = Java::OrgSonarServerPlatform::Platform.component(Java::OrgSonarServerWs::WebServiceEngine.java_class)
-        ws_engine.controllers().each do |controller|
-          controller.actions.each do |action|
-            if (!action.handler().java_kind_of?(Java::OrgSonarApiServerWs::RailsHandler))
-              prepend_route("#{controller.path()}/#{action.key()}.:responseFormat/:id", {:controller => 'api/java_ws', :action => 'index', :wsaction => action.key(), :wspath => controller.path()})
-              prepend_route("#{controller.path()}/#{action.key()}/:id", {:controller => 'api/java_ws', :action => 'index', :wsaction => action.key(), :wspath => controller.path()})
-              if action.key()=='index'
-                prepend_route("#{controller.path()}", {:controller => 'api/java_ws', :action => 'index', :wsaction => action.key(), :wspath => controller.path()})
-              end
-            end
-          end
-        end
       end
     end
   end

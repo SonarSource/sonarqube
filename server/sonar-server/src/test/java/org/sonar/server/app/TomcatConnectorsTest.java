@@ -38,6 +38,12 @@
  */
 package org.sonar.server.app;
 
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.Assert.fail;
+import static org.mockito.Matchers.argThat;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+
 import com.google.common.collect.ImmutableMap;
 import java.net.InetAddress;
 import java.util.Map;
@@ -48,12 +54,6 @@ import org.junit.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
 import org.sonar.process.Props;
-
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.Assert.fail;
-import static org.mockito.Matchers.argThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
 
 public class TomcatConnectorsTest {
 
@@ -206,8 +206,23 @@ public class TomcatConnectorsTest {
     verifyConnectorProperty(tomcat, "http", "maxHttpHeaderSize", TomcatConnectors.MAX_HTTP_HEADER_SIZE_BYTES);
   }
 
+  @Test
+  public void test_max_post_size_for_http_connection() throws Exception {
+    Properties properties = new Properties();
+
+    Props props = new Props(properties);
+    TomcatConnectors.configure(tomcat, props);
+    verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
+      @Override
+      public boolean matches(Object o) {
+        Connector c = (Connector) o;
+        return c.getMaxPostSize() == -1;
+      }
+    }));
+  }
+
   private static void verifyConnectorProperty(Tomcat tomcat, final String connectorScheme,
-    final String property, final Object propertyValue) {
+                                              final String property, final Object propertyValue) {
     verify(tomcat.getService()).addConnector(argThat(new ArgumentMatcher<Connector>() {
       @Override
       public boolean matches(Object o) {

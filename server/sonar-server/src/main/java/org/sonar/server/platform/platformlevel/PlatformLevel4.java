@@ -295,6 +295,7 @@ import org.sonar.server.view.index.ViewIndex;
 import org.sonar.server.view.index.ViewIndexDefinition;
 import org.sonar.server.view.index.ViewIndexer;
 import org.sonar.server.ws.WebServiceEngine;
+import org.sonar.server.ws.WebServiceFilter;
 import org.sonar.server.ws.WebServicesWs;
 import org.sonar.server.ws.WsResponseCommonFormat;
 
@@ -494,6 +495,7 @@ public class PlatformLevel4 extends PlatformLevel {
       // web services
       WebServiceEngine.class,
       WebServicesWs.class,
+      WebServiceFilter.class,
 
       // localization
       L10nWs.class,
