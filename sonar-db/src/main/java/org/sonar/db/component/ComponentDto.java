@@ -130,14 +130,18 @@ public class ComponentDto implements Component {
     return this;
   }
 
-  public String getUuidPath() {
+  /**
+   * No need to have public visibility as this field
+   * is supposed to be used only internally in SQL requests.
+   */
+  String getUuidPath() {
     return uuidPath;
   }
 
   /**
    * List of ancestor UUIDs, ordered by depth in tree.
    */
-  public List<String> getUuidPathAsList() {
+  List<String> getUuidPathAsList() {
     return UUID_PATH_SPLITTER.splitToList(uuidPath);
   }
 

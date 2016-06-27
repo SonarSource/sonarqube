@@ -23,10 +23,10 @@ import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import org.sonar.api.utils.log.Logger;
 import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
@@ -78,7 +78,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select p.uuid, p.project_uuid from projects p where p.project_uuid=? and p.uuid_path is null").setString(1, rootComponentUuid);
     massUpdate.update("update projects set uuid_path=? where uuid=? and uuid_path is null");
-    massUpdate.rowPluralName("components");
+    massUpdate.rowPluralName("components in tree of " + rootComponentUuid);
     massUpdate.execute((row, update) -> handleComponent(relations, row, update));
   }
 
@@ -86,7 +86,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
     MassUpdate massUpdate = context.prepareMassUpdate();
     massUpdate.select("select uuid, project_uuid from projects where uuid_path is null");
     massUpdate.update("update projects set uuid_path=? where uuid=? and uuid_path is null");
-    massUpdate.rowPluralName("orphans");
+    massUpdate.rowPluralName("orphan components");
     massUpdate.execute((row, update, updateIndex) -> {
       String uuid = row.getString(1);
       String rootUuid = row.getString(2);
@@ -115,9 +115,9 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
       return false;
     }
 
-    List<String> componentUuidPath = snapshot.snapshotPath.stream()
-      .map(snapshotId -> relations.snapshotsById.get(snapshotId).componentUuid)
-      .collect(toCollection(() -> new ArrayList<>(snapshot.snapshotPath.size())));
+    List<String> componentUuidPath = Arrays.stream(snapshot.snapshotPath)
+      .mapToObj(snapshotId -> relations.snapshotsById.get(snapshotId).componentUuid)
+      .collect(toCollection(() -> new ArrayList<>(snapshot.snapshotPath.length)));
     update.setString(1, PATH_JOINER.join(componentUuidPath) + PATH_SEPARATOR);
     update.setString(2, componentUuid);
     return true;
@@ -135,7 +135,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
 
   private static final class Snapshot {
     private final long id;
-    private final List<Long> snapshotPath;
+    private final long[] snapshotPath;
     private final String componentUuid;
 
     public Snapshot(long id, String snapshotPath, String componentUuid) {
@@ -145,12 +145,12 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
     }
 
     // inputs: "", "1." or "1.2.3."
-    private List<Long> parsePath(String snapshotPath) {
+    private long[] parsePath(String snapshotPath) {
       return PATH_SPLITTER
         .splitToList(snapshotPath)
         .stream()
-        .map(Long::parseLong)
-        .collect(Collectors.toList());
+        .mapToLong(Long::parseLong)
+        .toArray();
     }
   }
 }

@@ -49,17 +49,19 @@ import static org.sonar.db.component.ComponentTesting.newView;
 
 public class ComponentDaoTest {
 
-  public static final String PROJECT_UUID = "project-uuid";
-  public static final String MODULE_UUID = "module-uuid";
-  public static final String FILE_1_UUID = "file-1-uuid";
-  public static final String FILE_2_UUID = "file-2-uuid";
-  public static final String FILE_3_UUID = "file-3-uuid";
-  public static final String A_VIEW_UUID = "view-uuid";
+  private static final String PROJECT_UUID = "project-uuid";
+  private static final String MODULE_UUID = "module-uuid";
+  private static final String FILE_1_UUID = "file-1-uuid";
+  private static final String FILE_2_UUID = "file-2-uuid";
+  private static final String FILE_3_UUID = "file-3-uuid";
+  private static final String A_VIEW_UUID = "view-uuid";
+
   @Rule
   public ExpectedException thrown = ExpectedException.none();
 
   @Rule
   public DbTester db = DbTester.create(System2.INSTANCE);
+
   ComponentDbTester componentDb = new ComponentDbTester(db);
 
   final DbSession dbSession = db.getSession();
@@ -70,19 +72,20 @@ public class ComponentDaoTest {
   public void get_by_uuid() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = underTest.selectByUuid(dbSession, "KLMN").get();
+    ComponentDto result = underTest.selectByUuid(dbSession, "U1").get();
     assertThat(result).isNotNull();
-    assertThat(result.uuid()).isEqualTo("KLMN");
-    assertThat(result.moduleUuid()).isEqualTo("EFGH");
-    assertThat(result.moduleUuidPath()).isEqualTo(".ABCD.EFGH.");
-    assertThat(result.getRootUuid()).isEqualTo("EFGH");
-    assertThat(result.projectUuid()).isEqualTo("ABCD");
-    assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
-    assertThat(result.name()).isEqualTo("RequestContext.java");
-    assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
-    assertThat(result.qualifier()).isEqualTo("FIL");
-    assertThat(result.scope()).isEqualTo("FIL");
+    assertThat(result.uuid()).isEqualTo("U1");
+    assertThat(result.getUuidPath()).isEqualTo("uuid_path_of_U1");
+    assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U1");
+    assertThat(result.moduleUuidPath()).isEqualTo("module_uuid_path_of_U1");
+    assertThat(result.getRootUuid()).isEqualTo("root_uuid_of_U1");
+    assertThat(result.projectUuid()).isEqualTo("project_uuid_of_U1");
+    assertThat(result.key()).isEqualTo("org.struts:struts");
+    assertThat(result.path()).isEqualTo("path_of_U1");
+    assertThat(result.name()).isEqualTo("Struts");
+    assertThat(result.longName()).isEqualTo("Apache Struts");
+    assertThat(result.qualifier()).isEqualTo("TRK");
+    assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isEqualTo("java");
     assertThat(result.getCopyResourceUuid()).isNull();
     assertThat(result.getDeveloperUuid()).isNull();
@@ -94,13 +97,13 @@ public class ComponentDaoTest {
   public void get_by_uuid_on_technical_project_copy() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = underTest.selectByUuid(dbSession, "STUV").get();
+    ComponentDto result = underTest.selectByUuid(dbSession, "U7").get();
     assertThat(result).isNotNull();
-    assertThat(result.uuid()).isEqualTo("STUV");
-    assertThat(result.moduleUuid()).isEqualTo("OPQR");
-    assertThat(result.moduleUuidPath()).isEqualTo(".OPQR.");
-    assertThat(result.getRootUuid()).isEqualTo("OPQR");
-    assertThat(result.projectUuid()).isEqualTo("OPQR");
+    assertThat(result.uuid()).isEqualTo("U7");
+    assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U7");
+    assertThat(result.moduleUuidPath()).isEqualTo("module_uuid_path_of_U7");
+    assertThat(result.getRootUuid()).isEqualTo("root_uuid_of_U7");
+    assertThat(result.projectUuid()).isEqualTo("project_uuid_of_U7");
     assertThat(result.key()).isEqualTo("DEV:anakin@skywalker.name:org.struts:struts");
     assertThat(result.path()).isNull();
     assertThat(result.name()).isEqualTo("Apache Struts");
@@ -108,29 +111,30 @@ public class ComponentDaoTest {
     assertThat(result.qualifier()).isEqualTo("DEV_PRJ");
     assertThat(result.scope()).isEqualTo("PRJ");
     assertThat(result.language()).isNull();
-    assertThat(result.getCopyResourceUuid()).isEqualTo("ABCD");
-    assertThat(result.getDeveloperUuid()).isEqualTo("OPQR");
+    assertThat(result.getCopyResourceUuid()).isEqualTo("U1");
+    assertThat(result.getDeveloperUuid()).isEqualTo("developer_uuid_of_U7");
   }
 
   @Test
-  public void get_by_uuid_on_developer_project_copy() {
+  public void selectByUuidon_developer_project_copy() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = underTest.selectByUuid(dbSession, "STUV").get();
-    assertThat(result.getDeveloperUuid()).isEqualTo("OPQR");
+    ComponentDto result = underTest.selectByUuid(dbSession, "U7").get();
+    assertThat(result.getDeveloperUuid()).isEqualTo("developer_uuid_of_U7");
   }
 
   @Test
-  public void get_by_uuid_on_disabled_component() {
+  public void selectByUuid_on_disabled_component() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    ComponentDto result = underTest.selectByUuid(dbSession, "DCBA").get();
+    ComponentDto result = underTest.selectByUuid(dbSession, "U5").get();
     assertThat(result).isNotNull();
+    assertThat(result.uuid()).isEqualTo("U5");
     assertThat(result.isEnabled()).isFalse();
   }
 
   @Test
-  public void fail_to_get_by_uuid_when_component_not_found() {
+  public void selectOrFailByUuid_fails_when_component_not_found() {
     thrown.expect(RowNotFoundException.class);
 
     db.prepareDbUnit(getClass(), "shared.xml");
@@ -139,7 +143,7 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void get_by_key() {
+  public void selectByKey() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
     Optional<ComponentDto> optional = underTest.selectByKey(dbSession, "org.struts:struts-core:src/org/struts/RequestContext.java");
@@ -147,20 +151,20 @@ public class ComponentDaoTest {
 
     ComponentDto result = optional.get();
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("path_of_U4");
     assertThat(result.name()).isEqualTo("RequestContext.java");
     assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.uuid()).isEqualTo("KLMN");
-    assertThat(result.getRootUuid()).isEqualTo("EFGH");
+    assertThat(result.uuid()).isEqualTo("U4");
+    assertThat(result.getRootUuid()).isEqualTo("U1");
 
     assertThat(underTest.selectByKey(dbSession, "unknown")).isAbsent();
   }
 
   @Test
-  public void fail_to_get_by_key_when_component_not_found() {
+  public void selectOrFailByKey_fails_when_component_not_found() {
     thrown.expect(RowNotFoundException.class);
 
     db.prepareDbUnit(getClass(), "shared.xml");
@@ -182,16 +186,17 @@ public class ComponentDaoTest {
 
     ComponentDto result = underTest.selectOrFailByKey(dbSession, "org.struts:struts");
     assertThat(result.key()).isEqualTo("org.struts:struts");
+    assertThat(result.uuid()).isEqualTo("U1");
+    assertThat(result.getUuidPath()).isEqualTo("uuid_path_of_U1");
     assertThat(result.deprecatedKey()).isEqualTo("org.struts:struts");
-    assertThat(result.path()).isNull();
+    assertThat(result.path()).isEqualToIgnoringCase("path_of_U1");
     assertThat(result.name()).isEqualTo("Struts");
     assertThat(result.longName()).isEqualTo("Apache Struts");
     assertThat(result.description()).isEqualTo("the description");
     assertThat(result.qualifier()).isEqualTo("TRK");
     assertThat(result.scope()).isEqualTo("PRJ");
-    assertThat(result.language()).isNull();
-    assertThat(result.getRootUuid()).isEqualTo("ABCD");
-    assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(123456789L);
+    assertThat(result.getRootUuid()).isEqualTo("root_uuid_of_U1");
+    assertThat(result.getAuthorizationUpdatedAt()).isEqualTo(123_456_789L);
   }
 
   @Test
@@ -204,13 +209,13 @@ public class ComponentDaoTest {
     ComponentDto result = results.get(0);
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("path_of_U4");
     assertThat(result.name()).isEqualTo("RequestContext.java");
     assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.getRootUuid()).isEqualTo("EFGH");
+    assertThat(result.getRootUuid()).isEqualTo("U1");
 
     assertThat(underTest.selectByKeys(dbSession, singletonList("unknown"))).isEmpty();
   }
@@ -225,13 +230,13 @@ public class ComponentDaoTest {
     ComponentDto result = results.get(0);
     assertThat(result).isNotNull();
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("path_of_U4");
     assertThat(result.name()).isEqualTo("RequestContext.java");
     assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(result.qualifier()).isEqualTo("FIL");
     assertThat(result.scope()).isEqualTo("FIL");
     assertThat(result.language()).isEqualTo("java");
-    assertThat(result.getRootUuid()).isEqualTo("EFGH");
+    assertThat(result.getRootUuid()).isEqualTo("U1");
 
     assertThat(underTest.selectByIds(dbSession, newArrayList(555L))).isEmpty();
   }
@@ -240,18 +245,18 @@ public class ComponentDaoTest {
   public void get_by_uuids() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentDto> results = underTest.selectByUuids(dbSession, newArrayList("KLMN"));
+    List<ComponentDto> results = underTest.selectByUuids(dbSession, newArrayList("U4"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
     assertThat(result).isNotNull();
-    assertThat(result.uuid()).isEqualTo("KLMN");
-    assertThat(result.moduleUuid()).isEqualTo("EFGH");
-    assertThat(result.moduleUuidPath()).isEqualTo(".ABCD.EFGH.");
-    assertThat(result.getRootUuid()).isEqualTo("EFGH");
-    assertThat(result.projectUuid()).isEqualTo("ABCD");
+    assertThat(result.uuid()).isEqualTo("U4");
+    assertThat(result.moduleUuid()).isEqualTo("module_uuid_of_U4");
+    assertThat(result.moduleUuidPath()).isEqualTo("module_uuid_path_of_U4");
+    assertThat(result.getRootUuid()).isEqualTo("U1");
+    assertThat(result.projectUuid()).isEqualTo("U1");
     assertThat(result.key()).isEqualTo("org.struts:struts-core:src/org/struts/RequestContext.java");
-    assertThat(result.path()).isEqualTo("src/org/struts/RequestContext.java");
+    assertThat(result.path()).isEqualTo("path_of_U4");
     assertThat(result.name()).isEqualTo("RequestContext.java");
     assertThat(result.longName()).isEqualTo("org.struts.RequestContext");
     assertThat(result.qualifier()).isEqualTo("FIL");
@@ -265,11 +270,12 @@ public class ComponentDaoTest {
   public void get_by_uuids_on_removed_components() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentDto> results = underTest.selectByUuids(dbSession, newArrayList("DCBA"));
+    List<ComponentDto> results = underTest.selectByUuids(dbSession, newArrayList("U5"));
     assertThat(results).hasSize(1);
 
     ComponentDto result = results.get(0);
     assertThat(result).isNotNull();
+    assertThat(result.uuid()).isEqualTo("U5");
     assertThat(result.isEnabled()).isFalse();
   }
 
@@ -277,10 +283,10 @@ public class ComponentDaoTest {
   public void select_existing_uuids() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<String> results = underTest.selectExistingUuids(dbSession, newArrayList("KLMN"));
-    assertThat(results).containsOnly("KLMN");
+    List<String> results = underTest.selectExistingUuids(dbSession, newArrayList("U4"));
+    assertThat(results).containsOnly("U4");
 
-    assertThat(underTest.selectExistingUuids(dbSession, newArrayList("KLMN", "unknown"))).hasSize(1);
+    assertThat(underTest.selectExistingUuids(dbSession, newArrayList("U4", "unknown"))).hasSize(1);
     assertThat(underTest.selectExistingUuids(dbSession, newArrayList("unknown"))).isEmpty();
   }
 
@@ -553,12 +559,12 @@ public class ComponentDaoTest {
   }
 
   @Test
-  public void selectResourcesByRootId() {
+  public void selectByProjectUuid() {
     db.prepareDbUnit(getClass(), "shared.xml");
 
-    List<ComponentDto> resources = underTest.selectByProjectUuid("ABCD", dbSession);
+    List<ComponentDto> components = underTest.selectByProjectUuid("U1", dbSession);
 
-    assertThat(resources).extracting("id").containsOnly(1l, 2l, 3l, 4l);
+    assertThat(components).extracting("id").containsOnly(2l, 3l, 4l);
   }
 
   @Test
@@ -846,6 +852,11 @@ public class ComponentDaoTest {
 
     // test children of intermediate component (module here), without matching name
     query = newTreeQuery(MODULE_UUID).setNameOrKeyQuery("does-not-exist").build();
+    assertThat(underTest.selectChildren(dbSession, query)).isEmpty();
+    assertThat(underTest.countChildren(dbSession, query)).isEqualTo(0);
+
+    // test children of leaf component (file here)
+    query = newTreeQuery(FILE_1_UUID).build();
     assertThat(underTest.selectChildren(dbSession, query)).isEmpty();
     assertThat(underTest.countChildren(dbSession, query)).isEqualTo(0);
 
