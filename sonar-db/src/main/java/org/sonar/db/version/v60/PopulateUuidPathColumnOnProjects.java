@@ -27,6 +27,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import org.sonar.api.utils.log.Logger;
+import org.sonar.api.utils.log.Loggers;
 import org.sonar.db.Database;
 import org.sonar.db.version.BaseDataChange;
 import org.sonar.db.version.MassUpdate;
@@ -37,6 +39,7 @@ import static java.util.stream.Collectors.toCollection;
 
 public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
 
+  private static final Logger LOG = Loggers.get(PopulateUuidPathColumnOnProjects.class);
   private static final Joiner PATH_JOINER = Joiner.on('.');
   private static final Splitter PATH_SPLITTER = Splitter.on('.').omitEmptyStrings();
   private static final String PATH_SEPARATOR = ".";
@@ -108,7 +111,7 @@ public class PopulateUuidPathColumnOnProjects extends BaseDataChange {
 
     Snapshot snapshot = relations.snapshotsByComponentUuid.get(componentUuid);
     if (snapshot == null) {
-      // TODO what should we do ? put MODULE_UUID_PATH + UUID ?
+      LOG.trace("No UUID found for component UUID={}", componentUuid);
       return false;
     }
 
